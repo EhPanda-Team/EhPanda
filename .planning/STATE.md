@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-11-PLAN.md
-last_updated: "2026-07-13T09:03:20.030Z"
+stopped_at: Completed 05-12-PLAN.md
+last_updated: "2026-07-13T09:09:27.743Z"
 last_activity: 2026-07-13
-last_activity_desc: Completed Phase 05 Plan 11; ready for Plan 12
+last_activity_desc: Completed Phase 05 Plan 12; ready for Plan 13
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 50
-  completed_plans: 43
-  percent: 36
+  completed_plans: 44
+  percent: 88
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 12 of 18
+Plan: 13 of 18
 Status: Ready to execute
-Last activity: 2026-07-13 — Completed Phase 05 Plan 11; ready for Plan 12
-Next: verify Phase 05
+Last activity: 2026-07-13 — Completed Phase 05 Plan 12; ready for Plan 13
+Next: execute Plan 13
 
-Progress: [█████████░] 86% (43/50 plans)
+Progress: [█████████░] 88% (44/50 plans)
 
 ## Performance Metrics
 
@@ -99,6 +99,7 @@ Progress: [█████████░] 86% (43/50 plans)
 | Phase 05 P09 | 10min | 3 tasks | 7 files |
 | Phase 05 P10 | 7min | 3 tasks | 3 files |
 | Phase 05 P11 | 3min | 1 tasks | 1 files |
+| Phase 05 P12 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,7 @@ Recent decisions affecting current work:
 - [Phase 05]: Defaults.FrameSize keeps only the device-independent card height and no longer needs main-actor isolation.
 - [Phase 05]: Runtime rotation and Live Text visual checks remain explicit manual gates for phase verification rather than being inferred from static or unit-test evidence.
 - [Phase 05]: About metadata is the leading Form section so every navigation-bar style preserves it in the scrollable reading order.
+- [Phase 05]: Reader placeholders preserve the full vertical container extent while applying the dual-page divisor only to the horizontal axis. — This lets the fixed aspect ratio choose height-bounded sizing in landscape without changing dual-page behavior.
 
 ### Pending Todos
 
@@ -182,6 +184,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T09:02:35.192Z
-Stopped at: Completed 05-11-PLAN.md
+Last session: 2026-07-13T09:09:27.738Z
+Stopped at: Completed 05-12-PLAN.md
 Resume file: None
