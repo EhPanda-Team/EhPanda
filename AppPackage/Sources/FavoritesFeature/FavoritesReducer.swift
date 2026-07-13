@@ -114,7 +114,7 @@ public struct FavoritesReducer: Sendable {
 
             case .galleryTapped(let gallery):
                 return GalleryNavigation.routeGalleryDetail(
-                    isPad: deviceClient.isPad,
+                    deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(gallery)) },
                     push: { .pushGalleryDetail(gallery) }
                 )

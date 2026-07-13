@@ -1,3 +1,4 @@
+import AppTools
 import ComposableArchitecture
 
 // Shared routing for gallery stacks. `nextScreen` maps a gallery element's delegate action to the
@@ -8,12 +9,12 @@ public enum GalleryNavigation {
     // sheet via the host's `present` delegate; iPhone pushes it inline via the host's `push` action.
     // Actions are supplied as closures because host `Action` types are not `Sendable`.
     public static func routeGalleryDetail<Action>(
-        isPad: @escaping @Sendable () async -> Bool,
+        deviceType: @escaping @MainActor @Sendable () -> DeviceType,
         present: @escaping @Sendable () -> Action,
         push: @escaping @Sendable () -> Action
     ) -> Effect<Action> {
         .run { send in
-            await send(await isPad() ? present() : push())
+            await send(await deviceType() == .pad ? present() : push())
         }
     }
 

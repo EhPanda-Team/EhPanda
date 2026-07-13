@@ -117,7 +117,7 @@ public struct DownloadsReducer: Sendable {
                 // detail with `.empty` would write an unresolvable (random-gid) history entry.
                 guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
                 return GalleryNavigation.routeGalleryDetail(
-                    isPad: deviceClient.isPad,
+                    deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(download.gallery, download)) },
                     push: { .pushGalleryDetail(download) }
                 )

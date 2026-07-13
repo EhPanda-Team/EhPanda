@@ -110,7 +110,7 @@ public struct SearchRootReducer: Sendable {
             case .galleryTapped(let gallery),
                  let .path(.element(id: _, action: .search(.delegate(.pushDetail(gallery))))):
                 return GalleryNavigation.routeGalleryDetail(
-                    isPad: deviceClient.isPad,
+                    deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(gallery)) },
                     push: { .pushGalleryDetail(gallery) }
                 )
