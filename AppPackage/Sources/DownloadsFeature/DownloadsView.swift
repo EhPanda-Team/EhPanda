@@ -50,11 +50,7 @@ public struct DownloadsView: View {
                 .padding(.horizontal, 24)
             }
         }
-        .searchable(
-            text: $store.keyword,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: .searchDownloads
-        )
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .searchDownloads)
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).inspector
         ) { store in

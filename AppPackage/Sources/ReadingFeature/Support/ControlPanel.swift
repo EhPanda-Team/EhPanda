@@ -85,7 +85,6 @@ struct ControlPanel<G: Gesture>: View {
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
             .padding(.top, upperPanelTopPadding + upperPanelWindowInsets.top)
-            .padding(.leading, upperPanelWindowInsets.leading)
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
             if range.upperBound > range.lowerBound {
@@ -114,7 +113,9 @@ struct ControlPanel<G: Gesture>: View {
                 bottom: 0,
                 trailing: 0
             )
-        } action: { upperPanelWindowInsets = $0 }
+        } action: {
+            upperPanelWindowInsets = $0
+        }
     }
 }
 

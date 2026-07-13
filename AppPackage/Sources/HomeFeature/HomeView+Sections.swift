@@ -436,6 +436,8 @@ struct MiscGridItem: View {
             Image(systemSymbol: symbol).font(.system(size: 50, weight: .light, design: .default))
                 .foregroundColor(.secondary).imageScale(.large).offset(x: 20, y: 20)
         }
-        .padding(30).cornerRadius(15).background(Color(.systemGray6).cornerRadius(15))
+        .padding(30)
+        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 15))
+        .cornerRadius(15)
     }
 }

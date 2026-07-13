@@ -75,7 +75,7 @@ public struct FavoritesView: View {
                 .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: $store.keyword)
+            .searchable(text: $store.keyword, placement: .navigationBarDrawer)
             .searchSuggestions {
                 TagSuggestionView(
                     keyword: $store.keyword, translations: store.tagTranslator.translations,
@@ -105,12 +105,12 @@ public struct FavoritesView: View {
                     store.send(.setFavoritesIndex(index))
                 }
             }
-            ToolbarFeaturesMenu {
-                SortOrderMenu(sortOrder: store.sortOrder) { order in
-                    if store.sortOrder != order {
-                        store.send(.fetchGalleries(nil, order))
-                    }
+            SortOrderMenu(sortOrder: store.sortOrder) { order in
+                if store.sortOrder != order {
+                    store.send(.fetchGalleries(nil, order))
                 }
+            }
+            ToolbarFeaturesMenu {
                 DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                     store.send(.dateSeekButtonTapped(navigation))
                 }

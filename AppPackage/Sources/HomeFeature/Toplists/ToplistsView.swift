@@ -36,7 +36,7 @@ struct ToplistsView: View {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
             }
         )
-        .searchable(text: $store.keyword, prompt: .filter)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
         .onAppear {
             if store.galleries?.isEmpty != false {
