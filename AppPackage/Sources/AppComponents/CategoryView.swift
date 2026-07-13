@@ -34,11 +34,12 @@ public struct CategoryLabel: View {
 
 // MARK: CategoryView
 public struct CategoryView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private let bindings: [Binding<Bool>]
 
-    private let gridItems = [
-        GridItem(.adaptive(minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100))
-    ]
+    private var gridItems: [GridItem] {
+        [GridItem(.adaptive(minimum: horizontalSizeClass == .regular ? 100 : 80, maximum: 100))]
+    }
     private var tuples: [(Binding<Bool>, AppModels.Category)] {
         AppModels.Category.allFiltersCases.enumerated().map { value in
             (bindings[value.offset], value.element)

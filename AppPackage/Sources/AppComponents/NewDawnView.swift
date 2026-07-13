@@ -1,17 +1,20 @@
 import SwiftUI
 import AppModels
 import Resources
-import AppTools
+import Dependencies
+import DeviceClient
 
 public struct NewDawnView: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.colorScheme) private var colorScheme
+    @State private var containerWidth: CGFloat = 0
     private let greeting: Greeting
 
-    private var offset: Double {
-        DeviceUtil.windowW * 0.2
+    private var offset: CGFloat {
+        containerWidth * 0.2
     }
-    private var sunWidth: Double {
-        DeviceUtil.windowW * (DeviceUtil.isPad ? 0.5 : 0.6)
+    private var sunWidth: CGFloat {
+        containerWidth * (deviceClient.deviceType() == .pad ? 0.5 : 0.6)
     }
 
     private var gradientColors: [Color] {
@@ -56,6 +59,11 @@ public struct NewDawnView: View {
         }
         .drawingGroup()
         .ignoresSafeArea()
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+        } action: { width in
+            containerWidth = width
+        }
     }
 }
 
