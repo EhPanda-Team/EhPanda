@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-07-13T04:56:55.606Z"
+stopped_at: Completed 05-04-PLAN.md
+last_updated: "2026-07-13T05:06:19.373Z"
 last_activity: 2026-07-13
 last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 42
-  completed_plans: 35
+  completed_plans: 36
   percent: 36
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 4 of 10
+Plan: 5 of 10
 Status: Ready to execute
 Last activity: 2026-07-13 — Phase 05 execution started
 Next: plan Phase 05
@@ -91,6 +91,7 @@ Progress: [██████████] 100% (32/32 plans across Phases 01–
 | Phase 05 P01 | 6min | 2 tasks | 9 files |
 | Phase 05 P02 | 9min | 2 tasks | 18 files |
 | Phase 05 P03 | 4min | 2 tasks | 5 files |
+| Phase 05 P04 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Removed obsolete AppDelegateClient test overrides with the deleted target. — A test-only compatibility target would preserve dead architecture; affected tests pass without it.
 - [Phase 05]: AppComponents declares DeviceClient directly because TagSuggestionView owns the injected device fact. — Direct Swift package dependencies make module ownership explicit and compilable.
 - [Phase 05]: EhSetting fractions use current container dimensions instead of the old orientation-independent short edge. — This is the locked adaptive-layout delta for rotation and resized containers.
+- [Phase 05]: Alert and placeholder widths use the nearest SwiftUI container while preserving their existing factors.
+- [Phase 05]: NewDawnView observes only container width and keeps its iPad-specific factor through the injected DeviceClient.
 
 ### Pending Todos
 
@@ -157,6 +160,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T04:56:55.600Z
-Stopped at: Completed 05-03-PLAN.md
+Last session: 2026-07-13T05:06:19.368Z
+Stopped at: Completed 05-04-PLAN.md
 Resume file: None
