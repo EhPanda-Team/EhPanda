@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
-status: executing
-stopped_at: Completed 05-17-PLAN.md
-last_updated: "2026-07-13T09:46:42.787Z"
+status: verifying
+stopped_at: Completed 05-18-PLAN.md
+last_updated: "2026-07-13T10:01:39.348Z"
 last_activity: 2026-07-13
-last_activity_desc: Completed Phase 05 Plan 17; ready for Plan 18
+last_activity_desc: Completed Phase 05 Plan 18; no phone modal path reproduced, human confirmation required
 progress:
   total_phases: 11
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 50
-  completed_plans: 49
-  percent: 98
+  completed_plans: 50
+  percent: 100
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
+Phase: 05 (adaptive-layout-universal-orientation) — VERIFYING
 Plan: 18 of 18
-Status: Ready to execute
-Last activity: 2026-07-13 — Completed Phase 05 Plan 17; ready for Plan 18
-Next: execute Plan 18
+Status: Phase complete — ready for verification
+Last activity: 2026-07-13 — Completed Phase 05 Plan 18; no phone modal path reproduced, human confirmation required
+Next: verify Phase 05 through conversational UAT
 
-Progress: [██████████] 98% (49/50 plans)
+Progress: [██████████] 100% (50/50 plans)
 
 ## Performance Metrics
 
@@ -105,6 +105,7 @@ Progress: [██████████] 98% (49/50 plans)
 | Phase 05 P15 | 2min | 1 tasks | 1 files |
 | Phase 05 P16 | 8min | 1 tasks | 1 files |
 | Phase 05 P17 | 3min | 2 tasks | 2 files |
+| Phase 05 P18 | 9 min | 1 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -168,6 +169,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Reader window-control compensation uses the iOS 26 top-leading container corner exclusion and folds in safe-area dimensions only when that exclusion is nonzero.
 - [Phase 05]: Home declares systemBackground at its content root so systemGray6 cards stay distinct without changing normal-window appearance.
 - [Phase 05]: Multiple-scene support is disabled while every scene would share the single AppDelegate-owned store.
+- [Phase 05]: No non-pad gallery-detail entry path bypassed GalleryNavigation; source inventory and reducer probes all resolved phone entries to push. — The no-repro branch requires human confirmation instead of a speculative source change.
+- [Phase 05]: Deep-link, URL, and clipboard gallery entries remain the intentional device-independent modal baseline. — These app-route presentations are documented behavior and are separate from host gallery-tap routing.
 
 ### Pending Todos
 
@@ -197,6 +200,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T09:46:42.781Z
-Stopped at: Completed 05-17-PLAN.md
+Last session: 2026-07-13T10:01:39.342Z
+Stopped at: Completed 05-18-PLAN.md
 Resume file: None
