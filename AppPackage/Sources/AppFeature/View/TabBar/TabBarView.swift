@@ -53,8 +53,7 @@ struct TabBarView: View {
                         )
                     case .downloads:
                         DownloadsView(
-                            store: store.scope(\.downloadsState, action: \.downloads),
-                            blurRadius: 0
+                            store: store.scope(\.downloadsState, action: \.downloads)
                         )
                     case .setting:
                         SettingView(

@@ -11,22 +11,16 @@ import SFSafeSymbolsExt
 
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
-    private let blurRadius: Double
 
-    public init(
-        store: StoreOf<DownloadsReducer>,
-        blurRadius: Double
-    ) {
+    public init(store: StoreOf<DownloadsReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     public var body: some View {
         GalleryNavigationContainer(
             store: store,
             state: \.path,
-            action: \.path,
-            blurRadius: blurRadius
+            action: \.path
         ) {
             contentView
         }
@@ -55,19 +49,16 @@ public struct DownloadsView: View {
             item: $store.scope(\.$destination, action: \.destination).inspector
         ) { store in
             NavigationStack {
-                DownloadInspectorView(
-                    store: store,
-                    blurRadius: blurRadius
-                )
+                DownloadInspectorView(store: store)
             }
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).folderManager
         ) { folderStore in
             FolderManagerView(store: folderStore)
                 .accentColor(store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
         }
         .fullScreenCover(
             item: $store.scope(\.$destination, action: \.destination).reading
@@ -75,10 +66,10 @@ public struct DownloadsView: View {
             ReadingView(
                 store: store,
                 gid: store.gallery.id,
-                blurRadius: blurRadius
+                blurRadius: 0
             )
             .accentColor(store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .onAppear {
             store.send(.onAppear)
@@ -316,8 +307,7 @@ private extension DownloadsView {
 struct DownloadsView_Previews: PreviewProvider {
     static var previews: some View {
         DownloadsView(
-            store: .init(initialState: .init(), reducer: DownloadsReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: DownloadsReducer.init)
         )
     }
 }
