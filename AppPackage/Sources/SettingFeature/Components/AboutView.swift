@@ -16,6 +16,16 @@ struct AboutView: View {
     var body: some View {
         Form {
             Section {
+                VStack(alignment: .leading) {
+                    Text(.Constant.copyright)
+                    Text(version)
+                }
+                .foregroundStyle(.gray)
+                .font(.caption2.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+            }
+            Section {
                 ForEach(contacts) { contact in
                     LinkRow(urlString: contact.urlString, text: contact.text)
                 }
@@ -42,18 +52,6 @@ struct AboutView: View {
             }
         }
         .navigationTitle(.ehPanda)
-        .toolbar {
-            ToolbarItem(placement: .largeSubtitle) {
-                VStack(alignment: .leading) {
-                    Text(.Constant.copyright)
-                    Text(version)
-                }
-                .foregroundStyle(.gray)
-                .font(.caption2.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 4)
-            }
-        }
     }
 
     // MARK: Contacts
