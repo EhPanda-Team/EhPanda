@@ -11,14 +11,9 @@ import FiltersFeature
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>
-    private let blurRadius: Double
 
-    init(
-        store: StoreOf<FrontpageReducer>,
-        blurRadius: Double
-    ) {
+    init(store: StoreOf<FrontpageReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -38,7 +33,7 @@ struct FrontpageView: View {
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+                .privacyMask().environment(\.inSheet, true)
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).dateSeek
@@ -50,7 +45,7 @@ struct FrontpageView: View {
                 seekAction: { store.send(.performSeek($0)) }
             )
             .accentColor(self.store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .onAppear {
@@ -80,8 +75,7 @@ struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             FrontpageView(
-                store: .init(initialState: .init(), reducer: FrontpageReducer.init),
-                blurRadius: 0
+                store: .init(initialState: .init(), reducer: FrontpageReducer.init)
             )
         }
     }

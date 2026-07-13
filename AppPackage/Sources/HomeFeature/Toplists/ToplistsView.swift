@@ -9,14 +9,9 @@ import GalleryListComponents
 
 struct ToplistsView: View {
     @Bindable private var store: StoreOf<ToplistsReducer>
-    private let blurRadius: Double
 
-    init(
-        store: StoreOf<ToplistsReducer>,
-        blurRadius: Double
-    ) {
+    init(store: StoreOf<ToplistsReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     private var navigationTitle: String {
@@ -69,8 +64,7 @@ struct ToplistsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             ToplistsView(
-                store: .init(initialState: .init(), reducer: ToplistsReducer.init),
-                blurRadius: 0
+                store: .init(initialState: .init(), reducer: ToplistsReducer.init)
             )
         }
     }
