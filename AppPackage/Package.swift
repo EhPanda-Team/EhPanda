@@ -64,7 +64,6 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 enum Module: String {
     case animatedImageFeature = "AnimatedImageFeature"
     case appComponents = "AppComponents"
-    case appDelegateClient = "AppDelegateClient"
     case appFeature = "AppFeature"
     case appLaunchAutomationClient = "AppLaunchAutomationClient"
     case appModels = "AppModels"
@@ -258,7 +257,6 @@ let targets: [PackageDescription.Target] = [
         module: .appFeature,
         dependencies: [
             .module(.appComponents),
-            .module(.appDelegateClient),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.appTools),
@@ -369,14 +367,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appTools,
         dependencies: [],
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .appDelegateClient,
-        dependencies: [
-            .module(.appTools),
-            .targetDependency(.composableArchitecture)
-        ],
         plugins: swiftLintPlugins
     ),
     .target(
@@ -758,7 +748,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
-            .module(.appDelegateClient),
             .module(.appModels),
             .module(.appTools),
             .module(.clipboardClient),
@@ -873,7 +862,6 @@ let targets: [PackageDescription.Target] = [
         module: .downloadsFeatureTests,
         dependencies: [
             .module(.testingSupport),
-            .module(.appDelegateClient),
             .module(.appFeature),
             .module(.appLaunchAutomationClient),
             .module(.appModels),

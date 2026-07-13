@@ -10,7 +10,6 @@ import DownloadClient
 import ClipboardClient
 import CookieClient
 import DeviceClient
-import AppDelegateClient
 @testable import ReadingFeature
 @testable import DetailFeature
 @testable import AppFeature
@@ -39,7 +38,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         ) {
             ReadingReducer()
         } withDependencies: {
-            $0.appDelegateClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
             $0.deviceClient = .noop
@@ -167,7 +165,6 @@ private extension DownloadObserverReadingTests {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
-                $0.appDelegateClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
