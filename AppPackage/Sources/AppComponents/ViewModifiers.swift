@@ -39,12 +39,6 @@ extension View {
         }
     }
 
-    public func autoBlur(radius: Double) -> some View {
-        blur(radius: radius)
-            .allowsHitTesting(radius < 1)
-            .animation(.linear(duration: 0.1), value: radius)
-    }
-
     public func privacyMask() -> some View {
         modifier(PrivacyMaskModifier())
     }
