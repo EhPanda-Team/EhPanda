@@ -39,7 +39,7 @@
   - **Why the decomposition was rejected:** the 8 consuming pages call the list near-identically — 5 are byte-identical; Popular passes no pagination, History adds a synthetic `PageNumber` + a notice, Favorites navigates modally — so splitting the super-list into per-page lists would relocate the shared glue (display-mode switch + loading/error overlay + refresh) into ~8 copies rather than remove duplication. The cells / footer / notice / loading-error overlay / grid atoms already exist as standalone components. **Delivered instead:** keep the single shared list and rename `GenericList` → `GalleryList` (type + file) for clarity, plus the now-stale private `WaterfallList` → `ThumbnailList` (renders via `MasonryLayout` since DEP-04). Behavior/appearance parity; the 8 call sites updated; build + full suite green.
 - [x] **UIARCH-03**: Support device orientation on every page and remove EhPanda's custom orientation lock.
   - All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and the `Setting.enablesLandscape` field are removed (v1 in-place edit); OS orientation lock governs.
-- [ ] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
+- [x] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
   - No view initializer takes `blurRadius`; `.autoBlur` applied only at root surfaces — app root + every one of the ~41 modal roots; transient blur state sourced from shared in-memory state; **no lock-time/background content leak** in any modal; NavigationBar-collapse workaround preserved.
 - [ ] **UIARCH-05**: Remove the auto-lock feature; direct users to iOS's built-in per-app lock.
   - `Setting.autoLockPolicy`, the biometric re-auth path (`authorize`/`lockApp`/`isAppLocked`/threshold), and `AuthorizationClient` are removed; the security-section auto-lock control is replaced by a description pointing to the iOS built-in lock; background blur is retained (see UIARCH-04).
@@ -105,7 +105,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | UIARCH-01 | Phase 5 | Complete |
 | UIARCH-02 | Phase 6 | Complete (rescoped — decomposition rejected) |
 | UIARCH-03 | Phase 5 | Complete |
-| UIARCH-04 | Phase 7 | Pending |
+| UIARCH-04 | Phase 7 | Complete |
 | UIARCH-05 | Phase 7 | Pending |
 | HYG-01 | Phase 8 | Pending |
 | QUAL-01 | Phase 8 | Pending |

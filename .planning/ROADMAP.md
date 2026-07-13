@@ -238,14 +238,14 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. The security-section auto-lock control is replaced by a description pointing users to the iOS built-in per-app lock.
   4. Background / app-switcher blur is retained.
 
-**Plans**: 8 plans (8 sequential waves — the package graph is kept building green at every plan
+**Plans**: 1/8 plans executed (8 sequential waves — the package graph is kept building green at every plan
 boundary via the mask-swap-first + vestigial-param technique; xcodebuild builds must not overlap on
 this machine)
 Plans:
 
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Foundation: privacyMaskBlur shared key + self-sourcing .privacyMask() modifier + new Privacy Mask l10n keys
+- [x] 07-01-PLAN.md — Foundation: privacyMaskBlur shared key + self-sourcing .privacyMask() modifier + new Privacy Mask l10n keys
 
 **Wave 2** *(blocked on 07-01)*
 
@@ -347,7 +347,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
-| 7. Root Privacy Mask & Auto-Lock Removal | 0/8 | Planned | - |
+| 7. Root Privacy Mask & Auto-Lock Removal | 1/8 | In Progress|  |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
