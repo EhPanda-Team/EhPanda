@@ -85,14 +85,10 @@ struct TabBarView: View {
             ) {
                 DetailView(
                     store: detailStore,
-                    gid: detailStore.gid,
-                    blurRadius: 0
+                    gid: detailStore.gid
                 )
             } destination: { elementStore in
-                galleryDestination(
-                    elementStore,
-                    blurRadius: 0
-                )
+                galleryDestination(elementStore)
             }
             .accentColor(store.settingState.setting.accentColor)
             .privacyMask()
