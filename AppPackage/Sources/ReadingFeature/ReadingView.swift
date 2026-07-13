@@ -169,6 +169,9 @@ public struct ReadingView: View {
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: {
+            gestureHandler.containerSize = $0
+        }
     }
 
     // D-04/D-05: the non-vertical reader pages through a stock horizontal paging ScrollView.

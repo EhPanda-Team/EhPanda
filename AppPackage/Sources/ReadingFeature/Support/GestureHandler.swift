@@ -1,11 +1,11 @@
 import SwiftUI
 import AppModels
 import Observation
-import AppTools
 
 @Observable
 @MainActor
 final class GestureHandler {
+    var containerSize: CGSize = .zero
     var scaleAnchor: UnitPoint = .center
     var scale: Double = 1
     var offset: CGSize = .zero
@@ -14,14 +14,14 @@ final class GestureHandler {
     @ObservationIgnored
     private var newOffset: CGSize = .zero
 
-    private func edgeWidth(xAxis: Double) -> Double {
-        let marginW = DeviceUtil.absWindowW * (scale - 1) / 2
+    func edgeWidth(xAxis: Double) -> Double {
+        let marginW = containerSize.width * (scale - 1) / 2
         let leadingMargin = scaleAnchor.x / 0.5 * marginW
         let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
         return min(max(xAxis, -trailingMargin), leadingMargin)
     }
-    private func edgeHeight(yAxis: Double) -> Double {
-        let marginH = DeviceUtil.absWindowH * (scale - 1) / 2
+    func edgeHeight(yAxis: Double) -> Double {
+        let marginH = containerSize.height * (scale - 1) / 2
         let topMargin = scaleAnchor.y / 0.5 * marginH
         let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
         return min(max(yAxis, -bottomMargin), topMargin)
@@ -30,9 +30,9 @@ final class GestureHandler {
         offset.width = edgeWidth(xAxis: offset.width)
         offset.height = edgeHeight(yAxis: offset.height)
     }
-    private func correctScaleAnchor(point: CGPoint) {
-        let xAxis = min(1, max(0, point.x / DeviceUtil.absWindowW))
-        let yAxis = min(1, max(0, point.y / DeviceUtil.absWindowH))
+    func correctScaleAnchor(point: CGPoint) {
+        let xAxis = min(1, max(0, point.x / containerSize.width))
+        let yAxis = min(1, max(0, point.y / containerSize.height))
         scaleAnchor = .init(x: xAxis, y: yAxis)
     }
     private func setOffset(_ offset: CGSize) {
@@ -46,47 +46,42 @@ final class GestureHandler {
     }
 
     func onSingleTapGestureEnded(
+        location: CGPoint,
         readingDirection: ReadingDirection,
         setPageIndexOffsetAction: @escaping (Int) -> Void,
         toggleShowsPanelAction: @escaping () -> Void
     ) {
-        guard readingDirection != .vertical,
-              let pointX = TouchHandler.shared.currentPoint?.x
-        else {
+        guard readingDirection != .vertical else {
             toggleShowsPanelAction()
             return
         }
         let rightToLeft = readingDirection == .rightToLeft
-        if pointX < DeviceUtil.absWindowW * 0.2 {
+        if location.x < containerSize.width * 0.2 {
             setPageIndexOffsetAction(rightToLeft ? 1 : -1)
-        } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
+        } else if location.x > containerSize.width * (1 - 0.2) {
             setPageIndexOffsetAction(rightToLeft ? -1 : 1)
         } else {
             toggleShowsPanelAction()
         }
     }
 
-    func onDoubleTapGestureEnded(scaleMaximum: Double, doubleTapScale: Double) {
+    func onDoubleTapGestureEnded(location: CGPoint, scaleMaximum: Double, doubleTapScale: Double) {
         let newScale = scale == 1 ? doubleTapScale : 1
-        if let point = TouchHandler.shared.currentPoint {
-            correctScaleAnchor(point: point)
-        }
+        correctScaleAnchor(point: location)
         setOffset(.zero)
         setScale(scale: newScale, maximum: scaleMaximum)
     }
 
-    func onMagnificationGestureChanged(value: Double, scaleMaximum: Double) {
+    func onMagnificationGestureChanged(value: Double, location: CGPoint, scaleMaximum: Double) {
         if value == 1 {
             baseScale = scale
         }
-        if let point = TouchHandler.shared.currentPoint {
-            correctScaleAnchor(point: point)
-        }
+        correctScaleAnchor(point: location)
         setScale(scale: value * baseScale, maximum: scaleMaximum)
     }
 
-    func onMagnificationGestureEnded(value: Double, scaleMaximum: Double) {
-        onMagnificationGestureChanged(value: value, scaleMaximum: scaleMaximum)
+    func onMagnificationGestureEnded(value: Double, location: CGPoint, scaleMaximum: Double) {
+        onMagnificationGestureChanged(value: value, location: location, scaleMaximum: scaleMaximum)
         if value * baseScale - 1 < 0.01 {
             setScale(scale: 1, maximum: scaleMaximum)
         }
