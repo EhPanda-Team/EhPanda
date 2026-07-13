@@ -70,16 +70,6 @@ extension ReadingReducer {
                 state.showsPanel.toggle()
                 return .none
 
-            case .setOrientationPortrait(let isPortrait):
-                var effects = [Effect<Action>]()
-                if isPortrait {
-                    effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientationMask() }))
-                    effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientation() }))
-                } else {
-                    effects.append(.run(operation: { _ in await appDelegateClient.setAllOrientationMask() }))
-                }
-                return .merge(effects)
-
             case .onPerformDismiss:
                 // Flush synchronously here — this runs before the parent nils the presentation and
                 // cancels the pending debounce, so the last page swiped-to isn't lost on a normal close.
@@ -87,14 +77,10 @@ extension ReadingReducer {
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid):
-                var effects: [Effect<Action>] = [
+                return .merge(
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid))
-                ]
-                if state.setting.enablesLandscape {
-                    effects.append(.send(.setOrientationPortrait(false)))
-                }
-                return .merge(effects)
+                )
 
             case .onWebImageRetry(let index):
                 state.imageURLLoadingStates[index] = .idle

@@ -2,14 +2,12 @@ import SwiftUI
 import AppModels
 import Sharing
 import Resources
-import AppTools
 import ComposableArchitecture
 
 public struct ReadingSettingView: View {
     // The reading-setting editor is shared by the Setting tab and the reader sheet. Rather than hold
     // its own `@Shared`, it binds through its store, whose state vends the shared `Setting`; the model
-    // clamps keep every write safe. Any orientation side effect stays with the host (the reader drives
-    // it from `ReadingReducer`; the Setting tab has none), so this view carries no such logic.
+    // clamps keep every write safe without a reducer round-trip.
     private let store: StoreOf<ReadingSettingReducer>
 
     public init(store: StoreOf<ReadingSettingReducer>) {
@@ -31,9 +29,6 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                if !DeviceUtil.isPad {
-                    Toggle(.enablesLandscape, isOn: Binding(store.sharedSetting.enablesLandscape))
-                }
             }
             Section(.readingAppearance) {
                 Picker(
