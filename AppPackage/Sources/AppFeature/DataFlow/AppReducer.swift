@@ -29,6 +29,7 @@ struct AppReducer {
         var searchRootState = SearchRootReducer.State()
         var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
+        @Shared(.privacyMaskBlur) var privacyMaskBlur: Double
         var appLogsPumpState = AppActivityLogsPumpReducer.State()
         var scenePhase = ScenePhase.active
         var hasEnteredBackground = false
@@ -85,13 +86,15 @@ struct AppReducer {
 
                 switch scenePhase {
                 case .active:
-                    let threshold = state.settingState.setting.autoLockPolicy.rawValue
-                    let blurRadius = state.settingState.setting.backgroundBlurRadius
+                    state.$privacyMaskBlur.withLock { $0 = 0 }
                     var effects: [Effect<Action>] = [
-                        .send(.appLock(.onBecomeActive(threshold, blurRadius))),
+                        .send(.setting(.fetchGreeting)),
                         .send(.appLogsPump(.startPump)),
                         .run { _ in logger.notice("App entered foreground.") }
                     ]
+                    if state.settingState.setting.detectsLinksFromClipboard {
+                        effects.append(.send(.appRoute(.detectClipboardURL)))
+                    }
                     // iOS interposes .inactive on a foreground return
                     // (.background -> .inactive -> .active), so the previous
                     // phase is never .background here. Latch the background
@@ -108,8 +111,9 @@ struct AppReducer {
                     return .merge(effects)
 
                 case .inactive:
-                    let blurRadius = state.settingState.setting.backgroundBlurRadius
-                    return .send(.appLock(.onBecomeInactive(blurRadius)))
+                    let intensity = state.settingState.setting.privacyMaskIntensity
+                    state.$privacyMaskBlur.withLock { $0 = intensity }
+                    return .none
 
                 case .background:
                     state.hasEnteredBackground = true
@@ -172,15 +176,6 @@ struct AppReducer {
 
             case .appRoute:
                 return .none
-
-            case .appLock(.unlockApp):
-                var effects: [Effect<Action>] = [
-                    .send(.setting(.fetchGreeting))
-                ]
-                if state.settingState.setting.detectsLinksFromClipboard {
-                    effects.append(.send(.appRoute(.detectClipboardURL)))
-                }
-                return .merge(effects)
 
             case .appLock:
                 return .none
@@ -279,12 +274,8 @@ struct AppReducer {
 
             case .setting(.loadUserSettingsDone):
                 var effects = [Effect<Action>]()
-                let threshold = state.settingState.setting.autoLockPolicy.rawValue
-                let blurRadius = state.settingState.setting.backgroundBlurRadius
-                if threshold >= 0 {
-                    state.appLockState.becameInactiveDate = .distantPast
-                    effects.append(.send(.appLock(.onBecomeActive(threshold, blurRadius))))
-                }
+                // This is the single cold-launch clipboard owner: the initial `.active` is ignored
+                // until settings load, while the `.active` branch handles later foreground entries.
                 if state.settingState.setting.detectsLinksFromClipboard {
                     effects.append(.send(.appRoute(.detectClipboardURL)))
                 }
