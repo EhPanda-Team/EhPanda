@@ -230,8 +230,8 @@ struct ImageContainer: View {
                 backgroundColor: backgroundColor
             )
         )
-        .containerRelativeFrame(.horizontal) { width, _ in
-            width / (isDualPage ? 2 : 1)
+        .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+            axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
         }
         .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
     }
@@ -271,8 +271,8 @@ struct ImageContainer: View {
                     }
                 }
             }
-            .containerRelativeFrame(.horizontal) { width, _ in
-                width / (isDualPage ? 2 : 1)
+            .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+                axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
             }
             .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
         }
