@@ -65,8 +65,7 @@ public struct DownloadsView: View {
         ) { store in
             ReadingView(
                 store: store,
-                gid: store.gallery.id,
-                blurRadius: 0
+                gid: store.gallery.id
             )
             .accentColor(store.setting.accentColor)
             .privacyMask()

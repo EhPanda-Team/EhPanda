@@ -210,8 +210,7 @@ private extension DetailView {
             ) { store in
                 ReadingView(
                     store: store,
-                    gid: gid,
-                    blurRadius: 0
+                    gid: gid
                 )
                 .accentColor(self.store.setting.accentColor)
                 .privacyMask()
