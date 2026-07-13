@@ -24,72 +24,64 @@ struct TabBarView: View {
     }
 
     var body: some View {
-        ZStack {
-            TabView(
-                selection: .init(
-                    get: { store.tabBarState.tabBarItemType },
-                    set: { tab in
-                        if tab == .setting, deviceClient.deviceType() == .pad {
-                            store.send(.appRoute(.presentSetting))
-                        } else {
-                            store.send(.tabBar(.setTabBarItemType(tab)))
-                        }
+        TabView(
+            selection: .init(
+                get: { store.tabBarState.tabBarItemType },
+                set: { tab in
+                    if tab == .setting, deviceClient.deviceType() == .pad {
+                        store.send(.appRoute(.presentSetting))
+                    } else {
+                        store.send(.tabBar(.setTabBarItemType(tab)))
                     }
-                )
-            ) {
-                ForEach(TabBarItemType.allCases) { type in
-                    Group {
-                        switch type {
-                        case .home:
-                            HomeView(
-                                store: store.scope(\.homeState, action: \.home),
-                                blurRadius: store.appLockState.blurRadius
-                            )
-                        case .favorites:
-                            FavoritesView(
-                                store: store.scope(\.favoritesState, action: \.favorites),
-                                blurRadius: store.appLockState.blurRadius
-                            )
-                        case .search:
-                            SearchRootView(
-                                store: store.scope(\.searchRootState, action: \.searchRoot),
-                                blurRadius: store.appLockState.blurRadius
-                            )
-                        case .downloads:
-                            DownloadsView(
-                                store: store.scope(\.downloadsState, action: \.downloads),
-                                blurRadius: store.appLockState.blurRadius
-                            )
-                        case .setting:
-                            SettingView(
-                                store: store.scope(\.settingState, action: \.setting),
-                                blurRadius: store.appLockState.blurRadius
-                            )
-                        }
-                    }
-                    .tabItem(type.label).tag(type)
                 }
-                .accentColor(store.settingState.setting.accentColor)
+            )
+        ) {
+            ForEach(TabBarItemType.allCases) { type in
+                Group {
+                    switch type {
+                    case .home:
+                        HomeView(
+                            store: store.scope(\.homeState, action: \.home),
+                            blurRadius: 0
+                        )
+                    case .favorites:
+                        FavoritesView(
+                            store: store.scope(\.favoritesState, action: \.favorites),
+                            blurRadius: 0
+                        )
+                    case .search:
+                        SearchRootView(
+                            store: store.scope(\.searchRootState, action: \.searchRoot),
+                            blurRadius: 0
+                        )
+                    case .downloads:
+                        DownloadsView(
+                            store: store.scope(\.downloadsState, action: \.downloads),
+                            blurRadius: 0
+                        )
+                    case .setting:
+                        SettingView(
+                            store: store.scope(\.settingState, action: \.setting),
+                            blurRadius: 0
+                        )
+                    }
+                }
+                .tabItem(type.label).tag(type)
             }
-            .autoBlur(radius: store.appLockState.blurRadius)
-            Button {
-                store.send(.appLock(.authorize))
-            } label: {
-                Image(systemSymbol: .lockFill)
-            }
-            .font(.system(size: 80)).opacity(store.appLockState.isAppLocked ? 1 : 0)
+            .accentColor(store.settingState.setting.accentColor)
         }
+        .privacyMask()
         .sheet(item: $store.appRouteState.destination.newDawn) { greeting in
             NewDawnView(greeting: greeting.wrappedValue)
-                .autoBlur(radius: store.appLockState.blurRadius)
+                .privacyMask()
         }
         .sheet(item: $store.appRouteState.destination.setting) { _ in
             SettingView(
                 store: store.scope(\.settingState, action: \.setting),
-                blurRadius: store.appLockState.blurRadius
+                blurRadius: 0
             )
             .accentColor(store.settingState.setting.accentColor)
-            .autoBlur(radius: store.appLockState.blurRadius)
+            .privacyMask()
         }
         .sheet(item: $store.scope(\.appRouteState.$detail, action: \.appRoute.detail)) { detailStore in
             NavigationStack(
@@ -98,16 +90,16 @@ struct TabBarView: View {
                 DetailView(
                     store: detailStore,
                     gid: detailStore.gid,
-                    blurRadius: store.appLockState.blurRadius
+                    blurRadius: 0
                 )
             } destination: { elementStore in
                 galleryDestination(
                     elementStore,
-                    blurRadius: store.appLockState.blurRadius
+                    blurRadius: 0
                 )
             }
             .accentColor(store.settingState.setting.accentColor)
-            .autoBlur(radius: store.appLockState.blurRadius)
+            .privacyMask()
             .environment(\.inSheet, true)
         }
         .toast($store.scope(\.appRouteState.$toast, action: \.appRoute.toast))
