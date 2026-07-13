@@ -7,7 +7,7 @@ import ComposableArchitecture
 @ViewBuilder
 public func galleryDestination(
     _ store: StoreOf<GalleryPath>,
-    blurRadius: Double
+    blurRadius: Double = 0
 ) -> some View {
     switch store.case {
     case .detail(let detailStore):

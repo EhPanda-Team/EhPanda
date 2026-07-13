@@ -10,14 +10,9 @@ import DetailFeature
 
 public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>
-    private let blurRadius: Double
 
-    public init(
-        store: StoreOf<HomeReducer>,
-        blurRadius: Double
-    ) {
+    public init(store: StoreOf<HomeReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     // MARK: HomeView
@@ -89,29 +84,17 @@ public struct HomeView: View {
         } destination: { store in
             switch store.case {
             case .frontpage(let store):
-                FrontpageView(
-                    store: store, blurRadius: blurRadius
-                )
+                FrontpageView(store: store)
             case .popular(let store):
-                PopularView(
-                    store: store, blurRadius: blurRadius
-                )
+                PopularView(store: store)
             case .toplists(let store):
-                ToplistsView(
-                    store: store, blurRadius: blurRadius
-                )
+                ToplistsView(store: store)
             case .watched(let store):
-                WatchedView(
-                    store: store, blurRadius: blurRadius
-                )
+                WatchedView(store: store)
             case .history(let store):
-                HistoryView(
-                    store: store, blurRadius: blurRadius
-                )
+                HistoryView(store: store)
             case .gallery(let store):
-                galleryDestination(
-                    store, blurRadius: blurRadius
-                )
+                galleryDestination(store)
             }
         }
     }
@@ -181,8 +164,7 @@ public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
-            store: .init(initialState: .init(), reducer: HomeReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: HomeReducer.init)
         )
     }
 }
