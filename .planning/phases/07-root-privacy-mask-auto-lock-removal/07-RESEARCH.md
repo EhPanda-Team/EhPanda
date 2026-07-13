@@ -363,20 +363,25 @@ This directly protects the phase's one non-mechanical behavior (D-05/D-06 fold) 
 - [ ] Confirm whether an `AppFeature` test target exists; if not, the scenePhase test requires standing one up (raises cost — planner weighs against manual verification).
 - [ ] No other test infrastructure gaps — this phase deletes more than it adds.
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three were resolved during planning and adopted in executable plan content (Phase 7 plans 02/03/07/08).
 
 1. **Info.plist `NSFaceIDUsageDescription`**
    - What we know: the deleted `AuthorizationClient` used `LocalAuthentication`/Face ID.
    - What's unclear: whether the app target's Info.plist declares `NSFaceIDUsageDescription` solely for that flow.
    - Recommendation: grep the app Info.plist during planning; remove if orphaned (D-15 leave-no-orphans). [ASSUMED it may exist — verify.]
+   - **RESOLVED:** plan 07-03 (Task 2) deletes the orphaned `NSFaceIDUsageDescription` from both `App/Info.plist` and `App/InfoPlist.xcstrings`; plan 07-08 (Task 2) re-audits its absence by grep.
 2. **Launch clipboard double-detection (Pitfall 1)**
    - What we know: `detectClipboardURL` fires from both the `.unlockApp` cascade and `loadUserSettingsDone`.
    - What's unclear: the exact scenePhase/settings-load ordering that decides whether both fire at cold launch today.
    - Recommendation: trace with a `TestStore` (or logging) before folding; pick a single launch owner for clipboard detection.
+   - **RESOLVED:** plan 07-02 (Task 2) traces the cold-launch ordering, re-homes greeting/clipboard off `.appLock(.unlockApp)`, and mandates a single documented clipboard owner; plan 07-08 (Task 1) guards exactly-once with the `AppReducer.onScenePhaseChange` TestStore test.
 3. **Should `AppActivityLogsView`'s run-picker sheet really be masked?**
    - What we know: it is an unmasked modal root; D-16 mandates uniform coverage.
    - What's unclear: whether the owner considers a diagnostic run-picker sensitive enough to matter.
    - Recommendation: apply `.privacyMask()` for uniform compliance (cheapest, mandate-aligned); surface to owner if they want an exception.
+   - **RESOLVED:** plan 07-07 adds `.privacyMask()` to the `AppActivityLogsView:49` run-picker sheet as a NEW site (uniform D-16 compliance, total 40); flagged for owner exception if undesired.
 
 ## Assumptions Log
 
