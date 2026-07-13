@@ -1,14 +1,13 @@
 import SwiftUI
 import AppModels
-import AppTools
 
 // MARK: Gesture
 extension ReadingView {
     var tapGesture: some Gesture {
-        let singleTap = TapGesture(count: 1)
-            .onEnded {
+        let singleTap = SpatialTapGesture(count: 1, coordinateSpace: .local)
+            .onEnded { value in
                 gestureHandler.onSingleTapGestureEnded(
-                    location: TouchHandler.shared.currentPoint ?? .zero,
+                    location: value.location,
                     readingDirection: store.setting.readingDirection,
                     setPageIndexOffsetAction: {
                         // The offset sign arrives RTL-corrected from GestureHandler
@@ -18,10 +17,10 @@ extension ReadingView {
                     toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )
             }
-        let doubleTap = TapGesture(count: 2)
-            .onEnded {
+        let doubleTap = SpatialTapGesture(count: 2, coordinateSpace: .local)
+            .onEnded { value in
                 gestureHandler.onDoubleTapGestureEnded(
-                    location: TouchHandler.shared.currentPoint ?? .zero,
+                    location: value.location,
                     scaleMaximum: store.setting.maximumScaleFactor,
                     doubleTapScale: store.setting.doubleTapScaleFactor
                 )
@@ -29,18 +28,18 @@ extension ReadingView {
         return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnificationGesture: some Gesture {
-        MagnificationGesture()
-            .onChanged {
-                gestureHandler.onMagnificationGestureChanged(
-                    value: $0,
-                    location: TouchHandler.shared.currentPoint ?? .zero,
+        MagnifyGesture()
+            .onChanged { value in
+                gestureHandler.onMagnifyGestureChanged(
+                    value: value.magnification,
+                    anchor: value.startAnchor,
                     scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
-            .onEnded {
-                gestureHandler.onMagnificationGestureEnded(
-                    value: $0,
-                    location: TouchHandler.shared.currentPoint ?? .zero,
+            .onEnded { value in
+                gestureHandler.onMagnifyGestureEnded(
+                    value: value.magnification,
+                    anchor: value.startAnchor,
                     scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
