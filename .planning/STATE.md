@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-15-PLAN.md
-last_updated: "2026-07-13T09:29:38.437Z"
+stopped_at: Completed 05-16-PLAN.md
+last_updated: "2026-07-13T09:39:15.105Z"
 last_activity: 2026-07-13
-last_activity_desc: Completed Phase 05 Plan 15; ready for Plan 16
+last_activity_desc: Completed Phase 05 Plan 16; ready for Plan 17
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 50
-  completed_plans: 47
-  percent: 94
+  completed_plans: 48
+  percent: 96
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 16 of 18
+Plan: 17 of 18
 Status: Ready to execute
-Last activity: 2026-07-13 — Completed Phase 05 Plan 15; ready for Plan 16
-Next: execute Plan 16
+Last activity: 2026-07-13 — Completed Phase 05 Plan 16; ready for Plan 17
+Next: execute Plan 17
 
-Progress: [█████████░] 94% (47/50 plans)
+Progress: [██████████] 96% (48/50 plans)
 
 ## Performance Metrics
 
@@ -103,6 +103,7 @@ Progress: [█████████░] 94% (47/50 plans)
 | Phase 05 P13 | 2min | 1 tasks | 1 files |
 | Phase 05 P14 | 4min | 2 tasks | 4 files |
 | Phase 05 P15 | 2min | 1 tasks | 1 files |
+| Phase 05 P16 | 8min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,7 @@ Recent decisions affecting current work:
 - [Phase 05]: Each reusable sheet root owns an untitled cancellation-role button at the stable cancellationAction toolbar placement.
 - [Phase 05]: Favorites category switching remains direct while sort, date seek, and quick search move into ToolbarFeaturesMenu.
 - [Phase 05]: DateSeekButton continues to own its nil-navigation disabled state, and Favorites reducer behavior remains unchanged.
+- [Phase 05]: Reader window-control compensation uses the iOS 26 top-leading container corner exclusion and folds in safe-area dimensions only when that exclusion is nonzero.
 
 ### Pending Todos
 
@@ -192,6 +194,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T09:29:38.431Z
-Stopped at: Completed 05-15-PLAN.md
+Last session: 2026-07-13T09:39:15.100Z
+Stopped at: Completed 05-16-PLAN.md
 Resume file: None
