@@ -33,12 +33,13 @@ public struct SettingTextField: View {
     }
 
     public var body: some View {
-        // A non-empty, localized label keeps VoiceOver informative; `.labelsHidden()` keeps the
-        // field's appearance unchanged (only the prompt shows). Avoids an empty `""` title literal.
+        // `title` labels the field for accessibility only; visible placeholder text comes from
+        // `promptText` so narrow fields do not render a clipped copy of their surrounding label.
         TextField(text: $text, prompt: prompt) {
-            Text(title)
+            EmptyView()
         }
         .labelsHidden()
+        .accessibilityLabel(title)
         .keyboardType(.numbersAndPunctuation)
         .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
         .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)
