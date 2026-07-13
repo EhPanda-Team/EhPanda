@@ -90,24 +90,22 @@ struct GalleryInfosView: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            List(infos) { info in
+        List(infos) { info in
+            HStack {
                 HStack {
-                    HStack {
-                        Text(info.title)
-                        Spacer()
-                    }
-                    .frame(width: proxy.size.width / 3)
+                    Text(info.title)
                     Spacer()
-                    Button {
-                        if let text = info.value {
-                            store.send(.copyText(text))
-                        }
-                    } label: {
-                        Text(info.value ?? String(localized: .metadataNone))
-                            .lineLimit(3).font(.caption)
-                            .foregroundStyle(.tint)
+                }
+                .containerRelativeFrame(.horizontal) { width, _ in width / 3 }
+                Spacer()
+                Button {
+                    if let text = info.value {
+                        store.send(.copyText(text))
                     }
+                } label: {
+                    Text(info.value ?? String(localized: .metadataNone))
+                        .lineLimit(3).font(.caption)
+                        .foregroundStyle(.tint)
                 }
             }
         }
