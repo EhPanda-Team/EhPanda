@@ -448,6 +448,7 @@ let targets: [PackageDescription.Target] = [
             .module(.sfSafeSymbolsExt),
             .module(.appModels),
             .module(.appTools),
+            .module(.deviceClient),
             .module(.parserFeature),
             .module(.resources),
             .module(.tagTranslationFeature),

@@ -3,7 +3,8 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import AppTools
+import Dependencies
+import DeviceClient
 import SystemNotificationExt
 import AppComponents
 import DetailFeature
@@ -14,6 +15,7 @@ import DownloadsFeature
 import SettingFeature
 
 struct TabBarView: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.scenePhase) private var scenePhase
     @Bindable private var store: StoreOf<AppReducer>
 
@@ -27,7 +29,7 @@ struct TabBarView: View {
                 selection: .init(
                     get: { store.tabBarState.tabBarItemType },
                     set: { tab in
-                        if tab == .setting, DeviceUtil.isPad {
+                        if tab == .setting, deviceClient.deviceType() == .pad {
                             store.send(.appRoute(.presentSetting))
                         } else {
                             store.send(.tabBar(.setTabBarItemType(tab)))
