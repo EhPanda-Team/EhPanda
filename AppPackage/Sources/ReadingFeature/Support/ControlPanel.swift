@@ -16,6 +16,7 @@ struct ControlPanel<G: Gesture>: View {
     @Binding private var setting: Setting
     @Binding private var enablesLiveText: Bool
     @Binding private var autoPlayPolicy: AutoPlayPolicy
+    @State private var upperPanelWindowInsets = EdgeInsets()
 
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
@@ -69,6 +70,8 @@ struct ControlPanel<G: Gesture>: View {
     }
 
     var body: some View {
+        let isPad = deviceClient.deviceType() == .pad
+
         VStack {
             UpperPanel(
                 title: title,
@@ -81,7 +84,8 @@ struct ControlPanel<G: Gesture>: View {
                 reloadAllImagesAction: reloadAllImagesAction,
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
-            .padding(.top, upperPanelTopPadding)
+            .padding(.top, upperPanelTopPadding + upperPanelWindowInsets.top)
+            .padding(.leading, upperPanelWindowInsets.leading)
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
             if range.upperBound > range.lowerBound {
@@ -98,6 +102,19 @@ struct ControlPanel<G: Gesture>: View {
             }
         }
         .opacity(showsPanel ? 1 : 0).disabled(!showsPanel)
+        // iOS 26 reports overlapping window controls in the top-leading corner inset. Fold in
+        // the rectangular safe area only when that exclusion exists, so full-screen iPad stays unchanged.
+        .onGeometryChange(for: EdgeInsets.self) { proxy in
+            guard isPad else { return EdgeInsets() }
+            let windowControlInsets = proxy.containerCornerInsets.topLeading
+            guard windowControlInsets != .zero else { return EdgeInsets() }
+            return EdgeInsets(
+                top: max(proxy.safeAreaInsets.top, windowControlInsets.height),
+                leading: max(proxy.safeAreaInsets.leading, windowControlInsets.width),
+                bottom: 0,
+                trailing: 0
+            )
+        } action: { upperPanelWindowInsets = $0 }
     }
 }
 
