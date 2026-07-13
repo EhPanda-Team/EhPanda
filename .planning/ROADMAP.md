@@ -7,7 +7,7 @@ concurrency, UI architecture, and lint bar ahead of the unreleased v3.0.0 — ev
 behavior/appearance parity. The journey runs from low-risk isolated dependency swaps, through the
 two parity-risk native swaps that are spike-gated first (WaterfallGrid→Layout, SwiftUIPager→TabView),
 into the big framework migration (Combine→async/await, TCA traits), then the UI-architecture and
-hygiene refactors (adaptive layout, GenericList decomposition, root privacy mask, auto-lock removal,
+hygiene refactors (adaptive layout, GenericList→GalleryList rename, root privacy mask, auto-lock removal,
 de-globalized clients) with their folded-in security/test/correctness concerns, and finishing with a
 structured error surface and a lint capstone. Refactor-gated lint rules land with the refactors that
 enable them; the mechanical rules sweep last.
@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a native horizontal paging ScrollView (completed 2026-07-12)
 - [x] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits (completed 2026-07-12)
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
-- [ ] **Phase 6: GenericList Decomposition** - Replace the super-list with per-page lists built from shared atoms
+- [ ] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList`
 - [ ] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock
 - [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize Utils into injected clients, move cookies to Keychain, cover reworked seams with tests
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
@@ -209,19 +209,22 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 
 **UI hint**: yes
 
-### Phase 6: GenericList Decomposition
+### Phase 6: GalleryList Rename
 
-**Goal**: Replace the `GenericList` super-list with per-page lists composed from shared atoms — preserving all list behavior.
-**Depends on**: Phase 5 (per-page lists compose the new adaptive layout and custom grid atoms)
-**Requirements**: UIARCH-02
+**Goal**: Keep the shared gallery list and rename it `GenericList` → `GalleryList` — at behavior/appearance parity. *(Decomposition rejected — owner 2026-07-13.)*
+**Depends on**: Nothing (mechanical rename; independent of other phases)
+**Requirements**: UIARCH-02 *(rescoped — decomposition rejected)*
 **Success Criteria** (what must be TRUE):
 
-  1. Reusable atoms (cells, footer, notice, loading/error overlays, grid) are extracted, and each of the 8 consuming pages composes its own list.
-  2. The `GenericList` super-list is removed.
-  3. List behavior is preserved: display modes, pagination, refresh, and badges.
+  1. `GenericList` is renamed to `GalleryList` (type + file) and all 8 call sites are updated.
+  2. The stale private `WaterfallList` is renamed to `ThumbnailList` (it renders via `MasonryLayout` since DEP-04).
+  3. List behavior is unchanged — display modes, pagination, refresh, badges — and the build + full test suite pass.
 
-**Plans**: TBD
-**UI hint**: yes
+**Why decomposition was rejected**: the 8 consuming pages call the list near-identically (5 byte-identical; Popular passes no pagination; History adds a synthetic page number + notice; Favorites navigates modally). Splitting the super-list into per-page lists would relocate the shared glue (display-mode switch + loading/error overlay + refresh) into ~8 copies rather than remove duplication, and the cell / footer / notice / overlay / grid atoms already exist as standalone components. The honest change is to keep one well-named shared list.
+
+**Delivered**: 2026-07-13 — rename committed (`43da047d`); build + full suite green. No plan pipeline (mechanical). Formal phase close-out follows Phase 5 verification.
+**Plans**: none (mechanical rename)
+**UI hint**: no
 
 ### Phase 7: Root Privacy Mask & Auto-Lock Removal
 
@@ -307,7 +310,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
-| 6. GenericList Decomposition | 0/TBD | Not started | - |
+| 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |

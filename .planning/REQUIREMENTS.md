@@ -35,8 +35,8 @@
 
 - [x] **UIARCH-01**: Modernize adaptive layout — remove screen-dependent logic across `DeviceUtil` and `DeviceClient`.
   - No view reads `DeviceUtil.window*/screen*/absWindow*` for layout; discrete `isPadWidth`/`isSEWidth` breakpoints replaced by size-class / container-relative decisions; `TouchHandler` retired via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor`; **`GeometryReader` avoided** in favor of `containerRelativeFrame`/`onGeometryChange`/`ViewThatFits`; `Defaults.FrameSize`/`ImageSize` no longer derive size from a global; reading zoom/pan/tap parity preserved.
-- [ ] **UIARCH-02**: Decompose `GenericList` so each of its 8 consuming pages builds its own list from shared atoms.
-  - Reusable atoms (cells, footer, notice, loading/error overlays, grid) extracted; the 8 pages compose their own lists; `GenericList` super-list removed; list behavior (display modes, pagination, refresh, badges) preserved.
+- [x] **UIARCH-02** *(rescoped — decomposition rejected, owner 2026-07-13)*: Rename the shared gallery list `GenericList` → `GalleryList`; keep the super-list.
+  - **Why the decomposition was rejected:** the 8 consuming pages call the list near-identically — 5 are byte-identical; Popular passes no pagination, History adds a synthetic `PageNumber` + a notice, Favorites navigates modally — so splitting the super-list into per-page lists would relocate the shared glue (display-mode switch + loading/error overlay + refresh) into ~8 copies rather than remove duplication. The cells / footer / notice / loading-error overlay / grid atoms already exist as standalone components. **Delivered instead:** keep the single shared list and rename `GenericList` → `GalleryList` (type + file) for clarity, plus the now-stale private `WaterfallList` → `ThumbnailList` (renders via `MasonryLayout` since DEP-04). Behavior/appearance parity; the 8 call sites updated; build + full suite green.
 - [x] **UIARCH-03**: Support device orientation on every page and remove EhPanda's custom orientation lock.
   - All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and the `Setting.enablesLandscape` field are removed (v1 in-place edit); OS orientation lock governs.
 - [ ] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
@@ -103,7 +103,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | CONC-01 | Phase 4 | Complete |
 | CONC-02 | Phase 4 | Complete |
 | UIARCH-01 | Phase 5 | Complete |
-| UIARCH-02 | Phase 6 | Pending |
+| UIARCH-02 | Phase 6 | Complete (rescoped — decomposition rejected) |
 | UIARCH-03 | Phase 5 | Complete |
 | UIARCH-04 | Phase 7 | Pending |
 | UIARCH-05 | Phase 7 | Pending |
@@ -124,4 +124,4 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-13 — added POLISH-02 (ZStack→overlay/background) to Phase 10 (22/22 mapped)*
+*Last updated: 2026-07-13 — UIARCH-02 rescoped: `GenericList` decomposition rejected (owner); delivered as a `GenericList`→`GalleryList` rename instead (22/22 mapped)*
