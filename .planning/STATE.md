@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 07
 current_phase_name: root-privacy-mask-auto-lock-removal
-status: executing
-stopped_at: Completed 07-07-PLAN.md
-last_updated: "2026-07-13T18:25:44.840Z"
+status: verifying
+stopped_at: Completed 07-08-PLAN.md
+last_updated: "2026-07-13T23:08:47.346Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed Phase 07 Plan 07 final privacy-mask parameter sweep
+last_activity_desc: Completed Phase 07 Plan 08 privacy verification and owner sign-off
 progress:
   total_phases: 11
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 58
-  completed_plans: 57
-  percent: 98
+  completed_plans: 58
+  percent: 100
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 07 (root-privacy-mask-auto-lock-removal) — EXECUTING
+Phase: 07 (root-privacy-mask-auto-lock-removal) — VERIFYING
 Plan: 8 of 8
-Status: Ready to execute
-Last activity: 2026-07-14 — Completed Phase 07 Plan 07 final privacy-mask parameter sweep
-Next: execute Phase 07 Plan 08
+Status: Phase complete — ready for verification
+Last activity: 2026-07-14 — Completed Phase 07 Plan 08 privacy verification and owner sign-off
+Next: verify Phase 07
 
-Progress: [██████████] 98% (57/58 plans)
+Progress: [██████████] 100% (58/58 plans)
 
 ## Performance Metrics
 
@@ -113,6 +113,7 @@ Progress: [██████████] 98% (57/58 plans)
 | Phase 07 P05 | 5min | 2 tasks | 5 files |
 | Phase 07 P06 | 5min | 2 tasks | 7 files |
 | Phase 07 P07 | 6min | 3 tasks | 11 files |
+| Phase 07 P08 | 4h30m | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -188,6 +189,9 @@ Recent decisions affecting current work:
 - [Phase 07]: Both Detail-owned ReadingView presentations retain literal blurRadius zero bridges until 07-07. — ReadingView still requires the compatibility parameter; DetailFeature no longer owns or propagates blur state.
 - [Phase 07]: 07-07: Privacy-mask coverage is counted as forty application call sites; the public function declaration and shared-key documentation remain valid non-call matches.
 - [Phase 07]: 07-07: The AppActivityLogs mask stays on the RunPickerSheet presented root so native sheet accessibility and stable modal coverage are preserved.
+- [Phase 07]: The no-content-leak gate combines automated forty-site coverage with owner device-level approval. — Static checks cannot prove App Switcher snapshot concealment or presentation behavior.
+- [Phase 07]: Privacy-mask coverage counts forty executable application calls rather than forty-two raw tokens. — The public function declaration and shared-key documentation are valid non-application matches.
+- [Phase 07]: The owner post-checkpoint refinement scopes blur animation to the blur transform and keeps Privacy Mask in the first Appearance section. — The owner intentionally refined presentation after verification; current HEAD was rebuilt and retested without rewriting the commit.
 
 ### Pending Todos
 
@@ -217,6 +221,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T18:25:44.834Z
-Stopped at: Completed 07-07-PLAN.md
+Last session: 2026-07-13T23:08:47.341Z
+Stopped at: Completed 07-08-PLAN.md
 Resume file: None
