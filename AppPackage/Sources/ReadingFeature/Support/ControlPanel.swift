@@ -4,9 +4,12 @@ import Resources
 import AppTools
 import AppComponents
 import SFSafeSymbols
+import Dependencies
+import DeviceClient
 
 // MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Binding private var showsPanel: Bool
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
@@ -16,6 +19,7 @@ struct ControlPanel<G: Gesture>: View {
 
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
+    private let containerSize: CGSize
     private let dismissGesture: G
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
@@ -26,7 +30,7 @@ struct ControlPanel<G: Gesture>: View {
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
+        containerSize: CGSize, range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
@@ -39,6 +43,7 @@ struct ControlPanel<G: Gesture>: View {
         _setting = setting
         _enablesLiveText = enablesLiveText
         _autoPlayPolicy = autoPlayPolicy
+        self.containerSize = containerSize
         self.range = range
         self.previewURLs = previewURLs
         self.dismissGesture = dismissGesture
@@ -56,7 +61,11 @@ struct ControlPanel<G: Gesture>: View {
     // iPhone in landscape has almost no top safe-area inset, so the upper toolbar hugs the very
     // top edge; a small top padding gives it breathing room. iPad and portrait already inset it.
     private var upperPanelTopPadding: CGFloat {
-        !DeviceUtil.isPad && DeviceUtil.isLandscape ? 8 : 0
+        deviceClient.deviceType() != .pad && isLandscape ? 8 : 0
+    }
+
+    private var isLandscape: Bool {
+        containerSize.width > containerSize.height
     }
 
     var body: some View {
@@ -66,6 +75,7 @@ struct ControlPanel<G: Gesture>: View {
                 setting: $setting,
                 enablesLiveText: $enablesLiveText,
                 autoPlayPolicy: $autoPlayPolicy,
+                isLandscape: isLandscape,
                 dismissAction: dismissAction,
                 navigateSettingAction: navigateSettingAction,
                 reloadAllImagesAction: reloadAllImagesAction,
@@ -79,6 +89,7 @@ struct ControlPanel<G: Gesture>: View {
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
+                    containerSize: containerSize,
                     dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
@@ -97,6 +108,7 @@ private struct UpperPanel: View {
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
+    private let isLandscape: Bool
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
     private let reloadAllImagesAction: () -> Void
@@ -107,12 +119,14 @@ private struct UpperPanel: View {
         setting: Binding<Setting>,
         enablesLiveText: Binding<Bool>,
         autoPlayPolicy: Binding<AutoPlayPolicy>,
+        isLandscape: Bool,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
         retryAllFailedImagesAction: @escaping () -> Void
     ) {
         self.title = title
+        self.isLandscape = isLandscape
         _setting = setting
         _enablesLiveText = enablesLiveText
         _autoPlayPolicy = autoPlayPolicy
@@ -153,7 +167,7 @@ private struct UpperPanel: View {
                         .font(.title2)
                 }
 
-                if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
+                if isLandscape && setting.readingDirection != .vertical {
                     Menu {
                         Button {
                             setting.enablesDualPageMode.toggle()
@@ -230,6 +244,7 @@ private struct LowerPanel<G: Gesture>: View {
     private let previewURLs: [Int: URL]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
+    private let containerSize: CGSize
     private let dismissGesture: G
     private let dismissAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
@@ -237,7 +252,7 @@ private struct LowerPanel<G: Gesture>: View {
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
-        dismissGesture: G, dismissAction: @escaping () -> Void,
+        containerSize: CGSize, dismissGesture: G, dismissAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
@@ -245,6 +260,7 @@ private struct LowerPanel<G: Gesture>: View {
         self.previewURLs = previewURLs
         self.range = range
         self.isReversed = isReversed
+        self.containerSize = containerSize
         self.dismissGesture = dismissGesture
         self.dismissAction = dismissAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
@@ -269,6 +285,7 @@ private struct LowerPanel<G: Gesture>: View {
                     previewURLs: previewURLs,
                     range: range,
                     isReversed: isReversed,
+                    containerSize: containerSize,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
 
@@ -283,7 +300,7 @@ private struct LowerPanel<G: Gesture>: View {
                         in: range,
                         onEditingChanged: { if !$0 { showsSliderPreview = false } }
                     )
-                    .frame(width: DeviceUtil.windowW * 0.6)
+                    .frame(width: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity)
@@ -304,11 +321,13 @@ private struct LowerPanel<G: Gesture>: View {
 
 // MARK: SliderPreview
 private struct SliderPreivew: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding private var showsSliderPreview: Bool
     @Binding var sliderValue: Float
     private let previewURLs: [Int: URL]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
+    private let containerSize: CGSize
     private let fetchPreviewURLsAction: (Int) -> Void
 
     static let outerPadding: CGFloat = 8
@@ -319,6 +338,7 @@ private struct SliderPreivew: View {
         previewURLs: [Int: URL],
         range: ClosedRange<Float>,
         isReversed: Bool,
+        containerSize: CGSize,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
@@ -326,6 +346,7 @@ private struct SliderPreivew: View {
         self.previewURLs = previewURLs
         self.range = range
         self.isReversed = isReversed
+        self.containerSize = containerSize
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
@@ -337,7 +358,7 @@ private struct SliderPreivew: View {
                         .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
 
                     Text(index, format: .number)
-                        .font(DeviceUtil.isPadWidth ? .callout : .caption)
+                        .font(horizontalSizeClass == .regular ? .callout : .caption)
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
@@ -357,11 +378,11 @@ private struct SliderPreivew: View {
 
 private extension SliderPreivew {
     var verticalPadding: CGFloat {
-        DeviceUtil.isPadWidth ? 30 : 20
+        horizontalSizeClass == .regular ? 30 : 20
     }
     var horizontalPadding: CGFloat { verticalPadding * 0.5 }
     var previewsCount: Int {
-        DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
+        horizontalSizeClass == .regular ? isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
         // Do NOT gate this on `previewURLs` being non-empty: the slots' `.onAppear` is what fires
@@ -383,8 +404,9 @@ private extension SliderPreivew {
         guard previewsCount > 0 else { return 0 }
         let count = CGFloat(previewsCount)
         let spacing = (count + 1) * previewSpacing + horizontalPadding * 2 + Self.outerPadding * 2
-        return (DeviceUtil.windowW - spacing) / count
+        return (containerSize.width - spacing) / count
     }
+    var isLandscape: Bool { containerSize.width > containerSize.height }
     func checkIndex(_ index: Int) -> Bool {
         index >= Int(range.lowerBound) && index <= Int(range.upperBound)
     }

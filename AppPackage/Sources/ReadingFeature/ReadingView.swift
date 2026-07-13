@@ -10,10 +10,13 @@ import AnimatedImageFeature
 import SystemNotificationExt
 import AppComponents
 import ReadingSettingFeature
+import Dependencies
+import DeviceClient
 
 private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
@@ -75,6 +78,10 @@ public struct ReadingView: View {
         return store.localPageURLs.merging(store.originalImageURLs, uniquingKeysWith: { local, _ in local })
     }
 
+    private var isLandscape: Bool {
+        gestureHandler.containerSize.width > gestureHandler.containerSize.height
+    }
+
     public var body: some View {
         changeTriggers(content: { content })
             .sheet(
@@ -83,7 +90,7 @@ public struct ReadingView: View {
                 NavigationStack {
                     ReadingSettingView(store: readingSettingStore)
                     .toolbar {
-                        if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                        if deviceClient.deviceType() != .pad && isLandscape {
                             CustomToolbarItem(placement: .cancellationAction) {
                                 Button {
                                     store.send(.destination(.dismiss))
@@ -134,7 +141,7 @@ public struct ReadingView: View {
                         page: pageModel,
                         data: store.state.containerDataSource(
                             setting: store.setting,
-                            isLandscape: DeviceUtil.isLandscape
+                            isLandscape: isLandscape
                         ),
                         id: \.self,
                         spacing: store.setting.contentDividerHeight,
@@ -163,6 +170,7 @@ public struct ReadingView: View {
                 sliderValue: $bindablePageHandler.sliderValue, setting: Binding($setting),
                 enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
+                containerSize: gestureHandler.containerSize,
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
@@ -185,7 +193,7 @@ public struct ReadingView: View {
     private var horizontalPagingList: some View {
         let dataSource = store.state.containerDataSource(
             setting: store.setting,
-            isLandscape: DeviceUtil.isLandscape
+            isLandscape: isLandscape
         )
         return ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
@@ -245,7 +253,7 @@ public struct ReadingView: View {
             .onChange(
                 of: store.state.containerDataSource(
                     setting: store.setting,
-                    isLandscape: DeviceUtil.isLandscape
+                    isLandscape: isLandscape
                 )
             ) { _, _ in
                 setPageIndex(sliderValue: pageHandler.sliderValue)
@@ -255,7 +263,7 @@ public struct ReadingView: View {
                     index: newValue,
                     pageCount: store.gallery.pageCount,
                     setting: store.setting,
-                    isLandscape: DeviceUtil.isLandscape
+                    isLandscape: isLandscape
                 )
                 pageHandler.sliderValue = .init(newValue)
                 store.send(.syncReadingProgress(.init(newValue)))
@@ -282,11 +290,11 @@ public struct ReadingView: View {
         let imageStackConfig = store.state.imageContainerConfigs(
             index: index,
             setting: setting,
-            isLandscape: DeviceUtil.isLandscape
+            isLandscape: isLandscape
         )
         let isDualPage = setting.enablesDualPageMode
-            && setting.readingDirection != .vertical && DeviceUtil.isLandscape
-        let dataSource = store.state.containerDataSource(setting: setting, isLandscape: DeviceUtil.isLandscape)
+            && setting.readingDirection != .vertical && isLandscape
+        let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
         let activeStackIndex = dataSource.indices.contains(pageModel.index) ? dataSource[pageModel.index] : nil
         HorizontalImageStack(
             index: index,
@@ -324,7 +332,7 @@ extension ReadingView {
     func jump(toPagerIndex target: Int) {
         let dataSource = store.state.containerDataSource(
             setting: store.setting,
-            isLandscape: DeviceUtil.isLandscape
+            isLandscape: isLandscape
         )
         guard !dataSource.isEmpty else { return }
         let clampedIndex = min(max(target, 0), dataSource.count - 1)
@@ -342,14 +350,14 @@ extension ReadingView {
         let newValue = pageHandler.mapToPager(
             index: .init(sliderValue),
             setting: store.setting,
-            isLandscape: DeviceUtil.isLandscape
+            isLandscape: isLandscape
         )
         jump(toPagerIndex: newValue)
     }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
             let dataSource = store.state.containerDataSource(
-                setting: store.setting, isLandscape: DeviceUtil.isLandscape
+                setting: store.setting, isLandscape: isLandscape
             )
             let target = pageModel.index + 1
             jump(toPagerIndex: target)
