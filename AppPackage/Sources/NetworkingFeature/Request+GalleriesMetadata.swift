@@ -83,7 +83,7 @@ private struct GalleryMetadata: Decodable {
 /// from this on demand. The `gdata` endpoint accepts at most 25 gid/token pairs per call, so the
 /// input is chunked and the chunks are fetched concurrently, then reassembled in input order
 /// (unresolved gids are dropped).
-public struct GalleriesMetadataRequest: Request {
+public struct GalleriesMetadataRequest: Request, Sendable {
     public let gidList: [(gid: String, token: String)]
     public let urlSession: URLSession
 
@@ -110,7 +110,6 @@ public struct GalleriesMetadataRequest: Request {
     private func fetchChunks(
         _ chunks: [[(gid: String, token: String)]]
     ) async throws(AppError) -> [[Gallery]] {
-        let urlSession = urlSession
         let result = await withTaskGroup(
             of: Result<[Gallery], AppError>.self,
             returning: Result<[[Gallery]], AppError>.self
@@ -118,7 +117,7 @@ public struct GalleriesMetadataRequest: Request {
             var nextIndex = 0
             for chunk in chunks.prefix(2) {
                 group.addTask {
-                    await Self.chunkResult(chunk, urlSession: urlSession)
+                    await self.chunkResult(chunk)
                 }
                 nextIndex += 1
             }
@@ -132,7 +131,7 @@ public struct GalleriesMetadataRequest: Request {
                         let chunk = chunks[nextIndex]
                         nextIndex += 1
                         group.addTask {
-                            await Self.chunkResult(chunk, urlSession: urlSession)
+                            await self.chunkResult(chunk)
                         }
                     }
                 case .failure(let error):
@@ -145,9 +144,8 @@ public struct GalleriesMetadataRequest: Request {
         return try result.get()
     }
 
-    private static func chunkResult(
-        _ chunk: [(gid: String, token: String)],
-        urlSession: URLSession
+    private func chunkResult(
+        _ chunk: [(gid: String, token: String)]
     ) async -> Result<[Gallery], AppError> {
         let gidlist = chunk.compactMap { pair -> [Any]? in
             guard let gid = Int(pair.gid) else { return nil }
@@ -157,9 +155,8 @@ public struct GalleriesMetadataRequest: Request {
             return .success([])
         }
         do throws(AppError) {
-            let request = Self(gidList: [], urlSession: urlSession)
             return .success(
-                try await request.gdataResponse(gidlist: gidlist, urlSession: urlSession) {
+                try await gdataResponse(gidlist: gidlist, urlSession: urlSession) {
                     try Self.galleries(fromResponseData: $0)
                 }
             )
