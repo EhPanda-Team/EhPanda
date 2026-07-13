@@ -82,7 +82,6 @@ public struct GalleryCardCell: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
         }
-        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
         .cornerRadius(15)
         .animation(.easeInOut(duration: 0.5), value: animated)
         .onChange(of: colorScheme) { _, newScheme in
