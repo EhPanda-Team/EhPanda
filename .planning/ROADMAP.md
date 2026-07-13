@@ -238,7 +238,43 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. The security-section auto-lock control is replaced by a description pointing users to the iOS built-in per-app lock.
   4. Background / app-switcher blur is retained.
 
-**Plans**: TBD
+**Plans**: 8 plans (8 sequential waves — the package graph is kept building green at every plan
+boundary via the mask-swap-first + vestigial-param technique; xcodebuild builds must not overlap on
+this machine)
+Plans:
+
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Foundation: privacyMaskBlur shared key + self-sourcing .privacyMask() modifier + new Privacy Mask l10n keys
+
+**Wave 2** *(blocked on 07-01)*
+
+- [ ] 07-02-PLAN.md — Part-B core: Setting rename + AutoLockPolicy removal + scenePhase fold (Pitfall 1) + General Security section removal + Appearance relocation
+
+**Wave 3** *(blocked on 07-02)*
+
+- [ ] 07-03-PLAN.md — App-root teardown: TabBarView masks + lock-button removal + delete AppLockReducer/AuthorizationClient + Package.swift + Face ID Info.plist + dead l10n
+
+**Wave 4** *(blocked on 07-03)*
+
+- [ ] 07-04-PLAN.md — HomeFeature + FavoritesFeature: blurRadius param removal + .privacyMask() swap
+
+**Wave 5** *(blocked on 07-04)*
+
+- [ ] 07-05-PLAN.md — SearchFeature + DownloadsFeature: blurRadius param removal + .privacyMask() swap
+
+**Wave 6** *(blocked on 07-05)*
+
+- [ ] 07-06-PLAN.md — DetailFeature: 13 mask sites + GalleryDestination drilling unwound
+
+**Wave 7** *(blocked on 07-06)*
+
+- [ ] 07-07-PLAN.md — ReadingFeature + SettingFeature + new AppActivityLogs mask site (D-16); delete autoBlur (final Part-A)
+
+**Wave 8** *(blocked on 07-07)*
+
+- [ ] 07-08-PLAN.md — Verification: AppFeatureTests scenePhase test + automated D-16 coverage/orphan audit + blocking human leak sweep
+
 **UI hint**: yes
 
 ### Phase 8: Architecture Hygiene & Client Seams
@@ -311,7 +347,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
-| 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
+| 7. Root Privacy Mask & Auto-Lock Removal | 0/8 | Planned | - |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
