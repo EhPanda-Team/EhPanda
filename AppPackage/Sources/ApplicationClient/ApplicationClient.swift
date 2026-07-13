@@ -35,7 +35,7 @@ extension ApplicationClient {
             }
         },
         setUserInterfaceStyle: { userInterfaceStyle in
-            (DeviceUtil.keyWindow ?? DeviceUtil.anyWindow)?.overrideUserInterfaceStyle = userInterfaceStyle
+            interfaceStyleWindow()?.overrideUserInterfaceStyle = userInterfaceStyle
         }
     )
     @MainActor
@@ -86,4 +86,21 @@ extension ApplicationClient {
         setAlternateIconName: IssueReporting.unimplemented(placeholder: placeholder()),
         setUserInterfaceStyle: IssueReporting.unimplemented(placeholder: placeholder())
     )
+}
+
+@MainActor
+private func interfaceStyleWindow() -> UIWindow? {
+    let keyWindow = UIApplication.shared.connectedScenes
+        .filter { $0.activationState == .foregroundActive }
+        .compactMap { $0 as? UIWindowScene }
+        .last?
+        .windows
+        .filter(\.isKeyWindow)
+        .last
+    let anyWindow = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .last?
+        .windows
+        .last
+    return keyWindow ?? anyWindow
 }
