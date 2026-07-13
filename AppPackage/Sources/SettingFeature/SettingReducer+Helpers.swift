@@ -112,12 +112,7 @@ extension SettingReducer {
                     await send(.fetchTagTranslatorDone(.failure(.parseFailed)))
                 }
             } catch {
-                switch error {
-                case .noUpdates:
-                    await send(.fetchTagTranslatorDone(.failure(.noUpdates)))
-                default:
-                    await send(.fetchTagTranslatorDone(.failure(error)))
-                }
+                await send(.fetchTagTranslatorDone(.failure(error)))
             }
         }
     }
