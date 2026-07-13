@@ -11,6 +11,7 @@ struct LoginView: View {
     @SharedReader(.setting) private var setting: Setting
     private let blurRadius: Double
 
+    @State private var size: CGSize = .zero
     @FocusState private var focusedField: LoginReducer.FocusedField?
 
     init(store: StoreOf<LoginReducer>, blurRadius: Double) {
@@ -20,53 +21,52 @@ struct LoginView: View {
 
     // MARK: LoginView
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
+        ZStack {
+            Group {
+                WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
+                WaveForm(color: Color(.systemGray).opacity(0.2), amplify: 120, isReversed: false)
+            }
+            .offset(y: size.height * 0.3)
+            .drawingGroup()
+
+            VStack(spacing: 15) {
                 Group {
-                    WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
-                    WaveForm(color: Color(.systemGray).opacity(0.2), amplify: 120, isReversed: false)
+                    LoginTextField(
+                        focusedField: $focusedField,
+                        text: $store.username,
+                        description: .username,
+                        isPassword: false
+                    )
+                    LoginTextField(
+                        focusedField: $focusedField,
+                        text: $store.password,
+                        description: .password,
+                        isPassword: true
+                    )
                 }
-                .offset(y: proxy.size.height * 0.3)
-                .drawingGroup()
+                .padding(.horizontal, size.width * 0.2)
 
-                VStack(spacing: 15) {
-                    Group {
-                        LoginTextField(
-                            focusedField: $focusedField,
-                            text: $store.username,
-                            description: .username,
-                            isPassword: false
-                        )
-                        LoginTextField(
-                            focusedField: $focusedField,
-                            text: $store.password,
-                            description: .password,
-                            isPassword: true
-                        )
-                    }
-                    .padding(.horizontal, proxy.size.width * 0.2)
-
-                    Button {
-                        store.send(.login)
-                    } label: {
-                        Image(systemSymbol: .chevronForward)
-                            .padding()
-                            .clipShape(.circle)
-                    }
-                    .overlay {
-                        ProgressView()
-                            .tint(nil)
-                            .opacity(store.loginState == .loading ? 1 : 0)
-                    }
-                    .font(.title)
-                    .foregroundStyle(store.loginButtonColor)
-                    .disabled(store.loginButtonDisabled)
-                    .glassEffect(.regular.interactive(), in: .circle)
-                    .clipShape(.circle)
-                    .padding(.top, 30)
+                Button {
+                    store.send(.login)
+                } label: {
+                    Image(systemSymbol: .chevronForward)
+                        .padding()
+                        .clipShape(.circle)
                 }
+                .overlay {
+                    ProgressView()
+                        .tint(nil)
+                        .opacity(store.loginState == .loading ? 1 : 0)
+                }
+                .font(.title)
+                .foregroundStyle(store.loginButtonColor)
+                .disabled(store.loginButtonDisabled)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .clipShape(.circle)
+                .padding(.top, 30)
             }
         }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         .synchronize($store.focusedField, $focusedField)
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue) {
