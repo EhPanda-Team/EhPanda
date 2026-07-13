@@ -246,7 +246,7 @@ struct AppReducer {
                 if !cookieClient.didLogin {
                     effects.append(
                         .run { send in
-                            let isPad = await deviceClient.isPad()
+                            let isPad = await deviceClient.deviceType() == .pad
                             let delay = UInt64(isPad ? 1200 : 200)
                             try await Task.sleep(for: .milliseconds(delay))
                             await send(.setting(.pushLogin))

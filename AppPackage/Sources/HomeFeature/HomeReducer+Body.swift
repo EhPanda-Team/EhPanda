@@ -32,7 +32,7 @@ extension HomeReducer {
                  let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .history(.delegate(.pushDetail(gallery))))):
                 return GalleryNavigation.routeGalleryDetail(
-                    isPad: deviceClient.isPad,
+                    deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(gallery)) },
                     push: { .pushGalleryDetail(gallery) }
                 )

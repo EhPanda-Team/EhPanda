@@ -97,10 +97,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.deviceClient = DeviceClient(
-                    isPad: { true },
-                    absWindowW: { .zero },
-                    absWindowH: { .zero },
-                    touchPoint: { nil }
+                    deviceType: { .pad }
                 )
             }
         )
