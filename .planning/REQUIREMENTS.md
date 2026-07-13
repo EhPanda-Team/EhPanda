@@ -41,7 +41,7 @@
   - All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and the `Setting.enablesLandscape` field are removed (v1 in-place edit); OS orientation lock governs.
 - [x] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
   - No view initializer takes `blurRadius`; `.autoBlur` applied only at root surfaces — app root + every one of the ~41 modal roots; transient blur state sourced from shared in-memory state; **no lock-time/background content leak** in any modal; NavigationBar-collapse workaround preserved.
-- [ ] **UIARCH-05**: Remove the auto-lock feature; direct users to iOS's built-in per-app lock.
+- [x] **UIARCH-05**: Remove the auto-lock feature; direct users to iOS's built-in per-app lock.
   - `Setting.autoLockPolicy`, the biometric re-auth path (`authorize`/`lockApp`/`isAppLocked`/threshold), and `AuthorizationClient` are removed; the security-section auto-lock control is replaced by a description pointing to the iOS built-in lock; background blur is retained (see UIARCH-04).
 
 ### HYG — Architecture hygiene
@@ -106,7 +106,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | UIARCH-02 | Phase 6 | Complete (rescoped — decomposition rejected) |
 | UIARCH-03 | Phase 5 | Complete |
 | UIARCH-04 | Phase 7 | Complete |
-| UIARCH-05 | Phase 7 | Pending |
+| UIARCH-05 | Phase 7 | Complete |
 | HYG-01 | Phase 8 | Pending |
 | QUAL-01 | Phase 8 | Pending |
 | QUAL-02 | Phase 8 | Pending |
