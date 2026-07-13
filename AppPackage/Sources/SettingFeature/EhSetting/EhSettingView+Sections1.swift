@@ -52,6 +52,7 @@ struct EhProfileSection: View {
         Section {
             SettingTextField(
                 text: $editingProfileName, title: .selectedProfile,
+                promptText: .selectedProfile,
                 width: nil, alignment: .leading, background: .clear
             )
             .focused($isFocused)

@@ -114,7 +114,10 @@ public struct AlertView<Content: View>: View {
                 .font(.headline).padding(.bottom, 5)
             actions
         }
-        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
+        .frame(maxWidth: 500)
+        .containerRelativeFrame(.horizontal, alignment: .center) { width, _ in
+            min(width * 0.8, 500)
+        }
     }
 }
 

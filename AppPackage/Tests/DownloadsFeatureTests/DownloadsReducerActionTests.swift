@@ -97,7 +97,8 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.deviceClient = DeviceClient(
-                    deviceType: { .pad }
+                    deviceType: { .pad },
+                    isLandscape: { false }
                 )
             }
         )

@@ -38,6 +38,9 @@ struct DescriptionSection: View {
         )
     ]}
     var body: some View {
+        let itemWidth: (CGFloat, Axis) -> CGFloat = { width, _ in
+            max(width / 5, 80)
+        }
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 ForEach(infos) { info in
@@ -48,9 +51,7 @@ struct DescriptionSection: View {
                             DescScrollItem(title: info.title, value: info.value, description: info.description)
                         }
                     }
-                    .containerRelativeFrame(.horizontal) { width, _ in
-                        max(width / 5, 80)
-                    }
+                    .containerRelativeFrame(.horizontal, itemWidth)
                     .drawingGroup()
                     Divider()
                     if info == infos.last {
@@ -58,9 +59,7 @@ struct DescriptionSection: View {
                             Image(systemSymbol: .ellipsis)
                                 .font(.system(size: 20, weight: .bold))
                         }
-                        .containerRelativeFrame(.horizontal) { width, _ in
-                            max(width / 5, 80)
-                        }
+                        .containerRelativeFrame(.horizontal, itemWidth)
                     }
                 }
                 .withHorizontalSpacing()
@@ -288,7 +287,9 @@ struct PreviewsSection: View {
     let navigatePreviewsAction: () -> Void
     let navigateReadingAction: (Int) -> Void
 
-    private var width: CGFloat { horizontalSizeClass == .regular ? 200 : 110 }
+    private var width: CGFloat {
+        DetailLayout.previewWidth(regular: horizontalSizeClass == .regular)
+    }
     private var height: CGFloat { width / Defaults.ImageSize.previewAspect }
 
     var body: some View {

@@ -24,8 +24,12 @@ struct PreviewsView: View {
     private var gridItems: [GridItem] {
         [GridItem(
             .adaptive(
-                minimum: horizontalSizeClass == .regular ? 180 : 100,
-                maximum: horizontalSizeClass == .regular ? 220 : 120
+                minimum: DetailLayout.previewGridMinimumWidth(
+                    regular: horizontalSizeClass == .regular
+                ),
+                maximum: DetailLayout.previewGridMaximumWidth(
+                    regular: horizontalSizeClass == .regular
+                )
             ),
             spacing: 10
         )]
