@@ -22,7 +22,6 @@ struct AppReducer {
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
         var appRouteState = AppRouteReducer.State()
-        var appLockState = AppLockReducer.State()
         var tabBarState = TabBarReducer.State()
         var homeState = HomeReducer.State()
         var favoritesState = FavoritesReducer.State()
@@ -44,7 +43,6 @@ struct AppReducer {
 
         case appDelegate(AppDelegateReducer.Action)
         case appRoute(AppRouteReducer.Action)
-        case appLock(AppLockReducer.Action)
 
         case tabBar(TabBarReducer.Action)
 
@@ -177,9 +175,6 @@ struct AppReducer {
             case .appRoute:
                 return .none
 
-            case .appLock:
-                return .none
-
             case .tabBar(.setTabBarItemType(let type)):
                 var effects = [Effect<Action>]()
                 let hapticEffect: Effect<Action> = .run { _ in
@@ -306,7 +301,6 @@ struct AppReducer {
         }
 
         Scope(\.appRouteState, action: \.appRoute, AppRouteReducer.init)
-        Scope(\.appLockState, action: \.appLock, AppLockReducer.init)
         Scope(\.appDelegateState, action: \.appDelegate, AppDelegateReducer.init)
         Scope(\.tabBarState, action: \.tabBar, TabBarReducer.init)
         Scope(\.homeState, action: \.home, HomeReducer.init)
