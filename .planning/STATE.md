@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-06-PLAN.md
-last_updated: "2026-07-13T05:33:23.854Z"
+stopped_at: Completed 05-07-PLAN.md
+last_updated: "2026-07-13T05:45:28.589Z"
 last_activity: 2026-07-13
 last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 42
-  completed_plans: 38
-  percent: 90
+  completed_plans: 39
+  percent: 36
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 7 of 10
+Plan: 8 of 10
 Status: Ready to execute
 Last activity: 2026-07-13 — Phase 05 execution started
 Next: plan Phase 05
 
-Progress: [█████████░] 90% (38/42 plans)
+Progress: [█████████░] 93% (39/42 plans)
 
 ## Performance Metrics
 
@@ -94,6 +94,7 @@ Progress: [█████████░] 90% (38/42 plans)
 | Phase 05 P04 | 4min | 2 tasks | 4 files |
 | Phase 05 P05 | 7min | 3 tasks | 7 files |
 | Phase 05 P06 | 12min | 2 tasks | 2 files |
+| Phase 05 P07 | 6min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,7 @@ Recent decisions affecting current work:
 - [Phase 05]: Preview thumbnail downsampling uses a fixed 660-pixel cap. — The former regular-width maximum preserves fidelity without coupling image decoding to layout.
 - [Phase 05]: Carousel card width, card pitch, and symmetric peek inset derive from one observed container width. — Keeps the coupled view-aligned geometry consistent during rotation and container resizing.
 - [Phase 05]: Ranking layout follows horizontal size class while Toplists and title trimming retain device-class semantics through DeviceClient. — Separates adaptive layout decisions from parity-sensitive device identity branches.
+- [Phase 05]: Live Text OCR paths and interactive overlays share one captured nonzero size; Canvas uses its closure size only for the full-surface tint. — This preserves normalized coordinate alignment while guarding the initial geometry pass.
 
 ### Pending Todos
 
@@ -167,6 +169,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T05:32:58.921Z
-Stopped at: Completed 05-06-PLAN.md
+Last session: 2026-07-13T05:44:13.498Z
+Stopped at: Completed 05-07-PLAN.md
 Resume file: None
