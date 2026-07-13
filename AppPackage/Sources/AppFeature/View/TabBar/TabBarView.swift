@@ -49,8 +49,7 @@ struct TabBarView: View {
                         )
                     case .search:
                         SearchRootView(
-                            store: store.scope(\.searchRootState, action: \.searchRoot),
-                            blurRadius: 0
+                            store: store.scope(\.searchRootState, action: \.searchRoot)
                         )
                     case .downloads:
                         DownloadsView(

@@ -10,14 +10,9 @@ import DetailFeature
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
-    private let blurRadius: Double
 
-    public init(
-        store: StoreOf<SearchRootReducer>,
-        blurRadius: Double
-    ) {
+    public init(store: StoreOf<SearchRootReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     public var body: some View {
@@ -41,7 +36,7 @@ public struct SearchRootView: View {
                     item: $store.scope(\.$destination, action: \.destination).filters
                 ) { store in
                     FiltersView(store: store)
-                        .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+                        .privacyMask().environment(\.inSheet, true)
                 }
                 .sheet(
                     item: $store.scope(\.$destination, action: \.destination).quickSearch
@@ -54,7 +49,7 @@ public struct SearchRootView: View {
                         }
                     }
                     .accentColor(self.store.setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)
                 .searchSuggestions {
@@ -83,13 +78,9 @@ public struct SearchRootView: View {
         } destination: { store in
             switch store.case {
             case .search(let store):
-                SearchView(
-                    store: store, blurRadius: blurRadius
-                )
+                SearchView(store: store)
             case .gallery(let store):
-                galleryDestination(
-                    store, blurRadius: blurRadius
-                )
+                galleryDestination(store)
             }
         }
     }
@@ -259,8 +250,7 @@ private struct HistoryGalleriesSection: View {
 struct SearchRootView_Previews: PreviewProvider {
     static var previews: some View {
         SearchRootView(
-            store: .init(initialState: .init(), reducer: SearchRootReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: SearchRootReducer.init)
         )
     }
 }
