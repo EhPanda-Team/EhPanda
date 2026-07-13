@@ -13,8 +13,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         showsImagesInTags: Bool = false,
         redirectsLinksToSelectedHost: Bool = false,
         detectsLinksFromClipboard: Bool = false,
-        backgroundBlurRadius: Double = 10,
-        autoLockPolicy: AutoLockPolicy = .never,
+        privacyMaskIntensity: Double = 10,
         listDisplayMode: ListDisplayMode = .detail,
         accentColor: Color = .blue,
         appIconType: AppIconType = .default,
@@ -38,8 +37,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         self.showsImagesInTags = showsImagesInTags
         self.redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         self.detectsLinksFromClipboard = detectsLinksFromClipboard
-        self.backgroundBlurRadius = backgroundBlurRadius
-        self.autoLockPolicy = autoLockPolicy
+        self.privacyMaskIntensity = privacyMaskIntensity
         self.listDisplayMode = listDisplayMode
         self.accentColor = accentColor
         self.appIconType = appIconType
@@ -89,25 +87,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var showsImagesInTags = false
     public var redirectsLinksToSelectedHost = false
     public var detectsLinksFromClipboard = false
-    // `autoLockPolicy` and `backgroundBlurRadius` are coupled: auto-lock relies on a non-zero blur to
-    // obscure content, so enabling auto-lock while blur is 0 restores a default blur, and dropping blur
-    // to 0 disables auto-lock. Kept on the model (not a reducer `BindingReducer`) so every write path —
-    // the Setting editor or any direct `@Shared(.setting)` binding — preserves it without a reducer
-    // round-trip, mirroring the scale-factor clamp below.
-    public var backgroundBlurRadius: Double = 10 {
-        didSet {
-            if autoLockPolicy != .never && backgroundBlurRadius == 0 {
-                autoLockPolicy = .never
-            }
-        }
-    }
-    public var autoLockPolicy: AutoLockPolicy = .never {
-        didSet {
-            if autoLockPolicy != .never && backgroundBlurRadius == 0 {
-                backgroundBlurRadius = 10
-            }
-        }
-    }
+    public var privacyMaskIntensity: Double = 10
 
     // Appearance
     public var listDisplayMode: ListDisplayMode = .detail
@@ -194,33 +174,6 @@ public enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable,
             return "eh"
         case .exhentai:
             return "ex"
-        }
-    }
-}
-
-public enum AutoLockPolicy: Int, Codable, CaseIterable, Identifiable, Sendable {
-    public var id: Int { rawValue }
-
-    case never = -1
-    case instantly = 0
-    case sec15 = 15
-    case min1 = 60
-    case min5 = 300
-    case min10 = 600
-    case min30 = 1800
-}
-
-extension AutoLockPolicy {
-    public var value: LocalizedStringResource {
-        switch self {
-        case .never:
-            return .autoLockPolicyNever
-        case .instantly:
-            return .autoLockPolicyInstantly
-        case .sec15:
-            return .RLocalizable.seconds(count: rawValue)
-        case .min1, .min5, .min10, .min30:
-            return .RLocalizable.minutes(count: rawValue / 60)
         }
     }
 }
