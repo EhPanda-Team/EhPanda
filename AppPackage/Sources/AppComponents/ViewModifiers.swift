@@ -1,8 +1,21 @@
 import SwiftUI
 import Kingfisher
 import SFSafeSymbols
+import Sharing
+import AppModels
 import AppTools
 import ParserFeature
+
+public struct PrivacyMaskModifier: ViewModifier {
+    @SharedReader(.privacyMaskBlur) private var blur
+
+    public func body(content: Content) -> some View {
+        content
+            .blur(radius: blur)
+            .allowsHitTesting(blur < 1)
+            .animation(.linear(duration: 0.1), value: blur)
+    }
+}
 
 extension View {
     public func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
@@ -30,6 +43,10 @@ extension View {
         blur(radius: radius)
             .allowsHitTesting(radius < 1)
             .animation(.linear(duration: 0.1), value: radius)
+    }
+
+    public func privacyMask() -> some View {
+        modifier(PrivacyMaskModifier())
     }
 
     public func synchronize<Value: Equatable>(
