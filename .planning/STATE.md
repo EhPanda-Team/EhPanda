@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-04-PLAN.md
-last_updated: "2026-07-13T05:06:19.373Z"
+stopped_at: Completed 05-05-PLAN.md
+last_updated: "2026-07-13T05:18:16.252Z"
 last_activity: 2026-07-13
 last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 42
-  completed_plans: 36
-  percent: 36
+  completed_plans: 37
+  percent: 88
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-07-13 — Phase 05 execution started
 Next: plan Phase 05
@@ -92,6 +92,7 @@ Progress: [██████████] 100% (32/32 plans across Phases 01–
 | Phase 05 P02 | 9min | 2 tasks | 18 files |
 | Phase 05 P03 | 4min | 2 tasks | 5 files |
 | Phase 05 P04 | 4min | 2 tasks | 4 files |
+| Phase 05 P05 | 7min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 05]: EhSetting fractions use current container dimensions instead of the old orientation-independent short edge. — This is the locked adaptive-layout delta for rotation and resized containers.
 - [Phase 05]: Alert and placeholder widths use the nearest SwiftUI container while preserving their existing factors.
 - [Phase 05]: NewDawnView observes only container width and keeps its iPad-specific factor through the injected DeviceClient.
+- [Phase 05]: Direct detail width fractions use containerRelativeFrame without geometry state. — This keeps direct fractions container-relative while avoiding unnecessary view state and invalidation.
+- [Phase 05]: Archive cells receive the grid's size-class-selected width. — A single selected value keeps adaptive grid metadata and rendered cell frames identical.
+- [Phase 05]: Preview thumbnail downsampling uses a fixed 660-pixel cap. — The former regular-width maximum preserves fidelity without coupling image decoding to layout.
 
 ### Pending Todos
 
@@ -160,6 +164,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T05:06:19.368Z
-Stopped at: Completed 05-04-PLAN.md
+Last session: 2026-07-13T05:18:16.247Z
+Stopped at: Completed 05-05-PLAN.md
 Resume file: None
