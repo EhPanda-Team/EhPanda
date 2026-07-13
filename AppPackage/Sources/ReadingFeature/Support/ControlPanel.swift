@@ -404,7 +404,7 @@ private extension SliderPreivew {
         guard previewsCount > 0 else { return 0 }
         let count = CGFloat(previewsCount)
         let spacing = (count + 1) * previewSpacing + horizontalPadding * 2 + Self.outerPadding * 2
-        return (containerSize.width - spacing) / count
+        return max((containerSize.width - spacing) / count, 0)
     }
     var isLandscape: Bool { containerSize.width > containerSize.height }
     func checkIndex(_ index: Int) -> Bool {
