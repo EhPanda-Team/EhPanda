@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
 - [ ] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList`
 - [x] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock (completed 2026-07-14)
-- [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize Utils into injected clients, move cookies to Keychain, cover reworked seams with tests
+- [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
 - [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [ ] **Phase 11: Lint Capstone** - Ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
@@ -291,13 +291,13 @@ Plans:
 
 ### Phase 8: Architecture Hygiene & Client Seams
 
-**Goal**: De-globalize the Utils into injected clients and remove singletons, move session cookies to Keychain, and cover the reworked client seams with tests.
+**Goal**: De-globalize side-effecting Utils into injected clients, retain pure helper namespaces, remove singletons, audit cookie logging, and cover the reworked client seams with tests.
 **Depends on**: Phase 4, Phase 5 (removes `TouchHandler.shared` after UIARCH-01 retires it; QUAL-02 tests the async `NetworkingFeature` from Phase 4)
 **Requirements**: HYG-01, QUAL-01, QUAL-02
 **Success Criteria** (what must be TRUE):
 
-  1. The AppTools Utils (Device/Haptics/UserDefaults/File/Cookie) plus `URLUtil` and `AppUtil` are converted to / folded into injected clients; `TouchHandler.shared` and `DataCache.shared` globals are removed; pure value types and constants are retained; no static global helper with side effects remains.
-  2. Durable auth cookies are stored via Keychain (within the CookieClient work), and no cookie value is ever emitted to logs at `.public` privacy.
+  1. Side-effecting AppTools Utils are converted to / folded into injected clients; `URLUtil` and `AppUtil` retain only pure namespace responsibilities per D-06; `TouchHandler.shared` and `DataCache.shared` globals are removed; no static global helper with side effects remains.
+  2. No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   3. Client-layer tests cover the reworked seams — the async `NetworkingFeature` (from Phase 4), `CookieClient`, and `ImageClient` — and are deterministic and green.
 
 **Plans**: 14 plans (sequential waves — xcodebuild invocations must never overlap on this machine; each plan is its own wave)
