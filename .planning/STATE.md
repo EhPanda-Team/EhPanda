@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-11-PLAN.md
-last_updated: "2026-07-14T10:11:41.678Z"
+stopped_at: Completed 08-12-PLAN.md
+last_updated: "2026-07-14T10:29:31.865Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 73
-  percent: 96
+  completed_plans: 74
+  percent: 97
 ---
 
 # Project State
@@ -28,18 +28,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 12 of 14
+Plan: 13 of 14
 Status: Ready to execute
 Last activity: 2026-07-14
-Next: Execute 08-12-PLAN.md
+Next: Execute 08-13-PLAN.md
 
-Progress: [██████████] 96% (73/76 plans)
+Progress: [██████████] 97% (74/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 73
+- Total plans completed: 74
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -128,6 +128,7 @@ Progress: [██████████] 96% (73/76 plans)
 | Phase 08 P09 | 12 min | 2 tasks | 7 files |
 | Phase 08 P10 | 7 min | 2 tasks | 5 files |
 | Phase 08 P11 | 8 min | 2 tasks | 3 files |
+| Phase 08 P12 | 7 min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -234,6 +235,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Render image-test PNG fixtures at scale 1 before asserting decoded pixel dimensions. — UIImage point canvases inherit the simulator display scale; an explicit unit scale keeps the fixture exactly 2 by 2 pixels.
 - [Phase 08]: 08-11: Use synthetic credential fixtures and clear every live cookie store after each test. — Keeps credential-shaped test data isolated and short-lived while exercising production cookie parsing.
 - [Phase 08]: 08-11: Query skip-server cookies at their /s/ path. — Matches the production cookie path and verifies Foundation URL path filtering rather than bypassing it.
+- [Phase 08]: 08-12: Resolve CookieClient at each view owner, including a function-local read in the cross-file Detail toolbar extension. — Private stored dependencies are file-scoped in Swift; local resolution preserves render-time reads without widening access.
+- [Phase 08]: 08-12: Keep every login condition and control modifier unchanged apart from its predicate source. — The migration is a seam swap at behavior, appearance, accessibility, and dialog-anchor parity.
 
 ### Pending Todos
 
@@ -263,6 +266,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T10:11:41.673Z
-Stopped at: Completed 08-11-PLAN.md
+Last session: 2026-07-14T10:29:31.860Z
+Stopped at: Completed 08-12-PLAN.md
 Resume file: None
