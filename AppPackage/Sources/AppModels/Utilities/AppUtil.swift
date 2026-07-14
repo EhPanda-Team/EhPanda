@@ -1,4 +1,3 @@
-import AppTools
 import Foundation
 
 public struct AppUtil {
@@ -16,11 +15,6 @@ public struct AppUtil {
         #else
         false
         #endif
-    }
-
-    public static var galleryHost: GalleryHost {
-        let rawValue: String? = UserDefaultsUtil.value(forKey: .galleryHost)
-        return GalleryHost(rawValue: rawValue ?? "") ?? .ehentai
     }
 
     public static func dispatchMainSync(execute work: () -> Void) {
