@@ -3,19 +3,19 @@ import ComposableArchitecture
 import AppTools
 
 public struct UserDefaultsClient: Sendable {
+    public let getValue: @Sendable (AppUserDefaults) -> Int?
     public let setValue: @Sendable (Any, AppUserDefaults) -> Void
 }
 
 extension UserDefaultsClient {
     public static let live: Self = .init(
+        getValue: { key in
+            UserDefaults.standard.value(forKey: key.rawValue) as? Int
+        },
         setValue: { value, key in
             UserDefaults.standard.set(value, forKey: key.rawValue)
         }
     )
-
-    public func getValue<T: Codable>(_ key: AppUserDefaults) -> T? {
-        UserDefaults.standard.value(forKey: key.rawValue) as? T
-    }
 }
 
 // MARK: API
@@ -35,12 +35,14 @@ extension DependencyValues {
 // MARK: Test
 extension UserDefaultsClient {
     public static let noop: Self = .init(
+        getValue: { _ in nil },
         setValue: { _, _ in }
     )
 
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(
+        getValue: IssueReporting.unimplemented(placeholder: placeholder()),
         setValue: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
