@@ -32,7 +32,10 @@ func makeImageClient(dataCache: DataCache, urlSession: URLSession) -> ImageClien
 
 @MainActor
 func makePNGData() throws -> Data {
-    let image = UIGraphicsImageRenderer(size: .init(width: 2, height: 2)).image { context in
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let renderer = UIGraphicsImageRenderer(size: .init(width: 2, height: 2), format: format)
+    let image = renderer.image { context in
         UIColor.red.setFill()
         context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
     }
