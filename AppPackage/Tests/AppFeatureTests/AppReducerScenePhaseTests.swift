@@ -78,10 +78,11 @@ struct AppReducerScenePhaseTests {
 private extension AppReducerScenePhaseTests {
     func makeStore(
         detectsLinksFromClipboard: Bool,
-        privacyMaskIntensity: Double
+        privacyMaskIntensity: Double,
+        hasLoadedInitialSetting: Bool = true
     ) -> TestStoreOf<AppReducer> {
         var initialState = AppReducer.State()
-        initialState.settingState.hasLoadedInitialSetting = true
+        initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
         initialState.settingState.$setting.withLock {
             $0 = Setting(
                 detectsLinksFromClipboard: detectsLinksFromClipboard,
