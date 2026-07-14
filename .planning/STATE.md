@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-09-PLAN.md
-last_updated: "2026-07-14T09:44:46.848Z"
+stopped_at: Completed 08-10-PLAN.md
+last_updated: "2026-07-14T09:57:02.271Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 71
-  percent: 93
+  completed_plans: 72
+  percent: 95
 ---
 
 # Project State
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 10 of 14
+Plan: 11 of 14
 Status: Ready to execute
 Last activity: 2026-07-14
-Next: Execute 08-10-PLAN.md
+Next: Execute 08-11-PLAN.md
 
-Progress: [█████████░] 93% (71/76 plans)
+Progress: [██████████] 95% (72/76 plans)
 
 ## Performance Metrics
 
@@ -126,6 +126,7 @@ Progress: [█████████░] 93% (71/76 plans)
 | Phase 08 P07 | 6min | 2 tasks | 10 files |
 | Phase 08 P08 | 7min | 2 tasks | 14 files |
 | Phase 08 P09 | 12 min | 2 tasks | 7 files |
+| Phase 08 P10 | 7 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -228,6 +229,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Test-only URL fallbacks use an explicit E-Hentai host. — Deterministic tests must not recreate the removed mutable host default.
 - [Phase 08]: Use one canonical DataCache actor for the live dependency and system-purge observer. — Preserves coherent cache identity while removing the public singleton seam.
 - [Phase 08]: Use UUID-scoped temporary DataCache instances for the default test dependency. — Prevents cross-test cache pollution while allowing explicit per-test injection.
+- [Phase 08]: Exercise ImageClient through an injected cache and URLSession while keeping one isolated DataCache actor per test. — This prevents process-global cache pollution and makes every client-layer behavior deterministic.
+- [Phase 08]: Render image-test PNG fixtures at scale 1 before asserting decoded pixel dimensions. — UIImage point canvases inherit the simulator display scale; an explicit unit scale keeps the fixture exactly 2 by 2 pixels.
 
 ### Pending Todos
 
@@ -257,6 +260,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T09:44:32.414Z
-Stopped at: Completed 08-09-PLAN.md
+Last session: 2026-07-14T09:56:43.686Z
+Stopped at: Completed 08-10-PLAN.md
 Resume file: None

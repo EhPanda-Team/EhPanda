@@ -54,7 +54,7 @@
 - [x] **QUAL-01**: Audit cookie logging.
   - No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   - D-06 tightens HYG-01: retain `URLUtil` and `AppUtil` as pure namespaces rather than converting them to clients, in keeping with the anti-wrapper rule.
-- [ ] **QUAL-02**: Add client-layer test coverage for the reworked seams.
+- [x] **QUAL-02**: Add client-layer test coverage for the reworked seams.
   - `NetworkingFeature` covered (during CONC-01); `CookieClient` and `ImageClient` covered (during HYG-01); tests are deterministic and green.
 - [ ] **QUAL-03**: Fix the `Category.private.filterValue` `fatalError` landmine.
   - `filterValue` no longer crashes for `.private`; no callsite iterating all categories can trap; covered by a test.
@@ -110,7 +110,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | UIARCH-05 | Phase 7 | Complete |
 | HYG-01 | Phase 8 | Complete |
 | QUAL-01 | Phase 8 | Complete |
-| QUAL-02 | Phase 8 | Pending |
+| QUAL-02 | Phase 8 | Complete |
 | QUAL-03 | Phase 9 | Pending |
 | QUAL-04 | Phase 9 | Pending |
 | POLISH-01 | Phase 10 | Pending |
