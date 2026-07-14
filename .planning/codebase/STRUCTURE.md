@@ -39,7 +39,7 @@ EhPanda/
 
 **`AppPackage/Tests/`:**
 - Purpose: Swift Testing test targets, mirroring source module names.
-- Contains: `AppModelsTests`, `DetailFeatureTests`, `DownloadsFeatureTests`, `FileClientTests`, `NetworkingFeatureTests`, `ParserFeatureTests`, `SettingFeatureTests`, and `FeatureTests.xctestplan`.
+- Contains: `AppModelsTests`, `DetailFeatureTests`, `DownloadsFeatureTests`, `FileClientTests`, `ImageClientTests`, `NetworkingFeatureTests`, `ParserFeatureTests`, `SettingFeatureTests`, and `FeatureTests.xctestplan`.
 
 **`ShareExtension/`:**
 - Purpose: iOS share-sheet extension target.
