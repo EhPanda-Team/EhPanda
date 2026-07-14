@@ -302,20 +302,60 @@ Plans:
 
 **Plans**: 14 plans (sequential waves — xcodebuild invocations must never overlap on this machine; each plan is its own wave)
 Plans:
+**Wave 1**
 
 - [ ] 08-01-PLAN.md — QUAL-01 rescope: reconcile ROADMAP/REQUIREMENTS to logging-audit-only (D-01) + cookie-logging static gate (D-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 08-02-PLAN.md — Seam A.1: URLUtil builders + Defaults.URL host-taking helpers (transitional bridge, D-03/D-06)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 08-03-PLAN.md — Seam A.2: Request+Gallery structs + list reducers thread explicit host (D-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 08-04-PLAN.md — Seam A.3: Setting-consumed account requests + Setting host reads thread host (D-03)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 08-05-PLAN.md — Seam A.4: Detail-consumed account requests + CookieClient.apiuid(host:) (D-03, Open-Q3)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 08-06-PLAN.md — Seam A.5: Image/GData/Metadata/Torrents + setSkipServer + Parser host drain (D-03)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 08-07-PLAN.md — Seam A.6: the 12 AppUtil.galleryHost view/reducer reads → setting.galleryHost (D-03/D-04)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 08-08-PLAN.md — Seam A.7: teardown — delete host global + AppUtil.galleryHost + UserDefaults mirror (D-03)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 08-09-PLAN.md — Seam D: DataCache DependencyKey + purge-observer rebind + consumers resolve \.dataCache (D-08)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 08-10-PLAN.md — Seam F.image: ImageClientTests target (per-test cache, pixel dims) (QUAL-02, D-09/D-10)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 08-11-PLAN.md — Seam F.cookie: CookieClientTests target (full didLogin/setCredentials/... matrix) (QUAL-02, D-10)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 08-12-PLAN.md — Seam B.cookie: delete CookieUtil + migrate 12 login-gated view sites (D-04/D-05)
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
 - [ ] 08-13-PLAN.md — Seam B.haptics/ud: fold HapticsUtil + UserDefaultsUtil into their clients (D-05)
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
 - [ ] 08-14-PLAN.md — Seam C: eliminate AppUtil + relocate version/build/isTesting + AuthorizationClient cleanup (D-06/D-07)
 
 ### Phase 9: Correctness & Structured Error Handling
