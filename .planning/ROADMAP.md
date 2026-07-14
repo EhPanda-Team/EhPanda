@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits (completed 2026-07-12)
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
 - [ ] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList`
-- [ ] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock
+- [x] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock (completed 2026-07-14)
 - [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize Utils into injected clients, move cookies to Keychain, cover reworked seams with tests
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
 - [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
@@ -359,7 +359,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
-| 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | In Progress|  |
+| 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
