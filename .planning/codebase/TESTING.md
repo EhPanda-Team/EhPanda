@@ -95,9 +95,9 @@ TestStore(initialState: ..., reducer: Feature.init) {
 - Override `testValue`'s unimplemented endpoints only for the calls a test expects.
 
 **What NOT to Mock:**
-- Don't use `DataCache.shared` in image tests — it causes cross-test pollution;
-  inject a per-test `DataCache` and compare pixel dims, not point size (memory:
-  "DataCache.shared test pollution", `DataCacheTests.swift`).
+- Don't use the live `dataCache` dependency in image tests — it causes cross-test
+  pollution; inject a per-test `DataCache` and compare pixel dims, not point size
+  (`DataCacheTests.swift`).
 - Fix parallel-test pollution by **injecting** the global dependency (e.g. host param),
   not by `.serialized` (memory: "Inject over serialize").
 

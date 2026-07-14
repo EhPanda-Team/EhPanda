@@ -37,7 +37,8 @@
 
 **Caching:**
 - Kingfisher image cache (disk + memory) - primary image cache
-- SDWebImage cache (`DataCache`) - animated images; `ImageClient.dataCache` is injectable for tests
+- SDWebImage cache (`DataCache`) - animated images; consumers resolve the injectable
+  `dataCache` dependency, whose live actor also receives system-purge events
 
 ## Authentication & Identity
 
