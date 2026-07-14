@@ -2,6 +2,7 @@ import AppTools
 import Foundation
 import AppModels
 import Resources
+import Sharing
 import ComposableArchitecture
 import ApplicationClient
 import HapticsClient
@@ -29,6 +30,7 @@ public struct EhSettingReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        @SharedReader(.setting) public var setting: Setting
         public var editingProfileName = ""
         public var ehSetting: EhSetting?
         public var ehProfile: EhProfile?
@@ -108,18 +110,20 @@ public struct EhSettingReducer: Sendable {
                 return .run(operation: { _ in await applicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
+                let hostURL = state.setting.galleryHost.url
                 return .run { _ in
                     cookieClient.setOrEditCookie(
-                        for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
+                        for: hostURL, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
                     )
                 }
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let setting = try await EhSettingRequest().response()
+                        let setting = try await EhSettingRequest(host: host).response()
                         await send(.fetchEhSettingDone(.success(setting)))
                     } catch {
                         await send(.fetchEhSettingDone(.failure(error)))
@@ -144,9 +148,11 @@ public struct EhSettingReducer: Sendable {
                 else { return .none }
 
                 state.submittingState = .loading
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let setting = try await SubmitEhSettingChangesRequest(
+                            host: host,
                             ehSetting: ehSetting
                         )
                         .response()
@@ -171,9 +177,11 @@ public struct EhSettingReducer: Sendable {
             case .performAction(let action, let name, let set):
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let setting = try await EhProfileRequest(
+                            host: host,
                             action: action,
                             name: name,
                             set: set

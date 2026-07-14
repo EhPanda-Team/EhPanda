@@ -118,13 +118,14 @@ extension SettingReducer {
     }
 
     func handleFetchEhProfileIndexDone(
+        _ state: inout State,
         _ result: Result<VerifyEhProfileResponse, AppError>
     ) -> Effect<Action> {
         var effects = [Effect<Action>]()
 
         if case .success(let response) = result {
             if let profileValue = response.profileValue {
-                let hostURL = Defaults.URL.host
+                let hostURL = state.setting.galleryHost.url
                 let profileValueString = String(profileValue)
                 let selectedProfileKey = Defaults.Cookie.selectedProfile
 
