@@ -240,19 +240,18 @@ extension ReadingReducer {
                             storedImageURL: imageURL
                         )
                         .response()
-                        await send(.refetchNormalImageURLsDone(index, .success(imageURLs)))
+                        await send(.refetchNormalImageURLsDone(index, host, .success(imageURLs)))
                     } catch {
-                        await send(.refetchNormalImageURLsDone(index, .failure(error)))
+                        await send(.refetchNormalImageURLsDone(index, host, .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.refetchNormalImageURLs)
 
-            case .refetchNormalImageURLsDone(let index, let result):
+            case .refetchNormalImageURLsDone(let index, let host, let result):
                 switch result {
                 case .success(let (imageURLs, response)):
                     var effects = [Effect<Action>]()
                     if let response = response {
-                        let host = state.setting.galleryHost
                         effects.append(.run(operation: { _ in
                             cookieClient.setSkipServer(
                                 response: response,
