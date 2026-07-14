@@ -31,6 +31,9 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Pin TCA with 2.0 deprecation traits (CONC-02) — TCA 1.25.3 floor resolving 1.26.0, both traits active, all 66 surfaced deprecations migrated with zero warnings — Phase 4
 - ✓ Root-level privacy mask (UIARCH-04) — shared scene-driven blur state, one mask per each of 39 runtime presentation roots, and exhaustive foreground/background regression coverage — Phase 7
 - ✓ Remove the custom auto-lock feature (UIARCH-05) — deleted biometric re-auth and `AuthorizationClient`, removed dead settings/localizations, and deferred app locking to iOS — Phase 7
+- ✓ De-globalize `*Util` → injected clients, kill singletons (HYG-01) — side-effecting AppTools Utils (Device/Haptics/UserDefaults/Cookie) folded into injected clients; `URLUtil`/`FileUtil`/`AppInfo` kept as pure namespaces (D-06); `AppUtil`, `TouchHandler.shared`, and `DataCache.shared` removed; galleryHost threaded explicitly through every request seam — Phase 8
+- ✓ Cookie-logging audit (QUAL-01) — no cookie value is emitted to logs at `.public` privacy, enforced by a static gate hardened against aliased-value/renamed-Logger evasion with an executable negative-fixture harness — Phase 8
+- ✓ Client-layer test coverage (QUAL-02) — deterministic, green tests for the async `NetworkingFeature`, `CookieClient`, and `ImageClient` (per-test `DataCache`, pixel-dimension assertions) — Phase 8
 
 ### Active
 
@@ -45,12 +48,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - [ ] 11. **Decompose `GenericList`** — let each of its 8 consuming pages build its own list from shared atoms instead of a super-list
 - [ ] 12. **Universal device orientation** on every page + remove EhPanda's custom orientation lock (delete `enablesLandscape`), deferring the lock to iOS's built-in feature
 
-**D · Architecture hygiene**
-- [ ] 14. **De-globalize `*Util` → injected clients, kill singletons** — the AppTools Utils (Device/Haptics/UserDefaults/File/Cookie) plus `URLUtil` and `AppUtil`, and the `TouchHandler.shared` / `DataCache.shared` globals; keep pure value types & constants
-
 **E · Correctness, security & tests (folded-in concerns, later timing)**
-- [ ] 16. **Move session cookies to Keychain** (during #14's CookieClient work) + audit that no cookie values are ever logged
-- [ ] 17. **Client-layer test coverage** — `NetworkingFeature` (during #8), `CookieClient` & `ImageClient` (during #14)
 - [ ] 18. **Fix `Category.private.filterValue`** — remove the `fatalError` landmine
 - [ ] 20. **Structured error handling + user-facing error surface** (gates the `optional_try` rule) — replace silent `try?` (144 sites) with proper `do/catch` that surfaces user-relevant failures through a structured error surface (Description / Suggested Solution / Context / environment info; non-blocking failure toast → tap for detail), keeping best-effort parsing explicitly optional
 
@@ -69,12 +67,13 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - **DownloadClient decomposition** (555+ line files) — large standalone refactor; deferred
 - **Broad client-layer tests beyond networking/cookie/image** (Reading/Home/Search/Favorites features) — deferred; this milestone covers only the seams already being reworked
 - **Post-release v2 schema migrations + migration-mock cleanup** — deferred until v3.0.0 ships; models stay at v1 this milestone
+- **Session cookies → Keychain (at-rest migration)** — dropped per D-01 as out of milestone (sideload-distribution reliability tradeoff); QUAL-01 covers cookie-logging privacy only, not at-rest storage
 - **Any visual redesign** — the UI-architecture tasks are mechanism swaps, not re-skins; behavior/appearance parity required
 - **Re-enabling `function_body_length` / `cyclomatic_complexity` / `type_body_length`** — kept disabled; `ParserFeature` relies on it and it wasn't requested
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Phases 1–7 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, and the root privacy-mask/auto-lock removal are validated. Phase 8 architecture hygiene and client seams are next.
+- **v3.0.0 in flight, unreleased.** Phases 1–8 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, the root privacy-mask/auto-lock removal, and the architecture-hygiene client-seam de-globalization are validated. Phase 9 (correctness & structured error handling) is next.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured name-free; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
@@ -97,8 +96,10 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | Retire `TouchHandler` via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor` | Native gestures (iOS 17+) cover all three uses; kills a global singleton | — Pending |
 | Remove auto-lock (use iOS built-in per-app lock); **keep** background blur | OS app-lock supersedes the custom biometric flow; app-switcher blur stays as standalone privacy | ✓ Validated in Phase 7 |
 | `@Shared` models edited in place at v1 until v3.0.0 ships | No released data to migrate from pre-release; defers first real v2 to post-release | — Pending |
-| De-`Util` package-wide (incl. `URLUtil`, `AppUtil`) | Injected clients over singletons/global helpers; consistent architecture | — Pending |
-| Fold in cookies→Keychain, networking/cookie/image tests, `.private.filterValue` fix; defer Parser/Download refactors | Coupled concerns are cheap while their seams are open; standalone refactors are separate scope | — Pending |
+| De-`Util` package-wide (incl. `URLUtil`, `AppUtil`) | Injected clients over singletons/global helpers; consistent architecture | ✓ Validated in Phase 8 |
+| Keep `URLUtil`/`FileUtil`/`AppInfo` as pure namespaces, not thin client wrappers (D-06) | Pure deterministic helpers gain no substitutability from a client wrapper | ✓ Validated in Phase 8 |
+| Drop the cookies→Keychain at-rest migration; QUAL-01 audits cookie logging only (D-01) | Sideload-distribution reliability tradeoff; out of milestone rather than deferred | ✓ Validated in Phase 8 |
+| Fold in networking/cookie/image tests, `.private.filterValue` fix; defer Parser/Download refactors | Coupled concerns are cheap while their seams are open; standalone refactors are separate scope | Tests validated in Phase 8; `.private.filterValue` pending |
 | Recommended sequence: small-blast deps → swaps/spikes → migrations (#8/#13) → architecture (#10/#11/#12/#14/#15/#19) → concerns (#16–18,#20) → lint capstone (#9) | Minimize churn; write new code to the new bar; lint ratchets last | Migrations validated through Phase 4 |
 | Expand the TCA trait migration to the complete 66-site compiler inventory | D-11 found 45 presentation scopes, 11 Store scopes, and 10 reducer Scope initializers rather than the expected 24 sites | ✓ Owner-approved and validated in Phase 4 |
 | Masonry grid columns derive from the `Layout`'s own container width via an adaptive rule (min cell width 185pt, min 2 columns); all cells share one identical flexible width; exact 2/4/5 count parity dropped | Owner requirement is stable, content-independent tiling at any width — not exact counts; kills the deprecated `UIScreen.main` + `isPadWidth` reads at the grid call site | — Pending |
@@ -121,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-14 after Phase 7*
+*Last updated: 2026-07-14 after Phase 8*

@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
 - [ ] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList`
 - [x] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock (completed 2026-07-14)
-- [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests
+- [x] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests (completed 2026-07-14)
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
 - [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [ ] **Phase 11: Lint Capstone** - Ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
@@ -431,7 +431,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
-| 8. Architecture Hygiene & Client Seams | 18/18 | In Progress|  |
+| 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Lint Capstone | 0/TBD | Not started | - |
