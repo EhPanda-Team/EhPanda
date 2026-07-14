@@ -12,6 +12,10 @@ public struct PrivacyMaskModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
+            // Asymmetric on purpose: apply the mask instantly (`blur != 0`) but ease it out.
+            // The blur is written on `.inactive`, exactly when iOS grabs the App Switcher
+            // snapshot — a ramp-in would let that snapshot capture unblurred content. Only the
+            // return-to-active fade (`blur == 0`) is animated, and Reduce Motion skips both.
             .animation(reduceMotion || blur != 0 ? nil : .linear(duration: 0.1)) {
                 $0.blur(radius: blur)
             }
