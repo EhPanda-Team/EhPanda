@@ -20,4 +20,40 @@ extension Defaults.URL {
     public static var popular: Foundation.URL { host.appendingPathComponent("popular") }
     public static var watched: Foundation.URL { host.appendingPathComponent("watched") }
     public static var favorites: Foundation.URL { host.appendingPathComponent("favorites.php") }
+
+    public static func api(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("api.php")
+    }
+
+    public static func myTags(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("mytags")
+    }
+
+    public static func uConfig(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("uconfig.php")
+    }
+
+    public static func galleryPopups(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("gallerypopups.php")
+    }
+
+    public static func galleryTorrents(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("gallerytorrents.php")
+    }
+
+    public static func popular(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("popular")
+    }
+
+    public static func watched(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("watched")
+    }
+
+    public static func favorites(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("favorites.php")
+    }
+
+    public static func toplist(host: GalleryHost) -> Foundation.URL {
+        host.url.appendingPathComponent("toplist.php")
+    }
 }
