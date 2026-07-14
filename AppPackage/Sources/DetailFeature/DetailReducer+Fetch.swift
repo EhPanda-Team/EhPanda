@@ -115,13 +115,11 @@ extension DetailReducer {
                 guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
                       let gid = Int(state.gallery.id)
                 else { return .none }
-                return .run {
-                    [
-                        host = state.setting.galleryHost,
-                        apiKey = state.apiKey,
-                        token = state.gallery.token,
-                        rating = state.userRating
-                    ] send in
+                let host = state.setting.galleryHost
+                let apiKey = state.apiKey
+                let token = state.gallery.token
+                let rating = state.userRating
+                return .run { [host, apiKey, token, rating] send in
                     do throws(AppError) {
                         try await RateGalleryRequest(
                             host: host,
@@ -140,8 +138,10 @@ extension DetailReducer {
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
 
             case .favorGallery(let favIndex):
-                return .run {
-                    [host = state.setting.galleryHost, gid = state.gallery.id, token = state.gallery.token] send in
+                let host = state.setting.galleryHost
+                let gid = state.gallery.id
+                let token = state.gallery.token
+                return .run { [host, gid, token] send in
                     do throws(AppError) {
                         try await FavorGalleryRequest(
                             host: host,
@@ -188,8 +188,10 @@ extension DetailReducer {
                 guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
                       let gid = Int(state.gallery.id)
                 else { return .none }
-                return .run {
-                    [host = state.setting.galleryHost, apiKey = state.apiKey, token = state.gallery.token] send in
+                let host = state.setting.galleryHost
+                let apiKey = state.apiKey
+                let token = state.gallery.token
+                return .run { [host, apiKey, token] send in
                     do throws(AppError) {
                         try await VoteGalleryTagRequest(
                             host: host,
