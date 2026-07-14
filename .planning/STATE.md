@@ -4,16 +4,16 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
-status: executing
-stopped_at: Completed 08-13-PLAN.md
-last_updated: "2026-07-14T10:41:18.765Z"
+status: verifying
+stopped_at: Completed 08-14-PLAN.md
+last_updated: "2026-07-14T10:49:48.289Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 11
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 76
-  completed_plans: 75
-  percent: 99
+  completed_plans: 76
+  percent: 100
 ---
 
 # Project State
@@ -27,19 +27,19 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
+Phase: 08 (architecture-hygiene-client-seams) — READY FOR VERIFICATION
 Plan: 14 of 14
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-14
-Next: Execute 08-14-PLAN.md
+Next: Verify Phase 08
 
-Progress: [██████████] 99% (75/76 plans)
+Progress: [██████████] 100% (76/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 75
+- Total plans completed: 76
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -130,6 +130,7 @@ Progress: [██████████] 99% (75/76 plans)
 | Phase 08 P11 | 8 min | 2 tasks | 3 files |
 | Phase 08 P12 | 7 min | 2 tasks | 10 files |
 | Phase 08 P13 | 6 min | 2 tasks | 10 files |
+| Phase 08 P14 | 4 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -214,7 +215,7 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-10: Foreground tests explicitly pause the long-lived activity-log pump after receiving every expected action, preserving TestStore exhaustivity without skipping effects.
 - [Phase 07]: 07-10: Clipboard cardinality counts the unconditional changeCount dependency seam; the URL remains nil to isolate foreground dispatch behavior.
 - [Phase 08]: QUAL-01 covers cookie-logging privacy only; the former at-rest migration is out of milestone rather than deferred. — D-01 reconciles the milestone contract with the sideload-distribution reliability tradeoff.
-- [Phase 08]: D-06 retains URLUtil and AppUtil as pure namespaces instead of adding thin client wrappers. — Pure deterministic helpers gain no substitutability from a client wrapper.
+- [Phase 08]: D-06 retains URLUtil and FileUtil as pure namespaces instead of adding thin client wrappers. — Pure deterministic helpers gain no substitutability from a client wrapper.
 - [Phase 08]: Host-derived Defaults.URL helpers accept GalleryHost explicitly while existing global properties remain available during caller migration.
 - [Phase 08]: URLUtil uses AppUtil.galleryHost only as a transitional default; every host-dependent builder body constructs from its GalleryHost argument.
 - [Phase 08]: Gallery-list reducers snapshot setting.galleryHost at request construction time. — This matches existing filter and keyword snapshot semantics while making the shared Setting the sole host source for each request.
@@ -240,6 +241,8 @@ Recent decisions affecting current work:
 - [Phase 08]: 08-12: Keep every login condition and control modifier unchanged apart from its predicate source. — The migration is a seam swap at behavior, appearance, accessibility, and dialog-anchor parity.
 - [Phase 08]: 08-13: Preserve the legacy-device sound sequence and modern UIKit feedback calls verbatim inside HapticsClient.live.
 - [Phase 08]: 08-13: Keep AppUserDefaults in AppTools as the shared key type while removing only the redundant UserDefaultsUtil wrapper.
+- [Phase 08]: 08-14: Preserve Bundle metadata keys, null fallbacks, and XCTestConfigurationFilePath detection when relocating them to AppInfo. — Maintains exact About metadata and test-launch behavior while eliminating AppUtil.
+- [Phase 08]: 08-14: Model AppInfo as an uninhabited pure namespace instead of an injected client. — Read-only app facts require no substitution, and a client would be a thin wrapper.
 
 ### Pending Todos
 
@@ -269,6 +272,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T10:41:18.759Z
-Stopped at: Completed 08-13-PLAN.md
+Last session: 2026-07-14T10:49:48.283Z
+Stopped at: Completed 08-14-PLAN.md
 Resume file: None

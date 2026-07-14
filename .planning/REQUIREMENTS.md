@@ -53,7 +53,7 @@
 
 - [x] **QUAL-01**: Audit cookie logging.
   - No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
-  - D-06 tightens HYG-01: retain `URLUtil` and `AppUtil` as pure namespaces rather than converting them to clients, in keeping with the anti-wrapper rule.
+  - D-06 tightens HYG-01: retain `URLUtil` and `FileUtil` as pure namespaces rather than converting them to clients, in keeping with the anti-wrapper rule; D-07 eliminates `AppUtil` after relocating its surviving metadata facts.
 - [x] **QUAL-02**: Add client-layer test coverage for the reworked seams.
   - `NetworkingFeature` covered (during CONC-01); `CookieClient` and `ImageClient` covered (during HYG-01); tests are deterministic and green.
 - [ ] **QUAL-03**: Fix the `Category.private.filterValue` `fatalError` landmine.
