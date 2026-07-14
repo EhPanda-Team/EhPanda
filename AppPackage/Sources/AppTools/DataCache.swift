@@ -1,6 +1,9 @@
 import CryptoKit
+import Dependencies
 import Foundation
 import UIKit
+
+private let canonicalDataCache = DataCache()
 
 /// Owned byte-level cache for the reader page pipeline and its export actions
 /// (copy / save / share). It is the one place the app downloads and stores reading-page
@@ -36,8 +39,6 @@ public actor DataCache {
             self.sweepByteInterval = diskSizeLimit == 0 ? 0 : max(diskSizeLimit / 8, 1)
         }
     }
-
-    public static let shared = DataCache()
 
     private let configuration: Configuration
     private let fileManager: FileManager
@@ -290,8 +291,27 @@ public actor DataCache {
     }
 }
 
+public enum DataCacheKey: DependencyKey {
+    public static var liveValue: DataCache { canonicalDataCache }
+    public static var testValue: DataCache {
+        DataCache(
+            configuration: .init(
+                rootURL: URL.temporaryDirectory
+                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            )
+        )
+    }
+}
+
+extension DependencyValues {
+    public var dataCache: DataCache {
+        get { self[DataCacheKey.self] }
+        set { self[DataCacheKey.self] = newValue }
+    }
+}
+
 @MainActor
-private let dataCacheSystemPurgeObserver = DataCacheSystemPurgeObserver(cache: .shared)
+private let dataCacheSystemPurgeObserver = DataCacheSystemPurgeObserver(cache: canonicalDataCache)
 
 @MainActor
 private final class DataCacheSystemPurgeObserver {
