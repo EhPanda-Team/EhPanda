@@ -45,7 +45,7 @@ public struct GalleryThumbnailCell: View {
                 .scaledToFit()
                 .overlay {
                     CategoryLabel(
-                        text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost),
+                        text: gallery.category.value, color: gallery.color(host: setting.galleryHost),
                         insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
                         cornerRadius: 15, corners: .bottomLeft
                     )

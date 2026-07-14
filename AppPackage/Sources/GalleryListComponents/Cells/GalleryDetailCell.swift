@@ -134,7 +134,7 @@ private struct GalleryDetailCellContent: View {
                     }
                 }
                 HStack(alignment: .bottom) {
-                    CategoryLabel(text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost))
+                    CategoryLabel(text: gallery.category.value, color: gallery.color(host: setting.galleryHost))
                     Spacer()
                     Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary).minimumScaleFactor(0.75)
