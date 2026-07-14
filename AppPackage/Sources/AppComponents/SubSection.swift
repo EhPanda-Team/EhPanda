@@ -1,8 +1,11 @@
 import SwiftUI
 import Resources
 import AppTools
+import Dependencies
+import HapticsClient
 
 public struct SubSection<Content: View>: View {
+    @Dependency(\.hapticsClient) private var hapticsClient
     private let title: LocalizedStringResource
     private let showAll: Bool
     private let tint: Color?
@@ -32,7 +35,7 @@ public struct SubSection<Content: View>: View {
             HStack {
                 Button {
                     reloadAction?()
-                    HapticsUtil.generateFeedback(style: .soft)
+                    hapticsClient.generateFeedback(.soft)
                 } label: {
                     HStack(spacing: 10) {
                         Text(title).font(.title3.bold())

@@ -433,7 +433,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .hapticsClient,
         dependencies: [
-            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         plugins: swiftLintPlugins
@@ -445,6 +444,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.deviceClient),
+            .module(.hapticsClient),
             .module(.parserFeature),
             .module(.resources),
             .module(.tagTranslationFeature),

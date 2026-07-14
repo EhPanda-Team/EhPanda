@@ -5,6 +5,8 @@ import ComposableArchitecture
 import AppTools
 import SystemNotificationExt
 import AppComponents
+import Dependencies
+import HapticsClient
 
 struct ArchivesView: View {
     @Bindable private var store: StoreOf<ArchivesReducer>
@@ -69,6 +71,7 @@ struct ArchivesView: View {
 
 // MARK: HathArchivesView
 private struct HathArchivesView: View {
+    @Dependency(\.hapticsClient) private var hapticsClient
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private let archives: [GalleryArchive.HathArchive]
@@ -93,7 +96,7 @@ private struct HathArchivesView: View {
                     Button {
                         if archive.isValid {
                             selection = archive
-                            HapticsUtil.generateFeedback(style: .soft)
+                            hapticsClient.generateFeedback(.soft)
                         }
                     } label: {
                         HathArchiveGrid(
