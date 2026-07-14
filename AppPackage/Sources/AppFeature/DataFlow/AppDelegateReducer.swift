@@ -59,7 +59,7 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication, didFinishLaunchingWithOptions
             launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        if !AppUtil.isTesting {
+        if !AppInfo.isTesting {
             store.send(.appDelegate(.onLaunchFinish))
             // Must register before launch completes so iOS can relaunch us later to
             // drain the download queue in a discretionary background window.

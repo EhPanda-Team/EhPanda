@@ -8,7 +8,7 @@ struct AboutView: View {
     private var version: String {
         [
             String(localized: .version),
-            AppUtil.version, "(\(AppUtil.build))"
+            AppInfo.version, "(\(AppInfo.build))"
         ]
         .joined(separator: " ")
     }
