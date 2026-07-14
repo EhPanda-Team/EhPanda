@@ -177,7 +177,8 @@ struct AccountRequestBaselineTests {
 
     @Test
     func favorGalleryRequestLocksFormAssemblyAndVoidMapping() async throws {
-        let url = URLUtil.addFavorite(gid: "101", token: "token")
+        let host = GalleryHost.ehentai
+        let url = URLUtil.addFavorite(host: host, gid: "101", token: "token")
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: Data())]])
         )
@@ -185,6 +186,7 @@ struct AccountRequestBaselineTests {
 
         _ = try await capture { () async throws(AppError) in
             try await FavorGalleryRequest(
+                host: host,
                 gid: "101",
                 token: "token",
                 favIndex: 4,
@@ -204,20 +206,22 @@ struct AccountRequestBaselineTests {
 
     @Test
     func unfavorGalleryRequestLocksFormAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.favorites(host: host)
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.favorites: [.http(status: 200, data: Data())]])
+            script: StubScript([url: [.http(status: 200, data: Data())]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         _ = try await capture { () async throws(AppError) in
-            try await UnfavorGalleryRequest(gid: "202", urlSession: session).response()
+            try await UnfavorGalleryRequest(host: host, gid: "202", urlSession: session).response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectFormRequest(
             request,
-            url: Defaults.URL.favorites,
+            url: url,
             fields: ["ddact": "delete", "modifygids[]": "202", "apply": "Apply"]
         )
     }
@@ -254,17 +258,20 @@ struct AccountRequestBaselineTests {
 
     @Test
     func rateGalleryRequestLocksJSONAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let expected = [
             "method": "rategallery", "apiuid": "11", "apikey": "dummy-key",
             "gid": "404", "token": "token", "rating": "9"
         ]
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.api: [.http(status: 200, data: Data())]])
+            script: StubScript([url: [.http(status: 200, data: Data())]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         _ = try await capture { () async throws(AppError) in
             try await RateGalleryRequest(
+                host: host,
                 apiuid: 11,
                 apikey: "dummy-key",
                 gid: 404,
@@ -277,7 +284,7 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        expectJSONRequest(request, url: Defaults.URL.api, fields: expected)
+        expectJSONRequest(request, url: url, fields: expected)
     }
 
     @Test
@@ -331,17 +338,20 @@ struct AccountRequestBaselineTests {
 
     @Test
     func voteGalleryCommentRequestLocksJSONAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let expected = [
             "method": "votecomment", "apiuid": "12", "apikey": "dummy-key",
             "gid": "808", "token": "token", "comment_id": "909", "comment_vote": "-1"
         ]
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.api: [.http(status: 200, data: Data())]])
+            script: StubScript([url: [.http(status: 200, data: Data())]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         _ = try await capture { () async throws(AppError) in
             try await VoteGalleryCommentRequest(
+                host: host,
                 apiuid: 12,
                 apikey: "dummy-key",
                 gid: 808,
@@ -355,22 +365,25 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        expectJSONRequest(request, url: Defaults.URL.api, fields: expected)
+        expectJSONRequest(request, url: url, fields: expected)
     }
 
     @Test
     func voteGalleryTagRequestLocksJSONAssemblyAndVoidMapping() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let expected = [
             "method": "taggallery", "apiuid": "13", "apikey": "dummy-key",
             "gid": "1001", "token": "token", "tags": "artist:baseline", "vote": "1"
         ]
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.api: [.http(status: 200, data: Data())]])
+            script: StubScript([url: [.http(status: 200, data: Data())]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         _ = try await capture { () async throws(AppError) in
             try await VoteGalleryTagRequest(
+                host: host,
                 apiuid: 13,
                 apikey: "dummy-key",
                 gid: 1001,
@@ -384,7 +397,7 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        expectJSONRequest(request, url: Defaults.URL.api, fields: expected)
+        expectJSONRequest(request, url: url, fields: expected)
     }
 
     @Test
