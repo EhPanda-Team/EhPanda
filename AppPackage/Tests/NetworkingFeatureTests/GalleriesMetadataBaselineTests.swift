@@ -10,7 +10,8 @@ import Testing
 struct GalleriesMetadataBaselineTests {
     @Test
     func successLocksStructuralPOSTAndDecodedGallery() async throws {
-        let url = Defaults.URL.api
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: .gdataFixture)]])
         )
@@ -18,6 +19,7 @@ struct GalleriesMetadataBaselineTests {
 
         let galleries = try await capture { () async throws(AppError) -> [Gallery] in
             try await GalleriesMetadataRequest(
+                host: host,
                 gidList: [(gid: "100", token: "aaa"), (gid: "200", token: "bbb")],
                 urlSession: session
             )
@@ -46,7 +48,8 @@ struct GalleriesMetadataBaselineTests {
 
     @Test
     func malformedJSONMapsParseFailure() async {
-        let url = Defaults.URL.api
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: Data("{".utf8))]])
         )
@@ -54,6 +57,7 @@ struct GalleriesMetadataBaselineTests {
 
         let result = await capture { () async throws(AppError) -> [Gallery] in
             try await GalleriesMetadataRequest(
+                host: host,
                 gidList: [(gid: "100", token: "aaa")],
                 urlSession: session
             )
@@ -70,7 +74,8 @@ struct GalleriesMetadataBaselineTests {
 
     @Test
     func persistentTransportFailureRetriesFourTimes() async {
-        let url = Defaults.URL.api
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.transportFailure(.timedOut)]])
         )
@@ -78,6 +83,7 @@ struct GalleriesMetadataBaselineTests {
 
         let result = await capture { () async throws(AppError) -> [Gallery] in
             try await GalleriesMetadataRequest(
+                host: host,
                 gidList: [(gid: "100", token: "aaa")],
                 urlSession: session
             )

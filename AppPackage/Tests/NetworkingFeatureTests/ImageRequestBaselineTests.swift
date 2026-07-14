@@ -145,6 +145,7 @@ struct ImageRequestBaselineTests {
         let result = try await capture {
             () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
+                host: .ehentai,
                 index: 7,
                 pageNum: 0,
                 galleryURL: galleryURL,
@@ -181,6 +182,7 @@ struct ImageRequestBaselineTests {
         let result = await capture {
             () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
+                host: .ehentai,
                 index: 7,
                 pageNum: 0,
                 galleryURL: galleryURL,
@@ -211,6 +213,7 @@ struct ImageRequestBaselineTests {
         let result = await capture {
             () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
+                host: .ehentai,
                 index: 7,
                 pageNum: 2,
                 galleryURL: galleryURL,
@@ -242,6 +245,7 @@ struct ImageRequestBaselineTests {
         let result = try await capture {
             () async throws(AppError) -> GalleryMPVImageURLResponse in
             try await GalleryMPVImageURLRequest(
+                host: .ehentai,
                 gid: 123,
                 index: 4,
                 mpvKey: "mpv-key",
