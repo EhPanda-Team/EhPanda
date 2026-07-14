@@ -300,7 +300,7 @@ Plans:
   2. No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   3. Client-layer tests cover the reworked seams — the async `NetworkingFeature` (from Phase 4), `CookieClient`, and `ImageClient` — and are deterministic and green.
 
-**Plans**: 14 executed + 4 gap-closure (from 08-VERIFICATION.md — 10/16 must-haves; re-verify after execute)
+**Plans**: 15/18 plans executed
 Plans:
 **Wave 1**
 
@@ -362,7 +362,7 @@ Plans:
 
 **Wave 15**
 
-- [ ] 08-15-PLAN.md — GAP-01 (HYG-01, blocker): carry originating GalleryHost through `refetchNormalImageURLsDone` → `setSkipServer`; host-switch-while-pending ReadingReducer regression
+- [x] 08-15-PLAN.md — GAP-01 (HYG-01, blocker): carry originating GalleryHost through `refetchNormalImageURLsDone` → `setSkipServer`; host-switch-while-pending ReadingReducer regression
 - [ ] 08-18-PLAN.md — GAP-04 (QUAL-01, blocker): harden `check-cookie-logging.sh` against aliased-value/renamed-Logger evasions + executable negative-fixture harness (clean tree still exits 0); no xcodebuild — runs parallel
 
 **Wave 16** *(sequenced after 08-15 to serialize xcodebuild)*
@@ -431,7 +431,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
-| 8. Architecture Hygiene & Client Seams | 14/14 | In Progress|  |
+| 8. Architecture Hygiene & Client Seams | 15/18 | In Progress|  |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Lint Capstone | 0/TBD | Not started | - |
