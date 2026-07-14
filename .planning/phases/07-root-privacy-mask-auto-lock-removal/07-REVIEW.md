@@ -51,7 +51,12 @@ findings:
   info: 2
   dismissed: 1
   total: 4
-status: issues_found
+status: resolved
+resolution:
+  wr-01: dismissed (pre-release, no persisted blob)
+  wr-02: fixed (9848e75e) and verified on a physical device 2026-07-14
+  in-01: fixed (a4ce8b12); full suite green (507 tests)
+  in-02: confirmed intentional by owner 2026-07-14
 ---
 
 # Phase 07: Code Review Report
@@ -59,7 +64,7 @@ status: issues_found
 **Reviewed:** 2026-07-14T02:00:00Z
 **Depth:** standard
 **Files Reviewed:** 41
-**Status:** issues_found
+**Status:** resolved (all findings closed — see resolution notes per finding)
 
 ## Summary
 
@@ -84,7 +89,11 @@ found.
 **WR-01 dismissed by owner (2026-07-14):** the persisted-`Setting` reset is accepted as-is under the
 project's "v1-schema-until-release" stance — the app is not yet released, so there is no live
 persisted blob to preserve. The finding is retained below for the record but is not actionable and
-carries no migration debt at this time. The remaining open concern is WR-02.
+carries no migration debt at this time.
+
+**All findings closed (2026-07-14):** WR-01 dismissed (above); WR-02 fixed (`9848e75e`) and verified
+on a physical device; IN-01 fixed (`a4ce8b12`) with the full 507-test suite green; IN-02 confirmed
+intentional by the owner. See the per-finding resolution banners below. This review is resolved.
 
 ## Narrative Findings (AI reviewer)
 
@@ -135,6 +144,11 @@ enum SchemaV2: VersionedSchema {
 
 #### WR-02: Animated privacy blur may not render before iOS captures the App Switcher snapshot
 
+> **RESOLVED (2026-07-14) — fixed in `9848e75e`, verified on a physical device.** The scoped
+> animation is now suppressed whenever the blur becomes nonzero (`reduceMotion || blur != 0 ? nil :
+> .linear(duration: 0.1)`), so the mask is applied instantly on `.inactive` and only fades out on
+> return to active. The App Switcher card was confirmed fully masked on-device.
+
 **File:** `AppPackage/Sources/AppComponents/ViewModifiers.swift:12-16`
 **Issue:** `PrivacyMaskModifier` animates the blur with `.linear(duration: 0.1)` for users who do not
 have Reduce Motion enabled. The blur value is written on the `.inactive` scene phase
@@ -163,6 +177,11 @@ Then verify on-device that the App Switcher card is fully masked.
 
 #### IN-01: `AppReducerScenePhaseTests` relies on `.serialized` over process-global `@Shared` storage
 
+> **RESOLVED (2026-07-14) — fixed in `a4ce8b12`.** `makeStore(...)` now injects a fresh
+> `UserDefaults.inMemory` + `InMemoryStorage()` via `withDependencies` (both while building shared
+> state and on the `TestStore`), and `.serialized` was dropped. Full suite green at 507 tests with the
+> suite running unserialized.
+
 **File:** `AppPackage/Tests/AppFeatureTests/AppReducerScenePhaseTests.swift:14`
 **Issue:** The suite is `@Suite(.serialized)` and drives `@Shared(.privacyMaskBlur)` (process-global
 `InMemoryKey`) and `@Shared(.setting)` without overriding `defaultInMemoryStorage`/`defaultAppStorage`.
@@ -176,6 +195,9 @@ flagging for convention alignment and future-proofing.
 `.serialized`.
 
 #### IN-02: `AppActivityLogsView` run-picker sheet gains a mask it never had before
+
+> **CONFIRMED INTENTIONAL (2026-07-14) — owner decision, no change.** Masking the `RunPickerSheet`
+> modal is deliberate consistency, not accidental over-application. No fix required.
 
 **File:** `AppPackage/Sources/SettingFeature/AppActivityLogs/AppActivityLogsView.swift:51`
 **Issue:** `.privacyMask()` was added to the `RunPickerSheet` sheet, which previously had no

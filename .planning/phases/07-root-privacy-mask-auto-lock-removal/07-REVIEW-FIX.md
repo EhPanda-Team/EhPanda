@@ -26,7 +26,7 @@ status: all_fixed
 
 **Files modified:** `AppPackage/Sources/AppComponents/ViewModifiers.swift`
 **Commit:** 9848e75e
-**Status:** fixed; requires on-device verification
+**Status:** fixed; verified on a physical device 2026-07-14 (App Switcher card fully masked)
 **Applied fix:** The scoped blur animation is now disabled whenever the blur becomes nonzero, so the privacy mask is applied immediately. The 0.1-second linear animation runs only when the blur becomes zero and Reduce Motion is disabled.
 
 **Verification:** Re-read the modified source and confirmed the surrounding modifier chain remained intact; `git diff --check` passed; the `AppComponents` scheme built successfully for a generic iOS Simulator destination with code signing disabled.
