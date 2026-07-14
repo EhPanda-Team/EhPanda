@@ -5,12 +5,14 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import CookieClient
 import DateSeekFeature
 import GalleryListComponents
 import FiltersFeature
 import QuickSearchFeature
 
 struct WatchedView: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Bindable private var store: StoreOf<WatchedReducer>
 
     init(store: StoreOf<WatchedReducer>) {
@@ -19,7 +21,7 @@ struct WatchedView: View {
 
     var body: some View {
         ZStack {
-            if CookieUtil.didLogin {
+            if cookieClient.didLogin {
                 GalleryList(
                     galleries: store.galleries,
                     pageNumber: store.pageNumber,
@@ -77,7 +79,7 @@ struct WatchedView: View {
         }
         .onAppear {
             store.send(.onAppear)
-            if store.galleries.isEmpty && CookieUtil.didLogin {
+            if store.galleries.isEmpty && cookieClient.didLogin {
                 DispatchQueue.main.async {
                     store.send(.fetchGalleries())
                 }

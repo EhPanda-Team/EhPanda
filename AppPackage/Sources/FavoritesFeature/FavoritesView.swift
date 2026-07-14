@@ -5,12 +5,14 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import CookieClient
 import DateSeekFeature
 import GalleryListComponents
 import QuickSearchFeature
 import DetailFeature
 
 public struct FavoritesView: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Bindable private var store: StoreOf<FavoritesReducer>
 
     public init(store: StoreOf<FavoritesReducer>) {
@@ -29,7 +31,7 @@ public struct FavoritesView: View {
             action: \.path
         ) {
             ZStack {
-                if CookieUtil.didLogin {
+                if cookieClient.didLogin {
                     GalleryList(
                         galleries: store.galleries ?? [],
                         pageNumber: store.pageNumber,
@@ -81,7 +83,7 @@ public struct FavoritesView: View {
             }
             .onAppear {
                 store.send(.onAppear)
-                if store.galleries?.isEmpty != false && CookieUtil.didLogin {
+                if store.galleries?.isEmpty != false && cookieClient.didLogin {
                     DispatchQueue.main.async {
                         store.send(.fetchGalleries())
                     }

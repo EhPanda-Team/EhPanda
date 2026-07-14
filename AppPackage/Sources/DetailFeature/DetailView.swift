@@ -6,9 +6,11 @@ import Kingfisher
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import CookieClient
 import ReadingFeature
 
 public struct DetailView: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
 
@@ -61,7 +63,7 @@ private extension DetailView {
                             downloadFolders: store.downloadFolders,
                             isPreparingDownload: store.isPreparingDownload,
                             canDownload: !store.gallery.id.isEmpty
-                                && (store.setting.galleryHost == .ehentai || CookieUtil.didLogin),
+                                && (store.setting.galleryHost == .ehentai || cookieClient.didLogin),
                             displaysJapaneseTitle: store.setting.displaysJapaneseTitle,
                             showFullTitle: store.showsFullTitle,
                             showFullTitleAction: { store.send(.toggleShowFullTitle) },

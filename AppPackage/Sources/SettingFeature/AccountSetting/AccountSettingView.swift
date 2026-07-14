@@ -6,6 +6,7 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import SystemNotificationExt
+import CookieClient
 
 struct AccountSettingView: View {
     @Bindable private var store: StoreOf<AccountSettingReducer>
@@ -59,6 +60,7 @@ struct AccountSettingView: View {
 
 // MARK: AccountSection
 private struct AccountSection: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let loginAction: () -> Void
@@ -87,7 +89,7 @@ private struct AccountSection: View {
     }
 
     var body: some View {
-        if !CookieUtil.didLogin {
+        if !cookieClient.didLogin {
             Button(.RLocalizable.login, action: loginAction)
         } else {
             Button(
