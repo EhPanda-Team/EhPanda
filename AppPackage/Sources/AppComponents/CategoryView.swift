@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import AppModels
 import AppTools
 
@@ -63,6 +64,7 @@ public struct CategoryView: View {
 
 // MARK: CategoryCell
 private struct CategoryCell: View {
+    @SharedReader(.setting) private var setting: Setting
     @Binding private var isFiltered: Bool
     private let category: AppModels.Category
 
@@ -72,7 +74,7 @@ private struct CategoryCell: View {
     }
 
     var body: some View {
-        let color = category.color(host: AppUtil.galleryHost)
+        let color = category.color(host: setting.galleryHost)
         ZStack {
             Rectangle()
                 .foregroundColor(isFiltered ? color.opacity(0.3) : color)

@@ -3,7 +3,6 @@ import AppModels
 import TagTranslationFeature
 import Resources
 import ComposableArchitecture
-import AppTools
 import AppComponents
 import GalleryListComponents
 
@@ -51,7 +50,7 @@ struct ToplistsView: View {
                     store.send(.setToplistsType(type))
                 }
             }
-            if AppUtil.galleryHost == .ehentai {
+            if store.setting.galleryHost == .ehentai {
                 JumpPageButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
                     store.send(.presentJumpPageAlert)
                 }
