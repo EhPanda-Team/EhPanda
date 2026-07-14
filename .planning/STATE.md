@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-07-14T08:04:49.472Z"
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-07-14T08:16:26.591Z"
 last_activity: 2026-07-14
 last_activity_desc: Completed 08-03-PLAN.md
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 65
-  percent: 86
+  completed_plans: 66
+  percent: 55
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 4 of 14
+Plan: 5 of 14
 Status: Ready to execute
 Last activity: 2026-07-14 — Completed 08-03-PLAN.md
 Next: Execute 08-04-PLAN.md
@@ -121,6 +121,7 @@ Progress: [█████████░] 86% (65/76 plans)
 | Phase 08 P01 | 4min | 2 tasks | 3 files |
 | Phase 08 P02 | 5min | 2 tasks | 3 files |
 | Phase 08 P03 | 6 min | 2 tasks | 11 files |
+| Phase 08 P04 | 6 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -209,6 +210,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Host-derived Defaults.URL helpers accept GalleryHost explicitly while existing global properties remain available during caller migration.
 - [Phase 08]: URLUtil uses AppUtil.galleryHost only as a transitional default; every host-dependent builder body constructs from its GalleryHost argument.
 - [Phase 08]: Gallery-list reducers snapshot setting.galleryHost at request construction time. — This matches existing filter and keyword snapshot semantics while making the shared Setting the sole host source for each request.
+- [Phase 08]: Setting reducers snapshot setting.galleryHost when constructing each host-dependent effect. — A request keeps one construction-time host across its asynchronous work.
+- [Phase 08]: EhSettingFeature state reads shared Setting directly because it previously had no host source. — The reducer now resolves its host explicitly without retaining a global fallback.
+- [Phase 08]: Account and routine request baselines use an explicit deterministic E-Hentai host. — Tests no longer depend on the transitional global host mirror.
 
 ### Pending Todos
 
@@ -238,6 +242,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T08:04:42.145Z
-Stopped at: Completed 08-03-PLAN.md
+Last session: 2026-07-14T08:16:26.585Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None
