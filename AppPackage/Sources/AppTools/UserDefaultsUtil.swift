@@ -7,6 +7,5 @@ public struct UserDefaultsUtil {
 }
 
 public enum AppUserDefaults: String {
-    case galleryHost
     case clipboardChangeCount
 }

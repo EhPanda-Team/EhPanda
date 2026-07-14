@@ -297,7 +297,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             let data = try JSONSerialization.data(withJSONObject: ["i": imageURL, "s": "42"])
             return (
                 try #require(HTTPURLResponse(
-                    url: request.url ?? Defaults.URL.api,
+                    url: request.url ?? Defaults.URL.api(host: .ehentai),
                     statusCode: 200,
                     httpVersion: nil,
                     headerFields: ["Content-Type": "application/json"]

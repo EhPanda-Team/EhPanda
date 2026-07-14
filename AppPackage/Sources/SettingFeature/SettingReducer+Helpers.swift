@@ -9,6 +9,7 @@ import NetworkingFeature
 private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
+    /// Gallery host lives only in `@Shared(.setting)` and resets to `.ehentai` if that blob is lost.
     func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
         // `setting` and `user` are both `@Shared` and auto-load from persisted storage — there is no
         // working copy to prime here. `tagTranslator` is in-memory and rebuilt from its cache below.
@@ -20,10 +21,6 @@ extension SettingReducer {
                 dfClient.setActive(bypassesSNIFiltering)
             }
         ]
-        if let value: String = userDefaultsClient.getValue(.galleryHost),
-           let galleryHost = GalleryHost(rawValue: value) {
-            state.$setting.withLock { $0.galleryHost = galleryHost }
-        }
         if cookieClient.shouldFetchIgneous {
             effects.append(.send(.fetchIgneous))
         }
