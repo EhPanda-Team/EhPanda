@@ -58,35 +58,40 @@ struct AccountRequestBaselineTests {
 
     @Test
     func verifyEhProfileRequestLocksGETAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let data = Data(
             "<html><select name='profile_set'><option value='2'>EhPanda</option></select></html>".utf8
         )
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.uConfig: [.http(status: 200, data: data)]])
+            script: StubScript([url: [.http(status: 200, data: data)]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         let response = try await capture {
             () async throws(AppError) -> VerifyEhProfileResponse in
-            try await VerifyEhProfileRequest(urlSession: session).response()
+            try await VerifyEhProfileRequest(host: host, urlSession: session).response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
         #expect(response == VerifyEhProfileResponse(profileValue: 2, isProfileNotFound: false))
-        expectGETRequest(request, url: Defaults.URL.uConfig)
+        expectGETRequest(request, url: url)
     }
 
     @Test
     func ehProfileRequestLocksFormAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let data = makeEhSettingFixture()
         let (session, handle) = makeStubbedSession(
-            script: StubScript([Defaults.URL.uConfig: [.http(status: 200, data: data)]])
+            script: StubScript([url: [.http(status: 200, data: data)]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         let setting = try await capture { () async throws(AppError) -> EhSetting in
             try await EhProfileRequest(
+                host: host,
                 action: .rename,
                 name: "Baseline Profile",
                 set: 2,
@@ -100,7 +105,7 @@ struct AccountRequestBaselineTests {
         #expect(setting.ehProfiles.first?.name == "EhPanda")
         expectFormRequest(
             request,
-            url: Defaults.URL.uConfig,
+            url: url,
             fields: [
                 "profile_action": "rename",
                 "profile_name": "Baseline Profile",
@@ -111,35 +116,40 @@ struct AccountRequestBaselineTests {
 
     @Test
     func ehSettingRequestLocksGETAssemblyAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([
-                Defaults.URL.uConfig: [.http(status: 200, data: makeEhSettingFixture())]
+                url: [.http(status: 200, data: makeEhSettingFixture())]
             ])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         let setting = try await capture { () async throws(AppError) -> EhSetting in
-            try await EhSettingRequest(urlSession: session).response()
+            try await EhSettingRequest(host: host, urlSession: session).response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
         #expect(setting.ehProfiles.first?.value == 1)
         #expect(setting.favoriteCategories == Array(repeating: "", count: 10))
-        expectGETRequest(request, url: Defaults.URL.uConfig)
+        expectGETRequest(request, url: url)
     }
 
     @Test
     func submitEhSettingChangesRequestLocksCompleteFormAndParsing() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([
-                Defaults.URL.uConfig: [.http(status: 200, data: makeEhSettingFixture())]
+                url: [.http(status: 200, data: makeEhSettingFixture())]
             ])
         )
         defer { cleanUp(session: session, handle: handle) }
 
         let setting = try await capture { () async throws(AppError) -> EhSetting in
             try await SubmitEhSettingChangesRequest(
+                host: host,
                 ehSetting: .empty,
                 urlSession: session
             )
@@ -162,7 +172,7 @@ struct AccountRequestBaselineTests {
         }
 
         #expect(setting.ehProfiles.first?.name == "EhPanda")
-        expectFormRequest(request, url: Defaults.URL.uConfig, fields: expectedFields)
+        expectFormRequest(request, url: url, fields: expectedFields)
     }
 
     @Test

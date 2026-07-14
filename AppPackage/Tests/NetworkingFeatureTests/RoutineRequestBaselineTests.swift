@@ -69,7 +69,8 @@ struct RoutineRequestBaselineTests {
     /// FavoriteCategoriesRequest stays a body-less GET and preserves category indexes and names.
     @Test
     func favoriteCategoriesRequestLocksAssemblyAndParsing() async throws {
-        let url = Defaults.URL.uConfig
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: .favoriteCategoriesFixture)]])
         )
@@ -79,7 +80,7 @@ struct RoutineRequestBaselineTests {
         }
 
         let categories = try await capture { () async throws(AppError) -> [Int: String] in
-            try await FavoriteCategoriesRequest(urlSession: session).response()
+            try await FavoriteCategoriesRequest(host: host, urlSession: session).response()
         }
         .get()
         let received = try #require(handle.receivedRequests.first)
@@ -272,7 +273,8 @@ struct RoutineRequestBaselineTests {
     /// Parser failure on a ban page preserves the parsed server error instead of flattening it.
     @Test
     func favoriteCategoriesServerTextMapsIPBan() async {
-        let url = Defaults.URL.uConfig
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.uConfig(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: .ipBanFixture)]])
         )
@@ -282,7 +284,7 @@ struct RoutineRequestBaselineTests {
         }
 
         let result = await capture { () async throws(AppError) -> [Int: String] in
-            try await FavoriteCategoriesRequest(urlSession: session).response()
+            try await FavoriteCategoriesRequest(host: host, urlSession: session).response()
         }
 
         #expect(result == .failure(.ipBanned(.minutes(59, seconds: 48))))
