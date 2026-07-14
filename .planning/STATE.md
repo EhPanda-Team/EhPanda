@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-04-PLAN.md
-last_updated: "2026-07-14T08:16:26.591Z"
+stopped_at: Completed 08-05-PLAN.md
+last_updated: "2026-07-14T08:29:35.604Z"
 last_activity: 2026-07-14
 last_activity_desc: Completed 08-03-PLAN.md
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 66
+  completed_plans: 67
   percent: 55
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 5 of 14
+Plan: 6 of 14
 Status: Ready to execute
 Last activity: 2026-07-14 — Completed 08-03-PLAN.md
 Next: Execute 08-04-PLAN.md
@@ -122,6 +122,7 @@ Progress: [█████████░] 86% (65/76 plans)
 | Phase 08 P02 | 5min | 2 tasks | 3 files |
 | Phase 08 P03 | 6 min | 2 tasks | 11 files |
 | Phase 08 P04 | 6 min | 2 tasks | 7 files |
+| Phase 08 P05 | 7min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -213,6 +214,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Setting reducers snapshot setting.galleryHost when constructing each host-dependent effect. — A request keeps one construction-time host across its asynchronous work.
 - [Phase 08]: EhSettingFeature state reads shared Setting directly because it previously had no host source. — The reducer now resolves its host explicitly without retaining a global fallback.
 - [Phase 08]: Account and routine request baselines use an explicit deterministic E-Hentai host. — Tests no longer depend on the transitional global host mirror.
+- [Phase 08]: Detail reducers snapshot setting.galleryHost when constructing each host-dependent effect. — Each in-flight request keeps one consistent construction-time host even if shared settings change later.
+- [Phase 08]: CookieClient apiuid reads the selected host URL supplied by its caller. — Explicit caller-owned host selection removes the hidden transitional global-host dependency.
+- [Phase 08]: Account request baselines use an explicit deterministic E-Hentai host. — Parity tests should not depend on the transitional mutable global host mirror.
 
 ### Pending Todos
 
@@ -242,6 +246,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T08:16:26.585Z
-Stopped at: Completed 08-04-PLAN.md
+Last session: 2026-07-14T08:29:35.598Z
+Stopped at: Completed 08-05-PLAN.md
 Resume file: None
