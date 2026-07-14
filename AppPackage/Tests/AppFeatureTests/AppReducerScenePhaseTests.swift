@@ -2,6 +2,7 @@ import Foundation
 import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
+import CustomDump
 import CookieClient
 import DownloadClient
 import LogsClient
@@ -37,7 +38,7 @@ struct AppReducerScenePhaseTests {
         await store.receive(\.appRoute.detectClipboardURL)
         await store.send(.appLogsPump(.pausePump))
         await store.finish()
-        #expect(clipboardInvocationCount.value == 1)
+        expectNoDifference(clipboardInvocationCount.value, 1)
     }
 
     @Test
@@ -54,7 +55,7 @@ struct AppReducerScenePhaseTests {
         await store.receive(\.appLogsPump.startPump)
         await store.send(.appLogsPump(.pausePump))
         await store.finish()
-        #expect(clipboardInvocationCount.value == 0)
+        expectNoDifference(clipboardInvocationCount.value, 0)
     }
 
     @Test
