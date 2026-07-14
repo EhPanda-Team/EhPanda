@@ -3,36 +3,54 @@ import Foundation
 
 public struct URLUtil {
     // Fetch
-    public static func searchList(keyword: String, filter: Filter) -> URL {
-        Defaults.URL.host.appending(queryItems: [.fSearch: keyword]).applyingFilter(filter)
+    public static func searchList(host: GalleryHost = AppUtil.galleryHost, keyword: String, filter: Filter) -> URL {
+        host.url.appending(queryItems: [.fSearch: keyword]).applyingFilter(filter)
     }
 
-    public static func moreSearchList(keyword: String, filter: Filter, lastID: String) -> URL {
-        Defaults.URL.host.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
+    public static func moreSearchList(
+        host: GalleryHost = AppUtil.galleryHost,
+        keyword: String,
+        filter: Filter,
+        lastID: String
+    ) -> URL {
+        host.url.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
     }
 
-    public static func frontpageList(filter: Filter) -> URL {
-        Defaults.URL.host.applyingFilter(filter)
+    public static func frontpageList(host: GalleryHost = AppUtil.galleryHost, filter: Filter) -> URL {
+        host.url.applyingFilter(filter)
     }
 
-    public static func moreFrontpageList(filter: Filter, lastID: String) -> URL {
-        Defaults.URL.host.appending(queryItems: [.next: lastID]).applyingFilter(filter)
+    public static func moreFrontpageList(
+        host: GalleryHost = AppUtil.galleryHost,
+        filter: Filter,
+        lastID: String
+    ) -> URL {
+        host.url.appending(queryItems: [.next: lastID]).applyingFilter(filter)
     }
 
-    public static func popularList(filter: Filter) -> URL {
-        Defaults.URL.popular.applyingFilter(filter)
+    public static func popularList(host: GalleryHost = AppUtil.galleryHost, filter: Filter) -> URL {
+        Defaults.URL.popular(host: host).applyingFilter(filter)
     }
 
-    public static func watchedList(filter: Filter, keyword: String = "") -> URL {
-        var url = Defaults.URL.watched
+    public static func watchedList(
+        host: GalleryHost = AppUtil.galleryHost,
+        filter: Filter,
+        keyword: String = ""
+    ) -> URL {
+        var url = Defaults.URL.watched(host: host)
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
         }
         return url.applyingFilter(filter)
     }
 
-    public static func moreWatchedList(filter: Filter, lastID: String, keyword: String = "") -> URL {
-        var url = Defaults.URL.watched.appending(queryItems: [.next: lastID])
+    public static func moreWatchedList(
+        host: GalleryHost = AppUtil.galleryHost,
+        filter: Filter,
+        lastID: String,
+        keyword: String = ""
+    ) -> URL {
+        var url = Defaults.URL.watched(host: host).appending(queryItems: [.next: lastID])
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
         }
@@ -40,11 +58,12 @@ public struct URLUtil {
     }
 
     public static func favoritesList(
+        host: GalleryHost = AppUtil.galleryHost,
         favIndex: Int,
         keyword: String = "",
         sortOrder: FavoritesSortOrder? = nil
     ) -> URL {
-        var url = Defaults.URL.favorites
+        var url = Defaults.URL.favorites(host: host)
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
         } else {
@@ -64,12 +83,14 @@ public struct URLUtil {
     }
 
     public static func moreFavoritesList(
+        host: GalleryHost = AppUtil.galleryHost,
         favIndex: Int,
         lastID: String,
         lastTimestamp: String,
         keyword: String = ""
     ) -> URL {
-        var url = Defaults.URL.favorites.appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
+        var url = Defaults.URL.favorites(host: host)
+            .appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
         } else {
@@ -82,29 +103,46 @@ public struct URLUtil {
         return url
     }
 
-    public static func toplistsList(catIndex: Int, pageNum: Int? = nil) -> URL {
-        var url = Defaults.URL.toplist.appending(queryItems: [.topcat: String(catIndex)])
+    public static func toplistsList(
+        host: GalleryHost = AppUtil.galleryHost,
+        catIndex: Int,
+        pageNum: Int? = nil
+    ) -> URL {
+        var url = Defaults.URL.toplist(host: host).appending(queryItems: [.topcat: String(catIndex)])
         if let pageNum = pageNum {
             url.append(queryItems: [.letterP: String(pageNum)])
         }
         return url
     }
 
-    public static func moreToplistsList(catIndex: Int, pageNum: Int) -> URL {
-        Defaults.URL.toplist.appending(queryItems: [.topcat: String(catIndex), .letterP: String(pageNum)])
+    public static func moreToplistsList(
+        host: GalleryHost = AppUtil.galleryHost,
+        catIndex: Int,
+        pageNum: Int
+    ) -> URL {
+        Defaults.URL.toplist(host: host)
+            .appending(queryItems: [.topcat: String(catIndex), .letterP: String(pageNum)])
     }
 
     public static func galleryDetail(url: URL) -> URL {
         url.appending(queryItems: [.showComments: .one])
     }
 
-    public static func galleryTorrents(gid: String, token: String) -> URL {
-        Defaults.URL.galleryTorrents.appending(queryItems: [.gid: gid, .token: token])
+    public static func galleryTorrents(
+        host: GalleryHost = AppUtil.galleryHost,
+        gid: String,
+        token: String
+    ) -> URL {
+        Defaults.URL.galleryTorrents(host: host).appending(queryItems: [.gid: gid, .token: token])
     }
 
     // Account Associated Operations
-    public static func addFavorite(gid: String, token: String) -> URL {
-        Defaults.URL.galleryPopups
+    public static func addFavorite(
+        host: GalleryHost = AppUtil.galleryHost,
+        gid: String,
+        token: String
+    ) -> URL {
+        Defaults.URL.galleryPopups(host: host)
             .appending(queryItems: [.gid: gid, .token: token])
             .appending(queryItems: [.act: .addFavAct])
     }
