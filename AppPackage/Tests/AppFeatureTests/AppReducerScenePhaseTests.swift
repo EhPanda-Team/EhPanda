@@ -1,13 +1,13 @@
 import Foundation
 import AppLaunchAutomationClient
 import AppModels
-import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 import DownloadClient
 import LogsClient
 import Testing
 import UserDefaultsClient
+@testable import ClipboardClient
 @testable import AppFeature
 
 @Suite(.serialized)
@@ -18,6 +18,7 @@ struct AppReducerScenePhaseTests {
         let clipboardInvocationCount = LockIsolated(0)
         let intensity = 40.0
         let store = makeStore(
+            clipboardDetectionCount: clipboardInvocationCount,
             detectsLinksFromClipboard: true,
             privacyMaskIntensity: intensity
         )
@@ -43,6 +44,7 @@ struct AppReducerScenePhaseTests {
     func activeSceneSkipsClipboardDetectionWhenDisabled() async {
         let clipboardInvocationCount = LockIsolated(0)
         let store = makeStore(
+            clipboardDetectionCount: clipboardInvocationCount,
             detectsLinksFromClipboard: false,
             privacyMaskIntensity: 40
         )
@@ -77,6 +79,7 @@ struct AppReducerScenePhaseTests {
 
 private extension AppReducerScenePhaseTests {
     func makeStore(
+        clipboardDetectionCount: LockIsolated<Int>? = nil,
         detectsLinksFromClipboard: Bool,
         privacyMaskIntensity: Double,
         hasLoadedInitialSetting: Bool = true
@@ -103,13 +106,28 @@ private extension AppReducerScenePhaseTests {
             reducer: AppReducer.init,
             withDependencies: {
                 $0.appLaunchAutomationClient = .none
-                $0.clipboardClient = .noop
+                $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
                 $0.continuousClock = TestClock()
                 $0.cookieClient = .noop
                 $0.downloadClient = .noop
                 $0.logsClient = .noop
                 $0.userDefaultsClient = .noop
             }
+        )
+    }
+}
+
+private extension ClipboardClient {
+    static func countingDetections(_ count: LockIsolated<Int>) -> Self {
+        .init(
+            url: { nil },
+            changeCount: {
+                count.withValue { $0 += 1 }
+                return .min
+            },
+            saveText: { _ in },
+            saveImage: { _, _ in },
+            saveImageData: { _ in false }
         )
     }
 }
