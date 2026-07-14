@@ -12,7 +12,7 @@ public struct PrivacyMaskModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .animation(reduceMotion ? nil : .linear(duration: 0.1)) {
+            .animation(reduceMotion || blur != 0 ? nil : .linear(duration: 0.1)) {
                 $0.blur(radius: blur)
             }
             .allowsHitTesting(blur < 1)
