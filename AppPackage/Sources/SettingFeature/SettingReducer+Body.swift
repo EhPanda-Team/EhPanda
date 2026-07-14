@@ -71,9 +71,15 @@ extension SettingReducer {
                 return .none
 
             case .createDefaultEhProfile:
+                let host = state.setting.galleryHost
                 return .run { _ in
                     do throws(AppError) {
-                        _ = try await EhProfileRequest(action: .create, name: "EhPanda").response()
+                        _ = try await EhProfileRequest(
+                            host: host,
+                            action: .create,
+                            name: "EhPanda"
+                        )
+                        .response()
                     } catch {
                         return
                     }
@@ -106,7 +112,7 @@ extension SettingReducer {
             case .fetchUserInfo:
                 guard cookieClient.didLogin else { return .none }
                 let uid = cookieClient
-                    .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
+                    .getCookie(state.setting.galleryHost.url, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
                     return .run { send in
                         do throws(AppError) {
@@ -180,9 +186,10 @@ extension SettingReducer {
 
             case .fetchEhProfileIndex:
                 guard cookieClient.didLogin else { return .none }
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await VerifyEhProfileRequest().response()
+                        let response = try await VerifyEhProfileRequest(host: host).response()
                         await send(.fetchEhProfileIndexDone(.success(response)))
                     } catch {
                         await send(.fetchEhProfileIndexDone(.failure(error)))
@@ -190,13 +197,14 @@ extension SettingReducer {
                 }
 
             case .fetchEhProfileIndexDone(let result):
-                return handleFetchEhProfileIndexDone(result)
+                return handleFetchEhProfileIndexDone(&state, result)
 
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let categories = try await FavoriteCategoriesRequest().response()
+                        let categories = try await FavoriteCategoriesRequest(host: host).response()
                         await send(.fetchFavoriteCategoriesDone(.success(categories)))
                     } catch {
                         await send(.fetchFavoriteCategoriesDone(.failure(error)))
