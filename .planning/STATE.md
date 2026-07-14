@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-14-PLAN.md
-last_updated: "2026-07-14T11:51:35.160Z"
+stopped_at: Completed 08-15-PLAN.md
+last_updated: "2026-07-14T12:06:49.604Z"
 last_activity: 2026-07-14
-last_activity_desc: Phase 08 planning complete
+last_activity_desc: Phase 08 execution started
 progress:
   total_phases: 11
-  completed_phases: 7
-  total_plans: 76
-  completed_plans: 76
-  percent: 100
+  completed_phases: 6
+  total_plans: 80
+  completed_plans: 77
+  percent: 96
 ---
 
 # Project State
@@ -28,19 +28,19 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 08 (architecture-hygiene-client-seams) — READY FOR VERIFICATION
-Plan: 14 of 14
-Status: Ready to execute
-Last activity: 2026-07-14 — Phase 08 planning complete
-Next: Verify Phase 08
+Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
+Plan: 15 of 18
+Status: Executing Phase 08 gap closures
+Last activity: 2026-07-14 — Completed 08-15 reader refetch host preservation
+Next: Execute 08-16-PLAN.md
 
-Progress: [██████████] 100% (76/76 plans)
+Progress: [██████████] 96% (77/80 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 76
+- Total plans completed: 77
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -132,6 +132,7 @@ Progress: [██████████] 100% (76/76 plans)
 | Phase 08 P12 | 7 min | 2 tasks | 10 files |
 | Phase 08 P13 | 6 min | 2 tasks | 10 files |
 | Phase 08 P14 | 4 min | 2 tasks | 4 files |
+| Phase 08 P15 | 11 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -244,6 +245,8 @@ Recent decisions affecting current work:
 - [Phase 08]: 08-13: Keep AppUserDefaults in AppTools as the shared key type while removing only the redundant UserDefaultsUtil wrapper.
 - [Phase 08]: 08-14: Preserve Bundle metadata keys, null fallbacks, and XCTestConfigurationFilePath detection when relocating them to AppInfo. — Maintains exact About metadata and test-launch behavior while eliminating AppUtil.
 - [Phase 08]: 08-14: Model AppInfo as an uninhabited pure namespace instead of an injected client. — Read-only app facts require no substitution, and a client would be a thin wrapper.
+- [Phase 08]: Carry GalleryHost in refetchNormalImageURLsDone so both completion paths preserve request identity. — Response cookie routing must remain tied to immutable request-construction context across shared-host changes.
+- [Phase 08]: Observe the isolated CookieClient testing store as the host-routing spy. — The behavior-level assertion proves the destination host without adding a production callback solely for tests.
 
 ### Pending Todos
 
@@ -273,6 +276,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T10:49:48.283Z
-Stopped at: Completed 08-14-PLAN.md
+Last session: 2026-07-14T12:06:49.598Z
+Stopped at: Completed 08-15-PLAN.md
 Resume file: None
