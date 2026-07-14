@@ -10,6 +10,7 @@ import AppComponents
 // MARK: HeaderSection
 struct HeaderSection: View {
     @SharedReader(.user) var user: User
+    @SharedReader(.setting) private var setting: Setting
 
     let gallery: Gallery
     let galleryDetail: GalleryDetail
@@ -57,7 +58,7 @@ struct HeaderSection: View {
     }
     private var categoryLabel: some View {
         CategoryLabel(
-            text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost), font: .headline,
+            text: gallery.category.value, color: gallery.color(host: setting.galleryHost), font: .headline,
             insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4), cornerRadius: 3
         )
         .lineLimit(1)

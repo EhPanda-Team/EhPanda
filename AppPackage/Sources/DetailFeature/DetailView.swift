@@ -61,7 +61,7 @@ private extension DetailView {
                             downloadFolders: store.downloadFolders,
                             isPreparingDownload: store.isPreparingDownload,
                             canDownload: !store.gallery.id.isEmpty
-                                && (AppUtil.galleryHost == .ehentai || CookieUtil.didLogin),
+                                && (store.setting.galleryHost == .ehentai || CookieUtil.didLogin),
                             displaysJapaneseTitle: store.setting.displaysJapaneseTitle,
                             showFullTitle: store.showsFullTitle,
                             showFullTitleAction: { store.send(.toggleShowFullTitle) },

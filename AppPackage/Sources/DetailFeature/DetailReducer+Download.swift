@@ -189,7 +189,7 @@ extension DetailReducer {
                     galleryDetail: detail,
                     previewURLs: state.galleryPreviewURLs,
                     previewConfig: state.previewConfig,
-                    host: AppUtil.galleryHost,
+                    host: state.setting.galleryHost,
                     folderName: folderName,
                     versionMetadata: state.galleryVersionMetadata,
                     mode: .initial
