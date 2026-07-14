@@ -278,14 +278,17 @@ public struct UserInfoRequest: Request {
 
 public struct FavoriteCategoriesRequest: Request {
     public init(
+        host: GalleryHost,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> [Int: String] {
-        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig(host: host)), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
             return try parseResponse(doc: document, Parser.parseFavoriteCategories)

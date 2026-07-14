@@ -61,14 +61,17 @@ public struct IgneousRequest: Request {
 
 public struct VerifyEhProfileRequest: Request {
     public init(
+        host: GalleryHost,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> VerifyEhProfileResponse {
-        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig(host: host)), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
             return try parseResponse(doc: document, Parser.parseProfileIndex)
@@ -80,16 +83,19 @@ public struct VerifyEhProfileRequest: Request {
 
 public struct EhProfileRequest: Request {
     public init(
+        host: GalleryHost,
         action: EhProfileAction? = nil,
         name: String? = nil,
         set: Int? = nil,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.action = action
         self.name = name
         self.set = set
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public var action: EhProfileAction?
     public var name: String?
     public var set: Int?
@@ -108,7 +114,7 @@ public struct EhProfileRequest: Request {
             params["profile_set"] = "\(set)"
         }
 
-        var request = URLRequest(url: Defaults.URL.uConfig)
+        var request = URLRequest(url: Defaults.URL.uConfig(host: host))
         request.httpMethod = "POST"
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
@@ -125,14 +131,17 @@ public struct EhProfileRequest: Request {
 
 public struct EhSettingRequest: Request {
     public init(
+        host: GalleryHost,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> EhSetting {
-        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig(host: host)), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
             return try parseResponse(doc: document, Parser.parseEhSetting)
@@ -144,17 +153,20 @@ public struct EhSettingRequest: Request {
 
 public struct SubmitEhSettingChangesRequest: Request {
     public init(
+        host: GalleryHost,
         ehSetting: EhSetting,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.ehSetting = ehSetting
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let ehSetting: EhSetting
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> EhSetting {
-        let url = Defaults.URL.uConfig
+        let url = Defaults.URL.uConfig(host: host)
         var params: [String: String] = [
             "uh": String(ehSetting.loadThroughHathSetting.rawValue),
             "co": ehSetting.browsingCountry.rawValue,
