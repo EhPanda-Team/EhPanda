@@ -4,18 +4,20 @@ import ComposableArchitecture
 import AppTools
 import AppComponents
 import SFSafeSymbolsExt
+import CookieClient
 
 // MARK: ToolBar
 extension DetailView {
     func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        @Dependency(\.cookieClient) var cookieClient
+        return CustomToolbarItem {
             ToolbarFeaturesMenu {
                 Button {
                     store.send(.archivesButtonTapped)
                 } label: {
                     Label(.archivesAction, systemSymbol: .zipperPage)
                 }
-                .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
+                .disabled(store.galleryDetail?.archiveURL == nil || !cookieClient.didLogin)
                 Button {
                     store.send(.torrentsButtonTapped)
                 } label: {

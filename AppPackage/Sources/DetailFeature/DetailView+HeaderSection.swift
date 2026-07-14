@@ -4,11 +4,14 @@ import AppModels
 import Resources
 import Kingfisher
 import SFSafeSymbols
+import ComposableArchitecture
 import AppTools
 import AppComponents
+import CookieClient
 
 // MARK: HeaderSection
 struct HeaderSection: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @SharedReader(.user) var user: User
     @SharedReader(.setting) private var setting: Setting
 
@@ -173,7 +176,7 @@ struct HeaderSection: View {
         .foregroundStyle(.tint)
         .buttonStyle(.glass(.regular.interactive()))
         .buttonBorderShape(.circle)
-        .disabled(!CookieUtil.didLogin)
+        .disabled(!cookieClient.didLogin)
     }
     private var readButton: some View {
         Button(action: navigateReadingAction) {

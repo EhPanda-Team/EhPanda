@@ -6,8 +6,10 @@ import ComposableArchitecture
 import AppTools
 import SystemNotificationExt
 import AppComponents
+import CookieClient
 
 struct CommentsView: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Bindable private var store: StoreOf<CommentsReducer>
     private let gid: String
     private let token: String
@@ -116,7 +118,7 @@ struct CommentsView: View {
             } label: {
                 Image(systemSymbol: .squareAndPencil)
             }
-            .disabled(!CookieUtil.didLogin)
+            .disabled(!cookieClient.didLogin)
         }
     }
 }

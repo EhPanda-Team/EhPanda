@@ -3,8 +3,10 @@ import AppModels
 import TagTranslationFeature
 import Resources
 import Kingfisher
+import ComposableArchitecture
 import AppTools
 import AppComponents
+import CookieClient
 
 // MARK: DescriptionSection
 struct DescriptionSection: View {
@@ -107,6 +109,7 @@ extension DescriptionSection {
 
 // MARK: ActionSection
 struct ActionSection: View {
+    @Dependency(\.cookieClient) private var cookieClient
     let galleryDetail: GalleryDetail
     let userRating: Int
     let showUserRating: Bool
@@ -125,7 +128,7 @@ struct ActionSection: View {
                         Text(.giveARating).bold()
                         Spacer()
                     }
-                    .disabled(!CookieUtil.didLogin)
+                    .disabled(!cookieClient.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
@@ -180,6 +183,7 @@ struct TagsSection: View {
 
 extension TagsSection {
     struct TagRow: View {
+        @Dependency(\.cookieClient) private var cookieClient
         @Environment(\.colorScheme) private var colorScheme
         @Environment(\.inSheet) private var inSheet
 
@@ -245,7 +249,7 @@ extension TagsSection {
                     Text(.RLocalizable.detail)
                 }
             }
-            if CookieUtil.didLogin {
+            if cookieClient.didLogin {
                 tagVoteButtons(content: content)
             }
         }
@@ -316,6 +320,7 @@ struct PreviewsSection: View {
 
 // MARK: CommentsSection
 struct CommentsSection: View {
+    @Dependency(\.cookieClient) private var cookieClient
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.inSheet) private var inSheet
 
@@ -342,7 +347,7 @@ struct CommentsSection: View {
                 .drawingGroup()
             }
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
-                .padding(.horizontal).disabled(!CookieUtil.didLogin)
+                .padding(.horizontal).disabled(!cookieClient.didLogin)
         }
     }
 }
