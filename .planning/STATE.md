@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-10-PLAN.md
-last_updated: "2026-07-14T09:57:02.271Z"
+stopped_at: Completed 08-11-PLAN.md
+last_updated: "2026-07-14T10:11:41.678Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 72
-  percent: 95
+  completed_plans: 73
+  percent: 96
 ---
 
 # Project State
@@ -28,18 +28,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 11 of 14
+Plan: 12 of 14
 Status: Ready to execute
 Last activity: 2026-07-14
-Next: Execute 08-11-PLAN.md
+Next: Execute 08-12-PLAN.md
 
-Progress: [██████████] 95% (72/76 plans)
+Progress: [██████████] 96% (73/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 71
+- Total plans completed: 73
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -127,6 +127,7 @@ Progress: [██████████] 95% (72/76 plans)
 | Phase 08 P08 | 7min | 2 tasks | 14 files |
 | Phase 08 P09 | 12 min | 2 tasks | 7 files |
 | Phase 08 P10 | 7 min | 2 tasks | 5 files |
+| Phase 08 P11 | 8 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -231,6 +232,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Use UUID-scoped temporary DataCache instances for the default test dependency. — Prevents cross-test cache pollution while allowing explicit per-test injection.
 - [Phase 08]: Exercise ImageClient through an injected cache and URLSession while keeping one isolated DataCache actor per test. — This prevents process-global cache pollution and makes every client-layer behavior deterministic.
 - [Phase 08]: Render image-test PNG fixtures at scale 1 before asserting decoded pixel dimensions. — UIImage point canvases inherit the simulator display scale; an explicit unit scale keeps the fixture exactly 2 by 2 pixels.
+- [Phase 08]: 08-11: Use synthetic credential fixtures and clear every live cookie store after each test. — Keeps credential-shaped test data isolated and short-lived while exercising production cookie parsing.
+- [Phase 08]: 08-11: Query skip-server cookies at their /s/ path. — Matches the production cookie path and verifies Foundation URL path filtering rather than bypassing it.
 
 ### Pending Todos
 
@@ -260,6 +263,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T09:56:43.686Z
-Stopped at: Completed 08-10-PLAN.md
+Last session: 2026-07-14T10:11:41.673Z
+Stopped at: Completed 08-11-PLAN.md
 Resume file: None

@@ -134,9 +134,17 @@ CookieClient now has a dedicated deterministic suite locking login parity, live 
 - **Verification:** The skip-server case and complete targeted suite pass.
 - **Committed in:** `ecb5ee08`
 
+**4. [Rule 1 - Bug] Reconciled stale progress fields after state queries**
+- **Found during:** Plan metadata self-check
+- **Issue:** The state updater reported 96% but left stale percentage, next-plan, progress-bar, and completed-count values in `STATE.md`.
+- **Fix:** Reconciled the human-readable and frontmatter fields to plan 12 and 73 of 76 completed plans after all required state queries ran.
+- **Files modified:** `.planning/STATE.md`
+- **Verification:** State frontmatter and the current-position block agree with the 11 summaries present for phase 8.
+- **Committed in:** Plan metadata commit
+
 ---
 
-**Total deviations:** 3 auto-fixed (1 bug, 2 blocking issues)
+**Total deviations:** 4 auto-fixed (2 bugs, 2 blocking issues)
 **Impact on plan:** The fixes make the target buildable and the live-store assertions faithful to Foundation path/storage semantics without expanding production scope.
 
 ## Issues Encountered
