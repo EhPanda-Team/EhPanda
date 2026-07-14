@@ -238,7 +238,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. Per D-08, the security-section auto-lock control is removed outright with no in-app replacement description, deferring re-authentication to iOS's built-in per-app lock, which has no Settings URL or API to point to.
   4. Background / app-switcher blur is retained.
 
-**Plans**: 11/12 plans executed
+**Plans**: 12/12 plans executed
 boundary via the mask-swap-first + vestigial-param technique; xcodebuild builds must not overlap on
 this machine)
 Plans:
@@ -285,7 +285,7 @@ Plans:
 
 **Wave 10** *(blocked on 07-09)*
 
-- [ ] 07-10-PLAN.md — GAP-2 + WR-04: exhaustive exactly-once greeting/clipboard tests (drop withExhaustivity(.off)); drop AppFeatureTests direct ComposableArchitecture dep
+- [x] 07-10-PLAN.md — GAP-2 + WR-04: exhaustive exactly-once greeting/clipboard tests (drop withExhaustivity(.off)); drop AppFeatureTests direct ComposableArchitecture dep
 
 **UI hint**: yes
 
@@ -359,7 +359,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
-| 7. Root Privacy Mask & Auto-Lock Removal | 11/12 | In Progress|  |
+| 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | In Progress|  |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
