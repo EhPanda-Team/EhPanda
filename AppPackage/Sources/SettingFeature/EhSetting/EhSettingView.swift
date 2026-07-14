@@ -10,8 +10,7 @@ struct EhSettingView: View {
     @Bindable private var store: StoreOf<EhSettingReducer>
     @SharedReader(.setting) private var setting: Setting
 
-    // Should make it an Environment value.
-    private var galleryHost: GalleryHost { AppUtil.galleryHost }
+    private var galleryHost: GalleryHost { setting.galleryHost }
 
     init(store: StoreOf<EhSettingReducer>) {
         self.store = store
@@ -101,7 +100,7 @@ struct EhSettingView: View {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    store.send(.presentWebView(Defaults.URL.uConfig))
+                    store.send(.presentWebView(Defaults.URL.uConfig(host: setting.galleryHost)))
                 } label: {
                     Image(systemSymbol: .globe)
                 }

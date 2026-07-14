@@ -1,7 +1,7 @@
 import SwiftUI
+import Sharing
 import AppModels
 import Resources
-import AppTools
 import AppComponents
 
 extension EhSettingView {
@@ -27,6 +27,7 @@ struct OptionalUIElementsSection: View {
 
 // MARK: FavoritesSection
 struct FavoritesSection: View {
+    @SharedReader(.setting) private var setting: Setting
     @Binding var ehSetting: EhSetting
     @FocusState private var isFocused
 
@@ -41,7 +42,7 @@ struct FavoritesSection: View {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundColor(category.color(host: AppUtil.galleryHost))
+                        .foregroundColor(category.color(host: setting.galleryHost))
                         .frame(width: 10)
 
                     SettingTextField(

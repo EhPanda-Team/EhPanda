@@ -35,7 +35,9 @@ struct AccountSettingView: View {
                         \.$confirmationDialog, action: \.confirmationDialog
                     ),
                     configureAccountAction: { store.send(.delegate(.pushEhSetting)) },
-                    manageTagsAction: { store.send(.presentWebView(Defaults.URL.myTags)) }
+                    manageTagsAction: {
+                        store.send(.presentWebView(Defaults.URL.myTags(host: setting.galleryHost)))
+                    }
                 )
             }
             CookieSection(
