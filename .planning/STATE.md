@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 07
 current_phase_name: root-privacy-mask-auto-lock-removal
 status: executing
-stopped_at: Completed 07-09-PLAN.md
-last_updated: "2026-07-14T00:26:24.978Z"
+stopped_at: Completed 07-11-PLAN.md
+last_updated: "2026-07-14T00:38:26.000Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed Phase 07 Plan 09 pre-settings privacy-mask race closure
+last_activity_desc: Completed Phase 07 Plan 11 privacy-mask root audit and Reduce Motion support
 progress:
   total_phases: 11
   completed_phases: 5
   total_plans: 62
-  completed_plans: 59
-  percent: 95
+  completed_plans: 60
+  percent: 97
 ---
 
 # Project State
@@ -29,18 +29,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 07 (root-privacy-mask-auto-lock-removal) — EXECUTING
-Plan: 9 of 12
+Plan: 11 of 12
 Status: Executing Phase 07
-Last activity: 2026-07-14 — Completed Phase 07 Plan 09 pre-settings privacy-mask race closure
+Last activity: 2026-07-14 — Completed Phase 07 Plan 11 privacy-mask root audit and Reduce Motion support
 Next: execute Phase 07 gap-closure plan 07-10
 
-Progress: [██████████] 95% (59/62 plans)
+Progress: [██████████] 97% (60/62 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 59
+- Total plans completed: 60
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -194,6 +194,8 @@ Recent decisions affecting current work:
 - [Phase 07]: Privacy-mask coverage counts forty executable application calls rather than forty-two raw tokens. — The public function declaration and shared-key documentation are valid non-application matches.
 - [Phase 07]: The owner post-checkpoint refinement scopes blur animation to the blur transform and keeps Privacy Mask in the first Appearance section. — The owner intentionally refined presentation after verification; current HEAD was rebuilt and retested without rewriting the commit.
 - [Phase 07]: 07-09: Scene-phase privacy writes and background latching run before the settings-loaded guard; settings-dependent effects remain gated. — Protects cold-launch App Switcher snapshots without changing initialization-dependent side-effect semantics.
+- [Phase 07]: 07-11: Privacy-mask coverage is derived from 39 explicit runtime roots and reconciled against all 41 source presentation modifiers. — A duplicate can no longer compensate for an uncovered root, and preview-only presentations remain explicit exclusions.
+- [Phase 07]: 07-11: Privacy blur transitions use no animation when Reduce Motion is enabled. — The true-zero blur and hit-testing threshold remain unchanged.
 
 ### Pending Todos
 
@@ -223,6 +225,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T00:26:24.969Z
-Stopped at: Completed 07-09-PLAN.md
+Last session: 2026-07-14T00:38:26.000Z
+Stopped at: Completed 07-11-PLAN.md
 Resume file: None
