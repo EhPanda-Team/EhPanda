@@ -125,10 +125,18 @@ Cookie login gating now reads the injected `CookieClient` at every view site, wi
 - **Verification:** The complete package build and test suite pass.
 - **Committed in:** `9e0be526`
 
+**2. [Rule 1 - Bug] Reconciled stale progress fields after state queries**
+- **Found during:** Plan metadata self-check
+- **Issue:** The state updater advanced plan and completed-plan fields but later rewrote the percentage from phase completion, leaving the human-readable next-plan and progress values stale.
+- **Fix:** Reconciled frontmatter and human-readable state to plan 13, 74 of 76 plans, and 97 percent after all required state queries ran.
+- **Files modified:** `.planning/STATE.md`
+- **Verification:** State frontmatter, current position, next plan, progress bar, and completed-plan count agree with the summaries present on disk.
+- **Committed in:** Plan state metadata commit
+
 ---
 
-**Total deviations:** 1 auto-fixed blocking issue.
-**Impact on plan:** The direct target edges are required by the planned dependency injection and do not change runtime behavior or broaden feature scope.
+**Total deviations:** 2 auto-fixed (1 bug, 1 blocking issue).
+**Impact on plan:** The direct target edges are required by the planned dependency injection, and the metadata repair records the verified result accurately; neither changes runtime behavior or broadens feature scope.
 
 ## Issues Encountered
 
