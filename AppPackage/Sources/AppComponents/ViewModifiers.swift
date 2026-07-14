@@ -7,11 +7,12 @@ import AppTools
 import ParserFeature
 
 public struct PrivacyMaskModifier: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @SharedReader(.privacyMaskBlur) private var blur
 
     public func body(content: Content) -> some View {
         content
-            .animation(.linear(duration: 0.1)) {
+            .animation(reduceMotion ? nil : .linear(duration: 0.1)) {
                 $0.blur(radius: blur)
             }
             .allowsHitTesting(blur < 1)
