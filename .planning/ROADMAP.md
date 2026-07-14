@@ -300,7 +300,23 @@ Plans:
   2. Durable auth cookies are stored via Keychain (within the CookieClient work), and no cookie value is ever emitted to logs at `.public` privacy.
   3. Client-layer tests cover the reworked seams — the async `NetworkingFeature` (from Phase 4), `CookieClient`, and `ImageClient` — and are deterministic and green.
 
-**Plans**: TBD
+**Plans**: 14 plans (sequential waves — xcodebuild invocations must never overlap on this machine; each plan is its own wave)
+Plans:
+
+- [ ] 08-01-PLAN.md — QUAL-01 rescope: reconcile ROADMAP/REQUIREMENTS to logging-audit-only (D-01) + cookie-logging static gate (D-02)
+- [ ] 08-02-PLAN.md — Seam A.1: URLUtil builders + Defaults.URL host-taking helpers (transitional bridge, D-03/D-06)
+- [ ] 08-03-PLAN.md — Seam A.2: Request+Gallery structs + list reducers thread explicit host (D-03)
+- [ ] 08-04-PLAN.md — Seam A.3: Setting-consumed account requests + Setting host reads thread host (D-03)
+- [ ] 08-05-PLAN.md — Seam A.4: Detail-consumed account requests + CookieClient.apiuid(host:) (D-03, Open-Q3)
+- [ ] 08-06-PLAN.md — Seam A.5: Image/GData/Metadata/Torrents + setSkipServer + Parser host drain (D-03)
+- [ ] 08-07-PLAN.md — Seam A.6: the 12 AppUtil.galleryHost view/reducer reads → setting.galleryHost (D-03/D-04)
+- [ ] 08-08-PLAN.md — Seam A.7: teardown — delete host global + AppUtil.galleryHost + UserDefaults mirror (D-03)
+- [ ] 08-09-PLAN.md — Seam D: DataCache DependencyKey + purge-observer rebind + consumers resolve \.dataCache (D-08)
+- [ ] 08-10-PLAN.md — Seam F.image: ImageClientTests target (per-test cache, pixel dims) (QUAL-02, D-09/D-10)
+- [ ] 08-11-PLAN.md — Seam F.cookie: CookieClientTests target (full didLogin/setCredentials/... matrix) (QUAL-02, D-10)
+- [ ] 08-12-PLAN.md — Seam B.cookie: delete CookieUtil + migrate 12 login-gated view sites (D-04/D-05)
+- [ ] 08-13-PLAN.md — Seam B.haptics/ud: fold HapticsUtil + UserDefaultsUtil into their clients (D-05)
+- [ ] 08-14-PLAN.md — Seam C: eliminate AppUtil + relocate version/build/isTesting + AuthorizationClient cleanup (D-06/D-07)
 
 ### Phase 9: Correctness & Structured Error Handling
 
@@ -360,7 +376,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
-| 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
+| 8. Architecture Hygiene & Client Seams | 0/14 | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Lint Capstone | 0/TBD | Not started | - |
