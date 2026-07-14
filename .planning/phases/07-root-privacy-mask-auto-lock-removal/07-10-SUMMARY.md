@@ -58,7 +58,7 @@ coverage:
     human_judgment: false
 
 # Metrics
-duration: 8min
+duration: 11min
 completed: 2026-07-14
 status: complete
 ---
@@ -69,9 +69,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 8 min
+- **Duration:** 11 min
 - **Started:** 2026-07-14T00:51:32Z
-- **Completed:** 2026-07-14T00:59:45Z
+- **Completed:** 2026-07-14T01:02:45Z
 - **Tasks:** 2
 - **Files modified:** 2
 
@@ -89,6 +89,7 @@ Each task was committed atomically:
 1. **Task 1 RED: Add the failing exhaustive clipboard-cardinality proof** - `f27df052` (test)
 2. **Task 1 GREEN: Wire the counting clipboard test double** - `296930fc` (feat)
 3. **Task 2: Remove the redundant AppFeatureTests TCA dependency** - `b4ced678` (chore)
+4. **Task 1 REFACTOR: Improve static counter failure diffs** - `ac92fdbf` (refactor)
 
 ## Files Created/Modified
 
@@ -105,7 +106,7 @@ Each task was committed atomically:
 
 - **RED:** `f27df052` made the enabled test fail with `clipboardInvocationCount.value` equal to `0` instead of `1`.
 - **GREEN:** `296930fc` injected the counting clipboard double; all 3 focused tests passed.
-- **REFACTOR:** No separate refactor was needed.
+- **REFACTOR:** `ac92fdbf` adopted CustomDump's static-value assertion so counter failures render focused diffs; the focused suite remained green.
 
 ## Deviations from Plan
 
@@ -151,7 +152,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Commits `f27df052`, `296930fc`, and `b4ced678` exist in git history.
+- Commits `f27df052`, `296930fc`, `b4ced678`, and `ac92fdbf` exist in git history.
 - Both modified files exist and `git diff --check` passes across the plan commits.
 - `AppReducerScenePhaseTests.swift` contains no `withExhaustivity(.off)` or `skipInFlightEffects`.
 - The focused scene-phase suite passed 3 tests in 1 suite.
