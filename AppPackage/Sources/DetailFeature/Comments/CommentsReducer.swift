@@ -224,11 +224,12 @@ public struct CommentsReducer: Sendable {
 
             case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
                 guard let gid = Int(gid), let commentID = Int(commentID),
-                      let apiuid = Int(cookieClient.apiuid)
+                      let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
                 else { return .none }
-                return .run {  send in
+                return .run { [host = state.setting.galleryHost] send in
                     do throws(AppError) {
                         try await VoteGalleryCommentRequest(
+                            host: host,
                             apiuid: apiuid,
                             apikey: apiKey,
                             gid: gid,

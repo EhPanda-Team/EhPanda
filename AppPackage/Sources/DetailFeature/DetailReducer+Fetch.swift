@@ -112,11 +112,19 @@ extension DetailReducer {
         Reduce { state, action in
             switch action {
             case .rateGallery:
-                guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
+                guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
+                      let gid = Int(state.gallery.id)
                 else { return .none }
-                return .run { [apiKey = state.apiKey, token = state.gallery.token, rating = state.userRating] send in
+                return .run {
+                    [
+                        host = state.setting.galleryHost,
+                        apiKey = state.apiKey,
+                        token = state.gallery.token,
+                        rating = state.userRating
+                    ] send in
                     do throws(AppError) {
                         try await RateGalleryRequest(
+                            host: host,
                             apiuid: apiuid,
                             apikey: apiKey,
                             gid: gid,
@@ -132,9 +140,11 @@ extension DetailReducer {
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
 
             case .favorGallery(let favIndex):
-                return .run { [gid = state.gallery.id, token = state.gallery.token] send in
+                return .run {
+                    [host = state.setting.galleryHost, gid = state.gallery.id, token = state.gallery.token] send in
                     do throws(AppError) {
                         try await FavorGalleryRequest(
+                            host: host,
                             gid: gid,
                             token: token,
                             favIndex: favIndex
@@ -148,9 +158,9 @@ extension DetailReducer {
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
 
             case .unfavorGallery:
-                return .run { [galleryID = state.gallery.id] send in
+                return .run { [host = state.setting.galleryHost, galleryID = state.gallery.id] send in
                     do throws(AppError) {
-                        try await UnfavorGalleryRequest(gid: galleryID).response()
+                        try await UnfavorGalleryRequest(host: host, gid: galleryID).response()
                         await send(.anyGalleryOpsDone(.success(())))
                     } catch {
                         await send(.anyGalleryOpsDone(.failure(error)))
@@ -175,11 +185,14 @@ extension DetailReducer {
                 .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
 
             case .voteTag(let tag, let vote):
-                guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
+                guard let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost)),
+                      let gid = Int(state.gallery.id)
                 else { return .none }
-                return .run { [apiKey = state.apiKey, token = state.gallery.token] send in
+                return .run {
+                    [host = state.setting.galleryHost, apiKey = state.apiKey, token = state.gallery.token] send in
                     do throws(AppError) {
                         try await VoteGalleryTagRequest(
+                            host: host,
                             apiuid: apiuid,
                             apikey: apiKey,
                             gid: gid,
