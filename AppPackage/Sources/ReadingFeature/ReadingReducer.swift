@@ -209,7 +209,7 @@ public struct ReadingReducer: Sendable {
         case fetchNormalImageURLs(Int, [Int: URL])
         case fetchNormalImageURLsDone(Int, Result<([Int: URL], [Int: URL]), AppError>)
         case refetchNormalImageURLs(Int)
-        case refetchNormalImageURLsDone(Int, Result<([Int: URL], HTTPURLResponse?), AppError>)
+        case refetchNormalImageURLsDone(Int, GalleryHost, Result<([Int: URL], HTTPURLResponse?), AppError>)
 
         case fetchMPVKeys(Int, URL)
         case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
