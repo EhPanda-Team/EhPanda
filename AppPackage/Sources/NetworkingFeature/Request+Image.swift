@@ -163,6 +163,7 @@ private struct MissingThumbnailIndexError: Error {}
 
 public struct GalleryNormalImageURLRefetchRequest: Request {
     public init(
+        host: GalleryHost,
         index: Int,
         pageNum: Int,
         galleryURL: URL,
@@ -171,6 +172,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
         urlSession: URLSession = .shared,
         allowsCellular: Bool = true
     ) {
+        self.host = host
         self.index = index
         self.pageNum = pageNum
         self.galleryURL = galleryURL
@@ -179,6 +181,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
         self.urlSession = urlSession
         self.allowsCellular = allowsCellular
     }
+    public let host: GalleryHost
     public let index: Int
     public let pageNum: Int
     public let galleryURL: URL
@@ -259,16 +262,18 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
 
 public struct GalleryMPVImageURLRequest: Request {
     public init(
+        host: GalleryHost,
         gid: Int,
         index: Int,
         mpvKey: String,
         mpvImageKey: String,
         skipServerIdentifier: String? = nil,
-        apiURL: URL = Defaults.URL.api,
+        apiURL: URL? = nil,
         urlSession: URLSession = .shared,
         allowsCellular: Bool = true,
         requiresSkipServerIdentifier: Bool = true
     ) {
+        self.host = host
         self.gid = gid
         self.index = index
         self.mpvKey = mpvKey
@@ -279,12 +284,13 @@ public struct GalleryMPVImageURLRequest: Request {
         self.allowsCellular = allowsCellular
         self.requiresSkipServerIdentifier = requiresSkipServerIdentifier
     }
+    public let host: GalleryHost
     public let gid: Int
     public let index: Int
     public let mpvKey: String
     public let mpvImageKey: String
     public let skipServerIdentifier: String?
-    public var apiURL: URL = Defaults.URL.api
+    public var apiURL: URL?
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
     public var requiresSkipServerIdentifier = true
@@ -301,7 +307,10 @@ public struct GalleryMPVImageURLRequest: Request {
             params["nl"] = skipServerIdentifier
         }
 
-        var request = urlRequest(url: apiURL, allowsCellular: allowsCellular)
+        var request = urlRequest(
+            url: apiURL ?? Defaults.URL.api(host: host),
+            allowsCellular: allowsCellular
+        )
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
@@ -328,7 +337,7 @@ public struct GalleryMPVImageURLRequest: Request {
                 }
 
                 let originalImageURL = (dictionary["lf"] as? String).map {
-                    Defaults.URL.host.appendingPathComponent($0)
+                    host.url.appendingPathComponent($0)
                 }
                 return GalleryMPVImageURLResponse(
                     imageURL: imageURL,

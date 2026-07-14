@@ -26,7 +26,7 @@ private struct GalleryMetadata: Decodable {
     let rating: String?
     let tags: [String]?
 
-    var gallery: Gallery? {
+    func gallery(host: GalleryHost) -> Gallery? {
         // Match the HTML list parser: a resolved row needs its full display set, or it is dropped.
         // Only `tags` and `uploader` stay tolerant.
         guard error == nil,
@@ -49,7 +49,7 @@ private struct GalleryMetadata: Decodable {
             pageCount: pageCount,
             postedDate: Date(timeIntervalSince1970: postedInterval),
             coverURL: coverURL,
-            galleryURL: Defaults.URL.host
+            galleryURL: host.url
                 .appendingPathComponent("g")
                 .appendingPathComponent(String(gid))
                 .appendingPathComponent(token)
@@ -84,10 +84,16 @@ private struct GalleryMetadata: Decodable {
 /// input is chunked and the chunks are fetched concurrently, then reassembled in input order
 /// (unresolved gids are dropped).
 public struct GalleriesMetadataRequest: Request, Sendable {
+    public let host: GalleryHost
     public let gidList: [(gid: String, token: String)]
     public let urlSession: URLSession
 
-    public init(gidList: [(gid: String, token: String)], urlSession: URLSession = .shared) {
+    public init(
+        host: GalleryHost,
+        gidList: [(gid: String, token: String)],
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
         self.gidList = gidList
         self.urlSession = urlSession
     }
@@ -156,8 +162,8 @@ public struct GalleriesMetadataRequest: Request, Sendable {
         }
         do throws(AppError) {
             return .success(
-                try await gdataResponse(gidlist: gidlist, urlSession: urlSession) {
-                    try Self.galleries(fromResponseData: $0)
+                try await gdataResponse(host: host, gidlist: gidlist, urlSession: urlSession) {
+                    try Self.galleries(fromResponseData: $0, host: host)
                 }
             )
         } catch {
@@ -169,8 +175,11 @@ public struct GalleriesMetadataRequest: Request, Sendable {
     /// `{ gid, error }` (or tokenless) entry. `token` is optional precisely so one such entry can't
     /// fail `JSONDecoder` for the whole array — a single bad gid must never blank the History batch.
     /// Exposed at `internal` access so tests can assert that per-entry tolerance directly.
-    static func galleries(fromResponseData data: Data) throws -> [Gallery] {
-        try JSONDecoder().decode(GalleriesMetadataAPIResponse.self, from: data).gmetadata.compactMap(\.gallery)
+    static func galleries(fromResponseData data: Data, host: GalleryHost) throws -> [Gallery] {
+        try JSONDecoder()
+            .decode(GalleriesMetadataAPIResponse.self, from: data)
+            .gmetadata
+            .compactMap { $0.gallery(host: host) }
     }
 }
 

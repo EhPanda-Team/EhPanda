@@ -228,9 +228,11 @@ extension ReadingReducer {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
+                let host = state.setting.galleryHost
                 return .run { [thumbnailURL = state.thumbnailURLs[index]] send in
                     do throws(AppError) {
                         let imageURLs = try await GalleryNormalImageURLRefetchRequest(
+                            host: host,
                             index: index,
                             pageNum: pageNum,
                             galleryURL: galleryURL,
@@ -250,7 +252,13 @@ extension ReadingReducer {
                 case .success(let (imageURLs, response)):
                     var effects = [Effect<Action>]()
                     if let response = response {
-                        effects.append(.run(operation: { _ in cookieClient.setSkipServer(response: response) }))
+                        let host = state.setting.galleryHost
+                        effects.append(.run(operation: { _ in
+                            cookieClient.setSkipServer(
+                                response: response,
+                                host: host
+                            )
+                        }))
                     }
                     guard !imageURLs.isEmpty else {
                         state.imageURLLoadingStates[index] = .failed(.notFound)
@@ -318,9 +326,11 @@ extension ReadingReducer {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let imageURL = try await GalleryMPVImageURLRequest(
+                            host: host,
                             gid: gidInteger,
                             index: index,
                             mpvKey: mpvKey,

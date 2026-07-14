@@ -15,6 +15,7 @@ extension Request {
     /// Async companion to the single-place `gdata` contract above. Callers remain responsible for
     /// chunking more than 25 pairs and limiting their own in-flight requests.
     func gdataResponse<T>(
+        host: GalleryHost,
         gidlist: [[Any]],
         urlSession: URLSession,
         decode: (Data) throws -> T
@@ -24,7 +25,7 @@ extension Request {
             "gidlist": gidlist,
             "namespace": 1
         ]
-        var request = URLRequest(url: Defaults.URL.api)
+        var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 

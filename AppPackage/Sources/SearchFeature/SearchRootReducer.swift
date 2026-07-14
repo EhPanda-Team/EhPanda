@@ -175,9 +175,14 @@ public struct SearchRootReducer: Sendable {
                 // back to the Search root shouldn't re-download identical metadata. `cancelInFlight`
                 // stops rapid re-entry from stacking overlapping, last-writer-wins requests.
                 guard pairs.map(\.gid) != state.historyGalleries.map(\.gid) else { return .none }
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(gidList: pairs).response()
+                        let galleries = try await GalleriesMetadataRequest(
+                            host: host,
+                            gidList: pairs
+                        )
+                        .response()
                         await send(.fetchHistoryGalleriesDone(.success(galleries)))
                     } catch {
                         await send(.fetchHistoryGalleriesDone(.failure(error)))
