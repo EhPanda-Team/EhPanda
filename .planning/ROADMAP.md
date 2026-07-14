@@ -280,7 +280,7 @@ Plans:
 **Wave 9**
 
 - [x] 07-09-PLAN.md — GAP-1 (BLOCKER): scene-phase mask writes + background latch independent of hasLoadedInitialSetting; pre-settings TestStore regression (threat T-07-20)
-- [ ] 07-11-PLAN.md — GAP-3 + WR-03: remove Download Inspector duplicate mask + one-to-one 39-root coverage inventory; Reduce-Motion-aware PrivacyMaskModifier
+- [x] 07-11-PLAN.md — GAP-3 + WR-03: remove Download Inspector duplicate mask + one-to-one 39-root coverage inventory; Reduce-Motion-aware PrivacyMaskModifier
 - [ ] 07-12-PLAN.md — GAP-4 (docs-only): reconcile ROADMAP/REQUIREMENTS acceptance wording to locked D-03 (true-zero/no-floor) & D-08 (auto-lock removed, no pointer)
 
 **Wave 10** *(blocked on 07-09)*
@@ -359,7 +359,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
-| 7. Root Privacy Mask & Auto-Lock Removal | 9/12 | In Progress|  |
+| 7. Root Privacy Mask & Auto-Lock Removal | 10/12 | In Progress|  |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
