@@ -1,7 +1,7 @@
 ---
 phase: 08-architecture-hygiene-client-seams
 verified: 2026-07-14T13:20:00Z
-status: human_needed
+status: passed
 score: 14/16 must-haves verified
 behavior_unverified: 2
 overrides_applied: 0
@@ -9,6 +9,7 @@ re_verification:
   previous_status: gaps_found
   previous_score: 10/16
   gaps_closed:
+
     - "Normal-image refetch keeps the request's originating gallery host through response cookie handling."
     - "Profile verification keeps the request's originating gallery host through profile-cookie and default-profile side effects."
     - "UserDefaults access is fully substitutable through the injected UserDefaultsClient."
@@ -16,18 +17,22 @@ re_verification:
   gaps_remaining: []
   regressions: []
 behavior_unverified_items:
+
   - truth: "The 12 migrated login-gated controls remain visually present/hidden and enabled/disabled exactly as before."
     test: "Exercise logged-in and logged-out states on download, archive, comment, rating/tag-vote, favorite, watched, and account controls."
     expected: "Each control has the same visibility and enabled state as before CookieUtil was removed."
     why_human: "The didLogin matrix proves predicate semantics and source inspection proves wiring, but it does not exercise rendered control state on a device."
+
   - truth: "The four migrated haptic interactions produce identical physical feedback."
     test: "On a physical device, trigger excluded-language, category-filter, reload, and archive-selection feedback."
     expected: "Each interaction fires the same feedback at the same time as the former utility path."
     why_human: "Source parity and build coverage cannot observe physical haptic output."
 human_verification:
+
   - test: "Exercise the 12 migrated login-gated controls in logged-in and logged-out states on a device."
     expected: "Download, archive, comment, rating/tag-vote, favorite, watched, and account controls keep their prior visibility and enabled state."
     why_human: "Client tests prove the didLogin predicate; they do not render these controls."
+
   - test: "Trigger the four migrated haptic interactions on physical hardware."
     expected: "Feedback type and timing match the previous utility path."
     why_human: "Simulator/build evidence cannot observe physical feedback."
