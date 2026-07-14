@@ -127,10 +127,18 @@ Haptic feedback and typed defaults reads now live directly in their injected cli
 - **Verification:** The package build and complete package test suite pass.
 - **Committed in:** `b68e11dc`
 
+**2. [Rule 1 - Bug] Reconciled stale project-state progress after required GSD updates**
+- **Found during:** Plan metadata self-check
+- **Issue:** The state updater advanced to plan 14 but later rewrote the frontmatter percentage from phase-local progress and left human-readable next-plan and completed-plan fields stale.
+- **Fix:** Reconciled state frontmatter and prose to plan 14, 75 of 76 plans, and 99 percent after all required GSD queries completed.
+- **Files modified:** `.planning/STATE.md`
+- **Verification:** State frontmatter, current position, next plan, progress bar, and completed-plan count agree with the summaries on disk.
+- **Committed in:** Plan state metadata commit
+
 ---
 
-**Total deviations:** 1 auto-fixed (1 blocking issue).
-**Impact on plan:** The manifest change is the minimal module-boundary update required by the planned dependency inversion and removes an obsolete dependency; runtime behavior is unchanged.
+**Total deviations:** 2 auto-fixed (1 blocking issue, 1 metadata bug).
+**Impact on plan:** The manifest change is the minimal module-boundary update required by the planned dependency inversion, and the metadata repair records the verified result accurately; runtime behavior is unchanged.
 
 ## Issues Encountered
 
