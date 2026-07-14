@@ -97,7 +97,7 @@ public struct SettingReducer: Sendable {
 
         case loadUserSettings
         case loadUserSettingsDone
-        case createDefaultEhProfile
+        case createDefaultEhProfile(GalleryHost)
         case fetchIgneous
         case fetchIgneousDone(Result<HTTPURLResponse, AppError>)
         case fetchUserInfo
@@ -109,7 +109,7 @@ public struct SettingReducer: Sendable {
         case rebuildTagTranslator
         case tagTranslatorRebuilt(TagTranslator)
         case fetchEhProfileIndex
-        case fetchEhProfileIndexDone(Result<VerifyEhProfileResponse, AppError>)
+        case fetchEhProfileIndexDone(GalleryHost, Result<VerifyEhProfileResponse, AppError>)
         case fetchFavoriteCategories
         case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
         case igneousRefreshed

@@ -70,8 +70,7 @@ extension SettingReducer {
                 state.hasLoadedInitialSetting = true
                 return .none
 
-            case .createDefaultEhProfile:
-                let host = state.setting.galleryHost
+            case .createDefaultEhProfile(let host):
                 return .run { _ in
                     do throws(AppError) {
                         _ = try await EhProfileRequest(
@@ -190,14 +189,14 @@ extension SettingReducer {
                 return .run { send in
                     do throws(AppError) {
                         let response = try await VerifyEhProfileRequest(host: host).response()
-                        await send(.fetchEhProfileIndexDone(.success(response)))
+                        await send(.fetchEhProfileIndexDone(host, .success(response)))
                     } catch {
-                        await send(.fetchEhProfileIndexDone(.failure(error)))
+                        await send(.fetchEhProfileIndexDone(host, .failure(error)))
                     }
                 }
 
-            case .fetchEhProfileIndexDone(let result):
-                return handleFetchEhProfileIndexDone(&state, result)
+            case .fetchEhProfileIndexDone(let host, let result):
+                return handleFetchEhProfileIndexDone(&state, host, result)
 
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
