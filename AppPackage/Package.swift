@@ -365,7 +365,9 @@ let targets: [PackageDescription.Target] = [
     ),
     .target(
         module: .appTools,
-        dependencies: [],
+        dependencies: [
+            .targetDependency(.composableArchitecture)
+        ],
         plugins: swiftLintPlugins
     ),
     .target(
