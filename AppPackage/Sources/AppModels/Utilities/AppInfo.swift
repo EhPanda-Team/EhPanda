@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AppUtil {
+public enum AppInfo {
     public static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "null"
     }
@@ -15,13 +15,5 @@ public struct AppUtil {
         #else
         false
         #endif
-    }
-
-    public static func dispatchMainSync(execute work: () -> Void) {
-        if Thread.isMainThread {
-            work()
-        } else {
-            DispatchQueue.main.sync(execute: work)
-        }
     }
 }
