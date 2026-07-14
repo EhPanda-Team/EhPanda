@@ -3,6 +3,7 @@ import AppModels
 import Foundation
 import Testing
 import AppTools
+import ComposableArchitecture
 import DownloadClient
 @testable import AppFeature
 
@@ -43,26 +44,35 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
         let cacheKeys = imageURL.imageCacheKeys
-        try await DataCache.shared.store(imageData, forKeys: cacheKeys)
-
-        await manager.captureCachedPage(
-            gid: gid,
-            index: 1,
-            imageURL: imageURL
-        )
-
-        let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        #expect(
-            pageURLs[1] == completedFolderURL.appendingPathComponent(
-                storage.makePageRelativePath(
-                    gid: gid,
-                    token: "token",
-                    index: 1,
-                    fileExtension: "jpg"
-                )
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
             )
         )
-        try? await DataCache.shared.removeData(forKeys: cacheKeys)
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            try await dataCache.store(imageData, forKeys: cacheKeys)
+
+            await manager.captureCachedPage(
+                gid: gid,
+                index: 1,
+                imageURL: imageURL
+            )
+
+            let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
+            #expect(
+                pageURLs[1] == completedFolderURL.appendingPathComponent(
+                    storage.makePageRelativePath(
+                        gid: gid,
+                        token: "token",
+                        index: 1,
+                        fileExtension: "jpg"
+                    )
+                )
+            )
+            try? await dataCache.removeData(forKeys: cacheKeys)
+        }
     }
 
     @MainActor
@@ -79,24 +89,36 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
             rootURL: rootURL, gid: gid
         )
         await manager.reloadDownloadIndex()
-        let (imageURL, cacheKeys) = try await setupCaptureCachedImage(gid: gid)
-
-        await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
-
-        let stored = await manager.fetchDownload(gid: gid)
-        let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-
-        #expect(stored?.displayStatus == .completed)
-        #expect(stored?.completedPageCount == 2)
-        #expect(stored?.lastError == nil)
-        let pageRelativePath = storage.makePageRelativePath(
-            gid: gid,
-            token: "token",
-            index: 1,
-            fileExtension: "jpg"
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+            )
         )
-        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
-        try? await DataCache.shared.removeData(forKeys: cacheKeys)
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            let (imageURL, cacheKeys) = try await setupCaptureCachedImage(
+                gid: gid,
+                dataCache: dataCache
+            )
+
+            await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
+
+            let stored = await manager.fetchDownload(gid: gid)
+            let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
+
+            #expect(stored?.displayStatus == .completed)
+            #expect(stored?.completedPageCount == 2)
+            #expect(stored?.lastError == nil)
+            let pageRelativePath = storage.makePageRelativePath(
+                gid: gid,
+                token: "token",
+                index: 1,
+                fileExtension: "jpg"
+            )
+            #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
+            try? await dataCache.removeData(forKeys: cacheKeys)
+        }
     }
 
 }
@@ -144,7 +166,10 @@ private extension DownloadCoordinatorCaptureTests {
     }
 
     @MainActor
-    func setupCaptureCachedImage(gid: String) async throws -> (URL, [String]) {
+    func setupCaptureCachedImage(
+        gid: String,
+        dataCache: DataCache
+    ) async throws -> (URL, [String]) {
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemOrange.setFill()
@@ -152,7 +177,7 @@ private extension DownloadCoordinatorCaptureTests {
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
         let cacheKeys = imageURL.imageCacheKeys
-        try await DataCache.shared.store(imageData, forKeys: cacheKeys)
+        try await dataCache.store(imageData, forKeys: cacheKeys)
         return (imageURL, cacheKeys)
     }
 }

@@ -16,6 +16,7 @@ import DeviceClient
 private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
+    @Dependency(\.dataCache) private var dataCache
     @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.colorScheme) private var colorScheme
 
@@ -415,7 +416,7 @@ extension ReadingView {
     /// (the reader's cache, not Kingfisher's). Animated images are skipped by design
     /// (Live Text scans still images only).
     private func analyzeCachedImageData(cacheKeys: [String], index: Int) async {
-        guard let data = await DataCache.shared.data(forKeys: cacheKeys),
+        guard let data = await dataCache.data(forKeys: cacheKeys),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
               let cgImage = image.cgImage
