@@ -29,6 +29,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Migrate to latest Colorful (DEP-07) — migrated to ColorfulX 6.1.0 (Metal); gradient behavior parity restored after regression gap G-01-1 — Phase 1
 - ✓ Migrate Combine-based requests to async/await (CONC-01) — 44 typed-throws requests, 64 migrated consumers, frozen transport/parse/error parity, and a Combine-free source tree — Phase 4
 - ✓ Pin TCA with 2.0 deprecation traits (CONC-02) — TCA 1.25.3 floor resolving 1.26.0, both traits active, all 66 surfaced deprecations migrated with zero warnings — Phase 4
+- ✓ Root-level privacy mask (UIARCH-04) — shared scene-driven blur state, one mask per each of 39 runtime presentation roots, and exhaustive foreground/background regression coverage — Phase 7
+- ✓ Remove the custom auto-lock feature (UIARCH-05) — deleted biometric re-auth and `AuthorizationClient`, removed dead settings/localizations, and deferred app locking to iOS — Phase 7
 
 ### Active
 
@@ -42,8 +44,6 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - [ ] 10. **Modernize adaptive layout** — remove screen-dependent logic (`DeviceUtil` + `DeviceClient`); prefer size classes / `containerRelativeFrame` / `onGeometryChange` / `ViewThatFits`, **avoiding `GeometryReader`**; retire `TouchHandler` via native gestures
 - [ ] 11. **Decompose `GenericList`** — let each of its 8 consuming pages build its own list from shared atoms instead of a super-list
 - [ ] 12. **Universal device orientation** on every page + remove EhPanda's custom orientation lock (delete `enablesLandscape`), deferring the lock to iOS's built-in feature
-- [ ] 15. **Root-level privacy mask** — replace `blurRadius` parameter-drilling (~25 inits, 39 `.autoBlur` sites) with one mask per root surface (app root + ~41 modal roots), driven by shared state
-- [ ] 19. **Remove the auto-lock feature** — delete `autoLockPolicy`, the biometric re-auth path, and `AuthorizationClient`; replace the security-section control with a description pointing users to iOS's built-in per-app lock (background blur is kept)
 
 **D · Architecture hygiene**
 - [ ] 14. **De-globalize `*Util` → injected clients, kill singletons** — the AppTools Utils (Device/Haptics/UserDefaults/File/Cookie) plus `URLUtil` and `AppUtil`, and the `TouchHandler.shared` / `DataCache.shared` globals; keep pure value types & constants
@@ -74,7 +74,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Phases 1–4 are complete: isolated dependencies, masonry, reader paging, async networking, and the TCA deprecation migration are validated. Phase 5 adaptive-layout and orientation work is next.
+- **v3.0.0 in flight, unreleased.** Phases 1–7 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, and the root privacy-mask/auto-lock removal are validated. Phase 8 architecture hygiene and client seams are next.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured name-free; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
@@ -95,7 +95,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | Spike-first for WaterfallGrid→Layout and SwiftUIPager→TabView | "Bet on native parity" items that can genuinely fail; reading is core UX | — Pending |
 | Avoid `GeometryReader`; prefer size classes / `containerRelativeFrame` / `onGeometryChange` / `ViewThatFits` | Most cases don't need it; it's greedy and layout-disruptive | — Pending |
 | Retire `TouchHandler` via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor` | Native gestures (iOS 17+) cover all three uses; kills a global singleton | — Pending |
-| Remove auto-lock (use iOS built-in per-app lock); **keep** background blur | OS app-lock supersedes the custom biometric flow; app-switcher blur stays as standalone privacy | — Pending |
+| Remove auto-lock (use iOS built-in per-app lock); **keep** background blur | OS app-lock supersedes the custom biometric flow; app-switcher blur stays as standalone privacy | ✓ Validated in Phase 7 |
 | `@Shared` models edited in place at v1 until v3.0.0 ships | No released data to migrate from pre-release; defers first real v2 to post-release | — Pending |
 | De-`Util` package-wide (incl. `URLUtil`, `AppUtil`) | Injected clients over singletons/global helpers; consistent architecture | — Pending |
 | Fold in cookies→Keychain, networking/cookie/image tests, `.private.filterValue` fix; defer Parser/Download refactors | Coupled concerns are cheap while their seams are open; standalone refactors are separate scope | — Pending |
@@ -121,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-13 after Phase 4*
+*Last updated: 2026-07-14 after Phase 7*
