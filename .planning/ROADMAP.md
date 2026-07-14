@@ -296,11 +296,11 @@ Plans:
 **Requirements**: HYG-01, QUAL-01, QUAL-02
 **Success Criteria** (what must be TRUE):
 
-  1. Side-effecting AppTools Utils are converted to / folded into injected clients; `URLUtil` and `AppUtil` retain only pure namespace responsibilities per D-06; `TouchHandler.shared` and `DataCache.shared` globals are removed; no static global helper with side effects remains.
+  1. Side-effecting AppTools Utils are converted to / folded into injected clients; `URLUtil` and `FileUtil` retain only pure namespace responsibilities per D-06; `AppUtil`, `TouchHandler.shared`, and `DataCache.shared` are removed; no static global helper with side effects remains.
   2. No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   3. Client-layer tests cover the reworked seams — the async `NetworkingFeature` (from Phase 4), `CookieClient`, and `ImageClient` — and are deterministic and green.
 
-**Plans**: 13/14 plans executed
+**Plans**: 14/14 plans executed
 Plans:
 **Wave 1**
 
@@ -356,7 +356,7 @@ Plans:
 
 **Wave 14** *(blocked on Wave 13 completion)*
 
-- [ ] 08-14-PLAN.md — Seam C: eliminate AppUtil + relocate version/build/isTesting + AuthorizationClient cleanup (D-06/D-07)
+- [x] 08-14-PLAN.md — Seam C: eliminate AppUtil + relocate version/build/isTesting + AuthorizationClient cleanup (D-06/D-07)
 
 ### Phase 9: Correctness & Structured Error Handling
 
@@ -416,7 +416,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Adaptive Layout & Universal Orientation | 18/18 | In Progress|  |
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
-| 8. Architecture Hygiene & Client Seams | 13/14 | In Progress|  |
+| 8. Architecture Hygiene & Client Seams | 14/14 | In Progress|  |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Lint Capstone | 0/TBD | Not started | - |
