@@ -113,7 +113,13 @@ extension DownloadClient {
             refreshDownloads: { await manager.refreshDownloads() },
             validateImageData: { gid in await manager.validateImageData(gid: gid) },
             fetchVersionMetadata: { gid, token in
-                try? await manager.fetchVersionMetadata(gid: gid, token: token).get()
+                @Shared(.setting) var setting
+                return try? await manager.fetchVersionMetadata(
+                    host: setting.galleryHost,
+                    gid: gid,
+                    token: token
+                )
+                .get()
             },
             updateRemoteVersion: { gid, metadata in
                 await manager.updateRemoteVersion(gid: gid, metadata: metadata)

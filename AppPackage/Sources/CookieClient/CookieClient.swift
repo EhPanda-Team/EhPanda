@@ -308,7 +308,7 @@ extension CookieClient {
                 }
             }
     }
-    public func setSkipServer(response: HTTPURLResponse) {
+    public func setSkipServer(response: HTTPURLResponse, host: GalleryHost) {
         guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
         setString.components(separatedBy: ", ")
             .flatMap { $0.components(separatedBy: "; ") }
@@ -316,7 +316,7 @@ extension CookieClient {
                 let key = Defaults.Cookie.skipServer
                 if let range = value.range(of: "\(key)=") {
                     setCookie(
-                        for: Defaults.URL.host, key: key,
+                        for: host.url, key: key,
                         value: String(value[range.upperBound...]), path: "/s/"
                     )
                 }

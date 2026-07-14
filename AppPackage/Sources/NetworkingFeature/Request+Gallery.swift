@@ -30,7 +30,7 @@ public struct SearchGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -68,7 +68,7 @@ public struct MoreSearchGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -99,7 +99,7 @@ public struct DateSeekGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -131,7 +131,7 @@ public struct FrontpageGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -166,7 +166,7 @@ public struct MoreFrontpageGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -227,7 +227,7 @@ public struct WatchedGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -270,7 +270,7 @@ public struct MoreWatchedGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 GalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
             }
@@ -313,7 +313,7 @@ public struct FavoritesGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
@@ -361,7 +361,7 @@ public struct MoreFavoritesGalleriesRequest: Request {
             return try parseResponse(doc: document) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0, host: host.url),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )

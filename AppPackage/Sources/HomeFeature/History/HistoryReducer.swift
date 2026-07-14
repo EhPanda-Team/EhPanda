@@ -135,10 +135,15 @@ public struct HistoryReducer: Sendable {
                     return .none
                 }
                 let pairs = state.galleryHistory[0..<end].map { (gid: $0.gid, token: $0.token) }
+                let host = state.setting.galleryHost
                 state.loadingState = .loading
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(gidList: pairs).response()
+                        let galleries = try await GalleriesMetadataRequest(
+                            host: host,
+                            gidList: pairs
+                        )
+                        .response()
                         await send(.fetchGalleriesDone(.success(galleries), endIndex: end))
                     } catch {
                         await send(.fetchGalleriesDone(.failure(error), endIndex: end))
@@ -173,10 +178,15 @@ public struct HistoryReducer: Sendable {
                 let start = state.fetchedCount
                 let end = min(start + Self.pageSize, state.galleryHistory.count)
                 let pairs = state.galleryHistory[start..<end].map { (gid: $0.gid, token: $0.token) }
+                let host = state.setting.galleryHost
                 state.footerLoadingState = .loading
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await GalleriesMetadataRequest(gidList: pairs).response()
+                        let galleries = try await GalleriesMetadataRequest(
+                            host: host,
+                            gidList: pairs
+                        )
+                        .response()
                         await send(.fetchMoreGalleriesDone(.success(galleries), endIndex: end))
                     } catch {
                         await send(.fetchMoreGalleriesDone(.failure(error), endIndex: end))

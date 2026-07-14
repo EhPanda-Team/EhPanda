@@ -105,11 +105,18 @@ private struct GalleryVersionMetadataAPIResponse: Decodable {
 }
 
 public struct GalleryVersionMetadataRequest: Request {
+    public let host: GalleryHost
     public let gid: String
     public let token: String
     public let urlSession: URLSession
 
-    public init(gid: String, token: String, urlSession: URLSession = .shared) {
+    public init(
+        host: GalleryHost,
+        gid: String,
+        token: String,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
         self.gid = gid
         self.token = token
         self.urlSession = urlSession
@@ -119,7 +126,7 @@ public struct GalleryVersionMetadataRequest: Request {
         guard let gid = Int(gid) else {
             throw AppError.notFound
         }
-        return try await gdataResponse(gidlist: [[gid, token]], urlSession: urlSession) {
+        return try await gdataResponse(host: host, gidlist: [[gid, token]], urlSession: urlSession) {
             let response = try JSONDecoder()
                 .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
             guard let metadata = response.gmetadata.first?.versionMetadata else {
@@ -274,20 +281,23 @@ public struct GalleryArchiveFundsRequest: Request {
 
 public struct GalleryTorrentsRequest: Request {
     public init(
+        host: GalleryHost,
         gid: String,
         token: String,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.gid = gid
         self.token = token
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let gid: String
     public let token: String
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> [GalleryTorrent] {
-        let url = URLUtil.galleryTorrents(gid: gid, token: token)
+        let url = URLUtil.galleryTorrents(host: host, gid: gid, token: token)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             return Parser.parseGalleryTorrents(doc: try htmlDocument(data: data))

@@ -326,6 +326,7 @@ extension DownloadCoordinator {
             }
             if let failover {
                 let (imageURLs, _) = try await GalleryNormalImageURLRefetchRequest(
+                    host: payload.host,
                     index: index,
                     pageNum: 0,
                     galleryURL: payload.gallery.galleryURL ?? payload.host.url,
@@ -359,12 +360,12 @@ extension DownloadCoordinator {
                 throw AppError.notFound
             }
             let response = try await GalleryMPVImageURLRequest(
+                host: payload.host,
                 gid: gid,
                 index: index,
                 mpvKey: mpvKey,
                 mpvImageKey: imageKey,
                 skipServerIdentifier: failover?.mpvSkipServerIdentifier,
-                apiURL: payload.host.url.appendingPathComponent("api.php"),
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular,
                 requiresSkipServerIdentifier: failover != nil

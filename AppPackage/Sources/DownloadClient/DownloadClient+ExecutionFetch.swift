@@ -28,6 +28,7 @@ extension DownloadCoordinator {
             galleryURL: galleryURL
         )
         let versionMetadata = await fetchOptionalVersionMetadata(
+            host: download.host,
             gid: download.gid,
             token: download.token
         )
@@ -105,12 +106,14 @@ extension DownloadCoordinator {
     }
 
     public func fetchVersionMetadata(
+        host: GalleryHost,
         gid: String,
         token: String
     ) async -> Result<DownloadVersionMetadata, AppError> {
         do throws(AppError) {
             return .success(
                 try await GalleryVersionMetadataRequest(
+                    host: host,
                     gid: gid,
                     token: token,
                     urlSession: urlSession
@@ -123,10 +126,12 @@ extension DownloadCoordinator {
     }
 
     private func fetchOptionalVersionMetadata(
+        host: GalleryHost,
         gid: String,
         token: String
     ) async -> DownloadVersionMetadata? {
         switch await fetchVersionMetadata(
+            host: host,
             gid: gid,
             token: token
         ) {

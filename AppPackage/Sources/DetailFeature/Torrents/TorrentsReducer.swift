@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Sharing
 import ComposableArchitecture
 import HapticsClient
 import NetworkingFeature
@@ -21,6 +22,7 @@ public struct TorrentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.setting) public var setting: Setting
         @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var torrents = [GalleryTorrent]()
@@ -99,9 +101,11 @@ public struct TorrentsReducer: Sendable {
             case .fetchGalleryTorrents(let gid, let token):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let torrents = try await GalleryTorrentsRequest(
+                            host: host,
                             gid: gid,
                             token: token
                         )

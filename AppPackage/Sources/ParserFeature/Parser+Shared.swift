@@ -91,9 +91,7 @@ extension Parser {
         return try? parseDate(time: value, format: "yyyy-MM-dd")
     }
 
-    public static func parseDateSeekNavigation(
-        doc: HTMLDocument, host: URL = Defaults.URL.host
-    ) -> DateSeekNavigation? {
+    public static func parseDateSeekNavigation(doc: HTMLDocument, host: URL) -> DateSeekNavigation? {
         guard let minimumDate = parseScriptDate(name: "mindate", doc: doc),
               let maximumDate = parseScriptDate(name: "maxdate", doc: doc),
               let directions = DateSeekNavigation.Directions(
