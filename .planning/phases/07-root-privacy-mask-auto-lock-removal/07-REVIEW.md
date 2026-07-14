@@ -47,8 +47,9 @@ files_reviewed_list:
   - AppPackage/Tests/FeatureTests.xctestplan
 findings:
   critical: 0
-  warning: 2
+  warning: 1
   info: 2
+  dismissed: 1
   total: 4
 status: issues_found
 ---
@@ -75,16 +76,26 @@ remaining referents. The new `AppFeatureTests` target is correctly wired into `P
 test plan, and carries a `parent_config` SwiftLint file.
 
 An earlier round on this file recorded `status: clean`. Re-reviewing adversarially, two behavioral
-concerns remain that the prior pass did not surface: a persisted-settings reset on upgrade caused by
+concerns surfaced that the prior pass did not: a persisted-settings reset on upgrade caused by
 making the renamed field non-optional (WR-01), and a blur-animation timing risk that can undermine
 the App Switcher snapshot the feature exists to protect (WR-02). No security defects or crashes were
 found.
+
+**WR-01 dismissed by owner (2026-07-14):** the persisted-`Setting` reset is accepted as-is under the
+project's "v1-schema-until-release" stance — the app is not yet released, so there is no live
+persisted blob to preserve. The finding is retained below for the record but is not actionable and
+carries no migration debt at this time. The remaining open concern is WR-02.
 
 ## Narrative Findings (AI reviewer)
 
 ### Warnings
 
 #### WR-01: Renamed `privacyMaskIntensity` is a required Codable field — silently resets the entire persisted `Setting` on upgrade
+
+> **DISMISSED by owner (2026-07-14) — will not fix.** Accepted under the "v1-schema-until-release"
+> stance: the app is unreleased, so no live persisted `Setting` blob exists to preserve and the
+> upgrade-path reset cannot affect any user. Recorded for the record only; re-open before release if
+> a real migration path becomes necessary. The `Fix` below is retained for reference, not scheduled.
 
 **File:** `AppPackage/Sources/AppModels/Persistent/Setting.swift:90`
 **Issue:** The field `backgroundBlurRadius` was renamed to `privacyMaskIntensity` (a non-optional
