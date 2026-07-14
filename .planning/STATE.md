@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 07
 current_phase_name: root-privacy-mask-auto-lock-removal
-status: executing
-stopped_at: Completed 07-12-PLAN.md
-last_updated: "2026-07-14T00:46:15.390Z"
+status: verifying
+stopped_at: Completed 07-10-PLAN.md
+last_updated: "2026-07-14T01:00:51.196Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed Phase 07 Plan 12 locked-decision specification reconciliation
+last_activity_desc: Completed Phase 07 Plan 10 foreground cardinality and test dependency closure
 progress:
   total_phases: 11
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 62
-  completed_plans: 61
-  percent: 98
+  completed_plans: 62
+  percent: 100
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 07 (root-privacy-mask-auto-lock-removal) — EXECUTING
+Phase: 07 (root-privacy-mask-auto-lock-removal) — VERIFYING
 Plan: 12 of 12
-Status: Ready to execute
-Last activity: 2026-07-14 — Completed Phase 07 Plan 12 locked-decision specification reconciliation
-Next: execute Phase 07 gap-closure plan 07-10
+Status: Phase complete — ready for verification
+Last activity: 2026-07-14 — Completed Phase 07 Plan 10 foreground cardinality and test dependency closure
+Next: verify Phase 07 gap closure
 
-Progress: [██████████] 98% (61/62 plans)
+Progress: [██████████] 100% (62/62 plans)
 
 ## Performance Metrics
 
@@ -116,6 +116,7 @@ Progress: [██████████] 98% (61/62 plans)
 | Phase 07 P08 | 4h30m | 3 tasks | 6 files |
 | Phase 07 P09 | 7min | 2 tasks | 2 files |
 | Phase 07 P12 | 3min | 2 tasks | 2 files |
+| Phase 07 P10 | 8min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -197,6 +198,8 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-09: Scene-phase privacy writes and background latching run before the settings-loaded guard; settings-dependent effects remain gated. — Protects cold-launch App Switcher snapshots without changing initialization-dependent side-effect semantics.
 - [Phase 07]: 07-11: Privacy-mask coverage is derived from 39 explicit runtime roots and reconciled against all 41 source presentation modifiers. — A duplicate can no longer compensate for an uncovered root, and preview-only presentations remain explicit exclusions.
 - [Phase 07]: 07-11: Privacy blur transitions use no animation when Reduce Motion is enabled. — The true-zero blur and hit-testing threshold remain unchanged.
+- [Phase 07]: 07-10: Foreground tests explicitly pause the long-lived activity-log pump after receiving every expected action, preserving TestStore exhaustivity without skipping effects.
+- [Phase 07]: 07-10: Clipboard cardinality counts the unconditional changeCount dependency seam; the URL remains nil to isolate foreground dispatch behavior.
 
 ### Pending Todos
 
@@ -226,6 +229,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T00:46:03.758Z
-Stopped at: Completed 07-12-PLAN.md
+Last session: 2026-07-14T01:00:51.191Z
+Stopped at: Completed 07-10-PLAN.md
 Resume file: None
