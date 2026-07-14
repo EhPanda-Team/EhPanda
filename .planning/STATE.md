@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-07-PLAN.md
-last_updated: "2026-07-14T09:13:52.857Z"
+stopped_at: Completed 08-08-PLAN.md
+last_updated: "2026-07-14T09:26:09.156Z"
 last_activity: 2026-07-14
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 69
-  percent: 55
+  completed_plans: 70
+  percent: 92
 ---
 
 # Project State
@@ -28,18 +28,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 8 of 14
+Plan: 9 of 14
 Status: Ready to execute
 Last activity: 2026-07-14
-Next: Execute 08-08-PLAN.md
+Next: Execute 08-09-PLAN.md
 
-Progress: [█████████░] 89% (68/76 plans)
+Progress: [█████████░] 92% (70/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 68
+- Total plans completed: 70
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -124,6 +124,7 @@ Progress: [█████████░] 89% (68/76 plans)
 | Phase 08 P05 | 7min | 2 tasks | 5 files |
 | Phase 08 P06 | 9min | 2 tasks | 18 files |
 | Phase 08 P07 | 6min | 2 tasks | 10 files |
+| Phase 08 P08 | 7min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -222,6 +223,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Use saved-download manifest hosts for refreshes and the current shared host for live DownloadClient fetches. — Each flow retains its existing source of truth while making host selection explicit.
 - [Phase 08]: Views use existing store settings where available and read-only SharedReader state only in leaf views without store access.
 - [Phase 08]: Detail download payloads snapshot state.setting.galleryHost when the start action is handled.
+- [Phase 08]: GalleryInfosView reads the active host from SharedReader(.setting) at render time. — The leaf view has no parent Setting state and this matches the established host seam.
+- [Phase 08]: Test-only URL fallbacks use an explicit E-Hentai host. — Deterministic tests must not recreate the removed mutable host default.
 
 ### Pending Todos
 
@@ -251,6 +254,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T09:12:43.289Z
-Stopped at: Completed 08-07-PLAN.md
+Last session: 2026-07-14T09:26:09.151Z
+Stopped at: Completed 08-08-PLAN.md
 Resume file: None
