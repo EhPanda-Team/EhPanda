@@ -46,7 +46,7 @@
 
 ### HYG — Architecture hygiene
 
-- [ ] **HYG-01**: De-globalize `*Util` into injected clients and remove singletons.
+- [x] **HYG-01**: De-globalize `*Util` into injected clients and remove singletons.
   - The AppTools Utils (Device/Haptics/UserDefaults/File/Cookie) plus `URLUtil` and `AppUtil` are converted to / folded into injected clients; `TouchHandler.shared` and `DataCache.shared` globals removed; pure value types and constants retained; no remaining static global helper with side effects.
 
 ### QUAL — Correctness, security & tests
@@ -108,7 +108,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | UIARCH-03 | Phase 5 | Complete |
 | UIARCH-04 | Phase 7 | Complete |
 | UIARCH-05 | Phase 7 | Complete |
-| HYG-01 | Phase 8 | Pending |
+| HYG-01 | Phase 8 | Complete |
 | QUAL-01 | Phase 8 | Complete |
 | QUAL-02 | Phase 8 | Pending |
 | QUAL-03 | Phase 9 | Pending |
