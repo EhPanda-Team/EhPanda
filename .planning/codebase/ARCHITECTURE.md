@@ -172,7 +172,8 @@
 - **Modularity:** No business logic in the `App/` shell; it links only the `AppFeature` product. Third-party dependencies are declared in `AppPackage/Package.swift`, never in the Xcode project.
 - **Dependency direction:** Features depend on clients and AppModels, never the reverse. AppModels must not import feature/client modules (breaks Tools↔Models cycles by pushing runtime behavior to app-layer extensions).
 - **Persistence:** No Core Data / no database — light data on `@Shared` file-backed keys only; `tagTranslator` cache is a rebuilt file, not `@Shared`.
-- **Global state:** Prefer injected dependencies over singletons; e.g. `ImageClient.dataCache` is injectable rather than always `DataCache.shared`.
+- **Global state:** Prefer injected dependencies over singletons; cache consumers resolve
+  `@Dependency(\.dataCache)`, whose live value shares identity with the system-purge observer.
 - **Lint-as-error:** SwiftLint (incl. custom regex rules + banned APIs) runs as a build plugin; new modules must add a `.swiftlint.yml` with `parent_config`.
 
 ## Anti-Patterns
@@ -189,11 +190,11 @@
 **Why it's wrong:** On iPad these render as popovers anchored to the modifier's view; a transient/unrelated anchor points the arrow wrong or tears the dialog down.
 **Do this instead:** Attach it to the stable triggering control; thread the dialog binding into the subview that owns the trigger.
 
-### Using `DataCache.shared` in image tests
+### Using the live data cache in image tests
 
 **What happens:** Tests touch the shared image cache.
 **Why it's wrong:** Cross-test pollution; flaky assertions on cached pixels.
-**Do this instead:** Inject a per-test `DataCache` via `ImageClient.dataCache` and compare pixel dimensions.
+**Do this instead:** Override `\.dataCache` with a per-test `DataCache` and compare pixel dimensions.
 
 ### Dragging utilities into AppModels to break cycles
 
