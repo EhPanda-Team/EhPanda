@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-07-14T07:39:32.142Z"
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-07-14T07:52:29.303Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed 08-01-PLAN.md
+last_activity_desc: Completed 08-02-PLAN.md
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 63
-  percent: 83
+  completed_plans: 64
+  percent: 84
 ---
 
 # Project State
@@ -29,18 +29,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
-Last activity: 2026-07-14 — Completed 08-01-PLAN.md
-Next: Execute 08-02-PLAN.md
+Last activity: 2026-07-14 — Completed 08-02-PLAN.md
+Next: Execute 08-03-PLAN.md
 
-Progress: [████████░░] 83% (63/76 plans)
+Progress: [████████░░] 84% (64/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 63
+- Total plans completed: 64
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -119,6 +119,7 @@ Progress: [████████░░] 83% (63/76 plans)
 | Phase 07 P12 | 3min | 2 tasks | 2 files |
 | Phase 07 P10 | 11min | 2 tasks | 2 files |
 | Phase 08 P01 | 4min | 2 tasks | 3 files |
+| Phase 08 P02 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -204,6 +205,8 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-10: Clipboard cardinality counts the unconditional changeCount dependency seam; the URL remains nil to isolate foreground dispatch behavior.
 - [Phase 08]: QUAL-01 covers cookie-logging privacy only; the former at-rest migration is out of milestone rather than deferred. — D-01 reconciles the milestone contract with the sideload-distribution reliability tradeoff.
 - [Phase 08]: D-06 retains URLUtil and AppUtil as pure namespaces instead of adding thin client wrappers. — Pure deterministic helpers gain no substitutability from a client wrapper.
+- [Phase 08]: Host-derived Defaults.URL helpers accept GalleryHost explicitly while existing global properties remain available during caller migration.
+- [Phase 08]: URLUtil uses AppUtil.galleryHost only as a transitional default; every host-dependent builder body constructs from its GalleryHost argument.
 
 ### Pending Todos
 
@@ -233,6 +236,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T07:39:19.526Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-07-14T07:52:29.297Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
