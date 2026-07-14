@@ -1,5 +1,4 @@
 import SwiftUI
-import AudioToolbox
 import ComposableArchitecture
 
 public struct HapticsClient: Sendable {
@@ -9,39 +8,9 @@ public struct HapticsClient: Sendable {
 
 extension HapticsClient {
     public static let live: Self = .init(
-        generateFeedback: { style in
-            guard !isLegacyTapticEngine else {
-                generateLegacyFeedback()
-                return
-            }
-            UIImpactFeedbackGenerator(style: style).impactOccurred()
-        },
-        generateNotificationFeedback: { style in
-            guard !isLegacyTapticEngine else {
-                generateLegacyFeedback()
-                return
-            }
-            UINotificationFeedbackGenerator().notificationOccurred(style)
-        }
+        generateFeedback: { UIImpactFeedbackGenerator(style: $0).impactOccurred() },
+        generateNotificationFeedback: { UINotificationFeedbackGenerator().notificationOccurred($0) }
     )
-
-    private static func generateLegacyFeedback() {
-        AudioServicesPlaySystemSound(1519)
-        AudioServicesPlaySystemSound(1520)
-        AudioServicesPlaySystemSound(1521)
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-    }
-
-    private static let isLegacyTapticEngine: Bool = {
-        var systemInfo = utsname()
-        uname(&systemInfo)
-        let machineMirror = Mirror(reflecting: systemInfo.machine)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
-        }
-        return ["iPhone8,1", "iPhone8,2"].contains(identifier)
-    }()
 }
 
 // MARK: API
