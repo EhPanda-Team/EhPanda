@@ -40,9 +40,9 @@
 - [x] **UIARCH-03**: Support device orientation on every page and remove EhPanda's custom orientation lock.
   - All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and the `Setting.enablesLandscape` field are removed (v1 in-place edit); OS orientation lock governs.
 - [x] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
-  - No view initializer takes `blurRadius`; `.autoBlur` applied only at root surfaces — app root + every one of the ~41 modal roots; transient blur state sourced from shared in-memory state; **no lock-time/background content leak** in any modal; NavigationBar-collapse workaround preserved.
-- [x] **UIARCH-05**: Remove the auto-lock feature; direct users to iOS's built-in per-app lock.
-  - `Setting.autoLockPolicy`, the biometric re-auth path (`authorize`/`lockApp`/`isAppLocked`/threshold), and `AuthorizationClient` are removed; the security-section auto-lock control is replaced by a description pointing to the iOS built-in lock; background blur is retained (see UIARCH-04).
+  - No view initializer takes `blurRadius`; `.autoBlur` applied only at root surfaces — app root + every one of the ~41 modal roots; transient blur state sourced from shared in-memory state; **no lock-time/background content leak** in any modal; per D-03, there is no NavigationBar-collapse blur floor, the shared value is a true `0` when off (no `max(0.00001, radius)`), and a light visual check confirms no collapse at blur `0`.
+- [x] **UIARCH-05**: Remove the auto-lock feature and defer re-authentication to iOS's built-in per-app lock.
+  - `Setting.autoLockPolicy`, the biometric re-auth path (`authorize`/`lockApp`/`isAppLocked`/threshold), and `AuthorizationClient` are removed; per D-08, the security-section auto-lock control is removed outright with no in-app replacement description, deferring to iOS's built-in per-app lock, which has no Settings URL or API to point to; background blur is retained (see UIARCH-04).
 
 ### HYG — Architecture hygiene
 
