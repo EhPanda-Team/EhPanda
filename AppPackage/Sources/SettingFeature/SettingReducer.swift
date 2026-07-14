@@ -2,7 +2,6 @@ import Foundation
 import AppModels
 import Sharing
 import ComposableArchitecture
-import UserDefaultsClient
 import ApplicationClient
 import HapticsClient
 import LibraryClient
@@ -117,7 +116,6 @@ public struct SettingReducer: Sendable {
     }
 
     @Dependency(\.applicationClient) var applicationClient
-    @Dependency(\.userDefaultsClient) var userDefaultsClient
     @Dependency(\.libraryClient) var libraryClient
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.fileClient) var fileClient

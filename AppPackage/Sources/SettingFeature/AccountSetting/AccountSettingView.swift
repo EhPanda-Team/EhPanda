@@ -53,9 +53,6 @@ struct AccountSettingView: View {
                 .privacyMask()
         }
         .onAppear { store.send(.loadCookies) }
-        .onChange(of: setting.galleryHost) { _, newValue in
-            store.send(.galleryHostChanged(newValue))
-        }
         .navigationTitle(.account)
     }
 }

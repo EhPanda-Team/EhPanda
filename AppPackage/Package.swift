@@ -644,7 +644,6 @@ let targets: [PackageDescription.Target] = [
             .module(.readingSettingFeature),
             .module(.resources),
             .module(.systemNotificationExt),
-            .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)

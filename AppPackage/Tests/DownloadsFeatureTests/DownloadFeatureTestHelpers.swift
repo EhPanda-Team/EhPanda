@@ -224,7 +224,7 @@ extension DownloadFeatureTestCase {
         let responseData = try JSONSerialization.data(withJSONObject: payload, options: [])
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             let response = try #require(HTTPURLResponse(
-                url: request.url ?? Defaults.URL.api,
+                url: request.url ?? Defaults.URL.api(host: .ehentai),
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: ["Content-Type": "application/json"]
