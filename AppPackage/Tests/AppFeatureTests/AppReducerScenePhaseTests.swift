@@ -54,6 +54,25 @@ struct AppReducerScenePhaseTests {
         }
         await store.finish()
     }
+
+    @Test
+    func maskAndLatchAreWrittenBeforeSettingsLoad() async {
+        let store = makeStore(
+            detectsLinksFromClipboard: true,
+            privacyMaskIntensity: 40,
+            hasLoadedInitialSetting: false
+        )
+
+        await store.send(.onScenePhaseChange(.inactive)) {
+            $0.scenePhase = .inactive
+            $0.$privacyMaskBlur.withLock { $0 = 40 }
+        }
+        await store.send(.onScenePhaseChange(.background)) {
+            $0.scenePhase = .background
+            $0.hasEnteredBackground = true
+        }
+        await store.finish()
+    }
 }
 
 private extension AppReducerScenePhaseTests {
