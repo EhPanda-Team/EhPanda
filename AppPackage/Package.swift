@@ -117,6 +117,7 @@ enum Module: String {
     case detailFeatureTests = "DetailFeatureTests"
     case networkingFeatureTests = "NetworkingFeatureTests"
     case appModelsTests = "AppModelsTests"
+    case cookieClientTests = "CookieClientTests"
     case swiftyOpenCCTests = "SwiftyOpenCCTests"
     case imageClientTests = "ImageClientTests"
     case imageColorsTests = "ImageColorsTests"
@@ -933,6 +934,14 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .appModelsTests,
         dependencies: [
+            .module(.appModels)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .cookieClientTests,
+        dependencies: [
+            .module(.cookieClient),
             .module(.appModels)
         ],
         plugins: swiftLintPlugins
