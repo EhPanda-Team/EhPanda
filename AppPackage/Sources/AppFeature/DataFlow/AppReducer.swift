@@ -80,11 +80,26 @@ struct AppReducer {
 
             case .onScenePhaseChange(let scenePhase):
                 state.scenePhase = scenePhase
-                guard state.settingState.hasLoadedInitialSetting else { return .none }
 
                 switch scenePhase {
                 case .active:
                     state.$privacyMaskBlur.withLock { $0 = 0 }
+
+                case .inactive:
+                    let intensity = state.settingState.setting.privacyMaskIntensity
+                    state.$privacyMaskBlur.withLock { $0 = intensity }
+
+                case .background:
+                    state.hasEnteredBackground = true
+
+                default:
+                    break
+                }
+
+                guard state.settingState.hasLoadedInitialSetting else { return .none }
+
+                switch scenePhase {
+                case .active:
                     var effects: [Effect<Action>] = [
                         .send(.setting(.fetchGreeting)),
                         .send(.appLogsPump(.startPump)),
@@ -109,12 +124,9 @@ struct AppReducer {
                     return .merge(effects)
 
                 case .inactive:
-                    let intensity = state.settingState.setting.privacyMaskIntensity
-                    state.$privacyMaskBlur.withLock { $0 = intensity }
                     return .none
 
                 case .background:
-                    state.hasEnteredBackground = true
                     // Ask iOS for a later background window to finish the queue; the
                     // beginBackgroundTask assertion only covers the brief grace
                     // period right after backgrounding.
