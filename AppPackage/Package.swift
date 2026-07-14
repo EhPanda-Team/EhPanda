@@ -838,8 +838,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .appFeatureTests,
         dependencies: [
-            .module(.appFeature),
-            .targetDependency(.composableArchitecture)
+            .module(.appFeature)
         ],
         plugins: swiftLintPlugins
     ),
