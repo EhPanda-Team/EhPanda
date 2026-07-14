@@ -7,6 +7,7 @@ import SystemNotificationExt
 
 struct GalleryInfosView: View {
     @Bindable private var store: StoreOf<GalleryInfosReducer>
+    @SharedReader(.setting) private var setting: Setting
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
 
@@ -36,7 +37,11 @@ struct GalleryInfosView: View {
             ),
             Info(
                 title: .metadataTorrentUrl,
-                value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
+                value: URLUtil.galleryTorrents(
+                    host: setting.galleryHost,
+                    gid: gallery.gid,
+                    token: gallery.token
+                ).absoluteString
             ),
             Info(
                 title: .metadataParentUrl,

@@ -3,12 +3,12 @@ import Foundation
 
 public struct URLUtil {
     // Fetch
-    public static func searchList(host: GalleryHost = AppUtil.galleryHost, keyword: String, filter: Filter) -> URL {
+    public static func searchList(host: GalleryHost, keyword: String, filter: Filter) -> URL {
         host.url.appending(queryItems: [.fSearch: keyword]).applyingFilter(filter)
     }
 
     public static func moreSearchList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         keyword: String,
         filter: Filter,
         lastID: String
@@ -16,24 +16,24 @@ public struct URLUtil {
         host.url.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
     }
 
-    public static func frontpageList(host: GalleryHost = AppUtil.galleryHost, filter: Filter) -> URL {
+    public static func frontpageList(host: GalleryHost, filter: Filter) -> URL {
         host.url.applyingFilter(filter)
     }
 
     public static func moreFrontpageList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         filter: Filter,
         lastID: String
     ) -> URL {
         host.url.appending(queryItems: [.next: lastID]).applyingFilter(filter)
     }
 
-    public static func popularList(host: GalleryHost = AppUtil.galleryHost, filter: Filter) -> URL {
+    public static func popularList(host: GalleryHost, filter: Filter) -> URL {
         Defaults.URL.popular(host: host).applyingFilter(filter)
     }
 
     public static func watchedList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         filter: Filter,
         keyword: String = ""
     ) -> URL {
@@ -45,7 +45,7 @@ public struct URLUtil {
     }
 
     public static func moreWatchedList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         filter: Filter,
         lastID: String,
         keyword: String = ""
@@ -58,7 +58,7 @@ public struct URLUtil {
     }
 
     public static func favoritesList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         favIndex: Int,
         keyword: String = "",
         sortOrder: FavoritesSortOrder? = nil
@@ -83,7 +83,7 @@ public struct URLUtil {
     }
 
     public static func moreFavoritesList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         favIndex: Int,
         lastID: String,
         lastTimestamp: String,
@@ -104,7 +104,7 @@ public struct URLUtil {
     }
 
     public static func toplistsList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         catIndex: Int,
         pageNum: Int? = nil
     ) -> URL {
@@ -116,7 +116,7 @@ public struct URLUtil {
     }
 
     public static func moreToplistsList(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         catIndex: Int,
         pageNum: Int
     ) -> URL {
@@ -129,7 +129,7 @@ public struct URLUtil {
     }
 
     public static func galleryTorrents(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         gid: String,
         token: String
     ) -> URL {
@@ -138,7 +138,7 @@ public struct URLUtil {
 
     // Account Associated Operations
     public static func addFavorite(
-        host: GalleryHost = AppUtil.galleryHost,
+        host: GalleryHost,
         gid: String,
         token: String
     ) -> URL {
