@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-15-PLAN.md
-last_updated: "2026-07-14T12:06:49.604Z"
+stopped_at: Completed 08-18-PLAN.md
+last_updated: "2026-07-14T12:11:19.895Z"
 last_activity: 2026-07-14
-last_activity_desc: Phase 08 execution started
+last_activity_desc: Completed 08-18 cookie logging gate hardening
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 80
-  completed_plans: 77
-  percent: 96
+  completed_plans: 78
+  percent: 98
 ---
 
 # Project State
@@ -29,18 +29,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 15 of 18
-Status: Executing Phase 08 gap closures
-Last activity: 2026-07-14 — Completed 08-15 reader refetch host preservation
+Plan: 16 of 18
+Status: Ready to execute
+Last activity: 2026-07-14 — Completed 08-18 cookie logging gate hardening
 Next: Execute 08-16-PLAN.md
 
-Progress: [██████████] 96% (77/80 plans)
+Progress: [██████████] 98% (78/80 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 77
+- Total plans completed: 78
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -133,6 +133,7 @@ Progress: [██████████] 96% (77/80 plans)
 | Phase 08 P13 | 6 min | 2 tasks | 10 files |
 | Phase 08 P14 | 4 min | 2 tasks | 4 files |
 | Phase 08 P15 | 11 min | 2 tasks | 4 files |
+| Phase 08 P18 | 4 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -247,6 +248,8 @@ Recent decisions affecting current work:
 - [Phase 08]: 08-14: Model AppInfo as an uninhabited pure namespace instead of an injected client. — Read-only app facts require no substitution, and a client would be a thin wrapper.
 - [Phase 08]: Carry GalleryHost in refetchNormalImageURLsDone so both completion paths preserve request identity. — Response cookie routing must remain tied to immutable request-construction context across shared-host changes.
 - [Phase 08]: Observe the isolated CookieClient testing store as the host-routing spy. — The behavior-level assertion proves the destination host without adding a production callback solely for tests.
+- [Phase 08]: Track cookie-bearing local assignments for the rest of each Swift file so ordinary alias names cannot bypass the privacy gate. — This conservative file-scoped taint closes the demonstrated data-flow evasion while the production source scan remains green.
+- [Phase 08]: Skip the production-only getCookiesDescription consumer inventory when an explicit fixture scan root is supplied. — Fixture scans should fail only for the cookie-logging rule they exercise, while the no-argument production scan retains the clipboard invariant.
 
 ### Pending Todos
 
@@ -276,6 +279,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T12:06:49.598Z
-Stopped at: Completed 08-15-PLAN.md
+Last session: 2026-07-14T12:11:19.888Z
+Stopped at: Completed 08-18-PLAN.md
 Resume file: None
