@@ -366,16 +366,19 @@ extension HapticsClient {
 | A3 | The orphaned `UserDefaults["galleryHost"]` key can be left in place (dead) rather than actively cleared. | Runtime State Inventory | If the owner wants a clean removal, add a one-time delete. Low risk (harmless dead key). `[ASSUMED]` |
 | A4 | The empty `AppPackage/Sources/AuthorizationClient/` dir is fully orphaned (no Package.swift/code refs — verified) and safe to delete. | Structure / Runtime Inventory | Verified via grep; risk minimal. `[VERIFIED: codebase]` |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Host-derived `Defaults.URL.*` shape after the global is deleted.**
    - What we know: `api/myTags/uConfig/popular/watched/favorites/galleryPopups/galleryTorrents` are all `host.appendingPathComponent(...)`; 21 consumers.
    - What's unclear: whether the planner prefers host-taking static helpers (`Defaults.URL.api(host:)`) or inlining `host.url.appendingPathComponent("api.php")` at each site.
    - Recommendation: host-taking helpers keep the change mechanical and preserve the path strings in one place; decide in planning.
+   - **RESOLVED (08-02):** host-taking helper functions were chosen. 08-02 adds `Defaults.URL.api(host:)`/`myTags(host:)`/`uConfig(host:)`/`popular(host:)`/`watched(host:)`/`favorites(host:)`/`galleryPopups(host:)`/`galleryTorrents(host:)`/`toplist(host:)` (with a transitional default bridging the still-live callers), keeping every path string in one place; the derived global properties are then deleted in the 08-08 teardown.
 
 2. **Scope of "ImageClient failure retry" (A2).** Clarify whether it covers only the existing re-fetch/purge behaviors or expects a new retry.
+   - **RESOLVED (08-10):** scoped to the existing behaviors only. The dedicated `ImageClientTests` suite covers cache hit/miss and the fetch-failure/placeholder-purge re-fetch path — no new retry loop is added (the 4-attempt retry stays in `NetworkingFeature.Request.fetch`, per A2).
 
 3. **`CookieClient.apiuid`/`setSkipServer` host source.** They read `Defaults.URL.host` internally; after deletion they need host. Their callers (`DetailReducer+Fetch`, `CommentsReducer`, `ReadingReducer+ImageFetch`, `SettingReducer+Body`) all have `@Shared`/`@SharedReader(.setting)` access — recommend passing `host: GalleryHost` into these accessors. Confirm the accessor signatures during planning.
+   - **RESOLVED (08-05/08-06):** host is threaded in explicitly. 08-05 converts `apiuid` to `apiuid(host:)` (its 3 Detail call sites pass `setting.galleryHost`); 08-06 converts `setSkipServer(response:)` to `setSkipServer(response:host:)` (caller passes `state.setting.galleryHost`).
 
 ## Environment Availability
 
