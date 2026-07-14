@@ -999,9 +999,11 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .readingFeatureTests,
         dependencies: [
+            .targetDependency(.composableArchitecture),
             .module(.testingSupport),
             .module(.appModels),
             .module(.appTools),
+            .module(.cookieClient),
             .module(.readingFeature)
         ],
         plugins: swiftLintPlugins
