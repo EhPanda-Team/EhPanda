@@ -238,7 +238,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. The security-section auto-lock control is replaced by a description pointing users to the iOS built-in per-app lock.
   4. Background / app-switcher blur is retained.
 
-**Plans**: 8/8 plans executed
+**Plans**: 8/8 executed + 4 gap-closure plans (07-09…07-12) from 07-VERIFICATION.md
 boundary via the mask-swap-first + vestigial-param technique; xcodebuild builds must not overlap on
 this machine)
 Plans:
@@ -274,6 +274,18 @@ Plans:
 **Wave 8** *(blocked on 07-07)*
 
 - [x] 07-08-PLAN.md — Verification: AppFeatureTests scenePhase test + automated D-16 coverage/orphan audit + blocking human leak sweep
+
+**Gap Closure** *(from 07-VERIFICATION.md — 6/11 must-haves; re-verify after execute)*
+
+**Wave 9**
+
+- [ ] 07-09-PLAN.md — GAP-1 (BLOCKER): scene-phase mask writes + background latch independent of hasLoadedInitialSetting; pre-settings TestStore regression (threat T-07-20)
+- [ ] 07-11-PLAN.md — GAP-3 + WR-03: remove Download Inspector duplicate mask + one-to-one 39-root coverage inventory; Reduce-Motion-aware PrivacyMaskModifier
+- [ ] 07-12-PLAN.md — GAP-4 (docs-only): reconcile ROADMAP/REQUIREMENTS acceptance wording to locked D-03 (true-zero/no-floor) & D-08 (auto-lock removed, no pointer)
+
+**Wave 10** *(blocked on 07-09)*
+
+- [ ] 07-10-PLAN.md — GAP-2 + WR-04: exhaustive exactly-once greeting/clipboard tests (drop withExhaustivity(.off)); drop AppFeatureTests direct ComposableArchitecture dep
 
 **UI hint**: yes
 
