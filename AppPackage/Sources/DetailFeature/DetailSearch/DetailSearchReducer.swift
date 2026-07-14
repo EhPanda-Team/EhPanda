@@ -105,9 +105,11 @@ public struct DetailSearchReducer: Sendable {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = state.searchFilter
+                let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
                         let response = try await SearchGalleriesRequest(
+                            host: host,
                             keyword: lastKeyword,
                             filter: filter
                         )
@@ -146,9 +148,11 @@ public struct DetailSearchReducer: Sendable {
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
+                let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
                         let response = try await MoreSearchGalleriesRequest(
+                            host: host,
                             keyword: lastKeyword,
                             filter: filter,
                             lastID: lastID

@@ -166,9 +166,11 @@ public struct FavoritesReducer: Sendable {
                 } else {
                     state.rawPageNumber[state.index]?.resetPages()
                 }
+                let host = state.setting.galleryHost
                 return .run { [index = state.index, keyword = state.keyword] send in
                     do throws(AppError) {
                         let response = try await FavoritesGalleriesRequest(
+                            host: host,
                             favIndex: index,
                             keyword: keyword,
                             sortOrder: sortOrder
@@ -209,9 +211,11 @@ public struct FavoritesReducer: Sendable {
                       let lastItemTimestamp = pageNumber.lastItemTimestamp
                 else { return .none }
                 state.rawFooterLoadingState[state.index] = .loading
+                let host = state.setting.galleryHost
                 return .run { [index = state.index, keyword = state.keyword] send in
                     do throws(AppError) {
                         let response = try await MoreFavoritesGalleriesRequest(
+                            host: host,
                             favIndex: index,
                             lastID: lastID,
                             lastTimestamp: lastItemTimestamp,
@@ -267,9 +271,10 @@ public struct FavoritesReducer: Sendable {
                 state.rawLoadingState[state.index] = .loading
                 state.rawFooterLoadingState[state.index] = .idle
                 state.rawPageNumber[state.index]?.resetPages()
+                let host = state.setting.galleryHost
                 return .run { [index = state.index] send in
                     do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
                         await send(.performDateSeekDone(index, .success(response)))
                     } catch {
                         await send(.performDateSeekDone(index, .failure(error)))

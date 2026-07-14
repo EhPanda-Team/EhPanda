@@ -95,9 +95,10 @@ public struct FrontpageReducer: Sendable {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = state.globalFilter
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await FrontpageGalleriesRequest(filter: filter).response()
+                        let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
                         await send(.fetchGalleriesDone(.success(response)))
                     } catch {
                         await send(.fetchGalleriesDone(.failure(error)))
@@ -132,9 +133,11 @@ public struct FrontpageReducer: Sendable {
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = state.globalFilter
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let response = try await MoreFrontpageGalleriesRequest(
+                            host: host,
                             filter: filter,
                             lastID: lastID
                         )
@@ -173,9 +176,10 @@ public struct FrontpageReducer: Sendable {
                 state.loadingState = .loading
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
                         await send(.performDateSeekDone(.success(response)))
                     } catch {
                         await send(.performDateSeekDone(.failure(error)))
