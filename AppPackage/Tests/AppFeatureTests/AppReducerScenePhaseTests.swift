@@ -6,12 +6,12 @@ import CustomDump
 import CookieClient
 import DownloadClient
 import LogsClient
+import Sharing
 import Testing
 import UserDefaultsClient
 @testable import ClipboardClient
 @testable import AppFeature
 
-@Suite(.serialized)
 @MainActor
 struct AppReducerScenePhaseTests {
     @Test
@@ -85,36 +85,46 @@ private extension AppReducerScenePhaseTests {
         privacyMaskIntensity: Double,
         hasLoadedInitialSetting: Bool = true
     ) -> TestStoreOf<AppReducer> {
-        var initialState = AppReducer.State()
-        initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
-        initialState.settingState.$setting.withLock {
-            $0 = Setting(
-                detectsLinksFromClipboard: detectsLinksFromClipboard,
-                privacyMaskIntensity: privacyMaskIntensity
-            )
-        }
-        initialState.$privacyMaskBlur.withLock { $0 = 0 }
-        initialState.appLogsPumpState.$currentRun.withLock {
-            $0 = RunLogFile(
-                url: URL(fileURLWithPath: "/tmp/app-feature-tests.jsonl"),
-                date: Date(timeIntervalSince1970: 0),
-                runCount: 1
-            )
-        }
+        let appStorage = UserDefaults.inMemory
+        let inMemoryStorage = InMemoryStorage()
 
-        return TestStore(
-            initialState: initialState,
-            reducer: AppReducer.init,
-            withDependencies: {
-                $0.appLaunchAutomationClient = .none
-                $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
-                $0.continuousClock = TestClock()
-                $0.cookieClient = .noop
-                $0.downloadClient = .noop
-                $0.logsClient = .noop
-                $0.userDefaultsClient = .noop
+        return withDependencies {
+            $0.defaultAppStorage = appStorage
+            $0.defaultInMemoryStorage = inMemoryStorage
+        } operation: {
+            var initialState = AppReducer.State()
+            initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
+            initialState.settingState.$setting.withLock {
+                $0 = Setting(
+                    detectsLinksFromClipboard: detectsLinksFromClipboard,
+                    privacyMaskIntensity: privacyMaskIntensity
+                )
             }
-        )
+            initialState.$privacyMaskBlur.withLock { $0 = 0 }
+            initialState.appLogsPumpState.$currentRun.withLock {
+                $0 = RunLogFile(
+                    url: URL(fileURLWithPath: "/tmp/app-feature-tests.jsonl"),
+                    date: Date(timeIntervalSince1970: 0),
+                    runCount: 1
+                )
+            }
+
+            return TestStore(
+                initialState: initialState,
+                reducer: AppReducer.init,
+                withDependencies: {
+                    $0.appLaunchAutomationClient = .none
+                    $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
+                    $0.continuousClock = TestClock()
+                    $0.cookieClient = .noop
+                    $0.defaultAppStorage = appStorage
+                    $0.defaultInMemoryStorage = inMemoryStorage
+                    $0.downloadClient = .noop
+                    $0.logsClient = .noop
+                    $0.userDefaultsClient = .noop
+                }
+            )
+        }
     }
 }
 
