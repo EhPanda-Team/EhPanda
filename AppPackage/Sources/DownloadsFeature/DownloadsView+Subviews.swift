@@ -99,7 +99,6 @@ struct DownloadInspectorView: View {
                 .listStyle(.insetGrouped)
             }
         }
-        .privacyMask()
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
