@@ -2,6 +2,7 @@ import Photos
 import AppModels
 import SwiftUI
 import ComposableArchitecture
+import Dependencies
 import AppTools
 import AnimatedImageFeature
 
@@ -20,29 +21,34 @@ public struct ImageClient: Sendable {
 
     public let prefetchImages: @Sendable ([URL]) -> Void
     public let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
-    public var dataCache: DataCache = .shared
+    public var dataCache: DataCache
     public var urlSession: URLSession = .shared
 }
 
 extension ImageClient {
-    public static let live: Self = .init(
-        prefetchImages: { urls in
-            Task {
-                await withTaskGroup(of: Void.self) { group in
-                    for url in urls {
-                        group.addTask {
-                            _ = try? await ImageClient.readerImageData(
-                                url: url, dataCache: .shared, urlSession: .shared
-                            )
+    public static var live: Self {
+        @Dependency(\.dataCache) var injectedDataCache
+        let dataCache = injectedDataCache
+        return .init(
+            prefetchImages: { urls in
+                Task {
+                    await withTaskGroup(of: Void.self) { group in
+                        for url in urls {
+                            group.addTask {
+                                _ = try? await ImageClient.readerImageData(
+                                    url: url, dataCache: dataCache, urlSession: .shared
+                                )
+                            }
                         }
                     }
                 }
-            }
-        },
-        saveImageDataToPhotoLibrary: { data in
-            await Self.saveImageDataToPhotoLibrary(data)
-        }
-    )
+            },
+            saveImageDataToPhotoLibrary: { data in
+                await Self.saveImageDataToPhotoLibrary(data)
+            },
+            dataCache: dataCache
+        )
+    }
 
     public static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
         await withCheckedContinuation { continuation in
@@ -182,15 +188,23 @@ extension DependencyValues {
 
 // MARK: Test
 extension ImageClient {
-    public static let noop: Self = .init(
-        prefetchImages: { _ in },
-        saveImageDataToPhotoLibrary: { _ in false }
-    )
+    public static var noop: Self {
+        @Dependency(\.dataCache) var dataCache
+        return .init(
+            prefetchImages: { _ in },
+            saveImageDataToPhotoLibrary: { _ in false },
+            dataCache: dataCache
+        )
+    }
 
     public static func placeholder<Result>() -> Result { fatalError() }
 
-    public static let unimplemented: Self = .init(
-        prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
-        saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder())
-    )
+    public static var unimplemented: Self {
+        @Dependency(\.dataCache) var dataCache
+        return .init(
+            prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
+            saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
+            dataCache: dataCache
+        )
+    }
 }

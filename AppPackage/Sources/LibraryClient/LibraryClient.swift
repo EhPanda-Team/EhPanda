@@ -6,6 +6,7 @@ import SDWebImage
 import SDWebImageWebPCoder
 import ImageColors
 import ComposableArchitecture
+import Dependencies
 import AppTools
 import AnimatedImageFeature
 
@@ -58,9 +59,10 @@ extension LibraryClient {
             DataCache.installSystemPurgeObservers()
         },
         removeAllCachedImages: {
+            @Dependency(\.dataCache) var dataCache
             KingfisherManager.shared.cache.clearMemoryCache()
             SDImageCache.shared.clearMemory()
-            async let dataCacheClear: Void = DataCache.shared.removeAll()
+            async let dataCacheClear: Void = dataCache.removeAll()
             async let kingfisherClear: Void = withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.clearDiskCache {
                     continuation.resume()
@@ -111,6 +113,7 @@ extension LibraryClient {
             }
         },
         calculateWebImageDiskCacheSize: {
+            @Dependency(\.dataCache) var dataCache
             async let kingfisherSize: UInt? = withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.calculateDiskStorageSize {
                     continuation.resume(returning: try? $0.get())
@@ -121,7 +124,7 @@ extension LibraryClient {
                     continuation.resume(returning: UInt(totalSize))
                 }
             }
-            async let dataCacheSize = try? DataCache.shared.totalSize()
+            async let dataCacheSize = try? dataCache.totalSize()
             return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0) + UInt(dataCacheSize ?? 0)
         }
     )

@@ -1,18 +1,20 @@
 import Foundation
 import AppModels
 import AppTools
+import Dependencies
 
 // MARK: - Cache Operations
 extension DownloadCoordinator {
     public func removeCachedImages(
         for urls: [URL?]
     ) async {
+        @Dependency(\.dataCache) var dataCache
         let keys = urls
             .compactMap(\.self)
             .flatMap(\.imageCacheKeys)
 
         let uniqueKeys = Array(Set(keys))
-        try? await DataCache.shared.removeData(forKeys: uniqueKeys)
+        try? await dataCache.removeData(forKeys: uniqueKeys)
         for key in uniqueKeys {
             await libraryClient.removeCachedImage(key)
         }
@@ -86,10 +88,11 @@ extension DownloadCoordinator {
     public func cachedImageData(
         for urls: [URL?]
     ) async -> Data? {
+        @Dependency(\.dataCache) var dataCache
         let keys = urls
             .compactMap { $0 }
             .flatMap(\.imageCacheKeys)
-        return await DataCache.shared.data(forKeys: keys)
+        return await dataCache.data(forKeys: keys)
     }
 
     public func validatedCachedAssetData(
