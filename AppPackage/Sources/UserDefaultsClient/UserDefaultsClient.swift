@@ -14,7 +14,7 @@ extension UserDefaultsClient {
     )
 
     public func getValue<T: Codable>(_ key: AppUserDefaults) -> T? {
-        UserDefaultsUtil.value(forKey: key)
+        UserDefaults.standard.value(forKey: key.rawValue) as? T
     }
 }
 
