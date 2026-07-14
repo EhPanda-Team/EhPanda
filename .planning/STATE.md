@@ -5,16 +5,15 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-06-PLAN.md
-last_updated: "2026-07-14T09:00:05.176Z"
+stopped_at: Completed 08-07-PLAN.md
+last_updated: "2026-07-14T09:13:52.857Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed 08-06-PLAN.md
 progress:
   total_phases: 11
   completed_phases: 6
   total_plans: 76
-  completed_plans: 68
-  percent: 89
+  completed_plans: 69
+  percent: 55
 ---
 
 # Project State
@@ -29,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 7 of 14
+Plan: 8 of 14
 Status: Ready to execute
-Last activity: 2026-07-14 — Completed 08-06-PLAN.md
-Next: Execute 08-07-PLAN.md
+Last activity: 2026-07-14
+Next: Execute 08-08-PLAN.md
 
 Progress: [█████████░] 89% (68/76 plans)
 
@@ -124,6 +123,7 @@ Progress: [█████████░] 89% (68/76 plans)
 | Phase 08 P04 | 6 min | 2 tasks | 7 files |
 | Phase 08 P05 | 7min | 2 tasks | 5 files |
 | Phase 08 P06 | 9min | 2 tasks | 18 files |
+| Phase 08 P07 | 6min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -220,6 +220,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Account request baselines use an explicit deterministic E-Hentai host. — Parity tests should not depend on the transitional mutable global host mirror.
 - [Phase 08]: Snapshot GalleryHost at async request construction boundaries. — A stable value keeps in-flight requests tied to the selected origin without consulting mutable global state.
 - [Phase 08]: Use saved-download manifest hosts for refreshes and the current shared host for live DownloadClient fetches. — Each flow retains its existing source of truth while making host selection explicit.
+- [Phase 08]: Views use existing store settings where available and read-only SharedReader state only in leaf views without store access.
+- [Phase 08]: Detail download payloads snapshot state.setting.galleryHost when the start action is handled.
 
 ### Pending Todos
 
@@ -249,6 +251,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T09:00:05.171Z
-Stopped at: Completed 08-06-PLAN.md
+Last session: 2026-07-14T09:12:43.289Z
+Stopped at: Completed 08-07-PLAN.md
 Resume file: None
