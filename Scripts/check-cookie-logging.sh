@@ -7,13 +7,25 @@ COOKIE_VALUE_TOKENS='ipb_member_id ipb_pass_hash igneous ipbMemberId ipbMemberID
 
 SCRIPT_DIRECTORY=$(CDPATH= cd "$(dirname "$0")" && pwd)
 PROJECT_ROOT=$(CDPATH= cd "$SCRIPT_DIRECTORY/.." && pwd)
-SOURCE_ROOT="$PROJECT_ROOT/AppPackage/Sources"
+DEFAULT_SOURCE_ROOT="$PROJECT_ROOT/AppPackage/Sources"
+SOURCE_ROOT=${1:-${COOKIE_LOGGING_SCAN_ROOT:-$DEFAULT_SOURCE_ROOT}}
 DESCRIPTION_DECLARATION="$SOURCE_ROOT/CookieClient/CookieClient.swift"
 DESCRIPTION_CONSUMER="$SOURCE_ROOT/SettingFeature/AccountSetting/AccountSettingReducer.swift"
 VIOLATIONS_FILE=$(mktemp "${TMPDIR:-/tmp}/ehpanda-cookie-logging.XXXXXX")
 REFERENCES_FILE=$(mktemp "${TMPDIR:-/tmp}/ehpanda-cookie-references.XXXXXX")
 
 trap 'rm -f "$VIOLATIONS_FILE" "$REFERENCES_FILE"' EXIT HUP INT TERM
+
+if [ ! -d "$SOURCE_ROOT" ]; then
+    printf '%s\n' "Cookie logging scan root does not exist: $SOURCE_ROOT" >&2
+    exit 2
+fi
+
+if [ "$#" -gt 0 ] || [ -n "${COOKIE_LOGGING_SCAN_ROOT:-}" ]; then
+    CHECK_DESCRIPTION_CONSUMER=0
+else
+    CHECK_DESCRIPTION_CONSUMER=1
+fi
 
 find "$SOURCE_ROOT" -type f -name '*.swift' -exec awk \
     -v cookie_tokens="$COOKIE_VALUE_TOKENS" '
@@ -22,6 +34,9 @@ find "$SOURCE_ROOT" -type f -name '*.swift' -exec awk \
     }
 
     FNR == 1 {
+        for (identifier in tainted_identifiers) {
+            delete tainted_identifiers[identifier]
+        }
         collecting = 0
         statement = ""
         statement_depth = 0
@@ -40,14 +55,49 @@ find "$SOURCE_ROOT" -type f -name '*.swift' -exec awk \
         return delta
     }
 
-    function carries_cookie_value(interpolation,    cursor, pattern) {
+    function carries_cookie_token(expression,    cursor, pattern) {
         for (cursor = 1; cursor <= token_count; cursor += 1) {
             pattern = "(^|[^[:alnum:]_])" tokens[cursor] "([^[:alnum:]_]|$)"
-            if (interpolation ~ pattern) {
+            if (expression ~ pattern) {
                 return 1
             }
         }
         return 0
+    }
+
+    function carries_tainted_identifier(expression,    identifier, pattern) {
+        for (identifier in tainted_identifiers) {
+            pattern = "(^|[^[:alnum:]_])" identifier "([^[:alnum:]_]|$)"
+            if (expression ~ pattern) {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    function carries_cookie_value(expression) {
+        return carries_cookie_token(expression) || carries_tainted_identifier(expression)
+    }
+
+    function record_tainted_assignment(text,    assignment_parts, lhs, lhs_parts, lhs_count, rhs) {
+        if (text !~ /(^|[^=!<>])=[^=]/) {
+            return
+        }
+
+        split(text, assignment_parts, "=")
+        lhs = assignment_parts[1]
+        rhs = substr(text, index(text, "=") + 1)
+        if (!carries_cookie_value(rhs)) {
+            return
+        }
+
+        lhs_count = split(lhs, lhs_parts, /[^[:alnum:]_]+/)
+        while (lhs_count > 0 && lhs_parts[lhs_count] == "") {
+            lhs_count -= 1
+        }
+        if (lhs_count > 0 && lhs_parts[lhs_count] ~ /^[[:alpha:]_][[:alnum:]_]*$/) {
+            tainted_identifiers[lhs_parts[lhs_count]] = 1
+        }
     }
 
     function inspect_logger_statement(text, file, line,    character, content, cursor, depth, offset, relative_offset) {
@@ -85,7 +135,7 @@ find "$SOURCE_ROOT" -type f -name '*.swift' -exec awk \
 
     {
         if (!collecting &&
-            $0 ~ /logger[.](debug|info|notice|warning|error|fault|trace)[[:space:]]*[(]/) {
+            $0 ~ /[[:alpha:]_][[:alnum:]_]*[.](debug|info|notice|warning|error|fault|trace)[[:space:]]*[(]/) {
             collecting = 1
             statement = ""
             statement_depth = 0
@@ -100,31 +150,35 @@ find "$SOURCE_ROOT" -type f -name '*.swift' -exec awk \
                 collecting = 0
                 statement = ""
             }
+        } else {
+            record_tainted_assignment($0)
         }
     }
 ' {} + > "$VIOLATIONS_FILE"
 
-grep -R -n --include='*.swift' 'getCookiesDescription' "$SOURCE_ROOT" > "$REFERENCES_FILE" || true
+if [ "$CHECK_DESCRIPTION_CONSUMER" -eq 1 ]; then
+    grep -R -n --include='*.swift' 'getCookiesDescription' "$SOURCE_ROOT" > "$REFERENCES_FILE" || true
 
-consumer_count=0
-while IFS= read -r reference; do
-    case "$reference" in
-        "$DESCRIPTION_DECLARATION":*'func getCookiesDescription'*)
-            ;;
-        "$DESCRIPTION_CONSUMER":*'.getCookiesDescription'*)
-            consumer_count=$((consumer_count + 1))
-            ;;
-        *)
-            printf '%s\n' "$reference: getCookiesDescription is outside its declaration or clipboard consumer" \
-                >> "$VIOLATIONS_FILE"
-            ;;
-    esac
-done < "$REFERENCES_FILE"
+    consumer_count=0
+    while IFS= read -r reference; do
+        case "$reference" in
+            "$DESCRIPTION_DECLARATION":*'func getCookiesDescription'*)
+                ;;
+            "$DESCRIPTION_CONSUMER":*'.getCookiesDescription'*)
+                consumer_count=$((consumer_count + 1))
+                ;;
+            *)
+                printf '%s\n' "$reference: getCookiesDescription is outside its declaration or clipboard consumer" \
+                    >> "$VIOLATIONS_FILE"
+                ;;
+        esac
+    done < "$REFERENCES_FILE"
 
-if [ "$consumer_count" -ne 1 ]; then
-    printf '%s\n' \
-        "$DESCRIPTION_CONSUMER: expected exactly one getCookiesDescription clipboard consumer; found $consumer_count" \
-        >> "$VIOLATIONS_FILE"
+    if [ "$consumer_count" -ne 1 ]; then
+        printf '%s\n' \
+            "$DESCRIPTION_CONSUMER: expected exactly one getCookiesDescription clipboard consumer; found $consumer_count" \
+            >> "$VIOLATIONS_FILE"
+    fi
 fi
 
 if [ -s "$VIOLATIONS_FILE" ]; then
