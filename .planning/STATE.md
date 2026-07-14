@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 07
 current_phase_name: root-privacy-mask-auto-lock-removal
 status: executing
-stopped_at: Planned gap-closure plans 07-09..07-12
-last_updated: "2026-07-14T00:08:55.288Z"
+stopped_at: Completed 07-09-PLAN.md
+last_updated: "2026-07-14T00:26:24.978Z"
 last_activity: 2026-07-14
-last_activity_desc: Planned Phase 07 gap closure (07-09..07-12) to close 4 verification gaps
+last_activity_desc: Completed Phase 07 Plan 09 pre-settings privacy-mask race closure
 progress:
   total_phases: 11
-  completed_phases: 6
+  completed_phases: 5
   total_plans: 62
-  completed_plans: 58
-  percent: 94
+  completed_plans: 59
+  percent: 95
 ---
 
 # Project State
@@ -28,19 +28,19 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 07 (root-privacy-mask-auto-lock-removal) — READY TO EXECUTE (gap closure)
-Plan: 8 executed · 4 gap-closure plans pending (07-09–07-12)
-Status: Ready to execute
-Last activity: 2026-07-14 — Planned Phase 07 gap closure (07-09–07-12) to close 4 verification gaps
-Next: execute Phase 07 gap-closure plans (07-09–07-12)
+Phase: 07 (root-privacy-mask-auto-lock-removal) — EXECUTING
+Plan: 9 of 12
+Status: Executing Phase 07
+Last activity: 2026-07-14 — Completed Phase 07 Plan 09 pre-settings privacy-mask race closure
+Next: execute Phase 07 gap-closure plan 07-10
 
-Progress: [█████████░] 94% (58/62 plans)
+Progress: [██████████] 95% (59/62 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 57
+- Total plans completed: 59
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -114,6 +114,7 @@ Progress: [█████████░] 94% (58/62 plans)
 | Phase 07 P06 | 5min | 2 tasks | 7 files |
 | Phase 07 P07 | 6min | 3 tasks | 11 files |
 | Phase 07 P08 | 4h30m | 3 tasks | 6 files |
+| Phase 07 P09 | 7min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -192,6 +193,7 @@ Recent decisions affecting current work:
 - [Phase 07]: The no-content-leak gate combines automated forty-site coverage with owner device-level approval. — Static checks cannot prove App Switcher snapshot concealment or presentation behavior.
 - [Phase 07]: Privacy-mask coverage counts forty executable application calls rather than forty-two raw tokens. — The public function declaration and shared-key documentation are valid non-application matches.
 - [Phase 07]: The owner post-checkpoint refinement scopes blur animation to the blur transform and keeps Privacy Mask in the first Appearance section. — The owner intentionally refined presentation after verification; current HEAD was rebuilt and retested without rewriting the commit.
+- [Phase 07]: 07-09: Scene-phase privacy writes and background latching run before the settings-loaded guard; settings-dependent effects remain gated. — Protects cold-launch App Switcher snapshots without changing initialization-dependent side-effect semantics.
 
 ### Pending Todos
 
@@ -221,6 +223,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T23:08:47.341Z
-Stopped at: Completed 07-08-PLAN.md
+Last session: 2026-07-14T00:26:24.969Z
+Stopped at: Completed 07-09-PLAN.md
 Resume file: None
