@@ -141,9 +141,11 @@ public struct ToplistsReducer: Sendable {
                 } else {
                     state.rawPageNumber[state.type]?.resetPages()
                 }
+                let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
                     do throws(AppError) {
                         let galleries = try await ToplistsGalleriesRequest(
+                            host: host,
                             catIndex: type.categoryIndex,
                             pageNum: pageNum
                         )
@@ -179,9 +181,11 @@ public struct ToplistsReducer: Sendable {
                 else { return .none }
                 state.rawFooterLoadingState[state.type] = .loading
                 let pageNum = pageNumber.current + 1
+                let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
                     do throws(AppError) {
                         let galleries = try await MoreToplistsGalleriesRequest(
+                            host: host,
                             catIndex: type.categoryIndex,
                             pageNum: pageNum
                         )

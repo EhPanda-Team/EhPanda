@@ -100,9 +100,10 @@ extension HomeReducer {
                 state.popularLoadingState = .loading
                 state.rawCardColors = [String: [Color]]()
                 let filter = state.globalFilter
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let galleries = try await PopularGalleriesRequest(filter: filter).response()
+                        let galleries = try await PopularGalleriesRequest(host: host, filter: filter).response()
                         await send(.fetchPopularGalleriesDone(.success(galleries)))
                     } catch {
                         await send(.fetchPopularGalleriesDone(.failure(error)))
@@ -128,9 +129,10 @@ extension HomeReducer {
                 guard state.frontpageLoadingState != .loading else { return .none }
                 state.frontpageLoadingState = .loading
                 let filter = state.globalFilter
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await FrontpageGalleriesRequest(filter: filter).response()
+                        let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
                         await send(
                             .fetchFrontpageGalleriesDone(
                                 .success((response.pageNumber, response.galleries))
@@ -159,9 +161,11 @@ extension HomeReducer {
             case .fetchToplistsGalleries(let index, let pageNum):
                 guard state.toplistsLoadingState[index] != .loading else { return .none }
                 state.toplistsLoadingState[index] = .loading
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let galleries = try await ToplistsGalleriesRequest(
+                            host: host,
                             catIndex: index,
                             pageNum: pageNum
                         )

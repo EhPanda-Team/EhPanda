@@ -16,6 +16,7 @@ public struct HomeReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.globalFilter) public var globalFilter: AppModels.Filter
+        @SharedReader(.setting) public var setting: Setting
         public var path = StackState<HomePath.State>()
         public var cardPageIndex = 1
         public var currentCardID = ""

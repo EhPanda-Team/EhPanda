@@ -4,18 +4,21 @@ import Foundation
 import Testing
 @testable import NetworkingFeature
 
+private let galleryHost: GalleryHost = .ehentai
+
 // Wave 0 lock for the 12 gallery-list requests. The shared compact-list fixture is intentionally
 // minimal, and each request still runs through its concrete Combine facade and an isolated stub.
 @Suite
 struct GalleryRequestBaselineTests {
     @Test
     func searchGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.searchList(keyword: "baseline", filter: Filter())
+        let expectedURL = URLUtil.searchList(host: galleryHost, keyword: "baseline", filter: Filter())
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
             try await SearchGalleriesRequest(
+                host: galleryHost,
                 keyword: "baseline",
                 filter: Filter(),
                 urlSession: session
@@ -32,6 +35,7 @@ struct GalleryRequestBaselineTests {
     @Test
     func moreSearchGalleriesRequestLocksURLAndParsing() async throws {
         let expectedURL = URLUtil.moreSearchList(
+            host: galleryHost,
             keyword: "baseline",
             filter: Filter(),
             lastID: "123"
@@ -41,6 +45,7 @@ struct GalleryRequestBaselineTests {
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
             try await MoreSearchGalleriesRequest(
+                host: galleryHost,
                 keyword: "baseline",
                 filter: Filter(),
                 lastID: "123",
@@ -57,12 +62,12 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func dateSeekGalleriesRequestLocksSuppliedURLAndParsing() async throws {
-        let url = Defaults.URL.host.appending(queryItems: ["seek": "2026-07-12"])
+        let url = galleryHost.url.appending(queryItems: ["seek": "2026-07-12"])
         let (session, handle) = listSession(url: url)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
-            try await DateSeekGalleriesRequest(url: url, urlSession: session).response()
+            try await DateSeekGalleriesRequest(host: galleryHost, url: url, urlSession: session).response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
@@ -73,12 +78,17 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func frontpageGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.frontpageList(filter: Filter())
+        let expectedURL = URLUtil.frontpageList(host: galleryHost, filter: Filter())
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
-            try await FrontpageGalleriesRequest(filter: Filter(), urlSession: session).response()
+            try await FrontpageGalleriesRequest(
+                host: galleryHost,
+                filter: Filter(),
+                urlSession: session
+            )
+            .response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
@@ -89,12 +99,13 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func moreFrontpageGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.moreFrontpageList(filter: Filter(), lastID: "456")
+        let expectedURL = URLUtil.moreFrontpageList(host: galleryHost, filter: Filter(), lastID: "456")
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
             try await MoreFrontpageGalleriesRequest(
+                host: galleryHost,
                 filter: Filter(),
                 lastID: "456",
                 urlSession: session
@@ -110,12 +121,12 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func popularGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.popularList(filter: Filter())
+        let expectedURL = URLUtil.popularList(host: galleryHost, filter: Filter())
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let galleries = try await capture { () async throws(AppError) -> [Gallery] in
-            try await PopularGalleriesRequest(filter: Filter(), urlSession: session).response()
+            try await PopularGalleriesRequest(host: galleryHost, filter: Filter(), urlSession: session).response()
         }
         .get()
         let request = try #require(handle.receivedRequests.first)
@@ -126,12 +137,13 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func watchedGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.watchedList(filter: Filter(), keyword: "watched")
+        let expectedURL = URLUtil.watchedList(host: galleryHost, filter: Filter(), keyword: "watched")
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
             try await WatchedGalleriesRequest(
+                host: galleryHost,
                 filter: Filter(),
                 keyword: "watched",
                 urlSession: session
@@ -148,6 +160,7 @@ struct GalleryRequestBaselineTests {
     @Test
     func moreWatchedGalleriesRequestLocksURLAndParsing() async throws {
         let expectedURL = URLUtil.moreWatchedList(
+            host: galleryHost,
             filter: Filter(),
             lastID: "789",
             keyword: "watched"
@@ -157,6 +170,7 @@ struct GalleryRequestBaselineTests {
 
         let result = try await capture { () async throws(AppError) -> GalleriesResult in
             try await MoreWatchedGalleriesRequest(
+                host: galleryHost,
                 filter: Filter(),
                 lastID: "789",
                 keyword: "watched",
@@ -178,6 +192,7 @@ struct GalleryRequestBaselineTests {
     @Test
     func favoritesGalleriesRequestLocksURLAndParsing() async throws {
         let expectedURL = URLUtil.favoritesList(
+            host: galleryHost,
             favIndex: 2,
             keyword: "favorite",
             sortOrder: .favoritedTime
@@ -188,6 +203,7 @@ struct GalleryRequestBaselineTests {
         let result = try await capture {
             () async throws(AppError) -> FavoritesGalleriesResult in
             try await FavoritesGalleriesRequest(
+                host: galleryHost,
                 favIndex: 2,
                 keyword: "favorite",
                 sortOrder: .favoritedTime,
@@ -213,6 +229,7 @@ struct GalleryRequestBaselineTests {
     @Test
     func moreFavoritesGalleriesRequestLocksURLAndParsing() async throws {
         let expectedURL = URLUtil.moreFavoritesList(
+            host: galleryHost,
             favIndex: 2,
             lastID: "100",
             lastTimestamp: "200",
@@ -224,6 +241,7 @@ struct GalleryRequestBaselineTests {
         let result = try await capture {
             () async throws(AppError) -> FavoritesGalleriesResult in
             try await MoreFavoritesGalleriesRequest(
+                host: galleryHost,
                 favIndex: 2,
                 lastID: "100",
                 lastTimestamp: "200",
@@ -249,13 +267,14 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func toplistsGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.toplistsList(catIndex: 1, pageNum: 2)
+        let expectedURL = URLUtil.toplistsList(host: galleryHost, catIndex: 1, pageNum: 2)
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
             () async throws(AppError) -> (PageNumber, [Gallery]) in
             try await ToplistsGalleriesRequest(
+                host: galleryHost,
                 catIndex: 1,
                 pageNum: 2,
                 urlSession: session
@@ -271,13 +290,14 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func moreToplistsGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.moreToplistsList(catIndex: 1, pageNum: 3)
+        let expectedURL = URLUtil.moreToplistsList(host: galleryHost, catIndex: 1, pageNum: 3)
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
             () async throws(AppError) -> (PageNumber, [Gallery]) in
             try await MoreToplistsGalleriesRequest(
+                host: galleryHost,
                 catIndex: 1,
                 pageNum: 3,
                 urlSession: session
@@ -293,7 +313,7 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func galleryListPersistentTransportFailureRetriesFourTimes() async {
-        let url = URLUtil.searchList(keyword: "retry", filter: Filter())
+        let url = URLUtil.searchList(host: galleryHost, keyword: "retry", filter: Filter())
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.transportFailure(.timedOut)]])
         )
@@ -301,6 +321,7 @@ struct GalleryRequestBaselineTests {
 
         let result = await capture { () async throws(AppError) -> GalleriesResult in
             try await SearchGalleriesRequest(
+                host: galleryHost,
                 keyword: "retry",
                 filter: Filter(),
                 urlSession: session
@@ -362,8 +383,8 @@ private func expectGET(
         uniquingKeysWith: { first, _ in first }
     )
 
-    #expect(components?.scheme == Defaults.URL.host.scheme, sourceLocation: sourceLocation)
-    #expect(components?.host == Defaults.URL.host.host, sourceLocation: sourceLocation)
+    #expect(components?.scheme == galleryHost.url.scheme, sourceLocation: sourceLocation)
+    #expect(components?.host == galleryHost.url.host, sourceLocation: sourceLocation)
     #expect(components?.path == path, sourceLocation: sourceLocation)
     #expect(receivedQuery == query, sourceLocation: sourceLocation)
     #expect(request.httpMethod == "GET", sourceLocation: sourceLocation)

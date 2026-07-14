@@ -126,11 +126,13 @@ public struct SearchReducer: Sendable {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = state.searchFilter
+                let host = state.setting.galleryHost
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
                         do throws(AppError) {
                             let response = try await SearchGalleriesRequest(
+                                host: host,
                                 keyword: lastKeyword,
                                 filter: filter
                             )
@@ -170,9 +172,11 @@ public struct SearchReducer: Sendable {
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
+                let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
                         let response = try await MoreSearchGalleriesRequest(
+                            host: host,
                             keyword: lastKeyword,
                             filter: filter,
                             lastID: lastID
@@ -226,9 +230,10 @@ public struct SearchReducer: Sendable {
                 state.loadingState = .loading
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
+                let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
-                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
                         await send(.performDateSeekDone(.success(response)))
                     } catch {
                         await send(.performDateSeekDone(.failure(error)))
