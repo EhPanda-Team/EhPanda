@@ -2,6 +2,8 @@ import SwiftUI
 import Sharing
 import AppModels
 import AppTools
+import Dependencies
+import HapticsClient
 
 // MARK: CategoryLabel
 public struct CategoryLabel: View {
@@ -64,6 +66,7 @@ public struct CategoryView: View {
 
 // MARK: CategoryCell
 private struct CategoryCell: View {
+    @Dependency(\.hapticsClient) private var hapticsClient
     @SharedReader(.setting) private var setting: Setting
     @Binding private var isFiltered: Bool
     private let category: AppModels.Category
@@ -83,7 +86,7 @@ private struct CategoryCell: View {
         }
         .onTapGesture {
             isFiltered.toggle()
-            HapticsUtil.generateFeedback(style: .soft)
+            hapticsClient.generateFeedback(.soft)
         }
         .cornerRadius(5)
     }

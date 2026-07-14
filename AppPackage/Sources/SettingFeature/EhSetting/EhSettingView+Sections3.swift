@@ -2,6 +2,8 @@ import SwiftUI
 import AppModels
 import Resources
 import AppTools
+import Dependencies
+import HapticsClient
 
 extension EhSettingView {
 
@@ -161,6 +163,7 @@ struct ExcludeRow: View {
 }
 
 struct ExcludeToggle: View {
+    @Dependency(\.hapticsClient) private var hapticsClient
     @Binding var isOn: Bool
 
     var body: some View {
@@ -172,7 +175,7 @@ struct ExcludeToggle: View {
             }
             .onTapGesture {
                 withAnimation { isOn.toggle() }
-                HapticsUtil.generateFeedback(style: .soft)
+                hapticsClient.generateFeedback(.soft)
             }
     }
 }
