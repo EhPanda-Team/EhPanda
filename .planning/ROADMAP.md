@@ -300,7 +300,7 @@ Plans:
   2. No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   3. Client-layer tests cover the reworked seams — the async `NetworkingFeature` (from Phase 4), `CookieClient`, and `ImageClient` — and are deterministic and green.
 
-**Plans**: 14/14 plans executed
+**Plans**: 14 executed + 4 gap-closure (from 08-VERIFICATION.md — 10/16 must-haves; re-verify after execute)
 Plans:
 **Wave 1**
 
@@ -357,6 +357,21 @@ Plans:
 **Wave 14** *(blocked on Wave 13 completion)*
 
 - [x] 08-14-PLAN.md — Seam C: eliminate AppUtil + relocate version/build/isTesting + AuthorizationClient cleanup (D-06/D-07)
+
+**Gap Closure** *(from 08-VERIFICATION.md — 4 code gaps; the 3 xcodebuild plans run sequentially per the no-overlapping-xcodebuild rule; re-verify after execute)*
+
+**Wave 15**
+
+- [ ] 08-15-PLAN.md — GAP-01 (HYG-01, blocker): carry originating GalleryHost through `refetchNormalImageURLsDone` → `setSkipServer`; host-switch-while-pending ReadingReducer regression
+- [ ] 08-18-PLAN.md — GAP-04 (QUAL-01, blocker): harden `check-cookie-logging.sh` against aliased-value/renamed-Logger evasions + executable negative-fixture harness (clean tree still exits 0); no xcodebuild — runs parallel
+
+**Wave 16** *(sequenced after 08-15 to serialize xcodebuild)*
+
+- [ ] 08-16-PLAN.md — GAP-02 (HYG-01, blocker): carry originating GalleryHost through `fetchEhProfileIndexDone`/`createDefaultEhProfile`; suspended-request SettingReducer regression
+
+**Wave 17** *(sequenced after 08-16 to serialize xcodebuild)*
+
+- [ ] 08-17-PLAN.md — GAP-03 (HYG-01, blocker): make `UserDefaultsClient` read a `@Sendable` endpoint (clipboardChangeCount); both-way substitutability AppRoute reducer test
 
 ### Phase 9: Correctness & Structured Error Handling
 
