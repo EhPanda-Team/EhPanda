@@ -41,7 +41,8 @@ struct DetailRequestBaselineTests {
 
     @Test
     func galleryVersionMetadataRequestLocksGDataAssemblyAndDecoding() async throws {
-        let url = Defaults.URL.api
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let data = Data(
             """
             {"gmetadata":[{"gid":123,"token":"token","current_gid":124,
@@ -57,6 +58,7 @@ struct DetailRequestBaselineTests {
         let metadata = try await capture {
             () async throws(AppError) -> DownloadVersionMetadata in
             try await GalleryVersionMetadataRequest(
+                host: host,
                 gid: "123",
                 token: "token",
                 urlSession: session
@@ -226,7 +228,8 @@ struct DetailRequestBaselineTests {
 
     @Test
     func galleryTorrentsRequestLocksAssemblyAndParsing() async throws {
-        let url = URLUtil.galleryTorrents(gid: "123", token: "token")
+        let host = GalleryHost.ehentai
+        let url = URLUtil.galleryTorrents(host: host, gid: "123", token: "token")
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.http(status: 200, data: .torrentFixture)]])
         )
@@ -234,6 +237,7 @@ struct DetailRequestBaselineTests {
 
         let torrents = try await capture { () async throws(AppError) -> [GalleryTorrent] in
             try await GalleryTorrentsRequest(
+                host: host,
                 gid: "123",
                 token: "token",
                 urlSession: session

@@ -31,12 +31,16 @@ struct GalleriesMetadataDecodeTests {
         }
         """
 
-        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        let galleries = try GalleriesMetadataRequest.galleries(
+            fromResponseData: Data(json.utf8),
+            host: .exhentai
+        )
 
         #expect(galleries.count == 2)
         #expect(galleries.map(\.id) == ["100", "200"])
         #expect(galleries.first?.token == "aaa")
         #expect(galleries.first?.title == "First & Title")
+        #expect(galleries.first?.galleryURL?.host == GalleryHost.exhentai.url.host)
     }
 
     // REV-15: entities in the title decode in a single left-to-right pass. `&#38;lt;` is an escaped
@@ -56,7 +60,10 @@ struct GalleriesMetadataDecodeTests {
           ]
         }
         """
-        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        let galleries = try GalleriesMetadataRequest.galleries(
+            fromResponseData: Data(json.utf8),
+            host: .ehentai
+        )
         // &#38;lt; -> "&lt;" (not "<"), &#x41; -> "A", &amp; -> "&", &lt;tag&gt; -> "<tag>".
         #expect(galleries.first?.title == "&lt; A & <tag>")
     }
@@ -68,7 +75,10 @@ struct GalleriesMetadataDecodeTests {
         let json = """
         { "gmetadata": [ { "gid": 300, "title": "No Token", "posted": "1600000000" } ] }
         """
-        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        let galleries = try GalleriesMetadataRequest.galleries(
+            fromResponseData: Data(json.utf8),
+            host: .ehentai
+        )
         #expect(galleries.isEmpty)
     }
 
@@ -104,7 +114,10 @@ struct GalleriesMetadataDecodeTests {
           ]
         }
         """
-        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        let galleries = try GalleriesMetadataRequest.galleries(
+            fromResponseData: Data(json.utf8),
+            host: .ehentai
+        )
         #expect(galleries.isEmpty)
     }
 }
