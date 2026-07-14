@@ -51,7 +51,7 @@
 
 ### QUAL — Correctness, security & tests
 
-- [ ] **QUAL-01**: Audit cookie logging.
+- [x] **QUAL-01**: Audit cookie logging.
   - No cookie value is ever emitted to logs at `.public` privacy; the former at-rest migration was dropped per D-01 as out of milestone rather than deferred.
   - D-06 tightens HYG-01: retain `URLUtil` and `AppUtil` as pure namespaces rather than converting them to clients, in keeping with the anti-wrapper rule.
 - [ ] **QUAL-02**: Add client-layer test coverage for the reworked seams.
@@ -109,7 +109,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | UIARCH-04 | Phase 7 | Complete |
 | UIARCH-05 | Phase 7 | Complete |
 | HYG-01 | Phase 8 | Pending |
-| QUAL-01 | Phase 8 | Pending |
+| QUAL-01 | Phase 8 | Complete |
 | QUAL-02 | Phase 8 | Pending |
 | QUAL-03 | Phase 9 | Pending |
 | QUAL-04 | Phase 9 | Pending |
