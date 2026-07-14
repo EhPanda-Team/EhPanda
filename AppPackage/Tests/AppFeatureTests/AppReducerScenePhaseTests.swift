@@ -15,6 +15,7 @@ import UserDefaultsClient
 struct AppReducerScenePhaseTests {
     @Test
     func scenePhaseWritesPrivacyMaskAndStartsForegroundEffectsOnce() async {
+        let clipboardInvocationCount = LockIsolated(0)
         let intensity = 40.0
         let store = makeStore(
             detectsLinksFromClipboard: true,
@@ -26,33 +27,32 @@ struct AppReducerScenePhaseTests {
             $0.$privacyMaskBlur.withLock { $0 = intensity }
         }
 
-        await store.withExhaustivity(.off) {
-            await store.send(.onScenePhaseChange(.active)) {
-                $0.scenePhase = .active
-                $0.$privacyMaskBlur.withLock { $0 = 0 }
-            }
-            await store.receive(\.setting.fetchGreeting)
-            await store.receive(\.appLogsPump.startPump)
-            await store.receive(\.appRoute.detectClipboardURL)
-            await store.skipInFlightEffects()
+        await store.send(.onScenePhaseChange(.active)) {
+            $0.scenePhase = .active
+            $0.$privacyMaskBlur.withLock { $0 = 0 }
         }
+        await store.receive(\.setting.fetchGreeting)
+        await store.receive(\.appLogsPump.startPump)
+        await store.receive(\.appRoute.detectClipboardURL)
+        await store.send(.appLogsPump(.pausePump))
         await store.finish()
+        #expect(clipboardInvocationCount.value == 1)
     }
 
     @Test
     func activeSceneSkipsClipboardDetectionWhenDisabled() async {
+        let clipboardInvocationCount = LockIsolated(0)
         let store = makeStore(
             detectsLinksFromClipboard: false,
             privacyMaskIntensity: 40
         )
 
-        await store.withExhaustivity(.off) {
-            await store.send(.onScenePhaseChange(.active))
-            await store.receive(\.setting.fetchGreeting)
-            await store.receive(\.appLogsPump.startPump)
-            await store.skipInFlightEffects()
-        }
+        await store.send(.onScenePhaseChange(.active))
+        await store.receive(\.setting.fetchGreeting)
+        await store.receive(\.appLogsPump.startPump)
+        await store.send(.appLogsPump(.pausePump))
         await store.finish()
+        #expect(clipboardInvocationCount.value == 0)
     }
 
     @Test
