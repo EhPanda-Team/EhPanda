@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 08
 current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Completed 08-16-PLAN.md
-last_updated: "2026-07-14T12:23:28.062Z"
+stopped_at: Completed 08-17-PLAN.md
+last_updated: "2026-07-14T12:57:08.479Z"
 last_activity: 2026-07-14
-last_activity_desc: Completed 08-16 profile verification host preservation
+last_activity_desc: Phase 08 execution started
 progress:
   total_phases: 11
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 80
-  completed_plans: 79
-  percent: 99
+  completed_plans: 80
+  percent: 64
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
-Plan: 17 of 18
+Plan: 2 of 18
 Status: Ready to execute
-Last activity: 2026-07-14 — Completed 08-16 profile verification host preservation
+Last activity: 2026-07-14 — Phase 08 execution started
 Next: Execute 08-17-PLAN.md
 
 Progress: [██████████] 99% (79/80 plans)
@@ -135,6 +135,7 @@ Progress: [██████████] 99% (79/80 plans)
 | Phase 08 P15 | 11 min | 2 tasks | 4 files |
 | Phase 08 P18 | 4 min | 2 tasks | 5 files |
 | Phase 08 P16 | 6 min | 2 tasks | 4 files |
+| Phase 08 P17 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -253,6 +254,7 @@ Recent decisions affecting current work:
 - [Phase 08]: Skip the production-only getCookiesDescription consumer inventory when an explicit fixture scan root is supplied. — Fixture scans should fail only for the cookie-logging rule they exercise, while the no-argument production scan retains the clipboard invariant.
 - [Phase 08]: Carry GalleryHost in fetchEhProfileIndexDone and createDefaultEhProfile so every profile side effect retains request identity. — Profile completion must not re-read mutable shared host state.
 - [Phase 08]: Observe selected-profile routing through an isolated CookieClient testing store while asserting default-profile routing at the follow-up action boundary. — This proves host behavior without process-global cookies or a production-only test callback.
+- [Phase ?]: [Phase 08]: 08-17: Model the clipboardChangeCount UserDefaults read as a stored @Sendable endpoint (not a generic instance method) so overrides control reads exactly as they control writes; UserDefaults.standard is read only inside live.
 
 ### Pending Todos
 
@@ -282,6 +284,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T12:23:28.057Z
-Stopped at: Completed 08-16-PLAN.md
+Last session: 2026-07-14T12:57:08.473Z
+Stopped at: Completed 08-17-PLAN.md
 Resume file: None
