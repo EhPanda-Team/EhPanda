@@ -248,23 +248,26 @@ public struct SubmitEhSettingChangesRequest: Request {
 
 public struct FavorGalleryRequest: Request {
     public init(
+        host: GalleryHost,
         gid: String,
         token: String,
         favIndex: Int,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.gid = gid
         self.token = token
         self.favIndex = favIndex
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let gid: String
     public let token: String
     public let favIndex: Int
     public let urlSession: URLSession
 
     public func response() async throws(AppError) {
-        let url = URLUtil.addFavorite(gid: gid, token: token)
+        let url = URLUtil.addFavorite(host: host, gid: gid, token: token)
         let params: [String: String] = [
             "favcat": "\(favIndex)",
             "favnote": "",
@@ -283,12 +286,15 @@ public struct FavorGalleryRequest: Request {
 
 public struct UnfavorGalleryRequest: Request {
     public init(
+        host: GalleryHost,
         gid: String,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.gid = gid
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let gid: String
     public let urlSession: URLSession
 
@@ -299,7 +305,7 @@ public struct UnfavorGalleryRequest: Request {
             "apply": "Apply"
         ]
 
-        var request = URLRequest(url: Defaults.URL.favorites)
+        var request = URLRequest(url: Defaults.URL.favorites(host: host))
         request.httpMethod = "POST"
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
@@ -344,6 +350,7 @@ public struct SendDownloadCommandRequest: Request {
 
 public struct RateGalleryRequest: Request {
     public init(
+        host: GalleryHost,
         apiuid: Int,
         apikey: String,
         gid: Int,
@@ -351,6 +358,7 @@ public struct RateGalleryRequest: Request {
         rating: Int,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.apiuid = apiuid
         self.apikey = apikey
         self.gid = gid
@@ -358,6 +366,7 @@ public struct RateGalleryRequest: Request {
         self.rating = rating
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let apiuid: Int
     public let apikey: String
     public let gid: Int
@@ -375,7 +384,7 @@ public struct RateGalleryRequest: Request {
             "rating": rating
         ]
 
-        var request = URLRequest(url: Defaults.URL.api)
+        var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
@@ -447,6 +456,7 @@ public struct EditGalleryCommentRequest: Request {
 
 public struct VoteGalleryCommentRequest: Request {
     public init(
+        host: GalleryHost,
         apiuid: Int,
         apikey: String,
         gid: Int,
@@ -455,6 +465,7 @@ public struct VoteGalleryCommentRequest: Request {
         commentVote: Int,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.apiuid = apiuid
         self.apikey = apikey
         self.gid = gid
@@ -463,6 +474,7 @@ public struct VoteGalleryCommentRequest: Request {
         self.commentVote = commentVote
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let apiuid: Int
     public let apikey: String
     public let gid: Int
@@ -482,7 +494,7 @@ public struct VoteGalleryCommentRequest: Request {
             "comment_vote": commentVote
         ]
 
-        var request = URLRequest(url: Defaults.URL.api)
+        var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
@@ -492,6 +504,7 @@ public struct VoteGalleryCommentRequest: Request {
 
 public struct VoteGalleryTagRequest: Request {
     public init(
+        host: GalleryHost,
         apiuid: Int,
         apikey: String,
         gid: Int,
@@ -500,6 +513,7 @@ public struct VoteGalleryTagRequest: Request {
         vote: Int,
         urlSession: URLSession = .shared
     ) {
+        self.host = host
         self.apiuid = apiuid
         self.apikey = apikey
         self.gid = gid
@@ -508,6 +522,7 @@ public struct VoteGalleryTagRequest: Request {
         self.vote = vote
         self.urlSession = urlSession
     }
+    public let host: GalleryHost
     public let apiuid: Int
     public let apikey: String
     public let gid: Int
@@ -527,7 +542,7 @@ public struct VoteGalleryTagRequest: Request {
             "vote": vote
         ]
 
-        var request = URLRequest(url: Defaults.URL.api)
+        var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 

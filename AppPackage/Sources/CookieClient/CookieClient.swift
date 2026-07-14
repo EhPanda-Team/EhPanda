@@ -196,8 +196,8 @@ extension CookieClient {
             && exIgneous != Defaults.Cookie.mystery
         return ehHasAuth || exHasAuth
     }
-    public var apiuid: String {
-        getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
+    public func apiuid(host: GalleryHost) -> String {
+        getCookie(host.url, Defaults.Cookie.ipbMemberId).rawValue
     }
     public var isSameAccount: Bool {
         let ehUID = getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbMemberId).rawValue
