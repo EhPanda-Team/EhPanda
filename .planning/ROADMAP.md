@@ -233,9 +233,9 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 **Requirements**: UIARCH-04, UIARCH-05
 **Success Criteria** (what must be TRUE):
 
-  1. No view initializer takes `blurRadius`; `.autoBlur` is applied only at root surfaces (app root + each of the ~41 modal roots), driven by shared in-memory state, with no lock-time/background content leak in any modal, and the NavigationBar-collapse workaround preserved.
+  1. No view initializer takes `blurRadius`; `.autoBlur` is applied only at root surfaces (app root + each of the ~41 modal roots), driven by shared in-memory state, with no lock-time/background content leak in any modal; per D-03, there is no `max(0.00001, radius)` blur floor, the shared value is a true `0` when off, and a light visual check confirms no NavigationBar collapse at blur `0` on the current iOS 26 stack.
   2. `Setting.autoLockPolicy`, the biometric re-auth path (`authorize`/`lockApp`/`isAppLocked`/threshold), and `AuthorizationClient` are removed.
-  3. The security-section auto-lock control is replaced by a description pointing users to the iOS built-in per-app lock.
+  3. Per D-08, the security-section auto-lock control is removed outright with no in-app replacement description, deferring re-authentication to iOS's built-in per-app lock, which has no Settings URL or API to point to.
   4. Background / app-switcher blur is retained.
 
 **Plans**: 9/12 plans executed
