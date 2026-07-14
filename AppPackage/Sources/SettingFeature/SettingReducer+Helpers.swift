@@ -116,13 +116,14 @@ extension SettingReducer {
 
     func handleFetchEhProfileIndexDone(
         _ state: inout State,
+        _ host: GalleryHost,
         _ result: Result<VerifyEhProfileResponse, AppError>
     ) -> Effect<Action> {
         var effects = [Effect<Action>]()
 
         if case .success(let response) = result {
             if let profileValue = response.profileValue {
-                let hostURL = state.setting.galleryHost.url
+                let hostURL = host.url
                 let profileValueString = String(profileValue)
                 let selectedProfileKey = Defaults.Cookie.selectedProfile
 
@@ -137,7 +138,7 @@ extension SettingReducer {
                     )
                 }
             } else if response.isProfileNotFound {
-                effects.append(.send(.createDefaultEhProfile))
+                effects.append(.send(.createDefaultEhProfile(host)))
             } else {
                 effects.append(.run { _ in
                     logger.error("Found profile but failed in parsing value.")
