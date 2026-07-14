@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 8
-current_phase_name: Architecture Hygiene & Client Seams
+current_phase: 08
+current_phase_name: architecture-hygiene-client-seams
 status: executing
-stopped_at: Phase 8 context gathered
-last_updated: "2026-07-14T07:24:43.630Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-07-14T07:39:32.142Z"
 last_activity: 2026-07-14
-last_activity_desc: Phase 07 complete, transitioned to Phase 8
+last_activity_desc: Completed 08-01-PLAN.md
 progress:
   total_phases: 11
   completed_phases: 6
-  total_plans: 62
-  completed_plans: 62
-  percent: 55
+  total_plans: 76
+  completed_plans: 63
+  percent: 83
 ---
 
 # Project State
@@ -24,23 +24,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-09)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 07 — root-privacy-mask-auto-lock-removal
+**Current focus:** Phase 08 — architecture-hygiene-client-seams
 
 ## Current Position
 
-Phase: 8 — Architecture Hygiene & Client Seams
-Plan: Not started
+Phase: 08 (architecture-hygiene-client-seams) — EXECUTING
+Plan: 2 of 14
 Status: Ready to execute
-Last activity: 2026-07-14 — Phase 07 complete, transitioned to Phase 8
-Next: discuss or plan Phase 8
+Last activity: 2026-07-14 — Completed 08-01-PLAN.md
+Next: Execute 08-02-PLAN.md
 
-Progress: [██████████] 100% (62/62 plans)
+Progress: [████████░░] 83% (63/76 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 44
+- Total plans completed: 63
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -118,6 +118,7 @@ Progress: [██████████] 100% (62/62 plans)
 | Phase 07 P09 | 7min | 2 tasks | 2 files |
 | Phase 07 P12 | 3min | 2 tasks | 2 files |
 | Phase 07 P10 | 11min | 2 tasks | 2 files |
+| Phase 08 P01 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -201,6 +202,8 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-11: Privacy blur transitions use no animation when Reduce Motion is enabled. — The true-zero blur and hit-testing threshold remain unchanged.
 - [Phase 07]: 07-10: Foreground tests explicitly pause the long-lived activity-log pump after receiving every expected action, preserving TestStore exhaustivity without skipping effects.
 - [Phase 07]: 07-10: Clipboard cardinality counts the unconditional changeCount dependency seam; the URL remains nil to isolate foreground dispatch behavior.
+- [Phase 08]: QUAL-01 covers cookie-logging privacy only; the former at-rest migration is out of milestone rather than deferred. — D-01 reconciles the milestone contract with the sideload-distribution reliability tradeoff.
+- [Phase 08]: D-06 retains URLUtil and AppUtil as pure namespaces instead of adding thin client wrappers. — Pure deterministic helpers gain no substitutability from a client wrapper.
 
 ### Pending Todos
 
@@ -230,6 +233,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T05:56:41.092Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-architecture-hygiene-client-seams/08-CONTEXT.md
+Last session: 2026-07-14T07:39:19.526Z
+Stopped at: Completed 08-01-PLAN.md
+Resume file: None
