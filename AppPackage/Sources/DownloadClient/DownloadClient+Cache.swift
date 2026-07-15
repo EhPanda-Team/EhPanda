@@ -14,6 +14,8 @@ extension DownloadCoordinator {
             .flatMap(\.imageCacheKeys)
 
         let uniqueKeys = Array(Set(keys))
+        // Data-cache eviction is best-effort housekeeping; continue clearing the
+        // independent library image cache even when disk eviction fails.
         try? await dataCache.removeData(forKeys: uniqueKeys)
         for key in uniqueKeys {
             await libraryClient.removeCachedImage(key)

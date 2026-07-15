@@ -268,6 +268,8 @@ extension DownloadCoordinator {
         }
         switch payload.mode {
         case .initial:
+            // Manifest decoding is a reuse probe; an unreadable manifest keeps the
+            // existing folder so ensureWorkingManifest can replace it safely.
             guard let manifest = try? storage.readManifest(folderURL: folderURL) else {
                 return true
             }
@@ -292,6 +294,8 @@ extension DownloadCoordinator {
         seedContext: RepairSeedContext
     ) throws {
         if !shouldReuse {
+            // Removing a stale working folder is best-effort preparation; the
+            // existence check below preserves the established reuse fallback.
             try? fileManager.operate {
                 try $0.removeItem(at: folderURL)
             }
@@ -387,6 +391,8 @@ extension DownloadCoordinator {
               fileManager.operate({
                   $0.fileExists(atPath: folderURL.path)
               }),
+              // Repair seeding is optional; an unreadable manifest leaves the current
+              // working folder for ensureWorkingManifest to refresh instead.
               let manifest = try? storage
                 .readManifest(folderURL: folderURL),
               manifest.gid == download.gid,
