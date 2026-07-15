@@ -185,6 +185,8 @@ extension DownloadCoordinator {
                     group: &group
                 )
                 guard !control.wasCancelled, !control.didAbortForFatalError else { continue }
+                // This cadence flush is opportunistic; a later forced flush persists
+                // accumulated progress, so failure here must not abort page scheduling.
                 try? await flushDownloadProgress(
                     context: .init(
                         gid: payload.gallery.gid,

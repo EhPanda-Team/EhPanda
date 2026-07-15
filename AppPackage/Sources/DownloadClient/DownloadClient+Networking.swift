@@ -45,6 +45,8 @@ extension DownloadCoordinator {
             response: response.1,
             requestURL: request.url
         ) {
+            // Removing a rejected temporary download is best-effort cleanup; the
+            // detected response error remains the authoritative failure to propagate.
             try? fileManager.operate {
                 try $0.removeItem(at: response.0)
             }
@@ -157,6 +159,8 @@ extension DownloadCoordinator {
             response: transfer.response,
             requestURL: request.url
         ) {
+            // Removing a rejected staged download is best-effort cleanup; preserve
+            // the validation error that the caller must surface.
             try? fileManager.operate {
                 try $0.removeItem(at: transfer.fileURL)
             }
@@ -306,6 +310,8 @@ extension DownloadCoordinator {
 
     public func readResponsePrefixData(at fileURL: URL) throws -> Data {
         let handle = try FileHandle(forReadingFrom: fileURL)
+        // Closing is best-effort during defer; any read/open error remains the
+        // operation's primary failure and the handle is also closed on deallocation.
         defer { try? handle.close() }
         return try handle.read(
             upToCount: Self.responseInspectionPrefixLength
