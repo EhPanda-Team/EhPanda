@@ -173,8 +173,11 @@ extension SettingReducer {
             case .rebuildTagTranslator:
                 let info = state.tagTranslatorInfo
                 return .run { send in
-                    if let tagTranslator = fileClient.loadCachedTagTranslator(info) {
+                    do throws(AppError) {
+                        let tagTranslator = try fileClient.loadCachedTagTranslator(info)
                         await send(.tagTranslatorRebuilt(tagTranslator))
+                    } catch {
+                        // A missing or invalid cache recovers through the remote fetch below.
                     }
                     await send(.fetchTagTranslator)
                 }
@@ -248,7 +251,13 @@ extension SettingReducer {
                 // it. FileClient owns the path, so the file lifecycle stays behind one module.
                 state.$tagTranslator.withLock { $0 = TagTranslator() }
                 state.$tagTranslatorInfo.withLock { $0.hasCustomTranslations = false }
-                return .run { _ in fileClient.removeCustomTranslations() }
+                return .run { send in
+                    do throws(AppError) {
+                        try fileClient.removeCustomTranslations()
+                    } catch {
+                        await send(.fetchTagTranslatorDone(.failure(error)))
+                    }
+                }
 
             case .igneousRefreshed:
                 return .none

@@ -101,13 +101,10 @@ extension SettingReducer {
                     updatedDate: updatedDate
                 )
                 .response()
-                if let tagTranslator = fileClient.cacheAndBuildRemoteTagTranslator(
+                let tagTranslator = try fileClient.cacheAndBuildRemoteTagTranslator(
                     payload.data, language, payload.updatedDate
-                ) {
-                    await send(.fetchTagTranslatorDone(.success(tagTranslator)))
-                } else {
-                    await send(.fetchTagTranslatorDone(.failure(.parseFailed)))
-                }
+                )
+                await send(.fetchTagTranslatorDone(.success(tagTranslator)))
             } catch {
                 await send(.fetchTagTranslatorDone(.failure(error)))
             }

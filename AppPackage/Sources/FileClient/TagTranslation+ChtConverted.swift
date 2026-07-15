@@ -26,6 +26,7 @@ extension Dictionary where Value == TagTranslation {
             options = [.traditionalize, .twStandard, .twIdiom]
         }
 
+        // Conversion is an optional enhancement; an unavailable converter keeps the source text.
         guard let converter = try? ChineseConverter(options: options) else { return self }
         return mapValues { value in
             TagTranslation(
