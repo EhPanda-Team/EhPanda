@@ -25,13 +25,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Native Masonry Grid Swap (spike-gated)** - Validate then replace WaterfallGrid with a custom SwiftUI Layout (completed 2026-07-11)
 - [x] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a native horizontal paging ScrollView (completed 2026-07-12)
 - [x] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits (completed 2026-07-12)
-- [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
-- [ ] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList`
+- [x] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler (completed 2026-07-13)
+- [x] **Phase 6: GalleryList Rename** - Keep the shared gallery list (decomposition rejected) and rename `GenericList` → `GalleryList` (completed 2026-07-13)
 - [x] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock (completed 2026-07-14)
 - [x] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests (completed 2026-07-14)
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
 - [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
-- [ ] **Phase 11: Lint Capstone** - Ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
+- [ ] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
+- [ ] **Phase 12: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
+- [ ] **Phase 13: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
 
 ## Phase Details
 
@@ -392,7 +394,7 @@ Plans:
 
 **Goal**: Add comprehensive Dynamic Type support, apply monospaced digits and numeric-text transitions to number-bearing text, and reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content — all at appearance/layout parity.
 **Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
-**Requirements**: POLISH-01, POLISH-02
+**Requirements**: POLISH-01, POLISH-02, POLISH-03
 **Success Criteria** (what must be TRUE):
 
   1. Counts, page numbers, sizes, ratings, and similar numeric text use `.monospacedDigit()` and `.contentTransition(.numericText())` where it makes sense.
@@ -400,13 +402,20 @@ Plans:
   3. No layout jitter occurs on value change.
   4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
   5. Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls.
+  6. The `\.inSheet` environment value is removed, with any presentation-context logic it drove reimplemented via a native/non-custom-environment mechanism.
+  7. Deprecated SwiftUI APIs (e.g. `.foregroundColor` → `.foregroundStyle`) are swept and replaced with their current non-deprecated equivalents, at appearance parity, with no new SwiftLint or compiler deprecation warnings.
+  8. The custom `cornerRadius(_:corners:)` view modifier in `ViewModifiers.swift` is removed, with its call site(s) replaced by the standard SwiftUI API (`.clipShape(.rect(cornerRadii:))`), at appearance parity.
+  9. Call sites passing an empty string literal to a view (e.g. `Text("")`, `Label("", ...)`) are audited: each is replaced with a meaningful string, or the label is hidden where an empty string was standing in for "no label," at unchanged app behavior.
+  10. All buttons using a plain text-plus-image combination in their label closure are audited and converted to `Label(_:systemImage:)`/`Label(_:image:)` where fitting, at appearance/layout parity. For toolbar buttons specifically, this audit also covers text-only and image-only labels, converting them to `Label` where fitting.
+  11. The `SystemNotificationExt` module is renamed to `SystemNotification` (it contains the full implementation, not a thin extension), with every import/reference updated accordingly.
+  12. Every legacy `_Previews: PreviewProvider` struct is migrated to the `#Preview` macro, and previews are enriched to exercise all realistic states as named `#Preview("…")` cases (empty / loading / loaded / error, boundary values such as min/max ratings, counts, page numbers, and long vs. short text), using modern preview features — `@Previewable` for interactive state, preview traits (e.g. `.sizeThatFitsLayout`), and environment/Dynamic Type/color-scheme variants where useful. No `PreviewProvider` remains in the codebase.
 
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 11: Lint Capstone
+### Phase 11: Infra Refactor & Lint Capstone
 
-**Goal**: Ratchet SwiftLint to the stricter ruleset at error — the mechanical rules as a final sweep, the refactor-gated rules flipped on now that their refactors have landed — with every violation resolved at its root.
+**Goal**: Resolve the infra-level refactors gating the stricter SwiftLint ruleset — including test-isolation cleanup — then ratchet SwiftLint to error: the mechanical rules as a final sweep, the refactor-gated rules flipped on now that their refactors have landed, with every violation resolved at its root.
 **Depends on**: Phase 5, Phase 6, Phase 7, Phase 9 (refactor-gated rules land with their refactors; the mechanical sweep runs last)
 **Requirements**: LINT-01
 **Success Criteria** (what must be TRUE):
@@ -414,13 +423,14 @@ Plans:
   1. The mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, and the new labeled-tuple-elements rule) are enabled at **error** as a capstone sweep, with all violations resolved at root.
   2. The refactor-gated rules (`optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`) — resolved at root during their coupled refactor phases (`optional_try` with Phase 9's structured-error work; the others with the Phase 5–7 UI/architecture refactors) — are switched to **error** with zero remaining violations.
   3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error.
+  4. `.serialized` and `@MainActor` are removed from all tests unless a test has a real need to run on the main actor — each test's cross-test pollution is resolved by injecting the shared dependency (per-test instance, not `.serialized`) — and the full suite runs in parallel, on any thread.
 
 **Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -434,4 +444,29 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
-| 11. Lint Capstone | 0/TBD | Not started | - |
+| 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
+| 12. Deep Link Hardening | 0/TBD | Not started | - |
+
+### Phase 12: Deep Link Hardening
+
+**Goal**: Code-review the current deep-link implementation (`GalleryDeepLink.swift`, `AppRouteReducer.swift`) and make it less hacky and more durable at navigating the user to the correct destination screen, backed by UI automation tests.
+**Depends on**: Phase 11
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+
+  1. The deep-link implementation's hacky/fragile spots (identified by code review) are resolved at root, at unchanged destination-routing behavior for currently-supported links.
+  2. UI automation tests exercise deep-link navigation end-to-end (launch/foreground via a deep link → land on the correct destination screen) for the app's supported deep-link routes.
+  3. Malformed or unresolvable deep links fail gracefully (no crash, no silent no-op the user can't recover from).
+
+**Plans**: TBD
+
+### Phase 13: Analytics Instrumentation (TelemetryDeck)
+
+**Goal:** Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
+**Requirements**: TBD
+**Depends on:** Phase 12
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 13 to break down)

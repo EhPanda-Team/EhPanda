@@ -6,15 +6,15 @@ current_phase: 9
 current_phase_name: Correctness & Structured Error Handling
 status: planning
 stopped_at: Completed 08-17-PLAN.md
-last_updated: "2026-07-14T14:14:43.971Z"
+last_updated: "2026-07-15T03:15:08.743Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase 08 complete, transitioned to Phase 9
 progress:
-  total_phases: 11
+  total_phases: 13
   completed_phases: 8
   total_plans: 80
   completed_plans: 80
-  percent: 73
+  percent: 62
 ---
 
 # Project State
@@ -274,6 +274,18 @@ None yet.
 
 - Phase 10 edited: renamed to UI Polish; added POLISH-02 (ZStack->overlay/background)
 - Phase 10 edited: edited fields: goal, success_criteria
+- Phase 10 edited: added success criterion: remove \.inSheet environment value
+- Phase 10 edited: added success criterion: sweep deprecated SwiftUI APIs (e.g. foregroundColor)
+- Phase 10 edited: added success criterion: remove custom cornerRadius(_:corners:) modifier, use standard clipShape API
+- Phase 10 edited: added success criterion: replace empty string literals passed to views with meaningful strings/hidden labels
+- Phase 10 edited: added success criterion: convert text-only/image-only/text+image button labels to Label where fitting
+- Phase 10 edited: scoped criterion 10: text+image->Label applies to all buttons; text-only/image-only->Label applies to toolbar buttons only
+- Phase 11 edited: added success criterion: remove .serialized from all tests via dependency injection, run suite in parallel
+- Phase 11 edited: renamed 'Lint Capstone' -> 'Infra Refactor & Lint Capstone'; goal updated to cover infra refactors (test-isolation) alongside lint ratchet
+- Phase 11 edited: criterion 4: also remove @MainActor from tests unless a real main-actor need exists; run in parallel on any thread
+- Phase 12 added: added Deep Link Hardening: code-review + durability fixes for deep-link routing, backed by UI automation tests
+- Phase 10 edited: added success criterion: rename SystemNotificationExt module -> SystemNotification (full impl, not an extension)
+- Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics
 
 ## Deferred Items
 
