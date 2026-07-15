@@ -387,7 +387,7 @@ Plans:
   3. User-relevant failures surface via a non-blocking failure toast that opens a dismissable detail surface (Description / Suggested Solution / Context / environment info).
   4. `optional_try` can be enabled at error with zero violations (verified in the lint capstone).
 
-**Plans**: 11/11 plans executed
+**Plans**: 11/13 plans executed
 Plans:
 
 **Wave 1**
@@ -433,6 +433,14 @@ Plans:
 **Wave 11** *(sequenced to serialize xcodebuild)*
 
 - [x] 09-11-PLAN.md — try? sweep tail (JSONValue probes + view/markdown) + phase gate: residual audit + full suite + SwiftLint clean (QUAL-04)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
+- [ ] 09-12-PLAN.md — Privacy-safe gallery diagnostic context with route-aware `/g` and `/s` token redaction regressions (QUAL-04)
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
+- [ ] 09-13-PLAN.md — Persistent native accessible diagnostic toast with exactly-once lifecycle tests (QUAL-04)
 
 **UI hint**: yes
 
