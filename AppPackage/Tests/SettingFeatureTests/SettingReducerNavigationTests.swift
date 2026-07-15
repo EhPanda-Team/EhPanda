@@ -134,7 +134,9 @@ struct SettingReducerNavigationTests {
 
             let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
                 $0.defaultAppStorage = defaults
-                $0.fileClient.loadCachedTagTranslator = { _ in nil }
+                $0.fileClient.loadCachedTagTranslator = { (_: TagTranslatorInfo) throws(AppError) in
+                    throw .fileOperationFailed("Read cached tag translations")
+                }
             }
             store.exhaustivity = .off
 

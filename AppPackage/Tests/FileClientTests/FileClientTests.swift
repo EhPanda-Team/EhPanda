@@ -58,12 +58,12 @@ struct FileClientTests {
     }
 
     @Test
-    func undecodableFileFailsWithParseFailed() async throws {
+    func undecodableFileFailsWithFileOperationError() async throws {
         let url = try writeTemporaryFile(Data("not json".utf8))
         defer { try? FileManager.default.removeItem(at: url) }
 
         let result = await FileClient.live.importTagTranslator(url)
-        #expect(result == .failure(.parseFailed))
+        #expect(result == .failure(.fileOperationFailed("Decode tag translations")))
     }
 
     @Test
@@ -72,15 +72,15 @@ struct FileClientTests {
         let cacheURL = URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
         defer { try? FileManager.default.removeItem(at: cacheURL) }
 
-        let built = try #require(
-            FileClient.live.cacheAndBuildRemoteTagTranslator(try sampleResponseData(), language, .distantPast)
+        let built = try FileClient.live.cacheAndBuildRemoteTagTranslator(
+            try sampleResponseData(), language, .distantPast
         )
         #expect(built.language == language)
         #expect(built.translations.count == 1)
         #expect(FileManager.default.fileExists(atPath: cacheURL.path))
 
         // A launch-time rebuild restores the same table from the cached file the metadata points at.
-        let rebuilt = try #require(FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(language: language)))
+        let rebuilt = try FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(language: language))
         #expect(rebuilt.language == language)
         #expect(rebuilt.translations.count == 1)
     }
@@ -95,8 +95,8 @@ struct FileClientTests {
 
         _ = try await FileClient.live.importTagTranslator(url).get()
 
-        let rebuilt = try #require(
-            FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(hasCustomTranslations: true))
+        let rebuilt = try FileClient.live.loadCachedTagTranslator(
+            TagTranslatorInfo(hasCustomTranslations: true)
         )
         #expect(rebuilt.hasCustomTranslations)
         #expect(rebuilt.translations.count == 1)
@@ -110,8 +110,8 @@ struct FileClientTests {
         let cacheURL = URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
         defer { try? FileManager.default.removeItem(at: cacheURL) }
 
-        let built = try #require(
-            FileClient.live.cacheAndBuildRemoteTagTranslator(try chineseResponseData(), language, .distantPast)
+        let built = try FileClient.live.cacheAndBuildRemoteTagTranslator(
+            try chineseResponseData(), language, .distantPast
         )
         #expect(value(forKey: "simp", in: built) == "簡體")
         #expect(value(forKey: "fc", in: built) == "全彩")
@@ -125,20 +125,22 @@ struct FileClientTests {
         let cacheURL = URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
         defer { try? FileManager.default.removeItem(at: cacheURL) }
 
-        let built = try #require(
-            FileClient.live.cacheAndBuildRemoteTagTranslator(try chineseResponseData(), language, .distantPast)
+        let built = try FileClient.live.cacheAndBuildRemoteTagTranslator(
+            try chineseResponseData(), language, .distantPast
         )
         #expect(value(forKey: "simp", in: built) == "简体")
         #expect(value(forKey: "fc", in: built) == "full color")
     }
 
     @Test
-    func loadCachedTagTranslatorReturnsNilWhenCacheMissing() throws {
+    func loadCachedTagTranslatorThrowsWhenCacheMissing() throws {
         let language = TranslatableLanguage.japanese
         try? FileManager.default.removeItem(
             at: URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
         )
-        #expect(FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(language: language)) == nil)
+        #expect(throws: AppError.fileOperationFailed("Read cached tag translations")) {
+            try FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(language: language))
+        }
     }
 
     // REV-14: removing custom translations must delete the imported file from Application Support so it
@@ -154,11 +156,11 @@ struct FileClientTests {
         _ = try await FileClient.live.importTagTranslator(url).get()
         #expect(FileManager.default.fileExists(atPath: customTranslationsURL.path))
 
-        FileClient.live.removeCustomTranslations()
+        try FileClient.live.removeCustomTranslations()
 
         #expect(!FileManager.default.fileExists(atPath: customTranslationsURL.path))
-        #expect(
-            FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(hasCustomTranslations: true)) == nil
-        )
+        #expect(throws: AppError.fileOperationFailed("Read imported tag translations")) {
+            try FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(hasCustomTranslations: true))
+        }
     }
 }
