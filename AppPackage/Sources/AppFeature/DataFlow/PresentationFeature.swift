@@ -12,9 +12,11 @@ import AppComponents
 import DetailFeature
 
 @Reducer
-struct AppRouteReducer {
+struct PresentationFeature {
     @Reducer
     enum Destination {
+        @ReducerCaseIgnored
+        case errorInfo(ErrorInfo)
         @ReducerCaseIgnored
         case setting(EquatableVoid)
         @ReducerCaseIgnored
@@ -38,6 +40,7 @@ struct AppRouteReducer {
         case destination(PresentationAction<Destination.Action>)
         case detail(PresentationAction<DetailReducer.Action>)
         case path(StackActionOf<GalleryPath>)
+        case presentErrorInfo(ErrorInfo)
         case presentSetting
         case presentNewDawn(Greeting)
         case presentGalleryDetail(Gallery, DownloadedGallery?)
@@ -101,6 +104,10 @@ struct AppRouteReducer {
                 return .none
 
             case .path:
+                return .none
+
+            case .presentErrorInfo(let errorInfo):
+                state.destination = .errorInfo(errorInfo)
                 return .none
 
             case .presentSetting:
@@ -199,11 +206,17 @@ struct AppRouteReducer {
                 switch result {
                 case .success(let gallery):
                     return .send(.handleGalleryLink(url, gallery))
-                case .failure:
+                case .failure(let error):
+                    let context: Context = [
+                        .action: "Fetch gallery",
+                        .reason: AnyHashableBox(error.localizedDescription),
+                        .url: AnyHashableBox(url.path)
+                    ]
+                    let errorInfo = ErrorInfo(error: error, context: context)
                     // Let the loading toast animate out before showing the error toast.
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setToast(.error()))
+                        await send(.setToast(.error(errorInfo)))
                     }
                 }
 
@@ -226,5 +239,5 @@ struct AppRouteReducer {
     }
 }
 
-extension AppRouteReducer.Destination.State: Equatable, Sendable {}
-extension AppRouteReducer.Destination.Action: Equatable, Sendable {}
+extension PresentationFeature.Destination.State: Equatable, Sendable {}
+extension PresentationFeature.Destination.Action: Equatable, Sendable {}
