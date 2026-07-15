@@ -641,16 +641,18 @@ catch {
 | A2 | Whether `appRouteState`/`appRoute` (the state var / action case) should also rename alongside the type. Recommended yes for consistency; CONTEXT D-10 only names the *type*. | Target 5 | Cosmetic; either way confined to the same 3 files |
 | A3 | `ConcurrencyExtras` is importable by AppModels only if its target dependency is declared; it is resolved transitively but not currently a direct AppModels dep. Recommendation avoids needing it (owned box). | Don't Hand-Roll | If planner chooses to import it, add `.targetDependency(.concurrencyExtras)` to AppModels |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which `AppError` cases carry `context`, and which `ContextKey` members exist?**
    - What we know: throw sites with real diagnostic value (parse failures, file ops, networking) benefit.
    - What's unclear: the concrete key set is explicitly Claude's Discretion (D-06).
    - Recommendation: derive `ContextKey` members from the actual bucket-(a) conversion sites during the sweep; start minimal (`action`, `reason`, `url`, `statusCode`) and grow.
+   - **RESOLVED:** Fixed in plan 09-01 (per Claude's Discretion, D-06) — `ContextKey` = exactly `.action`/`.reason`/`.url`/`.statusCode`/`.gid`; per-case `context` is threaded on the companion `ErrorInfo` at each throw site during the sweep.
 
 2. **Per-reducer present-vs-silent decision (D-12) for the ~8 toast-owning reducers.**
    - What we know: candidates are AccountSetting, Reading, Comments, Torrents, GalleryInfos, Archives, Downloads, + app-root.
    - Recommendation: decide per site during each module's sweep; default to a failure toast for user-initiated actions, silent+logged for background/best-effort.
+   - **RESOLVED:** Delegated per D-12 (per-site, not blanket) — each module's `try?` sweep plan makes the present-vs-silent call at the owning reducer, defaulting to a failure toast for user-initiated actions and silent+logged for background/best-effort.
 
 ## Environment Availability
 
