@@ -70,6 +70,11 @@ struct TabBarView: View {
             NewDawnView(greeting: greeting.wrappedValue)
                 .privacyMask()
         }
+        .sheet(item: $store.presentationState.destination.errorInfo) { errorInfo in
+            ErrorInfoView(errorInfo: errorInfo.wrappedValue)
+                .accentColor(store.settingState.setting.accentColor)
+                .privacyMask()
+        }
         .sheet(item: $store.presentationState.destination.setting) { _ in
             SettingView(
                 store: store.scope(\.settingState, action: \.setting)
@@ -92,7 +97,12 @@ struct TabBarView: View {
             .privacyMask()
             .environment(\.inSheet, true)
         }
-        .toast($store.scope(\.presentationState.$toast, action: \.presentation.toast))
+        .toast(
+            $store.scope(\.presentationState.$toast, action: \.presentation.toast),
+            onErrorTap: { errorInfo in
+                store.send(.presentation(.presentErrorInfo(errorInfo)))
+            }
+        )
         .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
         .onOpenURL { store.send(.presentation(.handleDeepLink($0))) }
     }
