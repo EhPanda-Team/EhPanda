@@ -67,10 +67,12 @@ public struct AppActivityLogsPumpReducer: Sendable {
 
                     var cursor = cursor0
                     while !Task.isCancelled {
+                        // A transient OS-log read failure intentionally yields no entries for this pump tick.
                         let newEntries = (try? await logsClient.fetchNewEntries(cursor)) ?? []
                         if let lastDate = newEntries.last?.date {
                             cursor = lastDate
                             await send(.didReceiveNewEntries(newEntries))
+                            // Persisting diagnostic logs is best-effort and never interrupts the live pump.
                             try? await logsClient.appendToRunFile(newEntries, fileURL)
                         }
                         try await clock.sleep(for: .seconds(5))
@@ -82,9 +84,11 @@ public struct AppActivityLogsPumpReducer: Sendable {
                 return .merge(
                     .run { [cursor = state.lastCursorDate, fileURL = state.currentRun?.url] send in
                         guard let fileURL else { return }
+                        // A transient OS-log read failure intentionally yields no final entries while pausing.
                         let newEntries = (try? await logsClient.fetchNewEntries(cursor)) ?? []
                         guard !newEntries.isEmpty else { return }
                         await send(.didReceiveNewEntries(newEntries))
+                        // Persisting diagnostic logs is best-effort and never blocks pump cancellation.
                         try? await logsClient.appendToRunFile(newEntries, fileURL)
                     },
                     .cancel(id: CancelID.pump)

@@ -75,6 +75,7 @@ public struct AppActivityLogsReducer: Sendable {
                 state.selectedRun = url
                 state.loadingState = .loading
                 return .run { send in
+                    // An unreadable historical run intentionally displays as an empty log file.
                     let logs = (try? await logsClient.readRunFile(url)) ?? []
                     await send(.runFileResponse(logs))
                 }
