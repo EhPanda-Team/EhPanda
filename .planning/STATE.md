@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-07-15T06:15:50.206Z"
+stopped_at: Completed 09-04-PLAN.md
+last_updated: "2026-07-15T06:27:50.928Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-03
+last_activity_desc: Completed Plan 09-04
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 83
-  percent: 91
+  completed_plans: 84
+  percent: 92
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 Status: Ready to execute
 Last activity: 2026-07-15 — Completed Plan 09-03
-Next: Execute Plan 09-04
+Next: Execute Plan 09-05
 
-Progress: [█████████░] 91% (83/91 plans)
+Progress: [█████████░] 92% (84/91 plans)
 
 ## Performance Metrics
 
@@ -140,6 +140,7 @@ Progress: [█████████░] 91% (83/91 plans)
 | Phase 09 P01 | 19min | 3 tasks | 9 files |
 | Phase 09 P02 | 6min | 2 tasks | 2 files |
 | Phase 09 P03 | 7min | 3 tasks | 5 files |
+| Phase 09 P04 | 8min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -267,6 +268,9 @@ Recent decisions affecting current work:
 - [Phase 09]: 09-03: Keep ErrorInfoView native and data-minimal: Form, LabeledContent, and only whitelisted context/environment values.
 - [Phase 09]: 09-03: Route error-toast activation through a modifier closure and accessibility button trait; the Action == Never store never sends an action.
 - [Phase 09]: 09-03: Declare AppModels directly on SystemNotificationExt because its public toast API exposes ErrorInfo.
+- [Phase 09]: 09-04: Use PresentationFeature rather than PresentationReducer because repository reducers must carry the Feature suffix.
+- [Phase 09]: 09-04: Rename appRouteState/appRoute to presentationState/presentation across the complete app-root source surface.
+- [Phase 09]: 09-04: Gallery failure diagnostics expose only the action, localized reason, and URL path.
 
 ### Pending Todos
 
@@ -308,6 +312,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T06:15:50.199Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-07-15T06:27:50.922Z
+Stopped at: Completed 09-04-PLAN.md
 Resume file: None
