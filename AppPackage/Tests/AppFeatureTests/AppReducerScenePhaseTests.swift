@@ -35,7 +35,7 @@ struct AppReducerScenePhaseTests {
         }
         await store.receive(\.setting.fetchGreeting)
         await store.receive(\.appLogsPump.startPump)
-        await store.receive(\.appRoute.detectClipboardURL)
+        await store.receive(\.presentation.detectClipboardURL)
         await store.send(.appLogsPump(.pausePump))
         await store.finish()
         expectNoDifference(clipboardInvocationCount.value, 1)
