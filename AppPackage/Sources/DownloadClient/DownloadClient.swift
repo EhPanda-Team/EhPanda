@@ -114,6 +114,8 @@ extension DownloadClient {
             validateImageData: { gid in await manager.validateImageData(gid: gid) },
             fetchVersionMetadata: { gid, token in
                 @Shared(.setting) var setting
+                // Remote version metadata is optional by API contract; fetch failure
+                // intentionally maps to nil so download availability remains usable.
                 return try? await manager.fetchVersionMetadata(
                     host: setting.galleryHost,
                     gid: gid,
@@ -132,6 +134,8 @@ extension DownloadClient {
             },
             delete: { gid in try await manager.delete(gid: gid).get() },
             loadManifest: { gid in try await manager.loadManifest(gid: gid).get() },
+            // Local page URLs are an optional acceleration path; load failure maps to
+            // nil so callers retain their established remote-page fallback.
             loadLocalPageURLs: { gid in try? await manager.loadLocalPageURLs(gid: gid).get() },
             rescanLocalPageURLs: { gid in await manager.rescanLocalPageURLs(gid: gid) },
             captureCachedPage: { gid, index, imageURL in

@@ -127,6 +127,8 @@ extension DownloadCoordinator {
         payload: DownloadRequestPayload,
         folderURL: URL
     ) -> DownloadManifest? {
+        // Reuse is an optional probe; unreadable or incompatible manifests fall back
+        // to the normal fresh-manifest write path in writeInitialManifest.
         guard let manifest = try? storage.readManifest(folderURL: folderURL),
               manifest.gid == payload.gallery.gid,
               manifest.token == payload.gallery.token,
