@@ -97,6 +97,36 @@ extension AppError {
     }
 }
 
+extension AppError {
+    public var solution: String? {
+        switch self {
+        case .networkingFailed:
+            String(localized: .appErrorNetworkSolution)
+        case .authenticationRequired:
+            String(localized: .appErrorAuthenticationSolution)
+        case .ipBanned:
+            String(localized: .appErrorIpBannedSolution)
+        case .quotaExceeded:
+            String(localized: .appErrorQuotaExceededSolution)
+        case .notFound:
+            String(localized: .appErrorNotFoundSolution)
+        case .copyrightClaim, .expunged, .webImageFailed, .parseFailed, .fileOperationFailed,
+             .noUpdates, .unknown:
+            nil
+        }
+    }
+}
+
+extension AppError: LocalizedError {
+    public var errorDescription: String? {
+        localizedDescription
+    }
+
+    public var recoverySuggestion: String? {
+        solution
+    }
+}
+
 public enum BanInterval: Equatable, Hashable, Sendable {
     case days(_: Int, hours: Int?)
     case hours(_: Int, minutes: Int?)
