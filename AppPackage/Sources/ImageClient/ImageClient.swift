@@ -35,6 +35,7 @@ extension ImageClient {
                     await withTaskGroup(of: Void.self) { group in
                         for url in urls {
                             group.addTask {
+                                // Prefetch failures are intentionally ignored because the foreground load retries.
                                 _ = try? await ImageClient.readerImageData(
                                     url: url, dataCache: dataCache, urlSession: .shared
                                 )
@@ -81,6 +82,7 @@ extension ImageClient {
         url: URL,
         onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
     ) async -> ImageAsset? {
+        // This optional reader API intentionally maps fetch or decode failure to no image asset.
         guard let data = try? await Self.readerImageData(
             url: url, dataCache: dataCache, urlSession: urlSession, onProgress: onProgress
         ), let image = data.decodedImage else {
@@ -106,6 +108,7 @@ extension ImageClient {
             if ImagePlaceholderFingerprint.match(data) == nil {
                 return data
             }
+            // Removing a stale placeholder is best-effort; the authoritative network refetch still proceeds.
             try? await dataCache.removeData(forKeys: cacheKeys)
         }
         let data = try await downloadReaderData(
@@ -126,6 +129,7 @@ extension ImageClient {
         // it's non-nil for ~all page URLs, so also writing the absolute-URL alias
         // doubled disk + memory for an entry that retrieval never reaches.
         if let primaryKey = cacheKeys.first {
+            // Cache population is best-effort and must not replace a successful image fetch with an error.
             try? await dataCache.store(data, forKey: primaryKey)
         }
         return data
