@@ -59,6 +59,7 @@ extension LogsClient {
 
             if FileManager.default.fileExists(atPath: url.path) {
                 let handle = try FileHandle(forWritingTo: url)
+                // Closing is best-effort after the authoritative append operations finish.
                 defer { try? handle.close() }
                 try handle.seekToEnd()
                 try handle.write(contentsOf: payload)
@@ -70,11 +71,13 @@ extension LogsClient {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             return data.split(separator: 0x0A).compactMap { line in
+                // A malformed line is intentionally skipped so the remaining run log stays readable.
                 try? decoder.decode(AppActivityLog.self, from: Data(line))
             }
         },
         listRunFiles: {
             let directory = FileUtil.logsDirectoryURL
+            // An unavailable logs directory intentionally degrades to no persisted runs.
             guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
                 return []
             }
@@ -85,6 +88,7 @@ extension LogsClient {
         },
         nextRunCount: { date in
             let directory = FileUtil.logsDirectoryURL
+            // An unavailable logs directory intentionally falls back to the first run of the day.
             guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
                 return 1
             }
