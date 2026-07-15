@@ -102,6 +102,8 @@ extension DownloadCoordinator {
             )
         }
 
+        // DOM parsing is an optional probe; malformed HTML falls back to the raw
+        // short-response parser below so validation behavior stays conservative.
         if let document = try? Kanna.HTML(
             html: normalizedData,
             encoding: .utf8
@@ -149,6 +151,8 @@ extension DownloadCoordinator {
         if let fullData {
             data = fullData
         } else if let fileURL {
+            // Loading file bytes is an optional fingerprint probe; failure means this
+            // response cannot be confirmed as the quota placeholder by content.
             data = try? Data(
                 contentsOf: fileURL,
                 options: .mappedIfSafe
@@ -290,6 +294,8 @@ extension DownloadCoordinator {
 
     func fileSize(at fileURL: URL?) -> Int? {
         guard let fileURL else { return nil }
+        // File size is optional response metadata; an unavailable attribute leaves
+        // callers to use response headers or decline placeholder classification.
         let values = try? fileURL.resourceValues(
             forKeys: [.fileSizeKey]
         )
