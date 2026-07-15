@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-05-PLAN.md
-last_updated: "2026-07-15T07:51:58.046Z"
+stopped_at: Completed 09-06-PLAN.md
+last_updated: "2026-07-15T08:03:45.742Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-05
+last_activity_desc: Completed Plan 09-06
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 85
-  percent: 93
+  completed_plans: 86
+  percent: 95
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-05
-Next: Execute Plan 09-06
+Last activity: 2026-07-15 — Completed Plan 09-06
+Next: Execute Plan 09-07
 
-Progress: [█████████░] 93% (85/91 plans)
+Progress: [██████████] 95% (86/91 plans)
 
 ## Performance Metrics
 
@@ -142,6 +142,7 @@ Progress: [█████████░] 93% (85/91 plans)
 | Phase 09 P03 | 7min | 3 tasks | 5 files |
 | Phase 09 P04 | 8min | 3 tasks | 5 files |
 | Phase 09 P05 | 75 | 2 tasks | 11 files |
+| Phase 09 P06 | 8min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -275,6 +276,7 @@ Recent decisions affecting current work:
 - [Phase 09]: FileClient uses fixed operation descriptors in AppError context so failures never disclose a file path.
 - [Phase 09]: Missing cached translations recover through the existing remote fetch, while removal failures reach SettingFeature state.
 - [Phase 09]: HTML repair, greeting, archive funds, and Chinese conversion remain optional because each has an explicit behavior-preserving fallback.
+- [Phase 09]: All 16 scoped try? sites are intentional probe, metadata, validation, or cleanup fallbacks; genuine manifest and page persistence already propagates through throwing APIs.
 
 ### Pending Todos
 
@@ -315,6 +317,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T07:51:58.038Z
-Stopped at: Completed 09-05-PLAN.md
+Last session: 2026-07-15T08:03:45.736Z
+Stopped at: Completed 09-06-PLAN.md
 Resume file: None
