@@ -1,8 +1,6 @@
-import SwiftUI
-import OSLogExt
+import IssueReporting
 import Resources
-
-private let logger = Logger(category: .init(describing: Category.self))
+import SwiftUI
 
 public enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
@@ -27,6 +25,10 @@ extension Category {
     public func color(host: GalleryHost) -> Color {
         .init(host.rawValue + "/" + rawValue)
     }
+    /// The search-filter bit represented by this category.
+    ///
+    /// `.private` is a display-only private-gallery bucket, not a search-filter category, so it
+    /// contributes no filter bit. Requesting its value reports a non-fatal development issue and returns zero.
     public var filterValue: Int {
         switch self {
         case .doujinshi: return 2
@@ -40,9 +42,10 @@ extension Category {
         case .asianPorn: return 128
         case .misc: return 1
         case .private:
-            let message = "`Private` doesn't have a `filterValue`!"
-            logger.error("\(message, privacy: .public)")
-            fatalError(message)
+            reportIssue(
+                "`Category.private` has no `filterValue` — it is display-only and must be excluded from filter math."
+            )
+            return 0
         }
     }
     public var value: LocalizedStringResource {
