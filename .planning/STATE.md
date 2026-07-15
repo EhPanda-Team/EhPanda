@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-07-15T06:01:40.586Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-07-15T06:15:50.206Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-02
+last_activity_desc: Completed Plan 09-03
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 82
-  percent: 90
+  completed_plans: 83
+  percent: 91
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-02
-Next: Execute Plan 09-03
+Last activity: 2026-07-15 — Completed Plan 09-03
+Next: Execute Plan 09-04
 
-Progress: [█████████░] 90% (82/91 plans)
+Progress: [█████████░] 91% (83/91 plans)
 
 ## Performance Metrics
 
@@ -139,6 +139,7 @@ Progress: [█████████░] 90% (82/91 plans)
 | Phase 08 P17 | 20min | 2 tasks | 2 files |
 | Phase 09 P01 | 19min | 3 tasks | 9 files |
 | Phase 09 P02 | 6min | 2 tasks | 2 files |
+| Phase 09 P03 | 7min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -263,6 +264,9 @@ Recent decisions affecting current work:
 - [Phase 09]: Use Self.Context in SwiftUI representables so the public diagnostic Context type cannot shadow protocol context.
 - [Phase 09]: 09-02: Treat Category.private as display-only: report filter-math misuse and contribute zero instead of trapping.
 - [Phase 09]: 09-02: Keep filter iteration on Category.allFiltersCases, whose ten searchable cases sum to all 1023 filter bits.
+- [Phase 09]: 09-03: Keep ErrorInfoView native and data-minimal: Form, LabeledContent, and only whitelisted context/environment values.
+- [Phase 09]: 09-03: Route error-toast activation through a modifier closure and accessibility button trait; the Action == Never store never sends an action.
+- [Phase 09]: 09-03: Declare AppModels directly on SystemNotificationExt because its public toast API exposes ErrorInfo.
 
 ### Pending Todos
 
@@ -304,6 +308,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T06:01:40.580Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-07-15T06:15:50.199Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
