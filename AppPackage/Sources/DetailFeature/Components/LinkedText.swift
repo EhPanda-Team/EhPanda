@@ -89,7 +89,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
         self.links = links
     }
 
-    func makeUIView(context: Context) -> LinkTapOverlayView {
+    func makeUIView(context: Self.Context) -> LinkTapOverlayView {
         let view = LinkTapOverlayView()
         view.textContainer = context.coordinator.textContainer
 
@@ -104,7 +104,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
         return view
     }
 
-    func updateUIView(_ uiView: LinkTapOverlayView, context: Context) {
+    func updateUIView(_ uiView: LinkTapOverlayView, context: Self.Context) {
         let attributedString = NSAttributedString(
             string: text, attributes: [.font: UIFont.preferredFont(forTextStyle: .body)]
         )

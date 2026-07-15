@@ -137,7 +137,7 @@ private struct HighlightView: UIViewRepresentable {
         .init(self)
     }
 
-    func makeUIView(context: Context) -> UITextView {
+    func makeUIView(context: Self.Context) -> UITextView {
         let textView = UITextView()
         context.coordinator.textView = textView
         let text = text.unicodeScalars
@@ -162,7 +162,7 @@ private struct HighlightView: UIViewRepresentable {
         return textView
     }
 
-    func updateUIView(_ uiView: UITextView, context: Context) {
+    func updateUIView(_ uiView: UITextView, context: Self.Context) {
         uiView.text = text
     }
 }
