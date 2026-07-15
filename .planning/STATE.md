@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-08-PLAN.md
-last_updated: "2026-07-15T08:24:20.925Z"
+stopped_at: Completed 09-09-PLAN.md
+last_updated: "2026-07-15T08:38:13.176Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-08
+last_activity_desc: Completed Plan 09-09
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 88
-  percent: 97
+  completed_plans: 89
+  percent: 98
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 9 of 11
+Plan: 10 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-08
-Next: Execute Plan 09-09
+Last activity: 2026-07-15 — Completed Plan 09-09
+Next: Execute Plan 09-10
 
-Progress: [██████████] 97% (88/91 plans)
+Progress: [██████████] 98% (89/91 plans)
 
 ## Performance Metrics
 
@@ -145,6 +145,7 @@ Progress: [██████████] 97% (88/91 plans)
 | Phase 09 P06 | 8min | 2 tasks | 2 files |
 | Phase 09 P07 | 6min | 2 tasks | 10 files |
 | Phase 09 P08 | 5min | 2 tasks | 3 files |
+| Phase 09 P09 | 10min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -283,6 +284,9 @@ Recent decisions affecting current work:
 - [Phase 09]: Cleanup and optional probe failures preserve the primary validation or download result instead of introducing a competing error surface.
 - [Phase 09]: 09-08: Keep all 13 DataCache optional operations as documented cache probes, metadata fallbacks, or fire-and-forget housekeeping so failures never replace cache hit/miss outcomes.
 - [Phase 09]: 09-08: Preserve the four AppTools utility optional contracts: encoding/decoding return nil, URL detector failure is invalid, and regex failure disables suggestions.
+- [Phase 09]: 09-09: Keep 42 ParserFeature try? expressions as documented per-field, per-row, or per-candidate degradations.
+- [Phase 09]: 09-09: Convert MPV JSON deserialization to a typed AppError boundary because invalid JSON fails the whole parse.
+- [Phase 09]: 09-09: Treat the Parser+Profile BrowsingCountry? raw match as an Optional-type substring, not an optional-try expression.
 
 ### Pending Todos
 
@@ -323,6 +327,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T08:24:20.919Z
-Stopped at: Completed 09-08-PLAN.md
+Last session: 2026-07-15T08:38:13.171Z
+Stopped at: Completed 09-09-PLAN.md
 Resume file: None
