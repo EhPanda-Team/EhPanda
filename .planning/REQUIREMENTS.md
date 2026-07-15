@@ -67,6 +67,8 @@
   - Counts, page numbers, sizes, ratings, and similar numeric text use monospaced digits and animate as numeric transitions where it makes sense; no layout jitter on value change.
 - [ ] **POLISH-02**: Reduce `ZStack` usage in favor of `.overlay`/`.background`.
   - `ZStack`s that express an overlay/background relationship (a child layered over or under primary content) become `.overlay`/`.background`, sized to the primary content, at layout/appearance parity; genuine union-sized multi-child stacks stay `ZStack`; no visual or layout regressions.
+- [ ] **POLISH-03**: Migrate legacy `PreviewProvider` previews to the `#Preview` macro and enrich them to cover all realistic states.
+  - Every `_Previews: PreviewProvider` struct is converted to the `#Preview` macro; where a view has meaningful states, previews are enriched into multiple named `#Preview("…")` cases covering all realistic cases (e.g. empty / loading / loaded / error, boundary values such as min/max ratings, counts, page numbers, long vs. short text) using modern preview features — `@Previewable` for interactive state, preview traits (`.sizeThatFitsLayout`), and environment/Dynamic Type/color-scheme variants where useful. No `PreviewProvider` remains in the codebase.
 
 ### LINT — Lint hardening
 
@@ -115,6 +117,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | QUAL-04 | Phase 9 | Pending |
 | POLISH-01 | Phase 10 | Pending |
 | POLISH-02 | Phase 10 | Pending |
+| POLISH-03 | Phase 10 | Pending |
 | LINT-01 | Phase 11 | Pending |
 
 **Coverage:**
