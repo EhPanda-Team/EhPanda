@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-09-PLAN.md
-last_updated: "2026-07-15T08:38:13.176Z"
+stopped_at: Completed 09-10-PLAN.md
+last_updated: "2026-07-15T08:48:07.446Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-09
+last_activity_desc: Completed Plan 09-10
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 89
-  percent: 98
+  completed_plans: 90
+  percent: 99
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 10 of 11
+Plan: 11 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-09
-Next: Execute Plan 09-10
+Last activity: 2026-07-15 — Completed Plan 09-10
+Next: Execute Plan 09-11
 
-Progress: [██████████] 98% (89/91 plans)
+Progress: [██████████] 99% (90/91 plans)
 
 ## Performance Metrics
 
@@ -146,6 +146,7 @@ Progress: [██████████] 98% (89/91 plans)
 | Phase 09 P07 | 6min | 2 tasks | 10 files |
 | Phase 09 P08 | 5min | 2 tasks | 3 files |
 | Phase 09 P09 | 10min | 2 tasks | 6 files |
+| Phase 09 P10 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -287,6 +288,8 @@ Recent decisions affecting current work:
 - [Phase 09]: 09-09: Keep 42 ParserFeature try? expressions as documented per-field, per-row, or per-candidate degradations.
 - [Phase 09]: 09-09: Convert MPV JSON deserialization to a typed AppError boundary because invalid JSON fails the whole parse.
 - [Phase 09]: 09-09: Treat the Parser+Profile BrowsingCountry? raw match as an Optional-type substring, not an optional-try expression.
+- [Phase 09]: 09-10: Keep all 17 scoped client and activity-log optional failures as documented intentional fallbacks.
+- [Phase 09]: 09-10: Keep image-cache and activity-log persistence failures internal so they do not replace successful image acquisition or interrupt the pump.
 
 ### Pending Todos
 
@@ -327,6 +330,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T08:38:13.171Z
-Stopped at: Completed 09-09-PLAN.md
+Last session: 2026-07-15T08:47:37.013Z
+Stopped at: Completed 09-10-PLAN.md
 Resume file: None
