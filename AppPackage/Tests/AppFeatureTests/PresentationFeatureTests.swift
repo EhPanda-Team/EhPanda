@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import AppTools
 import ComposableArchitecture
 import CustomDump
@@ -8,7 +9,23 @@ import Testing
 @testable import AppFeature
 
 @MainActor
-struct AppRouteReducerTests {
+struct PresentationFeatureTests {
+    @Test
+    func presentErrorInfoRoutesToErrorInfoDestination() async {
+        let errorInfo = ErrorInfo(
+            error: .parseFailed,
+            context: [.action: "test"]
+        )
+        let store = TestStore(
+            initialState: PresentationFeature.State(),
+            reducer: PresentationFeature.init
+        )
+
+        await store.send(.presentErrorInfo(errorInfo)) {
+            $0.destination = .errorInfo(errorInfo)
+        }
+    }
+
     // Proves the read routes through the injected UserDefaultsClient, not UserDefaults.standard:
     // the injected read equals the clipboard change count, so the guard short-circuits and no write
     // occurs — even though the process-global holds a conflicting value that would force a write if
@@ -20,8 +37,8 @@ struct AppRouteReducerTests {
 
         await withSeededProcessGlobal(conflicting: 999) {
             let store = TestStore(
-                initialState: AppRouteReducer.State(),
-                reducer: AppRouteReducer.init,
+                initialState: PresentationFeature.State(),
+                reducer: PresentationFeature.init,
                 withDependencies: {
                     $0.clipboardClient = .fixed(changeCount: matchingChangeCount)
                     $0.userDefaultsClient = .recording(read: matchingChangeCount, writes: recordedWrites)
@@ -45,8 +62,8 @@ struct AppRouteReducerTests {
 
         await withSeededProcessGlobal(conflicting: 999) {
             let store = TestStore(
-                initialState: AppRouteReducer.State(),
-                reducer: AppRouteReducer.init,
+                initialState: PresentationFeature.State(),
+                reducer: PresentationFeature.init,
                 withDependencies: {
                     $0.clipboardClient = .fixed(changeCount: clipboardChangeCount)
                     $0.userDefaultsClient = .recording(read: injectedReadValue, writes: recordedWrites)
@@ -61,7 +78,7 @@ struct AppRouteReducerTests {
     }
 }
 
-private extension AppRouteReducerTests {
+private extension PresentationFeatureTests {
     // Seeds a conflicting value into the process-global store for the change-count key, runs the body,
     // then restores the store so the test does not pollute others.
     func withSeededProcessGlobal(conflicting value: Int, _ body: () async -> Void) async {
