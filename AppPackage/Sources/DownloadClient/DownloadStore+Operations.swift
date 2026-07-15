@@ -207,6 +207,7 @@ extension DownloadStore {
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
             return .missingFiles(.downloadStoreManifestMissing)
         }
+        // Validation converts any manifest read or decode failure into the existing corrupted-files state.
         guard let manifest = try? readManifest(folderURL: folderURL) else {
             return .missingFiles(.RLocalizable.downloadStoreManifestCorrupted)
         }
@@ -293,6 +294,7 @@ extension DownloadStore {
             return .missingFiles(.RLocalizable.downloadStorePageMissing(page: index))
         }
 
+        // Validation deliberately treats hash-read failures the same as a content-hash mismatch.
         if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: index))
         }
