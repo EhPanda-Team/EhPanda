@@ -65,10 +65,23 @@ extension Parser {
                 .replacingOccurrences(of: "\\/", with: "/")
                 .replacingOccurrences(of: "\"", with: "\"")
                 .replacingOccurrences(of: "\n", with: "")
-                .data(using: .utf8),
-                  let array = try? JSONSerialization.jsonObject(
-                    with: data) as? [[String: String]]
+                .data(using: .utf8)
             else { throw AppError.parseFailed }
+
+            let array: [[String: String]]
+            do throws(AppError) {
+                let jsonObject: Any
+                do {
+                    jsonObject = try JSONSerialization.jsonObject(with: data)
+                } catch {
+                    throw AppError.parseFailed
+                }
+                guard let parsedArray = jsonObject as? [[String: String]]
+                else { throw AppError.parseFailed }
+                array = parsedArray
+            } catch {
+                throw AppError.parseFailed
+            }
 
             array.enumerated().forEach { (index, dict) in
                 if let imgKey = dict["k"] {

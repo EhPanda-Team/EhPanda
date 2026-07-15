@@ -54,6 +54,7 @@ extension Parser {
             }
 
             guard let postedTime = tmpPostedTime,
+                  // An invalid date intentionally drops only this malformed torrent row.
                   let postedDate = try? parseDate(
                     time: postedTime,
                     format: Defaults.DateFormat.torrent

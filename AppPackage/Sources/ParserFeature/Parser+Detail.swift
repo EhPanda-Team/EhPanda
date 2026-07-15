@@ -22,21 +22,30 @@ extension Parser {
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
                   let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
+                  // A malformed cover intentionally rejects only this detail candidate.
                   let coverURL = try? parseCoverURL(node: link),
+                  // Malformed tags intentionally reject only this detail candidate.
                   let tags = try? parseGalleryTags(node: gd4Node),
+                  // Malformed previews intentionally reject only this detail candidate.
                   let previewURLs = try? parsePreviewURLs(doc: doc),
+                  // Malformed archive metadata intentionally rejects only this detail candidate.
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
+                  // A malformed info panel intentionally rejects only this detail candidate.
                   let infoPanel = try? parseInfoPanel(node: gddNode),
+                  // Invalid visibility intentionally rejects only this detail candidate.
                   let visibility = try? parseVisibility(value: infoPanel[2]),
                   let sizeCount = Float(infoPanel[4]),
                   let pageCount = Int(infoPanel[6]),
                   let favoritedCount = Int(infoPanel[7]),
                   let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
+                  // A missing uploader intentionally rejects only this detail candidate.
                   let uploader = try? parseUploader(node: gd3Node),
+                  // An invalid rating intentionally rejects only this detail candidate.
                   let ratingResult = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = AppModels.Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
+                  // An invalid posted date intentionally rejects only this detail candidate.
                   let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { continue }
 
@@ -73,6 +82,7 @@ extension Parser {
                 gid: gid,
                 tags: tags,
                 previewURLs: previewURLs,
+                // Missing preview layout metadata intentionally degrades to nil.
                 previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
             )
@@ -114,6 +124,7 @@ private extension Parser {
     }
 
     static func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
+        // A missing preview-mode marker intentionally makes this optional config unavailable.
         guard let previewMode = try? parsePreviewMode(doc: doc),
               let gpcText = doc.at_xpath("//p [@class='gpc']")?.text,
               let rangeA = gpcText.range(of: "Showing 1 - "),
@@ -177,6 +188,7 @@ private extension Parser {
         var archiveURL: URL?
         for g2gspLink in node.xpath("//p [@class='g2 gsp']") {
             if archiveURL == nil {
+                // A malformed optional archive link intentionally degrades to nil.
                 archiveURL = try? parseArchiveURL(node: g2gspLink)
             } else {
                 break
@@ -191,6 +203,7 @@ private extension Parser {
                 tmpTorrentCount = Int(aText[rangeA.upperBound..<rangeB.lowerBound])
             }
             if archiveURL == nil {
+                // A malformed fallback archive link intentionally degrades to nil.
                 archiveURL = try? parseArchiveURL(node: g2Link)
             }
         }

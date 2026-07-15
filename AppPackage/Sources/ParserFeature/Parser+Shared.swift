@@ -34,6 +34,7 @@ extension Parser {
     static func parseScriptVariable(name: String, doc: HTMLDocument) -> String? {
         let escapedName = NSRegularExpression.escapedPattern(for: name)
         let pattern = #"var\s+\#(escapedName)\s*=\s*["']([^"']*)["']\s*;"#
+        // An invalid generated pattern intentionally makes the script value unavailable.
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
 
         for script in doc.xpath("//script") {
@@ -88,6 +89,7 @@ extension Parser {
 
     static func parseScriptDate(name: String, doc: HTMLDocument) -> Date? {
         guard let value = parseScriptVariable(name: name, doc: doc), !value.isEmpty else { return nil }
+        // An invalid optional script date intentionally degrades to nil.
         return try? parseDate(time: value, format: "yyyy-MM-dd")
     }
 
@@ -144,6 +146,7 @@ extension Parser {
         if ratingString.contains("-21px") { rating -= 0.5 }
         return RatingResult(
             imgRating: rating,
+            // Missing optional text-rating metadata intentionally degrades to nil.
             textRating: try? parseTextRating(node: node),
             containsUserRating: containsUserRating
         )
