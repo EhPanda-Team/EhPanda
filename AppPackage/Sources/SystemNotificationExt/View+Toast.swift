@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppComponents
+import AppModels
 import ComposableArchitecture
 
 extension View {
@@ -22,14 +23,16 @@ extension View {
     /// ```
     @MainActor
     public func toast(
-        _ item: Binding<Store<AppAlertState<Never>, Never>?>
+        _ item: Binding<Store<AppAlertState<Never>, Never>?>,
+        onErrorTap: @escaping (ErrorInfo) -> Void = { _ in }
     ) -> some View {
-        modifier(ToastViewModifier(item: item))
+        modifier(ToastViewModifier(item: item, onErrorTap: onErrorTap))
     }
 }
 
 private struct ToastViewModifier: ViewModifier {
     @Binding var item: Store<AppAlertState<Never>, Never>?
+    let onErrorTap: (ErrorInfo) -> Void
 
     func body(content: Content) -> some View {
         content.overlay(alignment: .bottom) {
@@ -47,6 +50,12 @@ private struct ToastViewModifier: ViewModifier {
                         .padding(.horizontal)
                         .padding(.bottom)
                         .gesture(dismissGesture(autoHide: toast.autoHide))
+                        .onTapGesture {
+                            if let errorInfo = store.state.errorInfo {
+                                onErrorTap(errorInfo)
+                            }
+                        }
+                        .accessibilityAddTraits(store.state.errorInfo == nil ? [] : .isButton)
                         .task(id: id) { await autoDismiss(toast, presentedID: id) }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -74,6 +83,8 @@ private struct ToastViewModifier: ViewModifier {
 
     private func autoDismiss(_ toast: ToastContent, presentedID: UUID) async {
         guard toast.autoHide else { return }
+        // Deliberately swallow Task.sleep's CancellationError on replacement or dismissal: that is
+        // the intended no-op, and there is no AppError to surface.
         try? await Task.sleep(for: .seconds(3))
         // The task is cancelled when the toast is replaced or dismissed, but a continuation already
         // enqueued when the replacement lands can still run before SwiftUI restarts the task. Only

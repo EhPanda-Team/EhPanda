@@ -360,6 +360,7 @@ let targets: [PackageDescription.Target] = [
         module: .systemNotificationExt,
         dependencies: [
             .module(.appComponents),
+            .module(.appModels),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
