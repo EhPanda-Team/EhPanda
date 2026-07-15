@@ -21,7 +21,7 @@ struct AppReducer {
     @ObservableState
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
-        var appRouteState = AppRouteReducer.State()
+        var presentationState = PresentationFeature.State()
         var tabBarState = TabBarReducer.State()
         var homeState = HomeReducer.State()
         var favoritesState = FavoritesReducer.State()
@@ -42,7 +42,7 @@ struct AppReducer {
         case runLaunchAutomation
 
         case appDelegate(AppDelegateReducer.Action)
-        case appRoute(AppRouteReducer.Action)
+        case presentation(PresentationFeature.Action)
 
         case tabBar(TabBarReducer.Action)
 
@@ -64,10 +64,10 @@ struct AppReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.appRouteState.destination) { oldValue, state in
+            .onChange(of: \.presentationState.destination) { oldValue, state in
                 // iPad presents Setting as a modal sheet; when it's dismissed, reset its navigation
                 // stack so reopening starts at the root.
-                if oldValue?.setting != nil, state.appRouteState.destination == nil {
+                if oldValue?.setting != nil, state.presentationState.destination == nil {
                     state.settingState.path.removeAll()
                 }
                 return .none
@@ -106,7 +106,7 @@ struct AppReducer {
                         .run { _ in logger.notice("App entered foreground.") }
                     ]
                     if state.settingState.setting.detectsLinksFromClipboard {
-                        effects.append(.send(.appRoute(.detectClipboardURL)))
+                        effects.append(.send(.presentation(.detectClipboardURL)))
                     }
                     // iOS interposes .inactive on a foreground return
                     // (.background -> .inactive -> .active), so the previous
@@ -158,7 +158,7 @@ struct AppReducer {
                 return .run { send in
                     if let galleryURL = automation.galleryURL,
                        urlClient.checkIfHandleable(galleryURL) {
-                        await send(.appRoute(.handleDeepLink(galleryURL)))
+                        await send(.presentation(.handleDeepLink(galleryURL)))
                     } else if let initialTab = automation.initialTab {
                         await send(.tabBar(.setTabBarItemType(initialTab)))
                     }
@@ -184,7 +184,7 @@ struct AppReducer {
             case .appDelegate:
                 return .none
 
-            case .appRoute:
+            case .presentation:
                 return .none
 
             case .tabBar(.setTabBarItemType(let type)):
@@ -262,10 +262,10 @@ struct AppReducer {
             case let .home(.delegate(.presentGalleryDetail(gallery))),
                  let .searchRoot(.delegate(.presentGalleryDetail(gallery))),
                  let .favorites(.delegate(.presentGalleryDetail(gallery))):
-                return .send(.appRoute(.presentGalleryDetail(gallery, nil)))
+                return .send(.presentation(.presentGalleryDetail(gallery, nil)))
 
             case let .downloads(.delegate(.presentGalleryDetail(gallery, download))):
-                return .send(.appRoute(.presentGalleryDetail(gallery, download)))
+                return .send(.presentation(.presentGalleryDetail(gallery, download)))
 
             case .home:
                 return .none
@@ -284,7 +284,7 @@ struct AppReducer {
                 // This is the single cold-launch clipboard owner: the initial `.active` is ignored
                 // until settings load, while the `.active` branch handles later foreground entries.
                 if state.settingState.setting.detectsLinksFromClipboard {
-                    effects.append(.send(.appRoute(.detectClipboardURL)))
+                    effects.append(.send(.presentation(.detectClipboardURL)))
                 }
                 state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
                     state: state
@@ -302,7 +302,7 @@ struct AppReducer {
                 return .send(.runLaunchAutomation)
 
             case .setting(.fetchGreetingDone(let result)):
-                return .send(.appRoute(.fetchGreetingDone(result)))
+                return .send(.presentation(.fetchGreetingDone(result)))
 
             case .setting:
                 return .none
@@ -312,7 +312,7 @@ struct AppReducer {
             }
         }
 
-        Scope(\.appRouteState, action: \.appRoute, AppRouteReducer.init)
+        Scope(\.presentationState, action: \.presentation, PresentationFeature.init)
         Scope(\.appDelegateState, action: \.appDelegate, AppDelegateReducer.init)
         Scope(\.tabBarState, action: \.tabBar, TabBarReducer.init)
         Scope(\.homeState, action: \.home, HomeReducer.init)
@@ -334,8 +334,8 @@ private extension AppReducer {
         var effects: [Effect<Action>] = []
 
         // GalleryPath stacks whose top element presents a reader.
-        if let (id, action) = state.appRouteState.path.topReadingFlush {
-            effects.append(.send(.appRoute(.path(.element(id: id, action: action)))))
+        if let (id, action) = state.presentationState.path.topReadingFlush {
+            effects.append(.send(.presentation(.path(.element(id: id, action: action)))))
         }
         if let (id, action) = state.favoritesState.path.topReadingFlush {
             effects.append(.send(.favorites(.path(.element(id: id, action: action)))))
@@ -357,8 +357,8 @@ private extension AppReducer {
         }
 
         // The iPad/deep-link modal detail and the Downloads tab present a reader directly.
-        if state.appRouteState.detail?.destination?.reading != nil {
-            effects.append(.send(.appRoute(.detail(.presented(
+        if state.presentationState.detail?.destination?.reading != nil {
+            effects.append(.send(.presentation(.detail(.presented(
                 .destination(.presented(.reading(.flushReadingProgress)))
             )))))
         }

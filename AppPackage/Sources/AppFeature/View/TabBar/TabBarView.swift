@@ -29,7 +29,7 @@ struct TabBarView: View {
                 get: { store.tabBarState.tabBarItemType },
                 set: { tab in
                     if tab == .setting, deviceClient.deviceType() == .pad {
-                        store.send(.appRoute(.presentSetting))
+                        store.send(.presentation(.presentSetting))
                     } else {
                         store.send(.tabBar(.setTabBarItemType(tab)))
                     }
@@ -66,20 +66,20 @@ struct TabBarView: View {
             .accentColor(store.settingState.setting.accentColor)
         }
         .privacyMask()
-        .sheet(item: $store.appRouteState.destination.newDawn) { greeting in
+        .sheet(item: $store.presentationState.destination.newDawn) { greeting in
             NewDawnView(greeting: greeting.wrappedValue)
                 .privacyMask()
         }
-        .sheet(item: $store.appRouteState.destination.setting) { _ in
+        .sheet(item: $store.presentationState.destination.setting) { _ in
             SettingView(
                 store: store.scope(\.settingState, action: \.setting)
             )
             .accentColor(store.settingState.setting.accentColor)
             .privacyMask()
         }
-        .sheet(item: $store.scope(\.appRouteState.$detail, action: \.appRoute.detail)) { detailStore in
+        .sheet(item: $store.scope(\.presentationState.$detail, action: \.presentation.detail)) { detailStore in
             NavigationStack(
-                path: $store.scope(\.appRouteState.path, action: \.appRoute.path)
+                path: $store.scope(\.presentationState.path, action: \.presentation.path)
             ) {
                 DetailView(
                     store: detailStore,
@@ -92,9 +92,9 @@ struct TabBarView: View {
             .privacyMask()
             .environment(\.inSheet, true)
         }
-        .toast($store.scope(\.appRouteState.$toast, action: \.appRoute.toast))
+        .toast($store.scope(\.presentationState.$toast, action: \.presentation.toast))
         .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
-        .onOpenURL { store.send(.appRoute(.handleDeepLink($0))) }
+        .onOpenURL { store.send(.presentation(.handleDeepLink($0))) }
     }
 }
 
