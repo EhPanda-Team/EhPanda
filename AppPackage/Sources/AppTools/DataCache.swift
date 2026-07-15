@@ -69,6 +69,7 @@ public actor DataCache {
         let fileURL = configuration.rootURL.appendingPathComponent(filename)
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
         if isExpired(fileURL) {
+            // Expired-entry removal is cache housekeeping; a miss remains correct if cleanup fails.
             try? fileManager.removeItem(at: fileURL)
             return nil
         }
@@ -77,7 +78,9 @@ public actor DataCache {
         // between the existence check and the read — is treated as a miss and
         // removed, so the caller re-downloads instead of sticking on the broken
         // entry until it expires.
+        // Reading is an optional cache probe; an unreadable entry deliberately falls back to a miss.
         guard let data = try? Data(contentsOf: fileURL) else {
+            // Corrupt-entry removal is cache housekeeping; the read has already resolved to a miss.
             try? fileManager.removeItem(at: fileURL)
             return nil
         }
@@ -155,6 +158,7 @@ public actor DataCache {
         var total: UInt64 = 0
         for case let fileURL as URL in enumerator {
             autoreleasepool {
+                // Unreadable metadata is skipped because cache size reporting is intentionally approximate.
                 let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
                 guard values?.isRegularFile == true else { return }
                 total += UInt64(values?.fileSize ?? 0)
@@ -189,6 +193,7 @@ public actor DataCache {
     // The memory cache is keyed by the on-disk hashed filename, so eviction stays
     // scoped to the swept keys instead of purging the whole memory front.
     private func evictDiskEntry(_ entry: DiskEntry) {
+        // Disk eviction is fire-and-forget housekeeping; memory eviction still proceeds on failure.
         try? fileManager.removeItem(at: entry.url)
         memoryCache.removeObject(forKey: entry.url.lastPathComponent as NSString)
     }
@@ -205,6 +210,7 @@ public actor DataCache {
             try? touchAccessDate(for: fileURL)
         } catch {
             guard canRetryDirectoryCreation else { throw error }
+            // Removing the stale cache root is best-effort; directory recreation decides retry success.
             try? fileManager.removeItem(at: configuration.rootURL)
             try ensureDirectory()
             try write(data, to: fileURL, canRetryDirectoryCreation: false)
@@ -219,6 +225,7 @@ public actor DataCache {
         var resourceValues = URLResourceValues()
         resourceValues.isExcludedFromBackup = true
         var directoryURL = configuration.rootURL
+        // Backup exclusion is optional cache metadata and must not fail directory creation.
         try? directoryURL.setResourceValues(resourceValues)
     }
 
@@ -247,13 +254,16 @@ public actor DataCache {
         var resourceValues = URLResourceValues()
         resourceValues.contentAccessDate = Date()
         var mutableURL = fileURL
+        // Content-access metadata is supplementary to the authoritative FileManager timestamps above.
         try? mutableURL.setResourceValues(resourceValues)
     }
 
     private func accessDate(for fileURL: URL) -> Date {
+        // Missing URL metadata deliberately falls back to the file's modification date.
         if let date = try? fileURL.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
             return date
         }
+        // Missing file attributes deliberately fall back to distantPast so cleanup can evict the entry.
         let attributes = try? fileManager.attributesOfItem(atPath: fileURL.path)
         return attributes?[.modificationDate] as? Date ?? .distantPast
     }
@@ -336,6 +346,7 @@ private final class DataCacheSystemPurgeObserver {
             ) { [weak cache] _ in
                 Task {
                     await cache?.removeAllMemory()
+                    // Background disk sweeping is fire-and-forget housekeeping with no user-facing result.
                     try? await cache?.sweepDisk()
                 }
             }
