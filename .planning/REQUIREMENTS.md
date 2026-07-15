@@ -56,7 +56,7 @@
   - D-06 tightens HYG-01: retain `URLUtil` and `FileUtil` as pure namespaces rather than converting them to clients, in keeping with the anti-wrapper rule; D-07 eliminates `AppUtil` after relocating its surviving metadata facts.
 - [x] **QUAL-02**: Add client-layer test coverage for the reworked seams.
   - `NetworkingFeature` covered (during CONC-01); `CookieClient` and `ImageClient` covered (during HYG-01); tests are deterministic and green.
-- [ ] **QUAL-03**: Fix the `Category.private.filterValue` `fatalError` landmine.
+- [x] **QUAL-03**: Fix the `Category.private.filterValue` `fatalError` landmine.
   - `filterValue` no longer crashes for `.private`; no callsite iterating all categories can trap; covered by a test.
 - [x] **QUAL-04**: Replace silent `try?` with structured error handling and a user-facing error surface (gates the `optional_try` rule).
   - A structured `AppError` (description / suggested solution / typed context) exists; user-relevant failures surface via a non-blocking failure toast that opens a detailed, dismissable error surface (Description / Solution / Context / environment info); network/file/decode `try?` sites become proper `do/catch`; genuinely best-effort parsing stays explicitly optional (not every one prompts); `optional_try` can be enabled at error with zero violations.
@@ -113,7 +113,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | HYG-01 | Phase 8 | Complete |
 | QUAL-01 | Phase 8 | Complete |
 | QUAL-02 | Phase 8 | Complete |
-| QUAL-03 | Phase 9 | Pending |
+| QUAL-03 | Phase 9 | Complete |
 | QUAL-04 | Phase 9 | Complete |
 | POLISH-01 | Phase 10 | Pending |
 | POLISH-02 | Phase 10 | Pending |
