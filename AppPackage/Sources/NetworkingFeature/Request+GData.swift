@@ -27,7 +27,7 @@ extension Request {
         ]
         var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.httpBody = try encodeJSONObject(params)
 
         let (data, _) = try await fetch(request, in: urlSession)
         do {

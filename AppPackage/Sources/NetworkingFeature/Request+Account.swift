@@ -386,7 +386,7 @@ public struct RateGalleryRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.httpBody = try encodeJSONObject(params)
 
         _ = try await fetch(request, in: urlSession)
     }
@@ -496,7 +496,7 @@ public struct VoteGalleryCommentRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.httpBody = try encodeJSONObject(params)
 
         _ = try await fetch(request, in: urlSession)
     }
@@ -544,7 +544,7 @@ public struct VoteGalleryTagRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.api(host: host))
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.httpBody = try encodeJSONObject(params)
 
         _ = try await fetch(request, in: urlSession)
     }

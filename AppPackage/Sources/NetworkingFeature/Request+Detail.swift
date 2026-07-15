@@ -57,6 +57,7 @@ public struct GalleryDetailRequest: Request {
                 galleryDetail: detail,
                 galleryState: state,
                 apiKey: apiKey,
+                // Greeting is optional detail enrichment; failure keeps the required detail payload.
                 greeting: try? Parser.parseGreeting(doc: document)
             )
         } catch {
@@ -221,6 +222,7 @@ public struct GalleryArchiveRequest: Request {
         do {
             let document = try htmlDocument(data: data)
             let archive = try parseResponse(doc: document, Parser.parseGalleryArchive)
+            // Funds are optional archive enrichment; failure keeps the required archive payload.
             guard let (galleryPoints, credits) = try? Parser.parseCurrentFunds(doc: document) else {
                 return GalleryArchiveResponse(archive: archive)
             }

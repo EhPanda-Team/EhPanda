@@ -312,7 +312,7 @@ public struct GalleryMPVImageURLRequest: Request {
             allowsCellular: allowsCellular
         )
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        request.httpBody = try encodeJSONObject(params)
 
         let (data, _) = try await fetch(request, in: urlSession)
         do {
