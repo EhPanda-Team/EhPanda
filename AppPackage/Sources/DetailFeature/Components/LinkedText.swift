@@ -1,5 +1,6 @@
 import SwiftUI
 
+// Link detection is optional presentation enrichment; detector failure leaves the text unlinked.
 private let linkDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
 
 private struct LinkColoredText: View {

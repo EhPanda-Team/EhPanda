@@ -77,6 +77,7 @@ private struct SuggestionCell: View {
         return label
     }
     private static func markdown(_ string: String) -> AttributedString {
+        // Markdown styling is optional presentation enrichment; malformed input falls back to literal text.
         (try? AttributedString(
             markdown: string,
             options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)

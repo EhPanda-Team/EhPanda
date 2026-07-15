@@ -397,6 +397,7 @@ extension ReadingView {
     /// (Live Text scans still images only), so a single non-animating frame is never lifted
     /// out of an animation.
     private func analyzeLocalImage(at imageURL: URL, index: Int) {
+        // Local-file loading is an optional Live Text probe; failure skips analysis without affecting reading.
         guard let data = try? Data(contentsOf: imageURL),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
