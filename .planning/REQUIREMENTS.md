@@ -58,7 +58,7 @@
   - `NetworkingFeature` covered (during CONC-01); `CookieClient` and `ImageClient` covered (during HYG-01); tests are deterministic and green.
 - [ ] **QUAL-03**: Fix the `Category.private.filterValue` `fatalError` landmine.
   - `filterValue` no longer crashes for `.private`; no callsite iterating all categories can trap; covered by a test.
-- [ ] **QUAL-04**: Replace silent `try?` with structured error handling and a user-facing error surface (gates the `optional_try` rule).
+- [x] **QUAL-04**: Replace silent `try?` with structured error handling and a user-facing error surface (gates the `optional_try` rule).
   - A structured `AppError` (description / suggested solution / typed context) exists; user-relevant failures surface via a non-blocking failure toast that opens a detailed, dismissable error surface (Description / Solution / Context / environment info); network/file/decode `try?` sites become proper `do/catch`; genuinely best-effort parsing stays explicitly optional (not every one prompts); `optional_try` can be enabled at error with zero violations.
 
 ### POLISH — UI polish
@@ -114,7 +114,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | QUAL-01 | Phase 8 | Complete |
 | QUAL-02 | Phase 8 | Complete |
 | QUAL-03 | Phase 9 | Pending |
-| QUAL-04 | Phase 9 | Pending |
+| QUAL-04 | Phase 9 | Complete |
 | POLISH-01 | Phase 10 | Pending |
 | POLISH-02 | Phase 10 | Pending |
 | POLISH-03 | Phase 10 | Pending |
