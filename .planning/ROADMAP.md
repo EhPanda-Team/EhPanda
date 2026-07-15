@@ -387,12 +387,12 @@ Plans:
   3. User-relevant failures surface via a non-blocking failure toast that opens a dismissable detail surface (Description / Suggested Solution / Context / environment info).
   4. `optional_try` can be enabled at error with zero violations (verified in the lint capstone).
 
-**Plans**: 11 plans (sequential waves — xcodebuild invocations must never overlap on this machine)
+**Plans**: 1/11 plans executed
 Plans:
 
 **Wave 1**
 
-- [ ] 09-01-PLAN.md — AppError structured merge: AnyHashableBox + Context/ContextKey/ErrorInfo + solution + LocalizedError + Wave-0 tests (QUAL-04)
+- [x] 09-01-PLAN.md — AppError structured merge: AnyHashableBox + Context/ContextKey/ErrorInfo + solution + LocalizedError + Wave-0 tests (QUAL-04)
 
 **Wave 2** *(sequenced to serialize xcodebuild)*
 
@@ -488,7 +488,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
-| 9. Correctness & Structured Error Handling | 0/11 | Not started | - |
+| 9. Correctness & Structured Error Handling | 1/11 | In Progress | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
 | 12. Deep Link Hardening | 0/TBD | Not started | - |

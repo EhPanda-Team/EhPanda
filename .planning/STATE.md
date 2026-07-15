@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 9
-current_phase_name: Correctness & Structured Error Handling
+current_phase: 09
+current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Phase 9 context gathered
-last_updated: "2026-07-15T05:01:25.579Z"
-last_activity: 2026-07-14
-last_activity_desc: Phase 08 complete, transitioned to Phase 9
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-07-15T05:42:50.771Z"
+last_activity: 2026-07-15
+last_activity_desc: Phase 09 execution started
 progress:
   total_phases: 13
   completed_phases: 7
-  total_plans: 80
-  completed_plans: 80
+  total_plans: 91
+  completed_plans: 81
   percent: 54
 ---
 
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 9 — Correctness & Structured Error Handling
+**Current focus:** Phase 09 — correctness-structured-error-handling
 
 ## Current Position
 
-Phase: 9 — Correctness & Structured Error Handling
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-14 — Phase 08 complete, transitioned to Phase 9
-Next: Plan Phase 9
+Phase: 09 (correctness-structured-error-handling) — EXECUTING
+Plan: 2 of 11
+Status: Executing Phase 09
+Last activity: 2026-07-15 — Phase 09 execution started
+Next: Execute Plan 09-02
 
-Progress: [██████████] 100% (80/80 plans)
+Progress: [█████████░] 89% (81/91 plans)
 
 ## Performance Metrics
 
@@ -137,6 +137,7 @@ Progress: [██████████] 100% (80/80 plans)
 | Phase 08 P18 | 4 min | 2 tasks | 5 files |
 | Phase 08 P16 | 6 min | 2 tasks | 4 files |
 | Phase 08 P17 | 20min | 2 tasks | 2 files |
+| Phase 09 P01 | 19min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -256,6 +257,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Carry GalleryHost in fetchEhProfileIndexDone and createDefaultEhProfile so every profile side effect retains request identity. — Profile completion must not re-read mutable shared host state.
 - [Phase 08]: Observe selected-profile routing through an isolated CookieClient testing store while asserting default-profile routing at the follow-up action boundary. — This proves host behavior without process-global cookies or a production-only test callback.
 - [Phase ?]: [Phase 08]: 08-17: Model the clipboardChangeCount UserDefaults read as a stored @Sendable endpoint (not a generic instance method) so overrides control reads exactly as they control writes; UserDefaults.standard is read only inside live.
+- [Phase 09]: Keep AppError's 12-case enum unchanged and carry per-incident diagnostics in ErrorInfo.
+- [Phase 09]: Offer recovery suggestions for networking, authentication, IP restriction, quota, and not-found errors.
+- [Phase 09]: Use Self.Context in SwiftUI representables so the public diagnostic Context type cannot shadow protocol context.
 
 ### Pending Todos
 
@@ -297,6 +301,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T03:42:39.885Z
-Stopped at: Phase 9 context gathered
-Resume file: .planning/phases/09-correctness-structured-error-handling/09-CONTEXT.md
+Last session: 2026-07-15T05:42:50.764Z
+Stopped at: Completed 09-01-PLAN.md
+Resume file: None
