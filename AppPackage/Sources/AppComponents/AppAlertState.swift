@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Resources
 import ComposableArchitecture
 
@@ -32,6 +33,7 @@ public struct AppAlertState<Action>: Identifiable {
     public var style: Style
     public var title: TextState
     public var message: TextState?
+    public var errorInfo: ErrorInfo?
     public var textField: AppAlertTextFieldState?
     public var buttons: [ButtonState<Action>]
 
@@ -60,11 +62,17 @@ public struct AppAlertState<Action>: Identifiable {
     }
 
     // Builds a button-less toast presentation; used by the `Action == Never` factories below.
-    init(style: Style, title: TextState, message: TextState? = nil) {
+    init(
+        style: Style,
+        title: TextState,
+        message: TextState? = nil,
+        errorInfo: ErrorInfo? = nil
+    ) {
         self.id = UUID()
         self.style = style
         self.title = title
         self.message = message
+        self.errorInfo = errorInfo
         self.buttons = []
     }
 }
@@ -76,6 +84,7 @@ extension AppAlertState: Equatable where Action: Equatable {
         lhs.style == rhs.style
             && lhs.title == rhs.title
             && lhs.message == rhs.message
+            && lhs.errorInfo == rhs.errorInfo
             && lhs.textField == rhs.textField
             && lhs.buttons == rhs.buttons
     }
@@ -86,6 +95,7 @@ extension AppAlertState: Hashable where Action: Hashable {
         hasher.combine(style)
         hasher.combine(title)
         hasher.combine(message)
+        hasher.combine(errorInfo)
         hasher.combine(textField)
         hasher.combine(buttons)
     }
@@ -150,6 +160,14 @@ extension AppAlertState where Action == Never {
             style: .toast(icon: .error, autoHide: true),
             title: TextState(localized: .error),
             message: caption.map { TextState($0) }
+        )
+    }
+    public static func error(_ errorInfo: ErrorInfo) -> Self {
+        .init(
+            style: .toast(icon: .error, autoHide: true),
+            title: TextState(localized: .error),
+            message: TextState(errorInfo.error.alertText),
+            errorInfo: errorInfo
         )
     }
     public static func success(caption: LocalizedStringResource) -> Self {
