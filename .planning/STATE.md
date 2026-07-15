@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-04-PLAN.md
-last_updated: "2026-07-15T06:27:50.928Z"
+stopped_at: Completed 09-05-PLAN.md
+last_updated: "2026-07-15T07:51:58.046Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-04
+last_activity_desc: Completed Plan 09-05
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 84
-  percent: 92
+  completed_plans: 85
+  percent: 93
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-03
-Next: Execute Plan 09-05
+Last activity: 2026-07-15 — Completed Plan 09-05
+Next: Execute Plan 09-06
 
-Progress: [█████████░] 92% (84/91 plans)
+Progress: [█████████░] 93% (85/91 plans)
 
 ## Performance Metrics
 
@@ -141,6 +141,7 @@ Progress: [█████████░] 92% (84/91 plans)
 | Phase 09 P02 | 6min | 2 tasks | 2 files |
 | Phase 09 P03 | 7min | 3 tasks | 5 files |
 | Phase 09 P04 | 8min | 3 tasks | 5 files |
+| Phase 09 P05 | 75 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -271,6 +272,9 @@ Recent decisions affecting current work:
 - [Phase 09]: 09-04: Use PresentationFeature rather than PresentationReducer because repository reducers must carry the Feature suffix.
 - [Phase 09]: 09-04: Rename appRouteState/appRoute to presentationState/presentation across the complete app-root source surface.
 - [Phase 09]: 09-04: Gallery failure diagnostics expose only the action, localized reason, and URL path.
+- [Phase 09]: FileClient uses fixed operation descriptors in AppError context so failures never disclose a file path.
+- [Phase 09]: Missing cached translations recover through the existing remote fetch, while removal failures reach SettingFeature state.
+- [Phase 09]: HTML repair, greeting, archive funds, and Chinese conversion remain optional because each has an explicit behavior-preserving fallback.
 
 ### Pending Todos
 
@@ -282,7 +286,6 @@ None yet.
 
 [Issues that affect future work]
 
-- Phase 9 (QUAL-03): `.private.filterValue` `fatalError` landmine still open; structured error handling (#20) gates the `optional_try` lint rule.
 - Deferred follow-up (from Phase 8 UAT): remove dead legacy haptic code (`isLegacyTapticEngine`, `generateLegacyFeedback`) — targets unsupported devices.
 
 ### Roadmap Evolution
@@ -312,6 +315,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T06:27:50.922Z
-Stopped at: Completed 09-04-PLAN.md
+Last session: 2026-07-15T07:51:58.038Z
+Stopped at: Completed 09-05-PLAN.md
 Resume file: None
