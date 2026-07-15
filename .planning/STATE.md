@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 09
 current_phase_name: correctness-structured-error-handling
 status: executing
-stopped_at: Completed 09-07-PLAN.md
-last_updated: "2026-07-15T08:14:25.118Z"
+stopped_at: Completed 09-08-PLAN.md
+last_updated: "2026-07-15T08:24:20.925Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed Plan 09-07
+last_activity_desc: Completed Plan 09-08
 progress:
   total_phases: 13
   completed_phases: 7
   total_plans: 91
-  completed_plans: 87
-  percent: 96
+  completed_plans: 88
+  percent: 97
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 ## Current Position
 
 Phase: 09 (correctness-structured-error-handling) — EXECUTING
-Plan: 8 of 11
+Plan: 9 of 11
 Status: Ready to execute
-Last activity: 2026-07-15 — Completed Plan 09-07
-Next: Execute Plan 09-08
+Last activity: 2026-07-15 — Completed Plan 09-08
+Next: Execute Plan 09-09
 
-Progress: [██████████] 96% (87/91 plans)
+Progress: [██████████] 97% (88/91 plans)
 
 ## Performance Metrics
 
@@ -144,6 +144,7 @@ Progress: [██████████] 96% (87/91 plans)
 | Phase 09 P05 | 75 | 2 tasks | 11 files |
 | Phase 09 P06 | 8min | 2 tasks | 2 files |
 | Phase 09 P07 | 6min | 2 tasks | 10 files |
+| Phase 09 P08 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -280,6 +281,8 @@ Recent decisions affecting current work:
 - [Phase 09]: All 16 scoped try? sites are intentional probe, metadata, validation, or cleanup fallbacks; genuine manifest and page persistence already propagates through throwing APIs.
 - [Phase 09]: All 20 scoped DownloadClient try? sites are intentional parsing probes, metadata probes, optional API fallbacks, cadence writes, or cleanup operations; authoritative failures already propagate.
 - [Phase 09]: Cleanup and optional probe failures preserve the primary validation or download result instead of introducing a competing error surface.
+- [Phase 09]: 09-08: Keep all 13 DataCache optional operations as documented cache probes, metadata fallbacks, or fire-and-forget housekeeping so failures never replace cache hit/miss outcomes.
+- [Phase 09]: 09-08: Preserve the four AppTools utility optional contracts: encoding/decoding return nil, URL detector failure is invalid, and regex failure disables suggestions.
 
 ### Pending Todos
 
@@ -320,6 +323,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T08:14:25.108Z
-Stopped at: Completed 09-07-PLAN.md
+Last session: 2026-07-15T08:24:20.919Z
+Stopped at: Completed 09-08-PLAN.md
 Resume file: None
