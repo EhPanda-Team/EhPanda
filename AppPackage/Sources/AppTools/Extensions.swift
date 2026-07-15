@@ -5,6 +5,7 @@ import Foundation
 // MARK: Encodable
 extension Encodable {
     public func toData() -> Data? {
+        // Encoding is an optional convenience API whose established failure result is nil.
         try? JSONEncoder().encode(self)
     }
 }
@@ -20,6 +21,7 @@ extension UIApplication {
 // MARK: Data
 extension Data {
     public func toObject<O: Decodable>() -> O? {
+        // Decoding is an optional convenience API whose established failure result is nil.
         try? JSONDecoder().decode(O.self, from: self)
     }
     public var utf8InvalidCharactersRipped: Data {
@@ -77,6 +79,7 @@ extension String {
     }
 
     public var isValidURL: Bool {
+        // Detector construction is a validation probe; failure deliberately classifies the string as invalid.
         if let detector = try? NSDataDetector(
             types: NSTextCheckingResult.CheckingType.link.rawValue
         ) {

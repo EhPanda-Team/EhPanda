@@ -49,6 +49,7 @@ public struct Defaults: Sendable {
         public static let defaultDownloadFolder = "Default"
     }
     public struct Regex: Sendable {
+        // Regex compilation is an optional static probe; nil disables suggestions without failing app launch.
         public static let tagSuggestion: NSRegularExpression? = try? .init(
             pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)"
         )
