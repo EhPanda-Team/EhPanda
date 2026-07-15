@@ -387,7 +387,53 @@ Plans:
   3. User-relevant failures surface via a non-blocking failure toast that opens a dismissable detail surface (Description / Suggested Solution / Context / environment info).
   4. `optional_try` can be enabled at error with zero violations (verified in the lint capstone).
 
-**Plans**: TBD
+**Plans**: 11 plans (sequential waves — xcodebuild invocations must never overlap on this machine)
+Plans:
+
+**Wave 1**
+
+- [ ] 09-01-PLAN.md — AppError structured merge: AnyHashableBox + Context/ContextKey/ErrorInfo + solution + LocalizedError + Wave-0 tests (QUAL-04)
+
+**Wave 2** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-02-PLAN.md — QUAL-03: Category.private.filterValue fatalError → reportIssue + return 0 + withExpectedIssue test
+
+**Wave 3** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-03-PLAN.md — Failure surface: ErrorInfoView (native Form, redacted) + AppAlertState ErrorInfo-bearing toast + View+Toast onErrorTap (QUAL-04)
+
+**Wave 4** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-04-PLAN.md — Routing: AppRouteReducer → PresentationReducer + .errorInfo(ErrorInfo) + tappable failure toast + TabBarView sheet + route test (QUAL-04)
+
+**Wave 5** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-05-PLAN.md — try? sweep: FileClient (8) + NetworkingFeature (9) (QUAL-04)
+
+**Wave 6** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-06-PLAN.md — try? sweep: DownloadClient part 1 (DownloadStore + Operations, 16) (QUAL-04)
+
+**Wave 7** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-07-PLAN.md — try? sweep: DownloadClient part 2 (validation/networking/execution, ~20) (QUAL-04)
+
+**Wave 8** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-08-PLAN.md — try? sweep: AppTools (DataCache fire-and-forget + Extensions/Defaults, 17) (QUAL-04)
+
+**Wave 9** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-09-PLAN.md — try? sweep: ParserFeature (44, documented decode-with-default survivors) (QUAL-04)
+
+**Wave 10** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-10-PLAN.md — try? sweep: LogsClient/LibraryClient/ImageClient + SettingFeature activity-logs (17) (QUAL-04)
+
+**Wave 11** *(sequenced to serialize xcodebuild)*
+
+- [ ] 09-11-PLAN.md — try? sweep tail (JSONValue probes + view/markdown) + phase gate: residual audit + full suite + SwiftLint clean (QUAL-04)
+
 **UI hint**: yes
 
 ### Phase 10: UI Polish
@@ -442,7 +488,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
-| 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
+| 9. Correctness & Structured Error Handling | 0/11 | Not started | - |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
 | 12. Deep Link Hardening | 0/TBD | Not started | - |
