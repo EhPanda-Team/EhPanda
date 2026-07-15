@@ -6,19 +6,26 @@ import SwiftUI
 extension Parser {
     public static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         let galleries: [Gallery]
+        // A missing selector intentionally falls back to the compact toplist layout.
         switch try? parseDisplayMode(doc: doc) {
         case "Minimal":
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseMinimalModeGalleries(doc: doc, parsesTags: false)) ?? []
         case "Minimal+":
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseMinimalModeGalleries(doc: doc, parsesTags: true)) ?? []
         case "Compact":
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
         case "Extended":
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseExtendedModeGalleries(doc: doc)) ?? []
         case "Thumbnail":
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseThumbnailModeGalleries(doc: doc)) ?? []
         default:
             // Toplists doesn't have a display mode selector and it's compact mode
+            // Malformed gallery rows intentionally degrade to an empty list.
             galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
         }
 
@@ -54,10 +61,13 @@ private extension Parser {
         var galleries = [Gallery]()
         for link in doc.xpath("//tr") {
             let gltmNode = link.at_xpath("//div [@class='gltm']")
+            // Missing tags intentionally degrade to an empty tag list.
             let tags = (try? parseGalleryTags(node: gltmNode)) ?? []
             guard let gl2mNode = link.at_xpath("//td [@class='gl2m']"),
                   let gl3mNode = link.at_xpath("//td [@class='gl3m glname']"),
+                  // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = try? parseThumbnailPanel(node: gl2mNode),
+                  // A missing title intentionally drops only this gallery row.
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3mNode)
             else { continue }
             galleries.append(
@@ -68,6 +78,7 @@ private extension Parser {
                     rating: panelInfo.rating,
                     tags: parsesTags ? tags : [],
                     category: panelInfo.category,
+                    // A missing uploader intentionally degrades to nil.
                     uploader: try? parseUploader(node: link),
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
@@ -84,7 +95,9 @@ private extension Parser {
         for link in doc.xpath("//tr") {
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
+                  // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = try? parseThumbnailPanel(node: gl2cNode),
+                  // A missing title intentionally drops only this gallery row.
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3cNode)
             else { continue }
             galleries.append(
@@ -93,8 +106,10 @@ private extension Parser {
                     token: galleryURL.pathComponents[3],
                     title: galleryTitle,
                     rating: panelInfo.rating,
+                    // Missing tags intentionally degrade to an empty tag list.
                     tags: (try? parseGalleryTags(node: gl3cNode)) ?? [],
                     category: panelInfo.category,
+                    // A missing uploader intentionally degrades to nil.
                     uploader: try? parseUploader(node: link),
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
@@ -111,7 +126,9 @@ private extension Parser {
         var galleries = [Gallery]()
         for link in doc.xpath("//tr") {
             guard let gl3eSiblingNode = link.at_xpath("//div [@class='gl3e']")?.nextSibling,
+                  // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = try? parseThumbnailPanel(node: link),
+                  // A missing title intentionally drops only this gallery row.
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3eSiblingNode)
             else { continue }
             galleries.append(
@@ -120,6 +137,7 @@ private extension Parser {
                     token: galleryURL.pathComponents[3],
                     title: galleryTitle,
                     rating: panelInfo.rating,
+                    // Missing tags intentionally degrade to an empty tag list.
                     tags: (try? parseGalleryTags(node: gl3eSiblingNode)) ?? [],
                     category: panelInfo.category,
                     uploader: panelInfo.uploader,
@@ -137,7 +155,9 @@ private extension Parser {
         var galleries = [Gallery]()
         for link in doc.xpath("//div [@class='gl1t']") {
             let gl6tNode = link.at_xpath("//div [@class='gl6t']")
+            // A malformed panel intentionally drops only this gallery row.
             guard let panelInfo = try? parseThumbnailPanel(node: link),
+                  // A missing title intentionally drops only this gallery row.
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: link)
             else { continue }
             galleries.append(
@@ -146,6 +166,7 @@ private extension Parser {
                     token: galleryURL.pathComponents[3],
                     title: galleryTitle,
                     rating: panelInfo.rating,
+                    // Missing tags intentionally degrade to an empty tag list.
                     tags: (try? parseGalleryTags(node: gl6tNode)) ?? [],
                     category: panelInfo.category,
                     pageCount: panelInfo.pageCount,
@@ -179,6 +200,7 @@ private extension Parser {
                 tmpCategory = category
             }
             if let onClick = div["onclick"], !onClick.isEmpty, let dateString = div.text,
+               // An invalid optional date intentionally leaves the published date unset.
                let date = try? parseDate(time: dateString, format: Defaults.DateFormat.publish) {
                 tmpPublishedDate = date
             }
@@ -196,6 +218,7 @@ private extension Parser {
 
         guard let coverURL = tmpCoverURL,
               let category = tmpCategory,
+              // An invalid rating intentionally makes only this panel unavailable.
               let ratingResult = try? parseRating(node: node),
               let publishedDate = tmpPublishedDate,
               let pageCount = tmpPageCount
@@ -223,11 +246,13 @@ private extension Parser {
         }
 
         for glink in node.xpath("//div") where glink.className?.contains("glink") == true {
+            // A malformed div title candidate intentionally falls through to other candidates.
             if let result = try? findTitle(glink: glink) {
                 return result
             }
         }
         for glink in node.xpath("//span") where glink.className?.contains("glink") == true {
+            // A malformed span title candidate intentionally falls through to parse failure.
             if let result = try? findTitle(glink: glink) {
                 return result
             }
