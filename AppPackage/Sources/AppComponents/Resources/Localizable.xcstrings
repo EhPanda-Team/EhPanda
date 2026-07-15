@@ -1,6 +1,17 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Close" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schließen" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "閉じる" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "닫기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "关闭" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "關閉" } }
+      }
+    },
     "communicating": {
       "extractionState": "manual",
       "localizations": {
@@ -122,6 +133,83 @@
             "value": "錯誤"
           }
         }
+      }
+    },
+    "errorInfoAppVersion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "App Version" } },
+        "de": { "stringUnit": { "state": "translated", "value": "App-Version" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アプリのバージョン" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "앱 버전" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "应用版本" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "App 版本" } }
+      }
+    },
+    "errorInfoContext": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Context" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kontext" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コンテキスト" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컨텍스트" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "上下文" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "上下文" } }
+      }
+    },
+    "errorInfoDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Description" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Beschreibung" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "説明" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "설명" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "描述" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "描述" } }
+      }
+    },
+    "errorInfoDevice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Device" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gerät" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デバイス" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "设备" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "裝置" } }
+      }
+    },
+    "errorInfoEnvironment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Environment" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Umgebung" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "環境" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "환경" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "环境" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "環境" } }
+      }
+    },
+    "errorInfoOS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Operating System" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Betriebssystem" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "OS" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "운영 체제" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "操作系统" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "作業系統" } }
+      }
+    },
+    "errorInfoSolution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Suggested Solution" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Lösungsvorschlag" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "解決方法" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "권장 해결 방법" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "建议的解决方案" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "建議的解決方案" } }
       }
     },
     "first": {
