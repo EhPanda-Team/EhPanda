@@ -72,6 +72,7 @@ extension Request {
         } catch {
             guard let parseError = error as? ParseError,
                   parseError == .EncodingMismatch,
+                  // A failed repair preserves the original parse failure and its response context.
                   let htmlDocument = try? Kanna.HTML(
                     html: data.utf8InvalidCharactersRipped,
                     encoding: .utf8
@@ -150,6 +151,25 @@ extension Request {
 
         default:
             return error as? AppError ?? .unknown
+        }
+    }
+
+    func encodeJSONObject(_ object: Any) throws(AppError) -> Data {
+        do {
+            return try JSONSerialization.data(withJSONObject: object)
+        } catch {
+            throw .parseFailed
+        }
+    }
+
+    func decodeJSONDictionary(_ data: Data) throws(AppError) -> [String: Any] {
+        do {
+            guard let dictionary = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw AppError.parseFailed
+            }
+            return dictionary
+        } catch {
+            throw .parseFailed
         }
     }
 
@@ -329,9 +349,8 @@ public struct TagTranslatorRequest: Request {
             allowsCellular: true
         )
         let (metadata, _) = try await fetch(metadataRequest, in: urlSession)
-        guard
-            let dictionary = try? JSONSerialization.jsonObject(with: metadata) as? [String: Any],
-            let postedDateString = dictionary["published_at"] as? String,
+        let dictionary = try decodeJSONDictionary(metadata)
+        guard let postedDateString = dictionary["published_at"] as? String,
             let postedDate = dateFormatter.date(from: postedDateString)
         else {
             throw AppError.parseFailed
