@@ -43,7 +43,7 @@ extension Category {
         case .misc: return 1
         case .private:
             reportIssue(
-                "`Category.private` has no `filterValue` — it is display-only and must be excluded from filter math."
+                "`Category.private` has no `filterValue`, it is display-only and must be excluded from filter math."
             )
             return 0
         }
