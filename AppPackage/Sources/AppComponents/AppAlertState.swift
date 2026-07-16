@@ -8,7 +8,7 @@ import ComposableArchitecture
 ///
 /// - ``Style/alert`` renders through ``SwiftUICore/View/appAlert(_:)`` as a **native** system alert,
 ///   with `buttons` wired to your reducer's actions (mirroring `AlertState`'s ergonomics).
-/// - ``Style/toast(icon:autoHide:)`` renders through `View.toast(_:)` (in `SystemNotificationExt`)
+/// - ``Style/toast(icon:autoHide:)`` renders through `View.toast(_:)` (in `SystemNotification`)
 ///   as a bottom Liquid Glass toast; the button-less toast factories live on `AppAlertState<Never>`.
 ///
 /// Its alert initializer mirrors `AlertState` exactly — a `title`, a `ButtonStateBuilder` of
@@ -129,7 +129,7 @@ public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
 }
 
 // MARK: - Toast presentations
-// Button-less toast presentations. `SystemNotificationExt` maps `ToastIcon` + `title`/`message`
+// Button-less toast presentations. `SystemNotification` maps `ToastIcon` + `title`/`message`
 // onto the rendered Liquid Glass toast content.
 extension AppAlertState where Action == Never {
     public static func loading(title: LocalizedStringResource? = nil) -> Self {

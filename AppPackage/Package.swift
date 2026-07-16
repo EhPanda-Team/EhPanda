@@ -100,7 +100,7 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case sfSafeSymbolsExt = "SFSafeSymbolsExt"
-    case systemNotificationExt = "SystemNotificationExt"
+    case systemNotification = "SystemNotification"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
@@ -125,7 +125,7 @@ enum Module: String {
     case tagTranslationFeatureTests = "TagTranslationFeatureTests"
     case galleryListComponentsTests = "GalleryListComponentsTests"
     case readingFeatureTests = "ReadingFeatureTests"
-    case systemNotificationExtTests = "SystemNotificationExtTests"
+    case systemNotificationTests = "SystemNotificationTests"
 }
 
 extension Module {
@@ -289,7 +289,7 @@ let targets: [PackageDescription.Target] = [
             .module(.searchFeature),
             .module(.animatedImageFeature),
             .module(.settingFeature),
-            .module(.systemNotificationExt),
+            .module(.systemNotification),
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.colorfulX),
@@ -358,7 +358,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .systemNotificationExt,
+        module: .systemNotification,
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
@@ -602,7 +602,7 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryListComponents),
             .module(.readingFeature),
             .module(.resources),
-            .module(.systemNotificationExt),
+            .module(.systemNotification),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
@@ -650,7 +650,7 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .module(.readingSettingFeature),
             .module(.resources),
-            .module(.systemNotificationExt),
+            .module(.systemNotification),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
@@ -731,7 +731,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
-            .module(.systemNotificationExt),
+            .module(.systemNotification),
             .module(.tagTranslationFeature),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
@@ -760,7 +760,7 @@ let targets: [PackageDescription.Target] = [
             .module(.readingSettingFeature),
             .module(.resources),
             .module(.animatedImageFeature),
-            .module(.systemNotificationExt),
+            .module(.systemNotification),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
@@ -1011,9 +1011,9 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .testTarget(
-        module: .systemNotificationExtTests,
+        module: .systemNotificationTests,
         dependencies: [
-            .module(.systemNotificationExt)
+            .module(.systemNotification)
         ],
         plugins: swiftLintPlugins
     )

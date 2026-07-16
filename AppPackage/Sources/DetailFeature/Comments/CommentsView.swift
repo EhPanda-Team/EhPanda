@@ -4,7 +4,7 @@ import Resources
 import Kingfisher
 import ComposableArchitecture
 import AppTools
-import SystemNotificationExt
+import SystemNotification
 import AppComponents
 import CookieClient
 

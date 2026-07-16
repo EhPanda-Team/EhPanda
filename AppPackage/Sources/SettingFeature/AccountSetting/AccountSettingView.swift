@@ -5,7 +5,7 @@ import AppComponents
 import Resources
 import ComposableArchitecture
 import AppTools
-import SystemNotificationExt
+import SystemNotification
 import CookieClient
 
 struct AccountSettingView: View {
