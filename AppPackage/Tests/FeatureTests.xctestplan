@@ -78,6 +78,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "SystemNotificationExtTests",
+        "name" : "SystemNotificationExtTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "SwiftyOpenCCTests",
         "name" : "SwiftyOpenCCTests"
       }

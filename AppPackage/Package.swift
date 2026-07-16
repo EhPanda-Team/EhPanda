@@ -125,6 +125,7 @@ enum Module: String {
     case tagTranslationFeatureTests = "TagTranslationFeatureTests"
     case galleryListComponentsTests = "GalleryListComponentsTests"
     case readingFeatureTests = "ReadingFeatureTests"
+    case systemNotificationExtTests = "SystemNotificationExtTests"
 }
 
 extension Module {
@@ -1006,6 +1007,13 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.cookieClient),
             .module(.readingFeature)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .systemNotificationExtTests,
+        dependencies: [
+            .module(.systemNotificationExt)
         ],
         plugins: swiftLintPlugins
     )
