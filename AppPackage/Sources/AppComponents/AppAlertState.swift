@@ -164,7 +164,7 @@ extension AppAlertState where Action == Never {
     }
     public static func error(_ errorInfo: ErrorInfo) -> Self {
         .init(
-            style: .toast(icon: .error, autoHide: true),
+            style: .toast(icon: .error, autoHide: false),
             title: TextState(localized: .error),
             message: TextState(errorInfo.error.alertText),
             errorInfo: errorInfo

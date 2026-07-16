@@ -31,8 +31,11 @@ extension View {
 }
 
 private struct ToastViewModifier: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var item: Store<AppAlertState<Never>, Never>?
     let onErrorTap: (ErrorInfo) -> Void
+    @State private var interactionState = ToastInteractionState()
+    @AccessibilityFocusState private var focusedToastID: UUID?
 
     func body(content: Content) -> some View {
         content.overlay(alignment: .bottom) {
@@ -46,50 +49,146 @@ private struct ToastViewModifier: ViewModifier {
                     // SwiftUI keeps this conditional child alive through its removal transition, so
                     // the last content stays visible while the toast slides back off-screen — no
                     // manual hold.
-                    ToastMessageView(content: toast)
-                        .padding(.horizontal)
-                        .padding(.bottom)
-                        .gesture(dismissGesture(autoHide: toast.autoHide))
-                        .onTapGesture {
-                            if let errorInfo = store.state.errorInfo {
-                                onErrorTap(errorInfo)
+                    Group {
+                        if store.state.errorInfo != nil {
+                            Button {
+                                errorButtonTapped(presentedID: id)
+                            } label: {
+                                ToastMessageView(content: toast)
+                                    .frame(minHeight: 44)
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityFocused($focusedToastID, equals: id)
+                        } else {
+                            ToastMessageView(content: toast)
                         }
-                        .accessibilityAddTraits(store.state.errorInfo == nil ? [] : .isButton)
-                        .task(id: id) { await autoDismiss(toast, presentedID: id) }
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    .id(id)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                    .gesture(dismissGesture(
+                        isDismissible: toast.autoHide || store.state.errorInfo != nil,
+                        presentedID: id
+                    ))
+                    .onAppear {
+                        interactionState.present(id: id, errorInfo: store.state.errorInfo)
+                    }
+                    .onDisappear {
+                        interactionState.dismiss(presentedID: id)
+                    }
+                    .task(id: id) {
+                        await managePresentation(
+                            toast,
+                            errorInfo: store.state.errorInfo,
+                            presentedID: id
+                        )
+                    }
+                    .transition(toastTransition)
                 }
             }
             // Scoped inside the overlay: the host view can mutate in the same transaction that
             // presents or clears the toast, and must not inherit this animation.
-            .animation(.bouncy, value: item != nil)
+            .animation(toastAnimation, value: item != nil)
         }
     }
 
-    // Only auto-hiding toasts (success / error) can be flicked away; a loading toast stays until
-    // its reducer clears the state, so a downward drag on it is ignored. As in the ported design,
-    // the drag must also be predominantly vertical — a sideways flick is not a dismissal.
-    private func dismissGesture(autoHide: Bool) -> some Gesture {
+    private var toastAnimation: Animation {
+        reduceMotion ? .easeInOut(duration: 0.15) : .bouncy
+    }
+
+    private var toastTransition: AnyTransition {
+        reduceMotion
+            ? .opacity
+            : .move(edge: .bottom).combined(with: .opacity)
+    }
+
+    // Transient and diagnostic toasts can be flicked away; a loading toast stays until its reducer
+    // clears the state. The drag must be predominantly vertical, so a sideways flick does nothing.
+    private func dismissGesture(isDismissible: Bool, presentedID: UUID) -> some Gesture {
         DragGesture(minimumDistance: 20)
             .onEnded { value in
                 let translation = value.translation
-                guard autoHide,
+                guard isDismissible,
                       abs(translation.height) > abs(translation.width),
                       translation.height > 0
                 else { return }
-                item = nil
+                dismiss(presentedID: presentedID)
             }
+    }
+
+    private func errorButtonTapped(presentedID: UUID) {
+        guard item?.state.id == presentedID,
+              let errorInfo = interactionState.activate(presentedID: presentedID)
+        else { return }
+        item = nil
+        onErrorTap(errorInfo)
+    }
+
+    private func dismiss(presentedID: UUID) {
+        interactionState.dismiss(presentedID: presentedID)
+        guard item?.state.id == presentedID else { return }
+        item = nil
+    }
+
+    private func managePresentation(
+        _ toast: ToastContent,
+        errorInfo: ErrorInfo?,
+        presentedID: UUID
+    ) async {
+        interactionState.present(id: presentedID, errorInfo: errorInfo)
+        if errorInfo != nil {
+            await Task.yield()
+            guard !Task.isCancelled, item?.state.id == presentedID else { return }
+            focusedToastID = presentedID
+            AccessibilityNotification.Announcement(toast.announcement).post()
+        } else {
+            await autoDismiss(toast, presentedID: presentedID)
+        }
     }
 
     private func autoDismiss(_ toast: ToastContent, presentedID: UUID) async {
         guard toast.autoHide else { return }
-        // Deliberately swallow Task.sleep's CancellationError on replacement or dismissal: that is
-        // the intended no-op, and there is no AppError to surface.
-        try? await Task.sleep(for: .seconds(3))
+        do {
+            try await Task.sleep(for: .seconds(3))
+        } catch {
+            // Replacement or dismissal cancels this task; cancellation is the intended no-op.
+            return
+        }
         // The task is cancelled when the toast is replaced or dismissed, but a continuation already
         // enqueued when the replacement lands can still run before SwiftUI restarts the task. Only
         // a completed timer whose state is still presented may clear it.
         guard !Task.isCancelled, item?.state.id == presentedID else { return }
-        item = nil
+        dismiss(presentedID: presentedID)
+    }
+}
+
+struct ToastInteractionState {
+    private var presentedID: UUID?
+    private var errorInfo: ErrorInfo?
+
+    mutating func present(id: UUID, errorInfo: ErrorInfo?) {
+        presentedID = id
+        self.errorInfo = errorInfo
+    }
+
+    mutating func activate(presentedID: UUID) -> ErrorInfo? {
+        guard self.presentedID == presentedID, let errorInfo else { return nil }
+        self.presentedID = nil
+        self.errorInfo = nil
+        return errorInfo
+    }
+
+    mutating func dismiss(presentedID: UUID) {
+        guard self.presentedID == presentedID else { return }
+        self.presentedID = nil
+        errorInfo = nil
+    }
+}
+
+private extension ToastContent {
+    var announcement: String {
+        [title, subtitle]
+            .compactMap { $0 }
+            .joined(separator: ", ")
     }
 }
