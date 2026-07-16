@@ -466,19 +466,57 @@ Plans:
 
 **Plans**: 12 plans (12 sequential waves — one xcodebuild at a time per D-12)
 Plans:
+**Wave 1**
 
 - [ ] 10-01-PLAN.md — SystemNotificationExt → SystemNotification parity rename (criterion 11)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 10-02-PLAN.md — Deprecated color-modifier sweep: foregroundStyle + tint (criterion 7)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 10-03-PLAN.md — Corner/autocorrection/status-bar sweep + custom cornerRadius(_:corners:) removal (criteria 7, 8)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 10-04-PLAN.md — \.inSheet removal via userInterfaceLevel trait, owner-gated delta checkpoint (criterion 6)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 10-05-PLAN.md — Label conversions + empty-string audit (criteria 9, 10)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 10-06-PLAN.md — ZStack → overlay/background with per-site verdicts + D-11 spot-checks (POLISH-02)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 10-07-PLAN.md — Paired numeric text on the D-05 changing-value set (POLISH-01)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 10-08-PLAN.md — #Preview migration: stateful cells/components, full state matrix (POLISH-03)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 10-09-PLAN.md — #Preview migration: remaining 34 screens, global zero-legacy gate (POLISH-03)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 10-10-PLAN.md — Fixed-font remediation + whole-app Dynamic Type audit at XXL/AX3/AX5 (criterion 5)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 10-11-PLAN.md — Dynamic Type reflow fixes (never cap) + default-size parity (criterion 5)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 10-12-PLAN.md — Full suite + phase grep battery + owner-signed D-03 gate (criteria 1-12)
+
+**Cross-cutting constraints:**
+
+- Previews stay at the default environment — no DT/color-scheme variants, no pinned size or scheme (D-09)
 
 **UI hint**: yes
 
