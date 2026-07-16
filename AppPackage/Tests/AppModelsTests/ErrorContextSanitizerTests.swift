@@ -27,7 +27,7 @@ struct ErrorContextSanitizerTests {
         #expect(context[.action]?.displayValue == "Fetch gallery")
         #expect(context[.reason]?.displayValue == "The request failed.")
         #expect(context[.gid]?.displayValue == fixture.expectedGalleryID)
-        #expect(context.keys == [.action, .reason, .gid])
+        #expect(Set(context.keys) == [.action, .reason, .gid])
         #expect(values.contains(where: { $0.contains(fixture.secret) }) == false)
         #expect(values.contains(where: { $0.contains(url.path) }) == false)
         #expect(values.contains(where: { $0.contains("e-hentai.org") }) == false)
@@ -48,7 +48,7 @@ struct ErrorContextSanitizerTests {
             reason: "The request failed."
         )
 
-        #expect(context.keys == [.action, .reason])
+        #expect(Set(context.keys) == [.action, .reason])
         #expect(context[.gid] == nil)
         #expect(context.values.contains(where: { $0.displayValue.contains("not-a-number") }) == false)
         #expect(context.values.contains(where: { $0.displayValue.contains("secret") }) == false)

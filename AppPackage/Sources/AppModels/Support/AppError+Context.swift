@@ -56,8 +56,35 @@ extension AnyHashableBox: ExpressibleByFloatLiteral {
 
 public typealias Context = [ContextKey: AnyHashableBox]
 
-/// User-visible diagnostic labels. This fixed whitelist deliberately carries no secrets: URL values
-/// are path-only, and cookies, tokens, passwords, credentials, IP addresses, and home paths are never context.
+extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
+    /// Builds user-visible gallery diagnostics without retaining access-bearing route components.
+    public static func galleryFailure(url: URL, action: String, reason: String) -> Self {
+        let pathComponents = url.pathComponents
+        let candidate: String?
+        if pathComponents.count >= 3, pathComponents[1] == "g" {
+            candidate = pathComponents[2]
+        } else if pathComponents.count >= 4, pathComponents[1] == "s" {
+            candidate = pathComponents[3].split(separator: "-", maxSplits: 1).first.map(String.init)
+        } else {
+            candidate = nil
+        }
+
+        var context: Self = [
+            .action: AnyHashableBox(action),
+            .reason: AnyHashableBox(reason)
+        ]
+        if let candidate,
+           candidate.isEmpty == false,
+           candidate.utf8.allSatisfy({ (48...57).contains($0) }),
+           let galleryID = Int(candidate) {
+            context[.gid] = AnyHashableBox(galleryID)
+        }
+        return context
+    }
+}
+
+/// User-visible diagnostic labels. Gallery diagnostics use ``Dictionary/galleryFailure(url:action:reason:)``
+/// so access-bearing route components never enter their context.
 public enum ContextKey: String, Hashable, Sendable {
     case action = "Action"
     case reason = "Reason"
