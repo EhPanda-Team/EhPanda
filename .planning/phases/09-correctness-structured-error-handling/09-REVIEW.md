@@ -1,8 +1,8 @@
 ---
 phase: 09-correctness-structured-error-handling
-reviewed: 2026-07-15T09:08:58Z
+reviewed: 2026-07-16T11:08:09Z
 depth: standard
-files_reviewed: 59
+files_reviewed: 63
 files_reviewed_list:
   - AppPackage/Package.swift
   - AppPackage/Sources/AppComponents/ActivityView.swift
@@ -63,109 +63,81 @@ files_reviewed_list:
   - AppPackage/Tests/AppModelsTests/AnyHashableBoxTests.swift
   - AppPackage/Tests/AppModelsTests/AppErrorStructuredTests.swift
   - AppPackage/Tests/AppModelsTests/CategoryFilterValueTests.swift
+  - AppPackage/Tests/AppModelsTests/ErrorContextSanitizerTests.swift
+  - AppPackage/Tests/FeatureTests.xctestplan
+  - AppPackage/Tests/SystemNotificationExtTests/.swiftlint.yml
+  - AppPackage/Tests/SystemNotificationExtTests/ToastInteractionTests.swift
 findings:
-  critical: 2
-  warning: 4
+  critical: 0
+  warning: 5
   info: 0
-  total: 6
+  total: 5
 status: issues_found
 ---
 
 # Phase 09: Code Review Report
 
-**Reviewed:** 2026-07-15T09:08:58Z
+**Reviewed:** 2026-07-16T11:08:09Z
 **Depth:** standard
-**Files Reviewed:** 59
+**Files Reviewed:** 63
 **Status:** issues_found
 
 ## Summary
 
-The structured-error foundation, presentation routing, client propagation changes, and documented optional-failure survivors were reviewed across the exact 59-file scope. Two ship-blocking issues remain: the diagnostic path exposes gallery tokens, and the only route to error details is a transient toast that assistive-technology users may never discover. Four robustness and localization issues should also be corrected.
+This standard-depth review used the generic-agent workaround for the `gsd-code-reviewer` role. The two prior blockers are resolved: gallery diagnostics no longer retain secret-bearing route components, and diagnostic toasts now provide a persistent native Button with focus, announcement, exactly-once routing, and Reduce Motion handling. Five non-blocking robustness, accessibility, localization, and test-reliability issues remain.
 
 ## Narrative Findings (AI reviewer)
 
-## Critical Issues
-
-### CR-01: Diagnostic URL context exposes gallery access tokens
-
-**File:** `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift:210-214`
-
-**Issue:** The failure context stores `url.path` verbatim. Handleable gallery URLs use path component 3 as the gallery/image token (`/g/<gid>/<token>` and `/s/<key>/<gid>-<page>`), so the new user-visible diagnostic sheet displays a token even though `AppError+Context.swift` explicitly promises that tokens never enter context. “Path-only” is not a sufficient redaction boundary for this URL format. This can leak access-bearing identifiers through screenshots, support reports, or screen sharing.
-
-**Fix:** Never place the raw path in `Context`. Add a route-aware diagnostic sanitizer that emits only a route kind and safe identifiers, or omit `.url` and store only the parsed gallery ID. Enforce the sanitizer at the context API boundary so callers cannot accidentally bypass it.
-
-```swift
-let analysis = urlClient.analyzeURL(url)
-var context: Context = [
-    .action: "Fetch gallery",
-    .reason: AnyHashableBox(error.localizedDescription)
-]
-if let gid = urlClient.parseGalleryID(url) {
-    context[.gid] = AnyHashableBox(gid)
-}
-context[.url] = AnyHashableBox(analysis.isGalleryImageURL ? "/s/<redacted>" : "/g/<redacted>")
-```
-
-### CR-02: Error details are discoverable only through an unannounced three-second toast
-
-**File:** `AppPackage/Sources/SystemNotificationExt/View+Toast.swift:53-59,84-93`
-
-**Issue:** The error-detail route is activated only by tapping a dynamically inserted gesture view. The toast is not announced and does not receive accessibility focus, and it disappears after three seconds. Adding `.isButton` changes the announced trait but does not notify a VoiceOver user that the control appeared; keyboard and Switch Control users can likewise miss the only activation window. The structured detail surface is therefore effectively unreachable for an important class of users.
-
-**Fix:** Make error toasts persistent until activated or explicitly dismissed, render the activation source as a native `Button` (or provide an explicit accessibility action), and announce/focus the newly presented error. Keep swipe dismissal available independently of auto-hide.
-
-```swift
-Button {
-    if let errorInfo = store.state.errorInfo {
-        onErrorTap(errorInfo)
-    }
-} label: {
-    ToastMessageView(content: toast)
-}
-.buttonStyle(.plain)
-.onAppear {
-    if store.state.errorInfo != nil {
-        AccessibilityNotification.Announcement(toast.title).post()
-    }
-}
-```
-
 ## Warnings
 
-### WR-01: Toast motion ignores Reduce Motion
+### WR-01: Persistent diagnostic toasts have a swipe-only dismissal action
 
-**File:** `AppPackage/Sources/SystemNotificationExt/View+Toast.swift:59-65`
+**File:** `AppPackage/Sources/SystemNotificationExt/View+Toast.swift:69-72,105-117`
 
-**Issue:** Every toast uses a moving edge transition and `.bouncy` animation without consulting `accessibilityReduceMotion`. Error presentation can therefore produce motion the user explicitly disabled.
+**Issue:** A diagnostic toast can be dismissed without opening its details only through the downward `DragGesture`. The native Button makes the detail route accessible, but it does not expose the distinct dismissal operation to VoiceOver, Switch Control, Voice Control, or Full Keyboard Access. Because diagnostic toasts no longer time out, an assistive-technology user who does not want to open the sheet has no equivalent way to clear the persistent overlay. This violates the project's accessibility rule that swipe-only actions need an accessibility alternative.
 
-**Fix:** Read `@Environment(\.accessibilityReduceMotion)` in the modifier, use an opacity-only transition when enabled, and disable the bouncy animation (or replace it with a short opacity animation).
+**Fix:** Add a localized accessibility dismissal action that calls the same UUID-gated `dismiss(presentedID:)` path, or render a native close control alongside the diagnostic Button. Keep the drag gesture as the pointer/touch shortcut.
+
+```swift
+.accessibilityAction(named: Text(.dismiss)) {
+    dismiss(presentedID: id)
+}
+```
 
 ### WR-02: Diagnostic context labels bypass localization
 
-**File:** `AppPackage/Sources/AppComponents/ErrorInfoView.swift:24-31`
+**File:** `AppPackage/Sources/AppComponents/ErrorInfoView.swift:27-34`
 
-**Issue:** Context rows display `ContextKey.rawValue`, whose values are fixed English strings (`Action`, `Reason`, `Status Code`, and `Gallery ID`). The surrounding error-detail UI is translated into six locales, so non-English users receive a partially untranslated diagnostic surface.
+**Issue:** Context rows display `ContextKey.rawValue`, whose values are fixed English strings (`Action`, `Reason`, `Status Code`, and `Gallery ID`). The surrounding error-detail UI is translated into six locales, so non-English users receive a partially untranslated user-facing surface.
 
-**Fix:** Give `ContextKey` a localized label backed by the string catalog and pass that resource to `LabeledContent`; keep the raw identifier separate from presentation text.
+**Fix:** Give `ContextKey` a localized display label backed by the AppComponents or AppModels string catalog and pass that resource to `LabeledContent`. Keep any stable programmatic identifier separate from presentation text.
 
 ### WR-03: The public top-level `Context` alias collides with SwiftUI protocol APIs
 
 **File:** `AppPackage/Sources/AppModels/Support/AppError+Context.swift:57`
 
-**Issue:** Exporting the generic name `Context` from `AppModels` shadows `UIViewControllerRepresentable.Context` and other framework context types. This phase already had to modify four unrelated representables to spell `Self.Context`, demonstrating a real cross-module source-compatibility cost. Future imports can trigger the same ambiguity.
+**Issue:** Exporting the generic name `Context` from AppModels shadows `UIViewControllerRepresentable.Context` and related framework context types. This phase already had to qualify four unrelated representable methods with `Self.Context`, demonstrating a concrete cross-module source-compatibility cost rather than a naming preference.
 
-**Fix:** Rename the alias to `ErrorContext` (or nest it under `ErrorInfo`) and update the small number of structured-error call sites.
+**Fix:** Rename the alias to `ErrorContext` or nest it under `ErrorInfo`, then update the structured-error call sites and tests.
 
 ### WR-04: Localization parity tests depend on the runner language
 
 **File:** `AppPackage/Tests/AppModelsTests/AppErrorStructuredTests.swift:13-91`
 
-**Issue:** The tests compare localized production strings against hard-coded English. They pass only when the test host selects English and become flaky or fail on a differently localized simulator/CI environment, even when production localization is correct.
+**Issue:** The parity table compares localized production strings against hard-coded English. It passes only when the test host selects English and can fail on a differently localized simulator or CI runner even when production localization is correct.
 
-**Fix:** Build expected values from the corresponding localized resources under the active locale, or run an explicitly English-only string-value test under a controlled localization configuration. Keep locale-independent tests for case mapping, retryability, and `LocalizedError` forwarding.
+**Fix:** Run string-value checks under an explicitly controlled English locale, or derive expected text from the corresponding localized resources under the active locale. Keep locale-independent assertions for case mapping, retryability, and `LocalizedError` forwarding.
+
+### WR-05: Toast interaction tests stop below the SwiftUI integration boundary
+
+**File:** `AppPackage/Tests/SystemNotificationExtTests/ToastInteractionTests.swift:12-57`
+
+**Issue:** The new tests exercise `ToastInteractionState` and factory flags directly, but none drives `ToastViewModifier` to prove that Button activation, replacement, the drag path, and task cancellation actually call that state machine and mutate the presentation binding as expected. A wiring regression can therefore leave all five tests green while breaking the user interaction the target was introduced to protect.
+
+**Fix:** Add a small host-level integration test around the modifier using the project's supported SwiftUI inspection/UI-testing approach. Verify current Button activation invokes `onErrorTap` once and clears the binding, replacement rejects the old control, and dismissal never invokes the callback. Keep the existing fast value-type tests as the unit layer.
 
 ---
 
-_Reviewed: 2026-07-15T09:08:58Z_
+_Reviewed: 2026-07-16T11:08:09Z_
 _Reviewer: generic-agent workaround (gsd-code-reviewer instructions)_
 _Depth: standard_
