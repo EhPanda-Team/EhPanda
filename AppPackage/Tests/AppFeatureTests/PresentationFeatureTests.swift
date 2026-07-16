@@ -10,6 +10,41 @@ import Testing
 
 @MainActor
 struct PresentationFeatureTests {
+    @Test(arguments: [
+        GalleryFailureRouteFixture(
+            url: "https://e-hentai.org/g/123/secret-token?next=private",
+            secret: "secret-token"
+        ),
+        GalleryFailureRouteFixture(
+            url: "https://exhentai.org/s/secret-key/456-7?next=private",
+            secret: "secret-key"
+        )
+    ])
+    private func galleryFailureToastUsesSanitizedContext(fixture: GalleryFailureRouteFixture) async throws {
+        let url = try #require(URL(string: fixture.url))
+        let context = Context.galleryFailure(
+            url: url,
+            action: "Fetch gallery",
+            reason: AppError.networkingFailed.localizedDescription
+        )
+        let errorInfo = ErrorInfo(error: .networkingFailed, context: context)
+        let store = TestStore(
+            initialState: PresentationFeature.State(),
+            reducer: PresentationFeature.init
+        )
+
+        await store.send(.fetchGalleryDone(url, .failure(.networkingFailed)))
+        await store.receive(\.setToast, timeout: .seconds(1)) {
+            $0.toast = .error(errorInfo)
+        }
+
+        let values = context.values.map(\.displayValue)
+        #expect(values.contains(where: { $0.contains(fixture.secret) }) == false)
+        #expect(values.contains(where: { $0.contains(url.path) }) == false)
+        #expect(values.contains(where: { $0.contains("next=private") }) == false)
+        #expect(values.contains(where: { $0.contains(url.absoluteString) }) == false)
+    }
+
     @Test
     func presentErrorInfoRoutesToErrorInfoDestination() async {
         let errorInfo = ErrorInfo(
@@ -76,6 +111,13 @@ struct PresentationFeatureTests {
 
         expectNoDifference(recordedWrites.value, [clipboardChangeCount])
     }
+}
+
+private struct GalleryFailureRouteFixture: CustomTestStringConvertible, Sendable {
+    let url: String
+    let secret: String
+
+    var testDescription: String { url }
 }
 
 private extension PresentationFeatureTests {
