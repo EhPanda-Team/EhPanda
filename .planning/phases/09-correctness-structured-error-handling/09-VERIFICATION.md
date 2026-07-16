@@ -1,48 +1,39 @@
 ---
 phase: 09-correctness-structured-error-handling
-verified: 2026-07-15T09:20:15Z
-status: gaps_found
-score: "9/12 must-haves verified"
+verified: 2026-07-16T11:21:57Z
+status: human_needed
+score: "11/12 must-haves verified"
 behavior_unverified: 1
 overrides_applied: 0
-gaps:
-  - truth: "Surfaced diagnostic context contains no cookie, token, credential, full URL with query, IP address, or home path."
-    status: failed
-    reason: "PresentationFeature stores url.path verbatim. Supported /g/<gid>/<token> and /s/<key>/<gid>-<page> paths therefore place access-bearing tokens/keys in the user-visible Context section."
-    artifacts:
-      - path: "AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift"
-        issue: "Lines 210-214 put url.path into Context without route-aware redaction."
-      - path: "AppPackage/Sources/AppModels/Support/AppError+Context.swift"
-        issue: "The public Context API documents that tokens never enter context but does not enforce that invariant."
-    missing:
-      - "A route-aware diagnostic sanitizer at the Context construction boundary that omits or redacts gallery/image tokens."
-      - "Regression tests covering both /g/<gid>/<token> and /s/<key>/<gid>-<page> inputs."
-  - truth: "User-relevant failures expose a detail route that is discoverable and reachable with VoiceOver, Voice Control, Switch Control, and keyboard input."
-    status: failed
-    reason: "The only activation source is an unannounced onTapGesture control that auto-dismisses after three seconds. Adding the button trait does not announce or focus the transient control, so assistive-technology users can miss the only route to ErrorInfoView."
-    artifacts:
-      - path: "AppPackage/Sources/SystemNotificationExt/View+Toast.swift"
-        issue: "Lines 49-65 use onTapGesture, a three-second timer, and no accessibility announcement/focus or persistent alternative."
-    missing:
-      - "A native Button or equivalent explicit accessibility action for error-detail activation."
-      - "Announcement/focus handling for newly presented failures and an activation window that does not time out before assistive-technology users can reach it."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 9/12
+  gaps_closed:
+    - "Gallery diagnostics now sanitize both /g/<gid>/<token> and /s/<key>/<gid>-<page> routes at the Context construction boundary."
+    - "Diagnostic errors now use a persistent native Button with accessibility focus/announcement code and no mandatory activation timeout."
+  gaps_remaining: []
+  regressions: []
 deferred:
   - truth: "optional_try is enabled at error with zero violations."
     addressed_in: "Phase 11"
-    evidence: "Phase 11 success criterion 2 explicitly switches optional_try to error after Phase 9's classified residual inventory."
+    evidence: "Phase 11 explicitly owns the lint-rule flip after Phase 9's classified 128-expression residual inventory."
 behavior_unverified_items:
-  - truth: "Tapping an ErrorInfo-bearing toast invokes onErrorTap exactly once within the timer window while swipe dismissal and replacement cancellation remain correct."
-    test: "Present an ErrorInfo toast, activate it before expiry, then separately replace and swipe-dismiss toasts."
-    expected: "Activation routes exactly once; replacement or swipe dismissal does not trigger the stale timer or route."
-    why_human: "The reducer route test starts after the closure has fired; no UI or modifier-level test exercises the gesture/timer/cancellation interaction."
+  - truth: "A newly presented diagnostic toast is announced, receives assistive focus, is operable through VoiceOver, Voice Control, Switch Control, and Full Keyboard Access, and renders without spatial/bouncy motion when Reduce Motion is enabled."
+    test: "Present a diagnostic failure with each assistive input mode and with Reduce Motion enabled; wait beyond three seconds, activate or downward-swipe dismiss it, and repeat after replacing the toast."
+    expected: "The native Button is announced and focused, remains available beyond three seconds, activation opens details once, dismissal/replacement never opens stale details, and Reduce Motion uses opacity without movement or bounce."
+    why_human: "The new unit tests prove the value-type lifecycle and timeout policy, but do not execute SwiftUI accessibility focus, announcement delivery, gesture wiring, keyboard/assistive activation, or the rendered transition."
+human_verification:
+  - test: "Accessible diagnostic-toast runtime UAT"
+    expected: "VoiceOver announces and focuses the persistent diagnostic Button; Voice Control, Switch Control, and Full Keyboard Access can activate it after three seconds; activation routes once; downward swipe and replacement route nothing; Reduce Motion removes moving/bouncy presentation."
+    why_human: "These OS-managed accessibility and rendered-animation behaviors are not exercised by the focused Swift Testing target."
 ---
 
 # Phase 9: Correctness & Structured Error Handling Verification Report
 
 **Phase Goal:** Remove the private-category crash landmine and replace silent `try?` with structured error handling behind a user-facing error surface.
-**Verified:** 2026-07-15T09:20:15Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-16T11:21:57Z
+**Status:** human_needed
+**Re-verification:** Yes — after Plans 09-12 and 09-13 closed the two prior implementation gaps
 
 ## Goal Achievement
 
@@ -50,109 +41,97 @@ behavior_unverified_items:
 
 | # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | `Category.private.filterValue` is non-fatal, reports developer misuse, returns zero, and all searchable categories remain safe to iterate. | ✓ VERIFIED | `Category.swift:28-49`; focused `privateFilterValueReportsIssueAndReturnsZero()` and `allFilterCategoriesContributeEveryFilterBit()` checks exited 0. |
-| 2 | The unchanged 12-case `AppError` supplies stable existing behavior, actionable solutions, and `LocalizedError` forwarding. | ✓ VERIFIED | `AppError.swift:4-128`; the all-cases table and solution/forwarding tests cover the mapping. |
-| 3 | `AnyHashableBox`, typed context, `ContextKey`, and `ErrorInfo` are substantive, Sendable, hashable, literal-friendly payloads. | ✓ VERIFIED | `AppError+Context.swift:3-92` and `AnyHashableBoxTests.swift`; types are imported by AppComponents, SystemNotificationExt, and AppFeature. |
-| 4 | `ErrorInfoView` renders conditional Description/Solution/Context plus Environment data and a native close action. | ✓ VERIFIED | `ErrorInfoView.swift:16-59`; section titles and labels introduced by the plan have all six locales. |
-| 5 | `AppAlertState<Never>.error(ErrorInfo)` retains the payload without sending an impossible action. | ✓ VERIFIED | `AppAlertState.swift:32-38,64-77,165-171`; `View+Toast.swift` contains no `store.send`. |
-| 6 | Toast tap, dismissal, replacement cancellation, and three-second timing work together at runtime. | ⚠ PRESENT_BEHAVIOR_UNVERIFIED | The gesture/timer code exists at `View+Toast.swift:49-93`, but no behavioral test exercises the interaction. |
-| 7 | Gallery-failure context remains privacy-safe through the presentation route. | ✗ FAILED | `PresentationFeature.swift:210-214` stores raw `url.path`; `URLClient.swift:38-46` proves path component 3 is a token/key for supported routes. |
-| 8 | The error-detail route is discoverable and reachable to assistive-technology users. | ✗ FAILED | The only activation source is an unannounced, unfocused `onTapGesture` view that disappears after three seconds (`View+Toast.swift:49-65,84-93`). |
-| 9 | FileClient and NetworkingFeature propagate genuine file/decode failures while documented fallbacks preserve prior behavior. | ✓ VERIFIED | Typed `throws(AppError)` boundaries are present; focused module suites were reported green after the wave, and source review found no swallowing catch or path-bearing surfaced reason. |
-| 10 | DownloadStore and DownloadClient optional failures are classified without replacing authoritative validation/download failures. | ✓ VERIFIED | All scoped survivors have adjacent just-cause comments; existing authoritative throwing boundaries remain wired to `DownloadFailure`/`AppError`. |
-| 11 | AppTools, ParserFeature, client-tail, activity-log, JSONValue, and view/markdown survivors are explicit, behavior-preserving fallbacks. | ✓ VERIFIED | Independent source-aware audit counted 128 `try?` operators and found every one immediately preceded by a just-cause comment; MPV whole-parse JSON decoding uses typed `.parseFailed`. |
-| 12 | The Phase 9 source compiles under the current SwiftLint rules with no new suppression, and focused behavioral checks pass. | ✓ VERIFIED | Phase diff adds zero `swiftlint:disable`; `optional_try` remains intentionally commented; focused Xcode tests exited 0 and the supplied final full-suite/SwiftLint gate passed. |
+| 1 | `Category.private.filterValue` is non-fatal, reports developer misuse, returns zero, and all searchable categories remain safe to iterate. | ✓ VERIFIED | `Category.swift:28-49` retains `reportIssue` plus zero; the full package regression suite passed. |
+| 2 | The unchanged 12-case `AppError` supplies stable existing behavior, actionable solutions, and `LocalizedError` forwarding. | ✓ VERIFIED | `AppError.swift:4-128` remains substantive; existing parity tests passed in the full suite. |
+| 3 | `AnyHashableBox`, typed context, `ContextKey`, and `ErrorInfo` are substantive, Sendable, hashable payloads. | ✓ VERIFIED | `AppError+Context.swift:3-118` is present and wired through AppComponents, SystemNotificationExt, and AppFeature. |
+| 4 | `ErrorInfoView` renders Description/Solution/Context/Environment data and a native close action. | ✓ VERIFIED | `ErrorInfoView.swift:16-59`; app-root sheet wiring remains at `TabBarView.swift:73-77`. |
+| 5 | `AppAlertState<Never>.error(ErrorInfo)` retains the payload without sending an impossible action. | ✓ VERIFIED | `AppAlertState.swift:165-171`; diagnostic errors are persistent while ordinary errors/successes remain transient. |
+| 6 | Toast activation, dismissal, replacement, stale-event cancellation, and timeout policy are deterministic. | ✓ VERIFIED | Five `ToastInteractionTests` passed independently; the state machine consumes the current UUID once and invalidates replacement/dismissal identities. |
+| 7 | Gallery-failure context remains privacy-safe through the presentation route. | ✓ VERIFIED | `Context.galleryFailure` retains only action/reason and a validated numeric GID; `/g` and `/s` unit plus reducer regressions passed in the full suite. |
+| 8 | The diagnostic detail route is announced, focused, and reachable to assistive-technology users at runtime. | ⚠ PRESENT_BEHAVIOR_UNVERIFIED | A persistent native `Button`, `@AccessibilityFocusState`, announcement posting, and host routing are wired in `View+Toast.swift:52-86,119-145`, but tests stop below the SwiftUI/OS accessibility boundary. |
+| 9 | FileClient and NetworkingFeature propagate genuine file/decode failures while documented fallbacks preserve prior behavior. | ✓ VERIFIED | Artifacts remain present; the final full package suite passed. |
+| 10 | DownloadStore and DownloadClient optional failures remain classified without replacing authoritative validation/download failures. | ✓ VERIFIED | Source inventory remains documented; the full package suite passed with no regression. |
+| 11 | AppTools, ParserFeature, client-tail, activity-log, JSONValue, and view/markdown survivors remain explicit behavior-preserving fallbacks. | ✓ VERIFIED | The 128-expression classified inventory remains intact; `optional_try` is still intentionally commented. |
+| 12 | Phase 9 source compiles under current SwiftLint rules with no new suppression and all automated checks pass. | ✓ VERIFIED | Full `AppPackage-Package` suite exited 0 with `TEST SUCCEEDED`; the gap-closure diff adds no `swiftlint:disable`. |
 
-**Score:** 9/12 truths verified (1 present, behavior-unverified)
+**Score:** 11/12 truths verified (1 present, behavior-unverified)
 
 ### Deferred Items
 
 | # | Item | Addressed In | Evidence |
 |---|---|---|---|
-| 1 | Enable `optional_try` at error with zero violations. | Phase 11 | Phase 11 success criterion 2 explicitly owns the rule flip after this phase's 128-expression classification. |
+| 1 | Enable `optional_try` at error with zero violations. | Phase 11 | Phase 11 owns the lint capstone; `.swiftlint.yml:144` remains commented as intentionally required by Phase 9. |
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `AppPackage/Sources/AppModels/Gallery/Category.swift` | Safe `.private.filterValue` | ✓ VERIFIED | Substantive switch, non-fatal issue, zero fallback, and tests. |
-| `AppPackage/Sources/AppModels/Support/AppError+Context.swift` | Structured payload vocabulary | ⚠ PARTIAL | Types are substantive and wired, but the documented no-token invariant is not enforced at the API boundary. |
-| `AppPackage/Sources/AppModels/Support/AppError.swift` | Solutions and `LocalizedError` | ✓ VERIFIED | Additive extensions preserve the 12-case enum. |
-| `AppPackage/Sources/AppComponents/ErrorInfoView.swift` | Dismissable native detail surface | ✓ VERIFIED | Four-section data flow and close toolbar action are present. |
-| `AppPackage/Sources/SystemNotificationExt/View+Toast.swift` | Error-toast activation seam | ⚠ PARTIAL | Wired to host closure, but assistive-tech reachability fails and runtime gesture/timer behavior lacks a test. |
-| `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift` | Error route and safe nearest-surface context | ✗ FAILED | Route works; raw path context violates the security prohibition. |
-| `AppPackage/Tests/AppModelsTests/CategoryFilterValueTests.swift` | Crash-landmine regression | ✓ VERIFIED | Both focused checks pass. |
-| `AppPackage/Tests/AppFeatureTests/PresentationFeatureTests.swift` | Destination route regression | ✓ VERIFIED | Focused route check passes. |
-| `AppPackage/Sources/FileClient/FileClient.swift` | Typed file-operation failures | ✓ VERIFIED | Propagating `AppError` endpoints and fixed non-secret operation descriptors are wired to callers. |
-| `AppPackage/Sources/ParserFeature/Parser+List.swift` | Explicit optional-field fallbacks | ✓ VERIFIED | 25 surviving operators each carry an adjacent fallback justification. |
-| `AppPackage/Sources/AppTools/DataCache.swift` | Documented best-effort housekeeping | ✓ VERIFIED | Cache failures remain internal and all 13 survivors are documented. |
-| `AppPackage/Sources/AppModels/Persistence/JSONValue.swift` | Ordered representation probes | ✓ VERIFIED | Six sequential type probes remain explicit and documented. |
+| `AppPackage/Sources/AppModels/Support/AppError+Context.swift` | Route-aware sanitized diagnostic context | ✓ VERIFIED | Exists, substantive, has no raw URL key, and is wired exclusively from `PresentationFeature`. |
+| `AppPackage/Tests/AppModelsTests/ErrorContextSanitizerTests.swift` | `/g` and `/s` privacy regressions | ✓ VERIFIED | Covers tokens, keys, host/query/path omission, and malformed route rejection. |
+| `AppPackage/Tests/AppFeatureTests/PresentationFeatureTests.swift` | Surfaced-toast privacy regression | ✓ VERIFIED | Checks sanitized `ErrorInfo` at the reducer's toast boundary for both routes. |
+| `AppPackage/Sources/SystemNotificationExt/View+Toast.swift` | Persistent accessible control and lifecycle wiring | ✓ VERIFIED | Native Button, focus/announcement, UUID consumption, swipe invalidation, timer cancellation, and Reduce Motion branches are substantive and host-wired. |
+| `AppPackage/Tests/SystemNotificationExtTests/ToastInteractionTests.swift` | Exactly-once/replacement/dismissal/policy tests | ✓ VERIFIED | Five deterministic tests passed independently. |
+| `AppPackage/Package.swift` | Direct SystemNotificationExtTests ownership | ✓ VERIFIED | Target is registered and included in `FeatureTests.xctestplan`. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| `Category.private.filterValue` | `IssueReporting` | `reportIssue` plus `return 0` | ✓ WIRED | Focused test proves the issue and neutral result. |
-| `AppError.solution` | AppModels catalog | localized solution resources | ✓ WIRED | Five keys each contain de/en/ja/ko/zh-Hans/zh-Hant. |
-| `ErrorInfo.context` | `ErrorInfoView` | sorted context rows | ⚠ PARTIAL | Data flows, but raw English labels and unredacted URL values reach the UI. |
-| `AppAlertState.errorInfo` | `View+Toast.onErrorTap` | retained payload and host closure | ⚠ PARTIAL | Code link exists; runtime interaction is untested and accessibility reachability fails. |
-| `View+Toast.onErrorTap` | `PresentationFeature.presentErrorInfo` | `TabBarView` closure | ✓ WIRED | `TabBarView.swift:100-105`. |
-| `PresentationFeature.destination.errorInfo` | `ErrorInfoView` | TCA item sheet | ✓ WIRED | `TabBarView.swift:73-77`; focused reducer route test passes. |
-| `PresentationFeature.fetchGalleryDone` | safe diagnostic context | nearest-surface assembly | ✗ NOT WIRED SAFELY | Uses `url.path` rather than a redacted diagnostic representation. |
-| Residual `try?` sites | Phase 11 lint ratchet | adjacent just-cause inventory | ✓ WIRED | Independent audit: 128 operators, all preceded by a comment. |
+| `PresentationFeature.fetchGalleryDone` | `Context.galleryFailure` | constrained route-aware factory | ✓ WIRED | `PresentationFeature.swift:210-215`; no `url.path` enters Context. |
+| `AppAlertState.error(ErrorInfo)` | diagnostic Button | stored `errorInfo` plus `autoHide: false` | ✓ WIRED | `AppAlertState.swift:165-171` to `View+Toast.swift:52-61`. |
+| diagnostic Button | `onErrorTap` | `ToastInteractionState.activate` with current UUID | ✓ WIRED | `View+Toast.swift:119-125`; binding clears before callback. |
+| `onErrorTap` | `PresentationFeature.presentErrorInfo` | app-root toast closure | ✓ WIRED | `TabBarView.swift:100-105`. |
+| presentation destination | `ErrorInfoView` | TCA item sheet | ✓ WIRED | `TabBarView.swift:73-77`; reducer route test remains present. |
 
 ### Data-Flow Trace (Level 4)
 
-| Artifact | Data Variable | Source | Produces Real Data | Status |
+| Artifact | Data | Source | Produces Real Data | Status |
 |---|---|---|---|---|
-| `ErrorInfoView` | description/solution | `ErrorInfo.error` from reducer failure | Yes | ✓ FLOWING |
-| `ErrorInfoView` | context rows | `PresentationFeature.fetchGalleryDone` | Yes, but includes a secret-bearing path component | ✗ UNSAFE FLOW |
-| `ErrorInfoView` | environment rows | `AppInfo`, `DeviceClient`, `ProcessInfo` | Yes | ✓ FLOWING |
-| Error toast | `errorInfo` | `.setToast(.error(errorInfo))` | Yes | ✓ FLOWING |
-| Error detail sheet | destination item | `presentErrorInfo` from root toast callback | Yes | ✓ FLOWING |
+| Error context | action/reason/GID | failed gallery URL and `AppError` | Yes, constrained to safe values | ✓ FLOWING |
+| Diagnostic toast | `ErrorInfo` | `.setToast(.error(errorInfo))` | Yes | ✓ FLOWING |
+| Detail sheet | consumed `ErrorInfo` | native Button callback through app-root presentation action | Yes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
-| Behavior | Command | Result | Status |
+| Behavior | Command/Evidence | Result | Status |
 |---|---|---|---|
-| Private category is non-fatal and filter iteration remains complete | Focused `xcodebuild test` selecting both AppModels checks | Exit 0 | ✓ PASS |
-| `presentErrorInfo` sets the `.errorInfo` destination | Focused `xcodebuild test` selecting `PresentationFeatureTests/presentErrorInfoRoutesToErrorInfoDestination()` | Exit 0 | ✓ PASS |
-| Residual optional-try justification audit | Source-aware Ruby scan over `AppPackage/Sources/**/*.swift` | `expressions=128`, `all_preceded_by_comment` | ✓ PASS |
-| Toast gesture/timer/replacement behavior | No pre-existing modifier/UI test | Not executable as a single named test | ? SKIP |
+| Full regression | Orchestrator's single full `AppPackage-Package` run; `/tmp/EhPandaPhase09RegressionDerivedData/Logs/Test/Test-AppPackage-Package-2026.07.16_20-10-37-+0900.xcresult` | `TEST SUCCEEDED`, exit 0 | ✓ PASS |
+| Exactly-once/replacement/dismissal/policy | Focused `-only-testing:SystemNotificationExtTests`; `/tmp/EhPandaPhase09VerifierDerivedData/Logs/Test/Test-AppPackage-Package-2026.07.16_20-19-41-+0900.xcresult` | Exit 0; five tests | ✓ PASS |
+| Route-aware `/g` and `/s` sanitization | Source/test inspection plus full-suite execution | Both supported routes and malformed-route cases exercised | ✓ PASS |
+| OS accessibility focus/announcement and rendered Reduce Motion transition | No host/UI test executes these framework behaviors | Requires simulator/device UAT | ? HUMAN |
 
 ### Probe Execution
 
-No probes are declared by Phase 9 plans or summaries, and no conventional project probe applies to this phase.
+No Phase 9 plan declares a probe, and no conventional project probe applies.
 
 ### Requirements Coverage
 
-| Requirement | Source Plan | Description | Status | Evidence |
-|---|---|---|---|---|
-| QUAL-03 | 09-02 | Remove the private-category fatal error and cover it. | ✓ SATISFIED | Safe implementation and two focused passing tests. |
-| QUAL-04 | 09-01, 09-03 through 09-11 | Structured error handling and a user-facing detail surface. | ✗ BLOCKED | Structured errors and sweep are present, but the surfaced context leaks tokens and the only detail route is not reliably reachable with assistive technology. |
+| Requirement | Source Plans | Status | Evidence |
+|---|---|---|---|
+| QUAL-03 | 09-02 | ✓ SATISFIED | Safe private-category implementation, focused regression coverage, and green full suite. |
+| QUAL-04 | 09-01, 09-03 through 09-13 | ⚠ AUTOMATED CHECKS SATISFIED; HUMAN UAT REQUIRED | Structured errors, classified fallbacks, token-free context, persistent native diagnostic routing, and lifecycle tests are present; OS accessibility delivery and rendered motion remain human-only. |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|---|---:|---|---|---|
-| `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift` | 210-214 | Raw `url.path` enters user-visible context | BLOCKER | Gallery/image tokens can be disclosed in screenshots, support reports, or screen sharing. |
-| `AppPackage/Sources/SystemNotificationExt/View+Toast.swift` | 49-65, 84-93 | Timed custom gesture is the sole error-detail route | BLOCKER | Assistive-technology users can miss the only activation source. |
-| `AppPackage/Sources/SystemNotificationExt/View+Toast.swift` | 60-65 | Moving `.bouncy` transition ignores Reduce Motion | WARNING | User motion preference is not honored. |
-| `AppPackage/Sources/AppComponents/ErrorInfoView.swift` | 29-34 | `ContextKey.rawValue` is fixed English UI text | WARNING | The otherwise six-locale detail surface is partially untranslated. |
-| `AppPackage/Sources/AppModels/Support/AppError+Context.swift` | 57 | Public generic `Context` alias | WARNING | It already forced four unrelated representables to qualify `Self.Context` and remains collision-prone. |
-| `AppPackage/Tests/AppModelsTests/AppErrorStructuredTests.swift` | 13-91 | Hard-coded English localized strings | WARNING | The parity table depends on the runner language instead of controlling locale or deriving localized expectations. |
+No blocker anti-pattern was introduced by Plans 09-12 or 09-13. The gap-closure files contain no `TODO`, `FIXME`, `XXX`, `HACK`, placeholder implementation, `onTapGesture` diagnostic route, SwiftLint suppression, `@unchecked Sendable`, `@preconcurrency`, or `NSLock`.
 
-No phase-added `TODO`, `FIXME`, `XXX`, `HACK`, placeholder implementation, `@unchecked Sendable`, `@preconcurrency`, `NSLock`, or SwiftLint suppression was found.
+Non-blocking review warnings remain: diagnostic dismissal is swipe-only, context labels are fixed English, the public `Context` alias is collision-prone, localization tests depend on runner language, and lifecycle tests stop below the SwiftUI modifier boundary. None reopens the two original blocker gaps, but the last warning is why runtime accessibility stays human-required.
 
 ### Human Verification Required
 
-After the blocking toast accessibility design is corrected, verify VoiceOver announcement/focus, Voice Control and Switch Control activation, full-keyboard reachability, swipe dismissal, exactly-once routing, maximum Dynamic Type layout, and Reduce Motion behavior on a simulator/device. The current static accessibility failure is observable and is therefore a gap, not merely an uncertain human-only item.
+#### Accessible diagnostic-toast runtime UAT
+
+**Test:** Trigger a gallery diagnostic failure with VoiceOver, Voice Control, Switch Control, and Full Keyboard Access; wait beyond three seconds, activate it, then exercise replacement and downward-swipe dismissal. Repeat with Reduce Motion enabled.
+
+**Expected:** The toast is announced and focused as a persistent native Button; all assistive inputs can activate it after three seconds; activation opens details exactly once; replacement/dismissal opens nothing stale; Reduce Motion uses an opacity-only, non-bouncy transition.
+
+**Why human:** Swift Testing proves the lifecycle value type and timeout policy, while focus delivery, announcement speech, input-system operability, drag wiring, and rendered transitions are owned by SwiftUI and accessibility services.
 
 ### Gaps Summary
 
-The crash-landmine fix, structured error model, typed propagation work, and complete optional-failure inventory are implemented and wired. The phase goal is nevertheless blocked at the user-facing boundary: raw gallery paths violate the phase's explicit no-token security contract, and the three-second custom toast gesture is not a dependable route to error details for assistive-technology users. These are current implementation failures, not work intentionally deferred to a later phase. The `optional_try` rule flip is separately and explicitly deferred to Phase 11.
+Both previous implementation gaps are closed. Route-aware context sanitization removes `/g` tokens and `/s` keys at the construction boundary, and diagnostic errors now have a persistent native activation path with deterministic exactly-once lifecycle tests. No automated blocker remains. Phase completion awaits one simulator/device accessibility and Reduce Motion UAT pass.
 
 ---
 
-_Verified: 2026-07-15T09:20:15Z_
+_Verified: 2026-07-16T11:21:57Z_
 _Verifier: generic-agent workaround (gsd-verifier instructions)_
