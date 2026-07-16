@@ -91,6 +91,26 @@ struct CardSlideSection: View, Equatable {
     }
 
     var body: some View {
+        // The card geometry is container-driven (`cardWidth`/`centeringMargin` derive from
+        // `carouselWidth`), and the measurement lands one layout pass AFTER the measured view's
+        // first layout. If the ScrollView were laid out during that zero-width first pass, the
+        // seeded `scrollPosition(id:)` anchor would resolve against collapsed content and the
+        // carousel would open off the seeded card — visibly, the focused-card gradient sits on
+        // the seeded card while its NEIGHBOR is centered until the first swipe reconciles them.
+        // Deferring the ScrollView until the width is known makes its first layout the real one,
+        // so the seed anchors correctly (matching the fixed-size construct the loop shipped with).
+        Group {
+            if carouselWidth > 0 {
+                carousel
+            } else {
+                Color.clear
+            }
+        }
+        .frame(height: Defaults.FrameSize.cardCellHeight)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { carouselWidth = $0 }
+    }
+
+    private var carousel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: cardSpacing) {
                 ForEach(bufferedCards) { item in
@@ -108,8 +128,6 @@ struct CardSlideSection: View, Equatable {
         .scrollPosition(id: $scrollPositionID)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
-        .frame(height: Defaults.FrameSize.cardCellHeight)
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { carouselWidth = $0 }
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
             windowBase = 0
@@ -182,8 +200,11 @@ struct CardSlideSection: View, Equatable {
             .multilineTextAlignment(.leading)
         }
         .frame(width: cardWidth, height: Defaults.FrameSize.cardCellHeight)
+        // Peek dimming, owner-tuned: SwiftUIPager parity was `interactive(opacity: 0.2)`, but at
+        // this card size the peek slivers are thin, and 0.2 over the dark background rendered
+        // them practically invisible. 0.6 keeps the neighbors clearly readable yet de-emphasized.
         .scrollTransition { content, phase in
-            content.opacity(phase.isIdentity ? 1 : 0.2)
+            content.opacity(phase.isIdentity ? 1 : 0.6)
         }
     }
 }
