@@ -56,8 +56,10 @@ private struct ToastViewModifier: ViewModifier {
                             } label: {
                                 ToastMessageView(content: toast)
                                     .frame(minHeight: 44)
+                                    .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .glassEffect(.regular, in: .capsule)
                             .accessibilityFocused($focusedToastID, equals: id)
                         } else {
                             ToastMessageView(content: toast)
@@ -65,7 +67,7 @@ private struct ToastViewModifier: ViewModifier {
                     }
                     .id(id)
                     .padding(.horizontal)
-                    .padding(.bottom)
+                    .padding(.bottom, 64)
                     .gesture(dismissGesture(
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id
