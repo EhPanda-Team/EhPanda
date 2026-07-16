@@ -22,14 +22,14 @@ struct AnyHashableBoxTests {
         let context: Context = [
             .action: "parseGalleryList",
             .statusCode: 200,
-            .url: "/g/1/abc"
+            .gid: 1
         ]
         let boolean: AnyHashableBox = true
         let float: AnyHashableBox = 1.5
 
         #expect(context[.action]?.displayValue == "parseGalleryList")
         #expect(context[.statusCode]?.displayValue == "200")
-        #expect(context[.url]?.displayValue == "/g/1/abc")
+        #expect(context[.gid]?.displayValue == "1")
         #expect(boolean == AnyHashableBox(true))
         #expect(float == AnyHashableBox(1.5))
     }
