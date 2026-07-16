@@ -495,14 +495,14 @@ ViewThatFits(in: .horizontal) { HStack { … }; VStack { … } }
 
 ## Open Questions
 
-1. **inSheet replacement mechanism — trait-based (recommended) vs explicit init parameter?**
+1. **inSheet replacement mechanism — trait-based (recommended) vs explicit init parameter?** *(RESOLVED — see plan 10-04: trait-based implementation with A3 probe in Task 2, delta owner-gated at the Task 3 checkpoint, init-parameter fallback documented)*
    - What we know: consumers only select gray tones; trait approach is native and plumbing-free; it changes previously-unflagged sheets (Pitfall 4).
    - What's unclear: whether the owner accepts the "missed sheets now render elevated gray" delta.
    - Recommendation: plan proposes trait-based with the delta stated explicitly (CONTEXT requires the mechanism surfaced in the plan); D-11 gates it; init-parameter fallback documented.
-2. **Menu-row Text+checkmark buttons (criterion 10 "where fitting")**
+2. **Menu-row Text+checkmark buttons (criterion 10 "where fitting")** *(RESOLVED — see plan 10-05 Task 1: the three menu-row buttons are left as-is, verdict recorded)*
    - What we know: three menus use trailing conditional checkmarks; `Label` reorders the icon leading; `Picker`-in-`Menu` is the native selection idiom but changes the rendering surface.
    - Recommendation: default to leaving these three as-is (fitting = no); note the decision in the plan.
-3. **Does the D-03 DT gate include the EhSetting webview-backed screens?**
+3. **Does the D-03 DT gate include the EhSetting webview-backed screens?** *(RESOLVED — see plan 10-10 Task 2: native chrome audited; WebKit-rendered text checked but out of remediation scope, noted in the verdict table)*
    - What we know: EhSettingView has native + web content; DT applies to native chrome; web content scales via WebKit's own text sizing.
    - Recommendation: gate covers the native chrome; web content readable-and-operable is checked but WebKit-rendered text is out of remediation scope.
 
