@@ -464,7 +464,22 @@ Plans:
   11. The `SystemNotificationExt` module is renamed to `SystemNotification` (it contains the full implementation, not a thin extension), with every import/reference updated accordingly.
   12. Every legacy `_Previews: PreviewProvider` struct is migrated to the `#Preview` macro, and previews are enriched to exercise all realistic states as named `#Preview("…")` cases (empty / loading / loaded / error, boundary values such as min/max ratings, counts, page numbers, and long vs. short text), using modern preview features — `@Previewable` for interactive state, preview traits (e.g. `.sizeThatFitsLayout`), and environment/Dynamic Type/color-scheme variants where useful. No `PreviewProvider` remains in the codebase.
 
-**Plans**: TBD
+**Plans**: 12 plans (12 sequential waves — one xcodebuild at a time per D-12)
+Plans:
+
+- [ ] 10-01-PLAN.md — SystemNotificationExt → SystemNotification parity rename (criterion 11)
+- [ ] 10-02-PLAN.md — Deprecated color-modifier sweep: foregroundStyle + tint (criterion 7)
+- [ ] 10-03-PLAN.md — Corner/autocorrection/status-bar sweep + custom cornerRadius(_:corners:) removal (criteria 7, 8)
+- [ ] 10-04-PLAN.md — \.inSheet removal via userInterfaceLevel trait, owner-gated delta checkpoint (criterion 6)
+- [ ] 10-05-PLAN.md — Label conversions + empty-string audit (criteria 9, 10)
+- [ ] 10-06-PLAN.md — ZStack → overlay/background with per-site verdicts + D-11 spot-checks (POLISH-02)
+- [ ] 10-07-PLAN.md — Paired numeric text on the D-05 changing-value set (POLISH-01)
+- [ ] 10-08-PLAN.md — #Preview migration: stateful cells/components, full state matrix (POLISH-03)
+- [ ] 10-09-PLAN.md — #Preview migration: remaining 34 screens, global zero-legacy gate (POLISH-03)
+- [ ] 10-10-PLAN.md — Fixed-font remediation + whole-app Dynamic Type audit at XXL/AX3/AX5 (criterion 5)
+- [ ] 10-11-PLAN.md — Dynamic Type reflow fixes (never cap) + default-size parity (criterion 5)
+- [ ] 10-12-PLAN.md — Full suite + phase grep battery + owner-signed D-03 gate (criteria 1-12)
+
 **UI hint**: yes
 
 ### Phase 11: Infra Refactor & Lint Capstone
