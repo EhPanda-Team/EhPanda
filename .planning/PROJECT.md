@@ -34,6 +34,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ De-globalize `*Util` → injected clients, kill singletons (HYG-01) — side-effecting AppTools Utils (Device/Haptics/UserDefaults/Cookie) folded into injected clients; `URLUtil`/`FileUtil`/`AppInfo` kept as pure namespaces (D-06); `AppUtil`, `TouchHandler.shared`, and `DataCache.shared` removed; galleryHost threaded explicitly through every request seam — Phase 8
 - ✓ Cookie-logging audit (QUAL-01) — no cookie value is emitted to logs at `.public` privacy, enforced by a static gate hardened against aliased-value/renamed-Logger evasion with an executable negative-fixture harness — Phase 8
 - ✓ Client-layer test coverage (QUAL-02) — deterministic, green tests for the async `NetworkingFeature`, `CookieClient`, and `ImageClient` (per-test `DataCache`, pixel-dimension assertions) — Phase 8
+- ✓ Fix `Category.private.filterValue` (QUAL-03) — the `fatalError` landmine is gone; `.private` reports filter-math misuse and contributes zero, while the ten searchable cases still sum to all 1023 filter bits — Phase 9
+- ✓ Structured error handling + user-facing error surface (QUAL-04) — silent `try?` sites classified so genuine failures propagate through typed `throws(AppError)` while intentional fallbacks stay documented; a privacy-safe diagnostic surface (Description / Suggested Solution / Context / Environment) is reached through a persistent, accessible error toast, runtime-verified by simulator UAT — Phase 9
 
 ### Active
 
@@ -47,10 +49,6 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - [ ] 10. **Modernize adaptive layout** — remove screen-dependent logic (`DeviceUtil` + `DeviceClient`); prefer size classes / `containerRelativeFrame` / `onGeometryChange` / `ViewThatFits`, **avoiding `GeometryReader`**; retire `TouchHandler` via native gestures
 - [ ] 11. **Decompose `GenericList`** — let each of its 8 consuming pages build its own list from shared atoms instead of a super-list
 - [ ] 12. **Universal device orientation** on every page + remove EhPanda's custom orientation lock (delete `enablesLandscape`), deferring the lock to iOS's built-in feature
-
-**E · Correctness, security & tests (folded-in concerns, later timing)**
-- [ ] 18. **Fix `Category.private.filterValue`** — remove the `fatalError` landmine
-- [ ] 20. **Structured error handling + user-facing error surface** (gates the `optional_try` rule) — replace silent `try?` (144 sites) with proper `do/catch` that surfaces user-relevant failures through a structured error surface (Description / Suggested Solution / Context / environment info; non-blocking failure toast → tap for detail), keeping best-effort parsing explicitly optional
 
 **F · UI polish**
 - [ ] 21. **Numeric text polish** — apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text (counts, page numbers, sizes, ratings)
@@ -73,7 +71,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Phases 1–8 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, the root privacy-mask/auto-lock removal, and the architecture-hygiene client-seam de-globalization are validated. Phase 9 (correctness & structured error handling) is next.
+- **v3.0.0 in flight, unreleased.** Phases 1–9 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, the root privacy-mask/auto-lock removal, the architecture-hygiene client-seam de-globalization, and the correctness/structured-error-handling work are validated. Phase 10 (UI Polish) is next.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured name-free; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
@@ -122,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-14 after Phase 8*
+*Last updated: 2026-07-16 after Phase 9*

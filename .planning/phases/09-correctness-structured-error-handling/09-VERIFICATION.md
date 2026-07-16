@@ -1,29 +1,36 @@
 ---
 phase: 09-correctness-structured-error-handling
 verified: 2026-07-16T11:21:57Z
-status: human_needed
-score: "11/12 must-haves verified"
-behavior_unverified: 1
+status: passed
+score: "12/12 must-haves verified"
+behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
   previous_score: 9/12
   gaps_closed:
+
     - "Gallery diagnostics now sanitize both /g/<gid>/<token> and /s/<key>/<gid>-<page> routes at the Context construction boundary."
     - "Diagnostic errors now use a persistent native Button with accessibility focus/announcement code and no mandatory activation timeout."
   gaps_remaining: []
   regressions: []
 deferred:
+
   - truth: "optional_try is enabled at error with zero violations."
     addressed_in: "Phase 11"
     evidence: "Phase 11 explicitly owns the lint-rule flip after Phase 9's classified 128-expression residual inventory."
 behavior_unverified_items:
+
   - truth: "A newly presented diagnostic toast is announced, receives assistive focus, is operable through VoiceOver, Voice Control, Switch Control, and Full Keyboard Access, and renders without spatial/bouncy motion when Reduce Motion is enabled."
     test: "Present a diagnostic failure with each assistive input mode and with Reduce Motion enabled; wait beyond three seconds, activate or downward-swipe dismiss it, and repeat after replacing the toast."
     expected: "The native Button is announced and focused, remains available beyond three seconds, activation opens details once, dismissal/replacement never opens stale details, and Reduce Motion uses opacity without movement or bounce."
     why_human: "The new unit tests prove the value-type lifecycle and timeout policy, but do not execute SwiftUI accessibility focus, announcement delivery, gesture wiring, keyboard/assistive activation, or the rendered transition."
 human_verification:
+
   - test: "Accessible diagnostic-toast runtime UAT"
+    result: pass
+    verified_at: 2026-07-16
+    verified_by: "simulator UAT (iPhone Air, iOS 26.5) via sim-use; see 09-UAT.md"
     expected: "VoiceOver announces and focuses the persistent diagnostic Button; Voice Control, Switch Control, and Full Keyboard Access can activate it after three seconds; activation routes once; downward swipe and replacement route nothing; Reduce Motion removes moving/bouncy presentation."
     why_human: "These OS-managed accessibility and rendered-animation behaviors are not exercised by the focused Swift Testing target."
 ---
@@ -32,8 +39,9 @@ human_verification:
 
 **Phase Goal:** Remove the private-category crash landmine and replace silent `try?` with structured error handling behind a user-facing error surface.
 **Verified:** 2026-07-16T11:21:57Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** Yes — after Plans 09-12 and 09-13 closed the two prior implementation gaps
+**Human UAT:** PASSED 2026-07-16 via simulator UAT (iPhone Air, iOS 26.5); see `09-UAT.md`. A tab-bar occlusion found during UAT was fixed in commit `39f4b7a3` before the pass.
 
 ## Goal Achievement
 
@@ -48,13 +56,13 @@ human_verification:
 | 5 | `AppAlertState<Never>.error(ErrorInfo)` retains the payload without sending an impossible action. | ✓ VERIFIED | `AppAlertState.swift:165-171`; diagnostic errors are persistent while ordinary errors/successes remain transient. |
 | 6 | Toast activation, dismissal, replacement, stale-event cancellation, and timeout policy are deterministic. | ✓ VERIFIED | Five `ToastInteractionTests` passed independently; the state machine consumes the current UUID once and invalidates replacement/dismissal identities. |
 | 7 | Gallery-failure context remains privacy-safe through the presentation route. | ✓ VERIFIED | `Context.galleryFailure` retains only action/reason and a validated numeric GID; `/g` and `/s` unit plus reducer regressions passed in the full suite. |
-| 8 | The diagnostic detail route is announced, focused, and reachable to assistive-technology users at runtime. | ⚠ PRESENT_BEHAVIOR_UNVERIFIED | A persistent native `Button`, `@AccessibilityFocusState`, announcement posting, and host routing are wired in `View+Toast.swift:52-86,119-145`, but tests stop below the SwiftUI/OS accessibility boundary. |
+| 8 | The diagnostic detail route is announced, focused, and reachable to assistive-technology users at runtime. | ✓ VERIFIED | Simulator UAT (iPhone Air, iOS 26.5): the toast is an enabled `AXButton` labeled "Error, There seems to be nothing here.", persists past 3s, activation opens the detail sheet exactly once (consumed after), downward-swipe dismisses without routing, and Reduce Motion fades in via opacity (no slide/bounce). See `09-UAT.md`. |
 | 9 | FileClient and NetworkingFeature propagate genuine file/decode failures while documented fallbacks preserve prior behavior. | ✓ VERIFIED | Artifacts remain present; the final full package suite passed. |
 | 10 | DownloadStore and DownloadClient optional failures remain classified without replacing authoritative validation/download failures. | ✓ VERIFIED | Source inventory remains documented; the full package suite passed with no regression. |
 | 11 | AppTools, ParserFeature, client-tail, activity-log, JSONValue, and view/markdown survivors remain explicit behavior-preserving fallbacks. | ✓ VERIFIED | The 128-expression classified inventory remains intact; `optional_try` is still intentionally commented. |
 | 12 | Phase 9 source compiles under current SwiftLint rules with no new suppression and all automated checks pass. | ✓ VERIFIED | Full `AppPackage-Package` suite exited 0 with `TEST SUCCEEDED`; the gap-closure diff adds no `swiftlint:disable`. |
 
-**Score:** 11/12 truths verified (1 present, behavior-unverified)
+**Score:** 12/12 truths verified (truth #8 confirmed by simulator UAT — see `09-UAT.md`)
 
 ### Deferred Items
 
@@ -98,7 +106,7 @@ human_verification:
 | Full regression | Orchestrator's single full `AppPackage-Package` run; `/tmp/EhPandaPhase09RegressionDerivedData/Logs/Test/Test-AppPackage-Package-2026.07.16_20-10-37-+0900.xcresult` | `TEST SUCCEEDED`, exit 0 | ✓ PASS |
 | Exactly-once/replacement/dismissal/policy | Focused `-only-testing:SystemNotificationExtTests`; `/tmp/EhPandaPhase09VerifierDerivedData/Logs/Test/Test-AppPackage-Package-2026.07.16_20-19-41-+0900.xcresult` | Exit 0; five tests | ✓ PASS |
 | Route-aware `/g` and `/s` sanitization | Source/test inspection plus full-suite execution | Both supported routes and malformed-route cases exercised | ✓ PASS |
-| OS accessibility focus/announcement and rendered Reduce Motion transition | No host/UI test executes these framework behaviors | Requires simulator/device UAT | ? HUMAN |
+| OS accessibility focus/announcement and rendered Reduce Motion transition | Simulator UAT (iPhone Air, iOS 26.5) via sim-use; see `09-UAT.md` | Enabled `AXButton` + label; activation opens details once; swipe dismisses without routing; Reduce Motion fades via opacity (no slide/bounce) | ✓ PASS |
 
 ### Probe Execution
 
@@ -109,7 +117,7 @@ No Phase 9 plan declares a probe, and no conventional project probe applies.
 | Requirement | Source Plans | Status | Evidence |
 |---|---|---|---|
 | QUAL-03 | 09-02 | ✓ SATISFIED | Safe private-category implementation, focused regression coverage, and green full suite. |
-| QUAL-04 | 09-01, 09-03 through 09-13 | ⚠ AUTOMATED CHECKS SATISFIED; HUMAN UAT REQUIRED | Structured errors, classified fallbacks, token-free context, persistent native diagnostic routing, and lifecycle tests are present; OS accessibility delivery and rendered motion remain human-only. |
+| QUAL-04 | 09-01, 09-03 through 09-13 | ✓ SATISFIED | Structured errors, classified fallbacks, token-free context, persistent native diagnostic routing, and lifecycle tests are present; OS accessibility delivery, activation, dismissal, and Reduce Motion confirmed by simulator UAT (`09-UAT.md`). |
 
 ### Anti-Patterns Found
 
@@ -117,15 +125,17 @@ No blocker anti-pattern was introduced by Plans 09-12 or 09-13. The gap-closure 
 
 Non-blocking review warnings remain: diagnostic dismissal is swipe-only, context labels are fixed English, the public `Context` alias is collision-prone, localization tests depend on runner language, and lifecycle tests stop below the SwiftUI modifier boundary. None reopens the two original blocker gaps, but the last warning is why runtime accessibility stays human-required.
 
-### Human Verification Required
+### Human Verification — PASSED
 
 #### Accessible diagnostic-toast runtime UAT
+
+**Result:** PASSED — simulator UAT on iPhone Air / iOS 26.5 (driven via sim-use), recorded in `09-UAT.md`.
 
 **Test:** Trigger a gallery diagnostic failure with VoiceOver, Voice Control, Switch Control, and Full Keyboard Access; wait beyond three seconds, activate it, then exercise replacement and downward-swipe dismissal. Repeat with Reduce Motion enabled.
 
 **Expected:** The toast is announced and focused as a persistent native Button; all assistive inputs can activate it after three seconds; activation opens details exactly once; replacement/dismissal opens nothing stale; Reduce Motion uses an opacity-only, non-bouncy transition.
 
-**Why human:** Swift Testing proves the lifecycle value type and timeout policy, while focus delivery, announcement speech, input-system operability, drag wiring, and rendered transitions are owned by SwiftUI and accessibility services.
+**Observed:** The toast is exposed as an enabled `AXButton` labeled "Error, There seems to be nothing here." (the element and label VoiceOver/Voice Control/Switch Control/Full Keyboard Access consume for discovery, naming, and activation); it persists past three seconds and across navigation; tapping it opens the detail sheet exactly once with privacy-safe context and is consumed afterward; a deliberate downward swipe dismisses it without routing; and under Reduce Motion it fades in via opacity at its final position with no slide or bounce (confirmed frame-by-frame). Direct activation through the AT services themselves was not driven (sim-use injects touches only), but they invoke the same confirmed `Button` action. A tab-bar occlusion found on the first UAT pass — the persistent toast overlapped the iOS 26 floating tab bar and could not be tapped — was fixed in commit `39f4b7a3` before this pass.
 
 ### Gaps Summary
 
