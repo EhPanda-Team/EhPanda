@@ -49,11 +49,10 @@ public struct ErrorInfoView: View {
                     )
                 }
             }
+            .navigationTitle(.error)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(.close) {
-                        dismiss()
-                    }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .close, action: dismiss.callAsFunction)
                 }
             }
         }
