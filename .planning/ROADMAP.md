@@ -387,7 +387,7 @@ Plans:
   3. User-relevant failures surface via a non-blocking failure toast that opens a dismissable detail surface (Description / Suggested Solution / Context / environment info).
   4. `optional_try` can be enabled at error with zero violations (verified in the lint capstone).
 
-**Plans**: 11/13 plans executed
+**Plans**: 12/13 plans executed
 Plans:
 
 **Wave 1**
@@ -436,7 +436,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [ ] 09-12-PLAN.md — Privacy-safe gallery diagnostic context with route-aware `/g` and `/s` token redaction regressions (QUAL-04)
+- [x] 09-12-PLAN.md — Privacy-safe gallery diagnostic context with route-aware `/g` and `/s` token redaction regressions (QUAL-04)
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
@@ -496,7 +496,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. GalleryList Rename | — | Delivered (rescoped) | 2026-07-13 |
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
-| 9. Correctness & Structured Error Handling | 11/11 | In Progress|  |
+| 9. Correctness & Structured Error Handling | 12/13 | In Progress|  |
 | 10. UI Polish | 0/TBD | Not started | - |
 | 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
 | 12. Deep Link Hardening | 0/TBD | Not started | - |
