@@ -7,7 +7,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import AppTools
 import AnimatedImageFeature
-import SystemNotificationExt
+import SystemNotification
 import AppComponents
 import ReadingSettingFeature
 import Dependencies

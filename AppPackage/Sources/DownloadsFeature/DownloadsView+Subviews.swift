@@ -4,7 +4,7 @@ import TagTranslationFeature
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import SystemNotificationExt
+import SystemNotification
 import AppComponents
 import GalleryListComponents
 

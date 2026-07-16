@@ -78,8 +78,8 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
-        "identifier" : "SystemNotificationExtTests",
-        "name" : "SystemNotificationExtTests"
+        "identifier" : "SystemNotificationTests",
+        "name" : "SystemNotificationTests"
       }
     },
     {
