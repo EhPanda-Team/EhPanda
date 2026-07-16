@@ -5,7 +5,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import Dependencies
 import DeviceClient
-import SystemNotificationExt
+import SystemNotification
 import AppComponents
 import DetailFeature
 import HomeFeature

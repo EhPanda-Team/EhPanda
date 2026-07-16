@@ -1,7 +1,7 @@
 import AppComponents
 import AppModels
 import Foundation
-@testable import SystemNotificationExt
+@testable import SystemNotification
 import Testing
 
 struct ToastInteractionTests {

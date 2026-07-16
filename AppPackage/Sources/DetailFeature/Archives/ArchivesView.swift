@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
-import SystemNotificationExt
+import SystemNotification
 import AppComponents
 import Dependencies
 import HapticsClient
