@@ -83,12 +83,11 @@ extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
     }
 }
 
-/// User-visible diagnostic labels. Gallery diagnostics use ``Dictionary/galleryFailure(url:action:reason:)``
-/// so access-bearing route components never enter their context.
+/// User-visible diagnostic labels. This fixed whitelist deliberately has no raw URL slot; gallery diagnostics
+/// retain only a validated numeric identifier through ``Dictionary/galleryFailure(url:action:reason:)``.
 public enum ContextKey: String, Hashable, Sendable {
     case action = "Action"
     case reason = "Reason"
-    case url = "URL"
     case statusCode = "Status Code"
     case gid = "Gallery ID"
 }

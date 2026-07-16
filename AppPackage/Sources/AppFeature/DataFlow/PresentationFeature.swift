@@ -207,11 +207,11 @@ struct PresentationFeature {
                 case .success(let gallery):
                     return .send(.handleGalleryLink(url, gallery))
                 case .failure(let error):
-                    let context: Context = [
-                        .action: "Fetch gallery",
-                        .reason: AnyHashableBox(error.localizedDescription),
-                        .url: AnyHashableBox(url.path)
-                    ]
+                    let context = Context.galleryFailure(
+                        url: url,
+                        action: "Fetch gallery",
+                        reason: error.localizedDescription
+                    )
                     let errorInfo = ErrorInfo(error: error, context: context)
                     // Let the loading toast animate out before showing the error toast.
                     return .run { send in
