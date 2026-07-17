@@ -111,7 +111,11 @@ struct GeneralSettingView: View {
                     HStack {
                         Text(.clearImageCaches)
                         Spacer()
-                        Text(store.diskImageCacheSize).foregroundStyle(.tint)
+                        Text(store.diskImageCacheSize)
+                            .foregroundStyle(.tint)
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                            .animation(.default, value: store.diskImageCacheSize)
                     }
                     .foregroundStyle(.primary)
                 }
