@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 
 public struct Placeholder: View {
-    @Environment(\.inSheet) private var inSheet
     private let style: PlaceholderStyle
 
     public init(style: PlaceholderStyle) {
@@ -13,7 +12,7 @@ public struct Placeholder: View {
         switch style {
         case .activity(let ratio, let cornerRadius):
             ZStack {
-                Color(inSheet ? .systemGray4 : .systemGray5)
+                Color(.systemGray5)
 
                 ProgressView()
             }

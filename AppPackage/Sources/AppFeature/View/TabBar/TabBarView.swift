@@ -95,7 +95,6 @@ struct TabBarView: View {
             }
             .tint(store.settingState.setting.accentColor)
             .privacyMask()
-            .environment(\.inSheet, true)
         }
         .toast(
             $store.scope(\.presentationState.$toast, action: \.presentation.toast),
