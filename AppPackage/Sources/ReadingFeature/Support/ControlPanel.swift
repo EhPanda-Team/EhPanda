@@ -377,7 +377,7 @@ private struct SliderPreivew: View {
 
                     Text(index, format: .number)
                         .font(horizontalSizeClass == .regular ? .callout : .caption)
-                        .foregroundStyle(index == Int(sliderValue) ? .accentColor : .secondary)
+                        .foregroundStyle(index == Int(sliderValue) ? Color.accentColor : Color.secondary)
                 }
                 .onAppear {
                     if previewURLs[index] == nil && checkIndex(index) {

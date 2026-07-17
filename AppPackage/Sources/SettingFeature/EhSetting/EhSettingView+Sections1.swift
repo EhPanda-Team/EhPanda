@@ -99,7 +99,7 @@ struct ImageLoadSettingsSection: View {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name)
                         .tag(country)
-                        .foregroundStyle(country == ehSetting.browsingCountry ? .accentColor : .primary)
+                        .foregroundStyle(country == ehSetting.browsingCountry ? Color.accentColor : Color.primary)
                 }
             }
         } header: {
