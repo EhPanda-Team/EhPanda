@@ -44,7 +44,7 @@ struct FrontpageView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .accentColor(self.store.setting.accentColor)
+            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)

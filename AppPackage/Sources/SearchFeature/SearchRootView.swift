@@ -48,7 +48,7 @@ public struct SearchRootView: View {
                             self.store.send(.pushSearch)
                         }
                     }
-                    .accentColor(self.store.setting.accentColor)
+                    .tint(self.store.setting.accentColor)
                     .privacyMask()
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)

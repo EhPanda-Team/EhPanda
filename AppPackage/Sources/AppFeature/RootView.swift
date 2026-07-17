@@ -10,6 +10,6 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        TabBarView(store: appDelegate.store).accentColor(.primary)
+        TabBarView(store: appDelegate.store).tint(.primary)
     }
 }

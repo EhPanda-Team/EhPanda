@@ -56,7 +56,7 @@ public struct FavoritesView: View {
                     self.store.send(.destination(.dismiss))
                     self.store.send(.fetchGalleries(keyword))
                 }
-                .accentColor(self.store.setting.accentColor)
+                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(
@@ -68,7 +68,7 @@ public struct FavoritesView: View {
                     navigation: store.navigation,
                     seekAction: { store.send(.performSeek($0)) }
                 )
-                .accentColor(self.store.setting.accentColor)
+                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .searchable(text: $store.keyword, placement: .navigationBarDrawer)
