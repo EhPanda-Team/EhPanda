@@ -242,8 +242,7 @@ extension TagsSection {
                         links: translation.links
                     ))
                 } label: {
-                    Image(systemSymbol: .richtextPage)
-                    Text(.RLocalizable.detail)
+                    Label(.RLocalizable.detail, systemSymbol: .richtextPage)
                 }
             }
             if cookieClient.didLogin {
@@ -257,22 +256,19 @@ extension TagsSection {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), content.isVotedUp ? -1 : 1)
                 } label: {
-                    Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
+                    Label(.withdrawVote, systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
                         .symbolVariant(.fill)
-                    Text(.withdrawVote)
                 }
             } else {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), 1)
                 } label: {
-                    Image(systemSymbol: .handThumbsup)
-                    Text(.voteUp)
+                    Label(.voteUp, systemSymbol: .handThumbsup)
                 }
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), -1)
                 } label: {
-                    Image(systemSymbol: .handThumbsdown)
-                    Text(.voteDown)
+                    Label(.voteDown, systemSymbol: .handThumbsdown)
                 }
             }
         }

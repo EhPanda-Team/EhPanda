@@ -70,9 +70,16 @@ public struct FiltersButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Image(systemSymbol: .line3HorizontalDecrease)
-            if !hideText {
-                Text(.RLocalizable.filters)
+            // No `AnyLabelStyle` exists, so the icon-only variant is a separate
+            // branch rather than a conditional `.labelStyle`. In a toolbar the
+            // plain `Label` still renders icon-only; inside `ToolbarFeaturesMenu`
+            // it renders as an icon+title menu row (parity with the old
+            // Image+Text composition).
+            if hideText {
+                Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
+                    .labelStyle(.iconOnly)
+            } else {
+                Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
             }
         }
     }
@@ -89,9 +96,11 @@ public struct QuickSearchButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Image(systemSymbol: .magnifyingglass)
-            if !hideText {
-                Text(.RLocalizable.quickSearch)
+            if hideText {
+                Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
+                    .labelStyle(.iconOnly)
+            } else {
+                Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
             }
         }
     }
@@ -110,9 +119,11 @@ public struct JumpPageButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Image(systemSymbol: .arrowshapeBounceForward)
-            if !hideText {
-                Text(.RLocalizable.jumpPage)
+            if hideText {
+                Label(.RLocalizable.jumpPage, systemSymbol: .arrowshapeBounceForward)
+                    .labelStyle(.iconOnly)
+            } else {
+                Label(.RLocalizable.jumpPage, systemSymbol: .arrowshapeBounceForward)
             }
         }
         .disabled(pageNumber.isSinglePage)
