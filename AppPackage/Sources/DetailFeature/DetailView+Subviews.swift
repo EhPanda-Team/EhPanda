@@ -59,7 +59,7 @@ struct DescriptionSection: View {
                     if info == infos.last {
                         Button(action: navigateGalleryInfosAction) {
                             Image(systemSymbol: .ellipsis)
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.title3.weight(.bold))
                         }
                         .containerRelativeFrame(.horizontal, itemWidth)
                     }
@@ -110,7 +110,7 @@ extension DescriptionSection {
                     .monospacedDigit()
                     .contentTransition(.numericText(value: Double(rating)))
                     .animation(.default, value: rating)
-                RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(.primary)
+                RatingView(rating: rating).font(.caption).foregroundStyle(.primary)
             }
         }
     }
@@ -126,6 +126,8 @@ struct ActionSection: View {
     let updateRatingAction: (DragGesture.Value) -> Void
     let confirmRatingAction: (DragGesture.Value) -> Void
     let navigateSimilarGalleryAction: () -> Void
+    // 24pt at default (.large); scales with Dynamic Type relative to the nearest text style (.title2, 22pt).
+    @ScaledMetric(relativeTo: .title2) private var userRatingSymbolSize: CGFloat = 24
 
     var body: some View {
         VStack {
@@ -150,7 +152,7 @@ struct ActionSection: View {
             if showUserRating {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
-                        .font(.system(size: 24))
+                        .font(.system(size: userRatingSymbolSize))
                         .foregroundStyle(.yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)

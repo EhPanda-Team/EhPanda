@@ -447,6 +447,9 @@ struct MiscGridItem: View {
         self.symbol = symbol
     }
 
+    // 50pt at default (.large); scales with Dynamic Type relative to the nearest text style (.largeTitle, 34pt).
+    @ScaledMetric(relativeTo: .largeTitle) private var symbolSize: CGFloat = 50
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -455,7 +458,7 @@ struct MiscGridItem: View {
                     Text(subTitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }
             }
-            Image(systemSymbol: symbol).font(.system(size: 50, weight: .light, design: .default))
+            Image(systemSymbol: symbol).font(.system(size: symbolSize, weight: .light, design: .default))
                 .foregroundStyle(.secondary).imageScale(.large).offset(x: 20, y: 20)
         }
         .padding(30)

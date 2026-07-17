@@ -245,6 +245,9 @@ struct ImageContainer: View {
         )
     }
 
+    // 30pt at default (.large); scales with Dynamic Type relative to the nearest text style (.title, 28pt).
+    @ScaledMetric(relativeTo: .title) private var reloadSymbolSize: CGFloat = 30
+
     var body: some View {
         if loadingState == .idle {
             image(url: imageURL).scaledToFit().overlay(
@@ -265,7 +268,7 @@ struct ImageContainer: View {
                             Button(action: reloadImage) {
                                 Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                             }
-                            .font(.system(size: 30, weight: .medium)).foregroundStyle(.gray)
+                            .font(.system(size: reloadSymbolSize, weight: .medium)).foregroundStyle(.gray)
                             .opacity(loadingState == .loading ? 0 : 1)
                             ProgressView().opacity(loadingState == .loading ? 1 : 0)
                         }
