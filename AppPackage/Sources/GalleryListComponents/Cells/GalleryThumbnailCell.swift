@@ -87,7 +87,7 @@ public struct GalleryThumbnailCell: View {
                 }
                 .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
 
-                RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
+                RatingView(rating: gallery.rating).foregroundStyle(.yellow).font(.caption)
             }
             .padding()
         }

@@ -23,11 +23,19 @@ public struct CustomToolbarItem<Content: View>: ToolbarContent {
 
     public var body: some ToolbarContent {
         ToolbarItem(placement: placement) {
-            HStack(spacing: 14) {
-                content
-            }
-            .foregroundColor(tint)
-            .disabled(disabled)
+            tintedContent.disabled(disabled)
+        }
+    }
+
+    // `tint` is optional: nil means inherit the ambient tint, so apply
+    // `foregroundStyle` only when a concrete color is supplied rather than
+    // forcing a default that would override inheritance.
+    @ViewBuilder private var tintedContent: some View {
+        let stack = HStack(spacing: 14) { content }
+        if let tint {
+            stack.foregroundStyle(tint)
+        } else {
+            stack
         }
     }
 }

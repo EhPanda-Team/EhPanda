@@ -170,7 +170,7 @@ struct ExcludeToggle: View {
         Color.clear
             .overlay {
                 Image(systemSymbol: isOn ? .nosign : .circle)
-                    .foregroundColor(isOn ? .red : .primary)
+                    .foregroundStyle(isOn ? .red : .primary)
                     .font(.title)
             }
             .onTapGesture {

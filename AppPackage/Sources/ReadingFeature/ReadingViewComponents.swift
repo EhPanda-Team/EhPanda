@@ -260,12 +260,12 @@ struct ImageContainer: View {
                 backgroundColor
                 VStack {
                     Text(String(index)).font(.largeTitle.bold())
-                        .foregroundColor(.gray).padding(.bottom, 30)
+                        .foregroundStyle(.gray).padding(.bottom, 30)
                     ZStack {
                         Button(action: reloadImage) {
                             Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                         }
-                        .font(.system(size: 30, weight: .medium)).foregroundColor(.gray)
+                        .font(.system(size: 30, weight: .medium)).foregroundStyle(.gray)
                         .opacity(loadingState == .loading ? 0 : 1)
                         ProgressView().opacity(loadingState == .loading ? 1 : 0)
                     }

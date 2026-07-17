@@ -120,7 +120,7 @@ struct KeywordCell: View {
                 } label: {
                     Image(systemSymbol: .xmark)
                         .imageScale(.small)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
             }
         }

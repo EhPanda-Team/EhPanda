@@ -45,7 +45,7 @@ public struct SubSection<Content: View>: View {
                     }
                 }
                 .allowsHitTesting(reloadAction != nil)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 Spacer()
                 Button(action: showAllAction) {
                     Text(.showAll).font(.subheadline)

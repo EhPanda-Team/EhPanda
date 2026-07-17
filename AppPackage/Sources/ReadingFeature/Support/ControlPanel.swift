@@ -212,7 +212,7 @@ private struct UpperPanel: View {
                 }
 
                 Menu {
-                    Text(.autoPlay).foregroundColor(.secondary)
+                    Text(.autoPlay).foregroundStyle(.secondary)
                     ForEach(AutoPlayPolicy.allCases) { policy in
                         Button {
                             autoPlayPolicy = policy
@@ -288,7 +288,7 @@ private struct LowerPanel<G: Gesture>: View {
         VStack(spacing: 30) {
             Button(action: dismissAction) {
                 Image(systemSymbol: .xmark)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                     .font(.title2)
                     .frame(width: 44, height: 44)
             }
@@ -377,7 +377,7 @@ private struct SliderPreivew: View {
 
                     Text(index, format: .number)
                         .font(horizontalSizeClass == .regular ? .callout : .caption)
-                        .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
+                        .foregroundStyle(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
                     if previewURLs[index] == nil && checkIndex(index) {

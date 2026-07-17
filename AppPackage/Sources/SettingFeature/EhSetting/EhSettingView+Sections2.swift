@@ -42,7 +42,7 @@ struct FavoritesSection: View {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundColor(category.color(host: setting.galleryHost))
+                        .foregroundStyle(category.color(host: setting.galleryHost))
                         .frame(width: 10)
 
                     SettingTextField(

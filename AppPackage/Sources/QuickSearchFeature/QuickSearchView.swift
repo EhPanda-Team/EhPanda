@@ -31,7 +31,7 @@ public struct QuickSearchView: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 5) {
                                 if !word.name.isEmpty, !word.content.isEmpty {
-                                    Text(word.name).font(.subheadline).foregroundColor(.secondary).lineLimit(1)
+                                    Text(word.name).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                                 }
                                 Text(word.effectiveSearchText)
                                     .fontWeight(.medium)

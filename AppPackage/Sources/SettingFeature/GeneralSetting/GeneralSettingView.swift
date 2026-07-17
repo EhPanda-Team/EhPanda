@@ -41,7 +41,7 @@ struct GeneralSettingView: View {
                 Button(.appActivityLogs) {
                     store.send(.delegate(.pushAppActivityLogs))
                 }
-                .foregroundColor(.primary).withArrow()
+                .foregroundStyle(.primary).withArrow()
             }
             Section(.tags) {
                 HStack {
@@ -113,7 +113,7 @@ struct GeneralSettingView: View {
                         Spacer()
                         Text(store.diskImageCacheSize).foregroundStyle(.tint)
                     }
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 }
                 .confirmationDialog(
                     $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)

@@ -29,7 +29,7 @@ public struct TagSuggestionView: View {
         if isEnabled {
             if deviceClient.deviceType() == .phone {
                 Text(.matchesCount(count: translationHandler.suggestions.count))
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .font(.subheadline)
             }
 
@@ -108,7 +108,7 @@ private struct SuggestionCell: View {
 
                     Text(suggestion.displayKey.localizedKey)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
                 .allowsHitTesting(false)
