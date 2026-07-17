@@ -63,7 +63,7 @@
 
 ### POLISH — UI polish
 
-- [ ] **POLISH-01**: Apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text.
+- [x] **POLISH-01**: Apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text.
   - Counts, page numbers, sizes, ratings, and similar numeric text use monospaced digits and animate as numeric transitions where it makes sense; no layout jitter on value change.
 - [x] **POLISH-02**: Reduce `ZStack` usage in favor of `.overlay`/`.background`.
   - `ZStack`s that express an overlay/background relationship (a child layered over or under primary content) become `.overlay`/`.background`, sized to the primary content, at layout/appearance parity; genuine union-sized multi-child stacks stay `ZStack`; no visual or layout regressions.
@@ -115,7 +115,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | QUAL-02 | Phase 8 | Complete |
 | QUAL-03 | Phase 9 | Complete |
 | QUAL-04 | Phase 9 | Complete |
-| POLISH-01 | Phase 10 | Pending |
+| POLISH-01 | Phase 10 | Complete |
 | POLISH-02 | Phase 10 | Complete |
 | POLISH-03 | Phase 10 | Pending |
 | LINT-01 | Phase 11 | Pending |
