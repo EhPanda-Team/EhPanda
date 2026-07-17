@@ -46,10 +46,8 @@ struct DownloadSettingView: View {
     }
 }
 
-struct DownloadSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            DownloadSettingView()
-        }
+#Preview("Initial") {
+    NavigationStack {
+        DownloadSettingView()
     }
 }

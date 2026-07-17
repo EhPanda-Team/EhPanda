@@ -176,12 +176,10 @@ private struct CookieRow: View {
     }
 }
 
-struct AccountSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            AccountSettingView(
-                store: .init(initialState: .init(), reducer: AccountSettingReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        AccountSettingView(
+            store: .init(initialState: .init(), reducer: AccountSettingReducer.init)
+        )
     }
 }

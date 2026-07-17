@@ -432,16 +432,14 @@ extension ReadingView {
     }
 }
 
-struct ReadingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            Color.clear
-                .fullScreenCover(isPresented: .constant(true)) {
-                    ReadingView(
-                        store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init),
-                        gid: .init()
-                    )
-                }
-        }
+#Preview("Loaded") {
+    NavigationStack {
+        Color.clear
+            .fullScreenCover(isPresented: .constant(true)) {
+                ReadingView(
+                    store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init),
+                    gid: .init()
+                )
+            }
     }
 }

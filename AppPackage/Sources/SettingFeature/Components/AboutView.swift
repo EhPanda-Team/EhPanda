@@ -222,10 +222,8 @@ private struct Info: Identifiable {
     let text: LocalizedStringResource
 }
 
-struct EhPandaView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            AboutView()
-        }
+#Preview("Initial") {
+    NavigationStack {
+        AboutView()
     }
 }
