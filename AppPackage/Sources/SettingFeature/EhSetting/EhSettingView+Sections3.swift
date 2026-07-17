@@ -192,7 +192,7 @@ struct ExcludedUploadersSection: View {
                 // This editor intentionally occupies 30% of the container height rather than
                 // merely capping its height, giving the multi-line input a stable editing area.
                 .containerRelativeFrame(.vertical) { height, _ in height * 0.3 }
-                .disableAutocorrection(true)
+                .autocorrectionDisabled(true)
                 .focused($isFocused)
         } header: {
             Text.ehSettingBoldHeader(

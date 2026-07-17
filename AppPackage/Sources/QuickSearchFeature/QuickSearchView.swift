@@ -152,7 +152,7 @@ extension QuickSearchView {
                 }
                 Section(.content) {
                     TextEditor(text: $word.content)
-                        .disableAutocorrection(true)
+                        .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                         .focused(focusedField, equals: .content)
                 }

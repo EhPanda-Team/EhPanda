@@ -18,7 +18,7 @@ public struct Placeholder: View {
                 ProgressView()
             }
             .aspectRatio(ratio, contentMode: .fill)
-            .cornerRadius(cornerRadius)
+            .clipShape(.rect(cornerRadius: cornerRadius))
 
         case .progress(let pageNumber, let progress, let isDualPage, let backgroundColor):
             ZStack {

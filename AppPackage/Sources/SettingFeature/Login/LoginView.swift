@@ -136,7 +136,7 @@ private struct LoginTextField: View {
             .textContentType(isPassword ? .password : .username)
             .submitLabel(isPassword ? .done : .next)
             .textInputAutocapitalization(.none)
-            .disableAutocorrection(true)
+            .autocorrectionDisabled(true)
             .keyboardType(isPassword ? .asciiCapable : .default)
             .padding(10)
             .glassEffect(.regular.tint(Color(.systemGray5)), in: .rect(cornerRadius: 8))

@@ -164,7 +164,7 @@ private struct SunBeamItem: View {
         Rectangle()
             .foregroundStyle(.yellow)
             .frame(width: width, height: width * 5)
-            .cornerRadius(width / 3)
+            .clipShape(.rect(cornerRadius: width / 3))
     }
 }
 
