@@ -281,7 +281,7 @@ struct VerticalCoverStack: View {
                 .placeholder(placeholder)
                 .defaultModifier()
                 .scaledToFill()
-                .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).cornerRadius(2)
+                .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).clipShape(.rect(cornerRadius: 2))
         }
     }
 
@@ -459,6 +459,6 @@ struct MiscGridItem: View {
         }
         .padding(30)
         .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 15))
-        .cornerRadius(15)
+        .clipShape(.rect(cornerRadius: 15))
     }
 }

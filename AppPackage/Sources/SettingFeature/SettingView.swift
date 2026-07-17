@@ -106,7 +106,7 @@ private struct SettingRow: View {
         }
         .contentShape(.rect).padding(.vertical, 10)
         .padding(.horizontal, 20).background(backgroundColor)
-        .cornerRadius(10).onTapGesture { tapAction(rowType) }
+        .clipShape(.rect(cornerRadius: 10)).onTapGesture { tapAction(rowType) }
         .onLongPressGesture(
             minimumDuration: .infinity, maximumDistance: 50,
             pressing: { isPressing = $0 }, perform: {}

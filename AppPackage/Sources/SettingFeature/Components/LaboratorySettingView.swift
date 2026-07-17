@@ -70,7 +70,7 @@ struct LaboratoryCell: View {
         .minimumScaleFactor(0.75)
         .padding(.vertical, 20)
         .background(bgColor)
-        .cornerRadius(15)
+        .clipShape(.rect(cornerRadius: 15))
         .lineLimit(1)
         .animation(.default, value: isOn)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))

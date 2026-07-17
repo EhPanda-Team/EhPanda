@@ -42,6 +42,6 @@ public struct SettingTextField: View {
         .accessibilityLabel(title)
         .keyboardType(.numbersAndPunctuation)
         .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
-        .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)
+        .autocorrectionDisabled(true).background(color).frame(width: width).clipShape(.rect(cornerRadius: 5))
     }
 }

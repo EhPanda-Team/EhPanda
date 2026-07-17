@@ -167,7 +167,7 @@ private struct CookieRow: View {
             Text(cookieState.key)
             Spacer()
             TextField(cookieState.value.placeholder, text: $cookieState.editingText)
-                .submitLabel(.done).disableAutocorrection(true)
+                .submitLabel(.done).autocorrectionDisabled(true)
                 .multilineTextAlignment(.trailing)
                 .textInputAutocapitalization(.none)
             Image(systemSymbol: cookieState.value.isInvalid ? .xmarkCircle : .checkmarkCircle)

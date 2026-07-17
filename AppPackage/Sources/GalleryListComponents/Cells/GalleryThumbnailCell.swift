@@ -91,7 +91,7 @@ public struct GalleryThumbnailCell: View {
             }
             .padding()
         }
-        .background(backgroundColor).cornerRadius(15)
+        .background(backgroundColor).clipShape(.rect(cornerRadius: 15))
     }
 }
 

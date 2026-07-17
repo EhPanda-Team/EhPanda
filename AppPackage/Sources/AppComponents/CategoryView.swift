@@ -88,6 +88,6 @@ private struct CategoryCell: View {
             isFiltered.toggle()
             hapticsClient.generateFeedback(.soft)
         }
-        .cornerRadius(5)
+        .clipShape(.rect(cornerRadius: 5))
     }
 }
