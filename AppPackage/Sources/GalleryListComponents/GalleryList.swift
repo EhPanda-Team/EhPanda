@@ -129,7 +129,7 @@ private struct DetailList: View {
                         downloadBadge: downloadBadges[gallery.gid]
                     )
                 }
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
                 .onAppear {
                     if gallery == galleries.last {
                         fetchMoreAction?()

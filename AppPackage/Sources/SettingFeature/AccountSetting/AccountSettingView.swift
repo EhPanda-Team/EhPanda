@@ -112,7 +112,7 @@ private struct AccountSection: View {
                 }
                 Toggle(.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
             }
-            .foregroundColor(.primary)
+            .foregroundStyle(.primary)
         }
     }
 }

@@ -20,10 +20,10 @@ public struct GalleryHistoryCell: View {
             VStack(alignment: .leading) {
                 Text(gallery.trimmedTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 if let uploader = gallery.uploader {
-                    Text(uploader).foregroundColor(.secondary).lineLimit(1)
+                    Text(uploader).foregroundStyle(.secondary).lineLimit(1)
                 }
                 Spacer()
-                RatingView(rating: gallery.rating).foregroundColor(.primary)
+                RatingView(rating: gallery.rating).foregroundStyle(.primary)
             }
             .font(.caption)
             Spacer()

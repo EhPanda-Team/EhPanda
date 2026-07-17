@@ -35,7 +35,7 @@ private struct TagDescriptionSection: View {
 
     var body: some View {
         HStack {
-            Text(description).foregroundColor(.secondary).font(.headline)
+            Text(description).foregroundStyle(.secondary).font(.headline)
             Spacer()
         }
         .padding(.horizontal)

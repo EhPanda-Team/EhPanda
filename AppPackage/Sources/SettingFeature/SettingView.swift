@@ -98,10 +98,10 @@ private struct SettingRow: View {
     var body: some View {
         HStack {
             Image(systemSymbol: rowType.symbol)
-                .font(.largeTitle).foregroundColor(color)
+                .font(.largeTitle).foregroundStyle(color)
                 .padding(.trailing, 20).frame(width: 45, height: 45)
             Text(rowType.value).fontWeight(.medium)
-                .font(.title3).foregroundColor(color)
+                .font(.title3).foregroundStyle(color)
             Spacer()
         }
         .contentShape(.rect).padding(.vertical, 10)

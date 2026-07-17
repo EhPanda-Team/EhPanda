@@ -169,7 +169,20 @@ private struct HathArchiveGrid: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        tintedCard
+            .frame(width: width, height: height)
+            .contentShape(.rect)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(borderColor, lineWidth: 1)
+            )
+            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
+    }
+
+    // `foregroundColor` is optional: nil means inherit the ambient tint, so
+    // apply `foregroundStyle` only when a concrete color is supplied.
+    @ViewBuilder private var tintedCard: some View {
+        let card = VStack(spacing: 10) {
             Text(archive.resolution.value)
                 .font(.title3.bold())
 
@@ -179,19 +192,16 @@ private struct HathArchiveGrid: View {
                     .font(.caption)
 
                 Text(archive.price)
-                    .foregroundColor(fileSizeColor)
+                    .foregroundStyle(fileSizeColor)
                     .font(.caption2)
             }
             .lineLimit(1)
         }
-        .foregroundColor(foregroundColor)
-        .frame(width: width, height: height)
-        .contentShape(.rect)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(borderColor, lineWidth: 1)
-        )
-        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
+        if let foregroundColor {
+            card.foregroundStyle(foregroundColor)
+        } else {
+            card
+        }
     }
 }
 

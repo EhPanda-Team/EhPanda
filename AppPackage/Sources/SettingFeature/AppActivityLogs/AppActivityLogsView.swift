@@ -28,7 +28,7 @@ struct AppActivityLogsView: View {
                 .opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
 
             Text(.appActivityLogsViewNoLogs)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
         }
         .searchable(text: $keyword, placement: .navigationBarDrawer)
@@ -204,12 +204,12 @@ private struct AppActivityLogRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Image(systemSymbol: .circleFill)
-                    .foregroundColor(log.level.color)
+                    .foregroundStyle(log.level.color)
                     .font(.caption2)
                 Text(log.dateDescription)
                 if !log.category.isEmpty {
                     Text(log.category)
-                        .foregroundColor(.primary)
+                        .foregroundStyle(.primary)
                         .padding(.vertical, 2)
                         .padding(.horizontal, 4)
                         .background(Color(.systemGray5))

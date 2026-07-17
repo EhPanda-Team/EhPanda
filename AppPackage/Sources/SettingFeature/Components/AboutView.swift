@@ -210,7 +210,7 @@ private struct LinkRow: View {
                 text
             }
         }
-        .foregroundColor(.primary)
+        .foregroundStyle(.primary)
     }
 }
 

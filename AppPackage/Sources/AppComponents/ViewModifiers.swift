@@ -39,7 +39,7 @@ extension View {
             self
             Spacer()
             Image(systemSymbol: .chevronRight)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .imageScale(.small)
                 .opacity(isVisible ? 0.5 : 0)
         }
