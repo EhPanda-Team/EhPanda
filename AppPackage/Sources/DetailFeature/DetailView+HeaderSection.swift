@@ -35,7 +35,9 @@ struct HeaderSection: View {
     let navigateUploaderAction: () -> Void
 
     private let actionIconButtonSize: CGFloat = 32
-    private let actionIconFont: Font = .system(size: 16, weight: .semibold)
+    // 16pt at default (.large); scales with Dynamic Type relative to the nearest text style (.callout, 16pt).
+    @ScaledMetric(relativeTo: .callout) private var actionIconFontSize: CGFloat = 16
+    private var actionIconFont: Font { .system(size: actionIconFontSize, weight: .semibold) }
     // 10pt at default (.large); scales with Dynamic Type relative to the nearest text style (.caption2, 11pt).
     @ScaledMetric(relativeTo: .caption2) private var progressCenterSymbolSize: CGFloat = 10
 

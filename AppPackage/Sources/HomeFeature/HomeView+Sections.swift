@@ -453,7 +453,7 @@ struct MiscGridItem: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(title).font(.title2.bold()).lineLimit(1).frame(minWidth: 100)
+                Text(title).font(.title2.bold()).frame(minWidth: 100)
                 if let subTitle = subTitle {
                     Text(subTitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }

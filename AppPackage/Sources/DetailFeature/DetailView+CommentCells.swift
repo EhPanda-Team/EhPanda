@@ -8,6 +8,9 @@ extension DetailView {
         let comment: GalleryComment
         let backgroundColor: Color
 
+        // 120pt at default (.large); scales with Dynamic Type relative to the card body text style (.body).
+        @ScaledMetric(relativeTo: .body) private var cardHeight: CGFloat = 120
+
         private var content: String {
             comment.contents
                 .filter({ [.plainText, .linkedText].contains($0.type) })
@@ -36,7 +39,7 @@ extension DetailView {
                 Spacer()
             }
             .padding().background(backgroundColor)
-            .frame(width: 300, height: 120)
+            .frame(width: 300, height: cardHeight)
             .clipShape(.rect(cornerRadius: 15))
         }
     }
