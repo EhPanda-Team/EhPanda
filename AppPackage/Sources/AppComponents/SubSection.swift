@@ -58,10 +58,14 @@ public struct SubSection<Content: View>: View {
     }
 }
 
-struct SubSection_Previews: PreviewProvider {
-    static var previews: some View {
-        SubSection(title: "Title") {
-            Text("Content")
-        }
+#Preview("Default") {
+    SubSection(title: "Popular") {
+        Text(verbatim: "Content")
+    }
+}
+
+#Preview("Loading, no show-all") {
+    SubSection(title: "Popular", showAll: false, isLoading: true, reloadAction: {}) {
+        Text(verbatim: "Content")
     }
 }

@@ -168,11 +168,6 @@ private struct SunBeamItem: View {
     }
 }
 
-struct NewDawnView_Previews: PreviewProvider {
-    static var previews: some View {
-        Color.clear
-            .sheet(isPresented: .constant(true)) {
-                NewDawnView(greeting: .mock)
-            }
-    }
+#Preview("New dawn") {
+    NewDawnView(greeting: .mock)
 }
