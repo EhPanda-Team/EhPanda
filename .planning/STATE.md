@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
 status: executing
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-07-17T15:48:05.931Z"
+stopped_at: Completed 10-03-PLAN.md
+last_updated: "2026-07-17T16:03:29.764Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
   total_phases: 13
   completed_phases: 8
   total_plans: 105
-  completed_plans: 95
+  completed_plans: 96
   percent: 62
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 10 (ui-polish) — EXECUTING
-Plan: 3 of 12
+Plan: 4 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
 Next: Plan Phase 10
@@ -153,6 +153,7 @@ Progress: [███████░░░] 69% (9/13 phases)
 | Phase 09 P13 | 17min | 2 tasks | 6 files |
 | Phase 10 P01 | 17min | 2 tasks | 16 files |
 | Phase 10 P02 | 9min | 3 tasks | 42 files |
+| Phase 10 P03 | 15min | 3 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -302,6 +303,7 @@ Recent decisions affecting current work:
 - [Phase 09]: ErrorInfo-bearing toasts remain until native Button activation or downward-swipe dismissal; ordinary success and caption-error toasts retain their three-second timeout.
 - [Phase 09]: ToastInteractionState consumes only the current UUID and clears it before host routing, preventing stale, repeated, replacement, and dismissal events from routing ErrorInfo.
 - [Phase 09]: The diagnostic Button keeps ToastMessageView as its visible label so Voice Control names and visible text remain aligned.
+- [Phase ?]: 10-03: Uneven corner clip relocated from custom UIRectCorner param to native .rect(bottomLeadingRadius:) with default .circular style; no continuous style added (parity preserved)
 
 ### Pending Todos
 
@@ -342,6 +344,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T15:48:05.924Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-07-17T16:03:29.758Z
+Stopped at: Completed 10-03-PLAN.md
 Resume file: None
