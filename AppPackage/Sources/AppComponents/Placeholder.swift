@@ -11,34 +11,33 @@ public struct Placeholder: View {
     public var body: some View {
         switch style {
         case .activity(let ratio, let cornerRadius):
-            ZStack {
-                Color(.systemGray5)
-
-                ProgressView()
-            }
-            .aspectRatio(ratio, contentMode: .fill)
-            .clipShape(.rect(cornerRadius: cornerRadius))
+            Color(.systemGray5)
+                .overlay {
+                    ProgressView()
+                }
+                .aspectRatio(ratio, contentMode: .fill)
+                .clipShape(.rect(cornerRadius: cornerRadius))
 
         case .progress(let pageNumber, let progress, let isDualPage, let backgroundColor):
-            ZStack {
-                backgroundColor
-                VStack {
-                    Text(String(pageNumber))
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(.gray)
-                        .padding(.bottom, 30)
+            backgroundColor
+                .overlay {
+                    VStack {
+                        Text(String(pageNumber))
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.gray)
+                            .padding(.bottom, 30)
 
-                    if let progress {
-                        ProgressView(progress)
-                            .progressViewStyle(.plainLinear)
-                            .containerRelativeFrame(.horizontal) { width, _ in
-                                width * (isDualPage ? 0.25 : 0.5)
-                            }
-                    } else {
-                        ProgressView()
+                        if let progress {
+                            ProgressView(progress)
+                                .progressViewStyle(.plainLinear)
+                                .containerRelativeFrame(.horizontal) { width, _ in
+                                    width * (isDualPage ? 0.25 : 0.5)
+                                }
+                        } else {
+                            ProgressView()
+                        }
                     }
                 }
-            }
         }
     }
 }
