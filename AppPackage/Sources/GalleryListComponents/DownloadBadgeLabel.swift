@@ -15,7 +15,9 @@ public struct DownloadBadgeLabel: View {
                 .font(.caption.bold())
             Text(progressText)
                 .font(.caption.bold().monospacedDigit())
+                .contentTransition(.numericText())
                 .lineLimit(1)
+                .animation(.default, value: badge.progress.displayCompletedPageCount)
         }
         .foregroundStyle(badge.color)
         .padding(.horizontal, 8)

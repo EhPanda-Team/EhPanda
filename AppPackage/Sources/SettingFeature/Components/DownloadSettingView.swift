@@ -13,6 +13,8 @@ struct DownloadSettingView: View {
                     LabeledContent(.concurrentImageDownloads) {
                         Text(setting.downloadThreadLimit, format: .number)
                             .monospacedDigit()
+                            .contentTransition(.numericText(value: Double(setting.downloadThreadLimit)))
+                            .animation(.default, value: setting.downloadThreadLimit)
                     }
                     Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
                 }

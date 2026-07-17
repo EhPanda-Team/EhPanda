@@ -89,6 +89,9 @@ extension DescriptionSection {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption)
                 Text(value).fontWeight(.medium).font(.title3).lineLimit(1)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.default, value: value)
                 Text(description).font(.caption)
             }
         }
@@ -100,7 +103,13 @@ extension DescriptionSection {
         var body: some View {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption).lineLimit(1)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.default, value: title)
                 Text(String(format: "%.2f", rating)).fontWeight(.medium).font(.title3)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(value: Double(rating)))
+                    .animation(.default, value: rating)
                 RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(.primary)
             }
         }
