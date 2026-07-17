@@ -256,25 +256,25 @@ struct ImageContainer: View {
                 .opacity(enablesLiveText ? 1 : 0)
             )
         } else {
-            ZStack {
-                backgroundColor
-                VStack {
-                    Text(String(index)).font(.largeTitle.bold())
-                        .foregroundStyle(.gray).padding(.bottom, 30)
-                    ZStack {
-                        Button(action: reloadImage) {
-                            Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+            backgroundColor
+                .overlay {
+                    VStack {
+                        Text(String(index)).font(.largeTitle.bold())
+                            .foregroundStyle(.gray).padding(.bottom, 30)
+                        ZStack {
+                            Button(action: reloadImage) {
+                                Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+                            }
+                            .font(.system(size: 30, weight: .medium)).foregroundStyle(.gray)
+                            .opacity(loadingState == .loading ? 0 : 1)
+                            ProgressView().opacity(loadingState == .loading ? 1 : 0)
                         }
-                        .font(.system(size: 30, weight: .medium)).foregroundStyle(.gray)
-                        .opacity(loadingState == .loading ? 0 : 1)
-                        ProgressView().opacity(loadingState == .loading ? 1 : 0)
                     }
                 }
-            }
-            .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
-                axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
-            }
-            .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
+                .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+                    axis == .horizontal ? length / (isDualPage ? 2 : 1) : length
+                }
+                .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
         }
     }
     private func reloadImage() {
