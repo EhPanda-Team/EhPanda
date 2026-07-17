@@ -107,9 +107,12 @@ public struct AlertView<Content: View>: View {
         self.init(symbol: symbol, message: String(localized: message), actions: actions)
     }
 
+    // 50pt at default (.large); scales with Dynamic Type relative to the nearest text style (.largeTitle, 34pt).
+    @ScaledMetric(relativeTo: .largeTitle) private var symbolSize: CGFloat = 50
+
     public var body: some View {
         VStack {
-            Image(systemSymbol: symbol).font(.system(size: 50)).padding(.bottom, 15)
+            Image(systemSymbol: symbol).font(.system(size: symbolSize)).padding(.bottom, 15)
             Text(message).multilineTextAlignment(.center).foregroundStyle(.gray)
                 .font(.headline).padding(.bottom, 5)
             actions
