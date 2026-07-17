@@ -72,12 +72,23 @@ private extension RatingView {
     }
 }
 
-struct RatingView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 10) {
-            ForEach(Array(stride(from: 0.0, through: 5.0, by: 0.5)), id: \.self) {
-                RatingView(rating: Float($0)).foregroundStyle(.yellow)
-            }
-        }
+#Preview("Interactive", traits: .sizeThatFitsLayout) {
+    @Previewable @State var rating: Float = 2.5
+    VStack(spacing: 16) {
+        RatingView(rating: rating).foregroundStyle(.yellow)
+        Slider(value: $rating, in: 0...5, step: 0.5)
     }
+    .padding()
+}
+
+#Preview("Empty (0)", traits: .sizeThatFitsLayout) {
+    RatingView(rating: 0).foregroundStyle(.yellow)
+}
+
+#Preview("Half (2.5)", traits: .sizeThatFitsLayout) {
+    RatingView(rating: 2.5).foregroundStyle(.yellow)
+}
+
+#Preview("Full (5)", traits: .sizeThatFitsLayout) {
+    RatingView(rating: 5).foregroundStyle(.yellow)
 }
