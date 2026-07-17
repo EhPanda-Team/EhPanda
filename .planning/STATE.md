@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
 status: executing
-stopped_at: Completed 10-04-PLAN.md
-last_updated: "2026-07-17T16:19:52.709Z"
+stopped_at: Completed 10-05-PLAN.md
+last_updated: "2026-07-17T16:37:51.569Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
   total_phases: 13
   completed_phases: 8
   total_plans: 105
-  completed_plans: 97
+  completed_plans: 98
   percent: 62
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 10 (ui-polish) — EXECUTING
-Plan: 5 of 12
+Plan: 6 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
 Next: Plan Phase 10
@@ -155,6 +155,7 @@ Progress: [███████░░░] 69% (9/13 phases)
 | Phase 10 P02 | 9min | 3 tasks | 42 files |
 | Phase 10 P03 | 15min | 3 tasks | 21 files |
 | Phase 10 P04 | 20min | 2 tasks | 8 files |
+| Phase 10 P05 | 16min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -306,6 +307,9 @@ Recent decisions affecting current work:
 - [Phase 09]: The diagnostic Button keeps ToastMessageView as its visible label so Voice Control names and visible text remain aligned.
 - [Phase ?]: 10-03: Uneven corner clip relocated from custom UIRectCorner param to native .rect(bottomLeadingRadius:) with default .circular style; no continuous style added (parity preserved)
 - [Phase ?]: [Phase 10]: 10-04: \.inSheet env key removed; all former consumers collapsed to the base (inSheet==false) gray per owner decision — trait and Bool-param mechanisms both rejected; the modal DetailView surfaces intentionally shift to base gray.
+- [Phase ?]: 10-05: The three ToolbarItems buttons use a two-branch Label (icon-only when hideText); no AnyLabelStyle, so icon-only is explicit not toolbar-inferred.
+- [Phase ?]: 10-05: Menu/context-menu Image+Text rows convert to Label (house style); toolbar image-only and trailing-checkmark menu rows are left (new-key/wrong-slot parity veto).
+- [Phase ?]: 10-05: Empty-string audit (criterion 9) returned zero matches across AppPackage/Sources, App, ShareExtension; documented as the deliverable.
 
 ### Pending Todos
 
@@ -346,6 +350,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T16:19:52.702Z
-Stopped at: Completed 10-04-PLAN.md
+Last session: 2026-07-17T16:37:40.196Z
+Stopped at: Completed 10-05-PLAN.md
 Resume file: None
