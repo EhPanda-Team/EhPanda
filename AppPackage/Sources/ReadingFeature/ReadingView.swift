@@ -101,13 +101,12 @@ public struct ReadingView: View {
                         }
                     }
                 }
-                .accentColor(store.setting.accentColor)
                 .tint(store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
-                    .accentColor(store.setting.accentColor)
+                    .tint(store.setting.accentColor)
                     .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))

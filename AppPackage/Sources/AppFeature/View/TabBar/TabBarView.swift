@@ -63,7 +63,7 @@ struct TabBarView: View {
                 }
                 .tabItem(type.label).tag(type)
             }
-            .accentColor(store.settingState.setting.accentColor)
+            .tint(store.settingState.setting.accentColor)
         }
         .privacyMask()
         .sheet(item: $store.presentationState.destination.newDawn) { greeting in
@@ -72,14 +72,14 @@ struct TabBarView: View {
         }
         .sheet(item: $store.presentationState.destination.errorInfo) { errorInfo in
             ErrorInfoView(errorInfo: errorInfo.wrappedValue)
-                .accentColor(store.settingState.setting.accentColor)
+                .tint(store.settingState.setting.accentColor)
                 .privacyMask()
         }
         .sheet(item: $store.presentationState.destination.setting) { _ in
             SettingView(
                 store: store.scope(\.settingState, action: \.setting)
             )
-            .accentColor(store.settingState.setting.accentColor)
+            .tint(store.settingState.setting.accentColor)
             .privacyMask()
         }
         .sheet(item: $store.scope(\.presentationState.$detail, action: \.presentation.detail)) { detailStore in
@@ -93,7 +93,7 @@ struct TabBarView: View {
             } destination: { elementStore in
                 galleryDestination(elementStore)
             }
-            .accentColor(store.settingState.setting.accentColor)
+            .tint(store.settingState.setting.accentColor)
             .privacyMask()
             .environment(\.inSheet, true)
         }
