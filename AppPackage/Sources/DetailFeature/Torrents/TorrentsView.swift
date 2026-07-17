@@ -107,12 +107,10 @@ private extension TorrentsView {
     }
 }
 
-struct TorrentsView_Previews: PreviewProvider {
-    static var previews: some View {
-        TorrentsView(
-            store: .init(initialState: .init(), reducer: TorrentsReducer.init),
-            gid: .init(),
-            token: .init()
-        )
-    }
+#Preview("Initial") {
+    TorrentsView(
+        store: .init(initialState: .init(), reducer: TorrentsReducer.init),
+        gid: .init(),
+        token: .init()
+    )
 }

@@ -247,10 +247,8 @@ private struct HistoryGalleriesSection: View {
     }
 }
 
-struct SearchRootView_Previews: PreviewProvider {
-    static var previews: some View {
-        SearchRootView(
-            store: .init(initialState: .init(), reducer: SearchRootReducer.init)
-        )
-    }
+#Preview("Initial") {
+    SearchRootView(
+        store: .init(initialState: .init(), reducer: SearchRootReducer.init)
+    )
 }

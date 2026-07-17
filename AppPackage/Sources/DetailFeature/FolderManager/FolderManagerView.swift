@@ -128,10 +128,8 @@ public struct FolderManagerView: View {
     }
 }
 
-struct FolderManagerView_Previews: PreviewProvider {
-    static var previews: some View {
-        FolderManagerView(
-            store: .init(initialState: .init(), reducer: FolderManagerReducer.init)
-        )
-    }
+#Preview("Initial") {
+    FolderManagerView(
+        store: .init(initialState: .init(), reducer: FolderManagerReducer.init)
+    )
 }

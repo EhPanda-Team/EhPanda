@@ -256,13 +256,11 @@ private struct DownloadButton: View {
     }
 }
 
-struct ArchivesView_Previews: PreviewProvider {
-    static var previews: some View {
-        ArchivesView(
-            store: .init(initialState: .init(), reducer: ArchivesReducer.init),
-            gid: .init(),
-            galleryURL: .mock,
-            archiveURL: .mock
-        )
-    }
+#Preview("Initial") {
+    ArchivesView(
+        store: .init(initialState: .init(), reducer: ArchivesReducer.init),
+        gid: .init(),
+        galleryURL: .mock,
+        archiveURL: .mock
+    )
 }

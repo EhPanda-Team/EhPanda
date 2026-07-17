@@ -79,13 +79,11 @@ struct PreviewsView: View {
     }
 }
 
-struct PreviewsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            PreviewsView(
-                store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
-                gid: .init()
-            )
-        }
+#Preview("Loaded") {
+    NavigationStack {
+        PreviewsView(
+            store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
+            gid: .init()
+        )
     }
 }
