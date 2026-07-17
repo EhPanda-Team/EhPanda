@@ -464,7 +464,7 @@ Plans:
   11. The `SystemNotificationExt` module is renamed to `SystemNotification` (it contains the full implementation, not a thin extension), with every import/reference updated accordingly.
   12. Every legacy `_Previews: PreviewProvider` struct is migrated to the `#Preview` macro, and previews are enriched to exercise all realistic states as named `#Preview("…")` cases (empty / loading / loaded / error, boundary values such as min/max ratings, counts, page numbers, and long vs. short text), using modern preview features — `@Previewable` for interactive state, preview traits (e.g. `.sizeThatFitsLayout`), and environment/Dynamic Type/color-scheme variants where useful. No `PreviewProvider` remains in the codebase.
 
-**Plans**: 2/12 plans executed
+**Plans**: 3/12 plans executed
 Plans:
 **Wave 1**
 
@@ -476,7 +476,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 10-03-PLAN.md — Corner/autocorrection/status-bar sweep + custom cornerRadius(_:corners:) removal (criteria 7, 8)
+- [x] 10-03-PLAN.md — Corner/autocorrection/status-bar sweep + custom cornerRadius(_:corners:) removal (criteria 7, 8)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -550,7 +550,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Root Privacy Mask & Auto-Lock Removal | 12/12 | Complete    | 2026-07-14 |
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
-| 10. UI Polish | 2/12 | In Progress|  |
+| 10. UI Polish | 3/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
 | 12. Deep Link Hardening | 0/TBD | Not started | - |
 
