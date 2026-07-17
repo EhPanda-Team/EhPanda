@@ -121,7 +121,7 @@ public struct TagCloudCell: View {
                     .overlay(KFImage(imageURL).resizable().scaledToFit())
             }
         }
-        .font(font.bold()).lineLimit(1).foregroundColor(textColor)
+        .font(font.bold()).lineLimit(1).foregroundStyle(textColor)
         .padding(padding).background(backgroundColor).cornerRadius(5)
     }
 }

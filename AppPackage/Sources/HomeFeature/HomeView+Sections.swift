@@ -451,11 +451,11 @@ struct MiscGridItem: View {
             VStack(alignment: .leading) {
                 Text(title).font(.title2.bold()).lineLimit(1).frame(minWidth: 100)
                 if let subTitle = subTitle {
-                    Text(subTitle).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
+                    Text(subTitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }
             }
             Image(systemSymbol: symbol).font(.system(size: 50, weight: .light, design: .default))
-                .foregroundColor(.secondary).imageScale(.large).offset(x: 20, y: 20)
+                .foregroundStyle(.secondary).imageScale(.large).offset(x: 20, y: 20)
         }
         .padding(30)
         .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 15))

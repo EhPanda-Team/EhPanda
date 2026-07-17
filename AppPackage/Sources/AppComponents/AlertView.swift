@@ -133,7 +133,7 @@ public struct AlertViewButton: View {
     public var body: some View {
         Button(action: action) {
             Text(title)
-                .foregroundColor(.primary.opacity(0.7))
+                .foregroundStyle(.primary.opacity(0.7))
                 .textCase(.uppercase)
         }
         .buttonBorderShape(.capsule)

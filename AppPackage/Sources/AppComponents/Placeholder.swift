@@ -26,7 +26,7 @@ public struct Placeholder: View {
                 VStack {
                     Text(String(pageNumber))
                         .font(.largeTitle.bold())
-                        .foregroundColor(.gray)
+                        .foregroundStyle(.gray)
                         .padding(.bottom, 30)
 
                     if let progress {

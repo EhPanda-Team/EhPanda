@@ -50,7 +50,7 @@ struct PreviewsView: View {
                         }
                         Text(index, format: .number)
                             .font(horizontalSizeClass == .regular ? .callout : .caption)
-                            .foregroundColor(.secondary)
+                            .foregroundStyle(.secondary)
                     }
                     .onAppear {
                         if displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {

@@ -80,7 +80,7 @@ public struct GalleryCardCell: View {
 
                     Spacer()
 
-                    RatingView(rating: gallery.rating).foregroundColor(.yellow)
+                    RatingView(rating: gallery.rating).foregroundStyle(.yellow)
                 }
                 .padding(.leading, 15)
             }
