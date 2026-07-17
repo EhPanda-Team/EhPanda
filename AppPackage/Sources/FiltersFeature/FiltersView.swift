@@ -210,8 +210,6 @@ private struct TupleCategory: Identifiable {
     let category: AppModels.Category
 }
 
-struct FiltersView_Previews: PreviewProvider {
-    static var previews: some View {
-        FiltersView(store: .init(initialState: .init(), reducer: FiltersReducer.init))
-    }
+#Preview("Initial") {
+    FiltersView(store: .init(initialState: .init(), reducer: FiltersReducer.init))
 }

@@ -103,12 +103,10 @@ private extension Double {
     }
 }
 
-struct ReadingSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            ReadingSettingView(
-                store: .init(initialState: .init(), reducer: ReadingSettingReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        ReadingSettingView(
+            store: .init(initialState: .init(), reducer: ReadingSettingReducer.init)
+        )
     }
 }

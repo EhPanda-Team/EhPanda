@@ -118,10 +118,8 @@ public struct FavoritesView: View {
     }
 }
 
-struct FavoritesView_Previews: PreviewProvider {
-    static var previews: some View {
-        FavoritesView(
-            store: .init(initialState: .init(), reducer: FavoritesReducer.init)
-        )
-    }
+#Preview("Initial") {
+    FavoritesView(
+        store: .init(initialState: .init(), reducer: FavoritesReducer.init)
+    )
 }
