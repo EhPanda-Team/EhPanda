@@ -57,7 +57,7 @@ public struct DownloadsView: View {
             item: $store.scope(\.$destination, action: \.destination).folderManager
         ) { folderStore in
             FolderManagerView(store: folderStore)
-                .accentColor(store.setting.accentColor)
+                .tint(store.setting.accentColor)
                 .privacyMask()
         }
         .fullScreenCover(
@@ -67,7 +67,7 @@ public struct DownloadsView: View {
                 store: store,
                 gid: store.gallery.id
             )
-            .accentColor(store.setting.accentColor)
+            .tint(store.setting.accentColor)
             .privacyMask()
         }
         .onAppear {

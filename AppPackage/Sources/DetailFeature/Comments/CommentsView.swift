@@ -99,7 +99,7 @@ struct CommentsView: View {
                 cancelAction: { store.send(.destination(.dismiss)) },
                 onAppearAction: { store.send(.onPostCommentAppear) }
             )
-            .accentColor(store.setting.accentColor)
+            .tint(store.setting.accentColor)
             .privacyMask()
         }
         .toast($store.scope(\.$toast, action: \.toast))

@@ -192,7 +192,7 @@ private extension DetailView {
                     cancelAction: { store.send(.destination(.dismiss)) },
                     onAppearAction: { store.send(.onPostCommentAppear) }
                 )
-                .accentColor(self.store.setting.accentColor)
+                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(item: $store.destination.newDawn) { greeting in
@@ -214,7 +214,7 @@ private extension DetailView {
                     store: store,
                     gid: gid
                 )
-                .accentColor(self.store.setting.accentColor)
+                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(
@@ -227,7 +227,7 @@ private extension DetailView {
                         galleryURL: galleryURL,
                         archiveURL: archiveURL
                     )
-                    .accentColor(self.store.setting.accentColor)
+                    .tint(self.store.setting.accentColor)
                     .privacyMask()
                 }
             }
@@ -239,14 +239,14 @@ private extension DetailView {
                     gid: gid,
                     token: self.store.gallery.token
                 )
-                .accentColor(self.store.setting.accentColor)
+                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).folderManager
             ) { store in
                 FolderManagerView(store: store)
-                    .accentColor(self.store.setting.accentColor)
+                    .tint(self.store.setting.accentColor)
                     .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in

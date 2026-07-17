@@ -40,14 +40,14 @@ struct DetailSearchView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .accentColor(self.store.setting.accentColor)
+            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .accentColor(self.store.setting.accentColor).privacyMask()
+                .tint(self.store.setting.accentColor).privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
