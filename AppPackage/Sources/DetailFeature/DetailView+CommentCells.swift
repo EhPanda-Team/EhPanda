@@ -37,7 +37,7 @@ extension DetailView {
             }
             .padding().background(backgroundColor)
             .frame(width: 300, height: 120)
-            .cornerRadius(15)
+            .clipShape(.rect(cornerRadius: 15))
         }
     }
 }

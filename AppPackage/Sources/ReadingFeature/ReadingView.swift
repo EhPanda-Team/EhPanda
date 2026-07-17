@@ -116,7 +116,7 @@ public struct ReadingView: View {
             .animation(.default, value: liveTextHandler.liveTextGroups)
             .animation(.default, value: gestureHandler.scale)
             .animation(.default, value: store.showsPanel)
-            .statusBar(hidden: !store.showsPanel)
+            .statusBarHidden(!store.showsPanel)
             .onDisappear {
                 // Progress is flushed in the reducer on `.onPerformDismiss` (before the presentation is
                 // torn down); an `onDisappear` send would arrive after the destination is nil'd and be

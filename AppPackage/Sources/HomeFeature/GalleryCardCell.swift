@@ -71,7 +71,7 @@ public struct GalleryCardCell: View {
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                     .onSuccess(handleCoverSuccess).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
-                    .cornerRadius(5)
+                    .clipShape(.rect(cornerRadius: 5))
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.title3.bold())
@@ -87,7 +87,7 @@ public struct GalleryCardCell: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
         }
-        .cornerRadius(15)
+        .clipShape(.rect(cornerRadius: 15))
         .animation(.easeInOut(duration: 0.5), value: animated)
         .onChange(of: colorScheme) { _, newScheme in
             guard newScheme == .dark, let lastImageResult else { return }

@@ -104,7 +104,7 @@ public struct FolderManagerView: View {
             .folderName,
             text: $store.editingFolderName
         )
-        .disableAutocorrection(true)
+        .autocorrectionDisabled(true)
         .submitLabel(.done)
         .focused($focusedField, equals: field)
         .onSubmit {
