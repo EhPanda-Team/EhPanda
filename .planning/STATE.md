@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
 status: executing
-stopped_at: Completed 10-07-PLAN.md
-last_updated: "2026-07-17T17:07:31.554Z"
+stopped_at: Completed 10-08-PLAN.md
+last_updated: "2026-07-17T17:18:00.080Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
   total_phases: 13
   completed_phases: 8
   total_plans: 105
-  completed_plans: 100
+  completed_plans: 101
   percent: 62
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 10 (ui-polish) — EXECUTING
-Plan: 8 of 12
+Plan: 9 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
 Next: Plan Phase 10
@@ -158,6 +158,7 @@ Progress: [███████░░░] 69% (9/13 phases)
 | Phase 10 P05 | 16min | 2 tasks | 3 files |
 | Phase 10 P06 | 20min | 3 tasks | 2 files |
 | Phase 10 P07 | 12min | 2 tasks | 6 files |
+| Phase 10 P08 | 20min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -314,6 +315,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 10-05: Empty-string audit (criterion 9) returned zero matches across AppPackage/Sources, App, ShareExtension; documented as the deliverable.
 - [Phase ?]: 10-06: Only 3 of 35 ZStacks convert to .overlay — flexible Color/backgroundColor size-definer under an external definite frame (aspectRatio/containerRelativeFrame); the other 32 (union peers, conditional single-child, opacity-toggled equal indicators, gesture/coordinate-critical) are KEEP, the plan's intended outcome.
 - [Phase ?]: 10-07: Paired numeric-text treatment applied inline per site (pair-check grep needs both tokens co-located); animation left ungated because contentTransition(.numericText) is itself Reduce-Motion-aware.
+- [Phase ?]: 10-08: RatingView @Previewable requirement met via a Slider driving @Previewable @State (view is display-only, no Binding)
+- [Phase ?]: 10-08: built EhPanda app scheme (whole AppPackage graph) since AppPackage-Package scheme is absent; iPhone Air OS27 sim
 
 ### Pending Todos
 
@@ -354,6 +357,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T17:07:23.367Z
-Stopped at: Completed 10-07-PLAN.md
+Last session: 2026-07-17T17:17:49.183Z
+Stopped at: Completed 10-08-PLAN.md
 Resume file: None
