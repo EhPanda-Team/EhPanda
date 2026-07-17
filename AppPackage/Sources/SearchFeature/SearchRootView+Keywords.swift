@@ -110,7 +110,6 @@ struct KeywordCell: View {
 
                 Text(title)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .lineLimit(1)
             }
             .tint(.primary)
 

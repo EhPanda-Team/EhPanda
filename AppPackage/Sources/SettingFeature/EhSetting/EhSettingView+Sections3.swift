@@ -148,9 +148,7 @@ struct ExcludeRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .lineLimit(1)
                 .font(.subheadline)
-                .fixedSize()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
 

@@ -14,6 +14,9 @@ struct DescriptionSection: View {
     let galleryDetail: GalleryDetail
     let navigateGalleryInfosAction: () -> Void
 
+    // 60pt at default (.large); scales with Dynamic Type relative to the row's dominant text style (.title3).
+    @ScaledMetric(relativeTo: .title3) private var rowHeight: CGFloat = 60
+
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
             title: .favorited,
@@ -67,7 +70,7 @@ struct DescriptionSection: View {
                 .withHorizontalSpacing()
             }
         }
-        .frame(height: 60)
+        .frame(height: rowHeight)
     }
 }
 

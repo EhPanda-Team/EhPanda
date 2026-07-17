@@ -214,6 +214,8 @@ private struct DownloadButton: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var isPressing = false
+    // 50pt at default (.large); scales with Dynamic Type relative to the banner's text style (.headline).
+    @ScaledMetric(relativeTo: .headline) private var bannerHeight: CGFloat = 50
 
     private var isDisabled: Bool
     private var action: () -> Void
@@ -240,7 +242,7 @@ private struct DownloadButton: View {
             .font(.headline)
             .foregroundStyle(textColor)
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+            .frame(height: bannerHeight)
             .background(backgroundColor)
             .animation(.default, value: backgroundColor)
             .clipShape(.rect(cornerRadius: 30))
