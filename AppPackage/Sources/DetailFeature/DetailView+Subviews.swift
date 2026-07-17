@@ -185,7 +185,6 @@ extension TagsSection {
     struct TagRow: View {
         @Dependency(\.cookieClient) private var cookieClient
         @Environment(\.colorScheme) private var colorScheme
-        @Environment(\.inSheet) private var inSheet
 
         let tag: GalleryTag
         let showsImages: Bool
@@ -195,9 +194,7 @@ extension TagsSection {
         let translateAction: (String) -> (String, TagTranslation?)
 
         private var reversedPrimary: Color { colorScheme == .light ? .white : .black }
-        private var backgroundColor: Color {
-            inSheet && colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray5)
-        }
+        private var backgroundColor: Color { Color(.systemGray5) }
         private var padding: EdgeInsets { .init(top: 5, leading: 14, bottom: 5, trailing: 14) }
 
         var body: some View {
@@ -321,16 +318,12 @@ struct PreviewsSection: View {
 // MARK: CommentsSection
 struct CommentsSection: View {
     @Dependency(\.cookieClient) private var cookieClient
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.inSheet) private var inSheet
 
     let comments: [GalleryComment]
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
 
-    private var backgroundColor: Color {
-        inSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
-    }
+    private var backgroundColor: Color { Color(.systemGray6) }
 
     var body: some View {
         SubSection(

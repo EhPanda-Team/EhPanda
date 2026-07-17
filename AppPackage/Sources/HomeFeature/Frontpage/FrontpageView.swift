@@ -33,7 +33,7 @@ struct FrontpageView: View {
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .privacyMask().environment(\.inSheet, true)
+                .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).dateSeek

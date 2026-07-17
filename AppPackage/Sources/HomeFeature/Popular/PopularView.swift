@@ -31,7 +31,7 @@ struct PopularView: View {
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .privacyMask().environment(\.inSheet, true)
+                .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .onAppear {
