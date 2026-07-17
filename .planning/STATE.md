@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
 status: executing
-stopped_at: Completed 10-09-PLAN.md
-last_updated: "2026-07-17T17:29:26.207Z"
+stopped_at: Completed 10-10-PLAN.md
+last_updated: "2026-07-17T17:41:23.894Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
   total_phases: 13
   completed_phases: 8
   total_plans: 105
-  completed_plans: 102
+  completed_plans: 103
   percent: 62
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 10 (ui-polish) — EXECUTING
-Plan: 10 of 12
+Plan: 11 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
 Next: Plan Phase 10
@@ -160,6 +160,7 @@ Progress: [███████░░░] 69% (9/13 phases)
 | Phase 10 P07 | 12min | 2 tasks | 6 files |
 | Phase 10 P08 | 20min | 2 tasks | 8 files |
 | Phase 10 P09 | 12min | 3 tasks | 34 files |
+| Phase 10 P10 | 22min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -319,6 +320,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 10-08: RatingView @Previewable requirement met via a Slider driving @Previewable @State (view is display-only, no Binding)
 - [Phase ?]: 10-08: built EhPanda app scheme (whole AppPackage graph) since AppPackage-Package scheme is absent; iPhone Air OS27 sim
 - [Phase ?]: 10-09: 34 remaining PreviewProvider structs migrated to named #Preview; D-07 global grep gate at zero
+- [Phase ?]: 10-10: 7 fixed-pixel fonts scale via @ScaledMetric(relativeTo:) (5 non-exact sizes) + text-style forms (20->title3, 12->caption); first ScaledMetric uses in repo
+- [Phase ?]: 10-10: DT audit is static-derived; broke-at-AX5 subset = B1-B10 (10-11 work order); owner-signed D-03 sim pass is end-of-phase authoritative gate; live frame-height risk count is 9 not RESEARCH's 35
 
 ### Pending Todos
 
@@ -359,6 +362,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T17:29:26.201Z
-Stopped at: Completed 10-09-PLAN.md
+Last session: 2026-07-17T17:41:12.969Z
+Stopped at: Completed 10-10-PLAN.md
 Resume file: None
