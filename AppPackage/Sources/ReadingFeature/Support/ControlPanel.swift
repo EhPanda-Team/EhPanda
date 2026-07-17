@@ -168,10 +168,12 @@ private struct UpperPanel: View {
                     .font(.title2)
                     .fontWeight(.bold)
                     .monospacedDigit()
+                    .contentTransition(.numericText())
                     .lineLimit(1)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .glassEffect(.regular.interactive())
+                    .animation(.default, value: title)
             }
 
             Spacer()

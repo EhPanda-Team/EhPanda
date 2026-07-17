@@ -127,11 +127,15 @@ private struct ArchiveFundsView: View {
         HStack(spacing: 20) {
             Label {
                 Text(galleryPoints, format: .number)
+                    .contentTransition(.numericText(value: Double(galleryPoints)))
+                    .animation(.default, value: galleryPoints)
             } icon: {
                 Image(systemSymbol: .gCircleFill)
             }
             Label {
                 Text(credits, format: .number)
+                    .contentTransition(.numericText(value: Double(credits)))
+                    .animation(.default, value: credits)
             } icon: {
                 Image(systemSymbol: .cCircleFill)
             }
