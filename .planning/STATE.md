@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
 status: executing
-stopped_at: Completed 10-05-PLAN.md
-last_updated: "2026-07-17T16:37:51.569Z"
+stopped_at: Completed 10-06-PLAN.md
+last_updated: "2026-07-17T16:56:17.476Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
   total_phases: 13
   completed_phases: 8
   total_plans: 105
-  completed_plans: 98
+  completed_plans: 99
   percent: 62
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 10 (ui-polish) — EXECUTING
-Plan: 6 of 12
+Plan: 7 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
 Next: Plan Phase 10
@@ -156,6 +156,7 @@ Progress: [███████░░░] 69% (9/13 phases)
 | Phase 10 P03 | 15min | 3 tasks | 21 files |
 | Phase 10 P04 | 20min | 2 tasks | 8 files |
 | Phase 10 P05 | 16min | 2 tasks | 3 files |
+| Phase 10 P06 | 20min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -310,6 +311,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 10-05: The three ToolbarItems buttons use a two-branch Label (icon-only when hideText); no AnyLabelStyle, so icon-only is explicit not toolbar-inferred.
 - [Phase ?]: 10-05: Menu/context-menu Image+Text rows convert to Label (house style); toolbar image-only and trailing-checkmark menu rows are left (new-key/wrong-slot parity veto).
 - [Phase ?]: 10-05: Empty-string audit (criterion 9) returned zero matches across AppPackage/Sources, App, ShareExtension; documented as the deliverable.
+- [Phase ?]: 10-06: Only 3 of 35 ZStacks convert to .overlay — flexible Color/backgroundColor size-definer under an external definite frame (aspectRatio/containerRelativeFrame); the other 32 (union peers, conditional single-child, opacity-toggled equal indicators, gesture/coordinate-critical) are KEEP, the plan's intended outcome.
 
 ### Pending Todos
 
@@ -350,6 +352,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T16:37:40.196Z
-Stopped at: Completed 10-05-PLAN.md
+Last session: 2026-07-17T16:56:17.470Z
+Stopped at: Completed 10-06-PLAN.md
 Resume file: None
