@@ -144,12 +144,10 @@ private struct LoginTextField: View {
     }
 }
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            LoginView(
-                store: .init(initialState: .init(), reducer: LoginReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        LoginView(
+            store: .init(initialState: .init(), reducer: LoginReducer.init)
+        )
     }
 }

@@ -154,10 +154,8 @@ extension SettingReducer.RootScreen {
     }
 }
 
-struct SettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingView(
-            store: .init(initialState: .init(), reducer: SettingReducer.init)
-        )
-    }
+#Preview("Initial") {
+    SettingView(
+        store: .init(initialState: .init(), reducer: SettingReducer.init)
+    )
 }

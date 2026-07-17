@@ -227,12 +227,10 @@ private struct AppActivityLogRow: View {
     }
 }
 
-struct AppActivityLogsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            AppActivityLogsView(
-                store: .init(initialState: .init(), reducer: AppActivityLogsReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        AppActivityLogsView(
+            store: .init(initialState: .init(), reducer: AppActivityLogsReducer.init)
+        )
     }
 }

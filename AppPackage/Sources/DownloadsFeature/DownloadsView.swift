@@ -303,10 +303,8 @@ private extension DownloadsView {
     }
 }
 
-struct DownloadsView_Previews: PreviewProvider {
-    static var previews: some View {
-        DownloadsView(
-            store: .init(initialState: .init(), reducer: DownloadsReducer.init)
-        )
-    }
+#Preview("Initial") {
+    DownloadsView(
+        store: .init(initialState: .init(), reducer: DownloadsReducer.init)
+    )
 }

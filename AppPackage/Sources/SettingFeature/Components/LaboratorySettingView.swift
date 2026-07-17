@@ -77,12 +77,10 @@ struct LaboratoryCell: View {
     }
 }
 
-struct LaboratorySettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            LaboratorySettingView(
-                store: .init(initialState: .init(), reducer: LaboratorySettingReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        LaboratorySettingView(
+            store: .init(initialState: .init(), reducer: LaboratorySettingReducer.init)
+        )
     }
 }

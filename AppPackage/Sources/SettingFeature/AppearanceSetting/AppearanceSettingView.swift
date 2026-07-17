@@ -159,12 +159,10 @@ private struct AppIconRow: View {
     }
 }
 
-struct AppearanceSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            AppearanceSettingView(
-                store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        AppearanceSettingView(
+            store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init)
+        )
     }
 }

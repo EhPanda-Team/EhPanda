@@ -138,13 +138,11 @@ struct GeneralSettingView: View {
     }
 }
 
-struct GeneralSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            GeneralSettingView(
-                store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
-                tagTranslatorLoadingState: .idle
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        GeneralSettingView(
+            store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
+            tagTranslatorLoadingState: .idle
+        )
     }
 }
