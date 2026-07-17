@@ -161,10 +161,8 @@ public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
     case toplists
 }
 
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView(
-            store: .init(initialState: .init(), reducer: HomeReducer.init)
-        )
-    }
+#Preview("Initial") {
+    HomeView(
+        store: .init(initialState: .init(), reducer: HomeReducer.init)
+    )
 }

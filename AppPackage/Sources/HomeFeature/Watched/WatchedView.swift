@@ -106,12 +106,10 @@ struct WatchedView: View {
     }
 }
 
-struct WatchedView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            WatchedView(
-                store: .init(initialState: .init(), reducer: WatchedReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        WatchedView(
+            store: .init(initialState: .init(), reducer: WatchedReducer.init)
+        )
     }
 }

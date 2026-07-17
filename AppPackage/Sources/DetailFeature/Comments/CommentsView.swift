@@ -241,17 +241,15 @@ private extension KFImage {
     }
 }
 
-struct CommentsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            CommentsView(
-                store: .init(initialState: .init(galleryURL: .mock), reducer: CommentsReducer.init),
-                gid: .init(),
-                token: .init(),
-                apiKey: .init(),
-                galleryURL: .mock,
-                comments: []
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        CommentsView(
+            store: .init(initialState: .init(galleryURL: .mock), reducer: CommentsReducer.init),
+            gid: .init(),
+            token: .init(),
+            apiKey: .init(),
+            galleryURL: .mock,
+            comments: []
+        )
     }
 }

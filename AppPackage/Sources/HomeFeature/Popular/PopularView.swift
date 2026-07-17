@@ -54,12 +54,10 @@ struct PopularView: View {
     }
 }
 
-struct PopularView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            PopularView(
-                store: .init(initialState: .init(), reducer: PopularReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        PopularView(
+            store: .init(initialState: .init(), reducer: PopularReducer.init)
+        )
     }
 }
