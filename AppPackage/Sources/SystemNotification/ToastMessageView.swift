@@ -64,7 +64,6 @@ struct ToastMessageView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .lineLimit(1)
     }
 }
 

@@ -67,11 +67,9 @@ struct LaboratoryCell: View {
         .frame(maxWidth: .infinity)
         .contentShape(.rect)
         .onTapGesture(perform: { isOn.toggle() })
-        .minimumScaleFactor(0.75)
         .padding(.vertical, 20)
         .background(bgColor)
         .clipShape(.rect(cornerRadius: 15))
-        .lineLimit(1)
         .animation(.default, value: isOn)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
     }
