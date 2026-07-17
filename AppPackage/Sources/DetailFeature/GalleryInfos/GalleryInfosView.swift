@@ -125,17 +125,15 @@ private struct Info: Identifiable {
     let value: String?
 }
 
-struct GalleryInfosView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            GalleryInfosView(
-                store: .init(
-                    initialState: .init(gallery: .preview, galleryDetail: .preview),
-                    reducer: GalleryInfosReducer.init
-                ),
-                gallery: .preview,
-                galleryDetail: .preview
-            )
-        }
+#Preview("Loaded") {
+    NavigationStack {
+        GalleryInfosView(
+            store: .init(
+                initialState: .init(gallery: .preview, galleryDetail: .preview),
+                reducer: GalleryInfosReducer.init
+            ),
+            gallery: .preview,
+            galleryDetail: .preview
+        )
     }
 }

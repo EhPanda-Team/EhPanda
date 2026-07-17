@@ -84,11 +84,9 @@ struct DetailSearchView: View {
     }
 }
 
-struct DetailSearchView_Previews: PreviewProvider {
-    static var previews: some View {
-        DetailSearchView(
-            store: .init(initialState: .init(), reducer: DetailSearchReducer.init),
-            keyword: .init()
-        )
-    }
+#Preview("Initial") {
+    DetailSearchView(
+        store: .init(initialState: .init(), reducer: DetailSearchReducer.init),
+        keyword: .init()
+    )
 }

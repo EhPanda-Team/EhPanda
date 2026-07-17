@@ -120,18 +120,15 @@ private struct LinksSection: View {
     }
 }
 
-struct TagDescriptionView_Previews: PreviewProvider {
-    static var previews: some View {
-        Color.clear
-            .sheet(isPresented: .constant(true)) {
-                TagDetailView(
-                    detail: .init(
-                        title: "Some name",
-                        description: "blablablablablablablablablablablablablablablablablablablablablablablabla~",
-                        imageURLs: .init(), links: [Defaults.URL.ehentai, Defaults.URL.exhentai]
-                    )
+#Preview("Loaded") {
+    Color.clear
+        .sheet(isPresented: .constant(true)) {
+            TagDetailView(
+                detail: .init(
+                    title: "Some name",
+                    description: "blablablablablablablablablablablablablablablablablablablablablablablabla~",
+                    imageURLs: .init(), links: [Defaults.URL.ehentai, Defaults.URL.exhentai]
                 )
-                .preferredColorScheme(.dark)
-            }
-    }
+            )
+        }
 }

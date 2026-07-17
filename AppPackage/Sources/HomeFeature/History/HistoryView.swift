@@ -59,12 +59,10 @@ struct HistoryView: View {
     }
 }
 
-struct HistoryView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            HistoryView(
-                store: .init(initialState: .init(), reducer: HistoryReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        HistoryView(
+            store: .init(initialState: .init(), reducer: HistoryReducer.init)
+        )
     }
 }

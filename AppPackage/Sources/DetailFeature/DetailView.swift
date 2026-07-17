@@ -302,13 +302,11 @@ private extension DetailView {
     }
 }
 
-struct DetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            DetailView(
-                store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
-                gid: .init()
-            )
-        }
+#Preview("Loaded") {
+    NavigationStack {
+        DetailView(
+            store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
+            gid: .init()
+        )
     }
 }

@@ -59,12 +59,10 @@ struct ToplistsView: View {
     }
 }
 
-struct ToplistsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            ToplistsView(
-                store: .init(initialState: .init(), reducer: ToplistsReducer.init)
-            )
-        }
+#Preview("Initial") {
+    NavigationStack {
+        ToplistsView(
+            store: .init(initialState: .init(), reducer: ToplistsReducer.init)
+        )
     }
 }
