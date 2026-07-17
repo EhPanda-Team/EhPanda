@@ -32,8 +32,36 @@ public struct GalleryHistoryCell: View {
     }
 }
 
-struct GalleryHistoryCell_Previews: PreviewProvider {
-    static var previews: some View {
-        GalleryHistoryCell(gallery: .preview)
+private let previewLongTitle =
+    "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
+    + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
+
+private extension Gallery {
+    static func previewFixture(title: String, rating: Float, uploader: String?) -> Gallery {
+        .init(
+            gid: UUID().uuidString,
+            token: "",
+            title: title,
+            rating: rating,
+            tags: [],
+            category: .doujinshi,
+            uploader: uploader,
+            pageCount: 24,
+            postedDate: .now,
+            coverURL: nil,
+            galleryURL: nil
+        )
     }
+}
+
+#Preview("Loaded", traits: .sizeThatFitsLayout) {
+    GalleryHistoryCell(gallery: .preview)
+}
+
+#Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
+    GalleryHistoryCell(gallery: .previewFixture(title: previewLongTitle, rating: 5, uploader: "Anonymous"))
+}
+
+#Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
+    GalleryHistoryCell(gallery: .previewFixture(title: "Doujin", rating: 0, uploader: nil))
 }

@@ -99,9 +99,36 @@ public struct GalleryThumbnailCell: View {
     }
 }
 
-struct GalleryThumbnailCell_Previews: PreviewProvider {
-    static var previews: some View {
-        GalleryThumbnailCell(gallery: .preview)
-            .preferredColorScheme(.dark)
+private let previewLongTitle =
+    "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
+    + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
+
+private extension Gallery {
+    static func previewFixture(title: String, rating: Float, pageCount: Int) -> Gallery {
+        .init(
+            gid: UUID().uuidString,
+            token: "",
+            title: title,
+            rating: rating,
+            tags: [],
+            category: .doujinshi,
+            uploader: "Anonymous",
+            pageCount: pageCount,
+            postedDate: .now,
+            coverURL: nil,
+            galleryURL: nil
+        )
     }
+}
+
+#Preview("Loaded", traits: .sizeThatFitsLayout) {
+    GalleryThumbnailCell(gallery: .preview)
+}
+
+#Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
+    GalleryThumbnailCell(gallery: .previewFixture(title: previewLongTitle, rating: 5, pageCount: 1234))
+}
+
+#Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
+    GalleryThumbnailCell(gallery: .previewFixture(title: "Doujin", rating: 0, pageCount: 1))
 }

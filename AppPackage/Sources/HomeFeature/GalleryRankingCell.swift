@@ -32,10 +32,36 @@ public struct GalleryRankingCell: View {
     }
 }
 
-struct GalleryRankingCell_Previews: PreviewProvider {
-    static var previews: some View {
-        GalleryRankingCell(gallery: .preview, ranking: 1)
-            .previewLayout(.fixed(width: 300, height: 100))
-            .preferredColorScheme(.dark)
+private let previewLongTitle =
+    "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
+    + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
+
+private extension Gallery {
+    static func previewFixture(title: String, uploader: String?) -> Gallery {
+        .init(
+            gid: UUID().uuidString,
+            token: "",
+            title: title,
+            rating: 3.5,
+            tags: [],
+            category: .doujinshi,
+            uploader: uploader,
+            pageCount: 24,
+            postedDate: .now,
+            coverURL: nil,
+            galleryURL: nil
+        )
     }
+}
+
+#Preview("Top rank", traits: .sizeThatFitsLayout) {
+    GalleryRankingCell(gallery: .preview, ranking: 1)
+}
+
+#Preview("Long title, high rank", traits: .sizeThatFitsLayout) {
+    GalleryRankingCell(gallery: .previewFixture(title: previewLongTitle, uploader: "Anonymous"), ranking: 999)
+}
+
+#Preview("Short title, no uploader", traits: .sizeThatFitsLayout) {
+    GalleryRankingCell(gallery: .previewFixture(title: "Doujin", uploader: nil), ranking: 10)
 }
