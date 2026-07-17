@@ -138,14 +138,54 @@ private struct CardGradientView: View {
     }
 }
 
-struct GalleryCardCell_Previews: PreviewProvider {
-    static var previews: some View {
-        let gallery = Gallery.preview
-        GalleryCardCell(
-            gallery: gallery, currentID: gallery.gid,
-            colors: ColorfulPreset.aurora.colors.map { Color($0) },
-            webImageSuccessAction: { _ in }
+private let previewLongTitle =
+    "(C99) [Sample Circle (Sample Artist)] An Exceptionally Long Doujinshi "
+    + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
+private let previewCardColors: [Color] = ColorfulPreset.aurora.colors.map({ Color($0) })
+
+private extension Gallery {
+    static func previewFixture(title: String, rating: Float) -> Gallery {
+        .init(
+            gid: UUID().uuidString,
+            token: "",
+            title: title,
+            rating: rating,
+            tags: [],
+            category: .doujinshi,
+            uploader: "Anonymous",
+            pageCount: 24,
+            postedDate: .now,
+            coverURL: nil,
+            galleryURL: nil
         )
-        .previewLayout(.fixed(width: 300, height: 206)).padding()
     }
+}
+
+#Preview("Focused", traits: .sizeThatFitsLayout) {
+    GalleryCardCell(
+        gallery: .preview, currentID: Gallery.preview.gid,
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .padding()
+}
+
+#Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
+    let gallery = Gallery.previewFixture(title: previewLongTitle, rating: 5)
+    GalleryCardCell(
+        gallery: gallery, currentID: gallery.gid,
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .padding()
+}
+
+#Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
+    let gallery = Gallery.previewFixture(title: "Doujin", rating: 0)
+    GalleryCardCell(
+        gallery: gallery, currentID: "other",
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .padding()
 }
