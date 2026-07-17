@@ -231,16 +231,13 @@ private struct UpperPanel: View {
 
                 ToolbarFeaturesMenu {
                     Button(action: retryAllFailedImagesAction) {
-                        Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                        Text(.retryAllFailedImages)
+                        Label(.retryAllFailedImages, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                     }
                     Button(action: reloadAllImagesAction) {
-                        Image(systemSymbol: .arrowCounterclockwise)
-                        Text(.reloadAllImages)
+                        Label(.reloadAllImages, systemSymbol: .arrowCounterclockwise)
                     }
                     Button(action: navigateSettingAction) {
-                        Image(systemSymbol: .gear)
-                        Text(.readingSetting)
+                        Label(.readingSetting, systemSymbol: .gear)
                     }
                 }
                 .buttonStyle(.borderless)
