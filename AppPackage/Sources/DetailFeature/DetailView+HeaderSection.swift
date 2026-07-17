@@ -36,6 +36,8 @@ struct HeaderSection: View {
 
     private let actionIconButtonSize: CGFloat = 32
     private let actionIconFont: Font = .system(size: 16, weight: .semibold)
+    // 10pt at default (.large); scales with Dynamic Type relative to the nearest text style (.caption2, 11pt).
+    @ScaledMetric(relativeTo: .caption2) private var progressCenterSymbolSize: CGFloat = 10
 
     private var title: String {
         let normalTitle = galleryDetail.title
@@ -207,7 +209,7 @@ struct HeaderSection: View {
                     .controlSize(.small)
             }
             Image(systemSymbol: centerSymbol)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: progressCenterSymbolSize, weight: .semibold))
                 .foregroundStyle(downloadButtonTint)
         }
         .frame(width: actionIconButtonSize, height: actionIconButtonSize)
