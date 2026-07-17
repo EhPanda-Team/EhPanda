@@ -24,10 +24,6 @@ public struct PrivacyMaskModifier: ViewModifier {
 }
 
 extension View {
-    public func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-
     @ViewBuilder public func withHorizontalSpacing(width: CGFloat = 8, height: CGFloat? = nil) -> some View {
         Color.clear.frame(width: width, height: height)
         self
@@ -170,28 +166,6 @@ extension KFImage {
             ))
             .fade(duration: 0.25)
             .resizable()
-    }
-}
-
-public struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    public init(radius: CGFloat = .infinity, corners: UIRectCorner = .allCorners) {
-        self.radius = radius
-        self.corners = corners
-    }
-
-    public func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(
-                width: radius,
-                height: radius
-            )
-        )
-        return Path(path.cgPath)
     }
 }
 

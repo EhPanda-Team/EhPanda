@@ -47,8 +47,12 @@ public struct GalleryThumbnailCell: View {
                     CategoryLabel(
                         text: gallery.category.value, color: gallery.color(host: setting.galleryHost),
                         insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
-                        cornerRadius: 15, corners: .bottomLeft
+                        cornerRadius: 0
                     )
+                    // The label sits flush in the top-trailing corner of the cover; only its
+                    // inward (bottom-leading) corner is rounded. Keep the label's own background
+                    // flat (cornerRadius 0) so this uneven clip alone defines the shape.
+                    .clipShape(.rect(bottomLeadingRadius: 15))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
             VStack(alignment: .leading, spacing: 5) {

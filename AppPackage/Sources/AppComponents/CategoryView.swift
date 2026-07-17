@@ -12,25 +12,23 @@ public struct CategoryLabel: View {
     private let font: Font
     private let insets: EdgeInsets
     private let cornerRadius: CGFloat
-    private let corners: UIRectCorner
 
     public init(
         text: LocalizedStringResource, color: Color, font: Font = .footnote,
         insets: EdgeInsets = .init(top: 1, leading: 3, bottom: 1, trailing: 3),
-        cornerRadius: CGFloat = 2, corners: UIRectCorner = .allCorners
+        cornerRadius: CGFloat = 2
     ) {
         self.text = text
         self.color = color
         self.font = font
         self.insets = insets
         self.cornerRadius = cornerRadius
-        self.corners = corners
     }
 
     public var body: some View {
         Text(text).font(font.bold()).lineLimit(1).foregroundStyle(.white)
             .padding(insets).background(
-                Rectangle().foregroundStyle(color).cornerRadius(cornerRadius, corners: corners)
+                Rectangle().foregroundStyle(color).clipShape(.rect(cornerRadius: cornerRadius))
             )
     }
 }
