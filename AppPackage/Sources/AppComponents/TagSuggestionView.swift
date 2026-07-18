@@ -112,9 +112,8 @@ private struct SuggestionCell: View {
                         .lineLimit(1)
                 }
                 .allowsHitTesting(false)
-
-                Spacer()
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .onTapGesture(perform: action)
         } else {

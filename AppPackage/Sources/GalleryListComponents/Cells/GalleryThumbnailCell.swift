@@ -60,13 +60,13 @@ public struct GalleryThumbnailCell: View {
                     .font(.callout.bold())
                     .lineLimit(downloadBadge == nil ? 3 : 2)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
-                if setting.showsTagsInList, !tagContents.isEmpty {
+                if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
                         let translation = translateAction?(content.rawNamespace + content.text).1
                         TagCloudCell(
                             text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,
-                            showsImages: setting.showsImagesInTags,
+                            showsImages: setting.showImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                             textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
                             backgroundColor: content.backgroundColor ?? tagColor
@@ -74,20 +74,17 @@ public struct GalleryThumbnailCell: View {
                     }
                 }
                 HStack(spacing: 10) {
-                    if let downloadBadge {
-                        DownloadBadgeLabel(badge: downloadBadge)
-                    } else {
-                        HStack(spacing: 2) {
-                            Image(systemSymbol: .photoOnRectangleAngled)
-                            Text(String(gallery.pageCount))
+                    Group {
+                        if let downloadBadge {
+                            DownloadBadgeLabel(badge: downloadBadge)
+                        } else {
+                            Label(gallery.pageCount.description, systemSymbol: .photoOnRectangleAngled)
+                                .labelIconToTitleSpacing(2)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Spacer(minLength: 8)
-
-                    if let language = gallery.language {
-                        Text(language.value)
-                    }
+                    (gallery.language?.value).map(Text.init)
                 }
                 .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
 

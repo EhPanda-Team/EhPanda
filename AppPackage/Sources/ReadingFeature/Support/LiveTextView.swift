@@ -18,70 +18,69 @@ struct LiveTextView: View {
     }
 
     var body: some View {
-        ZStack {
-            Canvas { context, canvasSize in
-                context.fill(
-                    Path(CGRect(origin: .zero, size: canvasSize)),
-                    with: .color(.black.opacity(0.1))
-                )
-                guard size != .zero else { return }
+        Canvas { context, canvasSize in
+            context.fill(
+                Path(CGRect(origin: .zero, size: canvasSize)),
+                with: .color(.black.opacity(0.1))
+            )
+            guard size != .zero else { return }
 
-                let tuples: [(UUID, Path)] = liveTextGroups
-                    .flatMap { group in
-                        group.blocks.map { block in
-                            (group.id, block)
-                        }
+            let tuples: [(UUID, Path)] = liveTextGroups
+                .flatMap { group in
+                    group.blocks.map { block in
+                        (group.id, block)
                     }
-                    .map { (id, block) in
-                        let expandingSize = 4.0
-                        let bounds = block.bounds
-                        let topLeft = bounds.topLeft * size
-                        let rect = CGRect(
-                            x: 0, y: 0,
-                            width: bounds.getWidth(size) + expandingSize * 2,
-                            height: bounds.getHeight(size) + expandingSize * 2)
+                }
+                .map { (id, block) in
+                    let expandingSize = 4.0
+                    let bounds = block.bounds
+                    let topLeft = bounds.topLeft * size
+                    let rect = CGRect(
+                        x: 0, y: 0,
+                        width: bounds.getWidth(size) + expandingSize * 2,
+                        height: bounds.getHeight(size) + expandingSize * 2)
 
-                        let path = Path(roundedRect: rect, cornerRadius: bounds.getHeight(size) / 5)
-                            .applying(CGAffineTransform(rotationAngle: block.bounds.getRadian(size)))
-                            .offsetBy(dx: topLeft.x - expandingSize, dy: topLeft.y - expandingSize)
-                        return (id, path)
-                    }
-                context.withCGContext { cgContext in
-                    tuples.forEach { (_, path) in
-                        cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
-                        cgContext.setShadow(
-                            offset: .zero, blur: 15,
-                            color: .init(red: 0, green: 0, blue: 0, alpha: 0.3)
+                    let path = Path(roundedRect: rect, cornerRadius: bounds.getHeight(size) / 5)
+                        .applying(CGAffineTransform(rotationAngle: block.bounds.getRadian(size)))
+                        .offsetBy(dx: topLeft.x - expandingSize, dy: topLeft.y - expandingSize)
+                    return (id, path)
+                }
+            context.withCGContext { cgContext in
+                tuples.forEach { (_, path) in
+                    cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
+                    cgContext.setShadow(
+                        offset: .zero, blur: 15,
+                        color: .init(red: 0, green: 0, blue: 0, alpha: 0.3)
+                    )
+                    cgContext.addPath(path.cgPath)
+                    cgContext.drawPath(using: .fill)
+                }
+            }
+            context.blendMode = .destinationOut
+            tuples.forEach { (_, path) in
+                context.fill(path, with: .color(.red))
+                context.stroke(path, with: .color(.red))
+            }
+
+            if let focusedLiveTextGroup = focusedLiveTextGroup {
+                context.blendMode = .copy
+                tuples.forEach { (groupUUID, path) in
+                    if groupUUID == focusedLiveTextGroup.id {
+                        context.stroke(
+                            path, with: .color(.accentColor.opacity(0.6)),
+                            style: .init(lineWidth: 10)
                         )
-                        cgContext.addPath(path.cgPath)
-                        cgContext.drawPath(using: .fill)
                     }
                 }
                 context.blendMode = .destinationOut
-                tuples.forEach { (_, path) in
-                    context.fill(path, with: .color(.red))
-                    context.stroke(path, with: .color(.red))
-                }
-
-                if let focusedLiveTextGroup = focusedLiveTextGroup {
-                    context.blendMode = .copy
-                    tuples.forEach { (groupUUID, path) in
-                        if groupUUID == focusedLiveTextGroup.id {
-                            context.stroke(
-                                path, with: .color(.accentColor.opacity(0.6)),
-                                style: .init(lineWidth: 10)
-                            )
-                        }
-                    }
-                    context.blendMode = .destinationOut
-                    tuples.forEach { (groupUUID, path) in
-                        if groupUUID == focusedLiveTextGroup.id {
-                            context.fill(path, with: .color(.accentColor))
-                        }
+                tuples.forEach { (groupUUID, path) in
+                    if groupUUID == focusedLiveTextGroup.id {
+                        context.fill(path, with: .color(.accentColor))
                     }
                 }
             }
-
+        }
+        .overlay {
             if size != .zero {
                 ForEach(liveTextGroups) { textGroup in
                     HighlightView(text: textGroup.text) {
@@ -95,7 +94,9 @@ struct LiveTextView: View {
                 }
             }
         }
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
+        .onGeometryChange(for: CGSize.self, of: \.size) {
+            size = $0
+        }
     }
 }
 

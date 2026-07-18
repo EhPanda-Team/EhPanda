@@ -5,12 +5,12 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppComponents
+import SFSafeSymbolsExt
 
 struct LoginView: View {
     @Bindable private var store: StoreOf<LoginReducer>
     @SharedReader(.setting) private var setting: Setting
 
-    @State private var size: CGSize = .zero
     @FocusState private var focusedField: LoginReducer.FocusedField?
 
     init(store: StoreOf<LoginReducer>) {
@@ -19,52 +19,53 @@ struct LoginView: View {
 
     // MARK: LoginView
     var body: some View {
-        ZStack {
+        VStack(spacing: 15) {
+            Group {
+                LoginTextField(
+                    focusedField: $focusedField,
+                    text: $store.username,
+                    description: .username,
+                    isPassword: false
+                )
+                LoginTextField(
+                    focusedField: $focusedField,
+                    text: $store.password,
+                    description: .password,
+                    isPassword: true
+                )
+            }
+            .containerRelativeFrame(.horizontal) { length, _ in length * 0.6 }
+
+            Button {
+                store.send(.login)
+            } label: {
+                Label(.RLocalizable.login, systemSymbol: .chevronForward)
+                    .labelStyle(.iconOnly)
+                    .padding()
+                    .clipShape(.circle)
+            }
+            .overlay {
+                ProgressView()
+                    .opacity(store.loginState == .loading ? 1 : 0)
+            }
+            .font(.title)
+            .foregroundStyle(store.loginButtonColor)
+            .disabled(store.loginButtonDisabled)
+            .glassEffect(.regular.tint(.init(.systemGray6)).interactive(), in: .circle)
+            .clipShape(.circle)
+            .padding(.top, 30)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
             Group {
                 WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
                 WaveForm(color: Color(.systemGray).opacity(0.2), amplify: 120, isReversed: false)
             }
-            .offset(y: size.height * 0.3)
-            .drawingGroup()
-
-            VStack(spacing: 15) {
-                Group {
-                    LoginTextField(
-                        focusedField: $focusedField,
-                        text: $store.username,
-                        description: .username,
-                        isPassword: false
-                    )
-                    LoginTextField(
-                        focusedField: $focusedField,
-                        text: $store.password,
-                        description: .password,
-                        isPassword: true
-                    )
-                }
-                .padding(.horizontal, size.width * 0.2)
-
-                Button {
-                    store.send(.login)
-                } label: {
-                    Image(systemSymbol: .chevronForward)
-                        .padding()
-                        .clipShape(.circle)
-                }
-                .overlay {
-                    ProgressView()
-                        .tint(nil)
-                        .opacity(store.loginState == .loading ? 1 : 0)
-                }
-                .font(.title)
-                .foregroundStyle(store.loginButtonColor)
-                .disabled(store.loginButtonDisabled)
-                .glassEffect(.regular.interactive(), in: .circle)
-                .clipShape(.circle)
-                .padding(.top, 30)
+            .visualEffect { content, proxy in
+                content.offset(y: proxy.size.height * 0.3)
             }
+            .drawingGroup()
         }
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         .synchronize($store.focusedField, $focusedField)
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue) {
@@ -93,9 +94,9 @@ struct LoginView: View {
             Button {
                 store.send(.presentWebView(Defaults.URL.webLogin))
             } label: {
-                Image(systemSymbol: .globe)
+                Label(.website, systemSymbol: .globe)
             }
-            .disabled(setting.bypassesSNIFiltering)
+            .disabled(setting.bypassSNIFiltering)
         }
     }
 }
@@ -139,7 +140,7 @@ private struct LoginTextField: View {
             .autocorrectionDisabled(true)
             .keyboardType(isPassword ? .asciiCapable : .default)
             .padding(10)
-            .glassEffect(.regular.tint(Color(.systemGray5)), in: .rect(cornerRadius: 8))
+            .glassEffect(.regular.tint(Color(.systemGray6)), in: .rect(cornerRadius: 8))
         }
     }
 }

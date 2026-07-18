@@ -69,6 +69,59 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testObserversReceiveSettledStatusAfterActiveDownloadFinishes() async throws {
+        let sessionID = UUID().uuidString
+        let gid = "100011"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        try writeProcessManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Settled Status",
+            pageCount: 2
+        )
+        await manager.reloadDownloadIndex()
+        await manager.testingSetActiveGalleryID(gid)
+
+        let stream = await manager.observeDownloads()
+        // Display statuses derive from the coordinator's active-gallery ownership,
+        // so emissions sent while the download still owns it report `.active`; the
+        // regression being guarded is that no notification ever followed the
+        // ownership handover, leaving observers stuck on that stale status.
+        let settledStatus = Task { () -> DownloadDisplayStatus? in
+            for await downloads in stream {
+                guard let status = downloads
+                    .first(where: { $0.gid == gid })?
+                    .displayStatus,
+                    status != .active
+                else { continue }
+                return status
+            }
+            return nil
+        }
+
+        await manager.processDownload(gid: gid)
+
+        let timeout = Task {
+            try? await Task.sleep(for: .seconds(10))
+            settledStatus.cancel()
+        }
+        let status = await settledStatus.value
+        timeout.cancel()
+        #expect(status == .error)
+    }
+
+    @Test
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)

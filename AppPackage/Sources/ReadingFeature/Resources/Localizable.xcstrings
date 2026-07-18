@@ -1,6 +1,47 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "live_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Text"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Text"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブテキスト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "라이브 텍스트"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实况文本"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即時文字"
+          }
+        }
+      }
+    },
     "auto_play": {
       "extractionState": "manual",
       "localizations": {
@@ -83,6 +124,47 @@
         }
       }
     },
+    "close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閉じる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
+        }
+      }
+    },
     "copy": {
       "extractionState": "manual",
       "localizations": {
@@ -130,7 +212,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dual-Page mode"
+            "value": "Dual-Page Mode"
           }
         },
         "de": {
@@ -171,7 +253,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Except the cover"
+            "value": "Except the Cover"
           }
         },
         "de": {
@@ -212,7 +294,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reading setting"
+            "value": "Reading Setting"
           }
         },
         "de": {
@@ -294,7 +376,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reload all images"
+            "value": "Reload All Images"
           }
         },
         "de": {
@@ -335,7 +417,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Retry all failed images"
+            "value": "Retry All Failed Images"
           }
         },
         "de": {
@@ -417,7 +499,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save original"
+            "value": "Save Original"
           }
         },
         "de": {

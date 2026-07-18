@@ -351,6 +351,19 @@ extension CookieClient {
         setCookieValue: { _, _, _, _, _, _ in }
     )
 
+    /// A signed-in stand-in for previews: every cookie reads back non-empty, so `didLogin` is `true`
+    /// and login-gated screens (Favorites, Watched) show their real content instead of `NotLoginView`.
+    public static let previewLoggedIn: Self = .init(
+        clearAll: {},
+        getCookie: { _, _ in .init(rawValue: "preview", localizedString: "preview") },
+        cookiesForURL: { _ in [] },
+        removeCookie: { _, _ in },
+        checkExistence: { _, _ in true },
+        initializeCookie: { _, _ in .init() },
+        storeCookie: { _ in },
+        setCookieValue: { _, _, _, _, _, _ in }
+    )
+
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(

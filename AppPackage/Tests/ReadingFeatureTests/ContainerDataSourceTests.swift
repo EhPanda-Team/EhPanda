@@ -17,7 +17,7 @@ struct ContainerDataSourceTests {
     private func makeDualPageSetting(exceptCover: Bool) -> Setting {
         var setting = Setting()
         setting.readingDirection = .leftToRight
-        setting.enablesDualPageMode = true
+        setting.enableDualPageMode = true
         setting.exceptCover = exceptCover
         return setting
     }

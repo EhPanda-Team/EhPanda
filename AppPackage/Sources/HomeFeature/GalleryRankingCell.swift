@@ -16,18 +16,29 @@ public struct GalleryRankingCell: View {
     public var body: some View {
         HStack {
             KFImage(gallery.coverURL)
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }.defaultModifier()
-                .scaledToFill().frame(width: Defaults.ImageSize.rowW * 0.75, height: Defaults.ImageSize.rowH * 0.75)
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
+                .defaultModifier()
+                .scaledToFill()
+                .frame(width: Defaults.ImageSize.rowW * 0.75, height: Defaults.ImageSize.rowH * 0.75)
                 .clipShape(.rect(cornerRadius: 2))
-            Text(String(ranking)).fontWeight(.medium).font(.title2).padding(.horizontal)
+
+            Text(String(ranking))
+                .fontWeight(.medium)
+                .font(.title2)
+                .padding(.horizontal)
+
             VStack(alignment: .leading) {
-                Text(gallery.trimmedTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
-                if let uploader = gallery.uploader {
-                    Text(uploader).foregroundStyle(.secondary).lineLimit(1)
-                }
+                Text(gallery.trimmedTitle)
+                    .bold()
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                gallery.uploader.map(Text.init)?
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .font(.caption)
-            Spacer()
         }
     }
 }

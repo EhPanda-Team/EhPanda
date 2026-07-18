@@ -56,8 +56,26 @@ public struct GalleryCardCell: View {
     }
 
     public var body: some View {
-        ZStack {
-            Color.gray.opacity(0.2)
+        HStack {
+            KFImage(gallery.coverURL)
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
+                .onSuccess(handleCoverSuccess).defaultModifier().scaledToFill()
+                .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
+                .clipShape(.rect(cornerRadius: 5))
+
+            VStack(alignment: .leading) {
+                Text(title)
+                    .font(.title3.bold())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .lineLimit(4)
+
+                RatingView(rating: gallery.rating).foregroundStyle(.yellow)
+            }
+            .padding(.leading, 15)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
             if animated {
                 CardGradientView(colors: colors, reduceMotion: reduceMotion, speed: animationSpeed)
                     // Cross-fade the focus handoff: the gradient is inserted/removed per focus
@@ -66,26 +84,10 @@ public struct GalleryCardCell: View {
                     // delaying the midline handoff that drives it (see HomeView+Sections).
                     .transition(.opacity)
             }
-            HStack {
-                KFImage(gallery.coverURL)
-                    .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                    .onSuccess(handleCoverSuccess).defaultModifier().scaledToFill()
-                    .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
-                    .clipShape(.rect(cornerRadius: 5))
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.title3.bold())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .lineLimit(4)
-
-                    Spacer()
-
-                    RatingView(rating: gallery.rating).foregroundStyle(.yellow)
-                }
-                .padding(.leading, 15)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 20)
+        }
+        .background {
+            Color.gray
+                .opacity(0.2)
         }
         .clipShape(.rect(cornerRadius: 15))
         .animation(.easeInOut(duration: 0.5), value: animated)

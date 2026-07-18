@@ -7,15 +7,7 @@ import DeviceClient
 public struct NewDawnView: View {
     @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.colorScheme) private var colorScheme
-    @State private var containerWidth: CGFloat = 0
     private let greeting: Greeting
-
-    private var offset: CGFloat {
-        containerWidth * 0.2
-    }
-    private var sunWidth: CGFloat {
-        containerWidth * (deviceClient.deviceType() == .pad ? 0.5 : 0.6)
-    }
 
     private var gradientColors: [Color] {
         if colorScheme == .light {
@@ -31,23 +23,46 @@ public struct NewDawnView: View {
 
     // MARK: NewDawnView
     public var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: gradientColors),
-                startPoint: .top, endPoint: .bottom
-            )
-            VStack {
-                HStack {
-                    Spacer()
-                    ZStack {
-                        SunView(width: sunWidth)
-                        SunBeamView(width: sunWidth)
-                            .opacity(colorScheme == .light ? 1 : 0)
+        LinearGradient(
+            gradient: Gradient(colors: gradientColors),
+            startPoint: .top, endPoint: .bottom
+        )
+        .overlay {
+            Canvas { context, size in
+                let offset = size.width * 0.2
+                let sunWidth = size.width * (deviceClient.deviceType() == .pad ? 0.5 : 0.6)
+                let sunCenter = CGPoint(x: size.width - sunWidth / 2 + offset, y: sunWidth / 2 - offset)
+
+                context.fill(
+                    Path(ellipseIn: CGRect(
+                        x: sunCenter.x - sunWidth / 2, y: sunCenter.y - sunWidth / 2,
+                        width: sunWidth, height: sunWidth
+                    )),
+                    with: .color(.yellow)
+                )
+
+                if colorScheme == .dark {
+                    let beamWidth = sunWidth / 10
+                    for index in 0..<8 {
+                        var beamContext = context
+                        beamContext.translateBy(x: sunCenter.x, y: sunCenter.y)
+                        beamContext.rotate(by: .degrees(Double(index) * 45))
+                        beamContext.translateBy(x: 0, y: -sunWidth / 1.2)
+                        beamContext.fill(
+                            Path(
+                                roundedRect: CGRect(
+                                    x: -beamWidth / 2, y: -beamWidth * 2.5,
+                                    width: beamWidth, height: beamWidth * 5
+                                ),
+                                cornerRadius: beamWidth / 3
+                            ),
+                            with: .color(.yellow)
+                        )
                     }
-                    .offset(x: offset, y: -offset)
                 }
-                Spacer()
             }
+        }
+        .overlay {
             VStack(spacing: 50) {
                 VStack(spacing: 10) {
                     TextView(text: .first, font: .largeTitle)
@@ -57,13 +72,7 @@ public struct NewDawnView: View {
             }
             .padding()
         }
-        .drawingGroup()
         .ignoresSafeArea()
-        .onGeometryChange(for: CGFloat.self) { proxy in
-            proxy.size.width
-        } action: { width in
-            containerWidth = width
-        }
     }
 }
 
@@ -91,80 +100,11 @@ private struct TextView: View {
     }
 
     var body: some View {
-        HStack {
-            Text(text)
-                .fontWeight(fontWeight).font(font)
-                .lineLimit(nil).foregroundStyle(.white)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer()
-        }
-    }
-}
-
-// MARK: SunView
-private struct SunView: View {
-    private let width: Double
-
-    init(width: Double) {
-        self.width = width
-    }
-
-    var body: some View {
-        ZStack {
-            Circle().foregroundStyle(.yellow)
-                .frame(width: width, height: width)
-        }
-    }
-}
-
-// MARK: SunBeamView
-private struct SunBeamView: View {
-    private let width: Double
-
-    init(width: Double) {
-        self.width = width
-    }
-
-    private var offset: CGFloat { width / 1.2 }
-    private var evenOffset: CGFloat { offset / sqrt(2) }
-    private var sizes: [CGSize] {
-        [
-            CGSize(width: 0, height: -offset),
-            CGSize(width: evenOffset, height: -evenOffset),
-            CGSize(width: offset, height: 0),
-            CGSize(width: evenOffset, height: evenOffset),
-            CGSize(width: 0, height: offset),
-            CGSize(width: -evenOffset, height: evenOffset),
-            CGSize(width: -offset, height: 0),
-            CGSize(width: -evenOffset, height: -evenOffset)
-        ]
-    }
-    private var degrees: [Double] = [
-        0, 45, 90, 135, 180, 225, 270, 315
-    ]
-
-    var body: some View {
-        ForEach(0..<8, id: \.self) { index in
-            SunBeamItem(width: width / 10)
-                .rotationEffect(Angle(degrees: degrees[index]))
-                .offset(sizes[index])
-        }
-    }
-}
-
-// MARK: SunBeamItem
-private struct SunBeamItem: View {
-    private let width: Double
-
-    init(width: Double) {
-        self.width = width
-    }
-
-    var body: some View {
-        Rectangle()
-            .foregroundStyle(.yellow)
-            .frame(width: width, height: width * 5)
-            .clipShape(.rect(cornerRadius: width / 3))
+        Text(text)
+            .fontWeight(fontWeight).font(font)
+            .lineLimit(nil).foregroundStyle(.white)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

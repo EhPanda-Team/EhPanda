@@ -7,6 +7,7 @@ import ComposableArchitecture
 import AppTools
 import AppComponents
 import CookieClient
+import SFSafeSymbolsExt
 
 // MARK: DescriptionSection
 struct DescriptionSection: View {
@@ -61,7 +62,8 @@ struct DescriptionSection: View {
                     Divider()
                     if info == infos.last {
                         Button(action: navigateGalleryInfosAction) {
-                            Image(systemSymbol: .ellipsis)
+                            Label(.metadataGalleryInfos, systemSymbol: .ellipsis)
+                                .labelStyle(.iconOnly)
                                 .font(.title3.weight(.bold))
                         }
                         .containerRelativeFrame(.horizontal, itemWidth)
@@ -137,20 +139,27 @@ struct ActionSection: View {
             HStack {
                 Group {
                     Button(action: showUserRatingAction) {
-                        Spacer()
-                        Image(systemSymbol: .squareAndPencil)
-                        Text(.giveARating).bold()
-                        Spacer()
+                        Label {
+                            Text(.giveARating)
+                                .bold()
+                        } icon: {
+                            Image(systemSymbol: .squareAndPencil)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                     .disabled(!cookieClient.didLogin)
+
                     Button(action: navigateSimilarGalleryAction) {
-                        Spacer()
-                        Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(.similarGallery).bold()
-                        Spacer()
+                        Label {
+                            Text(.similarGallery).bold()
+                        } icon: {
+                            Image(systemSymbol: .photoOnRectangleAngled)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .font(.callout).foregroundStyle(.primary)
+                .font(.callout)
+                .tint(.primary)
             }
             if showUserRating {
                 HStack {
@@ -333,7 +342,7 @@ struct CommentsSection: View {
     let navigateCommentAction: () -> Void
     let navigatePostCommentAction: () -> Void
 
-    private var backgroundColor: Color { Color(.systemGray6) }
+    private var backgroundColor: Color { Color(.systemGray5) }
 
     var body: some View {
         SubSection(

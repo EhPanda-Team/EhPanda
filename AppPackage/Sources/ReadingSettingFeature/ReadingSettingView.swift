@@ -23,6 +23,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+
                 Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                         Text(.RLocalizable.pages(count: value)).tag(value)
@@ -41,11 +42,13 @@ public struct ReadingSettingView: View {
                 }
                 .pickerStyle(.menu)
                 .disabled(store.setting.readingDirection != .vertical)
+
                 ScaleFactorRow(
                     scaleFactor: Binding(store.sharedSetting.maximumScaleFactor),
                     labelContent: .maximumScaleFactor,
                     minFactor: 1.5, maxFactor: 10
                 )
+
                 ScaleFactorRow(
                     scaleFactor: Binding(store.sharedSetting.doubleTapScaleFactor),
                     labelContent: .doubleTapScaleFactor,
@@ -77,7 +80,8 @@ private struct ScaleFactorRow: View {
         VStack {
             HStack {
                 Text(labelContent)
-                Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 Text(.Constant.scaleFactor(scaleFactor.roundedString())).foregroundStyle(.tint)
             }
             Slider(

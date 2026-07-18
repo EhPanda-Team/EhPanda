@@ -16,7 +16,7 @@ struct EhSettingParserTests: TestHelper {
     }
 
     func testEhProfiles(_ profiles: [EhProfile]) {
-        #expect(profiles.count == 3)
+        #expect(profiles.count == 4)
 
         let ehProfile1 = profiles[0]
         #expect(ehProfile1.value == 1)
@@ -30,13 +30,25 @@ struct EhSettingParserTests: TestHelper {
         #expect(ehProfile2.isSelected == false)
         #expect(ehProfile2.isDefault == false)
         #expect(EhSetting.verifyEhPandaProfileName(with: ehProfile2.name))
+
+        let ehProfile3 = profiles[2]
+        #expect(ehProfile3.value == 3)
+        #expect(ehProfile3.name == "Mock Profile 3")
+        #expect(ehProfile3.isSelected == false)
+        #expect(ehProfile3.isDefault == false)
+
+        let ehProfile4 = profiles[3]
+        #expect(ehProfile4.value == 4)
+        #expect(ehProfile4.name == "Mock Profile 4")
+        #expect(ehProfile4.isSelected == false)
+        #expect(ehProfile4.isDefault == false)
     }
 
     func testCapability(ehSetting: EhSetting) {
         #expect(ehSetting.capableLoadThroughHathSetting == .legacyNo)
         #expect(ehSetting.capableLoadThroughHathSettings == EhSetting.LoadThroughHathSetting.allCases)
 
-        #expect(ehSetting.capableImageResolution == .x2400)
+        #expect(ehSetting.capableImageResolution == .x2560)
         #expect(ehSetting.capableImageResolutions == EhSetting.ImageResolution.allCases)
 
         #expect(ehSetting.capableSearchResultCount == .oneHundred)
@@ -50,8 +62,9 @@ struct EhSettingParserTests: TestHelper {
 
     func testRemainingStuff(ehSetting: EhSetting) {
         #expect(ehSetting.loadThroughHathSetting == .anyClient)
-        #expect(ehSetting.browsingCountry == .autoDetect)
-        #expect(ehSetting.literalBrowsingCountry == "Japan")
+        #expect(ehSetting.hahRegion == .autoDetect)
+        #expect(ehSetting.literalDetectedCountry == "Japan")
+        #expect(ehSetting.literalHahRegion == "Asia")
         #expect(ehSetting.imageResolution == .auto)
         #expect(ehSetting.imageSizeWidth == 0)
         #expect(ehSetting.imageSizeHeight == 0)
@@ -82,8 +95,8 @@ struct EhSettingParserTests: TestHelper {
         #expect(ehSetting.tagsSortOrder == .alphabetical)
         #expect(ehSetting.galleryPageNumbering == .none)
         #expect(ehSetting.useOriginalImages == false)
-        #expect(ehSetting.useMultiplePageViewer == true)
-        #expect(ehSetting.multiplePageViewerStyle == .alignLeftScaleIfOverWidth)
-        #expect(ehSetting.multiplePageViewerShowThumbnailPane == true)
+        #expect(ehSetting.useMultiplePageViewer == false)
+        #expect(ehSetting.multiplePageViewerStyle == .alignCenterAlwaysScale)
+        #expect(ehSetting.multiplePageViewerShowThumbnailPane == false)
     }
 }

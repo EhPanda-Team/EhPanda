@@ -1,7 +1,6 @@
 extension EhSetting.BrowsingCountry {
     public var englishName: String {
         switch self {
-        case .autoDetect: return "Auto-Detect"
         case .afghanistan: return "Afghanistan"
         case .alandIslands: return "Aland Islands"
         case .albania: return "Albania"

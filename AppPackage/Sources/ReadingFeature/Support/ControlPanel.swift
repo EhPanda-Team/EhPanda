@@ -85,8 +85,9 @@ struct ControlPanel<G: Gesture>: View {
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
             .padding(.top, upperPanelTopPadding + upperPanelWindowInsets.top)
+            .frame(maxHeight: .infinity, alignment: .top)
             .offset(y: showsPanel ? 0 : -50)
-            Spacer()
+
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     showsSliderPreview: $showsSliderPreview,
@@ -158,7 +159,8 @@ private struct UpperPanel: View {
         HStack {
             HStack(spacing: 16) {
                 Button(action: dismissAction) {
-                    Image(systemSymbol: .xmark)
+                    Label(.close, systemSymbol: .xmark)
+                        .labelStyle(.iconOnly)
                         .font(.title2)
                         .frame(width: 44, height: 44)
                 }
@@ -175,14 +177,14 @@ private struct UpperPanel: View {
                     .glassEffect(.regular.interactive())
                     .animation(.default, value: title)
             }
-
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 20) {
                 Button {
                     enablesLiveText.toggle()
                 } label: {
-                    Image(systemSymbol: .viewfinderCircle)
+                    Label(.liveText, systemSymbol: .viewfinderCircle)
+                        .labelStyle(.iconOnly)
                         .symbolVariant(enablesLiveText ? .fill : .none)
                         .font(.title2)
                 }
@@ -190,10 +192,10 @@ private struct UpperPanel: View {
                 if isLandscape && setting.readingDirection != .vertical {
                     Menu {
                         Button {
-                            setting.enablesDualPageMode.toggle()
+                            setting.enableDualPageMode.toggle()
                         } label: {
                             Text(.dualPageMode)
-                            if setting.enablesDualPageMode {
+                            if setting.enableDualPageMode {
                                 Image(systemSymbol: .checkmark)
                             }
                         }
@@ -205,10 +207,10 @@ private struct UpperPanel: View {
                                 Image(systemSymbol: .checkmark)
                             }
                         }
-                        .disabled(!setting.enablesDualPageMode)
+                        .disabled(!setting.enableDualPageMode)
                     } label: {
                         Image(systemSymbol: .rectangleSplit2x1)
-                            .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
+                            .symbolVariant(setting.enableDualPageMode ? .fill : .none)
                             .font(.title2)
                     }
                 }
@@ -286,11 +288,12 @@ private struct LowerPanel<G: Gesture>: View {
     var body: some View {
         VStack(spacing: 30) {
             Button(action: dismissAction) {
-                Image(systemSymbol: .xmark)
-                    .foregroundStyle(.primary)
+                Label(.close, systemSymbol: .xmark)
+                    .labelStyle(.iconOnly)
                     .font(.title2)
                     .frame(width: 44, height: 44)
             }
+            .foregroundStyle(.primary)
             .glassEffect(.regular.interactive())
             .gesture(dismissGesture)
             .opacity(showsSliderPreview ? 0 : 1)

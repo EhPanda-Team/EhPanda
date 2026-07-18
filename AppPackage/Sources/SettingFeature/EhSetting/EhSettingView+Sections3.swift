@@ -4,6 +4,7 @@ import Resources
 import AppTools
 import Dependencies
 import HapticsClient
+import AppComponents
 
 extension EhSettingView {
 
@@ -22,7 +23,10 @@ struct CoverScalingSection: View {
         } header: {
             Text.ehSettingBoldHeader(
                 .coverScaling,
-                description: .coverScaleFactor
+                description: .coverScaleFactor(
+                    75.formatted(.percent),
+                    150.formatted(.percent)
+                )
             )
         }
     }
@@ -72,7 +76,7 @@ struct FilteredRemovalCountSection: View {
 
     var body: some View {
         Section {
-            Toggle(
+            AppToggle(
                 .showFilteredRemovalCount,
                 isOn: $ehSetting.showFilteredRemovalCount
             )
@@ -199,10 +203,9 @@ struct ExcludedUploadersSection: View {
             )
         } footer: {
             Text(
-                String(localized: .excludedUploadersCount(
+                .excludedUploadersCount(
                     used: ehSetting.excludedUploaders.ehSettingLineCount, limit: 1000
-                ))
-                .localizedKey
+                )
             )
         }
     }
@@ -223,7 +226,7 @@ struct ViewportOverrideSection: View {
         } header: {
             Text.ehSettingBoldHeader(
                 .viewportOverride,
-                description: .virtualWidthDescription
+                description: .virtualWidthDescription(100.formatted(.percent))
             )
         }
     }
@@ -315,7 +318,7 @@ struct MultiplePageViewerSection: View {
            let multiplePageViewerStyleBinding = Binding($ehSetting.multiplePageViewerStyle),
            let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane) {
             Section {
-                Toggle(
+                AppToggle(
                     .useMultiPageViewer,
                     isOn: useMultiplePageViewerBinding
                 )
@@ -331,7 +334,7 @@ struct MultiplePageViewerSection: View {
                 }
                 .pickerStyle(.menu)
 
-                Toggle(
+                AppToggle(
                     .showThumbnailPane,
                     isOn: multiplePageViewerShowPaneBinding
                 )

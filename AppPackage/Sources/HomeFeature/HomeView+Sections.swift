@@ -107,7 +107,9 @@ struct CardSlideSection: View, Equatable {
             }
         }
         .frame(height: Defaults.FrameSize.cardCellHeight)
-        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { carouselWidth = $0 }
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) {
+            carouselWidth = $0
+        }
     }
 
     private var carousel: some View {
@@ -244,7 +246,7 @@ struct CoverWallSection: View {
     var body: some View {
         SubSection(
             title: .frontpage,
-            tint: .secondary, isLoading: isLoading,
+            isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
@@ -340,7 +342,7 @@ struct ToplistsSection: View {
     var body: some View {
         SubSection(
             title: .toplists,
-            tint: .secondary, isLoading: isLoading,
+            isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
@@ -462,7 +464,6 @@ struct MiscGridItem: View {
                 .foregroundStyle(.secondary).imageScale(.large).offset(x: 20, y: 20)
         }
         .padding(30)
-        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 15))
-        .clipShape(.rect(cornerRadius: 15))
+        .glassEffect(.clear.tint(.init(.systemGray6)), in: .rect(cornerRadius: 15))
     }
 }

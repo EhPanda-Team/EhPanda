@@ -37,7 +37,7 @@ struct DownloadInspectorView: View {
                                 translateAction: {
                                     store.tagTranslator.lookup(
                                         word: $0,
-                                        returnOriginal: !store.setting.translatesTags
+                                        returnOriginal: !store.setting.translateTags
                                     )
                                 },
                                 downloadBadge: inspection.download.badge
@@ -131,21 +131,18 @@ private struct DownloadInspectorValidationActionLabel: View {
     var body: some View {
         HStack {
             Label(title, systemSymbol: .checkmarkShield)
-            Spacer(minLength: 12)
-            ZStack {
-                if isValidating {
-                    ProgressView()
-                        .tint(nil)
-                        .controlSize(.small)
-                        .transition(
-                            .opacity.combined(with: .scale(scale: 0.85))
-                        )
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            ProgressView()
+                .controlSize(.small)
+                .animation(.default) {
+                    $0
+                        .opacity(isValidating ? 1 : 0)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85)))
                 }
-            }
-            .frame(width: 20, height: 20)
+                .frame(width: 20, height: 20)
         }
         .disabledActionForegroundStyle(isDisabled)
-        .animation(progressAnimation, value: isValidating)
     }
 }
 
@@ -251,7 +248,7 @@ private extension DownloadPageStatus {
     var tintColor: Color {
         switch self {
         case .pending: .primary
-        case .downloaded: .green
+        case .downloaded: .accentColor
         case .failed: .red
         }
     }
@@ -287,18 +284,15 @@ struct DownloadListRow: View {
     let openAction: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            GalleryDetailCell(
-                gallery: download.gallery,
-                coverSource: .static(download.coverURL),
-                translateAction: {
-                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                },
-                downloadBadge: download.badge
-            )
-            .allowsHitTesting(false)
-            Spacer(minLength: 0)
-        }
+        GalleryDetailCell(
+            gallery: download.gallery,
+            coverSource: .static(download.coverURL),
+            translateAction: {
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translateTags)
+            },
+            downloadBadge: download.badge
+        )
+        .allowsHitTesting(false)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(.rect)
         .onTapGesture(perform: openAction)

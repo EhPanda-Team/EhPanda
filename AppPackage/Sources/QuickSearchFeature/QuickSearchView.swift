@@ -4,6 +4,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import AppComponents
+import SFSafeSymbolsExt
 
 public struct QuickSearchView: View {
     @Environment(\.dismiss) private var dismiss
@@ -19,58 +20,66 @@ public struct QuickSearchView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                List {
-                    // A leading list section, rather than a pinned top banner, keeps the navigation
-                    // title intact: the word list is capped and the add button disables at the limit.
-                    ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
+            List {
+                // A leading list section, rather than a pinned top banner, keeps the navigation
+                // title intact: the word list is capped and the add button disables at the limit.
+                ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
 
-                    ForEach(store.quickSearchWords) { word in
+                ForEach(store.quickSearchWords) { word in
+                    Button {
+                        searchAction(word.effectiveSearchText)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 5) {
+                            if !word.name.isEmpty, !word.content.isEmpty {
+                                Text(word.name)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                            Text(word.effectiveSearchText)
+                                .fontWeight(.medium)
+                                .font(.title3)
+                                .lineLimit(2)
+                        }
+                        .tint(.primary)
+                    }
+                    .swipeActions(edge: .trailing) {
                         Button {
-                            searchAction(word.effectiveSearchText)
+                            store.send(.deleteWordButtonTapped(word))
                         } label: {
-                            VStack(alignment: .leading, spacing: 5) {
-                                if !word.name.isEmpty, !word.content.isEmpty {
-                                    Text(word.name).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
-                                }
-                                Text(word.effectiveSearchText)
-                                    .fontWeight(.medium)
-                                    .font(.title3)
-                                    .lineLimit(2)
-                            }
-                            .tint(.primary)
+                            Label(.RLocalizable.delete, systemSymbol: .trash)
+                                .labelStyle(.iconOnly)
                         }
-                        .swipeActions(edge: .trailing) {
-                            Button {
-                                store.send(.deleteWordButtonTapped(word))
-                            } label: {
-                                Image(systemSymbol: .trash)
-                            }
-                            .tint(.red)
-                            Button {
-                                store.send(.editWordButtonTapped(word))
-                            } label: {
-                                Image(systemSymbol: .squareAndPencil)
-                            }
+                        .tint(.red)
+
+                        Button {
+                            store.send(.editWordButtonTapped(word))
+                        } label: {
+                            Label(.editWord, systemSymbol: .squareAndPencil)
+                                .labelStyle(.iconOnly)
                         }
-                        .withArrow(isVisible: !store.isListEditing).padding(5)
                     }
-                    .onDelete { offsets in
-                        store.send(.deleteWordWithOffsets(offsets))
-                    }
-                    .onMove { source, destination in
-                        store.send(.moveWord(source, destination))
-                    }
+                    .withArrow(isVisible: !store.isListEditing).padding(5)
                 }
+                .onDelete { offsets in
+                    store.send(.deleteWordWithOffsets(offsets))
+                }
+                .onMove { source, destination in
+                    store.send(.moveWord(source, destination))
+                }
+            }
+            .animation(.default, value: store.quickSearchWords)
+            .overlay {
                 ErrorView(error: .notFound)
-                    .opacity(store.quickSearchWords.isEmpty ? 1 : 0)
+                    .animation(.default) {
+                        $0.opacity(store.quickSearchWords.isEmpty ? 1 : 0)
+                    }
             }
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)
-            .animation(.default, value: store.quickSearchWords)
             .animation(.default, value: store.listEditMode)
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
@@ -96,13 +105,13 @@ public struct QuickSearchView: View {
                 Button {
                     store.send(.newWordButtonTapped)
                 } label: {
-                    Image(systemSymbol: .plus)
+                    Label(.newWord, systemSymbol: .plus)
                 }
                 .disabled(store.isAtWordLimit)
                 Button {
                     store.send(.toggleListEditing)
                 } label: {
-                    Image(systemSymbol: .pencilCircle)
+                    Label(.edit, systemSymbol: .pencilCircle)
                         .symbolVariant(store.isListEditing ? .fill : .none)
                 }
             }
@@ -172,7 +181,19 @@ extension QuickSearchView {
 
 #Preview("Initial") {
     QuickSearchView(
-        store: .init(initialState: .init(), reducer: QuickSearchReducer.init),
+        store: .init(
+            initialState: {
+                let state = QuickSearchReducer.State()
+                state.$quickSearchWords.withLock {
+                    $0 = [
+                        .init(name: "English Doujinshi", content: "language:english category:doujinshi"),
+                        .init(name: "High Rated", content: "rating:5")
+                    ]
+                }
+                return state
+            }(),
+            reducer: QuickSearchReducer.init
+        ),
         searchAction: { _ in }
     )
 }

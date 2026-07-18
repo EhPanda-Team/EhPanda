@@ -22,7 +22,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         let state = ReadingReducer.State(gallery: gallery)
 
         var dualPageSetting = Setting()
-        dualPageSetting.enablesDualPageMode = true
+        dualPageSetting.enableDualPageMode = true
         dualPageSetting.readingDirection = .leftToRight
         dualPageSetting.exceptCover = true
 

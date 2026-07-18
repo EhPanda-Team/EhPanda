@@ -12,8 +12,9 @@ public struct EhSetting: Equatable, Sendable {
         capableThumbnailConfigRowCount: ThumbnailRowCount,
         capableThumbnailConfigSizes: [ThumbnailSize],
         loadThroughHathSetting: LoadThroughHathSetting,
-        browsingCountry: BrowsingCountry,
-        literalBrowsingCountry: String,
+        hahRegion: HahRegion,
+        literalDetectedCountry: String? = nil,
+        literalHahRegion: String? = nil,
         imageResolution: ImageResolution,
         imageSizeWidth: Float,
         imageSizeHeight: Float,
@@ -54,8 +55,9 @@ public struct EhSetting: Equatable, Sendable {
         self.capableThumbnailConfigRowCount = capableThumbnailConfigRowCount
         self.capableThumbnailConfigSizes = capableThumbnailConfigSizes
         self.loadThroughHathSetting = loadThroughHathSetting
-        self.browsingCountry = browsingCountry
-        self.literalBrowsingCountry = literalBrowsingCountry
+        self.hahRegion = hahRegion
+        self.literalDetectedCountry = literalDetectedCountry
+        self.literalHahRegion = literalHahRegion
         self.imageResolution = imageResolution
         self.imageSizeWidth = imageSizeWidth
         self.imageSizeHeight = imageSizeHeight
@@ -89,7 +91,7 @@ public struct EhSetting: Equatable, Sendable {
         self.multiplePageViewerShowThumbnailPane = multiplePageViewerShowThumbnailPane
     }
     // swiftlint:disable line_length
-    public static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none)
+    public static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, hahRegion: .autoDetect, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none)
     // swiftlint:enable line_length
 
     public static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -139,14 +141,23 @@ public struct EhSetting: Equatable, Sendable {
             row <= capableThumbnailConfigRowCount
         }
     }
-    public var localizedLiteralBrowsingCountry: String? {
-        BrowsingCountry.allCases.first(where: { $0.englishName == literalBrowsingCountry })
-            .map { String(localized: $0.name) }
+    public var localizedLiteralDetectedCountry: String? {
+        literalDetectedCountry.flatMap { literal in
+            BrowsingCountry.allCases.first(where: { $0.englishName == literal })
+                .map { String(localized: $0.name) }
+        }
+    }
+    public var localizedLiteralHahRegion: String? {
+        literalHahRegion.flatMap { literal in
+            HahRegion.allCases.first(where: { $0.englishName == literal })
+                .map { String(localized: $0.name) }
+        }
     }
 
     public var loadThroughHathSetting: LoadThroughHathSetting
-    public var browsingCountry: BrowsingCountry
-    public let literalBrowsingCountry: String
+    public var hahRegion: HahRegion
+    public let literalDetectedCountry: String?
+    public let literalHahRegion: String?
     public var imageResolution: ImageResolution
     public var imageSizeWidth: Float
     public var imageSizeHeight: Float
@@ -260,13 +271,11 @@ extension EhSetting.LoadThroughHathSetting {
 // MARK: ImageResolution
 extension EhSetting {
     public enum ImageResolution: Int, CaseIterable, Identifiable, Comparable, Codable, Sendable {
-        case auto
-        case x780
-        /// Deprecated
-        case x980
-        case x1280
-        case x1600
-        case x2400
+        case auto = 0
+        case x800 = 1
+        case x1280 = 3
+        case x1920 = 4
+        case x2560 = 5
     }
 }
 extension EhSetting.ImageResolution {
@@ -279,16 +288,14 @@ extension EhSetting.ImageResolution {
         switch self {
         case .auto:
             return String(localized: .imageResolutionAuto)
-        case .x780:
-            return "780x"
-        case .x980:
-            return "980x"
+        case .x800:
+            return "800x"
         case .x1280:
             return "1280x"
-        case .x1600:
-            return "1600x"
-        case .x2400:
-            return "2400x"
+        case .x1920:
+            return "1920x"
+        case .x2560:
+            return "2560x"
         }
     }
 }

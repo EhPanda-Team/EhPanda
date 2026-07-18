@@ -39,7 +39,7 @@ struct AppErrorStructuredTests {
         Expectation(
             error: .webImageFailed,
             isRetryable: true,
-            localizedDescription: "Web image loading error",
+            localizedDescription: "Web Image Loading Error",
             alertText: ""
         ),
         Expectation(
@@ -69,13 +69,13 @@ struct AppErrorStructuredTests {
         Expectation(
             error: .noUpdates,
             isRetryable: true,
-            localizedDescription: "No updates available",
+            localizedDescription: "No Updates Available",
             alertText: ""
         ),
         Expectation(
             error: .notFound,
             isRetryable: false,
-            localizedDescription: "Not found",
+            localizedDescription: "Not Found",
             alertText: "There seems to be nothing here."
         ),
         Expectation(

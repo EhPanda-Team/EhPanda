@@ -27,40 +27,43 @@ struct ArchivesView: View {
     // MARK: ArchiveView
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack {
-                    HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
+            VStack {
+                HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
+                    .frame(maxHeight: .infinity, alignment: .top)
 
-                    Spacer()
+                let placeholderValue = 100000
+                let credits = store.user.credits.flatMap(Int.init)
+                let galleryPoints = store.user.galleryPoints.flatMap(Int.init)
 
-                    if let credits = Int(store.user.credits ?? ""),
-                       let galleryPoints = Int(store.user.galleryPoints ?? "") {
-                        ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
+                ArchiveFundsView(credits: credits ?? placeholderValue, galleryPoints: galleryPoints ?? placeholderValue)
+                    .animation(.default) {
+                        $0.redacted(reason: credits != nil && galleryPoints != nil ? .init() : .placeholder)
                     }
 
-                    DownloadButton(isDisabled: store.selectedArchive == nil) {
-                        store.send(.fetchDownloadResponse(archiveURL))
-                    }
+                DownloadButton(isDisabled: store.selectedArchive == nil) {
+                    store.send(.fetchDownloadResponse(archiveURL))
                 }
-                .padding(.horizontal)
-                .opacity(store.hathArchives.isEmpty ? 0 : 1)
-
+            }
+            .padding(.horizontal)
+            .animation(.default) {
+                $0.opacity(store.hathArchives.isEmpty ? 0 : 1)
+            }
+            .overlay {
                 LoadingView()
-                    .opacity(
-                        store.loadingState == .loading
-                            && store.hathArchives.isEmpty ? 1 : 0
-                    )
-
+                    .animation(.default) {
+                        $0.opacity(store.loadingState == .loading && store.hathArchives.isEmpty ? 1 : 0)
+                    }
+            }
+            .overlay {
                 let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchArchive(gid, galleryURL, archiveURL))
                 }
-                .opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
+                .animation(.default) {
+                    $0.opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
+                }
             }
             .toast($store.scope(\.$toast, action: \.toast))
-            .animation(.default, value: store.hathArchives)
-            .animation(.default, value: store.user.galleryPoints)
-            .animation(.default, value: store.user.credits)
             .onAppear {
                 store.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
@@ -104,7 +107,7 @@ private struct HathArchivesView: View {
                             archive: archive,
                             width: itemWidth
                         )
-                            .tint(.primary).multilineTextAlignment(.center)
+                        .tint(.primary).multilineTextAlignment(.center)
                     }
                 }
             }
@@ -180,7 +183,7 @@ private struct HathArchiveGrid: View {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(borderColor, lineWidth: 1)
             )
-            .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
+            .glassEffect(.clear, in: .rect(cornerRadius: 10))
     }
 
     // `foregroundColor` is optional: nil means inherit the ambient tint, so
@@ -243,8 +246,9 @@ private struct DownloadButton: View {
             .foregroundStyle(textColor)
             .frame(maxWidth: .infinity)
             .frame(height: bannerHeight)
-            .background(backgroundColor)
-            .animation(.default, value: backgroundColor)
+            .animation(.default) {
+                $0.background(backgroundColor)
+            }
             .clipShape(.rect(cornerRadius: 30))
             .glassEffect(.regular.interactive())
             .padding(paddingInsets)
@@ -260,9 +264,23 @@ private struct DownloadButton: View {
 
 #Preview("Initial") {
     ArchivesView(
-        store: .init(initialState: .init(), reducer: ArchivesReducer.init),
+        store: .init(
+            initialState: .init(hathArchives: .preview),
+            reducer: ArchivesReducer.init
+        ),
         gid: .init(),
         galleryURL: .mock,
         archiveURL: .mock
     )
+}
+
+private extension [GalleryArchive.HathArchive] {
+    static let preview: Self = [
+        .init(resolution: .x780, fileSize: "12 MB", gpPrice: "20"),
+        .init(resolution: .x980, fileSize: "18 MB", gpPrice: "30"),
+        .init(resolution: .x1280, fileSize: "24 MB", gpPrice: "40"),
+        .init(resolution: .x1600, fileSize: "32 MB", gpPrice: "50"),
+        .init(resolution: .x2400, fileSize: "48 MB", gpPrice: "Free"),
+        .init(resolution: .original, fileSize: "N/A", gpPrice: "N/A")
+    ]
 }

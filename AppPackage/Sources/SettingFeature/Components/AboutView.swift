@@ -200,8 +200,10 @@ private struct LinkRow: View {
     }
 
     var body: some View {
-        ZStack {
-            let text = Text(text).fontWeight(.medium)
+        Group {
+            let text = Text(text)
+                .fontWeight(.medium)
+
             if let url = URL(string: urlString) {
                 Link(destination: url) {
                     text.withArrow()

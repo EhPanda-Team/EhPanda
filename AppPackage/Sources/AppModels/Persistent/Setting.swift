@@ -1,57 +1,55 @@
+import UIKit
 import AppTools
-import SwiftUI
 import Resources
 import Foundation
 
 public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public init(
         galleryHost: GalleryHost = .ehentai,
-        showsNewDawnGreeting: Bool = false,
-        enablesTagsExtension: Bool = false,
-        translatesTags: Bool = false,
-        showsTagsSearchSuggestion: Bool = false,
-        showsImagesInTags: Bool = false,
-        redirectsLinksToSelectedHost: Bool = false,
-        detectsLinksFromClipboard: Bool = false,
+        showNewDawnGreeting: Bool = false,
+        enableTagsExtension: Bool = false,
+        translateTags: Bool = false,
+        showTagsSearchSuggestion: Bool = false,
+        showImagesInTags: Bool = false,
+        redirectLinksToSelectedHost: Bool = false,
+        detectLinksFromClipboard: Bool = false,
         privacyMaskIntensity: Double = 10,
         listDisplayMode: ListDisplayMode = .detail,
-        accentColor: Color = .blue,
         appIconType: AppIconType = .default,
-        showsTagsInList: Bool = false,
+        showTagsInList: Bool = false,
         listTagsNumberMaximum: Int = 0,
-        displaysJapaneseTitle: Bool = true,
+        displayJapaneseTitle: Bool = true,
         readingDirection: ReadingDirection = .vertical,
         prefetchLimit: Int = 10,
-        enablesDualPageMode: Bool = false,
+        enableDualPageMode: Bool = false,
         exceptCover: Bool = false,
         contentDividerHeight: Double = 0,
         maximumScaleFactor: Double = 3,
         doubleTapScaleFactor: Double = 2,
-        bypassesSNIFiltering: Bool = false
+        bypassSNIFiltering: Bool = false
     ) {
         self.galleryHost = galleryHost
-        self.showsNewDawnGreeting = showsNewDawnGreeting
-        self.enablesTagsExtension = enablesTagsExtension
-        self.translatesTags = translatesTags
-        self.showsTagsSearchSuggestion = showsTagsSearchSuggestion
-        self.showsImagesInTags = showsImagesInTags
-        self.redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
-        self.detectsLinksFromClipboard = detectsLinksFromClipboard
+        self.showNewDawnGreeting = showNewDawnGreeting
+        self.enableTagsExtension = enableTagsExtension
+        self.translateTags = translateTags
+        self.showTagsSearchSuggestion = showTagsSearchSuggestion
+        self.showImagesInTags = showImagesInTags
+        self.redirectLinksToSelectedHost = redirectLinksToSelectedHost
+        self.detectLinksFromClipboard = detectLinksFromClipboard
         self.privacyMaskIntensity = privacyMaskIntensity
         self.listDisplayMode = listDisplayMode
-        self.accentColor = accentColor
         self.appIconType = appIconType
-        self.showsTagsInList = showsTagsInList
+        self.showTagsInList = showTagsInList
         self.listTagsNumberMaximum = listTagsNumberMaximum
-        self.displaysJapaneseTitle = displaysJapaneseTitle
+        self.displayJapaneseTitle = displayJapaneseTitle
         self.readingDirection = readingDirection
         self.prefetchLimit = prefetchLimit
-        self.enablesDualPageMode = enablesDualPageMode
+        self.enableDualPageMode = enableDualPageMode
         self.exceptCover = exceptCover
         self.contentDividerHeight = contentDividerHeight
         self.maximumScaleFactor = maximumScaleFactor
         self.doubleTapScaleFactor = doubleTapScaleFactor
-        self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.bypassSNIFiltering = bypassSNIFiltering
     }
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
     /// `currentSchemaVersion` derives from the head. Append a `VersionedSchema` and adopt
@@ -70,38 +68,37 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var schemaVersion: SchemaVersion<Setting> = 1
     // Account
     public var galleryHost: GalleryHost = .ehentai
-    public var showsNewDawnGreeting = false
+    public var showNewDawnGreeting = false
 
     // General
-    public var enablesTagsExtension = false {
+    public var enableTagsExtension = false {
         didSet {
-            if !enablesTagsExtension {
-                translatesTags = false
-                showsTagsSearchSuggestion = false
-                showsImagesInTags = false
+            if !enableTagsExtension {
+                translateTags = false
+                showTagsSearchSuggestion = false
+                showImagesInTags = false
             }
         }
     }
-    public var translatesTags = false
-    public var showsTagsSearchSuggestion = false
-    public var showsImagesInTags = false
-    public var redirectsLinksToSelectedHost = false
-    public var detectsLinksFromClipboard = false
+    public var translateTags = false
+    public var showTagsSearchSuggestion = false
+    public var showImagesInTags = false
+    public var redirectLinksToSelectedHost = false
+    public var detectLinksFromClipboard = false
     public var privacyMaskIntensity: Double = 10
 
     // Appearance
     public var listDisplayMode: ListDisplayMode = .detail
     public var preferredColorScheme = PreferredColorScheme.automatic
-    public var accentColor: Color = .blue
     public var appIconType: AppIconType = .default
-    public var showsTagsInList = false
+    public var showTagsInList = false
     public var listTagsNumberMaximum = 0
-    public var displaysJapaneseTitle = true
+    public var displayJapaneseTitle = true
 
     // Reading
     public var readingDirection: ReadingDirection = .vertical
     public var prefetchLimit = 10
-    public var enablesDualPageMode = false
+    public var enableDualPageMode = false
     public var exceptCover = false
     public var contentDividerHeight: Double = 0
     // The two scale factors are mutually clamped so `doubleTapScaleFactor <= maximumScaleFactor`
@@ -133,7 +130,7 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var downloadAutoRetryFailedPages = Self.downloadAutoRetryFailedPagesDefaultValue
 
     // Laboratory
-    public var bypassesSNIFiltering = false
+    public var bypassSNIFiltering = false
 }
 
 extension Setting {

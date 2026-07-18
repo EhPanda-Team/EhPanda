@@ -24,7 +24,7 @@ struct PopularView: View {
             fetchAction: { store.send(.fetchGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
         .sheet(
@@ -47,7 +47,7 @@ struct PopularView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            FiltersButton(hideText: true) {
+            FiltersButton {
                 store.send(.filtersButtonTapped)
             }
         }
@@ -57,7 +57,14 @@ struct PopularView: View {
 #Preview("Initial") {
     NavigationStack {
         PopularView(
-            store: .init(initialState: .init(), reducer: PopularReducer.init)
+            store: .init(
+                initialState: {
+                    var state = PopularReducer.State()
+                    state.galleries = Gallery.previews(count: 10)
+                    return state
+                }(),
+                reducer: PopularReducer.init
+            )
         )
     }
 }

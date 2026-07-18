@@ -5,6 +5,7 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import SFSafeSymbolsExt
 import GalleryListComponents
 
 struct HistoryView: View {
@@ -27,7 +28,7 @@ struct HistoryView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             },
             downloadBadges: store.downloadBadges
         )
@@ -49,7 +50,7 @@ struct HistoryView: View {
             Button {
                 store.send(.clearHistoryButtonTapped)
             } label: {
-                Image(systemSymbol: .trashCircle)
+                Label(.RLocalizable.clear, systemSymbol: .trashCircle)
             }
             .disabled(store.loadingState == .loading || store.galleryHistory.isEmpty)
             .confirmationDialog(
@@ -62,7 +63,14 @@ struct HistoryView: View {
 #Preview("Initial") {
     NavigationStack {
         HistoryView(
-            store: .init(initialState: .init(), reducer: HistoryReducer.init)
+            store: .init(
+                initialState: {
+                    var state = HistoryReducer.State()
+                    state.galleries = Gallery.previews(count: 10)
+                    return state
+                }(),
+                reducer: HistoryReducer.init
+            )
         )
     }
 }

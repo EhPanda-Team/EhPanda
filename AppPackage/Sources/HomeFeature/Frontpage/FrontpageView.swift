@@ -26,7 +26,7 @@ struct FrontpageView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
         .sheet(
@@ -44,7 +44,6 @@ struct FrontpageView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
@@ -64,7 +63,7 @@ struct FrontpageView: View {
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
             }
-            FiltersButton(hideText: true) {
+            FiltersButton {
                 store.send(.filtersButtonTapped)
             }
         }
@@ -74,7 +73,14 @@ struct FrontpageView: View {
 #Preview("Initial") {
     NavigationStack {
         FrontpageView(
-            store: .init(initialState: .init(), reducer: FrontpageReducer.init)
+            store: .init(
+                initialState: {
+                    var state = FrontpageReducer.State()
+                    state.galleries = Gallery.previews(count: 10)
+                    return state
+                }(),
+                reducer: FrontpageReducer.init
+            )
         )
     }
 }

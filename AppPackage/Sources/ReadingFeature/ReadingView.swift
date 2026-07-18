@@ -9,6 +9,7 @@ import AppTools
 import AnimatedImageFeature
 import SystemNotification
 import AppComponents
+import SFSafeSymbolsExt
 import ReadingSettingFeature
 import Dependencies
 import DeviceClient
@@ -95,18 +96,16 @@ public struct ReadingView: View {
                                 Button {
                                     store.send(.destination(.dismiss))
                                 } label: {
-                                    Image(systemSymbol: .chevronDown)
+                                    Label(.close, systemSymbol: .chevronDown)
                                 }
                             }
                         }
                     }
                 }
-                .tint(store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
-                    .tint(store.setting.accentColor)
                     .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))
@@ -127,42 +126,46 @@ public struct ReadingView: View {
             .onAppear { store.send(.onAppear(gid)) }
     }
 
+    @ViewBuilder
     var content: some View {
         @Bindable var bindableLiveTextHandler = liveTextHandler
         @Bindable var bindablePageHandler = pageHandler
 
-        return ZStack {
-            backgroundColor.ignoresSafeArea()
+        VStack {
+            switch store.setting.readingDirection {
+            case .vertical:
+                AdvancedList(
+                    page: pageModel,
+                    data: store.state.containerDataSource(
+                        setting: store.setting,
+                        isLandscape: isLandscape
+                    ),
+                    id: \.self,
+                    spacing: store.setting.contentDividerHeight,
+                    gesture: SimultaneousGesture(magnificationGesture, tapGesture),
+                    content: imageStack
+                )
+                .scrollDisabled(gestureHandler.scale != 1)
 
-            ZStack {
-                if store.setting.readingDirection == .vertical {
-                    AdvancedList(
-                        page: pageModel,
-                        data: store.state.containerDataSource(
-                            setting: store.setting,
-                            isLandscape: isLandscape
-                        ),
-                        id: \.self,
-                        spacing: store.setting.contentDividerHeight,
-                        gesture: SimultaneousGesture(magnificationGesture, tapGesture),
-                        content: imageStack
-                    )
-                    .scrollDisabled(gestureHandler.scale != 1)
-                } else {
-                    horizontalPagingList
-                }
+            case .leftToRight, .rightToLeft:
+                horizontalPagingList
             }
-            .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
-            .offset(gestureHandler.offset)
-            .highPriorityGesture(
-                dragGesture.simultaneously(with: tapGesture),
-                isEnabled: gestureHandler.scale > 1
-            )
-            .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
-            .gesture(magnificationGesture)
-            .ignoresSafeArea()
-            .id(store.forceRefreshID)
-
+        }
+        .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
+        .offset(gestureHandler.offset)
+        .highPriorityGesture(
+            dragGesture.simultaneously(with: tapGesture),
+            isEnabled: gestureHandler.scale > 1
+        )
+        .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
+        .gesture(magnificationGesture)
+        .ignoresSafeArea()
+        .id(store.forceRefreshID)
+        .background {
+            backgroundColor
+                .ignoresSafeArea()
+        }
+        .overlay {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
@@ -180,7 +183,7 @@ public struct ReadingView: View {
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
-        .onGeometryChange(for: CGSize.self) { $0.size } action: {
+        .onGeometryChange(for: CGSize.self, of: \.size) {
             gestureHandler.containerSize = $0
         }
     }
@@ -291,7 +294,7 @@ public struct ReadingView: View {
             setting: setting,
             isLandscape: isLandscape
         )
-        let isDualPage = setting.enablesDualPageMode
+        let isDualPage = setting.enableDualPageMode
             && setting.readingDirection != .vertical && isLandscape
         let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
         let activeStackIndex = dataSource.indices.contains(pageModel.index) ? dataSource[pageModel.index] : nil

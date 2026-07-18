@@ -34,11 +34,9 @@ private struct TagDescriptionSection: View {
     }
 
     var body: some View {
-        HStack {
-            Text(description).foregroundStyle(.secondary).font(.headline)
-            Spacer()
-        }
-        .padding(.horizontal)
+        Text(description).foregroundStyle(.secondary).font(.headline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
     }
 }
 
@@ -60,28 +58,31 @@ private struct ImagesSection: View {
 
     var body: some View {
         SubSection(title: .images, showAll: false) {
-            VStack {
-                if !imageURLs.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack {
-                            ForEach(imageURLs, id: \.self) { imageURL in
-                                KFImage(imageURL)
-                                    .placeholder {
-                                        Placeholder(style: .activity(
-                                            ratio: Defaults.ImageSize.previewAspect
-                                        ))
-                                    }
-                                    .defaultModifier().scaledToFit()
-                                    .frame(width: width, height: height)
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(imageURLs, id: \.self) { imageURL in
+                        KFImage(imageURL)
+                            .placeholder {
+                                Placeholder(style: .activity(
+                                    ratio: Defaults.ImageSize.previewAspect
+                                ))
                             }
-                            .withHorizontalSpacing(height: height)
-                        }
+                            .defaultModifier().scaledToFit()
+                            .frame(width: width, height: height)
                     }
-                } else {
-                    ErrorView(error: .notFound).padding()
+                    .withHorizontalSpacing(height: height)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .animation(.default) {
+                $0.opacity(imageURLs.isEmpty ? 0 : 1)
+            }
+            .overlay {
+                ErrorView(error: .notFound)
+                    .padding()
+                    .animation(.default) {
+                        $0.opacity(imageURLs.isEmpty ? 1 : 0)
+                    }
+            }
         }
     }
 }
@@ -95,25 +96,29 @@ private struct LinksSection: View {
 
     var body: some View {
         SubSection(title: .links, showAll: false) {
-            HStack {
-                if !links.isEmpty {
-                    VStack(alignment: .leading) {
-                        ForEach(links, id: \.self) { url in
-                            Button {
-                                UIApplication.shared.open(url, options: [:])
-                            } label: {
-                                Text(url.absoluteString)
-                                    .multilineTextAlignment(.leading)
-                                    .font(.callout.bold()).tint(.secondary)
-                            }
-                        }
+            VStack(alignment: .leading) {
+                ForEach(links, id: \.self) { url in
+                    Button {
+                        UIApplication.shared.open(url, options: [:])
+                    } label: {
+                        Text(url.absoluteString)
+                            .multilineTextAlignment(.leading)
+                            .font(.callout.bold()).tint(.secondary)
                     }
-                    .padding(.vertical)
-                } else {
-                    Spacer()
-                    ErrorView(error: .notFound).padding()
                 }
-                Spacer()
+            }
+            .padding(.vertical)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .animation(.default) {
+                $0.opacity(links.isEmpty ? 0 : 1)
+            }
+            .overlay {
+                ErrorView(error: .notFound)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .animation(.default) {
+                        $0.opacity(links.isEmpty ? 1 : 0)
+                    }
             }
             .padding(.horizontal)
         }
