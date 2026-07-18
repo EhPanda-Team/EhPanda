@@ -135,6 +135,7 @@ private struct DownloadInspectorValidationActionLabel: View {
             ZStack {
                 if isValidating {
                     ProgressView()
+                        .tint(nil)
                         .controlSize(.small)
                         .transition(
                             .opacity.combined(with: .scale(scale: 0.85))

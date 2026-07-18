@@ -12,6 +12,7 @@ public struct LoadingView: View {
 
     public var body: some View {
         ProgressView(title)
+            .tint(nil)
     }
 }
 
@@ -30,6 +31,7 @@ public struct FetchMoreFooter: View {
             ZStack {
                 if loadingState == .loading {
                     ProgressView()
+                        .tint(nil)
                 } else if loadingState != .idle {
                     Button {
                         retryAction?()
