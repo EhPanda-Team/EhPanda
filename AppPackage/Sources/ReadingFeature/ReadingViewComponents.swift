@@ -270,7 +270,7 @@ struct ImageContainer: View {
                             }
                             .font(.system(size: reloadSymbolSize, weight: .medium)).foregroundStyle(.gray)
                             .opacity(loadingState == .loading ? 0 : 1)
-                            ProgressView().opacity(loadingState == .loading ? 1 : 0)
+                            ProgressView().tint(nil).opacity(loadingState == .loading ? 1 : 0)
                         }
                     }
                 }

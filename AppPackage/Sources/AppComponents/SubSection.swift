@@ -40,6 +40,7 @@ public struct SubSection<Content: View>: View {
                     HStack(spacing: 10) {
                         Text(title).font(.title3.bold())
                         ProgressView()
+                            .tint(nil)
                             .opacity(isLoading == true ? 1 : 0)
                             .animation(.default, value: isLoading)
                     }
