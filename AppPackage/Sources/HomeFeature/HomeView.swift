@@ -6,6 +6,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import SFSafeSymbolsExt
 import DetailFeature
 
 public struct HomeView: View {
@@ -18,9 +19,9 @@ public struct HomeView: View {
     // MARK: HomeView
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            ZStack {
-                ScrollView(showsIndicators: false) {
-                    VStack {
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    Group {
                         if !store.popularGalleries.isEmpty {
                             CardSlideSection(
                                 galleries: store.popularGalleries,
@@ -34,53 +35,60 @@ public struct HomeView: View {
                             )
                             .equatable().allowsHitTesting(store.allowsCardHitTesting)
                         }
-                        Group {
-                            if store.frontpageGalleries.count > 1 {
-                                CoverWallSection(
-                                    galleries: store.frontpageGalleries,
-                                    isLoading: store.frontpageLoadingState == .loading,
-                                    navigateAction: navigateTo(gallery:),
-                                    showAllAction: { store.send(.sectionTapped(.frontpage)) },
-                                    reloadAction: { store.send(.fetchFrontpageGalleries) }
-                                )
-                            }
-                            ToplistsSection(
-                                galleries: store.toplistsGalleries,
-                                isLoading: !store.toplistsLoadingState
-                                    .values.allSatisfy({ $0 != .loading }),
+                        if store.frontpageGalleries.count > 1 {
+                            CoverWallSection(
+                                galleries: store.frontpageGalleries,
+                                isLoading: store.frontpageLoadingState == .loading,
                                 navigateAction: navigateTo(gallery:),
-                                showAllAction: { store.send(.sectionTapped(.toplists)) },
-                                reloadAction: { store.send(.fetchAllToplistsGalleries) }
+                                showAllAction: { store.send(.sectionTapped(.frontpage)) },
+                                reloadAction: { store.send(.fetchFrontpageGalleries) }
                             )
-                            MiscGridSection(navigateAction: navigateTo(type:))
                         }
-                        .padding(.vertical)
+                        ToplistsSection(
+                            galleries: store.toplistsGalleries,
+                            isLoading: !store.toplistsLoadingState
+                                .values.allSatisfy({ $0 != .loading }),
+                            navigateAction: navigateTo(gallery:),
+                            showAllAction: { store.send(.sectionTapped(.toplists)) },
+                            reloadAction: { store.send(.fetchAllToplistsGalleries) }
+                        )
+                        MiscGridSection(navigateAction: navigateTo(type:))
                     }
+                    .padding(.vertical)
                 }
-                .opacity(store.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
-
+            }
+            .animation(.default) {
+                $0.opacity(store.popularGalleries.isEmpty ? 0 : 1)
+            }
+            .opacity(store.popularGalleries.isEmpty ? 0 : 1)
+            .animation(.default, value: store.popularLoadingState)
+            .overlay {
                 LoadingView()
-                    .opacity(
-                        store.popularLoadingState == .loading
-                            && store.popularGalleries.isEmpty ? 1 : 0
-                    )
-                    .zIndex(0)
-
+                    .animation(.default) {
+                        $0.opacity(
+                            store.popularLoadingState == .loading
+                                && store.popularGalleries.isEmpty ? 1 : 0
+                        )
+                    }
+            }
+            .overlay {
                 let error = store.popularLoadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchAllGalleries)
                 }
+                .animation(.default) {
+                    $0.opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
+                }
                 .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
-                .zIndex(1)
             }
-            .animation(.default, value: store.popularLoadingState)
             .onAppear {
                 if store.popularGalleries.isEmpty {
                     store.send(.fetchAllGalleries)
                 }
             }
-            .toolbar(content: toolbar)
+            .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle(.RLocalizable.home)
+            .toolbar(content: toolbar)
         } destination: { store in
             switch store.case {
             case .frontpage(let store):
@@ -100,14 +108,14 @@ public struct HomeView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary) {
+        CustomToolbarItem {
             Button {
                 store.send(.fetchAllGalleries)
             } label: {
-                Image(systemSymbol: .arrowCounterclockwise)
+                Label(.reload, systemSymbol: .arrowCounterclockwise)
             }
             .opacity(store.popularLoadingState == .loading ? 0 : 1)
-            .overlay(ProgressView().tint(nil).opacity(store.popularLoadingState == .loading ? 1 : 0))
+            .overlay(ProgressView().opacity(store.popularLoadingState == .loading ? 1 : 0))
         }
     }
 }
@@ -163,6 +171,16 @@ public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
 
 #Preview("Initial") {
     HomeView(
-        store: .init(initialState: .init(), reducer: HomeReducer.init)
+        store: .init(
+            initialState: {
+                var state = HomeReducer.State()
+                let popular = Gallery.previews(count: 5)
+                state.popularGalleries = popular
+                state.currentCardID = popular.first?.id ?? ""
+                state.frontpageGalleries = Gallery.previews(count: 4)
+                return state
+            }(),
+            reducer: HomeReducer.init
+        )
     )
 }

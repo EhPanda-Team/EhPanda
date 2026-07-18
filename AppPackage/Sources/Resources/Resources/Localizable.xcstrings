@@ -136,7 +136,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Date seek"
+            "value" : "Date Seek"
           }
         },
         "ja" : {
@@ -888,7 +888,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jump page"
+            "value" : "Jump Page"
           }
         },
         "ja" : {
@@ -1182,7 +1182,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick search"
+            "value" : "Quick Search"
           }
         },
         "ja" : {

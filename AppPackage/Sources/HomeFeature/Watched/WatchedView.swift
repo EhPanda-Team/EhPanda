@@ -20,24 +20,27 @@ struct WatchedView: View {
     }
 
     var body: some View {
-        ZStack {
-            if cookieClient.didLogin {
-                GalleryList(
-                    galleries: store.galleries,
-                    pageNumber: store.pageNumber,
-                    loadingState: store.loadingState,
-                    footerLoadingState: store.footerLoadingState,
-                    fetchAction: { store.send(.fetchGalleries()) },
-                    fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                    navigateAction: { store.send(.delegate(.pushDetail($0))) },
-                    translateAction: {
-                        store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
-                    },
-                    downloadBadges: store.downloadBadges
-                )
-            } else {
-                NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-            }
+        GalleryList(
+            galleries: store.galleries,
+            pageNumber: store.pageNumber,
+            loadingState: store.loadingState,
+            footerLoadingState: store.footerLoadingState,
+            fetchAction: { store.send(.fetchGalleries()) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+            navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            translateAction: {
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+            },
+            downloadBadges: store.downloadBadges
+        )
+        .animation(.default) {
+            $0.opacity(cookieClient.didLogin ? 1 : 0)
+        }
+        .overlay {
+            NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
+                .animation(.default) {
+                    $0.opacity(cookieClient.didLogin ? 0 : 1)
+                }
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).quickSearch
@@ -46,7 +49,6 @@ struct WatchedView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .sheet(
@@ -64,14 +66,13 @@ struct WatchedView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
-                showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
+                showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
@@ -107,9 +108,20 @@ struct WatchedView: View {
 }
 
 #Preview("Initial") {
-    NavigationStack {
-        WatchedView(
-            store: .init(initialState: .init(), reducer: WatchedReducer.init)
-        )
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        NavigationStack {
+            WatchedView(
+                store: .init(
+                    initialState: {
+                        var state = WatchedReducer.State()
+                        state.galleries = Gallery.previews(count: 10)
+                        return state
+                    }(),
+                    reducer: WatchedReducer.init
+                )
+            )
+        }
     }
 }

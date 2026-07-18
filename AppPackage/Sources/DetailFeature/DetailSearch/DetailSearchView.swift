@@ -30,7 +30,7 @@ struct DetailSearchView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
         .sheet(
@@ -40,20 +40,19 @@ struct DetailSearchView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .tint(self.store.setting.accentColor).privacyMask()
+                .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
-                showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
+                showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
@@ -86,7 +85,14 @@ struct DetailSearchView: View {
 
 #Preview("Initial") {
     DetailSearchView(
-        store: .init(initialState: .init(), reducer: DetailSearchReducer.init),
+        store: .init(
+            initialState: {
+                var state = DetailSearchReducer.State()
+                state.galleries = Gallery.previews(count: 10)
+                return state
+            }(),
+            reducer: DetailSearchReducer.init
+        ),
         keyword: .init()
     )
 }

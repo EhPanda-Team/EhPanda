@@ -1,3 +1,4 @@
+import OSLog
 import SwiftUI
 import Resources
 import AppModels
@@ -17,19 +18,25 @@ struct AppActivityLogsView: View {
     }
 
     var body: some View {
-        ZStack {
-            List(store.displayedLogs) { log in
-                AppActivityLogRow(log: log)
-            }
-            .listStyle(.plain)
-            .opacity(store.displayedLogs.isEmpty ? 0 : 1)
-
+        List(store.displayedLogs) { log in
+            AppActivityLogRow(log: log)
+        }
+        .listStyle(.plain)
+        .animation(.default) {
+            $0.opacity(store.displayedLogs.isEmpty ? 0 : 1)
+        }
+        .overlay {
             LoadingView()
-                .opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
-
+                .animation(.default) {
+                    $0.opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
+                }
+        }
+        .overlay {
             Text(.appActivityLogsViewNoLogs)
                 .foregroundStyle(.secondary)
-                .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
+                .animation(.default) {
+                    $0.opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
+                }
         }
         .searchable(text: $keyword, placement: .navigationBarDrawer)
         .onSubmit(of: .search) {
@@ -58,7 +65,7 @@ struct AppActivityLogsView: View {
             Menu {
                 runMenu
             } label: {
-                Image(systemSymbol: .clock)
+                Label(.appActivityLogsViewRuns, systemSymbol: .clock)
             }
         }
         ToolbarItem(placement: .navigationBarTrailing) {
@@ -230,7 +237,30 @@ private struct AppActivityLogRow: View {
 #Preview("Initial") {
     NavigationStack {
         AppActivityLogsView(
-            store: .init(initialState: .init(), reducer: AppActivityLogsReducer.init)
+            store: .init(
+                initialState: {
+                    var state = AppActivityLogsReducer.State()
+                    // A non-nil `selectedRun` makes `displayedLogs` read the seeded
+                    // `selectedRunLogs` instead of the `@SharedReader` current-run logs.
+                    state.selectedRun = URL(string: "file:///preview.log")
+                    state.selectedRunLogs = [
+                        .init(
+                            date: .now, category: "Networking",
+                            level: .info, message: "Fetched frontpage galleries."
+                        ),
+                        .init(
+                            date: .now, category: "Database",
+                            level: .notice, message: "Persisted 24 galleries to cache."
+                        ),
+                        .init(
+                            date: .now, category: "Networking",
+                            level: .error, message: "Request timed out after 30s."
+                        )
+                    ]
+                    return state
+                }(),
+                reducer: AppActivityLogsReducer.init
+            )
         )
     }
 }

@@ -6,6 +6,7 @@ import ComposableArchitecture
 import AppTools
 import SystemNotification
 import AppComponents
+import SFSafeSymbolsExt
 import CookieClient
 
 struct CommentsView: View {
@@ -47,7 +48,8 @@ struct CommentsView: View {
                         Button {
                             store.send(.voteComment(gid, token, apiKey, comment.commentID, -1))
                         } label: {
-                            Image(systemSymbol: .handThumbsdown)
+                            Label(.voteDown, systemSymbol: .handThumbsdown)
+                                .labelStyle(.iconOnly)
                         }
                         .tint(.red)
                     }
@@ -57,17 +59,19 @@ struct CommentsView: View {
                         Button {
                             store.send(.voteComment(gid, token, apiKey, comment.commentID, 1))
                         } label: {
-                            Image(systemSymbol: .handThumbsup)
+                            Label(.voteUp, systemSymbol: .handThumbsup)
+                                .labelStyle(.iconOnly)
                         }
-                        .tint(.green)
+                        .tint(.accentColor)
                     }
                     if comment.editable {
                         Button {
-                            store.send(.presentPostComment(
-                                commentID: comment.commentID, content: comment.plainTextContent
-                            ))
+                            store.send(
+                                .presentPostComment(commentID: comment.commentID, content: comment.plainTextContent)
+                            )
                         } label: {
-                            Image(systemSymbol: .squareAndPencil)
+                            Label(.editComment, systemSymbol: .squareAndPencil)
+                                .labelStyle(.iconOnly)
                         }
                     }
                 }
@@ -99,7 +103,6 @@ struct CommentsView: View {
                 cancelAction: { store.send(.destination(.dismiss)) },
                 onAppearAction: { store.send(.onPostCommentAppear) }
             )
-            .tint(store.setting.accentColor)
             .privacyMask()
         }
         .toast($store.scope(\.$toast, action: \.toast))
@@ -116,7 +119,7 @@ struct CommentsView: View {
             Button {
                 store.send(.presentPostComment(commentID: ""))
             } label: {
-                Image(systemSymbol: .squareAndPencil)
+                Label(.postComment, systemSymbol: .squareAndPencil)
             }
             .disabled(!cookieClient.didLogin)
         }
@@ -138,21 +141,23 @@ extension CommentsView {
         var body: some View {
             VStack(alignment: .leading) {
                 HStack {
-                    Text(comment.author).font(.subheadline.bold())
-                    Spacer()
+                    Text(comment.author)
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     Group {
-                        ZStack {
-                            Image(systemSymbol: .handThumbsupFill)
-                                .opacity(comment.votedUp ? 1 : 0)
-                            Image(systemSymbol: .handThumbsdownFill)
-                                .opacity(comment.votedDown ? 1 : 0)
-                        }
-                        Text(comment.score ?? "")
+                        Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
+                            .opacity(comment.votedUp || comment.votedDown ? 1 : 0)
+
+                        comment.score.map(Text.init)
                         Text(comment.formattedDateString)
                     }
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
-                .minimumScaleFactor(0.75).lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .lineLimit(1)
+
                 ForEach(comment.contents) { content in
                     switch content.type {
                     case .plainText:
@@ -249,7 +254,20 @@ private extension KFImage {
             token: .init(),
             apiKey: .init(),
             galleryURL: .mock,
-            comments: []
+            comments: [
+                .init(
+                    votedUp: false, votedDown: false, votable: true, editable: false,
+                    score: "+15", author: "Nreo",
+                    contents: [.init(type: .plainText, text: "Thanks for the upload, great quality scans!")],
+                    commentID: "0", commentDate: .now
+                ),
+                .init(
+                    votedUp: true, votedDown: false, votable: true, editable: true,
+                    score: "+42", author: "Chihchy",
+                    contents: [.init(type: .plainText, text: "Agreed. The later pages look excellent.")],
+                    commentID: "1", commentDate: .now
+                )
+            ]
         )
     }
 }

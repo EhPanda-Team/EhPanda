@@ -33,7 +33,8 @@ extension View {
     public func withArrow(isVisible: Bool = true) -> some View {
         HStack {
             self
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             Image(systemSymbol: .chevronRight)
                 .foregroundStyle(.secondary)
                 .imageScale(.small)
@@ -79,7 +80,6 @@ public struct PlainLinearProgressViewStyle: ProgressViewStyle {
 
     public func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
         ProgressView(value: CGFloat(configuration.fractionCompleted ?? 0), total: 1)
-            .tint(nil)
     }
 }
 extension ProgressViewStyle where Self == PlainLinearProgressViewStyle {

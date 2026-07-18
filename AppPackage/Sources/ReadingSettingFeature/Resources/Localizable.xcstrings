@@ -48,7 +48,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double tap scale factor"
+            "value": "Double Tap Scale Factor"
           }
         },
         "de": {
@@ -89,7 +89,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Maximum scale factor"
+            "value": "Maximum Scale Factor"
           }
         },
         "de": {
@@ -130,7 +130,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Preload limit"
+            "value": "Preload Limit"
           }
         },
         "de": {
@@ -253,7 +253,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Separator height"
+            "value": "Separator Height"
           }
         },
         "de": {

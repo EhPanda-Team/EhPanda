@@ -262,15 +262,25 @@ struct ImageContainer: View {
             backgroundColor
                 .overlay {
                     VStack {
-                        Text(String(index)).font(.largeTitle.bold())
-                            .foregroundStyle(.gray).padding(.bottom, 30)
-                        ZStack {
-                            Button(action: reloadImage) {
-                                Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                            }
-                            .font(.system(size: reloadSymbolSize, weight: .medium)).foregroundStyle(.gray)
-                            .opacity(loadingState == .loading ? 0 : 1)
-                            ProgressView().tint(nil).opacity(loadingState == .loading ? 1 : 0)
+                        Text(index.description)
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.gray)
+                            .padding(.bottom, 30)
+
+                        Button(action: reloadImage) {
+                            Label(.reload, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+                                .labelStyle(.iconOnly)
+                        }
+                        .font(.system(size: reloadSymbolSize, weight: .medium))
+                        .foregroundStyle(.gray)
+                        .animation(.default) {
+                            $0.opacity(loadingState == .loading ? 0 : 1)
+                        }
+                        .overlay {
+                            ProgressView()
+                                .animation(.default) {
+                                    $0.opacity(loadingState == .loading ? 1 : 0)
+                                }
                         }
                     }
                 }

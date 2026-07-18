@@ -32,7 +32,8 @@ struct GeneralSettingView: View {
             Section {
                 HStack {
                     Text(.RLocalizable.language)
-                    Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     Button(language) {
                         store.send(.navigateToSystemSetting)
                     }
@@ -45,33 +46,36 @@ struct GeneralSettingView: View {
             }
             Section(.tags) {
                 HStack {
-                    Text(.enablesTagsExtension)
+                    Text(.enableTagsExtension)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    ZStack {
-                        Image(systemSymbol: .exclamationmarkTriangleFill)
-                            .foregroundStyle(.yellow)
-                            .opacity(
-                                setting.translatesTags && tagTranslatorEmpty
-                                    && tagTranslatorLoadingState != .loading ? 1 : 0
+                    Image(systemSymbol: .exclamationmarkTriangleFill)
+                        .foregroundStyle(.yellow)
+                        .animation(.default) {
+                            $0.opacity(
+                                setting.translateTags && tagTranslatorEmpty
+                                && tagTranslatorLoadingState != .loading ? 1 : 0
                             )
-                        ProgressView()
-                            .tint(nil)
-                            .opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
-                    }
+                        }
+                        .overlay {
+                            ProgressView()
+                                .animation(.default) {
+                                    $0.opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
+                                }
+                        }
 
-                    Toggle(.enablesTagsExtension, isOn: Binding($setting.enablesTagsExtension))
+                    AppToggle(.enableTagsExtension, isOn: Binding($setting.enableTagsExtension))
                         .labelsHidden()
                         .frame(width: 50)
                         .padding(.leading, 20)
                 }
-                if setting.enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(.translatesTags, isOn: Binding($setting.translatesTags))
-                    Toggle(
-                        .showsTagsSearchSuggestion,
-                        isOn: Binding($setting.showsTagsSearchSuggestion)
+                if setting.enableTagsExtension && !tagTranslatorEmpty {
+                    AppToggle(.translateTags, isOn: Binding($setting.translateTags))
+                    AppToggle(
+                        .showTagsSearchSuggestion,
+                        isOn: Binding($setting.showTagsSearchSuggestion)
                     )
-                    Toggle(.showsImagesInTags, isOn: Binding($setting.showsImagesInTags))
+                    AppToggle(.showImagesInTags, isOn: Binding($setting.showImagesInTags))
                 }
                 Button(.importCustomTranslations) {
                     store.send(.importCustomTranslationsButtonTapped)
@@ -95,13 +99,13 @@ struct GeneralSettingView: View {
                 }
             }
             Section(.navigation) {
-                Toggle(
-                    .redirectsLinksToTheSelectedHost,
-                    isOn: Binding($setting.redirectsLinksToSelectedHost)
+                AppToggle(
+                    .redirectLinksToTheSelectedHost,
+                    isOn: Binding($setting.redirectLinksToSelectedHost)
                 )
-                Toggle(
-                    .detectsLinksFromClipboard,
-                    isOn: Binding($setting.detectsLinksFromClipboard)
+                AppToggle(
+                    .detectLinksFromClipboard,
+                    isOn: Binding($setting.detectLinksFromClipboard)
                 )
             }
             Section(.caches) {
@@ -110,15 +114,16 @@ struct GeneralSettingView: View {
                 } label: {
                     HStack {
                         Text(.clearImageCaches)
-                        Spacer()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
                         Text(store.diskImageCacheSize)
                             .foregroundStyle(.tint)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .animation(.default, value: store.diskImageCacheSize)
                     }
-                    .foregroundStyle(.primary)
                 }
+                .foregroundStyle(.primary)
                 .confirmationDialog(
                     $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)
                 )
@@ -126,10 +131,10 @@ struct GeneralSettingView: View {
         }
         .animation(.default, value: tagTranslatorHasCustomTranslations)
         .animation(.default, value: tagTranslatorLoadingState)
-        .animation(.default, value: setting.enablesTagsExtension)
+        .animation(.default, value: setting.enableTagsExtension)
         .animation(.default, value: tagTranslatorEmpty)
-        .onChange(of: setting.enablesTagsExtension) { _, _ in
-            store.send(.delegate(.enablesTagsExtensionChanged))
+        .onChange(of: setting.enableTagsExtension) { _, _ in
+            store.send(.delegate(.enableTagsExtensionChanged))
         }
         .onAppear {
             store.send(.calculateWebImageDiskCache)

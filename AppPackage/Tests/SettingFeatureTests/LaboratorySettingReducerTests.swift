@@ -15,7 +15,7 @@ struct LaboratorySettingReducerTests {
             $0.hapticsClient = .noop
             $0.dfClient = .noop
         }
-        await store.send(.bypassesSNIFilteringChanged(true))
+        await store.send(.bypassSNIFilteringChanged(true))
         await store.finish()
     }
 }

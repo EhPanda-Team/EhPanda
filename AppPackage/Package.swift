@@ -674,6 +674,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
+            .module(.sfSafeSymbolsExt),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),

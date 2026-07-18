@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import SFSafeSymbols
+import SFSafeSymbolsExt
 
 public struct LoadingView: View {
     private let title: LocalizedStringResource
@@ -12,7 +13,9 @@ public struct LoadingView: View {
 
     public var body: some View {
         ProgressView(title)
-            .tint(nil)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
+            .glassEffect(in: .rect(cornerRadius: 14))
     }
 }
 
@@ -26,25 +29,24 @@ public struct FetchMoreFooter: View {
     }
 
     public var body: some View {
-        HStack(alignment: .center) {
-            Spacer()
-            ZStack {
-                if loadingState == .loading {
-                    ProgressView()
-                        .tint(nil)
-                } else if loadingState != .idle {
-                    Button {
-                        retryAction?()
-                    } label: {
-                        Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                            .foregroundStyle(.red).imageScale(.large)
-                    }
-                }
-            }
-            .animation(.default, value: loadingState)
-            Spacer()
+        Button {
+            retryAction?()
+        } label: {
+            Label(.RLocalizable.retry, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+                .labelStyle(.iconOnly)
+                .foregroundStyle(.red)
+                .imageScale(.large)
         }
-        .frame(height: 50)
+        .animation(.default) {
+            $0.opacity(loadingState.is(\.failed) ? 1 : 0)
+        }
+        .overlay {
+            ProgressView()
+                .animation(.default) {
+                    $0.opacity(loadingState == .loading ? 1 : 0)
+                }
+        }
+        .frame(maxWidth: .infinity, minHeight: 50)
     }
 }
 
@@ -104,7 +106,9 @@ public struct AlertView<Content: View>: View {
     // Resource overload for static localized messages; the `String` init above remains for
     // dynamic messages that are already resolved (e.g. `AppError.alertText`).
     public init(
-        symbol: SFSymbol, message: LocalizedStringResource, @ViewBuilder actions: () -> Content
+        symbol: SFSymbol,
+        message: LocalizedStringResource,
+        @ViewBuilder actions: () -> Content = EmptyView.init
     ) {
         self.init(symbol: symbol, message: String(localized: message), actions: actions)
     }
@@ -139,7 +143,6 @@ public struct AlertViewButton: View {
         Button(action: action) {
             Text(title)
                 .foregroundStyle(.primary.opacity(0.7))
-                .textCase(.uppercase)
         }
         .buttonBorderShape(.capsule)
         .buttonStyle(.glass)

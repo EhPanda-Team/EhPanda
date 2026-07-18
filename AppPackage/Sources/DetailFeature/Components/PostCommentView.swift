@@ -29,24 +29,21 @@ struct PostCommentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                TextEditor(text: $content)
-                    .focused($isTextEditorFocused)
-                    .padding()
-
-                Spacer()
-            }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: cancelAction)
+            TextEditor(text: $content)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .focused($isTextEditorFocused)
+                .padding()
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(role: .close, action: cancelAction)
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(role: .confirm, action: postAction)
+                            .disabled(content.isEmpty)
+                    }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm, action: postAction)
-                        .disabled(content.isEmpty)
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle(title)
         }
         .synchronize($isFocused, $isTextEditorFocused)
         .onAppear(perform: onAppearAction)

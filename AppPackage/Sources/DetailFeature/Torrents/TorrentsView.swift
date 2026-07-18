@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import SystemNotification
 import AppComponents
+import SFSafeSymbolsExt
 
 struct TorrentsView: View {
     @Bindable private var store: StoreOf<TorrentsReducer>
@@ -18,28 +19,33 @@ struct TorrentsView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                List(store.torrents) { torrent in
-                    TorrentRow(torrent: torrent) { magnetURL in
-                        store.send(.copyText(magnetURL))
-                    }
-                    .swipeActions {
-                        Button {
-                            store.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
-                        } label: {
-                            Image(systemSymbol: .arrowDownDocumentFill)
-                        }
+            List(store.torrents) { torrent in
+                TorrentRow(torrent: torrent) { magnetURL in
+                    store.send(.copyText(magnetURL))
+                }
+                .swipeActions {
+                    Button {
+                        store.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
+                    } label: {
+                        Label(.accessibilityDownload, systemSymbol: .arrowDownDocumentFill)
+                            .labelStyle(.iconOnly)
                     }
                 }
-
+            }
+            .overlay {
                 LoadingView()
-                    .opacity(store.loadingState == .loading && store.torrents.isEmpty ? 1 : 0)
-
+                    .animation(.default) {
+                        $0.opacity(store.loadingState == .loading && store.torrents.isEmpty ? 1 : 0)
+                    }
+            }
+            .overlay {
                 let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchGalleryTorrents(gid, token))
                 }
-                .opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
+                .animation(.default) {
+                    $0.opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
+                }
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
                 ActivityView(activityItems: [url.wrappedValue])
@@ -67,39 +73,48 @@ private extension TorrentsView {
 
         var body: some View {
             VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 10) {
-                    HStack(spacing: 3) {
-                        Image(systemSymbol: .arrowUpCircle)
+                HStack(spacing: 12) {
+                    Label {
                         Text(torrent.seedCount, format: .number)
+                    } icon: {
+                        Image(systemSymbol: .arrowUpCircle)
                     }
-                    HStack(spacing: 3) {
-                        Image(systemSymbol: .arrowDownCircle)
+
+                    Label {
                         Text(torrent.peerCount, format: .number)
+                    } icon: {
+                        Image(systemSymbol: .arrowDownCircle)
                     }
-                    HStack(spacing: 3) {
-                        Image(systemSymbol: .checkmarkCircle)
+
+                    Label {
                         Text(torrent.downloadCount, format: .number)
+                    } icon: {
+                        Image(systemSymbol: .checkmarkCircle)
                     }
-                    Spacer()
-                    HStack(spacing: 3) {
-                        Image(systemSymbol: .documentCircle)
-                        Text(torrent.fileSize)
-                    }
+
+                    Label(torrent.fileSize, systemSymbol: .documentCircle)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .minimumScaleFactor(0.1).lineLimit(1)
+                .labelIconToTitleSpacing(3)
+                .foregroundStyle(.primary)
+                .font(.footnote)
+                .lineLimit(1)
+
                 Button {
                     action(torrent.magnetURL)
                 } label: {
-                    Text(torrent.fileName).font(.headline)
+                    Text(torrent.fileName)
+                        .font(.headline)
                 }
+
                 HStack {
-                    Spacer()
                     Text(torrent.uploader)
                     Text(torrent.formattedDateString)
                 }
-                .lineLimit(1).font(.callout)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .lineLimit(1)
+                .font(.callout)
                 .foregroundStyle(.secondary)
-                .minimumScaleFactor(0.5)
                 .padding(.top, 10)
             }
             .padding()
@@ -109,7 +124,25 @@ private extension TorrentsView {
 
 #Preview("Initial") {
     TorrentsView(
-        store: .init(initialState: .init(), reducer: TorrentsReducer.init),
+        store: .init(
+            initialState: .init(
+                torrents: [
+                    .init(
+                        postedDate: .now, fileSize: "312 MB",
+                        seedCount: 42, peerCount: 5, downloadCount: 1280,
+                        uploader: "Nreo", fileName: "Sample Gallery [2400x].torrent",
+                        hash: .init(), torrentURL: .mock
+                    ),
+                    .init(
+                        postedDate: .now, fileSize: "184 MB",
+                        seedCount: 17, peerCount: 2, downloadCount: 640,
+                        uploader: "Chihchy", fileName: "Sample Gallery [1280x].torrent",
+                        hash: .init(), torrentURL: .mock
+                    )
+                ]
+            ),
+            reducer: TorrentsReducer.init
+        ),
         gid: .init(),
         token: .init()
     )

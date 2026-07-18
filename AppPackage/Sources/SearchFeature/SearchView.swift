@@ -26,7 +26,7 @@ struct SearchView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             },
             downloadBadges: store.downloadBadges
         )
@@ -37,14 +37,13 @@ struct SearchView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .tint(self.store.setting.accentColor).privacyMask()
+                .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).dateSeek
@@ -55,14 +54,13 @@ struct SearchView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .tint(self.store.setting.accentColor)
             .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
-                showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
+                showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
@@ -99,6 +97,13 @@ struct SearchView: View {
 
 #Preview("Initial") {
     SearchView(
-        store: .init(initialState: .init(), reducer: SearchReducer.init)
+        store: .init(
+            initialState: {
+                var state = SearchReducer.State()
+                state.galleries = Gallery.previews(count: 10)
+                return state
+            }(),
+            reducer: SearchReducer.init
+        )
     )
 }

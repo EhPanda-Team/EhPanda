@@ -27,7 +27,7 @@ struct ToplistsView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
@@ -51,7 +51,7 @@ struct ToplistsView: View {
                 }
             }
             if store.setting.galleryHost == .ehentai {
-                JumpPageButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
+                JumpPageButton(pageNumber: store.pageNumber ?? .init()) {
                     store.send(.presentJumpPageAlert)
                 }
             }
@@ -62,7 +62,14 @@ struct ToplistsView: View {
 #Preview("Initial") {
     NavigationStack {
         ToplistsView(
-            store: .init(initialState: .init(), reducer: ToplistsReducer.init)
+            store: .init(
+                initialState: {
+                    var state = ToplistsReducer.State()
+                    state.rawGalleries[state.type] = Gallery.previews(count: 10)
+                    return state
+                }(),
+                reducer: ToplistsReducer.init
+            )
         )
     }
 }

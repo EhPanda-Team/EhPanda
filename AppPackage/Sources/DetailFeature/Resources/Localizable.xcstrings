@@ -1,6 +1,47 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "rename_folder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename Folder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner umbenennen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダの名前を変更"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 이름 변경"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重命名文件夹"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新命名資料夾"
+          }
+        }
+      }
+    },
     "accessibility.download": {
       "extractionState": "manual",
       "localizations": {
@@ -1244,7 +1285,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download To H@H Client"
+            "value": "Download to H@H Client"
           }
         },
         "de": {
@@ -1285,7 +1326,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edit comment"
+            "value": "Edit Comment"
           }
         },
         "de": {
@@ -1490,7 +1531,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder name"
+            "value": "Folder Name"
           }
         },
         "de": {
@@ -1859,7 +1900,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Average rating"
+            "value": "Average Rating"
           }
         },
         "de": {
@@ -2023,7 +2064,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Favorited times"
+            "value": "Favorited Times"
           }
         },
         "de": {
@@ -2064,7 +2105,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "File size"
+            "value": "File Size"
           }
         },
         "de": {
@@ -2146,7 +2187,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gallery infos"
+            "value": "Gallery Infos"
           }
         },
         "de": {
@@ -2228,7 +2269,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Japanese title"
+            "value": "Japanese Title"
           }
         },
         "de": {
@@ -2310,7 +2351,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "My rating"
+            "value": "My Rating"
           }
         },
         "de": {
@@ -2433,7 +2474,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Page count"
+            "value": "Page Count"
           }
         },
         "de": {
@@ -2515,7 +2556,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Posted date"
+            "value": "Posted Date"
           }
         },
         "de": {
@@ -2556,7 +2597,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rating count"
+            "value": "Rating Count"
           }
         },
         "de": {
@@ -2720,7 +2761,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Torrent count"
+            "value": "Torrent Count"
           }
         },
         "de": {
@@ -2878,13 +2919,54 @@
         }
       }
     },
+    "new_folder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Folder"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Ordner"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新規フォルダ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 폴더"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建文件夹"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增資料夾"
+          }
+        }
+      }
+    },
     "no_folders": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No folders yet"
+            "value": "No Folders Yet"
           }
         },
         "de": {
@@ -3007,7 +3089,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Post comment"
+            "value": "Post Comment"
           }
         },
         "de": {
@@ -3855,7 +3937,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vote down"
+            "value": "Vote Down"
           }
         },
         "de": {
@@ -3896,7 +3978,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vote up"
+            "value": "Vote Up"
           }
         },
         "de": {
@@ -3937,7 +4019,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Withdraw vote"
+            "value": "Withdraw Vote"
           }
         },
         "de": {

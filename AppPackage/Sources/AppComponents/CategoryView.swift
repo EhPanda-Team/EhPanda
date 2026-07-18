@@ -75,17 +75,21 @@ private struct CategoryCell: View {
     }
 
     var body: some View {
-        let color = category.color(host: setting.galleryHost)
-        ZStack {
-            Rectangle()
-                .foregroundStyle(isFiltered ? color.opacity(0.3) : color)
-            Text(category.value).bold().foregroundStyle(.white)
-                .padding(.vertical, 5).lineLimit(1)
-        }
-        .onTapGesture {
-            isFiltered.toggle()
-            hapticsClient.generateFeedback(.soft)
-        }
-        .clipShape(.rect(cornerRadius: 5))
+        Text(category.value)
+            .bold()
+            .foregroundStyle(.white)
+            .padding(.vertical, 5)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .lineLimit(1)
+            .background {
+                Rectangle()
+                    .foregroundStyle(category.color(host: setting.galleryHost).opacity(isFiltered ? 0.3 : 1))
+                    .animation(.default, value: isFiltered)
+            }
+            .onTapGesture {
+                isFiltered.toggle()
+                hapticsClient.generateFeedback(.soft)
+            }
+            .clipShape(.rect(cornerRadius: 5))
     }
 }

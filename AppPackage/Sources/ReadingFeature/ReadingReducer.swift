@@ -134,7 +134,7 @@ public struct ReadingReducer: Sendable {
             guard gallery.pageCount > 0 else { return [] }
 
             let defaultData = Array(1...gallery.pageCount)
-            guard isLandscape && setting.enablesDualPageMode
+            guard isLandscape && setting.enableDualPageMode
                     && setting.readingDirection != .vertical
             else { return defaultData }
 
@@ -151,7 +151,7 @@ public struct ReadingReducer: Sendable {
             let isReversed = direction == .rightToLeft
             let isFirstSingle = setting.exceptCover
             let isFirstPageAndSingle = index == 1 && isFirstSingle
-            let isDualPage = isLandscape && setting.enablesDualPageMode && direction != .vertical
+            let isDualPage = isLandscape && setting.enableDualPageMode && direction != .vertical
             let firstIndex = isDualPage && isReversed && !isFirstPageAndSingle ? index + 1 : index
             let secondIndex = firstIndex + (isReversed ? -1 : 1)
             let isValidFirstRange = firstIndex >= 1 && firstIndex <= gallery.pageCount

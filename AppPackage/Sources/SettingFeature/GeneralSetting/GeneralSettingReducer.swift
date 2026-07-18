@@ -22,11 +22,11 @@ public struct GeneralSettingReducer: Sendable {
     }
 
     // Handled by SettingReducer, which owns the Setting navigation stack and the tag-translator
-    // subsystem. `enablesTagsExtensionChanged` lets the view report a `@Shared(.setting)` edit so the
+    // subsystem. `enableTagsExtensionChanged` lets the view report a `@Shared(.setting)` edit so the
     // parent can rebuild the translator (the write itself dispatches no action).
     public enum Delegate: Equatable, Sendable {
         case pushAppActivityLogs
-        case enablesTagsExtensionChanged
+        case enableTagsExtensionChanged
     }
 
     @ObservableState

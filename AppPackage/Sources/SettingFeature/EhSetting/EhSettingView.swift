@@ -5,6 +5,7 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import SFSafeSymbolsExt
 
 struct EhSettingView: View {
     @Bindable private var store: StoreOf<EhSettingReducer>
@@ -18,21 +19,25 @@ struct EhSettingView: View {
 
     // MARK: EhSettingView
     var body: some View {
+        // Use `Group` here after migrating lifecycle trigger to reducer.
         ZStack {
-            // Workaround: Stay if-else approach
-            if store.loadingState == .loading || store.submittingState == .loading {
-                LoadingView()
-                    .tint(nil)
-            } else if case .failed(let error) = store.loadingState {
-                ErrorView(error: error, action: { store.send(.fetchEhSetting) })
-                    .tint(nil)
-            }
-            // Using `Binding.init` will crash the app
-            else if let ehSetting = Binding(unwrapping: $store.ehSetting),
-                    let ehProfile = Binding(unwrapping: $store.ehProfile) {
+            if let ehSetting = Binding($store.ehSetting),
+               let ehProfile = Binding($store.ehProfile) {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))
             }
+        }
+        .overlay {
+            LoadingView()
+                .animation(.default) {
+                    $0.opacity((store.loadingState == .loading || store.submittingState == .loading) ? 1 : 0)
+                }
+        }
+        .overlay {
+            ErrorView(error: store.loadingState.failed ?? .unknown, action: { store.send(.fetchEhSetting) })
+                .animation(.default) {
+                    $0.opacity(store.loadingState.is(\.failed) ? 1 : 0)
+                }
         }
         .onAppear {
             if store.ehSetting == nil {
@@ -102,25 +107,18 @@ struct EhSettingView: View {
                 Button {
                     store.send(.presentWebView(Defaults.URL.uConfig(host: setting.galleryHost)))
                 } label: {
-                    Image(systemSymbol: .globe)
+                    Label(.website, systemSymbol: .globe)
                 }
-                .disabled(setting.bypassesSNIFiltering)
+                .disabled(setting.bypassSNIFiltering)
             }
 
             ToolbarItem(placement: .confirmationAction) {
                 Button {
                     store.send(.submitChanges)
                 } label: {
-                    Image(systemSymbol: .icloudAndArrowUp)
+                    Label(.submit, systemSymbol: .icloudAndArrowUp)
                 }
                 .disabled(store.ehSetting == nil)
-            }
-
-            ToolbarItem(placement: .keyboard) {
-                Button(.done) {
-                    store.send(.setKeyboardHidden)
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
     }

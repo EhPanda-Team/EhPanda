@@ -96,21 +96,29 @@ struct GalleryInfosView: View {
 
     var body: some View {
         List(infos) { info in
-            HStack {
-                HStack {
-                    Text(info.title)
-                    Spacer()
+            let label =
+            Text(info.title)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            let content =
+            Button {
+                if let text = info.value {
+                    store.send(.copyText(text))
                 }
-                .containerRelativeFrame(.horizontal) { width, _ in width / 3 }
-                Spacer()
-                Button {
-                    if let text = info.value {
-                        store.send(.copyText(text))
-                    }
-                } label: {
-                    Text(info.value ?? String(localized: .metadataNone))
-                        .lineLimit(3).font(.caption)
-                        .foregroundStyle(.tint)
+            } label: {
+                Text(info.value ?? String(localized: .metadataNone))
+                    .lineLimit(3)
+                    .font(.caption)
+            }
+
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    label
+                    content
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    label
+                    content
                 }
             }
         }

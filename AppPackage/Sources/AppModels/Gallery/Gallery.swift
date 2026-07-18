@@ -48,6 +48,27 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         galleryURL: nil
     )
 
+    /// Distinct-id sample galleries with real titles/ratings for populating list & grid previews.
+    /// Unlike `mockGalleries` (blank skeleton rows) and `.preview` (a single fixed id), each row
+    /// here has a unique id and visible content, so `ForEach`-keyed lists render without collisions.
+    public static func previews(count: Int) -> [Gallery] {
+        (0..<max(0, count)).map { index in
+            .init(
+                gid: UUID().uuidString,
+                token: "",
+                title: "Sample Gallery \(index + 1)",
+                rating: Float(index % 5) + 0.5,
+                tags: [],
+                category: .doujinshi,
+                uploader: "Anonymous",
+                pageCount: 20 + index * 7,
+                postedDate: .now,
+                coverURL: nil,
+                galleryURL: nil
+            )
+        }
+    }
+
     public var trimmedTitle: String {
         var title = title
         if let range = title.range(of: "|") {

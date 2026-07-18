@@ -126,7 +126,7 @@ struct SettingReducerNavigationTests {
             $0.defaultAppStorage = defaults
         } operation: {
             @Shared(.setting) var setting
-            $setting.withLock { $0.enablesTagsExtension = true }
+            $setting.withLock { $0.enableTagsExtension = true }
 
             // A loading table makes the rebuild's follow-on `fetchTagTranslator` guard-return (no network).
             var initialState = SettingReducer.State()
@@ -142,7 +142,7 @@ struct SettingReducerNavigationTests {
 
             await store.send(.settingRowTapped(.general))
             let id = try #require(store.state.path.ids.last)
-            await store.send(.path(.element(id: id, action: .general(.delegate(.enablesTagsExtensionChanged)))))
+            await store.send(.path(.element(id: id, action: .general(.delegate(.enableTagsExtensionChanged)))))
             await store.receive(\.rebuildTagTranslator)
             await store.finish()
         }
@@ -150,7 +150,7 @@ struct SettingReducerNavigationTests {
 
     @Test
     func generalEnablesTagsExtensionDelegateSkipsRebuildWhenDisabled() async throws {
-        // `enablesTagsExtension` defaults to false, so the delegate must emit no rebuild — the exhaustive
+        // `enableTagsExtension` defaults to false, so the delegate must emit no rebuild — the exhaustive
         // store fails if any effect is left unhandled.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.defaultAppStorage = UserDefaults.inMemory
@@ -160,7 +160,7 @@ struct SettingReducerNavigationTests {
             $0.path.append(SettingReducer.RootScreen.general.pathElement)
         }
         let id = try #require(store.state.path.ids.last)
-        await store.send(.path(.element(id: id, action: .general(.delegate(.enablesTagsExtensionChanged)))))
+        await store.send(.path(.element(id: id, action: .general(.delegate(.enableTagsExtensionChanged)))))
     }
 
     // MARK: Child intercepts

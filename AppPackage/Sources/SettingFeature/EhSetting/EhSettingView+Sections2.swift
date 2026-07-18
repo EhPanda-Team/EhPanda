@@ -12,7 +12,7 @@ struct OptionalUIElementsSection: View {
 
     var body: some View {
         Section {
-            Toggle(
+            AppToggle(
                 .enableGalleryThumbnailSelector,
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
@@ -47,7 +47,6 @@ struct FavoritesSection: View {
 
                     SettingTextField(
                         text: nameBinding, title: .favoriteCategories,
-                        promptText: .favoriteCategories,
                         width: nil, alignment: .leading, background: .clear
                     )
                     .focused($isFocused)

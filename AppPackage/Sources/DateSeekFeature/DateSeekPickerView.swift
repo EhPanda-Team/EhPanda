@@ -66,7 +66,8 @@ public struct DateSeekPickerView: View {
                     ViewThatFits(in: .horizontal) {
                         HStack {
                             seekOlderButton
-                            Spacer(minLength: 8)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
                             seekNewerButton
                         }
                         VStack {

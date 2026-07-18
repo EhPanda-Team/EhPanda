@@ -3,6 +3,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import AppComponents
+import SFSafeSymbolsExt
 
 public struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
@@ -15,33 +16,33 @@ public struct FolderManagerView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                List {
-                    if store.editingField == .newFolder {
-                        newFolderRow
-                            .padding(5)
-                    }
-                    ForEach(store.folders, id: \.self) { folder in
-                        folderRow(folder)
-                            .padding(5)
-                            .swipeActions(edge: .trailing) {
-                                Button {
-                                    store.send(.deleteButtonTapped(folder))
-                                } label: {
-                                    Image(systemSymbol: .trash)
-                                }
-                                .tint(.red)
-                                Button {
-                                    store.send(.setEditingField(.renameFolder(folder)))
-                                } label: {
-                                    Image(systemSymbol: .squareAndPencil)
-                                }
-                            }
-                    }
+            List {
+                if store.editingField == .newFolder {
+                    newFolderRow
+                        .padding(5)
                 }
+                ForEach(store.folders, id: \.self) { folder in
+                    folderRow(folder)
+                        .padding(5)
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                store.send(.deleteButtonTapped(folder))
+                            } label: {
+                                Label(.RLocalizable.delete, systemSymbol: .trash)
+                                    .labelStyle(.iconOnly)
+                            }
+                            .tint(.red)
 
-                stateOverlay
+                            Button {
+                                store.send(.setEditingField(.renameFolder(folder)))
+                            } label: {
+                                Label(.renameFolder, systemSymbol: .squareAndPencil)
+                                    .labelStyle(.iconOnly)
+                            }
+                        }
+                }
             }
+            .overlay(content: { stateOverlay })
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
@@ -121,7 +122,7 @@ public struct FolderManagerView: View {
                 Button {
                     store.send(.setEditingField(.newFolder))
                 } label: {
-                    Image(systemSymbol: .plus)
+                    Label(.newFolder, systemSymbol: .plus)
                 }
             }
         }
@@ -130,6 +131,13 @@ public struct FolderManagerView: View {
 
 #Preview("Initial") {
     FolderManagerView(
-        store: .init(initialState: .init(), reducer: FolderManagerReducer.init)
+        store: .init(
+            initialState: {
+                var state = FolderManagerReducer.State()
+                state.folders = ["Favorites", "To Read", "Archive"]
+                return state
+            }(),
+            reducer: FolderManagerReducer.init
+        )
     )
 }

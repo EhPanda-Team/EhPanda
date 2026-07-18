@@ -17,8 +17,8 @@ extension SettingReducer {
             .send(.syncAppIconType),
             .send(.loadUserSettingsDone),
             .send(.syncUserInterfaceStyle),
-            .run { [bypassesSNIFiltering = state.setting.bypassesSNIFiltering] _ in
-                dfClient.setActive(bypassesSNIFiltering)
+            .run { [bypassSNIFiltering = state.setting.bypassSNIFiltering] _ in
+                dfClient.setActive(bypassSNIFiltering)
             }
         ]
         if cookieClient.shouldFetchIgneous {
@@ -32,7 +32,7 @@ extension SettingReducer {
                 .send(.fetchEhProfileIndex)
             ])
         }
-        if state.setting.enablesTagsExtension {
+        if state.setting.enableTagsExtension {
             // Rebuild the table from cache first (offline, immediate); `.rebuildTagTranslator` then
             // sequences the remote update check so a slow fetch can't be clobbered by a stale rebuild.
             effects.append(.send(.rebuildTagTranslator))
@@ -59,7 +59,7 @@ extension SettingReducer {
         }
 
         guard cookieClient.didLogin,
-              state.setting.showsNewDawnGreeting
+              state.setting.showNewDawnGreeting
         else { return .none }
         let requestEffect = Effect.run { send in
             do throws(AppError) {

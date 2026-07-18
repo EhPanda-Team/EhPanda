@@ -41,9 +41,6 @@ struct EhProfileSection: View {
                 )
                 .confirmationDialog(deleteConfirmationDialog)
             }
-        } header: {
-            Text(.profileSettings)
-                .ehSettingRegularHeaderStyled()
         }
         .onChange(of: ehProfile) { _, newValue in
             performEhProfileAction(nil, nil, newValue.value)
@@ -95,21 +92,23 @@ struct ImageLoadSettingsSection: View {
         }
 
         Section {
-            Picker(.browsingCountry, selection: $ehSetting.browsingCountry) {
-                ForEach(EhSetting.BrowsingCountry.allCases) { country in
-                    Text(country.name)
-                        .tag(country)
-                        .foregroundStyle(country == ehSetting.browsingCountry ? Color.accentColor : Color.primary)
+            Picker(.hahRegion, selection: $ehSetting.hahRegion) {
+                ForEach(EhSetting.HahRegion.allCases) { region in
+                    Text(region.name)
+                        .tag(region)
                 }
             }
+            .pickerStyle(.menu)
         } header: {
-            Text(
-                String(localized: .browsingCountryDescription(
-                    ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
-                ))
-                .localizedKey
-            )
-            .ehSettingRegularHeaderStyled()
+            if let country = ehSetting.literalDetectedCountry, let region = ehSetting.literalHahRegion {
+                Text(
+                    .hahRegionDescription(
+                        ehSetting.localizedLiteralDetectedCountry ?? country,
+                        ehSetting.localizedLiteralHahRegion ?? region
+                    )
+                )
+                .ehSettingRegularHeaderStyled()
+            }
         }
     }
 }
@@ -136,7 +135,7 @@ struct ImageSizeSettingsSection: View {
 
         if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
             Section {
-                Toggle(
+                AppToggle(
                     .useOriginalImages,
                     isOn: useOriginalImagesBinding
                 )
@@ -241,7 +240,7 @@ struct FrontPageSettingsSection: View {
         }
 
         Section {
-            Toggle(
+            AppToggle(
                 .showSearchRangeIndicatorDescription,
                 isOn: $ehSetting.showSearchRangeIndicator
             )

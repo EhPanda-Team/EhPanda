@@ -95,7 +95,7 @@ private struct GalleryDetailCellContent: View {
                     HStack {
                         gallery.uploader.map(Text.init)
 
-                        Spacer(minLength: 8)
+                        Spacer()
 
                         (gallery.language?.value).map(Text.init)
                     }
@@ -105,13 +105,13 @@ private struct GalleryDetailCellContent: View {
                 }
 
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
-                if setting.showsTagsInList, !tagContents.isEmpty {
+                if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
                         let translation = translateAction?(content.rawNamespace + content.text).1
                         TagCloudCell(
                             text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,
-                            showsImages: setting.showsImagesInTags,
+                            showsImages: setting.showImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                             textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
                             backgroundColor: content.backgroundColor ?? tagColor
@@ -120,22 +120,23 @@ private struct GalleryDetailCellContent: View {
                 }
                 HStack {
                     RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
-
-                    Spacer(minLength: 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     if let downloadBadge {
                         DownloadBadgeLabel(badge: downloadBadge)
                     } else {
-                        HStack(spacing: 2) {
-                            Image(systemSymbol: .photoOnRectangleAngled)
-                            Text(String(gallery.pageCount))
-                        }
-                        .lineLimit(1).font(.footnote).foregroundStyle(.secondary).minimumScaleFactor(0.75)
+                        Label(gallery.pageCount.description, systemSymbol: .photoOnRectangleAngled)
+                            .labelIconToTitleSpacing(2)
+                            .lineLimit(1)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .minimumScaleFactor(0.75)
                     }
                 }
                 HStack(alignment: .bottom) {
                     CategoryLabel(text: gallery.category.value, color: gallery.color(host: setting.galleryHost))
-                    Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary).minimumScaleFactor(0.75)
                 }

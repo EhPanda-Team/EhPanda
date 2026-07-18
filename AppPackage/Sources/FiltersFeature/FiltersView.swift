@@ -89,7 +89,7 @@ private struct BasicSection: View {
                 Text(.resetFilters).foregroundStyle(.red)
             }
             .confirmationDialog(confirmationDialog)
-            Toggle(.advancedSettings, isOn: $filter.advanced)
+            AppToggle(.advancedSettings, isOn: $filter.advanced)
         }
     }
 }
@@ -113,23 +113,23 @@ private struct AdvancedSection: View {
     var body: some View {
         Group {
             Section(.advanced) {
-                Toggle(.searchGalleryName, isOn: $filter.galleryName)
-                Toggle(.searchGalleryTags, isOn: $filter.galleryTags)
-                Toggle(.searchGalleryDescription, isOn: $filter.galleryDesc)
-                Toggle(.searchTorrentFilenames, isOn: $filter.torrentFilenames)
-                Toggle(
+                AppToggle(.searchGalleryName, isOn: $filter.galleryName)
+                AppToggle(.searchGalleryTags, isOn: $filter.galleryTags)
+                AppToggle(.searchGalleryDescription, isOn: $filter.galleryDesc)
+                AppToggle(.searchTorrentFilenames, isOn: $filter.torrentFilenames)
+                AppToggle(
                     .onlyShowGalleriesWithTorrents,
                     isOn: $filter.onlyWithTorrents
                 )
-                Toggle(.searchLowPowerTags, isOn: $filter.lowPowerTags)
-                Toggle(.searchDownvotedTags, isOn: $filter.downvotedTags)
-                Toggle(.searchExpungedGalleries, isOn: $filter.expungedGalleries)
+                AppToggle(.searchLowPowerTags, isOn: $filter.lowPowerTags)
+                AppToggle(.searchDownvotedTags, isOn: $filter.downvotedTags)
+                AppToggle(.searchExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {
-                Toggle(.setMinimumRating, isOn: $filter.minRatingActivated)
+                AppToggle(.setMinimumRating, isOn: $filter.minRatingActivated)
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
-                Toggle(.setPagesRange, isOn: $filter.pageRangeActivated)
+                AppToggle(.setPagesRange, isOn: $filter.pageRangeActivated)
                     .disabled(focusedBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
@@ -140,9 +140,9 @@ private struct AdvancedSection: View {
                 .disabled(!filter.pageRangeActivated)
             }
             Section(.defaultFilter) {
-                Toggle(.disableLanguageFilter, isOn: $filter.disableLanguage)
-                Toggle(.disableUploaderFilter, isOn: $filter.disableUploader)
-                Toggle(.disableTagsFilter, isOn: $filter.disableTags)
+                AppToggle(.disableLanguageFilter, isOn: $filter.disableLanguage)
+                AppToggle(.disableUploaderFilter, isOn: $filter.disableUploader)
+                AppToggle(.disableTagsFilter, isOn: $filter.disableTags)
             }
         }
         .disabled(!filter.advanced)
@@ -189,11 +189,14 @@ private struct PagesRangeSetter: View {
     var body: some View {
         HStack {
             Text(.pagesRange)
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             SettingTextField(text: $lowerBound, title: .pagesRange)
                 .focused(focusedBound, equals: .lower)
                 .submitLabel(.next)
+
             Text(.Constant.rangeSeparator)
+
             SettingTextField(text: $upperBound, title: .pagesRange)
                 .focused(focusedBound, equals: .upper)
                 .submitLabel(.done)
