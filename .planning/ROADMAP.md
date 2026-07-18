@@ -34,6 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
 - [ ] **Phase 12: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
 - [ ] **Phase 13: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
+- [ ] **Phase 14: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
 
 ## Phase Details
 
@@ -446,7 +447,7 @@ Plans:
 
 ### Phase 10: UI Polish
 
-**Goal**: Add comprehensive Dynamic Type support, apply monospaced digits and numeric-text transitions to number-bearing text, and reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content — all at appearance/layout parity.
+**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content, and land the accompanying UI-modernization sweeps (deprecated-API removal, custom corner-modifier removal, `\.inSheet` removal, Label conversions, `SystemNotificationExt` module rename, `#Preview` migration) — all at appearance/layout parity. **Comprehensive Dynamic Type support is deferred to Phase 14 (Dynamic Type Accessibility)**; a font-scaling + reflow foundation was delivered here in plans 10-10/10-11.
 **Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
 **Requirements**: POLISH-01, POLISH-02, POLISH-03
 **Success Criteria** (what must be TRUE):
@@ -455,7 +456,7 @@ Plans:
   2. Numeric values animate as numeric transitions on change.
   3. No layout jitter occurs on value change.
   4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
-  5. Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls.
+  5. *(Deferred to Phase 14 — Dynamic Type Accessibility.)* Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls. **Foundation delivered** in 10-10 (7 fixed-pixel font sites scaled) and 10-11 (B1–B10 AX5 reflows, verified on-device); the remaining cosmetic AX5 edge cases, full accessibility-range readability/operability, and the owner-signed device UAT are deferred to Phase 14 for human implementation.
   6. The `\.inSheet` environment value is removed, with any presentation-context logic it drove reimplemented via a native/non-custom-environment mechanism.
   7. Deprecated SwiftUI APIs (e.g. `.foregroundColor` → `.foregroundStyle`) are swept and replaced with their current non-deprecated equivalents, at appearance parity, with no new SwiftLint or compiler deprecation warnings.
   8. The custom `cornerRadius(_:corners:)` view modifier in `ViewModifiers.swift` is removed, with its call site(s) replaced by the standard SwiftUI API (`.clipShape(.rect(cornerRadii:))`), at appearance parity.
@@ -512,7 +513,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [x] 10-12-PLAN.md — Full suite + phase grep battery + owner-signed D-03 gate (criteria 1-12)
+- [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 14
 
 **Cross-cutting constraints:**
 
@@ -577,3 +578,21 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 13 to break down)
+
+### Phase 14: Dynamic Type Accessibility
+
+**Goal**: Complete comprehensive Dynamic Type support so every user-facing screen stays readable and operable across the full Dynamic Type range (including accessibility sizes AX1–AX5) with no clipped essential text, overlapping content, or unreachable controls — building on the font-scaling and reflow foundation delivered in Phase 10 (plans 10-10/10-11, verified on-device).
+**Depends on**: Phase 10 (Dynamic Type foundation) — runs last, against the fully-settled UI.
+**Requirements**: TBD (Dynamic Type accessibility — carried over from Phase 10 criterion 5)
+**Implementation mode**: **Human-implemented; agent verify-only.** The agent audits, drives the simulator at accessibility sizes, and reports findings; it does NOT write the reflow fixes. Do not spawn executor agents for this phase — run verification only.
+**Success Criteria** (what must be TRUE):
+
+  1. Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes (AX1–AX5), without clipped essential text, overlapping content, or unreachable controls.
+  2. Layouts adapt via reflow (wrap / `ViewThatFits` / stacking), never by capping Dynamic Type (`dynamicTypeSize` cap) or clipping.
+  3. Default-size (`.large`) appearance parity is preserved — no visible change at the default size.
+  4. The cosmetic AX5 edge cases surfaced during Phase 10 verification are resolved or explicitly accepted: Detail stats-strip abbreviation, long-tag right-edge clip in the tag cloud, reader total-page counter wrap, Favorites trailing-glyph clip, and the hero-carousel title truncation.
+  5. Owner-signed on-device UAT confirms readability/operability at XXL / AX3 / AX5 across every screen, including authenticated content screens (the D-03 gate carried over from Phase 10).
+
+**Foundation already in place (Phase 10):** 7 fixed-pixel font sites scaled with text styles + `@ScaledMetric` (10-10); B1–B10 AX5 reflows via constraint-drop / `@ScaledMetric` at default-size parity (10-11). Prohibitions to preserve: no `dynamicTypeSize` cap, no `GeometryReader`, `minimumScaleFactor` only where already present.
+
+**Plans**: TBD (human-implemented — the agent runs verification only)
