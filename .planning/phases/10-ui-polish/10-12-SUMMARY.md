@@ -221,6 +221,53 @@ None.
 - FOUND: all 10 negative greps == 0 (RoundedCorner's 6 = benign image-helper); counts 41 / 7 / 0 / 4 hold
 - No code commit expected (verification-only plan); this is a docs-only SUMMARY
 
+## Post-gate fix: ProgressView tint (2026-07-18)
+
+**What:** The 10-02 `.accentColor(_:)` → `.tint(_:)` sweep changed `ProgressView`
+behavior — `ProgressView` ignores `accentColor` but honors `tint`, so spinners/bars
+that used to render the default gray began inheriting an ancestor theme tint and
+appeared in the selected theme color. Owner directive at this gate: reset every
+rendered `ProgressView` to the default gray via `.tint(nil)` on the view itself
+(root-cause fix — each `ProgressView` owns its tint reset, immune to any ancestor tint).
+
+**Edited sites (11 edits across 9 files):**
+
+- `AppComponents/AlertView.swift` — `ProgressView(title)` (LoadingView) and the
+  `FetchMoreFooter` spinner.
+- `AppComponents/Placeholder.swift` — the `.activity` overlay spinner and the
+  `.progress` else-branch spinner.
+- `AppComponents/SubSection.swift` — the reload-affordance spinner.
+- `AppComponents/ViewModifiers.swift` — `PlainLinearProgressViewStyle.makeBody`'s
+  `ProgressView(value:total:)`. This is the determinate reader page-load bar; the
+  `.plainLinear` call site in `Placeholder.swift` renders **through** this `makeBody`,
+  so its bar goes gray from here — no redundant `.tint(nil)` was added at that call
+  site (line 31). Verified the reader page-progress bar ends up gray via this single
+  reset.
+- `DetailFeature/DetailView+HeaderSection.swift` — the queued-download indeterminate
+  spinner. **Note:** this site did not come from the accentColor→tint sweep; it carried
+  a deliberate `.tint(downloadButtonTint)` (introduced at module extraction), and
+  `downloadButtonTint` defaults to `.accentColor` — so in the queued state it did render
+  in the theme tint. Per the owner's explicit enumeration of this file:line, the explicit
+  `.tint(downloadButtonTint)` was replaced with `.tint(nil)` (appending would not win —
+  the inner explicit tint takes precedence) so the spinner renders gray. The determinate
+  ring and center icon at lines 201–215 keep `downloadButtonTint`.
+- `DownloadsFeature/DownloadsView+Subviews.swift` — the validation spinner.
+- `HomeFeature/HomeView.swift` — the toolbar-overlay reload spinner.
+- `ReadingFeature/ReadingViewComponents.swift` — the reader image-load spinner.
+- `SystemNotification/ToastMessageView.swift` — the toast `.loading` icon spinner.
+
+**Already-gray (no edit):** `SettingFeature/GeneralSetting/GeneralSettingView.swift`
+and `SettingFeature/Login/LoginView.swift` already carried `.tint(nil)` from before the
+sweep — left untouched. **Omitted:** `Placeholder.swift` line 31 (routes through the
+`makeBody` reset above).
+
+**Gate (build + lint only; full suite deferred to phase-close re-run):**
+`.accentColor(` grep held at 0. `EhPanda` scheme build for a generic iOS Simulator
+destination: **BUILD SUCCEEDED**, 0 warnings, 0 errors. SwiftLint (strict, 0.65.0) on all
+9 changed files: **0 violations**. No simulator erased/reset; app not uninstalled.
+
+**Commit:** `acd5984e` — `fix(10-02): reset ProgressView tint to default so spinners stay gray`.
+
 ---
 *Phase: 10-ui-polish*
 *Completed: 2026-07-18*
