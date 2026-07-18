@@ -79,6 +79,7 @@ public struct PlainLinearProgressViewStyle: ProgressViewStyle {
 
     public func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
         ProgressView(value: CGFloat(configuration.fractionCompleted ?? 0), total: 1)
+            .tint(nil)
     }
 }
 extension ProgressViewStyle where Self == PlainLinearProgressViewStyle {

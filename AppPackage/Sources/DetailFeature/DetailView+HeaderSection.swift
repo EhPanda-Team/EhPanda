@@ -207,7 +207,7 @@ struct HeaderSection: View {
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .tint(downloadButtonTint)
+                    .tint(nil)
                     .controlSize(.small)
             }
             Image(systemSymbol: centerSymbol)

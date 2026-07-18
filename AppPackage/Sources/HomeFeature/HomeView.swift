@@ -107,7 +107,7 @@ public struct HomeView: View {
                 Image(systemSymbol: .arrowCounterclockwise)
             }
             .opacity(store.popularLoadingState == .loading ? 0 : 1)
-            .overlay(ProgressView().opacity(store.popularLoadingState == .loading ? 1 : 0))
+            .overlay(ProgressView().tint(nil).opacity(store.popularLoadingState == .loading ? 1 : 0))
         }
     }
 }
