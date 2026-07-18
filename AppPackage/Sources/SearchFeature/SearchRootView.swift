@@ -48,14 +48,13 @@ public struct SearchRootView: View {
                             self.store.send(.pushSearch)
                         }
                     }
-                    .tint(self.store.setting.accentColor)
                     .privacyMask()
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)
                 .searchSuggestions {
                     TagSuggestionView(
                         keyword: $store.keyword, translations: store.tagTranslator.translations,
-                        showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
+                        showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
                     )
                 }
                 .onSubmit(of: .search) {
@@ -65,6 +64,7 @@ public struct SearchRootView: View {
                     store.send(.fetchHistoryGalleries)
                 }
                 .toolbar(content: toolbar)
+                .toolbarTitleDisplayMode(.inlineLarge)
                 .navigationTitle(.RLocalizable.search)
 
             // Workaround: Prevent the title disappearing issue. The blank subtitle only reserves
@@ -86,7 +86,7 @@ public struct SearchRootView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary) {
+        CustomToolbarItem {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
                     store.send(.filtersButtonTapped)
@@ -127,30 +127,29 @@ private struct SuggestionsPanel: View {
     }
 
     var body: some View {
-        ZStack {
-            VStack {
-                if !quickSearchWords.isEmpty {
-                    QuickSearchWordsSection(
-                        quickSearchWords: quickSearchWords,
-                        showAllAction: navigateQuickSearchAction,
-                        searchAction: searchKeywordAction
-                    )
-                }
-                if !historyKeywords.isEmpty {
-                    HistoryKeywordsSection(
-                        keywords: historyKeywords,
-                        searchAction: searchKeywordAction,
-                        removeAction: removeKeywordAction
-                    )
-                }
-                if !historyGalleries.isEmpty {
-                    HistoryGalleriesSection(
-                        galleries: historyGalleries,
-                        navigationAction: navigateGalleryAction
-                    )
-                }
+        VStack {
+            if !quickSearchWords.isEmpty {
+                QuickSearchWordsSection(
+                    quickSearchWords: quickSearchWords,
+                    showAllAction: navigateQuickSearchAction,
+                    searchAction: searchKeywordAction
+                )
+            }
+            if !historyKeywords.isEmpty {
+                HistoryKeywordsSection(
+                    keywords: historyKeywords,
+                    searchAction: searchKeywordAction,
+                    removeAction: removeKeywordAction
+                )
+            }
+            if !historyGalleries.isEmpty {
+                HistoryGalleriesSection(
+                    galleries: historyGalleries,
+                    navigationAction: navigateGalleryAction
+                )
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(.default, value: quickSearchWords)
         .animation(.default, value: historyGalleries)
         .animation(.default, value: historyKeywords)
@@ -188,7 +187,7 @@ private struct QuickSearchWordsSection: View {
     var body: some View {
         SubSection(
             title: .RLocalizable.quickSearch,
-            showAll: true, tint: .primary, showAllAction: showAllAction
+            showAll: true, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
         }
@@ -249,6 +248,13 @@ private struct HistoryGalleriesSection: View {
 
 #Preview("Initial") {
     SearchRootView(
-        store: .init(initialState: .init(), reducer: SearchRootReducer.init)
+        store: .init(
+            initialState: {
+                var state = SearchRootReducer.State()
+                state.historyGalleries = Gallery.previews(count: 5)
+                return state
+            }(),
+            reducer: SearchRootReducer.init
+        )
     )
 }

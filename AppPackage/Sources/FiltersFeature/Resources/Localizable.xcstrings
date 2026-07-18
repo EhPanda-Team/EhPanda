@@ -48,7 +48,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Advanced settings"
+            "value": "Advanced Settings"
           }
         },
         "de": {
@@ -89,7 +89,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Default filter"
+            "value": "Default Filter"
           }
         },
         "de": {
@@ -130,7 +130,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disable language filter"
+            "value": "Disable Language Filter"
           }
         },
         "de": {
@@ -171,7 +171,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disable tags filter"
+            "value": "Disable Tags Filter"
           }
         },
         "de": {
@@ -212,7 +212,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Disable uploader filter"
+            "value": "Disable Uploader Filter"
           }
         },
         "de": {
@@ -253,7 +253,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Minimum rating"
+            "value": "Minimum Rating"
           }
         },
         "de": {
@@ -294,7 +294,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only show galleries with torrents"
+            "value": "Only Show Galleries with Torrents"
           }
         },
         "de": {
@@ -335,7 +335,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pages range"
+            "value": "Pages Range"
           }
         },
         "de": {
@@ -458,7 +458,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset filters"
+            "value": "Reset Filters"
           }
         },
         "de": {
@@ -499,7 +499,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search downvoted tags"
+            "value": "Search Downvoted Tags"
           }
         },
         "de": {
@@ -540,7 +540,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search expunged galleries"
+            "value": "Search Expunged Galleries"
           }
         },
         "de": {
@@ -581,7 +581,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search gallery description"
+            "value": "Search Gallery Description"
           }
         },
         "de": {
@@ -622,7 +622,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search gallery name"
+            "value": "Search Gallery Name"
           }
         },
         "de": {
@@ -663,7 +663,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search gallery tags"
+            "value": "Search Gallery Tags"
           }
         },
         "de": {
@@ -704,7 +704,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search Low-Power tags"
+            "value": "Search Low-Power Tags"
           }
         },
         "de": {
@@ -745,7 +745,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search range"
+            "value": "Search Range"
           }
         },
         "de": {
@@ -786,7 +786,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search torrent filenames"
+            "value": "Search Torrent Filenames"
           }
         },
         "de": {
@@ -827,7 +827,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set minimum rating"
+            "value": "Set Minimum Rating"
           }
         },
         "de": {
@@ -868,7 +868,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set pages range"
+            "value": "Set Pages Range"
           }
         },
         "de": {

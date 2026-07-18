@@ -22,7 +22,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         #expect(badge.status == activeDownload.displayStatus)
         #expect(badge.progress == DownloadProgress(completedPageCount: 7, pageCount: 26))
         #expect(badge.symbol == .playFill)
-        #expect(badge.color == .green)
+        #expect(badge.color == .accentColor)
 
         let completedBadge = sampleDownload(
             gid: "481",

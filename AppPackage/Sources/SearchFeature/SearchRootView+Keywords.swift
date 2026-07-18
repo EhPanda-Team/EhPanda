@@ -1,7 +1,9 @@
 import SwiftUI
 import SFSafeSymbols
+import SFSafeSymbolsExt
 import Dependencies
 import DeviceClient
+import Resources
 
 // MARK: DoubleVerticalKeywordsStack
 struct DoubleVerticalKeywordsStack: View {
@@ -117,7 +119,8 @@ struct KeywordCell: View {
                 Button {
                     removeAction?(wrappedKeyword.keyword)
                 } label: {
-                    Image(systemSymbol: .xmark)
+                    Label(.RLocalizable.delete, systemSymbol: .xmark)
+                        .labelStyle(.iconOnly)
                         .imageScale(.small)
                         .foregroundStyle(.secondary)
                 }

@@ -72,7 +72,6 @@ extension DownloadCoordinator {
             token: download.token,
             keeping: completedFolderURL
         )
-        await notifyObservers()
     }
 
     // A download can finish in a different folder than it started in
@@ -177,7 +176,6 @@ extension DownloadCoordinator {
             """
         )
         await persistFailure(error: error, context: context)
-        await notifyObservers()
     }
 
     private func handleProcessDownloadPartialError(
@@ -201,7 +199,6 @@ extension DownloadCoordinator {
             """
         )
         await persistFailure(error: pageError, context: context)
-        await notifyObservers()
     }
 
     private func handleProcessDownloadIncompleteError(
@@ -217,7 +214,6 @@ extension DownloadCoordinator {
             gid: context.gid,
             token: context.originalDownload.token
         )
-        await notifyObservers()
     }
 
     private func handleProcessDownloadGenericError(
@@ -236,7 +232,6 @@ extension DownloadCoordinator {
             error: appError,
             context: context
         )
-        await notifyObservers()
     }
 
     public func settleCompletedDownload(gid: String) async {
@@ -255,13 +250,18 @@ extension DownloadCoordinator {
         }
         activeTask = nil
         activeGalleryID = nil
-        guard schedulesNext else {
-            // The collision-cleanup path skips rescheduling, but the assertion still
-            // has to be released if this was the last in-flight download.
-            Task { await self.reconcileBackgroundAssertion() }
-            return
-        }
         Task {
+            // Display statuses derive from `activeGalleryID`, so an emission from
+            // inside `processDownload` would still report this download as
+            // `.active`; every exit path notifies here instead, after ownership
+            // is cleared, so the settled status (completed/error) is what lands.
+            await self.notifyObservers()
+            guard schedulesNext else {
+                // The collision-cleanup path skips rescheduling, but the assertion still
+                // has to be released if this was the last in-flight download.
+                await self.reconcileBackgroundAssertion()
+                return
+            }
             await self.scheduleNextIfNeeded()
         }
     }

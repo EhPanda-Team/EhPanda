@@ -46,133 +46,132 @@ public struct DetailView: View {
 // MARK: Content
 private extension DetailView {
     var content: some View {
-        ZStack {
-            ScrollView(showsIndicators: false) {
-                let content =
-                    VStack(spacing: 30) {
-                        if let error = store.loadingState.failed,
-                           store.galleryDetail != nil {
-                            offlineFallbackNotice(error: error)
-                                .padding(.horizontal)
-                        }
-                        HeaderSection(
-                            gallery: store.gallery,
-                            galleryDetail: store.galleryDetail ?? .empty,
-                            downloadBadge: store.downloadBadge,
-                            downloadNeedsRepair: store.downloadNeedsRepair,
-                            downloadFolders: store.downloadFolders,
-                            isPreparingDownload: store.isPreparingDownload,
-                            canDownload: !store.gallery.id.isEmpty
-                                && (store.setting.galleryHost == .ehentai || cookieClient.didLogin),
-                            displaysJapaneseTitle: store.setting.displaysJapaneseTitle,
-                            showFullTitle: store.showsFullTitle,
-                            showFullTitleAction: { store.send(.toggleShowFullTitle) },
-                            downloadAction: { handleDownloadAction() },
-                            downloadToFolderAction: {
-                                store.send(.startDownload($0))
-                            },
-                            manageFoldersAction: { store.send(.folderManagerButtonTapped) },
-                            createDefaultFolderAction: { store.send(.createDefaultFolder) },
-                            favorAction: { store.send(.favorGallery($0)) },
-                            unfavorAction: { store.send(.unfavorGallery) },
-                            navigateReadingAction: { store.send(.openReading) },
-                            navigateUploaderAction: {
-                                if let uploader = store.galleryDetail?.uploader {
-                                    let keyword = "uploader:" + "\"\(uploader)\""
-                                    store.send(.delegate(.pushDetailSearch(keyword)))
-                                }
-                            }
-                        )
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 30) {
+                if let error = store.loadingState.failed,
+                   store.galleryDetail != nil {
+                    offlineFallbackNotice(error: error)
                         .padding(.horizontal)
-                        DescriptionSection(
-                            gallery: store.gallery,
-                            galleryDetail: store.galleryDetail ?? .empty,
-                            navigateGalleryInfosAction: {
-                                if let galleryDetail = store.galleryDetail {
-                                    store.send(.delegate(.pushGalleryInfos(store.gallery, galleryDetail)))
-                                }
-                            }
-                        )
-                        ActionSection(
-                            galleryDetail: store.galleryDetail ?? .empty,
-                            userRating: store.userRating,
-                            showUserRating: store.showsUserRating,
-                            showUserRatingAction: { store.send(.toggleShowUserRating) },
-                            updateRatingAction: { store.send(.updateRating($0)) },
-                            confirmRatingAction: { store.send(.confirmRating($0)) },
-                            navigateSimilarGalleryAction: {
-                                if let trimmedTitle = store.galleryDetail?.trimmedTitle {
-                                    store.send(.delegate(.pushDetailSearch(trimmedTitle)))
-                                }
-                            }
-                        )
-                        if !store.galleryTags.isEmpty {
-                            TagsSection(
-                                tags: store.galleryTags, showsImages: store.setting.showsImagesInTags,
-                                voteTagAction: { store.send(.voteTag($0, $1)) },
-                                navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
-                                navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
-                                translateAction: {
-                                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
-                                }
-                            )
-                            .padding(.horizontal)
-                        }
-                        let displayPreviewURLs = store.localPreviewURLs.merging(
-                            store.galleryPreviewURLs,
-                            uniquingKeysWith: { local, _ in local }
-                        )
-                        if !displayPreviewURLs.isEmpty {
-                            PreviewsSection(
-                                pageCount: store.galleryDetail?.pageCount ?? 0,
-                                previewURLs: displayPreviewURLs,
-                                navigatePreviewsAction: {
-                                    store.send(.delegate(.pushPreviews(
-                                        store.gallery, store.previewConfig, store.galleryDetail?.language
-                                    )))
-                                },
-                                navigateReadingAction: {
-                                    store.send(.updateReadingProgress($0))
-                                    store.send(.openReading)
-                                }
-                            )
-                        }
-                        CommentsSection(
-                            comments: store.galleryComments,
-                            navigateCommentAction: {
-                                if let galleryURL = store.gallery.galleryURL {
-                                    store.send(.delegate(.pushComments(
-                                        gid: gid, token: store.gallery.token, apiKey: store.apiKey,
-                                        galleryURL: galleryURL, comments: store.galleryComments,
-                                        scrollCommentID: nil
-                                    )))
-                                }
-                            },
-                            navigatePostCommentAction: { store.send(.postCommentButtonTapped) }
-                        )
-                    }
-                    .padding(.bottom, 20)
-
-                if #available(iOS 18.0, *) {
-                    content
-                        .padding(.top, 25)
-                } else {
-                    content
-                        .padding(.top, -25)
                 }
-            }
-            .opacity(store.galleryDetail == nil ? 0 : 1)
-
-            LoadingView()
-                .opacity(
-                    store.galleryDetail == nil
-                        && store.loadingState == .loading ? 1 : 0
+                HeaderSection(
+                    gallery: store.gallery,
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    downloadBadge: store.downloadBadge,
+                    downloadNeedsRepair: store.downloadNeedsRepair,
+                    downloadFolders: store.downloadFolders,
+                    isPreparingDownload: store.isPreparingDownload,
+                    canDownload: !store.gallery.id.isEmpty
+                        && (store.setting.galleryHost == .ehentai || cookieClient.didLogin),
+                    displayJapaneseTitle: store.setting.displayJapaneseTitle,
+                    showFullTitle: store.showsFullTitle,
+                    showFullTitleAction: { store.send(.toggleShowFullTitle) },
+                    downloadAction: { handleDownloadAction() },
+                    downloadToFolderAction: {
+                        store.send(.startDownload($0))
+                    },
+                    manageFoldersAction: { store.send(.folderManagerButtonTapped) },
+                    createDefaultFolderAction: { store.send(.createDefaultFolder) },
+                    favorAction: { store.send(.favorGallery($0)) },
+                    unfavorAction: { store.send(.unfavorGallery) },
+                    navigateReadingAction: { store.send(.openReading) },
+                    navigateUploaderAction: {
+                        if let uploader = store.galleryDetail?.uploader {
+                            let keyword = "uploader:" + "\"\(uploader)\""
+                            store.send(.delegate(.pushDetailSearch(keyword)))
+                        }
+                    }
                 )
+                .padding(.horizontal)
 
+                DescriptionSection(
+                    gallery: store.gallery,
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    navigateGalleryInfosAction: {
+                        if let galleryDetail = store.galleryDetail {
+                            store.send(.delegate(.pushGalleryInfos(store.gallery, galleryDetail)))
+                        }
+                    }
+                )
+                ActionSection(
+                    galleryDetail: store.galleryDetail ?? .empty,
+                    userRating: store.userRating,
+                    showUserRating: store.showsUserRating,
+                    showUserRatingAction: { store.send(.toggleShowUserRating) },
+                    updateRatingAction: { store.send(.updateRating($0)) },
+                    confirmRatingAction: { store.send(.confirmRating($0)) },
+                    navigateSimilarGalleryAction: {
+                        if let trimmedTitle = store.galleryDetail?.trimmedTitle {
+                            store.send(.delegate(.pushDetailSearch(trimmedTitle)))
+                        }
+                    }
+                )
+                if !store.galleryTags.isEmpty {
+                    TagsSection(
+                        tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
+                        voteTagAction: { store.send(.voteTag($0, $1)) },
+                        navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
+                        navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
+                        translateAction: {
+                            store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+                        }
+                    )
+                    .padding(.horizontal)
+                }
+                let displayPreviewURLs = store.localPreviewURLs.merging(
+                    store.galleryPreviewURLs,
+                    uniquingKeysWith: { local, _ in local }
+                )
+                if !displayPreviewURLs.isEmpty {
+                    PreviewsSection(
+                        pageCount: store.galleryDetail?.pageCount ?? 0,
+                        previewURLs: displayPreviewURLs,
+                        navigatePreviewsAction: {
+                            store.send(.delegate(.pushPreviews(
+                                store.gallery, store.previewConfig, store.galleryDetail?.language
+                            )))
+                        },
+                        navigateReadingAction: {
+                            store.send(.updateReadingProgress($0))
+                            store.send(.openReading)
+                        }
+                    )
+                }
+                CommentsSection(
+                    comments: store.galleryComments,
+                    navigateCommentAction: {
+                        if let galleryURL = store.gallery.galleryURL {
+                            store.send(.delegate(.pushComments(
+                                gid: gid, token: store.gallery.token, apiKey: store.apiKey,
+                                galleryURL: galleryURL, comments: store.galleryComments,
+                                scrollCommentID: nil
+                            )))
+                        }
+                    },
+                    navigatePostCommentAction: { store.send(.postCommentButtonTapped) }
+                )
+            }
+            .padding(.bottom, 20)
+            .padding(.top, 25)
+        }
+        .animation(.default) {
+            $0.opacity(store.galleryDetail == nil ? 0 : 1)
+        }
+        .overlay {
+            LoadingView()
+                .animation(.default) {
+                    $0.opacity(
+                        store.galleryDetail == nil
+                            && store.loadingState == .loading ? 1 : 0
+                    )
+                }
+        }
+        .overlay {
             let error = store.loadingState.failed
             let retryAction: () -> Void = { store.send(.fetchGalleryDetail) }
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
-                .opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
+                .animation(.default) {
+                    $0.opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
+                }
         }
     }
 
@@ -192,7 +191,6 @@ private extension DetailView {
                     cancelAction: { store.send(.destination(.dismiss)) },
                     onAppearAction: { store.send(.onPostCommentAppear) }
                 )
-                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(item: $store.destination.newDawn) { greeting in
@@ -210,12 +208,8 @@ private extension DetailView {
             .fullScreenCover(
                 item: $store.scope(\.$destination, action: \.destination).reading
             ) { store in
-                ReadingView(
-                    store: store,
-                    gid: gid
-                )
-                .tint(self.store.setting.accentColor)
-                .privacyMask()
+                ReadingView(store: store, gid: gid)
+                    .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).archives
@@ -227,7 +221,6 @@ private extension DetailView {
                         galleryURL: galleryURL,
                         archiveURL: archiveURL
                     )
-                    .tint(self.store.setting.accentColor)
                     .privacyMask()
                 }
             }
@@ -239,14 +232,12 @@ private extension DetailView {
                     gid: gid,
                     token: self.store.gallery.token
                 )
-                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).folderManager
             ) { store in
                 FolderManagerView(store: store)
-                    .tint(self.store.setting.accentColor)
                     .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
@@ -305,7 +296,14 @@ private extension DetailView {
 #Preview("Loaded") {
     NavigationStack {
         DetailView(
-            store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
+            store: .init(
+                initialState: {
+                    var state = DetailReducer.State(gallery: .preview)
+                    state.galleryDetail = .preview
+                    return state
+                }(),
+                reducer: DetailReducer.init
+            ),
             gid: .init()
         )
     }

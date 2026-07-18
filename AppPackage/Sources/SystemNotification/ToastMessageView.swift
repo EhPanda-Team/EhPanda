@@ -42,11 +42,10 @@ struct ToastMessageView: View {
         switch content.icon {
         case .loading:
             ProgressView()
-                .tint(nil)
         case .success:
             Image(systemSymbol: .checkmarkCircle)
                 .font(.title3)
-                .foregroundStyle(.green)
+                .foregroundStyle(Color.accentColor)
         case .error:
             Image(systemSymbol: .exclamationmarkTriangle)
                 .font(.title3)

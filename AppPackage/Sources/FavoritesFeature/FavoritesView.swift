@@ -30,24 +30,27 @@ public struct FavoritesView: View {
             state: \.path,
             action: \.path
         ) {
-            ZStack {
-                if cookieClient.didLogin {
-                    GalleryList(
-                        galleries: store.galleries ?? [],
-                        pageNumber: store.pageNumber,
-                        loadingState: store.loadingState ?? .idle,
-                        footerLoadingState: store.footerLoadingState ?? .idle,
-                        fetchAction: { store.send(.fetchGalleries()) },
-                        fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                        navigateAction: { store.send(.galleryTapped($0)) },
-                        translateAction: {
-                            store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
-                        },
-                        downloadBadges: store.downloadBadges
-                    )
-                } else {
-                    NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-                }
+            GalleryList(
+                galleries: store.galleries ?? [],
+                pageNumber: store.pageNumber,
+                loadingState: store.loadingState ?? .idle,
+                footerLoadingState: store.footerLoadingState ?? .idle,
+                fetchAction: { store.send(.fetchGalleries()) },
+                fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                navigateAction: { store.send(.galleryTapped($0)) },
+                translateAction: {
+                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+                },
+                downloadBadges: store.downloadBadges
+            )
+            .animation(.default) {
+                $0.opacity(cookieClient.didLogin ? 1 : 0)
+            }
+            .overlay {
+                NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
+                    .animation(.default) {
+                        $0.opacity(cookieClient.didLogin ? 0 : 1)
+                    }
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).quickSearch
@@ -56,7 +59,6 @@ public struct FavoritesView: View {
                     self.store.send(.destination(.dismiss))
                     self.store.send(.fetchGalleries(keyword))
                 }
-                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .sheet(
@@ -68,14 +70,13 @@ public struct FavoritesView: View {
                     navigation: store.navigation,
                     seekAction: { store.send(.performSeek($0)) }
                 )
-                .tint(self.store.setting.accentColor)
                 .privacyMask()
             }
             .searchable(text: $store.keyword, placement: .navigationBarDrawer)
             .searchSuggestions {
                 TagSuggestionView(
                     keyword: $store.keyword, translations: store.tagTranslator.translations,
-                    showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
+                    showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
                 )
             }
             .onSubmit(of: .search) {
@@ -91,11 +92,12 @@ public struct FavoritesView: View {
             }
             .toolbar(content: toolbar)
             .navigationTitle(navigationTitle)
+            .toolbarTitleDisplayMode(.inlineLarge)
         }
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary) {
+        CustomToolbarItem {
             FavoritesIndexMenu(index: store.index) { index in
                 if index != store.index {
                     store.send(.setFavoritesIndex(index))
@@ -119,7 +121,18 @@ public struct FavoritesView: View {
 }
 
 #Preview("Initial") {
-    FavoritesView(
-        store: .init(initialState: .init(), reducer: FavoritesReducer.init)
-    )
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        FavoritesView(
+            store: .init(
+                initialState: {
+                    var state = FavoritesReducer.State()
+                    state.rawGalleries[state.index] = Gallery.previews(count: 10)
+                    return state
+                }(),
+                reducer: FavoritesReducer.init
+            )
+        )
+    }
 }

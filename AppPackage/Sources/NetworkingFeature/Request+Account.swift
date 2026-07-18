@@ -169,7 +169,7 @@ public struct SubmitEhSettingChangesRequest: Request {
         let url = Defaults.URL.uConfig(host: host)
         var params: [String: String] = [
             "uh": String(ehSetting.loadThroughHathSetting.rawValue),
-            "co": ehSetting.browsingCountry.rawValue,
+            "co": ehSetting.hahRegion.rawValue,
             "xr": String(ehSetting.imageResolution.rawValue),
             "rx": String(Int(ehSetting.imageSizeWidth)),
             "ry": String(Int(ehSetting.imageSizeHeight)),

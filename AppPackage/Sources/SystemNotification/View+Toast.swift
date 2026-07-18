@@ -59,12 +59,12 @@ private struct ToastViewModifier: ViewModifier {
                                     .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
-                            .glassEffect(.regular, in: .capsule)
                             .accessibilityFocused($focusedToastID, equals: id)
                         } else {
                             ToastMessageView(content: toast)
                         }
                     }
+                    .glassEffect(.regular, in: .capsule)
                     .id(id)
                     .padding(.horizontal)
                     .padding(.bottom, 64)

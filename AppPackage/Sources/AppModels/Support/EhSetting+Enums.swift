@@ -1,6 +1,51 @@
 import Foundation
 import Resources
 
+// MARK: HahRegion
+extension EhSetting {
+    /// Raw values are the site's own region codes: e-hentai reuses one ISO country code
+    /// per region (e.g. `JP` = Asia, `NL` = Europe), likely for compatibility with the
+    /// country-based `co` field this setting replaced.
+    public enum HahRegion: String, CaseIterable, Identifiable, Sendable {
+        case autoDetect = ""
+        case europe = "NL"
+        case northAmerica = "US"
+        case southAmerica = "BR"
+        case asia = "JP"
+        case oceania = "AU"
+        case chineseDominion = "CN"
+    }
+}
+extension EhSetting.HahRegion {
+    public var id: String { rawValue }
+
+    public var name: LocalizedStringResource {
+        switch self {
+        case .autoDetect: .hahRegionAutoDetect
+        case .europe: .hahRegionEurope
+        case .northAmerica: .hahRegionNorthAmerica
+        case .southAmerica: .hahRegionSouthAmerica
+        case .asia: .hahRegionAsia
+        case .oceania: .hahRegionOceania
+        case .chineseDominion: .hahRegionChineseDominion
+        }
+    }
+
+    /// The site's English display name, used to match the literal region name
+    /// scraped from the settings page against a case.
+    public var englishName: String {
+        switch self {
+        case .autoDetect: "Auto-Detect"
+        case .europe: "Europe"
+        case .northAmerica: "North America"
+        case .southAmerica: "South America"
+        case .asia: "Asia"
+        case .oceania: "Oceania"
+        case .chineseDominion: "Chinese Dominion"
+        }
+    }
+}
+
 // MARK: CommentsSortOrder
 extension EhSetting {
     public enum CommentsSortOrder: Int, CaseIterable, Identifiable, Sendable {

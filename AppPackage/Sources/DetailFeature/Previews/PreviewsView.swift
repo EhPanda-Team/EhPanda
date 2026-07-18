@@ -69,7 +69,6 @@ struct PreviewsView: View {
                 store: store,
                 gid: store.gallery.id
             )
-            .tint(store.setting.accentColor)
             .privacyMask()
         }
         .onAppear {

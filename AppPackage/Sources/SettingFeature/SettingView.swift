@@ -26,9 +26,9 @@ public struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .navigationTitle(.RLocalizable.setting)
+            .toolbarTitleDisplayMode(.inlineLarge)
         } destination: { pathStore in
             destination(pathStore)
-                .tint(store.setting.accentColor)
         }
     }
 
@@ -96,20 +96,30 @@ private struct SettingRow: View {
     }
 
     var body: some View {
-        HStack {
+        Label {
+            Text(rowType.value)
+                .fontWeight(.medium)
+                .font(.title3)
+                .foregroundStyle(color)
+        } icon: {
             Image(systemSymbol: rowType.symbol)
-                .font(.largeTitle).foregroundStyle(color)
-                .padding(.trailing, 20).frame(width: 45, height: 45)
-            Text(rowType.value).fontWeight(.medium)
-                .font(.title3).foregroundStyle(color)
-            Spacer()
+                .font(.largeTitle)
+                .foregroundStyle(color)
+                .padding(.trailing, 20)
+                .frame(width: 45, height: 45)
         }
-        .contentShape(.rect).padding(.vertical, 10)
-        .padding(.horizontal, 20).background(backgroundColor)
-        .clipShape(.rect(cornerRadius: 10)).onTapGesture { tapAction(rowType) }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(.rect)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(backgroundColor)
+        .clipShape(.rect(cornerRadius: 10))
+        .onTapGesture { tapAction(rowType) }
         .onLongPressGesture(
-            minimumDuration: .infinity, maximumDistance: 50,
-            pressing: { isPressing = $0 }, perform: {}
+            minimumDuration: .infinity,
+            maximumDistance: 50,
+            pressing: { isPressing = $0 },
+            perform: {}
         )
     }
 }

@@ -22,66 +22,50 @@ public struct DownloadsView: View {
             state: \.path,
             action: \.path
         ) {
-            contentView
-        }
-    }
-
-    private var contentView: some View {
-        let showsEmptyState = store.loadingState == .idle && store.filteredDownloads.isEmpty
-        return ZStack {
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-
             downloadsList
-                .allowsHitTesting(!showsEmptyState)
-
-            if showsEmptyState {
-                VStack {
-                    Spacer()
+                .overlay {
                     emptyStateView
-                    Spacer()
+                        .padding(.horizontal, 24)
+                        .animation(.default) {
+                            $0.opacity(store.loadingState == .idle && store.filteredDownloads.isEmpty ? 1 : 0)
+                        }
                 }
-                .padding(.horizontal, 24)
-            }
+                .searchable(text: $store.keyword, placement: .navigationBarDrawer)
+                .sheet(
+                    item: $store.scope(\.$destination, action: \.destination).inspector
+                ) { store in
+                    NavigationStack {
+                        DownloadInspectorView(store: store)
+                    }
+                    .privacyMask()
+                }
+                .sheet(
+                    item: $store.scope(\.$destination, action: \.destination).folderManager
+                ) { folderStore in
+                    FolderManagerView(store: folderStore)
+                        .privacyMask()
+                }
+                .fullScreenCover(
+                    item: $store.scope(\.$destination, action: \.destination).reading
+                ) { store in
+                    ReadingView(
+                        store: store,
+                        gid: store.gallery.id
+                    )
+                    .privacyMask()
+                }
+                .onAppear {
+                    store.send(.onAppear)
+                }
+                .appAlert($store.scope(\.$alert, action: \.alert))
+                .confirmationDialog(
+                    $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
+                )
+                .navigationTitle(.RLocalizable.downloads)
+                .toolbarTitleDisplayMode(.inlineLarge)
+                .toolbar(content: toolbar)
         }
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .searchDownloads)
-        .sheet(
-            item: $store.scope(\.$destination, action: \.destination).inspector
-        ) { store in
-            NavigationStack {
-                DownloadInspectorView(store: store)
-            }
-            .privacyMask()
-        }
-        .sheet(
-            item: $store.scope(\.$destination, action: \.destination).folderManager
-        ) { folderStore in
-            FolderManagerView(store: folderStore)
-                .tint(store.setting.accentColor)
-                .privacyMask()
-        }
-        .fullScreenCover(
-            item: $store.scope(\.$destination, action: \.destination).reading
-        ) { store in
-            ReadingView(
-                store: store,
-                gid: store.gallery.id
-            )
-            .tint(store.setting.accentColor)
-            .privacyMask()
-        }
-        .onAppear {
-            store.send(.onAppear)
-        }
-        .appAlert($store.scope(\.$alert, action: \.alert))
-        .confirmationDialog(
-            $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
-        )
-        .navigationTitle(.RLocalizable.downloads)
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar(content: toolbar)
     }
-
 }
 
 // MARK: Subviews
@@ -114,7 +98,6 @@ private extension DownloadsView {
                                 systemSymbol: .listBulletRectanglePortrait
                             )
                         }
-                        .tint(store.setting.accentColor)
 
                         if canMove(download) {
                             Button {
@@ -154,7 +137,7 @@ private extension DownloadsView {
                                         : .pauseFill
                                 )
                             }
-                            .tint(download.displayStatus == .inactive ? .green : .indigo)
+                            .tint(download.displayStatus == .inactive ? .accentColor : .indigo)
                         }
 
                         Button(role: .destructive) {
@@ -238,12 +221,7 @@ private extension DownloadsView {
 
     @ViewBuilder private var emptyStateView: some View {
         if store.downloads.isEmpty {
-            AlertView(
-                symbol: .squareAndArrowDown,
-                message: .emptyDownloads
-            ) {
-                EmptyView()
-            }
+            AlertView(symbol: .squareAndArrowDown, message: .emptyDownloads)
         } else {
             AlertView(
                 symbol: .line3HorizontalDecreaseCircle,
@@ -285,7 +263,7 @@ private extension DownloadsView {
                     }
                 }
             } label: {
-                Image(systemSymbol: .dialLow)
+                Label(.RLocalizable.filters, systemSymbol: .dialLow)
                     .symbolRenderingMode(.hierarchical)
             }
         }
@@ -305,6 +283,35 @@ private extension DownloadsView {
 
 #Preview("Initial") {
     DownloadsView(
-        store: .init(initialState: .init(), reducer: DownloadsReducer.init)
+        store: .init(
+            initialState: {
+                func manifest(gid: String, title: String, rating: Float, pageCount: Int) -> DownloadManifest {
+                    .init(
+                        gid: gid, host: .ehentai, token: "", title: title, jpnTitle: nil,
+                        category: .doujinshi, language: .english, remoteCoverURL: nil,
+                        uploader: "Anonymous", tags: [], postedDate: .now, rating: rating,
+                        pages: Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                    )
+                }
+                var state = DownloadsReducer.State()
+                state.loadingState = .idle
+                state.downloads = [
+                    .init(
+                        manifest: manifest(gid: "1", title: "Sample Download 1", rating: 4.5, pageCount: 24),
+                        folderURL: .mock, folderName: "[1] Sample Download 1",
+                        localCoverURL: nil, localPageURLs: [:], modificationDate: .now,
+                        displayStatus: .completed
+                    ),
+                    .init(
+                        manifest: manifest(gid: "2", title: "Sample Download 2", rating: 3.0, pageCount: 40),
+                        folderURL: .mock, folderName: "[2] Sample Download 2",
+                        localCoverURL: nil, localPageURLs: [:], modificationDate: .now,
+                        displayStatus: .active
+                    )
+                ]
+                return state
+            }(),
+            reducer: DownloadsReducer.init
+        )
     )
 }

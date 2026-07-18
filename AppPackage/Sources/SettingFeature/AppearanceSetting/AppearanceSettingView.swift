@@ -27,8 +27,6 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
 
-                ColorPicker(.tintColor, selection: Binding($setting.accentColor))
-
                 Button(.appIcon) {
                     store.send(.delegate(.pushAppIcon))
                 }
@@ -62,8 +60,8 @@ struct AppearanceSettingView: View {
                 )
                 .pickerStyle(.menu)
 
-                Toggle(isOn: Binding($setting.showsTagsInList)) {
-                    Text(.showsTagsInList)
+                AppToggle(isOn: Binding($setting.showTagsInList)) {
+                    Text(.showTagsInList)
                 }
 
                 Picker(
@@ -79,12 +77,12 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .disabled(!setting.showsTagsInList)
+                .disabled(!setting.showTagsInList)
             }
             Section(.gallery) {
-                Toggle(
-                    .displaysJapaneseTitle,
-                    isOn: Binding($setting.displaysJapaneseTitle)
+                AppToggle(
+                    .displayJapaneseTitle,
+                    isOn: Binding($setting.displayJapaneseTitle)
                 )
             }
         }
@@ -148,8 +146,7 @@ private struct AppIconRow: View {
                 .padding(.vertical, 10)
 
             Text(iconName)
-
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Image(systemSymbol: .checkmarkCircleFill)
                 .opacity(isSelected ? 1 : 0)

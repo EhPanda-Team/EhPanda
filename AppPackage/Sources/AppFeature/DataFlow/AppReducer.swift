@@ -105,7 +105,7 @@ struct AppReducer {
                         .send(.appLogsPump(.startPump)),
                         .run { _ in logger.notice("App entered foreground.") }
                     ]
-                    if state.settingState.setting.detectsLinksFromClipboard {
+                    if state.settingState.setting.detectLinksFromClipboard {
                         effects.append(.send(.presentation(.detectClipboardURL)))
                     }
                     // iOS interposes .inactive on a foreground return
@@ -283,7 +283,7 @@ struct AppReducer {
                 var effects = [Effect<Action>]()
                 // This is the single cold-launch clipboard owner: the initial `.active` is ignored
                 // until settings load, while the `.active` branch handles later foreground entries.
-                if state.settingState.setting.detectsLinksFromClipboard {
+                if state.settingState.setting.detectLinksFromClipboard {
                     effects.append(.send(.presentation(.detectClipboardURL)))
                 }
                 state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(

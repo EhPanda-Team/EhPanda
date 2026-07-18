@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Sharing
 import Resources
+import AppComponents
 
 struct DownloadSettingView: View {
     @Shared(.setting) private var setting: Setting
@@ -18,14 +19,14 @@ struct DownloadSettingView: View {
                     }
                     Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
                 }
-                Toggle(
+                AppToggle(
                     .retryFailedPagesAutomatically,
                     isOn: Binding($setting.downloadAutoRetryFailedPages)
                 )
             }
 
             Section {
-                Toggle(
+                AppToggle(
                     .allowCellularDownloads,
                     isOn: Binding($setting.downloadAllowCellular)
                 )

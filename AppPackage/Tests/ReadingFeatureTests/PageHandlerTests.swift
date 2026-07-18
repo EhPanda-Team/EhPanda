@@ -19,12 +19,12 @@ struct PageHandlerTests {
 
     private func makeSetting(
         readingDirection: ReadingDirection = .leftToRight,
-        enablesDualPageMode: Bool = false,
+        enableDualPageMode: Bool = false,
         exceptCover: Bool = false
     ) -> Setting {
         var setting = Setting()
         setting.readingDirection = readingDirection
-        setting.enablesDualPageMode = enablesDualPageMode
+        setting.enableDualPageMode = enableDualPageMode
         setting.exceptCover = exceptCover
         return setting
     }
@@ -34,7 +34,7 @@ struct PageHandlerTests {
     @Test(arguments: 0..<10)
     func singlePageModeIsPlusMinusOne(pagerIndex: Int) {
         let handler = PageHandler()
-        let dualButPortrait = makeSetting(enablesDualPageMode: true)
+        let dualButPortrait = makeSetting(enableDualPageMode: true)
         let landscapeButSingle = makeSetting()
         #expect(
             handler.mapFromPager(index: pagerIndex, pageCount: 100, setting: dualButPortrait, isLandscape: false)
@@ -57,7 +57,7 @@ struct PageHandlerTests {
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 3, 5, 7, 21]))
     func dualPageMapsStackToOddFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true)
+        let setting = makeSetting(enableDualPageMode: true)
         #expect(
             handler.mapFromPager(index: pagerIndex, pageCount: 100, setting: setting, isLandscape: true)
                 == readingPage
@@ -69,14 +69,14 @@ struct PageHandlerTests {
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 21, 22], [0, 0, 0, 1, 1, 2, 10, 10]))
     func dualPageMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true)
+        let setting = makeSetting(enableDualPageMode: true)
         #expect(handler.mapToPager(index: readingPage, setting: setting, isLandscape: true) == pagerIndex)
     }
 
     @Test
     func landscapeResumePageMapsToExpectedDualPageStack() {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true)
+        let setting = makeSetting(enableDualPageMode: true)
         #expect(handler.mapToPager(index: 6, setting: setting, isLandscape: true) == 2)
     }
 
@@ -85,7 +85,7 @@ struct PageHandlerTests {
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 2, 4, 6, 20]))
     func coverExceptionMapsStackToEvenFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true, exceptCover: true)
+        let setting = makeSetting(enableDualPageMode: true, exceptCover: true)
         #expect(
             handler.mapFromPager(index: pagerIndex, pageCount: 100, setting: setting, isLandscape: true)
                 == readingPage
@@ -96,7 +96,7 @@ struct PageHandlerTests {
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 20, 21], [0, 0, 1, 1, 2, 2, 10, 10]))
     func coverExceptionMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true, exceptCover: true)
+        let setting = makeSetting(enableDualPageMode: true, exceptCover: true)
         #expect(handler.mapToPager(index: readingPage, setting: setting, isLandscape: true) == pagerIndex)
     }
 
@@ -106,8 +106,8 @@ struct PageHandlerTests {
     @Test
     func lastPageCoverExceptionClampsToPageCount() {
         let handler = PageHandler()
-        let plain = makeSetting(enablesDualPageMode: true)
-        let cover = makeSetting(enablesDualPageMode: true, exceptCover: true)
+        let plain = makeSetting(enableDualPageMode: true)
+        let cover = makeSetting(enableDualPageMode: true, exceptCover: true)
         #expect(handler.mapFromPager(index: 2, pageCount: 6, setting: plain, isLandscape: true) == 6)
         #expect(handler.mapFromPager(index: 2, pageCount: 5, setting: cover, isLandscape: true) == 5)
         #expect(handler.mapToPager(index: 6, setting: plain, isLandscape: true) == 2)
@@ -124,8 +124,8 @@ struct PageHandlerTests {
         let handler = PageHandler()
         let modes: [(setting: Setting, isLandscape: Bool)] = [
             (makeSetting(), false),
-            (makeSetting(enablesDualPageMode: true), true),
-            (makeSetting(enablesDualPageMode: true, exceptCover: true), true)
+            (makeSetting(enableDualPageMode: true), true),
+            (makeSetting(enableDualPageMode: true, exceptCover: true), true)
         ]
         for mode in modes {
             let readingPage = handler.mapFromPager(
@@ -145,10 +145,10 @@ struct PageHandlerTests {
         let handler = PageHandler()
         for exceptCover in [false, true] {
             let ltr = makeSetting(
-                readingDirection: .leftToRight, enablesDualPageMode: true, exceptCover: exceptCover
+                readingDirection: .leftToRight, enableDualPageMode: true, exceptCover: exceptCover
             )
             let rtl = makeSetting(
-                readingDirection: .rightToLeft, enablesDualPageMode: true, exceptCover: exceptCover
+                readingDirection: .rightToLeft, enableDualPageMode: true, exceptCover: exceptCover
             )
             #expect(
                 handler.mapFromPager(index: pagerIndex, pageCount: 100, setting: ltr, isLandscape: true)
@@ -167,7 +167,7 @@ struct PageHandlerTests {
     @Test
     func aspectRatioFlagControlsDualPageEligibility() {
         let handler = PageHandler()
-        let setting = makeSetting(enablesDualPageMode: true)
+        let setting = makeSetting(enableDualPageMode: true)
         let cases = [
             AspectRatioCase(width: 390, height: 844, isLandscape: false),
             AspectRatioCase(width: 844, height: 390, isLandscape: true),

@@ -18,16 +18,16 @@ struct LaboratorySettingView: View {
         ScrollView {
             VStack {
                 LaboratoryCell(
-                    isOn: Binding($setting.bypassesSNIFiltering),
-                    title: .bypassesSniFiltering,
+                    isOn: Binding($setting.bypassSNIFiltering),
+                    title: .bypassSniFiltering,
                     symbol: .theatermasksFill, tintColor: .purple
                 )
             }
             .padding()
         }
         .navigationTitle(.laboratory)
-        .onChange(of: setting.bypassesSNIFiltering) { _, newValue in
-            store.send(.bypassesSNIFilteringChanged(newValue))
+        .onChange(of: setting.bypassSNIFiltering) { _, newValue in
+            store.send(.bypassSNIFilteringChanged(newValue))
         }
     }
 }

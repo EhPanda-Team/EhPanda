@@ -27,9 +27,10 @@ struct AccountSettingView: View {
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
+
                 AccountSection(
-                    showsNewDawnGreeting: Binding($setting.showsNewDawnGreeting),
-                    bypassesSNIFiltering: setting.bypassesSNIFiltering,
+                    showNewDawnGreeting: Binding($setting.showNewDawnGreeting),
+                    bypassSNIFiltering: setting.bypassSNIFiltering,
                     loginAction: { store.send(.delegate(.pushLogin)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
                     logoutConfirmationDialog: $store.scope(
@@ -61,8 +62,8 @@ struct AccountSettingView: View {
 // MARK: AccountSection
 private struct AccountSection: View {
     @Dependency(\.cookieClient) private var cookieClient
-    @Binding private var showsNewDawnGreeting: Bool
-    private let bypassesSNIFiltering: Bool
+    @Binding private var showNewDawnGreeting: Bool
+    private let bypassSNIFiltering: Bool
     private let loginAction: () -> Void
     private let logoutDialogAction: () -> Void
     private let logoutConfirmationDialog:
@@ -71,7 +72,7 @@ private struct AccountSection: View {
     private let manageTagsAction: () -> Void
 
     init(
-        showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
+        showNewDawnGreeting: Binding<Bool>, bypassSNIFiltering: Bool,
         loginAction: @escaping () -> Void,
         logoutDialogAction: @escaping () -> Void,
         logoutConfirmationDialog:
@@ -79,8 +80,8 @@ private struct AccountSection: View {
         configureAccountAction: @escaping () -> Void,
         manageTagsAction: @escaping () -> Void
     ) {
-        _showsNewDawnGreeting = showsNewDawnGreeting
-        self.bypassesSNIFiltering = bypassesSNIFiltering
+        _showNewDawnGreeting = showNewDawnGreeting
+        self.bypassSNIFiltering = bypassSNIFiltering
         self.loginAction = loginAction
         self.logoutDialogAction = logoutDialogAction
         self.logoutConfirmationDialog = logoutConfirmationDialog
@@ -103,14 +104,14 @@ private struct AccountSection: View {
                     action: configureAccountAction
                 )
                 .withArrow()
-                if !bypassesSNIFiltering {
+                if !bypassSNIFiltering {
                     Button(
                         .tagsManagement,
                         action: manageTagsAction
                     )
                     .withArrow()
                 }
-                Toggle(.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
+                AppToggle(.showNewDawnGreeting, isOn: $showNewDawnGreeting)
             }
             .foregroundStyle(.primary)
         }
@@ -165,13 +166,15 @@ private struct CookieRow: View {
     var body: some View {
         HStack {
             Text(cookieState.key)
-            Spacer()
+
             TextField(cookieState.value.placeholder, text: $cookieState.editingText)
-                .submitLabel(.done).autocorrectionDisabled(true)
+                .submitLabel(.done)
+                .autocorrectionDisabled(true)
                 .multilineTextAlignment(.trailing)
                 .textInputAutocapitalization(.none)
+
             Image(systemSymbol: cookieState.value.isInvalid ? .xmarkCircle : .checkmarkCircle)
-                .foregroundStyle(cookieState.value.isInvalid ? .red : .green)
+                .foregroundStyle(cookieState.value.isInvalid ? .red : .accentColor)
         }
     }
 }

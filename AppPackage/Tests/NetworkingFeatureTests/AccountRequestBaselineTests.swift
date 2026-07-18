@@ -158,7 +158,7 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
         var expectedFields = [
-            "uh": "0", "co": "-", "xr": "0", "rx": "0", "ry": "0", "tl": "0",
+            "uh": "0", "co": "", "xr": "0", "rx": "0", "ry": "0", "tl": "0",
             "ar": "3", "dm": "0", "pp": "0", "fs": "1", "ru": "", "ft": "0",
             "wt": "0", "tf": "0", "xu": "", "rc": "1", "lt": "1", "tr": "1",
             "tp": "0", "vp": "0", "cs": "1", "sc": "1", "tb": "0", "pn": "0",

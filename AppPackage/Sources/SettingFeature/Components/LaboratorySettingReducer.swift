@@ -13,7 +13,7 @@ public struct LaboratorySettingReducer: Sendable {
         // Sent by the view when the SNI-filtering toggle changes. The write itself lands directly in
         // `@Shared(.setting)`, which dispatches no action, so the view bridges the change here and this
         // reducer owns the side effect the write can't trigger.
-        case bypassesSNIFilteringChanged(Bool)
+        case bypassSNIFilteringChanged(Bool)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -24,7 +24,7 @@ public struct LaboratorySettingReducer: Sendable {
     public var body: some Reducer<State, Action> {
         Reduce { _, action in
             switch action {
-            case .bypassesSNIFilteringChanged(let value):
+            case .bypassSNIFilteringChanged(let value):
                 return .merge(
                     .run { _ in await hapticsClient.generateFeedback(.soft) },
                     .run { _ in dfClient.setActive(value) }

@@ -14,7 +14,6 @@ public struct Placeholder: View {
             Color(.systemGray5)
                 .overlay {
                     ProgressView()
-                        .tint(nil)
                 }
                 .aspectRatio(ratio, contentMode: .fill)
                 .clipShape(.rect(cornerRadius: cornerRadius))
@@ -36,7 +35,6 @@ public struct Placeholder: View {
                                 }
                         } else {
                             ProgressView()
-                                .tint(nil)
                         }
                     }
                 }

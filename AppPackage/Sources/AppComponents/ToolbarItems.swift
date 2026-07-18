@@ -7,35 +7,25 @@ import SFSafeSymbolsExt
 
 public struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement
-    private let tint: Color?
     private let disabled: Bool
     private let content: Content
 
-    public init(placement: ToolbarItemPlacement = .navigationBarTrailing,
-                tint: Color? = nil, disabled: Bool = false,
-                @ViewBuilder content: () -> Content
+    public init(
+        placement: ToolbarItemPlacement = .navigationBarTrailing,
+        disabled: Bool = false,
+        @ViewBuilder content: () -> Content
     ) {
         self.placement = placement
-        self.tint = tint
         self.disabled = disabled
         self.content = content()
     }
 
     public var body: some ToolbarContent {
         ToolbarItem(placement: placement) {
-            tintedContent.disabled(disabled)
-        }
-    }
-
-    // `tint` is optional: nil means inherit the ambient tint, so apply
-    // `foregroundStyle` only when a concrete color is supplied rather than
-    // forcing a default that would override inheritance.
-    @ViewBuilder private var tintedContent: some View {
-        let stack = HStack(spacing: 14) { content }
-        if let tint {
-            stack.foregroundStyle(tint)
-        } else {
-            stack
+            HStack(spacing: 14) {
+                content
+            }
+            .disabled(disabled)
         }
     }
 }
@@ -53,78 +43,56 @@ public struct ToolbarFeaturesMenu<Content: View>: View {
         Menu {
             content
         } label: {
-            Image(systemSymbol: .ellipsisCircle)
+            Label(.more, systemSymbol: .ellipsisCircle)
+                .labelStyle(.iconOnly)
                 .symbolRenderingMode(symbolRenderingMode)
         }
     }
 }
 
 public struct FiltersButton: View {
-    private let hideText: Bool
     private let action: () -> Void
 
-    public init(hideText: Bool = false, action: @escaping () -> Void) {
-        self.hideText = hideText
+    public init(action: @escaping () -> Void) {
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            // No `AnyLabelStyle` exists, so the icon-only variant is a separate
-            // branch rather than a conditional `.labelStyle`. In a toolbar the
-            // plain `Label` still renders icon-only; inside `ToolbarFeaturesMenu`
-            // it renders as an icon+title menu row (parity with the old
-            // Image+Text composition).
-            if hideText {
-                Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
-                    .labelStyle(.iconOnly)
-            } else {
-                Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
-            }
+            // A plain `Label` renders icon-only in a toolbar and as an icon+title
+            // row inside `ToolbarFeaturesMenu`, so the container picks the
+            // presentation — no explicit `.labelStyle` needed.
+            Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
         }
     }
 }
 
 public struct QuickSearchButton: View {
-    private let hideText: Bool
     private let action: () -> Void
 
-    public init(hideText: Bool = false, action: @escaping () -> Void) {
-        self.hideText = hideText
+    public init(action: @escaping () -> Void) {
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            if hideText {
-                Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
-                    .labelStyle(.iconOnly)
-            } else {
-                Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
-            }
+            Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
         }
     }
 }
 
 public struct JumpPageButton: View {
     private let pageNumber: PageNumber
-    private let hideText: Bool
     private let action: () -> Void
 
-    public init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
+    public init(pageNumber: PageNumber, action: @escaping () -> Void) {
         self.pageNumber = pageNumber
-        self.hideText = hideText
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            if hideText {
-                Label(.RLocalizable.jumpPage, systemSymbol: .arrowshapeBounceForward)
-                    .labelStyle(.iconOnly)
-            } else {
-                Label(.RLocalizable.jumpPage, systemSymbol: .arrowshapeBounceForward)
-            }
+            Label(.RLocalizable.jumpPage, systemSymbol: .arrowshapeBounceForward)
         }
         .disabled(pageNumber.isSinglePage)
     }
@@ -172,7 +140,7 @@ public struct FavoritesIndexMenu: View {
                 }
             }
         } label: {
-            Image(systemSymbol: .dialLow)
+            Label(.RLocalizable.favorites, systemSymbol: .dialLow)
                 .symbolRenderingMode(.hierarchical)
         }
     }
@@ -200,7 +168,7 @@ public struct ToplistsTypeMenu: View {
                 }
             }
         } label: {
-            Image(systemSymbol: .dialLow)
+            Label(.toplistsType, systemSymbol: .dialLow)
                 .symbolRenderingMode(.hierarchical)
         }
     }
@@ -228,7 +196,7 @@ public struct SortOrderMenu: View {
                 }
             }
         } label: {
-            Image(systemSymbol: .arrowUpArrowDownCircle)
+            Label(.sortOrder, systemSymbol: .arrowUpArrowDownCircle)
                 .symbolRenderingMode(.hierarchical)
         }
     }

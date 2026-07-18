@@ -40,38 +40,44 @@ public struct GalleryList: View {
     }
 
     public var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                switch setting.listDisplayMode {
-                case .detail:
-                    DetailList(
-                        galleries: galleries, pageNumber: pageNumber,
-                        footerLoadingState: footerLoadingState, notice: notice,
-                        fetchMoreAction: fetchMoreAction,
-                        navigateAction: navigateAction, translateAction: translateAction,
-                        downloadBadges: downloadBadges
-                    )
-                case .thumbnail:
-                    ThumbnailList(
-                        galleries: galleries, pageNumber: pageNumber,
-                        footerLoadingState: footerLoadingState, notice: notice,
-                        fetchMoreAction: fetchMoreAction,
-                        navigateAction: navigateAction, translateAction: translateAction,
-                        downloadBadges: downloadBadges
-                    )
-                }
+        VStack(spacing: 0) {
+            switch setting.listDisplayMode {
+            case .detail:
+                DetailList(
+                    galleries: galleries,
+                    pageNumber: pageNumber,
+                    footerLoadingState: footerLoadingState,
+                    notice: notice,
+                    fetchMoreAction: fetchMoreAction,
+                    navigateAction: navigateAction,
+                    translateAction: translateAction,
+                    downloadBadges: downloadBadges
+                )
+            case .thumbnail:
+                ThumbnailList(
+                    galleries: galleries,
+                    pageNumber: pageNumber,
+                    footerLoadingState: footerLoadingState,
+                    notice: notice,
+                    fetchMoreAction: fetchMoreAction,
+                    navigateAction: navigateAction,
+                    translateAction: translateAction,
+                    downloadBadges: downloadBadges
+                )
             }
-            .opacity(loadingState == .idle ? 1 : 0).zIndex(2)
-
-            LoadingView()
-                .opacity(loadingState == .loading ? 1 : 0).zIndex(0)
-
-            ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
-                .opacity([.idle, .loading].contains(loadingState) ? 0 : 1)
-                .zIndex(1)
         }
-        .animation(.default, value: loadingState)
-        .animation(.default, value: galleries)
+        .overlay {
+            LoadingView()
+                .animation(.default) {
+                    $0.opacity(loadingState == .loading ? 1 : 0)
+                }
+        }
+        .overlay {
+            ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
+                .animation(.default) {
+                    $0.opacity(loadingState.is(\.failed) ? 1 : 0)
+                }
+        }
         .refreshable { fetchAction?() }
     }
 }

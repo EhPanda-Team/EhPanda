@@ -36,12 +36,12 @@ extension SettingReducer {
                 state.path.appendGuardingDuplicate(.appActivityLogs(.init()))
                 return .none
 
-            // The General screen edits `enablesTagsExtension` via `@Shared(.setting)`; rebuild the tag
+            // The General screen edits `enableTagsExtension` via `@Shared(.setting)`; rebuild the tag
             // translator when it's turned on. The model's `didSet` clears the sub-toggles on disable, so
             // only the enable case does work here. `.rebuildTagTranslator` sequences the remote fetch
             // after the offline cache rebuild.
-            case .path(.element(id: _, action: .general(.delegate(.enablesTagsExtensionChanged)))):
-                return state.setting.enablesTagsExtension ? .send(.rebuildTagTranslator) : .none
+            case .path(.element(id: _, action: .general(.delegate(.enableTagsExtensionChanged)))):
+                return state.setting.enableTagsExtension ? .send(.rebuildTagTranslator) : .none
 
             case .path(.element(id: _, action: .appearance(.delegate(.pushAppIcon)))):
                 state.path.appendGuardingDuplicate(.appIcon(.init()))

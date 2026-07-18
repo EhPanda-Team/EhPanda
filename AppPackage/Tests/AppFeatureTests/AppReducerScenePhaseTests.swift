@@ -20,7 +20,7 @@ struct AppReducerScenePhaseTests {
         let intensity = 40.0
         let store = makeStore(
             clipboardDetectionCount: clipboardInvocationCount,
-            detectsLinksFromClipboard: true,
+            detectLinksFromClipboard: true,
             privacyMaskIntensity: intensity
         )
 
@@ -46,7 +46,7 @@ struct AppReducerScenePhaseTests {
         let clipboardInvocationCount = LockIsolated(0)
         let store = makeStore(
             clipboardDetectionCount: clipboardInvocationCount,
-            detectsLinksFromClipboard: false,
+            detectLinksFromClipboard: false,
             privacyMaskIntensity: 40
         )
 
@@ -61,7 +61,7 @@ struct AppReducerScenePhaseTests {
     @Test
     func maskAndLatchAreWrittenBeforeSettingsLoad() async {
         let store = makeStore(
-            detectsLinksFromClipboard: true,
+            detectLinksFromClipboard: true,
             privacyMaskIntensity: 40,
             hasLoadedInitialSetting: false
         )
@@ -81,7 +81,7 @@ struct AppReducerScenePhaseTests {
 private extension AppReducerScenePhaseTests {
     func makeStore(
         clipboardDetectionCount: LockIsolated<Int>? = nil,
-        detectsLinksFromClipboard: Bool,
+        detectLinksFromClipboard: Bool,
         privacyMaskIntensity: Double,
         hasLoadedInitialSetting: Bool = true
     ) -> TestStoreOf<AppReducer> {
@@ -96,7 +96,7 @@ private extension AppReducerScenePhaseTests {
             initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
             initialState.settingState.$setting.withLock {
                 $0 = Setting(
-                    detectsLinksFromClipboard: detectsLinksFromClipboard,
+                    detectLinksFromClipboard: detectLinksFromClipboard,
                     privacyMaskIntensity: privacyMaskIntensity
                 )
             }

@@ -5,7 +5,7 @@ import SwiftUI
 extension DownloadBadge {
     public var color: Color {
         switch status {
-        case .active, .queued: .green
+        case .active, .queued: .accentColor
         case .inactive, .completed: .gray
         case .updateAvailable: .blue
         case .error: .yellow

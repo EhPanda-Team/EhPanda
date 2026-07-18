@@ -13,7 +13,7 @@ final class PageHandler {
         setting: Setting,
         isLandscape: Bool
     ) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
+        guard isLandscape && setting.enableDualPageMode
                 && setting.readingDirection != .vertical
         else { return index + 1 }
         guard index > 0 else { return 1 }
@@ -28,7 +28,7 @@ final class PageHandler {
     }
 
     func mapToPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
+        guard isLandscape && setting.enableDualPageMode
                 && setting.readingDirection != .vertical
         else { return index - 1 }
         guard index > 1 else { return 0 }

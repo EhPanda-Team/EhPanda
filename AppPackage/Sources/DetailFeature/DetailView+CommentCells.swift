@@ -20,25 +20,33 @@ extension DetailView {
         var body: some View {
             VStack(alignment: .leading) {
                 HStack {
-                    Text(comment.author).font(.subheadline.bold())
-                    Spacer()
+                    Text(comment.author)
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     Group {
-                        ZStack {
-                            Image(systemSymbol: .handThumbsupFill)
-                                .opacity(comment.votedUp ? 1 : 0)
-                            Image(systemSymbol: .handThumbsdownFill)
-                                .opacity(comment.votedDown ? 1 : 0)
-                        }
-                        Text(comment.score ?? "")
-                        Text(comment.formattedDateString).lineLimit(1)
+                        Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
+                            .animation(.default) {
+                                $0.opacity(comment.votedUp || comment.votedDown ? 1 : 0)
+                            }
+
+                        comment.score.map(Text.init)
+
+                        Text(comment.formattedDateString)
+                            .lineLimit(1)
                     }
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .foregroundStyle(.secondary)
+                    .font(.footnote)
                 }
-                .minimumScaleFactor(0.75).lineLimit(1)
-                Text(content).padding(.top, 1)
-                Spacer()
+                .minimumScaleFactor(0.75)
+                .lineLimit(1)
+
+                Text(content)
+                    .padding(.top, 1)
             }
-            .padding().background(backgroundColor)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding()
+            .background(backgroundColor)
             .frame(width: 300, height: cardHeight)
             .clipShape(.rect(cornerRadius: 15))
         }
