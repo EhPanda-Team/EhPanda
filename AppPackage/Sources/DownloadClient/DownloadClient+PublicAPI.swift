@@ -260,7 +260,7 @@ extension DownloadCoordinator {
 
     private func performCacheCapture(
         gid: String,
-        index: Int,
+        index page: Int,
         imageURL: URL?,
         captureTarget: CaptureTargetResult,
         download: DownloadedGallery
@@ -279,16 +279,16 @@ extension DownloadCoordinator {
                 imageURL: imageURL
             )
             guard let pageResult = try await restorePageFromCache(
-                index: index,
+                index: page,
                 source: cacheSource,
                 folderURL: captureTarget.folderURL,
                 preferredRelativePath:
-                    captureTarget.preferredRelativePath ?? existingPages[index],
+                    captureTarget.preferredRelativePath ?? existingPages[page],
                 overwriteExistingFile: true
             ) else { return }
             let manifest = try storage.refreshManifestPageFileHash(
                 folderURL: captureTarget.folderURL,
-                pageIndex: index,
+                pageIndex: page,
                 relativePath: pageResult.relativePath
             )
             updateDownloadIndex(folderURL: captureTarget.folderURL, manifest: manifest)

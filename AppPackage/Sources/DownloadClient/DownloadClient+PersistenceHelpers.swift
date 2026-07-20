@@ -41,7 +41,7 @@ extension DownloadCoordinator {
 
     public func captureTarget(
         for download: DownloadedGallery,
-        index: Int
+        index page: Int
     ) -> CaptureTargetResult? {
         let completedFolderURL = download.folderURL
         guard fileManager.operate({
@@ -58,7 +58,7 @@ extension DownloadCoordinator {
             )
         return CaptureTargetResult(
             folderURL: completedFolderURL,
-            preferredRelativePath: completedPages[index]
+            preferredRelativePath: completedPages[page]
         )
     }
 }

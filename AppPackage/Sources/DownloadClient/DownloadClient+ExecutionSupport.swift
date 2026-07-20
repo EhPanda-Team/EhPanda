@@ -323,8 +323,10 @@ extension DownloadCoordinator {
         }
     }
 
+    /// - Parameter page: the 1-based page number, which is also the key space of the
+    ///   `thumbnailURLs` / `imageKeys` maps and of the requests' `index:` labels.
     public func resolvedImageSource(
-        index: Int,
+        index page: Int,
         payload: DownloadRequestPayload,
         options: DownloadRequestOptions,
         source: ResolvedSource,
@@ -332,13 +334,13 @@ extension DownloadCoordinator {
     ) async throws -> ResolvedImageSource {
         switch source {
         case .normal(let thumbnailURLs):
-            guard let thumbnailURL = thumbnailURLs[index] else {
+            guard let thumbnailURL = thumbnailURLs[page] else {
                 throw AppError.notFound
             }
             if let failover {
                 let (imageURLs, _) = try await GalleryNormalImageURLRefetchRequest(
                     host: payload.host,
-                    index: index,
+                    index: page,
                     pageNum: 0,
                     galleryURL: payload.gallery.galleryURL ?? payload.host.url,
                     thumbnailURL: thumbnailURL,
@@ -347,18 +349,18 @@ extension DownloadCoordinator {
                     allowsCellular: options.allowCellular
                 )
                 .response()
-                guard let imageURL = imageURLs[index] else {
+                guard let imageURL = imageURLs[page] else {
                     throw AppError.notFound
                 }
                 return .init(imageURL: imageURL, mpvSkipServerIdentifier: nil)
             }
             let (imageURLs, _) = try await GalleryNormalImageURLsRequest(
-                thumbnailURLs: [index: thumbnailURL],
+                thumbnailURLs: [page: thumbnailURL],
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular
             )
             .response()
-            guard let imageURL = imageURLs[index] else {
+            guard let imageURL = imageURLs[page] else {
                 throw AppError.notFound
             }
             return .init(imageURL: imageURL, mpvSkipServerIdentifier: nil)
@@ -367,13 +369,13 @@ extension DownloadCoordinator {
             guard let gid = Int(payload.gallery.gid) else {
                 throw AppError.notFound
             }
-            guard let imageKey = imageKeys[index] else {
+            guard let imageKey = imageKeys[page] else {
                 throw AppError.notFound
             }
             let response = try await GalleryMPVImageURLRequest(
                 host: payload.host,
                 gid: gid,
-                index: index,
+                index: page,
                 mpvKey: mpvKey,
                 mpvImageKey: imageKey,
                 skipServerIdentifier: failover?.mpvSkipServerIdentifier,
@@ -416,13 +418,13 @@ extension DownloadCoordinator {
         existingPageRelativePaths: [Int: String]
     ) -> [Int] {
         let selectedIndices = payload.pageSelection.map(Set.init)
-        return (1...payload.galleryDetail.pageCount).filter { index in
+        return (1...payload.galleryDetail.pageCount).filter { page in
             if let selectedIndices,
-               !selectedIndices.contains(index) {
+               !selectedIndices.contains(page) {
                 return false
             }
             guard let relativePath =
-                    existingPageRelativePaths[index] else {
+                    existingPageRelativePaths[page] else {
                 return true
             }
             let fileURL = folderURL
