@@ -46,7 +46,9 @@ struct LoginView: View {
             }
             .overlay {
                 ProgressView()
-                    .opacity(store.loginState == .loading ? 1 : 0)
+                    .animation(.default) {
+                        $0.opacity(store.loginState == .loading ? 1 : 0)
+                    }
             }
             .font(.title)
             .foregroundStyle(store.loginButtonColor)
@@ -83,7 +85,6 @@ struct LoginView: View {
                 store.send(.login)
             }
         }
-        .animation(.default, value: store.loginState)
         .toolbar(content: toolbar)
         .navigationTitle(.RLocalizable.login)
         .ignoresSafeArea()

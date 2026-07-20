@@ -83,8 +83,11 @@ private struct CategoryCell: View {
             .lineLimit(1)
             .background {
                 Rectangle()
-                    .foregroundStyle(category.color(host: setting.galleryHost).opacity(isFiltered ? 0.3 : 1))
-                    .animation(.default, value: isFiltered)
+                    .animation(.default) {
+                        $0.foregroundStyle(
+                            category.color(host: setting.galleryHost).opacity(isFiltered ? 0.3 : 1)
+                        )
+                    }
             }
             .onTapGesture {
                 isFiltered.toggle()

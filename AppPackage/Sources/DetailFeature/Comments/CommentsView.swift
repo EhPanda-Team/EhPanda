@@ -39,10 +39,12 @@ struct CommentsView: View {
                     gid: gid, comment: comment,
                     linkAction: { store.send(.handleCommentLink($0)) }
                 )
-                .opacity(
-                    comment.commentID == store.scrollCommentID
-                        ? store.scrollRowOpacity : 1
-                )
+                .animation(.default) {
+                    $0.opacity(
+                        comment.commentID == store.scrollCommentID
+                            ? store.scrollRowOpacity : 1
+                    )
+                }
                 .swipeActions(edge: .leading) {
                     if comment.votable {
                         Button {

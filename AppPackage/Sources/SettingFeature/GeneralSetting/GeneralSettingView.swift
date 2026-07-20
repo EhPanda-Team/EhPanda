@@ -130,7 +130,6 @@ struct GeneralSettingView: View {
             }
         }
         .animation(.default, value: tagTranslatorHasCustomTranslations)
-        .animation(.default, value: tagTranslatorLoadingState)
         .animation(.default, value: setting.enableTagsExtension)
         .animation(.default, value: tagTranslatorEmpty)
         .onChange(of: setting.enableTagsExtension) { _, _ in
