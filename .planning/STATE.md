@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-16-PLAN.md
-last_updated: "2026-07-20T20:42:02.007Z"
+stopped_at: Completed 11-17-PLAN.md
+last_updated: "2026-07-20T21:10:05.823Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 121
+  completed_plans: 122
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 17 of 30
+Plan: 18 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -182,6 +182,7 @@ Progress: [█████████░] 90% (10/15 phases)
 | Phase 11 P14 | ~35 min | 2 tasks | 7 files |
 | Phase 11 P15 | ~40 min | 2 tasks | 13 files |
 | Phase 11 P16 | ~20 min | 2 tasks | 1 files |
+| Phase 11 P17 | ~60 min | 3 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -376,6 +377,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-16: doc_comment rule defect independently reproduced (2nd confirmation); no clarity loss this time only because the code change made the old subscript wording obsolete
 - [Phase ?]: 11-16: zero exception sites again — 4 waves / 172 matches with the sanctioned precondition form never once used; flagged to owner as an untested exception idiom before the flip
 - [Phase ?]: 11-16: ImageColors.colors tie-breaks nondeterministically (unstable sort over hash-seeded Dictionary keys) — pre-existing, load-bearing in the parity argument, left unchanged
+- [Phase ?]: unchecked_subscript_index_access live at error; doc-comment kind is 'doccomment' not 'doc_comment' (invalid entries silently discard the whole rule config)
+- [Phase ?]: Inert validatedIndex excluded entry deleted; 240 matches over 5 waves needed only 2 exception sites
 
 ### Pending Todos
 
@@ -417,6 +420,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T20:41:50.535Z
-Stopped at: Completed 11-16-PLAN.md
+Last session: 2026-07-20T21:10:05.817Z
+Stopped at: Completed 11-17-PLAN.md
 Resume file: None
