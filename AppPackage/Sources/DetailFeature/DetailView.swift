@@ -10,7 +10,8 @@ import CookieClient
 import ReadingFeature
 
 public struct DetailView: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
+    @SharedReader(.didLogin) var didLogin: Bool
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
 
@@ -61,7 +62,7 @@ private extension DetailView {
                     downloadFolders: store.downloadFolders,
                     isPreparingDownload: store.isPreparingDownload,
                     canDownload: !store.gallery.id.isEmpty
-                        && (store.setting.galleryHost == .ehentai || cookieClient.didLogin),
+                        && (store.setting.galleryHost == .ehentai || didLogin),
                     displayJapaneseTitle: store.setting.displayJapaneseTitle,
                     showFullTitle: store.showsFullTitle,
                     showFullTitleAction: { store.send(.toggleShowFullTitle) },

@@ -10,7 +10,7 @@ import SFSafeSymbolsExt
 import CookieClient
 
 struct CommentsView: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     @Bindable private var store: StoreOf<CommentsReducer>
     private let gid: String
     private let token: String
@@ -121,7 +121,7 @@ struct CommentsView: View {
             } label: {
                 Label(.postComment, systemSymbol: .squareAndPencil)
             }
-            .disabled(!cookieClient.didLogin)
+            .disabled(!didLogin)
         }
     }
 }

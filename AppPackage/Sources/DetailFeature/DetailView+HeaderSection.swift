@@ -12,7 +12,7 @@ import SFSafeSymbolsExt
 
 // MARK: HeaderSection
 struct HeaderSection: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     @SharedReader(.user) var user: User
     @SharedReader(.setting) private var setting: Setting
 
@@ -186,7 +186,7 @@ struct HeaderSection: View {
         .buttonStyle(.glass(.regular.interactive()))
         .buttonBorderShape(.circle)
         .tint(.accentColor)
-        .disabled(!cookieClient.didLogin)
+        .disabled(!didLogin)
     }
     private var readButton: some View {
         Button(action: navigateReadingAction) {
