@@ -8,10 +8,12 @@ import Sharing
 /// path (logout `clearAll`, WebView login, igneous refresh, manual cookie edits) re-renders every
 /// `@SharedReader(.didLogin)` view.
 public struct DidLoginKey: SharedReaderKey {
-    /// Sharing's reference cache is keyed by `AnyHashable(id)` alone and is dependency-scoped, so a
-    /// constant id is correct here (one cookie client per dependency context); the dedicated nominal
-    /// type rules out collisions with any other key.
-    public struct ID: Hashable, Sendable {}
+    /// Sharing's reference cache is a process-wide weak table keyed by `AnyHashable(id)` alone, so
+    /// every `@SharedReader(.didLogin)` shares one reference (and one jar subscription); the
+    /// dedicated nominal type rules out collisions with any other key. The flip side: readers alive
+    /// at the same time share the first reader's captured client, so concurrent contexts must not
+    /// install different clients (the app has one live client; tests keep to a single reader).
+    public struct KeyID: Hashable, Sendable {}
 
     private let client: CookieClient
 
@@ -22,7 +24,7 @@ public struct DidLoginKey: SharedReaderKey {
         self.client = client
     }
 
-    public var id: ID { ID() }
+    public var id: KeyID { KeyID() }
 
     public func load(context: LoadContext<Bool>, continuation: LoadContinuation<Bool>) {
         continuation.resume(returning: client.didLogin)
