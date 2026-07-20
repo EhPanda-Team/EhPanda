@@ -67,9 +67,9 @@ public struct PreviewsReducer: Sendable {
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPreviewURLs(String)
-        case loadLocalPreviewURLsDone(UUID, [Int: URL])
+        case loadLocalPreviewURLsDone(requestID: UUID, urls: [Int: URL])
         case openReading(Int)
-        case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
+        case openReadingDone(Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError>)
         case fetchPreviewURLs(Int)
         case fetchPreviewURLsDone(Result<[Int: URL], AppError>)
     }
@@ -143,7 +143,7 @@ public struct PreviewsReducer: Sendable {
                 state.localPreviewRequestID = requestID
                 return .run { send in
                     let localPreviewURLs = await downloadClient.loadLocalPageURLs(gid) ?? [:]
-                    await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
+                    await send(.loadLocalPreviewURLsDone(requestID: requestID, urls: localPreviewURLs))
                 }
                 .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)
 
@@ -168,7 +168,7 @@ public struct PreviewsReducer: Sendable {
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
                     readingState = .init(
-                        gallery: state.gallery, contentSource: .local(download, manifest),
+                        gallery: state.gallery, contentSource: .local(download: download, manifest: manifest),
                         previewConfig: state.previewConfig, language: state.language
                     )
                 } else {

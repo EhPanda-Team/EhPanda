@@ -18,7 +18,7 @@ struct AppErrorStructuredTests {
             alertText: "This gallery is unavailable due to a copyright claim by Alice. Sorry about that."
         ),
         Expectation(
-            error: .ipBanned(.hours(1, minutes: nil)),
+            error: .ipBanned(.hours(hours: 1, minutes: nil)),
             isRetryable: false,
             localizedDescription: "IP Banned",
             alertText: "Your IP address has been temporarily banned for excessive pageloads which indicates that "
@@ -95,7 +95,7 @@ struct AppErrorStructuredTests {
     func actionableErrorsProvideRecoverySuggestions() throws {
         #expect(AppError.networkingFailed.solution != nil)
         #expect(AppError.authenticationRequired.solution != nil)
-        #expect(AppError.ipBanned(.minutes(1, seconds: nil)).solution != nil)
+        #expect(AppError.ipBanned(.minutes(minutes: 1, seconds: nil)).solution != nil)
         #expect(AppError.quotaExceeded.solution != nil)
         #expect(AppError.notFound.solution != nil)
         #expect(AppError.parseFailed.solution == nil)
@@ -104,7 +104,7 @@ struct AppErrorStructuredTests {
     @Test(arguments: [
         AppError.networkingFailed,
         .authenticationRequired,
-        .ipBanned(.minutes(1, seconds: nil)),
+        .ipBanned(.minutes(minutes: 1, seconds: nil)),
         .quotaExceeded,
         .notFound
     ])

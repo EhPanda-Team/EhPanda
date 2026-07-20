@@ -62,7 +62,7 @@ public struct DownloadRequestPayload: Equatable, Sendable {
 /// it auto-promotes to `.remote`.
 public enum ReadingContentSource: Equatable, Sendable {
     case remote
-    case local(DownloadedGallery, DownloadManifest)
+    case local(download: DownloadedGallery, manifest: DownloadManifest)
 }
 
 // MARK: - DownloadVersionMetadata

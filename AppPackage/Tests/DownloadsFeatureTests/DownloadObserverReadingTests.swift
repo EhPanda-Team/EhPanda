@@ -34,7 +34,9 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
         let store = TestStore(
-            initialState: ReadingReducer.State(gallery: .preview, contentSource: .local(download, manifest))
+            initialState: ReadingReducer.State(
+                gallery: .preview, contentSource: .local(download: download, manifest: manifest)
+            )
         ) {
             ReadingReducer()
         } withDependencies: {

@@ -46,7 +46,9 @@ struct CommentsView: View {
                 .swipeActions(edge: .leading) {
                     if comment.votable {
                         Button {
-                            store.send(.voteComment(gid, token, apiKey, comment.commentID, -1))
+                            store.send(.voteComment(
+                                gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: -1
+                            ))
                         } label: {
                             Label(.voteDown, systemSymbol: .handThumbsdown)
                                 .labelStyle(.iconOnly)
@@ -57,7 +59,9 @@ struct CommentsView: View {
                 .swipeActions(edge: .trailing) {
                     if comment.votable {
                         Button {
-                            store.send(.voteComment(gid, token, apiKey, comment.commentID, 1))
+                            store.send(.voteComment(
+                                gid: gid, token: token, apiKey: apiKey, commentID: comment.commentID, vote: 1
+                            ))
                         } label: {
                             Label(.voteUp, systemSymbol: .handThumbsup)
                                 .labelStyle(.iconOnly)
@@ -94,9 +98,9 @@ struct CommentsView: View {
                 isFocused: $store.postCommentFocused,
                 postAction: {
                     if hasCommentID {
-                        store.send(.postComment(galleryURL, commentID.wrappedValue))
+                        store.send(.postComment(galleryURL: galleryURL, commentID: commentID.wrappedValue))
                     } else {
-                        store.send(.postComment(galleryURL))
+                        store.send(.postComment(galleryURL: galleryURL))
                     }
                     store.send(.destination(.dismiss))
                 },

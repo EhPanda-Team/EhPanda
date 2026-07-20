@@ -33,7 +33,7 @@ struct PresentationFeatureTests {
             reducer: PresentationFeature.init
         )
 
-        await store.send(.fetchGalleryDone(url, .failure(.networkingFailed)))
+        await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed)))
         await store.receive(\.setToast, timeout: .seconds(1)) {
             $0.toast = .error(errorInfo)
         }

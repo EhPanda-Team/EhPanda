@@ -166,9 +166,9 @@ extension Parser {
                let hoursRange = expireDescription.range(of: "hours"),
                let hours = Int(expireDescription[andRange.upperBound..<hoursRange.lowerBound]
                 .trimmingCharacters(in: .whitespaces)) {
-                return .days(days, hours: hours)
+                return .days(days: days, hours: hours)
             } else {
-                return .days(days, hours: nil)
+                return .days(days: days, hours: nil)
             }
         } else if let hoursRange = expireDescription.range(of: "hours"),
                   let hours = Int(expireDescription[..<hoursRange.lowerBound]
@@ -177,9 +177,9 @@ extension Parser {
                let minutesRange = expireDescription.range(of: "minutes"),
                let minutes = Int(expireDescription[andRange.upperBound..<minutesRange.lowerBound]
                 .trimmingCharacters(in: .whitespaces)) {
-                return .hours(hours, minutes: minutes)
+                return .hours(hours: hours, minutes: minutes)
             } else {
-                return .hours(hours, minutes: nil)
+                return .hours(hours: hours, minutes: nil)
             }
         } else if let minutesRange = expireDescription.range(of: "minutes"),
                   let minutes = Int(expireDescription[..<minutesRange.lowerBound]
@@ -188,9 +188,9 @@ extension Parser {
                let secondsRange = expireDescription.range(of: "seconds"),
                let seconds = Int(expireDescription[andRange.upperBound..<secondsRange.lowerBound]
                 .trimmingCharacters(in: .whitespaces)) {
-                return .minutes(minutes, seconds: seconds)
+                return .minutes(minutes: minutes, seconds: seconds)
             } else {
-                return .minutes(minutes, seconds: nil)
+                return .minutes(minutes: minutes, seconds: nil)
             }
         } else {
             logger.error("Unrecognized BanInterval format: \(expireDescription, privacy: .public)")

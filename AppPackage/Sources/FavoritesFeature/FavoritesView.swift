@@ -57,7 +57,7 @@ public struct FavoritesView: View {
             ) { store in
                 QuickSearchView(store: store) { keyword in
                     self.store.send(.destination(.dismiss))
-                    self.store.send(.fetchGalleries(keyword))
+                    self.store.send(.fetchGalleries(keyword: keyword))
                 }
                 .privacyMask()
             }
@@ -105,7 +105,7 @@ public struct FavoritesView: View {
             }
             SortOrderMenu(sortOrder: store.sortOrder) { order in
                 if store.sortOrder != order {
-                    store.send(.fetchGalleries(nil, order))
+                    store.send(.fetchGalleries(sortOrder: order))
                 }
             }
             ToolbarFeaturesMenu {

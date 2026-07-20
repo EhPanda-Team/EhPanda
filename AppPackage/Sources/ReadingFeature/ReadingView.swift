@@ -313,7 +313,7 @@ public struct ReadingView: View {
             liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { store.send(.fetchImageURLs($0)) },
             refetchAction: { store.send(.refetchImageURLs($0)) },
-            prefetchAction: { store.send(.prefetchImages($0, store.setting.prefetchLimit)) },
+            prefetchAction: { store.send(.prefetchImages(fromIndex: $0, prefetchLimit: store.setting.prefetchLimit)) },
             loadRetryAction: { store.send(.onWebImageRetry($0)) },
             loadSucceededAction: { store.send(.onWebImageSucceeded($0)) },
             loadFailedAction: { store.send(.onWebImageFailed($0)) },

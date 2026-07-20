@@ -181,7 +181,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.moveDownload("123456", "Library"))
+        await store.send(.moveDownload(gid: "123456", folderName: "Library"))
         await store.receive(\.moveDownloadDone)
         await store.receive(\.fetchFoldersDone) {
             $0.folders = ["Library"]
@@ -322,7 +322,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         await store.send(.openReading(download.gid))
         await store.receive(\.openReadingDone)
 
-        #expect(store.state.destination?.reading?.contentSource == .local(download, manifest))
+        #expect(store.state.destination?.reading?.contentSource == .local(download: download, manifest: manifest))
     }
 
     @MainActor

@@ -94,7 +94,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         await store.send(.openReading)
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.destination?.reading?.contentSource == .local(download, manifest))
+        #expect(store.state.destination?.reading?.contentSource == .local(download: download, manifest: manifest))
     }
 
     @MainActor

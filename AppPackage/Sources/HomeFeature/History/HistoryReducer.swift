@@ -66,9 +66,9 @@ public struct HistoryReducer: Sendable {
         case clearHistoryGalleries
 
         case fetchGalleries
-        case fetchGalleriesDone(Result<[Gallery], AppError>, endIndex: Int)
+        case fetchGalleriesDone(result: Result<[Gallery], AppError>, endIndex: Int)
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(Result<[Gallery], AppError>, endIndex: Int)
+        case fetchMoreGalleriesDone(result: Result<[Gallery], AppError>, endIndex: Int)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
     }
@@ -144,9 +144,9 @@ public struct HistoryReducer: Sendable {
                             gidList: pairs
                         )
                         .response()
-                        await send(.fetchGalleriesDone(.success(galleries), endIndex: end))
+                        await send(.fetchGalleriesDone(result: .success(galleries), endIndex: end))
                     } catch {
-                        await send(.fetchGalleriesDone(.failure(error), endIndex: end))
+                        await send(.fetchGalleriesDone(result: .failure(error), endIndex: end))
                     }
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)
@@ -187,9 +187,9 @@ public struct HistoryReducer: Sendable {
                             gidList: pairs
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(.success(galleries), endIndex: end))
+                        await send(.fetchMoreGalleriesDone(result: .success(galleries), endIndex: end))
                     } catch {
-                        await send(.fetchMoreGalleriesDone(.failure(error), endIndex: end))
+                        await send(.fetchMoreGalleriesDone(result: .failure(error), endIndex: end))
                     }
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)

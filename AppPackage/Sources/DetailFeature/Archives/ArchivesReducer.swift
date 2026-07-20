@@ -29,12 +29,12 @@ public struct ArchivesReducer: Sendable {
         case binding(BindingAction<State>)
         case toast(PresentationAction<Never>)
 
-        case syncGalleryFunds(String, String)
+        case syncGalleryFunds(galleryPoints: String, credits: String)
 
-        case fetchArchive(String, URL, URL)
-        case fetchArchiveDone(String, URL, Result<GalleryArchiveResponse, AppError>)
-        case fetchArchiveFunds(String, URL)
-        case fetchArchiveFundsDone(Result<(String, String), AppError>)
+        case fetchArchive(gid: String, galleryURL: URL, archiveURL: URL)
+        case fetchArchiveDone(gid: String, galleryURL: URL, result: Result<GalleryArchiveResponse, AppError>)
+        case fetchArchiveFunds(gid: String, galleryURL: URL)
+        case fetchArchiveFundsDone(Result<(galleryPoints: String, credits: String), AppError>)
         case fetchDownloadResponse(URL)
         case fetchDownloadResponseDone(Result<String, AppError>)
     }
@@ -69,9 +69,9 @@ public struct ArchivesReducer: Sendable {
                     do throws(AppError) {
                         let response = try await GalleryArchiveRequest(archiveURL: archiveURL)
                             .response()
-                        await send(.fetchArchiveDone(gid, galleryURL, .success(response)))
+                        await send(.fetchArchiveDone(gid: gid, galleryURL: galleryURL, result: .success(response)))
                     } catch {
-                        await send(.fetchArchiveDone(gid, galleryURL, .failure(error)))
+                        await send(.fetchArchiveDone(gid: gid, galleryURL: galleryURL, result: .failure(error)))
                     }
                 }
                 .cancellable(id: CancelID.fetchArchive)
@@ -86,9 +86,9 @@ public struct ArchivesReducer: Sendable {
                     }
                     state.hathArchives = response.archive.hathArchives
                     if let galleryPoints = response.galleryPoints, let credits = response.credits {
-                        return .send(.syncGalleryFunds(galleryPoints, credits))
+                        return .send(.syncGalleryFunds(galleryPoints: galleryPoints, credits: credits))
                     } else if cookieClient.isSameAccount {
-                        return .send(.fetchArchiveFunds(gid, galleryURL))
+                        return .send(.fetchArchiveFunds(gid: gid, galleryURL: galleryURL))
                     } else {
                         return .none
                     }
@@ -115,7 +115,7 @@ public struct ArchivesReducer: Sendable {
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
-                    return .send(.syncGalleryFunds(galleryPoints, credits))
+                    return .send(.syncGalleryFunds(galleryPoints: galleryPoints, credits: credits))
                 }
                 return .none
 
