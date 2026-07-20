@@ -9,16 +9,16 @@ extension ReadingReducer {
     var imageFetchReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .fetchPreviewURLs(let index):
+            case .fetchPreviewURLs(let page):
                 guard !state.isOffline else {
-                    state.previewLoadingStates[index] = .idle
+                    state.previewLoadingStates[page] = .idle
                     return .none
                 }
-                guard state.previewLoadingStates[index] != .loading,
+                guard state.previewLoadingStates[page] != .loading,
                       let galleryURL = state.gallery.galleryURL
                 else { return .none }
-                state.previewLoadingStates[index] = .loading
-                let pageNum = state.previewConfig.pageNumber(index: index)
+                state.previewLoadingStates[page] = .loading
+                let pageNum = state.previewConfig.pageNumber(index: page)
                 return .run { send in
                     do throws(AppError) {
                         let previews = try await GalleryPreviewURLsRequest(
@@ -26,79 +26,79 @@ extension ReadingReducer {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchPreviewURLsDone(index: index, result: .success(previews)))
+                        await send(.fetchPreviewURLsDone(index: page, result: .success(previews)))
                     } catch {
-                        await send(.fetchPreviewURLsDone(index: index, result: .failure(error)))
+                        await send(.fetchPreviewURLsDone(index: page, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchPreviewURLs)
 
-            case .fetchPreviewURLsDone(let index, let result):
+            case .fetchPreviewURLsDone(let page, let result):
                 switch result {
                 case .success(let previewURLs):
                     guard !previewURLs.isEmpty else {
-                        state.previewLoadingStates[index] = .failed(.notFound)
+                        state.previewLoadingStates[page] = .failed(.notFound)
                         return .none
                     }
-                    state.previewLoadingStates[index] = .idle
+                    state.previewLoadingStates[page] = .idle
                     state.updatePreviewURLs(previewURLs)
                     return .none
                 case .failure(let error):
-                    state.previewLoadingStates[index] = .failed(error)
+                    state.previewLoadingStates[page] = .failed(error)
                 }
                 return .none
 
-            case .fetchImageURLs(let index):
+            case .fetchImageURLs(let page):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
-                guard state.localPageURLs[index] == nil else {
-                    state.imageURLLoadingStates[index] = .idle
+                guard state.localPageURLs[page] == nil else {
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
                 if state.mpvKey != nil {
-                    return .send(.fetchMPVImageURL(index: index, isRefresh: false))
+                    return .send(.fetchMPVImageURL(index: page, isRefresh: false))
                 } else {
-                    return .send(.fetchThumbnailURLs(index))
+                    return .send(.fetchThumbnailURLs(page))
                 }
 
-            case .refetchImageURLs(let index):
+            case .refetchImageURLs(let page):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
-                guard state.localPageURLs[index] == nil else {
-                    state.imageURLLoadingStates[index] = .idle
+                guard state.localPageURLs[page] == nil else {
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
                 if state.mpvKey != nil {
-                    return .send(.fetchMPVImageURL(index: index, isRefresh: true))
+                    return .send(.fetchMPVImageURL(index: page, isRefresh: true))
                 } else {
-                    return .send(.refetchNormalImageURLs(index))
+                    return .send(.refetchNormalImageURLs(page))
                 }
 
-            case .prefetchImages(let index, let prefetchLimit):
+            case .prefetchImages(let page, let prefetchLimit):
                 guard !state.isOffline else { return .none }
                 func getPrefetchImageURLs(range: ClosedRange<Int>) -> [URL] {
-                    (range.lowerBound...range.upperBound).compactMap { index in
-                        if let url = state.localPageURLs[index], !url.isFileURL {
+                    (range.lowerBound...range.upperBound).compactMap { page in
+                        if let url = state.localPageURLs[page], !url.isFileURL {
                             return url
                         }
-                        if let url = state.imageURLs[index] {
+                        if let url = state.imageURLs[page] {
                             return url
                         }
                         return nil
                     }
                 }
                 func getFetchImageURLIndices(range: ClosedRange<Int>) -> [Int] {
-                    (range.lowerBound...range.upperBound).compactMap { index in
-                        if state.localPageURLs[index] != nil {
+                    (range.lowerBound...range.upperBound).compactMap { page in
+                        if state.localPageURLs[page] != nil {
                             return nil
                         }
-                        if state.imageURLs[index] == nil,
-                           state.imageURLLoadingStates[index] != .loading {
-                            return index
+                        if state.imageURLs[page] == nil,
+                           state.imageURLLoadingStates[page] != .loading {
+                            return page
                         }
                         return nil
                     }
@@ -106,13 +106,13 @@ extension ReadingReducer {
                 var prefetchImageURLs = [URL]()
                 var fetchImageURLIndices = [Int]()
                 var effects = [Effect<Action>]()
-                let previousUpperBound = max(index - 2, 1)
+                let previousUpperBound = max(page - 2, 1)
                 let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
                 if previousUpperBound - previousLowerBound > 0 {
                     prefetchImageURLs += getPrefetchImageURLs(range: previousLowerBound...previousUpperBound)
                     fetchImageURLIndices += getFetchImageURLIndices(range: previousLowerBound...previousUpperBound)
                 }
-                let nextLowerBound = min(index + 2, state.gallery.pageCount)
+                let nextLowerBound = min(page + 2, state.gallery.pageCount)
                 let nextUpperBound = min(nextLowerBound + prefetchLimit / 2, state.gallery.pageCount)
                 if nextUpperBound - nextLowerBound > 0 {
                     prefetchImageURLs += getPrefetchImageURLs(range: nextLowerBound...nextUpperBound)
@@ -128,18 +128,18 @@ extension ReadingReducer {
                 )
                 return .merge(effects)
 
-            case .fetchThumbnailURLs(let index):
+            case .fetchThumbnailURLs(let page):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
-                guard state.imageURLLoadingStates[index] != .loading,
+                guard state.imageURLLoadingStates[page] != .loading,
                       let galleryURL = state.gallery.galleryURL
                 else { return .none }
-                state.previewConfig.batchRange(index: index).forEach {
+                state.previewConfig.batchRange(index: page).forEach {
                     state.imageURLLoadingStates[$0] = .loading
                 }
-                let pageNum = state.previewConfig.pageNumber(index: index)
+                let pageNum = state.previewConfig.pageNumber(index: page)
                 return .run { send in
                     do throws(AppError) {
                         let thumbnails = try await ThumbnailURLsRequest(
@@ -147,15 +147,15 @@ extension ReadingReducer {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchThumbnailURLsDone(index: index, result: .success(thumbnails)))
+                        await send(.fetchThumbnailURLsDone(index: page, result: .success(thumbnails)))
                     } catch {
-                        await send(.fetchThumbnailURLsDone(index: index, result: .failure(error)))
+                        await send(.fetchThumbnailURLsDone(index: page, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchThumbnailURLs)
 
-            case .fetchThumbnailURLsDone(let index, let result):
-                let batchRange = state.previewConfig.batchRange(index: index)
+            case .fetchThumbnailURLsDone(let page, let result):
+                let batchRange = state.previewConfig.batchRange(index: page)
                 switch result {
                 case .success(let thumbnailURLs):
                     guard !thumbnailURLs.isEmpty else {
@@ -164,11 +164,11 @@ extension ReadingReducer {
                         }
                         return .none
                     }
-                    if let url = thumbnailURLs[index], urlClient.checkIfMPVURL(url) {
-                        return .send(.fetchMPVKeys(index: index, url: url))
+                    if let url = thumbnailURLs[page], urlClient.checkIfMPVURL(url) {
+                        return .send(.fetchMPVKeys(index: page, url: url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
-                        return .send(.fetchNormalImageURLs(index: index, thumbnailURLs: thumbnailURLs))
+                        return .send(.fetchNormalImageURLs(index: page, thumbnailURLs: thumbnailURLs))
                     }
                 case .failure(let error):
                     batchRange.forEach {
@@ -177,9 +177,9 @@ extension ReadingReducer {
                 }
                 return .none
 
-            case .fetchNormalImageURLs(let index, let thumbnailURLs):
+            case .fetchNormalImageURLs(let page, let thumbnailURLs):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
                 return .run { send in
@@ -188,15 +188,15 @@ extension ReadingReducer {
                             thumbnailURLs: thumbnailURLs
                         )
                         .response()
-                        await send(.fetchNormalImageURLsDone(index: index, result: .success(imageURLs)))
+                        await send(.fetchNormalImageURLsDone(index: page, result: .success(imageURLs)))
                     } catch {
-                        await send(.fetchNormalImageURLsDone(index: index, result: .failure(error)))
+                        await send(.fetchNormalImageURLsDone(index: page, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchNormalImageURLs)
 
-            case .fetchNormalImageURLsDone(let index, let result):
-                let batchRange = state.previewConfig.batchRange(index: index)
+            case .fetchNormalImageURLsDone(let page, let result):
+                let batchRange = state.previewConfig.batchRange(index: page)
                 switch result {
                 case .success(let (imageURLs, originalImageURLs)):
                     guard !imageURLs.isEmpty else {
@@ -217,37 +217,37 @@ extension ReadingReducer {
                 }
                 return .none
 
-            case .refetchNormalImageURLs(let index):
+            case .refetchNormalImageURLs(let page):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
-                guard state.imageURLLoadingStates[index] != .loading,
+                guard state.imageURLLoadingStates[page] != .loading,
                       let galleryURL = state.gallery.galleryURL,
-                      let imageURL = state.imageURLs[index]
+                      let imageURL = state.imageURLs[page]
                 else { return .none }
-                state.imageURLLoadingStates[index] = .loading
-                let pageNum = state.previewConfig.pageNumber(index: index)
+                state.imageURLLoadingStates[page] = .loading
+                let pageNum = state.previewConfig.pageNumber(index: page)
                 let host = state.setting.galleryHost
-                return .run { [thumbnailURL = state.thumbnailURLs[index]] send in
+                return .run { [thumbnailURL = state.thumbnailURLs[page]] send in
                     do throws(AppError) {
                         let imageURLs = try await GalleryNormalImageURLRefetchRequest(
                             host: host,
-                            index: index,
+                            index: page,
                             pageNum: pageNum,
                             galleryURL: galleryURL,
                             thumbnailURL: thumbnailURL,
                             storedImageURL: imageURL
                         )
                         .response()
-                        await send(.refetchNormalImageURLsDone(index: index, host: host, result: .success(imageURLs)))
+                        await send(.refetchNormalImageURLsDone(index: page, host: host, result: .success(imageURLs)))
                     } catch {
-                        await send(.refetchNormalImageURLsDone(index: index, host: host, result: .failure(error)))
+                        await send(.refetchNormalImageURLsDone(index: page, host: host, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.refetchNormalImageURLs)
 
-            case .refetchNormalImageURLsDone(let index, let host, let result):
+            case .refetchNormalImageURLsDone(let page, let host, let result):
                 switch result {
                 case .success(let (imageURLs, response)):
                     var effects = [Effect<Action>]()
@@ -260,34 +260,34 @@ extension ReadingReducer {
                         }))
                     }
                     guard !imageURLs.isEmpty else {
-                        state.imageURLLoadingStates[index] = .failed(.notFound)
+                        state.imageURLLoadingStates[page] = .failed(.notFound)
                         return effects.isEmpty ? .none : .merge(effects)
                     }
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     state.updateImageURLs(imageURLs, originalImageURLs: [:])
                     return effects.isEmpty ? .none : .merge(effects)
                 case .failure(let error):
-                    state.imageURLLoadingStates[index] = .failed(error)
+                    state.imageURLLoadingStates[page] = .failed(error)
                 }
                 return .none
 
-            case .fetchMPVKeys(let index, let mpvURL):
+            case .fetchMPVKeys(let page, let mpvURL):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
                 return .run { send in
                     do throws(AppError) {
                         let keys = try await MPVKeysRequest(mpvURL: mpvURL).response()
-                        await send(.fetchMPVKeysDone(index: index, result: .success(keys)))
+                        await send(.fetchMPVKeysDone(index: page, result: .success(keys)))
                     } catch {
-                        await send(.fetchMPVKeysDone(index: index, result: .failure(error)))
+                        await send(.fetchMPVKeysDone(index: page, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVKeys)
 
-            case .fetchMPVKeysDone(let index, let result):
-                let batchRange = state.previewConfig.batchRange(index: index)
+            case .fetchMPVKeysDone(let page, let result):
+                let batchRange = state.previewConfig.batchRange(index: page)
                 switch result {
                 case .success(let (mpvKey, mpvImageKeys)):
                     let pageCount = state.gallery.pageCount
@@ -314,65 +314,65 @@ extension ReadingReducer {
                 }
                 return .none
 
-            case .fetchMPVImageURL(let index, let isRefresh):
+            case .fetchMPVImageURL(let page, let isRefresh):
                 guard !state.isOffline else {
-                    state.imageURLLoadingStates[index] = .idle
+                    state.imageURLLoadingStates[page] = .idle
                     return .none
                 }
                 guard let gidInteger = Int(state.gallery.id), let mpvKey = state.mpvKey,
-                      let mpvImageKey = state.mpvImageKeys[index],
-                      state.imageURLLoadingStates[index] != .loading
+                      let mpvImageKey = state.mpvImageKeys[page],
+                      state.imageURLLoadingStates[page] != .loading
                 else { return .none }
-                state.imageURLLoadingStates[index] = .loading
-                let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
+                state.imageURLLoadingStates[page] = .loading
+                let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[page] : nil
                 let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let imageURL = try await GalleryMPVImageURLRequest(
                             host: host,
                             gid: gidInteger,
-                            index: index,
+                            index: page,
                             mpvKey: mpvKey,
                             mpvImageKey: mpvImageKey,
                             skipServerIdentifier: skipServerIdentifier
                         )
                         .response()
-                        await send(.fetchMPVImageURLDone(index: index, result: .success(imageURL)))
+                        await send(.fetchMPVImageURLDone(index: page, result: .success(imageURL)))
                     } catch {
-                        await send(.fetchMPVImageURLDone(index: index, result: .failure(error)))
+                        await send(.fetchMPVImageURLDone(index: page, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVImageURL)
 
-            case .fetchMPVImageURLDone(let index, let result):
+            case .fetchMPVImageURLDone(let page, let result):
                 switch result {
                 case .success(let mpvResult):
-                    let imageURLs: [Int: URL] = [index: mpvResult.imageURL]
+                    let imageURLs: [Int: URL] = [page: mpvResult.imageURL]
                     var originalImageURLs = [Int: URL]()
                     if let originalImageURL = mpvResult.originalImageURL {
-                        originalImageURLs[index] = originalImageURL
+                        originalImageURLs[page] = originalImageURL
                     }
-                    state.imageURLLoadingStates[index] = .idle
-                    state.mpvSkipServerIdentifiers[index] = mpvResult.skipServerIdentifier
+                    state.imageURLLoadingStates[page] = .idle
+                    state.mpvSkipServerIdentifiers[page] = mpvResult.skipServerIdentifier
                     state.updateImageURLs(imageURLs, originalImageURLs: originalImageURLs)
                     return .none
                 case .failure(let error):
-                    state.imageURLLoadingStates[index] = .failed(error)
+                    state.imageURLLoadingStates[page] = .failed(error)
                 }
                 return .none
 
-            case .captureCachedPage(let index):
+            case .captureCachedPage(let page):
                 guard !state.isOffline,
                       state.gallery.id.isValidGID
                 else {
                     return .none
                 }
                 let gid = state.gallery.id
-                let imageURL = state.imageURLs[index]
+                let imageURL = state.imageURLs[page]
                 return .run { _ in
                     await downloadClient.captureCachedPage(
                         gid,
-                        index,
+                        page,
                         imageURL
                     )
                 }

@@ -377,22 +377,22 @@ extension ReadingView {
             scrollPositionID = id
         }
     }
-    func analyzeImageForLiveText(index: Int) {
-        guard liveTextHandler.liveTextGroups[index] == nil else {
+    func analyzeImageForLiveText(page: Int) {
+        guard liveTextHandler.liveTextGroups[page] == nil else {
             return
         }
-        guard let imageURL = displayImageURLs[index] else {
-            logger.debug("analyzeImageForLiveText URL not found, index: \(index, privacy: .public)")
+        guard let imageURL = displayImageURLs[page] else {
+            logger.debug("analyzeImageForLiveText URL not found, page: \(page, privacy: .public)")
             return
         }
         if imageURL.isFileURL {
-            analyzeLocalImage(at: imageURL, index: index)
+            analyzeLocalImage(at: imageURL, page: page)
             return
         }
         Task {
             await analyzeCachedImageData(
                 cacheKeys: imageURL.imageCacheKeys,
-                index: index
+                page: page
             )
         }
     }
@@ -413,19 +413,19 @@ extension ReadingView {
     /// Runs Live Text over a downloaded page file. Animated images are skipped by design
     /// (Live Text scans still images only), so a single non-animating frame is never lifted
     /// out of an animation.
-    private func analyzeLocalImage(at imageURL: URL, index: Int) {
+    private func analyzeLocalImage(at imageURL: URL, page: Int) {
         // Local-file loading is an optional Live Text probe; failure skips analysis without affecting reading.
         guard let data = localImageData(at: imageURL),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
               let cgImage = image.cgImage
         else {
-            logger.debug("analyzeImageForLiveText local image not found, index: \(index, privacy: .public)")
+            logger.debug("analyzeImageForLiveText local image not found, page: \(page, privacy: .public)")
             return
         }
 
         liveTextHandler.analyzeImage(
-            cgImage, size: image.size, index: index, recognitionLanguages:
+            cgImage, size: image.size, page: page, recognitionLanguages:
                 store.language?.codes
         )
     }
@@ -433,18 +433,18 @@ extension ReadingView {
     /// Runs Live Text over a remote page's cached bytes, read from the owned `DataCache`
     /// (the reader's cache, not Kingfisher's). Animated images are skipped by design
     /// (Live Text scans still images only).
-    private func analyzeCachedImageData(cacheKeys: [String], index: Int) async {
+    private func analyzeCachedImageData(cacheKeys: [String], page: Int) async {
         guard let data = await dataCache.data(forKeys: cacheKeys),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
               let cgImage = image.cgImage
         else {
-            logger.debug("analyzeImageForLiveText image not found, index: \(index, privacy: .public)")
+            logger.debug("analyzeImageForLiveText image not found, page: \(page, privacy: .public)")
             return
         }
 
         liveTextHandler.analyzeImage(
-            cgImage, size: image.size, index: index, recognitionLanguages:
+            cgImage, size: image.size, page: page, recognitionLanguages:
                 store.language?.codes
         )
     }

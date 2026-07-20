@@ -86,24 +86,24 @@ extension ReadingReducer {
                     .send(.loadLocalPageURLs(gid))
                 )
 
-            case .onWebImageRetry(let index):
-                state.imageURLLoadingStates[index] = .idle
+            case .onWebImageRetry(let page):
+                state.imageURLLoadingStates[page] = .idle
                 return .none
 
-            case .onWebImageSucceeded(let index):
-                state.imageURLLoadingStates[index] = .idle
-                state.webImageLoadSuccessIndices.insert(index)
+            case .onWebImageSucceeded(let page):
+                state.imageURLLoadingStates[page] = .idle
+                state.webImageLoadSuccessIndices.insert(page)
                 guard !state.isOffline,
                       state.gallery.id.isValidGID,
-                      state.localPageURLs[index] == nil
+                      state.localPageURLs[page] == nil
                 else {
                     return .none
                 }
-                return .send(.captureCachedPage(index))
+                return .send(.captureCachedPage(page))
 
-            case .onWebImageFailed(let index):
-                state.imageURLLoadingStates[index] = .failed(.webImageFailed)
-                guard let url = state.localPageURLs[index], url.isFileURL,
+            case .onWebImageFailed(let page):
+                state.imageURLLoadingStates[page] = .failed(.webImageFailed)
+                guard let url = state.localPageURLs[page], url.isFileURL,
                       state.gallery.id.isValidGID
                 else {
                     return .none
@@ -137,14 +137,14 @@ extension ReadingReducer {
 
             case .retryAllFailedWebImages:
                 guard !state.isOffline else { return .none }
-                state.imageURLLoadingStates.forEach { (index, loadingState) in
+                state.imageURLLoadingStates.forEach { (page, loadingState) in
                     if case .failed = loadingState {
-                        state.imageURLLoadingStates[index] = .idle
+                        state.imageURLLoadingStates[page] = .idle
                     }
                 }
-                state.previewLoadingStates.forEach { (index, loadingState) in
+                state.previewLoadingStates.forEach { (page, loadingState) in
                     if case .failed = loadingState {
-                        state.previewLoadingStates[index] = .idle
+                        state.previewLoadingStates[page] = .idle
                     }
                 }
                 return .none
