@@ -1,7 +1,10 @@
 import CryptoKit
 import Dependencies
 import Foundation
+import OSLog
 import UIKit
+
+private let logger = Logger(category: "DataCache")
 
 private let canonicalDataCache = DataCache()
 
@@ -70,7 +73,7 @@ public actor DataCache {
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
         if isExpired(fileURL) {
             // Expired-entry removal is cache housekeeping; a miss remains correct if cleanup fails.
-            try? fileManager.removeItem(at: fileURL)
+            evictFile(at: fileURL)
             return nil
         }
 
@@ -78,16 +81,43 @@ public actor DataCache {
         // between the existence check and the read — is treated as a miss and
         // removed, so the caller re-downloads instead of sticking on the broken
         // entry until it expires.
-        // Reading is an optional cache probe; an unreadable entry deliberately falls back to a miss.
-        guard let data = try? Data(contentsOf: fileURL) else {
-            // Corrupt-entry removal is cache housekeeping; the read has already resolved to a miss.
-            try? fileManager.removeItem(at: fileURL)
+        let data: Data
+        do {
+            data = try Data(contentsOf: fileURL)
+        } catch {
+            // Reading is a cache probe: an unreadable entry is the ordinary negative answer
+            // (a miss), so the failure is not logged. Only its cleanup is.
+            evictFile(at: fileURL)
             return nil
         }
         memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
-        // A failed access-date bump must not fail an otherwise-successful read.
-        try? touchAccessDate(for: fileURL)
+        bumpAccessDate(for: fileURL)
         return data
+    }
+
+    /// Removes a cache file, absorbing the failure.
+    ///
+    /// Every caller has already resolved its own outcome — a miss, or an eviction the memory
+    /// cache still completes — so a failed removal must not change that outcome. It is logged
+    /// because the file was known to exist a moment earlier, which makes failure unexpected.
+    private func evictFile(at fileURL: URL) {
+        do {
+            try fileManager.removeItem(at: fileURL)
+        } catch {
+            logger.error("Failed to remove cache entry: \(error)")
+        }
+    }
+
+    /// Bumps an entry's access date, absorbing the failure.
+    ///
+    /// A failed bump must not fail an otherwise-successful read or write; it only costs the entry
+    /// its place in the LRU ordering, so the operation is logged rather than propagated.
+    private func bumpAccessDate(for fileURL: URL) {
+        do {
+            try touchAccessDate(for: fileURL)
+        } catch {
+            logger.error("Failed to bump cache entry access date: \(error)")
+        }
     }
 
     public func data(forKeys keys: [String]) -> Data? {
@@ -158,10 +188,16 @@ public actor DataCache {
         var total: UInt64 = 0
         for case let fileURL as URL in enumerator {
             autoreleasepool {
-                // Unreadable metadata is skipped because cache size reporting is intentionally approximate.
-                let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
-                guard values?.isRegularFile == true else { return }
-                total += UInt64(values?.fileSize ?? 0)
+                let values: URLResourceValues
+                do {
+                    values = try fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+                } catch {
+                    // Unreadable metadata is skipped, not logged: cache size reporting is
+                    // intentionally approximate, so an unmeasurable entry is an ordinary outcome.
+                    return
+                }
+                guard values.isRegularFile == true else { return }
+                total += UInt64(values.fileSize ?? 0)
             }
         }
         return total
@@ -194,7 +230,7 @@ public actor DataCache {
     // scoped to the swept keys instead of purging the whole memory front.
     private func evictDiskEntry(_ entry: DiskEntry) {
         // Disk eviction is fire-and-forget housekeeping; memory eviction still proceeds on failure.
-        try? fileManager.removeItem(at: entry.url)
+        evictFile(at: entry.url)
         memoryCache.removeObject(forKey: entry.url.lastPathComponent as NSString)
     }
 
@@ -206,12 +242,15 @@ public actor DataCache {
         do {
             try ensureDirectory()
             try data.write(to: fileURL, options: .atomic)
-            // A failed access-date bump must not fail an otherwise-successful write.
-            try? touchAccessDate(for: fileURL)
+            bumpAccessDate(for: fileURL)
         } catch {
             guard canRetryDirectoryCreation else { throw error }
-            // Removing the stale cache root is best-effort; directory recreation decides retry success.
-            try? fileManager.removeItem(at: configuration.rootURL)
+            do {
+                try fileManager.removeItem(at: configuration.rootURL)
+            } catch {
+                // Not logged: the root is often simply absent — that is exactly the state the
+                // retry wants. Whether the retry can proceed is decided by `ensureDirectory`.
+            }
             try ensureDirectory()
             try write(data, to: fileURL, canRetryDirectoryCreation: false)
         }
@@ -225,8 +264,12 @@ public actor DataCache {
         var resourceValues = URLResourceValues()
         resourceValues.isExcludedFromBackup = true
         var directoryURL = configuration.rootURL
-        // Backup exclusion is optional cache metadata and must not fail directory creation.
-        try? directoryURL.setResourceValues(resourceValues)
+        do {
+            try directoryURL.setResourceValues(resourceValues)
+        } catch {
+            // Not logged: backup exclusion is optional cache metadata whose absence only means
+            // regenerable bytes may be backed up. It must not fail directory creation.
+        }
     }
 
     private static func filename(forKey key: String) -> String {
@@ -254,18 +297,31 @@ public actor DataCache {
         var resourceValues = URLResourceValues()
         resourceValues.contentAccessDate = Date()
         var mutableURL = fileURL
-        // Content-access metadata is supplementary to the authoritative FileManager timestamps above.
-        try? mutableURL.setResourceValues(resourceValues)
+        do {
+            try mutableURL.setResourceValues(resourceValues)
+        } catch {
+            // Not logged: content-access metadata is supplementary to the authoritative
+            // FileManager timestamps set above, which `accessDate(for:)` falls back to.
+        }
     }
 
     private func accessDate(for fileURL: URL) -> Date {
-        // Missing URL metadata deliberately falls back to the file's modification date.
-        if let date = try? fileURL.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
-            return date
+        do {
+            if let date = try fileURL.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
+                return date
+            }
+        } catch {
+            // Not logged: a volume that does not record access dates is an ordinary case, and
+            // the file's modification date below is the documented fallback.
         }
-        // Missing file attributes deliberately fall back to distantPast so cleanup can evict the entry.
-        let attributes = try? fileManager.attributesOfItem(atPath: fileURL.path)
-        return attributes?[.modificationDate] as? Date ?? .distantPast
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: fileURL.path)
+            return attributes[.modificationDate] as? Date ?? .distantPast
+        } catch {
+            // Not logged: an entry whose attributes cannot be read deliberately dates to
+            // distantPast so the next sweep evicts it.
+            return .distantPast
+        }
     }
 
     private func diskEntries() throws -> [DiskEntry] {
@@ -346,8 +402,13 @@ private final class DataCacheSystemPurgeObserver {
             ) { [weak cache] _ in
                 Task {
                     await cache?.removeAllMemory()
-                    // Background disk sweeping is fire-and-forget housekeeping with no user-facing result.
-                    try? await cache?.sweepDisk()
+                    // Background disk sweeping is fire-and-forget housekeeping with no user-facing
+                    // result, but a failing sweep lets the cache grow unbounded — worth a line.
+                    do {
+                        try await cache?.sweepDisk()
+                    } catch {
+                        logger.error("Failed to sweep cache on background: \(error)")
+                    }
                 }
             }
         ]
