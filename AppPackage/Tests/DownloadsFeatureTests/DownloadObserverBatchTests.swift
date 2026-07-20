@@ -6,7 +6,6 @@ import DownloadClient
 @testable import DownloadsFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadObserverBatchTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -68,7 +67,18 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
+        // The flush throttle fires on either a full page batch or `progressFlushMinimumInterval`
+        // of elapsed wall clock. Only the first is the coalescing behaviour under test, and the
+        // second turns the bound below into a measure of how busy the machine is: on a loaded
+        // run the twenty iterations straddle extra 0.4 s windows and emit more than the budget.
+        // Freezing the clock makes the elapsed-time branch permanently false, so the assertion
+        // sees page-count coalescing alone.
+        let frozenNow = Date()
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared,
+            now: { frozenNow }
+        )
 
         // Warm the (empty) index before seeding so the gallery surfaces only
         // through flush updates, mirroring an active download whose folder is

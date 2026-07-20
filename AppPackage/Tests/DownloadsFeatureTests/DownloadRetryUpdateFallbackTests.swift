@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesFullUpdateWhenGalleryHasUpdate() async throws {

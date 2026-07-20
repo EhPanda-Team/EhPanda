@@ -5,7 +5,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadIpBanTests: DownloadFeatureTestCase {
     @Test
     func testIpBannedDoesNotRetryImmediately() async throws {

@@ -307,6 +307,11 @@ public actor DownloadCoordinator {
     public let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     public let queueStore: DownloadQueueStore
     public let taskRunner: DownloadTaskRunner
+    /// Reads the wall clock the progress-flush throttle compares against, defaulting to the
+    /// real one. Injectable so a test can freeze it: with a frozen clock the throttle's
+    /// elapsed-time branch is provably dead, leaving the page-count branch as the only
+    /// trigger, which is what makes a coalescing assertion independent of machine load.
+    public let now: @Sendable () -> Date
     public let observerHub = DownloadObserverHub()
     /// Write-through cache of the on-disk download tree and the read authority between the
     /// explicit scan boundaries (see `indexedDownload(gid:)`). The filesystem stays the
@@ -351,7 +356,8 @@ public actor DownloadCoordinator {
             DownloadRequestOptions()
         },
         queueStore: DownloadQueueStore? = nil,
-        taskRunner: DownloadTaskRunner = .init()
+        taskRunner: DownloadTaskRunner = .init(),
+        now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.storage = storage
         self.urlSession = urlSession
@@ -365,6 +371,7 @@ public actor DownloadCoordinator {
         self.downloadOptionsProvider = downloadOptionsProvider
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
         self.taskRunner = taskRunner
+        self.now = now
     }
 
     public var fileManager: DownloadFileManager {

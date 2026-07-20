@@ -7,7 +7,6 @@ import LibraryClient
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadProcessCacheTests: DownloadFeatureTestCase {
     @MainActor
     @Test

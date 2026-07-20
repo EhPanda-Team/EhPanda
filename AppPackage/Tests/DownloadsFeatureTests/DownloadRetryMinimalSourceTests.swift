@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {

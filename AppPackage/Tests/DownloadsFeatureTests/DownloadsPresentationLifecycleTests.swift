@@ -8,7 +8,6 @@ import DownloadClient
 
 // The Downloads tab root and its inspector sheet used to start themselves from view `onAppear`;
 // both are now started by the transition that presents them.
-@Suite(.serialized)
 @MainActor
 struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
     @Test
