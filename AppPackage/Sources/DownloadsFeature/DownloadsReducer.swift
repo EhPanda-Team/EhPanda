@@ -78,7 +78,7 @@ public struct DownloadsReducer: Sendable {
         case deleteDownloadButtonTapped(DownloadedGallery)
         case moveButtonTapped(DownloadedGallery)
 
-        case onAppear
+        case onPresented
         case fetchDownloads
         case fetchDownloadsDone([DownloadedGallery])
         case observeDownloads
@@ -141,7 +141,9 @@ public struct DownloadsReducer: Sendable {
 
             case .inspectorButtonTapped(let gid):
                 state.destination = .inspector(.init(gid: gid))
-                return .none
+                // Presenting the inspector starts its inspection load and download observation,
+                // replacing the sheet view's former `onAppear`.
+                return .send(.destination(.presented(.inspector(.onPresented))))
 
             case .folderManagerButtonTapped:
                 state.destination = .folderManager(.init())
@@ -196,7 +198,10 @@ public struct DownloadsReducer: Sendable {
             case .confirmationDialog:
                 return .none
 
-            case .onAppear:
+            // Sent by `AppReducer` when the Downloads tab becomes the visible one — the tab root's
+            // replacement for its former view `onAppear`. Guarded, so re-activating a populated tab
+            // only refreshes the folder list.
+            case .onPresented:
                 guard !state.hasLoadedInitialDownloads else { return .send(.fetchFolders) }
                 state.hasLoadedInitialDownloads = true
                 return .merge(

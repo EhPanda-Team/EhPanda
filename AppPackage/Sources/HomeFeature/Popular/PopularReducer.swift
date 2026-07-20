@@ -74,7 +74,9 @@ public struct PopularReducer: Sendable {
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
-                return .none
+                // Presenting the sheet loads the persisted filters into it, replacing the form's
+                // former `onAppear`. Every screen that presents Filters must send this.
+                return .send(.destination(.presented(.filters(.fetchFilters))))
 
             case .destination:
                 return .none

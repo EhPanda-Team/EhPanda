@@ -34,7 +34,7 @@ public struct DownloadInspectorReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case toast(PresentationAction<Never>)
-        case onAppear
+        case onPresented
         case loadInspection
         case loadInspectionDone(UUID, Result<DownloadInspection, AppError>)
         case observeDownloads
@@ -62,7 +62,7 @@ public struct DownloadInspectorReducer: Sendable {
             case .toast:
                 return .none
 
-            case .onAppear:
+            case .onPresented:
                 guard !state.gid.isEmpty else { return .none }
                 return .merge(
                     .send(.loadInspection),
