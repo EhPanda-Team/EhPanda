@@ -194,7 +194,7 @@ extension DownloadCoordinator {
                 allowsCellular: options.allowCellular
             )
             .response()
-            return .mpv(mpvKey, imageKeys)
+            return .mpv(key: mpvKey, imageKeys: imageKeys)
         } else {
             return .normal(thumbnailURLs)
         }

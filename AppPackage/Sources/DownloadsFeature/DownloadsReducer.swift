@@ -12,7 +12,7 @@ import DetailFeature
 @Reducer
 public struct DownloadsReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(Gallery, DownloadedGallery?)
+        case presentGalleryDetail(gallery: Gallery, downloaded: DownloadedGallery?)
     }
 
     @Reducer
@@ -27,7 +27,7 @@ public struct DownloadsReducer: Sendable {
     }
 
     public enum Dialog: Equatable, Sendable {
-        case move(String, String)
+        case move(gid: String, folderName: String)
     }
 
     private enum CancelID {
@@ -87,10 +87,14 @@ public struct DownloadsReducer: Sendable {
         case refreshDownloadsDone
         case fetchFolders
         case fetchFoldersDone([String])
-        case moveDownload(String, String)
+        case moveDownload(gid: String, folderName: String)
         case moveDownloadDone(Result<Void, AppError>)
         case openReading(String)
-        case openReadingDone(UUID, String, Result<(DownloadedGallery, DownloadManifest), AppError>)
+        case openReadingDone(
+            requestID: UUID,
+            gid: String,
+            result: Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError>
+        )
         case toggleDownloadPause(String)
         case toggleDownloadPauseDone(Result<Void, AppError>)
         case updateDownload(String)
@@ -118,7 +122,7 @@ public struct DownloadsReducer: Sendable {
                 guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
                 return GalleryNavigation.routeGalleryDetail(
                     deviceType: deviceClient.deviceType,
-                    present: { .delegate(.presentGalleryDetail(download.gallery, download)) },
+                    present: { .delegate(.presentGalleryDetail(gallery: download.gallery, downloaded: download)) },
                     push: { .pushGalleryDetail(download) }
                 )
 
@@ -164,7 +168,7 @@ public struct DownloadsReducer: Sendable {
                     TextState(localized: .moveToFolder)
                 } actions: {
                     for folder in destinations {
-                        ButtonState(action: .move(download.gid, folder)) {
+                        ButtonState(action: .move(gid: download.gid, folderName: folder)) {
                             TextState(folder)
                         }
                     }
@@ -181,7 +185,7 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .confirmationDialog(.presented(.move(let gid, let folder))):
-                return .send(.moveDownload(gid, folder))
+                return .send(.moveDownload(gid: gid, folderName: folder))
 
             case .confirmationDialog:
                 return .none
@@ -260,20 +264,22 @@ public struct DownloadsReducer: Sendable {
                 return .run { send in
                     await send(
                         .openReadingDone(
-                            requestID,
-                            gid,
-                            .success(try await downloadClient.loadManifest(gid))
+                            requestID: requestID,
+                            gid: gid,
+                            result: .success(try await downloadClient.loadManifest(gid))
                         )
                     )
                 } catch: { error, send in
-                    await send(.openReadingDone(requestID, gid, .failure(AppError(error))))
+                    await send(.openReadingDone(requestID: requestID, gid: gid, result: .failure(AppError(error))))
                 }
 
             case .openReadingDone(let requestID, let gid, let result):
                 guard state.readingRequestID == requestID else { return .none }
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    readingState = .init(gallery: download.gallery, contentSource: .local(download, manifest))
+                    readingState = .init(
+                        gallery: download.gallery, contentSource: .local(download: download, manifest: manifest)
+                    )
                 } else {
                     // Local load failed; fall back to remote — but only if the download record is still
                     // around to seed the reader. If it vanished mid-flight there's nothing to open, so

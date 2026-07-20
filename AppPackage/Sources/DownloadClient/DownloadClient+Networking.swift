@@ -12,7 +12,7 @@ extension DownloadCoordinator {
         url: URL,
         allowsCellular: Bool,
         retriesRequest: Bool = true
-    ) async throws -> (URL, URLResponse) {
+    ) async throws -> (fileURL: URL, response: URLResponse) {
         var request = URLRequest(url: url)
         request.allowsCellularAccess = allowsCellular
         return try await downloadResponse(
@@ -24,12 +24,12 @@ extension DownloadCoordinator {
     public func downloadResponse(
         for request: URLRequest,
         retriesRequest: Bool = true
-    ) async throws -> (URL, URLResponse) {
+    ) async throws -> (fileURL: URL, response: URLResponse) {
         let performRequest = {
             try await self.rawDownloadResponse(for: request)
         }
 
-        let response: (URL, URLResponse)
+        let response: (fileURL: URL, response: URLResponse)
         if retriesRequest {
             response = try await withRetry(
                 operation: "downloadResponse"
@@ -41,14 +41,14 @@ extension DownloadCoordinator {
         }
 
         if let error = detectResponseError(
-            fileURL: response.0,
-            response: response.1,
+            fileURL: response.fileURL,
+            response: response.response,
             requestURL: request.url
         ) {
             // Removing a rejected temporary download is best-effort cleanup; the
             // detected response error remains the authoritative failure to propagate.
             try? fileManager.operate {
-                try $0.removeItem(at: response.0)
+                try $0.removeItem(at: response.fileURL)
             }
             throw error
         }
@@ -95,7 +95,7 @@ extension DownloadCoordinator {
 
     public func rawDownloadResponse(
         for request: URLRequest
-    ) async throws -> (URL, URLResponse) {
+    ) async throws -> (fileURL: URL, response: URLResponse) {
         do {
             return try await urlSession.download(for: request)
         } catch let error as AppError {

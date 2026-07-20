@@ -26,9 +26,9 @@ extension ReadingReducer {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchPreviewURLsDone(index, .success(previews)))
+                        await send(.fetchPreviewURLsDone(index: index, result: .success(previews)))
                     } catch {
-                        await send(.fetchPreviewURLsDone(index, .failure(error)))
+                        await send(.fetchPreviewURLsDone(index: index, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchPreviewURLs)
@@ -58,7 +58,7 @@ extension ReadingReducer {
                     return .none
                 }
                 if state.mpvKey != nil {
-                    return .send(.fetchMPVImageURL(index, false))
+                    return .send(.fetchMPVImageURL(index: index, isRefresh: false))
                 } else {
                     return .send(.fetchThumbnailURLs(index))
                 }
@@ -73,7 +73,7 @@ extension ReadingReducer {
                     return .none
                 }
                 if state.mpvKey != nil {
-                    return .send(.fetchMPVImageURL(index, true))
+                    return .send(.fetchMPVImageURL(index: index, isRefresh: true))
                 } else {
                     return .send(.refetchNormalImageURLs(index))
                 }
@@ -147,9 +147,9 @@ extension ReadingReducer {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchThumbnailURLsDone(index, .success(thumbnails)))
+                        await send(.fetchThumbnailURLsDone(index: index, result: .success(thumbnails)))
                     } catch {
-                        await send(.fetchThumbnailURLsDone(index, .failure(error)))
+                        await send(.fetchThumbnailURLsDone(index: index, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchThumbnailURLs)
@@ -165,10 +165,10 @@ extension ReadingReducer {
                         return .none
                     }
                     if let url = thumbnailURLs[index], urlClient.checkIfMPVURL(url) {
-                        return .send(.fetchMPVKeys(index, url))
+                        return .send(.fetchMPVKeys(index: index, url: url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
-                        return .send(.fetchNormalImageURLs(index, thumbnailURLs))
+                        return .send(.fetchNormalImageURLs(index: index, thumbnailURLs: thumbnailURLs))
                     }
                 case .failure(let error):
                     batchRange.forEach {
@@ -188,9 +188,9 @@ extension ReadingReducer {
                             thumbnailURLs: thumbnailURLs
                         )
                         .response()
-                        await send(.fetchNormalImageURLsDone(index, .success(imageURLs)))
+                        await send(.fetchNormalImageURLsDone(index: index, result: .success(imageURLs)))
                     } catch {
-                        await send(.fetchNormalImageURLsDone(index, .failure(error)))
+                        await send(.fetchNormalImageURLsDone(index: index, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchNormalImageURLs)
@@ -208,7 +208,7 @@ extension ReadingReducer {
                     batchRange.forEach {
                         state.imageURLLoadingStates[$0] = .idle
                     }
-                    state.updateImageURLs(imageURLs, originalImageURLs)
+                    state.updateImageURLs(imageURLs, originalImageURLs: originalImageURLs)
                     return .none
                 case .failure(let error):
                     batchRange.forEach {
@@ -240,9 +240,9 @@ extension ReadingReducer {
                             storedImageURL: imageURL
                         )
                         .response()
-                        await send(.refetchNormalImageURLsDone(index, host, .success(imageURLs)))
+                        await send(.refetchNormalImageURLsDone(index: index, host: host, result: .success(imageURLs)))
                     } catch {
-                        await send(.refetchNormalImageURLsDone(index, host, .failure(error)))
+                        await send(.refetchNormalImageURLsDone(index: index, host: host, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.refetchNormalImageURLs)
@@ -264,7 +264,7 @@ extension ReadingReducer {
                         return effects.isEmpty ? .none : .merge(effects)
                     }
                     state.imageURLLoadingStates[index] = .idle
-                    state.updateImageURLs(imageURLs, [:])
+                    state.updateImageURLs(imageURLs, originalImageURLs: [:])
                     return effects.isEmpty ? .none : .merge(effects)
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
@@ -279,9 +279,9 @@ extension ReadingReducer {
                 return .run { send in
                     do throws(AppError) {
                         let keys = try await MPVKeysRequest(mpvURL: mpvURL).response()
-                        await send(.fetchMPVKeysDone(index, .success(keys)))
+                        await send(.fetchMPVKeysDone(index: index, result: .success(keys)))
                     } catch {
-                        await send(.fetchMPVKeysDone(index, .failure(error)))
+                        await send(.fetchMPVKeysDone(index: index, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVKeys)
@@ -304,7 +304,7 @@ extension ReadingReducer {
                     state.mpvImageKeys = mpvImageKeys
                     return .merge(
                         Array(1...min(3, max(1, pageCount))).map {
-                            .send(.fetchMPVImageURL($0, false))
+                            .send(.fetchMPVImageURL(index: $0, isRefresh: false))
                         }
                     )
                 case .failure(let error):
@@ -337,9 +337,9 @@ extension ReadingReducer {
                             skipServerIdentifier: skipServerIdentifier
                         )
                         .response()
-                        await send(.fetchMPVImageURLDone(index, .success(imageURL)))
+                        await send(.fetchMPVImageURLDone(index: index, result: .success(imageURL)))
                     } catch {
-                        await send(.fetchMPVImageURLDone(index, .failure(error)))
+                        await send(.fetchMPVImageURLDone(index: index, result: .failure(error)))
                     }
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVImageURL)
@@ -354,7 +354,7 @@ extension ReadingReducer {
                     }
                     state.imageURLLoadingStates[index] = .idle
                     state.mpvSkipServerIdentifiers[index] = mpvResult.skipServerIdentifier
-                    state.updateImageURLs(imageURLs, originalImageURLs)
+                    state.updateImageURLs(imageURLs, originalImageURLs: originalImageURLs)
                     return .none
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)

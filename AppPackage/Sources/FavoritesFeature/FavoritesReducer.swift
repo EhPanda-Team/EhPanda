@@ -86,13 +86,13 @@ public struct FavoritesReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
-        case fetchGalleries(String? = nil, FavoritesSortOrder? = nil)
-        case fetchGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
+        case fetchGalleries(keyword: String? = nil, sortOrder: FavoritesSortOrder? = nil)
+        case fetchGalleriesDone(index: Int, result: Result<FavoritesGalleriesResult, AppError>)
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
+        case fetchMoreGalleriesDone(index: Int, result: Result<FavoritesGalleriesResult, AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
-        case performDateSeekDone(Int, Result<GalleriesResult, AppError>)
+        case performDateSeekDone(index: Int, result: Result<GalleriesResult, AppError>)
     }
 
     @Dependency(\.deviceClient) private var deviceClient
@@ -176,9 +176,9 @@ public struct FavoritesReducer: Sendable {
                             sortOrder: sortOrder
                         )
                         .response()
-                        await send(.fetchGalleriesDone(index, .success(response)))
+                        await send(.fetchGalleriesDone(index: index, result: .success(response)))
                     } catch {
-                        await send(.fetchGalleriesDone(index, .failure(error)))
+                        await send(.fetchGalleriesDone(index: index, result: .failure(error)))
                     }
                 }
 
@@ -222,9 +222,9 @@ public struct FavoritesReducer: Sendable {
                             keyword: keyword
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(index, .success(response)))
+                        await send(.fetchMoreGalleriesDone(index: index, result: .success(response)))
                     } catch {
-                        await send(.fetchMoreGalleriesDone(index, .failure(error)))
+                        await send(.fetchMoreGalleriesDone(index: index, result: .failure(error)))
                     }
                 }
 
@@ -275,9 +275,9 @@ public struct FavoritesReducer: Sendable {
                 return .run { [index = state.index] send in
                     do throws(AppError) {
                         let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
-                        await send(.performDateSeekDone(index, .success(response)))
+                        await send(.performDateSeekDone(index: index, result: .success(response)))
                     } catch {
-                        await send(.performDateSeekDone(index, .failure(error)))
+                        await send(.performDateSeekDone(index: index, result: .failure(error)))
                     }
                 }
 

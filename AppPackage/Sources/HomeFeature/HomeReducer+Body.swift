@@ -91,7 +91,7 @@ extension HomeReducer {
             case .fetchAllToplistsGalleries:
                 return .merge(
                     ToplistsType.allCases
-                        .map { Action.fetchToplistsGalleries($0.categoryIndex) }
+                        .map { Action.fetchToplistsGalleries(index: $0.categoryIndex) }
                         .map(Effect<Action>.send)
                 )
 
@@ -135,7 +135,7 @@ extension HomeReducer {
                         let response = try await FrontpageGalleriesRequest(host: host, filter: filter).response()
                         await send(
                             .fetchFrontpageGalleriesDone(
-                                .success((response.pageNumber, response.galleries))
+                                .success((pageNumber: response.pageNumber, galleries: response.galleries))
                             )
                         )
                     } catch {
@@ -170,9 +170,9 @@ extension HomeReducer {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchToplistsGalleriesDone(index, .success(galleries)))
+                        await send(.fetchToplistsGalleriesDone(index: index, result: .success(galleries)))
                     } catch {
-                        await send(.fetchToplistsGalleriesDone(index, .failure(error)))
+                        await send(.fetchToplistsGalleriesDone(index: index, result: .failure(error)))
                     }
                 }
 
@@ -195,7 +195,7 @@ extension HomeReducer {
                 guard !state.rawCardColors.keys.contains(gid) else { return .none }
                 return .run { send in
                     let colors = await libraryClient.analyzeImageColors(result.image)
-                    await send(.analyzeImageColorsDone(gid, colors))
+                    await send(.analyzeImageColorsDone(gid: gid, colors: colors))
                 }
 
             case .analyzeImageColorsDone(let gid, let colors):

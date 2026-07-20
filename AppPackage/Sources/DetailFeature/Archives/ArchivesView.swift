@@ -57,7 +57,7 @@ struct ArchivesView: View {
             .overlay {
                 let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
-                    store.send(.fetchArchive(gid, galleryURL, archiveURL))
+                    store.send(.fetchArchive(gid: gid, galleryURL: galleryURL, archiveURL: archiveURL))
                 }
                 .animation(.default) {
                     $0.opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
@@ -65,7 +65,7 @@ struct ArchivesView: View {
             }
             .toast($store.scope(\.$toast, action: \.toast))
             .onAppear {
-                store.send(.fetchArchive(gid, galleryURL, archiveURL))
+                store.send(.fetchArchive(gid: gid, galleryURL: galleryURL, archiveURL: archiveURL))
             }
             .navigationTitle(.archives)
         }

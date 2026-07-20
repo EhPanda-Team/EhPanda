@@ -12,7 +12,7 @@ struct DownloadPageErrorParserTests: TestHelper {
         let document = try htmlDocument(filename: .ipBanned)
 
         #expect(
-            Parser.parseResponseError(doc: document) == .ipBanned(.minutes(59, seconds: 48))
+            Parser.parseResponseError(doc: document) == .ipBanned(.minutes(minutes: 59, seconds: 48))
         )
     }
 
@@ -87,7 +87,7 @@ struct DownloadPageErrorParserTests: TestHelper {
             try await FailingHTMLRequest(document: document).response()
             Issue.record("Expected response parser to map the IP ban failure.")
         } catch {
-            #expect(error == .ipBanned(.minutes(59, seconds: 48)))
+            #expect(error == .ipBanned(.minutes(minutes: 59, seconds: 48)))
         }
     }
 }

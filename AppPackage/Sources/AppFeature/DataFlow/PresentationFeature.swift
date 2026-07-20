@@ -43,17 +43,17 @@ struct PresentationFeature {
         case presentErrorInfo(ErrorInfo)
         case presentSetting
         case presentNewDawn(Greeting)
-        case presentGalleryDetail(Gallery, DownloadedGallery?)
+        case presentGalleryDetail(gallery: Gallery, downloaded: DownloadedGallery?)
         case setToast(AppAlertState<Never>)
 
         case detectClipboardURL
         case handleDeepLink(URL)
-        case handleGalleryLink(URL, Gallery)
+        case handleGalleryLink(url: URL, gallery: Gallery)
 
         case updateReadingProgress(gid: String, token: String, progress: Int)
 
-        case fetchGallery(URL, Bool)
-        case fetchGalleryDone(URL, Result<Gallery, AppError>)
+        case fetchGallery(url: URL, isGalleryImageURL: Bool)
+        case fetchGalleryDone(url: URL, result: Result<Gallery, AppError>)
         case fetchGreetingDone(Result<Greeting, AppError>)
     }
 
@@ -159,7 +159,7 @@ struct PresentationFeature {
                 let analysis = urlClient.analyzeURL(url)
                 return .run { [delay] send in
                     try await Task.sleep(for: .milliseconds(delay))
-                    await send(.fetchGallery(url, analysis.isGalleryImageURL))
+                    await send(.fetchGallery(url: url, isGalleryImageURL: analysis.isGalleryImageURL))
                 }
 
             case .handleGalleryLink(let url, let gallery):
@@ -195,9 +195,9 @@ struct PresentationFeature {
                             isGalleryImageURL: isGalleryImageURL
                         )
                         .response()
-                        await send(.fetchGalleryDone(url, .success(gallery)))
+                        await send(.fetchGalleryDone(url: url, result: .success(gallery)))
                     } catch {
-                        await send(.fetchGalleryDone(url, .failure(error)))
+                        await send(.fetchGalleryDone(url: url, result: .failure(error)))
                     }
                 }
 
@@ -205,7 +205,7 @@ struct PresentationFeature {
                 state.toast = nil
                 switch result {
                 case .success(let gallery):
-                    return .send(.handleGalleryLink(url, gallery))
+                    return .send(.handleGalleryLink(url: url, gallery: gallery))
                 case .failure(let error):
                     let context = Context.galleryFailure(
                         url: url,

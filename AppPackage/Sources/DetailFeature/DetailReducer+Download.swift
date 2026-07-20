@@ -128,7 +128,7 @@ extension DetailReducer {
                 state.localPreviewRequestID = requestID
                 return .run { [galleryID = state.gid] send in
                     let localPreviewURLs = await downloadClient.loadLocalPageURLs(galleryID) ?? [:]
-                    await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
+                    await send(.loadLocalPreviewURLsDone(requestID: requestID, urls: localPreviewURLs))
                 }
                 .cancellable(id: CancelID.loadLocalPreviewURLs(state.cancellationGalleryID), cancelInFlight: true)
 
@@ -153,7 +153,7 @@ extension DetailReducer {
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
                     readingState = .init(
-                        gallery: state.gallery, contentSource: .local(download, manifest),
+                        gallery: state.gallery, contentSource: .local(download: download, manifest: manifest),
                         previewConfig: state.previewConfig, language: state.galleryDetail?.language
                     )
                 } else {

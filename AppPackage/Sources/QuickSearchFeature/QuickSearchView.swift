@@ -65,7 +65,7 @@ public struct QuickSearchView: View {
                     store.send(.deleteWordWithOffsets(offsets))
                 }
                 .onMove { source, destination in
-                    store.send(.moveWord(source, destination))
+                    store.send(.moveWord(source: source, destination: destination))
                 }
             }
             .animation(.default, value: store.quickSearchWords)

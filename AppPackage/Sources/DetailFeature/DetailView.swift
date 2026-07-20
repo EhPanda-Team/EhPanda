@@ -89,7 +89,9 @@ private extension DetailView {
                     galleryDetail: store.galleryDetail ?? .empty,
                     navigateGalleryInfosAction: {
                         if let galleryDetail = store.galleryDetail {
-                            store.send(.delegate(.pushGalleryInfos(store.gallery, galleryDetail)))
+                            store.send(.delegate(
+                                .pushGalleryInfos(gallery: store.gallery, galleryDetail: galleryDetail)
+                            ))
                         }
                     }
                 )
@@ -109,7 +111,7 @@ private extension DetailView {
                 if !store.galleryTags.isEmpty {
                     TagsSection(
                         tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
-                        voteTagAction: { store.send(.voteTag($0, $1)) },
+                        voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
                         navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
                         navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                         translateAction: {
@@ -128,7 +130,9 @@ private extension DetailView {
                         previewURLs: displayPreviewURLs,
                         navigatePreviewsAction: {
                             store.send(.delegate(.pushPreviews(
-                                store.gallery, store.previewConfig, store.galleryDetail?.language
+                                gallery: store.gallery,
+                                previewConfig: store.previewConfig,
+                                language: store.galleryDetail?.language
                             )))
                         },
                         navigateReadingAction: {

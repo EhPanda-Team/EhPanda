@@ -16,13 +16,13 @@ public struct DetailReducer: Sendable {
     // The gallery sub-screens are now standalone elements on the host's navigation stack. Detail asks
     // the host to push them via these delegate actions instead of owning nested child state itself.
     public enum Delegate: Equatable, Sendable {
-        case pushPreviews(Gallery, PreviewConfig, Language?)
+        case pushPreviews(gallery: Gallery, previewConfig: PreviewConfig, language: Language?)
         case pushComments(
             gid: String, token: String, apiKey: String,
             galleryURL: URL, comments: [GalleryComment], scrollCommentID: String?
         )
         case pushDetailSearch(String)
-        case pushGalleryInfos(Gallery, GalleryDetail)
+        case pushGalleryInfos(gallery: Gallery, galleryDetail: GalleryDetail)
     }
 
     @Reducer
@@ -152,9 +152,9 @@ public struct DetailReducer: Sendable {
         case observeDownload
         case observeDownloadDone(DownloadedGallery?)
         case loadLocalPreviewURLs
-        case loadLocalPreviewURLsDone(UUID, [Int: URL])
+        case loadLocalPreviewURLsDone(requestID: UUID, urls: [Int: URL])
         case openReading
-        case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
+        case openReadingDone(Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError>)
         case runLaunchAutomationIfNeeded
         case startDownload(String)
         case startDownloadDone(Result<Void, AppError>)
@@ -172,7 +172,7 @@ public struct DetailReducer: Sendable {
         case favorGallery(Int)
         case unfavorGallery
         case postComment(URL)
-        case voteTag(String, Int)
+        case voteTag(tag: String, weight: Int)
         case anyGalleryOpsDone(Result<Void, AppError>)
     }
 

@@ -133,7 +133,7 @@ public actor DownloadCoordinator {
 
     public enum ResolvedSource: Sendable {
         case normal([Int: URL])
-        case mpv(String, [Int: String])
+        case mpv(key: String, imageKeys: [Int: String])
     }
 
     public struct ResolvedImageSource: Sendable {

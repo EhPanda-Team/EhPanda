@@ -262,10 +262,10 @@ struct AppReducer {
             case let .home(.delegate(.presentGalleryDetail(gallery))),
                  let .searchRoot(.delegate(.presentGalleryDetail(gallery))),
                  let .favorites(.delegate(.presentGalleryDetail(gallery))):
-                return .send(.presentation(.presentGalleryDetail(gallery, nil)))
+                return .send(.presentation(.presentGalleryDetail(gallery: gallery, downloaded: nil)))
 
             case let .downloads(.delegate(.presentGalleryDetail(gallery, download))):
-                return .send(.presentation(.presentGalleryDetail(gallery, download)))
+                return .send(.presentation(.presentGalleryDetail(gallery: gallery, downloaded: download)))
 
             case .home:
                 return .none
