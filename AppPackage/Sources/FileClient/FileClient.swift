@@ -25,13 +25,6 @@ public struct FileClient: Sendable {
 // re-downloaded (unlike a remote table, which lives in purgeable Caches).
 private let customTranslationsFilename = "tagTranslations-custom.json"
 
-private var customTranslationsURL: URL {
-    .applicationSupportDirectory.appending(component: customTranslationsFilename)
-}
-private func remoteTranslationsURL(_ language: TranslatableLanguage) -> URL {
-    .cachesDirectory.appending(component: language.cachedTranslationsFilename)
-}
-
 // Decode raw DB JSON → flatten → OpenCC-convert for Traditional Chinese.
 private func decodeTranslations(
     _ data: Data, applyingChtFor language: TranslatableLanguage?
@@ -64,94 +57,125 @@ private func writeTranslations(_ data: Data, to url: URL) throws(AppError) {
     }
 }
 
-private func buildAndCacheTranslations(
-    data: Data,
-    language: TranslatableLanguage,
-    date: Date
-) throws(AppError) -> TagTranslator {
-    let translations = try decodeTranslations(data, applyingChtFor: language)
-    try writeTranslations(data, to: remoteTranslationsURL(language))
-    return TagTranslator(language: language, updatedDate: date, translations: translations)
-}
+/// Path derivation and raw-file I/O for the cached tag-translation tables.
+///
+/// The two directory roots are injectable *only* so tests can scope each case to its own
+/// directory rather than racing on the shared real ones; they default to the production
+/// locations, so the live client writes exactly where it always has.
+private struct TagTranslationStore: Sendable {
+    let applicationSupportURL: URL
+    let cachesURL: URL
 
-private func loadCachedTranslations(info: TagTranslatorInfo) throws(AppError) -> TagTranslator {
-    if info.hasCustomTranslations {
+    var customTranslationsURL: URL {
+        applicationSupportURL.appending(component: customTranslationsFilename)
+    }
+
+    func remoteTranslationsURL(_ language: TranslatableLanguage) -> URL {
+        cachesURL.appending(component: language.cachedTranslationsFilename)
+    }
+
+    func buildAndCacheTranslations(
+        data: Data,
+        language: TranslatableLanguage,
+        date: Date
+    ) throws(AppError) -> TagTranslator {
+        let translations = try decodeTranslations(data, applyingChtFor: language)
+        try writeTranslations(data, to: remoteTranslationsURL(language))
+        return TagTranslator(language: language, updatedDate: date, translations: translations)
+    }
+
+    func loadCachedTranslations(info: TagTranslatorInfo) throws(AppError) -> TagTranslator {
+        if info.hasCustomTranslations {
+            let data: Data
+            do {
+                data = try Data(contentsOf: customTranslationsURL)
+            } catch {
+                throw .fileOperationFailed("Read imported tag translations")
+            }
+            let translations = try decodeTranslations(data, applyingChtFor: nil)
+            return TagTranslator(hasCustomTranslations: true, translations: translations)
+        }
+        guard let language = info.language else {
+            throw .fileOperationFailed("Resolve cached tag translations")
+        }
         let data: Data
         do {
-            data = try Data(contentsOf: customTranslationsURL)
+            data = try Data(contentsOf: remoteTranslationsURL(language))
         } catch {
-            throw .fileOperationFailed("Read imported tag translations")
+            throw .fileOperationFailed("Read cached tag translations")
         }
-        let translations = try decodeTranslations(data, applyingChtFor: nil)
-        return TagTranslator(hasCustomTranslations: true, translations: translations)
+        let translations = try decodeTranslations(data, applyingChtFor: language)
+        return TagTranslator(
+            language: language, updatedDate: info.updatedDate, translations: translations
+        )
     }
-    guard let language = info.language else {
-        throw .fileOperationFailed("Resolve cached tag translations")
-    }
-    let data: Data
-    do {
-        data = try Data(contentsOf: remoteTranslationsURL(language))
-    } catch {
-        throw .fileOperationFailed("Read cached tag translations")
-    }
-    let translations = try decodeTranslations(data, applyingChtFor: language)
-    return TagTranslator(
-        language: language, updatedDate: info.updatedDate, translations: translations
-    )
-}
 
-private func removeCustomTranslationsFile() throws(AppError) {
-    do {
-        try FileManager.default.removeItem(at: customTranslationsURL)
-    } catch {
-        throw .fileOperationFailed("Remove imported tag translations")
+    func removeCustomTranslationsFile() throws(AppError) {
+        do {
+            try FileManager.default.removeItem(at: customTranslationsURL)
+        } catch {
+            throw .fileOperationFailed("Remove imported tag translations")
+        }
     }
 }
 
 extension FileClient {
-    public static let live: Self = .init(
-        createFile: { path, data in
-            FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
-        },
-        importTagTranslator: { url in
-            await withCheckedContinuation { continuation in
-                // `.fileImporter` returns a security-scoped URL to the original file, which for an
-                // iCloud item may not be downloaded yet. A coordinated read triggers the download and
-                // runs the accessor only once the bytes are local. The security scope is released
-                // inside the accessor: `coordinate(with:queue:)` returns immediately, so a `defer`
-                // in this outer closure would drop the scope before the accessor ever reads.
-                let didAccess = url.startAccessingSecurityScopedResource()
-                let intent = NSFileAccessIntent.readingIntent(with: url, options: .withoutChanges)
-                NSFileCoordinator().coordinate(with: [intent], queue: .init()) { error in
-                    defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
-                    do throws(AppError) {
-                        guard error == nil else {
-                            throw .fileOperationFailed("Coordinate tag translations import")
-                        }
-                        let data: Data
-                        do {
-                            data = try Data(contentsOf: intent.url)
-                        } catch {
-                            throw .fileOperationFailed("Read imported tag translations")
-                        }
-                        let translations = try decodeTranslations(data, applyingChtFor: nil)
-                        // Persist the raw bytes so a launch-time rebuild can restore the import.
-                        try writeTranslations(data, to: customTranslationsURL)
-                        continuation.resume(
-                            returning: .success(
-                                .init(hasCustomTranslations: true, translations: translations)
+    /// The live client, rooted at the production Application Support and Caches directories.
+    ///
+    /// Both roots are parameters with production defaults — mirroring `DownloadStore.rootURL` —
+    /// so tests can point a case at its own directory instead of serializing on the real ones.
+    /// Nothing outside tests passes an argument.
+    public static func live(
+        applicationSupportURL: URL = .applicationSupportDirectory,
+        cachesURL: URL = .cachesDirectory
+    ) -> Self {
+        let store = TagTranslationStore(
+            applicationSupportURL: applicationSupportURL, cachesURL: cachesURL
+        )
+        return .init(
+            createFile: { path, data in
+                FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
+            },
+            importTagTranslator: { url in
+                await withCheckedContinuation { continuation in
+                    // `.fileImporter` returns a security-scoped URL to the original file, which for an
+                    // iCloud item may not be downloaded yet. A coordinated read triggers the download and
+                    // runs the accessor only once the bytes are local. The security scope is released
+                    // inside the accessor: `coordinate(with:queue:)` returns immediately, so a `defer`
+                    // in this outer closure would drop the scope before the accessor ever reads.
+                    let didAccess = url.startAccessingSecurityScopedResource()
+                    let intent = NSFileAccessIntent.readingIntent(with: url, options: .withoutChanges)
+                    NSFileCoordinator().coordinate(with: [intent], queue: .init()) { error in
+                        defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
+                        do throws(AppError) {
+                            guard error == nil else {
+                                throw .fileOperationFailed("Coordinate tag translations import")
+                            }
+                            let data: Data
+                            do {
+                                data = try Data(contentsOf: intent.url)
+                            } catch {
+                                throw .fileOperationFailed("Read imported tag translations")
+                            }
+                            let translations = try decodeTranslations(data, applyingChtFor: nil)
+                            // Persist the raw bytes so a launch-time rebuild can restore the import.
+                            try writeTranslations(data, to: store.customTranslationsURL)
+                            continuation.resume(
+                                returning: .success(
+                                    .init(hasCustomTranslations: true, translations: translations)
+                                )
                             )
-                        )
-                    } catch {
-                        continuation.resume(returning: .failure(error))
+                        } catch {
+                            continuation.resume(returning: .failure(error))
+                        }
                     }
                 }
-            }
-        },
-        cacheAndBuildRemoteTagTranslator: buildAndCacheTranslations,
-        loadCachedTagTranslator: loadCachedTranslations,
-        removeCustomTranslations: removeCustomTranslationsFile
-    )
+            },
+            cacheAndBuildRemoteTagTranslator: store.buildAndCacheTranslations,
+            loadCachedTagTranslator: store.loadCachedTranslations,
+            removeCustomTranslations: store.removeCustomTranslationsFile
+        )
+    }
 
     public func saveTorrent(hash: String, data: Data) -> URL? {
         let torrentDirectory = URL.cachesDirectory.appendingPathComponent("\(hash).torrent")
@@ -161,7 +185,7 @@ extension FileClient {
 
 // MARK: API
 public enum FileClientKey: DependencyKey {
-    public static let liveValue = FileClient.live
+    public static let liveValue = FileClient.live()
     public static let previewValue = FileClient.noop
     public static let testValue = FileClient.unimplemented
 }
