@@ -167,14 +167,20 @@ custom_rules:
       - string
     severity: error
 
-#  optional_try:
-#    name: "try?"
-#    regex: "\\btry\\?\\s*"
-#    message: "try? should be avoided. Properly handle every errors."
-#    excluded_match_kinds:
-#      - comment
-#      - string
-#    severity: error
+  # Bans `try?`, which discards the error and the fact that one happened. Propagate with `try`, or
+  # absorb it in an explicit `do`/`catch` whose body says why silence is correct there.
+  optional_try:
+    name: "try?"
+    regex: "\\btry\\?\\s*"
+    message: "try? should be avoided. Properly handle every errors."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      - string
+    severity: error
 
   shape_initializer_argument:
     name: "Shape Initializer Argument"

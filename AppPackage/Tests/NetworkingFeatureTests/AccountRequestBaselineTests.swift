@@ -475,12 +475,16 @@ private func formFields(from request: URLRequest) -> [String: String] {
 }
 
 private func jsonFields(from request: URLRequest) -> [String: String] {
-    guard
-        let body = request.httpBody,
-        let object = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
-    else {
+    guard let body = request.httpBody else { return [:] }
+    let decoded: Any
+    do {
+        decoded = try JSONSerialization.jsonObject(with: body)
+    } catch {
+        // A genuine probe: callers ask "is this a JSON-bodied request?" and a body that is absent
+        // or is not JSON is a legitimate answer, not a failure. Preserves the original semantics.
         return [:]
     }
+    guard let object = decoded as? [String: Any] else { return [:] }
     return object.mapValues { String(describing: $0) }
 }
 
