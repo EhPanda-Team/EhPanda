@@ -27,11 +27,6 @@ public struct DetailView: View {
             .animation(.default, value: store.showsUserRating)
             .animation(.default, value: store.showsFullTitle)
             .animation(.default, value: store.galleryDetail)
-            .onAppear {
-                DispatchQueue.main.async {
-                    store.send(.onAppear(gid))
-                }
-            }
             .onChange(of: store.galleryDetail) { _, _ in
                 runLaunchAutomationIfNeeded()
             }

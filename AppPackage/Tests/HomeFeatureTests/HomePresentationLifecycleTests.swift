@@ -31,6 +31,23 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    // Gallery detail is reached from five pushing hosts and two modal routes. The push shape goes
+    // through `GalleryNavigation.presentationEffect`, asserted here on Home (whose path nests the
+    // gallery stack under a `.gallery` case — the awkward embed of the five); the modal shape is
+    // asserted in AppFeatureTests. `Gallery.preview` has no `galleryURL`, so the detail fetch
+    // short-circuits and no network request is made.
+    @Test
+    func pushingGalleryDetailStartsItsLoad() async {
+        let store = makeHomeStore()
+        store.exhaustivity = .off
+
+        await store.send(.pushGalleryDetail(.preview))
+        await store.receive(\.path[id: 0].gallery.detail.onPresented)
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.path.count == 1)
+    }
+
     // A1: TCA's `forEach` cancels a child's in-flight effects when its element is popped, so the
     // long-running download observation started at presentation cannot outlive the screen.
     @Test
@@ -167,6 +184,7 @@ private extension HomePresentationLifecycleTests {
                     $0.cookieClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.downloadClient = downloadClient
+                    $0.date = .constant(.init(timeIntervalSince1970: 0))
                 }
             )
         }

@@ -82,10 +82,13 @@ struct PresentationFeature {
                 return .none
 
             case let .detail(.presented(.delegate(delegate))):
-                if let next = GalleryNavigation.nextScreen(for: .detail(.delegate(delegate))) {
-                    state.path.appendGuardingDuplicate(next)
-                }
-                return .none
+                guard let next = GalleryNavigation.nextScreen(for: .detail(.delegate(delegate)))
+                else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(next),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .detail:
                 return .none
@@ -98,10 +101,12 @@ struct PresentationFeature {
                 return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
 
             case let .path(.element(id: _, action: elementAction)):
-                if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.appendGuardingDuplicate(next)
-                }
-                return .none
+                guard let next = GalleryNavigation.nextScreen(for: elementAction) else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(next),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .path:
                 return .none
@@ -128,7 +133,9 @@ struct PresentationFeature {
                 } else {
                     state.detail = .init(gallery: gallery)
                 }
-                return .none
+                // Presenting the modal is what starts its load — the reducer-side replacement for
+                // the detail view's former `onAppear`.
+                return .send(.detail(.presented(.onPresented)))
 
             case .setToast(let config):
                 state.toast = config
@@ -173,6 +180,9 @@ struct PresentationFeature {
                 }
                 state.path.removeAll()
                 state.detail = DetailReducer.State(gallery: gallery, pendingDeepLink: deepLink)
+                // The deep-link/clipboard entry constructs its detail here, so it carries the load
+                // send too — the same presentation seam as the tap path, no view `onAppear`.
+                effects.append(.send(.detail(.presented(.onPresented))))
                 effects.append(.run(operation: { _ in await hapticsClient.generateFeedback(.light) }))
                 return .merge(effects)
 

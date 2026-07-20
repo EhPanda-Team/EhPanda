@@ -133,7 +133,7 @@ public struct DetailReducer: Sendable {
         case deleteDownloadButtonTapped
         case retryDownloadButtonTapped(DownloadStartMode)
         case onPostCommentAppear
-        case onAppear(String)
+        case onPresented
         case toggleShowFullTitle
         case toggleShowUserRating
         case setPostCommentFocused(Bool)

@@ -23,8 +23,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         let store = makeObserveTestStore(gallery: gallery, detail: detail, stream: stream)
         store.exhaustivity = .off
 
-        await store.send(.onAppear(gallery.gid)) {
-            $0.gid = gallery.gid
+        await store.send(.onPresented) {
             $0.hasLoadedDownloadBadge = false
             $0.didRunLaunchAutomation = false
         }

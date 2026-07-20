@@ -129,8 +129,12 @@ public struct DownloadsReducer: Sendable {
             case .pushGalleryDetail(let download):
                 // Seed the detail with the locally downloaded gallery/badge so it renders offline.
                 // The download is carried through the action, so there is no re-lookup by gid.
-                state.path.appendGuardingDuplicate(.detail(.init(seededFrom: download)))
-                return .none
+                let screen = GalleryPath.State.detail(.init(seededFrom: download))
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(screen),
+                    screen: screen,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .delegate:
                 return .none
@@ -342,10 +346,12 @@ public struct DownloadsReducer: Sendable {
                 return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
 
             case let .path(.element(id: _, action: elementAction)):
-                if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.appendGuardingDuplicate(next)
-                }
-                return .none
+                guard let next = GalleryNavigation.nextScreen(for: elementAction) else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(next),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .path:
                 return .none
