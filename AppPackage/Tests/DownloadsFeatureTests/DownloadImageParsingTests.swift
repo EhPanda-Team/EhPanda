@@ -268,8 +268,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
 
         let receivedSkipServerTokens = UncheckedBox([String?]())
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
-            let body = requestBodyData(from: request)
-                .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            let body = requestBodyJSONObject(from: request)
             let skipServer = body?["nl"] as? String
             receivedSkipServerTokens.value.append(skipServer)
             let imageURL = skipServer == nil

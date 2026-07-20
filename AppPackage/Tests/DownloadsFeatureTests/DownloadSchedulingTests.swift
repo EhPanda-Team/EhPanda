@@ -28,7 +28,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             },
             runScheduledDownload: { _, _ in
                 while !Task.isCancelled {
-                    try? await Task.sleep(for: .milliseconds(10))
+                    await sleepIgnoringCancellation(for: .milliseconds(10))
                 }
                 return .skippedOperation
             }
@@ -223,7 +223,7 @@ private actor ScheduledProcessCleanupGate {
         } else {
             startSecond()
             while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(10))
+                await sleepIgnoringCancellation(for: .milliseconds(10))
             }
         }
     }

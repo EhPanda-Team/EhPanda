@@ -38,7 +38,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             gid: gid
         )
         let blocker = Task<Void, Never> {
-            try? await Task.sleep(for: .seconds(60))
+            await sleepIgnoringCancellation(for: .seconds(60))
         }
         defer { blocker.cancel() }
         await manager.testingInstallActiveTask(gid: "busy", task: blocker)
@@ -101,7 +101,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             gid: gid
         )
         let blocker = Task<Void, Never> {
-            try? await Task.sleep(for: .seconds(60))
+            await sleepIgnoringCancellation(for: .seconds(60))
         }
         defer { blocker.cancel() }
         await manager.testingInstallActiveTask(gid: "busy", task: blocker)
@@ -145,7 +145,7 @@ private extension DownloadRetryMinimalSourceTests {
         _ context: MinimalSourceRetrySkipContext
     ) async throws {
         let blocker = Task<Void, Never> {
-            try? await Task.sleep(for: .seconds(60))
+            await sleepIgnoringCancellation(for: .seconds(60))
         }
         defer { blocker.cancel() }
         await context.manager.testingInstallActiveTask(gid: "busy", task: blocker)

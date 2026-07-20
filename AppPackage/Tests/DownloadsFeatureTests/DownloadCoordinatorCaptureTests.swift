@@ -70,7 +70,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
                     )
                 )
             )
-            try? await dataCache.removeData(forKeys: cacheKeys)
+            try await dataCache.removeData(forKeys: cacheKeys)
         }
     }
 
@@ -115,7 +115,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
                 fileExtension: "jpg"
             )
             #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
-            try? await dataCache.removeData(forKeys: cacheKeys)
+            try await dataCache.removeData(forKeys: cacheKeys)
         }
     }
 

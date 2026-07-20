@@ -126,7 +126,7 @@ extension DownloadFeatureTestCase {
         let deadline = clock.now.advanced(by: timeout)
         while !condition() && clock.now < deadline {
             await store.skipReceivedActions(strict: false)
-            try? await Task.sleep(for: .milliseconds(10))
+            await sleepIgnoringCancellation(for: .milliseconds(10))
         }
         await store.skipReceivedActions(strict: false)
     }
