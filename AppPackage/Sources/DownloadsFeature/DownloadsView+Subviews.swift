@@ -311,8 +311,9 @@ private func previewInspection(
     )
 }
 
-// The empty `gid` is load-bearing: `onAppear` bails out on it, so the hand-built inspection below
-// survives instead of being replaced by a client fetch the moment the canvas renders.
+// The empty `gid` is load-bearing: `onPresented` bails out on it, so the hand-built inspection below
+// survives instead of being replaced by a client fetch. Previews never send it anyway — the store is
+// built here rather than presented by `DownloadsReducer` — but the guard keeps that independent.
 @MainActor private func previewInspectorStore(
     inspection: DownloadInspection?,
     loadingState: LoadingState = .idle,
