@@ -11,8 +11,11 @@ import ComposableArchitecture
 // The Setting screens' loads used to be kicked off by their views' `onAppear`; they are now sent by
 // `SettingReducer` on the push that presents them, and the EhSetting teardown that used to run in
 // `onDisappear` now runs on the pop that dismisses it.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct SettingPresentationTests {
     // MARK: Screen → load-action mapping
 
@@ -46,6 +49,7 @@ struct SettingPresentationTests {
 
     // MARK: Push starts the screen
 
+    @MainActor
     @Test
     func pushingAccountLoadsCookies() async throws {
         let cookieClient = CookieClient.testing(memberID: "member-fixture", passHash: "pass-fixture")
@@ -67,6 +71,7 @@ struct SettingPresentationTests {
         await store.skipInFlightEffects()
     }
 
+    @MainActor
     @Test
     func pushingGeneralMeasuresTheImageCache() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
@@ -94,6 +99,7 @@ struct SettingPresentationTests {
         }
     }
 
+    @MainActor
     @Test
     func pushingAppActivityLogsListsPreviousRuns() async throws {
         let run = RunLogFile(
@@ -127,6 +133,7 @@ struct SettingPresentationTests {
 
     // A deduped push must start nothing: the screen it would present is already on top, already
     // loaded. The store's end-of-test in-flight check fails if the second tap starts a load.
+    @MainActor
     @Test
     func dedupedPushStartsNothing() async {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
@@ -143,6 +150,7 @@ struct SettingPresentationTests {
 
     // MARK: Pop tears the screen down
 
+    @MainActor
     @Test
     func poppingEhSettingPersistsTheSelectedProfile() async throws {
         let cookieClient = CookieClient.testing()
@@ -172,6 +180,7 @@ struct SettingPresentationTests {
     }
 
     // Every other screen's teardown is TCA's own pop-cancellation, so popping them writes nothing.
+    @MainActor
     @Test
     func poppingAnotherScreenWritesNoCookie() async throws {
         let cookieClient = CookieClient.testing()

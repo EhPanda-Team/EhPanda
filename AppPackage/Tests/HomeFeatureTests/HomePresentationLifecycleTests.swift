@@ -14,8 +14,12 @@ import Testing
 // history, so an empty history settles without a network request. The other sub-pages fetch over the
 // network from a request type that takes no injectable session, so their presentation actions are
 // asserted directly against a populated state instead (see 11-07-SUMMARY.md).
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct HomePresentationLifecycleTests {
+    @MainActor
     @Test
     func pushingHistoryStartsItsLoad() async {
         let store = makeHomeStore()
@@ -36,6 +40,7 @@ struct HomePresentationLifecycleTests {
     // gallery stack under a `.gallery` case — the awkward embed of the five); the modal shape is
     // asserted in AppFeatureTests. `Gallery.preview` has no `galleryURL`, so the detail fetch
     // short-circuits and no network request is made.
+    @MainActor
     @Test
     func pushingGalleryDetailStartsItsLoad() async {
         let store = makeHomeStore()
@@ -50,6 +55,7 @@ struct HomePresentationLifecycleTests {
 
     // A1: TCA's `forEach` cancels a child's in-flight effects when its element is popped, so the
     // long-running download observation started at presentation cannot outlive the screen.
+    @MainActor
     @Test
     func poppingCancelsTheChildObservation() async {
         let store = makeHomeStore(downloadClient: .neverEndingObservation)
@@ -70,6 +76,7 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func homeTabPresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
@@ -85,6 +92,7 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func historyPresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
@@ -102,6 +110,7 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func frontpagePresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
@@ -117,6 +126,7 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func popularPresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
@@ -132,6 +142,7 @@ struct HomePresentationLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func toplistsPresentationSkipsFetchWhenAlreadyPopulated() async {
         let store = TestStore(
@@ -149,6 +160,7 @@ struct HomePresentationLifecycleTests {
 
     // Watched is login-gated: presenting it while logged out observes downloads but fetches nothing,
     // matching the `didLogin` check the view used to perform.
+    @MainActor
     @Test
     func watchedPresentationSkipsFetchWhenLoggedOut() async {
         let store = TestStore(
@@ -167,6 +179,7 @@ struct HomePresentationLifecycleTests {
 }
 
 private extension HomePresentationLifecycleTests {
+    @MainActor
     func makeHomeStore(downloadClient: DownloadClient = .noop) -> TestStoreOf<HomeReducer> {
         let appStorage = UserDefaults.inMemory
 

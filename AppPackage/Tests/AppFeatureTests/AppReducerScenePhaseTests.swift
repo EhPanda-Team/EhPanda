@@ -12,8 +12,12 @@ import UserDefaultsClient
 @testable import ClipboardClient
 @testable import AppFeature
 
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct AppReducerScenePhaseTests {
+    @MainActor
     @Test
     func scenePhaseWritesPrivacyMaskAndStartsForegroundEffectsOnce() async {
         let clipboardInvocationCount = LockIsolated(0)
@@ -41,6 +45,7 @@ struct AppReducerScenePhaseTests {
         expectNoDifference(clipboardInvocationCount.value, 1)
     }
 
+    @MainActor
     @Test
     func activeSceneSkipsClipboardDetectionWhenDisabled() async {
         let clipboardInvocationCount = LockIsolated(0)
@@ -58,6 +63,7 @@ struct AppReducerScenePhaseTests {
         expectNoDifference(clipboardInvocationCount.value, 0)
     }
 
+    @MainActor
     @Test
     func maskAndLatchAreWrittenBeforeSettingsLoad() async {
         let store = makeStore(
@@ -79,6 +85,7 @@ struct AppReducerScenePhaseTests {
 }
 
 private extension AppReducerScenePhaseTests {
+    @MainActor
     func makeStore(
         clipboardDetectionCount: LockIsolated<Int>? = nil,
         detectLinksFromClipboard: Bool,
