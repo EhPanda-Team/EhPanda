@@ -186,17 +186,22 @@ custom_rules:
       - string
     severity: error
 
-#  unchecked_subscript_index_access:
-#    name: "Unchecked Subscript Index Access"
-#    regex: "\\b[A-Za-z_][A-Za-z0-9_]*\\s*\\[(?:\\d+|[A-Za-z_][A-Za-z0-9_]*\\s*[+\\-]\\s*\\d+|i|j|k|idx|index|offset|position|row|section)\\]"
-#    message: "Subscript index access should be guarded by an index check."
-#    excluded_match_kinds:
-#      - comment
-#      - string
-#    severity: error
-#    excluded:
-#      - ".*/[^/]*Tests\\.swift$"
-#      - "\\[validatedIndex\\]"
+  unchecked_subscript_index_access:
+    name: "Unchecked Subscript Index Access"
+    regex: "\\b[A-Za-z_][A-Za-z0-9_]*\\s*\\[(?:\\d+|[A-Za-z_][A-Za-z0-9_]*\\s*[+\\-]\\s*\\d+|i|j|k|idx|index|offset|position|row|section)\\]"
+    message: "Subscript index access should be guarded by an index check."
+    # `doccomment` is a SwiftLint syntax kind of its own — omitting it makes the rule fire on `///`
+    # prose that merely describes an indexed access, which penalizes exactly the explanatory comments
+    # a sanctioned exception is required to carry. Note the spelling: `doc_comment` is not a valid
+    # kind, and one invalid entry silently discards this whole rule's configuration.
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+    # `excluded` matches file paths, not source text. Test files are out of scope for now.
+    excluded:
+      - ".*/[^/]*Tests\\.swift$"
 
 excluded:
   - EhPanda/App/Generated

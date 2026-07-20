@@ -1043,6 +1043,7 @@ public enum PreviewIdentifiers {
     public static subscript(index: Int) -> UUID {
         precondition(all.indices.contains(index), "PreviewIdentifiers index \(index) is out of bounds")
         // reason: bounds are precondition-checked immediately above.
+        // swiftlint:disable:next unchecked_subscript_index_access
         return all[index]
     }
 }
