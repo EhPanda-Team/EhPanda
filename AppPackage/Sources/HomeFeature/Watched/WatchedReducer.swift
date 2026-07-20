@@ -2,6 +2,7 @@ import AppTools
 import ComposableArchitecture
 import AppModels
 import Sharing
+import CookieClient
 import HapticsClient
 import NetworkingFeature
 import DownloadClient
@@ -54,7 +55,7 @@ public struct WatchedReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear
+        case onPresented
         case delegate(Delegate)
         case filtersButtonTapped
         case quickSearchButtonTapped
@@ -71,6 +72,7 @@ public struct WatchedReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -84,8 +86,19 @@ public struct WatchedReducer: Sendable {
             case .binding:
                 return .none
 
-            case .onAppear:
-                return .send(.observeDownloads)
+            // Presentation-driven lifecycle: the presenting reducer sends this as part of the
+            // state transition that pushes this screen, replacing the former view `onAppear`.
+            // The empty guard keeps it idempotent — re-presenting a populated list refetches nothing.
+            // Watched is login-gated, so a logged-out visit shows the sign-in overlay and fetches
+            // nothing, exactly as the view's `didLogin` check did.
+            case .onPresented:
+                guard state.galleries.isEmpty, cookieClient.didLogin else {
+                    return .send(.observeDownloads)
+                }
+                return .merge(
+                    .send(.observeDownloads),
+                    .send(.fetchGalleries())
+                )
 
             case .delegate:
                 return .none

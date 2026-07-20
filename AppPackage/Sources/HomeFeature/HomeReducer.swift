@@ -59,6 +59,7 @@ public struct HomeReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onPresented
         case delegate(Delegate)
         case galleryTapped(Gallery)
         case pushGalleryDetail(Gallery)

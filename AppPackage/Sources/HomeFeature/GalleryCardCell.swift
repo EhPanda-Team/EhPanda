@@ -109,7 +109,7 @@ public struct GalleryCardCell: View {
 // Wraps `ColorfulView` so the gradient blooms in gradually instead of popping to full intensity.
 // ColorfulX snaps the FIRST color set it receives (`initialSetup`) and only lerps SUBSEQUENT
 // changes over `transitionSpeed`. Seeding the layer with a neutral dark color and then applying
-// the real palette on appear turns the initial paint into an animated transition — reproducing
+// the real palette at appearance time turns the initial paint into an animated transition — reproducing
 // the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
 // per focus via `if animated`) guarantees the bloom each time a card becomes current.
 // Under Reduce Motion the same first-set snap is used the other way around: init seeds the real
@@ -135,8 +135,10 @@ private struct CardGradientView: View {
             speed: .constant(reduceMotion ? 0 : speed),
             transitionSpeed: .constant(6)
         )
-        .onAppear { displayedColors = colors }
-        .onChange(of: colors) { _, newColors in displayedColors = newColors }
+        // `initial: true` fires this at appearance time with the unchanged palette, which is what
+        // turns ColorfulX's first paint into an animated transition (see the type comment). It
+        // replaces a former `onAppear` doing the same assignment, folding both into one modifier.
+        .onChange(of: colors, initial: true) { _, newColors in displayedColors = newColors }
     }
 }
 

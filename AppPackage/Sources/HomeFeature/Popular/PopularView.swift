@@ -34,13 +34,6 @@ struct PopularView: View {
                 .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
-        .onAppear {
-            if store.galleries.isEmpty {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries)
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(.popular)
     }

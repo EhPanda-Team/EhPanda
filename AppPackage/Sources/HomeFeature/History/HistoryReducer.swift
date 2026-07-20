@@ -59,7 +59,7 @@ public struct HistoryReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear
+        case onPresented
         case delegate(Delegate)
         case confirmationDialog(PresentationAction<Dialog>)
         case clearHistoryButtonTapped
@@ -86,8 +86,15 @@ public struct HistoryReducer: Sendable {
             case .binding:
                 return .none
 
-            case .onAppear:
-                return .send(.observeDownloads)
+            // Presentation-driven lifecycle: the presenting reducer sends this as part of the
+            // state transition that pushes this screen, replacing the former view `onAppear`.
+            // The empty guard keeps it idempotent — re-presenting a populated list refetches nothing.
+            case .onPresented:
+                guard state.galleries.isEmpty else { return .send(.observeDownloads) }
+                return .merge(
+                    .send(.observeDownloads),
+                    .send(.fetchGalleries)
+                )
 
             case .delegate:
                 return .none

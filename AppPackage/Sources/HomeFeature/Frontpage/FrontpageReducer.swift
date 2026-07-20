@@ -55,6 +55,7 @@ public struct FrontpageReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onPresented
         case delegate(Delegate)
         case filtersButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
@@ -78,6 +79,13 @@ public struct FrontpageReducer: Sendable {
             switch action {
             case .binding:
                 return .none
+
+            // Presentation-driven lifecycle: the presenting reducer sends this as part of the
+            // state transition that pushes this screen, replacing the former view `onAppear`.
+            // The empty guard keeps it idempotent — re-presenting a populated list refetches nothing.
+            case .onPresented:
+                guard state.galleries.isEmpty else { return .none }
+                return .send(.fetchGalleries)
 
             case .delegate:
                 return .none

@@ -50,6 +50,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "HomeFeatureTests",
+        "name" : "HomeFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "MarkdownExtTests",
         "name" : "MarkdownExtTests"
       }

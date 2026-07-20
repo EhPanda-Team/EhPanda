@@ -81,11 +81,6 @@ public struct HomeView: View {
                 }
                 .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
             }
-            .onAppear {
-                if store.popularGalleries.isEmpty {
-                    store.send(.fetchAllGalleries)
-                }
-            }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle(.RLocalizable.home)
             .toolbar(content: toolbar)

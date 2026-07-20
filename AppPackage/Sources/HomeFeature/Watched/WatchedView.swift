@@ -78,14 +78,6 @@ struct WatchedView: View {
         .onSubmit(of: .search) {
             store.send(.fetchGalleries())
         }
-        .onAppear {
-            store.send(.onAppear)
-            if store.galleries.isEmpty && didLogin {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries())
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(.watched)
     }
