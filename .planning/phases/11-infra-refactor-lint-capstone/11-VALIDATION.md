@@ -23,7 +23,7 @@ created: 2026-07-20
 | **Full suite command** | `xcodebuild test -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone Air'` |
 | **Estimated runtime** | full suite ~1 min of test execution once built (~48 s observed in Phase 5); cold builds dominate wall time. Per-module runs are shorter. |
 
-**Hard constraint (RESEARCH Pitfall 9 / project memory):** run ONE `xcodebuild test` invocation at a time — never overlap, never kill one mid-launch. This is why the phase's 31 plans are deliberately sequential (one plan per wave).
+**Hard constraint (RESEARCH Pitfall 9 / project memory):** run ONE `xcodebuild test` invocation at a time — never overlap, never kill one mid-launch. This is why the phase's 30 plans are deliberately sequential (one plan per wave).
 
 **Lint zero-check (the rule IS the test for LINT-01):**
 
