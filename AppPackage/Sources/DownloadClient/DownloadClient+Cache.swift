@@ -1,7 +1,10 @@
+import OSLogExt
 import Foundation
 import AppModels
 import AppTools
 import Dependencies
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Cache Operations
 extension DownloadCoordinator {
@@ -14,9 +17,13 @@ extension DownloadCoordinator {
             .flatMap(\.imageCacheKeys)
 
         let uniqueKeys = Array(Set(keys))
-        // Data-cache eviction is best-effort housekeeping; continue clearing the
-        // independent library image cache even when disk eviction fails.
-        try? await dataCache.removeData(forKeys: uniqueKeys)
+        do {
+            try await dataCache.removeData(forKeys: uniqueKeys)
+        } catch {
+            // Data-cache eviction is best-effort housekeeping; continue clearing the
+            // independent library image cache even when disk eviction fails.
+            logger.error("Download image data-cache eviction failed: \(error, privacy: .public)")
+        }
         for key in uniqueKeys {
             await libraryClient.removeCachedImage(key)
         }
