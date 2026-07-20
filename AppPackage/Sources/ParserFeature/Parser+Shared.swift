@@ -110,7 +110,7 @@ extension Parser {
     static func parseScriptDate(name: String, doc: HTMLDocument) -> Date? {
         guard let value = parseScriptVariable(name: name, doc: doc), !value.isEmpty else { return nil }
         // An invalid optional script date intentionally degrades to nil.
-        return try? parseDate(time: value, format: "yyyy-MM-dd")
+        return degrading("Script date", { try parseDate(time: value, format: "yyyy-MM-dd") })
     }
 
     public static func parseDateSeekNavigation(doc: HTMLDocument, host: URL) -> DateSeekNavigation? {
@@ -167,7 +167,7 @@ extension Parser {
         return RatingResult(
             imgRating: rating,
             // Missing optional text-rating metadata intentionally degrades to nil.
-            textRating: try? parseTextRating(node: node),
+            textRating: degrading("Text rating", { try parseTextRating(node: node) }),
             containsUserRating: containsUserRating
         )
     }
