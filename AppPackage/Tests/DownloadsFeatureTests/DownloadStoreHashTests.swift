@@ -80,7 +80,7 @@ struct DownloadStoreHashTests {
 
     private func makePreparedDownload(
         storage: DownloadStore
-    ) throws -> (DownloadedGallery, URL) {
+    ) throws -> (download: DownloadedGallery, folderURL: URL) {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
         let download = sampleDownload(folderURL: folderURL)
@@ -104,7 +104,7 @@ struct DownloadStoreHashTests {
         return (download, folderURL)
     }
 
-    private func makeStorage() -> (DownloadStore, URL) {
+    private func makeStorage() -> (store: DownloadStore, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return (

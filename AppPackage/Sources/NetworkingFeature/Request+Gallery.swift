@@ -389,7 +389,7 @@ public struct ToplistsGalleriesRequest: Request {
     public var pageNum: Int?
     public let urlSession: URLSession
 
-    public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
+    public func response() async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery]) {
         let url = URLUtil.toplistsList(host: host, catIndex: catIndex, pageNum: pageNum)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
@@ -420,7 +420,7 @@ public struct MoreToplistsGalleriesRequest: Request {
     public let pageNum: Int
     public let urlSession: URLSession
 
-    public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
+    public func response() async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery]) {
         let url = URLUtil.moreToplistsList(host: host, catIndex: catIndex, pageNum: pageNum)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {

@@ -15,7 +15,7 @@ public struct GalleryList: View {
     private let fetchAction: (() -> Void)?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
 
     public init(
         galleries: [Gallery], pageNumber: PageNumber?,
@@ -24,7 +24,7 @@ public struct GalleryList: View {
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((Gallery) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
@@ -91,14 +91,14 @@ private struct DetailList: View {
     private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
 
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
@@ -159,14 +159,14 @@ private struct ThumbnailList: View {
     private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
 
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries

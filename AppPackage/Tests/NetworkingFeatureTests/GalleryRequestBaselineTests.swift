@@ -272,7 +272,7 @@ struct GalleryRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> (PageNumber, [Gallery]) in
+            () async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery]) in
             try await ToplistsGalleriesRequest(
                 host: galleryHost,
                 catIndex: 1,
@@ -295,7 +295,7 @@ struct GalleryRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> (PageNumber, [Gallery]) in
+            () async throws(AppError) -> (pageNumber: PageNumber, galleries: [Gallery]) in
             try await MoreToplistsGalleriesRequest(
                 host: galleryHost,
                 catIndex: 1,
@@ -338,7 +338,7 @@ struct GalleryRequestBaselineTests {
     }
 }
 
-private func listSession(url: URL) -> (URLSession, StubHandle) {
+private func listSession(url: URL) -> (session: URLSession, handle: StubHandle) {
     makeStubbedSession(
         script: StubScript([url: [.http(status: 200, data: .compactListFixture)]])
     )

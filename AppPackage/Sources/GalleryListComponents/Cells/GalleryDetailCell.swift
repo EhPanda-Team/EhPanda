@@ -18,13 +18,13 @@ public struct GalleryDetailCell: View {
 
     private let gallery: Gallery
     private let coverSource: CoverSource
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
     private let downloadBadge: DownloadBadge?
 
     public init(
         gallery: Gallery,
         coverSource: CoverSource = .dynamic,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
@@ -59,14 +59,14 @@ private struct GalleryDetailCellContent: View {
     private let gallery: Gallery
     private let resolvedCoverURL: URL?
     private let colorScheme: ColorScheme
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
     private let downloadBadge: DownloadBadge?
 
     init(
         gallery: Gallery,
         resolvedCoverURL: URL?,
         colorScheme: ColorScheme,
-        translateAction: ((String) -> (String, TagTranslation?))?,
+        translateAction: ((String) -> TagTranslationLookup)?,
         downloadBadge: DownloadBadge?
     ) {
         self.gallery = gallery
@@ -108,7 +108,7 @@ private struct GalleryDetailCellContent: View {
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
-                        let translation = translateAction?(content.rawNamespace + content.text).1
+                        let translation = translateAction?(content.rawNamespace + content.text).translation
                         TagCloudCell(
                             text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,

@@ -22,7 +22,8 @@ public struct DownloadClient: Sendable {
     public var retry: @Sendable (String, DownloadStartMode) async throws -> Void
     public var retryPages: @Sendable (String, [Int]) async throws -> Void
     public var delete: @Sendable (String) async throws -> Void
-    public var loadManifest: @Sendable (String) async throws -> (DownloadedGallery, DownloadManifest)
+    public var loadManifest:
+        @Sendable (String) async throws -> (download: DownloadedGallery, manifest: DownloadManifest)
     public var loadLocalPageURLs: @Sendable (String) async -> [Int: URL]?
     public var rescanLocalPageURLs: @Sendable (String) async -> [Int: URL]?
     public var captureCachedPage: @Sendable (String, Int, URL?) async -> Void

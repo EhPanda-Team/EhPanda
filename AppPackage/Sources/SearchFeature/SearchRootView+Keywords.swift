@@ -25,7 +25,7 @@ struct DoubleVerticalKeywordsStack: View {
     var singleKeywords: [WrappedKeyword] {
         .init(keywords.prefix(min(keywords.count, 10)))
     }
-    var doubleKeywords: ([WrappedKeyword], [WrappedKeyword]) {
+    var doubleKeywords: (leading: [WrappedKeyword], trailing: [WrappedKeyword]) {
         var leadingKeywords = [WrappedKeyword]()
         var trailingKeywords = [WrappedKeyword]()
         keywords.enumerated().forEach { (index, keyword) in

@@ -153,7 +153,7 @@ final class SharedSessionStubURLProtocol: URLProtocol {
 
     static func setHandler(
         for sessionID: String,
-        handler: @escaping @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)
+        handler: @escaping @Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data)
     ) {
         handlers.setHandler(for: sessionID, handler: handler)
     }
@@ -164,7 +164,7 @@ final class SharedSessionStubURLProtocol: URLProtocol {
 
     private static func handler(
         for request: URLRequest
-    ) -> (@Sendable (URLRequest) throws -> (HTTPURLResponse, Data))? {
+    ) -> (@Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data))? {
         guard let sessionID = request.value(
             forHTTPHeaderField: headerKey
         ) else {
@@ -211,12 +211,12 @@ final class SharedSessionStubURLProtocol: URLProtocol {
 
 private final class SharedSessionStubHandlers: Sendable {
     private let handlers = Mutex<
-        [String: @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)]
+        [String: @Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data)]
     >([:])
 
     func setHandler(
         for sessionID: String,
-        handler: @escaping @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)
+        handler: @escaping @Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data)
     ) {
         handlers.withLock { $0[sessionID] = handler }
     }
@@ -227,7 +227,7 @@ private final class SharedSessionStubHandlers: Sendable {
 
     func handler(
         for sessionID: String
-    ) -> (@Sendable (URLRequest) throws -> (HTTPURLResponse, Data))? {
+    ) -> (@Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data))? {
         handlers.withLock { $0[sessionID] }
     }
 }

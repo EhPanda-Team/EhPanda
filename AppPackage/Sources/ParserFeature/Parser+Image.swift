@@ -48,7 +48,7 @@ extension Parser {
         )
     }
 
-    public static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
+    public static func parseMPVKeys(doc: HTMLDocument) throws -> (key: String, imageKeys: [Int: String]) {
         var tmpMPVKey: String?
         var imgKeys = [Int: String]()
 

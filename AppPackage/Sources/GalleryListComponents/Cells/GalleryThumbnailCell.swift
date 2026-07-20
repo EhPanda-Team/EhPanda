@@ -13,12 +13,12 @@ public struct GalleryThumbnailCell: View {
     @SharedReader(.setting) private var setting: Setting
 
     private let gallery: Gallery
-    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let translateAction: ((String) -> TagTranslationLookup)?
     private let downloadBadge: DownloadBadge?
 
     public init(
         gallery: Gallery,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        translateAction: ((String) -> TagTranslationLookup)? = nil,
         downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
@@ -63,7 +63,7 @@ public struct GalleryThumbnailCell: View {
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
-                        let translation = translateAction?(content.rawNamespace + content.text).1
+                        let translation = translateAction?(content.rawNamespace + content.text).translation
                         TagCloudCell(
                             text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,
