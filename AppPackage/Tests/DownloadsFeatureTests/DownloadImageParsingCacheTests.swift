@@ -1,40 +1,25 @@
 import AppModels
-import Kingfisher
-import UIKit
 import Foundation
 import Testing
 import AppTools
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     @Test
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLIsRejected() async throws {
-        let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
-        let manager = makeTestingDownloadCoordinator()
-        let normalImageURL = try #require(
-            URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
+        let gid = UUID().uuidString
+        try await expectCachedPlaceholderRejected(
+            url: try #require(
+                URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
+            ),
+            placeholderData: try fixtureData(resource: "Kokomade", pathExtension: "jpg")
         )
-
-        let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
-        let cacheKeys = normalImageURL.imageCacheKeys
-        for cacheKey in cacheKeys {
-            try await KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
-        }
-        defer { cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) } }
-        await waitUntilCacheReady(for: cacheKeys)
-
-        let cachedData = await manager.validatedCachedAssetData(
-            for: [normalImageURL]
-        )
-
-        #expect(cachedData == nil)
     }
 
     @Test
     func testFileBasedEmptyExResponseMapsToAuthenticationRequired() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .exLoginRequired)
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         let response = try makeResponse(
@@ -58,7 +43,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("html")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let authHTMLData = Data("""
         <html>
