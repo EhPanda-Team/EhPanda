@@ -221,16 +221,19 @@ private extension DownloadsView {
 
     @ViewBuilder private var emptyStateView: some View {
         if store.downloads.isEmpty {
-            AlertView(symbol: .squareAndArrowDown, message: .emptyDownloads)
+            ContentUnavailableView {
+                Label(.emptyDownloads, systemSymbol: .squareAndArrowDown)
+            }
         } else {
-            AlertView(
-                symbol: .line3HorizontalDecreaseCircle,
-                message: .noMatchingFilters
-            ) {
-                AlertViewButton(title: .clearFilters) {
+            ContentUnavailableView {
+                Label(.noMatchingFilters, systemSymbol: .line3HorizontalDecreaseCircle)
+            } actions: {
+                Button(.clearFilters) {
                     store.keyword = ""
                     store.folderFilter = .all
                 }
+                .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                .padding()
             }
         }
     }
