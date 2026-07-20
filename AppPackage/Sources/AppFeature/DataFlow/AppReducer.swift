@@ -342,7 +342,11 @@ private extension AppReducer {
         switch type {
         case .home:
             return .send(.home(.onPresented))
-        case .favorites, .search, .downloads, .setting:
+        case .favorites:
+            return .send(.favorites(.onPresented))
+        case .search:
+            return .send(.searchRoot(.onPresented))
+        case .downloads, .setting:
             return .none
         }
     }
