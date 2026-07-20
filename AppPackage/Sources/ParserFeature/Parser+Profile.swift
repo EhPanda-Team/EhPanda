@@ -62,7 +62,7 @@ extension Parser {
 
                 let strongTexts = optouter.xpath("//strong").compactMap(\.text)
                 literalDetectedCountry = strongTexts.first
-                literalHahRegion = strongTexts.count > 1 ? strongTexts[1] : nil
+                literalHahRegion = strongTexts.dropFirst().first
             }
             if optouter.at_xpath("//input [@name='xr']") != nil {
                 imageResolution = parseEnum(node: optouter, name: "xr")

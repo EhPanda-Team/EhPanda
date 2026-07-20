@@ -42,8 +42,7 @@ extension Parser {
             guard gainedIntValues.count == gainedTypes.count
             else { throw AppError.parseFailed }
 
-            for (index, type) in gainedTypes.enumerated() {
-                let value = gainedIntValues[index]
+            for (type, value) in zip(gainedTypes, gainedIntValues) {
                 switch type {
                 case "EXP": greeting.gainedEXP = value
                 case "Credits": greeting.gainedCredits = value

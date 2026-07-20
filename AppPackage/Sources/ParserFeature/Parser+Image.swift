@@ -15,10 +15,10 @@ extension Parser {
                   let thumbnailURL = URL(string: href),
                   let divNode = aLink.at_xpath(".//div[@title and @style]"),
                   let title = divNode["title"],
-                  let index = parseGTX00IndexFromTitle(from: title)
+                  let page = parseGTX00IndexFromTitle(from: title)
             else { continue }
 
-            thumbnailURLs[index] = thumbnailURL
+            thumbnailURLs[page] = thumbnailURL
         }
 
         return thumbnailURLs
@@ -83,9 +83,10 @@ extension Parser {
                 throw AppError.parseFailed
             }
 
-            array.enumerated().forEach { (index, dict) in
+            // The image list is ordered, and its keys are addressed by 1-based page number.
+            for (page, dict) in zip(1..., array) {
                 if let imgKey = dict["k"] {
-                    imgKeys[index + 1] = imgKey
+                    imgKeys[page] = imgKey
                 }
             }
         }
