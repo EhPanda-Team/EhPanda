@@ -82,7 +82,10 @@ struct CommentsView: View {
                     }
                 }
             }
-            .onAppear {
+            // View-local scrolling needs the `proxy`, so it stays in the view. `initial: true` gives
+            // the first-render fire the former `onAppear` provided, for the deep-linked comment id
+            // the screen is constructed with; later changes are no-ops because the id only clears.
+            .onChange(of: store.scrollCommentID, initial: true) {
                 if let scrollCommentID = store.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                         withAnimation {
@@ -106,16 +109,12 @@ struct CommentsView: View {
                     }
                     store.send(.destination(.dismiss))
                 },
-                cancelAction: { store.send(.destination(.dismiss)) },
-                onAppearAction: { store.send(.onPostCommentAppear) }
+                cancelAction: { store.send(.destination(.dismiss)) }
             )
             .privacyMask()
         }
         .toast($store.scope(\.$toast, action: \.toast))
         .animation(.default, value: store.scrollRowOpacity)
-        .onAppear {
-            store.send(.onAppear)
-        }
         .toolbar(content: toolbar)
         .navigationTitle(.comments)
     }

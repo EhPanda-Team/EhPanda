@@ -7,24 +7,24 @@ struct PostCommentView: View {
     @Binding private var isFocused: Bool
     private let postAction: () -> Void
     private let cancelAction: () -> Void
-    private let onAppearAction: () -> Void
 
     @FocusState private var isTextEditorFocused: Bool
 
+    // Focus is driven by the `isFocused` binding, which the presenting reducer raises shortly after
+    // it sets this sheet's destination — the editor no longer asks for focus from a lifecycle
+    // callback of its own.
     init(
         title: LocalizedStringResource,
         content: Binding<String>,
         isFocused: Binding<Bool>,
         postAction: @escaping () -> Void,
-        cancelAction: @escaping () -> Void,
-        onAppearAction: @escaping () -> Void
+        cancelAction: @escaping () -> Void
     ) {
         self.title = title
         _content = content
         _isFocused = isFocused
         self.postAction = postAction
         self.cancelAction = cancelAction
-        self.onAppearAction = onAppearAction
     }
 
     var body: some View {
@@ -46,6 +46,5 @@ struct PostCommentView: View {
                 .navigationTitle(title)
         }
         .synchronize($isFocused, $isTextEditorFocused)
-        .onAppear(perform: onAppearAction)
     }
 }

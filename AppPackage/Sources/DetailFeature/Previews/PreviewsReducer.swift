@@ -63,7 +63,7 @@ public struct PreviewsReducer: Sendable {
 
         case updateReadingProgress(Int)
 
-        case onAppear(String)
+        case onPresented
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPreviewURLs(String)
@@ -103,12 +103,22 @@ public struct PreviewsReducer: Sendable {
                 }
                 return .none
 
-            case .onAppear(let gid):
-                // Gallery is seeded from the pushing context; preview URLs are fetched on demand.
-                return .merge(
-                    .send(.observeDownloads(gid)),
-                    .send(.loadLocalPreviewURLs(gid))
-                )
+            // Presentation-driven lifecycle: the host sends this in the state transition that pushes
+            // this screen, replacing the former view `onAppear`. The gallery is seeded from the
+            // pushing context; the remaining preview URLs are fetched as the grid is scrolled.
+            //
+            // The first page is fetched here rather than left to the grid's visibility callback: it
+            // is always needed, and the old per-cell `onAppear` fired for index 1 before the local
+            // page URLs had loaded, so this is the same request the screen always made.
+            case .onPresented:
+                var effects: [Effect<Action>] = [
+                    .send(.observeDownloads(state.gid)),
+                    .send(.loadLocalPreviewURLs(state.gid))
+                ]
+                if state.previewURLs.isEmpty {
+                    effects.append(.send(.fetchPreviewURLs(1)))
+                }
+                return .merge(effects)
 
             case .observeDownloads(let gid):
                 guard gid.isValidGID else { return .none }

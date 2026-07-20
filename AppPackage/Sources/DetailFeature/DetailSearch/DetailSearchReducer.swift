@@ -58,6 +58,7 @@ public struct DetailSearchReducer: Sendable {
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
+        case onPresented
         case fetchGalleries(String? = nil)
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
@@ -95,6 +96,12 @@ public struct DetailSearchReducer: Sendable {
 
             case .destination:
                 return .none
+
+            // Presentation-driven lifecycle: the host sends this in the state transition that pushes
+            // this screen, replacing the former view `onAppear`. The empty guard keeps it idempotent.
+            case .onPresented:
+                guard state.galleries.isEmpty else { return .none }
+                return .send(.fetchGalleries(state.keyword))
 
             case .fetchGalleries(let keyword):
                 guard state.loadingState != .loading else { return .none }

@@ -53,9 +53,6 @@ struct TorrentsView: View {
             }
             .toast($store.scope(\.$toast, action: \.toast))
             .animation(.default, value: store.torrents)
-            .onAppear {
-                store.send(.fetchGalleryTorrents(gid: gid, token: token))
-            }
             .navigationTitle(.torrents)
         }
     }

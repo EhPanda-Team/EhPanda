@@ -64,9 +64,6 @@ struct ArchivesView: View {
                 }
             }
             .toast($store.scope(\.$toast, action: \.toast))
-            .onAppear {
-                store.send(.fetchArchive(gid: gid, galleryURL: galleryURL, archiveURL: archiveURL))
-            }
             .navigationTitle(.archives)
         }
     }

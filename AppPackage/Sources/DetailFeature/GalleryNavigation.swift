@@ -100,7 +100,15 @@ extension GalleryPath.State {
         switch self {
         case .detail:
             return .detail(.onPresented)
-        case .previews, .comments, .detailSearch, .galleryInfos:
+        case .previews:
+            return .previews(.onPresented)
+        case .comments:
+            return .comments(.onPresented)
+        case .detailSearch:
+            return .detailSearch(.onPresented)
+        case .galleryInfos:
+            // Fully seeded by the pushing context: it renders the gallery and detail it was handed
+            // and fetches nothing.
             return nil
         }
     }
