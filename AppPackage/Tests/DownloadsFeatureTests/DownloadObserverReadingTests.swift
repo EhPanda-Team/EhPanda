@@ -52,7 +52,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.urlClient = .noop
         }
         store.exhaustivity = .off
-        defer { try? FileManager.default.removeItem(at: folderURL) }
+        defer { removeTemporaryItem(at: folderURL) }
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

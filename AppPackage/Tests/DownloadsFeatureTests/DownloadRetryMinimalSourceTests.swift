@@ -12,7 +12,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         let pageIndex = 40
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
@@ -75,7 +75,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         let remainingMissingPageIndex = 41
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID

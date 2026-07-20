@@ -9,7 +9,7 @@ struct DownloadStoreTests {
     @Test
     func testWriteReadAndValidateManifest() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
@@ -42,7 +42,7 @@ struct DownloadStoreTests {
     @Test
     func testPurgeBackgroundTransferHoldingDirectoryRemovesOrphans() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let holdingDirectory = storage.backgroundTransferHoldingDirectoryURL()
         try FileManager.default.createDirectory(
@@ -61,7 +61,7 @@ struct DownloadStoreTests {
     @Test
     func testReadManifestRejectsEmptyPages() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Empty")
@@ -80,7 +80,7 @@ struct DownloadStoreTests {
     @Test
     func testReadManifestRejectsNonContiguousPages() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sparse")
@@ -99,7 +99,7 @@ struct DownloadStoreTests {
     @Test
     func testEnsureRootDirectoryMarksDownloadsFolderExcludedFromBackup() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
 
@@ -110,7 +110,7 @@ struct DownloadStoreTests {
     @Test
     func testValidateReportsMissingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
@@ -139,7 +139,7 @@ struct DownloadStoreTests {
     @Test
     func testValidateRemovesZeroBytePageFilesAndRequiresRepair() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
@@ -180,7 +180,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingPageRelativePathsDetectsFinalAssetFiles() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -202,7 +202,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingPageRelativePathsMatchesExactUnpaddedPageIndices() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -224,7 +224,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingPageRelativePathsIgnoresLegacyPagesFolder() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -240,7 +240,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingPageRelativePathsRemovesZeroByteFinalAssetFiles() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -261,7 +261,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingPageRelativePathsIgnoresZeroByteLegacyFiles() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -279,7 +279,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingCoverRelativePathDetectsFinalAssetFile() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -298,7 +298,7 @@ struct DownloadStoreTests {
     func testIsReadableAssetFileDoesNotDeleteFileWhenAttributesLookupFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
         let fileURL = rootURL.appendingPathComponent("123_token_cover.jpg")
@@ -315,7 +315,7 @@ struct DownloadStoreTests {
     @Test
     func testMakeFolderRelativePathSanitizesSeparatorsWhitespaceAndLength() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta \(String(repeating: "X", count: 200)).  "
         let relativePath = storage.makeFolderRelativePath(gid: "123", token: "token", title: unsafeTitle)
@@ -344,7 +344,7 @@ struct DownloadStoreTests {
     @Test
     func testFinalFolderRelativePathUsesIdentityPrefixAndSanitizedTitle() {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta.  "
         let relativePath = storage.makeFolderRelativePath(gid: "123", token: "tok/en", title: unsafeTitle)
@@ -355,7 +355,7 @@ struct DownloadStoreTests {
     @Test
     func testFinalAssetRelativePathsUseIdentityAndUnpaddedPageIndex() {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         #expect(
             storage.makePageRelativePath(gid: "123", token: "token", index: 7, fileExtension: "JPG")
@@ -370,7 +370,7 @@ struct DownloadStoreTests {
     @Test
     func testScanDownloadFoldersReadsOnlyFoldersWithManifests() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let downloadFolderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
@@ -392,7 +392,7 @@ struct DownloadStoreTests {
     @Test
     func testScanDownloadsIgnoresRootGalleryFoldersAndListsEmptyUserFolders() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         // A gallery folder dropped directly at the root stays invisible.
@@ -437,7 +437,7 @@ struct DownloadStoreTests {
     @Test
     func testUserFolderNameNormalizationRejectsInvalidNames() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         #expect(storage.normalizedUserFolderName("  My Folder  ") == "My Folder")
         #expect(storage.normalizedUserFolderName("a/b:c") == "a b c")
@@ -460,7 +460,7 @@ struct DownloadStoreTests {
     @Test
     func testExistingFinalAssetFileURLsUseIdentityPrefix() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")

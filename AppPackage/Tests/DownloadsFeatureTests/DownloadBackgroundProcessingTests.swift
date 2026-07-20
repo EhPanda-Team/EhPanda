@@ -17,7 +17,7 @@ struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
         let gid = "210001"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
@@ -36,7 +36,7 @@ struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
         let gids = ["210011", "210012", "210013"]
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL,
@@ -69,7 +69,7 @@ struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
         let gid = "210021"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskRunner = DownloadTaskRunner(
             runScheduledDownload: { _, _ in

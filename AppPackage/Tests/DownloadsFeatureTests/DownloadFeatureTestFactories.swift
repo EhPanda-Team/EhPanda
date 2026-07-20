@@ -233,7 +233,7 @@ extension DownloadFeatureTestCase {
         manifest: DownloadManifest
     ) throws -> URL {
         let folderURL = download.folderURL
-        try? FileManager.default.removeItem(at: folderURL)
+        removeTemporaryItem(at: folderURL)
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

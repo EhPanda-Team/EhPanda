@@ -54,16 +54,6 @@ protocol DownloadFeatureTestCase: TestHelper {
 // MARK: - Default Implementations
 
 extension DownloadFeatureTestCase {
-    /// Removes a temporary file or directory a case created, absorbing the failure.
-    func removeTemporaryItem(at url: URL) {
-        do {
-            try FileManager.default.removeItem(at: url)
-        } catch {
-            // Cleanup under the system temporary directory is housekeeping, not a result any case
-            // asserts, so a failed removal must not fail the test that asked for it.
-        }
-    }
-
     /// Primes an isolated `DataCache` with a placeholder body under every cache key of `url`, then
     /// asserts the coordinator refuses to serve it.
     ///

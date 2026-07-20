@@ -11,7 +11,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         let gid = "repair-seed-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -35,7 +35,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
             parentFolderName: existingDownload.folderName
         )
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
-        try? FileManager.default.removeItem(at: folderURL)
+        removeTemporaryItem(at: folderURL)
         let workingSeed = try await manager.prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
@@ -75,7 +75,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -97,7 +97,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 71)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
