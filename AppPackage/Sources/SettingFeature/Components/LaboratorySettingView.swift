@@ -56,11 +56,11 @@ struct LaboratoryCell: View {
     }
 
     var body: some View {
-        HStack {
-            Image(systemSymbol: symbol)
-
+        Label {
             Text(title)
                 .bold()
+        } icon: {
+            Image(systemSymbol: symbol)
         }
         .foregroundStyle(contentColor)
         .font(.title2)
