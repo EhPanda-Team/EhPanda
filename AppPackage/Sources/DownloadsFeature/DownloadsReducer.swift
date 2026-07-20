@@ -171,7 +171,7 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .moveButtonTapped(let download):
-                let destinations = state.folders.filter { $0 != download.folderName }
+                let destinations = state.folders.filter({ $0 != download.folderName })
                 state.confirmationDialog = ConfirmationDialogState {
                     TextState(localized: .moveToFolder)
                 } actions: {

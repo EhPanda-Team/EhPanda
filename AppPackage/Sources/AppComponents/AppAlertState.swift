@@ -159,7 +159,7 @@ extension AppAlertState where Action == Never {
         .init(
             style: .toast(icon: .error, autoHide: true),
             title: TextState(localized: .error),
-            message: caption.map { TextState($0) }
+            message: caption.map({ TextState($0) })
         )
     }
     public static func error(_ errorInfo: ErrorInfo) -> Self {
@@ -181,7 +181,7 @@ extension AppAlertState where Action == Never {
         .init(
             style: .toast(icon: .success, autoHide: true),
             title: TextState(localized: .success),
-            message: caption.map { TextState($0) }
+            message: caption.map({ TextState($0) })
         )
     }
     public static var savedToPhotoLibrary: Self {
@@ -231,7 +231,7 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(
-            item.map { Text($0.title) } ?? Text(verbatim: ""),
+            item.map({ Text($0.title) }) ?? Text(verbatim: ""),
             isPresented: Binding($item),
             presenting: item,
             actions: { store in

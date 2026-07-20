@@ -45,7 +45,7 @@ extension DownloadCoordinator {
                 .map(\.index)
         )
         let remainingPageIndices = pendingPageIndices
-            .filter { !restoredIndices.contains($0) }
+            .filter({ !restoredIndices.contains($0) })
         var control = PageDownloadControl()
         await processRemainingPages(
             context: context,
@@ -102,7 +102,7 @@ extension DownloadCoordinator {
         failedPages: [Int: PageFailure?]
     ) throws -> DownloadBatchResult {
         let activeFailedPages = failedPages.values
-            .compactMap { $0 }
+            .compactMap({ $0 })
             .filter {
                 !isCancellationLikeAppError($0.error)
             }

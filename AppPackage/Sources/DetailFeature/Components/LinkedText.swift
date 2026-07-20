@@ -174,7 +174,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
                 fractionOfDistanceBetweenInsertionPoints: nil
             )
 
-            return overlay.links.first { $0.range.contains(indexOfCharacter) }
+            return overlay.links.first(where: { $0.range.contains(indexOfCharacter) })
         }
     }
 }

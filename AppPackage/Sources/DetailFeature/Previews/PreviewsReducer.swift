@@ -126,7 +126,7 @@ public struct PreviewsReducer: Sendable {
                     var previousRelevantDownloads = [DownloadedGallery]()
                     var hadRelevantDownloads = false
                     for await downloads in downloadClient.observeDownloads() {
-                        let relevantDownloads = downloads.filter { $0.gid == gid }
+                        let relevantDownloads = downloads.filter({ $0.gid == gid })
                         let hasRelevantDownloads = !relevantDownloads.isEmpty
                         guard hasRelevantDownloads || hadRelevantDownloads else { continue }
                         if relevantDownloads == previousRelevantDownloads {

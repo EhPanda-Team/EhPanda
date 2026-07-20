@@ -156,7 +156,7 @@ extension DetailReducer {
                 // the newer-only rule so a stale detail-page greeting can't clobber a fresher Setting
                 // fetch.
                 @Shared(.greeting) var sharedGreeting
-                $sharedGreeting.withLock { $0.mergeNewer(greeting) }
+                $sharedGreeting.withLock({ $0.mergeNewer(greeting) })
                 return .none
 
             case .saveGalleryHistory:

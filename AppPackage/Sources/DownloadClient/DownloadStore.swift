@@ -225,7 +225,7 @@ public struct DownloadStore: Sendable {
         }
         let prefix = galleryFolderNamePrefix(gid: gid, token: token)
         return directoryURLs(in: rootURL)
-            .flatMap { directoryURLs(in: $0) }
+            .flatMap({ directoryURLs(in: $0) })
             .filter { folderURL in
                 guard !folderURL.lastPathComponent.hasPrefix(prefix) else {
                     return true
@@ -569,7 +569,7 @@ public struct DownloadStore: Sendable {
             return canReadNonEmptyFile(at: url)
         }
 
-        let isRegularFile = (attributes[.type] as? FileAttributeType).map { $0 == .typeRegular } ?? true
+        let isRegularFile = (attributes[.type] as? FileAttributeType).map({ $0 == .typeRegular }) ?? true
         guard isRegularFile else {
             discardRejectedAsset(at: url)
             return false

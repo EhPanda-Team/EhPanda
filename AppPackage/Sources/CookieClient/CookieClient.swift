@@ -419,7 +419,7 @@ private struct CookieClientTestingCookie: Sendable {
         let normalizedDomain = domain.lowercased()
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
         let domainMatches = host == normalizedDomain
-        let keyMatches = key.map { name == $0 } ?? true
+        let keyMatches = key.map({ name == $0 }) ?? true
         return domainMatches && keyMatches
     }
 
@@ -450,7 +450,7 @@ private final class CookieClientTestingStore: Sendable {
     public func stream() -> AsyncStream<Void> {
         AsyncStream { continuation in
             let id = UUID()
-            subscribers.withLock { $0[id] = continuation }
+            subscribers.withLock({ $0[id] = continuation })
             continuation.onTermination = { _ in
                 self.removeSubscriber(id: id)
             }
@@ -458,14 +458,16 @@ private final class CookieClientTestingStore: Sendable {
     }
 
     private func removeSubscriber(id: UUID) {
-        subscribers.withLock { _ = $0.removeValue(forKey: id) }
+        subscribers.withLock({ _ = $0.removeValue(forKey: id) })
     }
 
     /// Mirrors the live client's jar-change notifications: one element per store mutation, where
     /// the live jar posts one per HTTPCookie mutation instead. Consumers only treat elements as
     /// "re-read the jar", so the granularity difference is inconsequential.
     private func notify() {
-        subscribers.withLock { $0.values.forEach { $0.yield(()) } }
+        subscribers.withLock { subscribers in
+            subscribers.values.forEach({ $0.yield(()) })
+        }
     }
 
     public func value(for url: URL, key: String) -> String {
@@ -489,13 +491,13 @@ private final class CookieClientTestingStore: Sendable {
             expiresDate: sessionOnly ? nil : Date(timeIntervalSinceNow: expiresTime),
             isSessionOnly: sessionOnly
         )
-        cookies.withLock { $0[storageKey(domain: domain, key: key)] = cookie }
+        cookies.withLock({ $0[storageKey(domain: domain, key: key)] = cookie })
         notify()
     }
 
     public func removeValue(for url: URL, key: String) {
         cookies.withLock { storage in
-            storage = storage.filter { !$0.value.matches(url: url, key: key) }
+            storage = storage.filter({ !$0.value.matches(url: url, key: key) })
         }
         notify()
     }
@@ -507,8 +509,8 @@ private final class CookieClientTestingStore: Sendable {
     public func cookies(for url: URL) -> [HTTPCookie] {
         cookies.withLock { storage in
             storage.values
-                .filter { $0.matches(url: url) }
-                .compactMap { $0.httpCookie() }
+                .filter({ $0.matches(url: url) })
+                .compactMap({ $0.httpCookie() })
         }
     }
 
@@ -528,13 +530,13 @@ private final class CookieClientTestingStore: Sendable {
     }
 
     public func removeAll() {
-        cookies.withLock { $0.removeAll() }
+        cookies.withLock({ $0.removeAll() })
         notify()
     }
 
     private func cookie(for url: URL, key: String) -> CookieClientTestingCookie? {
         cookies.withLock { storage in
-            storage.values.first { $0.matches(url: url, key: key) }
+            storage.values.first(where: { $0.matches(url: url, key: key) })
         }
     }
 

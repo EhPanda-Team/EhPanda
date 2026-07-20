@@ -98,7 +98,9 @@ struct TabBarView: View {
                 store.send(.presentation(.presentErrorInfo(errorInfo)))
             }
         )
-        .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
+        .onChange(of: scenePhase) { _, newValue in
+            store.send(.onScenePhaseChange(newValue))
+        }
         .onOpenURL { store.send(.presentation(.handleDeepLink($0))) }
     }
 }

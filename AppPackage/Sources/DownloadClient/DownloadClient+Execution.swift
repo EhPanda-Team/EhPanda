@@ -189,7 +189,7 @@ extension DownloadCoordinator {
             return
         }
         failedPageErrors[context.gid] = Dictionary(
-            uniqueKeysWithValues: error.failedPages.map { ($0.index, $0) }
+            uniqueKeysWithValues: error.failedPages.map({ ($0.index, $0) })
         )
         logger.error(
             """

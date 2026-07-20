@@ -185,7 +185,7 @@ final class TagTranslationHandler {
 
         var translations = translations
         if let namespace = namespace {
-            translations = translations.filter { $0.value.namespace.rawValue == namespace }
+            translations = translations.filter({ $0.value.namespace.rawValue == namespace })
         }
         if namespace != nil && keyword.isEmpty {
             // Returns suggestion based on namespace only
@@ -206,8 +206,8 @@ final class TagTranslationHandler {
                         matchesNamespace: namespace != nil
                     )
                 }
-                .filter { $0.weight > 0 }
-                .sorted { $0.weight > $1.weight }
+                .filter({ $0.weight > 0 })
+                .sorted(by: { $0.weight > $1.weight })
         }
     }
 }

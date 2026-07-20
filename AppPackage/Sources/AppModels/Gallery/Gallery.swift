@@ -28,7 +28,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         guard randomID, count > 0 else {
             return Array(repeating: blank(), count: count)
         }
-        return (0...count).map { _ in blank() }
+        return (0...count).map({ _ in blank() })
     }
     public static let preview = Gallery(
         gid: UUID().uuidString,

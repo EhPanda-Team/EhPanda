@@ -314,7 +314,7 @@ extension DownloadCoordinator {
             )
         } ?? [:]
         let failedPages = (failedPageErrors[gid] ?? [:])
-            .filter { !isCancellationLikeAppError($0.value.error) }
+            .filter({ !isCancellationLikeAppError($0.value.error) })
 
         let pages = buildInspectionPages(
             download: download,
