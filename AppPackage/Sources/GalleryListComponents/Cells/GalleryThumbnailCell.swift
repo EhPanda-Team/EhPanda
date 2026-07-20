@@ -6,6 +6,7 @@ import TagTranslationFeature
 import AppComponents
 import Kingfisher
 import AppTools
+import PreviewSupport
 
 public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -101,9 +102,9 @@ private let previewLongTitle =
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
 
 private extension Gallery {
-    static func previewFixture(title: String, rating: Float, pageCount: Int) -> Gallery {
+    static func previewFixture(identity: Int, title: String, rating: Float, pageCount: Int) -> Gallery {
         .init(
-            gid: UUID().uuidString,
+            gid: PreviewIdentifiers[identity].uuidString,
             token: "",
             title: title,
             rating: rating,
@@ -123,9 +124,9 @@ private extension Gallery {
 }
 
 #Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
-    GalleryThumbnailCell(gallery: .previewFixture(title: previewLongTitle, rating: 5, pageCount: 1234))
+    GalleryThumbnailCell(gallery: .previewFixture(identity: 0, title: previewLongTitle, rating: 5, pageCount: 1234))
 }
 
 #Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
-    GalleryThumbnailCell(gallery: .previewFixture(title: "Doujin", rating: 0, pageCount: 1))
+    GalleryThumbnailCell(gallery: .previewFixture(identity: 1, title: "Doujin", rating: 0, pageCount: 1))
 }
