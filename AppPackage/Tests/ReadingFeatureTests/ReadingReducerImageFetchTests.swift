@@ -35,7 +35,11 @@ struct ReadingReducerImageFetchTests {
             )
         }
 
-        await store.send(.refetchNormalImageURLsDone(index: 1, host: .ehentai, result: .success((imageURLs: [:], response: response)))) {
+        await store.send(
+            .refetchNormalImageURLsDone(
+                index: 1, host: .ehentai, result: .success((imageURLs: [:], response: response))
+            )
+        ) {
             $0.imageURLLoadingStates[1] = .failed(.notFound)
         }
         await store.finish()
