@@ -40,7 +40,7 @@
           "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n2. fix: Gesture issue in the reading page.\n3. fix: Crash issue in eh setting page.\n4. fix: A minor issue in search page.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.0/EhPanda.ipa",
           "size": 7224545,
-          "sha256": "db624b3786798d761349db4b670f2b7abd5d06334cd14d696e24a708ec159e14",
+          "sha256": "8e23f060c43ecc349f679a2de3600a6764594cc7b62dc58c582453f1a58f6f4a",
           "minOSVersion": "26.0"
         }
       ],
