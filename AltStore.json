@@ -33,22 +33,22 @@
       ],
       "versions": [
         {
-          "version": "2.8.0",
-          "buildVersion": "157",
-          "marketingVersion": "2.8.0",
-          "date": "2025-10-23T04:23:41Z",
-          "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n2. fix: Gesture issue in the reading page.\n3. fix: Crash issue in eh setting page.\n4. fix: A minor issue in search page.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.0/EhPanda.ipa",
-          "size": 7224545,
-          "sha256": "db624b3786798d761349db4b670f2b7abd5d06334cd14d696e24a708ec159e14",
+          "version": "2.8.1",
+          "buildVersion": "158",
+          "marketingVersion": "2.8.1",
+          "date": "2026-07-20T12:11:49Z",
+          "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\\n3. fix: Gesture issue in the reading page.\\n4. fix: Crash issue in eh setting page.\\n5. fix: A minor issue in search page.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.1/EhPanda.ipa",
+          "size": 7352364,
+          "sha256": "2f389e36270414a8d9f3537e330f5c2bbff80887109c56ff9b4ba68ed377d62b",
           "minOSVersion": "26.0"
         }
       ],
       "appPermissions": {
         "entitlements": [],
         "privacy": {
-          "NSFaceIDUsageDescription": "We need this permission to provide Face ID option while unlocking the App.",
-          "NSPhotoLibraryAddUsageDescription": "We need this permission to save images to your photo library."
+          "NSPhotoLibraryAddUsageDescription": "We need this permission to save images to your photo library.",
+          "NSFaceIDUsageDescription": "We need this permission to provide Face ID option while unlocking the App."
         }
       }
     }
