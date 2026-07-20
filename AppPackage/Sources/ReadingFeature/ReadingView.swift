@@ -395,12 +395,25 @@ extension ReadingView {
         }
     }
 
+    /// The downloaded page file's bytes, or nil when it cannot be read.
+    ///
+    /// Nil is the ordinary "nothing to scan" answer rather than a swallowed error: the caller's
+    /// guard already reports an unusable local page through its own debug log, so surfacing the
+    /// read error separately would duplicate that one message.
+    private func localImageData(at imageURL: URL) -> Data? {
+        do {
+            return try Data(contentsOf: imageURL)
+        } catch {
+            return nil
+        }
+    }
+
     /// Runs Live Text over a downloaded page file. Animated images are skipped by design
     /// (Live Text scans still images only), so a single non-animating frame is never lifted
     /// out of an animation.
     private func analyzeLocalImage(at imageURL: URL, index: Int) {
         // Local-file loading is an optional Live Text probe; failure skips analysis without affecting reading.
-        guard let data = try? Data(contentsOf: imageURL),
+        guard let data = localImageData(at: imageURL),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
               let cgImage = image.cgImage
