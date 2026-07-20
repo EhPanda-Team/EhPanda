@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import ComposableArchitecture
 import URLClient
 import HapticsClient
@@ -232,6 +233,12 @@ struct AppReducer {
                     if [.home, .search].contains(type) {
                         effects.append(hapticEffect)
                     }
+                } else {
+                    // Presentation-driven lifecycle: tab roots are built once and live for the whole
+                    // session, so "this tab became the visible one" is what replaces their former
+                    // view `onAppear`. Their presentation actions are guarded, so re-activating a
+                    // populated tab refetches nothing.
+                    effects.append(tabPresentationEffect(for: type))
                 }
                 return effects.isEmpty ? .none : .merge(effects)
 
@@ -292,6 +299,10 @@ struct AppReducer {
                 if !state.isAwaitingIgneousForLaunchAutomation {
                     effects.append(.send(.runLaunchAutomation))
                 }
+                // Cold-launch counterpart of the tab-activation hook below: the tab shown at launch
+                // never gets a "became active" transition, so its presentation action fires here.
+                // Settings are loaded by now, which is what the fetches need to pick a gallery host.
+                effects.append(tabPresentationEffect(for: state.tabBarState.tabBarItemType))
                 return effects.isEmpty ? .none : .merge(effects)
 
             case .setting(.igneousRefreshed):
@@ -325,6 +336,17 @@ struct AppReducer {
 }
 
 private extension AppReducer {
+    /// The tab root's presentation action — the reducer-side replacement for the view `onAppear` it
+    /// used to run. Downloads and Setting drive their own lifecycle and take no action here.
+    func tabPresentationEffect(for type: TabBarItemType) -> Effect<Action> {
+        switch type {
+        case .home:
+            return .send(.home(.onPresented))
+        case .favorites, .search, .downloads, .setting:
+            return .none
+        }
+    }
+
     /// Flush actions for every reading session currently on top of a navigation host, so a background
     /// force-quit persists each reader's last debounced page. A reader is presented as a `.reading`
     /// destination of `.detail`/`.previews` (elements of the gallery stacks) or, for the Downloads tab

@@ -66,9 +66,15 @@ extension StackState where Element: GalleryRouteIdentifiable {
     // Append a screen unless it has the same route key as the current top of the stack, so a rapid
     // double-activation can't push the same detail twice. Only the adjacent element is compared, so
     // legitimate same-gid re-pushes through a deeper screen (Detail → Comments → same Detail) work.
-    public mutating func appendGuardingDuplicate(_ element: Element) {
-        guard last?.routeKey != element.routeKey else { return }
+    //
+    // Returns the new element's id so a caller practising presentation-driven lifecycle can address
+    // the screen it just pushed and start its work. `nil` means the push was deduped: no new screen
+    // was presented, so nothing should be kicked off.
+    @discardableResult
+    public mutating func appendGuardingDuplicate(_ element: Element) -> StackElementID? {
+        guard last?.routeKey != element.routeKey else { return nil }
         append(element)
+        return ids.last
     }
 }
 

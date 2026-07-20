@@ -110,6 +110,7 @@ enum Module: String {
 
     // Test targets
     case appFeatureTests = "AppFeatureTests"
+    case homeFeatureTests = "HomeFeatureTests"
     case parserFeatureTests = "ParserFeatureTests"
     case downloadsFeatureTests = "DownloadsFeatureTests"
     case fileClientTests = "FileClientTests"
@@ -848,6 +849,13 @@ let targets: [PackageDescription.Target] = [
         module: .appFeatureTests,
         dependencies: [
             .module(.appFeature)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .homeFeatureTests,
+        dependencies: [
+            .module(.homeFeature)
         ],
         plugins: swiftLintPlugins
     ),

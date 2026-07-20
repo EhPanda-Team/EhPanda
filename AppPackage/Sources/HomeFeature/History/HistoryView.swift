@@ -33,14 +33,6 @@ struct HistoryView: View {
             downloadBadges: store.downloadBadges
         )
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
-        .onAppear {
-            store.send(.onAppear)
-            if store.galleries.isEmpty {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries)
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(.history)
     }
