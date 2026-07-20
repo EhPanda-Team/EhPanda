@@ -48,7 +48,7 @@ public enum ImageColors {
         }
 
         let threshold = Int(Double(height) * 0.01)
-        var proposed: [Double] = [-1, -1, -1, -1]
+        var proposed = ProposedColors()
 
         // Walks the buffer four bytes at a time instead of computing a pixel offset from a
         // row/column pair, so no index arithmetic can run off the end. The original walked the
@@ -63,19 +63,19 @@ public enum ImageColors {
             colorCounts[color, default: 0] += 1
         }
 
-        proposed[0] = edgeColor(from: colorCounts, threshold: threshold)
+        proposed.background = edgeColor(from: colorCounts, threshold: threshold)
         proposed = accentColors(from: colorCounts, proposed: proposed)
 
-        let isDarkBackground = proposed[0].isDarkColor
-        for index in 1...3 where proposed[index] == -1 {
-            proposed[index] = isDarkBackground ? 255_255_255 : 0
-        }
+        let fallback: Double = proposed.background.isDarkColor ? 255_255_255 : 0
+        if proposed.primary == ProposedColors.unset { proposed.primary = fallback }
+        if proposed.secondary == ProposedColors.unset { proposed.secondary = fallback }
+        if proposed.detail == ProposedColors.unset { proposed.detail = fallback }
 
         return Colors(
-            background: proposed[0].color,
-            primary: proposed[1].color,
-            secondary: proposed[2].color,
-            detail: proposed[3].color
+            background: proposed.background.color,
+            primary: proposed.primary.color,
+            secondary: proposed.secondary.color,
+            detail: proposed.detail.color
         )
     }
 
@@ -100,11 +100,14 @@ public enum ImageColors {
         return proposedEdgeColor.color
     }
 
-    /// Fills the `primary`/`secondary`/`detail` slots of `proposed` (indices 1...3)
-    /// with contrasting, mutually distinct colors drawn from the counted colors.
-    private static func accentColors(from colorCounts: [Double: Int], proposed: [Double]) -> [Double] {
+    /// Fills the `primary`/`secondary`/`detail` slots of `proposed` with contrasting,
+    /// mutually distinct colors drawn from the counted colors.
+    private static func accentColors(
+        from colorCounts: [Double: Int],
+        proposed: ProposedColors
+    ) -> ProposedColors {
         var proposed = proposed
-        let findDarkTextColor = !proposed[0].isDarkColor
+        let findDarkTextColor = !proposed.background.isDarkColor
 
         let candidates = colorCounts.keys
             .map { $0.with(minSaturation: 0.15) }
@@ -114,18 +117,19 @@ public enum ImageColors {
 
         for candidate in candidates {
             let color = candidate.color
-            if proposed[1] == -1 {
-                if color.isContrasting(proposed[0]) {
-                    proposed[1] = color
+            if proposed.primary == ProposedColors.unset {
+                if color.isContrasting(proposed.background) {
+                    proposed.primary = color
                 }
-            } else if proposed[2] == -1 {
-                guard color.isContrasting(proposed[0]), proposed[1].isDistinct(color) else { continue }
-                proposed[2] = color
-            } else if proposed[3] == -1 {
-                guard color.isContrasting(proposed[0]),
-                    proposed[2].isDistinct(color),
-                    proposed[1].isDistinct(color) else { continue }
-                proposed[3] = color
+            } else if proposed.secondary == ProposedColors.unset {
+                guard color.isContrasting(proposed.background),
+                    proposed.primary.isDistinct(color) else { continue }
+                proposed.secondary = color
+            } else if proposed.detail == ProposedColors.unset {
+                guard color.isContrasting(proposed.background),
+                    proposed.secondary.isDistinct(color),
+                    proposed.primary.isDistinct(color) else { continue }
+                proposed.detail = color
                 break
             }
         }
@@ -171,6 +175,25 @@ public enum ImageColors {
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         return pixels
     }
+}
+
+/// The four color slots the algorithm fills, as packed `Double`s, before they become `Color`s.
+///
+/// The original algorithm carried these as a four-element `[Double]` addressed by literal
+/// position — background, primary, secondary, detail. Naming the slots removes the positional
+/// indexing without touching a single value: each field holds exactly what its array element
+/// held, and `unset` is the same sentinel the array was seeded with. It also removes the
+/// defect class the array invited, where a slot could be read or written at the wrong position
+/// and silently produce a plausible-looking color.
+private struct ProposedColors {
+    /// Marks a slot the candidate scan has not filled; distinct from every packed color,
+    /// which is non-negative.
+    static let unset: Double = -1
+
+    var background = Self.unset
+    var primary = Self.unset
+    var secondary = Self.unset
+    var detail = Self.unset
 }
 
 /// One sampled color (encoded as a packed `Double`, see the `Double` extension below)
