@@ -170,7 +170,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerMoveActionUsesDownloadClientMove() async {
-        let moved = UncheckedBox<(String, String)?>(nil)
+        let moved = UncheckedBox<(gid: String, folder: String)?>(nil)
         let store = TestStore(
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
@@ -203,8 +203,8 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             $0.folders = ["Library"]
         }
 
-        #expect(moved.value?.0 == "123456")
-        #expect(moved.value?.1 == "Library")
+        #expect(moved.value?.gid == "123456")
+        #expect(moved.value?.folder == "Library")
     }
 
     @MainActor

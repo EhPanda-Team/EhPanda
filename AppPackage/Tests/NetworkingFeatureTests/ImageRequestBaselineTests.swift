@@ -17,7 +17,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> (String, [Int: String]) in
+            () async throws(AppError) -> (key: String, imageKeys: [Int: String]) in
             try await MPVKeysRequest(
                 mpvURL: url,
                 urlSession: session,
@@ -78,7 +78,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> ([Int: URL], [Int: URL]) in
+            () async throws(AppError) -> (imageURLs: [Int: URL], originalImageURLs: [Int: URL]) in
             try await GalleryNormalImageURLsRequest(
                 thumbnailURLs: [30: third, 10: first, 20: second],
                 urlSession: session,
@@ -114,7 +114,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = await capture {
-            () async throws(AppError) -> ([Int: URL], [Int: URL]) in
+            () async throws(AppError) -> (imageURLs: [Int: URL], originalImageURLs: [Int: URL]) in
             try await GalleryNormalImageURLsRequest(
                 thumbnailURLs: [1: healthyA, 2: failing, 3: healthyB],
                 urlSession: session
@@ -143,7 +143,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = try await capture {
-            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            () async throws(AppError) -> (imageURLs: [Int: URL], response: HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
                 host: .ehentai,
                 index: 7,
@@ -180,7 +180,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = await capture {
-            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            () async throws(AppError) -> (imageURLs: [Int: URL], response: HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
                 host: .ehentai,
                 index: 7,
@@ -211,7 +211,7 @@ struct ImageRequestBaselineTests {
         defer { cleanUp(session: session, handle: handle) }
 
         let result = await capture {
-            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            () async throws(AppError) -> (imageURLs: [Int: URL], response: HTTPURLResponse?) in
             try await GalleryNormalImageURLRefetchRequest(
                 host: .ehentai,
                 index: 7,

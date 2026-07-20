@@ -52,7 +52,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testRenameFolderForwardsOriginalAndNormalizedEditedNames() async {
-        let renamedPair = UncheckedBox<(String, String)?>(nil)
+        let renamedPair = UncheckedBox<(oldName: String, newName: String)?>(nil)
         let store = makeStore(
             folders: { ["New Name"] },
             renameFolder: { oldName, newName in
@@ -72,8 +72,8 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             $0.folders = ["New Name"]
         }
 
-        #expect(renamedPair.value?.0 == "Old Name")
-        #expect(renamedPair.value?.1 == "New Name")
+        #expect(renamedPair.value?.oldName == "Old Name")
+        #expect(renamedPair.value?.newName == "New Name")
     }
 
     @MainActor
@@ -158,7 +158,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testSubmitEditingFieldRenamesFolderWithOriginalName() async {
-        let renamedPair = UncheckedBox<(String, String)?>(nil)
+        let renamedPair = UncheckedBox<(oldName: String, newName: String)?>(nil)
         let store = makeStore(
             folders: { renamedPair.value == nil ? ["Old Name"] : ["New Name"] },
             renameFolder: { oldName, newName in
@@ -185,8 +185,8 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             $0.folders = ["New Name"]
         }
 
-        #expect(renamedPair.value?.0 == "Old Name")
-        #expect(renamedPair.value?.1 == "New Name")
+        #expect(renamedPair.value?.oldName == "Old Name")
+        #expect(renamedPair.value?.newName == "New Name")
     }
 
     @MainActor

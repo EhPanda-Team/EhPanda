@@ -169,7 +169,7 @@ private extension DownloadCoordinatorCaptureTests {
     func setupCaptureCachedImage(
         gid: String,
         dataCache: DataCache
-    ) async throws -> (URL, [String]) {
+    ) async throws -> (folderURL: URL, pageNames: [String]) {
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemOrange.setFill()

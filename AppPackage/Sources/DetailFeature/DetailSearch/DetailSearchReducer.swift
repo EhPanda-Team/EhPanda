@@ -60,9 +60,9 @@ public struct DetailSearchReducer: Sendable {
 
         case onPresented
         case fetchGalleries(String? = nil)
-        case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
+        case fetchGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
+        case fetchMoreGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient

@@ -35,7 +35,7 @@ public struct MPVKeysRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public func response() async throws(AppError) -> (String, [Int: String]) {
+    public func response() async throws(AppError) -> (key: String, imageKeys: [Int: String]) {
         let request = urlRequest(url: mpvURL, allowsCellular: allowsCellular)
         let (data, _) = try await fetch(request, in: urlSession)
         do {
@@ -93,7 +93,7 @@ public struct GalleryNormalImageURLsRequest: Request, Sendable {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public func response() async throws(AppError) -> ([Int: URL], [Int: URL]) {
+    public func response() async throws(AppError) -> (imageURLs: [Int: URL], originalImageURLs: [Int: URL]) {
         do {
             return try await fanOutResponse()
         } catch {
@@ -101,7 +101,7 @@ public struct GalleryNormalImageURLsRequest: Request, Sendable {
         }
     }
 
-    private func fanOutResponse() async throws -> ([Int: URL], [Int: URL]) {
+    private func fanOutResponse() async throws -> (imageURLs: [Int: URL], originalImageURLs: [Int: URL]) {
         try await withThrowingTaskGroup(of: NormalImageInfo.self) { group in
             for (index, url) in thumbnailURLs {
                 group.addTask { [self] in
@@ -190,7 +190,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public func response() async throws(AppError) -> ([Int: URL], HTTPURLResponse?) {
+    public func response() async throws(AppError) -> (imageURLs: [Int: URL], response: HTTPURLResponse?) {
         var lastError: any Error = URLError(.unknown)
         for _ in 1...4 {
             do {

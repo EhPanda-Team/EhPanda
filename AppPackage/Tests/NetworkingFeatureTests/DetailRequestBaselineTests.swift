@@ -182,7 +182,7 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let funds = try await capture { () async throws(AppError) -> (String, String) in
+        let funds = try await capture { () async throws(AppError) -> (galleryPoints: String, credits: String) in
             try await GalleryArchiveFundsRequest(
                 gid: "2725078",
                 galleryURL: galleryURL,
@@ -212,7 +212,7 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await capture { () async throws(AppError) -> (String, String) in
+        let result = await capture { () async throws(AppError) -> (galleryPoints: String, credits: String) in
             try await GalleryArchiveFundsRequest(
                 gid: "2725078",
                 galleryURL: galleryURL,
