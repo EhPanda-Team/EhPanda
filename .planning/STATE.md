@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-07-PLAN.md
-last_updated: "2026-07-20T16:31:16.114Z"
+stopped_at: Completed 11-08-PLAN.md
+last_updated: "2026-07-20T17:34:25.741Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 112
+  completed_plans: 113
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 8 of 30
+Plan: 9 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -170,6 +170,7 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 11 P5 | ~20m | 2 tasks | 4 files |
 | Phase 11 P6 | ~25m | 2 tasks | 13 files |
 | Phase 11 P7 | 55m | 2 tasks | 24 files |
+| Phase 11 P8 | ~95 min | 2 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -344,6 +345,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-06: LogsClient's two directory guards collapse onto one helper returning [] — both fallbacks derive from an empty list
 - [Phase ?]: Presentation-driven lifecycle uses two shapes: pushed screens get onPresented from the presenting reducer's append; tab roots get it from AppReducer on tab activation and at launch-ready
 - [Phase ?]: appendGuardingDuplicate now returns the new StackElementID? so a deduped push starts nothing
+- [Phase ?]: Detail load pairing lives on GalleryPath.State.onPresentedAction + GalleryNavigation.presentationEffect, so a new gallery screen cannot silently skip a host
+- [Phase ?]: PostCommentView lost its onAppearAction parameter: focus is raised by the presenting reducer
 
 ### Pending Todos
 
@@ -385,6 +388,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T16:31:08.880Z
-Stopped at: Completed 11-07-PLAN.md
+Last session: 2026-07-20T17:34:17.778Z
+Stopped at: Completed 11-08-PLAN.md
 Resume file: None
