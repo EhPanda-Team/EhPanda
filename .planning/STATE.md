@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-13-PLAN.md
-last_updated: "2026-07-20T20:02:25.899Z"
+stopped_at: Completed 11-14-PLAN.md
+last_updated: "2026-07-20T20:16:32.468Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 118
+  completed_plans: 119
   percent: 60
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 14 of 30
+Plan: 15 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
-Progress: [█████████░] 87% (10/15 phases)
+Progress: [█████████░] 88% (10/15 phases)
 
 ## Performance Metrics
 
@@ -179,6 +179,7 @@ Progress: [█████████░] 87% (10/15 phases)
 | Phase 11 P10 | ~70 min | 2 tasks | 28 files |
 | Phase 11 P11 | ~35 min | 2 tasks | 9 files |
 | Phase 11 P12 | ~25 min | 2 tasks | 8 files |
+| Phase 11 P14 | ~35 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -365,6 +366,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-12: AppModels' Gallery.preview/previews/mockGalleries still mint random UUIDs; left for the owner (AppModels→PreviewSupport dep is architectural)
 - [Phase ?]: ReadingFeature subscript matches resolved by honest 'page' renames (60 Dictionary sites) + enumerated() restructure (1 Array site); no exception sites, nothing for 11-17 to insert
 - [Phase ?]: Draft rule's excluded: '[validatedIndex]' entry confirmed inert (file-path regex); recommend 11-17 delete it or move the escape into the rule regex
+- [Phase ?]: ParserFeature's 20 Parser+Detail subscript matches were one design defect: parseInfoPanel returned an 8-slot positional [String]. Replaced with a named-field InfoPanel struct.
+- [Phase ?]: parseGalleryTitle now extracts gid/token inside the guard that validates pathComponents.count >= 4, so four list-mode call sites stop indexing a scraped URL on trust.
+- [Phase ?]: Plan 11-14 created zero precondition-checked exception sites — 11-17 has no directive to insert in ParserFeature.
 
 ### Pending Todos
 
@@ -406,6 +410,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T20:02:18.848Z
-Stopped at: Completed 11-13-PLAN.md
+Last session: 2026-07-20T20:16:24.339Z
+Stopped at: Completed 11-14-PLAN.md
 Resume file: None
