@@ -32,9 +32,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface (completed 2026-07-16)
 - [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [ ] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
-- [ ] **Phase 12: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
-- [ ] **Phase 13: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
-- [ ] **Phase 14: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
+- [ ] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance
+- [ ] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
+- [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
+- [ ] **Phase 15: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
 
 ## Phase Details
 
@@ -447,7 +448,7 @@ Plans:
 
 ### Phase 10: UI Polish
 
-**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content, and land the accompanying UI-modernization sweeps (deprecated-API removal, custom corner-modifier removal, `\.inSheet` removal, Label conversions, `SystemNotificationExt` module rename, `#Preview` migration) — all at appearance/layout parity. **Comprehensive Dynamic Type support is deferred to Phase 14 (Dynamic Type Accessibility)**; a font-scaling + reflow foundation was delivered here in plans 10-10/10-11.
+**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content, and land the accompanying UI-modernization sweeps (deprecated-API removal, custom corner-modifier removal, `\.inSheet` removal, Label conversions, `SystemNotificationExt` module rename, `#Preview` migration) — all at appearance/layout parity. **Comprehensive Dynamic Type support is deferred to Phase 15 (Dynamic Type Accessibility)**; a font-scaling + reflow foundation was delivered here in plans 10-10/10-11.
 **Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
 **Requirements**: POLISH-01, POLISH-02, POLISH-03
 **Success Criteria** (what must be TRUE):
@@ -456,7 +457,7 @@ Plans:
   2. Numeric values animate as numeric transitions on change.
   3. No layout jitter occurs on value change.
   4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
-  5. *(Deferred to Phase 14 — Dynamic Type Accessibility.)* Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls. **Foundation delivered** in 10-10 (7 fixed-pixel font sites scaled) and 10-11 (B1–B10 AX5 reflows, verified on-device); the remaining cosmetic AX5 edge cases, full accessibility-range readability/operability, and the owner-signed device UAT are deferred to Phase 14 for human implementation.
+  5. *(Deferred to Phase 15 — Dynamic Type Accessibility.)* Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls. **Foundation delivered** in 10-10 (7 fixed-pixel font sites scaled) and 10-11 (B1–B10 AX5 reflows, verified on-device); the remaining cosmetic AX5 edge cases, full accessibility-range readability/operability, and the owner-signed device UAT are deferred to Phase 15 for human implementation.
   6. The `\.inSheet` environment value is removed, with any presentation-context logic it drove reimplemented via a native/non-custom-environment mechanism.
   7. Deprecated SwiftUI APIs (e.g. `.foregroundColor` → `.foregroundStyle`) are swept and replaced with their current non-deprecated equivalents, at appearance parity, with no new SwiftLint or compiler deprecation warnings.
   8. The custom `cornerRadius(_:corners:)` view modifier in `ViewModifiers.swift` is removed, with its call site(s) replaced by the standard SwiftUI API (`.clipShape(.rect(cornerRadii:))`), at appearance parity.
@@ -513,7 +514,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 14
+- [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 15
 
 **Cross-cutting constraints:**
 
@@ -538,7 +539,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -553,9 +554,29 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 0/TBD | Not started | - |
-| 12. Deep Link Hardening | 0/TBD | Not started | - |
+| 12. Cloudflare Login Restoration | 0/TBD | Not started | - |
+| 13. Deep Link Hardening | 0/TBD | Not started | - |
+| 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
+| 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
 
-### Phase 12: Deep Link Hardening
+### Phase 12: Cloudflare Login Restoration
+
+**Goal**: Restore the broken username/password login: detect the Cloudflare challenge on the login POST, clear it through an in-app `WKWebView` the user can interact with, capture `cf_clearance` in memory only, and replay the login POST — leaving the other two login methods (in-app web login, manual cookie entry) unchanged.
+**Requirements**: TBD
+**Depends on**: Phase 11
+**Success Criteria** (what must be TRUE):
+
+  1. Username/password login succeeds end-to-end against the live Cloudflare-fronted forums host.
+  2. Challenge detection is dynamic per-response, not assumed per-host: an HTTP 403 with the `cf-mitigated: challenge` header routes into the clearance flow; any non-challenged response proceeds through the existing login path with no extra UI (the no-wall case).
+  3. On challenge, an in-app `WKWebView` surface loads the challenged URL; the moment `cf_clearance` appears in the web view's cookie store it auto-dismisses and the login POST retries — covering both the interactive wall and a wall that auto-passes with zero user interaction (the surface closes itself).
+  4. The retried login POST carries the captured `cf_clearance` and the challenge-solving web view's exact `User-Agent` (Cloudflare binds the clearance to the UA); with a valid clearance, the existing credential-cookie handling (`setCredentials`, `didLogin`) proceeds unchanged.
+  5. `cf_clearance` lives in memory only and is never persisted across app launches. Expiration needs no timer: a retried POST that is challenged again re-presents the challenge surface (bounded retries), then fails through the structured `AppError` surface.
+
+**Evidence (2026-07-20)**: GET and POST on `forums.e-hentai.org/index.php?act=Login` both return `403` + `cf-mitigated: challenge`; `e-hentai.org` / `exhentai.org` currently pass unchallenged (though `server: cloudflare`), so detection must stay response-driven.
+
+**Plans**: TBD
+
+### Phase 13: Deep Link Hardening
 
 **Goal**: Code-review the current deep-link implementation (`GalleryDeepLink.swift`, `AppRouteReducer.swift`) and make it less hacky and more durable at navigating the user to the correct destination screen, backed by UI automation tests.
 **Depends on**: Phase 11
@@ -568,18 +589,18 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 **Plans**: TBD
 
-### Phase 13: Analytics Instrumentation (TelemetryDeck)
+### Phase 14: Analytics Instrumentation (TelemetryDeck)
 
 **Goal:** Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
 **Requirements**: TBD
-**Depends on:** Phase 12
-**Plans:** 13/13 plans complete
+**Depends on:** Phase 13
+**Plans:** TBD
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 13 to break down)
+- [ ] TBD (run /gsd-plan-phase 14 to break down)
 
-### Phase 14: Dynamic Type Accessibility
+### Phase 15: Dynamic Type Accessibility
 
 **Goal**: Complete comprehensive Dynamic Type support so every user-facing screen stays readable and operable across the full Dynamic Type range (including accessibility sizes AX1–AX5) with no clipped essential text, overlapping content, or unreachable controls — building on the font-scaling and reflow foundation delivered in Phase 10 (plans 10-10/10-11, verified on-device).
 **Depends on**: Phase 10 (Dynamic Type foundation) — runs last, against the fully-settled UI.
