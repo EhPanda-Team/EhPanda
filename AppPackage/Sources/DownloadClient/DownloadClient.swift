@@ -1,8 +1,11 @@
+import OSLogExt
 import Foundation
 import AppModels
 import ComposableArchitecture
 import AppTools
 import Sharing
+
+private let logger = Logger(category: .init(describing: DownloadClient.self))
 
 @DependencyClient
 public struct DownloadClient: Sendable {
@@ -116,12 +119,18 @@ extension DownloadClient {
                 @Shared(.setting) var setting
                 // Remote version metadata is optional by API contract; fetch failure
                 // intentionally maps to nil so download availability remains usable.
-                return try? await manager.fetchVersionMetadata(
+                switch await manager.fetchVersionMetadata(
                     host: setting.galleryHost,
                     gid: gid,
                     token: token
-                )
-                .get()
+                ) {
+                case .success(let metadata):
+                    return metadata
+
+                case .failure(let error):
+                    logger.error("Remote version metadata fetch failed: \(error, privacy: .public)")
+                    return nil
+                }
             },
             updateRemoteVersion: { gid, metadata in
                 await manager.updateRemoteVersion(gid: gid, metadata: metadata)
@@ -134,9 +143,18 @@ extension DownloadClient {
             },
             delete: { gid in try await manager.delete(gid: gid).get() },
             loadManifest: { gid in try await manager.loadManifest(gid: gid).get() },
-            // Local page URLs are an optional acceleration path; load failure maps to
-            // nil so callers retain their established remote-page fallback.
-            loadLocalPageURLs: { gid in try? await manager.loadLocalPageURLs(gid: gid).get() },
+            loadLocalPageURLs: { gid in
+                // Local page URLs are an optional acceleration path; load failure maps to
+                // nil so callers retain their established remote-page fallback.
+                switch await manager.loadLocalPageURLs(gid: gid) {
+                case .success(let pageURLs):
+                    return pageURLs
+
+                case .failure(let error):
+                    logger.error("Local download page URL load failed: \(error, privacy: .public)")
+                    return nil
+                }
+            },
             rescanLocalPageURLs: { gid in await manager.rescanLocalPageURLs(gid: gid) },
             captureCachedPage: { gid, index, imageURL in
                 await manager.captureCachedPage(gid: gid, index: index, imageURL: imageURL)
