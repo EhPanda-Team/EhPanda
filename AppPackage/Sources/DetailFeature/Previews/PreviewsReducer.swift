@@ -189,7 +189,7 @@ public struct PreviewsReducer: Sendable {
                     readingState.localPageURLs = state.localPreviewURLs
                 }
                 state.destination = .reading(readingState)
-                return .none
+                return .send(.destination(.presented(.reading(.onPresented))))
 
             case .fetchPreviewURLs(let index):
                 guard state.loadingState != .loading,

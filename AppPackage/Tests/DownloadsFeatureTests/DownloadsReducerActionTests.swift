@@ -331,12 +331,21 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                     guard gid == download.gid else { throw AppError.notFound }
                     return (download, manifest)
                 }
+                // A completed download has its pages on disk; the reader's presentation load falls
+                // back to `.remote` when it finds none.
+                $0.downloadClient.loadLocalPageURLs = { gid in
+                    guard gid == download.gid else { return [:] }
+                    return manifest.pages.keys.reduce(into: [Int: URL]()) { urls, page in
+                        urls[page] = download.folderURL.appending(path: "\(page).jpg")
+                    }
+                }
             }
         )
         store.exhaustivity = .off
 
         await store.send(.openReading(download.gid))
         await store.receive(\.openReadingDone)
+        await store.skipReceivedActions(strict: false)
 
         #expect(store.state.destination?.reading?.contentSource == .local(download: download, manifest: manifest))
     }

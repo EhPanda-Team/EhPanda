@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import AppModels
+import DownloadClient
 import ComposableArchitecture
 @testable import DetailFeature
 @testable import ReadingFeature
@@ -28,7 +29,11 @@ struct DetailReadingSeedTests {
 
     @Test
     func openReadingRemoteSeedsGalleryPreviewConfigAndLanguage() async {
-        let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init)
+        // Presenting the reader now starts its load in the same transition, so the reader's
+        // download observation runs inside this store.
+        let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
+            $0.downloadClient = .noop
+        }
         store.exhaustivity = .off
 
         await store.send(.openReadingDone(.failure(.notFound)))
@@ -46,7 +51,11 @@ struct DetailReadingSeedTests {
 
     @Test
     func presentReadingSeedsGalleryPreviewConfigAndLanguage() async {
-        let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init)
+        // Presenting the reader now starts its load in the same transition, so the reader's
+        // download observation runs inside this store.
+        let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
+            $0.downloadClient = .noop
+        }
         store.exhaustivity = .off
 
         await store.send(.presentReading)

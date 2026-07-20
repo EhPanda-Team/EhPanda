@@ -207,7 +207,7 @@ private extension DetailView {
             .fullScreenCover(
                 item: $store.scope(\.$destination, action: \.destination).reading
             ) { store in
-                ReadingView(store: store, gid: gid)
+                ReadingView(store: store)
                     .privacyMask()
             }
             .sheet(

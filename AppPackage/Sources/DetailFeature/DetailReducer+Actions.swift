@@ -26,7 +26,7 @@ extension DetailReducer {
                     gallery: state.gallery, previewConfig: state.previewConfig,
                     language: state.galleryDetail?.language
                 ))
-                return .none
+                return .send(.destination(.presented(.reading(.onPresented))))
 
             // Presenting each of these sheets is what starts its fetch, replacing the sheet views'
             // former `onAppear`. The archive request needs both URLs the sheet renders from, so a
