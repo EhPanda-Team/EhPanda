@@ -9,7 +9,6 @@ import AppLaunchAutomationClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 @MainActor
 struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
     @MainActor

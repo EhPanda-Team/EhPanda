@@ -7,7 +7,6 @@ import CookieClient
 import AppLaunchAutomationClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
     @Test
     func testHasPendingWorkReflectsQueueState() async throws {

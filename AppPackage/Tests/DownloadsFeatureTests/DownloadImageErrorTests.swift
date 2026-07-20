@@ -3,7 +3,6 @@ import Foundation
 import Testing
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedInvalidPageMapsToNotFound() async throws {

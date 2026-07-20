@@ -5,7 +5,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     @Test
     func testRepairSeedReusesCompletedFilesWhenPageCountMatches() async throws {
