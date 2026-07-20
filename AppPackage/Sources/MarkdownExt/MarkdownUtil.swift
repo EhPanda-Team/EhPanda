@@ -51,10 +51,15 @@ public struct MarkdownUtil {
     }
 
     private static func isValidURL(_ string: String) -> Bool {
-        // Detector construction is a validation probe; failure means the candidate is not a valid URL.
-        guard let detector = try? NSDataDetector(
-            types: NSTextCheckingResult.CheckingType.link.rawValue
-        ), let match = detector.firstMatch(
+        let detector: NSDataDetector
+        do {
+            detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        } catch {
+            // Not logged: detector construction is part of a validation probe whose failure
+            // deliberately classifies the candidate as invalid, this function's negative answer.
+            return false
+        }
+        guard let match = detector.firstMatch(
             in: string, options: [], range: NSRange(location: 0, length: string.utf16.count)
         ) else { return false }
         return match.range.length == string.utf16.count

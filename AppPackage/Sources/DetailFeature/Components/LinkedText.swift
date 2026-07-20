@@ -1,7 +1,15 @@
 import SwiftUI
 
-// Link detection is optional presentation enrichment; detector failure leaves the text unlinked.
-private let linkDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+// Built in a closure because a stored property has no statement position for a `do`/`catch`.
+// The nil contract is deliberate: link detection is optional presentation enrichment, so an
+// unavailable detector leaves the text unlinked rather than failing the view.
+private let linkDetector: NSDataDetector? = {
+    do {
+        return try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+    } catch {
+        return nil
+    }
+}()
 
 private struct LinkColoredText: View {
     private enum Component {
