@@ -42,14 +42,14 @@ custom_rules:
       - string
     severity: error
 
-#  binding_initializer:
-#    name: "Binding Initializer"
-#    regex: "\\bBinding\\s*<[^>]+>\\s*\\(|\\bBinding\\s*\\("
-#    message: "Manual Binding initializers should be avoided. Prefer a projected Binding."
-#    excluded_match_kinds:
-#      - comment
-#      - string
-#    severity: error
+  binding_initializer:
+    name: "Binding Initializer"
+    regex: '\bBinding\s*(?:<[^>]*>)?\s*\(\s*get\s*:'
+    message: "Closure-based Binding(get:set:) should be avoided. Prefer a projected Binding, e.g. Binding($optional) or $store.value."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
 
   child_reducer_shorthand_foreach:
     name: "Child reducer shorthand (forEach)"
@@ -96,14 +96,14 @@ custom_rules:
       - string
     severity: error
 
-#  lifecycle_modifiers:
-#    name: "Lifecycle Modifiers"
-#    regex: "\\.(onAppear|onDisappear|task)\\s*(\\(|\\{)"
-#    message: "SwiftUI lifecycle modifiers should be avoided. Prefer a reducer action."
-#    excluded_match_kinds:
-#      - comment
-#      - string
-#    severity: error
+  lifecycle_modifiers:
+    name: "Lifecycle Modifiers"
+    regex: "\\.(onAppear|onDisappear|task)\\s*(\\(|\\{)"
+    message: "SwiftUI lifecycle modifiers should be avoided. Prefer a reducer action."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
 
   no_case_check_property:
     name: "No Case-Check Property"

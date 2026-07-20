@@ -71,6 +71,13 @@ private struct ToastViewModifier: ViewModifier {
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id
                     ))
+                    // D-02 exception candidate: `.task(id:)` is used here for its *cancellation*.
+                    // The auto-dismiss timer must die the instant the toast is replaced or flicked
+                    // away, and keying on the state's id restarts it per toast — that is precisely
+                    // `.task(id:)`'s contract. The non-banned alternative (`.onChange(of: id,
+                    // initial:)` firing an unstructured `Task`) leaves an orphaned 3-second sleep
+                    // per replaced toast, each waking to re-check state it no longer owns.
+                    // swiftlint:disable:next lifecycle_modifiers
                     .task(id: id) {
                         await managePresentation(
                             toast,
