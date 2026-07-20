@@ -116,6 +116,27 @@
         "identifier" : "GalleryListComponentsTests",
         "name" : "GalleryListComponentsTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "CookieClientTests",
+        "name" : "CookieClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "ImageClientTests",
+        "name" : "ImageClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "ReadingFeatureTests",
+        "name" : "ReadingFeatureTests"
+      }
     }
   ],
   "version" : 1
