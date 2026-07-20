@@ -104,24 +104,24 @@ struct HorizontalImageStack: View {
     var body: some View {
         HStack(spacing: 0) {
             if config.isFirstAvailable {
-                imageContainer(index: config.firstIndex)
+                imageContainer(page: config.firstIndex)
             }
             if config.isSecondAvailable {
-                imageContainer(index: config.secondIndex)
+                imageContainer(page: config.secondIndex)
             }
         }
     }
 
-    func imageContainer(index: Int) -> some View {
+    func imageContainer(page: Int) -> some View {
         ImageContainer(
-            index: index,
-            imageURL: imageURLs[index],
-            loadingState: loadingStates[index] ?? .idle,
+            index: page,
+            imageURL: imageURLs[page],
+            loadingState: loadingStates[page] ?? .idle,
             isDualPage: isDualPage,
             isActive: isActive,
             backgroundColor: backgroundColor,
             enablesLiveText: enablesLiveText,
-            liveTextGroups: liveTextGroups[index] ?? [],
+            liveTextGroups: liveTextGroups[page] ?? [],
             focusedLiveTextGroup: focusedLiveTextGroup,
             liveTextTapAction: liveTextTapAction,
             refetchAction: refetchAction,
@@ -141,20 +141,20 @@ struct HorizontalImageStack: View {
         // no behavioural gain.
         // swiftlint:disable:next lifecycle_modifiers
         .onAppear {
-            if imageURLs[index] == nil {
-                fetchAction(index)
+            if imageURLs[page] == nil {
+                fetchAction(page)
             }
-            prefetchAction(index)
+            prefetchAction(page)
         }
-        .contextMenu { contextMenuItems(index: index) }
+        .contextMenu { contextMenuItems(page: page) }
     }
-    @ViewBuilder private func contextMenuItems(index: Int) -> some View {
+    @ViewBuilder private func contextMenuItems(page: Int) -> some View {
         Button {
-            refetchAction(index)
+            refetchAction(page)
         } label: {
             Label(.reload, systemSymbol: .arrowCounterclockwise)
         }
-        if let imageURL = imageURLs[index] {
+        if let imageURL = imageURLs[page] {
             Button {
                 copyImageAction(imageURL)
             } label: {
@@ -165,7 +165,7 @@ struct HorizontalImageStack: View {
             } label: {
                 Label(.save, systemSymbol: .squareAndArrowDown)
             }
-            if let originalImageURL = originalImageURLs[index] {
+            if let originalImageURL = originalImageURLs[page] {
                 Button {
                     saveImageAction(originalImageURL)
                 } label: {
