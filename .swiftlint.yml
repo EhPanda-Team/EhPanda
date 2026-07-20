@@ -96,6 +96,32 @@ custom_rules:
       - string
     severity: error
 
+  labeled_tuple_elements:
+    name: "Labeled Tuple Elements"
+    # Polices tuple TYPES only: a paren group in a type position (after `->`, `:` or `<`) that
+    # holds two or more elements, at least one of them unlabeled. Positional tuples silently
+    # mis-index the moment an element is added or reordered, and `.0`/`.1` reads carry no meaning.
+    #
+    # Three deliberate exclusions, each verified against the tree rather than assumed:
+    #   - The trailing `(?!...->|async|throws|rethrows)` rejects a function type's PARAMETER list,
+    #     e.g. `(String, Int) -> Void`. Swift forbids argument labels there, so flagging it would
+    #     demand an impossible fix.
+    #   - `[ \t]` instead of `\s` keeps the match on one line. A custom-rule regex runs over the
+    #     whole file, so `\s` lets `case 3:` on one line pair with a tuple ASSIGNMENT on the next.
+    #     Construction literals are out of scope (D-10) — only types are policed.
+    #   - Each element is `[^(),\n]`, so a nested paren group is skipped rather than half-matched.
+    #
+    # Note the `doccomment` spelling below: `doc_comment` is not a valid SwiftLint syntax kind, and
+    # one invalid entry silently discards this whole rule's configuration, leaving it reporting zero
+    # violations on any input — indistinguishable from a clean codebase.
+    regex: '(?:->|:|<)[ \t]*\((?:(?:[ \t]*[_a-zA-Z][a-zA-Z0-9_]*[ \t]*:[^(),\n]*,)+(?![ \t]*[_a-zA-Z][a-zA-Z0-9_]*[ \t]*:)[ \t]*[^(),\n]+(?:,[^(),\n]+)*|(?![ \t]*[_a-zA-Z][a-zA-Z0-9_]*[ \t]*:)[ \t]*[^(),\n]+(?:,[^(),\n]+)+)\)(?![ \t]*(?:->|async\b|throws\b|rethrows\b))'
+    message: "Label every element of a multi-element tuple type, or use a small named struct."
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
   lifecycle_modifiers:
     name: "Lifecycle Modifiers"
     regex: "\\.(onAppear|onDisappear|task)\\s*(\\(|\\{)"
