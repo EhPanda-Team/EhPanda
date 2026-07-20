@@ -162,6 +162,48 @@ struct CookieClientTests {
     }
 
     @Test
+    func testingClientStreamsElementOnMutation() async {
+        let client = CookieClient.testing()
+        var iterator = client.cookiesDidChange().makeAsyncIterator()
+
+        seedCredentials(in: client, for: .ehentai)
+
+        #expect(await iterator.next() != nil)
+    }
+
+    @Test
+    func liveClientStreamsElementOnCookieChange() async {
+        let storage = makeCookieStorage()
+        let client = CookieClient.live(cookieStorage: storage)
+        defer { client.clearAll() }
+        let stream = client.cookiesDidChange()
+
+        // The stream's notification observer registers asynchronously, so keep mutating until an
+        // element lands; the mutator doubles as the timeout so a regression fails instead of hanging.
+        let received = await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                await stream.first { _ in true } != nil
+            }
+            group.addTask {
+                for attempt in 0..<200 {
+                    client.setOrEditCookie(
+                        for: GalleryHost.ehentai.url,
+                        key: CookieName.memberID,
+                        value: "member-\(attempt)"
+                    )
+                    try? await Task.sleep(for: .milliseconds(10))
+                }
+                return false
+            }
+            let first = await group.next() ?? false
+            group.cancelAll()
+            return first
+        }
+
+        #expect(received)
+    }
+
+    @Test
     func importsAutomationCredentialsAcrossCookieHosts() throws {
         let client = CookieClient.testing()
         let ehentaiURL = GalleryHost.ehentai.url
