@@ -10,8 +10,7 @@ extension DownloadCoordinator {
     ) -> DownloadManifest? {
         // Validation is a manifest probe; unreadable or malformed data is treated as
         // no reusable manifest so the caller can create a fresh one.
-        guard let manifest = try? storage
-                .readManifest(folderURL: folderURL),
+        guard let manifest = storage.probeManifest(folderURL: folderURL),
               manifest.gid == gid,
               manifest.pageCount == pageCount
         else {
