@@ -337,7 +337,8 @@ struct AppReducer {
 
 private extension AppReducer {
     /// The tab root's presentation action — the reducer-side replacement for the view `onAppear` it
-    /// used to run. Downloads and Setting drive their own lifecycle and take no action here.
+    /// used to run. Setting takes no action here: its root menu is a static list, and each Setting
+    /// screen starts itself when `SettingReducer` pushes it.
     func tabPresentationEffect(for type: TabBarItemType) -> Effect<Action> {
         switch type {
         case .home:
@@ -346,7 +347,9 @@ private extension AppReducer {
             return .send(.favorites(.onPresented))
         case .search:
             return .send(.searchRoot(.onPresented))
-        case .downloads, .setting:
+        case .downloads:
+            return .send(.downloads(.onPresented))
+        case .setting:
             return .none
         }
     }

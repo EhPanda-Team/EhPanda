@@ -131,7 +131,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             }
         )
 
-        await store.send(.onAppear) {
+        await store.send(.onPresented) {
             $0.hasLoadedInitialDownloads = true
         }
         await store.receive(\.fetchDownloads)

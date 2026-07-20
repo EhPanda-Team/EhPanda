@@ -46,7 +46,6 @@ public struct FiltersView: View {
                 }
             }
             .navigationTitle(.RLocalizable.filters)
-            .onAppear { store.send(.fetchFilters) }
         }
     }
 }

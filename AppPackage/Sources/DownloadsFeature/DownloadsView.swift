@@ -51,9 +51,6 @@ public struct DownloadsView: View {
                     ReadingView(store: store)
                     .privacyMask()
                 }
-                .onAppear {
-                    store.send(.onAppear)
-                }
                 .appAlert($store.scope(\.$alert, action: \.alert))
                 .confirmationDialog(
                     $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
