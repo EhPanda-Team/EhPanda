@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-12-PLAN.md
-last_updated: "2026-07-20T19:49:48.653Z"
+stopped_at: Completed 11-13-PLAN.md
+last_updated: "2026-07-20T20:02:25.899Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 117
+  completed_plans: 118
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 13 of 30
+Plan: 14 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -363,6 +363,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Toast's ToastInteractionState deleted rather than exempted: it mirrored the presentation binding, and its two lifecycle callbacks existed only to maintain the mirror
 - [Phase ?]: 11-12: unchecked_subscript_index_access directive deferred to 11-17's flip commit — a directive naming an unregistered rule is a superfluous_disable_command warning
 - [Phase ?]: 11-12: AppModels' Gallery.preview/previews/mockGalleries still mint random UUIDs; left for the owner (AppModels→PreviewSupport dep is architectural)
+- [Phase ?]: ReadingFeature subscript matches resolved by honest 'page' renames (60 Dictionary sites) + enumerated() restructure (1 Array site); no exception sites, nothing for 11-17 to insert
+- [Phase ?]: Draft rule's excluded: '[validatedIndex]' entry confirmed inert (file-path regex); recommend 11-17 delete it or move the escape into the rule regex
 
 ### Pending Todos
 
@@ -404,6 +406,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T19:49:40.808Z
-Stopped at: Completed 11-12-PLAN.md
+Last session: 2026-07-20T20:02:18.848Z
+Stopped at: Completed 11-13-PLAN.md
 Resume file: None
