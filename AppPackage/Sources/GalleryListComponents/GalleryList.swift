@@ -136,16 +136,17 @@ private struct DetailList: View {
                     )
                 }
                 .foregroundStyle(.primary)
-                .onAppear {
-                    if gallery == galleries.last {
-                        fetchMoreAction?()
-                    }
-                }
                 if shouldShowFooter(gallery: gallery) {
                     FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
                 }
             }
         }
+        .autoLoadNextPage(
+            pageNumber: pageNumber,
+            footerLoadingState: footerLoadingState,
+            galleryCount: galleries.count,
+            fetchMoreAction: fetchMoreAction
+        )
     }
 }
 
@@ -159,25 +160,6 @@ private struct ThumbnailList: View {
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
-
-    // Guards for the scroll-driven auto-load below. The load's own append perturbs the scroll
-    // geometry (contentSize grows, then the List shifts contentOffset to keep the visible footer
-    // row anchored), so any geometry-keyed re-arm is re-triggered by the load itself — that fed
-    // an endless fetch loop pinned at the bottom. Instead: fire at most once per galleries.count
-    // (data, which layout can't perturb) and only during user-driven scroll phases (finger drag
-    // or momentum — layout-driven offset jumps happen in the idle/animating phases). An
-    // underfilled viewport cannot scroll, so it bypasses the user-scroll requirement and chains
-    // one fetch per appended gallery count until the content fills the viewport.
-    @State private var isUserScrolling = false
-    @State private var lastAutoFetchCount: Int?
-
-    // Distance from the bottom edge at which the next page is auto-loaded (points).
-    private static let fetchMoreThreshold: CGFloat = 300
-
-    private struct FetchTrigger: Equatable {
-        var distanceToBottom: CGFloat
-        var contentFillsViewport: Bool
-    }
 
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
@@ -239,30 +221,82 @@ private struct ThumbnailList: View {
             }
         }
         .listStyle(.plain)
-        // Auto-load the next page as the bottom edge nears, mirroring DetailList's paginate-on-
-        // scroll behavior. Reading scroll geometry (not view identity) keeps the scroll position
-        // stable across appends. The guards (see the @State declarations above) break the
-        // load→geometry→load feedback loop: user-driven scroll phase (unless the viewport is
-        // underfilled) + once per appended gallery count.
-        .onScrollPhaseChange { _, newPhase in
-            isUserScrolling = newPhase == .tracking || newPhase == .interacting || newPhase == .decelerating
-        }
-        .onScrollGeometryChange(for: FetchTrigger.self) { geometry in
-            FetchTrigger(
-                distanceToBottom: geometry.contentSize.height - geometry.contentOffset.y
-                    - geometry.containerSize.height,
-                contentFillsViewport: geometry.contentSize.height
-                    > geometry.containerSize.height - geometry.contentInsets.top - geometry.contentInsets.bottom
-            )
-        } action: { _, trigger in
-            guard pageNumber?.hasNextPage() == true,
-                  trigger.distanceToBottom < Self.fetchMoreThreshold,
-                  isUserScrolling || !trigger.contentFillsViewport,
-                  footerLoadingState == .idle,
-                  lastAutoFetchCount != galleries.count
-            else { return }
-            lastAutoFetchCount = galleries.count
-            fetchMoreAction?()
-        }
+        .autoLoadNextPage(
+            pageNumber: pageNumber,
+            footerLoadingState: footerLoadingState,
+            galleryCount: galleries.count,
+            fetchMoreAction: fetchMoreAction
+        )
+    }
+}
+
+// MARK: AutoLoadNextPage
+private extension View {
+    /// Auto-loads the next page as the scroll view's bottom edge nears (D-36), for both list
+    /// styles. Reading scroll *geometry* rather than the last cell's appearance keeps the scroll
+    /// position stable across appends and does not depend on when the container materializes a row.
+    func autoLoadNextPage(
+        pageNumber: PageNumber?,
+        footerLoadingState: LoadingState,
+        galleryCount: Int,
+        fetchMoreAction: (() -> Void)?
+    ) -> some View {
+        modifier(AutoLoadNextPage(
+            pageNumber: pageNumber,
+            footerLoadingState: footerLoadingState,
+            galleryCount: galleryCount,
+            fetchMoreAction: fetchMoreAction
+        ))
+    }
+}
+
+private struct AutoLoadNextPage: ViewModifier {
+    let pageNumber: PageNumber?
+    let footerLoadingState: LoadingState
+    let galleryCount: Int
+    let fetchMoreAction: (() -> Void)?
+
+    // Guards for the scroll-driven auto-load below. The load's own append perturbs the scroll
+    // geometry (contentSize grows, then the List shifts contentOffset to keep the visible footer
+    // row anchored), so any geometry-keyed re-arm is re-triggered by the load itself — that fed
+    // an endless fetch loop pinned at the bottom. Instead: fire at most once per gallery count
+    // (data, which layout can't perturb) and only during user-driven scroll phases (finger drag
+    // or momentum — layout-driven offset jumps happen in the idle/animating phases). An
+    // underfilled viewport cannot scroll, so it bypasses the user-scroll requirement and chains
+    // one fetch per appended gallery count until the content fills the viewport.
+    @State private var isUserScrolling = false
+    @State private var lastAutoFetchCount: Int?
+
+    // Distance from the bottom edge at which the next page is auto-loaded (points).
+    private static let fetchMoreThreshold: CGFloat = 300
+
+    private struct FetchTrigger: Equatable {
+        var distanceToBottom: CGFloat
+        var contentFillsViewport: Bool
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollPhaseChange { _, newPhase in
+                isUserScrolling = newPhase == .tracking || newPhase == .interacting || newPhase == .decelerating
+            }
+            .onScrollGeometryChange(for: FetchTrigger.self) { geometry in
+                FetchTrigger(
+                    distanceToBottom: geometry.contentSize.height - geometry.contentOffset.y
+                        - geometry.containerSize.height,
+                    contentFillsViewport: geometry.contentSize.height
+                        > geometry.containerSize.height - geometry.contentInsets.top
+                            - geometry.contentInsets.bottom
+                )
+            } action: { _, trigger in
+                guard pageNumber?.hasNextPage() == true,
+                      trigger.distanceToBottom < Self.fetchMoreThreshold,
+                      isUserScrolling || !trigger.contentFillsViewport,
+                      footerLoadingState == .idle,
+                      lastAutoFetchCount != galleryCount
+                else { return }
+                lastAutoFetchCount = galleryCount
+                fetchMoreAction?()
+            }
     }
 }
