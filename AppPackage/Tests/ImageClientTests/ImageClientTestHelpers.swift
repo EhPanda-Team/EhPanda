@@ -7,6 +7,20 @@ import Testing
 import TestingSupport
 import UIKit
 
+/// Removes a per-test temporary item, ignoring any failure.
+///
+/// Every call site is a `defer` teardown of a UUID-scoped directory under the system temporary
+/// directory. A `defer` body cannot throw, and no case asserts on the removal: the directory is
+/// unique per test, so a leftover cannot leak into another case. Silence is therefore the correct
+/// behaviour, and stating it once here keeps the rationale from drifting across the call sites.
+func removeTemporaryItem(at url: URL) {
+    do {
+        try FileManager.default.removeItem(at: url)
+    } catch {
+        // Deliberately ignored — see the note above.
+    }
+}
+
 func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
     let rootURL = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
