@@ -60,9 +60,6 @@ public struct SearchRootView: View {
                 .onSubmit(of: .search) {
                     store.send(.pushSearch)
                 }
-                .onAppear {
-                    store.send(.fetchHistoryGalleries)
-                }
                 .toolbar(content: toolbar)
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .navigationTitle(.RLocalizable.search)

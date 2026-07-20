@@ -66,14 +66,6 @@ struct SearchView: View {
         .onSubmit(of: .search) {
             store.send(.fetchGalleries())
         }
-        .onAppear {
-            store.send(.onAppear)
-            if store.galleries.isEmpty {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries())
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(store.lastKeyword)
     }

@@ -82,14 +82,6 @@ public struct FavoritesView: View {
             .onSubmit(of: .search) {
                 store.send(.fetchGalleries())
             }
-            .onAppear {
-                store.send(.onAppear)
-                if store.galleries?.isEmpty != false && didLogin {
-                    DispatchQueue.main.async {
-                        store.send(.fetchGalleries())
-                    }
-                }
-            }
             .toolbar(content: toolbar)
             .navigationTitle(navigationTitle)
             .toolbarTitleDisplayMode(.inlineLarge)
