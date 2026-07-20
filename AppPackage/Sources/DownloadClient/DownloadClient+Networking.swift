@@ -45,11 +45,7 @@ extension DownloadCoordinator {
             response: response.response,
             requestURL: request.url
         ) {
-            // Removing a rejected temporary download is best-effort cleanup; the
-            // detected response error remains the authoritative failure to propagate.
-            try? fileManager.operate {
-                try $0.removeItem(at: response.fileURL)
-            }
+            discardRejectedResponseFile(at: response.fileURL)
             throw error
         }
 
@@ -159,11 +155,7 @@ extension DownloadCoordinator {
             response: transfer.response,
             requestURL: request.url
         ) {
-            // Removing a rejected staged download is best-effort cleanup; preserve
-            // the validation error that the caller must surface.
-            try? fileManager.operate {
-                try $0.removeItem(at: transfer.fileURL)
-            }
+            discardRejectedResponseFile(at: transfer.fileURL)
             if let taskIdentifier = transfer.taskIdentifier {
                 await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
             }
@@ -312,9 +304,22 @@ extension DownloadCoordinator {
         let handle = try FileHandle(forReadingFrom: fileURL)
         // Closing is best-effort during defer; any read/open error remains the
         // operation's primary failure and the handle is also closed on deallocation.
-        defer { try? handle.close() }
+        defer { storage.closeReadHandle(handle) }
         return try handle.read(
             upToCount: Self.responseInspectionPrefixLength
         ) ?? Data()
+    }
+
+    /// Removes a downloaded file that response validation has just rejected. The rejection
+    /// is already decided and its error is the authoritative failure the caller propagates,
+    /// so an unexpected removal failure is logged rather than replacing that error.
+    private func discardRejectedResponseFile(at fileURL: URL) {
+        do {
+            try fileManager.operate {
+                try $0.removeItem(at: fileURL)
+            }
+        } catch {
+            logger.error("Rejected download response removal failed: \(error, privacy: .public)")
+        }
     }
 }
