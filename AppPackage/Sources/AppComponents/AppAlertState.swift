@@ -232,22 +232,24 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
     func body(content: Content) -> some View {
         content.alert(
             item.map { Text($0.title) } ?? Text(verbatim: ""),
-            isPresented: Binding(
-                get: { item != nil },
-                set: { isPresented, transaction in
-                    guard !isPresented, item != nil else { return }
-                    $item.transaction(transaction).wrappedValue = nil
-                }
-            ),
+            isPresented: Binding($item),
             presenting: item,
             actions: { store in
                 if let textField = store.textField, let text {
                     TextField(String(state: textField.placeholder), text: text)
                         .keyboardType(textField.keyboard == .numberPad ? .numberPad : .default)
                         .focused($isFieldFocused)
+                        // D-02 exception candidate: the field isn't in the responder chain the
+                        // instant it appears, so a synchronous focus is dropped; the hop to the
+                        // next runloop is what makes it stick. The alert's actions builder is
+                        // rendered into a separate presentation container the host view cannot
+                        // observe, so no reducer action or value change marks the moment the field
+                        // is installed. `.defaultFocus` was considered and rejected: whether it is
+                        // honoured inside an alert presentation container is not something the
+                        // build gate can prove, and a silent regression here means the keyboard
+                        // never comes up on the page-jump alert.
+                        // swiftlint:disable:next lifecycle_modifiers
                         .onAppear {
-                            // The field isn't in the responder chain the instant it appears, so a
-                            // synchronous focus is dropped; hop to the next runloop to make it stick.
                             DispatchQueue.main.async { isFieldFocused = true }
                         }
                 }

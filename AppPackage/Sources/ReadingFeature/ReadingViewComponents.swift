@@ -139,6 +139,7 @@ struct HorizontalImageStack: View {
         // precisely to run ahead of visibility. This is the reader's hottest request path, so
         // rebuilding the laziness in the reducer would risk load-order and cancellation drift for
         // no behavioural gain.
+        // swiftlint:disable:next lifecycle_modifiers
         .onAppear {
             if imageURLs[index] == nil {
                 fetchAction(index)
@@ -336,6 +337,7 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         // apart from a real failure. Every non-banned alternative (`.onChange(of: url, initial:)`
         // firing an unstructured `Task`) would drop that cancellation and leak concurrent image
         // downloads on the reader's hottest path.
+        // swiftlint:disable:next lifecycle_modifiers
         content.task(id: url) { await load() }
     }
 

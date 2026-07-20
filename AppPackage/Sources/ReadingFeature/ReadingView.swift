@@ -119,6 +119,7 @@ public struct ReadingView: View {
             // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
             // presentation is torn down; a send from here would arrive after the destination is
             // nil'd and be dropped. So only non-persistence teardown happens here.
+            // swiftlint:disable:next lifecycle_modifiers
             .onDisappear {
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)

@@ -88,6 +88,13 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
                 placeholder
             }
         }
+        // D-02 exception candidate: same shape as the reader's image loader — `.task(id:)` is used
+        // for its *cancellation*, which `loadThumbnail()` relies on below (`Task.isCancelled`) so a
+        // cell scrolled off screen sheds its in-flight decode instead of piling up un-sheddable
+        // work during fast scrolling. This is a store-less component reused across every grid, so
+        // there is no single owning reducer to move the load into, and the cache key it is keyed on
+        // is derived from file metadata read here in the view.
+        // swiftlint:disable:next lifecycle_modifiers
         .task(id: cacheKey) {
             await loadThumbnail()
         }
