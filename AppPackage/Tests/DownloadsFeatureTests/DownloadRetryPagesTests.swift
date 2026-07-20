@@ -32,7 +32,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             gid: gid
         )
 
-        let blockingTask = Task<Void, Never> { _ = try? await Task.sleep(for: .seconds(60)) }
+        let blockingTask = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
         defer { blockingTask.cancel() }
         await manager.testingInstallActiveTask(gid: "other-active-download", task: blockingTask)
 

@@ -85,6 +85,36 @@ func removeTemporaryItem(at url: URL) {
     }
 }
 
+/// Sleeps for `duration`, absorbing the cancellation error.
+///
+/// Two call shapes rely on this. A blocker task occupies a coordinator slot until the case cancels
+/// it, so cancellation is the expected exit — and a `Task<Void, Never>` body has no way to rethrow
+/// it anyway. A poll loop re-checks its own predicate every tick, so a cancelled sleep must return
+/// to that predicate rather than unwind past it.
+func sleepIgnoringCancellation(for duration: Duration) async {
+    do {
+        try await Task.sleep(for: duration)
+    } catch {
+        // Cancellation is the caller's exit condition, checked by the loop or awaited by the case
+        // that cancelled the task; it is never a result to report.
+    }
+}
+
+/// Decodes a stubbed request body as a JSON object, or `nil` when it is not one.
+///
+/// The stub handlers route on the decoded `method` field, so a body that is absent or is not JSON
+/// is a legitimate answer — "this is not that request" — rather than a failure.
+func requestBodyJSONObject(from request: URLRequest) -> [String: Any]? {
+    guard let data = requestBodyData(from: request) else {
+        return nil
+    }
+    do {
+        return try JSONSerialization.jsonObject(with: data) as? [String: Any]
+    } catch {
+        return nil
+    }
+}
+
 func requestBodyData(from request: URLRequest) -> Data? {
     if let httpBody = request.httpBody {
         return httpBody

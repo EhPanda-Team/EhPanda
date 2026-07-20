@@ -106,7 +106,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         #expect(loadCount.value == 1)
 
         continuation.yield([relevantDownload, updatedOtherDownload])
-        try? await Task.sleep(for: .milliseconds(50))
+        await sleepIgnoringCancellation(for: .milliseconds(50))
         #expect(loadCount.value == 1)
 
         continuation.finish()
@@ -141,7 +141,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         #expect(loadCount.value == 1)
 
         continuation.yield([relevantDownload, updatedOtherDownload])
-        try? await Task.sleep(for: .milliseconds(50))
+        await sleepIgnoringCancellation(for: .milliseconds(50))
         #expect(loadCount.value == 1)
 
         continuation.finish()

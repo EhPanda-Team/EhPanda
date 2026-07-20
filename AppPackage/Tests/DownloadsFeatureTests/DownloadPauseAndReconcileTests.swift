@@ -88,7 +88,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let activeTask = Task {
             while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(10))
+                await sleepIgnoringCancellation(for: .milliseconds(10))
             }
         }
         await manager.testingInstallActiveTask(gid: gid, task: activeTask)
