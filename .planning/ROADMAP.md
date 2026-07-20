@@ -534,7 +534,7 @@ Plans:
   3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error. *(Amended per D-02: no **unapproved** disables — approved exceptions carry `// reason:` + `disable:next`, owner-reviewed at phase end.)*
   4. `.serialized` and `@MainActor` are removed from all tests unless a test has a real need to run on the main actor — each test's cross-test pollution is resolved by injecting the shared dependency (per-test instance, not `.serialized`) — and the full suite runs in parallel, on any thread.
 
-**Plans**: 8/30 plans executed
+**Plans**: 9/30 plans executed
 
 Plans:
 **Wave 1**
@@ -571,7 +571,7 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 11-09-PLAN.md — Lifecycle migration: ReadingFeature (parity-critical)
+- [x] 11-09-PLAN.md — Lifecycle migration: ReadingFeature (parity-critical)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
@@ -674,7 +674,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
-| 11. Infra Refactor & Lint Capstone | 8/30 | In Progress|  |
+| 11. Infra Refactor & Lint Capstone | 9/30 | In Progress|  |
 | 12. Cloudflare Login Restoration | 0/TBD | Not started | - |
 | 13. Deep Link Hardening | 0/TBD | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
