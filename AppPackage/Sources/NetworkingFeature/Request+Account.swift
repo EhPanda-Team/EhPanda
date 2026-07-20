@@ -206,16 +206,19 @@ public struct SubmitEhSettingChangesRequest: Request {
         default: break
         }
 
-        EhSetting.categoryNames.enumerated().forEach { index, name in
-            params["ct_\(name)"] = ehSetting.disabledCategories[index] ? "1" : "0"
+        // These three loops pair a static name/value table against an array parsed out of the
+        // remote settings page. `zip` / `prefix` make the pairing bounds-safe: a settings page
+        // that yields fewer entries than expected now submits the parameters it does have
+        // instead of trapping.
+        for (name, isDisabled) in zip(EhSetting.categoryNames, ehSetting.disabledCategories) {
+            params["ct_\(name)"] = isDisabled ? "1" : "0"
         }
-        Array(0...9).forEach { index in
-            params["favorite_\(index)"] = ehSetting.favoriteCategories[index]
+        for (slot, favoriteName) in ehSetting.favoriteCategories.prefix(10).enumerated() {
+            params["favorite_\(slot)"] = favoriteName
         }
-        ehSetting.excludedLanguages.enumerated().forEach { index, value in
-            if value {
-                params["xl_\(EhSetting.languageValues[index])"] = "on"
-            }
+        for (languageValue, isExcluded) in zip(EhSetting.languageValues, ehSetting.excludedLanguages)
+        where isExcluded {
+            params["xl_\(languageValue)"] = "on"
         }
 
         if let useOriginalImages = ehSetting.useOriginalImages {
