@@ -102,17 +102,15 @@ extension MasonryLayout {
     ///
     /// The strict `<` first-minimum scan is provably identical to `heights.min()` +
     /// `firstIndex(of:)`: both return the first index attaining the minimum, using exact CGFloat
-    /// equality. Do not "improve" it to `<=` or a tolerance compare — that would break the leftmost tie.
+    /// equality. `min(by:)` replaces its running minimum only on a strict `<`, so it keeps the
+    /// leftmost tie too. Do not "improve" it to `<=` or a tolerance compare — that would break it.
     static func masonryPlan(
         heights: [CGFloat], columns: Int, cellWidth: CGFloat, spacing: CGFloat
     ) -> MasonryPlan {
         var columnHeights = Array(repeating: CGFloat.zero, count: columns)
         var origins: [CGPoint] = []
         for height in heights {
-            var column = 0
-            for index in 1..<columns where columnHeights[index] < columnHeights[column] {
-                column = index
-            }
+            let column = columnHeights.enumerated().min { $0.element < $1.element }?.offset ?? 0
             origins.append(CGPoint(x: CGFloat(column) * (cellWidth + spacing), y: columnHeights[column]))
             columnHeights[column] += height + spacing
         }

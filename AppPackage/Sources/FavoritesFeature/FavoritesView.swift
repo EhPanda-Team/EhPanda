@@ -20,8 +20,8 @@ public struct FavoritesView: View {
     }
 
     private var navigationTitle: String {
-        let favoriteCategory = store.user.getFavoriteCategory(index: store.index)
-        return (store.index == -1 ? String(localized: .RLocalizable.favorites) : favoriteCategory)
+        let favoriteCategory = store.user.getFavoriteCategory(index: store.favoritesIndex)
+        return (store.favoritesIndex == -1 ? String(localized: .RLocalizable.favorites) : favoriteCategory)
     }
 
     public var body: some View {
@@ -90,8 +90,8 @@ public struct FavoritesView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            FavoritesIndexMenu(index: store.index) { index in
-                if index != store.index {
+            FavoritesIndexMenu(index: store.favoritesIndex) { index in
+                if index != store.favoritesIndex {
                     store.send(.setFavoritesIndex(index))
                 }
             }
@@ -120,7 +120,7 @@ public struct FavoritesView: View {
             store: .init(
                 initialState: {
                     var state = FavoritesReducer.State()
-                    state.rawGalleries[state.index] = Gallery.previews(count: 10)
+                    state.rawGalleries[state.favoritesIndex] = Gallery.previews(count: 10)
                     return state
                 }(),
                 reducer: FavoritesReducer.init
