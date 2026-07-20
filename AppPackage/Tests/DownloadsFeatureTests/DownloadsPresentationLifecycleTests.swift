@@ -8,8 +8,13 @@ import DownloadClient
 
 // The Downloads tab root and its inspector sheet used to start themselves from view `onAppear`;
 // both are now started by the transition that presents them.
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func activatingTheDownloadsTabStartsItsLoad() async {
         let store = TestStore(initialState: AppReducer.State(), reducer: AppReducer.init) {
@@ -33,6 +38,7 @@ struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func presentingTheInspectorStartsItsInspection() async {
         let download = sampleDownload(

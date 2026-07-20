@@ -6,7 +6,10 @@ import DownloadClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
+// cases deliberately stay nonisolated so they keep running concurrently rather than being
+// hopped onto the main actor by a suite-wide annotation.
 struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -201,7 +204,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         }
     }
 
-    @MainActor
     @Test
     func testEditingNameValidationRejectsBlankAndNormalizedDuplicateNames() {
         var state = FolderManagerReducer.State()
@@ -220,7 +222,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         #expect(state.isEditingNameValid)
     }
 
-    @MainActor
     @Test
     func testRenameValidationAllowsNormalizedCurrentFolderName() {
         var state = FolderManagerReducer.State()
@@ -307,6 +308,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
 // MARK: - Store Factory Helpers
 
 private extension FolderManagerReducerTests {
+    @MainActor
     func makeStore(
         folders: @escaping @Sendable () -> [String],
         createFolder: @escaping @Sendable (String) async throws -> Void

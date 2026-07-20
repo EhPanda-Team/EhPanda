@@ -46,7 +46,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         #expect(localPages[1] == pageURL)
     }
 
-    @MainActor
     @Test
     func testUpdateRemoteVersionUsesIndexedSessionFlag() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)

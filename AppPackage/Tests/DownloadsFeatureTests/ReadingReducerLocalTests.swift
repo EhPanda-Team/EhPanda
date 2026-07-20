@@ -13,6 +13,10 @@ import DeviceClient
 @testable import ReadingFeature
 @testable import AppFeature
 
+// `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
+// cases deliberately stay nonisolated so they keep running concurrently rather than being
+// hopped onto the main actor by a suite-wide annotation.
 struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     @Test
     func testContainerDataSourceHandlesZeroPageGallery() {
@@ -32,6 +36,9 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     // V2-A / #5: `ReadingView.init` seeds the pager from the resume page (`max(readingProgress, 1)`
     // mapped through `mapToPager`), because no post-subscribe change event repositions it anymore.
     // This pins that mapping so a saved page opens at its index and no history opens at the first page.
+    // @MainActor required: `PageHandler` is a `@MainActor` type, so both its `init` and
+    // `mapToPager` are main-actor-isolated. This is the only store-free case in the suite
+    // that needs the annotation.
     @MainActor
     @Test
     func testResumePageMapsToPagerIndex() {

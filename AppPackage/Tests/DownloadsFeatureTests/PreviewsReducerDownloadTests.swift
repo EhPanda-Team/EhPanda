@@ -7,7 +7,11 @@ import DownloadClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -78,6 +82,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
 // MARK: - Store Factory Helpers
 
 private extension PreviewsReducerDownloadTests {
+    @MainActor
     func makePreviewsManifestStore(
         download: DownloadedGallery,
         manifest: DownloadManifest
@@ -136,6 +141,7 @@ private extension PreviewsReducerDownloadTests {
         return client
     }
 
+    @MainActor
     func makePreviewsNoManifestStore(
         initialState: PreviewsReducer.State,
         withLoadLocalPageURLs: Bool

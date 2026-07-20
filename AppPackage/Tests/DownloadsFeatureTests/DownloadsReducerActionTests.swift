@@ -7,6 +7,10 @@ import DownloadClient
 @testable import DownloadsFeature
 @testable import AppFeature
 
+// `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
+// cases deliberately stay nonisolated so they keep running concurrently rather than being
+// hopped onto the main actor by a suite-wide annotation.
 struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -126,7 +130,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         #expect(store.state.path.isEmpty)
     }
 
-    @MainActor
     @Test
     func testDownloadsReducerFolderFilterNarrowsDownloads() async {
         let libraryDownload = sampleDownload(
