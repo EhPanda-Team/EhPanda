@@ -11,7 +11,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let gid = "100010"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let persistenceGate = FailurePersistenceGate()
         let scheduledRecorder = ScheduledGalleryRecorder()
@@ -73,7 +73,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let gid = "100011"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
@@ -127,7 +127,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
@@ -173,7 +173,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let detailAllowsCellular = UncheckedBox<Bool?>(nil)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL,
@@ -323,7 +323,7 @@ private extension DownloadProcessTests {
             pageCount: oldPageCount
         )
         let folderURL = storage.folderURL(relativePath: "Folder/\(gid) - Pause Race")
-        try? FileManager.default.removeItem(at: folderURL)
+        removeTemporaryItem(at: folderURL)
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

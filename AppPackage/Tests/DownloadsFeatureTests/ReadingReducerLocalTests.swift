@@ -119,7 +119,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
         _ = try prepareLocalDownloadFiles(download: download, manifest: manifest)
-        defer { try? FileManager.default.removeItem(at: folderURL) }
+        defer { removeTemporaryItem(at: folderURL) }
 
         let store = TestStore(
             initialState: ReadingReducer.State(

@@ -118,8 +118,8 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             localCoverURL: coverURL
         )
 
-        try? FileManager.default.removeItem(at: folderURL)
-        defer { try? FileManager.default.removeItem(at: folderURL) }
+        removeTemporaryItem(at: folderURL)
+        defer { removeTemporaryItem(at: folderURL) }
 
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0xFF, 0xD8, 0xFF]).write(to: coverURL, options: .atomic)

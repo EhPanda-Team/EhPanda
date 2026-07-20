@@ -13,7 +13,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(
@@ -79,7 +79,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)

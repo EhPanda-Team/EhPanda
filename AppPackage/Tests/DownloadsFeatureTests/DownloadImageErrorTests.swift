@@ -9,7 +9,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("html")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let invalidPageData = Data("""
         <html><body><h1>Invalid page</h1><p>Gallery not found</p></body></html>
@@ -36,7 +36,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("html")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let keepTryingData = Data(
             "<html><body><h1>Keep trying</h1></body></html>".utf8
@@ -63,7 +63,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("txt")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         try Data("Not here".utf8).write(to: fileURL, options: .atomic)
 
@@ -88,7 +88,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("html")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let galleryNotAvailableData = Data("""
         <html>
@@ -117,7 +117,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedHTMLBanPageStillParsesThroughParserInsteadOfParseFailed() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .ipBanned)
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         let bannedURL = try #require(URL(string: "https://example.com/banned"))

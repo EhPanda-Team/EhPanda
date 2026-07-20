@@ -7,7 +7,7 @@ struct DownloadQueueStoreTests {
     @Test
     func testEnqueueDeduplicatesAndPreservesOrder() async {
         let (store, rootURL) = makeStore()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         await store.enqueue("123")
         await store.enqueue("456")
@@ -19,7 +19,7 @@ struct DownloadQueueStoreTests {
     @Test
     func testRemoveAndRemoveAllUpdateQueue() async {
         let (store, rootURL) = makeStore()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         await store.enqueue("123")
         await store.enqueue("456")

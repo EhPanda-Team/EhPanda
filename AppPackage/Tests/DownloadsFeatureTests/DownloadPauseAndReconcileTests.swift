@@ -19,7 +19,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
@@ -73,7 +73,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 10)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -115,7 +115,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
@@ -180,7 +180,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
@@ -213,7 +213,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 3)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
@@ -250,7 +250,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 4)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]

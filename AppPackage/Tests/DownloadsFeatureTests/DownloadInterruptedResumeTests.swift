@@ -38,7 +38,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         let gid = "913000005"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -77,7 +77,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         let gid = "913000006"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
@@ -130,7 +130,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         let gid = "913000007"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
