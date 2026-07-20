@@ -5,8 +5,13 @@ import Foundation
 // MARK: Encodable
 extension Encodable {
     public func toData() -> Data? {
-        // Encoding is an optional convenience API whose established failure result is nil.
-        try? JSONEncoder().encode(self)
+        do {
+            return try JSONEncoder().encode(self)
+        } catch {
+            // Not logged: this is an optional convenience API whose established failure result
+            // is nil, and every caller already handles that nil.
+            return nil
+        }
     }
 }
 
@@ -21,8 +26,13 @@ extension UIApplication {
 // MARK: Data
 extension Data {
     public func toObject<O: Decodable>() -> O? {
-        // Decoding is an optional convenience API whose established failure result is nil.
-        try? JSONDecoder().decode(O.self, from: self)
+        do {
+            return try JSONDecoder().decode(O.self, from: self)
+        } catch {
+            // Not logged: this is an optional convenience API whose established failure result
+            // is nil — callers use it to probe whether bytes hold the requested shape.
+            return nil
+        }
     }
     public var utf8InvalidCharactersRipped: Data {
         var data = self
@@ -79,16 +89,18 @@ extension String {
     }
 
     public var isValidURL: Bool {
-        // Detector construction is a validation probe; failure deliberately classifies the string as invalid.
-        if let detector = try? NSDataDetector(
-            types: NSTextCheckingResult.CheckingType.link.rawValue
-        ) {
-            if let match = detector.firstMatch(in: self, options: [],
-                                               range: NSRange(location: 0, length: utf16.count)
-            ) {
-                return match.range.length == utf16.count
-            } else { return false }
-        } else { return false }
+        let detector: NSDataDetector
+        do {
+            detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        } catch {
+            // Not logged: detector construction is part of a validation probe whose failure
+            // deliberately classifies the string as invalid, which is this property's negative answer.
+            return false
+        }
+        guard let match = detector.firstMatch(
+            in: self, options: [], range: NSRange(location: 0, length: utf16.count)
+        ) else { return false }
+        return match.range.length == utf16.count
     }
 
     public func caseInsensitiveContains(_ other: String) -> Bool {

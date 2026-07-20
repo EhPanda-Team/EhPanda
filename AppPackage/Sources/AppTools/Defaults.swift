@@ -49,10 +49,16 @@ public struct Defaults: Sendable {
         public static let defaultDownloadFolder = "Default"
     }
     public struct Regex: Sendable {
-        // Regex compilation is an optional static probe; nil disables suggestions without failing app launch.
-        public static let tagSuggestion: NSRegularExpression? = try? .init(
-            pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)"
-        )
+        // Compiled in a closure rather than propagated: this is a static stored property, so a
+        // throwing initializer would have to become a force-try. nil disables suggestions
+        // without failing app launch.
+        public static let tagSuggestion: NSRegularExpression? = {
+            do {
+                return try NSRegularExpression(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")
+            } catch {
+                return nil
+            }
+        }()
     }
     public struct URL: Sendable {
         public static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped
