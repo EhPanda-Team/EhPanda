@@ -492,7 +492,7 @@ private final class ThrowingAttributesFileManager: FileManager {
 }
 
 private extension DownloadStoreTests {
-    func makeStorage() -> (DownloadStore, URL) {
+    func makeStorage() -> (store: DownloadStore, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return (

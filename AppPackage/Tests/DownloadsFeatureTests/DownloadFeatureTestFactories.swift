@@ -285,7 +285,7 @@ extension DownloadFeatureTestCase {
             DownloadRequestOptions()
         },
         taskRunner: DownloadTaskRunner = .init()
-    ) -> (DownloadStore, DownloadCoordinator) {
+    ) -> (store: DownloadStore, coordinator: DownloadCoordinator) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [
@@ -353,7 +353,7 @@ private enum DownloadFeatureTestStubRouter {
     static func routeStubRequest(
         url: URL, request: URLRequest,
         context: StubRouteContext
-    ) throws -> (HTTPURLResponse, Data) {
+    ) throws -> (response: HTTPURLResponse, data: Data) {
         let gid = context.gid
         let pageIndex = context.pageIndex
         let detailHTML = context.content.detailHTML

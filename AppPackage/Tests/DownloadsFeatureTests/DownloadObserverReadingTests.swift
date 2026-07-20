@@ -151,7 +151,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
 
 private extension DownloadObserverReadingTests {
     func makeObserverStream()
-        -> (AsyncStream<[DownloadedGallery]>, AsyncStream<[DownloadedGallery]>.Continuation) {
+        -> (stream: AsyncStream<[DownloadedGallery]>, continuation: AsyncStream<[DownloadedGallery]>.Continuation) {
         var continuation: AsyncStream<[DownloadedGallery]>.Continuation!
         let stream = AsyncStream<[DownloadedGallery]> { continuation = $0 }
         return (stream, continuation)

@@ -29,7 +29,7 @@ extension Parser {
         }
     }
 
-    public static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String) {
+    public static func parseCurrentFunds(doc: HTMLDocument) throws -> (galleryPoints: String, credits: String) {
         var tmpGP: String?
         var tmpCredits: String?
 

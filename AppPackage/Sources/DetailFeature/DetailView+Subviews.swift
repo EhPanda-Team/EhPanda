@@ -224,7 +224,7 @@ struct TagsSection: View {
     let voteTagAction: (String, Int) -> Void
     let navigateSearchAction: (String) -> Void
     let navigateTagDetailAction: (TagDetail) -> Void
-    let translateAction: (String) -> (String, TagTranslation?)
+    let translateAction: (String) -> TagTranslationLookup
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -252,7 +252,7 @@ extension TagsSection {
         let voteTagAction: (String, Int) -> Void
         let navigateSearchAction: (String) -> Void
         let navigateTagDetailAction: (TagDetail) -> Void
-        let translateAction: (String) -> (String, TagTranslation?)
+        let translateAction: (String) -> TagTranslationLookup
 
         private var reversedPrimary: Color { colorScheme == .light ? .white : .black }
         private var backgroundColor: Color { Color(.systemGray5) }
@@ -271,7 +271,7 @@ extension TagsSection {
 
         @ViewBuilder
         private func tagContentView(content: GalleryTag.Content) -> some View {
-            let (_, translation) = translateAction(content.rawNamespace + content.text)
+            let translation = translateAction(content.rawNamespace + content.text).translation
             Button {
                 navigateSearchAction(content.serachKeyword(tag: tag))
             } label: {
@@ -356,7 +356,7 @@ extension TagsSection {
             voteTagAction: { _, _ in },
             navigateSearchAction: { _ in },
             navigateTagDetailAction: { _ in },
-            translateAction: { ($0, nil) }
+            translateAction: { .init(text: $0, translation: nil) }
         )
     }
 }

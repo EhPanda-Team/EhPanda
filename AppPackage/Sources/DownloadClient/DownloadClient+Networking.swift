@@ -55,7 +55,7 @@ extension DownloadCoordinator {
     public func dataResponse(
         for request: URLRequest,
         retriesRequest: Bool = true
-    ) async throws -> (Data, URLResponse) {
+    ) async throws -> (data: Data, response: URLResponse) {
         if retriesRequest {
             return try await withRetry(
                 operation: "dataResponse"
@@ -68,7 +68,7 @@ extension DownloadCoordinator {
 
     public func rawDataResponse(
         for request: URLRequest
-    ) async throws -> (Data, URLResponse) {
+    ) async throws -> (data: Data, response: URLResponse) {
         do {
             return try await urlSession.data(for: request)
         } catch let error as AppError {

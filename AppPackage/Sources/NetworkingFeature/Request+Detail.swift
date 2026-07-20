@@ -262,7 +262,7 @@ public struct GalleryArchiveFundsRequest: Request {
     public let galleryURL: URL
     public let urlSession: URLSession
 
-    public func response() async throws(AppError) -> (String, String) {
+    public func response() async throws(AppError) -> (galleryPoints: String, credits: String) {
         let (detailData, _) = try await fetch(URLRequest(url: galleryURL), in: urlSession)
         let archiveURL: URL
         do {
@@ -270,7 +270,7 @@ public struct GalleryArchiveFundsRequest: Request {
             archiveURL = try parseResponse(doc: document) {
                 guard let archiveURL = try Parser
                     .parseGalleryDetail(doc: $0, gid: gid)
-                    .0
+                    .detail
                     .archiveURL
                 else {
                     throw AppError.parseFailed

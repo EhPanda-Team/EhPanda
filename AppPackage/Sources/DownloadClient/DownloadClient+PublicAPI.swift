@@ -213,7 +213,7 @@ extension DownloadCoordinator {
 
     public func loadManifest(
         gid: String
-    ) async -> Result<(DownloadedGallery, DownloadManifest), AppError> {
+    ) async -> Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError> {
         guard let download = await sanitizeLocalFilesIfNeeded(gid: gid) else {
             return .failure(.notFound)
         }

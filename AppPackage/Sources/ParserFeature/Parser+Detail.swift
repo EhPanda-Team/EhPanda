@@ -11,7 +11,9 @@ extension Parser {
     }
 
     // swiftlint:disable:next function_body_length
-    public static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
+    public static func parseGalleryDetail(
+        doc: HTMLDocument, gid: String
+    ) throws -> (detail: GalleryDetail, state: GalleryState) {
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {
@@ -74,13 +76,13 @@ extension Parser {
                 uploader: uploader,
                 postedDate: postedDate,
                 coverURL: coverURL,
-                archiveURL: arcAndTor.0,
+                archiveURL: arcAndTor.archiveURL,
                 parentURL: URL(string: parentURLString),
                 favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
                 sizeType: infoPanel.sizeType,
-                torrentCount: arcAndTor.1
+                torrentCount: arcAndTor.torrentCount
             )
             tmpGalleryState = GalleryState(
                 gid: gid,
@@ -185,7 +187,7 @@ private extension Parser {
         return tags
     }
 
-    static func parseArcAndTor(node: XMLElement?) throws -> (URL?, Int) {
+    static func parseArcAndTor(node: XMLElement?) throws -> (archiveURL: URL?, torrentCount: Int) {
         guard let node = node else { throw AppError.parseFailed }
 
         var archiveURL: URL?

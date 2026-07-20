@@ -1,5 +1,22 @@
 import Foundation
 
+/// The outcome of translating one tag word.
+///
+/// A named type rather than a `(String, TagTranslation?)` pair because the pair was declared
+/// thirteen times across four modules and read positionally as `.1`, which is the shape that
+/// silently mis-indexes the moment an element is added or reordered.
+public struct TagTranslationLookup: Equatable, Hashable, Sendable {
+    public init(text: String, translation: TagTranslation?) {
+        self.text = text
+        self.translation = translation
+    }
+
+    /// The text to display: the translated value when one was found, otherwise the original word.
+    public let text: String
+    /// The matched translation, absent when the word has none or translation is switched off.
+    public let translation: TagTranslation?
+}
+
 public struct TagTranslation: Codable, Equatable, Hashable, Sendable {
     public init(
         namespace: TagNamespace,

@@ -171,7 +171,7 @@ extension KFImage {
 }
 
 public struct PreviewResolver {
-    public static func getPreviewConfigs(originalURL: URL?) -> (URL?, ImageModifier) {
+    public static func getPreviewConfigs(originalURL: URL?) -> (url: URL?, modifier: ImageModifier) {
         guard let url = originalURL,
               let info = Parser.parsePreviewConfigs(url: url)
         else {

@@ -189,7 +189,7 @@ private extension DownloadProcessCacheTests {
     static func makeCacheAPIResponse(
         url: URL, request: URLRequest,
         metadataResponse: Data, imageURLString: String
-    ) throws -> (HTTPURLResponse, Data) {
+    ) throws -> (response: HTTPURLResponse, data: Data) {
         let body = requestBodyData(from: request)
             .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         if body?["method"] as? String == "gdata" {
