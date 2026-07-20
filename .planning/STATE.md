@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-07-20T15:17:47.096Z"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-07-20T15:26:23.709Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 106
+  completed_plans: 107
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 2 of 30
+Plan: 3 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -164,6 +164,7 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 10 P11 | 18min | 2 tasks | 9 files |
 | Phase 10 P12 | 12min | 3 tasks | 0 files |
 | Phase 11 P1 | 25m | 2 tasks | 4 files |
+| Phase 11 P2 | ~20m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -329,6 +330,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 10-11: B1-B10 broke-at-AX5 all reflowed within D-02 (drop lineLimit/fixedSize for wrap, @ScaledMetric fixed heights); minimumScaleFactor 8->7 (B2 inert shrink removed); device D-03 pass deferred to 10-12
 - [Phase ?]: ParserFeature Group A/B optional-try removal routes through one shared Parser.degrading(_:_:) helper — inline do/catch is not expressible inside guard-let chains without changing evaluation order
 - [Phase ?]: D-04 group counts corrected: 21 Group A + 12 Group B + 9 Group C (not 23/13/6) — plan 11-02 must propagate 9 sites
+- [Phase 11]: 11-02: parseDisplayMode returns String? — a missing display-mode selector is the normal toplist case, not an error
+- [Phase 11]: 11-02: parseScriptVariable rebuilt with RegexBuilder — removes the runtime regex-compile failure path entirely
 
 ### Pending Todos
 
@@ -370,6 +373,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T15:17:47.090Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-07-20T15:26:23.702Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
