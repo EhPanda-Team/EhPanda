@@ -19,7 +19,9 @@ struct EhSettingView: View {
 
     // MARK: EhSettingView
     var body: some View {
-        // Use `Group` here after migrating lifecycle trigger to reducer.
+        // The `ZStack` is the transition container for the conditional form; a `Group` would be worth
+        // trying now that no lifecycle modifier needs a concrete view here, but that is a rendering
+        // change, not a lifecycle one.
         ZStack {
             if let ehSetting = Binding($store.ehSetting),
                let ehProfile = Binding($store.ehProfile) {
@@ -38,16 +40,6 @@ struct EhSettingView: View {
                 .animation(.default) {
                     $0.opacity(store.loadingState.is(\.failed) ? 1 : 0)
                 }
-        }
-        .onAppear {
-            if store.ehSetting == nil {
-                store.send(.fetchEhSetting)
-            }
-        }
-        .onDisappear {
-            if let profileSet = store.ehSetting?.ehpandaProfile?.value {
-                store.send(.setDefaultProfile(profileSet))
-            }
         }
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)

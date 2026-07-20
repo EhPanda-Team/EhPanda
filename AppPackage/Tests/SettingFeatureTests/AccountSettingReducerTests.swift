@@ -8,13 +8,13 @@ import Testing
 @MainActor
 struct AccountSettingReducerTests {
     @Test
-    func onAppearLoadsCookiesAndObservesJarChanges() async {
+    func onPresentedLoadsCookiesAndObservesJarChanges() async {
         let (stream, continuation) = AsyncStream<Void>.makeStream()
         var client = CookieClient.testing(memberID: "member-fixture", passHash: "pass-fixture")
         client.cookiesDidChange = { stream }
         let store = makeStore(cookieClient: client)
 
-        await store.send(.onAppear)
+        await store.send(.onPresented)
         await store.receive(\.loadCookies) {
             $0.ehCookiesState = client.loadCookiesState(host: .ehentai)
             $0.exCookiesState = client.loadCookiesState(host: .exhentai)

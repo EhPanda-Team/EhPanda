@@ -47,9 +47,6 @@ struct AppActivityLogsView: View {
                 store.send(.queryLogs(newValue))
             }
         }
-        .onAppear {
-            store.send(.refreshAvailableRuns)
-        }
         .toolbar(content: toolbar)
         .navigationTitle(.appActivityLogsViewTitle)
         .navigationBarTitleDisplayMode(.large)
