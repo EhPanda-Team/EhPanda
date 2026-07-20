@@ -1,5 +1,4 @@
 import AppTools
-import Kingfisher
 import AppModels
 import Resources
 import UIKit
@@ -8,7 +7,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorReloadDownloadIndexScansManifestFolders() async throws {

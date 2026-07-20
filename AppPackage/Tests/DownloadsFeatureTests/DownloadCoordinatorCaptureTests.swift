@@ -7,7 +7,6 @@ import ComposableArchitecture
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorCaptureCachedPageRestoresFinalPage() async throws {

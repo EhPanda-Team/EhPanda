@@ -3,7 +3,6 @@ import Testing
 import AppTools
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DataCacheTests {
     @Test
     func testStoreAndReadDataFromDiskWithHashedFilename() async throws {

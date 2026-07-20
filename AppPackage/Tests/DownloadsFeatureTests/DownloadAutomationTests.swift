@@ -17,7 +17,6 @@ import AppLaunchAutomationClient
 import DeviceClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadAutomationTests: DownloadFeatureTestCase {
     @MainActor
     @Test
