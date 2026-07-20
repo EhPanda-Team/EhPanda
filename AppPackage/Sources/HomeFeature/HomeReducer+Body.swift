@@ -25,6 +25,13 @@ extension HomeReducer {
             case .binding:
                 return .none
 
+            // Presentation-driven lifecycle: Home is a tab root that outlives any single visit, so
+            // the app reducer sends this when the Home tab becomes the active one — replacing the
+            // former view `onAppear`. The empty guard keeps it idempotent across tab switches.
+            case .onPresented:
+                guard state.popularGalleries.isEmpty else { return .none }
+                return .send(.fetchAllGalleries)
+
             case .galleryTapped(let gallery),
                  let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gallery))))),
@@ -47,22 +54,35 @@ extension HomeReducer {
             case .sectionTapped(let type):
                 switch type {
                 case .frontpage:
-                    state.path.appendGuardingDuplicate(.frontpage(.init()))
+                    return presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.frontpage(.init())),
+                        action: .frontpage(.onPresented)
+                    )
                 case .toplists:
-                    state.path.appendGuardingDuplicate(.toplists(.init()))
+                    return presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.toplists(.init())),
+                        action: .toplists(.onPresented)
+                    )
                 }
-                return .none
 
             case .miscTapped(let type):
                 switch type {
                 case .popular:
-                    state.path.appendGuardingDuplicate(.popular(.init()))
+                    return presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.popular(.init())),
+                        action: .popular(.onPresented)
+                    )
                 case .watched:
-                    state.path.appendGuardingDuplicate(.watched(.init()))
+                    return presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.watched(.init())),
+                        action: .watched(.onPresented)
+                    )
                 case .history:
-                    state.path.appendGuardingDuplicate(.history(.init()))
+                    return presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.history(.init())),
+                        action: .history(.onPresented)
+                    )
                 }
-                return .none
 
             case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
                 guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
@@ -204,5 +224,13 @@ extension HomeReducer {
             }
         }
         .forEach(\.path, action: \.path)
+    }
+
+    /// Kicks off a freshly pushed screen's presentation action, the reducer-side replacement for the
+    /// screen's former view `onAppear`. A `nil` id means `appendGuardingDuplicate` deduped the push,
+    /// so no new screen was presented and nothing should start.
+    private func presentationEffect(id: StackElementID?, action: HomePath.Action) -> Effect<Action> {
+        guard let id else { return .none }
+        return .send(.path(.element(id: id, action: action)))
     }
 }

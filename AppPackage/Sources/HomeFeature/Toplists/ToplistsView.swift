@@ -32,13 +32,6 @@ struct ToplistsView: View {
         )
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
-        .onAppear {
-            if store.galleries?.isEmpty != false {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries())
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(navigationTitle)
     }
