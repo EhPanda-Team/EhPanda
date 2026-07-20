@@ -60,11 +60,17 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
     }
 
     private var cacheKey: String {
-        // File metadata only invalidates the preview cache; if unavailable, the stable path remains the cache key.
-        let resourceValues = try? fileURL.resourceValues(forKeys: [
-            .contentModificationDateKey,
-            .fileSizeKey
-        ])
+        let resourceValues: URLResourceValues?
+        do {
+            resourceValues = try fileURL.resourceValues(forKeys: [
+                .contentModificationDateKey,
+                .fileSizeKey
+            ])
+        } catch {
+            // File metadata only invalidates the preview cache; when it is unavailable the
+            // stable file path alone remains the cache key.
+            resourceValues = nil
+        }
         let modificationStamp = resourceValues?.contentModificationDate?
             .timeIntervalSinceReferenceDate ?? .zero
         let fileSize = resourceValues?.fileSize ?? 0
