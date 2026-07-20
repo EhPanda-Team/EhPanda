@@ -45,8 +45,12 @@ extension HomeReducer {
                 )
 
             case .pushGalleryDetail(let gallery):
-                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gallery: gallery))))
-                return .none
+                let screen = GalleryPath.State.detail(.init(gallery: gallery))
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(.gallery(screen)),
+                    screen: screen,
+                    embed: { .path(.element(id: $0, action: .gallery($1))) }
+                )
 
             case .delegate:
                 return .none
@@ -89,10 +93,12 @@ extension HomeReducer {
                 return .send(.path(.element(id: id, action: .gallery(.detail(.fetchGalleryDetail)))))
 
             case let .path(.element(id: _, action: .gallery(galleryAction))):
-                if let next = GalleryNavigation.nextScreen(for: galleryAction) {
-                    state.path.appendGuardingDuplicate(.gallery(next))
-                }
-                return .none
+                guard let next = GalleryNavigation.nextScreen(for: galleryAction) else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(.gallery(next)),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: .gallery($1))) }
+                )
 
             case .path:
                 return .none

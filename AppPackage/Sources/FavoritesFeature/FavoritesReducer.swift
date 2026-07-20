@@ -133,8 +133,12 @@ public struct FavoritesReducer: Sendable {
                 )
 
             case .pushGalleryDetail(let gallery):
-                state.path.appendGuardingDuplicate(.detail(.init(gallery: gallery)))
-                return .none
+                let screen = GalleryPath.State.detail(.init(gallery: gallery))
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(screen),
+                    screen: screen,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .delegate:
                 return .none
@@ -144,10 +148,12 @@ public struct FavoritesReducer: Sendable {
                 return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
 
             case let .path(.element(id: _, action: elementAction)):
-                if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.appendGuardingDuplicate(next)
-                }
-                return .none
+                guard let next = GalleryNavigation.nextScreen(for: elementAction) else { return .none }
+                return GalleryNavigation.presentationEffect(
+                    id: state.path.appendGuardingDuplicate(next),
+                    screen: next,
+                    embed: { .path(.element(id: $0, action: $1)) }
+                )
 
             case .path:
                 return .none
