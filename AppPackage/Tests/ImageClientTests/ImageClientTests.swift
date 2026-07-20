@@ -4,7 +4,6 @@ import Foundation
 import ImageClient
 import Testing
 
-@Suite(.serialized)
 struct ImageClientTests {
     @MainActor
     @Test
