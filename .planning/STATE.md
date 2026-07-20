@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-23-PLAN.md
-last_updated: "2026-07-20T23:28:25.969Z"
+stopped_at: Completed 11-24-PLAN.md
+last_updated: "2026-07-20T23:38:18.966Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 129
+  completed_plans: 130
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 25 of 30
+Plan: 26 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -190,6 +190,7 @@ Progress: [██████████] 96% (10/15 phases)
 | Phase 11 P22 | ~35 min | 1 tasks | 26 files |
 | Phase 11 P22.1 | 50 | 2 tasks | 24 files |
 | Phase 11 P23 | ~20 min | 2 tasks | 32 files |
+| Phase 11 P24 | ~15 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -401,6 +402,7 @@ Recent decisions affecting current work:
 - [Phase ?]: DownloadsFeatureTests reaches zero optional-try; 2 of 155 sites became plain try (1.3%) — the target is IO-heavy, 83% are defer-cleanup which cannot throw
 - [Phase ?]: removeTemporaryItem moved from the DownloadFeatureTestCase protocol extension to a free function; 7 suites declare no conformance and could not reach it
 - [Phase ?]: No hidden broken tests surfaced in this target, unlike 11-09 and 11-20
+- [Phase ?]: optional_try flipped to error repo-wide (D-15, no Tests exclusion); doccomment added to excluded_match_kinds because the drafted pair flagged a real doc comment; zero exception directives repo-wide
 
 ### Pending Todos
 
@@ -442,6 +444,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T23:28:18.125Z
-Stopped at: Completed 11-23-PLAN.md
+Last session: 2026-07-20T23:38:18.959Z
+Stopped at: Completed 11-24-PLAN.md
 Resume file: None
