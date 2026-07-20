@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-05-PLAN.md
-last_updated: "2026-07-20T15:59:14.082Z"
+stopped_at: Completed 11-06-PLAN.md
+last_updated: "2026-07-20T16:12:21.121Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 110
+  completed_plans: 111
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 6 of 30
+Plan: 7 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -168,6 +168,7 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 11 P3 | ~30m | 2 tasks | 6 files |
 | Phase 11 P4 | ~25m | 2 tasks | 7 files |
 | Phase 11 P5 | ~20m | 2 tasks | 4 files |
+| Phase 11 P6 | ~25m | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -338,6 +339,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-03: DownloadClient manifest identity probes collapse onto one named probeManifest helper with a deliberately silent catch; scans walk arbitrary user folders so logging would be noise
 - [Phase ?]: 11-04: DownloadClient probe sites collapse onto two named helpers (probeHTMLDocument, probeFileData) — inline do/catch is not expressible in guard/if-let chains
 - [Phase ?]: 11-04: DownloadStore.closeReadHandle promoted to internal for coordinator reuse instead of duplicating the helper
+- [Phase ?]: 11-06: Activity-log pump append failures stay silent: logging inside a pump that reads its own OSLog self-feeds
+- [Phase ?]: 11-06: LogsClient's two directory guards collapse onto one helper returning [] — both fallbacks derive from an empty list
 
 ### Pending Todos
 
@@ -379,6 +382,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T15:59:14.075Z
-Stopped at: Completed 11-05-PLAN.md
+Last session: 2026-07-20T16:12:14.041Z
+Stopped at: Completed 11-06-PLAN.md
 Resume file: None
