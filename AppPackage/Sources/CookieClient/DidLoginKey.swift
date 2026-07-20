@@ -33,8 +33,15 @@ public struct DidLoginKey: SharedReaderKey {
     public func subscribe(
         context: LoadContext<Bool>, subscriber: SharedSubscriber<Bool>
     ) -> SharedSubscription {
+        // The stream is created here rather than inside the task on purpose: creating it is what
+        // registers the jar subscription, and a task body starts asynchronously. Building it inside
+        // would leave a window between `subscribe` returning and the task running in which a jar
+        // mutation reaches no subscriber and is lost — the reader would then stay stale until the
+        // *next* mutation. Registering synchronously means anything published after `subscribe`
+        // returns is buffered by the stream and delivered once the task starts consuming.
+        let changes = client.cookiesDidChange()
         let task = Task { [client] in
-            for await _ in client.cookiesDidChange() {
+            for await _ in changes {
                 subscriber.yield(client.didLogin)
             }
         }
