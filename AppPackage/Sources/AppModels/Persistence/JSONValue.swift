@@ -23,28 +23,43 @@ extension JSONValue {
 }
 
 extension JSONValue: Codable {
+    /// Attempts one representation of a single-value container, returning nil on a mismatch.
+    ///
+    /// Failure is this decoder's control flow rather than an error condition: `init(from:)` walks
+    /// the six JSON representations in a fixed order and a mismatch is precisely how it selects the
+    /// next one, so the thrown error carries no diagnostic value and is deliberately absorbed. Only
+    /// a value matching *none* of the six is an actual failure, and that is thrown at the end of
+    /// the chain. The catch is silent for the same reason — a probe miss is the ordinary path, and
+    /// logging it would fire on nearly every decoded value.
+    private static func probe<Value: Decodable>(
+        _ type: Value.Type,
+        in container: SingleValueDecodingContainer
+    ) -> Value? {
+        do {
+            return try container.decode(type)
+        } catch {
+            return nil
+        }
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        // Probe order is load-bearing: `Int` before `Double` keeps integer fields (and Int-raw
+        // enums) from widening, and the composite types come last. Persisted `@Shared` models
+        // depend on this exact sequence.
         if container.decodeNil() {
             self = .null
-        // Each decode below is a deliberate type probe: a mismatch falls through
-        // to the next JSON representation, so the thrown error is the control flow.
-        } else if let bool = try? container.decode(Bool.self) {
+        } else if let bool = Self.probe(Bool.self, in: container) {
             self = .bool(bool)
-        // This type probe intentionally falls through when the value is not an integer.
-        } else if let int = try? container.decode(Int.self) {
+        } else if let int = Self.probe(Int.self, in: container) {
             self = .int(int)
-        // This type probe intentionally falls through when the value is not a floating-point number.
-        } else if let double = try? container.decode(Double.self) {
+        } else if let double = Self.probe(Double.self, in: container) {
             self = .double(double)
-        // This type probe intentionally falls through when the value is not a string.
-        } else if let string = try? container.decode(String.self) {
+        } else if let string = Self.probe(String.self, in: container) {
             self = .string(string)
-        // This type probe intentionally falls through when the value is not an array.
-        } else if let array = try? container.decode([JSONValue].self) {
+        } else if let array = Self.probe([JSONValue].self, in: container) {
             self = .array(array)
-        // This final type probe leaves unsupported values for the structured decoding error below.
-        } else if let object = try? container.decode([String: JSONValue].self) {
+        } else if let object = Self.probe([String: JSONValue].self, in: container) {
             self = .object(object)
         } else {
             throw DecodingError.dataCorrupted(.init(
