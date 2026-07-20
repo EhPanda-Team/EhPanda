@@ -8,7 +8,9 @@ import AppModels
 // `PageHandler` survives the swap byte-for-byte; only its caller changes, so any drift caught here
 // is a re-seam bug. Every call passes `isLandscape:` explicitly so the suite never reads the
 // `DeviceUtil.isLandscape` process global and stays deterministic off-device.
-@MainActor
+// @MainActor sits on members, never on this type: `PageHandler` is a @MainActor type, so every
+// case that constructs or calls one needs it. Annotating the type would isolate its
+// conformances too (see 11-22-SUMMARY.md).
 @Suite
 struct PageHandlerTests {
     private struct AspectRatioCase {
@@ -31,6 +33,7 @@ struct PageHandlerTests {
 
     // Single-page mode applies when the device is portrait OR dual-page is off: the maps are a
     // plain ±1 offset between the 0-based pager index and the 1-based reading page.
+    @MainActor
     @Test(arguments: 0..<10)
     func singlePageModeIsPlusMinusOne(pagerIndex: Int) {
         let handler = PageHandler()
@@ -54,6 +57,7 @@ struct PageHandlerTests {
 
     // Dual-page landscape without the cover exception: stack i shows pages {2i+1, 2i+2}, so the
     // stack's first reading page is 2i+1; stack 0 is guarded to page 1.
+    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 3, 5, 7, 21]))
     func dualPageMapsStackToOddFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
@@ -66,6 +70,7 @@ struct PageHandlerTests {
 
     // Both pages of a dual stack map back to the same stack index: pages {2i+1, 2i+2} → i,
     // with pages 0/1 guarded to stack 0.
+    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 21, 22], [0, 0, 0, 1, 1, 2, 10, 10]))
     func dualPageMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
@@ -73,6 +78,7 @@ struct PageHandlerTests {
         #expect(handler.mapToPager(index: readingPage, setting: setting, isLandscape: true) == pagerIndex)
     }
 
+    @MainActor
     @Test
     func landscapeResumePageMapsToExpectedDualPageStack() {
         let handler = PageHandler()
@@ -82,6 +88,7 @@ struct PageHandlerTests {
 
     // Cover exception: the cover stands alone, so stack i (>0) shows pages {2i, 2i+1} and its
     // first reading page is 2i; stack 0 is the cover (page 1).
+    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 2, 4, 6, 20]))
     func coverExceptionMapsStackToEvenFirstPage(pagerIndex: Int, readingPage: Int) {
         let handler = PageHandler()
@@ -93,6 +100,7 @@ struct PageHandlerTests {
     }
 
     // Cover exception reverse map: pages {2i, 2i+1} → i, with the cover pages 0/1 guarded to stack 0.
+    @MainActor
     @Test(arguments: zip([0, 1, 2, 3, 4, 5, 20, 21], [0, 0, 1, 1, 2, 2, 10, 10]))
     func coverExceptionMapsReadingPageToStack(readingPage: Int, pagerIndex: Int) {
         let handler = PageHandler()
@@ -103,6 +111,7 @@ struct PageHandlerTests {
     // The last-page clamp: when a stack's first page is the second-to-last page
     // (result + 1 == pageCount), the map lands on the final page itself — and that clamped page
     // still maps back to the same stack.
+    @MainActor
     @Test
     func lastPageCoverExceptionClampsToPageCount() {
         let handler = PageHandler()
@@ -119,6 +128,7 @@ struct PageHandlerTests {
 
     // mapToPager(mapFromPager(i)) == i in every mode — the identity the re-seamed reader relies on
     // when it round-trips the shared index through reading-page space (slider, resume-seed).
+    @MainActor
     @Test(arguments: 0..<12)
     func roundTripIdentityHoldsInEveryMode(pagerIndex: Int) {
         let handler = PageHandler()
@@ -140,6 +150,7 @@ struct PageHandlerTests {
 
     // RTL stays logical: the data source is forward and only the view's layoutDirection flips, so
     // the mapping must not vary with readingDirection (only `.vertical` gates dual-page off).
+    @MainActor
     @Test(arguments: 0..<10)
     func mappingIsDirectionAgnostic(pagerIndex: Int) {
         let handler = PageHandler()
@@ -164,6 +175,7 @@ struct PageHandlerTests {
     // D-04 derives the required flag from the current reader container. These cases prove the
     // aspect-ratio result reaches both maps unchanged and preserves the frozen portrait/landscape
     // behavior after removing PageHandler's DeviceUtil-backed default.
+    @MainActor
     @Test
     func aspectRatioFlagControlsDualPageEligibility() {
         let handler = PageHandler()

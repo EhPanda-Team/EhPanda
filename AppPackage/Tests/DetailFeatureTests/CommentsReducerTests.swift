@@ -5,6 +5,10 @@ import HapticsClient
 @testable import DetailFeature
 import ComposableArchitecture
 
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
 struct CommentsReducerTests {
     // Regression: editing a comment then opening a new one used to leak the edited text, because the

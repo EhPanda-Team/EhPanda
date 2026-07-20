@@ -6,7 +6,10 @@ import AppModels
 // Wave-0 baseline lock for the reader gesture arithmetic before Plan 05-09 replaces the gesture
 // sources. These cases freeze the container-relative clamp, anchor, and tap-zone calculations so
 // the source swap cannot introduce coordinate drift.
-@MainActor
+// @MainActor sits on members, never on this type: `GestureHandler` is a @MainActor type (its
+// `init`, `containerSize`/`scale`/`scaleAnchor` and edge/tap math are all isolated), so every
+// case touching one needs it. Annotating the type would isolate its conformances too
+// (see 11-22-SUMMARY.md).
 @Suite
 struct GestureHandlerTests {
     private enum TapOutcome: Equatable {
@@ -27,6 +30,7 @@ struct GestureHandlerTests {
         CGSize(width: 1_194, height: 834)
     ]
 
+    @MainActor
     @Test
     func panClampUsesContainerSizeAndScaleAnchor() {
         for containerSize in containerSizes {
@@ -59,6 +63,7 @@ struct GestureHandlerTests {
         }
     }
 
+    @MainActor
     @Test
     func scaleAnchorMatchesNormalizedMagnifyStartAnchor() {
         for containerSize in containerSizes {
@@ -80,6 +85,7 @@ struct GestureHandlerTests {
         }
     }
 
+    @MainActor
     @Test
     func horizontalTapZonesRespectReadingDirection() {
         for containerSize in containerSizes {
@@ -105,6 +111,7 @@ struct GestureHandlerTests {
         }
     }
 
+    @MainActor
     @Test
     func verticalTapTogglesPanel() {
         let handler = GestureHandler()
@@ -114,6 +121,7 @@ struct GestureHandlerTests {
         )
     }
 
+    @MainActor
     private func tapOutcome(
         handler: GestureHandler,
         location: CGPoint,

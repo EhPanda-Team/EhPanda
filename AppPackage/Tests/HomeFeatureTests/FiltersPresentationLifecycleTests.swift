@@ -9,9 +9,13 @@ import ComposableArchitecture
 // `FiltersView`'s former `onAppear` loaded the persisted filters into the sheet's working copies.
 // Six screens present that sheet; each now sends the load itself. Frontpage stands in for all of
 // them here — the shape is identical at every site.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct FiltersPresentationLifecycleTests {
+    @MainActor
     @Test
     func presentingFiltersLoadsThePersistedFilters() async {
         var stored = Filter()

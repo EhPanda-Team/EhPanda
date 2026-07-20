@@ -10,8 +10,11 @@ import ComposableArchitecture
 // presents the reader, in the same transition that sets the destination. Both of Detail's
 // presentation paths must carry that send — an unpaired one is a reader that never resolves its
 // local pages and never observes its download, i.e. a silently broken primary read flow.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct DetailReadingLifecycleTests {
     private func makeState() -> DetailReducer.State {
         var state = DetailReducer.State(
@@ -25,6 +28,7 @@ struct DetailReadingLifecycleTests {
         return state
     }
 
+    @MainActor
     private func makeStore() -> TestStore<DetailReducer.State, DetailReducer.Action> {
         let store = TestStore(initialState: makeState(), reducer: DetailReducer.init) {
             $0.downloadClient = .noop
@@ -33,6 +37,7 @@ struct DetailReadingLifecycleTests {
         return store
     }
 
+    @MainActor
     @Test
     func presentingTheReaderStartsItsLoad() async {
         let store = makeStore()
@@ -45,6 +50,7 @@ struct DetailReadingLifecycleTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func openingTheReaderFromDownloadStartsItsLoad() async {
         let store = makeStore()
