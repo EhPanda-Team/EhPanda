@@ -39,6 +39,11 @@ Resolve the infra-level refactors gating the stricter SwiftLint ruleset — incl
 - **D-13:** `@MainActor` survives on a test only when the test actually requires the main actor or becomes meaningless without it; every other occurrence is removed.
 - **D-14:** Governing criterion for retained serialization: it survives only where the test becomes meaningless (or incorrect) without it, documented by an in-file rationale comment. `DidLoginKeyTests` qualifies and stays a deliberately single sequential test: Sharing's reference cache is a process-global weak table keyed by the key's constant id, and per-test key ids would stop testing the production `.didLogin` key.
 
+### Post-research scope decisions (owner-answered 2026-07-20, after RESEARCH.md)
+- **D-15:** `optional_try` is enforced in **test code too** — no Tests path exclusion. All 316 sites (127 Sources + 189 Tests, per RESEARCH.md inventory) are root-fixed or owner-reviewed. In Swift Testing, test functions are `throws`, so most test `try?` sites become plain `try`.
+- **D-16:** ImageColors' 27 `unchecked_subscript_index_access` sites are **refactored to the checked idiom** (D-08 safe idioms / precondition-checked subscripts) — no module-level exception. The 3 parity fixtures must still pass unchanged after the refactor; they are the proof the algorithm's behavior survived.
+- **Exception-review flow (applies D-01):** per the owner's standing instruction to defer confirmations to after-implementation, executors do not pause mid-execution for exception approval. Candidate exceptions are written in the D-02 form (`// reason: …` + `// swiftlint:disable:next`) as they arise and the owner reviews the full batch at phase-end verification — unapproved ones get reworked, not shipped.
+
 ### Claude's Discretion
 - Enforceable regex shape for the new labeled-tuple-elements rule while implementing D-10 (chosen scope: type positions only).
 - Per-suite diagnosis of what shared state forces each of the 39 DownloadsFeatureTests suites (helpers already use UUID-scoped roots; Kingfisher's shared disk cache appears in two suites) and the matching injection design, within the D-12/D-14 policy.
