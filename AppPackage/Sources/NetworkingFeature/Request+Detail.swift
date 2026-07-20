@@ -159,10 +159,10 @@ public struct GalleryReverseRequest: Request {
     public let urlSession: URLSession
 
     public func getGallery(from detail: GalleryDetail?, and url: URL) -> Gallery? {
-        if let detail = detail {
+        if let detail = detail, let identifiers = url.galleryIdentifiers {
             return Gallery(
-                gid: url.pathComponents[2],
-                token: url.pathComponents[3],
+                gid: identifiers.gid,
+                token: identifiers.token,
                 title: detail.title,
                 rating: detail.rating,
                 tags: [],
@@ -195,10 +195,13 @@ public struct GalleryReverseRequest: Request {
         do {
             let (data, _) = try await urlSession.data(for: URLRequest(url: resolvedGalleryURL))
             let document = try htmlDocument(data: data)
+            guard let identifiers = resolvedGalleryURL.galleryIdentifiers else {
+                throw AppError.parseFailed
+            }
             return try parseResponse(doc: document) {
                 let (detail, _) = try Parser.parseGalleryDetail(
                     doc: $0,
-                    gid: resolvedGalleryURL.pathComponents[2]
+                    gid: identifiers.gid
                 )
                 guard let gallery = getGallery(from: detail, and: resolvedGalleryURL) else {
                     throw AppError.parseFailed
@@ -340,5 +343,24 @@ public struct GalleryPreviewURLsRequest: Request {
         } catch {
             throw mapAppError(error: error)
         }
+    }
+}
+
+private extension URL {
+    /// Gallery identifiers read out of a `/g/<gid>/<token>` path, or `nil` when the URL is not
+    /// gallery-shaped.
+    ///
+    /// Both call sites previously indexed path components 2 and 3 directly. The bound was
+    /// never proven: `GalleryReverseRequest` accepts an arbitrary URL and, when
+    /// `isGalleryImageURL` is set, a URL scraped out of remote markup, so a short path trapped
+    /// rather than failing the parse. Extracting both identifiers behind one guard keeps the
+    /// bounds proof at the access and routes a malformed URL into the existing error path.
+    var galleryIdentifiers: (gid: String, token: String)? {
+        // Skips the leading "/" and "g" components to reach <gid>/<token>.
+        let identifiers = pathComponents.dropFirst(2)
+        guard let gid = identifiers.first, let token = identifiers.dropFirst().first else {
+            return nil
+        }
+        return (gid: gid, token: token)
     }
 }
