@@ -12,7 +12,7 @@ import QuickSearchFeature
 import DetailFeature
 
 public struct FavoritesView: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     @Bindable private var store: StoreOf<FavoritesReducer>
 
     public init(store: StoreOf<FavoritesReducer>) {
@@ -44,12 +44,12 @@ public struct FavoritesView: View {
                 downloadBadges: store.downloadBadges
             )
             .animation(.default) {
-                $0.opacity(cookieClient.didLogin ? 1 : 0)
+                $0.opacity(didLogin ? 1 : 0)
             }
             .overlay {
                 NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                     .animation(.default) {
-                        $0.opacity(cookieClient.didLogin ? 0 : 1)
+                        $0.opacity(didLogin ? 0 : 1)
                     }
             }
             .sheet(
@@ -84,7 +84,7 @@ public struct FavoritesView: View {
             }
             .onAppear {
                 store.send(.onAppear)
-                if store.galleries?.isEmpty != false && cookieClient.didLogin {
+                if store.galleries?.isEmpty != false && didLogin {
                     DispatchQueue.main.async {
                         store.send(.fetchGalleries())
                     }

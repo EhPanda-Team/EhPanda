@@ -12,7 +12,7 @@ import FiltersFeature
 import QuickSearchFeature
 
 struct WatchedView: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     @Bindable private var store: StoreOf<WatchedReducer>
 
     init(store: StoreOf<WatchedReducer>) {
@@ -34,12 +34,12 @@ struct WatchedView: View {
             downloadBadges: store.downloadBadges
         )
         .animation(.default) {
-            $0.opacity(cookieClient.didLogin ? 1 : 0)
+            $0.opacity(didLogin ? 1 : 0)
         }
         .overlay {
             NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 .animation(.default) {
-                    $0.opacity(cookieClient.didLogin ? 0 : 1)
+                    $0.opacity(didLogin ? 0 : 1)
                 }
         }
         .sheet(
@@ -80,7 +80,7 @@ struct WatchedView: View {
         }
         .onAppear {
             store.send(.onAppear)
-            if store.galleries.isEmpty && cookieClient.didLogin {
+            if store.galleries.isEmpty && didLogin {
                 DispatchQueue.main.async {
                     store.send(.fetchGalleries())
                 }

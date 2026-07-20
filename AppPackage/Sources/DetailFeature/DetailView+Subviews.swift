@@ -123,7 +123,7 @@ extension DescriptionSection {
 
 // MARK: ActionSection
 struct ActionSection: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     let galleryDetail: GalleryDetail
     let userRating: Int
     let showUserRating: Bool
@@ -147,7 +147,7 @@ struct ActionSection: View {
                         }
                         .frame(maxWidth: .infinity)
                     }
-                    .disabled(!cookieClient.didLogin)
+                    .disabled(!didLogin)
 
                     Button(action: navigateSimilarGalleryAction) {
                         Label {
@@ -206,7 +206,7 @@ struct TagsSection: View {
 
 extension TagsSection {
     struct TagRow: View {
-        @Dependency(\.cookieClient) private var cookieClient
+        @SharedReader(.didLogin) private var didLogin: Bool
         @Environment(\.colorScheme) private var colorScheme
 
         let tag: GalleryTag
@@ -268,7 +268,7 @@ extension TagsSection {
                     Label(.RLocalizable.detail, systemSymbol: .richtextPage)
                 }
             }
-            if cookieClient.didLogin {
+            if didLogin {
                 tagVoteButtons(content: content)
             }
         }
@@ -336,7 +336,7 @@ struct PreviewsSection: View {
 
 // MARK: CommentsSection
 struct CommentsSection: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
 
     let comments: [GalleryComment]
     let navigateCommentAction: () -> Void
@@ -359,7 +359,7 @@ struct CommentsSection: View {
                 .drawingGroup()
             }
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
-                .padding(.horizontal).disabled(!cookieClient.didLogin)
+                .padding(.horizontal).disabled(!didLogin)
         }
     }
 }
