@@ -2,6 +2,7 @@ import Kanna
 import AppModels
 import OSLogExt
 import Foundation
+import RegexBuilder
 import AppTools
 
 private let logger = Logger(category: .init(describing: Parser.self))
@@ -51,20 +52,30 @@ extension Parser {
         return date
     }
 
+    /// Matches `var <name> = "<value>";` in any of the document's inline scripts.
+    ///
+    /// Built with `RegexBuilder` rather than a runtime-compiled `NSRegularExpression`: the regex is
+    /// validated at compile time, so there is no construction failure to swallow, and `name` is
+    /// matched as a literal without hand-rolled pattern escaping.
     static func parseScriptVariable(name: String, doc: HTMLDocument) -> String? {
-        let escapedName = NSRegularExpression.escapedPattern(for: name)
-        let pattern = #"var\s+\#(escapedName)\s*=\s*["']([^"']*)["']\s*;"#
-        // An invalid generated pattern intentionally makes the script value unavailable.
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let quote = CharacterClass.anyOf("\"'")
+        let regex = Regex {
+            "var"
+            OneOrMore(.whitespace)
+            name
+            ZeroOrMore(.whitespace)
+            "="
+            ZeroOrMore(.whitespace)
+            quote
+            Capture { ZeroOrMore(quote.inverted) }
+            quote
+            ZeroOrMore(.whitespace)
+            ";"
+        }
 
         for script in doc.xpath("//script") {
-            guard let text = script.text else { continue }
-            let range = NSRange(text.startIndex..., in: text)
-            guard let match = regex.firstMatch(in: text, range: range),
-                  let valueRange = Range(match.range(at: 1), in: text)
-            else { continue }
-
-            return String(text[valueRange])
+            guard let text = script.text, let match = text.firstMatch(of: regex) else { continue }
+            return String(match.1)
         }
         return nil
     }
