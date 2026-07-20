@@ -6,15 +6,15 @@ current_phase: 10
 current_phase_name: ui-polish
 status: executing
 stopped_at: 10-12 automated gates green; awaiting owner D-03 sign-off (blocking checkpoint)
-last_updated: "2026-07-17T18:01:52.132Z"
+last_updated: "2026-07-20T02:50:20.311Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase 10 execution resumed (wave continue)
 progress:
-  total_phases: 13
+  total_phases: 15
   completed_phases: 9
   total_plans: 105
   completed_plans: 105
-  percent: 69
+  percent: 60
 ---
 
 # Project State
@@ -32,7 +32,7 @@ Phase: 10 (ui-polish) — EXECUTING
 Plan: 12 of 12
 Status: Ready to execute
 Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
-Next: Plan Phase 10
+Next: /gsd-plan-phase 12 (Cloudflare login restoration; sequenced after Phase 11)
 
 Progress: [███████░░░] 69% (9/13 phases)
 
@@ -355,6 +355,7 @@ None yet.
 - Phase 12 added: added Deep Link Hardening: code-review + durability fixes for deep-link routing, backed by UI automation tests
 - Phase 10 edited: added success criterion: rename SystemNotificationExt module -> SystemNotification (full impl, not an extension)
 - Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics
+- Phase 12 added (integer, Cloudflare Login Restoration): restore username/password login broken by the Cloudflare challenge wall (403 + cf-mitigated on forums.e-hentai.org); in-app browser clearance capture, in-memory cf_clearance. Cascaded existing phases: Deep Link Hardening 12→13, Analytics/TelemetryDeck 13→14, Dynamic Type Accessibility 14→15 (owner chose integer over decimal 12.1)
 
 ## Deferred Items
 
