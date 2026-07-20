@@ -194,7 +194,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
         var lastError: any Error = URLError(.unknown)
         for _ in 1...4 {
             do {
-                let result = try await refetchAttempt()
+                let result = try await refetchAttempt(page: index)
                 return (
                     [index: result.imageURL != storedImageURL
                         ? result.imageURL : result.anotherImageURL],
@@ -212,7 +212,9 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
         throw mapAppError(error: lastError)
     }
 
-    private func refetchAttempt() async throws -> ImageURLRefetchResult {
+    /// - Parameter page: the 1-based page number this refetch targets, which is also the key
+    ///   space of `Parser.parseThumbnailURLs`'s `[Int: URL]` result.
+    private func refetchAttempt(page: Int) async throws -> ImageURLRefetchResult {
         let storedThumbnail: URL
         if let thumbnailURL {
             storedThumbnail = thumbnailURL
@@ -224,7 +226,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
             let (data, _) = try await urlSession.data(for: request)
             let document = try htmlDocument(data: data)
             let thumbnails = try parseResponse(doc: document, Parser.parseThumbnailURLs)
-            guard let thumbnail = thumbnails[index] else {
+            guard let thumbnail = thumbnails[page] else {
                 throw MissingThumbnailIndexError()
             }
             storedThumbnail = thumbnail

@@ -59,21 +59,29 @@ private struct GalleryMetadata: Decodable {
     /// Groups the flat `"namespace:content"` tag list (returned because the request sets
     /// `namespace: 1`) into `GalleryTag`s. A tag without a namespace falls under `misc`.
     private static func parseTags(_ raw: [String]) -> [GalleryTag] {
-        var tags = [GalleryTag]()
+        var contentsByNamespace = [String: [GalleryTag.Content]]()
+        var namespaceOrder = [String]()
         for entry in raw {
             let parts = entry.split(separator: ":", maxSplits: 1).map(String.init)
-            let namespace = parts.count == 2 ? parts[0] : "misc"
-            let text = parts.count == 2 ? parts[1] : entry
-            let content = GalleryTag.Content(
-                rawNamespace: namespace, text: text, isVotedUp: false, isVotedDown: false
-            )
-            if let index = tags.firstIndex(where: { $0.rawNamespace == namespace }) {
-                tags[index] = .init(rawNamespace: namespace, contents: tags[index].contents + [content])
+            let namespace: String
+            let text: String
+            if let rawNamespace = parts.first, let rawText = parts.dropFirst().first {
+                namespace = rawNamespace
+                text = rawText
             } else {
-                tags.append(.init(rawNamespace: namespace, contents: [content]))
+                namespace = "misc"
+                text = entry
             }
+            if contentsByNamespace[namespace] == nil {
+                namespaceOrder.append(namespace)
+            }
+            contentsByNamespace[namespace, default: []].append(
+                .init(rawNamespace: namespace, text: text, isVotedUp: false, isVotedDown: false)
+            )
         }
-        return tags
+        return namespaceOrder.map {
+            .init(rawNamespace: $0, contents: contentsByNamespace[$0] ?? [])
+        }
     }
 }
 
