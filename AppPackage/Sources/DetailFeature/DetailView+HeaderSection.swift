@@ -209,12 +209,12 @@ struct HeaderSection: View {
                     .trim(from: 0, to: progress)
                     .stroke(downloadButtonTint, style: .init(lineWidth: 2.5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
+                    .animation(.default, value: progress)
             }
             .padding(3)
             .animation(.default) {
                 $0.opacity(isDeterminate ? 1 : 0)
             }
-            .animation(.default, value: progress)
             .overlay {
                 ProgressView()
                     .progressViewStyle(.circular)
