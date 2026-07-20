@@ -26,6 +26,8 @@ public struct AccountSettingReducer: Sendable {
         case pushEhSetting
     }
 
+    private enum CancelID { case observeCookies }
+
     @ObservableState
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
@@ -44,6 +46,7 @@ public struct AccountSettingReducer: Sendable {
         case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
+        case onAppear
         case logoutButtonTapped
         case onLogoutConfirmButtonTapped
         case loadCookies
@@ -83,6 +86,17 @@ public struct AccountSettingReducer: Sendable {
             case .delegate:
                 return .none
 
+            case .onAppear:
+                return .merge(
+                    .send(.loadCookies),
+                    .run { send in
+                        for await _ in cookieClient.cookiesDidChange() {
+                            await send(.loadCookies)
+                        }
+                    }
+                    .cancellable(id: CancelID.observeCookies, cancelInFlight: true)
+                )
+
             case .logoutButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
                     TextState(localized: .logout)
@@ -104,12 +118,16 @@ public struct AccountSettingReducer: Sendable {
             case .confirmationDialog:
                 return .none
 
+            // Kept as a no-op trigger: SettingReducer pattern-matches this case to clear the jar
+            // and reset the shared user; the cookiesDidChange subscription above then reloads this
+            // screen once the clear actually lands. (An eager `.send(.loadCookies)` here raced the
+            // parent's `.run` clear effect and snapshotted the pre-logout cookies.)
             case .onLogoutConfirmButtonTapped:
-                return .send(.loadCookies)
+                return .none
 
             case .loadCookies:
-                state.ehCookiesState = cookieClient.loadCookiesState(host: .ehentai)
-                state.exCookiesState = cookieClient.loadCookiesState(host: .exhentai)
+                state.ehCookiesState.applyJarSnapshot(cookieClient.loadCookiesState(host: .ehentai))
+                state.exCookiesState.applyJarSnapshot(cookieClient.loadCookiesState(host: .exhentai))
                 return .none
 
             case .copyCookies(let host):
@@ -135,3 +153,27 @@ public struct AccountSettingReducer: Sendable {
 
 extension AccountSettingReducer.Destination.State: Equatable, Sendable {}
 extension AccountSettingReducer.Destination.Action: Equatable, Sendable {}
+
+// Echo-guard. The jar notifies for this screen's own write-backs too: every keystroke commits
+// through the `.onChange` → `setCookies` path, which trims whitespace before writing. Reloading on
+// that echo would replace the focused TextField's text — dropping a just-typed trailing space and
+// jumping the cursor. So each cookie buffer only accepts a jar snapshot its own pending write-back
+// could NOT have produced. Guarding per cookie (not per host) keeps an external igneous refresh
+// from clobbering a concurrently-edited sibling field; the key comparison forces the very first
+// load over the keyless `.empty` placeholder state.
+extension CookiesState {
+    fileprivate mutating func applyJarSnapshot(_ fresh: CookiesState) {
+        igneous.applyJarSnapshot(fresh.igneous)
+        memberID.applyJarSnapshot(fresh.memberID)
+        passHash.applyJarSnapshot(fresh.passHash)
+    }
+}
+
+extension CookieState {
+    fileprivate mutating func applyJarSnapshot(_ fresh: CookieState) {
+        guard key != fresh.key
+            || editingText.trimmingCharacters(in: .whitespaces) != fresh.value.rawValue
+        else { return }
+        self = fresh
+    }
+}
