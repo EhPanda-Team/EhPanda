@@ -66,9 +66,11 @@ private extension Parser {
             guard let gl2mNode = link.at_xpath("//td [@class='gl2m']"),
                   let gl3mNode = link.at_xpath("//td [@class='gl3m glname']"),
                   // A malformed panel intentionally drops only this gallery row.
-                  let panelInfo = try? parseThumbnailPanel(node: gl2mNode),
+                  let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: gl2mNode) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3mNode)
+                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                      try parseGalleryTitle(node: gl3mNode)
+                  })
             else { continue }
             galleries.append(
                 .init(
@@ -96,9 +98,11 @@ private extension Parser {
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   // A malformed panel intentionally drops only this gallery row.
-                  let panelInfo = try? parseThumbnailPanel(node: gl2cNode),
+                  let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: gl2cNode) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3cNode)
+                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                      try parseGalleryTitle(node: gl3cNode)
+                  })
             else { continue }
             galleries.append(
                 .init(
@@ -127,9 +131,11 @@ private extension Parser {
         for link in doc.xpath("//tr") {
             guard let gl3eSiblingNode = link.at_xpath("//div [@class='gl3e']")?.nextSibling,
                   // A malformed panel intentionally drops only this gallery row.
-                  let panelInfo = try? parseThumbnailPanel(node: link),
+                  let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: link) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3eSiblingNode)
+                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                      try parseGalleryTitle(node: gl3eSiblingNode)
+                  })
             else { continue }
             galleries.append(
                 .init(
@@ -156,9 +162,11 @@ private extension Parser {
         for link in doc.xpath("//div [@class='gl1t']") {
             let gl6tNode = link.at_xpath("//div [@class='gl6t']")
             // A malformed panel intentionally drops only this gallery row.
-            guard let panelInfo = try? parseThumbnailPanel(node: link),
+            guard let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: link) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: link)
+                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                      try parseGalleryTitle(node: link)
+                  })
             else { continue }
             galleries.append(
                 .init(
@@ -219,7 +227,7 @@ private extension Parser {
         guard let coverURL = tmpCoverURL,
               let category = tmpCategory,
               // An invalid rating intentionally makes only this panel unavailable.
-              let ratingResult = try? parseRating(node: node),
+              let ratingResult = degrading("Panel rating", { try parseRating(node: node) }),
               let publishedDate = tmpPublishedDate,
               let pageCount = tmpPageCount
         else { throw AppError.parseFailed }
@@ -247,13 +255,13 @@ private extension Parser {
 
         for glink in node.xpath("//div") where glink.className?.contains("glink") == true {
             // A malformed div title candidate intentionally falls through to other candidates.
-            if let result = try? findTitle(glink: glink) {
+            if let result = degrading("Div title candidate", { try findTitle(glink: glink) }) {
                 return result
             }
         }
         for glink in node.xpath("//span") where glink.className?.contains("glink") == true {
             // A malformed span title candidate intentionally falls through to parse failure.
-            if let result = try? findTitle(glink: glink) {
+            if let result = degrading("Span title candidate", { try findTitle(glink: glink) }) {
                 return result
             }
         }

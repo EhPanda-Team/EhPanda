@@ -23,30 +23,32 @@ extension Parser {
                   let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
                   // A malformed cover intentionally rejects only this detail candidate.
-                  let coverURL = try? parseCoverURL(node: link),
+                  let coverURL = degrading("Cover URL", { try parseCoverURL(node: link) }),
                   // Malformed tags intentionally reject only this detail candidate.
-                  let tags = try? parseGalleryTags(node: gd4Node),
+                  let tags = degrading("Detail tags", { try parseGalleryTags(node: gd4Node) }),
                   // Malformed previews intentionally reject only this detail candidate.
-                  let previewURLs = try? parsePreviewURLs(doc: doc),
+                  let previewURLs = degrading("Preview URLs", { try parsePreviewURLs(doc: doc) }),
                   // Malformed archive metadata intentionally rejects only this detail candidate.
-                  let arcAndTor = try? parseArcAndTor(node: gd5Node),
+                  let arcAndTor = degrading("Archive and torrent", { try parseArcAndTor(node: gd5Node) }),
                   // A malformed info panel intentionally rejects only this detail candidate.
-                  let infoPanel = try? parseInfoPanel(node: gddNode),
+                  let infoPanel = degrading("Info panel", { try parseInfoPanel(node: gddNode) }),
                   // Invalid visibility intentionally rejects only this detail candidate.
-                  let visibility = try? parseVisibility(value: infoPanel[2]),
+                  let visibility = degrading("Visibility", { try parseVisibility(value: infoPanel[2]) }),
                   let sizeCount = Float(infoPanel[4]),
                   let pageCount = Int(infoPanel[6]),
                   let favoritedCount = Int(infoPanel[7]),
                   let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   // A missing uploader intentionally rejects only this detail candidate.
-                  let uploader = try? parseUploader(node: gd3Node),
+                  let uploader = degrading("Uploader", { try parseUploader(node: gd3Node) }),
                   // An invalid rating intentionally rejects only this detail candidate.
-                  let ratingResult = try? parseRating(node: gdrNode),
+                  let ratingResult = degrading("Rating", { try parseRating(node: gdrNode) }),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = AppModels.Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   // An invalid posted date intentionally rejects only this detail candidate.
-                  let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
+                  let postedDate = degrading("Posted date", {
+                      try parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
+                  })
             else { continue }
 
             let isFavorited = gdfNode

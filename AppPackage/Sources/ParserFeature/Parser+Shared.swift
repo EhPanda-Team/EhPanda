@@ -7,6 +7,26 @@ import AppTools
 private let logger = Logger(category: .init(describing: Parser.self))
 
 extension Parser {
+    /// Runs a throwing parse and degrades a failure to `nil`, logging it first.
+    ///
+    /// The parser deliberately tolerates malformed markup: a bad row is dropped and a bad optional
+    /// field falls back to its default rather than failing the whole page parse. `try?` expressed
+    /// that degradation silently; this preserves the identical behavior while leaving the swallowed
+    /// error observable in the log. A `do`/`catch` cannot be inlined at most of these sites — they
+    /// sit inside `guard let` chains and call arguments, where hoisting the parse into a preceding
+    /// statement would change evaluation order and defeat the chain's short-circuiting.
+    ///
+    /// `description` must stay a fixed literal: never interpolate document content, URLs, or
+    /// cookie-bearing values into it.
+    static func degrading<Value>(_ description: String, _ parse: () throws -> Value) -> Value? {
+        do {
+            return try parse()
+        } catch {
+            logger.error("\(description, privacy: .public) failed to parse: \(error, privacy: .public)")
+            return nil
+        }
+    }
+
     static func parseGTX00IndexFromTitle(from title: String) -> Int? {
         // The probable format of page title is "Page [Number]: filename"
         (
