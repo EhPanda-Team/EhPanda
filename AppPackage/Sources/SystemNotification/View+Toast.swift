@@ -34,7 +34,6 @@ private struct ToastViewModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var item: Store<AppAlertState<Never>, Never>?
     let onErrorTap: (ErrorInfo) -> Void
-    @State private var interactionState = ToastInteractionState()
     @AccessibilityFocusState private var focusedToastID: UUID?
 
     func body(content: Content) -> some View {
@@ -72,12 +71,6 @@ private struct ToastViewModifier: ViewModifier {
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id
                     ))
-                    .onAppear {
-                        interactionState.present(id: id, errorInfo: store.state.errorInfo)
-                    }
-                    .onDisappear {
-                        interactionState.dismiss(presentedID: id)
-                    }
                     .task(id: id) {
                         await managePresentation(
                             toast,
@@ -118,16 +111,19 @@ private struct ToastViewModifier: ViewModifier {
             }
     }
 
+    // Every interaction is guarded on the presented state's own id, so a toast that is still on
+    // screen through its removal transition — replaced or already dismissed — cannot act. Clearing
+    // `item` is what invalidates it; there is deliberately no view-local mirror of "which toast is
+    // presented", because the presentation binding already is that.
     private func errorButtonTapped(presentedID: UUID) {
-        guard item?.state.id == presentedID,
-              let errorInfo = interactionState.activate(presentedID: presentedID)
+        guard let store = item, store.state.id == presentedID,
+              let errorInfo = store.state.errorInfo
         else { return }
         item = nil
         onErrorTap(errorInfo)
     }
 
     private func dismiss(presentedID: UUID) {
-        interactionState.dismiss(presentedID: presentedID)
         guard item?.state.id == presentedID else { return }
         item = nil
     }
@@ -137,7 +133,6 @@ private struct ToastViewModifier: ViewModifier {
         errorInfo: ErrorInfo?,
         presentedID: UUID
     ) async {
-        interactionState.present(id: presentedID, errorInfo: errorInfo)
         if errorInfo != nil {
             await Task.yield()
             guard !Task.isCancelled, item?.state.id == presentedID else { return }
@@ -161,29 +156,6 @@ private struct ToastViewModifier: ViewModifier {
         // a completed timer whose state is still presented may clear it.
         guard !Task.isCancelled, item?.state.id == presentedID else { return }
         dismiss(presentedID: presentedID)
-    }
-}
-
-struct ToastInteractionState {
-    private var presentedID: UUID?
-    private var errorInfo: ErrorInfo?
-
-    mutating func present(id: UUID, errorInfo: ErrorInfo?) {
-        presentedID = id
-        self.errorInfo = errorInfo
-    }
-
-    mutating func activate(presentedID: UUID) -> ErrorInfo? {
-        guard self.presentedID == presentedID, let errorInfo else { return nil }
-        self.presentedID = nil
-        self.errorInfo = nil
-        return errorInfo
-    }
-
-    mutating func dismiss(presentedID: UUID) {
-        guard self.presentedID == presentedID else { return }
-        self.presentedID = nil
-        errorInfo = nil
     }
 }
 
