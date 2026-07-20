@@ -26,7 +26,6 @@ public struct ReadingView: View {
     // sheet owns its own `@Shared(.setting)`; other reads go through `store.setting`. Same underlying
     // storage — the model clamps keep every write safe.
     @Shared(.setting) private var setting: Setting
-    let gid: String
 
     @State private var liveTextHandler = LiveTextHandler()
     @State private var autoPlayHandler = AutoPlayHandler()
@@ -36,13 +35,9 @@ public struct ReadingView: View {
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
 
-    public init(
-        store: StoreOf<ReadingReducer>,
-        gid: String
-    ) {
+    public init(store: StoreOf<ReadingReducer>) {
         @Dependency(\.deviceClient) var deviceClient
         self.store = store
-        self.gid = gid
         // Seed the pager and slider from the resume page the reducer computed in `State.init`, so the
         // reader opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
         // `readingProgress` after the view had subscribed; with no post-subscribe change event, the
@@ -116,14 +111,18 @@ public struct ReadingView: View {
             .animation(.default, value: gestureHandler.scale)
             .animation(.default, value: store.showsPanel)
             .statusBarHidden(!store.showsPanel)
+            // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
+            // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
+            // repeating timer. Neither is reducer state, so no reducer action can stand in for this,
+            // and no value change marks the view's removal. Dropping it would leak an autoplay timer
+            // that keeps turning pages of a reader nobody is looking at.
+            // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
+            // presentation is torn down; a send from here would arrive after the destination is
+            // nil'd and be dropped. So only non-persistence teardown happens here.
             .onDisappear {
-                // Progress is flushed in the reducer on `.onPerformDismiss` (before the presentation is
-                // torn down); an `onDisappear` send would arrive after the destination is nil'd and be
-                // dropped. So only non-persistence teardown happens here.
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
             }
-            .onAppear { store.send(.onAppear(gid)) }
     }
 
     @ViewBuilder
@@ -228,10 +227,12 @@ public struct ReadingView: View {
                 }
             }
         }
-        .onChange(of: pageModel.index) { _, newValue in
+        // `initial: true` re-applies the seed at appearance, which is what the former `.onAppear`
+        // did. It is belt-and-braces: `scrollPositionID` is already seeded in `init`, so the resume
+        // page survives even if this initial fire lands late.
+        .onChange(of: pageModel.index, initial: true) { _, newValue in
             tryScrollTo(id: newValue)
         }
-        .onAppear { tryScrollTo(id: pageModel.index) }
     }
 
     @ViewBuilder
@@ -453,8 +454,7 @@ extension ReadingView {
         Color.clear
             .fullScreenCover(isPresented: .constant(true)) {
                 ReadingView(
-                    store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init),
-                    gid: .init()
+                    store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init)
                 )
             }
     }

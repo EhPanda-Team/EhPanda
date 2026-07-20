@@ -48,10 +48,7 @@ public struct DownloadsView: View {
                 .fullScreenCover(
                     item: $store.scope(\.$destination, action: \.destination).reading
                 ) { store in
-                    ReadingView(
-                        store: store,
-                        gid: store.gallery.id
-                    )
+                    ReadingView(store: store)
                     .privacyMask()
                 }
                 .onAppear {

@@ -164,7 +164,7 @@ extension DetailReducer {
                     readingState.localPageURLs = state.localPreviewURLs
                 }
                 state.destination = .reading(readingState)
-                return .none
+                return .send(.destination(.presented(.reading(.onPresented))))
 
             case .runLaunchAutomationIfNeeded:
                 guard !state.didRunLaunchAutomation,

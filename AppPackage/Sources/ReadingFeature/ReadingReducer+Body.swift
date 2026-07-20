@@ -76,7 +76,11 @@ extension ReadingReducer {
                 flushReadingProgress(state)
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
-            case .onAppear(let gid):
+            // Sent by whoever presents the reader, in the same transition that sets the
+            // destination. The gid used to arrive from the view; every construction site seeds
+            // `gallery`, so it was always this value.
+            case .onPresented:
+                let gid = state.gallery.id
                 return .merge(
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid))
