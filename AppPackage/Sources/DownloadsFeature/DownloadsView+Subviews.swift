@@ -277,6 +277,114 @@ private extension View {
     }
 }
 
+// MARK: DownloadInspectorView Previews
+private func previewInspection(
+    displayStatus: DownloadDisplayStatus,
+    downloaded: [Int] = [],
+    pending: [Int] = [],
+    failed: [Int] = []
+) -> DownloadInspection {
+    let groups: [(status: DownloadPageStatus, indices: [Int])] = [
+        (.downloaded, downloaded), (.pending, pending), (.failed, failed)
+    ]
+    // A page counts as complete in the manifest only when its relative path is non-empty, so the
+    // header cell's badge stays consistent with the page groups listed underneath it.
+    let manifestPages = groups.reduce(into: [Int: String]()) { result, group in
+        for index in group.indices {
+            result[index] = group.status == .downloaded ? "\(index).jpg" : ""
+        }
+    }
+    return .init(
+        download: .init(
+            manifest: .init(
+                gid: "1", host: .ehentai, token: "", title: "Sample Download", jpnTitle: nil,
+                category: .doujinshi, language: .english, remoteCoverURL: nil,
+                uploader: "Anonymous", tags: [], postedDate: .now, rating: 4.5,
+                pages: manifestPages
+            ),
+            folderURL: .mock, folderName: "[1] Sample Download",
+            localCoverURL: nil, localPageURLs: [:], modificationDate: .now,
+            displayStatus: displayStatus
+        ),
+        pages: groups
+            .flatMap { group in
+                group.indices.map { DownloadPageInspection(index: $0, status: group.status) }
+            }
+            .sorted { $0.index < $1.index }
+    )
+}
+
+// The empty `gid` is load-bearing: `onAppear` bails out on it, so the hand-built inspection below
+// survives instead of being replaced by a client fetch the moment the canvas renders.
+@MainActor private func previewInspectorStore(
+    inspection: DownloadInspection?,
+    loadingState: LoadingState = .idle,
+    isValidatingImageData: Bool = false
+) -> StoreOf<DownloadInspectorReducer> {
+    .init(
+        initialState: {
+            var state = DownloadInspectorReducer.State()
+            state.inspection = inspection
+            state.loadingState = loadingState
+            state.isValidatingImageData = isValidatingImageData
+            return state
+        }(),
+        reducer: DownloadInspectorReducer.init
+    )
+}
+
+#Preview("Downloading") {
+    NavigationStack {
+        DownloadInspectorView(
+            store: previewInspectorStore(
+                inspection: previewInspection(
+                    displayStatus: .active,
+                    downloaded: Array(1...12),
+                    pending: Array(13...20) + [22],
+                    failed: [21, 23, 24]
+                )
+            )
+        )
+    }
+}
+
+#Preview("Completed") {
+    NavigationStack {
+        DownloadInspectorView(
+            store: previewInspectorStore(
+                inspection: previewInspection(displayStatus: .completed, downloaded: Array(1...24))
+            )
+        )
+    }
+}
+
+#Preview("Validating") {
+    NavigationStack {
+        DownloadInspectorView(
+            store: previewInspectorStore(
+                inspection: previewInspection(displayStatus: .completed, downloaded: Array(1...24)),
+                isValidatingImageData: true
+            )
+        )
+    }
+}
+
+#Preview("Loading") {
+    NavigationStack {
+        DownloadInspectorView(
+            store: previewInspectorStore(inspection: nil, loadingState: .loading)
+        )
+    }
+}
+
+#Preview("Load failed") {
+    NavigationStack {
+        DownloadInspectorView(
+            store: previewInspectorStore(inspection: nil, loadingState: .failed(.notFound))
+        )
+    }
+}
+
 struct DownloadListRow: View {
     @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
     @SharedReader(.setting) private var setting: Setting
