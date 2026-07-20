@@ -9,7 +9,7 @@ struct DownloadStoreHashTests {
     @Test
     func testValidateReportsCorruptedPageImageData() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
         let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
@@ -30,7 +30,7 @@ struct DownloadStoreHashTests {
     @Test
     func testRefreshManifestPageFileHashUpdatesSinglePageHash() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
         let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
@@ -55,7 +55,7 @@ struct DownloadStoreHashTests {
     @Test
     func testAddingCurrentFileHashesPreservesExistingHashesAndFillsEmptyHashes() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let (_, folderURL) = try makePreparedDownload(storage: storage)
         let pageOneURL = folderURL.appendingPathComponent("123_token_1.jpg")

@@ -9,7 +9,7 @@ struct DownloadStoreRepairTests {
     @Test
     func testMaterializeRepairSeedCopiesOnlyManifestCoverAndExistingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let sourceFolderURL = storage.folderURL(relativePath: "123 - Source")
@@ -33,8 +33,8 @@ struct DownloadStoreRepairTests {
         let destRootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer {
-            try? FileManager.default.removeItem(at: sourceRootURL)
-            try? FileManager.default.removeItem(at: destRootURL)
+            removeTemporaryItem(at: sourceRootURL)
+            removeTemporaryItem(at: destRootURL)
         }
 
         let env = try setupTraversalTestEnvironment(
@@ -60,7 +60,7 @@ struct DownloadStoreRepairTests {
     func testLinkOrCopyReadableAssetFallsBackToCopyWhenHardLinkFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let fileManager = LinkFailingFileManager()
         let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)

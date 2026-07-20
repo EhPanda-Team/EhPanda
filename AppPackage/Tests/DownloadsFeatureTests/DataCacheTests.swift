@@ -7,7 +7,7 @@ struct DataCacheTests {
     @Test
     func testStoreAndReadDataFromDiskWithHashedFilename() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
             configuration: .init(rootURL: rootURL, memoryCostLimit: 1, maxDiskAge: 60)
         )
@@ -28,7 +28,7 @@ struct DataCacheTests {
     @Test
     func testStoreReadAndRemoveDataForOrderedKeys() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(configuration: .init(rootURL: rootURL))
         let data = Data([0x0A, 0x0B])
 
@@ -47,7 +47,7 @@ struct DataCacheTests {
     @Test
     func testExpiredDataIsRemovedOnRead() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
             configuration: .init(rootURL: rootURL, maxDiskAge: 0.01)
         )
@@ -63,7 +63,7 @@ struct DataCacheTests {
     @Test
     func testDiskSweepEvictsOldestEntriesToHalfLimit() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
             configuration: .init(
                 rootURL: rootURL,
@@ -87,7 +87,7 @@ struct DataCacheTests {
     @Test
     func testRemoveAllClearsMemoryAndDisk() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(
             configuration: .init(rootURL: rootURL)
         )
@@ -102,7 +102,7 @@ struct DataCacheTests {
     @Test
     func testUnreadableDiskEntryIsTreatedAsMissAndRemoved() async throws {
         let rootURL = makeRootURL()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cache = DataCache(configuration: .init(rootURL: rootURL))
 
         try await cache.store(Data([0x01, 0x02]), forKey: "page")

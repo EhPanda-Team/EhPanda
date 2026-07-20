@@ -15,7 +15,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let pageIndex = 42
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let cachedKeysBox = UncheckedBox(Set<String>())
         let libraryClient = try makeCacheLibraryClient(
             cachedKeys: cachedKeysBox

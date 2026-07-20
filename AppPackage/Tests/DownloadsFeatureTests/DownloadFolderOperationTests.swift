@@ -8,7 +8,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testCreateFolderListsFolderAndRejectsDuplicatesAndInvalidNames() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         try environment.storage.ensureRootDirectory()
 
         let created = await environment.manager.createFolder(name: "  Favorites  ")
@@ -40,7 +40,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testRenameFolderRepointsContainedDownloads() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "311"
         try writeGalleryFolder(storage: environment.storage, folderName: "Old Name", gid: gid)
         await environment.manager.reconcileDownloads()
@@ -60,7 +60,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testRenameFolderRejectsActiveDownloadInside() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "312"
         try writeGalleryFolder(storage: environment.storage, folderName: "Busy", gid: gid)
         _ = await environment.manager.reconcileDownloads()
@@ -79,7 +79,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testDeleteFolderRemovesContainedDownloadsAndQueueIntents() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "313"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Doomed", gid: gid)
         await environment.manager.reconcileDownloads()
@@ -99,7 +99,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testDeleteDownloadRemovesSupersededSameIdentityFolders() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "314"
         let oldFolderURL = try writeGalleryFolder(
             storage: environment.storage,
@@ -130,7 +130,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testMoveDownloadRelocatesGalleryFolder() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "315"
         let sourceURL = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
         await environment.manager.reconcileDownloads()
@@ -151,7 +151,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testMoveDownloadIntoSameFolderIsNoOp() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "316"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Home", gid: gid)
         await environment.manager.reconcileDownloads()
@@ -167,7 +167,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testMoveDownloadRejectsActivelyDownloadingGallery() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         let gid = "317"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Working", gid: gid)
         _ = await environment.manager.reconcileDownloads()
@@ -186,7 +186,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testEnqueueKeepsExistingDownloadInItsFolder() async throws {
         let environment = makeManager()
-        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        defer { removeTemporaryItem(at: environment.rootURL) }
         await environment.manager.testingInstallActiveTask(gid: "busy", task: Task {})
 
         let gallery = sampleGallery()

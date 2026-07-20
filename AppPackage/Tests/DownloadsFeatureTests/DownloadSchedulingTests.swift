@@ -11,7 +11,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         let gid = "100001"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(
             rootURL: rootURL,
@@ -94,7 +94,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         let secondGID = "100012"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(
             rootURL: rootURL,

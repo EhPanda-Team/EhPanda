@@ -67,7 +67,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         // The flush throttle fires on either a full page batch or `progressFlushMinimumInterval`

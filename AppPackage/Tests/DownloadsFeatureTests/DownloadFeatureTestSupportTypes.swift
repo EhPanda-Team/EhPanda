@@ -74,6 +74,17 @@ final class ScheduledGalleryRecorder: Sendable {
     }
 }
 
+/// Removes a temporary file or directory a case created, absorbing the failure.
+func removeTemporaryItem(at url: URL) {
+    do {
+        try FileManager.default.removeItem(at: url)
+    } catch {
+        // Cleanup under the system temporary directory is housekeeping, not a result any case
+        // asserts, so a failed removal must not fail the test that asked for it. This is also
+        // called before a create to clear a stale leftover, where "no such file" is the norm.
+    }
+}
+
 func requestBodyData(from request: URLRequest) -> Data? {
     if let httpBody = request.httpBody {
         return httpBody

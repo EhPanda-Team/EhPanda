@@ -11,7 +11,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testBeginsAssertionWhenWorkScheduled() async throws {
         let gid = "200001"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
 
@@ -26,7 +26,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testEndsAssertionWhenQueueDrainsViaPause() async throws {
         let gid = "200002"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
         #expect(context.spy.beginCount == 1)
@@ -47,7 +47,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testRepeatedSchedulingBeginsAssertionOnce() async throws {
         let gid = "200003"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
         await context.manager.scheduleNextIfNeeded()
@@ -62,7 +62,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testExpirationHandlerReleasesAssertion() async throws {
         let gid = "200004"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
         #expect(await context.manager.testingHasBackgroundAssertion())
@@ -86,7 +86,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testDeleteOfLastActiveDownloadReleasesAssertion() async throws {
         let gid = "200005"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
         #expect(context.spy.beginCount == 1)
@@ -104,7 +104,7 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
     func testDeleteFolderOfLastActiveDownloadReleasesAssertion() async throws {
         let gid = "200006"
         let context = try await makeBlockingCoordinator(gid: gid, title: "Queued")
-        defer { try? FileManager.default.removeItem(at: context.rootURL) }
+        defer { removeTemporaryItem(at: context.rootURL) }
 
         await context.manager.scheduleNextIfNeeded()
         #expect(context.spy.beginCount == 1)

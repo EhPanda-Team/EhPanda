@@ -7,7 +7,7 @@ struct DownloadBackgroundTaskStoreTests {
     @Test
     func testRecordsPersistByTaskIdentifier() async {
         let fixture = makeStore()
-        defer { try? FileManager.default.removeItem(at: fixture.rootURL) }
+        defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.store.record(taskIdentifier: 41, gid: "123", pageIndex: 7)
 
@@ -19,7 +19,7 @@ struct DownloadBackgroundTaskStoreTests {
     @Test
     func testRemoveSingleRecord() async {
         let fixture = makeStore()
-        defer { try? FileManager.default.removeItem(at: fixture.rootURL) }
+        defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.store.record(taskIdentifier: 41, gid: "123", pageIndex: 7)
         await fixture.store.record(taskIdentifier: 42, gid: "456", pageIndex: 8)
@@ -34,7 +34,7 @@ struct DownloadBackgroundTaskStoreTests {
     @Test
     func testRemoveAllForGallery() async {
         let fixture = makeStore()
-        defer { try? FileManager.default.removeItem(at: fixture.rootURL) }
+        defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.store.record(taskIdentifier: 41, gid: "123", pageIndex: 7)
         await fixture.store.record(taskIdentifier: 42, gid: "123", pageIndex: 8)
