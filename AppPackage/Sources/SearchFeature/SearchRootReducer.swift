@@ -74,6 +74,7 @@ public struct SearchRootReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onPresented
         case delegate(Delegate)
         case pushSearch
         case galleryTapped(Gallery)
@@ -103,9 +104,20 @@ public struct SearchRootReducer: Sendable {
             case .binding:
                 return .none
 
+            // Presentation-driven lifecycle: Search is a tab root that outlives any single visit, so
+            // the app reducer sends this when the Search tab becomes the active one — replacing the
+            // former view `onAppear`. `fetchHistoryGalleries` carries its own unchanged-gids guard,
+            // so re-activating the tab re-downloads nothing.
+            case .onPresented:
+                return .send(.fetchHistoryGalleries)
+
             case .pushSearch:
-                state.path.appendGuardingDuplicate(.search(.init(keyword: state.keyword)))
-                return .none
+                // Pushing the results screen is what starts its search, the reducer-side replacement
+                // for the former view `onAppear`. A `nil` id means the push was deduped.
+                guard let id = state.path.appendGuardingDuplicate(
+                    .search(.init(keyword: state.keyword))
+                ) else { return .none }
+                return .send(.path(.element(id: id, action: .search(.onPresented))))
 
             case .galleryTapped(let gallery),
                  let .path(.element(id: _, action: .search(.delegate(.pushDetail(gallery))))):

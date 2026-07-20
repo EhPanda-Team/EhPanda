@@ -3,6 +3,7 @@ import SwiftUI
 import AppModels
 import IdentifiedCollections
 import ComposableArchitecture
+import CookieClient
 import HapticsClient
 import NetworkingFeature
 import DownloadClient
@@ -75,7 +76,7 @@ public struct FavoritesReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear
+        case onPresented
         case delegate(Delegate)
         case galleryTapped(Gallery)
         case pushGalleryDetail(Gallery)
@@ -95,6 +96,7 @@ public struct FavoritesReducer: Sendable {
         case performDateSeekDone(index: Int, result: Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -109,8 +111,19 @@ public struct FavoritesReducer: Sendable {
             case .binding:
                 return .none
 
-            case .onAppear:
-                return .send(.observeDownloads)
+            // Presentation-driven lifecycle: Favorites is a tab root that outlives any single
+            // visit, so the app reducer sends this when the Favorites tab becomes the active one —
+            // replacing the former view `onAppear`. The guards keep it idempotent across tab
+            // switches, and a logged-out visit shows the sign-in overlay without fetching, exactly
+            // as the view's `didLogin` check did.
+            case .onPresented:
+                guard state.galleries?.isEmpty != false, cookieClient.didLogin else {
+                    return .send(.observeDownloads)
+                }
+                return .merge(
+                    .send(.observeDownloads),
+                    .send(.fetchGalleries())
+                )
 
             case .galleryTapped(let gallery):
                 return GalleryNavigation.routeGalleryDetail(
