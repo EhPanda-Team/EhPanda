@@ -287,7 +287,7 @@ struct RoutineRequestBaselineTests {
             try await FavoriteCategoriesRequest(host: host, urlSession: session).response()
         }
 
-        #expect(result == .failure(.ipBanned(.minutes(59, seconds: 48))))
+        #expect(result == .failure(.ipBanned(.minutes(minutes: 59, seconds: 48))))
         #expect(handle.attempts(for: url) == 1)
     }
 }

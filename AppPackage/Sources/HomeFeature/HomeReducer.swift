@@ -66,17 +66,19 @@ public struct HomeReducer: Sendable {
         case miscTapped(HomeMiscGridType)
         case path(StackActionOf<HomePath>)
         case setAllowsCardHitTesting(Bool)
-        case analyzeImageColors(String, RetrieveImageResult)
-        case analyzeImageColorsDone(String, [Color]?)
+        case analyzeImageColors(gid: String, result: RetrieveImageResult)
+        case analyzeImageColorsDone(gid: String, colors: [Color]?)
 
         case fetchAllGalleries
         case fetchAllToplistsGalleries
         case fetchPopularGalleries
         case fetchPopularGalleriesDone(Result<[Gallery], AppError>)
         case fetchFrontpageGalleries
-        case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
-        case fetchToplistsGalleries(Int, Int? = nil)
-        case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
+        case fetchFrontpageGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
+        case fetchToplistsGalleries(index: Int, pageNum: Int? = nil)
+        case fetchToplistsGalleriesDone(
+            index: Int, result: Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>
+        )
     }
 
     @Dependency(\.deviceClient) var deviceClient

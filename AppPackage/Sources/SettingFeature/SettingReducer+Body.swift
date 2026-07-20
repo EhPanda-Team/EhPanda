@@ -192,9 +192,9 @@ extension SettingReducer {
                 return .run { send in
                     do throws(AppError) {
                         let response = try await VerifyEhProfileRequest(host: host).response()
-                        await send(.fetchEhProfileIndexDone(host, .success(response)))
+                        await send(.fetchEhProfileIndexDone(host: host, result: .success(response)))
                     } catch {
-                        await send(.fetchEhProfileIndexDone(host, .failure(error)))
+                        await send(.fetchEhProfileIndexDone(host: host, result: .failure(error)))
                     }
                 }
 

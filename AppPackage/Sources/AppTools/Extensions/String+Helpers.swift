@@ -10,7 +10,7 @@ extension String {
     public var firstLetterCapitalized: String {
         prefix(1).capitalized + dropFirst()
     }
-    public var stringsBesideColon: (String?, String) {
+    public var stringsBesideColon: (prefix: String?, remainder: String) {
         let strings = split(separator: ":").map(String.init)
         if strings.count == 2, !strings[0].isEmpty {
             return (strings[0], strings[1])

@@ -316,7 +316,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             folderName: "Folder",
             mode: .initial
         )
-        let source = DownloadCoordinator.ResolvedSource.mpv("mpvkey", [1: "imgkey1"])
+        let source = DownloadCoordinator.ResolvedSource.mpv(key: "mpvkey", imageKeys: [1: "imgkey1"])
 
         let first = try await manager.resolvedImageSource(
             index: 1, payload: payload, options: .init(), source: source, failover: nil

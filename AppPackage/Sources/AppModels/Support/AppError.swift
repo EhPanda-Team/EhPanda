@@ -128,9 +128,9 @@ extension AppError: LocalizedError {
 }
 
 public enum BanInterval: Equatable, Hashable, Sendable {
-    case days(_: Int, hours: Int?)
-    case hours(_: Int, minutes: Int?)
-    case minutes(_: Int, seconds: Int?)
+    case days(days: Int, hours: Int?)
+    case hours(hours: Int, minutes: Int?)
+    case minutes(minutes: Int, seconds: Int?)
     case unrecognized(content: String)
 }
 

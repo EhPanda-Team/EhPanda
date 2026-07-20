@@ -175,7 +175,7 @@ private extension DownloadsView {
             Menu {
                 ForEach(moveDestinations(for: download), id: \.self) { folder in
                     Button(folder) {
-                        store.send(.moveDownload(download.gid, folder))
+                        store.send(.moveDownload(gid: download.gid, folderName: folder))
                     }
                 }
             } label: {

@@ -30,7 +30,7 @@ public struct HomeView: View {
                                 colors: store.cardColors,
                                 navigateAction: navigateTo(gallery:),
                                 webImageSuccessAction: { gid, result in
-                                    store.send(.analyzeImageColors(gid, result))
+                                    store.send(.analyzeImageColors(gid: gid, result: result))
                                 }
                             )
                             .equatable().allowsHitTesting(store.allowsCardHitTesting)

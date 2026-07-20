@@ -72,10 +72,14 @@ public struct ToplistsReducer: Sendable {
         case alert(PresentationAction<Alert>)
         case presentJumpPageAlert
 
-        case fetchGalleries(Int? = nil)
-        case fetchGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
+        case fetchGalleries(pageNum: Int? = nil)
+        case fetchGalleriesDone(
+            type: ToplistsType, result: Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>
+        )
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
+        case fetchMoreGalleriesDone(
+            type: ToplistsType, result: Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>
+        )
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -104,7 +108,7 @@ public struct ToplistsReducer: Sendable {
                       index > 0, index <= pageNumber.maximum + 1 else {
                     return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
                 }
-                return .send(.fetchGalleries(index - 1))
+                return .send(.fetchGalleries(pageNum: index - 1))
 
             case .alert:
                 return .none
@@ -150,9 +154,9 @@ public struct ToplistsReducer: Sendable {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchGalleriesDone(type, .success(galleries)))
+                        await send(.fetchGalleriesDone(type: type, result: .success(galleries)))
                     } catch {
-                        await send(.fetchGalleriesDone(type, .failure(error)))
+                        await send(.fetchGalleriesDone(type: type, result: .failure(error)))
                     }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
@@ -190,9 +194,9 @@ public struct ToplistsReducer: Sendable {
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchMoreGalleriesDone(type, .success(galleries)))
+                        await send(.fetchMoreGalleriesDone(type: type, result: .success(galleries)))
                     } catch {
-                        await send(.fetchMoreGalleriesDone(type, .failure(error)))
+                        await send(.fetchMoreGalleriesDone(type: type, result: .failure(error)))
                     }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)

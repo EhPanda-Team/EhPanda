@@ -25,7 +25,7 @@ struct TorrentsView: View {
                 }
                 .swipeActions {
                     Button {
-                        store.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
+                        store.send(.fetchTorrent(hash: torrent.hash, url: torrent.torrentURL))
                     } label: {
                         Label(.accessibilityDownload, systemSymbol: .arrowDownDocumentFill)
                             .labelStyle(.iconOnly)
@@ -41,7 +41,7 @@ struct TorrentsView: View {
             .overlay {
                 let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
-                    store.send(.fetchGalleryTorrents(gid, token))
+                    store.send(.fetchGalleryTorrents(gid: gid, token: token))
                 }
                 .animation(.default) {
                     $0.opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
@@ -54,7 +54,7 @@ struct TorrentsView: View {
             .toast($store.scope(\.$toast, action: \.toast))
             .animation(.default, value: store.torrents)
             .onAppear {
-                store.send(.fetchGalleryTorrents(gid, token))
+                store.send(.fetchGalleryTorrents(gid: gid, token: token))
             }
             .navigationTitle(.torrents)
         }

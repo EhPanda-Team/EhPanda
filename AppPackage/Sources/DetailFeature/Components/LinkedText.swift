@@ -6,7 +6,7 @@ private let linkDetector = try? NSDataDetector(types: NSTextCheckingResult.Check
 private struct LinkColoredText: View {
     private enum Component {
         case text(String)
-        case link(String, URL)
+        case link(title: String, url: URL)
     }
 
     private let text: String
@@ -27,7 +27,7 @@ private struct LinkColoredText: View {
             }
             let linkText = nsText.substring(with: result.range)
             if let url = result.url {
-                components.append(.link(linkText, url))
+                components.append(.link(title: linkText, url: url))
             } else {
                 components.append(.text(linkText))
             }

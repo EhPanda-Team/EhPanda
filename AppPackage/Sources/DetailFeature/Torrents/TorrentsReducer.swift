@@ -36,11 +36,11 @@ public struct TorrentsReducer: Sendable {
         case presentShare(URL)
 
         case copyText(String)
-        case presentTorrentActivity(String, Data)
+        case presentTorrentActivity(hash: String, data: Data)
 
-        case fetchTorrent(String, URL)
-        case fetchTorrentDone(String, Result<Data, AppError>)
-        case fetchGalleryTorrents(String, String)
+        case fetchTorrent(hash: String, url: URL)
+        case fetchTorrentDone(hash: String, result: Result<Data, AppError>)
+        case fetchGalleryTorrents(gid: String, token: String)
         case fetchGalleryTorrentsDone(Result<[GalleryTorrent], AppError>)
     }
 
@@ -85,16 +85,16 @@ public struct TorrentsReducer: Sendable {
                 return .run { send in
                     do throws(AppError) {
                         let data = try await DataRequest(url: torrentURL).response()
-                        await send(.fetchTorrentDone(hash, .success(data)))
+                        await send(.fetchTorrentDone(hash: hash, result: .success(data)))
                     } catch {
-                        await send(.fetchTorrentDone(hash, .failure(error)))
+                        await send(.fetchTorrentDone(hash: hash, result: .failure(error)))
                     }
                 }
                 .cancellable(id: CancelID.fetchTorrent)
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {
-                    return .send(.presentTorrentActivity(hash, data))
+                    return .send(.presentTorrentActivity(hash: hash, data: data))
                 }
                 return .none
 

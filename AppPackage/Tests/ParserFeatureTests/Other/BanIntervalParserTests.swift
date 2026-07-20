@@ -9,6 +9,6 @@ struct BanIntervalParserTests: TestHelper {
     func testExample() throws {
         let document = try htmlDocument(filename: .ipBanned)
         let banInterval = Parser.parseBanInterval(doc: document)
-        #expect(banInterval == .minutes(59, seconds: 48))
+        #expect(banInterval == .minutes(minutes: 59, seconds: 48))
     }
 }

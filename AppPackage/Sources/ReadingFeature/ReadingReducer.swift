@@ -124,7 +124,7 @@ public struct ReadingReducer: Sendable {
         mutating func updateThumbnailURLs(_ thumbnailURLs: [Int: URL]) {
             update(stored: &self.thumbnailURLs, new: thumbnailURLs)
         }
-        mutating func updateImageURLs(_ imageURLs: [Int: URL], _ originalImageURLs: [Int: URL]) {
+        mutating func updateImageURLs(_ imageURLs: [Int: URL], originalImageURLs: [Int: URL]) {
             update(stored: &self.imageURLs, new: imageURLs)
             update(stored: &self.originalImageURLs, new: originalImageURLs)
         }
@@ -186,8 +186,8 @@ public struct ReadingReducer: Sendable {
         case saveImage(URL)
         case saveImageDone(Bool)
         case shareImage(URL)
-        case fetchImage(ImageAction, URL)
-        case fetchImageDone(ImageAction, Result<ImageClient.ImageAsset, Error>)
+        case fetchImage(action: ImageAction, url: URL)
+        case fetchImageDone(action: ImageAction, result: Result<ImageClient.ImageAsset, Error>)
 
         case syncReadingProgress(Int)
         case flushReadingProgress
@@ -195,26 +195,30 @@ public struct ReadingReducer: Sendable {
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPageURLs(String)
-        case loadLocalPageURLsDone(UUID, [Int: URL])
+        case loadLocalPageURLsDone(requestID: UUID, urls: [Int: URL])
 
         case fetchPreviewURLs(Int)
-        case fetchPreviewURLsDone(Int, Result<[Int: URL], AppError>)
+        case fetchPreviewURLsDone(index: Int, result: Result<[Int: URL], AppError>)
 
         case fetchImageURLs(Int)
         case refetchImageURLs(Int)
-        case prefetchImages(Int, Int)
+        case prefetchImages(fromIndex: Int, prefetchLimit: Int)
 
         case fetchThumbnailURLs(Int)
-        case fetchThumbnailURLsDone(Int, Result<[Int: URL], AppError>)
-        case fetchNormalImageURLs(Int, [Int: URL])
-        case fetchNormalImageURLsDone(Int, Result<([Int: URL], [Int: URL]), AppError>)
+        case fetchThumbnailURLsDone(index: Int, result: Result<[Int: URL], AppError>)
+        case fetchNormalImageURLs(index: Int, thumbnailURLs: [Int: URL])
+        case fetchNormalImageURLsDone(
+            index: Int, result: Result<(imageURLs: [Int: URL], originalImageURLs: [Int: URL]), AppError>
+        )
         case refetchNormalImageURLs(Int)
-        case refetchNormalImageURLsDone(Int, GalleryHost, Result<([Int: URL], HTTPURLResponse?), AppError>)
+        case refetchNormalImageURLsDone(
+            index: Int, host: GalleryHost, result: Result<(imageURLs: [Int: URL], response: HTTPURLResponse?), AppError>
+        )
 
-        case fetchMPVKeys(Int, URL)
-        case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
-        case fetchMPVImageURL(Int, Bool)
-        case fetchMPVImageURLDone(Int, Result<GalleryMPVImageURLResponse, AppError>)
+        case fetchMPVKeys(index: Int, url: URL)
+        case fetchMPVKeysDone(index: Int, result: Result<(key: String, imageKeys: [Int: String]), AppError>)
+        case fetchMPVImageURL(index: Int, isRefresh: Bool)
+        case fetchMPVImageURLDone(index: Int, result: Result<GalleryMPVImageURLResponse, AppError>)
         case captureCachedPage(Int)
     }
 

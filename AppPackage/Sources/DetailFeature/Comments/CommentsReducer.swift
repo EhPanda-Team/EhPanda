@@ -19,7 +19,7 @@ public struct CommentsReducer: Sendable {
 
     public enum Delegate: Equatable, Sendable {
         // Open the linked gallery (optionally deep-linking to a page or comment) as a new stack element.
-        case pushDetail(Gallery, GalleryDeepLink?)
+        case pushDetail(gallery: Gallery, deepLink: GalleryDeepLink?)
         // A comment was voted/edited; ask the host to refresh the detail with this gid so it stays in sync.
         case performedCommentAction(String)
     }
@@ -71,17 +71,17 @@ public struct CommentsReducer: Sendable {
         case setScrollRowOpacity(Double)
         case performScrollOpacityEffect
         case handleCommentLink(URL)
-        case handleGalleryLink(URL, Gallery)
+        case handleGalleryLink(url: URL, gallery: Gallery)
         case onPostCommentAppear
         case onAppear
 
         case updateReadingProgress(gid: String, token: String, progress: Int)
 
-        case postComment(URL, String? = nil)
-        case voteComment(String, String, String, String, Int)
+        case postComment(galleryURL: URL, commentID: String? = nil)
+        case voteComment(gid: String, token: String, apiKey: String, commentID: String, vote: Int)
         case performCommentActionDone(Result<Void, AppError>)
-        case fetchGallery(URL, Bool)
-        case fetchGalleryDone(URL, Result<Gallery, AppError>)
+        case fetchGallery(url: URL, isGalleryImageURL: Bool)
+        case fetchGalleryDone(url: URL, result: Result<Gallery, AppError>)
     }
 
     @Dependency(\.applicationClient) private var applicationClient
@@ -156,7 +156,7 @@ public struct CommentsReducer: Sendable {
                 }
                 // Always fetch the linked gallery so the pushed detail is seeded from it (no cache).
                 let analysis = urlClient.analyzeURL(url)
-                return .send(.fetchGallery(url, analysis.isGalleryImageURL))
+                return .send(.fetchGallery(url: url, isGalleryImageURL: analysis.isGalleryImageURL))
 
             case .handleGalleryLink(let url, let gallery):
                 let analysis = urlClient.analyzeURL(url)
@@ -167,7 +167,7 @@ public struct CommentsReducer: Sendable {
                         gid: gallery.id, token: gallery.token, progress: pageIndex
                     )))
                 }
-                effects.append(.send(.delegate(.pushDetail(gallery, deepLink))))
+                effects.append(.send(.delegate(.pushDetail(gallery: gallery, deepLink: deepLink))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
@@ -265,9 +265,9 @@ public struct CommentsReducer: Sendable {
                             isGalleryImageURL: isGalleryImageURL
                         )
                         .response()
-                        await send(.fetchGalleryDone(url, .success(gallery)))
+                        await send(.fetchGalleryDone(url: url, result: .success(gallery)))
                     } catch {
-                        await send(.fetchGalleryDone(url, .failure(error)))
+                        await send(.fetchGalleryDone(url: url, result: .failure(error)))
                     }
                 }
                 .cancellable(id: CancelID.fetchGallery)
@@ -276,7 +276,7 @@ public struct CommentsReducer: Sendable {
                 state.toast = nil
                 switch result {
                 case .success(let gallery):
-                    return .send(.handleGalleryLink(url, gallery))
+                    return .send(.handleGalleryLink(url: url, gallery: gallery))
                 case .failure:
                     // Let the loading toast animate out before showing the error toast.
                     return .run { send in

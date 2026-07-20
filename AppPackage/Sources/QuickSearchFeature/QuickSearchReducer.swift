@@ -59,7 +59,7 @@ public struct QuickSearchReducer: Sendable {
         case editWord
         case deleteWord(QuickSearchWord)
         case deleteWordWithOffsets(IndexSet)
-        case moveWord(IndexSet, Int)
+        case moveWord(source: IndexSet, destination: Int)
     }
 
     public init() {}

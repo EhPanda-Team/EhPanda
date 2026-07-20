@@ -109,7 +109,7 @@ extension ReadingReducer {
                 state.localPageRequestID = requestID
                 return .run { send in
                     let localPageURLs = await downloadClient.rescanLocalPageURLs(gid) ?? [:]
-                    await send(.loadLocalPageURLsDone(requestID, localPageURLs))
+                    await send(.loadLocalPageURLsDone(requestID: requestID, urls: localPageURLs))
                 }
                 .cancellable(id: ReadingCancelID.loadLocalPageURLs, cancelInFlight: true)
 
@@ -146,22 +146,22 @@ extension ReadingReducer {
                 return .none
 
             case .copyImage(let imageURL):
-                return .send(.fetchImage(.copy, imageURL))
+                return .send(.fetchImage(action: .copy, url: imageURL))
 
             case .saveImage(let imageURL):
-                return .send(.fetchImage(.save, imageURL))
+                return .send(.fetchImage(action: .save, url: imageURL))
 
             case .saveImageDone(let isSucceeded):
                 state.toast = isSucceeded ? .savedToPhotoLibrary : .error()
                 return .none
 
             case .shareImage(let imageURL):
-                return .send(.fetchImage(.share, imageURL))
+                return .send(.fetchImage(action: .share, url: imageURL))
 
             case .fetchImage(let action, let imageURL):
                 return .run { send in
                     let result = await imageClient.fetchImageAsset(url: imageURL)
-                    await send(.fetchImageDone(action, result))
+                    await send(.fetchImageDone(action: action, result: result))
                 }
                 .cancellable(id: ReadingCancelID.fetchImage)
 
