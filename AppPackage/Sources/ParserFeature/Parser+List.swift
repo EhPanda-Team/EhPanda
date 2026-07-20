@@ -6,29 +6,24 @@ import SwiftUI
 extension Parser {
     public static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         let galleries: [Gallery]
-        // A missing selector intentionally falls back to the compact toplist layout.
-        switch try? parseDisplayMode(doc: doc) {
+        switch parseDisplayMode(doc: doc) {
         case "Minimal":
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseMinimalModeGalleries(doc: doc, parsesTags: false)) ?? []
+            galleries = try parseMinimalModeGalleries(doc: doc, parsesTags: false)
         case "Minimal+":
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseMinimalModeGalleries(doc: doc, parsesTags: true)) ?? []
+            galleries = try parseMinimalModeGalleries(doc: doc, parsesTags: true)
         case "Compact":
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
+            galleries = try parseCompactModeGalleries(doc: doc)
         case "Extended":
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseExtendedModeGalleries(doc: doc)) ?? []
+            galleries = try parseExtendedModeGalleries(doc: doc)
         case "Thumbnail":
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseThumbnailModeGalleries(doc: doc)) ?? []
+            galleries = try parseThumbnailModeGalleries(doc: doc)
         default:
             // Toplists doesn't have a display mode selector and it's compact mode
-            // Malformed gallery rows intentionally degrade to an empty list.
-            galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
+            galleries = try parseCompactModeGalleries(doc: doc)
         }
 
+        // An explicit error banner names the real cause of a page that yielded nothing, so it is
+        // reported in preference to a bare "no results" render.
         if galleries.isEmpty, let error = parseResponseError(doc: doc) {
             throw error
         }
@@ -38,23 +33,27 @@ extension Parser {
 
 // MARK: DisplayMode
 private extension Parser {
-    static func parseDisplayMode(doc: HTMLDocument) throws -> String {
+    /// Returns `nil` when the page carries no display-mode selector.
+    ///
+    /// Absence is a normal outcome rather than a parse failure: toplists legitimately ship without
+    /// the selector and are laid out in compact mode, which the caller's `default` branch handles.
+    static func parseDisplayMode(doc: HTMLDocument) -> String? {
         guard let containerNode = doc.at_xpath("//div [@id='dms']") ?? doc.at_xpath("//div [@class='searchnav']")
-        else { throw AppError.parseFailed }
+        else { return nil }
 
         var dmsNode: XMLElement?
         for select in containerNode.xpath("//select") where select["onchange"]?.contains("inline_set=dm_") == true {
             dmsNode = select
             break
         }
-        guard let dmsNode else { throw AppError.parseFailed }
+        guard let dmsNode else { return nil }
 
         for option in dmsNode.xpath("//option") where option["selected"] == "selected" {
             if let displayMode = option.text {
                 return displayMode
             }
         }
-        throw AppError.parseFailed
+        return nil
     }
 
     static func parseMinimalModeGalleries(doc: HTMLDocument, parsesTags: Bool) throws -> [Gallery] {
