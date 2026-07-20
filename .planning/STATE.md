@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 10
-current_phase_name: ui-polish
-status: verified
-stopped_at: Phase 11 context gathered
-last_updated: "2026-07-20T13:13:03.459Z"
+current_phase: 11
+current_phase_name: infra-refactor-lint-capstone
+status: executing
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-07-20T15:17:47.096Z"
 last_activity: 2026-07-20
-last_activity_desc: Phase 10 UAT sign-off
+last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
-  total_plans: 105
-  completed_plans: 105
+  total_plans: 135
+  completed_plans: 106
   percent: 60
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-16)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 10 — ui-polish
+**Current focus:** Phase 11 — infra-refactor-lint-capstone
 
 ## Current Position
 
-Phase: 10 (ui-polish) — VERIFIED
-Plan: 12 of 12
-Status: UAT complete (10-UAT.md) — 2 automated pass, 4 owner-signed (not agent-verified), 1 descoped
-Last activity: 2026-07-20 — Phase 10 UAT sign-off
+Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
+Plan: 2 of 30
+Status: Ready to execute
+Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
 Progress: [███████░░░] 67% (10/15 phases)
@@ -163,6 +163,7 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 10 P10 | 22min | 2 tasks | 5 files |
 | Phase 10 P11 | 18min | 2 tasks | 9 files |
 | Phase 10 P12 | 12min | 3 tasks | 0 files |
+| Phase 11 P1 | 25m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -326,6 +327,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 10-10: DT audit is static-derived; broke-at-AX5 subset = B1-B10 (10-11 work order); owner-signed D-03 sim pass is end-of-phase authoritative gate; live frame-height risk count is 9 not RESEARCH's 35
 - [Phase ?]: 10-11: text-bearing fixed frame(height:) reflowed via @ScaledMetric(relativeTo: dominant style) not minHeight — literal==scaled at .large for exact default parity while frame grows with Dynamic Type
 - [Phase ?]: 10-11: B1-B10 broke-at-AX5 all reflowed within D-02 (drop lineLimit/fixedSize for wrap, @ScaledMetric fixed heights); minimumScaleFactor 8->7 (B2 inert shrink removed); device D-03 pass deferred to 10-12
+- [Phase ?]: ParserFeature Group A/B optional-try removal routes through one shared Parser.degrading(_:_:) helper — inline do/catch is not expressible inside guard-let chains without changing evaluation order
+- [Phase ?]: D-04 group counts corrected: 21 Group A + 12 Group B + 9 Group C (not 23/13/6) — plan 11-02 must propagate 9 sites
 
 ### Pending Todos
 
@@ -367,6 +370,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T13:13:03.451Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-infra-refactor-lint-capstone/11-CONTEXT.md
+Last session: 2026-07-20T15:17:47.090Z
+Stopped at: Completed 11-01-PLAN.md
+Resume file: None
