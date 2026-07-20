@@ -16,25 +16,20 @@ extension SettingReducer {
         Reduce { state, action in
             switch action {
             case .settingRowTapped(let screen):
-                state.path.appendGuardingDuplicate(screen.pathElement)
-                return .none
+                return present(&state, screen.pathElement)
 
             case .pushLogin:
-                state.path.appendGuardingDuplicate(.login(.init()))
-                return .none
+                return present(&state, .login(.init()))
 
             // Account emits a delegate to push its children onto the shared stack.
             case .path(.element(id: _, action: .account(.delegate(.pushLogin)))):
-                state.path.appendGuardingDuplicate(.login(.init()))
-                return .none
+                return present(&state, .login(.init()))
 
             case .path(.element(id: _, action: .account(.delegate(.pushEhSetting)))):
-                state.path.appendGuardingDuplicate(.ehSetting(.init()))
-                return .none
+                return present(&state, .ehSetting(.init()))
 
             case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
-                state.path.appendGuardingDuplicate(.appActivityLogs(.init()))
-                return .none
+                return present(&state, .appActivityLogs(.init()))
 
             // The General screen edits `enableTagsExtension` via `@Shared(.setting)`; rebuild the tag
             // translator when it's turned on. The model's `didSet` clears the sub-toggles on disable, so
@@ -44,8 +39,24 @@ extension SettingReducer {
                 return state.setting.enableTagsExtension ? .send(.rebuildTagTranslator) : .none
 
             case .path(.element(id: _, action: .appearance(.delegate(.pushAppIcon)))):
-                state.path.appendGuardingDuplicate(.appIcon(.init()))
-                return .none
+                return present(&state, .appIcon(.init()))
+
+            // Dismissal interception, the teardown counterpart of `present`. `forEach` runs this
+            // reducer *before* it pops the element, so the popped screen's final state is still
+            // readable here — and the effect must run in the parent, since the child's own effects
+            // are cancelled by the pop. Persisting the profile the user was last viewing is
+            // EhSetting's only teardown work; every other screen needs none, because TCA's
+            // pop-cancellation is the whole of it.
+            case .path(.popFrom(let id)):
+                guard case .ehSetting(let ehSettingState) = state.path[id: id],
+                      let profileSet = ehSettingState.ehSetting?.ehpandaProfile?.value
+                else { return .none }
+                let hostURL = state.setting.galleryHost.url
+                return .run { _ in
+                    cookieClient.setOrEditCookie(
+                        for: hostURL, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
+                    )
+                }
 
             case .syncAppIconType:
                 return .run { send in
@@ -269,4 +280,13 @@ extension SettingReducer {
         .forEach(\.path, action: \.path)
     }
 
+    // Push a screen and start it in one step, so a new Setting screen can't be added with its load
+    // silently unpaired: the load action is declared once on `SettingPath.State.onPresentedAction`
+    // and every push site here picks it up. A deduped push starts nothing.
+    private func present(_ state: inout State, _ element: SettingPath.State) -> Effect<Action> {
+        guard let id = state.path.appendGuardingDuplicate(element),
+              let action = element.onPresentedAction
+        else { return .none }
+        return .send(.path(.element(id: id, action: action)))
+    }
 }

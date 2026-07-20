@@ -135,9 +135,6 @@ struct GeneralSettingView: View {
         .onChange(of: setting.enableTagsExtension) { _, _ in
             store.send(.delegate(.enableTagsExtensionChanged))
         }
-        .onAppear {
-            store.send(.calculateWebImageDiskCache)
-        }
         .navigationTitle(.general)
     }
 }

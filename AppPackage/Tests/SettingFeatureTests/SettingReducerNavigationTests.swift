@@ -4,6 +4,8 @@ import AppModels
 import Sharing
 import CookieClient
 import FileClient
+import LibraryClient
+import LogsClient
 import HapticsClient
 @testable import SettingFeature
 import ComposableArchitecture
@@ -14,20 +16,33 @@ import ComposableArchitecture
 @Suite
 @MainActor
 struct SettingReducerNavigationTests {
+    // Every dependency a pushed Setting screen's presentation load can reach, stubbed inert so the
+    // navigation assertions never depend on a client's behaviour.
+    private func makeStore(
+        initialState: SettingReducer.State = .init()
+    ) -> TestStoreOf<SettingReducer> {
+        TestStore(initialState: initialState, reducer: SettingReducer.init) {
+            $0.cookieClient = .noop
+            $0.libraryClient = .noop
+            $0.logsClient = .noop
+        }
+    }
+
     // MARK: Root menu
 
     @Test
     func settingRowTappedAppendsMatchingScreen() async throws {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = makeStore()
+        store.exhaustivity = .off
 
         // Each root row appends exactly its mapped `SettingPath` element, in order.
         for screen in SettingReducer.RootScreen.allCases {
-            await store.send(.settingRowTapped(screen)) {
-                $0.path.append(screen.pathElement)
-            }
+            await store.send(.settingRowTapped(screen))
         }
 
+        // Every row pushed — none deduped, none dropped.
         #expect(store.state.path.count == SettingReducer.RootScreen.allCases.count)
+        await store.finish()
     }
 
     @Test
@@ -41,7 +56,7 @@ struct SettingReducerNavigationTests {
 
     @Test
     func settingRowTappedGuardsAgainstAdjacentDuplicate() async {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = makeStore()
         store.exhaustivity = .off
 
         await store.send(.settingRowTapped(.account))
@@ -54,39 +69,35 @@ struct SettingReducerNavigationTests {
         // A different row still appends.
         await store.send(.settingRowTapped(.general))
         #expect(store.state.path.count == 2)
+        await store.finish()
     }
 
     // MARK: Child delegate → parent push
 
     @Test
     func accountDelegatePushLoginAppendsLogin() async throws {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = makeStore()
+        store.exhaustivity = .off
 
-        await store.send(.settingRowTapped(.account)) {
-            $0.path.append(.account(.init()))
-        }
+        await store.send(.settingRowTapped(.account))
         let id = try #require(store.state.path.ids.last)
-        await store.send(.path(.element(id: id, action: .account(.delegate(.pushLogin))))) {
-            $0.path.append(.login(.init()))
+        await store.send(.path(.element(id: id, action: .account(.delegate(.pushLogin)))))
+
+        #expect(store.state.path.count == 2)
+        guard case .login = store.state.path.last else {
+            Issue.record("Expected .login on top of the Setting stack")
+            return
         }
+        await store.finish()
     }
 
-    @Test
-    func accountDelegatePushEhSettingAppendsEhSetting() async throws {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
-
-        await store.send(.settingRowTapped(.account)) {
-            $0.path.append(.account(.init()))
-        }
-        let id = try #require(store.state.path.ids.last)
-        await store.send(.path(.element(id: id, action: .account(.delegate(.pushEhSetting))))) {
-            $0.path.append(.ehSetting(.init()))
-        }
-    }
+    // `.ehSetting`'s push is asserted at the mapping level in `SettingPresentationTests`, not here:
+    // presenting it now starts `fetchEhSetting`, and `EhSettingRequest` takes its `URLSession` as an
+    // `init` default the reducer never overrides, so a store-level push would issue a real request.
 
     @Test
     func appearanceDelegatePushAppIconAppendsAppIcon() async throws {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = makeStore()
 
         await store.send(.settingRowTapped(.appearance)) {
             $0.path.append(.appearance(.init()))
@@ -103,6 +114,8 @@ struct SettingReducerNavigationTests {
         // another test's pump state.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.defaultInMemoryStorage = InMemoryStorage()
+            $0.libraryClient = .noop
+            $0.logsClient = .noop
         }
         store.exhaustivity = .off
 
@@ -115,6 +128,7 @@ struct SettingReducerNavigationTests {
             Issue.record("Expected .appActivityLogs on top of the Setting stack")
             return
         }
+        await store.finish()
     }
 
     // MARK: Child delegate → parent effect
@@ -134,6 +148,7 @@ struct SettingReducerNavigationTests {
 
             let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
                 $0.defaultAppStorage = defaults
+                $0.libraryClient = .noop
                 $0.fileClient.loadCachedTagTranslator = { (_: TagTranslatorInfo) throws(AppError) in
                     throw .fileOperationFailed("Read cached tag translations")
                 }
@@ -154,12 +169,17 @@ struct SettingReducerNavigationTests {
         // store fails if any effect is left unhandled.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.defaultAppStorage = UserDefaults.inMemory
+            $0.libraryClient = .noop
         }
 
         await store.send(.settingRowTapped(.general)) {
             $0.path.append(SettingReducer.RootScreen.general.pathElement)
         }
         let id = try #require(store.state.path.ids.last)
+        // Presenting General starts its cache measurement; the noop client reports no size, so it
+        // settles without a state change.
+        await store.receive(\.path[id: id].general.calculateWebImageDiskCache)
+        await store.receive(\.path[id: id].general.calculateWebImageDiskCacheDone)
         await store.send(.path(.element(id: id, action: .general(.delegate(.enableTagsExtensionChanged)))))
     }
 
@@ -169,6 +189,7 @@ struct SettingReducerNavigationTests {
     func generalFilePickedImportsAndStoresTagTranslator() async throws {
         let imported = TagTranslator(hasCustomTranslations: true)
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.libraryClient = .noop
             $0.fileClient.importTagTranslator = { _ in .success(imported) }
         }
 
@@ -176,6 +197,8 @@ struct SettingReducerNavigationTests {
             $0.path.append(SettingReducer.RootScreen.general.pathElement)
         }
         let id = try #require(store.state.path.ids.last)
+        await store.receive(\.path[id: id].general.calculateWebImageDiskCache)
+        await store.receive(\.path[id: id].general.calculateWebImageDiskCacheDone)
         let url = URL(filePath: "/tmp/tags.json")
         await store.send(.path(.element(id: id, action: .general(.onTranslationsFilePicked(url)))))
 

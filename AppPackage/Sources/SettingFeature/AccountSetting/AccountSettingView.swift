@@ -54,7 +54,6 @@ struct AccountSettingView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .privacyMask()
         }
-        .onAppear { store.send(.onAppear) }
         .navigationTitle(.account)
     }
 }
