@@ -8,7 +8,7 @@ struct ImageClientTests {
     @Test
     func servesCachedImageWithoutNetworkRequest() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/cached.png"))
         let imageData = try makePNGData()
         try await cache.store(imageData, forKeys: url.imageCacheKeys)
@@ -33,7 +33,7 @@ struct ImageClientTests {
     @Test
     func fetchesDecodesAndStoresCacheMissUnderPrimaryKey() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://ehgt.org/h/abc/primary-key-page/1.jpg"))
         let stableKey = try #require(url.stableImageCacheKey)
         let imageData = try makePNGData()
@@ -60,7 +60,7 @@ struct ImageClientTests {
     @Test
     func surfacesHTTPFailureWithoutCachingResponse() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/error.png"))
         let imageData = try makePNGData()
         let (session, sessionID) = makeStubbedSession()
@@ -81,7 +81,7 @@ struct ImageClientTests {
     @Test
     func purgesCachedPlaceholderAndRefetchesImage() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
         let placeholderData = try fixtureData(resource: "BandwidthExceeded", pathExtension: "html")
         try await cache.store(placeholderData, forKeys: url.imageCacheKeys)
@@ -108,7 +108,7 @@ struct ImageClientTests {
     @Test
     func rejectsNondecodableBodyWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/not-image.png"))
         let htmlData = Data("<html><body>Not an image</body></html>".utf8)
         let (session, sessionID) = makeStubbedSession()
@@ -129,7 +129,7 @@ struct ImageClientTests {
     @Test
     func rejectsQuotaPlaceholderFromNetworkWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
         let placeholderData = try fixtureData(resource: "BandwidthExceeded", pathExtension: "html")
         let (session, sessionID) = makeStubbedSession()
@@ -150,7 +150,7 @@ struct ImageClientTests {
     @Test
     func rejectsAuthenticationPlaceholderFromNetworkWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://exhentai.org/img/kokomade.jpg"))
         let placeholderData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
         let (session, sessionID) = makeStubbedSession()
@@ -171,7 +171,7 @@ struct ImageClientTests {
     @Test
     func cancellationStopsOwnedFetch() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/hang.png"))
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [HangingURLProtocol.self]
@@ -195,7 +195,7 @@ struct ImageClientTests {
     @Test
     func cancelledReaderImageAssetFetchReturnsNil() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/hang-asset.png"))
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [HangingURLProtocol.self]

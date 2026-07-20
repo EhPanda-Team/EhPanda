@@ -191,7 +191,13 @@ struct CookieClientTests {
                         key: CookieName.memberID,
                         value: "member-\(attempt)"
                     )
-                    try? await Task.sleep(for: .milliseconds(10))
+                    do {
+                        try await Task.sleep(for: .milliseconds(10))
+                    } catch {
+                        // Cancellation is the designed exit: the sibling task cancels the group as
+                        // soon as an element lands, so stop mutating rather than unwind.
+                        return false
+                    }
                 }
                 return false
             }
