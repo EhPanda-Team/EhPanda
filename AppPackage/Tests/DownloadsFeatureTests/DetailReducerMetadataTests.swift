@@ -9,7 +9,6 @@ import CookieClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 @MainActor
 struct DetailReducerMetadataTests: DownloadFeatureTestCase {
     @MainActor

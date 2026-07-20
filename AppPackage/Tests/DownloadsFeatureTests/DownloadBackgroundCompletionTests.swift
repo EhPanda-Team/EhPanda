@@ -3,7 +3,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     @Test
     func testOrphanedBackgroundCompletionAttachesPageAndClearsTaskRecord() async throws {

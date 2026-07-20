@@ -14,7 +14,6 @@ import DownloadsFeature
 // routes `.flushReadingProgress` to whichever reading session is on top of a navigation host (located
 // from navigation state), so a force-quit from the background still persists the reader's last
 // debounced page. When no reader is presented the flush is a no-op.
-@Suite(.serialized)
 struct AppReadingFlushTests: DownloadFeatureTestCase {
     private let now = Date(timeIntervalSince1970: 1_000)
 

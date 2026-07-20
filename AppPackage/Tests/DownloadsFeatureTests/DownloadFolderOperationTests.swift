@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testCreateFolderListsFolderAndRejectsDuplicatesAndInvalidNames() async throws {
