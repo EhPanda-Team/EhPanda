@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-18-PLAN.md
-last_updated: "2026-07-20T21:31:26.344Z"
+stopped_at: Completed 11-19-PLAN.md
+last_updated: "2026-07-20T21:40:34.489Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 123
+  completed_plans: 124
   percent: 60
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 19 of 30
+Plan: 20 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
-Progress: [█████████░] 91% (10/15 phases)
+Progress: [█████████░] 92% (10/15 phases)
 
 ## Performance Metrics
 
@@ -184,6 +184,7 @@ Progress: [█████████░] 91% (10/15 phases)
 | Phase 11 P16 | ~20 min | 2 tasks | 1 files |
 | Phase 11 P17 | ~60 min | 3 tasks | 18 files |
 | Phase 11 P18 | ~50 min | 2 tasks | 36 files |
+| Phase 11 P19 | ~20 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -383,6 +384,7 @@ Recent decisions affecting current work:
 - [Phase ?]: labeled_tuple_elements: draft regex was mis-tuned both ways — its bracket-excluding element class hid 11 genuine sites (incl. a same-typed ([Int: URL], [Int: URL]) pair) while flagging 11 non-sites (tuple assignments via newline-crossing \s, and function-type parameter lists where Swift forbids labels)
 - [Phase ?]: (String, TagTranslation?) became a named struct TagTranslationLookup in AppModels, not a labeled typealias — a typealias satisfies the rule but leaves .0/.1 legal, and three sites read .1
 - [Phase ?]: Labeling a public positional return creates a constraint the unlabeled version silently absorbed: parseMPVKeys had to adopt ReadingReducer's pre-existing key: label, since differently-labeled tuples do not convert
+- [Phase ?]: FileClient.live became a function with injectable Application Support / Caches roots (production defaults); FileClientTests dropped .serialized for per-test UUID roots
 
 ### Pending Todos
 
@@ -424,6 +426,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T21:31:16.203Z
-Stopped at: Completed 11-18-PLAN.md
+Last session: 2026-07-20T21:40:28.684Z
+Stopped at: Completed 11-19-PLAN.md
 Resume file: None
