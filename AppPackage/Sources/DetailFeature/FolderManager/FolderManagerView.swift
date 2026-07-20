@@ -70,11 +70,8 @@ public struct FolderManagerView: View {
 
         case .idle, .loading:
             if store.folders.isEmpty && store.editingField != .newFolder {
-                AlertView(
-                    symbol: .folder,
-                    message: .emptyFolders
-                ) {
-                    EmptyView()
+                ContentUnavailableView {
+                    Label(.emptyFolders, systemSymbol: .folder)
                 }
             }
         }
