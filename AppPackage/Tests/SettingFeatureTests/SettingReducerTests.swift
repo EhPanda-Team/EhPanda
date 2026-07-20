@@ -6,8 +6,12 @@ import Sharing
 import Testing
 @testable import SettingFeature
 
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct SettingReducerTests {
+    @MainActor
     @Test
     func selectedProfileWriteUsesOriginatingHostAfterSharedHostChanges() async {
         let cookieClient = CookieClient.testing()
@@ -22,6 +26,7 @@ struct SettingReducerTests {
         #expect(cookieClient.cookies(for: GalleryHost.exhentai.url).isEmpty)
     }
 
+    @MainActor
     @Test
     func defaultProfileCreationUsesOriginatingHostAfterSharedHostChanges() async {
         let store = makeStore(cookieClient: .noop)
@@ -33,6 +38,7 @@ struct SettingReducerTests {
         await store.skipInFlightEffects()
     }
 
+    @MainActor
     private func makeStore(cookieClient: CookieClient) -> TestStoreOf<SettingReducer> {
         let defaults = UserDefaults.inMemory
         return withDependencies {

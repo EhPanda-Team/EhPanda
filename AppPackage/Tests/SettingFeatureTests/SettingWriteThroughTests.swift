@@ -12,9 +12,13 @@ import ComposableArchitecture
 // — the working-copy bug updated `state.setting` too, so a `store.state` assertion passed pre-fix and
 // wasn't discriminating. Storage is isolated to an in-memory suite so the test never touches real
 // UserDefaults.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct SettingWriteThroughTests {
+    @MainActor
     @Test
     func syncAppIconTypeDonePersistsIconTypeToSharedSetting() async {
         let defaults = UserDefaults.inMemory

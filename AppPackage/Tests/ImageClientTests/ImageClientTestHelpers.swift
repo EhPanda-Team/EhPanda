@@ -30,7 +30,6 @@ func makeImageClient(dataCache: DataCache, urlSession: URLSession) -> ImageClien
     return client
 }
 
-@MainActor
 func makePNGData() throws -> Data {
     let format = UIGraphicsImageRendererFormat()
     format.scale = 1

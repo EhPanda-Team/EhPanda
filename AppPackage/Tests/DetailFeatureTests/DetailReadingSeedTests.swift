@@ -9,8 +9,11 @@ import ComposableArchitecture
 // REV-1/REV-4/REV-10: pushing the reader from Detail must seed the reader's `gallery` (so remote
 // reading isn't blank and history upserts carry the real gid/token), plus the threaded `previewConfig`
 // (page math) and `language` (Live Text). A regression here silently bricks the primary read flow.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct DetailReadingSeedTests {
     private func makeGallery() -> Gallery {
         Gallery(
@@ -27,6 +30,7 @@ struct DetailReadingSeedTests {
         return state
     }
 
+    @MainActor
     @Test
     func openReadingRemoteSeedsGalleryPreviewConfigAndLanguage() async {
         // Presenting the reader now starts its load in the same transition, so the reader's
@@ -49,6 +53,7 @@ struct DetailReadingSeedTests {
         #expect(readingState.language == GalleryDetail.preview.language)
     }
 
+    @MainActor
     @Test
     func presentReadingSeedsGalleryPreviewConfigAndLanguage() async {
         // Presenting the reader now starts its load in the same transition, so the reader's

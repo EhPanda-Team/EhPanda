@@ -5,7 +5,6 @@ import ImageClient
 import Testing
 
 struct ImageClientTests {
-    @MainActor
     @Test
     func servesCachedImageWithoutNetworkRequest() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -31,7 +30,6 @@ struct ImageClientTests {
         }
     }
 
-    @MainActor
     @Test
     func fetchesDecodesAndStoresCacheMissUnderPrimaryKey() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -59,7 +57,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: [url.absoluteString]) == nil)
     }
 
-    @MainActor
     @Test
     func surfacesHTTPFailureWithoutCachingResponse() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -81,7 +78,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 
-    @MainActor
     @Test
     func purgesCachedPlaceholderAndRefetchesImage() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -109,7 +105,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: url.imageCacheKeys) == imageData)
     }
 
-    @MainActor
     @Test
     func rejectsNondecodableBodyWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -131,7 +126,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 
-    @MainActor
     @Test
     func rejectsQuotaPlaceholderFromNetworkWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -153,7 +147,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 
-    @MainActor
     @Test
     func rejectsAuthenticationPlaceholderFromNetworkWithoutCachingIt() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -175,7 +168,6 @@ struct ImageClientTests {
         #expect(await cache.data(forKeys: url.imageCacheKeys) == nil)
     }
 
-    @MainActor
     @Test
     func cancellationStopsOwnedFetch() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
@@ -200,7 +192,6 @@ struct ImageClientTests {
         }
     }
 
-    @MainActor
     @Test
     func cancelledReaderImageAssetFetchReturnsNil() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()

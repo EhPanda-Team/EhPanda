@@ -15,8 +15,12 @@ import Testing
 // `Gallery.preview` has no `galleryURL`, so the detail fetch short-circuits and these tests make no
 // network request. The remaining presentation effects are non-exhaustively skipped: the request
 // types take no injectable session, so they cannot be asserted end to end (see 11-07-SUMMARY.md).
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct PresentationLifecycleTests {
+    @MainActor
     @Test
     func presentingGalleryDetailStartsItsLoad() async {
         let store = makePresentationStore()
@@ -28,6 +32,7 @@ struct PresentationLifecycleTests {
         #expect(store.state.detail != nil)
     }
 
+    @MainActor
     @Test
     func deepLinkedGalleryDetailStartsItsLoad() async throws {
         let url = try #require(URL(string: "https://e-hentai.org/g/123/abcdef0123/"))
@@ -42,6 +47,7 @@ struct PresentationLifecycleTests {
 }
 
 private extension PresentationLifecycleTests {
+    @MainActor
     func makePresentationStore() -> TestStoreOf<PresentationFeature> {
         let store = TestStore(
             initialState: PresentationFeature.State(),

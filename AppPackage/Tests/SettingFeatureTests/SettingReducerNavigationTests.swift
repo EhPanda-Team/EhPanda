@@ -13,11 +13,15 @@ import ComposableArchitecture
 // Covers the Setting tab's single flat navigation stack: root-row taps, child `delegate`-driven
 // pushes, and the post-login effect cascade that `SettingReducer` runs while the login screen
 // self-dismisses.
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 @Suite
-@MainActor
 struct SettingReducerNavigationTests {
     // Every dependency a pushed Setting screen's presentation load can reach, stubbed inert so the
     // navigation assertions never depend on a client's behaviour.
+    @MainActor
     private func makeStore(
         initialState: SettingReducer.State = .init()
     ) -> TestStoreOf<SettingReducer> {
@@ -30,6 +34,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Root menu
 
+    @MainActor
     @Test
     func settingRowTappedAppendsMatchingScreen() async throws {
         let store = makeStore()
@@ -45,6 +50,7 @@ struct SettingReducerNavigationTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func pushLoginAppendsLoginScreen() async {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
@@ -54,6 +60,7 @@ struct SettingReducerNavigationTests {
         }
     }
 
+    @MainActor
     @Test
     func settingRowTappedGuardsAgainstAdjacentDuplicate() async {
         let store = makeStore()
@@ -74,6 +81,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Child delegate → parent push
 
+    @MainActor
     @Test
     func accountDelegatePushLoginAppendsLogin() async throws {
         let store = makeStore()
@@ -95,6 +103,7 @@ struct SettingReducerNavigationTests {
     // presenting it now starts `fetchEhSetting`, and `EhSettingRequest` takes its `URLSession` as an
     // `init` default the reducer never overrides, so a store-level push would issue a real request.
 
+    @MainActor
     @Test
     func appearanceDelegatePushAppIconAppendsAppIcon() async throws {
         let store = makeStore()
@@ -108,6 +117,7 @@ struct SettingReducerNavigationTests {
         }
     }
 
+    @MainActor
     @Test
     func generalDelegatePushAppActivityLogsAppendsLogs() async throws {
         // The logs screen reads in-memory `@SharedReader` keys; isolate them so the read can't see
@@ -133,6 +143,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Child delegate → parent effect
 
+    @MainActor
     @Test
     func generalEnablesTagsExtensionDelegateRebuildsWhenEnabled() async throws {
         let defaults = UserDefaults.inMemory
@@ -163,6 +174,7 @@ struct SettingReducerNavigationTests {
         }
     }
 
+    @MainActor
     @Test
     func generalEnablesTagsExtensionDelegateSkipsRebuildWhenDisabled() async throws {
         // `enableTagsExtension` defaults to false, so the delegate must emit no rebuild — the exhaustive
@@ -185,6 +197,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Child intercepts
 
+    @MainActor
     @Test
     func generalFilePickedImportsAndStoresTagTranslator() async throws {
         let imported = TagTranslator(hasCustomTranslations: true)
@@ -212,6 +225,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Post-login cascade
 
+    @MainActor
     @Test
     func loginDoneRunsPostLoginFetchCascade() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
@@ -234,6 +248,7 @@ struct SettingReducerNavigationTests {
 
     // MARK: Igneous refresh signalling
 
+    @MainActor
     @Test
     func fetchIgneousDoneSuccessSignalsRefreshed() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
@@ -248,6 +263,7 @@ struct SettingReducerNavigationTests {
         await store.receive(\.igneousRefreshed)
     }
 
+    @MainActor
     @Test
     func fetchIgneousDoneFailureStillSignalsRefreshed() async {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init)

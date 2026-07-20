@@ -8,7 +8,10 @@ import Testing
 @testable import UserDefaultsClient
 @testable import AppFeature
 
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct PresentationFeatureTests {
     @Test(arguments: [
         GalleryFailureRouteFixture(
@@ -20,6 +23,7 @@ struct PresentationFeatureTests {
             secret: "secret-key"
         )
     ])
+    @MainActor
     private func galleryFailureToastUsesSanitizedContext(fixture: GalleryFailureRouteFixture) async throws {
         let url = try #require(URL(string: fixture.url))
         let context = Context.galleryFailure(
@@ -45,6 +49,7 @@ struct PresentationFeatureTests {
         #expect(values.contains(where: { $0.contains(url.absoluteString) }) == false)
     }
 
+    @MainActor
     @Test
     func presentErrorInfoRoutesToErrorInfoDestination() async {
         let errorInfo = ErrorInfo(
@@ -65,6 +70,7 @@ struct PresentationFeatureTests {
     // the injected read equals the clipboard change count, so the guard short-circuits and no write
     // occurs — even though the process-global holds a conflicting value that would force a write if
     // it were consulted.
+    @MainActor
     @Test
     func injectedReadSuppressesWriteDespiteConflictingProcessGlobal() async {
         let recordedWrites = LockIsolated<[Int]>([])
@@ -89,6 +95,7 @@ struct PresentationFeatureTests {
 
     // Proves the write routes through the injected UserDefaultsClient: the injected read differs from
     // the clipboard change count, so the reducer records the new count through the injected setValue.
+    @MainActor
     @Test
     func injectedReadMismatchWritesThroughInjectedSetValue() async {
         let recordedWrites = LockIsolated<[Int]>([])

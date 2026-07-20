@@ -5,8 +5,12 @@ import Foundation
 import Testing
 @testable import SettingFeature
 
-@MainActor
+// @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
+// main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
+// make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
+// Any case left unannotated is deliberately free to run off the main actor.
 struct AccountSettingReducerTests {
+    @MainActor
     @Test
     func onPresentedLoadsCookiesAndObservesJarChanges() async {
         let (stream, continuation) = AsyncStream<Void>.makeStream()
@@ -31,6 +35,7 @@ struct AccountSettingReducerTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func logoutConfirmDoesNotEagerlyReloadCookies() async {
         let store = makeStore(
@@ -43,6 +48,7 @@ struct AccountSettingReducerTests {
         await store.send(.onLogoutConfirmButtonTapped)
     }
 
+    @MainActor
     @Test
     func keystrokeEchoKeepsEditingBufferIntact() async {
         let client = CookieClient.testing(memberID: "member-fixture", passHash: "pass-fixture")
@@ -66,6 +72,7 @@ struct AccountSettingReducerTests {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func externalIgneousUpdateReplacesOnlyIgneousBuffer() async {
         let client = CookieClient.testing(memberID: "member-fixture", passHash: "pass-fixture")
@@ -92,6 +99,7 @@ struct AccountSettingReducerTests {
         await store.finish()
     }
 
+    @MainActor
     private func makeStore(cookieClient: CookieClient) -> TestStoreOf<AccountSettingReducer> {
         TestStore(initialState: AccountSettingReducer.State(), reducer: AccountSettingReducer.init) {
             $0.cookieClient = cookieClient
