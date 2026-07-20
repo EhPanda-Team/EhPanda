@@ -61,10 +61,11 @@ struct CommentButton: View {
         let shape = RoundedRectangle(cornerRadius: 15)
 
         Button(action: action) {
-            HStack {
-                Image(systemSymbol: .squareAndPencil)
+            Label {
                 Text(.postComment)
                     .bold()
+            } icon: {
+                Image(systemSymbol: .squareAndPencil)
             }
             .padding()
             .frame(maxWidth: .infinity)
