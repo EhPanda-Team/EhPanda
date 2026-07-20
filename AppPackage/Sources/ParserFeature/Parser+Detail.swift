@@ -126,9 +126,8 @@ private extension Parser {
     }
 
     static func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
-        // A missing preview-mode marker intentionally makes this optional config unavailable.
-        guard let previewMode = try? parsePreviewMode(doc: doc),
-              let gpcText = doc.at_xpath("//p [@class='gpc']")?.text,
+        let previewMode = try parsePreviewMode(doc: doc)
+        guard let gpcText = doc.at_xpath("//p [@class='gpc']")?.text,
               let rangeA = gpcText.range(of: "Showing 1 - "),
               let rangeB = gpcText.range(of: " of "),
               let singlePageCount = Int(gpcText[rangeA.upperBound..<rangeB.lowerBound])
