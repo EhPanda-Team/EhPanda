@@ -50,16 +50,17 @@ public enum ImageColors {
         let threshold = Int(Double(height) * 0.01)
         var proposed: [Double] = [-1, -1, -1, -1]
 
+        // Walks the buffer four bytes at a time instead of computing a pixel offset from a
+        // row/column pair, so no index arithmetic can run off the end. The original walked the
+        // same pixels in column-major order; a tally is order-independent, and the resulting
+        // dictionary is identical.
         var colorCounts: [Double: Int] = .init()
-        for column in 0..<width {
-            for row in 0..<height {
-                let pixel = ((width * row) + column) * 4
-                guard pixels[pixel + 3] >= 127 else { continue }
-                let color = (Double(pixels[pixel + 2]) * 1_000_000)
-                    + (Double(pixels[pixel + 1]) * 1_000)
-                    + Double(pixels[pixel])
-                colorCounts[color, default: 0] += 1
-            }
+        var channels = pixels.makeIterator()
+        while let blue = channels.next(), let green = channels.next(),
+            let red = channels.next(), let alpha = channels.next() {
+            guard alpha >= 127 else { continue }
+            let color = (Double(red) * 1_000_000) + (Double(green) * 1_000) + Double(blue)
+            colorCounts[color, default: 0] += 1
         }
 
         proposed[0] = edgeColor(from: colorCounts, threshold: threshold)
@@ -87,9 +88,8 @@ public enum ImageColors {
             .sorted { $0.count > $1.count }
 
         var proposedEdgeColor = sortedColors.first ?? ColorCounter(color: 0, count: 1)
-        if proposedEdgeColor.color.isBlackOrWhite, !sortedColors.isEmpty {
-            for index in 1..<sortedColors.count {
-                let next = sortedColors[index]
+        if proposedEdgeColor.color.isBlackOrWhite {
+            for next in sortedColors.dropFirst() {
                 guard Double(next.count) / Double(proposedEdgeColor.count) > 0.3 else { break }
                 if !next.color.isBlackOrWhite {
                     proposedEdgeColor = next
@@ -147,8 +147,9 @@ public enum ImageColors {
     }
 
     /// Downsamples `cgImage` into an sRGB, premultiplied-first, little-endian buffer sized
-    /// `width`×`height`, returning bytes laid out B, G, R, A per pixel — the layout the packing
-    /// math in the `Double` extension expects (`pixels[i]` = blue ... `pixels[i + 3]` = alpha).
+    /// `width`×`height`, returning bytes laid out blue, green, red, alpha per pixel — the order
+    /// the four-byte walk in `colors(from:)` consumes them, and the layout the packing math in
+    /// the `Double` extension expects.
     /// A single `CGContext.draw` performs the scale, so the module needs no `UIKit` rasterizer
     /// and stays callable off the main actor.
     private static func sampledPixels(from cgImage: CGImage, width: Int, height: Int) -> [UInt8]? {
