@@ -62,7 +62,7 @@ private extension Parser {
         for link in doc.xpath("//tr") {
             let gltmNode = link.at_xpath("//div [@class='gltm']")
             // Missing tags intentionally degrade to an empty tag list.
-            let tags = (try? parseGalleryTags(node: gltmNode)) ?? []
+            let tags = degrading("Gallery tags", { try parseGalleryTags(node: gltmNode) }) ?? []
             guard let gl2mNode = link.at_xpath("//td [@class='gl2m']"),
                   let gl3mNode = link.at_xpath("//td [@class='gl3m glname']"),
                   // A malformed panel intentionally drops only this gallery row.
@@ -81,7 +81,7 @@ private extension Parser {
                     tags: parsesTags ? tags : [],
                     category: panelInfo.category,
                     // A missing uploader intentionally degrades to nil.
-                    uploader: try? parseUploader(node: link),
+                    uploader: degrading("Uploader", { try parseUploader(node: link) }),
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
@@ -111,10 +111,10 @@ private extension Parser {
                     title: galleryTitle,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
-                    tags: (try? parseGalleryTags(node: gl3cNode)) ?? [],
+                    tags: degrading("Gallery tags", { try parseGalleryTags(node: gl3cNode) }) ?? [],
                     category: panelInfo.category,
                     // A missing uploader intentionally degrades to nil.
-                    uploader: try? parseUploader(node: link),
+                    uploader: degrading("Uploader", { try parseUploader(node: link) }),
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
@@ -144,7 +144,7 @@ private extension Parser {
                     title: galleryTitle,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
-                    tags: (try? parseGalleryTags(node: gl3eSiblingNode)) ?? [],
+                    tags: degrading("Gallery tags", { try parseGalleryTags(node: gl3eSiblingNode) }) ?? [],
                     category: panelInfo.category,
                     uploader: panelInfo.uploader,
                     pageCount: panelInfo.pageCount,
@@ -175,7 +175,7 @@ private extension Parser {
                     title: galleryTitle,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
-                    tags: (try? parseGalleryTags(node: gl6tNode)) ?? [],
+                    tags: degrading("Gallery tags", { try parseGalleryTags(node: gl6tNode) }) ?? [],
                     category: panelInfo.category,
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
@@ -209,7 +209,9 @@ private extension Parser {
             }
             if let onClick = div["onclick"], !onClick.isEmpty, let dateString = div.text,
                // An invalid optional date intentionally leaves the published date unset.
-               let date = try? parseDate(time: dateString, format: Defaults.DateFormat.publish) {
+               let date = degrading("Published date", {
+                   try parseDate(time: dateString, format: Defaults.DateFormat.publish)
+               }) {
                 tmpPublishedDate = date
             }
             if let components = div.text?.split(separator: " "), components.count == 2,

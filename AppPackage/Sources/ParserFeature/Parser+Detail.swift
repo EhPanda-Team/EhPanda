@@ -85,7 +85,7 @@ extension Parser {
                 tags: tags,
                 previewURLs: previewURLs,
                 // Missing preview layout metadata intentionally degrades to nil.
-                previewConfig: try? parsePreviewConfig(doc: doc),
+                previewConfig: degrading("Preview config", { try parsePreviewConfig(doc: doc) }),
                 comments: parseComments(doc: doc)
             )
             break
@@ -191,7 +191,7 @@ private extension Parser {
         for g2gspLink in node.xpath("//p [@class='g2 gsp']") {
             if archiveURL == nil {
                 // A malformed optional archive link intentionally degrades to nil.
-                archiveURL = try? parseArchiveURL(node: g2gspLink)
+                archiveURL = degrading("Archive URL", { try parseArchiveURL(node: g2gspLink) })
             } else {
                 break
             }
@@ -206,7 +206,7 @@ private extension Parser {
             }
             if archiveURL == nil {
                 // A malformed fallback archive link intentionally degrades to nil.
-                archiveURL = try? parseArchiveURL(node: g2Link)
+                archiveURL = degrading("Fallback archive URL", { try parseArchiveURL(node: g2Link) })
             }
         }
 
