@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-21-PLAN.md
-last_updated: "2026-07-20T22:36:52.646Z"
+stopped_at: Completed 11-22-PLAN.md
+last_updated: "2026-07-20T22:54:49.779Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 126
+  completed_plans: 127
   percent: 60
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 22 of 30
+Plan: 23 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
-Progress: [█████████░] 93% (10/15 phases)
+Progress: [█████████░] 94% (10/15 phases)
 
 ## Performance Metrics
 
@@ -187,6 +187,7 @@ Progress: [█████████░] 93% (10/15 phases)
 | Phase 11 P19 | ~20 min | 2 tasks | 2 files |
 | Phase 11 P20 | ~35 min | 2 tasks | 6 files |
 | Phase 11 P21 | ~50 min | 2 tasks | 41 files |
+| Phase 11 P22 | ~35 min | 1 tasks | 26 files |
 
 ## Accumulated Context
 
@@ -391,6 +392,8 @@ Recent decisions affecting current work:
 - [Phase 11]: Plan 11-20: DidLoginKey.subscribe now creates its jar stream synchronously instead of inside the consuming task, fixing a real 1-in-4 flake where a mutation published to zero subscribers was lost
 - [Phase ?]: DownloadsFeatureTests fully de-serialized: all 38 traits removed, none retained; .serialized is within-suite only, so no trait could have guarded cross-suite state
 - [Phase ?]: DownloadCoordinator gained an injectable clock (now:, defaults to Date()) so the progress-flush throttle's wall-clock branch can be frozen off in tests
+- [Phase ?]: TCA TestStore is main-actor-bound; 85/104 DownloadsFeatureTests cases legitimately require @MainActor — the sweep's ceiling is the library, not annotation hygiene
+- [Phase ?]: Annotate members, never the suite type: a @MainActor type carries a main-actor protocol conformance that @Sendable dependency closures cannot call
 
 ### Pending Todos
 
@@ -432,6 +435,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T22:36:45.234Z
-Stopped at: Completed 11-21-PLAN.md
+Last session: 2026-07-20T22:54:42.036Z
+Stopped at: Completed 11-22-PLAN.md
 Resume file: None
