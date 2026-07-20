@@ -40,6 +40,7 @@ extension Array where Element == GalleryHistoryEntry {
             // on a checked invariant rather than on the reader's trust.
             precondition(indices.contains(index), "firstIndex returned an index outside the collection")
             // reason: bounds are precondition-checked immediately above.
+            // swiftlint:disable:next unchecked_subscript_index_access
             self[index].readingProgress = progress
         } else {
             guard !token.isEmpty else { return }
