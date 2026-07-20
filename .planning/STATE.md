@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-07-20T15:39:12.492Z"
+stopped_at: Completed 11-04-PLAN.md
+last_updated: "2026-07-20T15:49:04.002Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 108
+  completed_plans: 109
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 4 of 30
+Plan: 5 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -166,6 +166,7 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 11 P1 | 25m | 2 tasks | 4 files |
 | Phase 11 P2 | ~20m | 2 tasks | 4 files |
 | Phase 11 P3 | ~30m | 2 tasks | 6 files |
+| Phase 11 P4 | ~25m | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -334,6 +335,8 @@ Recent decisions affecting current work:
 - [Phase 11]: 11-02: parseDisplayMode returns String? — a missing display-mode selector is the normal toplist case, not an error
 - [Phase 11]: 11-02: parseScriptVariable rebuilt with RegexBuilder — removes the runtime regex-compile failure path entirely
 - [Phase ?]: 11-03: DownloadClient manifest identity probes collapse onto one named probeManifest helper with a deliberately silent catch; scans walk arbitrary user folders so logging would be noise
+- [Phase ?]: 11-04: DownloadClient probe sites collapse onto two named helpers (probeHTMLDocument, probeFileData) — inline do/catch is not expressible in guard/if-let chains
+- [Phase ?]: 11-04: DownloadStore.closeReadHandle promoted to internal for coordinator reuse instead of duplicating the helper
 
 ### Pending Todos
 
@@ -375,6 +378,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T15:39:12.484Z
-Stopped at: Completed 11-03-PLAN.md
+Last session: 2026-07-20T15:48:55.909Z
+Stopped at: Completed 11-04-PLAN.md
 Resume file: None
