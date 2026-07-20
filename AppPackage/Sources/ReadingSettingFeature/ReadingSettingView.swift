@@ -1,8 +1,8 @@
-import SwiftUI
 import AppModels
-import Sharing
-import Resources
 import ComposableArchitecture
+import Resources
+import Sharing
+import SwiftUI
 
 public struct ReadingSettingView: View {
     // The reading-setting editor is shared by the Setting tab and the reader sheet. Rather than hold

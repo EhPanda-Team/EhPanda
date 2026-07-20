@@ -1,10 +1,10 @@
-import Foundation
+@testable import AppFeature
 import AppModels
 import ComposableArchitecture
-import UIKit
-import Testing
 import DownloadClient
-@testable import AppFeature
+import Foundation
+import Testing
+import UIKit
 
 struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     @Test

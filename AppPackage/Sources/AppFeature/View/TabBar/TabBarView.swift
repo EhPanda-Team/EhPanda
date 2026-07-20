@@ -1,18 +1,18 @@
-import SwiftUI
+import AppComponents
 import AppModels
-import Resources
-import SFSafeSymbols
 import ComposableArchitecture
 import Dependencies
-import DeviceClient
-import SystemNotification
-import AppComponents
 import DetailFeature
-import HomeFeature
-import SearchFeature
-import FavoritesFeature
+import DeviceClient
 import DownloadsFeature
+import FavoritesFeature
+import HomeFeature
+import Resources
+import SearchFeature
 import SettingFeature
+import SFSafeSymbols
+import SwiftUI
+import SystemNotification
 
 struct TabBarView: View {
     @Dependency(\.deviceClient) private var deviceClient

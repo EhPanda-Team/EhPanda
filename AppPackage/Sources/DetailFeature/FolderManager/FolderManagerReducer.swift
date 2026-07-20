@@ -1,9 +1,9 @@
-import SwiftUI
+import AppComponents
 import AppModels
-import Resources
 import ComposableArchitecture
 import DownloadClient
-import AppComponents
+import Resources
+import SwiftUI
 
 @Reducer
 public struct FolderManagerReducer: Sendable {

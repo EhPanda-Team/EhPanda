@@ -1,5 +1,5 @@
-import ComposableArchitecture
 import AppModels
+import ComposableArchitecture
 
 @Reducer
 struct TabBarReducer {

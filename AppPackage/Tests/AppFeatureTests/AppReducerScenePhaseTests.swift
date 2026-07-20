@@ -1,16 +1,16 @@
-import Foundation
+@testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
+@testable import ClipboardClient
 import ComposableArchitecture
-import CustomDump
 import CookieClient
+import CustomDump
 import DownloadClient
+import Foundation
 import LogsClient
 import Sharing
 import Testing
 import UserDefaultsClient
-@testable import ClipboardClient
-@testable import AppFeature
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would

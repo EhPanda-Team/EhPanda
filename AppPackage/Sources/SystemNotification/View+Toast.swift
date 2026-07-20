@@ -5,10 +5,10 @@
 //  on TCA presentation state and SwiftUI's Liquid Glass (`glassEffect`) instead of a Material chrome.
 //
 
-import SwiftUI
 import AppComponents
 import AppModels
 import ComposableArchitecture
+import SwiftUI
 
 extension View {
     /// Overlays a bottom-anchored Liquid Glass toast driven by presentation state, mirroring

@@ -1,6 +1,6 @@
+@testable import AppModels
 import IssueReporting
 import Testing
-@testable import AppModels
 
 @Test
 func privateFilterValueReportsIssueAndReturnsZero() {

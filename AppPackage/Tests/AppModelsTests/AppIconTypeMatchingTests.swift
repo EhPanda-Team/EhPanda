@@ -1,5 +1,5 @@
-import Testing
 import AppModels
+import Testing
 
 // `AppIconType.matching(alternateIconName:)` is the shared mapping used by both the Setting tab's launch
 // reconciliation and the App Icon screen's post-edit sync. This pins that every known icon round-trips

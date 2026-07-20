@@ -1,13 +1,13 @@
-import SwiftUI
-import AppModels
-import Resources
-import Kingfisher
-import SFSafeSymbols
-import ComposableArchitecture
-import AppTools
 import AppComponents
-import SFSafeSymbolsExt
+import AppModels
+import AppTools
+import ComposableArchitecture
 import DetailFeature
+import Kingfisher
+import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import SwiftUI
 
 public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>

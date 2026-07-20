@@ -1,7 +1,7 @@
-import Foundation
-import Testing
 import AppModels
+import Foundation
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 semantics lock for DEP-06 (D-14). Domain fronting rewrites the network host to a resolved
 // IP while keeping every request property tied to the *original* domain. These fixtures freeze that

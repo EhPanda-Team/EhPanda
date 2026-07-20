@@ -1,5 +1,5 @@
-import Testing
 @testable import AppModels
+import Testing
 
 struct AnyHashableBoxTests {
     @Test

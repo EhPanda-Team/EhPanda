@@ -1,6 +1,6 @@
-import Sharing
 import AppModels
 import ComposableArchitecture
+import Sharing
 
 // A state-only reducer for the reading-setting editor. It carries `@Shared(.setting)` and vends the
 // shared projection (`sharedSetting`) so `ReadingSettingView` binds through its own store instead of

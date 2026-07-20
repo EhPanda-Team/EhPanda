@@ -1,7 +1,7 @@
-import OSLogExt
-import BackgroundTasks
 import AppModels
+import BackgroundTasks
 import ComposableArchitecture
+import OSLogExt
 
 private let logger = Logger(category: .init(describing: BackgroundProcessingClient.self))
 

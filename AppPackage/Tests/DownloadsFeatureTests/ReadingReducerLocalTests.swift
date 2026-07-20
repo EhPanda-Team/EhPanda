@@ -1,17 +1,17 @@
-import Foundation
+@testable import AppFeature
 import AppModels
-import ComposableArchitecture
-import Testing
 import AppTools
-import URLClient
-import HapticsClient
-import ImageClient
-import DownloadClient
 import ClipboardClient
+import ComposableArchitecture
 import CookieClient
 import DeviceClient
+import DownloadClient
+import Foundation
+import HapticsClient
+import ImageClient
 @testable import ReadingFeature
-@testable import AppFeature
+import Testing
+import URLClient
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated

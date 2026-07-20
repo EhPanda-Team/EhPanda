@@ -1,6 +1,6 @@
+import AppModels
 import Foundation
 import Testing
-import AppModels
 
 // #2: persisted models decode *strictly* — the blanket-tolerant decoder is gone. A corrupt or
 // shape-incompatible blob fails to decode so Sharing resets the key to its default (a clean, coherent

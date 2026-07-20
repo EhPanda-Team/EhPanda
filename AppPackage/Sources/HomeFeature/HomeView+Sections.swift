@@ -1,12 +1,12 @@
-import SwiftUI
-import AppModels
-import Resources
-import Kingfisher
-import SFSafeSymbols
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
 import Dependencies
 import DeviceClient
+import Kingfisher
+import Resources
+import SFSafeSymbols
+import SwiftUI
 
 // Sliding-window sizing for the carousel's infinite loop: `bufferedCards` exposes
 // `windowBlocks` concatenated copies of the gallery list, and every settle rebases the

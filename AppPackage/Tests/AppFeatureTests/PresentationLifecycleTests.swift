@@ -1,11 +1,11 @@
-import Foundation
+@testable import AppFeature
 import AppModels
 import ComposableArchitecture
 import DownloadClient
+import Foundation
 import HapticsClient
-import URLClient
 import Testing
-@testable import AppFeature
+import URLClient
 
 // Presentation-driven lifecycle for the two routes that install a gallery detail *modally* rather
 // than by pushing it: the iPad tap route (`presentGalleryDetail`) and the deep-link / clipboard /

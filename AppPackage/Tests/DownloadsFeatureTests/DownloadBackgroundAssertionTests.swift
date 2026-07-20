@@ -1,9 +1,9 @@
+@testable import AppFeature
+import DownloadClient
 import Foundation
 import Synchronization
-import UIKit
 import Testing
-import DownloadClient
-@testable import AppFeature
+import UIKit
 
 @Suite
 struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {

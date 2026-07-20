@@ -1,5 +1,5 @@
-import SwiftUI
 import AppModels
+import SwiftUI
 
 public struct Placeholder: View {
     private let style: PlaceholderStyle

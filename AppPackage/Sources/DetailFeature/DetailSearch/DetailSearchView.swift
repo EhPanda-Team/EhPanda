@@ -1,12 +1,12 @@
-import SwiftUI
-import AppModels
-import TagTranslationFeature
-import ComposableArchitecture
-import AppTools
 import AppComponents
-import GalleryListComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
 import FiltersFeature
+import GalleryListComponents
 import QuickSearchFeature
+import SwiftUI
+import TagTranslationFeature
 
 struct DetailSearchView: View {
     @Bindable private var store: StoreOf<DetailSearchReducer>

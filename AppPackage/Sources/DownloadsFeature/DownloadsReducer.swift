@@ -1,13 +1,13 @@
-import Foundation
-import AppModels
-import Resources
-import ComposableArchitecture
 import AppComponents
+import AppModels
 import AppTools
+import ComposableArchitecture
+import DetailFeature
 import DeviceClient
 import DownloadClient
+import Foundation
 import ReadingFeature
-import DetailFeature
+import Resources
 
 @Reducer
 public struct DownloadsReducer: Sendable {

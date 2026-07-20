@@ -1,12 +1,12 @@
-import SwiftUI
-import AppModels
-import TagTranslationFeature
-import Resources
-import ComposableArchitecture
-import AppTools
 import AppComponents
-import SFSafeSymbolsExt
+import AppModels
+import AppTools
+import ComposableArchitecture
 import GalleryListComponents
+import Resources
+import SFSafeSymbolsExt
+import SwiftUI
+import TagTranslationFeature
 
 struct HistoryView: View {
     @Bindable private var store: StoreOf<HistoryReducer>

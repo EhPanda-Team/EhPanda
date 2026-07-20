@@ -1,7 +1,7 @@
-import OSLogExt
-import ComposableArchitecture
 import AppModels
+import ComposableArchitecture
 import Foundation
+import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadQueueStore.self))
 

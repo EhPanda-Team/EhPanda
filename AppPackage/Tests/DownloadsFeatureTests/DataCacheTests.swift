@@ -1,7 +1,7 @@
+@testable import AppFeature
+import AppTools
 import Foundation
 import Testing
-import AppTools
-@testable import AppFeature
 
 struct DataCacheTests {
     @Test

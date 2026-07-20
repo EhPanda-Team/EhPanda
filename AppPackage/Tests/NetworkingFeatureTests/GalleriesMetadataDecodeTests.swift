@@ -1,7 +1,7 @@
-import Foundation
-import Testing
 import AppModels
+import Foundation
 @testable import NetworkingFeature
+import Testing
 
 // REV-2: the `gdata` API returns bare `{ gid, error }` objects for expunged/removed gids (and can omit
 // `token`). Decoding the whole `[GalleryMetadata]` array must tolerate those per-entry — one bad gid

@@ -1,6 +1,6 @@
+@testable import AppModels
 import Foundation
 import Testing
-@testable import AppModels
 
 struct AppErrorStructuredTests {
     struct Expectation: Sendable {

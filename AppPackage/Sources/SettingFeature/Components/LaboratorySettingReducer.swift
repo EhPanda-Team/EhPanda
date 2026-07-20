@@ -1,6 +1,6 @@
 import ComposableArchitecture
-import HapticsClient
 import DFClient
+import HapticsClient
 
 @Reducer
 public struct LaboratorySettingReducer: Sendable {

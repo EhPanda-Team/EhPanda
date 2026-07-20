@@ -1,10 +1,10 @@
-import SwiftUI
-import AppModels
-import Resources
-import ComposableArchitecture
-import SystemNotification
 import AppComponents
+import AppModels
+import ComposableArchitecture
+import Resources
 import SFSafeSymbolsExt
+import SwiftUI
+import SystemNotification
 
 struct TorrentsView: View {
     @Bindable private var store: StoreOf<TorrentsReducer>

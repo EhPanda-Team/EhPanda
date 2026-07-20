@@ -1,9 +1,9 @@
-import SwiftUI
-import AppModels
-import Testing
-import AppTools
-import URLClient
 @testable import AppFeature
+import AppModels
+import AppTools
+import SwiftUI
+import Testing
+import URLClient
 
 struct SettingDownloadTests {
     @Test

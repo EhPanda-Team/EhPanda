@@ -1,10 +1,10 @@
-import ComposableArchitecture
 import AppModels
-import Sharing
 import AppTools
+import ComposableArchitecture
+import FiltersFeature
 import HapticsClient
 import NetworkingFeature
-import FiltersFeature
+import Sharing
 
 @Reducer
 public struct PopularReducer: Sendable {

@@ -1,10 +1,10 @@
-import Foundation
-import Testing
 import AppModels
-import DownloadClient
 import ComposableArchitecture
 @testable import DetailFeature
+import DownloadClient
+import Foundation
 @testable import ReadingFeature
+import Testing
 
 // The reader's load used to be kicked off by `ReadingView.onAppear`. It is now sent by whoever
 // presents the reader, in the same transition that sets the destination. Both of Detail's

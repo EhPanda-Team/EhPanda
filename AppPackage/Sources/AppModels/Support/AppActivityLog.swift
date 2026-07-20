@@ -1,7 +1,7 @@
-import OSLog
-import SwiftUI
-import Resources
 import Foundation
+import OSLog
+import Resources
+import SwiftUI
 
 public struct AppActivityLog: Sendable, Equatable, Identifiable, Codable {
     public let date: Date

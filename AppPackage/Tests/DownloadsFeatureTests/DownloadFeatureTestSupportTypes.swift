@@ -1,6 +1,6 @@
+@testable import AppFeature
 import Foundation
 import Synchronization
-@testable import AppFeature
 
 // MARK: - Supporting Types
 

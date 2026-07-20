@@ -1,6 +1,6 @@
 import AppTools
-import SwiftUI
 import Foundation
+import SwiftUI
 
 public struct GalleryState: Codable, Sendable {
     public static let empty = GalleryState(gid: "")

@@ -1,11 +1,11 @@
-import UIKit
+@testable import AppFeature
 import AppModels
-import Foundation
-import Testing
 import AppTools
 import ComposableArchitecture
 import DownloadClient
-@testable import AppFeature
+import Foundation
+import Testing
+import UIKit
 
 struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     @Test

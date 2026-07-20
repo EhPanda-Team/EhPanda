@@ -1,7 +1,7 @@
-import SwiftUI
-import Testing
 import AppModels
 @testable import ReadingFeature
+import SwiftUI
+import Testing
 
 // Wave-0 baseline lock for the reader gesture arithmetic before Plan 05-09 replaces the gesture
 // sources. These cases freeze the container-relative clamp, anchor, and tap-zone calculations so

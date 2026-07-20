@@ -1,14 +1,14 @@
+import AppModels
 import AppTools
 import ComposableArchitecture
-import AppModels
-import Sharing
+import DateSeekFeature
+import DownloadClient
+import FiltersFeature
 import Foundation
 import HapticsClient
 import NetworkingFeature
-import DownloadClient
-import FiltersFeature
-import DateSeekFeature
 import QuickSearchFeature
+import Sharing
 
 @Reducer
 public struct SearchReducer: Sendable {

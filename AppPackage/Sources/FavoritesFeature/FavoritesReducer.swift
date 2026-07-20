@@ -1,16 +1,16 @@
-import AppTools
-import SwiftUI
 import AppModels
-import IdentifiedCollections
+import AppTools
 import ComposableArchitecture
 import CookieClient
-import HapticsClient
-import NetworkingFeature
-import DownloadClient
-import DeviceClient
 import DateSeekFeature
-import QuickSearchFeature
 import DetailFeature
+import DeviceClient
+import DownloadClient
+import HapticsClient
+import IdentifiedCollections
+import NetworkingFeature
+import QuickSearchFeature
+import SwiftUI
 
 @Reducer
 public struct FavoritesReducer: Sendable {

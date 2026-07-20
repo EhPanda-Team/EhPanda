@@ -1,13 +1,13 @@
-import SwiftUI
-import AppModels
-import TagTranslationFeature
-import Resources
-import Kingfisher
-import ComposableArchitecture
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
 import CookieClient
+import Kingfisher
 import ReadingFeature
+import Resources
+import SwiftUI
+import TagTranslationFeature
 
 public struct DetailView: View {
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.

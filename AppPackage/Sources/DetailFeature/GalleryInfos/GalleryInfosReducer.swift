@@ -1,8 +1,8 @@
+import AppComponents
 import AppModels
+import ClipboardClient
 import ComposableArchitecture
 import HapticsClient
-import ClipboardClient
-import AppComponents
 
 @Reducer
 public struct GalleryInfosReducer: Sendable {

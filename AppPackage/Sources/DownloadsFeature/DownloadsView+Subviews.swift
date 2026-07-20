@@ -1,12 +1,12 @@
-import SwiftUI
+import AppComponents
 import AppModels
-import TagTranslationFeature
+import ComposableArchitecture
+import GalleryListComponents
 import Resources
 import SFSafeSymbols
-import ComposableArchitecture
+import SwiftUI
 import SystemNotification
-import AppComponents
-import GalleryListComponents
+import TagTranslationFeature
 
 struct DownloadInspectorView: View {
     @Environment(\.dismiss) private var dismiss

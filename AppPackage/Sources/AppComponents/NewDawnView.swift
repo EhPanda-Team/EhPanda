@@ -1,8 +1,8 @@
-import SwiftUI
 import AppModels
-import Resources
 import Dependencies
 import DeviceClient
+import Resources
+import SwiftUI
 
 public struct NewDawnView: View {
     @Dependency(\.deviceClient) private var deviceClient

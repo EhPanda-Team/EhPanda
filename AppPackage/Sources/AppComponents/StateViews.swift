@@ -1,8 +1,8 @@
-import SwiftUI
 import AppModels
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
+import SwiftUI
 
 public struct LoadingView: View {
     private let title: LocalizedStringResource

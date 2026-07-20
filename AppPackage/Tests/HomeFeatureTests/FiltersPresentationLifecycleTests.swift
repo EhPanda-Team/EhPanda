@@ -1,10 +1,10 @@
-import Testing
-import Foundation
 import AppModels
-import Sharing
-import FiltersFeature
-@testable import HomeFeature
 import ComposableArchitecture
+import FiltersFeature
+import Foundation
+@testable import HomeFeature
+import Sharing
+import Testing
 
 // `FiltersView`'s former `onAppear` loaded the persisted filters into the sheet's working copies.
 // Six screens present that sheet; each now sends the load itself. Frontpage stands in for all of

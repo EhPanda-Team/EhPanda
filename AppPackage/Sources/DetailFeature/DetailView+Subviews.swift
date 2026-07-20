@@ -1,13 +1,13 @@
-import SwiftUI
-import AppModels
-import TagTranslationFeature
-import Resources
-import Kingfisher
-import ComposableArchitecture
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
 import CookieClient
+import Kingfisher
+import Resources
 import SFSafeSymbolsExt
+import SwiftUI
+import TagTranslationFeature
 
 // MARK: DescriptionSection
 struct DescriptionSection: View {

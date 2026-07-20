@@ -1,11 +1,11 @@
-import UIKit
-import AppModels
-import Foundation
-import Testing
-import AppTools
-import LibraryClient
-import DownloadClient
 @testable import AppFeature
+import AppModels
+import AppTools
+import DownloadClient
+import Foundation
+import LibraryClient
+import Testing
+import UIKit
 
 struct DownloadProcessCacheTests: DownloadFeatureTestCase {
     @Test

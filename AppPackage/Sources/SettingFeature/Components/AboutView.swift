@@ -1,8 +1,8 @@
-import AppModels
-import SwiftUI
-import Resources
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import Resources
+import SwiftUI
 
 struct AboutView: View {
     private var version: String {

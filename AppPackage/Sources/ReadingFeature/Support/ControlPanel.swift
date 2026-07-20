@@ -1,11 +1,11 @@
-import SwiftUI
-import AppModels
-import Resources
-import AppTools
 import AppComponents
-import SFSafeSymbols
+import AppModels
+import AppTools
 import Dependencies
 import DeviceClient
+import Resources
+import SFSafeSymbols
+import SwiftUI
 
 // MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {

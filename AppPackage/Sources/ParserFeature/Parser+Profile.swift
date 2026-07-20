@@ -1,5 +1,5 @@
-import Kanna
 import AppModels
+import Kanna
 
 extension Parser {
     public static func parseProfileIndex(doc: HTMLDocument) throws -> VerifyEhProfileResponse {

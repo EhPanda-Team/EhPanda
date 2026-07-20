@@ -1,13 +1,13 @@
-import Foundation
-import AppModels
-import Sharing
-import ComposableArchitecture
-import URLClient
+import AppComponents
 import ApplicationClient
+import AppModels
+import ComposableArchitecture
+import CookieClient
+import Foundation
 import HapticsClient
 import NetworkingFeature
-import CookieClient
-import AppComponents
+import Sharing
+import URLClient
 
 @Reducer
 public struct CommentsReducer: Sendable {

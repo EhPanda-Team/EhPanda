@@ -1,9 +1,9 @@
+@testable import AppFeature
 import AppModels
-import Foundation
-import Testing
 import AppTools
 import DownloadClient
-@testable import AppFeature
+import Foundation
+import Testing
 
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test

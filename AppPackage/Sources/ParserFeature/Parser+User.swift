@@ -1,6 +1,6 @@
-import Kanna
 import AppModels
 import Foundation
+import Kanna
 
 extension Parser {
     public static func parseUserInfo(doc: HTMLDocument) throws -> User {

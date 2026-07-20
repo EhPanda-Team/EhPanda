@@ -1,15 +1,15 @@
-import AppTools
-import SwiftUI
+import AppComponents
 import AppModels
-import Sharing
+import AppTools
+import ClipboardClient
 import ComposableArchitecture
-import URLClient
-import UserDefaultsClient
+import DetailFeature
 import HapticsClient
 import NetworkingFeature
-import ClipboardClient
-import AppComponents
-import DetailFeature
+import Sharing
+import SwiftUI
+import URLClient
+import UserDefaultsClient
 
 @Reducer
 struct PresentationFeature {

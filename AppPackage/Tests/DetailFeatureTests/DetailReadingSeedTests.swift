@@ -1,10 +1,10 @@
-import Foundation
-import Testing
 import AppModels
-import DownloadClient
 import ComposableArchitecture
 @testable import DetailFeature
+import DownloadClient
+import Foundation
 @testable import ReadingFeature
+import Testing
 
 // REV-1/REV-4/REV-10: pushing the reader from Detail must seed the reader's `gallery` (so remote
 // reading isn't blank and history upserts carry the real gid/token), plus the threaded `previewConfig`

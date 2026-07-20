@@ -1,7 +1,7 @@
-import SwiftUI
+import AppComponents
 import AppModels
 import Resources
-import AppComponents
+import SwiftUI
 
 extension DetailView {
     struct CommentCell: View {

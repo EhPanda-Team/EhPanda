@@ -1,8 +1,8 @@
-import Testing
 import Foundation
-import SwiftUI
-import UIKit
 import ImageColors
+import SwiftUI
+import Testing
+import UIKit
 
 // Wave 0 parity lock for DEP-02 (D-16, D-18). These fixtures freeze the deterministic component
 // output of `ImageColors.colors(from:quality:)` so the local ImageColors module can be proven

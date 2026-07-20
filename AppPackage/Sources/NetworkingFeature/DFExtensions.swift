@@ -1,8 +1,8 @@
-import Foundation
 import AppModels
-import OSLogExt
-import LegacyCFReadStream
 import AppTools
+import Foundation
+import LegacyCFReadStream
+import OSLogExt
 
 private let logger = Logger(category: "DFExtensions")
 
