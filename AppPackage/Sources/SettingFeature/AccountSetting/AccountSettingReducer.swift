@@ -46,7 +46,7 @@ public struct AccountSettingReducer: Sendable {
         case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
-        case onAppear
+        case onPresented
         case logoutButtonTapped
         case onLogoutConfirmButtonTapped
         case loadCookies
@@ -86,7 +86,12 @@ public struct AccountSettingReducer: Sendable {
             case .delegate:
                 return .none
 
-            case .onAppear:
+            // Fires once, when SettingReducer pushes this screen. It does not need to re-fire on the
+            // way back from the login/logout flows: the jar subscription below outlives those pushes
+            // (the element stays on the stack, so its effects are not cancelled) and reloads the
+            // cookie rows on every jar change, while the login/logout state on screen is read live
+            // from `@SharedReader(.didLogin)`, which the same jar feeds.
+            case .onPresented:
                 return .merge(
                     .send(.loadCookies),
                     .run { send in

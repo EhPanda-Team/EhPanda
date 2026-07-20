@@ -53,7 +53,6 @@ public struct EhSettingReducer: Sendable {
         case confirmationDialog(PresentationAction<Dialog>)
         case deleteProfileButtonTapped
         case setKeyboardHidden
-        case setDefaultProfile(Int)
 
         case fetchEhSetting
         case fetchEhSettingDone(Result<EhSetting, AppError>)
@@ -108,14 +107,6 @@ public struct EhSettingReducer: Sendable {
 
             case .setKeyboardHidden:
                 return .run(operation: { _ in await applicationClient.hideKeyboard() })
-
-            case .setDefaultProfile(let profileSet):
-                let hostURL = state.setting.galleryHost.url
-                return .run { _ in
-                    cookieClient.setOrEditCookie(
-                        for: hostURL, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
-                    )
-                }
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
