@@ -33,11 +33,13 @@ extension Parser {
                   // A malformed info panel intentionally rejects only this detail candidate.
                   let infoPanel = degrading("Info panel", { try parseInfoPanel(node: gddNode) }),
                   // Invalid visibility intentionally rejects only this detail candidate.
-                  let visibility = degrading("Visibility", { try parseVisibility(value: infoPanel[2]) }),
-                  let sizeCount = Float(infoPanel[4]),
-                  let pageCount = Int(infoPanel[6]),
-                  let favoritedCount = Int(infoPanel[7]),
-                  let language = Language(rawValue: infoPanel[3]),
+                  let visibility = degrading("Visibility", {
+                      try parseVisibility(value: infoPanel.visibility)
+                  }),
+                  let sizeCount = Float(infoPanel.fileSize),
+                  let pageCount = Int(infoPanel.pageCount),
+                  let favoritedCount = Int(infoPanel.favoritedCount),
+                  let language = Language(rawValue: infoPanel.language),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   // A missing uploader intentionally rejects only this detail candidate.
                   let uploader = degrading("Uploader", { try parseUploader(node: gd3Node) }),
@@ -47,7 +49,7 @@ extension Parser {
                   let category = AppModels.Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   // An invalid posted date intentionally rejects only this detail candidate.
                   let postedDate = degrading("Posted date", {
-                      try parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
+                      try parseDate(time: infoPanel.postedDate, format: Defaults.DateFormat.publish)
                   })
             else { continue }
 
@@ -56,7 +58,7 @@ extension Parser {
                 .text?.contains("Add to Favorites") == false
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
-            let parentURLString = infoPanel[1].isValidURL ? infoPanel[1] : ""
+            let parentURLString = infoPanel.parentURL.isValidURL ? infoPanel.parentURL : ""
 
             tmpGalleryDetail = GalleryDetail(
                 gid: gid,
@@ -77,7 +79,7 @@ extension Parser {
                 favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
-                sizeType: infoPanel[5],
+                sizeType: infoPanel.sizeType,
                 torrentCount: arcAndTor.1
             )
             tmpGalleryState = GalleryState(
@@ -216,14 +218,18 @@ private extension Parser {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    static func parseInfoPanel(node: XMLElement?) throws -> [String] {
+    static func parseInfoPanel(node: XMLElement?) throws -> InfoPanel {
         guard let object = node?.xpath("//tr")
         else { throw AppError.parseFailed }
 
-        var infoPanel = Array(
-            repeating: "",
-            count: 8
-        )
+        var postedDate = ""
+        var parentURL = ""
+        var visibility = ""
+        var language = ""
+        var fileSize = ""
+        var sizeType = ""
+        var pageCount = ""
+        var favoritedCount = ""
         for gddLink in object {
             guard let gdt1Text = gddLink.at_xpath("//td [@class='gdt1']")?.text,
                   let gdt2Text = gddLink.at_xpath("//td [@class='gdt2']")?.text
@@ -231,46 +237,53 @@ private extension Parser {
             let aHref = gddLink.at_xpath("//td [@class='gdt2']")?.at_xpath("//a")?["href"]
 
             if gdt1Text.contains("Posted") {
-                infoPanel[0] = gdt2Text
+                postedDate = gdt2Text
             }
             if gdt1Text.contains("Parent") {
-                infoPanel[1] = aHref ?? "None"
+                parentURL = aHref ?? "None"
             }
             if gdt1Text.contains("Visible") {
-                infoPanel[2] = gdt2Text
+                visibility = gdt2Text
             }
-            if gdt1Text.contains("Language") {
-                let words = gdt2Text.split(separator: " ")
-                if !words.isEmpty {
-                    infoPanel[3] = words[0]
-                        .trimmingCharacters(in: .whitespaces)
-                }
+            if gdt1Text.contains("Language"), let firstWord = gdt2Text.split(separator: " ").first {
+                language = firstWord.trimmingCharacters(in: .whitespaces)
             }
             if gdt1Text.contains("File Size") {
-                infoPanel[4] = gdt2Text
+                fileSize = gdt2Text
                     .replacingOccurrences(of: " KiB", with: "")
                     .replacingOccurrences(of: " MiB", with: "")
                     .replacingOccurrences(of: " GiB", with: "")
 
-                if gdt2Text.contains("KiB") { infoPanel[5] = "KiB" }
-                if gdt2Text.contains("MiB") { infoPanel[5] = "MiB" }
-                if gdt2Text.contains("GiB") { infoPanel[5] = "GiB" }
+                if gdt2Text.contains("KiB") { sizeType = "KiB" }
+                if gdt2Text.contains("MiB") { sizeType = "MiB" }
+                if gdt2Text.contains("GiB") { sizeType = "GiB" }
             }
             if gdt1Text.contains("Length") {
-                infoPanel[6] = gdt2Text.replacingOccurrences(of: " pages", with: "")
+                pageCount = gdt2Text.replacingOccurrences(of: " pages", with: "")
             }
             if gdt1Text.contains("Favorited") {
-                infoPanel[7] = gdt2Text
+                favoritedCount = gdt2Text
                     .replacingOccurrences(of: " times", with: "")
                     .replacingOccurrences(of: "Never", with: "0")
                     .replacingOccurrences(of: "Once", with: "1")
             }
         }
 
-        guard infoPanel.filter({ !$0.isEmpty }).count == 8
+        // Every field must have been filled — a partially scraped panel is a parse failure.
+        guard ![postedDate, parentURL, visibility, language,
+                fileSize, sizeType, pageCount, favoritedCount].contains(where: \.isEmpty)
         else { throw AppError.parseFailed }
 
-        return infoPanel
+        return InfoPanel(
+            postedDate: postedDate,
+            parentURL: parentURL,
+            visibility: visibility,
+            language: language,
+            fileSize: fileSize,
+            sizeType: sizeType,
+            pageCount: pageCount,
+            favoritedCount: favoritedCount
+        )
     }
 
     static func parseVisibility(value: String) throws -> GalleryVisibility {
