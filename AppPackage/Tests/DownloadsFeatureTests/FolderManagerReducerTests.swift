@@ -1,10 +1,10 @@
-import Foundation
+@testable import AppFeature
 import AppModels
 import ComposableArchitecture
-import Testing
-import DownloadClient
 @testable import DetailFeature
-@testable import AppFeature
+import DownloadClient
+import Foundation
+import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated

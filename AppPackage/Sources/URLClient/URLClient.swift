@@ -1,7 +1,7 @@
-import SwiftUI
 import AppModels
-import Dependencies
 import AppTools
+import Dependencies
+import SwiftUI
 
 public struct URLAnalysisResult: Sendable {
     public let isGalleryImageURL: Bool

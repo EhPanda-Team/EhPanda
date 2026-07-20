@@ -1,7 +1,7 @@
-import OSLogExt
+import AppModels
 import AppTools
 import Foundation
-import AppModels
+import OSLogExt
 import Resources
 
 private let logger = Logger(category: .init(describing: DownloadStore.self))

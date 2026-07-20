@@ -1,7 +1,7 @@
-import Foundation
-import AppModels
-import Testing
 @testable import AppFeature
+import AppModels
+import Foundation
+import Testing
 
 struct DownloadedGalleryManifestModelTests {
     @Test

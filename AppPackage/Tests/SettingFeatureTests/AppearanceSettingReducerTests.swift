@@ -1,8 +1,8 @@
-import ComposableArchitecture
-import Testing
-import AppModels
 import ApplicationClient
+import AppModels
+import ComposableArchitecture
 @testable import SettingFeature
+import Testing
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would

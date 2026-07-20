@@ -1,6 +1,6 @@
-import Testing
 import Foundation
 import MarkdownExt
+import Testing
 
 // DEP-03 parity lock (D-07, D-08, D-09, D-10). These fixtures freeze the intended `MarkdownUtil`
 // behavior. They were originally locked on the SwiftCommonMark-backed `CommonMarkExt.MarkdownUtil`

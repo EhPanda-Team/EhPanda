@@ -1,5 +1,5 @@
-import Testing
 import AppModels
+import Testing
 
 struct SettingPrivacyMaskTests {
     @Test

@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
 import Foundation
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 private let galleryHost: GalleryHost = .ehentai
 

@@ -1,7 +1,7 @@
+@testable import AppFeature
 import AppModels
 import Foundation
 import Testing
-@testable import AppFeature
 
 struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test

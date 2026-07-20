@@ -1,5 +1,5 @@
-import SwiftUI
 import AppModels
+import SwiftUI
 
 // MARK: Gesture
 extension ReadingView {

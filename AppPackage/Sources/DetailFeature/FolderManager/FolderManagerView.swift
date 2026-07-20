@@ -1,9 +1,9 @@
-import SwiftUI
+import AppComponents
+import ComposableArchitecture
 import Resources
 import SFSafeSymbols
-import ComposableArchitecture
-import AppComponents
 import SFSafeSymbolsExt
+import SwiftUI
 
 public struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>

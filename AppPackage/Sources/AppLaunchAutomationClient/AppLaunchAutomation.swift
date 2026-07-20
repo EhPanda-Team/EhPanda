@@ -1,6 +1,6 @@
+import AppModels
 import AppTools
 import Foundation
-import AppModels
 
 public struct AppLaunchAutomation: Sendable {
     public init(

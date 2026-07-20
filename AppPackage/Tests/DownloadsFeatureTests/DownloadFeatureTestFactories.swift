@@ -1,10 +1,10 @@
+@testable import AppFeature
+import AppLaunchAutomationClient
 import AppModels
-import Foundation
-import Testing
 import AppTools
 import DownloadClient
-import AppLaunchAutomationClient
-@testable import AppFeature
+import Foundation
+import Testing
 
 // MARK: - Sample Data Factories
 

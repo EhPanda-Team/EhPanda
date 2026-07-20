@@ -1,7 +1,7 @@
-import Testing
-import Foundation
 import CoreGraphics
+import Foundation
 @testable import GalleryListComponents
+import Testing
 
 // Wave-1 parity lock for DEP-04. These cases freeze the pure arithmetic of `MasonryLayout` — the
 // adaptive column-count rule (m=185, s=15, min-2), the degenerate-width clamp, the exact `cellWidth`

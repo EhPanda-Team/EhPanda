@@ -1,9 +1,9 @@
-import SwiftUI
-import Sharing
-import SFSafeSymbols
 import AppModels
 import Resources
+import SFSafeSymbols
 import SFSafeSymbolsExt
+import Sharing
+import SwiftUI
 
 public struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement

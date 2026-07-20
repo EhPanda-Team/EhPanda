@@ -1,5 +1,5 @@
-import OSLog
 import Foundation
+import OSLog
 
 private let logger = Logger(category: "ForceUnwrap")
 

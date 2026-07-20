@@ -1,14 +1,14 @@
-import AppTools
-import Foundation
-import AppModels
-import ComposableArchitecture
-import Testing
-import HapticsClient
-import DownloadClient
-import CookieClient
-import AppLaunchAutomationClient
-@testable import DetailFeature
 @testable import AppFeature
+import AppLaunchAutomationClient
+import AppModels
+import AppTools
+import ComposableArchitecture
+import CookieClient
+@testable import DetailFeature
+import DownloadClient
+import Foundation
+import HapticsClient
+import Testing
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied

@@ -1,6 +1,6 @@
 import AppModels
-import Foundation
 import AppTools
+import Foundation
 
 extension Request {
     /// Shared plumbing for the `gdata` API (`api.php` `method=gdata`): builds the POST body from a list

@@ -2,8 +2,8 @@ import AppModels
 import AppTools
 import Foundation
 import Kanna
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 request-layer lock for CONC-01 (D-05/D-06). These fixtures freeze routine request
 // assembly, parsing, retry scope, multi-step behavior, and AppError mapping before Combine is

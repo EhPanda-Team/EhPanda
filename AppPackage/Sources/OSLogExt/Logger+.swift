@@ -1,5 +1,5 @@
-@_exported import OSLog
 import AppTools
+@_exported import OSLog
 
 public extension Logger {
     init(moduleName: String, category: String) {

@@ -1,7 +1,7 @@
-import AppTools
-import Kanna
 import AppModels
+import AppTools
 import Foundation
+import Kanna
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity function_body_length

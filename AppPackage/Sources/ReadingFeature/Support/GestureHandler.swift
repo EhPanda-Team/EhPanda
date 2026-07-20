@@ -1,6 +1,6 @@
-import SwiftUI
 import AppModels
 import Observation
+import SwiftUI
 
 @Observable
 @MainActor

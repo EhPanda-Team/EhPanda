@@ -1,13 +1,13 @@
-import SwiftUI
-import SFSafeSymbols
 import AppModels
-import TagTranslationFeature
-import Resources
-import Kingfisher
-import Observation
 import AppTools
 import Dependencies
 import DeviceClient
+import Kingfisher
+import Observation
+import Resources
+import SFSafeSymbols
+import SwiftUI
+import TagTranslationFeature
 
 public struct TagSuggestionView: View {
     @Dependency(\.deviceClient) private var deviceClient

@@ -1,9 +1,9 @@
-import TestingSupport
-import Kanna
-import AppModels
-import Testing
-import ParserFeature
 @testable import AppFeature
+import AppModels
+import Kanna
+import ParserFeature
+import Testing
+import TestingSupport
 
 struct EhSettingParserTests: TestHelper {
     @Test

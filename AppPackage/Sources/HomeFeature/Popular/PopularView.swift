@@ -1,12 +1,12 @@
-import SwiftUI
-import AppModels
-import TagTranslationFeature
-import Resources
-import ComposableArchitecture
-import AppTools
 import AppComponents
-import GalleryListComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
 import FiltersFeature
+import GalleryListComponents
+import Resources
+import SwiftUI
+import TagTranslationFeature
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>

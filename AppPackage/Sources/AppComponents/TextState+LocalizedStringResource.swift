@@ -1,5 +1,5 @@
-import Foundation
 import ComposableArchitecture
+import Foundation
 
 public extension TextState {
     /// Builds a `TextState` from a `LocalizedStringResource`, resolving it eagerly the same way a

@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
 import Foundation
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 lock for the gdata transport and decode path. The caller-side 25-pair chunking policy is
 // intentionally outside this suite; these tests characterize one concrete gdata request offline.

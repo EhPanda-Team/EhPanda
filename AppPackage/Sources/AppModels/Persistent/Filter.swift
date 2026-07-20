@@ -1,5 +1,5 @@
-import SwiftUI
 import Resources
+import SwiftUI
 
 public struct Filter: Codable, Equatable, Sendable, SchemaVersioned {
     public init(

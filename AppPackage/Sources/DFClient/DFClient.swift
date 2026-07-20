@@ -1,6 +1,6 @@
+import ComposableArchitecture
 import Foundation
 import Kingfisher
-import ComposableArchitecture
 import NetworkingFeature
 
 public struct DFClient: Sendable {

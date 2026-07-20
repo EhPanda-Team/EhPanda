@@ -1,6 +1,6 @@
-import Testing
 import Foundation
 import OpenCC
+import Testing
 
 // DEP-01 parity for the de-vendored `OpenCC` package (EhPanda-Team/SwiftyOpenCC fork). These cases
 // prove the fork's converter actually opens its bundled `.ocd2` dictionaries and applies each

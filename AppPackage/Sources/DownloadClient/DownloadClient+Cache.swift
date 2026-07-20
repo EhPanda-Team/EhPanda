@@ -1,8 +1,8 @@
-import OSLogExt
-import Foundation
 import AppModels
 import AppTools
 import Dependencies
+import Foundation
+import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 

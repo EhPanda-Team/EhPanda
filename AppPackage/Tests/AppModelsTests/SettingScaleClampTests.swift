@@ -1,5 +1,5 @@
-import Testing
 import AppModels
+import Testing
 
 // V2-B / #9: `maximumScaleFactor` and `doubleTapScaleFactor` are mutually clamped in the `Setting`
 // model itself, so `doubleTapScaleFactor <= maximumScaleFactor` holds on every write path. The reader

@@ -1,5 +1,5 @@
-import Foundation
 import AppModels
+import Foundation
 
 #if DEBUG
 extension DownloadCoordinator {

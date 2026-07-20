@@ -1,7 +1,7 @@
+@testable import AppFeature
+import DownloadClient
 import Foundation
 import Testing
-import DownloadClient
-@testable import AppFeature
 
 struct DownloadBackgroundTaskStoreTests {
     @Test

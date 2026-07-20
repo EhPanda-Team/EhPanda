@@ -1,18 +1,18 @@
-import SwiftUI
-import Sharing
-import AppModels
-import OSLogExt
-import Observation
-import SFSafeSymbols
-import ComposableArchitecture
-import AppTools
 import AnimatedImageFeature
-import SystemNotification
 import AppComponents
-import SFSafeSymbolsExt
-import ReadingSettingFeature
+import AppModels
+import AppTools
+import ComposableArchitecture
 import Dependencies
 import DeviceClient
+import Observation
+import OSLogExt
+import ReadingSettingFeature
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import Sharing
+import SwiftUI
+import SystemNotification
 
 private let logger = Logger(category: .init(describing: ReadingView.self))
 

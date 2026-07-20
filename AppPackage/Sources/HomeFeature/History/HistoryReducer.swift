@@ -1,13 +1,13 @@
-import Foundation
-import AppModels
-import Sharing
-import Resources
-import ComposableArchitecture
-import AppTools
-import HapticsClient
-import DownloadClient
-import NetworkingFeature
 import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
+import DownloadClient
+import Foundation
+import HapticsClient
+import NetworkingFeature
+import Resources
+import Sharing
 
 @Reducer
 public struct HistoryReducer: Sendable {

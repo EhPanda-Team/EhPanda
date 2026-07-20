@@ -1,6 +1,6 @@
+@testable import AppModels
 import Foundation
 import Testing
-@testable import AppModels
 
 struct ErrorContextSanitizerTests {
     @Test(arguments: [

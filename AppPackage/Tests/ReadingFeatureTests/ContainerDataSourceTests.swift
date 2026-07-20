@@ -1,6 +1,6 @@
-import Testing
 import AppModels
 @testable import ReadingFeature
+import Testing
 
 // Wave-0 regression guard for DEP-05. Freezes `ReadingReducer.State.containerDataSource` — the
 // dual-page / cover-exception stack collapsing that produces the `[Int]` the pager pages over —

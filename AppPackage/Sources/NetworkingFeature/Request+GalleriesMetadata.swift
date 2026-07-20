@@ -1,6 +1,6 @@
 import AppModels
-import Foundation
 import AppTools
+import Foundation
 
 // MARK: Response types
 private struct GalleriesMetadataAPIResponse: Decodable {

@@ -2,9 +2,9 @@ import AppModels
 import ComposableArchitecture
 import CookieClient
 import Foundation
+@testable import SettingFeature
 import Sharing
 import Testing
-@testable import SettingFeature
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would

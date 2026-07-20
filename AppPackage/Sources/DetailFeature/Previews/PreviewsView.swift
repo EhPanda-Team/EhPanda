@@ -1,9 +1,9 @@
-import SwiftUI
-import AppModels
-import Resources
-import ComposableArchitecture
 import AppComponents
+import AppModels
+import ComposableArchitecture
 import ReadingFeature
+import Resources
+import SwiftUI
 
 struct PreviewsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass

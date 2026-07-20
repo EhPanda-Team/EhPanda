@@ -1,8 +1,8 @@
-import TestingSupport
-import Kanna
-import Testing
-import ParserFeature
 @testable import AppFeature
+import Kanna
+import ParserFeature
+import Testing
+import TestingSupport
 
 struct BanIntervalParserTests: TestHelper {
     @Test

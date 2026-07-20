@@ -1,5 +1,5 @@
-import Sharing
 import AppModels
+import Sharing
 
 // In-memory shared keys bridging the always-alive activity-logs pump (writer, owned by AppReducer)
 // to the read-only activity-logs screen (a Setting-stack path element). Domain-typed keys live in

@@ -1,5 +1,5 @@
-import SwiftUI
 import AppComponents
+import SwiftUI
 
 struct PostCommentView: View {
     private let title: LocalizedStringResource

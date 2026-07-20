@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
 import Foundation
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 request-layer lock for CONC-01 (D-05/D-06). Every request runs through a
 // token-isolated URLProtocol session, so these characterization tests never open a socket.

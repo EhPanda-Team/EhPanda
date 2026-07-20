@@ -1,6 +1,6 @@
+import AppModels
 import Foundation
 import Testing
-import AppModels
 
 // MARK: - MOCK migratable models — REMOVE when real v2 models land
 //

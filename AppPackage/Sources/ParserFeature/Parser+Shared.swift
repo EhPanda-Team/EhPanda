@@ -1,9 +1,9 @@
-import Kanna
 import AppModels
-import OSLogExt
-import Foundation
-import RegexBuilder
 import AppTools
+import Foundation
+import Kanna
+import OSLogExt
+import RegexBuilder
 
 private let logger = Logger(category: .init(describing: Parser.self))
 

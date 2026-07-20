@@ -1,8 +1,8 @@
-import SwiftUI
-import Resources
 import AppTools
 import Dependencies
 import HapticsClient
+import Resources
+import SwiftUI
 
 public struct SubSection<Content: View>: View {
     @Dependency(\.hapticsClient) private var hapticsClient

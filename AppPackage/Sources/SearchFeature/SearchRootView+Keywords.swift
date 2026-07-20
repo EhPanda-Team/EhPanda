@@ -1,9 +1,9 @@
-import SwiftUI
-import SFSafeSymbols
-import SFSafeSymbolsExt
 import Dependencies
 import DeviceClient
 import Resources
+import SFSafeSymbols
+import SFSafeSymbolsExt
+import SwiftUI
 
 // MARK: DoubleVerticalKeywordsStack
 struct DoubleVerticalKeywordsStack: View {

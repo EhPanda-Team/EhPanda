@@ -1,6 +1,6 @@
+import AppModels
 import AppTools
 import Kanna
-import AppModels
 import SwiftUI
 
 extension Parser {

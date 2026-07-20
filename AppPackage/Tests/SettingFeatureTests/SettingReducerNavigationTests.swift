@@ -1,14 +1,14 @@
-import Testing
-import Foundation
 import AppModels
-import Sharing
+import ComposableArchitecture
 import CookieClient
 import FileClient
+import Foundation
+import HapticsClient
 import LibraryClient
 import LogsClient
-import HapticsClient
 @testable import SettingFeature
-import ComposableArchitecture
+import Sharing
+import Testing
 
 // Covers the Setting tab's single flat navigation stack: root-row taps, child `delegate`-driven
 // pushes, and the post-login effect cascade that `SettingReducer` runs while the login screen

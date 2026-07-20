@@ -1,5 +1,5 @@
-import UIKit
 import SDWebImage
+import UIKit
 import UniformTypeIdentifiers
 
 private enum ImageDataSignature {
