@@ -15,6 +15,20 @@ private struct ResponseParsingError: Error {
     let responseError: AppError?
 }
 
+/// Re-parses UTF-8-repaired response bytes, or nil when the repair itself fails to parse.
+///
+/// Nil is the meaningful negative answer, not a swallowed error: the caller keeps the *original*
+/// parse failure and its response context, which is the diagnostic the user is shown. Surfacing
+/// the repair attempt's own error instead would replace that context with a strictly less useful
+/// one, so it is deliberately discarded here rather than logged.
+private func repairedHTMLDocument(from data: Data) -> HTMLDocument? {
+    do {
+        return try Kanna.HTML(html: data.utf8InvalidCharactersRipped, encoding: .utf8)
+    } catch {
+        return nil
+    }
+}
+
 extension Request {
 
     /// Fetches a request with the four-attempt policy formerly supplied by `retry(3)`.
@@ -72,11 +86,7 @@ extension Request {
         } catch {
             guard let parseError = error as? ParseError,
                   parseError == .EncodingMismatch,
-                  // A failed repair preserves the original parse failure and its response context.
-                  let htmlDocument = try? Kanna.HTML(
-                    html: data.utf8InvalidCharactersRipped,
-                    encoding: .utf8
-                  )
+                  let htmlDocument = repairedHTMLDocument(from: data)
             else {
                 let content = String(
                     data: data.utf8InvalidCharactersRipped,

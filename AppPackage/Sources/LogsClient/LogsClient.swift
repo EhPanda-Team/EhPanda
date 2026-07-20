@@ -59,8 +59,15 @@ extension LogsClient {
 
             if FileManager.default.fileExists(atPath: url.path) {
                 let handle = try FileHandle(forWritingTo: url)
-                // Closing is best-effort after the authoritative append operations finish.
-                defer { try? handle.close() }
+                // Closing is best-effort after the authoritative append operations finish,
+                // so a failure is logged rather than replacing the append's own outcome.
+                defer {
+                    do {
+                        try handle.close()
+                    } catch {
+                        logger.error("Failed to close the run-file handle: \(error)")
+                    }
+                }
                 try handle.seekToEnd()
                 try handle.write(contentsOf: payload)
             } else {
@@ -70,30 +77,26 @@ extension LogsClient {
         readRunFile: { url in
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
-            return data.split(separator: 0x0A).compactMap { line in
-                // A malformed line is intentionally skipped so the remaining run log stays readable.
-                try? decoder.decode(AppActivityLog.self, from: Data(line))
+            return data.split(separator: 0x0A).compactMap { line -> AppActivityLog? in
+                do {
+                    return try decoder.decode(AppActivityLog.self, from: Data(line))
+                } catch {
+                    // A malformed line is intentionally skipped so the remaining run log stays readable.
+                    return nil
+                }
             }
         },
         listRunFiles: {
             let directory = FileUtil.logsDirectoryURL
-            // An unavailable logs directory intentionally degrades to no persisted runs.
-            guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
-                return []
-            }
-            return names
+            return runLogFileNames(in: directory)
                 .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
                 // Newest first across days: counts reset daily, so order by day then count.
                 .sorted { $0.date != $1.date ? $0.date > $1.date : $0.runCount > $1.runCount }
         },
         nextRunCount: { date in
             let directory = FileUtil.logsDirectoryURL
-            // An unavailable logs directory intentionally falls back to the first run of the day.
-            guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
-                return 1
-            }
             let today = RunLogFile.dayString(for: date)
-            let todayCounts = names
+            let todayCounts = runLogFileNames(in: directory)
                 .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
                 .filter { RunLogFile.dayString(for: $0.date) == today }
                 .map(\.runCount)
@@ -105,6 +108,19 @@ extension LogsClient {
             )
         }
     )
+}
+
+/// The persisted run-log file names in `directory`, or none when the directory cannot be read.
+///
+/// An unavailable logs directory is the ordinary "nothing persisted yet" answer rather than an
+/// error, and no-names degrades identically for both callers: `listRunFiles` reports no runs, and
+/// `nextRunCount` finds no counts for the day and so falls back to the day's first run.
+private func runLogFileNames(in directory: URL) -> [String] {
+    do {
+        return try FileManager.default.contentsOfDirectory(atPath: directory.path)
+    } catch {
+        return []
+    }
 }
 
 // MARK: API

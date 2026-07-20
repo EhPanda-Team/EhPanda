@@ -53,12 +53,18 @@ public struct GalleryDetailRequest: Request {
                 let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
                 return (detail, state, try Parser.parseAPIKey(doc: $0))
             }
+            // Greeting is optional detail enrichment; failure keeps the required detail payload.
+            let greeting: Greeting?
+            do {
+                greeting = try Parser.parseGreeting(doc: document)
+            } catch {
+                greeting = nil
+            }
             return GalleryDetailResponse(
                 galleryDetail: detail,
                 galleryState: state,
                 apiKey: apiKey,
-                // Greeting is optional detail enrichment; failure keeps the required detail payload.
-                greeting: try? Parser.parseGreeting(doc: document)
+                greeting: greeting
             )
         } catch {
             throw mapAppError(error: error)
@@ -223,14 +229,16 @@ public struct GalleryArchiveRequest: Request {
             let document = try htmlDocument(data: data)
             let archive = try parseResponse(doc: document, Parser.parseGalleryArchive)
             // Funds are optional archive enrichment; failure keeps the required archive payload.
-            guard let (galleryPoints, credits) = try? Parser.parseCurrentFunds(doc: document) else {
+            do {
+                let (galleryPoints, credits) = try Parser.parseCurrentFunds(doc: document)
+                return GalleryArchiveResponse(
+                    archive: archive,
+                    galleryPoints: galleryPoints,
+                    credits: credits
+                )
+            } catch {
                 return GalleryArchiveResponse(archive: archive)
             }
-            return GalleryArchiveResponse(
-                archive: archive,
-                galleryPoints: galleryPoints,
-                credits: credits
-            )
         } catch {
             throw mapAppError(error: error)
         }
