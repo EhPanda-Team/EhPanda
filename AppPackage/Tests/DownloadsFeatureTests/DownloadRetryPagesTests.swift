@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {

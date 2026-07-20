@@ -13,7 +13,6 @@ import DeviceClient
 @testable import ReadingFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     @Test
     func testContainerDataSourceHandlesZeroPageGallery() {

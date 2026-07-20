@@ -13,7 +13,6 @@ import DeviceClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 @MainActor
 struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor

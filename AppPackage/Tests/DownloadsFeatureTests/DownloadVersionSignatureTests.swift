@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorReconcilePreservesIndexedFinalFolder() async throws {
