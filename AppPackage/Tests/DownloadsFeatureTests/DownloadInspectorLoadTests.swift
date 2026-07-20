@@ -7,7 +7,11 @@ import DownloadClient
 @testable import DownloadsFeature
 @testable import AppFeature
 
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -322,6 +326,7 @@ extension DownloadInspectorLoadTests {
 // MARK: - Store Factory Helpers
 
 private extension DownloadInspectorLoadTests {
+    @MainActor
     func makeInspectorStore(
         gid: String,
         initialInspection: DownloadInspection? = nil,
