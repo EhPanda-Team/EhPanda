@@ -6,6 +6,7 @@ import TagTranslationFeature
 import AppComponents
 import Kingfisher
 import AppTools
+import PreviewSupport
 
 public struct GalleryDetailCell: View {
     public enum CoverSource {
@@ -153,9 +154,9 @@ private let previewLongTitle =
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
 
 private extension Gallery {
-    static func previewFixture(title: String, rating: Float, pageCount: Int) -> Gallery {
+    static func previewFixture(identity: Int, title: String, rating: Float, pageCount: Int) -> Gallery {
         .init(
-            gid: UUID().uuidString,
+            gid: PreviewIdentifiers[identity].uuidString,
             token: "",
             title: title,
             rating: rating,
@@ -175,9 +176,9 @@ private extension Gallery {
 }
 
 #Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
-    GalleryDetailCell(gallery: .previewFixture(title: previewLongTitle, rating: 5, pageCount: 1234))
+    GalleryDetailCell(gallery: .previewFixture(identity: 2, title: previewLongTitle, rating: 5, pageCount: 1234))
 }
 
 #Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
-    GalleryDetailCell(gallery: .previewFixture(title: "Doujin", rating: 0, pageCount: 1))
+    GalleryDetailCell(gallery: .previewFixture(identity: 3, title: "Doujin", rating: 0, pageCount: 1))
 }
