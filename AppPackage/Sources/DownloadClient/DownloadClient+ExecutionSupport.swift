@@ -1,8 +1,11 @@
 import AppTools
+import OSLogExt
 import Foundation
 import AppModels
 import URLClient
 import NetworkingFeature
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Execution Support
 extension DownloadCoordinator {
@@ -270,7 +273,7 @@ extension DownloadCoordinator {
         case .initial:
             // Manifest decoding is a reuse probe; an unreadable manifest keeps the
             // existing folder so ensureWorkingManifest can replace it safely.
-            guard let manifest = try? storage.readManifest(folderURL: folderURL) else {
+            guard let manifest = storage.probeManifest(folderURL: folderURL) else {
                 return true
             }
             return manifest.gid == payload.gallery.gid
@@ -296,8 +299,12 @@ extension DownloadCoordinator {
         if !shouldReuse {
             // Removing a stale working folder is best-effort preparation; the
             // existence check below preserves the established reuse fallback.
-            try? fileManager.operate {
-                try $0.removeItem(at: folderURL)
+            do {
+                try fileManager.operate {
+                    try $0.removeItem(at: folderURL)
+                }
+            } catch {
+                logger.error("Stale working folder removal failed: \(error, privacy: .public)")
             }
         }
         if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
@@ -393,8 +400,7 @@ extension DownloadCoordinator {
               }),
               // Repair seeding is optional; an unreadable manifest leaves the current
               // working folder for ensureWorkingManifest to refresh instead.
-              let manifest = try? storage
-                .readManifest(folderURL: folderURL),
+              let manifest = storage.probeManifest(folderURL: folderURL),
               manifest.gid == download.gid,
               manifest.pageCount ==
                 payload.galleryDetail.pageCount
