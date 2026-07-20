@@ -233,9 +233,13 @@ extension DownloadCoordinator {
     public func removeStagedBackgroundFile(_ fileURL: URL) {
         // Staged-file removal is idempotent best-effort cleanup; download failure has
         // already been recorded and must not be replaced by a cleanup error.
-        try? fileManager.operate {
-            guard $0.fileExists(atPath: fileURL.path) else { return }
-            try $0.removeItem(at: fileURL)
+        do {
+            try fileManager.operate {
+                guard $0.fileExists(atPath: fileURL.path) else { return }
+                try $0.removeItem(at: fileURL)
+            }
+        } catch {
+            logger.error("Staged background file removal failed: \(error, privacy: .public)")
         }
     }
 }

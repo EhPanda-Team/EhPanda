@@ -597,7 +597,7 @@ public struct DownloadStore: Sendable {
     /// Closes a handle opened purely to read bytes. The read's own result or error stays
     /// primary — these calls sit in `defer`, after the value the caller wants is already
     /// produced — so an unexpected close failure is logged instead of replacing that result.
-    private func closeReadHandle(_ handle: FileHandle) {
+    func closeReadHandle(_ handle: FileHandle) {
         do {
             try handle.close()
         } catch {
