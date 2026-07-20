@@ -35,7 +35,7 @@ extension DownloadCoordinator {
         gid: String
     ) {
         failedPageErrors[gid] = Dictionary(
-            uniqueKeysWithValues: failures.map { ($0.index, $0) }
+            uniqueKeysWithValues: failures.map({ ($0.index, $0) })
         )
     }
 

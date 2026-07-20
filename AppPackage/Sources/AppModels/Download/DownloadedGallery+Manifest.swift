@@ -65,7 +65,7 @@ extension DownloadManifest {
     }
 
     public var completedPageCount: Int {
-        pages.values.filter { !$0.isEmpty }.count
+        pages.values.filter({ !$0.isEmpty }).count
     }
 
     public var isComplete: Bool {

@@ -422,7 +422,7 @@ public actor DownloadObserverHub {
         guard downloads != lastObservedDownloads else { return }
         lastObservedDownloads = downloads
         notifyGeneration += 1
-        observers.values.forEach { $0.yield(downloads) }
+        observers.values.forEach({ $0.yield(downloads) })
     }
 
     private func removeObserver(id: UUID) {

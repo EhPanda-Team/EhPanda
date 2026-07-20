@@ -27,7 +27,7 @@ public struct ErrorInfoView: View {
                 if let context = errorInfo.context, !context.isEmpty {
                     Section(.errorInfoContext) {
                         ForEach(
-                            context.sorted { $0.key.rawValue < $1.key.rawValue },
+                            context.sorted(by: { $0.key.rawValue < $1.key.rawValue }),
                             id: \.key
                         ) { key, value in
                             LabeledContent(key.rawValue, value: value.displayValue)

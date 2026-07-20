@@ -44,6 +44,6 @@ public struct DownloadInspection: Equatable, Sendable {
     public let pages: [DownloadPageInspection]
 
     public var failedPageIndices: [Int] {
-        pages.filter { $0.status == .failed }.map(\.index)
+        pages.filter({ $0.status == .failed }).map(\.index)
     }
 }

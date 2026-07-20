@@ -108,7 +108,7 @@ public struct DownloadInspectorReducer: Sendable {
                 return .run { [gid = state.gid] send in
                     var hadRelevantDownloads = false
                     for await downloads in downloadClient.observeDownloads() {
-                        let relevantDownloads = downloads.filter { $0.gid == gid }
+                        let relevantDownloads = downloads.filter({ $0.gid == gid })
                         let hasRelevantDownloads = !relevantDownloads.isEmpty
                         guard hasRelevantDownloads || hadRelevantDownloads else { continue }
                         hadRelevantDownloads = hasRelevantDownloads

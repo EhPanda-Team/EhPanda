@@ -69,11 +69,11 @@ extension DownloadCoordinator {
         downloads: [DownloadedGallery]
     ) -> DownloadedGallery? {
         let downloadsByGID = Dictionary(
-            uniqueKeysWithValues: downloads.map { ($0.gid, $0) }
+            uniqueKeysWithValues: downloads.map({ ($0.gid, $0) })
         )
         return orderedGIDs
-            .compactMap { downloadsByGID[$0] }
-            .first { isSchedulableDownload($0) }
+            .compactMap({ downloadsByGID[$0] })
+            .first(where: { isSchedulableDownload($0) })
     }
 
     private func nextUnqueuedSchedulableDownload(

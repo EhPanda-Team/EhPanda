@@ -52,7 +52,7 @@ extension DownloadCoordinator {
         guard hasLoadedIndex else { return [] }
         let gidSet = Set(gids)
         return await downloads(
-            from: downloadIndex.values.filter { gidSet.contains($0.manifest.gid) }
+            from: downloadIndex.values.filter({ gidSet.contains($0.manifest.gid) })
         )
     }
 

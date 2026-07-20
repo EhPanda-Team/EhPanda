@@ -15,8 +15,8 @@ extension DownloadedGallery {
             String(localized: category.value),
             tags.flatMap(\.contents).map(\.text).joined(separator: " ")
         ]
-        .compactMap { $0 }
-        .filter { !$0.isEmpty }
+        .compactMap({ $0 })
+        .filter({ !$0.isEmpty })
         .joined(separator: " ")
     }
 
@@ -103,7 +103,7 @@ extension DownloadedGallery {
 
 extension DownloadInspection {
     public var hasDownloadedPages: Bool {
-        pages.contains { $0.status == .downloaded }
+        pages.contains(where: { $0.status == .downloaded })
     }
 
     public var canRetryFailedPages: Bool {

@@ -91,14 +91,14 @@ extension ApplicationClient {
 @MainActor
 private func interfaceStyleWindow() -> UIWindow? {
     let keyWindow = UIApplication.shared.connectedScenes
-        .filter { $0.activationState == .foregroundActive }
-        .compactMap { $0 as? UIWindowScene }
+        .filter({ $0.activationState == .foregroundActive })
+        .compactMap({ $0 as? UIWindowScene })
         .last?
         .windows
         .filter(\.isKeyWindow)
         .last
     let anyWindow = UIApplication.shared.connectedScenes
-        .compactMap { $0 as? UIWindowScene }
+        .compactMap({ $0 as? UIWindowScene })
         .last?
         .windows
         .last

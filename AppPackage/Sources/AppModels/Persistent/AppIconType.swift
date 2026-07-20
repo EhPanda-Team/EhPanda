@@ -54,6 +54,6 @@ extension AppIconType {
     // back to `.default`. Callers handle the `nil` (primary-icon) case themselves. Shared by the Setting
     // tab's launch reconciliation and the App Icon screen's post-edit sync so both map identically.
     public static func matching(alternateIconName: String) -> AppIconType {
-        allCases.first { alternateIconName.contains($0.filename) } ?? .default
+        allCases.first(where: { alternateIconName.contains($0.filename) }) ?? .default
     }
 }

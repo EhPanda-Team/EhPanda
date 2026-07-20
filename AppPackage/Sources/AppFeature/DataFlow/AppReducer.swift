@@ -84,11 +84,11 @@ struct AppReducer {
 
                 switch scenePhase {
                 case .active:
-                    state.$privacyMaskBlur.withLock { $0 = 0 }
+                    state.$privacyMaskBlur.withLock({ $0 = 0 })
 
                 case .inactive:
                     let intensity = state.settingState.setting.privacyMaskIntensity
-                    state.$privacyMaskBlur.withLock { $0 = intensity }
+                    state.$privacyMaskBlur.withLock({ $0 = intensity })
 
                 case .background:
                     state.hasEnteredBackground = true

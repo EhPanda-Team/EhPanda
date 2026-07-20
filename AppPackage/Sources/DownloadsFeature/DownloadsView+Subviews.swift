@@ -48,7 +48,7 @@ struct DownloadInspectorView: View {
 
                         Section {
                             ForEach(DownloadPageStatus.inspectorSummaryOrder, id: \.self) { status in
-                                let pages = inspection.pages.filter { $0.status == status }
+                                let pages = inspection.pages.filter({ $0.status == status })
                                 DownloadInspectorPageGroupRow(
                                     status: status,
                                     pages: pages
@@ -305,9 +305,9 @@ private func previewInspection(
         ),
         pages: groups
             .flatMap { group in
-                group.pages.map { DownloadPageInspection(index: $0, status: group.status) }
+                group.pages.map({ DownloadPageInspection(index: $0, status: group.status) })
             }
-            .sorted { $0.index < $1.index }
+            .sorted(by: { $0.index < $1.index })
     )
 }
 

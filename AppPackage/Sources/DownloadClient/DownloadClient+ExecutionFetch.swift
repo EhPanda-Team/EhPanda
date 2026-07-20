@@ -148,7 +148,7 @@ extension DownloadCoordinator {
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {
         let validPageSelection = rawPageSelection?
-            .filter { (1...payload.galleryDetail.pageCount).contains($0) }
+            .filter({ (1...payload.galleryDetail.pageCount).contains($0) })
         let pageSelection = validPageSelection?.isEmpty == false && mode != .update
             ? validPageSelection
             : nil

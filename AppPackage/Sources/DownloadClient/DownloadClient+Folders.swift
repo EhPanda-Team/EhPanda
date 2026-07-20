@@ -94,7 +94,7 @@ extension DownloadCoordinator {
             return .failure(.notFound)
         }
         let containedRecords = downloadIndex.values
-            .filter { $0.parentFolderName == name }
+            .filter({ $0.parentFolderName == name })
         let containedGIDs = containedRecords.map(\.manifest.gid)
         for gid in containedGIDs {
             schedulingBlockedGalleryIDs.insert(gid)
@@ -204,7 +204,7 @@ extension DownloadCoordinator {
     private func renameUserFolder(oldName: String, newName: String) {
         userFolders.removeAll { $0 == oldName }
         insertUserFolder(newName)
-        let movedRecords = downloadIndex.values.filter { $0.parentFolderName == oldName }
+        let movedRecords = downloadIndex.values.filter({ $0.parentFolderName == oldName })
         for record in movedRecords {
             let destinationFolderURL = storage.userFolderURL(name: newName)
                 .appendingPathComponent(record.folderURL.lastPathComponent, isDirectory: true)
@@ -225,7 +225,7 @@ extension DownloadCoordinator {
     }
 
     private func reloadDownloadRecordIfPossible(gidInFolder folderName: String) async {
-        let records = downloadIndex.values.filter { $0.parentFolderName == folderName }
+        let records = downloadIndex.values.filter({ $0.parentFolderName == folderName })
         await reloadDownloadRecords(records)
     }
 

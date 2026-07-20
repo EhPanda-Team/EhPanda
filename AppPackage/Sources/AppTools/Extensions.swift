@@ -78,7 +78,7 @@ extension String {
     }
     public var emojisRipped: String {
         unicodeScalars
-            .filter { !$0.properties.isEmojiPresentation }
+            .filter({ !$0.properties.isEmojiPresentation })
             .reduce("") { $0 + .init($1) }
     }
 
