@@ -67,15 +67,15 @@ private extension Parser {
                   // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: gl2mNode) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                  let titleInfo = degrading("Gallery title", {
                       try parseGalleryTitle(node: gl3mNode)
                   })
             else { continue }
             galleries.append(
                 .init(
-                    gid: galleryURL.pathComponents[2],
-                    token: galleryURL.pathComponents[3],
-                    title: galleryTitle,
+                    gid: titleInfo.gid,
+                    token: titleInfo.token,
+                    title: titleInfo.title,
                     rating: panelInfo.rating,
                     tags: parsesTags ? tags : [],
                     category: panelInfo.category,
@@ -84,7 +84,7 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: titleInfo.url
                 )
             )
         }
@@ -99,15 +99,15 @@ private extension Parser {
                   // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: gl2cNode) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                  let titleInfo = degrading("Gallery title", {
                       try parseGalleryTitle(node: gl3cNode)
                   })
             else { continue }
             galleries.append(
                 .init(
-                    gid: galleryURL.pathComponents[2],
-                    token: galleryURL.pathComponents[3],
-                    title: galleryTitle,
+                    gid: titleInfo.gid,
+                    token: titleInfo.token,
+                    title: titleInfo.title,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
                     tags: degrading("Gallery tags", { try parseGalleryTags(node: gl3cNode) }) ?? [],
@@ -117,7 +117,7 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: titleInfo.url
                 )
             )
         }
@@ -132,15 +132,15 @@ private extension Parser {
                   // A malformed panel intentionally drops only this gallery row.
                   let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: link) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                  let titleInfo = degrading("Gallery title", {
                       try parseGalleryTitle(node: gl3eSiblingNode)
                   })
             else { continue }
             galleries.append(
                 .init(
-                    gid: galleryURL.pathComponents[2],
-                    token: galleryURL.pathComponents[3],
-                    title: galleryTitle,
+                    gid: titleInfo.gid,
+                    token: titleInfo.token,
+                    title: titleInfo.title,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
                     tags: degrading("Gallery tags", { try parseGalleryTags(node: gl3eSiblingNode) }) ?? [],
@@ -149,7 +149,7 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: titleInfo.url
                 )
             )
         }
@@ -163,15 +163,15 @@ private extension Parser {
             // A malformed panel intentionally drops only this gallery row.
             guard let panelInfo = degrading("Thumbnail panel", { try parseThumbnailPanel(node: link) }),
                   // A missing title intentionally drops only this gallery row.
-                  let (galleryTitle, galleryURL) = degrading("Gallery title", {
+                  let titleInfo = degrading("Gallery title", {
                       try parseGalleryTitle(node: link)
                   })
             else { continue }
             galleries.append(
                 .init(
-                    gid: galleryURL.pathComponents[2],
-                    token: galleryURL.pathComponents[3],
-                    title: galleryTitle,
+                    gid: titleInfo.gid,
+                    token: titleInfo.token,
+                    title: titleInfo.title,
                     rating: panelInfo.rating,
                     // Missing tags intentionally degrade to an empty tag list.
                     tags: degrading("Gallery tags", { try parseGalleryTags(node: gl6tNode) }) ?? [],
@@ -179,7 +179,7 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: titleInfo.url
                 )
             )
         }
@@ -214,7 +214,8 @@ private extension Parser {
                 tmpPublishedDate = date
             }
             if let components = div.text?.split(separator: " "), components.count == 2,
-               ["page", "pages"].contains(components[1]), let pageCount = Int(components[0]) {
+               let unit = components.last, ["page", "pages"].contains(unit),
+               let countText = components.first, let pageCount = Int(countText) {
                 tmpPageCount = pageCount
             }
             // Extended display mode uses this
@@ -242,16 +243,25 @@ private extension Parser {
         )
     }
 
-    static func parseGalleryTitle(node: XMLElement) throws -> (String, URL) {
-        func findTitle(glink: XMLElement) throws -> (String, URL) {
+    /// Extracts a gallery's title, URL and the two identifiers embedded in that URL.
+    ///
+    /// The identifiers are returned here rather than re-derived by each caller because this is the
+    /// only place the URL's shape is validated: a gallery URL is `/g/<gid>/<token>/`, so the two
+    /// identifiers are the third and fourth path components. Pulling them out of the same `guard`
+    /// that proves they exist keeps four call sites from indexing a scraped URL on trust.
+    static func parseGalleryTitle(node: XMLElement) throws -> GalleryTitleInfo {
+        func findTitle(glink: XMLElement) throws -> GalleryTitleInfo {
             guard let glinkParentNode = glink.parent,
                   let glinkGrandParentNode = glinkParentNode.parent,
                   let title = glink.text,
                   let urlString = glinkParentNode["href"] ?? glinkGrandParentNode["href"],
                   let url = URL(string: urlString),
-                  url.pathComponents.count >= 4
+                  // Skips the leading "/" and "g" components to reach <gid>/<token>.
+                  case let identifiers = url.pathComponents.dropFirst(2),
+                  let gid = identifiers.first,
+                  let token = identifiers.dropFirst().first
             else { throw AppError.parseFailed }
-            return (title, url)
+            return GalleryTitleInfo(title: title, url: url, gid: gid, token: token)
         }
 
         for glink in node.xpath("//div") where glink.className?.contains("glink") == true {
@@ -271,16 +281,21 @@ private extension Parser {
 
     static func parseGalleryTags(node: XMLElement?) throws -> [GalleryTag] {
         guard let node = node else { throw AppError.parseFailed }
-        var tags = [GalleryTag]()
+        // Tags arrive one per node and are grouped by namespace. `namespaceOrder` preserves the
+        // first-appearance order the rendered tag list depends on, which a bare dictionary loses.
+        var contentsByNamespace = [String: [GalleryTag.Content]]()
+        var namespaceOrder = [String]()
         for tagLink in node.xpath("//div")
         where ["gt", "gtl"].contains(tagLink.className) && tagLink["title"]?.isEmpty == false {
             guard let titleComponents = tagLink["title"]?.split(separator: ":"),
-                  titleComponents.count == 2
+                  titleComponents.count == 2,
+                  let rawNamespace = titleComponents.first,
+                  let rawContentText = titleComponents.last
             else { continue }
             var contentTextColor: Color?
             var contentBackgroundColor: Color?
-            let namespace = String(titleComponents[0])
-            let contentText = String(titleComponents[1])
+            let namespace = String(rawNamespace)
+            let contentText = String(rawContentText)
             if let style = tagLink["style"], let rangeB = style.range(of: ",#"),
                let rangeA = style.range(of: "background:radial-gradient(#") {
                 let hex = String(style[rangeA.upperBound..<rangeB.lowerBound])
@@ -295,27 +310,21 @@ private extension Parser {
                     }
                 }
             }
-            if let index = tags.firstIndex(where: { $0.rawNamespace == namespace }) {
-                let contents = tags[index].contents
-                let galleryTagContent = GalleryTag.Content(
-                    rawNamespace: namespace, text: contentText,
-                    isVotedUp: false, isVotedDown: false,
-                    textColor: contentTextColor,
-                    backgroundColor: contentBackgroundColor
-                )
-                let newContents = contents + [galleryTagContent]
-                tags[index] = .init(rawNamespace: namespace, contents: newContents)
-            } else {
-                let galleryTagContent = GalleryTag.Content(
-                    rawNamespace: namespace, text: contentText,
-                    isVotedUp: false, isVotedDown: false,
-                    textColor: contentTextColor,
-                    backgroundColor: contentBackgroundColor
-                )
-                tags.append(.init(rawNamespace: namespace, contents: [galleryTagContent]))
+            if contentsByNamespace[namespace] == nil {
+                namespaceOrder.append(namespace)
             }
+            contentsByNamespace[namespace, default: []].append(
+                GalleryTag.Content(
+                    rawNamespace: namespace, text: contentText,
+                    isVotedUp: false, isVotedDown: false,
+                    textColor: contentTextColor,
+                    backgroundColor: contentBackgroundColor
+                )
+            )
         }
-        return tags
+        return namespaceOrder.map {
+            GalleryTag(rawNamespace: $0, contents: contentsByNamespace[$0] ?? [])
+        }
     }
 
     static func parseUploader(node: XMLElement) throws -> String {
