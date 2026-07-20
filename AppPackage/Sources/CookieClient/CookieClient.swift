@@ -9,7 +9,9 @@ import Synchronization
 public struct CookieClient: Sendable {
     public let clearAll: @Sendable () -> Void
     /// One element per cookie-jar mutation notification; consumers re-read the jar on each.
-    public let cookiesDidChange: @Sendable () -> AsyncStream<Void>
+    /// A `var` (like `DownloadClient.observeDownloads`) so tests can substitute a hand-driven
+    /// stream and exercise subscriptions deterministically.
+    public var cookiesDidChange: @Sendable () -> AsyncStream<Void>
     public let getCookie: @Sendable (URL, String) -> CookieValue
     private let cookiesForURL: @Sendable (URL) -> [HTTPCookie]
     private let removeCookie: @Sendable (URL, String) -> Void

@@ -54,14 +54,14 @@ struct AccountSettingView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .privacyMask()
         }
-        .onAppear { store.send(.loadCookies) }
+        .onAppear { store.send(.onAppear) }
         .navigationTitle(.account)
     }
 }
 
 // MARK: AccountSection
 private struct AccountSection: View {
-    @Dependency(\.cookieClient) private var cookieClient
+    @SharedReader(.didLogin) private var didLogin: Bool
     @Binding private var showNewDawnGreeting: Bool
     private let bypassSNIFiltering: Bool
     private let loginAction: () -> Void
@@ -90,7 +90,7 @@ private struct AccountSection: View {
     }
 
     var body: some View {
-        if !cookieClient.didLogin {
+        if !didLogin {
             Button(.RLocalizable.login, action: loginAction)
         } else {
             Button(
