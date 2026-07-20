@@ -381,12 +381,17 @@ private struct SliderPreivew: View {
                         .font(horizontalSizeClass == .regular ? .callout : .caption)
                         .foregroundStyle(index == Int(sliderValue) ? Color.accentColor : Color.secondary)
                 }
-                .onAppear {
-                    if previewURLs[index] == nil && checkIndex(index) {
-                        fetchPreviewURLsAction(index)
-                    }
-                }
                 .opacity(checkIndex(index) ? 1 : 0)
+            }
+        }
+        // The window of slots is a pure function of `sliderValue` (and the size class / container
+        // size), so the set of indices needing a URL is a *value*, not an appearance event: this
+        // fires for the opening window via `initial: true` and again for every window the slider
+        // drags into. That is the same set the per-slot `.onAppear` used to cover, minus the
+        // dependency on when SwiftUI happens to build a slot.
+        .onChange(of: previewsIndices, initial: true) { _, indices in
+            for index in indices where previewURLs[index] == nil && checkIndex(index) {
+                fetchPreviewURLsAction(index)
             }
         }
         .opacity(showsSliderPreview ? 1 : 0)
@@ -405,9 +410,9 @@ private extension SliderPreivew {
         horizontalSizeClass == .regular ? isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
-        // Do NOT gate this on `previewURLs` being non-empty: the slots' `.onAppear` is what fires
-        // the first `fetchPreviewURLsAction`, so returning [] while empty deadlocks the tray (no
-        // slots → no onAppear → no fetch → stays blank forever). `checkIndex` handles the bounds.
+        // Do NOT gate this on `previewURLs` being non-empty: this window drives
+        // `fetchPreviewURLsAction`, so returning [] while empty deadlocks the tray (no indices →
+        // no fetch → stays blank forever). `checkIndex` handles the bounds.
         let currentIndex = Int(sliderValue)
         let distance = (previewsCount - 1) / 2
         let lowerBound = currentIndex - distance

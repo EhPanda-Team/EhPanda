@@ -174,7 +174,7 @@ public struct ReadingReducer: Sendable {
 
         case toggleShowsPanel
         case onPerformDismiss
-        case onAppear(String)
+        case onPresented
 
         case onWebImageRetry(Int)
         case onWebImageSucceeded(Int)

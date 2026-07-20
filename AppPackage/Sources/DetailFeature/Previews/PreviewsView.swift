@@ -56,10 +56,7 @@ struct PreviewsView: View {
         .fullScreenCover(
             item: $store.scope(\.$destination, action: \.destination).reading
         ) { store in
-            ReadingView(
-                store: store,
-                gid: store.gallery.id
-            )
+            ReadingView(store: store)
             .privacyMask()
         }
         // Paged lazy loading, driven by what is actually on screen rather than by each cell's

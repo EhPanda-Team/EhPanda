@@ -174,6 +174,15 @@ private extension DetailReducerObserveTests {
             guard gid == download.gid else { throw AppError.notFound }
             return (download, manifest)
         }
+        // A completed download has its pages on disk. Presenting the reader now runs its local-page
+        // load in the same transition, and that load falls back to `.remote` when it finds nothing —
+        // so a double that reports no files would contradict the completed download it hands out.
+        client.loadLocalPageURLs = { gid in
+            guard gid == download.gid else { return [:] }
+            return manifest.pages.keys.reduce(into: [Int: URL]()) { urls, page in
+                urls[page] = download.folderURL.appending(path: "\(page).jpg")
+            }
+        }
         return client
     }
 
@@ -190,6 +199,7 @@ private extension DetailReducerObserveTests {
         client.retry = { _, _ in }
         client.delete = { _ in }
         client.loadManifest = { _ in throw AppError.notFound }
+        client.loadLocalPageURLs = { _ in [:] }
         return client
     }
 }

@@ -297,7 +297,7 @@ public struct DownloadsReducer: Sendable {
                     readingState.language = .other
                 }
                 state.destination = .reading(readingState)
-                return .none
+                return .send(.destination(.presented(.reading(.onPresented))))
 
             case .toggleDownloadPause(let gid):
                 return .run { send in
