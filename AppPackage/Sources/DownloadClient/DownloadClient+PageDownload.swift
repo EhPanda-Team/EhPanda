@@ -1,5 +1,8 @@
+import OSLogExt
 import Foundation
 import AppModels
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Download Pages
 extension DownloadCoordinator {
@@ -187,16 +190,20 @@ extension DownloadCoordinator {
                 guard !control.wasCancelled, !control.didAbortForFatalError else { continue }
                 // This cadence flush is opportunistic; a later forced flush persists
                 // accumulated progress, so failure here must not abort page scheduling.
-                try? await flushDownloadProgress(
-                    context: .init(
-                        gid: payload.gallery.gid,
-                        folderURL: context.folderURL
-                    ),
-                    pendingResolvedPages:
-                        &progress.pendingResolvedPages,
-                    lastFlushDate: &progress.lastFlushDate,
-                    force: false
-                )
+                do {
+                    try await flushDownloadProgress(
+                        context: .init(
+                            gid: payload.gallery.gid,
+                            folderURL: context.folderURL
+                        ),
+                        pendingResolvedPages:
+                            &progress.pendingResolvedPages,
+                        lastFlushDate: &progress.lastFlushDate,
+                        force: false
+                    )
+                } catch {
+                    logger.error("Download progress cadence flush failed: \(error, privacy: .public)")
+                }
                 if let nextIndex = pendingIterator.next() {
                     addPageDownloadTask(
                         to: &group,
