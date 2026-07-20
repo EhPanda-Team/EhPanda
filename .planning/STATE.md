@@ -4,14 +4,14 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 10
 current_phase_name: ui-polish
-status: executing
-stopped_at: 10-12 automated gates green; awaiting owner D-03 sign-off (blocking checkpoint)
-last_updated: "2026-07-20T02:50:20.311Z"
-last_activity: 2026-07-16
-last_activity_desc: Phase 10 execution resumed (wave continue)
+status: verified
+stopped_at: Phase 10 UAT closed — gates re-verified at HEAD (503 tests green); D-03 items 1-4 owner-signed, criterion 5 descoped to Phase 15
+last_updated: "2026-07-20T21:20:00.000Z"
+last_activity: 2026-07-20
+last_activity_desc: Phase 10 UAT sign-off (10-UAT.md); suite re-run at HEAD after package-resolution repair
 progress:
   total_phases: 15
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 105
   completed_plans: 105
   percent: 60
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 
 ## Current Position
 
-Phase: 10 (ui-polish) — EXECUTING
+Phase: 10 (ui-polish) — VERIFIED
 Plan: 12 of 12
-Status: Ready to execute
-Last activity: 2026-07-16 — Phase 10 execution resumed (wave continue)
-Next: /gsd-plan-phase 12 (Cloudflare login restoration; sequenced after Phase 11)
+Status: UAT complete (10-UAT.md) — 2 automated pass, 4 owner-signed (not agent-verified), 1 descoped
+Last activity: 2026-07-20 — Phase 10 UAT sign-off
+Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
-Progress: [███████░░░] 69% (9/13 phases)
+Progress: [███████░░░] 67% (10/15 phases)
 
 ## Performance Metrics
 
