@@ -399,14 +399,16 @@ SWIFTLINT="$HOME/Library/Developer/Xcode/DerivedData/AppPackage-glhpivzptobywqas
 
 All other quantitative claims in this document were verified by running the pinned SwiftLint binary or by direct grep/read this session.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `optional_try` apply to test code (189 sites)?**
+All four questions were answered after this research session — see CONTEXT.md's post-research scope decisions (owner-answered 2026-07-20). Executors need not re-ask.
+
+1. **Does `optional_try` apply to test code (189 sites)?** — **RESOLVED by D-15:** yes, test code too; NO Tests path exclusion. All 316 sites (127 Sources + 189 Tests) are root-fixed or owner-reviewed; in Swift Testing most test `try?` sites become plain `try`.
    - What we know: test targets are lint-gated; CONTEXT counted only Sources; the draft subscript rule already models a Tests exclusion.
-   - Recommendation: exclude Tests/ paths from the `optional_try` custom rule (cleanup `try?` in `defer` is idiomatic test code); confirm with owner at plan checkpoint — it materially changes phase size (+189 refactors if included).
-2. **Owner exception批准 flow timing:** D-01 requires per-site owner review for every surviving `try?` (likely dozens across DownloadClient/AppTools probe sites Phase 9 already documented as intentional). Plans need explicit `checkpoint:human-verify`-style gates where exception batches are presented — per module, with the Phase 9 rationale comments as the request text.
-3. **Non-idempotent onAppear sites:** if the audit (Pitfall 4) finds any screen relying on re-fire-on-return, is once-per-presentation acceptable parity, or must the parent re-send on pop? Owner call, site-by-site.
-4. **ImageColors' 27 subscript hits:** precondition-wrapped exceptions in a ported algorithm vs. per-site guards — recommend a single owner decision for the module rather than 27 individual reviews.
+   - (Original recommendation to exclude Tests/ was overruled by the owner.)
+2. **Owner exception批准 flow timing** — **RESOLVED by CONTEXT's exception-review flow:** no mid-execution pauses or checkpoints. Executors write candidates in the D-02 form (`// reason: …` + `// swiftlint:disable:next`) as they arise; the owner reviews the full batch at phase-end verification (plan 11-29's `11-EXCEPTIONS.md`); unapproved entries get reworked, not shipped.
+3. **Non-idempotent onAppear sites** — **RESOLVED procedurally:** no upfront decision needed. Plans 11-07/11-08/11-10 flag any site that relied on re-fire-on-return in their SUMMARYs (fetch-if-empty-guarded sites are idempotent — parity holds); the owner reviews the flags site-by-site at phase-end verification.
+4. **ImageColors' 27 subscript hits** — **RESOLVED by D-16:** refactor to the checked idiom (D-08 safe idioms / precondition-checked subscripts); no module-level exception. The 3 parity fixtures must pass unchanged as the behavioral proof.
 
 ## Environment Availability
 

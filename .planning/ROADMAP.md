@@ -534,7 +534,7 @@ Plans:
   3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error. *(Amended per D-02: no **unapproved** disables — approved exceptions carry `// reason:` + `disable:next`, owner-reviewed at phase end.)*
   4. `.serialized` and `@MainActor` are removed from all tests unless a test has a real need to run on the main actor — each test's cross-test pollution is resolved by injecting the shared dependency (per-test instance, not `.serialized`) — and the full suite runs in parallel, on any thread.
 
-**Plans**: 29 plans (deliberately sequential waves — xcodebuild invocations must never overlap on this machine; each rule's config flip lands in the same commit as its last violation fix)
+**Plans**: 30 plans (deliberately sequential waves — xcodebuild invocations must never overlap on this machine; each rule's config flip lands in the same commit as its last violation fix)
 
 Plans:
 
@@ -559,7 +559,8 @@ Plans:
 - [ ] 11-19-PLAN.md — FileClient injectable-root seam + parallel FileClientTests (D-12)
 - [ ] 11-20-PLAN.md — Kingfisher cache seam + ImageClientTests trait + DidLoginKeyTests rationale (D-12/D-14)
 - [ ] 11-21-PLAN.md — DownloadsFeatureTests per-suite `.serialized` diagnosis + removal (D-12/D-14)
-- [ ] 11-22-PLAN.md — `@MainActor` sweep + full-suite parallel gate (D-13)
+- [ ] 11-22-PLAN.md — `@MainActor` sweep: DownloadsFeatureTests (27 files) (D-13)
+- [ ] 11-22.1-PLAN.md — `@MainActor` sweep: remaining targets + full-suite parallel gate (D-13)
 - [ ] 11-23-PLAN.md — Tests `try?`: DownloadsFeatureTests (D-15)
 - [ ] 11-24-PLAN.md — Tests `try?` tail + flip `optional_try` (no Tests exclusion, D-15)
 - [ ] 11-25-PLAN.md — `sorted_imports` autocorrect + flip + config hygiene
