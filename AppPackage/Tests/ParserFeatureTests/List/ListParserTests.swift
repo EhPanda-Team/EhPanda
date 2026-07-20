@@ -25,6 +25,37 @@ struct ListParserTests: TestHelper {
         }
     }
 
+    /// A page that yields no galleries and carries an error banner reports the banner's error rather
+    /// than rendering as a silent "no results" list.
+    @Test
+    func testUnparseableListWithErrorBannerThrows() throws {
+        let document = try Kanna.HTML(html: """
+        <html><body><div class="d"><p>Gallery not found.</p></div></body></html>
+        """, encoding: .utf8)
+
+        #expect(throws: AppError.notFound) {
+            try Parser.parseGalleries(doc: document)
+        }
+    }
+
+    /// A structurally valid list page that genuinely has zero rows still parses to an empty list —
+    /// only pages carrying an error banner throw.
+    @Test
+    func testValidEmptyListParsesToEmptyResult() throws {
+        let document = try Kanna.HTML(html: """
+        <html><body>
+        <div class="searchnav">
+          <select onchange="document.location='?inline_set=dm_c'">
+            <option value="1" selected="selected">Compact</option>
+          </select>
+        </div>
+        <table class="itg glte"></table>
+        </body></html>
+        """, encoding: .utf8)
+
+        #expect(try Parser.parseGalleries(doc: document).isEmpty)
+    }
+
     @Test
     func testDateSeekNavigation() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
