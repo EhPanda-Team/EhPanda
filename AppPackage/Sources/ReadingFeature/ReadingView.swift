@@ -199,8 +199,11 @@ public struct ReadingView: View {
         )
         return ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
-                ForEach(dataSource.indices, id: \.self) { position in
-                    imageStack(index: dataSource[position])
+                // `enumerated()` rather than indexing by position: `\.offset` is the identical
+                // 0-based position id the `indices` form produced, so the scroll ids are unchanged,
+                // and the page is read as an element instead of through an unguarded subscript.
+                ForEach(dataSource.enumerated(), id: \.offset) { _, page in
+                    imageStack(index: page)
                         .containerRelativeFrame(.horizontal)
                         // Pages re-normalize to LTR: `imageContainerConfigs` already swaps the
                         // spread order for RTL, so the environment flip on the ScrollView may
