@@ -237,10 +237,13 @@ struct CoverWallSection: View {
         if galleries.isEmpty {
             galleries = Gallery.mockGalleries(count: 25)
         }
-        if galleries.count % 2 != 0 { galleries = galleries.dropLast() }
-        return stride(from: 0, to: galleries.count, by: 2).map { index in
-            [galleries[index], galleries[index + 1]]
+        // Pairs in data order, dropping an odd trailing gallery: each stack shows two covers.
+        var remaining = galleries[...]
+        var pairs: [[Gallery]] = []
+        while let upper = remaining.popFirst(), let lower = remaining.popFirst() {
+            pairs.append([upper, lower])
         }
+        return pairs
     }
 
     var body: some View {
@@ -392,15 +395,15 @@ struct VerticalToplistsStack: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            ForEach(0..<galleries.count, id: \.self) { index in
+            ForEach(galleries.enumerated(), id: \.offset) { offset, gallery in
                 VStack(spacing: 10) {
                     Button {
-                        navigateAction(galleries[index])
+                        navigateAction(gallery)
                     } label: {
-                        GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
+                        GalleryRankingCell(gallery: gallery, ranking: startRanking + offset)
                             .tint(.primary).multilineTextAlignment(.leading)
                     }
-                    Divider().opacity(index == galleries.count - 1 ? 0 : 1)
+                    Divider().opacity(offset == galleries.count - 1 ? 0 : 1)
                 }
             }
         }

@@ -116,21 +116,22 @@ extension Data {
     private var isAnimatedGIFFormat: Bool {
         guard isGIFFormat else { return false }
         return withUnsafeBytes { bytes in
-            guard bytes.count >= 13 else { return false }
+            guard bytes.count >= 13, let screenDescriptor = Self.byte(bytes, at: 10) else { return false }
 
             var offset = 13
-            if bytes[10] & 0x80 != 0 {
-                offset += Self.colorTableByteCount(packedField: bytes[10])
+            if screenDescriptor & 0x80 != 0 {
+                offset += Self.colorTableByteCount(packedField: screenDescriptor)
             }
 
             var imageCount = 0
-            while offset < bytes.count {
-                switch bytes[offset] {
+            while let blockLabel = Self.byte(bytes, at: offset) {
+                switch blockLabel {
                 case 0x2C:
                     imageCount += 1
                     guard imageCount <= 1 else { return true }
-                    guard offset + 10 <= bytes.count else { return false }
-                    let packedField = bytes[offset + 9]
+                    guard offset + 10 <= bytes.count,
+                          let packedField = Self.byte(bytes, at: offset + 9)
+                    else { return false }
                     offset += 10
                     if packedField & 0x80 != 0 {
                         offset += Self.colorTableByteCount(packedField: packedField)
@@ -182,9 +183,17 @@ extension Data {
         3 * (1 << Int((packedField & 0x07) + 1))
     }
 
+    /// The byte at `offset`, or `nil` when it lies outside the buffer.
+    ///
+    /// Every read below comes from a length field or a walk cursor in untrusted image data, so the
+    /// bounds check belongs at the read rather than at each caller, where it is easy to omit.
+    private static func byte(_ bytes: UnsafeRawBufferPointer, at offset: Int) -> UInt8? {
+        guard bytes.indices.contains(offset) else { return nil }
+        return bytes.load(fromByteOffset: offset, as: UInt8.self)
+    }
+
     private static func skipGIFSubBlocks(_ bytes: UnsafeRawBufferPointer, offset: inout Int) -> Bool {
-        while offset < bytes.count {
-            let blockSize = Int(bytes[offset])
+        while let blockSize = byte(bytes, at: offset).map(Int.init) {
             offset += 1
             guard blockSize > 0 else { return true }
             guard offset + blockSize <= bytes.count else { return false }
@@ -195,26 +204,17 @@ extension Data {
 
     private static func matches(_ expected: [UInt8], in bytes: UnsafeRawBufferPointer, at offset: Int) -> Bool {
         guard offset >= 0, offset + expected.count <= bytes.count else { return false }
-        for index in expected.indices where bytes[offset + index] != expected[index] {
-            return false
-        }
-        return true
+        return bytes[offset..<offset + expected.count].elementsEqual(expected)
     }
 
     private static func littleEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
-        guard offset + 4 <= bytes.count else { return 0 }
-        return UInt32(bytes[offset])
-            | UInt32(bytes[offset + 1]) << 8
-            | UInt32(bytes[offset + 2]) << 16
-            | UInt32(bytes[offset + 3]) << 24
+        guard offset >= 0, offset + 4 <= bytes.count else { return 0 }
+        return UInt32(littleEndian: bytes.loadUnaligned(fromByteOffset: offset, as: UInt32.self))
     }
 
     private static func bigEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
-        guard offset + 4 <= bytes.count else { return 0 }
-        return UInt32(bytes[offset]) << 24
-            | UInt32(bytes[offset + 1]) << 16
-            | UInt32(bytes[offset + 2]) << 8
-            | UInt32(bytes[offset + 3])
+        guard offset >= 0, offset + 4 <= bytes.count else { return 0 }
+        return UInt32(bigEndian: bytes.loadUnaligned(fromByteOffset: offset, as: UInt32.self))
     }
 }
 
