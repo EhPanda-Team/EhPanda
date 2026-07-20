@@ -97,14 +97,21 @@ struct ExcludedLanguagesSection: View {
     private var languageBindings: [Binding<Bool>] {
         $ehSetting.excludedLanguages.map({ $0 })
     }
-    private func rowBindings(index: Int) -> [Binding<Bool>] {
-        [-1, 0, 1].map { num in
-            let index = index * 3 + num
-            if index != -1 {
-                return languageBindings[index]
-            } else {
-                return .constant(false)
-            }
+
+    /// One row per language, three toggle cells wide (original / translated / rewrite).
+    ///
+    /// The grid's very first cell is a placeholder — the toggle list starts one slot in, so the
+    /// first row carries two real toggles and every later row carries three. Consuming the
+    /// bindings through a shrinking slice keeps that offset out of the row arithmetic, and a
+    /// short `excludedLanguages` (a settings page that parsed light) simply yields empty
+    /// trailing cells instead of an out-of-range read.
+    private var rows: [(title: LocalizedStringResource, bindings: [Binding<Bool>])] {
+        var remaining = languageBindings[...]
+        return languages.enumerated().map { offset, title in
+            let leading: [Binding<Bool>] = offset == 0 ? [.constant(false)] : []
+            let cells = remaining.prefix(3 - leading.count)
+            remaining = remaining.dropFirst(cells.count)
+            return (title, leading + cells)
         }
     }
 
@@ -128,12 +135,8 @@ struct ExcludedLanguagesSection: View {
                 }
             }
 
-            ForEach(0..<(languageBindings.count / 3) + 1, id: \.self) { index in
-                ExcludeRow(
-                    title: languages[index],
-                    bindings: rowBindings(index: index),
-                    isFirstRow: index == 0
-                )
+            ForEach(rows.enumerated(), id: \.offset) { offset, row in
+                ExcludeRow(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
             }
         } header: {
             Text.ehSettingBoldHeader(
@@ -156,9 +159,8 @@ struct ExcludeRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
 
-            ForEach(0..<bindings.count, id: \.self) { index in
-                let shouldHide = isFirstRow && index == 0
-                ExcludeToggle(isOn: bindings[index]).opacity(shouldHide ? 0 : 1)
+            ForEach(bindings.enumerated(), id: \.offset) { offset, binding in
+                ExcludeToggle(isOn: binding).opacity(isFirstRow && offset == 0 ? 0 : 1)
             }
         }
     }

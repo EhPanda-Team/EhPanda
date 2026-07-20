@@ -175,10 +175,10 @@ final class TagTranslationHandler {
 
         if let colon = keyword.firstIndex(of: ":") {
             let key = String(keyword[keyword.startIndex..<colon])
-            if let index = namespaceAbbreviations.firstIndex(where: {
+            if let match = namespaceAbbreviations.first(where: {
                 $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
             }) {
-                namespace = namespaceAbbreviations[index].key
+                namespace = match.key
                 keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
             }
         }
