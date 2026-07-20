@@ -372,16 +372,16 @@ private struct SliderPreivew: View {
 
     var body: some View {
         HStack(spacing: previewSpacing) {
-            ForEach(previewsIndices, id: \.self) { index in
+            ForEach(previewsIndices, id: \.self) { page in
                 VStack {
-                    PreviewImageView(originalURL: previewURLs[index])
+                    PreviewImageView(originalURL: previewURLs[page])
                         .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
 
-                    Text(index, format: .number)
+                    Text(page, format: .number)
                         .font(horizontalSizeClass == .regular ? .callout : .caption)
-                        .foregroundStyle(index == Int(sliderValue) ? Color.accentColor : Color.secondary)
+                        .foregroundStyle(page == Int(sliderValue) ? Color.accentColor : Color.secondary)
                 }
-                .opacity(checkIndex(index) ? 1 : 0)
+                .opacity(checkIndex(page) ? 1 : 0)
             }
         }
         // The window of slots is a pure function of `sliderValue` (and the size class / container
@@ -389,9 +389,9 @@ private struct SliderPreivew: View {
         // fires for the opening window via `initial: true` and again for every window the slider
         // drags into. That is the same set the per-slot `.onAppear` used to cover, minus the
         // dependency on when SwiftUI happens to build a slot.
-        .onChange(of: previewsIndices, initial: true) { _, indices in
-            for index in indices where previewURLs[index] == nil && checkIndex(index) {
-                fetchPreviewURLsAction(index)
+        .onChange(of: previewsIndices, initial: true) { _, pages in
+            for page in pages where previewURLs[page] == nil && checkIndex(page) {
+                fetchPreviewURLsAction(page)
             }
         }
         .opacity(showsSliderPreview ? 1 : 0)

@@ -42,9 +42,9 @@ final class LiveTextHandler {
         focusedLiveTextGroup = group
     }
 
-    func analyzeImage(_ cgImage: CGImage, size: CGSize, index: Int, recognitionLanguages: [String]?) {
-        analysisTasks[index]?.cancel()
-        analysisTasks[index] = Task { [weak self] in
+    func analyzeImage(_ cgImage: CGImage, size: CGSize, page: Int, recognitionLanguages: [String]?) {
+        analysisTasks[page]?.cancel()
+        analysisTasks[page] = Task { [weak self] in
             do {
                 let groups = try await Self.recognizeTextGroups(
                     in: cgImage,
@@ -52,10 +52,10 @@ final class LiveTextHandler {
                     recognitionLanguages: recognitionLanguages
                 )
                 guard !Task.isCancelled else { return }
-                self?.liveTextGroups[index] = groups
+                self?.liveTextGroups[page] = groups
             } catch is CancellationError {
             } catch {
-                logger.error("Live Text failed, index \(index, privacy: .public): \(error, privacy: .public)")
+                logger.error("Live Text failed, page \(page, privacy: .public): \(error, privacy: .public)")
             }
         }
     }
