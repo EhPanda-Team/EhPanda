@@ -627,7 +627,7 @@ Plans:
 
 **Wave 23** *(blocked on Wave 22 completion)*
 
-- [ ] 11-22.1-PLAN.md — `@MainActor` sweep: remaining targets + full-suite parallel gate (D-13)
+- [x] 11-22.1-PLAN.md — `@MainActor` sweep: remaining targets + full-suite parallel gate (D-13)
 
 **Wave 24** *(blocked on Wave 23 completion)*
 

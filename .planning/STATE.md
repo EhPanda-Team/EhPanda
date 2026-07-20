@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-22-PLAN.md
-last_updated: "2026-07-20T22:54:49.779Z"
+stopped_at: Completed 11-22.1-PLAN.md
+last_updated: "2026-07-20T23:17:01.800Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 23 of 30
+Plan: 24 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -188,6 +188,7 @@ Progress: [█████████░] 94% (10/15 phases)
 | Phase 11 P20 | ~35 min | 2 tasks | 6 files |
 | Phase 11 P21 | ~50 min | 2 tasks | 41 files |
 | Phase 11 P22 | ~35 min | 1 tasks | 26 files |
+| Phase 11 P22.1 | 50 | 2 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -394,6 +395,8 @@ Recent decisions affecting current work:
 - [Phase ?]: DownloadCoordinator gained an injectable clock (now:, defaults to Date()) so the progress-flush throttle's wall-clock branch can be frozen off in tests
 - [Phase ?]: TCA TestStore is main-actor-bound; 85/104 DownloadsFeatureTests cases legitimately require @MainActor — the sweep's ceiling is the library, not annotation hygiene
 - [Phase ?]: Annotate members, never the suite type: a @MainActor type carries a main-actor protocol conformance that @Sendable dependency closures cannot call
+- [Phase ?]: Test plan gap: EhPanda scheme silently skipped CookieClientTests, ImageClientTests and ReadingFeatureTests; added (523 -> 565 tests)
+- [Phase ?]: ImageClientTests needs no @MainActor: UIGraphicsImageRenderer/UIImage fixture rendering is not main-actor-bound; all 9 cases freed
 
 ### Pending Todos
 
@@ -435,6 +438,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T22:54:42.036Z
-Stopped at: Completed 11-22-PLAN.md
+Last session: 2026-07-20T23:17:01.794Z
+Stopped at: Completed 11-22.1-PLAN.md
 Resume file: None
