@@ -11,6 +11,14 @@ extension Parser {
         public let uploader: String?
     }
 
+    /// A gallery's title link, carrying the identifiers already extracted from its URL.
+    struct GalleryTitleInfo {
+        let title: String
+        let url: URL
+        let gid: String
+        let token: String
+    }
+
     public struct GalleryNormalImageInfo {
         public let index: Int
         public let imageURL: URL
