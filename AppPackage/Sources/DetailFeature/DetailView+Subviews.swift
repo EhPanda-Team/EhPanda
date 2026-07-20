@@ -121,6 +121,16 @@ extension DescriptionSection {
     }
 }
 
+// Section-scoped previews: the full DetailView preview pays the NavigationStack + ScrollView
+// scaffolding cost on every canvas update, so iterate on a single section here instead.
+#Preview("Description") {
+    DescriptionSection(
+        gallery: .preview,
+        galleryDetail: .preview,
+        navigateGalleryInfosAction: {}
+    )
+}
+
 // MARK: ActionSection
 struct ActionSection: View {
     @SharedReader(.didLogin) private var didLogin: Bool
@@ -176,6 +186,34 @@ struct ActionSection: View {
             }
         }
         .padding(.horizontal)
+    }
+}
+
+@MainActor private func previewActionSection(userRating: Int, showUserRating: Bool) -> some View {
+    ActionSection(
+        galleryDetail: .preview,
+        userRating: userRating,
+        showUserRating: showUserRating,
+        showUserRatingAction: {},
+        updateRatingAction: { _ in },
+        confirmRatingAction: { _ in },
+        navigateSimilarGalleryAction: {}
+    )
+}
+
+#Preview("Actions") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(userRating: 0, showUserRating: false)
+    }
+}
+
+#Preview("Actions (rating shown)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(userRating: 7, showUserRating: true)
     }
 }
 
@@ -298,6 +336,31 @@ extension TagsSection {
     }
 }
 
+// `translateAction` returns the word unchanged: previewing the tag layout does not need a
+// populated TagTranslator, and returning no translation keeps the rows on their raw text.
+#Preview("Tags") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        TagsSection(
+            tags: [
+                .init(rawNamespace: "language", contents: [
+                    .init(rawNamespace: "language", text: "japanese", isVotedUp: false, isVotedDown: false),
+                    .init(rawNamespace: "language", text: "translated", isVotedUp: true, isVotedDown: false)
+                ]),
+                .init(rawNamespace: "artist", contents: [
+                    .init(rawNamespace: "artist", text: "Anonymous", isVotedUp: false, isVotedDown: false)
+                ])
+            ],
+            showsImages: false,
+            voteTagAction: { _, _ in },
+            navigateSearchAction: { _ in },
+            navigateTagDetailAction: { _ in },
+            translateAction: { ($0, nil) }
+        )
+    }
+}
+
 // MARK: PreviewsSection
 struct PreviewsSection: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -334,6 +397,16 @@ struct PreviewsSection: View {
     }
 }
 
+// The thumbnails are remote, so the canvas shows placeholders — this previews the row layout.
+#Preview("Previews row") {
+    PreviewsSection(
+        pageCount: 114,
+        previewURLs: [0: .mock, 1: .mock, 2: .mock, 3: .mock],
+        navigatePreviewsAction: {},
+        navigateReadingAction: { _ in }
+    )
+}
+
 // MARK: CommentsSection
 struct CommentsSection: View {
     @SharedReader(.didLogin) private var didLogin: Bool
@@ -361,5 +434,49 @@ struct CommentsSection: View {
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
                 .padding(.horizontal).disabled(!didLogin)
         }
+    }
+}
+
+private func previewComment(
+    id: String, author: String, score: String, votedUp: Bool, text: String
+) -> GalleryComment {
+    .init(
+        votedUp: votedUp, votedDown: false, votable: true, editable: false,
+        score: score, author: author,
+        contents: [.init(type: .plainText, text: text)],
+        commentID: id, commentDate: .now
+    )
+}
+
+#Preview("Comments") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        CommentsSection(
+            comments: [
+                previewComment(
+                    id: "0", author: "Nreo", score: "+15", votedUp: false,
+                    text: "Thanks for the upload, great quality scans!"
+                ),
+                previewComment(
+                    id: "1", author: "Chihchy", score: "+42", votedUp: true,
+                    text: "Agreed. The later pages look excellent."
+                )
+            ],
+            navigateCommentAction: {},
+            navigatePostCommentAction: {}
+        )
+    }
+}
+
+#Preview("Comments (empty)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        CommentsSection(
+            comments: [],
+            navigateCommentAction: {},
+            navigatePostCommentAction: {}
+        )
     }
 }

@@ -375,3 +375,68 @@ extension HeaderSection {
         }
     }
 }
+
+// MARK: HeaderSection Previews
+// Section-scoped previews: the full DetailView preview pays the NavigationStack + ScrollView
+// scaffolding cost on every canvas update, so iterate on a single section here instead.
+@MainActor private func previewHeaderSection(
+    downloadBadge: DownloadBadge? = nil,
+    downloadNeedsRepair: Bool = false
+) -> some View {
+    HeaderSection(
+        gallery: .preview,
+        galleryDetail: .preview,
+        downloadBadge: downloadBadge,
+        downloadNeedsRepair: downloadNeedsRepair,
+        downloadFolders: ["Default", "Favorites"],
+        isPreparingDownload: false,
+        canDownload: true,
+        displayJapaneseTitle: false,
+        showFullTitle: false,
+        showFullTitleAction: {},
+        downloadAction: {},
+        downloadToFolderAction: { _ in },
+        manageFoldersAction: {},
+        createDefaultFolderAction: {},
+        favorAction: { _ in },
+        unfavorAction: {},
+        navigateReadingAction: {},
+        navigateUploaderAction: {}
+    )
+    .padding(.horizontal)
+}
+
+#Preview("Idle") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection()
+    }
+}
+
+#Preview("Downloading") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(
+            downloadBadge: .init(
+                status: .active,
+                progress: .init(completedPageCount: 47, pageCount: 114)
+            )
+        )
+    }
+}
+
+#Preview("Needs repair") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(
+            downloadBadge: .init(
+                status: .error,
+                progress: .init(completedPageCount: 12, pageCount: 114)
+            ),
+            downloadNeedsRepair: true
+        )
+    }
+}
