@@ -145,7 +145,9 @@ public struct DownloadsReducer: Sendable {
 
             case .folderManagerButtonTapped:
                 state.destination = .folderManager(.init())
-                return .none
+                // Presenting the sheet is what loads its folders, replacing the sheet view's former
+                // `onAppear` (the view is shared with DetailFeature, which does the same).
+                return .send(.destination(.presented(.folderManager(.fetchFolders))))
 
             case .deleteDownloadButtonTapped(let download):
                 state.alert = AppAlertState {

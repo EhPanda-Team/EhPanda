@@ -26,14 +26,15 @@ struct CommentsReducerTests {
             $0.destination = .postComment("42")
         }
 
+        // Presenting also focuses the editor once the sheet has animated in — the reducer-side
+        // replacement for the editor's former `onAppear`.
+        await store.receive(\.setPostCommentFocused, timeout: .seconds(2)) {
+            $0.postCommentFocused = true
+        }
+
         // Dismissing (Cancel or swipe-down) intentionally leaves the compose state untouched.
         await store.send(.destination(.dismiss)) {
             $0.destination = nil
-        }
-
-        // Mimic the focus the editor's onAppear would have set.
-        await store.send(.setPostCommentFocused(true)) {
-            $0.postCommentFocused = true
         }
 
         // Opening a new comment clears the stale text and focus on present.
@@ -41,6 +42,9 @@ struct CommentsReducerTests {
             $0.commentContent = ""
             $0.postCommentFocused = false
             $0.destination = .postComment("")
+        }
+        await store.receive(\.setPostCommentFocused, timeout: .seconds(2)) {
+            $0.postCommentFocused = true
         }
     }
 }

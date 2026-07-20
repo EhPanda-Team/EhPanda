@@ -72,8 +72,7 @@ public struct CommentsReducer: Sendable {
         case performScrollOpacityEffect
         case handleCommentLink(URL)
         case handleGalleryLink(url: URL, gallery: Gallery)
-        case onPostCommentAppear
-        case onAppear
+        case onPresented
 
         case updateReadingProgress(gid: String, token: String, progress: Int)
 
@@ -113,7 +112,13 @@ public struct CommentsReducer: Sendable {
                 state.commentContent = content ?? ""
                 state.postCommentFocused = false
                 state.destination = .postComment(commentID)
-                return .none
+                // Presenting the editor is what focuses it. The delay lets the sheet finish its
+                // presentation animation before the keyboard is raised, which is what the editor's
+                // former `onAppear` hook waited for.
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(750))
+                    await send(.setPostCommentFocused(true))
+                }
 
             case .clearScrollCommentID:
                 state.scrollCommentID = nil
@@ -170,13 +175,9 @@ public struct CommentsReducer: Sendable {
                 effects.append(.send(.delegate(.pushDetail(gallery: gallery, deepLink: deepLink))))
                 return .merge(effects)
 
-            case .onPostCommentAppear:
-                return .run { send in
-                    try await Task.sleep(for: .milliseconds(750))
-                    await send(.setPostCommentFocused(true))
-                }
-
-            case .onAppear:
+            // Presentation-driven lifecycle: the host sends this in the state transition that
+            // pushes this screen, replacing the former view `onAppear`.
+            case .onPresented:
                 return state.scrollCommentID != nil ? .send(.performScrollOpacityEffect) : .none
 
             case let .updateReadingProgress(gid, token, progress):
