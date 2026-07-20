@@ -1,8 +1,11 @@
+import OSLogExt
 import Foundation
 import AppModels
 import Resources
 import CryptoKit
 import AppTools
+
+private let logger = Logger(category: .init(describing: DownloadStore.self))
 
 public enum DownloadValidationState: Equatable, Sendable {
     case valid
@@ -74,8 +77,12 @@ public struct DownloadStore: Sendable {
         var resourceValues = URLResourceValues()
         resourceValues.isExcludedFromBackup = true
         var mutableRootURL = rootURL
-        // Backup exclusion is advisory metadata; directory creation remains successful if the OS rejects it.
-        try? mutableRootURL.setResourceValues(resourceValues)
+        do {
+            try mutableRootURL.setResourceValues(resourceValues)
+        } catch {
+            // Backup exclusion is advisory metadata; directory creation remains successful if the OS rejects it.
+            logger.error("Download root backup exclusion failed: \(error, privacy: .public)")
+        }
     }
 
     public func folderURL(relativePath: String) -> URL {
@@ -138,10 +145,14 @@ public struct DownloadStore: Sendable {
     /// recreates the directory on the next stage.
     public func purgeBackgroundTransferHoldingDirectory() {
         let holdingDirectory = backgroundTransferHoldingDirectoryURL()
-        // Launch cleanup is best-effort; a later staging pass recreates or reuses the hidden directory safely.
-        try? fileManager.operate {
-            guard $0.fileExists(atPath: holdingDirectory.path) else { return }
-            try $0.removeItem(at: holdingDirectory)
+        do {
+            try fileManager.operate {
+                guard $0.fileExists(atPath: holdingDirectory.path) else { return }
+                try $0.removeItem(at: holdingDirectory)
+            }
+        } catch {
+            // Launch cleanup is best-effort; a later staging pass recreates or reuses the directory safely.
+            logger.error("Background holding directory purge failed: \(error, privacy: .public)")
         }
     }
 
@@ -220,7 +231,7 @@ public struct DownloadStore: Sendable {
                     return true
                 }
                 // A manifest read is an identity probe here; unreadable unrelated folders are not gallery matches.
-                guard let manifest = try? readManifest(folderURL: folderURL) else {
+                guard let manifest = probeManifest(folderURL: folderURL) else {
                     return false
                 }
                 return manifest.gid == gid && manifest.token == token
@@ -230,7 +241,7 @@ public struct DownloadStore: Sendable {
     public func galleryFolderRecords(gid: String, token: String) -> [DownloadFolderRecord] {
         galleryFolderURLs(gid: gid, token: token).compactMap { folderURL in
             // Filesystem discovery intentionally skips unreadable or mismatched gallery folders.
-            guard let manifest = try? readManifest(folderURL: folderURL),
+            guard let manifest = probeManifest(folderURL: folderURL),
                   manifest.gid == gid,
                   manifest.token == token
             else {
@@ -362,13 +373,17 @@ public struct DownloadStore: Sendable {
     }
 
     private func existingAssetFileURLs(folderURL: URL) -> [URL] {
-        // Missing or unreadable folders have no discoverable assets; callers preserve that empty fallback.
-        guard let fileURLs = try? fileManager.operate({
-            try $0.contentsOfDirectory(
-                at: folderURL,
-                includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey]
-            )
-        }) else {
+        let fileURLs: [URL]
+        do {
+            fileURLs = try fileManager.operate {
+                try $0.contentsOfDirectory(
+                    at: folderURL,
+                    includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey]
+                )
+            }
+        } catch {
+            // Missing or unreadable folders have no discoverable assets; callers preserve that
+            // empty fallback. Absence is the normal case here, so the error is not logged.
             return []
         }
 
@@ -404,6 +419,23 @@ public struct DownloadStore: Sendable {
         return manifest
     }
 
+    /// Reads a manifest as an *identity probe*, answering only "is this a readable gallery
+    /// folder?".
+    ///
+    /// Filesystem discovery walks arbitrary user-visible folders — the Files-app integration
+    /// lets the user create, move and rename anything under the download root — so a folder
+    /// without a decodable manifest is the ordinary negative answer, not a failure. The error
+    /// is therefore discarded rather than logged: logging it would emit a line per unrelated
+    /// folder on every scan. Callers that treat an unreadable manifest as corruption (e.g.
+    /// `validate(download:verifiesContentHashes:)`) read and handle the error themselves.
+    func probeManifest(folderURL: URL) -> DownloadManifest? {
+        do {
+            return try readManifest(folderURL: folderURL)
+        } catch {
+            return nil
+        }
+    }
+
     private func validateDecodedManifest(_ manifest: DownloadManifest) throws {
         guard manifest.pages.isEmpty == false else {
             throw manifestCorruptedError()
@@ -434,13 +466,13 @@ public struct DownloadStore: Sendable {
             // manifest-less ones, are invisible to the app and never become
             // user folders.
             // This manifest read distinguishes gallery folders from user folders; failure means "not a gallery".
-            guard (try? readManifest(folderURL: folderURL)) == nil else { continue }
+            guard probeManifest(folderURL: folderURL) == nil else { continue }
             guard !Self.isGalleryFolderLikeName(folderName) else { continue }
 
             userFolders.append(folderName)
             for galleryFolderURL in directoryURLs(in: folderURL) {
                 // Corrupt or incomplete gallery folders stay invisible until their manifest becomes readable.
-                guard let manifest = try? readManifest(folderURL: galleryFolderURL) else {
+                guard let manifest = probeManifest(folderURL: galleryFolderURL) else {
                     continue
                 }
                 records.append(
@@ -461,17 +493,27 @@ public struct DownloadStore: Sendable {
     }
 
     private func directoryURLs(in parentURL: URL) -> [URL] {
-        // Filesystem discovery treats an absent or unreadable parent as containing no visible directories.
-        let contents = (try? fileManager.operate {
-            try $0.contentsOfDirectory(
-                at: parentURL,
-                includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
-                options: [.skipsHiddenFiles]
-            )
-        }) ?? []
-        return contents.filter {
-            // Entries whose directory metadata cannot be read are excluded from the discovery result.
-            (try? $0.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+        let contents: [URL]
+        do {
+            contents = try fileManager.operate {
+                try $0.contentsOfDirectory(
+                    at: parentURL,
+                    includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
+                    options: [.skipsHiddenFiles]
+                )
+            }
+        } catch {
+            // Filesystem discovery treats an absent or unreadable parent as containing no visible
+            // directories. Scans run against arbitrary user folders, so this is not logged.
+            return []
+        }
+        return contents.filter { url in
+            do {
+                return try url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true
+            } catch {
+                // Entries whose directory metadata cannot be read are excluded from the result.
+                return false
+            }
         }
     }
 
@@ -481,24 +523,28 @@ public struct DownloadStore: Sendable {
         parentFolderName: String
     ) -> DownloadFolderRecord {
         // Modification time is display metadata; an unavailable value is represented by nil.
-        let resourceValues = try? folderURL.resourceValues(
-            forKeys: [.contentModificationDateKey]
-        )
+        let modificationDate: Date?
+        do {
+            modificationDate = try folderURL
+                .resourceValues(forKeys: [.contentModificationDateKey])
+                .contentModificationDate
+        } catch {
+            modificationDate = nil
+        }
         return DownloadFolderRecord(
             relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
             folderURL: folderURL,
             manifest: manifest,
             localCoverURL: localCoverURL(folderURL: folderURL, manifest: manifest),
             localPageURLs: imageURLs(folderURL: folderURL, manifest: manifest),
-            modificationDate: resourceValues?.contentModificationDate,
+            modificationDate: modificationDate,
             parentFolderName: parentFolderName
         )
     }
 
     public func fileHash(at url: URL) throws -> String {
         let handle = try FileHandle(forReadingFrom: url)
-        // The read or hash error remains primary; closing the already-open handle is best-effort cleanup.
-        defer { try? handle.close() }
+        defer { closeReadHandle(handle) }
 
         var hasher = SHA256()
         while true {
@@ -525,25 +571,44 @@ public struct DownloadStore: Sendable {
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map { $0 == .typeRegular } ?? true
         guard isRegularFile else {
-            // Sanitization already rejects the asset; deletion is best-effort housekeeping.
-            try? fileManager.operate { try $0.removeItem(at: url) }
+            discardRejectedAsset(at: url)
             return false
         }
         guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return false }
         guard fileSize > 0 else {
-            // Sanitization already rejects the empty asset; deletion is best-effort housekeeping.
-            try? fileManager.operate { try $0.removeItem(at: url) }
+            discardRejectedAsset(at: url)
             return false
         }
 
         return true
     }
 
+    /// Deletes an asset the sanitizer has already rejected. Housekeeping only: the rejection
+    /// stands whether or not the file could actually be removed, so a failure is logged rather
+    /// than propagated to the caller's `Bool` answer.
+    private func discardRejectedAsset(at url: URL) {
+        do {
+            try fileManager.operate { try $0.removeItem(at: url) }
+        } catch {
+            logger.error("Rejected download asset removal failed: \(error, privacy: .public)")
+        }
+    }
+
+    /// Closes a handle opened purely to read bytes. The read's own result or error stays
+    /// primary — these calls sit in `defer`, after the value the caller wants is already
+    /// produced — so an unexpected close failure is logged instead of replacing that result.
+    private func closeReadHandle(_ handle: FileHandle) {
+        do {
+            try handle.close()
+        } catch {
+            logger.error("Download read handle close failed: \(error, privacy: .public)")
+        }
+    }
+
     private func canReadNonEmptyFile(at url: URL) -> Bool {
         do {
             let handle = try FileHandle(forReadingFrom: url)
-            // The readability probe's result remains primary; closing the temporary handle is best-effort cleanup.
-            defer { try? handle.close() }
+            defer { closeReadHandle(handle) }
             return try handle.read(upToCount: 1)?.isEmpty == false
         } catch {
             return false

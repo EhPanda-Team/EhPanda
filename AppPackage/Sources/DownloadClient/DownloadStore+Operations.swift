@@ -1,7 +1,10 @@
+import OSLogExt
 import AppTools
 import Foundation
 import AppModels
 import Resources
+
+private let logger = Logger(category: .init(describing: DownloadStore.self))
 
 extension DownloadStore {
     public func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
@@ -208,7 +211,13 @@ extension DownloadStore {
             return .missingFiles(.downloadStoreManifestMissing)
         }
         // Validation converts any manifest read or decode failure into the existing corrupted-files state.
-        guard let manifest = try? readManifest(folderURL: folderURL) else {
+        // Unlike the discovery probes, the manifest file is known to exist here (checked above),
+        // so a failure is genuine corruption and worth a log line.
+        let manifest: DownloadManifest
+        do {
+            manifest = try readManifest(folderURL: folderURL)
+        } catch {
+            logger.error("Download manifest read failed during validation: \(error, privacy: .public)")
             return .missingFiles(.RLocalizable.downloadStoreManifestCorrupted)
         }
         if let pageValidationFailure = validatePages(
@@ -294,9 +303,19 @@ extension DownloadStore {
             return .missingFiles(.RLocalizable.downloadStorePageMissing(page: index))
         }
 
-        // Validation deliberately treats hash-read failures the same as a content-hash mismatch.
-        if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
-            return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: index))
+        if verifiesContentHash {
+            // Validation deliberately treats hash-read failures the same as a content-hash mismatch:
+            // a page whose bytes cannot be read is as unusable as one whose bytes changed.
+            let actualHash: String?
+            do {
+                actualHash = try fileHash(at: pageURL)
+            } catch {
+                logger.error("Download page hash read failed during validation: \(error, privacy: .public)")
+                actualHash = nil
+            }
+            guard actualHash == expectedHash else {
+                return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: index))
+            }
         }
 
         return nil
