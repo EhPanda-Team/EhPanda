@@ -3,6 +3,7 @@ import SwiftUI
 import AppModels
 import AppComponents
 import Kingfisher
+import PreviewSupport
 
 public struct GalleryRankingCell: View {
     private let gallery: Gallery
@@ -48,9 +49,9 @@ private let previewLongTitle =
     + "Title That Wraps Across Several Lines To Exercise Truncation [English]"
 
 private extension Gallery {
-    static func previewFixture(title: String, uploader: String?) -> Gallery {
+    static func previewFixture(identity: Int, title: String, uploader: String?) -> Gallery {
         .init(
-            gid: UUID().uuidString,
+            gid: PreviewIdentifiers[identity].uuidString,
             token: "",
             title: title,
             rating: 3.5,
@@ -70,9 +71,11 @@ private extension Gallery {
 }
 
 #Preview("Long title, high rank", traits: .sizeThatFitsLayout) {
-    GalleryRankingCell(gallery: .previewFixture(title: previewLongTitle, uploader: "Anonymous"), ranking: 999)
+    GalleryRankingCell(
+        gallery: .previewFixture(identity: 0, title: previewLongTitle, uploader: "Anonymous"), ranking: 999
+    )
 }
 
 #Preview("Short title, no uploader", traits: .sizeThatFitsLayout) {
-    GalleryRankingCell(gallery: .previewFixture(title: "Doujin", uploader: nil), ranking: 10)
+    GalleryRankingCell(gallery: .previewFixture(identity: 1, title: "Doujin", uploader: nil), ranking: 10)
 }

@@ -6,6 +6,7 @@ import Kingfisher
 import AppTools
 import Dependencies
 import DeviceClient
+import PreviewSupport
 
 public struct GalleryCardCell: View {
     @Dependency(\.deviceClient) private var deviceClient
@@ -148,9 +149,9 @@ private let previewLongTitle =
 private let previewCardColors: [Color] = ColorfulPreset.aurora.colors.map({ Color($0) })
 
 private extension Gallery {
-    static func previewFixture(title: String, rating: Float) -> Gallery {
+    static func previewFixture(identity: Int, title: String, rating: Float) -> Gallery {
         .init(
-            gid: UUID().uuidString,
+            gid: PreviewIdentifiers[identity].uuidString,
             token: "",
             title: title,
             rating: rating,
@@ -175,7 +176,7 @@ private extension Gallery {
 }
 
 #Preview("Max rating, long title", traits: .sizeThatFitsLayout) {
-    let gallery = Gallery.previewFixture(title: previewLongTitle, rating: 5)
+    let gallery = Gallery.previewFixture(identity: 0, title: previewLongTitle, rating: 5)
     GalleryCardCell(
         gallery: gallery, currentID: gallery.gid,
         colors: previewCardColors,
@@ -185,7 +186,7 @@ private extension Gallery {
 }
 
 #Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
-    let gallery = Gallery.previewFixture(title: "Doujin", rating: 0)
+    let gallery = Gallery.previewFixture(identity: 1, title: "Doujin", rating: 0)
     GalleryCardCell(
         gallery: gallery, currentID: "other",
         colors: previewCardColors,
