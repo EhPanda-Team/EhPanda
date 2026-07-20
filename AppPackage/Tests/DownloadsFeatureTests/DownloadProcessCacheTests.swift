@@ -8,7 +8,6 @@ import DownloadClient
 @testable import AppFeature
 
 struct DownloadProcessCacheTests: DownloadFeatureTestCase {
-    @MainActor
     @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
         let sessionID = UUID().uuidString
@@ -198,7 +197,6 @@ private extension DownloadProcessCacheTests {
         return (try makeCacheJSONResponse(url: url), responseData)
     }
 
-    @MainActor
     func prepareCacheTestAssets(
         manager: DownloadCoordinator, gid: String,
         pageIndex: Int,
@@ -282,7 +280,6 @@ private extension DownloadProcessCacheTests {
         }
     }
 
-    @MainActor
     func makeCacheLibraryClient(
         cachedKeys: UncheckedBox<Set<String>>
     ) throws -> LibraryClient {

@@ -8,7 +8,11 @@ import CookieClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct DetailReducerObserveTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -125,6 +129,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
 // MARK: - Store Factory Helpers
 
 private extension DetailReducerObserveTests {
+    @MainActor
     func makeObserveTestStore(
         gallery: Gallery, detail: GalleryDetail,
         stream: AsyncStream<[DownloadedGallery]>

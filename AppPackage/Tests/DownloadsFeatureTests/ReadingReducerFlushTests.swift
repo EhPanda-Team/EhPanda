@@ -11,6 +11,11 @@ import HapticsClient
 // cancels the pending debounce, so a deferred send (the old `onDisappear` approach) would be dropped.
 // And a flush that fires before the first page turn must rewrite the *restored* resume position, never
 // clobber it with a stale `.zero`.
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct ReadingReducerFlushTests: DownloadFeatureTestCase {
     private let now = Date(timeIntervalSince1970: 1_000)
 

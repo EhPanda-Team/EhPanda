@@ -74,7 +74,6 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
         }
     }
 
-    @MainActor
     @Test
     func testDownloadCoordinatorCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
@@ -164,7 +163,6 @@ private extension DownloadCoordinatorCaptureTests {
         return completedFolderURL
     }
 
-    @MainActor
     func setupCaptureCachedImage(
         gid: String,
         dataCache: DataCache

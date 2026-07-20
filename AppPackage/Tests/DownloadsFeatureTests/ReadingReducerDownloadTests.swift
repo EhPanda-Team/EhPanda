@@ -13,7 +13,11 @@ import DeviceClient
 @testable import DetailFeature
 @testable import AppFeature
 
-@MainActor
+// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
+// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
+// per member rather than to the suite so the type's `DownloadFeatureTestCase` conformance
+// stays nonisolated — a main-actor conformance cannot be used from the `@Sendable`
+// dependency closures these stores install.
 struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -120,6 +124,7 @@ private struct CapturedPageCall {
 // MARK: - Store Factory Helpers
 
 private extension ReadingReducerDownloadTests {
+    @MainActor
     func makeLocalPageLoadStore(
         initialState: ReadingReducer.State,
         gallery: Gallery,
@@ -155,6 +160,7 @@ private extension ReadingReducerDownloadTests {
         return store
     }
 
+    @MainActor
     func makeCapturePageStore(
         initialState: ReadingReducer.State,
         capturedCalls: UncheckedBox<[CapturedPageCall]>
