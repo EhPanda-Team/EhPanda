@@ -405,7 +405,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -947,7 +948,8 @@ let targets: [PackageDescription.Target] = [
         module: .cookieClientTests,
         dependencies: [
             .module(.cookieClient),
-            .module(.appModels)
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
         ],
         plugins: swiftLintPlugins
     ),
