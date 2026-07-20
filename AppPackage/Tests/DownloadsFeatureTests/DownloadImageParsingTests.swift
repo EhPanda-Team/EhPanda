@@ -1,18 +1,15 @@
 import AppModels
-import Kingfisher
-import UIKit
 import Foundation
 import Testing
 import AppTools
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedQuotaImageMapsToQuotaExceeded() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
@@ -33,7 +30,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedQuotaImageRequiresKnown509Signature() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         var data = try Data(contentsOf: fileURL)
@@ -59,7 +56,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("gif")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let imageData = try #require(Data(base64Encoded: "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs="))
         try imageData.write(to: fileURL, options: .atomic)
@@ -83,7 +80,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedQuotaImageFingerprintMapsToQuotaExceededEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(URL(string: "https://ehgt.org/h/normal-image-cache-key/1"))
@@ -104,7 +101,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedKokomadeImageFingerprintMapsToAuthenticationRequiredEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(resource: "Kokomade", pathExtension: "jpg")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(
@@ -128,7 +125,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("html")
-        defer { try? FileManager.default.removeItem(at: fileURL) }
+        defer { removeTemporaryItem(at: fileURL) }
 
         let htmlData = Data("""
         <html><body>You have exceeded your image viewing limits</body></html>
@@ -155,7 +152,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -241,30 +238,14 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         #expect(recorder.snapshot().imageDownloads == 1)
     }
 
-    @MainActor
     @Test
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
-        let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 32)
-        let manager = makeTestingDownloadCoordinator()
-        let normalImageURL = try #require(
-            URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
+        try await expectCachedPlaceholderRejected(
+            url: try #require(
+                URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(UUID().uuidString)/1")
+            ),
+            placeholderData: try fixtureData(filename: .bandwidthExceeded)
         )
-
-        let placeholderURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
-        defer { try? FileManager.default.removeItem(at: placeholderURL) }
-        let placeholderData = try Data(contentsOf: placeholderURL)
-        let cacheKeys = normalImageURL.imageCacheKeys
-        for cacheKey in cacheKeys {
-            try await KingfisherManager.shared.cache.storeToDisk(placeholderData, forKey: cacheKey)
-        }
-        defer { cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) } }
-        await waitUntilCacheReady(for: cacheKeys)
-
-        let cachedData = await manager.validatedCachedAssetData(
-            for: [normalImageURL]
-        )
-
-        #expect(cachedData == nil)
     }
 
     @Test
@@ -272,7 +253,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        defer { removeTemporaryItem(at: rootURL) }
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
