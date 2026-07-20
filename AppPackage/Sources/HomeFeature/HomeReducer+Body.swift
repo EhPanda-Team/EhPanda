@@ -184,36 +184,36 @@ extension HomeReducer {
                 }
                 return .none
 
-            case .fetchToplistsGalleries(let index, let pageNum):
-                guard state.toplistsLoadingState[index] != .loading else { return .none }
-                state.toplistsLoadingState[index] = .loading
+            case .fetchToplistsGalleries(let catIndex, let pageNum):
+                guard state.toplistsLoadingState[catIndex] != .loading else { return .none }
+                state.toplistsLoadingState[catIndex] = .loading
                 let host = state.setting.galleryHost
                 return .run { send in
                     do throws(AppError) {
                         let galleries = try await ToplistsGalleriesRequest(
                             host: host,
-                            catIndex: index,
+                            catIndex: catIndex,
                             pageNum: pageNum
                         )
                         .response()
-                        await send(.fetchToplistsGalleriesDone(index: index, result: .success(galleries)))
+                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .success(galleries)))
                     } catch {
-                        await send(.fetchToplistsGalleriesDone(index: index, result: .failure(error)))
+                        await send(.fetchToplistsGalleriesDone(index: catIndex, result: .failure(error)))
                     }
                 }
 
-            case .fetchToplistsGalleriesDone(let index, let result):
-                state.toplistsLoadingState[index] = .idle
+            case .fetchToplistsGalleriesDone(let catIndex, let result):
+                state.toplistsLoadingState[catIndex] = .idle
                 switch result {
                 case .success(let (_, galleries)):
                     guard !galleries.isEmpty else {
-                        state.toplistsLoadingState[index] = .failed(.notFound)
+                        state.toplistsLoadingState[catIndex] = .failed(.notFound)
                         return .none
                     }
-                    state.toplistsGalleries[index] = galleries
+                    state.toplistsGalleries[catIndex] = galleries
                     return .none
                 case .failure(let error):
-                    state.toplistsLoadingState[index] = .failed(error)
+                    state.toplistsLoadingState[catIndex] = .failed(error)
                 }
                 return .none
 
