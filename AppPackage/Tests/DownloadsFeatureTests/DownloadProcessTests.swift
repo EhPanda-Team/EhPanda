@@ -4,7 +4,6 @@ import Testing
 import DownloadClient
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadProcessTests: DownloadFeatureTestCase {
     @Test
     func testFailurePersistenceCompletesBeforeRescheduling() async throws {

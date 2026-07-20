@@ -189,7 +189,7 @@ extension DownloadCoordinator {
         let shouldFlush = force
             || pendingResolvedPages.count
             >= Self.progressFlushPageInterval
-            || Date().timeIntervalSince(lastFlushDate)
+            || now().timeIntervalSince(lastFlushDate)
             >= Self.progressFlushMinimumInterval
         guard shouldFlush else { return }
 
@@ -200,7 +200,7 @@ extension DownloadCoordinator {
         )
         pendingResolvedPages
             .removeAll(keepingCapacity: true)
-        lastFlushDate = Date()
+        lastFlushDate = now()
         await notifyObservers()
     }
 

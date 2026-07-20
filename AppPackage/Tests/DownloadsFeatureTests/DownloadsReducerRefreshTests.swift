@@ -6,7 +6,6 @@ import DownloadClient
 @testable import DownloadsFeature
 @testable import AppFeature
 
-@Suite(.serialized)
 struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
     @MainActor
     @Test
