@@ -12,8 +12,9 @@ extension String {
     }
     public var stringsBesideColon: (prefix: String?, remainder: String) {
         let strings = split(separator: ":").map(String.init)
-        if strings.count == 2, !strings[0].isEmpty {
-            return (strings[0], strings[1])
+        if strings.count == 2, let prefix = strings.first, let remainder = strings.last,
+           !prefix.isEmpty {
+            return (prefix, remainder)
         }
         return (nil, self)
     }

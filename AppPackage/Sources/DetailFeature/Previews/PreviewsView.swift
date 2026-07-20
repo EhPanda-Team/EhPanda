@@ -35,15 +35,15 @@ struct PreviewsView: View {
         )
         ScrollView {
             LazyVGrid(columns: gridItems) {
-                ForEach(1..<store.gallery.pageCount + 1, id: \.self) { index in
+                ForEach(1..<store.gallery.pageCount + 1, id: \.self) { page in
                     VStack {
                         Button {
-                            store.send(.updateReadingProgress(index))
-                            store.send(.openReading(index))
+                            store.send(.updateReadingProgress(page))
+                            store.send(.openReading(page))
                         } label: {
-                            PreviewImageView(originalURL: displayPreviewURLs[index])
+                            PreviewImageView(originalURL: displayPreviewURLs[page])
                         }
-                        Text(index, format: .number)
+                        Text(page, format: .number)
                             .font(horizontalSizeClass == .regular ? .callout : .caption)
                             .foregroundStyle(.secondary)
                     }
@@ -60,11 +60,11 @@ struct PreviewsView: View {
             .privacyMask()
         }
         // Paged lazy loading, driven by what is actually on screen rather than by each cell's
-        // appearance. Preview URLs arrive ten at a time, so only every tenth index triggers a fetch;
+        // appearance. Preview URLs arrive ten at a time, so only every tenth page triggers a fetch;
         // the first page is requested by the reducer on presentation.
-        .onScrollTargetVisibilityChange(idType: Int.self) { indices in
-            for index in indices where displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {
-                store.send(.fetchPreviewURLs(index))
+        .onScrollTargetVisibilityChange(idType: Int.self) { visiblePages in
+            for page in visiblePages where displayPreviewURLs[page] == nil && (page - 1) % 10 == 0 {
+                store.send(.fetchPreviewURLs(page))
             }
         }
         .navigationTitle(.previews)

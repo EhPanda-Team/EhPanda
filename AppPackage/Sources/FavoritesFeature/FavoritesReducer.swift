@@ -37,7 +37,7 @@ public struct FavoritesReducer: Sendable {
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
-        public var index = -1
+        public var favoritesIndex = -1
         public var sortOrder: FavoritesSortOrder?
 
         public var rawGalleries = [Int: [Gallery]]()
@@ -48,27 +48,27 @@ public struct FavoritesReducer: Sendable {
         public var downloadBadges = [String: DownloadBadge]()
 
         var galleries: [Gallery]? {
-            rawGalleries[index]
+            rawGalleries[favoritesIndex]
         }
         var pageNumber: PageNumber? {
-            rawPageNumber[index]
+            rawPageNumber[favoritesIndex]
         }
         var dateSeekNavigation: DateSeekNavigation? {
-            rawDateSeekNavigation[index]
+            rawDateSeekNavigation[favoritesIndex]
         }
         var loadingState: LoadingState? {
-            rawLoadingState[index]
+            rawLoadingState[favoritesIndex]
         }
         var footerLoadingState: LoadingState? {
-            rawFooterLoadingState[index]
+            rawFooterLoadingState[favoritesIndex]
         }
 
         public init() {}
 
-        mutating func insertGalleries(index: Int, galleries: [Gallery]) {
+        mutating func insertGalleries(favoritesIndex: Int, galleries: [Gallery]) {
             galleries.forEach { gallery in
-                if rawGalleries[index]?.contains(gallery) == false {
-                    rawGalleries[index]?.append(gallery)
+                if rawGalleries[favoritesIndex]?.contains(gallery) == false {
+                    rawGalleries[favoritesIndex]?.append(gallery)
                 }
             }
         }
@@ -159,7 +159,7 @@ public struct FavoritesReducer: Sendable {
                 return .none
 
             case .setFavoritesIndex(let index):
-                state.index = index
+                state.favoritesIndex = index
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
 
@@ -176,17 +176,17 @@ public struct FavoritesReducer: Sendable {
 
             case .fetchGalleries(let keyword, let sortOrder):
                 guard state.loadingState != .loading else { return .none }
-                state.rawLoadingState[state.index] = .loading
+                state.rawLoadingState[state.favoritesIndex] = .loading
                 if let keyword = keyword {
                     state.keyword = keyword
                 }
                 if state.pageNumber == nil {
-                    state.rawPageNumber[state.index] = PageNumber()
+                    state.rawPageNumber[state.favoritesIndex] = PageNumber()
                 } else {
-                    state.rawPageNumber[state.index]?.resetPages()
+                    state.rawPageNumber[state.favoritesIndex]?.resetPages()
                 }
                 let host = state.setting.galleryHost
-                return .run { [index = state.index, keyword = state.keyword] send in
+                return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
                     do throws(AppError) {
                         let response = try await FavoritesGalleriesRequest(
                             host: host,
@@ -229,9 +229,9 @@ public struct FavoritesReducer: Sendable {
                       let lastID = state.galleries?.last?.id,
                       let lastItemTimestamp = pageNumber.lastItemTimestamp
                 else { return .none }
-                state.rawFooterLoadingState[state.index] = .loading
+                state.rawFooterLoadingState[state.favoritesIndex] = .loading
                 let host = state.setting.galleryHost
-                return .run { [index = state.index, keyword = state.keyword] send in
+                return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
                     do throws(AppError) {
                         let response = try await MoreFavoritesGalleriesRequest(
                             host: host,
@@ -255,7 +255,7 @@ public struct FavoritesReducer: Sendable {
                     let galleries = fetchResult.galleries
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
-                    state.insertGalleries(index: targetFavIndex, galleries: galleries)
+                    state.insertGalleries(favoritesIndex: targetFavIndex, galleries: galleries)
                     state.sortOrder = fetchResult.sortOrder
 
                     var effects: [Effect<Action>] = []
@@ -287,11 +287,11 @@ public struct FavoritesReducer: Sendable {
 
             case .destination(.presented(.dateSeek(.delegate(.performSeek(let url))))):
                 guard state.loadingState != .loading else { return .none }
-                state.rawLoadingState[state.index] = .loading
-                state.rawFooterLoadingState[state.index] = .idle
-                state.rawPageNumber[state.index]?.resetPages()
+                state.rawLoadingState[state.favoritesIndex] = .loading
+                state.rawFooterLoadingState[state.favoritesIndex] = .idle
+                state.rawPageNumber[state.favoritesIndex]?.resetPages()
                 let host = state.setting.galleryHost
-                return .run { [index = state.index] send in
+                return .run { [index = state.favoritesIndex] send in
                     do throws(AppError) {
                         let response = try await DateSeekGalleriesRequest(host: host, url: url).response()
                         await send(.performDateSeekDone(index: index, result: .success(response)))

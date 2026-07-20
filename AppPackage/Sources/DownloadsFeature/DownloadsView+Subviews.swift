@@ -281,14 +281,14 @@ private func previewInspection(
     pending: [Int] = [],
     failed: [Int] = []
 ) -> DownloadInspection {
-    let groups: [(status: DownloadPageStatus, indices: [Int])] = [
+    let groups: [(status: DownloadPageStatus, pages: [Int])] = [
         (.downloaded, downloaded), (.pending, pending), (.failed, failed)
     ]
     // A page counts as complete in the manifest only when its relative path is non-empty, so the
     // header cell's badge stays consistent with the page groups listed underneath it.
     let manifestPages = groups.reduce(into: [Int: String]()) { result, group in
-        for index in group.indices {
-            result[index] = group.status == .downloaded ? "\(index).jpg" : ""
+        for page in group.pages {
+            result[page] = group.status == .downloaded ? "\(page).jpg" : ""
         }
     }
     return .init(
@@ -305,7 +305,7 @@ private func previewInspection(
         ),
         pages: groups
             .flatMap { group in
-                group.indices.map { DownloadPageInspection(index: $0, status: group.status) }
+                group.pages.map { DownloadPageInspection(index: $0, status: group.status) }
             }
             .sorted { $0.index < $1.index }
     )

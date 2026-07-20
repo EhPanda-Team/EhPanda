@@ -32,9 +32,7 @@ struct FavoritesSection: View {
     @FocusState private var isFocused
 
     private var tuples: [(AppModels.Category, Binding<String>)] {
-        AppModels.Category.allFavoritesCases.enumerated().map { index, category in
-            (category, $ehSetting.favoriteCategories[index])
-        }
+        Array(zip(AppModels.Category.allFavoritesCases, $ehSetting.favoriteCategories))
     }
 
     var body: some View {

@@ -57,13 +57,10 @@ private struct FlowLayout: Layout {
         cache: inout ()
     ) {
         let frames = frames(for: subviews, maxWidth: bounds.width)
-        for (index, subview) in subviews.enumerated() {
+        for (subview, frame) in zip(subviews, frames) {
             subview.place(
-                at: CGPoint(
-                    x: bounds.minX + frames[index].minX,
-                    y: bounds.minY + frames[index].minY
-                ),
-                proposal: ProposedViewSize(frames[index].size)
+                at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
+                proposal: ProposedViewSize(frame.size)
             )
         }
     }
