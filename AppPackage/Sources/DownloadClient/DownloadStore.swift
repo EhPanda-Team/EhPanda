@@ -103,8 +103,8 @@ public struct DownloadStore: Sendable {
     public func parentFolderName(forFolderURL url: URL) -> String? {
         guard let relativePath = rootRelativePath(forFolderURL: url) else { return nil }
         let components = relativePath.split(separator: "/")
-        guard components.count >= 2 else { return nil }
-        return String(components[0])
+        guard components.count >= 2, let parentComponent = components.first else { return nil }
+        return String(parentComponent)
     }
 
     public func validatedChildURL(
@@ -157,8 +157,8 @@ public struct DownloadStore: Sendable {
     }
 
     public func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
-        let pageIndices = Set(manifest.pages.keys)
-        guard !pageIndices.isEmpty else { return [:] }
+        let pageNumbers = Set(manifest.pages.keys)
+        guard !pageNumbers.isEmpty else { return [:] }
 
         let fileURLs = existingAssetFileURLs(folderURL: folderURL)
         let prefix = identityPrefix(gid: manifest.gid, token: manifest.token)
@@ -168,15 +168,15 @@ public struct DownloadStore: Sendable {
             guard fileName.hasPrefix(prefix) else { return }
             let suffix = fileName.dropFirst(prefix.count)
             guard let dotIndex = suffix.firstIndex(of: ".") else { return }
-            let indexText = String(suffix[..<dotIndex])
-            guard let index = Int(indexText),
-                  String(index) == indexText,
-                  pageIndices.contains(index),
-                  result[index] == nil,
+            let pageText = String(suffix[..<dotIndex])
+            guard let page = Int(pageText),
+                  String(page) == pageText,
+                  pageNumbers.contains(page),
+                  result[page] == nil,
                   sanitizeAssetFileIfNeeded(at: fileURL)
             else { return }
 
-            result[index] = fileURL.lastPathComponent
+            result[page] = fileURL.lastPathComponent
         }
     }
 
