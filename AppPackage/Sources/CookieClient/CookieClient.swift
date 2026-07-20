@@ -8,6 +8,8 @@ import Synchronization
 
 public struct CookieClient: Sendable {
     public let clearAll: @Sendable () -> Void
+    /// One element per cookie-jar mutation notification; consumers re-read the jar on each.
+    public let cookiesDidChange: @Sendable () -> AsyncStream<Void>
     public let getCookie: @Sendable (URL, String) -> CookieValue
     private let cookiesForURL: @Sendable (URL) -> [HTTPCookie]
     private let removeCookie: @Sendable (URL, String) -> Void
@@ -27,6 +29,20 @@ extension CookieClient {
                     historyCookies.forEach {
                         cookieStorage.deleteCookie($0)
                     }
+                }
+            },
+            cookiesDidChange: {
+                AsyncStream { continuation in
+                    let task = Task {
+                        let notifications = NotificationCenter.default.notifications(
+                            named: .NSHTTPCookieManagerCookiesChanged, object: cookieStorage
+                        )
+                        for await _ in notifications {
+                            continuation.yield(())
+                        }
+                        continuation.finish()
+                    }
+                    continuation.onTermination = { _ in task.cancel() }
                 }
             },
             getCookie: { url, key in
@@ -342,6 +358,7 @@ extension DependencyValues {
 extension CookieClient {
     public static let noop: Self = .init(
         clearAll: {},
+        cookiesDidChange: { .finished },
         getCookie: { _, _ in .empty },
         cookiesForURL: { _ in [] },
         removeCookie: { _, _ in },
@@ -355,6 +372,7 @@ extension CookieClient {
     /// and login-gated screens (Favorites, Watched) show their real content instead of `NotLoginView`.
     public static let previewLoggedIn: Self = .init(
         clearAll: {},
+        cookiesDidChange: { .finished },
         getCookie: { _, _ in .init(rawValue: "preview", localizedString: "preview") },
         cookiesForURL: { _ in [] },
         removeCookie: { _, _ in },
@@ -368,6 +386,9 @@ extension CookieClient {
 
     public static let unimplemented: Self = .init(
         clearAll: IssueReporting.unimplemented(placeholder: placeholder()),
+        // A returnable placeholder, not `placeholder()`: merely instantiating a view that holds
+        // `@SharedReader(.didLogin)` subscribes to this stream, which must not crash a test.
+        cookiesDidChange: IssueReporting.unimplemented(placeholder: .finished),
         getCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         cookiesForURL: IssueReporting.unimplemented(placeholder: placeholder()),
         removeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
@@ -418,9 +439,31 @@ private struct CookieClientTestingCookie: Sendable {
 
 private final class CookieClientTestingStore: Sendable {
     private let cookies: Mutex<[String: CookieClientTestingCookie]>
+    private let subscribers = Mutex<[UUID: AsyncStream<Void>.Continuation]>([:])
 
     public init(cookies: [String: CookieClientTestingCookie]) {
         self.cookies = Mutex(cookies)
+    }
+
+    public func stream() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            let id = UUID()
+            subscribers.withLock { $0[id] = continuation }
+            continuation.onTermination = { _ in
+                self.removeSubscriber(id: id)
+            }
+        }
+    }
+
+    private func removeSubscriber(id: UUID) {
+        subscribers.withLock { _ = $0.removeValue(forKey: id) }
+    }
+
+    /// Mirrors the live client's jar-change notifications: one element per store mutation, where
+    /// the live jar posts one per HTTPCookie mutation instead. Consumers only treat elements as
+    /// "re-read the jar", so the granularity difference is inconsequential.
+    private func notify() {
+        subscribers.withLock { $0.values.forEach { $0.yield(()) } }
     }
 
     public func value(for url: URL, key: String) -> String {
@@ -445,12 +488,14 @@ private final class CookieClientTestingStore: Sendable {
             isSessionOnly: sessionOnly
         )
         cookies.withLock { $0[storageKey(domain: domain, key: key)] = cookie }
+        notify()
     }
 
     public func removeValue(for url: URL, key: String) {
         cookies.withLock { storage in
             storage = storage.filter { !$0.value.matches(url: url, key: key) }
         }
+        notify()
     }
 
     public func containsValue(for url: URL, key: String) -> Bool {
@@ -477,10 +522,12 @@ private final class CookieClientTestingStore: Sendable {
         cookies.withLock {
             $0[storageKey(domain: cookie.domain, key: cookie.name)] = testingCookie
         }
+        notify()
     }
 
     public func removeAll() {
         cookies.withLock { $0.removeAll() }
+        notify()
     }
 
     private func cookie(for url: URL, key: String) -> CookieClientTestingCookie? {
@@ -518,6 +565,9 @@ extension CookieClient {
         return .init(
             clearAll: {
                 store.removeAll()
+            },
+            cookiesDidChange: {
+                store.stream()
             },
             getCookie: { url, key in
                 .init(rawValue: store.value(for: url, key: key), localizedString: "")
