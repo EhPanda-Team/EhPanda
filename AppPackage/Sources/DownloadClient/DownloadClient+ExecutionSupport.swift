@@ -147,7 +147,7 @@ extension DownloadCoordinator {
         existingDownload: DownloadedGallery
     ) async {
         let previewURLs = Array(payload.previewURLs.values)
-            .flatMap { $0.previewCacheCleanupURLs() }
+            .flatMap({ $0.previewCacheCleanupURLs() })
         let pageURLs = pages.compactMap(\.imageURL)
         let coverURLs = [
             payload.galleryDetail.coverURL,

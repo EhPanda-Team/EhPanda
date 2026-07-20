@@ -21,7 +21,7 @@ extension SchemaVersioned {
     /// `true` iff `schemas` is non-empty and its versions are `1, 2, … n` — ascending, contiguous, and
     /// starting at 1. The engine's ordered walk relies on this; an invariant test enforces it.
     public static var hasWellFormedSchemas: Bool {
-        !schemas.isEmpty && schemas.enumerated().allSatisfy { $0.offset + 1 == $0.element.version }
+        !schemas.isEmpty && schemas.enumerated().allSatisfy({ $0.offset + 1 == $0.element.version })
     }
 }
 

@@ -148,13 +148,13 @@ public struct EhSetting: Equatable, Sendable {
     public var localizedLiteralDetectedCountry: String? {
         literalDetectedCountry.flatMap { literal in
             BrowsingCountry.allCases.first(where: { $0.englishName == literal })
-                .map { String(localized: $0.name) }
+                .map({ String(localized: $0.name) })
         }
     }
     public var localizedLiteralHahRegion: String? {
         literalHahRegion.flatMap { literal in
             HahRegion.allCases.first(where: { $0.englishName == literal })
-                .map { String(localized: $0.name) }
+                .map({ String(localized: $0.name) })
         }
     }
 

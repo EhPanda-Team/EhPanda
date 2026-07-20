@@ -99,7 +99,7 @@ extension DownloadCoordinator {
     ) async -> Data? {
         @Dependency(\.dataCache) var dataCache
         let keys = urls
-            .compactMap { $0 }
+            .compactMap({ $0 })
             .flatMap(\.imageCacheKeys)
         return await dataCache.data(forKeys: keys)
     }

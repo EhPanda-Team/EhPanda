@@ -127,7 +127,7 @@ public struct AppLaunchAutomation: Sendable {
         key: String
     ) -> String? {
         environment[key]
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .map({ $0.trimmingCharacters(in: .whitespacesAndNewlines) })
             .flatMap(\.nonEmpty)
     }
 }

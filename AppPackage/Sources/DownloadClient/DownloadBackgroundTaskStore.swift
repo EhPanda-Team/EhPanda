@@ -47,7 +47,7 @@ public actor DownloadBackgroundTaskStore {
     }
 
     public func records(for gid: String) -> [Int: Record] {
-        records.filter { $0.value.gid == gid }
+        records.filter({ $0.value.gid == gid })
     }
 
     @discardableResult
@@ -58,7 +58,7 @@ public actor DownloadBackgroundTaskStore {
     }
 
     public func removeAll(for gid: String) async {
-        records = records.filter { $0.value.gid != gid }
+        records = records.filter({ $0.value.gid != gid })
         await save()
     }
 

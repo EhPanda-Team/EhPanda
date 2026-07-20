@@ -237,7 +237,7 @@ private extension DownloadsView {
     }
 
     private func moveDestinations(for download: DownloadedGallery) -> [String] {
-        store.folders.filter { $0 != download.folderName }
+        store.folders.filter({ $0 != download.folderName })
     }
 
     @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {

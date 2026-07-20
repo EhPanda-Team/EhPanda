@@ -34,7 +34,7 @@ struct AppDelegateReducer {
                     // 1,000 entries shouldn't block `didFinishLaunching`; nothing reads history at start.
                     .run { _ in
                         @Shared(.galleryHistory) var galleryHistory
-                        $galleryHistory.withLock { $0.pruneToHistoryCap() }
+                        $galleryHistory.withLock({ $0.pruneToHistoryCap() })
                     },
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
                     .run(operation: { _ in cookieClient.removeYay() }),

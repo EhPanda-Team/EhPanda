@@ -128,7 +128,7 @@ extension DownloadCoordinator {
         let urls = [requestURL, response.url]
             .compactMap(\.self)
         let lowercasedURLs = urls
-            .map { $0.absoluteString.lowercased() }
+            .map({ $0.absoluteString.lowercased() })
         guard lowercasedURLs.contains(where: { url in
             Self.quotaExceededImageURLSuffixes
                 .contains(where: url.hasSuffix)

@@ -280,7 +280,7 @@ public actor DataCache {
 
     private nonisolated static func uniqued(_ keys: [String]) -> [String] {
         var seen = Set<String>()
-        return keys.filter { seen.insert($0).inserted }
+        return keys.filter({ seen.insert($0).inserted })
     }
 
     private func isExpired(_ fileURL: URL) -> Bool {
