@@ -74,7 +74,7 @@ struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
         let taskRunner = DownloadTaskRunner(
             runScheduledDownload: { _, _ in
                 while !Task.isCancelled {
-                    try? await Task.sleep(for: .milliseconds(10))
+                    await sleepIgnoringCancellation(for: .milliseconds(10))
                 }
                 return .skippedOperation
             }
@@ -160,7 +160,7 @@ private extension DownloadBackgroundProcessingTests {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
         while await !condition(), clock.now < deadline {
-            try? await Task.sleep(for: .milliseconds(10))
+            await sleepIgnoringCancellation(for: .milliseconds(10))
         }
         try #require(await condition(), "Timed out waiting for condition.")
     }

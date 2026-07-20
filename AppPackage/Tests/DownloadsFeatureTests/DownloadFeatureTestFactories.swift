@@ -375,8 +375,7 @@ private enum DownloadFeatureTestStubRouter {
             return (try stubResponse(url: url, contentType: "text/html; charset=utf-8"), mpvHTML)
         }
         if url.path == "/api.php" {
-            let body = requestBodyData(from: request)
-                .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            let body = requestBodyJSONObject(from: request)
             if body?["method"] as? String == "gdata" {
                 recorder?.recordMetadata()
                 return (try stubResponse(url: url, contentType: "application/json"), metadataResponse)

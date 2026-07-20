@@ -188,8 +188,7 @@ private extension DownloadProcessCacheTests {
         url: URL, request: URLRequest,
         metadataResponse: Data, imageURLString: String
     ) throws -> (response: HTTPURLResponse, data: Data) {
-        let body = requestBodyData(from: request)
-            .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+        let body = requestBodyJSONObject(from: request)
         if body?["method"] as? String == "gdata" {
             return (try makeCacheJSONResponse(url: url), metadataResponse)
         }
@@ -276,7 +275,7 @@ private extension DownloadProcessCacheTests {
         let deadline = clock.now.advanced(by: .seconds(1))
         while cachedKeys.contains(where: isCached),
               clock.now < deadline {
-            try? await Task.sleep(for: .milliseconds(10))
+            await sleepIgnoringCancellation(for: .milliseconds(10))
         }
     }
 
