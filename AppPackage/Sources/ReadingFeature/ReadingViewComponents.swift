@@ -129,6 +129,16 @@ struct HorizontalImageStack: View {
             loadSucceededAction: loadSucceededAction,
             loadFailedAction: loadFailedAction
         )
+        // D-02 exception candidate: the trigger here IS materialization by the lazy container, and
+        // that is the behaviour we want. Both readers (`LazyHStack` when paging, `AdvancedList` when
+        // vertical) build a page's container shortly before it is needed, which is exactly when its
+        // URL should be resolved and the prefetch window advanced. No reducer signal reproduces it:
+        // `pageModel.index` moves only on *settled* page changes, dual-page mode maps one position
+        // to two indices, and the vertical list renders many containers at once. Driving this from
+        // scroll visibility would also fetch later than the container does — and prefetch exists
+        // precisely to run ahead of visibility. This is the reader's hottest request path, so
+        // rebuilding the laziness in the reducer would risk load-order and cancellation drift for
+        // no behavioural gain.
         .onAppear {
             if imageURLs[index] == nil {
                 fetchAction(index)
@@ -319,6 +329,13 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
     @State private var progress: Progress?
 
     var body: some View {
+        // D-02 exception candidate: `.task(id:)` is used here for its *cancellation*, not merely to
+        // start work. It ties the download to both the view's lifetime and the URL's identity, so a
+        // page scrolled off screen (or re-pointed at a new URL) cancels its in-flight image fetch —
+        // `load()` reads exactly that signal below via `Task.isCancelled` to tell a cancellation
+        // apart from a real failure. Every non-banned alternative (`.onChange(of: url, initial:)`
+        // firing an unstructured `Task`) would drop that cancellation and leak concurrent image
+        // downloads on the reader's hottest path.
         content.task(id: url) { await load() }
     }
 
