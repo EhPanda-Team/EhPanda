@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-10-PLAN.md
-last_updated: "2026-07-20T19:19:47.929Z"
+stopped_at: Completed 11-11-PLAN.md
+last_updated: "2026-07-20T19:36:35.258Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 11 of 30
+Plan: 12 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -177,6 +177,7 @@ Progress: [█████████░] 85% (10/15 phases)
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 11 P10 | ~70 min | 2 tasks | 28 files |
+| Phase 11 P11 | ~35 min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -357,6 +358,8 @@ Recent decisions affecting current work:
 - [Phase ?]: swiftlint:disable:next directives cannot land before 11-11 uncomments lifecycle_modifiers (trips superfluous_disable_command); 11-11's flip commit must carry the rule AND every exception directive atomically
 - [Phase ?]: Setting/Filters/Downloads lifecycle migrated with zero D-02 exceptions; StackAction.popFrom is the dismissal-teardown seam
 - [Phase ?]: Pitfall 4 resolved by observation: AccountSetting's jar subscription outlives the login push, so no re-check re-fire is needed
+- [Phase ?]: lifecycle_modifiers and binding_initializer flipped to error atomically with the last fixes and all six D-02 directives — a disable directive cannot precede its rule (superfluous_disable_command)
+- [Phase ?]: Toast's ToastInteractionState deleted rather than exempted: it mirrored the presentation binding, and its two lifecycle callbacks existed only to maintain the mirror
 
 ### Pending Todos
 
@@ -398,6 +401,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T19:19:47.922Z
-Stopped at: Completed 11-10-PLAN.md
+Last session: 2026-07-20T19:36:22.923Z
+Stopped at: Completed 11-11-PLAN.md
 Resume file: None
