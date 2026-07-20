@@ -537,36 +537,124 @@ Plans:
 **Plans**: 30 plans (deliberately sequential waves — xcodebuild invocations must never overlap on this machine; each rule's config flip lands in the same commit as its last violation fix)
 
 Plans:
+**Wave 1**
 
 - [ ] 11-01-PLAN.md — ParserFeature `try?` Groups A/B → do/catch + logger (D-04 A/B)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 11-02-PLAN.md — ParserFeature Group C propagation + thrown-error test updates (D-03/D-04 C)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 11-03-PLAN.md — DownloadClient `try?` part 1: store/persistence cluster
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 11-04-PLAN.md — DownloadClient `try?` part 2: validation/networking/execution
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 11-05-PLAN.md — AppTools + AppModels `try?` (JSONValue probe chain preserved)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 11-06-PLAN.md — Remaining Sources `try?` (9 modules) + Sources-wide zero audit
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 11-07-PLAN.md — Lifecycle migration: Home/Search/Favorites (D-06/D-07)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 11-08-PLAN.md — Lifecycle migration: DetailFeature (all entry paths)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 11-09-PLAN.md — Lifecycle migration: ReadingFeature (parity-critical)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 11-10-PLAN.md — Lifecycle migration: Setting/Filters/Downloads
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 11-11-PLAN.md — Component lifecycle + flip `lifecycle_modifiers` & narrowed `binding_initializer` (D-05)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 11-12-PLAN.md — PreviewSupport module: stable UUID table + checked subscript (D-09)
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
 - [ ] 11-13-PLAN.md — Subscript safety: ReadingFeature (61) (D-08)
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
 - [ ] 11-14-PLAN.md — Subscript safety: ParserFeature (43)
+
+**Wave 15** *(blocked on Wave 14 completion)*
+
 - [ ] 11-15-PLAN.md — Subscript safety: DownloadClient + NetworkingFeature (41)
+
+**Wave 16** *(blocked on Wave 15 completion)*
+
 - [ ] 11-16-PLAN.md — Subscript safety: ImageColors checked idiom, fixtures unchanged (D-16)
+
+**Wave 17** *(blocked on Wave 16 completion)*
+
 - [ ] 11-17-PLAN.md — Subscript safety: remaining modules + flip `unchecked_subscript_index_access`
+
+**Wave 18** *(blocked on Wave 17 completion)*
+
 - [ ] 11-18-PLAN.md — Labeled tuple types + new `labeled_tuple_elements` rule + flip (D-10/D-11)
+
+**Wave 19** *(blocked on Wave 18 completion)*
+
 - [ ] 11-19-PLAN.md — FileClient injectable-root seam + parallel FileClientTests (D-12)
+
+**Wave 20** *(blocked on Wave 19 completion)*
+
 - [ ] 11-20-PLAN.md — Kingfisher cache seam + ImageClientTests trait + DidLoginKeyTests rationale (D-12/D-14)
+
+**Wave 21** *(blocked on Wave 20 completion)*
+
 - [ ] 11-21-PLAN.md — DownloadsFeatureTests per-suite `.serialized` diagnosis + removal (D-12/D-14)
+
+**Wave 22** *(blocked on Wave 21 completion)*
+
 - [ ] 11-22-PLAN.md — `@MainActor` sweep: DownloadsFeatureTests (27 files) (D-13)
+
+**Wave 23** *(blocked on Wave 22 completion)*
+
 - [ ] 11-22.1-PLAN.md — `@MainActor` sweep: remaining targets + full-suite parallel gate (D-13)
+
+**Wave 24** *(blocked on Wave 23 completion)*
+
 - [ ] 11-23-PLAN.md — Tests `try?`: DownloadsFeatureTests (D-15)
+
+**Wave 25** *(blocked on Wave 24 completion)*
+
 - [ ] 11-24-PLAN.md — Tests `try?` tail + flip `optional_try` (no Tests exclusion, D-15)
+
+**Wave 26** *(blocked on Wave 25 completion)*
+
 - [ ] 11-25-PLAN.md — `sorted_imports` autocorrect + flip + config hygiene
+
+**Wave 27** *(blocked on Wave 26 completion)*
+
 - [ ] 11-26-PLAN.md — `single_line_trailing_closure`: Sources rewrap
+
+**Wave 28** *(blocked on Wave 27 completion)*
+
 - [ ] 11-27-PLAN.md — `single_line_trailing_closure`: Tests rewrap + flip
+
+**Wave 29** *(blocked on Wave 28 completion)*
+
 - [ ] 11-28-PLAN.md — `multiline_function_chains` reformat + flip
+
+**Wave 30** *(blocked on Wave 29 completion)*
+
 - [ ] 11-29-PLAN.md — Capstone gate: seven-rule zero-check + parallel suite + 11-EXCEPTIONS.md owner-review inventory
 
 ## Progress
