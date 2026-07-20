@@ -14,10 +14,7 @@ import DownloadClient
 // MARK: - Shared Test Helper Protocol
 
 protocol DownloadFeatureTestCase: TestHelper {
-    func waitUntilCacheReady<Keys: Sequence>(
-        for keys: Keys,
-        timeout: Duration
-    ) async where Keys.Element == String
+    func expectCachedPlaceholderRejected(url: URL, placeholderData: Data) async throws
 
     func waitForTaskValue<T>(
         _ task: Task<T, Never>,
@@ -57,24 +54,51 @@ protocol DownloadFeatureTestCase: TestHelper {
 // MARK: - Default Implementations
 
 extension DownloadFeatureTestCase {
-    func waitUntilCacheReady<Keys: Sequence>(
-        for keys: Keys,
-        timeout: Duration = .seconds(1)
-    ) async where Keys.Element == String {
-        let cacheKeys = Array(keys)
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: timeout)
-
-        while !cacheKeys.allSatisfy(LibraryClient.live.isCached),
-              clock.now < deadline {
-            try? await clock.sleep(until: clock.now.advanced(by: .milliseconds(10)), tolerance: .zero)
+    /// Removes a temporary file or directory a case created, absorbing the failure.
+    func removeTemporaryItem(at url: URL) {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            // Cleanup under the system temporary directory is housekeeping, not a result any case
+            // asserts, so a failed removal must not fail the test that asked for it.
         }
+    }
 
-        let missingKeys = cacheKeys.filter { !LibraryClient.live.isCached($0) }
-        #expect(
-            missingKeys.isEmpty,
-            "Timed out waiting for cache visibility for keys: \(missingKeys)"
+    /// Primes an isolated `DataCache` with a placeholder body under every cache key of `url`, then
+    /// asserts the coordinator refuses to serve it.
+    ///
+    /// The surrounding assertions are what give the middle one meaning: the first proves the entry
+    /// really was cached, the last proves the rejection evicted it — so a `nil` result cannot be a
+    /// trivial cache miss. Everything the assertion touches is per-call state: the byte cache the
+    /// read path resolves is injected, and `libraryClient: .noop` keeps the eviction off the
+    /// process-shared Kingfisher cache, so callers need no serialization.
+    func expectCachedPlaceholderRejected(url: URL, placeholderData: Data) async throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+            )
         )
+        let manager = DownloadCoordinator(
+            storage: DownloadStore(rootURL: rootURL, fileManager: .default),
+            urlSession: .shared,
+            libraryClient: .noop
+        )
+        let cacheKeys = url.imageCacheKeys
+
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            try await dataCache.store(placeholderData, forKeys: cacheKeys)
+            #expect(await dataCache.data(forKeys: cacheKeys) == placeholderData)
+
+            #expect(await manager.validatedCachedAssetData(for: [url]) == nil)
+
+            #expect(await dataCache.data(forKeys: cacheKeys) == nil)
+        }
     }
 
     func waitForTaskValue<T>(
@@ -192,6 +216,10 @@ extension DownloadFeatureTestCase {
         try fixtureData(resource: resource, pathExtension: pathExtension)
             .write(to: temporaryURL, options: .atomic)
         return temporaryURL
+    }
+
+    func fixtureData(filename: HTMLFilename) throws -> Data {
+        try fixtureData(resource: filename.rawValue, pathExtension: "html")
     }
 
     func fixtureData(
