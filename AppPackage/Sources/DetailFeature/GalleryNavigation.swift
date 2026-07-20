@@ -18,6 +18,20 @@ public enum GalleryNavigation {
         }
     }
 
+    // Kicks off a freshly presented gallery screen: the reducer-side replacement for the screens'
+    // former view `onAppear`. A `nil` `id` means `appendGuardingDuplicate` deduped the push, so no
+    // new screen was presented and nothing should start. `embed` lifts the scoped action into the
+    // host's own `Action`, because hosts nest `GalleryPath` differently (Home and SearchRoot stack it
+    // under a `.gallery` case, the others stack it directly).
+    public static func presentationEffect<Action>(
+        id: StackElementID?,
+        screen: GalleryPath.State,
+        embed: (StackElementID, GalleryPath.Action) -> Action
+    ) -> Effect<Action> {
+        guard let id, let action = screen.onPresentedAction else { return .none }
+        return .send(embed(id, action))
+    }
+
     public static func nextScreen(for action: GalleryPath.Action) -> GalleryPath.State? {
         switch action {
         case let .detail(.delegate(delegate)):
@@ -75,6 +89,20 @@ extension StackState where Element: GalleryRouteIdentifiable {
         guard last?.routeKey != element.routeKey else { return nil }
         append(element)
         return ids.last
+    }
+}
+
+extension GalleryPath.State {
+    // The action that starts this screen's work, sent by whichever host just installed the state —
+    // the reducer-side replacement for the screens' former view `onAppear`. `nil` means the screen
+    // has nothing to start because the pushing context seeds all of its content.
+    public var onPresentedAction: GalleryPath.Action? {
+        switch self {
+        case .detail:
+            return .detail(.onPresented)
+        case .previews, .comments, .detailSearch, .galleryInfos:
+            return nil
+        }
     }
 }
 

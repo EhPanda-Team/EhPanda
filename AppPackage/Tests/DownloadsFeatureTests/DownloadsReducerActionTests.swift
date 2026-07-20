@@ -35,7 +35,15 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         let store = TestStore(
             initialState: initialState,
             reducer: DownloadsReducer.init,
-            withDependencies: { $0.deviceClient = .noop }
+            withDependencies: {
+                $0.deviceClient = .noop
+                // The pushed detail now starts its own load on presentation, so its dependencies
+                // have to be stubbed even though this test only asserts the push itself.
+                $0.downloadClient = .noop
+                $0.cookieClient = .noop
+                $0.hapticsClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+            }
         )
         store.exhaustivity = .off
 
@@ -67,7 +75,15 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         let store = TestStore(
             initialState: initialState,
             reducer: DownloadsReducer.init,
-            withDependencies: { $0.deviceClient = .noop }
+            withDependencies: {
+                $0.deviceClient = .noop
+                // The pushed detail now starts its own load on presentation, so its dependencies
+                // have to be stubbed even though this test only asserts the push itself.
+                $0.downloadClient = .noop
+                $0.cookieClient = .noop
+                $0.hapticsClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+            }
         )
         store.exhaustivity = .off
 

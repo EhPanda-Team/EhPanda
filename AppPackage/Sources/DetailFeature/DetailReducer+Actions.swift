@@ -67,8 +67,8 @@ extension DetailReducer {
                     await send(.setPostCommentFocused(true))
                 }
 
-            case .onAppear(let gid):
-                return handleOnAppear(gid: gid, state: &state)
+            case .onPresented:
+                return handleOnPresented(state: &state)
 
             default:
                 return .none
@@ -76,11 +76,12 @@ extension DetailReducer {
         }
     }
 
-    private func handleOnAppear(
-        gid: String,
-        state: inout State
-    ) -> Effect<Action> {
-        state.gid = gid
+    // Presentation-driven lifecycle: every host sends `.onPresented` in the same state transition
+    // that installs this screen (a stack push or the app-level modal), replacing the former view
+    // `onAppear`. Presentation fires once per screen instead of once per appearance, so the
+    // per-visit reset below is the reset for the whole screen's life; `state.gid` no longer needs
+    // passing in because `State.init` derives it from the seeded gallery.
+    private func handleOnPresented(state: inout State) -> Effect<Action> {
         state.isPreparingDownload = false
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
