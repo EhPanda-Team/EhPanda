@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-09-PLAN.md
-last_updated: "2026-07-20T17:59:15.637Z"
+stopped_at: Completed 11-10-PLAN.md
+last_updated: "2026-07-20T19:19:47.929Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 114
+  completed_plans: 115
   percent: 60
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 10 of 30
+Plan: 11 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
-Progress: [███████░░░] 67% (10/15 phases)
+Progress: [█████████░] 85% (10/15 phases)
 
 ## Performance Metrics
 
@@ -172,6 +172,11 @@ Progress: [███████░░░] 67% (10/15 phases)
 | Phase 11 P7 | 55m | 2 tasks | 24 files |
 | Phase 11 P8 | ~95 min | 2 tasks | 24 files |
 | Phase 11 P9 | ~40 min | 2 tasks | 17 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 11 P10 | ~70 min | 2 tasks | 28 files |
 
 ## Accumulated Context
 
@@ -350,6 +355,8 @@ Recent decisions affecting current work:
 - [Phase ?]: PostCommentView lost its onAppearAction parameter: focus is raised by the presenting reducer
 - [Phase ?]: Reader lifecycle: 3 of 6 sites migrated to presentation-driven; 3 kept as reason-annotated D-02 exception candidates (lazy-container prefetch, .task(id:) cancellation, view-owned handler teardown)
 - [Phase ?]: swiftlint:disable:next directives cannot land before 11-11 uncomments lifecycle_modifiers (trips superfluous_disable_command); 11-11's flip commit must carry the rule AND every exception directive atomically
+- [Phase ?]: Setting/Filters/Downloads lifecycle migrated with zero D-02 exceptions; StackAction.popFrom is the dismissal-teardown seam
+- [Phase ?]: Pitfall 4 resolved by observation: AccountSetting's jar subscription outlives the login push, so no re-check re-fire is needed
 
 ### Pending Todos
 
@@ -391,6 +398,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T17:59:15.630Z
-Stopped at: Completed 11-09-PLAN.md
+Last session: 2026-07-20T19:19:47.922Z
+Stopped at: Completed 11-10-PLAN.md
 Resume file: None
