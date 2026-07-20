@@ -1,4 +1,3 @@
-import Kanna
 import OSLogExt
 import AppModels
 import Foundation
@@ -34,9 +33,13 @@ extension DownloadCoordinator {
     ) -> AppError? {
         // Prefix inspection is opportunistic; an unreadable prefix falls through to
         // placeholder, status-code, and response-metadata validation below.
-        let prefixData = (try? readResponsePrefixData(
-            at: fileURL
-        )) ?? Data()
+        let prefixData: Data
+        do {
+            prefixData = try readResponsePrefixData(at: fileURL)
+        } catch {
+            logger.error("Download response prefix read failed: \(error, privacy: .public)")
+            prefixData = Data()
+        }
         if let error = detectPlaceholderFileErrors(
             response: response,
             fileURL: fileURL,
@@ -123,10 +126,7 @@ extension DownloadCoordinator {
         if looksLikeHTML {
             // Full-file inspection is optional here; a read failure preserves the
             // placeholder-only result and lets response metadata drive validation.
-            return placeholderData ?? (try? Data(
-                contentsOf: fileURL,
-                options: .mappedIfSafe
-            ))
+            return placeholderData ?? probeFileData(at: fileURL)
         }
         return placeholderData
     }
@@ -250,9 +250,8 @@ extension DownloadCoordinator {
         if let fullData,
            // DOM parsing is a probe; malformed HTML intentionally falls back to
            // status-code and unexpected-HTML classification below.
-           let document = try? Kanna.HTML(
-            html: fullData.utf8InvalidCharactersRipped,
-            encoding: .utf8
+           let document = probeHTMLDocument(
+            fullData.utf8InvalidCharactersRipped
            ),
            let error = Parser.parseResponseError(
             doc: document
@@ -292,9 +291,6 @@ extension DownloadCoordinator {
         }
         // Placeholder bytes are an optional fingerprint probe; a read failure means
         // the response cannot be identified as a known placeholder by content.
-        return try? Data(
-            contentsOf: fileURL,
-            options: .mappedIfSafe
-        )
+        return probeFileData(at: fileURL)
     }
 }

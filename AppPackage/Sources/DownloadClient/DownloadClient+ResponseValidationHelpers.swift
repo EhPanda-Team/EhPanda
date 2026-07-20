@@ -104,10 +104,7 @@ extension DownloadCoordinator {
 
         // DOM parsing is an optional probe; malformed HTML falls back to the raw
         // short-response parser below so validation behavior stays conservative.
-        if let document = try? Kanna.HTML(
-            html: normalizedData,
-            encoding: .utf8
-        ),
+        if let document = probeHTMLDocument(normalizedData),
         let error = Parser.parseResponseError(
             doc: document
         ) {
@@ -153,10 +150,7 @@ extension DownloadCoordinator {
         } else if let fileURL {
             // Loading file bytes is an optional fingerprint probe; failure means this
             // response cannot be confirmed as the quota placeholder by content.
-            data = try? Data(
-                contentsOf: fileURL,
-                options: .mappedIfSafe
-            )
+            data = probeFileData(at: fileURL)
         } else {
             data = nil
         }
@@ -296,10 +290,39 @@ extension DownloadCoordinator {
         guard let fileURL else { return nil }
         // File size is optional response metadata; an unavailable attribute leaves
         // callers to use response headers or decline placeholder classification.
-        let values = try? fileURL.resourceValues(
-            forKeys: [.fileSizeKey]
-        )
-        return values?.fileSize
+        do {
+            return try fileURL.resourceValues(
+                forKeys: [.fileSizeKey]
+            ).fileSize
+        } catch {
+            return nil
+        }
+    }
+
+    /// Parses response bytes as a DOM purely to ask "does this HTML carry a known site error?".
+    /// Every caller treats a `nil` document exactly like a document without an error and falls
+    /// through to the raw-content or status-code classifiers, so malformed markup — which is the
+    /// ordinary shape of the truncated or non-HTML payloads this probe is pointed at — is the
+    /// expected negative answer rather than a failure worth logging.
+    func probeHTMLDocument(_ data: Data) -> HTMLDocument? {
+        do {
+            return try Kanna.HTML(html: data, encoding: .utf8)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Reads a downloaded file's bytes for optional placeholder/HTML fingerprinting. Callers use
+    /// the bytes only to *add* a classification they could not otherwise make, so an unreadable
+    /// file simply means "cannot be confirmed by content" — response metadata still drives the
+    /// verdict. Failure is silent because these probes run against files that may legitimately
+    /// have been cleaned up or never staged.
+    func probeFileData(at fileURL: URL) -> Data? {
+        do {
+            return try Data(contentsOf: fileURL, options: .mappedIfSafe)
+        } catch {
+            return nil
+        }
     }
 
     func isAuthenticationRequiredPlaceholderImageData(
