@@ -73,8 +73,11 @@ extension LibraryClient {
                     continuation.resume()
                 }
             }
-            // Clearing image caches is best-effort; a DataCache failure must not block the other caches.
-            _ = try? await (dataCacheClear, kingfisherClear, sdWebImageClear)
+            do {
+                _ = try await (dataCacheClear, kingfisherClear, sdWebImageClear)
+            } catch {
+                // Clearing image caches is best-effort; a DataCache failure must not block the other caches.
+            }
         },
         cachedImage: { key in
             if let image = await kingfisherCachedImage(forKey: key) {
@@ -116,9 +119,15 @@ extension LibraryClient {
         calculateWebImageDiskCacheSize: {
             @Dependency(\.dataCache) var dataCache
             async let kingfisherSize: UInt? = withCheckedContinuation { continuation in
-                KingfisherManager.shared.cache.calculateDiskStorageSize {
-                    // An unreadable cache size intentionally contributes no bytes to the aggregate.
-                    continuation.resume(returning: try? $0.get())
+                KingfisherManager.shared.cache.calculateDiskStorageSize { result in
+                    switch result {
+                    case .success(let size):
+                        continuation.resume(returning: size)
+
+                    case .failure:
+                        // An unreadable cache size intentionally contributes no bytes to the aggregate.
+                        continuation.resume(returning: nil)
+                    }
                 }
             }
             async let sdWebImageSize: UInt? = withCheckedContinuation { continuation in
@@ -126,9 +135,15 @@ extension LibraryClient {
                     continuation.resume(returning: UInt(totalSize))
                 }
             }
-            // An unreadable DataCache size intentionally contributes no bytes to the aggregate.
-            async let dataCacheSize = try? dataCache.totalSize()
-            return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0) + UInt(dataCacheSize ?? 0)
+            async let dataCacheSize = dataCache.totalSize()
+            let dataCacheBytes: UInt64
+            do {
+                dataCacheBytes = try await dataCacheSize
+            } catch {
+                // An unreadable DataCache size intentionally contributes no bytes to the aggregate.
+                dataCacheBytes = 0
+            }
+            return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0) + UInt(dataCacheBytes)
         }
     )
 }
@@ -160,10 +175,13 @@ private func kingfisherCachedImageData(forKey key: String) async -> Data? {
         return data
     }
 
-    // A failed disk-cache read is intentionally treated as a cache miss before the fallback lookup.
-    if let data = try? KingfisherManager.shared.cache
-        .diskStorage.value(forKey: key) {
-        return data
+    do {
+        if let data = try KingfisherManager.shared.cache
+            .diskStorage.value(forKey: key) {
+            return data
+        }
+    } catch {
+        // A failed disk-cache read is intentionally treated as a cache miss before the fallback lookup.
     }
 
     return await withCheckedContinuation { continuation in
