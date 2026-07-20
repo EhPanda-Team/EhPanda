@@ -93,6 +93,7 @@ enum Module: String {
     case networkingFeature = "NetworkingFeature"
     case osLogExt = "OSLogExt"
     case parserFeature = "ParserFeature"
+    case previewSupport = "PreviewSupport"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
     case readingSettingFeature = "ReadingSettingFeature"
@@ -466,6 +467,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
+            .module(.previewSupport),
             .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
@@ -479,6 +481,13 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
         ],
+        plugins: swiftLintPlugins
+    ),
+    // Preview-only support: a frozen table of stable fixture identities. Foundation-only and
+    // depended on by feature modules purely so their `#Preview` fixtures stop minting random
+    // UUIDs; nothing in a production code path may reference it.
+    .target(
+        module: .previewSupport,
         plugins: swiftLintPlugins
     ),
     // App-owned markdown helper: the sole owner of the swift-markdown (`Markdown`) dependency,
@@ -674,6 +683,7 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
+            .module(.previewSupport),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.sfSafeSymbolsExt),
@@ -702,6 +712,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.networkingFeature),
+            .module(.previewSupport),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
