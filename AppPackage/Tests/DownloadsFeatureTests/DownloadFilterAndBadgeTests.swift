@@ -1,12 +1,12 @@
-import SwiftUI
+@testable import AppFeature
 import AppModels
+import AppTools
+import ComposableArchitecture
+@testable import DownloadsFeature
 import Foundation
 import SFSafeSymbols
-import ComposableArchitecture
+import SwiftUI
 import Testing
-import AppTools
-@testable import DownloadsFeature
-@testable import AppFeature
 
 struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
     @Test

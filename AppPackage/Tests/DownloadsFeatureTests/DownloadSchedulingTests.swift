@@ -1,8 +1,8 @@
-import Foundation
-import AppModels
-import Testing
-import DownloadClient
 @testable import AppFeature
+import AppModels
+import DownloadClient
+import Foundation
+import Testing
 
 @Suite
 struct DownloadSchedulingTests: DownloadFeatureTestCase {

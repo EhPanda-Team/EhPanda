@@ -1,6 +1,6 @@
-import Kanna
 import AppModels
 import Foundation
+import Kanna
 
 extension Parser {
     public static func parseSkipServerIdentifier(doc: HTMLDocument) throws -> String {

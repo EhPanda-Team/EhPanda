@@ -1,11 +1,11 @@
-import AppTools
-import AppModels
-import Resources
-import UIKit
-import Foundation
-import Testing
-import DownloadClient
 @testable import AppFeature
+import AppModels
+import AppTools
+import DownloadClient
+import Foundation
+import Resources
+import Testing
+import UIKit
 
 struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
     @Test

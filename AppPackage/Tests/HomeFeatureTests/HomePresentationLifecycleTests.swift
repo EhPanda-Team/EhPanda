@@ -1,10 +1,10 @@
-import Foundation
 import AppModels
 import ComposableArchitecture
 import CustomDump
 import DownloadClient
-import Testing
+import Foundation
 @testable import HomeFeature
+import Testing
 
 // Presentation-driven lifecycle: pushing a screen is what starts its work, so these tests assert the
 // load effects fire on the navigation transition rather than on a view callback, and that the guards

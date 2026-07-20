@@ -1,7 +1,7 @@
-import Testing
+import ComposableArchitecture
 import Foundation
 @testable import SettingFeature
-import ComposableArchitecture
+import Testing
 
 // Covers the tag-translation file-import flow: the button drives a native `.fileImporter` through a
 // `@Presents` destination, so present/dismiss are exhaustively assertable in the reducer.

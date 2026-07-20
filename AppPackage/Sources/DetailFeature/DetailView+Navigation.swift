@@ -1,9 +1,9 @@
-import SwiftUI
-import Resources
-import ComposableArchitecture
-import AppTools
 import AppComponents
+import AppTools
+import ComposableArchitecture
+import Resources
 import SFSafeSymbolsExt
+import SwiftUI
 
 // MARK: ToolBar
 extension DetailView {

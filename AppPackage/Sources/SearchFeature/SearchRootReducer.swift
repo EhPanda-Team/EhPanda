@@ -1,13 +1,13 @@
-import ComposableArchitecture
 import AppModels
-import Sharing
 import AppTools
-import HapticsClient
+import ComposableArchitecture
+import DetailFeature
 import DeviceClient
 import FiltersFeature
-import QuickSearchFeature
+import HapticsClient
 import NetworkingFeature
-import DetailFeature
+import QuickSearchFeature
+import Sharing
 
 @Reducer
 public struct SearchRootReducer: Sendable {

@@ -1,7 +1,7 @@
-import Testing
-import Foundation
 import AppModels
 import FileClient
+import Foundation
+import Testing
 
 // Exercises the live importer's coordinated, security-scoped read (REV-1) against local files;
 // the iCloud download that coordination triggers is system behavior, smoke-tested manually.

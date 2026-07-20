@@ -1,9 +1,9 @@
-import AppTools
-import Foundation
-import AppModels
-import Testing
-import DownloadClient
 @testable import AppFeature
+import AppModels
+import AppTools
+import DownloadClient
+import Foundation
+import Testing
 
 struct DownloadStoreRepairTests {
     @Test

@@ -1,8 +1,8 @@
-import OSLogExt
-import Foundation
-import AppModels
-import UniformTypeIdentifiers
 import AnimatedImageFeature
+import AppModels
+import Foundation
+import OSLogExt
+import UniformTypeIdentifiers
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 

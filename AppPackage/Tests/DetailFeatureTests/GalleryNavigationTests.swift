@@ -1,7 +1,7 @@
-import Testing
 import AppModels
-@testable import DetailFeature
 import ComposableArchitecture
+@testable import DetailFeature
+import Testing
 
 @Suite
 struct GalleryNavigationTests {

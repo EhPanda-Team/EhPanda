@@ -1,12 +1,12 @@
-import Testing
-import Foundation
 import AppModels
 import AppTools
+import ComposableArchitecture
 import CookieClient
+import Foundation
 import LibraryClient
 import LogsClient
 @testable import SettingFeature
-import ComposableArchitecture
+import Testing
 
 // The Setting screens' loads used to be kicked off by their views' `onAppear`; they are now sent by
 // `SettingReducer` on the push that presents them, and the EhSetting teardown that used to run in

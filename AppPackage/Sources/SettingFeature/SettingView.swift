@@ -1,9 +1,9 @@
-import SwiftUI
+import AppComponents
+import ComposableArchitecture
+import ReadingSettingFeature
 import Resources
 import SFSafeSymbols
-import ComposableArchitecture
-import AppComponents
-import ReadingSettingFeature
+import SwiftUI
 
 public struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>

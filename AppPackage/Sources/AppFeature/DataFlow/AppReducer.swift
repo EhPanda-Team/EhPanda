@@ -1,19 +1,19 @@
-import SwiftUI
-import AppModels
-import ComposableArchitecture
-import URLClient
-import HapticsClient
-import DownloadClient
-import BackgroundProcessingClient
-import CookieClient
 import AppLaunchAutomationClient
+import AppModels
+import BackgroundProcessingClient
+import ComposableArchitecture
+import CookieClient
 import DeviceClient
-import HomeFeature
-import SearchFeature
-import FavoritesFeature
+import DownloadClient
 import DownloadsFeature
-import SettingFeature
+import FavoritesFeature
+import HapticsClient
+import HomeFeature
 import OSLogExt
+import SearchFeature
+import SettingFeature
+import SwiftUI
+import URLClient
 
 private let logger = Logger(category: .init(describing: AppReducer.self))
 

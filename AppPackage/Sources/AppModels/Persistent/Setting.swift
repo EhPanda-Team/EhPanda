@@ -1,7 +1,7 @@
-import UIKit
 import AppTools
-import Resources
 import Foundation
+import Resources
+import UIKit
 
 public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public init(

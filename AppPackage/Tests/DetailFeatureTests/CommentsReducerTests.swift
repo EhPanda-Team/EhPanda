@@ -1,9 +1,9 @@
-import Testing
-import Foundation
 import AppModels
-import HapticsClient
-@testable import DetailFeature
 import ComposableArchitecture
+@testable import DetailFeature
+import Foundation
+import HapticsClient
+import Testing
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would

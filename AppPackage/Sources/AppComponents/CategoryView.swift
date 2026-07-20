@@ -1,9 +1,9 @@
-import SwiftUI
-import Sharing
 import AppModels
 import AppTools
 import Dependencies
 import HapticsClient
+import Sharing
+import SwiftUI
 
 // MARK: CategoryLabel
 public struct CategoryLabel: View {

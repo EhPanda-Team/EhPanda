@@ -1,10 +1,10 @@
-import SwiftUI
-import Kingfisher
-import ComposableArchitecture
-import NetworkingFeature
 import AppModels
-import Sharing
+import ComposableArchitecture
 import DetailFeature
+import Kingfisher
+import NetworkingFeature
+import Sharing
+import SwiftUI
 
 extension HomeReducer {
     @ReducerBuilder<State, Action>

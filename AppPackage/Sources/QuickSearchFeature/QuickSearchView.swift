@@ -1,10 +1,10 @@
-import SwiftUI
+import AppComponents
 import AppModels
+import ComposableArchitecture
 import Resources
 import SFSafeSymbols
-import ComposableArchitecture
-import AppComponents
 import SFSafeSymbolsExt
+import SwiftUI
 
 public struct QuickSearchView: View {
     @Environment(\.dismiss) private var dismiss

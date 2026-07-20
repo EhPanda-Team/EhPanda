@@ -1,7 +1,7 @@
-import Foundation
-import Testing
 import AnimatedImageFeature
 @testable import AppFeature
+import Foundation
+import Testing
 
 struct AnimatedImageDataTests {
     @Test

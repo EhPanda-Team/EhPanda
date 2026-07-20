@@ -1,12 +1,12 @@
-import SwiftUI
-import AppModels
-import Resources
-import ComposableArchitecture
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import ComposableArchitecture
+import DetailFeature
 import FiltersFeature
 import QuickSearchFeature
-import DetailFeature
+import Resources
+import SwiftUI
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>

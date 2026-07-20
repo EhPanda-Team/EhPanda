@@ -1,5 +1,5 @@
-import Foundation
 import AppModels
+import Foundation
 
 // MARK: - Perform Download
 extension DownloadCoordinator {

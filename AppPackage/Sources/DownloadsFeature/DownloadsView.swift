@@ -1,13 +1,13 @@
-import SwiftUI
+import AppComponents
 import AppModels
+import AppTools
+import ComposableArchitecture
+import DetailFeature
+import ReadingFeature
 import Resources
 import SFSafeSymbols
-import ComposableArchitecture
-import AppTools
-import AppComponents
-import ReadingFeature
-import DetailFeature
 import SFSafeSymbolsExt
+import SwiftUI
 
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>

@@ -1,6 +1,6 @@
-import Testing
 import AppModels
 @testable import ReadingFeature
+import Testing
 
 // Wave-0 regression guard for DEP-05. These cases freeze `PageHandler.mapToPager`/`mapFromPager` —
 // the pure stack-index ↔ reading-page mapping, including the dual-page cover-exception math —

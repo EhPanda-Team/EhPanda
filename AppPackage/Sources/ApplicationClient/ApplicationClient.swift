@@ -1,6 +1,6 @@
-import SwiftUI
-import ComposableArchitecture
 import AppTools
+import ComposableArchitecture
+import SwiftUI
 
 public struct ApplicationClient: Sendable {
     public let openURL: @MainActor @Sendable (URL) -> Void

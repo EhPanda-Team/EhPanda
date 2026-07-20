@@ -1,6 +1,6 @@
+import ApplicationClient
 import AppModels
 import ComposableArchitecture
-import ApplicationClient
 
 @Reducer
 public struct AppearanceSettingReducer: Sendable {

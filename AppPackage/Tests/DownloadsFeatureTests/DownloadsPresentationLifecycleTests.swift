@@ -1,10 +1,10 @@
-import Foundation
+@testable import AppFeature
 import AppModels
 import ComposableArchitecture
-import Testing
 import DownloadClient
 @testable import DownloadsFeature
-@testable import AppFeature
+import Foundation
+import Testing
 
 // The Downloads tab root and its inspector sheet used to start themselves from view `onAppear`;
 // both are now started by the transition that presents them.

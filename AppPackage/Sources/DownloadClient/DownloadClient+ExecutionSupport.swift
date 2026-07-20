@@ -1,9 +1,9 @@
-import AppTools
-import OSLogExt
-import Foundation
 import AppModels
-import URLClient
+import AppTools
+import Foundation
 import NetworkingFeature
+import OSLogExt
+import URLClient
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 

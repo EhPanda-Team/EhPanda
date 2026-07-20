@@ -1,5 +1,5 @@
-import SwiftUI
 import SFSafeSymbols
+import SwiftUI
 
 /// A leading, non-interactive footnote notice (e.g. a size-cap explanation) meant to sit as a row
 /// inside a `List`. Rendering it in the list, rather than pinning it above the list via

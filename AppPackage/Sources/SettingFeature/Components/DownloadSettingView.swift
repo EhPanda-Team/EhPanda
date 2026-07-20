@@ -1,8 +1,8 @@
-import SwiftUI
-import AppModels
-import Sharing
-import Resources
 import AppComponents
+import AppModels
+import Resources
+import Sharing
+import SwiftUI
 
 struct DownloadSettingView: View {
     @Shared(.setting) private var setting: Setting

@@ -1,21 +1,21 @@
-import AppTools
-import Foundation
-import AppModels
-import SwiftUI
-import ComposableArchitecture
-import Testing
-import URLClient
-import UserDefaultsClient
+@testable import AppFeature
+import AppLaunchAutomationClient
 import ApplicationClient
-import HapticsClient
-import LibraryClient
+import AppModels
+import AppTools
+import ComposableArchitecture
+import CookieClient
+import DeviceClient
 import DFClient
 import DownloadClient
 import FileClient
-import CookieClient
-import AppLaunchAutomationClient
-import DeviceClient
-@testable import AppFeature
+import Foundation
+import HapticsClient
+import LibraryClient
+import SwiftUI
+import Testing
+import URLClient
+import UserDefaultsClient
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated

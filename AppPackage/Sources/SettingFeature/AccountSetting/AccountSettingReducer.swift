@@ -1,12 +1,12 @@
-import Foundation
-import AppModels
-import Resources
-import ComposableArchitecture
-import HapticsClient
-import ClipboardClient
-import CookieClient
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import ClipboardClient
+import ComposableArchitecture
+import CookieClient
+import Foundation
+import HapticsClient
+import Resources
 
 @Reducer
 public struct AccountSettingReducer: Sendable {

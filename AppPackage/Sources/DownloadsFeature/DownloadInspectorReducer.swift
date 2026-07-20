@@ -1,9 +1,9 @@
-import Foundation
+import AppComponents
 import AppModels
-import Resources
 import ComposableArchitecture
 import DownloadClient
-import AppComponents
+import Foundation
+import Resources
 
 @Reducer
 public struct DownloadInspectorReducer: Sendable {

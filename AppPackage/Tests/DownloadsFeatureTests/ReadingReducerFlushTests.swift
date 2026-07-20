@@ -1,10 +1,10 @@
-import Foundation
-import Sharing
 import AppModels
 import ComposableArchitecture
-import Testing
+import Foundation
 import HapticsClient
 @testable import ReadingFeature
+import Sharing
+import Testing
 
 // V-1 regression guard. Closing the reader must persist the current page *synchronously* on
 // `.onPerformDismiss` — that runs in this child reducer before the parent nils the presentation and

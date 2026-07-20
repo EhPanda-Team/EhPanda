@@ -1,14 +1,14 @@
-import Foundation
-import ComposableArchitecture
-import Testing
-import Sharing
-import AppModels
-import DownloadClient
-import CookieClient
-import AppLaunchAutomationClient
-import ReadingFeature
-import DownloadsFeature
 @testable import AppFeature
+import AppLaunchAutomationClient
+import AppModels
+import ComposableArchitecture
+import CookieClient
+import DownloadClient
+import DownloadsFeature
+import Foundation
+import ReadingFeature
+import Sharing
+import Testing
 
 // Scene-phase observation lives in AppReducer, not the reader view. On `.background`, AppReducer
 // routes `.flushReadingProgress` to whichever reading session is on top of a navigation host (located

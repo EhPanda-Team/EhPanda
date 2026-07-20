@@ -1,11 +1,11 @@
-import TestingSupport
+@testable import AppFeature
+import AppModels
 import AppTools
 import Foundation
-import AppModels
 import Kanna
-import Testing
 import ParserFeature
-@testable import AppFeature
+import Testing
+import TestingSupport
 
 struct ListParserTests: TestHelper {
     @Test

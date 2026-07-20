@@ -1,7 +1,7 @@
-import SwiftUI
-import Sharing
-import AppModels
 import AppComponents
+import AppModels
+import Sharing
+import SwiftUI
 
 public struct GalleryList: View {
     @SharedReader(.setting) private var setting: Setting

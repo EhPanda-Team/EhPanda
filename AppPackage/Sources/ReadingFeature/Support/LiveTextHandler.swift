@@ -8,12 +8,12 @@
 //  swiftlint:enable line_length
 //
 
-import Vision
 import AppModels
-import OSLogExt
-import SwiftUI
 import Foundation
 import Observation
+import OSLogExt
+import SwiftUI
+import Vision
 
 private let logger = Logger(category: .init(describing: LiveTextHandler.self))
 

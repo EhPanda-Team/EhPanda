@@ -1,6 +1,6 @@
+import AppModels
 import Foundation
 import Testing
-import AppModels
 
 // REV-21 / #3: greetings have two writers (the Setting daily fetch and the Detail-page parse), so the
 // "keep the newer" merge lives on `Optional<Greeting>.mergeNewer`. A stale detail-page greeting must

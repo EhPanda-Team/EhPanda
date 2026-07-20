@@ -1,6 +1,6 @@
+import Foundation
 import SwiftUI
 import UIKit
-import Foundation
 
 // MARK: Encodable
 extension Encodable {

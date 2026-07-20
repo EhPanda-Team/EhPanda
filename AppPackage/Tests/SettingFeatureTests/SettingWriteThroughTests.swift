@@ -1,9 +1,9 @@
-import Foundation
-import Testing
 import AppModels
-import Sharing
-@testable import SettingFeature
 import ComposableArchitecture
+import Foundation
+@testable import SettingFeature
+import Sharing
+import Testing
 
 // REV-8 / V-2: `setting` is stored directly in `@Shared(.setting)`, so a non-binding write path like
 // `syncAppIconTypeDone` (fired at launch) must persist atomically. Previously it mutated a working copy

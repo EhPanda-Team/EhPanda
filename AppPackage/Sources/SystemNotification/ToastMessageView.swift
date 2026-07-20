@@ -6,10 +6,10 @@
 //  layering glass over a Material would render it opaque.
 //
 
-import SwiftUI
-import SFSafeSymbols
 import AppComponents
 import ComposableArchitecture
+import SFSafeSymbols
+import SwiftUI
 
 /// The rendered content of a toast, mapped from ``AppAlertState`` by ``AppAlertState/toastContent``.
 struct ToastContent: Equatable {

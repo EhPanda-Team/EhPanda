@@ -1,5 +1,5 @@
-import ComposableArchitecture
 import AppModels
+import ComposableArchitecture
 import Foundation
 import HapticsClient
 

@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
 import Foundation
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 lock for every request declared in Request+Image.swift, including the fan-out and the
 // whole-chain retry behavior of the refetch pipeline.

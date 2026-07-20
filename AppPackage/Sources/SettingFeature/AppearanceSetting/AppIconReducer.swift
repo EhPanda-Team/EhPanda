@@ -1,7 +1,7 @@
-import AppModels
-import Sharing
-import ComposableArchitecture
 import ApplicationClient
+import AppModels
+import ComposableArchitecture
+import Sharing
 
 @Reducer
 public struct AppIconReducer: Sendable {

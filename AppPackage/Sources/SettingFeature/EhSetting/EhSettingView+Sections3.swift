@@ -1,10 +1,10 @@
-import SwiftUI
+import AppComponents
 import AppModels
-import Resources
 import AppTools
 import Dependencies
 import HapticsClient
-import AppComponents
+import Resources
+import SwiftUI
 
 extension EhSettingView {
 

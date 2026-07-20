@@ -1,9 +1,9 @@
-import SwiftUI
-import AppModels
-import Resources
-import Kingfisher
-import AppTools
 import AppComponents
+import AppModels
+import AppTools
+import Kingfisher
+import Resources
+import SwiftUI
 
 struct TagDetailView: View {
     private let detail: TagDetail

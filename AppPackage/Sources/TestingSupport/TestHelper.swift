@@ -1,5 +1,5 @@
-import Kanna
 import Foundation
+import Kanna
 
 public protocol TestHelper {}
 

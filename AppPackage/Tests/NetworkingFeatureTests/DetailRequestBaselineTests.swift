@@ -1,8 +1,8 @@
 import AppModels
 import AppTools
 import Foundation
-import Testing
 @testable import NetworkingFeature
+import Testing
 
 // Wave 0 lock for every request declared in Request+Detail.swift. The large gallery-detail fixture
 // is reused from ParserFeatureTests rather than replaced with a hand-crafted approximation.

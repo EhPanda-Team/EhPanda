@@ -1,10 +1,10 @@
-import ComposableArchitecture
+import AppComponents
 import AppModels
 import AppTools
-import AppComponents
-import Resources
+import ComposableArchitecture
 import HapticsClient
 import NetworkingFeature
+import Resources
 
 @Reducer
 public struct ToplistsReducer: Sendable {

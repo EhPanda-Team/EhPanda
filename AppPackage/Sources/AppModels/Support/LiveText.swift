@@ -1,5 +1,5 @@
-import SwiftUI
 import Foundation
+import SwiftUI
 
 // MARK: LiveTextBounds
 public struct LiveTextBounds: Equatable, Sendable {

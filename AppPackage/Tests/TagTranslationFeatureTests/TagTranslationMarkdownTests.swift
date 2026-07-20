@@ -1,7 +1,7 @@
-import Testing
-import Foundation
 import AppModels
+import Foundation
 @testable import TagTranslationFeature
+import Testing
 
 // Wave 0 parity lock for DEP-03 at the feature boundary (D-07, D-08, D-10). `TagTranslation`'s
 // markdown-derived computed properties are the app-level consumers of `MarkdownUtil`; these fixtures

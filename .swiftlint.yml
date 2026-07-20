@@ -9,11 +9,17 @@ disabled_rules:
 opt_in_rules:
   - force_try
   - force_unwrapping
+  - sorted_imports
 
 force_try:
   severity: error
 
 force_unwrapping:
+  severity: error
+
+# Sorts by module name; the `@testable` attribute is ignored for ordering, and each
+# compile-condition block (`#if`/`#else`) is sorted independently of the unconditional block.
+sorted_imports:
   severity: error
 
 line_length:
@@ -234,6 +240,3 @@ custom_rules:
     # `excluded` matches file paths, not source text. Test files are out of scope for now.
     excluded:
       - ".*/[^/]*Tests\\.swift$"
-
-excluded:
-  - EhPanda/App/Generated
