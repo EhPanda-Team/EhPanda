@@ -49,9 +49,6 @@ public struct FolderManagerView: View {
             .animation(.default, value: store.folders)
             .animation(.default, value: store.editingField)
             .synchronize($store.editingField, $focusedField)
-            .onAppear {
-                store.send(.fetchFolders)
-            }
             .toolbar(content: toolbar)
             .navigationTitle(.folders)
             .navigationBarTitleDisplayMode(.inline)

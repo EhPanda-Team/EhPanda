@@ -14,9 +14,7 @@ public func galleryDestination(
             store: detailStore, gid: detailStore.gid
         )
     case .previews(let previewsStore):
-        PreviewsView(
-            store: previewsStore, gid: previewsStore.gid
-        )
+        PreviewsView(store: previewsStore)
     case .comments(let commentsStore):
         CommentsView(
             store: commentsStore, gid: commentsStore.gid, token: commentsStore.token,
@@ -24,9 +22,7 @@ public func galleryDestination(
             comments: commentsStore.comments
         )
     case .detailSearch(let searchStore):
-        DetailSearchView(
-            store: searchStore, keyword: searchStore.keyword
-        )
+        DetailSearchView(store: searchStore)
     case .galleryInfos(let infosStore):
         GalleryInfosView(
             store: infosStore, gallery: infosStore.gallery, galleryDetail: infosStore.galleryDetail

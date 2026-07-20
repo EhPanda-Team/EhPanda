@@ -10,14 +10,9 @@ import QuickSearchFeature
 
 struct DetailSearchView: View {
     @Bindable private var store: StoreOf<DetailSearchReducer>
-    private let keyword: String
 
-    init(
-        store: StoreOf<DetailSearchReducer>,
-        keyword: String
-    ) {
+    init(store: StoreOf<DetailSearchReducer>) {
         self.store = store
-        self.keyword = keyword
     }
 
     var body: some View {
@@ -58,13 +53,6 @@ struct DetailSearchView: View {
         .onSubmit(of: .search) {
             store.send(.fetchGalleries())
         }
-        .onAppear {
-            if store.galleries.isEmpty {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries(keyword))
-                }
-            }
-        }
         .toolbar(content: toolbar)
         .navigationTitle(store.lastKeyword)
     }
@@ -92,7 +80,6 @@ struct DetailSearchView: View {
                 return state
             }(),
             reducer: DetailSearchReducer.init
-        ),
-        keyword: .init()
+        )
     )
 }

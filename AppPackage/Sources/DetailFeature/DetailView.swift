@@ -188,8 +188,7 @@ private extension DetailView {
                         }
                         store.send(.destination(.dismiss))
                     },
-                    cancelAction: { store.send(.destination(.dismiss)) },
-                    onAppearAction: { store.send(.onPostCommentAppear) }
+                    cancelAction: { store.send(.destination(.dismiss)) }
                 )
                 .privacyMask()
             }

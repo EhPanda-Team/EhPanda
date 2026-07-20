@@ -9,14 +9,9 @@ struct PreviewsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @Bindable private var store: StoreOf<PreviewsReducer>
-    private let gid: String
 
-    init(
-        store: StoreOf<PreviewsReducer>,
-        gid: String
-    ) {
+    init(store: StoreOf<PreviewsReducer>) {
         self.store = store
-        self.gid = gid
     }
 
     private var gridItems: [GridItem] {
@@ -52,13 +47,9 @@ struct PreviewsView: View {
                             .font(horizontalSizeClass == .regular ? .callout : .caption)
                             .foregroundStyle(.secondary)
                     }
-                    .onAppear {
-                        if displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {
-                            store.send(.fetchPreviewURLs(index))
-                        }
-                    }
                 }
             }
+            .scrollTargetLayout()
             .padding(.horizontal)
             .padding(.bottom)
         }
@@ -71,8 +62,13 @@ struct PreviewsView: View {
             )
             .privacyMask()
         }
-        .onAppear {
-            store.send(.onAppear(gid))
+        // Paged lazy loading, driven by what is actually on screen rather than by each cell's
+        // appearance. Preview URLs arrive ten at a time, so only every tenth index triggers a fetch;
+        // the first page is requested by the reducer on presentation.
+        .onScrollTargetVisibilityChange(idType: Int.self) { indices in
+            for index in indices where displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {
+                store.send(.fetchPreviewURLs(index))
+            }
         }
         .navigationTitle(.previews)
     }
@@ -81,8 +77,7 @@ struct PreviewsView: View {
 #Preview("Loaded") {
     NavigationStack {
         PreviewsView(
-            store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
-            gid: .init()
+            store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init)
         )
     }
 }

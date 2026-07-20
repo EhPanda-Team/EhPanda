@@ -28,17 +28,27 @@ extension DetailReducer {
                 ))
                 return .none
 
+            // Presenting each of these sheets is what starts its fetch, replacing the sheet views'
+            // former `onAppear`. The archive request needs both URLs the sheet renders from, so a
+            // tap without them presents an empty sheet exactly as it did before.
             case .archivesButtonTapped:
                 state.destination = .archives(ArchivesReducer.State())
-                return .none
+                guard let galleryURL = state.gallery.galleryURL,
+                      let archiveURL = state.galleryDetail?.archiveURL
+                else { return .none }
+                return .send(.destination(.presented(.archives(.fetchArchive(
+                    gid: state.gid, galleryURL: galleryURL, archiveURL: archiveURL
+                )))))
 
             case .torrentsButtonTapped:
                 state.destination = .torrents(TorrentsReducer.State())
-                return .none
+                return .send(.destination(.presented(.torrents(.fetchGalleryTorrents(
+                    gid: state.gid, token: state.gallery.token
+                )))))
 
             case .folderManagerButtonTapped:
                 state.destination = .folderManager(FolderManagerReducer.State())
-                return .none
+                return .send(.destination(.presented(.folderManager(.fetchFolders))))
 
             case .shareButtonTapped(let url):
                 state.destination = .share(url)
@@ -51,7 +61,13 @@ extension DetailReducer {
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 state.destination = .postComment(.init())
-                return .none
+                // Presenting the editor is what focuses it. The delay lets the sheet finish its
+                // presentation animation before the keyboard is raised, which is what the editor's
+                // former `onAppear` hook waited for.
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(750))
+                    await send(.setPostCommentFocused(true))
+                }
 
             case .presentNewDawn(let greeting):
                 state.destination = .newDawn(greeting)
@@ -60,12 +76,6 @@ extension DetailReducer {
             case .tagDetailButtonTapped(let tagDetail):
                 state.destination = .tagDetail(tagDetail)
                 return .none
-
-            case .onPostCommentAppear:
-                return .run { send in
-                    try await Task.sleep(for: .milliseconds(750))
-                    await send(.setPostCommentFocused(true))
-                }
 
             case .onPresented:
                 return handleOnPresented(state: &state)
