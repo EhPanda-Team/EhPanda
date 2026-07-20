@@ -107,9 +107,6 @@ struct DownloadInspectorView: View {
                 Button(role: .close, action: dismiss.callAsFunction)
             }
         }
-        .onAppear {
-            store.send(.onAppear)
-        }
     }
 }
 

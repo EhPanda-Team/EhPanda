@@ -174,6 +174,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
+                $0.downloadClient = .noop
                 $0.urlClient = .init(
                     checkIfHandleable: { _ in false },
                     checkIfMPVURL: { _ in false },
@@ -188,6 +189,13 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         await store.receive(\.tabBar.setTabBarItemType, .downloads) {
             $0.tabBarState.tabBarItemType = .downloads
         }
+        // Landing on the tab is what starts it now; the load itself is asserted in
+        // `DownloadsPresentationLifecycleTests`.
+        await store.receive(\.downloads.onPresented) {
+            $0.downloadsState.hasLoadedInitialDownloads = true
+        }
+        store.exhaustivity = .off
+        await store.finish()
     }
 
     @MainActor
