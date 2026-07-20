@@ -531,10 +531,42 @@ Plans:
 
   1. The mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, and the new labeled-tuple-elements rule) are enabled at **error** as a capstone sweep, with all violations resolved at root.
   2. The refactor-gated rules (`optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`) — resolved at root during their coupled refactor phases (`optional_try` with Phase 9's structured-error work; the others with the Phase 5–7 UI/architecture refactors) — are switched to **error** with zero remaining violations.
-  3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error.
+  3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error. *(Amended per D-02: no **unapproved** disables — approved exceptions carry `// reason:` + `disable:next`, owner-reviewed at phase end.)*
   4. `.serialized` and `@MainActor` are removed from all tests unless a test has a real need to run on the main actor — each test's cross-test pollution is resolved by injecting the shared dependency (per-test instance, not `.serialized`) — and the full suite runs in parallel, on any thread.
 
-**Plans**: TBD
+**Plans**: 29 plans (deliberately sequential waves — xcodebuild invocations must never overlap on this machine; each rule's config flip lands in the same commit as its last violation fix)
+
+Plans:
+
+- [ ] 11-01-PLAN.md — ParserFeature `try?` Groups A/B → do/catch + logger (D-04 A/B)
+- [ ] 11-02-PLAN.md — ParserFeature Group C propagation + thrown-error test updates (D-03/D-04 C)
+- [ ] 11-03-PLAN.md — DownloadClient `try?` part 1: store/persistence cluster
+- [ ] 11-04-PLAN.md — DownloadClient `try?` part 2: validation/networking/execution
+- [ ] 11-05-PLAN.md — AppTools + AppModels `try?` (JSONValue probe chain preserved)
+- [ ] 11-06-PLAN.md — Remaining Sources `try?` (9 modules) + Sources-wide zero audit
+- [ ] 11-07-PLAN.md — Lifecycle migration: Home/Search/Favorites (D-06/D-07)
+- [ ] 11-08-PLAN.md — Lifecycle migration: DetailFeature (all entry paths)
+- [ ] 11-09-PLAN.md — Lifecycle migration: ReadingFeature (parity-critical)
+- [ ] 11-10-PLAN.md — Lifecycle migration: Setting/Filters/Downloads
+- [ ] 11-11-PLAN.md — Component lifecycle + flip `lifecycle_modifiers` & narrowed `binding_initializer` (D-05)
+- [ ] 11-12-PLAN.md — PreviewSupport module: stable UUID table + checked subscript (D-09)
+- [ ] 11-13-PLAN.md — Subscript safety: ReadingFeature (61) (D-08)
+- [ ] 11-14-PLAN.md — Subscript safety: ParserFeature (43)
+- [ ] 11-15-PLAN.md — Subscript safety: DownloadClient + NetworkingFeature (41)
+- [ ] 11-16-PLAN.md — Subscript safety: ImageColors checked idiom, fixtures unchanged (D-16)
+- [ ] 11-17-PLAN.md — Subscript safety: remaining modules + flip `unchecked_subscript_index_access`
+- [ ] 11-18-PLAN.md — Labeled tuple types + new `labeled_tuple_elements` rule + flip (D-10/D-11)
+- [ ] 11-19-PLAN.md — FileClient injectable-root seam + parallel FileClientTests (D-12)
+- [ ] 11-20-PLAN.md — Kingfisher cache seam + ImageClientTests trait + DidLoginKeyTests rationale (D-12/D-14)
+- [ ] 11-21-PLAN.md — DownloadsFeatureTests per-suite `.serialized` diagnosis + removal (D-12/D-14)
+- [ ] 11-22-PLAN.md — `@MainActor` sweep + full-suite parallel gate (D-13)
+- [ ] 11-23-PLAN.md — Tests `try?`: DownloadsFeatureTests (D-15)
+- [ ] 11-24-PLAN.md — Tests `try?` tail + flip `optional_try` (no Tests exclusion, D-15)
+- [ ] 11-25-PLAN.md — `sorted_imports` autocorrect + flip + config hygiene
+- [ ] 11-26-PLAN.md — `single_line_trailing_closure`: Sources rewrap
+- [ ] 11-27-PLAN.md — `single_line_trailing_closure`: Tests rewrap + flip
+- [ ] 11-28-PLAN.md — `multiline_function_chains` reformat + flip
+- [ ] 11-29-PLAN.md — Capstone gate: seven-rule zero-check + parallel suite + 11-EXCEPTIONS.md owner-review inventory
 
 ## Progress
 
