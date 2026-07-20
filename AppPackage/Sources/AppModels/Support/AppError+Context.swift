@@ -59,14 +59,13 @@ public typealias Context = [ContextKey: AnyHashableBox]
 extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
     /// Builds user-visible gallery diagnostics without retaining access-bearing route components.
     public static func galleryFailure(url: URL, action: String, reason: String) -> Self {
-        let pathComponents = url.pathComponents
-        let candidate: String?
-        if pathComponents.count >= 3, pathComponents[1] == "g" {
-            candidate = pathComponents[2]
-        } else if pathComponents.count >= 4, pathComponents[1] == "s" {
-            candidate = pathComponents[3].split(separator: "-", maxSplits: 1).first.map(String.init)
-        } else {
-            candidate = nil
+        // Drops the leading "/" to reach <kind>/<gid>/<token>: a gallery route carries the id in the
+        // second slot, while a single-page route carries it as the "<gid>-<page>" token in the third.
+        var route = url.pathComponents.dropFirst()
+        let candidate: String? = switch route.popFirst() {
+        case "g"?: route.first
+        case "s"?: route.dropFirst().first?.split(separator: "-", maxSplits: 1).first.map(String.init)
+        default: nil
         }
 
         var context: Self = [

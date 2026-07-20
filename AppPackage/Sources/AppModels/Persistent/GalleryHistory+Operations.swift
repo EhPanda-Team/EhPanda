@@ -34,6 +34,12 @@ extension Array where Element == GalleryHistoryEntry {
     public mutating func updateReadingProgress(gid: String, token: String, progress: Int, date: Date) {
         guard Int(gid) != nil else { return }
         if let index = firstIndex(where: { $0.gid == gid }) {
+            // In-place mutation is what keeps the entry's recency and position untouched; `removeAll`
+            // + `insert` as in `recordGalleryOpen` would move it to the front. `firstIndex` only ever
+            // yields a subscriptable index, restated as a precondition so the exception below stands
+            // on a checked invariant rather than on the reader's trust.
+            precondition(indices.contains(index), "firstIndex returned an index outside the collection")
+            // reason: bounds are precondition-checked immediately above.
             self[index].readingProgress = progress
         } else {
             guard !token.isEmpty else { return }

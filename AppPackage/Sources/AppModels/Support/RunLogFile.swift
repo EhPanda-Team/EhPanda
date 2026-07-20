@@ -23,16 +23,22 @@ public struct RunLogFile: Identifiable, Equatable, Sendable {
     public init?(fileURL: URL) {
         let nameComponents = fileURL.lastPathComponent.split(separator: ".")
         guard nameComponents.count == 2,
-              String(nameComponents[1]) == Defaults.FilePath.activityLogExtension
+              let baseName = nameComponents.first,
+              let fileExtension = nameComponents.last,
+              String(fileExtension) == Defaults.FilePath.activityLogExtension
         else { return nil }
 
-        let components = nameComponents[0].split(separator: "-")
+        let components = baseName.split(separator: "-")
         guard components.count == 4,
-              String(components[0]) == Defaults.FilePath.activityLogPrefix,
-              components[1].count == 8,
-              components[2].count == 6,
-              let date = Self.dateTimeFormatter.date(from: String(components[1]) + String(components[2])),
-              let runCount = Int(components[3])
+              let prefix = components.first,
+              let day = components.dropFirst().first,
+              let time = components.dropFirst(2).first,
+              let runCountText = components.last,
+              String(prefix) == Defaults.FilePath.activityLogPrefix,
+              day.count == 8,
+              time.count == 6,
+              let date = Self.dateTimeFormatter.date(from: String(day) + String(time)),
+              let runCount = Int(runCountText)
         else { return nil }
 
         self.init(url: fileURL, date: date, runCount: runCount)
