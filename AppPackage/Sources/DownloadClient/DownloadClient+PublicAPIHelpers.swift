@@ -9,14 +9,14 @@ extension DownloadCoordinator {
         existingRelativePaths: [Int: String],
         failedPages: [Int: PageFailure]
     ) -> [DownloadPageInspection] {
-        (1...download.pageCount).map { index -> DownloadPageInspection in
-            if let relativePath = existingRelativePaths[index],
+        (1...download.pageCount).map { page -> DownloadPageInspection in
+            if let relativePath = existingRelativePaths[page],
                let folderURL = activeFolderURL {
                 let fileURL = folderURL
                     .appendingPathComponent(relativePath)
                 if fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) {
                     return .init(
-                        index: index,
+                        index: page,
                         status: .downloaded,
                         relativePath: relativePath,
                         fileURL: fileURL,
@@ -25,9 +25,9 @@ extension DownloadCoordinator {
                 }
             }
 
-            if let failedPage = failedPages[index] {
+            if let failedPage = failedPages[page] {
                     return .init(
-                        index: index,
+                        index: page,
                         status: .failed,
                         relativePath: failedPage.relativePath,
                         fileURL: nil,
@@ -36,7 +36,7 @@ extension DownloadCoordinator {
             }
 
             return .init(
-                index: index,
+                index: page,
                 status: .pending,
                 relativePath: nil,
                 fileURL: nil,

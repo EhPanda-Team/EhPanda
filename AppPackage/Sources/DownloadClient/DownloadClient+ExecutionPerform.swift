@@ -129,8 +129,8 @@ extension DownloadCoordinator {
             folderURL: folderURL,
             manifest: manifest
         )
-        return manifest.pages.keys.sorted().filter { index in
-            existingPages[index] == nil
+        return manifest.pages.keys.sorted().filter { page in
+            existingPages[page] == nil
         }
     }
 
@@ -141,8 +141,8 @@ extension DownloadCoordinator {
         folderURL: URL,
         existingPages: [Int: String]
     ) async throws -> ResolvedSource? {
-        let missingIndices = pendingIndices.filter { index in
-            guard let relativePath = existingPages[index] else {
+        let missingIndices = pendingIndices.filter { page in
+            guard let relativePath = existingPages[page] else {
                 return true
             }
             let fileURL = folderURL.appendingPathComponent(relativePath)

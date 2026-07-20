@@ -64,8 +64,8 @@ extension DownloadStore {
             folderURL: sourceFolderURL,
             manifest: manifest
         )
-        for index in manifest.pages.keys.sorted() {
-            guard let relativePath = existingPages[index],
+        for page in manifest.pages.keys.sorted() {
+            guard let relativePath = existingPages[page],
                   let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: relativePath),
                   let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: relativePath)
             else { continue }
@@ -88,19 +88,19 @@ extension DownloadStore {
             manifest: manifest
         )
         var pages = manifest.pages
-        for index in manifest.pages.keys.sorted() {
-            guard pages[index]?.isEmpty != false else {
+        for page in manifest.pages.keys.sorted() {
+            guard pages[page]?.isEmpty != false else {
                 continue
             }
-            guard let relativePath = existingPages[index] else {
+            guard let relativePath = existingPages[page] else {
                 throw AppError.fileOperationFailed(
-                    String(localized: .RLocalizable.downloadStorePageMissing(page: index))
+                    String(localized: .RLocalizable.downloadStorePageMissing(page: page))
                 )
             }
-            pages[index] = try hashReadableAsset(
+            pages[page] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: relativePath,
-                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: index))
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: page))
             )
         }
 
@@ -146,16 +146,16 @@ extension DownloadStore {
         guard !pageRelativePaths.isEmpty else { return manifest }
         var pages = manifest.pages
         var didUpdate = false
-        for index in pageRelativePaths.keys.sorted() {
-            guard pages[index] != nil,
-                  let refreshedRelativePath = pageRelativePaths[index]
+        for page in pageRelativePaths.keys.sorted() {
+            guard pages[page] != nil,
+                  let refreshedRelativePath = pageRelativePaths[page]
             else {
                 continue
             }
-            pages[index] = try hashReadableAsset(
+            pages[page] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: refreshedRelativePath,
-                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: index))
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: page))
             )
             didUpdate = true
         }
@@ -235,8 +235,8 @@ extension DownloadStore {
             folderURL: folderURL,
             manifest: manifest
         )
-        return manifest.pages.keys.reduce(into: 0) { count, index in
-            guard let relativePath = existingPages[index],
+        return manifest.pages.keys.reduce(into: 0) { count, page in
+            guard let relativePath = existingPages[page],
                   let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath)
             else { return }
             if sanitizeAssetFileIfNeeded(at: pageURL) {
@@ -271,11 +271,11 @@ extension DownloadStore {
             folderURL: folderURL,
             manifest: manifest
         )
-        for index in manifest.pages.keys.sorted() {
+        for page in manifest.pages.keys.sorted() {
             if let validationFailure = validatePage(
                 folderURL: folderURL,
-                index: index,
-                expectedHash: manifest.pages[index] ?? "",
+                page: page,
+                expectedHash: manifest.pages[page] ?? "",
                 existingPageRelativePaths: existingPages,
                 verifiesContentHash: verifiesContentHashes
             ) {
@@ -287,7 +287,7 @@ extension DownloadStore {
 
     private func validatePage(
         folderURL: URL,
-        index: Int,
+        page: Int,
         expectedHash: String,
         existingPageRelativePaths: [Int: String],
         verifiesContentHash: Bool
@@ -296,11 +296,11 @@ extension DownloadStore {
             return nil
         }
 
-        guard let relativePath = existingPageRelativePaths[index],
+        guard let relativePath = existingPageRelativePaths[page],
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(.RLocalizable.downloadStorePageMissing(page: index))
+            return .missingFiles(.RLocalizable.downloadStorePageMissing(page: page))
         }
 
         if verifiesContentHash {
@@ -314,7 +314,7 @@ extension DownloadStore {
                 actualHash = nil
             }
             guard actualHash == expectedHash else {
-                return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: index))
+                return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: page))
             }
         }
 

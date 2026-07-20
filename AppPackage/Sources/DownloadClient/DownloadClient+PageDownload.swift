@@ -130,8 +130,8 @@ extension DownloadCoordinator {
         results: inout [PageResult],
         failedPages: inout [Int: PageFailure?]
     ) {
-        for index in pageIndices {
-            guard let relativePath = existingPages[index] else {
+        for page in pageIndices {
+            guard let relativePath = existingPages[page] else {
                 continue
             }
             let fileURL = context.folderURL
@@ -139,10 +139,10 @@ extension DownloadCoordinator {
             guard fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) else {
                 continue
             }
-            failedPages[index] = nil
+            failedPages[page] = nil
             results.append(
                 .init(
-                    index: index,
+                    index: page,
                     relativePath: relativePath,
                     imageURL: nil
                 )
@@ -270,7 +270,7 @@ extension DownloadCoordinator {
 
     private func addPageDownloadTask(
         to group: inout TaskGroup<PageTaskOutcome>,
-        index: Int,
+        index page: Int,
         context: PageDownloadContext,
         existingPages: [Int: String]
     ) {
@@ -278,10 +278,10 @@ extension DownloadCoordinator {
             do {
                 return .success(
                     try await self.downloadPage(
-                        index: index,
+                        index: page,
                         context: context,
                         preferredRelativePath:
-                            existingPages[index]
+                            existingPages[page]
                     )
                 )
             } catch is CancellationError {
@@ -289,8 +289,8 @@ extension DownloadCoordinator {
             } catch let error as AppError {
                 return .failure(
                     .init(
-                        index: index,
-                        relativePath: existingPages[index],
+                        index: page,
+                        relativePath: existingPages[page],
                         error: error
                     )
                 )
@@ -300,8 +300,8 @@ extension DownloadCoordinator {
                 }
                 return .failure(
                     .init(
-                        index: index,
-                        relativePath: existingPages[index],
+                        index: page,
+                        relativePath: existingPages[page],
                         error: .fileOperationFailed(
                             error.localizedDescription
                         )
