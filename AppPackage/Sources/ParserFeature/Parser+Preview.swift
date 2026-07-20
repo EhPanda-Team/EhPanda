@@ -19,26 +19,22 @@ extension Parser {
               let queryItems = components.queryItems
         else { return nil }
 
-        let keys = [
-            Defaults.URL.Component.Key.ehpandaWidth,
-            Defaults.URL.Component.Key.ehpandaHeight,
-            Defaults.URL.Component.Key.ehpandaOffset
-        ]
-        let configs = keys.map(\.rawValue).compactMap { key in
-            queryItems.filter({ $0.name == key }).first?.value
+        func intValue(for key: Defaults.URL.Component.Key) -> Int? {
+            queryItems.first { $0.name == key.rawValue }?.value.flatMap(Int.init)
         }
-        .compactMap(Int.init)
 
         components.queryItems = nil
-        guard configs.count == keys.count,
+        // All three layout components must be present; a partial set describes no usable preview.
+        guard let width = intValue(for: .ehpandaWidth),
+              let height = intValue(for: .ehpandaHeight),
+              let offset = intValue(for: .ehpandaOffset),
               let plainURL = components.url
         else { return nil }
 
-        let size = CGSize(width: configs[0], height: configs[1])
         return PreviewConfigInfo(
             plainURL: plainURL,
-            size: size,
-            offset: CGSize(width: configs[2], height: 0)
+            size: CGSize(width: width, height: height),
+            offset: CGSize(width: offset, height: 0)
         )
     }
 }
@@ -61,12 +57,12 @@ private extension Parser {
                 .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let url = URL(string: urlString),
                let title = divNode["title"],
-               let index = parseGTX00IndexFromTitle(from: title) {
+               let page = parseGTX00IndexFromTitle(from: title) {
                 let width = String(style[rangeA.upperBound..<rangeB.lowerBound])
                 let height = String(style[rangeB.upperBound..<rangeC.lowerBound])
                 let offset = String(style[rangeE.upperBound..<rangeF.lowerBound])
 
-                previewURLs[index] = URLUtil.combinedPreviewURL(
+                previewURLs[page] = URLUtil.combinedPreviewURL(
                     plainURL: url,
                     width: width,
                     height: height,
@@ -90,8 +86,8 @@ private extension Parser {
                 .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let url = URL(string: urlString),
                let title = divNode["title"],
-               let index = parseGTX00IndexFromTitle(from: title) {
-                previewURLs[index] = url
+               let page = parseGTX00IndexFromTitle(from: title) {
+                previewURLs[page] = url
             }
         }
         return previewURLs
