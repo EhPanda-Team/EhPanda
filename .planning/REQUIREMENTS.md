@@ -72,8 +72,10 @@
 
 ### LINT — Lint hardening
 
-- [ ] **LINT-01**: Enable the stricter SwiftLint ruleset at error level.
-  - The 5 commented custom rules (`binding_initializer`, `lifecycle_modifiers`, `optional_try`, `single_line_trailing_closure`, `unchecked_subscript_index_access`), opt-in `multiline_function_chains` & `sorted_imports`, and a new labeled-tuple-elements rule are all enabled at **error**; every violation resolved at its root (no suppressions); mechanical rules land as a capstone sweep, refactor-gated rules (`optional_try`→QUAL-04, plus binding/lifecycle/unchecked-subscript) land with their refactors.
+- [x] **LINT-01**: Enable the stricter SwiftLint ruleset at error level.
+  - The 5 commented custom rules (`binding_initializer`, `lifecycle_modifiers`, `optional_try`, `single_line_trailing_closure`, `unchecked_subscript_index_access`), opt-in `multiline_function_chains` & `sorted_imports`, and a new `labeled_tuple_elements` rule are all enabled at **error**; every violation resolved at its root, with **no unapproved suppressions** — an approved exception carries a `// reason:` comment plus `// swiftlint:disable:next`, and is owner-reviewed in the phase-end batch (D-01/D-02). Mechanical rules landed as a capstone sweep; the refactor-gated rules were resolved *in this phase*, not inherited clean from their coupled refactors.
+  - **Delivered:** all 8 rules live at `severity: error`; **0 violations in 452 files** across `AppPackage/Sources`, `AppPackage/Tests`, `App` and `ShareExtension`, with every rule proven to fire by negative-control probe. **8 approved exceptions** repo-wide (6 `lifecycle_modifiers`, 2 `unchecked_subscript_index_access`), inventoried in `.planning/phases/11-infra-refactor-lint-capstone/11-EXCEPTIONS.md`; the other six rules shipped with zero. `optional_try` is enforced in test code too, with no path exclusion (D-15). `.serialized` is gone entirely and the full 565-test suite runs in parallel across 18 targets.
+  - **Fell short:** D-13's `@MainActor` sweep freed only **17 of 186 cases** — 84% remain main-actor-isolated because TCA's `TestStore` is main-actor-bound — with no measurable wall-clock gain. D-09's stable preview identities are **half-done**: `PreviewSupport` ships, but `AppModels`' shared `Gallery` fixtures still mint random `UUID()`. 11-02's "unparseable list page throws" must-have is **inert** — D-04 Group A's degradation helper makes row-level failures non-throwing, so the conversion changed nothing observable. There is still **no network seam** (`urlSession: URLSession = .shared` as an init default at 50 sites), which capped reducer test coverage across plans 11-07…11-10.
 
 ## v2 Requirements
 
@@ -118,7 +120,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | POLISH-01 | Phase 10 | Complete |
 | POLISH-02 | Phase 10 | Complete |
 | POLISH-03 | Phase 10 | Complete |
-| LINT-01 | Phase 11 | Pending |
+| LINT-01 | Phase 11 | Complete |
 
 **Coverage:**
 
