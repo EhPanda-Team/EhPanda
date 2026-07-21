@@ -60,7 +60,9 @@ public struct GalleryCardCell: View {
         HStack {
             KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                .onSuccess(handleCoverSuccess).defaultModifier().scaledToFill()
+                .onSuccess(handleCoverSuccess)
+                .defaultModifier()
+                .scaledToFill()
                 .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                 .clipShape(.rect(cornerRadius: 5))
 

@@ -34,7 +34,9 @@ private struct TagDescriptionSection: View {
     }
 
     var body: some View {
-        Text(description).foregroundStyle(.secondary).font(.headline)
+        Text(description)
+            .foregroundStyle(.secondary)
+            .font(.headline)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
     }
@@ -67,7 +69,8 @@ private struct ImagesSection: View {
                                     ratio: Defaults.ImageSize.previewAspect
                                 ))
                             }
-                            .defaultModifier().scaledToFit()
+                            .defaultModifier()
+                            .scaledToFit()
                             .frame(width: width, height: height)
                     }
                     .withHorizontalSpacing(height: height)
@@ -103,7 +106,8 @@ private struct LinksSection: View {
                     } label: {
                         Text(url.absoluteString)
                             .multilineTextAlignment(.leading)
-                            .font(.callout.bold()).tint(.secondary)
+                            .font(.callout.bold())
+                            .tint(.secondary)
                     }
                 }
             }

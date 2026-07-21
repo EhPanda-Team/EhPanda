@@ -26,8 +26,12 @@ public struct CategoryLabel: View {
     }
 
     public var body: some View {
-        Text(text).font(font.bold()).lineLimit(1).foregroundStyle(.white)
-            .padding(insets).background(
+        Text(text)
+            .font(font.bold())
+            .lineLimit(1)
+            .foregroundStyle(.white)
+            .padding(insets)
+            .background(
                 Rectangle().foregroundStyle(color).clipShape(.rect(cornerRadius: cornerRadius))
             )
     }

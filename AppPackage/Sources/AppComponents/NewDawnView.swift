@@ -101,8 +101,10 @@ private struct TextView: View {
 
     var body: some View {
         Text(text)
-            .fontWeight(fontWeight).font(font)
-            .lineLimit(nil).foregroundStyle(.white)
+            .fontWeight(fontWeight)
+            .font(font)
+            .lineLimit(nil)
+            .foregroundStyle(.white)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

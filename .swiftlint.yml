@@ -9,12 +9,19 @@ disabled_rules:
 opt_in_rules:
   - force_try
   - force_unwrapping
+  - multiline_function_chains
   - sorted_imports
 
 force_try:
   severity: error
 
 force_unwrapping:
+  severity: error
+
+# A chain that breaks across lines must put every chained call on its own line. Exactly one call may
+# share the base expression's line; once a second call joins it, the break points stop tracking the
+# call boundaries and the chain reads as an arbitrary wrap. Single-line chains are untouched.
+multiline_function_chains:
   severity: error
 
 # Sorts by module name; the `@testable` attribute is ignored for ordering, and each

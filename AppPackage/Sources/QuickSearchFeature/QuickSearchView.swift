@@ -59,7 +59,8 @@ public struct QuickSearchView: View {
                                 .labelStyle(.iconOnly)
                         }
                     }
-                    .withArrow(isVisible: !store.isListEditing).padding(5)
+                    .withArrow(isVisible: !store.isListEditing)
+                    .padding(5)
                 }
                 .onDelete { offsets in
                     store.send(.deleteWordWithOffsets(offsets))
