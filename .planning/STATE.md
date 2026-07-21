@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
-status: verifying
+status: executing
 stopped_at: Completed 11-29-PLAN.md (phase 11 capstone)
-last_updated: "2026-07-21T00:40:49.633Z"
-last_activity: 2026-07-20
+last_updated: "2026-07-21T16:38:53.568Z"
+last_activity: 2026-07-22
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
-  completed_phases: 10
-  total_plans: 135
+  completed_phases: 9
+  total_plans: 137
   completed_plans: 135
-  percent: 67
+  percent: 60
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 30 of 30
-Status: Phase complete — ready for verification
-Last activity: 2026-07-20 — Phase 11 execution started
+Plan: 1 of 32
+Status: Executing Phase 11
+Last activity: 2026-07-22 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
 Progress: [██████████] 100% (10/15 phases)
@@ -429,6 +429,8 @@ None yet.
 [Issues that affect future work]
 
 - Deferred follow-up (from Phase 8 UAT): remove dead legacy haptic code (`isLegacyTapticEngine`, `generateLegacyFeedback`) — targets unsupported devices.
+- Deferred follow-up (from Phase 11 UAT, G-11-7): harden the `lastAutoFetchCount` one-shot latch in `AutoLoadNextPage` (GalleryList.swift) to re-arm on the server page cursor (`pageNumber`) rather than on `galleries.count`, so a deduped, empty or failed page cannot permanently disarm thumbnail-mode pagination — today only the manual footer retry recovers. Pre-existing (Phase 2 / D-36), not a Phase 11 regression; the detail path no longer depends on it. Needs a device check for chain-fetch regression, since the known failure mode of this tuning is an endless fetch loop pinned at the bottom.
+- Standing verification item (from Phase 11 UAT, G-11-7): every future UAT touching gallery list pagination must exercise BOTH `Setting.listDisplayMode` values, `detail` and `thumbnail`. The two modes render through structurally different layouts with different fetch-more triggers, and `detail` being the default masked the thumbnail path historically and masked this regression in reverse. Testing one mode proves nothing about the other.
 
 ### Roadmap Evolution
 
