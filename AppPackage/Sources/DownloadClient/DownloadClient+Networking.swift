@@ -52,43 +52,6 @@ extension DownloadCoordinator {
         return response
     }
 
-    public func dataResponse(
-        for request: URLRequest,
-        retriesRequest: Bool = true
-    ) async throws -> (data: Data, response: URLResponse) {
-        if retriesRequest {
-            return try await withRetry(
-                operation: "dataResponse"
-            ) {
-                try await rawDataResponse(for: request)
-            }
-        }
-        return try await rawDataResponse(for: request)
-    }
-
-    public func rawDataResponse(
-        for request: URLRequest
-    ) async throws -> (data: Data, response: URLResponse) {
-        do {
-            return try await urlSession.data(for: request)
-        } catch let error as AppError {
-            throw error
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch let error as URLError
-                    where error.code == .cancelled {
-            throw CancellationError()
-        } catch {
-            if Self.isCancellationLikeError(error) {
-                throw CancellationError()
-            }
-            if error is URLError {
-                throw AppError.networkingFailed
-            }
-            throw AppError.unknown
-        }
-    }
-
     public func rawDownloadResponse(
         for request: URLRequest
     ) async throws -> (fileURL: URL, response: URLResponse) {
