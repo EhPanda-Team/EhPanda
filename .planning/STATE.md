@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-27-PLAN.md
-last_updated: "2026-07-21T00:14:17.962Z"
+stopped_at: Completed 11-28-PLAN.md
+last_updated: "2026-07-21T00:27:12.314Z"
 last_activity: 2026-07-20
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
   completed_phases: 9
   total_plans: 135
-  completed_plans: 133
+  completed_plans: 134
   percent: 60
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 29 of 30
+Plan: 30 of 30
 Status: Ready to execute
 Last activity: 2026-07-20 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
@@ -194,6 +194,7 @@ Progress: [██████████] 99% (10/15 phases)
 | Phase 11 P25 | 12 min | 2 tasks | 326 files |
 | Phase 11 P26 | ~25 min | 2 tasks | 76 files |
 | Phase 11 P27 | ~20 min | 2 tasks | 27 files |
+| Phase 11 P28 | ~25 min | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -413,6 +414,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-27: single_line_trailing_closure live at error, 0 across all four roots; Tests half was exactly 70 sites (215 phase total)
 - [Phase ?]: 11-27: doccomment added to the drafted excluded kinds — the rule contrasts two syntactic forms, so a doc comment quoting the rejected one must not fire; 0 matches today
 - [Phase ?]: 11-27: no nested-closure trap in Tests — 4 of 6 nested sites sit in accessor braces, 2 in an unpoliced dependency-override closure; parenthesizing was the only fix, not a silencing shortcut
+- [Phase ?]: multiline_function_chains live at error (SwiftLint defaults) — the seventh and final LINT-01 rule flip; 43 chained-call sites reformatted across 19 Sources files
+- [Phase ?]: The rule's ~85 raw violations deduplicate to 43 real sites — it reports once per chain-link pair, so the headline count double-counts
 
 ### Pending Todos
 
@@ -454,6 +457,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T00:14:17.953Z
-Stopped at: Completed 11-27-PLAN.md
+Last session: 2026-07-21T00:27:02.468Z
+Stopped at: Completed 11-28-PLAN.md
 Resume file: None
