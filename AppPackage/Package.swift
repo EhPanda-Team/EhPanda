@@ -1016,8 +1016,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .galleryListComponentsTests,
         dependencies: [
-            .module(.galleryListComponents),
-            .targetDependency(.sfSafeSymbols)
+            .module(.galleryListComponents)
         ],
         plugins: swiftLintPlugins
     ),
