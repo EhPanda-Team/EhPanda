@@ -321,7 +321,7 @@ private extension DownloadPauseAndReconcileTests {
                 rating: 4,
                 pages: Dictionary(
                     uniqueKeysWithValues:
-                        pageHashes.enumerated().map { ($0.offset + 1, $0.element) }
+                        pageHashes.enumerated().map({ ($0.offset + 1, $0.element) })
                 )
             ),
             folderURL: folderURL

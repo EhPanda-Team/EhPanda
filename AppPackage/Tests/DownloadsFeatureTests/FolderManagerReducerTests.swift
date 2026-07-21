@@ -30,7 +30,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     func testCreateFolderForwardsNormalizedEditingNameAndRefetches() async {
         let createdName = UncheckedBox<String?>(nil)
         let store = makeStore(
-            folders: { createdName.value.map { [$0] } ?? [] },
+            folders: { createdName.value.map({ [$0] }) ?? [] },
             createFolder: { name in
                 createdName.value = name
             }
@@ -130,7 +130,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     func testSubmitEditingFieldCreatesFolderWhenNameIsValid() async {
         let createdName = UncheckedBox<String?>(nil)
         let store = makeStore(
-            folders: { createdName.value.map { [$0] } ?? [] },
+            folders: { createdName.value.map({ [$0] }) ?? [] },
             createFolder: { name in
                 createdName.value = name
             }

@@ -12,8 +12,8 @@ final class UncheckedBox<Value: Sendable>: Sendable {
     }
 
     var value: Value {
-        get { storage.withLock { $0 } }
-        set { storage.withLock { $0 = newValue } }
+        get { storage.withLock({ $0 }) }
+        set { storage.withLock({ $0 = newValue }) }
     }
 }
 
@@ -30,35 +30,35 @@ final class RequestRecorder: Sendable {
     private let state = Mutex(RequestRecorderSnapshot())
 
     func recordDetail() {
-        state.withLock { $0.detailRequests += 1 }
+        state.withLock({ $0.detailRequests += 1 })
     }
 
     func recordMetadata() {
-        state.withLock { $0.metadataRequests += 1 }
+        state.withLock({ $0.metadataRequests += 1 })
     }
 
     func recordPreview(_ pageNumber: Int) {
-        state.withLock { $0.previewPageNumbers.append(pageNumber) }
+        state.withLock({ $0.previewPageNumbers.append(pageNumber) })
     }
 
     func recordMPV() {
-        state.withLock { $0.mpvRequests += 1 }
+        state.withLock({ $0.mpvRequests += 1 })
     }
 
     func recordImageDispatch() {
-        state.withLock { $0.imageDispatchRequests += 1 }
+        state.withLock({ $0.imageDispatchRequests += 1 })
     }
 
     func recordImageDownload() {
-        state.withLock { $0.imageDownloads += 1 }
+        state.withLock({ $0.imageDownloads += 1 })
     }
 
     func reset() {
-        state.withLock { $0 = .init() }
+        state.withLock({ $0 = .init() })
     }
 
     func snapshot() -> RequestRecorderSnapshot {
-        state.withLock { $0 }
+        state.withLock({ $0 })
     }
 }
 
@@ -66,11 +66,11 @@ final class ScheduledGalleryRecorder: Sendable {
     private let state = Mutex([String]())
 
     func record(_ gid: String) {
-        state.withLock { $0.append(gid) }
+        state.withLock({ $0.append(gid) })
     }
 
     func snapshot() -> [String] {
-        state.withLock { $0 }
+        state.withLock({ $0 })
     }
 }
 
@@ -259,16 +259,16 @@ private final class SharedSessionStubHandlers: Sendable {
         for sessionID: String,
         handler: @escaping @Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data)
     ) {
-        handlers.withLock { $0[sessionID] = handler }
+        handlers.withLock({ $0[sessionID] = handler })
     }
 
     func removeHandler(for sessionID: String) {
-        handlers.withLock { $0[sessionID] = nil }
+        handlers.withLock({ $0[sessionID] = nil })
     }
 
     func handler(
         for sessionID: String
     ) -> (@Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data))? {
-        handlers.withLock { $0[sessionID] }
+        handlers.withLock({ $0[sessionID] })
     }
 }

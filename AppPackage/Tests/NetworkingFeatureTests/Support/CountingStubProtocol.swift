@@ -128,19 +128,19 @@ final class CountingStubProtocol: URLProtocol {
     override func stopLoading() {}
 
     fileprivate static func register(script: StubScript, for token: UUID) {
-        registry.withLock { $0[token] = StubState(script: script) }
+        registry.withLock({ $0[token] = StubState(script: script) })
     }
 
     fileprivate static func removeState(for token: UUID) {
-        registry.withLock { $0[token] = nil }
+        registry.withLock({ $0[token] = nil })
     }
 
     fileprivate static func attempts(for url: URL, token: UUID) -> Int {
-        registry.withLock { $0[token] }?.attempts(for: url) ?? 0
+        registry.withLock({ $0[token] })?.attempts(for: url) ?? 0
     }
 
     fileprivate static func receivedRequests(for token: UUID) -> [URLRequest] {
-        registry.withLock { $0[token] }?.receivedRequests ?? []
+        registry.withLock({ $0[token] })?.receivedRequests ?? []
     }
 
     private static func requestBody(from request: URLRequest) -> Data? {
@@ -187,11 +187,11 @@ private final class StubState: Sendable {
     }
 
     var receivedRequests: [URLRequest] {
-        state.withLock { $0.receivedRequests }
+        state.withLock({ $0.receivedRequests })
     }
 
     func attempts(for url: URL) -> Int {
-        state.withLock { $0.attemptsByURL[stubKey(for: url), default: 0] }
+        state.withLock({ $0.attemptsByURL[stubKey(for: url), default: 0] })
     }
 
     func recordAndTakeStep(for request: URLRequest) -> StubStep? {

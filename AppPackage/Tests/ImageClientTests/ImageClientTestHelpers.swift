@@ -151,16 +151,16 @@ private final class SharedSessionStubHandlers: Sendable {
         for sessionID: String,
         handler: @escaping @Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data)
     ) {
-        handlers.withLock { $0[sessionID] = handler }
+        handlers.withLock({ $0[sessionID] = handler })
     }
 
     func removeHandler(for sessionID: String) {
-        handlers.withLock { $0[sessionID] = nil }
+        handlers.withLock({ $0[sessionID] = nil })
     }
 
     func handler(
         for sessionID: String
     ) -> (@Sendable (URLRequest) throws -> (response: HTTPURLResponse, data: Data))? {
-        handlers.withLock { $0[sessionID] }
+        handlers.withLock({ $0[sessionID] })
     }
 }

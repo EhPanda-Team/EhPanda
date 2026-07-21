@@ -376,7 +376,7 @@ private func expectGET(
     query: [String: String],
     sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    let components = request.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
+    let components = request.url.flatMap({ URLComponents(url: $0, resolvingAgainstBaseURL: false) })
     let queryItems = components?.queryItems ?? []
     let receivedQuery = Dictionary(
         queryItems.map { ($0.name, $0.value ?? "") },

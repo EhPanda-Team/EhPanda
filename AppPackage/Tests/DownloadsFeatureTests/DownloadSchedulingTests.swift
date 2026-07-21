@@ -198,7 +198,7 @@ private actor ScheduleFetchGate {
 
     func releaseAll() {
         isReleased = true
-        releaseContinuations.forEach { $0.resume() }
+        releaseContinuations.forEach({ $0.resume() })
         releaseContinuations.removeAll()
     }
 }
