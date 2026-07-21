@@ -160,7 +160,7 @@ struct SettingPresentationTests {
         )
 
         var initialState = SettingReducer.State()
-        initialState.$setting.withLock { $0.galleryHost = .ehentai }
+        initialState.$setting.withLock({ $0.galleryHost = .ehentai })
         initialState.path.append(.ehSetting(ehSettingState))
 
         let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {

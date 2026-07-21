@@ -161,7 +161,7 @@ private extension UserDefaultsClient {
             getValue: { _ in read },
             setValue: { value, _ in
                 if let intValue = value as? Int {
-                    writes.withValue { $0.append(intValue) }
+                    writes.withValue({ $0.append(intValue) })
                 }
             }
         )

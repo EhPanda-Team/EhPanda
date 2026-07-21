@@ -26,9 +26,9 @@ struct ReadingReducerImageFetchTests {
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             @Shared(.setting) var setting
-            $setting.withLock { $0.galleryHost = .ehentai }
+            $setting.withLock({ $0.galleryHost = .ehentai })
             let state = ReadingReducer.State(gallery: .preview)
-            $setting.withLock { $0.galleryHost = .exhentai }
+            $setting.withLock({ $0.galleryHost = .exhentai })
             return TestStore(
                 initialState: state,
                 reducer: ReadingReducer.init,

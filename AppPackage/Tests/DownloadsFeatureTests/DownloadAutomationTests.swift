@@ -123,9 +123,9 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         )
 
         let exCookies = cookieClient.cookies(for: Defaults.URL.exhentai)
-        let memberCookie = exCookies.first { $0.name == Defaults.Cookie.ipbMemberId }
-        let passHashCookie = exCookies.first { $0.name == Defaults.Cookie.ipbPassHash }
-        let igneousCookie = exCookies.first { $0.name == Defaults.Cookie.igneous }
+        let memberCookie = exCookies.first(where: { $0.name == Defaults.Cookie.ipbMemberId })
+        let passHashCookie = exCookies.first(where: { $0.name == Defaults.Cookie.ipbPassHash })
+        let igneousCookie = exCookies.first(where: { $0.name == Defaults.Cookie.igneous })
 
         #expect(memberCookie?.value == "4172984")
         #expect(passHashCookie?.value == "pass-hash")
@@ -154,8 +154,8 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         cookieClient.syncExCookies()
 
         let exCookies = cookieClient.cookies(for: Defaults.URL.exhentai)
-        #expect(exCookies.first { $0.name == Defaults.Cookie.ipbMemberId }?.value == "4172984")
-        #expect(exCookies.first { $0.name == Defaults.Cookie.ipbPassHash }?.value == "pass-hash")
+        #expect(exCookies.first(where: { $0.name == Defaults.Cookie.ipbMemberId })?.value == "4172984")
+        #expect(exCookies.first(where: { $0.name == Defaults.Cookie.ipbPassHash })?.value == "pass-hash")
     }
 
     @MainActor

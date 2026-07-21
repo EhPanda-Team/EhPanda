@@ -197,11 +197,11 @@ final class BackgroundTaskClientSpy: Sendable {
     }
     private let state = Mutex(State())
 
-    var beginCount: Int { state.withLock { $0.beginCount } }
-    var endCount: Int { state.withLock { $0.endCount } }
+    var beginCount: Int { state.withLock({ $0.beginCount }) }
+    var endCount: Int { state.withLock({ $0.endCount }) }
 
     func fireExpiration() {
-        let handler = state.withLock { $0.expirationHandler }
+        let handler = state.withLock({ $0.expirationHandler })
         handler?()
     }
 
@@ -215,7 +215,7 @@ final class BackgroundTaskClientSpy: Sendable {
                 return UIBackgroundTaskIdentifier(rawValue: 1)
             },
             end: { _ in
-                self.state.withLock { $0.endCount += 1 }
+                self.state.withLock({ $0.endCount += 1 })
             }
         )
     }

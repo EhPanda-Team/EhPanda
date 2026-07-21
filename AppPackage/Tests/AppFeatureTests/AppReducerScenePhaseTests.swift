@@ -30,12 +30,12 @@ struct AppReducerScenePhaseTests {
 
         await store.send(.onScenePhaseChange(.inactive)) {
             $0.scenePhase = .inactive
-            $0.$privacyMaskBlur.withLock { $0 = intensity }
+            $0.$privacyMaskBlur.withLock({ $0 = intensity })
         }
 
         await store.send(.onScenePhaseChange(.active)) {
             $0.scenePhase = .active
-            $0.$privacyMaskBlur.withLock { $0 = 0 }
+            $0.$privacyMaskBlur.withLock({ $0 = 0 })
         }
         await store.receive(\.setting.fetchGreeting)
         await store.receive(\.appLogsPump.startPump)
@@ -74,7 +74,7 @@ struct AppReducerScenePhaseTests {
 
         await store.send(.onScenePhaseChange(.inactive)) {
             $0.scenePhase = .inactive
-            $0.$privacyMaskBlur.withLock { $0 = 40 }
+            $0.$privacyMaskBlur.withLock({ $0 = 40 })
         }
         await store.send(.onScenePhaseChange(.background)) {
             $0.scenePhase = .background
@@ -107,7 +107,7 @@ private extension AppReducerScenePhaseTests {
                     privacyMaskIntensity: privacyMaskIntensity
                 )
             }
-            initialState.$privacyMaskBlur.withLock { $0 = 0 }
+            initialState.$privacyMaskBlur.withLock({ $0 = 0 })
             initialState.appLogsPumpState.$currentRun.withLock {
                 $0 = RunLogFile(
                     url: URL(fileURLWithPath: "/tmp/app-feature-tests.jsonl"),
@@ -140,7 +140,7 @@ private extension ClipboardClient {
         .init(
             url: { nil },
             changeCount: {
-                count.withValue { $0 += 1 }
+                count.withValue({ $0 += 1 })
                 return .min
             },
             saveText: { _ in },

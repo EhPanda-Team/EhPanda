@@ -98,12 +98,13 @@ struct CookieClientTests {
 
         let skipServerURL = GalleryHost.exhentai.url.appendingPathComponent("s/")
         let cookie = try #require(
-            client.cookies(for: skipServerURL).first { $0.name == CookieName.skipServer }
+            client.cookies(for: skipServerURL).first(where: { $0.name == CookieName.skipServer })
         )
         #expect(cookie.value == "server-fixture")
         #expect(cookie.path == "/s/")
         let ehentaiSkipServerURL = GalleryHost.ehentai.url.appendingPathComponent("s/")
-        #expect(client.cookies(for: ehentaiSkipServerURL).contains { $0.name == CookieName.skipServer } == false)
+        let ehentaiCookies = client.cookies(for: ehentaiSkipServerURL)
+        #expect(ehentaiCookies.contains(where: { $0.name == CookieName.skipServer }) == false)
     }
 
     @Test
@@ -182,7 +183,7 @@ struct CookieClientTests {
         // element lands; the mutator doubles as the timeout so a regression fails instead of hanging.
         let received = await withTaskGroup(of: Bool.self) { group in
             group.addTask {
-                await stream.first { _ in true } != nil
+                await stream.first(where: { _ in true }) != nil
             }
             group.addTask {
                 for attempt in 0..<200 {
@@ -259,7 +260,7 @@ private func seedCredentials(
 }
 
 private func cookieValue(in client: CookieClient, url: URL, name: String) -> String {
-    client.cookies(for: url).first { $0.name == name }?.value ?? ""
+    client.cookies(for: url).first(where: { $0.name == name })?.value ?? ""
 }
 
 private func makeCookie(

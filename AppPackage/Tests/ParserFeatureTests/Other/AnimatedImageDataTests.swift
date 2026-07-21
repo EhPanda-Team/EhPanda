@@ -78,7 +78,7 @@ struct AnimatedImageDataTests {
     }
 
     private func webPFile(chunks: [[UInt8]]) -> [UInt8] {
-        let payload = chunks.flatMap { $0 }
+        let payload = chunks.flatMap({ $0 })
         return Array("RIFF".utf8)
             + littleEndianUInt32(4 + payload.count)
             + Array("WEBP".utf8)

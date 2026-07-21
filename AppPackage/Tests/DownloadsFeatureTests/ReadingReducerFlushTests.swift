@@ -26,7 +26,7 @@ struct ReadingReducerFlushTests: DownloadFeatureTestCase {
             $0.defaultAppStorage = defaults
         } operation: {
             @Shared(.galleryHistory) var history
-            return history.first { $0.gid == gid }?.readingProgress
+            return history.first(where: { $0.gid == gid })?.readingProgress
         }
     }
 
