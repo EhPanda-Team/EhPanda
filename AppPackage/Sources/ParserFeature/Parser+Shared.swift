@@ -106,7 +106,7 @@ extension Parser {
             Defaults.URL.exhentai.host,
             Defaults.URL.sexhentai.host
         ]
-        .compactMap { $0?.lowercased() }
+        .compactMap({ $0?.lowercased() })
 
         if let host = components.host?.lowercased(),
            knownGalleryHosts.contains(host),

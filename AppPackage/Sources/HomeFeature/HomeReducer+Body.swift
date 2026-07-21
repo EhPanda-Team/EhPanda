@@ -117,7 +117,7 @@ extension HomeReducer {
             case .fetchAllToplistsGalleries:
                 return .merge(
                     ToplistsType.allCases
-                        .map { Action.fetchToplistsGalleries(index: $0.categoryIndex) }
+                        .map({ Action.fetchToplistsGalleries(index: $0.categoryIndex) })
                         .map(Effect<Action>.send)
                 )
 

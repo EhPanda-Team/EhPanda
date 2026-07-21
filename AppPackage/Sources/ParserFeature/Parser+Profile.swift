@@ -58,7 +58,7 @@ extension Parser {
             if optouter.at_xpath("//select [@name='co']") != nil {
                 hahRegion = parseSelections(node: optouter, name: "co")
                     .first(where: \.isSelected)
-                    .flatMap { EhSetting.HahRegion(rawValue: $0.value) }
+                    .flatMap({ EhSetting.HahRegion(rawValue: $0.value) })
 
                 let strongTexts = optouter.xpath("//strong").compactMap(\.text)
                 literalDetectedCountry = strongTexts.first
@@ -94,11 +94,11 @@ extension Parser {
             if optouter.at_xpath("//div [@id='catsel']") != nil {
                 disabledCategories = Array(0...9)
                     .map { "ct_\(EhSetting.categoryNames[$0])" }
-                    .compactMap { parseBool(node: optouter, name: $0) }
+                    .compactMap({ parseBool(node: optouter, name: $0) })
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
                 favoriteCategories = Array(0...9).map { "favorite_\($0)" }
-                    .compactMap { parseString(node: optouter, name: $0) }
+                    .compactMap({ parseString(node: optouter, name: $0) })
             }
             if optouter.at_xpath("//input [@name='fs']") != nil {
                 favoritesSortOrder = parseEnum(node: optouter, name: "fs")
@@ -120,7 +120,7 @@ extension Parser {
             if optouter.at_xpath("//div [@id='xlasel']") != nil {
                 excludedLanguages = Array(0...49)
                     .map { "xl_\(EhSetting.languageValues[$0])" }
-                    .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
+                    .compactMap({ parseCheckBoxBool(node: optouter, name: $0) })
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
                 excludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""

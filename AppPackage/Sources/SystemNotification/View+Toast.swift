@@ -169,7 +169,7 @@ private struct ToastViewModifier: ViewModifier {
 private extension ToastContent {
     var announcement: String {
         [title, subtitle]
-            .compactMap { $0 }
+            .compactMap({ $0 })
             .joined(separator: ", ")
     }
 }

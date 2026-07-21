@@ -53,7 +53,7 @@ struct CardSlideSection: View, Equatable {
         // (`Page.withIndex` parity: `cardPageIndex` defaults to 1, so the carousel must not open
         // on the first card), giving the loop headroom on both sides from the first frame.
         let seedIndex = galleries.isEmpty ? nil : min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
-        _scrollPositionID = State(initialValue: seedIndex.map { galleries.count * middleBlock + $0 })
+        _scrollPositionID = State(initialValue: seedIndex.map({ galleries.count * middleBlock + $0 }))
     }
 
     static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {

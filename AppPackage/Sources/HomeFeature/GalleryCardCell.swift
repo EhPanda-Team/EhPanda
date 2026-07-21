@@ -139,7 +139,9 @@ private struct CardGradientView: View {
         // `initial: true` fires this at appearance time with the unchanged palette, which is what
         // turns ColorfulX's first paint into an animated transition (see the type comment). It
         // replaces a former `onAppear` doing the same assignment, folding both into one modifier.
-        .onChange(of: colors, initial: true) { _, newColors in displayedColors = newColors }
+        .onChange(of: colors, initial: true) { _, newColors in
+            displayedColors = newColors
+        }
     }
 }
 

@@ -50,7 +50,7 @@ struct MasonryLayout: Layout {
         let columns = Self.columnCount(for: width)
         let cellW = Self.cellWidth(containerWidth: width, columns: columns)
         // D-29: measure AFTER N and cellWidth are fixed; measurement never feeds back into N.
-        let heights = subviews.map { $0.sizeThatFits(.init(width: cellW, height: nil)).height }
+        let heights = subviews.map({ $0.sizeThatFits(.init(width: cellW, height: nil)).height })
         let plan = Self.masonryPlan(heights: heights, columns: columns, cellWidth: cellW, spacing: Self.spacing)
         cache.proposalWidth = width
         cache.plan = plan
@@ -64,7 +64,7 @@ struct MasonryLayout: Layout {
         // Reuse this pass's plan when the width is unchanged; otherwise re-measure and re-plan.
         let plan = (cache.proposalWidth == width ? cache.plan : nil)
             ?? Self.masonryPlan(
-                heights: subviews.map { $0.sizeThatFits(.init(width: cellW, height: nil)).height },
+                heights: subviews.map({ $0.sizeThatFits(.init(width: cellW, height: nil)).height }),
                 columns: columns, cellWidth: cellW, spacing: Self.spacing
             )
         for (subview, origin) in zip(subviews, plan.origins) {

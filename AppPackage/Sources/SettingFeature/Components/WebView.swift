@@ -32,7 +32,7 @@ struct WebView: UIViewControllerRepresentable {
             else { return }
 
             webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-                cookies.forEach { HTTPCookieStorage.shared.setCookie($0) }
+                cookies.forEach({ HTTPCookieStorage.shared.setCookie($0) })
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in

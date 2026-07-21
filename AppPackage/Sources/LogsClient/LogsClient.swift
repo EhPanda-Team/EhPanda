@@ -31,7 +31,7 @@ extension LogsClient {
                 ?? store.position(timeIntervalSinceLatestBoot: .zero)
             let predicate = NSPredicate(format: "subsystem BEGINSWITH %@", Defaults.App.identifier)
             let entries = Array(try store.getEntries(at: position, matching: predicate))
-            let logEntries = entries.compactMap { $0 as? OSLogEntryLog }
+            let logEntries = entries.compactMap({ $0 as? OSLogEntryLog })
             if logEntries.count != entries.count {
                 logger.warning("""
                     Some log entries could not be read as OSLogEntryLog. \
@@ -39,11 +39,11 @@ extension LogsClient {
                     """)
             }
             let logs = logEntries
-                .filter { $0.subsystem.caseInsensitiveContains(Defaults.App.identifier) }
+                .filter({ $0.subsystem.caseInsensitiveContains(Defaults.App.identifier) })
                 .map(AppActivityLog.init(osLog:))
-                .sorted { $0.date < $1.date }
+                .sorted(by: { $0.date < $1.date })
             guard let after else { return logs }
-            return logs.filter { $0.date > after }
+            return logs.filter({ $0.date > after })
         },
         appendToRunFile: { logs, url in
             guard !logs.isEmpty else { return }
@@ -89,16 +89,16 @@ extension LogsClient {
         listRunFiles: {
             let directory = FileUtil.logsDirectoryURL
             return runLogFileNames(in: directory)
-                .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
+                .compactMap({ RunLogFile(fileURL: directory.appendingPathComponent($0)) })
                 // Newest first across days: counts reset daily, so order by day then count.
-                .sorted { $0.date != $1.date ? $0.date > $1.date : $0.runCount > $1.runCount }
+                .sorted(by: { $0.date != $1.date ? $0.date > $1.date : $0.runCount > $1.runCount })
         },
         nextRunCount: { date in
             let directory = FileUtil.logsDirectoryURL
             let today = RunLogFile.dayString(for: date)
             let todayCounts = runLogFileNames(in: directory)
-                .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
-                .filter { RunLogFile.dayString(for: $0.date) == today }
+                .compactMap({ RunLogFile(fileURL: directory.appendingPathComponent($0)) })
+                .filter({ RunLogFile.dayString(for: $0.date) == today })
                 .map(\.runCount)
             return (todayCounts.max() ?? 0) + 1
         },

@@ -20,7 +20,7 @@ extension Parser {
         else { return nil }
 
         func intValue(for key: Defaults.URL.Component.Key) -> Int? {
-            queryItems.first { $0.name == key.rawValue }?.value.flatMap(Int.init)
+            queryItems.first(where: { $0.name == key.rawValue })?.value.flatMap(Int.init)
         }
 
         components.queryItems = nil

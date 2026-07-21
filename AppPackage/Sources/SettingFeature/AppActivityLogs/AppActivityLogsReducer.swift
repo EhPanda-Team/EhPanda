@@ -33,7 +33,7 @@ public struct AppActivityLogsReducer: Sendable {
                     .joined(separator: " ")
                     .caseInsensitiveContains(keyword)
             }
-            return filtered.sorted { $0.date > $1.date }
+            return filtered.sorted(by: { $0.date > $1.date })
         }
 
         public init() {}
@@ -63,7 +63,7 @@ public struct AppActivityLogsReducer: Sendable {
 
             case .availableRunsResponse(let runs):
                 // Exclude the current run by file (its count can repeat on earlier days).
-                state.previousRuns = runs.filter { $0.url != state.currentRun?.url }
+                state.previousRuns = runs.filter({ $0.url != state.currentRun?.url })
                 return .none
 
             case .selectRun(let url):

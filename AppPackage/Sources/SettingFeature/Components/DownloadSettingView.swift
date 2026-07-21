@@ -42,7 +42,9 @@ struct DownloadSettingView: View {
     private var downloadThreadLimitValue: Binding<Double> {
         .init(
             get: { Double(setting.downloadThreadLimit) },
-            set: { newValue in $setting.withLock { $0.downloadThreadLimit = Int(newValue.rounded()) } }
+            set: { newValue in
+                $setting.withLock({ $0.downloadThreadLimit = Int(newValue.rounded()) })
+            }
         )
     }
 }

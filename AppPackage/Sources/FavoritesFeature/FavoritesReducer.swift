@@ -281,7 +281,7 @@ public struct FavoritesReducer: Sendable {
 
             case .observeDownloadsDone(let downloads):
                 state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
+                    uniqueKeysWithValues: downloads.map({ ($0.gid, $0.badge) })
                 )
                 return .none
 
