@@ -136,17 +136,24 @@ private struct DetailList: View {
                     )
                 }
                 .foregroundStyle(.primary)
+                // Fetch-more fires when the trailing row actually becomes visible in the scroll
+                // container — a per-scroll-arrival signal, not a view-mounting one. The geometry
+                // heuristic below (AutoLoadNextPage) cannot serve this layout: its accounting was
+                // tuned for the masonry grid's single eager row (D-36), while this list has many
+                // lazily materialized estimated-height rows and a standalone footer sibling row.
+                // The modifier is applied to every row and the guard selects the last one; wrapping
+                // it in an `if` would change row view identity. No view-local latch is needed —
+                // the reducers already guard hasNextPage() + footerLoadingState != .loading and
+                // set .loading synchronously, so a duplicate send is a no-op.
+                .onScrollVisibilityChange { isVisible in
+                    guard isVisible, gallery == galleries.last else { return }
+                    fetchMoreAction?()
+                }
                 if shouldShowFooter(gallery: gallery) {
                     FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
                 }
             }
         }
-        .autoLoadNextPage(
-            pageNumber: pageNumber,
-            footerLoadingState: footerLoadingState,
-            galleryCount: galleries.count,
-            fetchMoreAction: fetchMoreAction
-        )
     }
 }
 
@@ -232,9 +239,16 @@ private struct ThumbnailList: View {
 
 // MARK: AutoLoadNextPage
 private extension View {
-    /// Auto-loads the next page as the scroll view's bottom edge nears (D-36), for both list
-    /// styles. Reading scroll *geometry* rather than the last cell's appearance keeps the scroll
-    /// position stable across appends and does not depend on when the container materializes a row.
+    /// Auto-loads the next page as the scroll view's bottom edge nears (D-36), for the **thumbnail
+    /// grid only**. Reading scroll *geometry* rather than the last cell's appearance keeps the
+    /// scroll position stable across appends and does not depend on when the container materializes
+    /// a row — but that accounting was tuned for one specific layout: the masonry grid's single
+    /// eagerly measured row with the footer inside that row.
+    ///
+    /// The detail list is the structure D-36 records as incompatible — many lazily materialized
+    /// rows with estimated heights, plus `FetchMoreFooter` as a standalone sibling row — so it
+    /// drives fetch-more from a trailing-row scroll-visibility signal instead. Do not widen this
+    /// modifier back to that layout.
     func autoLoadNextPage(
         pageNumber: PageNumber?,
         footerLoadingState: LoadingState,
