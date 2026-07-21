@@ -540,7 +540,7 @@ Plans:
   - **D-09 is half-done.** `PreviewSupport` ships and five cell fixtures use it, but `AppModels`' shared fixtures (`Gallery.preview`, `previews(count:)`, `mockGalleries`) still mint random `UUID()`, and four of the five fixed files render `Gallery.preview` in their first preview. Giving `AppModels` a `PreviewSupport` dependency is an architectural call, deliberately deferred.
   - **There is no network seam.** `NetworkingFeature` request types take `urlSession: URLSession = .shared` as an init default (50 sites) and reducers never pass one, so a `TestStore` cannot stub a fetch. This limited coverage in plans 11-07 through 11-10 and 11-15. Structural, not an oversight.
 
-**Plans**: 30/32 plans executed (2 gap-closure plans added from 11-UAT.md)
+**Plans**: 32/32 plans executed
 
 Plans:
 **Wave 1**
@@ -665,8 +665,8 @@ Plans:
 
 **Wave 31** *(gap closure from 11-UAT.md — the two plans are independent and run in parallel)*
 
-- [ ] 11-30-PLAN.md — G-11-7 (blocker): restore DetailList's trailing-row fetch-more trigger; return the D-36 geometry heuristic to thumbnail-only scope
-- [ ] 11-31-PLAN.md — G-11-8 (cosmetic): reassert relative icon scale on the six `titleAndIcon` Labels that replaced icon+text stacks
+- [x] 11-30-PLAN.md — G-11-7 (blocker): restore DetailList's trailing-row fetch-more trigger; return the D-36 geometry heuristic to thumbnail-only scope
+- [x] 11-31-PLAN.md — G-11-8 (cosmetic): reassert relative icon scale on the six `titleAndIcon` Labels that replaced icon+text stacks
 
 ## Progress
 
@@ -685,7 +685,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
-| 11. Infra Refactor & Lint Capstone | 30/30 | In Progress|  |
+| 11. Infra Refactor & Lint Capstone | 32/32 | In Progress|  |
 | 12. Cloudflare Login Restoration | 0/TBD | Not started | - |
 | 13. Deep Link Hardening | 0/TBD | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
