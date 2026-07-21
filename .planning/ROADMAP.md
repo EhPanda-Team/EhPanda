@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize side-effecting Utils, audit cookie logging, and cover reworked seams with tests (completed 2026-07-14)
 - [x] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface (completed 2026-07-16)
 - [x] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
-- [ ] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
+- [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
 - [ ] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance
 - [ ] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
 - [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
@@ -529,12 +529,18 @@ Plans:
 **Requirements**: LINT-01
 **Success Criteria** (what must be TRUE):
 
-  1. The mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, and the new labeled-tuple-elements rule) are enabled at **error** as a capstone sweep, with all violations resolved at root.
-  2. The refactor-gated rules (`optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`) — resolved at root during their coupled refactor phases (`optional_try` with Phase 9's structured-error work; the others with the Phase 5–7 UI/architecture refactors) — are switched to **error** with zero remaining violations.
-  3. No rule is suppressed, disabled, or bypassed with `// swiftlint:disable`, and the project builds clean under SwiftLint-as-error. *(Amended per D-02: no **unapproved** disables — approved exceptions carry `// reason:` + `disable:next`, owner-reviewed at phase end.)*
-  4. `.serialized` and `@MainActor` are removed from all tests unless a test has a real need to run on the main actor — each test's cross-test pollution is resolved by injecting the shared dependency (per-test instance, not `.serialized`) — and the full suite runs in parallel, on any thread.
+  1. **MET.** The mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, and the new `labeled_tuple_elements` rule) are enabled at **error** as a capstone sweep, with all violations resolved at root. The refactor-gated rules were not "already resolved" as the original goal assumed — see criterion 2.
+  2. **MET, with a scope correction.** The refactor-gated rules (`optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`) are at **error** with zero remaining violations. The premise that they had been "resolved at root during Phases 5–7/9" was **not true at HEAD** — ~127 `try?`, ~30 `Binding(` and ~46 lifecycle sites remained, plus 240 subscript matches — so resolving them was Phase 11 work, not a flip of already-clean code.
+  3. **MET as amended (D-02).** No rule is suppressed, disabled, or bypassed with an **unapproved** `// swiftlint:disable` — every surviving disable carries an owner-reviewed `// reason:` comment — and the project builds clean under SwiftLint-as-error for both source and test targets. **8 exceptions total**, all inventoried in `11-EXCEPTIONS.md` for batch review: 6 `lifecycle_modifiers` and 2 `unchecked_subscript_index_access`. The other six rules shipped with **zero** exceptions.
+  4. **MET structurally; the parallelism yield fell short of the framing.** `.serialized` is gone entirely (0 traits across 18 targets, all 41 removed by injection per D-12), and the full 565-test suite runs in parallel. `@MainActor` was swept across all 50 annotated files with every survivor compiler-required at member scope — but **157 of 186 cases (84%) remain main-actor-isolated**, a floor set by TCA's `TestStore`, not by annotation hygiene. D-13's yield is **17 cases and no measurable wall-clock change**; there is nothing left to sweep.
 
-**Plans**: 29/30 plans executed
+**Not achieved as originally written** (detail in `11-EXCEPTIONS.md` §7):
+
+  - **11-02's must-have is inert.** "An unparseable gallery-list page throws instead of rendering as an empty list" cannot hold: D-04 Group A's `Parser.degrading` helper makes every row-level failure non-throwing, so the `try?`→`try` conversion changed nothing observable. Inventing an "empty means malformed" heuristic was correctly declined — it would throw on legitimately-empty search results. Needs an owner decision.
+  - **D-09 is half-done.** `PreviewSupport` ships and five cell fixtures use it, but `AppModels`' shared fixtures (`Gallery.preview`, `previews(count:)`, `mockGalleries`) still mint random `UUID()`, and four of the five fixed files render `Gallery.preview` in their first preview. Giving `AppModels` a `PreviewSupport` dependency is an architectural call, deliberately deferred.
+  - **There is no network seam.** `NetworkingFeature` request types take `urlSession: URLSession = .shared` as an init default (50 sites) and reducers never pass one, so a `TestStore` cannot stub a fetch. This limited coverage in plans 11-07 through 11-10 and 11-15. Structural, not an oversight.
+
+**Plans**: 30/30 plans executed
 
 Plans:
 **Wave 1**
