@@ -115,10 +115,10 @@ public struct GalleriesMetadataRequest: Request, Sendable {
 
         let pages = try await fetchChunks(chunks)
         let byGID = Dictionary(
-            pages.flatMap { $0 }.map { ($0.gid, $0) },
+            pages.flatMap({ $0 }).map({ ($0.gid, $0) }),
             uniquingKeysWith: { first, _ in first }
         )
-        return order.compactMap { byGID[$0] }
+        return order.compactMap({ byGID[$0] })
     }
 
     private func fetchChunks(
@@ -187,7 +187,7 @@ public struct GalleriesMetadataRequest: Request, Sendable {
         try JSONDecoder()
             .decode(GalleriesMetadataAPIResponse.self, from: data)
             .gmetadata
-            .compactMap { $0.gallery(host: host) }
+            .compactMap({ $0.gallery(host: host) })
     }
 }
 

@@ -64,7 +64,7 @@ public struct SearchRootReducer: Sendable {
                     }
                 }
             }
-            $historyKeywords.withLock { $0 = historyKeywords }
+            $historyKeywords.withLock({ $0 = historyKeywords })
         }
 
         mutating func removeHistoryKeyword(_ keyword: String) {
@@ -186,7 +186,7 @@ public struct SearchRootReducer: Sendable {
                 // "Recently seen" suggestions: the 10 most-recent history entries, metadata
                 // refetched on demand since no gallery snapshot is persisted.
                 @Shared(.galleryHistory) var galleryHistory
-                let pairs = galleryHistory.prefix(10).map { (gid: $0.gid, token: $0.token) }
+                let pairs = galleryHistory.prefix(10).map({ (gid: $0.gid, token: $0.token) })
                 guard !pairs.isEmpty else {
                     state.historyGalleries = []
                     return .none

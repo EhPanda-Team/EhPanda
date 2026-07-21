@@ -112,7 +112,9 @@ struct AppIconView: View {
                         isSelected: icon == setting.appIconType
                     )
                     .contentShape(.rect)
-                    .onTapGesture { $setting.withLock { $0.appIconType = icon } }
+                    .onTapGesture {
+                        $setting.withLock({ $0.appIconType = icon })
+                    }
                 }
             }
         }

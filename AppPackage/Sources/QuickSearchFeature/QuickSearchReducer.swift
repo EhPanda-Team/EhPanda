@@ -111,14 +111,14 @@ public struct QuickSearchReducer: Sendable {
                 case .appendWord:
                     guard !state.isAtWordLimit else { return .none }
                     let word = state.editingWord
-                    state.$quickSearchWords.withLock { $0.append(word) }
+                    state.$quickSearchWords.withLock({ $0.append(word) })
                     state.editKind = nil
                     return .none
 
                 case .editWord:
                     if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
                         let word = state.editingWord
-                        state.$quickSearchWords.withLock { $0[index] = word }
+                        state.$quickSearchWords.withLock({ $0[index] = word })
                     }
                     state.editKind = nil
                     return .none
@@ -128,11 +128,11 @@ public struct QuickSearchReducer: Sendable {
                     return .none
 
                 case .deleteWordWithOffsets(let offsets):
-                    state.$quickSearchWords.withLock { $0.remove(atOffsets: offsets) }
+                    state.$quickSearchWords.withLock({ $0.remove(atOffsets: offsets) })
                     return .none
 
                 case .moveWord(let source, let destination):
-                    state.$quickSearchWords.withLock { $0.move(fromOffsets: source, toOffset: destination) }
+                    state.$quickSearchWords.withLock({ $0.move(fromOffsets: source, toOffset: destination) })
                     return .none
                 }
             }

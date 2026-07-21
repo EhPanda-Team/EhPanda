@@ -89,8 +89,8 @@ extension SettingReducer {
         // A language switch resets the in-memory table and its persisted metadata; the request then
         // downloads the new language's data from scratch.
         if state.tagTranslatorInfo.language != language {
-            state.$tagTranslator.withLock { $0 = TagTranslator(language: language) }
-            state.$tagTranslatorInfo.withLock { $0 = TagTranslatorInfo(language: language) }
+            state.$tagTranslator.withLock({ $0 = TagTranslator(language: language) })
+            state.$tagTranslatorInfo.withLock({ $0 = TagTranslatorInfo(language: language) })
         }
         let updatedDate = state.tagTranslatorInfo.updatedDate
         return .run { send in

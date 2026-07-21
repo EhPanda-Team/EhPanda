@@ -66,7 +66,7 @@ public struct SettingReducer: Sendable {
         public init() {}
 
         mutating func setGreeting(_ newGreeting: Greeting) {
-            $greeting.withLock { $0.mergeNewer(newGreeting) }
+            $greeting.withLock({ $0.mergeNewer(newGreeting) })
         }
 
         mutating func updateUser(_ user: User) {

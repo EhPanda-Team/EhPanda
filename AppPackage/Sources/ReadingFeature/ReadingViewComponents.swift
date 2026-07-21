@@ -338,7 +338,9 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         // firing an unstructured `Task`) would drop that cancellation and leak concurrent image
         // downloads on the reader's hottest path.
         // swiftlint:disable:next lifecycle_modifiers
-        content.task(id: url) { await load() }
+        content.task(id: url) {
+            await load()
+        }
     }
 
     @ViewBuilder private var content: some View {
