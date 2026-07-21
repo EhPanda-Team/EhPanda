@@ -181,10 +181,15 @@ blocked: 0
     (B) the geometry predicate is never satisfied in DetailList's lazy estimated-height List
     remains undistinguished. The proposed fix resolves both, since it discards the geometry
     heuristic for this layout entirely."
-  falsification_test: "Set Appearance -> list display mode to `thumbnail` and scroll a multi-page
-    list. Working there but not in .detail confirms the layout-structural mismatch; BOTH failing
-    moves the defect into AutoLoadNextPage's guard set generally and makes the latch hardening
-    the primary fix rather than a follow-up."
+  falsification_test: "RUN 2026-07-22. Set Appearance -> list display mode to `thumbnail` and
+    scrolled a multi-page list. RESULT: thumbnail mode paginates correctly; only .detail is
+    broken. This CONFIRMS the layout-structural mismatch and raises confidence on the mechanism
+    from medium to HIGH. AutoLoadNextPage's guard set is not generally defective — it is
+    incompatible with DetailList's lazy estimated-height layout, exactly as D-36 recorded.
+    Consequence for planning: trigger substitution in DetailList is the PRIMARY fix; hardening
+    the `lastAutoFetchCount` latch is a separate pre-existing robustness follow-up, not a
+    blocker for this gap."
+  confidence_final: high
   debug_session: ".planning/debug/g-11-7-fetch-more-broken.md"
 
 - gap_id: G-11-8
