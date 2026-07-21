@@ -226,7 +226,8 @@ extension CommentsView {
             url: URL, widthFactor: Double, action: (() -> Void)? = nil
         ) -> some View {
             let image = KFImage(url)
-                .commentDefaultModifier().scaledToFit()
+                .commentDefaultModifier()
+                .scaledToFit()
                 .containerRelativeFrame(.horizontal) { width, _ in
                     width / widthFactor
                 }

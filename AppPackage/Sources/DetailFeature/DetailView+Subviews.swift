@@ -93,7 +93,10 @@ extension DescriptionSection {
         var body: some View {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption)
-                Text(value).fontWeight(.medium).font(.title3).lineLimit(1)
+                Text(value)
+                    .fontWeight(.medium)
+                    .font(.title3)
+                    .lineLimit(1)
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .animation(.default, value: value)
@@ -107,11 +110,16 @@ extension DescriptionSection {
 
         var body: some View {
             VStack(spacing: 3) {
-                Text(title).textCase(.uppercase).font(.caption).lineLimit(1)
+                Text(title)
+                    .textCase(.uppercase)
+                    .font(.caption)
+                    .lineLimit(1)
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .animation(.default, value: title)
-                Text(String(format: "%.2f", rating)).fontWeight(.medium).font(.title3)
+                Text(String(format: "%.2f", rating))
+                    .fontWeight(.medium)
+                    .font(.title3)
                     .monospacedDigit()
                     .contentTransition(.numericText(value: Double(rating)))
                     .animation(.default, value: rating)
@@ -260,9 +268,12 @@ extension TagsSection {
 
         var body: some View {
             HStack(alignment: .top) {
-                Text(tag.namespace.map({ String(localized: $0.value) }) ?? tag.rawNamespace).font(.subheadline.bold())
-                    .foregroundStyle(reversedPrimary).padding(padding)
-                    .background(Color(.systemGray)).clipShape(.rect(cornerRadius: 5))
+                Text(tag.namespace.map({ String(localized: $0.value) }) ?? tag.rawNamespace)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(reversedPrimary)
+                    .padding(padding)
+                    .background(Color(.systemGray))
+                    .clipShape(.rect(cornerRadius: 5))
                 TagCloudView(data: tag.contents) { content in
                     tagContentView(content: content)
                 }

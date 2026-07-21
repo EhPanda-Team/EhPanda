@@ -84,7 +84,9 @@ private struct GalleryDetailCellContent: View {
         HStack(spacing: 10) {
             KFImage(resolvedCoverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
-                .defaultModifier().scaledToFit().frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
+                .defaultModifier()
+                .scaledToFit()
+                .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
             VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title)
                     .lineLimit(downloadBadge == nil ? 3 : 2)
@@ -120,7 +122,9 @@ private struct GalleryDetailCellContent: View {
                     }
                 }
                 HStack {
-                    RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
+                    RatingView(rating: gallery.rating)
+                        .font(.caption)
+                        .foregroundStyle(.yellow)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     if let downloadBadge {
@@ -138,8 +142,11 @@ private struct GalleryDetailCellContent: View {
                     CategoryLabel(text: gallery.category.value, color: gallery.color(host: setting.galleryHost))
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
-                        .foregroundStyle(.secondary).minimumScaleFactor(0.75)
+                    Text(gallery.formattedDateString)
+                        .lineLimit(1)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .minimumScaleFactor(0.75)
                 }
                 .padding(.top, 1)
             }

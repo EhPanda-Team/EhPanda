@@ -14,7 +14,8 @@ extension DetailView {
         private var content: String {
             comment.contents
                 .filter({ [.plainText, .linkedText].contains($0.type) })
-                .compactMap(\.text).joined()
+                .compactMap(\.text)
+                .joined()
         }
 
         var body: some View {

@@ -463,8 +463,11 @@ struct MiscGridItem: View {
                     Text(subTitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }
             }
-            Image(systemSymbol: symbol).font(.system(size: symbolSize, weight: .light, design: .default))
-                .foregroundStyle(.secondary).imageScale(.large).offset(x: 20, y: 20)
+            Image(systemSymbol: symbol)
+                .font(.system(size: symbolSize, weight: .light, design: .default))
+                .foregroundStyle(.secondary)
+                .imageScale(.large)
+                .offset(x: 20, y: 20)
         }
         .padding(30)
         .glassEffect(.clear.tint(.init(.systemGray6)), in: .rect(cornerRadius: 15))

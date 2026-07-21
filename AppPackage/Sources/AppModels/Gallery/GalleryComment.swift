@@ -38,7 +38,8 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
     public var plainTextContent: String {
         contents
             .filter({ [.plainText, .linkedText, .singleLink].contains($0.type) })
-            .compactMap({ $0.type == .singleLink ? $0.link?.absoluteString : $0.text }).joined()
+            .compactMap({ $0.type == .singleLink ? $0.link?.absoluteString : $0.text })
+            .joined()
     }
 }
 
