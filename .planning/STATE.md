@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 11
 current_phase_name: infra-refactor-lint-capstone
 status: executing
-stopped_at: Completed 11-29-PLAN.md (phase 11 capstone)
-last_updated: "2026-07-21T16:38:53.568Z"
+stopped_at: Completed 11-31-PLAN.md (G-11-8 gap closure)
+last_updated: "2026-07-21T17:37:51.983Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 11 execution started
 progress:
   total_phases: 15
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 137
-  completed_plans: 135
-  percent: 60
+  completed_plans: 137
+  percent: 67
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-07-16)
 ## Current Position
 
 Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 1 of 32
-Status: Executing Phase 11
+Plan: 2 of 32
+Status: Ready to execute
 Last activity: 2026-07-22 — Phase 11 execution started
 Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
 
@@ -196,6 +196,7 @@ Progress: [██████████] 100% (10/15 phases)
 | Phase 11 P27 | ~20 min | 2 tasks | 27 files |
 | Phase 11 P28 | ~25 min | 2 tasks | 20 files |
 | Phase 11 P29 | ~50m | 2 tasks | 3 files |
+| Phase 11 P31 | ~50 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -417,6 +418,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-27: no nested-closure trap in Tests — 4 of 6 nested sites sit in accessor braces, 2 in an unpoliced dependency-override closure; parenthesizing was the only fix, not a silencing shortcut
 - [Phase ?]: multiline_function_chains live at error (SwiftLint defaults) — the seventh and final LINT-01 rule flip; 43 chained-call sites reformatted across 19 Sources files
 - [Phase ?]: The rule's ~85 raw violations deduplicate to 43 real sites — it reports once per chain-link pair, so the headline count double-counts
+- [Phase ?]: 11-31: Page-count icon parity is restored with .imageScale(.medium), not the plan's .small — .small undershoots the pre-sweep glyph by 3.25pt (~20%)
+- [Phase ?]: 11-31: The Label icon inflation is list-specific; free-standing, a Label's icon already matches a bare Image exactly (20x16). Re-deriving this outside a List gives the wrong answer.
+- [Phase ?]: 11-31: No automated parity test ships — rendering a List for measurement needs a UIWindow, and every scene-free UIWindow initializer is deprecated on iOS 26 with no window scene available in the test host
 
 ### Pending Todos
 
@@ -431,6 +435,7 @@ None yet.
 - Deferred follow-up (from Phase 8 UAT): remove dead legacy haptic code (`isLegacyTapticEngine`, `generateLegacyFeedback`) — targets unsupported devices.
 - Deferred follow-up (from Phase 11 UAT, G-11-7): harden the `lastAutoFetchCount` one-shot latch in `AutoLoadNextPage` (GalleryList.swift) to re-arm on the server page cursor (`pageNumber`) rather than on `galleries.count`, so a deduped, empty or failed page cannot permanently disarm thumbnail-mode pagination — today only the manual footer retry recovers. Pre-existing (Phase 2 / D-36), not a Phase 11 regression; the detail path no longer depends on it. Needs a device check for chain-fetch regression, since the known failure mode of this tuning is an endless fetch loop pinned at the bottom.
 - Standing verification item (from Phase 11 UAT, G-11-7): every future UAT touching gallery list pagination must exercise BOTH `Setting.listDisplayMode` values, `detail` and `thumbnail`. The two modes render through structurally different layouts with different fetch-more triggers, and `detail` being the default masked the thumbnail path historically and masked this regression in reverse. Testing one mode proves nothing about the other.
+- Deferred follow-up (from 11-31 / G-11-8): the debug note .planning/debug/g-11-8-page-count-symbol-size.md records the wrong root cause — it attributes the icon growth to Label's titleAndIcon style sizing from label font metrics. Measured: free-standing, a Label's icon is pixel-identical to a bare Image (20x16); the inflation only appears inside a List row. Correct the note before it is reused.
 
 ### Roadmap Evolution
 
@@ -460,6 +465,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T00:40:49.625Z
-Stopped at: Completed 11-29-PLAN.md (phase 11 capstone)
+Last session: 2026-07-21T17:37:35.478Z
+Stopped at: Completed 11-31-PLAN.md (G-11-8 gap closure)
 Resume file: None
