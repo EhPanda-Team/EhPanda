@@ -1,9 +1,9 @@
 ---
-status: partial
+status: diagnosed
 phase: 11-infra-refactor-lint-capstone
 source: [11-VERIFICATION.md]
 started: 2026-07-21T00:00:00Z
-updated: "2026-07-21T13:10:48Z"
+updated: "2026-07-21T13:21:20Z"
 ---
 
 <!--
@@ -121,13 +121,71 @@ blocked: 0
   reason: "User reported: frontpage list (probably all lists) fetch more feature is broken, it just reach the end and won't fetch more"
   severity: blocker
   test: 7
-  hypothesis: "Phase 11 migrated list lifecycle modifiers off view-appearance (11-07 and
-    the lifecycle_modifiers sweep). Infinite scroll is classically driven by an
-    .onAppear on the trailing cell; if that trigger was migrated to a presentation-time
-    reducer action, the paginate-on-reach-end edge would fire once (or never) instead of
-    per-scroll. Prime suspect, to be confirmed by diagnosis."
-  artifacts: []
-  missing: []
+  hypothesis_refuted: "Original hypothesis (paginate migrated to a presentation-time reducer
+    action) is REFUTED. `.fetchMoreGalleries` is still a per-scroll view-driven send and the
+    reducers are correct. The defect is trigger substitution, not reducer hoisting."
+  root_cause: "Commit ebc99f5e 'refactor(11-11): drop component lifecycle hooks' deleted
+    DetailList's per-row trailing-cell trigger — `.onAppear { if gallery == galleries.last
+    { fetchMoreAction?() } }` — and replaced it with `.autoLoadNextPage(…)`, a scroll-geometry
+    heuristic lifted verbatim out of ThumbnailList. That heuristic was designed, tuned and
+    device-validated in Phase 2 under D-36 for ONE layout only: a single eagerly-measured
+    masonry List row with FetchMoreFooter INSIDE that row. D-36's record states the constraint
+    explicitly and scoped itself out of detail mode. DetailList has precisely the structure
+    D-36 forbids: many lazy rows with estimated heights, and FetchMoreFooter as a standalone
+    sibling row. The proximate kill switch is the one-shot latch `lastAutoFetchCount !=
+    galleryCount` (GalleryList.swift:296) — the only guard in the chain that cannot
+    self-recover, since re-arming needs galleries.count to change and only a fetch can change
+    it. Once consumed without a net append (deduped insertGalleries, empty page, failed fetch,
+    or a spurious fire during transient underfilled-viewport geometry while lazy rows are still
+    materializing), pagination for that list is permanently dead. Setting.listDisplayMode
+    defaults to .detail, so this is the path essentially every user is on — hence 'all lists'."
+  artifacts:
+
+    - path: "AppPackage/Sources/GalleryListComponents/GalleryList.swift"
+      issue: "PRIMARY. DetailList.body (L124-150): last-cell .onAppear trigger deleted, replaced by .autoLoadNextPage (L144-149). AutoLoadNextPage (L253-302): guard chain L292-299; non-recoverable latch lastAutoFetchCount != galleryCount (L296) + assignment (L298). DetailList also emits FetchMoreFooter as a SIBLING row (L139-141) — the exact structure D-36 records as breaking geometry-keyed pagination."
+
+    - path: "AppPackage/Sources/AppModels/Persistent/Setting.swift:91"
+      issue: "listDisplayMode default .detail — not a defect, but why the blast radius is every list."
+
+    - path: ".planning/phases/11-infra-refactor-lint-capstone/11-11-SUMMARY.md:86"
+      issue: "Asserts 'Strictly fewer redundant fetches, never fewer pages' — the incorrect assumption that let this ship. L168 correctly flagged detail-mode pagination as needing device UAT."
+  cleared_not_implicated: "FrontpageReducer.swift (fetchMoreGalleries guards + insertGalleries
+    correct); PageNumber.hasNextPage() / isNextButtonEnabled parsing; Gallery.id (= gid, stable
+    String cursor); Request+Gallery.swift lastID plumbing."
+  affected_lists: "All seven surfaces rendering through GalleryList in the default .detail mode:
+    Frontpage, Watched, Favorites, Search, Toplists, History, Detail Search. Thumbnail mode is
+    NOT a phase-11 regression (validated on device since Phase 2) but shares the latent latch."
+  missing:
+
+    - "Restore an edge-triggered trailing-cell signal in DetailList's ForEach row body: `.onScrollVisibilityChange { isVisible in guard isVisible, gallery == galleries.last else { return }; fetchMoreAction?() }` — the faithful per-scroll-arrival analogue of the deleted trigger. Works on individual List rows, needs no scrollTargetLayout()."
+    - "Remove .autoLoadNextPage from DetailList (L144-149) — do not run both triggers, that reintroduces double-fetching"
+    - "Do NOT add a view-local re-entrancy latch. FrontpageReducer.swift:140-143 and siblings already guard hasNextPage() + footerLoadingState != .loading and set .loading synchronously before returning the effect, so a duplicate send is a no-op. This is what made the original .onAppear correct without a view-side guard."
+    - "Restore AutoLoadNextPage to thumbnail-only scope (its D-36 home), or gate it on display mode — stop applying it to a layout D-36 records as incompatible"
+    - "SEPARATE, PRE-EXISTING: harden the latch for thumbnail mode — re-arm on the server cursor (pageNumber) rather than galleries.count, so a deduped or empty page cannot permanently disarm pagination. Today only the manual FetchMoreFooter retry recovers, and in DetailList that footer renders only while footerLoadingState != .idle."
+    - "Add a standing UAT item: verify pagination in BOTH display modes — .detail being the default masked the thumbnail path and now vice versa"
+  rule_compliance: "The lifecycle_modifiers rule (.swiftlint.yml:138-145) is
+    regex `\\.(onAppear|onDisappear|task)\\s*(\\(|\\{)` at severity error. Verified against the
+    live regex: `.onScrollVisibilityChange {`, `.onScrollTargetVisibilityChange(idType:) {` and
+    `.scrollTargetLayout()` produce NO match, while `.onAppear {` and `.task {` do. The fix needs
+    no disable, no rule edit, no severity change — clean at error by construction. It also
+    respects the rule's intent rather than routing around it: the rule targets view-appearance
+    lifecycle, and scroll-visibility is a genuinely different signal (what is on screen in a
+    scroll container, not when SwiftUI mounts a view) — the same distinction the repo already
+    relies on at PreviewsView.swift:62-69. NOTE: this is one case where 11-07's stated pattern
+    ('make the PRESENTING reducer fire the child's former effect') is the WRONG migration target
+    — pagination is per-scroll-arrival, not per-presentation."
+  confidence: "High that ebc99f5e is the regression and that removing DetailList's last-cell
+    trigger is the cause (unambiguous diff, .detail verified default, all seven lists share the
+    path, D-36 independently documents the layout incompatibility). Medium on the precise failing
+    guard — could not run the app, so (A) trigger fires but the latch permanently one-shots vs
+    (B) the geometry predicate is never satisfied in DetailList's lazy estimated-height List
+    remains undistinguished. The proposed fix resolves both, since it discards the geometry
+    heuristic for this layout entirely."
+  falsification_test: "Set Appearance -> list display mode to `thumbnail` and scroll a multi-page
+    list. Working there but not in .detail confirms the layout-structural mismatch; BOTH failing
+    moves the defect into AutoLoadNextPage's guard set generally and makes the latch hardening
+    the primary fix rather than a follow-up."
+  debug_session: ".planning/debug/g-11-7-fetch-more-broken.md"
 
 - gap_id: G-11-8
   truth: "The page-count symbol in the gallery cell renders at its prior size"
@@ -135,8 +193,46 @@ blocked: 0
   reason: "User reported: the symbol indicating page count looks larger before it became label (symbol in gallery cell)"
   severity: cosmetic
   test: 8
-  hypothesis: "A page-count view was converted to a Label; the symbol now inherits the
-    Label's icon sizing/font metrics rather than its former explicit size. To be
-    confirmed by diagnosis."
-  artifacts: []
-  missing: []
+  root_cause: "Commit 6dd51b00 (phase-11 UI sweep) rewrote the page-count indicator from
+    `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }` into
+    `Label(...).labelIconToTitleSpacing(2)`, driven by the custom `label_text_image_shorthand`
+    rule (error). The ambient font is unchanged (`.footnote` before and after) and neither
+    version sized the icon explicitly — so the diff isolates the cause: a bare `Image`
+    renders an SF Symbol at the ambient font's default symbol scale (.medium), whereas a
+    `Label` icon under the default `titleAndIcon` style is sized from the label's own
+    font/line metrics, yielding a visibly larger glyph at the identical font. The project's
+    `Label(_:systemSymbol:)` shim is ruled out (composes Text + Image verbatim, no sizing)."
+  artifacts:
+
+    - path: "AppPackage/Sources/GalleryListComponents/Cells/GalleryThumbnailCell.swift:82"
+      issue: "Reported site (masonry/thumbnail grid). Label icon unconstrained; only .labelIconToTitleSpacing(2). Font .footnote from enclosing HStack:90."
+
+    - path: "AppPackage/Sources/GalleryListComponents/Cells/GalleryDetailCell.swift:133"
+      issue: "Same regression, list/detail cell style. Also reached via DownloadsView+Subviews (2 sites), so it shows on Downloads too."
+
+    - path: "AppPackage/Sources/DetailFeature/Torrents/TorrentsView.swift:74-95"
+      issue: "Sibling regression, 4 icons (seed/peer/download counts, file size), identical mechanism."
+  sibling_sites: "6 conversions total share the mechanism. NOT affected (checked and cleared):
+    DetailView+HeaderSection, DetailView+Subviews, ToolbarItems, CommentsView, FolderManagerView,
+    QuickSearchView — all carry .labelStyle(.iconOnly) with an explicit .font(...), which pins
+    icon size. The regression class is confined to inline `titleAndIcon` Labels that replaced
+    an HStack { Image; Text }."
+  missing:
+
+    - "Reassert explicit relative icon scale on GalleryThumbnailCell:82 and GalleryDetailCell:133"
+    - "Same on the 4 TorrentsView labels — one .imageScale on the shared HStack:95 covers all four"
+    - "Do NOT revert to HStack — reintroduces a `label_text_image_shorthand` error (.swiftlint.yml:103); suppression is forbidden by project policy"
+    - "Prefer the icon-closure form (Label { Text } icon: { Image().imageScale(.small) }) — innermost, so it beats any ambient default. Lint-legal: the rule's regex needs Image(systemSymbol:) followed immediately by `}`, so an interposed .imageScale breaks the match. Precedent: ListNoticeView.swift:22"
+    - "Pick .small vs .medium by visual A/B against 6dd51b00^ using the existing #Preview in each cell file (renders pageCount: 1234, .sizeThatFitsLayout). Repo precedent is .small; .medium is theoretical parity with a bare Image"
+    - "Consider extracting the shared icon+count shape into one view in GalleryListComponents — the construct is now duplicated across both cells and can drift again"
+  dynamic_type_note: ".imageScale is relative — it selects a symbol scale variant against the
+    resolved font size rather than imposing a point size. With the surrounding font staying
+    .footnote (a Dynamic Type text style), the symbol keeps scaling across all content size
+    categories incl. AX1-AX5, matching pre-change behaviour. MUST NOT pin .font(.system(size:))
+    on the icon — that would freeze the glyph and fail the later Dynamic Type phase."
+  confidence: "High on the causal chain (single introducing commit, font held constant, shim
+    ruled out, no ambient labelStyle above the cells). Medium on the precise enum value —
+    settled by one visual A/B. Icon-closure form is recommended regardless, since it sidesteps
+    the open question of whether .imageScale on a Label propagates into the icon under the
+    default titleAndIcon style on iOS 26."
+  debug_session: ".planning/debug/g-11-8-page-count-symbol-size.md"
