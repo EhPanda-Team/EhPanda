@@ -23,7 +23,7 @@ extension Parser {
         do {
             return try parse()
         } catch {
-            logger.error("\(description, privacy: .public) failed to parse: \(error, privacy: .public)")
+            logger.error("\(description, privacy: .public) failed to parse: \(error, privacy: .private)")
             return nil
         }
     }
