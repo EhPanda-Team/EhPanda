@@ -540,7 +540,7 @@ Plans:
   - **D-09 is half-done.** `PreviewSupport` ships and five cell fixtures use it, but `AppModels`' shared fixtures (`Gallery.preview`, `previews(count:)`, `mockGalleries`) still mint random `UUID()`, and four of the five fixed files render `Gallery.preview` in their first preview. Giving `AppModels` a `PreviewSupport` dependency is an architectural call, deliberately deferred.
   - **There is no network seam.** `NetworkingFeature` request types take `urlSession: URLSession = .shared` as an init default (50 sites) and reducers never pass one, so a `TestStore` cannot stub a fetch. This limited coverage in plans 11-07 through 11-10 and 11-15. Structural, not an oversight.
 
-**Plans**: 30/30 plans executed
+**Plans**: 30/32 plans executed (2 gap-closure plans added from 11-UAT.md)
 
 Plans:
 **Wave 1**
@@ -662,6 +662,11 @@ Plans:
 **Wave 30** *(blocked on Wave 29 completion)*
 
 - [x] 11-29-PLAN.md — Capstone gate: seven-rule zero-check + parallel suite + 11-EXCEPTIONS.md owner-review inventory
+
+**Wave 31** *(gap closure from 11-UAT.md — the two plans are independent and run in parallel)*
+
+- [ ] 11-30-PLAN.md — G-11-7 (blocker): restore DetailList's trailing-row fetch-more trigger; return the D-36 geometry heuristic to thumbnail-only scope
+- [ ] 11-31-PLAN.md — G-11-8 (cosmetic): reassert relative icon scale on the six `titleAndIcon` Labels that replaced icon+text stacks
 
 ## Progress
 
