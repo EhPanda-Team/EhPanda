@@ -151,7 +151,7 @@ struct SettingReducerNavigationTests {
             $0.defaultAppStorage = defaults
         } operation: {
             @Shared(.setting) var setting
-            $setting.withLock { $0.enableTagsExtension = true }
+            $setting.withLock({ $0.enableTagsExtension = true })
 
             // A loading table makes the rebuild's follow-on `fetchTagTranslator` guard-return (no network).
             var initialState = SettingReducer.State()
@@ -218,8 +218,8 @@ struct SettingReducerNavigationTests {
         // The parent intercept runs `fileClient.importTagTranslator`, stores the (in-memory) table
         // and records the custom-import flag in the persisted `tagTranslatorInfo`.
         await store.receive(\.fetchTagTranslatorDone) {
-            $0.$tagTranslator.withLock { $0 = imported }
-            $0.$tagTranslatorInfo.withLock { $0 = TagTranslatorInfo(hasCustomTranslations: true) }
+            $0.$tagTranslator.withLock({ $0 = imported })
+            $0.$tagTranslatorInfo.withLock({ $0 = TagTranslatorInfo(hasCustomTranslations: true) })
         }
     }
 

@@ -197,14 +197,29 @@ custom_rules:
       - string
     severity: error
 
-#  single_line_trailing_closure:
-#    name: "Single-Line Trailing Closure"
-#    regex: '\.(map|compactMap|flatMap|filter|reduce|sorted|sort|forEach|first|last|firstIndex|contains|allSatisfy|withValue|withLock|withDependencies|onSubmit|onChange|onAppear|onDisappear|sink|task)\s*(?:\([^()\n]*\))?\s*\{(?!\s*(?:return|break|continue|throw|fallthrough)\b)[^{}\n]*\}'
-#    message: "Wrap a single-line trailing closure in parentheses, e.g. foo.map({ ... }), or break the closure onto multiple lines."
-#    excluded_match_kinds:
-#      - comment
-#      - string
-#    severity: error
+  # Polices a trailing closure that opens and closes on one line, for the listed methods only.
+  # A trailing closure reads as a block of work, so collapsing one onto a single line borrows
+  # block syntax for what is really an argument. Either form fixes it: parentheses restore it to
+  # an argument (`xs.map({ $0.id })`), or a line break earns the block shape. Note that
+  # parenthesizing also un-elides the argument label — `sorted`/`sort` take `by:`, and
+  # `first`/`last`/`firstIndex`/`contains` take `where:`.
+  #
+  # The `(?!...return|break|...)` guard skips a single-line closure whose body is a control-flow
+  # exit, where the one-line form is idiomatic. `[^{}\n]*` keeps the body brace-free, so every
+  # match is an innermost closure and no nested pair is half-matched.
+  single_line_trailing_closure:
+    name: "Single-Line Trailing Closure"
+    regex: '\.(map|compactMap|flatMap|filter|reduce|sorted|sort|forEach|first|last|firstIndex|contains|allSatisfy|withValue|withLock|withDependencies|onSubmit|onChange|onAppear|onDisappear|sink|task)\s*(?:\([^()\n]*\))?\s*\{(?!\s*(?:return|break|continue|throw|fallthrough)\b)[^{}\n]*\}'
+    message: "Wrap a single-line trailing closure in parentheses, e.g. foo.map({ ... }), or break the closure onto multiple lines."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. This rule contrasts two syntactic forms, so a doc comment
+      # that shows the rejected form as a counter-example is exactly the prose it must not punish —
+      # rewording documentation to dodge a lint rule is a clarity loss, not a fix. An unrecognised
+      # kind here would silently discard the WHOLE rule config, leaving it reporting zero forever.
+      - doccomment
+      - string
+    severity: error
 
   swiftlint_disable_requires_reason:
     name: "SwiftLint Disable Requires Reason"

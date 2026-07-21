@@ -26,11 +26,11 @@ struct AppActivityLogsReducerTests {
         client.nextRunCount = { _ in 3 }
         client.currentRunFileURL = { _, _ in fileURL }
         client.fetchNewEntries = { _ in
-            fetchCount.withValue { $0 += 1 }
+            fetchCount.withValue({ $0 += 1 })
             return fetchCount.value == 1 ? [entryA, entryB] : []
         }
         client.appendToRunFile = { logs, _ in
-            appended.withValue { $0.append(logs) }
+            appended.withValue({ $0.append(logs) })
         }
 
         let storage = InMemoryStorage()
@@ -127,7 +127,7 @@ struct AppActivityLogsReducerTests {
                     runCount: 3
                 )
             }
-            $currentRunLogs.withLock { $0 = [live] }
+            $currentRunLogs.withLock({ $0 = [live] })
 
             var initialState = AppActivityLogsReducer.State()
             initialState.selectedRun = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl")
@@ -157,7 +157,7 @@ struct AppActivityLogsReducerTests {
             $0.defaultInMemoryStorage = storage
         } operation: {
             @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
-            $currentRunLogs.withLock { $0 = [hello, goodbye] }
+            $currentRunLogs.withLock({ $0 = [hello, goodbye] })
 
             let store = TestStore(
                 initialState: AppActivityLogsReducer.State(),

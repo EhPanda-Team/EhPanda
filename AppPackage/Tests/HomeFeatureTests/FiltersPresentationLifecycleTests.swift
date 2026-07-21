@@ -27,7 +27,7 @@ struct FiltersPresentationLifecycleTests {
             $0.defaultAppStorage = defaults
         } operation: {
             @Shared(.searchFilter) var searchFilter
-            $searchFilter.withLock { $0 = stored }
+            $searchFilter.withLock({ $0 = stored })
 
             let store = TestStore(initialState: .init(), reducer: FrontpageReducer.init) {
                 $0.defaultAppStorage = defaults

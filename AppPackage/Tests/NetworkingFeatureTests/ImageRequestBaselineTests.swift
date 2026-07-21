@@ -162,7 +162,7 @@ struct ImageRequestBaselineTests {
         #expect(result.1?.statusCode == 206)
         #expect(handle.attempts(for: storedThumbnail) == 1)
         #expect(handle.attempts(for: renewedThumbnail) == 1)
-        #expect(handle.receivedRequests.allSatisfy { $0.allowsCellularAccess == false })
+        #expect(handle.receivedRequests.allSatisfy({ $0.allowsCellularAccess == false }))
     }
 
     @Test
