@@ -1,19 +1,49 @@
 ---
-status: diagnosed
+status: resolved
 trigger: "the symbol indicating page count looks larger before it became label — i meant the symbol in gallery cell"
 created: 2026-07-21T00:00:00Z
-updated: 2026-07-21T00:00:00Z
+updated: "2026-07-21T17:39:07Z"
 ---
 
 ## Current Focus
 
-hypothesis: CONFIRMED — commit 6dd51b00 replaced `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }`
-  with `Label(...).labelIconToTitleSpacing(2)`. Font is unchanged (.footnote in both), so the icon's
-  growth is attributable solely to Label's titleAndIcon style sizing the icon from label/title font
-  metrics instead of rendering a bare Image at the ambient font's default (.medium) symbol scale.
+hypothesis: PARTIALLY CORRECTED BY MEASUREMENT (see "Mechanism correction" below). The commit and
+  the trigger are confirmed: 6dd51b00 replaced `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }`
+  with `Label(...).labelIconToTitleSpacing(2)`, font unchanged (.footnote in both). But the stated
+  MECHANISM — "Label's titleAndIcon style sizes the icon from label/title font metrics" — is WRONG
+  as a general claim, and was falsified during execution of plan 11-31.
 test: git show 6dd51b00 on both cells — diff isolates the change (no font modifier moved or altered)
 expecting: confirmed
-next_action: diagnosis-only mode — report; do NOT apply changes
+next_action: RESOLVED by plan 11-31 (commits 01b79ff7, 66f08295). Gap G-11-8 fix applied.
+
+## Mechanism correction (added 2026-07-22, from 11-31 execution)
+
+The diagnosis above was written from an isolated diff plus inference, not from measurement — the
+report itself flagged that its magnitude claim was unverified. Execution measured it, and the
+mechanism as recorded does not hold:
+
+- **Free-standing, a `Label`'s icon is pixel-identical to a bare `Image`** — both 20x16 at
+  `.footnote`. So `titleAndIcon` does NOT inflate the icon on its own.
+
+- **The inflation is list-specific.** It appears only when the Label is rendered inside a `List`
+  row. Measured inked glyph bounds inside a `List` row: baseline (pre-6dd51b00 bare Image)
+  16.25 x 13.25; unfixed Label 21.0 x 17.25 (~29% wider); `.imageScale(.small)` 13.0 x 10.75
+  (undershoots baseline by 3.25pt); `.imageScale(.medium)` 16.25 x 13.5 (matches).
+
+Two consequences worth carrying forward:
+
+1. **`.small` — the value this report's `missing` list recommended as repo precedent — was the
+   wrong choice.** It would have traded one appearance regression for another, smaller one. All
+   six sites shipped `.medium`. Verified by measuring the inked bounding box, not by eye.
+
+2. **The "six sites, one mechanism" conclusion still holds, for a different reason than recorded.**
+   This report reasoned that GalleryThumbnailCell was affected because it is a cell like the
+   others. The real reason is that `ThumbnailList` wraps the whole `MasonryLayout` in a single
+   eager `List` row — so the masonry grid is inside a `List` too. Had the list-specific mechanism
+   been known first, the thumbnail cell would have looked exempt and been missed.
+
+**If re-checking this visually: use a `List`.** In a free-standing `#Preview` there is no
+difference to see at all.
 
 ## Symptoms
 
