@@ -181,8 +181,10 @@ private func runLabel(_ run: RunLogFile?) -> String {
 
 private func groupedRuns(_ runs: [RunLogFile]) -> [(day: Date, runs: [RunLogFile])] {
     Dictionary(grouping: runs) { Calendar.current.startOfDay(for: $0.date) }
-        .map { (day: $0.key, runs: $0.value.sorted { $0.runCount > $1.runCount }) }
-        .sorted { $0.day > $1.day }
+        .map({ group in
+            (day: group.key, runs: group.value.sorted(by: { $0.runCount > $1.runCount }))
+        })
+        .sorted(by: { $0.day > $1.day })
 }
 
 private let runDayFormatter: DateFormatter = {

@@ -124,7 +124,7 @@ public struct HistoryReducer: Sendable {
                 // Clearing also drops resume positions (they live on the same entries) — deliberate,
                 // browser-like. Cancel any in-flight fetch first so its late `.success` can't
                 // repopulate the list we just emptied, then drop straight to the empty state.
-                state.$galleryHistory.withLock { $0.removeAll() }
+                state.$galleryHistory.withLock({ $0.removeAll() })
                 state.galleries = []
                 state.fetchedCount = 0
                 state.footerLoadingState = .idle
@@ -141,7 +141,7 @@ public struct HistoryReducer: Sendable {
                     state.loadingState = .failed(.notFound)
                     return .none
                 }
-                let pairs = state.galleryHistory[0..<end].map { (gid: $0.gid, token: $0.token) }
+                let pairs = state.galleryHistory[0..<end].map({ (gid: $0.gid, token: $0.token) })
                 let host = state.setting.galleryHost
                 state.loadingState = .loading
                 return .run { send in
@@ -184,7 +184,7 @@ public struct HistoryReducer: Sendable {
                 else { return .none }
                 let start = state.fetchedCount
                 let end = min(start + Self.pageSize, state.galleryHistory.count)
-                let pairs = state.galleryHistory[start..<end].map { (gid: $0.gid, token: $0.token) }
+                let pairs = state.galleryHistory[start..<end].map({ (gid: $0.gid, token: $0.token) })
                 let host = state.setting.galleryHost
                 state.footerLoadingState = .loading
                 return .run { send in
@@ -226,7 +226,7 @@ public struct HistoryReducer: Sendable {
 
             case .observeDownloadsDone(let downloads):
                 state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
+                    uniqueKeysWithValues: downloads.map({ ($0.gid, $0.badge) })
                 )
                 return .none
             }

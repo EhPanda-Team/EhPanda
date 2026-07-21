@@ -116,11 +116,11 @@ public struct AppActivityLogsPumpReducer: Sendable {
                 )
 
             case let .setCurrentRun(run):
-                state.$currentRun.withLock { $0 = run }
+                state.$currentRun.withLock({ $0 = run })
                 return .none
 
             case .didReceiveNewEntries(let entries):
-                state.$currentRunLogs.withLock { $0.append(contentsOf: entries) }
+                state.$currentRunLogs.withLock({ $0.append(contentsOf: entries) })
                 state.lastCursorDate = entries.last?.date ?? state.lastCursorDate
                 return .none
             }

@@ -65,7 +65,7 @@ extension SettingReducer {
 
             case .syncAppIconTypeDone(let iconName):
                 if let iconName {
-                    state.$setting.withLock { $0.appIconType = .matching(alternateIconName: iconName) }
+                    state.$setting.withLock({ $0.appIconType = .matching(alternateIconName: iconName) })
                 }
                 return .none
 
@@ -164,7 +164,7 @@ extension SettingReducer {
                 state.tagTranslatorLoadingState = .idle
                 switch result {
                 case .success(let tagTranslator):
-                    state.$tagTranslator.withLock { $0 = tagTranslator }
+                    state.$tagTranslator.withLock({ $0 = tagTranslator })
                     state.$tagTranslatorInfo.withLock {
                         $0 = TagTranslatorInfo(
                             language: tagTranslator.language,
@@ -194,7 +194,7 @@ extension SettingReducer {
                 }
 
             case .tagTranslatorRebuilt(let tagTranslator):
-                state.$tagTranslator.withLock { $0 = tagTranslator }
+                state.$tagTranslator.withLock({ $0 = tagTranslator })
                 return .none
 
             case .fetchEhProfileIndex:
@@ -226,7 +226,7 @@ extension SettingReducer {
 
             case .fetchFavoriteCategoriesDone(let result):
                 if case .success(let categories) = result {
-                    state.$user.withLock { $0.favoriteCategories = categories }
+                    state.$user.withLock({ $0.favoriteCategories = categories })
                 }
                 return .none
 
@@ -244,7 +244,7 @@ extension SettingReducer {
                 )
 
             case .path(.element(id: _, action: .account(.onLogoutConfirmButtonTapped))):
-                state.$user.withLock { $0 = User() }
+                state.$user.withLock({ $0 = User() })
                 return .merge(
                     .run(operation: { _ in cookieClient.clearAll() }),
                     .run(operation: { _ in await libraryClient.removeAllCachedImages() }),
@@ -260,8 +260,8 @@ extension SettingReducer {
             case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
                 // Drop the custom table from memory, metadata, and disk; the launch/remote flow refills
                 // it. FileClient owns the path, so the file lifecycle stays behind one module.
-                state.$tagTranslator.withLock { $0 = TagTranslator() }
-                state.$tagTranslatorInfo.withLock { $0.hasCustomTranslations = false }
+                state.$tagTranslator.withLock({ $0 = TagTranslator() })
+                state.$tagTranslatorInfo.withLock({ $0.hasCustomTranslations = false })
                 return .run { send in
                     do throws(AppError) {
                         try fileClient.removeCustomTranslations()

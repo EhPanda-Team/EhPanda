@@ -99,13 +99,13 @@ public struct FiltersReducer: Sendable {
                 switch range {
                 case .search:
                     @Shared(.searchFilter) var storedFilter
-                    $storedFilter.withLock { $0 = state.searchFilter }
+                    $storedFilter.withLock({ $0 = state.searchFilter })
                 case .global:
                     @Shared(.globalFilter) var storedFilter
-                    $storedFilter.withLock { $0 = state.globalFilter }
+                    $storedFilter.withLock({ $0 = state.globalFilter })
                 case .watched:
                     @Shared(.watchedFilter) var storedFilter
-                    $storedFilter.withLock { $0 = state.watchedFilter }
+                    $storedFilter.withLock({ $0 = state.watchedFilter })
                 }
                 return .none
 

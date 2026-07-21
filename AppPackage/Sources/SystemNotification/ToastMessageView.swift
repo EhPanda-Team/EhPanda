@@ -88,7 +88,7 @@ extension AppAlertState where Action == Never {
         return .init(
             icon: icon,
             title: String(state: title),
-            subtitle: message.map { String(state: $0) },
+            subtitle: message.map({ String(state: $0) }),
             autoHide: autoHide
         )
     }

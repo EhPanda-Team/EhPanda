@@ -38,7 +38,7 @@ extension Parser {
                     }
                 }
             }
-            let gainedIntValues = gainedValues.compactMap { trim(int: $0) }
+            let gainedIntValues = gainedValues.compactMap({ trim(int: $0) })
             guard gainedIntValues.count == gainedTypes.count
             else { throw AppError.parseFailed }
 

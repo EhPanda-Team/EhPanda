@@ -83,9 +83,9 @@ public enum ImageColors {
     /// skipping a black/white edge in favor of a sufficiently common colored one.
     private static func edgeColor(from colorCounts: [Double: Int], threshold: Int) -> Double {
         let sortedColors = colorCounts
-            .filter { $0.value > threshold }
-            .map { ColorCounter(color: $0.key, count: $0.value) }
-            .sorted { $0.count > $1.count }
+            .filter({ $0.value > threshold })
+            .map({ ColorCounter(color: $0.key, count: $0.value) })
+            .sorted(by: { $0.count > $1.count })
 
         var proposedEdgeColor = sortedColors.first ?? ColorCounter(color: 0, count: 1)
         if proposedEdgeColor.color.isBlackOrWhite {
@@ -110,10 +110,10 @@ public enum ImageColors {
         let findDarkTextColor = !proposed.background.isDarkColor
 
         let candidates = colorCounts.keys
-            .map { $0.with(minSaturation: 0.15) }
-            .filter { $0.isDarkColor == findDarkTextColor }
-            .map { ColorCounter(color: $0, count: colorCounts[$0] ?? 0) }
-            .sorted { $0.count > $1.count }
+            .map({ $0.with(minSaturation: 0.15) })
+            .filter({ $0.isDarkColor == findDarkTextColor })
+            .map({ ColorCounter(color: $0, count: colorCounts[$0] ?? 0) })
+            .sorted(by: { $0.count > $1.count })
 
         for candidate in candidates {
             let color = candidate.color

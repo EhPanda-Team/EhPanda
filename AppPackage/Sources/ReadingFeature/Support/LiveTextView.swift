@@ -142,7 +142,7 @@ private struct HighlightView: UIViewRepresentable {
         let textView = UITextView()
         context.coordinator.textView = textView
         let text = text.unicodeScalars
-            .filter { !$0.properties.isEmojiPresentation }
+            .filter({ !$0.properties.isEmojiPresentation })
             .reduce("") { $0 + String($1)}
         textView.text = text
         textView.isEditable = false
