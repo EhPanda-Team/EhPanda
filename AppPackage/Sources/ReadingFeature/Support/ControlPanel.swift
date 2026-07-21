@@ -101,7 +101,8 @@ struct ControlPanel<G: Gesture>: View {
                 .offset(y: showsPanel ? 0 : 50)
             }
         }
-        .opacity(showsPanel ? 1 : 0).disabled(!showsPanel)
+        .opacity(showsPanel ? 1 : 0)
+        .disabled(!showsPanel)
         // iOS 26 reports overlapping window controls in the top-leading corner inset. Fold in
         // the rectangular safe area only when that exclusion exists, so full-screen iPad stays unchanged.
         .onGeometryChange(for: EdgeInsets.self) { proxy in

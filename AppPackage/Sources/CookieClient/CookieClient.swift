@@ -312,7 +312,8 @@ extension CookieClient {
     public func setCredentials(response: HTTPURLResponse) {
         guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
         setString.components(separatedBy: ", ")
-            .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
+            .flatMap { $0.components(separatedBy: "; ") }
+            .forEach { value in
                 [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
                     [
                         Defaults.Cookie.ipbMemberId,

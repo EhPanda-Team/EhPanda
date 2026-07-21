@@ -16,9 +16,8 @@ extension DownloadCoordinator {
             return mimeType
         }
         if let httpResponse = response as? HTTPURLResponse,
-           let contentType = httpResponse.value(
-            forHTTPHeaderField: "Content-Type"
-           )?.lowercased(),
+           let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type")?
+            .lowercased(),
            let mimeType = contentType
             .split(separator: ";").first,
            !mimeType.isEmpty {

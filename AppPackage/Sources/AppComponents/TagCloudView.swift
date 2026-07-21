@@ -118,7 +118,11 @@ public struct TagCloudCell: View {
                     .overlay(KFImage(imageURL).resizable().scaledToFit())
             }
         }
-        .font(font.bold()).lineLimit(1).foregroundStyle(textColor)
-        .padding(padding).background(backgroundColor).clipShape(.rect(cornerRadius: 5))
+        .font(font.bold())
+        .lineLimit(1)
+        .foregroundStyle(textColor)
+        .padding(padding)
+        .background(backgroundColor)
+        .clipShape(.rect(cornerRadius: 5))
     }
 }

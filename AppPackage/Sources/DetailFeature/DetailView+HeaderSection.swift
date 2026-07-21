@@ -321,7 +321,9 @@ struct HeaderSection: View {
                 }
 
                 Button(gallery.uploader ?? "", action: navigateUploaderAction)
-                    .lineLimit(1).font(.callout).foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
                     .frame(maxHeight: .infinity, alignment: .top)
 
                 bottomActionRow

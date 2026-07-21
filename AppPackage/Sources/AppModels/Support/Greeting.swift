@@ -65,16 +65,18 @@ public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {
         let end = String(localized: .greetingEnd)
         let start = String(localized: .greetingStart)
         let separator = String(localized: .greetingSeparator)
-        let rewardDescription = rewards.enumerated().map { (offset, element) in
-            if offset == 0 {
-                return element
-            } else if offset == rewards.count - 1 {
-                return [rewards.count > 2 ? and : separator, element].joined()
-            } else {
-                return [separator, element].joined()
+        let rewardDescription = rewards
+            .enumerated()
+            .map { (offset, element) in
+                if offset == 0 {
+                    return element
+                } else if offset == rewards.count - 1 {
+                    return [rewards.count > 2 ? and : separator, element].joined()
+                } else {
+                    return [separator, element].joined()
+                }
             }
-        }
-        .joined()
+            .joined()
         return [start, rewardDescription, end].joined()
     }
 
