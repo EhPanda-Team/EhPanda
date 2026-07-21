@@ -70,27 +70,39 @@ private extension TorrentsView {
 
         var body: some View {
             VStack(alignment: .leading, spacing: 10) {
+                // A list row inflates a `titleAndIcon` label's icon well past the bare `Image` these
+                // replaced — measured at ~29% wider (G-11-8). Re-asserting the default scale on each
+                // icon overrides that ambient inflation and restores the pre-sweep glyphs; it is
+                // deliberately not a no-op, and all four must carry it or they drift apart.
                 HStack(spacing: 12) {
                     Label {
                         Text(torrent.seedCount, format: .number)
                     } icon: {
                         Image(systemSymbol: .arrowUpCircle)
+                            .imageScale(.medium)
                     }
 
                     Label {
                         Text(torrent.peerCount, format: .number)
                     } icon: {
                         Image(systemSymbol: .arrowDownCircle)
+                            .imageScale(.medium)
                     }
 
                     Label {
                         Text(torrent.downloadCount, format: .number)
                     } icon: {
                         Image(systemSymbol: .checkmarkCircle)
+                            .imageScale(.medium)
                     }
 
-                    Label(torrent.fileSize, systemSymbol: .documentCircle)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    Label {
+                        Text(torrent.fileSize)
+                    } icon: {
+                        Image(systemSymbol: .documentCircle)
+                            .imageScale(.medium)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .labelIconToTitleSpacing(3)
                 .foregroundStyle(.primary)
