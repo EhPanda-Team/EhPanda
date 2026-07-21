@@ -79,8 +79,17 @@ public struct GalleryThumbnailCell: View {
                         if let downloadBadge {
                             DownloadBadgeLabel(badge: downloadBadge)
                         } else {
-                            Label(gallery.pageCount.description, systemSymbol: .photoOnRectangleAngled)
-                                .labelIconToTitleSpacing(2)
+                            // A list row inflates a `titleAndIcon` label's icon well past the bare
+                            // `Image` this replaced — measured at ~29% wider (G-11-8). Re-asserting
+                            // the default scale on the icon itself overrides that ambient inflation
+                            // and restores the pre-sweep glyph; it is deliberately not a no-op.
+                            Label {
+                                Text(gallery.pageCount.description)
+                            } icon: {
+                                Image(systemSymbol: .photoOnRectangleAngled)
+                                    .imageScale(.medium)
+                            }
+                            .labelIconToTitleSpacing(2)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
