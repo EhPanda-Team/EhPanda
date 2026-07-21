@@ -3,7 +3,7 @@ status: diagnosed
 phase: 11-infra-refactor-lint-capstone
 source: [11-VERIFICATION.md]
 started: 2026-07-21T00:00:00Z
-updated: "2026-07-21T13:21:20Z"
+updated: "2026-07-21T17:39:51Z"
 ---
 
 <!--
@@ -18,11 +18,21 @@ gate treated as overridden so UAT could proceed. Reported upstream against
 
 ## Current Test
 
-[testing paused — 1 item outstanding]
+[testing paused — 3 items outstanding]
 
-Test 3 (zero-favourites detail parse) remains pending — deferred until a suitable
-gallery is found. Suggested route: sort the front page by newest and open a
-just-posted gallery, which has zero favourites by construction.
+Outstanding, all requiring the owner on a device:
+
+1. **Test 3** (zero-favourites detail parse) — never run. Route: sort the front page by
+   newest and open a just-posted gallery, which has zero favourites by construction.
+
+2. **Test 7 re-test** (G-11-7 pagination) — fix applied but runtime-unconfirmed. Scroll a
+   multi-page list to the end in BOTH display modes (`.detail` and `thumbnail`) and confirm
+   it appends past three pages. Thumbnail must stay working; it was the control in the
+   falsification test.
+
+3. **Test 8 re-check** (G-11-8 symbol size) — fix applied, shipped `.medium` not `.small`.
+   Must be checked inside a real list; a free-standing `#Preview` shows no difference at all.
+   Also worth a glance: the Torrents sheet (4 stat icons) and the download-badge branch.
 
 ## Tests
 
@@ -117,7 +127,19 @@ blocked: 0
 
 - gap_id: G-11-7
   truth: "Scrolling a gallery list to the end fetches and appends the next page"
-  status: failed
+  status: fix_applied_pending_confirmation
+  resolved_by: 11-30-PLAN.md
+  resolved_at: 2026-07-22
+  fix_shipped: "PRIMARY form, not the fallback. `.onScrollVisibilityChange` on the row Button
+    inside DetailList's ForEach; `.autoLoadNextPage(...)` deleted from that List.
+    AutoLoadNextPage's body, guards, thresholds and state are untouched — it was rescoped by
+    deleting its DetailList call site plus a doc-comment rewrite. No reducer, no
+    Setting.listDisplayMode, no @State on DetailList. Commits: 8325c5c5, d7b90d8a, 96592d0d."
+  unverified: "COMPILE-LEVEL AND STRUCTURAL ONLY. Not runtime-confirmed: whether the trigger
+    fires on arrival at the trailing row, paginates past three pages, holds on a second surface,
+    and leaves thumbnail mode unchanged. All four need an owner device re-test in BOTH display
+    modes. If the row-level callback turns out never to fire inside a List, the sanctioned
+    fallback is `.onScrollTargetVisibilityChange(idType:)` + `.scrollTargetLayout()`."
   reason: "User reported: frontpage list (probably all lists) fetch more feature is broken, it just reach the end and won't fetch more"
   severity: blocker
   test: 7
@@ -194,7 +216,34 @@ blocked: 0
 
 - gap_id: G-11-8
   truth: "The page-count symbol in the gallery cell renders at its prior size"
-  status: failed
+  status: fix_applied_pending_confirmation
+  resolved_by: 11-31-PLAN.md
+  resolved_at: 2026-07-22
+  fix_shipped: "All six sites ship `.imageScale(.medium)` — NOT the `.small` the plan defaulted to
+    and this gap's `missing` list recommended as repo precedent. Settled by measuring inked glyph
+    bounds in a real List, not by eye: baseline (pre-6dd51b00 bare Image) 16.25x13.25; unfixed
+    Label 21.0x17.25 (~29% wider); `.small` 13.0x10.75 (undershoots baseline by 3.25pt);
+    `.medium` 16.25x13.5 (matches). `.small` would have traded one appearance regression for
+    another. Commits: 01b79ff7, 66f08295, 5c58d3e2, 23db6fcd."
+  diagnosis_corrected: "The recorded mechanism in this gap's root_cause was FALSIFIED by
+    measurement. Free-standing, a Label's icon is pixel-identical to a bare Image (both 20x16 at
+    .footnote) — titleAndIcon does not inflate the icon on its own. The inflation is LIST-SPECIFIC.
+    The six-sites conclusion still holds but for a different reason: ThumbnailList wraps the whole
+    MasonryLayout in one eager List row, so the masonry grid is inside a List too. Had the
+    list-specific mechanism been known first, the thumbnail cell would have looked exempt and been
+    missed. Debug note corrected in commit ab19f888."
+  no_regression_test: "This plan ships NO automated regression test. A parity test measuring glyph
+    ink bounds in a real List was built and RED/GREEN-verified (fails on .small, passes on .medium)
+    — it produced every number above — then removed: rendering a List needs a UIWindow
+    (ImageRenderer draws an unsupported-content placeholder), every scene-free UIWindow initializer
+    is deprecated on iOS 26, and the test host exposes no UIWindowScene. Keeping it meant shipping
+    a deprecation warning, which policy forbids. Remaining protection is the grep gate plus the
+    owner's visual check."
+  unverified: "Dynamic Type at accessibility sizes not empirically confirmed — the structural
+    guarantee holds (relative scale, zero absolute point sizes, gate-verified) but the AX3 fixture
+    could not fit four rows in the render frame. Also unverified without a device: the Torrents
+    sheet and the download-badge branch. CAUTION: re-checking in a free-standing #Preview will show
+    NO difference at all — the effect exists only inside a List."
   reason: "User reported: the symbol indicating page count looks larger before it became label (symbol in gallery cell)"
   severity: cosmetic
   test: 8
