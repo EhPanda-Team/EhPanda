@@ -140,6 +140,14 @@ private struct GalleryDetailCellContent: View {
                             Image(systemSymbol: .photoOnRectangleAngled)
                                 .imageScale(.medium)
                         }
+                        // Load-bearing for the row separator — NOT a redundant restatement of the
+                        // default style. A default-styled `Label` publishes a `.listRowSeparatorLeading`
+                        // anchor at its title's leading edge; because this Label sits at the row's
+                        // trailing edge, that anchor collapses the `List` row separator to a ~10pt
+                        // sliver. Routing the Label through any explicit `labelStyle` drops the anchor,
+                        // so the separator falls back to the text column's leading edge (the pre-sweep
+                        // inset). Do not remove.
+                        .labelStyle(.titleAndIcon)
                         .labelIconToTitleSpacing(2)
                         .lineLimit(1)
                         .font(.footnote)
