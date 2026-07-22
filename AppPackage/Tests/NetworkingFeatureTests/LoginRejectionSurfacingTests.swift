@@ -100,3 +100,35 @@ struct LoginRejectionSurfacingTests {
         handle.tearDown()
     }
 }
+
+// The login dump exists so a single attempt answers every question at once. It is only safe to be
+// that complete because the credential-setting header is reduced to names first — those values are
+// the account's session, and a dump nobody can share is a dump nobody can use.
+@Suite
+struct CredentialHeaderRedactionTests {
+    @Test
+    func valuesAreDroppedAndNamesKept() {
+        let header = "ipb_member_id=SECRET-ID; path=/, ipb_pass_hash=SECRET-HASH; path=/"
+
+        let redacted = redactedCredentialHeader(header)
+
+        #expect(redacted.contains("ipb_member_id"))
+        #expect(redacted.contains("ipb_pass_hash"))
+        #expect(!redacted.contains("SECRET-ID"))
+        #expect(!redacted.contains("SECRET-HASH"))
+    }
+
+    @Test
+    func cookieAttributesCarryingCommasCannotLeakAValue() {
+        // `expires` embeds a comma, so a naive split lands mid-attribute. Whatever the split
+        // produces, no fragment of a value may survive.
+        let header = "ipb_pass_hash=SECRET-HASH; expires=Wed, 22-Jul-2026 10:00:00 GMT; path=/"
+
+        #expect(!redactedCredentialHeader(header).contains("SECRET-HASH"))
+    }
+
+    @Test
+    func anEmptyHeaderYieldsNoNames() {
+        #expect(redactedCredentialHeader("") == "<values redacted; names set: >")
+    }
+}

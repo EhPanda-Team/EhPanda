@@ -7,6 +7,26 @@ import ParserFeature
 
 private let logger = Logger(category: .init(describing: LoginRequest.self))
 
+#if DEBUG
+/// Reduces a credential-setting header to the names it sets, discarding every value.
+///
+/// The values are the account's credentials. The names alone settle the only question asked of this
+/// header while diagnosing a failed login — whether the forum returned a session at all — so nothing
+/// is gained by keeping the rest, and a dump that omits them can be read and shared freely.
+func redactedCredentialHeader(_ headerValue: String) -> String {
+    let names = headerValue
+        .split(separator: ",")
+        .compactMap { chunk -> String? in
+            let trimmed = chunk.trimmingCharacters(in: .whitespaces)
+            guard let separator = trimmed.firstIndex(of: "=") else { return nil }
+            let name = String(trimmed[..<separator])
+            return name.isEmpty ? nil : name
+        }
+        .joined(separator: ", ")
+    return "<values redacted; names set: \(names)>"
+}
+#endif
+
 // MARK: Account Ops
 public struct LoginRequest: Request {
     public init(
@@ -85,8 +105,60 @@ public struct LoginRequest: Request {
             Login response shape: bytes=\(bodyLength, privacy: .public) \
             loginFormPresent=\(loginFormPresent, privacy: .public)
             """)
+        #if DEBUG
+        dumpLoginExchange(response: httpResponse, body: content)
+        #endif
         return httpResponse
     }
+
+    #if DEBUG
+    /// Writes the whole login exchange to a file, so one attempt answers every question at once
+    /// rather than costing a new probe and a new round trip per fact.
+    ///
+    /// Header values for credential-setting headers are reduced to their cookie *names*. Those
+    /// values are the account's credentials, and the point of this file is that it can be read and
+    /// passed around freely; the names alone settle the only question being asked of them, which is
+    /// whether the forum returned a session at all. Everything else — status, every other header,
+    /// and the full page — is kept verbatim, because that is the part that has been invisible.
+    ///
+    /// DEBUG-only: this exists to diagnose a live login failure, not to ship.
+    private func dumpLoginExchange(response: HTTPURLResponse?, body: String) {
+        guard let directory = FileManager.default.urls(
+            for: .documentDirectory, in: .userDomainMask
+        ).first else { return }
+
+        let credentialHeaderName = "Set-Cookie"
+        let headers = (response?.allHeaderFields ?? [:])
+            .map { name, value -> String in
+                let name = String(describing: name)
+                let text = String(describing: value)
+                guard name.caseInsensitiveCompare(credentialHeaderName) == .orderedSame else {
+                    return "\(name): \(text)"
+                }
+                return "\(name): \(redactedCredentialHeader(text))"
+            }
+            .sorted()
+            .joined(separator: "\n")
+
+        let dump = """
+            status: \(response?.statusCode ?? -1)
+            url: \(response?.url?.absoluteString ?? "<none>")
+
+            --- headers ---
+            \(headers)
+
+            --- body (\(body.count) bytes) ---
+            \(body)
+            """
+        let destination = directory.appendingPathComponent("login-response-dump.txt")
+        do {
+            try dump.write(to: destination, atomically: true, encoding: .utf8)
+            logger.notice("Wrote login response dump to \(destination.lastPathComponent, privacy: .public)")
+        } catch {
+            logger.error("Could not write the login response dump. \(error, privacy: .public)")
+        }
+    }
+    #endif
 }
 
 public struct IgneousRequest: Request {
