@@ -199,6 +199,107 @@ struct LoginChallengeFlowTests {
         #expect(harness.receivedClearances.value.isEmpty)
     }
 
+    // MARK: - D-02: both ways out of the sheet are silent
+
+    @MainActor
+    @Test
+    func swipingTheChallengeAwayAbortsTheAttemptSilently() async throws {
+        let harness = Self.makeHarness(responses: [try Self.challengedResponse()])
+
+        await harness.store.send(.login) { state in
+            state.loginState = .loading
+        }
+        await harness.store.receive(.challengeDetected) { state in
+            state.challengeRounds = 1
+            state.destination = .challenge(Defaults.URL.login)
+        }
+        // `.ifLet` clears the destination after the parent's guarded handler has read it.
+        await harness.store.send(.destination(.dismiss)) { state in
+            state.loginState = .idle
+            state.destination = nil
+        }
+        // Nothing else arrives. On an exhaustive store that silence IS the assertion: a retry or an
+        // error toast would surface here as an unasserted action or an unasserted state change.
+        await harness.store.finish()
+
+        #expect(harness.store.state.toast == nil)
+        #expect(harness.store.state.cloudflareClearance == nil)
+        #expect(harness.receivedClearances.value == [nil])
+    }
+
+    @MainActor
+    @Test
+    func cancellingTheChallengeIsSilentAndLeavesTheNextAttemptAFullBudget() async throws {
+        let passing = try Self.passingResponse()
+        let harness = Self.makeHarness(
+            responses: [try Self.challengedResponse(), passing],
+            cookieClient: .testing(memberID: Self.memberID, passHash: Self.passHash)
+        )
+
+        await harness.store.send(.login) { state in
+            state.loginState = .loading
+        }
+        await harness.store.receive(.challengeDetected) { state in
+            state.challengeRounds = 1
+            state.destination = .challenge(Defaults.URL.login)
+        }
+        await harness.store.send(.cancelChallenge) { state in
+            state.destination = nil
+            state.loginState = .idle
+        }
+
+        // A fresh tap is a fresh attempt, so the round counter starts over rather than resuming
+        // wherever the cancelled attempt left it.
+        await harness.store.send(.login) { state in
+            state.loginState = .loading
+            state.challengeRounds = 0
+        }
+        await harness.store.receive(.loginDone(.success(passing))) { state in
+            state.loginState = .idle
+        }
+        await harness.store.finish()
+
+        #expect(harness.store.state.toast == nil)
+    }
+
+    // MARK: - D-11: the failure toast taps through to the detail surface
+
+    @MainActor
+    @Test
+    func tappingTheFailureToastPresentsTheErrorInfoSurface() async {
+        let errorInfo = ErrorInfo(
+            error: .cloudflareChallengeFailed,
+            context: [.action: "Login", .statusCode: 403]
+        )
+        let harness = Self.makeHarness(responses: [], toast: .error(errorInfo))
+
+        await harness.store.send(.presentErrorInfo(errorInfo)) { state in
+            state.destination = .errorInfo(errorInfo)
+        }
+        await harness.store.finish()
+    }
+
+    // MARK: - Regression: the web-login flow is untouched
+
+    @MainActor
+    @Test
+    func webLoginPresentationAndDismissalAreUnaffectedByTheChallengeHandling() async {
+        let harness = Self.makeHarness(responses: [])
+
+        await harness.store.send(.presentWebView(Defaults.URL.webLogin)) { state in
+            state.destination = .webView(Defaults.URL.webLogin)
+        }
+        // The dismiss handler is guarded on the challenge case, so a web-login dismissal still runs
+        // the plain `.ifLet` teardown: no abort, no `loginState` change, no cancellation.
+        await harness.store.send(.destination(.dismiss)) { state in
+            state.destination = nil
+        }
+        await harness.store.finish()
+
+        #expect(harness.store.state.loginState == .idle)
+        #expect(harness.store.state.toast == nil)
+    }
+
     // MARK: - Fixtures
 
     private static let memberID = "member-fixture"
