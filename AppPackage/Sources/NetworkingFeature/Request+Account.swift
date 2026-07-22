@@ -80,7 +80,11 @@ public struct LoginRequest: Request {
             request.setValue(clearance.userAgent, forHTTPHeaderField: "User-Agent")
         }
 
-        let (data, response) = try await fetch(request, in: urlSession)
+        // One attempt only. A POST the forum received but whose response was lost on the way back is
+        // indistinguishable here from one it never saw, and replaying it spends another of the
+        // account's login attempts — the same budget whose exhaustion this request now parses and
+        // reports. A single lost response costs the user one retry; four cost them the lockout.
+        let (data, response) = try await fetch(request, in: urlSession, attempts: 1)
         let httpResponse = response as? HTTPURLResponse
         // A challenged response is Cloudflare's interstitial, not a forum page. Leave it exactly as
         // it arrived for the caller's classifier rather than trying to read a login outcome out of it.
