@@ -1,88 +1,96 @@
 ---
 phase: 11-infra-refactor-lint-capstone
-verified: 2026-07-21T10:20:00Z
-status: human_needed
-score: 7/7 must-haves verified
-behavior_unverified: 2
+verified: 2026-07-22T00:00:00Z
+status: passed
+score: 9/9 must-haves verified
+behavior_unverified: 0
 overrides_applied: 0
-behavior_unverified_items:
-  - truth: "The subscript/byte-parser refactors preserved runtime parity in AnimatedImageFeature"
-    test: "Open a gallery with an animated GIF and one with an animated WebP; confirm both still animate rather than showing a first frame. Open a static JPEG/PNG gallery and confirm no regression."
-    expected: "Animated images animate; static images unaffected."
-    why_human: "11-17 rewrote 14 unchecked byte reads into a bounds-checked walker (endian conversions, added `offset >= 0` guard) and AnimatedImageFeature has NO test target. Byte-for-byte parity rests on argument + a green suite, but nothing tests that an animated GIF is still detected as animated. Grep cannot see this."
-  - truth: "parseInfoPanel still parses a real gallery with zero favourites"
-    test: "Open a gallery whose 'Favorited' row genuinely reads empty/zero and confirm the detail page loads."
-    expected: "Detail parse succeeds and degrades the field, rather than rejecting the whole parse."
-    why_human: "Parser+Detail.swift:275 throws AppError.parseFailed if any of 8 named fields is empty. Behaviour is unchanged from before the phase, but a real zero-favourites page would reject the whole detail parse. Requires a live gallery to confirm."
-human_verification:
-  - test: "Owner batch review of the 8 phase-created swiftlint:disable exceptions (11-EXCEPTIONS.md §2)"
-    expected: "All 8 (6 lifecycle_modifiers, 2 unchecked_subscript_index_access) approved, or unapproved ones reworked. Decision points: narrow lifecycle_modifiers to exempt .task(id:) (§6.1, would collapse 3 of 6); whether the 2 subscript preconditions — both unfirable by construction — are acceptable (§2.2)."
-    why_human: "The exception-review flow (D-01) is a by-design phase-end owner decision, not a programmatic check. 11-EXCEPTIONS.md is explicitly 'awaiting owner batch review'."
-  - test: "Animated GIF/WebP detection UAT (see behavior_unverified_items)"
-    expected: "Both animate; static images unaffected."
-    why_human: "No test target for AnimatedImageFeature after a byte-parser rewrite."
-  - test: "Zero-favourites gallery detail parse UAT (see behavior_unverified_items)"
-    expected: "Detail parse succeeds."
-    why_human: "Runtime behaviour against a real remote page."
+re_verification:
+  previous_status: human_needed
+  previous_score: 7/7
+  gaps_closed:
+    - "G-11-7: DetailList fetch-more pagination restored (blocker) — UAT test 7 pass on device in both display modes"
+    - "G-11-8: page-count / torrent stat icon size restored (cosmetic) — UAT test 8 pass on device"
+  human_items_discharged:
+    - "Owner batch review of the 8 exceptions — UAT test 1 pass (all 8 accepted; .task(id:) narrowing declined)"
+    - "Animated GIF/WebP parity — UAT test 2 pass on device"
+    - "Zero-favourites detail parse — UAT test 3 pass by code inspection (Parser+Detail.swift:266-271 maps 'Favorited: Never' -> '0')"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 11: Infra Refactor & Lint Capstone Verification Report
 
 **Phase Goal:** Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on.
-**Verified:** 2026-07-21T10:20:00Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-22T00:00:00Z
+**Status:** passed
+**Re-verification:** Yes — after gap closure (11-30, 11-31) and completed UAT
 
 ## Goal Achievement
 
-The central, falsifiable claim of this phase — the stricter SwiftLint ruleset is genuinely live at error with all violations root-fixed — is **verified by direct inspection of the tree**, not by trusting the 30 SUMMARY files. All seven observable truths hold. The status is `human_needed` (not `passed`) because two refactor parities lack test coverage and the 8 exceptions await the by-design owner batch review — none of which blocks the phase goal.
+Re-verified against the current tree after two gap-closure plans (11-30, 11-31) executed on 2026-07-22 and the UAT completed 8/8. The central, falsifiable claim of the phase — the stricter SwiftLint ruleset is genuinely live at error with all violations root-fixed — still holds by direct tree inspection. The two gap fixes touched four view files and none of the lint invariants: no new `swiftlint:disable`, no new `try?`, no new banned lifecycle modifier, no reverted `label_text_image_shorthand` site, and `.swiftlint.yml` is untouched. All seven original observable truths are re-confirmed, both gap truths are closed and device-confirmed, and the three prior `human_needed` items are discharged by the completed UAT. Status is now `passed`.
 
 ### Observable Truths
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | All 8 rules live at error, `optional_try` has no Tests exclusion | ✓ VERIFIED | `.swiftlint.yml`: `lifecycle_modifiers` (138), `binding_initializer` (58), `unchecked_subscript_index_access` (249), `labeled_tuple_elements` (112), `optional_try` (185), `single_line_trailing_closure` (217) all `severity: error`; `sorted_imports` (29) + `multiline_function_chains` (24) opt-in at error. `optional_try` block carries only `excluded_match_kinds`, no `excluded:` path (D-15 honored). |
-| 2 | Zero remaining `try?` in production + test code | ✓ VERIFIED | `grep -rn "try? " AppPackage/Sources AppPackage/Tests App ShareExtension \| grep -v "//"` → **0**. Total raw `try?` in tree = 1, and it is explanatory doc-comment prose (`Parser+Shared.swift:14`). |
-| 3 | Exception accounting is honest (8 phase-created: 6 lifecycle, 2 subscript) | ✓ VERIFIED | Enumerated 8 phase `swiftlint:disable:next` directives matching 11-EXCEPTIONS.md §2 exactly: 6 `lifecycle_modifiers` (View+Toast:80, ReadingView:122, ReadingViewComponents:142/340, AppAlertState:251, PreviewImageView:97), 2 `unchecked_subscript_index_access` (GalleryHistory+Operations:43, PreviewIdentifiers:1046). Subscript sites carry literal `// reason:`; lifecycle sites carry multi-line prose whose last line is a comment (the documented `swiftlint_disable_requires_reason` code-preceded gap, candidly disclosed in §3.1). |
-| 4 | Violations root-fixed; no unapproved suppressions; rules actually fire | ✓ VERIFIED | Every `excluded_match_kinds` uses the correct `doccomment` spelling — the only `doc_comment` strings in the file are the warning comments themselves. This is the §8.1 trap that would silently disable a rule; its absence is the structural proof the rules are not inert. (Battery-reported 0 violations / 452 files + negative-control probes accepted per no-xcodebuild constraint.) |
-| 5 | Test-isolation cleanup: `.serialized` gone, suite parallel, plan covers all targets | ✓ VERIFIED | `grep -rn '\.serialized' AppPackage/Tests` → 1 hit, prose only (DidLoginKeyTests:20). 18 test-target dirs; `FeatureTests.xctestplan` covers all 18 (set-diff both directions empty; wave-23 3-target omission repaired). 565-test / 18-target count established (not re-run per constraint). |
-| 6 | Shortfalls candidly recorded, not buried | ✓ VERIFIED | REQUIREMENTS.md LINT-01 has explicit "**Fell short:**" clause (D-13 17/186, D-09 half-done AppModels `UUID()`, 11-02 inert, no network seam). ROADMAP.md §Phase 11 marks criteria MET-with-scope-correction and has a "**Not achieved as originally written**" section stating the same. Wording is plain and specific. |
-| 7 | IN-01 code-review finding resolved | ✓ VERIFIED | `Parser+Shared.swift:26` — `degrading` helper logs `\(error, privacy: .private)`. Commit `1dd35b2e` "fix(11): redact degrading error in logs". |
+| 1 | All 8 rules live at error, `optional_try` has no Tests exclusion | ✓ VERIFIED | `.swiftlint.yml`: `lifecycle_modifiers` (138), `binding_initializer` (58), `unchecked_subscript_index_access` (249), `labeled_tuple_elements` (112), `optional_try` (185), `single_line_trailing_closure` (217) all `severity: error`; `sorted_imports` (29) + `multiline_function_chains` (24) opt-in at error. `optional_try` carries only `excluded_match_kinds`, no `excluded:` path (D-15 honored). Unchanged by gap fixes (`.swiftlint.yml` not in either gap diff). |
+| 2 | Zero remaining `try?` in production + test code | ✓ VERIFIED | `grep -rn "try? " AppPackage/Sources AppPackage/Tests App ShareExtension \| grep -v "//"` → **0**. Total raw `try?` = 1, explanatory doc-comment prose only. Zero `try?` in the four gap-fix files. |
+| 3 | Exception accounting is honest (8 phase-created: 6 lifecycle, 2 subscript) | ✓ VERIFIED | Exactly the 8 phase `swiftlint:disable:next` directives remain: 6 `lifecycle_modifiers` (View+Toast:80, ReadingView:122, ReadingViewComponents:142/340, AppAlertState:251, PreviewImageView:97), 2 `unchecked_subscript_index_access` (GalleryHistory+Operations:43, PreviewIdentifiers:1046). None of the four gap-fix files appears in the disable inventory — the count stayed at 8. |
+| 4 | Violations root-fixed; no unapproved suppressions; rules actually fire | ✓ VERIFIED | Every `excluded_match_kinds` uses the correct `doccomment` spelling (labeled_tuple_elements:134, optional_try:194, single_line_trailing_closure:227, unchecked_subscript:259) — the §8.1 silent-disable trap is absent, the structural proof rules are not inert. |
+| 5 | Test-isolation cleanup: `.serialized` gone, suite parallel, plan covers all targets | ✓ VERIFIED | `grep -rn '\.serialized' AppPackage/Tests` → 1 hit, prose only (DidLoginKeyTests:20). Unchanged by gap fixes (no test target touched). |
+| 6 | Shortfalls candidly recorded, not buried | ✓ VERIFIED | ROADMAP.md:537 "**Not achieved as originally written**" section present; REQUIREMENTS.md LINT-01 "Fell short" clause present. |
+| 7 | IN-01 code-review finding resolved | ✓ VERIFIED | `Parser+Shared.swift:26` logs the caught error at `privacy: .private`. |
+| 8 | G-11-7: DetailList fetch-more pagination restored across all `.detail`-mode lists | ✓ VERIFIED | GalleryList.swift:148-151 — `.onScrollVisibilityChange` on the row `Button` inside `DetailList`'s `ForEach`, guard `isVisible, gallery == galleries.last`. `.autoLoadNextPage` deleted from `DetailList`, retained only on `ThumbnailList` (231) and its extension def (252). Produces no `lifecycle_modifiers` match (banned-identifier grep on the file → 0). Behavior confirmed: UAT test 7 pass — owner device re-test paginates past three pages in BOTH `.detail` and `thumbnail` modes. |
+| 9 | G-11-8: page-count / torrent stat icon size restored at all six sites | ✓ VERIFIED | 6 `.imageScale(.medium)` sites: GalleryThumbnailCell:90, GalleryDetailCell:141, TorrentsView:82/89/96/103. Both cells keep the icon-closure `Label { … } icon: { … }` form (GalleryThumbnailCell:86, GalleryDetailCell:137) — no HStack revert, so `label_text_image_shorthand` stays satisfied structurally. Behavior confirmed: UAT test 8 pass — owner visual re-check. |
 
-**Score:** 7/7 truths verified (2 refactor-parity behaviors additionally flagged for UAT — see below)
+**Score:** 9/9 truths verified (0 behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `.swiftlint.yml` | 8 rules at error, correct `doccomment` spelling, no `optional_try` Tests exclusion | ✓ VERIFIED | All 8 present; spelling correct; D-15 honored. Only `unchecked_subscript_index_access` carries a Tests path exclusion (deliberate, §8.2). |
-| `AppPackage/Tests/FeatureTests.xctestplan` | Lists all 18 test-target dirs | ✓ VERIFIED | 18/18, no drift. |
-| `11-EXCEPTIONS.md` | Honest inventory separating phase-created (8) from pre-existing (20) | ✓ VERIFIED | Matches tree; boundary case (PreviewIdentifiers file_length) disclosed; §3.1 gap in `swiftlint_disable_requires_reason` disclosed. |
+| `.swiftlint.yml` | 8 rules at error, correct `doccomment` spelling, no `optional_try` Tests exclusion | ✓ VERIFIED | Unchanged since last verification; untouched by both gap plans. |
+| `AppPackage/Tests/FeatureTests.xctestplan` | Lists all 18 test-target dirs | ✓ VERIFIED | No drift; untouched by gap fixes. |
+| `11-EXCEPTIONS.md` | Honest inventory separating phase-created (8) from pre-existing | ✓ VERIFIED | Matches the tree's 8 phase disables. |
+| `AppPackage/Sources/GalleryListComponents/GalleryList.swift` | DetailList drives fetch-more via trailing-row scroll visibility; AutoLoadNextPage thumbnail-only | ✓ VERIFIED | `.onScrollVisibilityChange` (148), no `.autoLoadNextPage` in DetailList, retained on ThumbnailList (231). |
+| `GalleryThumbnailCell.swift` / `GalleryDetailCell.swift` / `TorrentsView.swift` | Six `.imageScale(.medium)` icon-closure sites, no HStack revert | ✓ VERIFIED | 1 + 1 + 4 = 6 sites; both cells retain `Label { … }` icon-closure form. |
 | `Parser+Shared.swift` `degrading` | Logs caught error at `privacy: .private` | ✓ VERIFIED | Line 26. |
+
+### Behavioral Spot-Checks
+
+| Behavior | Command | Result | Status |
+| --- | --- | --- | --- |
+| No banned lifecycle modifier in gap-fix files | `grep -rnE '\.(onAppear\|onDisappear\|task)\s*(\(\|\{)'` on the 4 files | 0 matches | ✓ PASS |
+| Exactly 8 phase `swiftlint:disable` directives | disable inventory grep | 6 lifecycle + 2 subscript, no gap-fix file present | ✓ PASS |
+| Six restored icon sites | `grep -rn imageScale` on 3 files | 6 × `.imageScale(.medium)` | ✓ PASS |
+| Zero-favourites parse maps "Never" → "0" | read Parser+Detail.swift:266-271 | mapping present; guard at :275-277 passes on "0" | ✓ PASS |
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | --- | --- | --- | --- | --- |
-| — | — | No surviving `try?`, no `.serialized`, no `@MainActor` on a suite type | ℹ️ Info | Clean. The 8 phase disables are all reason-annotated and inventoried. |
+| — | — | No surviving `try?`, no `.serialized`, no new `swiftlint:disable`, no HStack revert | ℹ️ Info | Clean. Gap fixes are lint-legal by construction. |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| LINT-01 | 11-01…11-29 | Enable stricter SwiftLint ruleset at error | ✓ SATISFIED | 8 rules at error, 0 `try?`, exceptions inventoried, shortfalls recorded. REQUIREMENTS.md line 75 `[x]`, traceability line 123 Complete. |
+| LINT-01 | 11-01…11-31 | Enable stricter SwiftLint ruleset at error | ✓ SATISFIED | 8 rules at error, 0 `try?`, exceptions inventoried, shortfalls recorded; gap fixes add no suppressions. |
 
-### Human Verification Required
+### Human Verification — Discharged
 
-1. **Owner batch review of the 8 exceptions** — the phase-end review is by design (D-01); 11-EXCEPTIONS.md is "awaiting owner batch review". Two live decision points: narrow `lifecycle_modifiers` to exempt `.task(id:)` (§6.1, collapses 3 of 6); acceptability of the 2 unfirable subscript preconditions (§2.2).
-2. **Animated GIF/WebP detection** — 11-17 rewrote the byte parser; AnimatedImageFeature has no test target. Confirm animated images still animate.
-3. **Zero-favourites gallery detail parse** — confirm a real zero-favourites page loads rather than failing the whole detail parse.
+The three items that held the previous report at `human_needed` are now discharged by the completed UAT (`11-UAT.md`, status: complete, 8/8 pass):
+
+1. **Owner batch review of the 8 exceptions** — DISCHARGED. UAT test 1 pass: owner accepted all 8 exceptions as warranted and explicitly declined the surfaced `.task(id:)` narrowing, so all 6 lifecycle disables remain by decision.
+2. **Animated GIF/WebP detection parity** — DISCHARGED. UAT test 2 pass on device: animated images animate; static images unaffected.
+3. **Zero-favourites gallery detail parse** — DISCHARGED. UAT test 3 pass by code inspection: `Parser+Detail.swift:266-271` maps E-Hentai's "Favorited: Never" rendering to "0", so `favoritedCount` is non-empty and the all-eight-fields guard at :275-277 passes. Live sourcing is infeasible (even the newest gallery carries 400+ favourites and would render "N times", never exercising the "Never" path), so inspection is the stronger evidence for this edge case.
 
 ### Gaps Summary
 
-No gaps block the phase goal. The lint ratchet is genuinely enforced at error and root-fixed — verified structurally, with the `doccomment`-spelling guard confirming the rules are not silently inert. The four "not achieved as written" items (11-02 inert must-have, D-09 half-done, D-13's 17-case yield, no network seam) are honestly recorded in both REQUIREMENTS.md and ROADMAP.md and are side goals of the infra-refactor half, not LINT-01's core deliverable; they are correctly carried as documented deviations rather than silent failures. The remaining human items are (a) the by-design exception batch review and (b) two refactor-parity behaviors that no test exercises.
+No gaps. The lint ratchet remains genuinely enforced at error and root-fixed. The two gap-closure plans restored the regressed pagination (G-11-7, blocker) and icon sizing (G-11-8, cosmetic) without disturbing any lint invariant — verified by grep on the current tree — and both are UAT-confirmed on the owner's device. The four "not achieved as written" items remain honestly recorded in REQUIREMENTS.md and ROADMAP.md as documented scope corrections, not silent failures. Nothing is genuinely open.
 
 ---
 
-_Verified: 2026-07-21T10:20:00Z_
+_Verified: 2026-07-22T00:00:00Z_
 _Verifier: Claude (gsd-verifier)_
