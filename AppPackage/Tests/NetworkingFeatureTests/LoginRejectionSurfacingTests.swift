@@ -132,3 +132,61 @@ struct CredentialHeaderRedactionTests {
         #expect(redactedCredentialHeader("") == "<values redacted; names set: >")
     }
 }
+
+// The forum began gating its login form behind Cloudflare Turnstile, which contributes a
+// `cf-turnstile-response` field to the submission. A credential POST cannot produce that field, so
+// the refusal is not about the password and no retry resolves it.
+@Suite
+struct CaptchaGatedLoginTests {
+    @Test
+    func aTurnstileGatedRefusalGetsItsOwnCase() async {
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.captchaRefusal)]])
+        )
+        defer { session.invalidateAndCancel(); handle.tearDown() }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result == .failure(.loginCaptchaRequired))
+    }
+
+    @Test
+    func anUngatedRefusalStaysGeneric() async {
+        // Same error block, no widget: this one really might be the password, so it must not claim
+        // a CAPTCHA is in the way.
+        let refusal = Data(
+            """
+            <html><body>
+            <div class="formsubtitle">The following errors were found:</div>
+            <div class="tablepad"><span class="postcolor">Bad password.</span></div>
+            </body></html>
+            """.utf8
+        )
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: refusal)]])
+        )
+        defer { session.invalidateAndCancel(); handle.tearDown() }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result == .failure(.unknown))
+    }
+
+    /// Trimmed from the real refusal captured during UAT.
+    private static let captchaRefusal = Data(
+        """
+        <html><head>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        </head><body>
+        <div class="formsubtitle">The following errors were found:</div>
+        <div class="tablepad"><span class="postcolor">The captcha was not entered correctly. \
+        Please try again.</span></div>
+        <form name="LOGIN"><div class="cf-turnstile" data-sitekey="0x4AAAAAAC"></div></form>
+        </body></html>
+        """.utf8
+    )
+}

@@ -93,15 +93,17 @@ public struct LoginRequest: Request {
             throw responseError
         }
         if let message = Parser.parseLoginErrorMessage(content: content) {
-            // A CAPTCHA-gated form is worth calling out separately: it is the one rejection that no
-            // password and no number of retries can clear, because the submission is missing a field
-            // this request cannot produce.
+            // A CAPTCHA-gated form gets its own case rather than collapsing into the generic
+            // failure: it is the one rejection no password and no number of retries can clear,
+            // because the submission is missing a field this request cannot produce. Reporting it
+            // as a plain failure would send the user back to re-check a password that was never
+            // the problem, so it carries its own recovery route instead.
             let captchaGated = Parser.loginFormRequiresCaptcha(content: content)
             logger.warning("""
                 Login rejected by the forum: \(message, privacy: .public) \
                 captchaGated=\(captchaGated, privacy: .public)
                 """)
-            throw AppError.unknown
+            throw captchaGated ? AppError.loginCaptchaRequired : AppError.unknown
         }
         // No error box and no recognised site error, yet a login can still not have happened. The
         // form's own submit control is the cheapest tell that the page came back as the login form
