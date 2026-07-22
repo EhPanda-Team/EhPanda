@@ -13,17 +13,22 @@ private let logger = Logger(category: .init(describing: LoginRequest.self))
 /// The values are the account's credentials. The names alone settle the only question asked of this
 /// header while diagnosing a failed login — whether the forum returned a session at all — so nothing
 /// is gained by keeping the rest, and a dump that omits them can be read and shared freely.
-func redactedCredentialHeader(_ headerValue: String) -> String {
-    let names = headerValue
-        .split(separator: ",")
-        .compactMap { chunk -> String? in
-            let trimmed = chunk.trimmingCharacters(in: .whitespaces)
-            guard let separator = trimmed.firstIndex(of: "=") else { return nil }
-            let name = String(trimmed[..<separator])
-            return name.isEmpty ? nil : name
-        }
-        .joined(separator: ", ")
-    return "<values redacted; names set: \(names)>"
+///
+/// Foundation's own `Set-Cookie` parser does the splitting. Doing it by hand meant cutting the
+/// coalesced header on `,`, which lands inside `expires` — whose value carries one — and printing
+/// the pieces as if they were cookie names; the same cut would hand back the tail of a *value* if a
+/// server ever put a comma in one. A parser that either recognises a cookie or yields nothing has no
+/// way to name a fragment of one.
+func redactedCredentialHeader(_ headerValue: String, for url: URL?) -> String {
+    var names = [String]()
+    // Without the response's URL there is no domain to attach the cookies to, so nothing is parsed
+    // and nothing is named: the dump gives up a detail rather than gambling with a value.
+    if let url {
+        names = HTTPCookie
+            .cookies(withResponseHeaderFields: ["Set-Cookie": headerValue], for: url)
+            .map(\.name)
+    }
+    return "<values redacted; names set: \(names.joined(separator: ", "))>"
 }
 #endif
 
@@ -152,7 +157,7 @@ public struct LoginRequest: Request {
                 guard name.caseInsensitiveCompare(credentialHeaderName) == .orderedSame else {
                     return "\(name): \(text)"
                 }
-                return "\(name): \(redactedCredentialHeader(text))"
+                return "\(name): \(redactedCredentialHeader(text, for: response?.url))"
             }
             .sorted()
             .joined(separator: "\n")

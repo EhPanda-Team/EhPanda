@@ -129,7 +129,7 @@ struct CredentialHeaderRedactionTests {
     func valuesAreDroppedAndNamesKept() {
         let header = "ipb_member_id=SECRET-ID; path=/, ipb_pass_hash=SECRET-HASH; path=/"
 
-        let redacted = redactedCredentialHeader(header)
+        let redacted = redactedCredentialHeader(header, for: Self.dumpURL)
 
         #expect(redacted.contains("ipb_member_id"))
         #expect(redacted.contains("ipb_pass_hash"))
@@ -143,13 +143,46 @@ struct CredentialHeaderRedactionTests {
         // produces, no fragment of a value may survive.
         let header = "ipb_pass_hash=SECRET-HASH; expires=Wed, 22-Jul-2026 10:00:00 GMT; path=/"
 
-        #expect(!redactedCredentialHeader(header).contains("SECRET-HASH"))
+        #expect(!redactedCredentialHeader(header, for: Self.dumpURL).contains("SECRET-HASH"))
+    }
+
+    // The same comma used to split the attribute into pieces that were then printed as though each
+    // were a cookie the forum had set — `22-Jul-2026 10:00:00 GMT; path` among them. Nothing but a
+    // real cookie's name belongs in this dump.
+    @Test
+    func attributeFragmentsAreNotReportedAsCookieNames() {
+        let header = "ipb_pass_hash=SECRET-HASH; expires=Wed, 22-Jul-2026 10:00:00 GMT; path=/"
+
+        let redacted = redactedCredentialHeader(header, for: Self.dumpURL)
+
+        #expect(redacted == "<values redacted; names set: ipb_pass_hash>")
+    }
+
+    // RFC 6265 forbids a comma inside a cookie value, which is the whole reason splitting on one
+    // was ever tenable. A server that breaks the rule must still not get any part of the value
+    // printed back out.
+    @Test
+    func aCommaInsideAValueLeaksNoPartOfThatValue() {
+        let header = "ipb_pass_hash=SECRET,TAIL-OF-SECRET; path=/"
+
+        #expect(!redactedCredentialHeader(header, for: Self.dumpURL).contains("TAIL-OF-SECRET"))
     }
 
     @Test
     func anEmptyHeaderYieldsNoNames() {
-        #expect(redactedCredentialHeader("") == "<values redacted; names set: >")
+        #expect(redactedCredentialHeader("", for: Self.dumpURL) == "<values redacted; names set: >")
     }
+
+    // No URL means no domain to attach a cookie to, so nothing is parsed and nothing is named —
+    // the one thing that must never happen is a value reaching the dump for want of a URL.
+    @Test
+    func aMissingURLNamesNothingRatherThanFallingBackToTheRawHeader() {
+        let header = "ipb_pass_hash=SECRET-HASH; path=/"
+
+        #expect(redactedCredentialHeader(header, for: nil) == "<values redacted; names set: >")
+    }
+
+    private static let dumpURL = Defaults.URL.login
 }
 
 // The forum began gating its login form behind Cloudflare Turnstile, which contributes a
