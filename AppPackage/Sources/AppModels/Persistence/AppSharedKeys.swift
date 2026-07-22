@@ -71,6 +71,18 @@ extension SharedKey where Self == InMemoryKey<Greeting?>.Default {
     }
 }
 
+// The Cloudflare clearance pair earned by a challenge web view (see `CloudflareClearance`). The login
+// flow writes it on capture, reads it to proactively attach the cookie and its bound User-Agent to
+// later login POSTs in the same session — so an unexpired clearance skips the wall entirely — and
+// replaces it whenever a retry comes back challenged again. The in-memory strategy *is* the
+// no-persistence guarantee: the pair resets to `nil` on every launch with no cleanup code, and it can
+// never reach app storage, a file, or the shared cookie jar.
+extension SharedKey where Self == InMemoryKey<CloudflareClearance?>.Default {
+    public static var cloudflareClearance: Self {
+        Self[.inMemory("cloudflareClearance"), default: nil]
+    }
+}
+
 /// Transient scene-phase blur written by `AppReducer` and read by `.privacyMask()`, reset to `0` on launch.
 extension SharedKey where Self == InMemoryKey<Double>.Default {
     public static var privacyMaskBlur: Self {
