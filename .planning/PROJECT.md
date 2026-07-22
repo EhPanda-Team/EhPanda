@@ -37,6 +37,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Fix `Category.private.filterValue` (QUAL-03) — the `fatalError` landmine is gone; `.private` reports filter-math misuse and contributes zero, while the ten searchable cases still sum to all 1023 filter bits — Phase 9
 - ✓ Structured error handling + user-facing error surface (QUAL-04) — silent `try?` sites classified so genuine failures propagate through typed `throws(AppError)` while intentional fallbacks stay documented; a privacy-safe diagnostic surface (Description / Suggested Solution / Context / Environment) is reached through a persistent, accessible error toast, runtime-verified by simulator UAT — Phase 9
 - ✓ Lint hardening capstone + refactor-gated rules (LINT-01) — 8 custom/opt-in SwiftLint rules live at **error** (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, `labeled_tuple_elements`, `optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`), all violations root-fixed with only 8 owner-reviewed exceptions; test-isolation cleanup removed all 41 `.serialized` traits (suite runs in parallel across 18 targets). Two UAT-caught regressions (detail-mode pagination, page-count icon size) fixed and confirmed — Phase 11
+- ✓ Cloudflare login restoration — username/password login restored behind the Cloudflare wall: response-driven challenge detection (403 + `cf-mitigated`), an in-app auto-dismissing `WKWebView` challenge surface, memory-only `(cf_clearance, User-Agent)` capture replayed on the retried POST, bounded retries into a structured error; owner-verified live pass. A forum-side Turnstile CAPTCHA gate (appeared during UAT) is detected and routed to web login as fallback — Phase 12
 
 ### Active
 
@@ -121,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 after Phase 11*
+*Last updated: 2026-07-23 after Phase 12*
