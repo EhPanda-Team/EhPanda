@@ -93,7 +93,7 @@ struct CloudflareChallengeDetectionTests {
     }
 
     @Test
-    func loginRequestWithoutClearanceIsConstructedExactlyAsBefore() async throws {
+    func loginRequestWithoutClearanceCarriesNoChallengeHeaders() async throws {
         let (session, handle) = makeStubbedLoginSession()
         defer { cleanUp(session: session, handle: handle) }
 
@@ -109,7 +109,11 @@ struct CloudflareChallengeDetectionTests {
 
         #expect(request.value(forHTTPHeaderField: "Cookie") == nil)
         #expect(request.value(forHTTPHeaderField: "User-Agent") == nil)
-        #expect(request.httpShouldHandleCookies)
+        // Both paths keep the shared jar out of the login POST, not just the clearance-carrying one.
+        // On the bare path URLSession would otherwise file a rejection page's Set-Cookie tombstones
+        // automatically, clobbering a session the user still had; `setCredentials` applies the real
+        // ones on success instead.
+        #expect(request.httpShouldHandleCookies == false)
         #expect(request.httpMethod == "POST")
         #expect(
             request.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded"
