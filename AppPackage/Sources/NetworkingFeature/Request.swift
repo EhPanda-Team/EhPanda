@@ -219,13 +219,35 @@ extension URLRequest {
         setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     }
 }
+/// The characters an `application/x-www-form-urlencoded` key or value may carry unescaped.
+///
+/// Deliberately far narrower than `.urlQueryAllowed`, which *permits* `&`, `=` and `+` — the three
+/// characters that carry structure in a form body. Encoding the joined string with that set escapes
+/// none of them inside a value, so a password containing `&` truncates its field and injects a stray
+/// parameter, one containing `=` corrupts the pair, and a `+` is decoded server-side as a space. The
+/// user sees only an unexplained rejection. Restricting the set to the RFC 3986 unreserved characters
+/// leaves nothing structural unescaped, which is why each key and value must be encoded on its own,
+/// before the `=` and `&` that join them are added.
+private let formURLEncodedAllowedCharacters: CharacterSet = {
+    var allowed = CharacterSet.alphanumerics
+    allowed.insert(charactersIn: "-._~")
+    return allowed
+}()
+
 extension Dictionary where Key == String, Value == String {
+    /// Renders the pairs as an `application/x-www-form-urlencoded` body.
+    ///
+    /// Each key and value is percent-encoded individually; the result is ready for `httpBody` and
+    /// must not be encoded again, which would double-escape every `%` it already contains.
     public func dictString() -> String {
-        var array = [String]()
-        keys.forEach { key in
-            array.append(key + "=" + self[key].forceUnwrapped)
+        let pairs = map { key, value in
+            // `addingPercentEncoding` is only Optional as a legacy of NSString and cannot fail for a
+            // set this narrow; the raw component is a best-effort fallback rather than a silent path.
+            let encodedKey = key.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
+            let encodedValue = value.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
+            return (encodedKey ?? key) + "=" + (encodedValue ?? value)
         }
-        return array.joined(separator: "&")
+        return pairs.joined(separator: "&")
     }
 }
 
