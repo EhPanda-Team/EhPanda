@@ -53,8 +53,15 @@ public struct LoginReducer: Sendable {
         /// Challenge surfaces presented during the current attempt; reset by every `.login`.
         public var challengeRounds = 0
 
+        /// Whether the login control can be actuated at all right now.
+        ///
+        /// An attempt already in flight disables it just as an unfilled form does: a second tap would
+        /// start a *second* login effect over the same cancel ID, reset the challenge round counter
+        /// mid-flow, and deliver `.loginDone` twice — duplicate credential application, duplicate
+        /// haptics, and a doubled `dismiss()`. One property so the view's `.disabled` and the
+        /// reducer's `.login` guard cannot drift apart.
         var loginButtonDisabled: Bool {
-            username.isEmpty || password.isEmpty
+            username.isEmpty || password.isEmpty || loginState == .loading
         }
         var loginButtonColor: Color {
             loginState == .loading ? .clear : loginButtonDisabled
@@ -130,7 +137,7 @@ public struct LoginReducer: Sendable {
                 return .none
 
             case .login:
-                guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
+                guard !state.loginButtonDisabled else { return .none }
                 state.focusedField = nil
                 state.loginState = .loading
                 // The bound is per attempt, so a fresh tap always gets a full budget of rounds.
@@ -275,7 +282,11 @@ public struct LoginReducer: Sendable {
                 await send(.loginDone(.failure(error)))
             }
         }
-        .cancellable(id: CancelID.login)
+        // `cancelInFlight` makes the effect self-defending: whatever reaches this point, only one
+        // login POST is ever outstanding under this ID, so no caller can leave two of them racing to
+        // deliver `.loginDone`. The `.login` guard blocks the re-entry today; this keeps the
+        // invariant a property of the effect rather than of every future call site.
+        .cancellable(id: CancelID.login, cancelInFlight: true)
     }
 }
 
