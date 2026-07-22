@@ -86,7 +86,12 @@ struct LoginView: View {
                 ChallengeWebView(url: url.wrappedValue) { clearance in
                     store.send(.challengeClearanceCaptured(clearance))
                 }
-                .ignoresSafeArea(edges: .bottom)
+                // The page runs edge to edge under a background-less bar, so the cancel control
+                // floats on its own glass over the challenge instead of sitting on an opaque strip.
+                // Cloudflare's interstitial is vertically centred with generous padding, so nothing
+                // it renders ends up beneath the control.
+                .ignoresSafeArea()
+                .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button(role: .cancel, action: { store.send(.cancelChallenge) })
