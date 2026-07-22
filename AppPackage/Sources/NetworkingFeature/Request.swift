@@ -60,12 +60,20 @@ extension Request {
     /// Native async URLSession participates in structured cancellation, unlike the legacy
     /// continuation bridge. Cancellation therefore stops the HTTP request immediately; TCA still
     /// discards the cancelled effect's send, preserving user-visible behavior while saving work.
+    ///
+    /// - Parameter attempts: How many times the request may be put on the wire. The default suits
+    ///   the idempotent GETs that are nearly all of this layer's traffic, where a lost response
+    ///   costs nothing to ask for again. A request the server may have *acted on* before its
+    ///   response went missing must pass `1` instead: replaying it repeats the side effect, and for
+    ///   the credential POST that means up to four recorded login attempts for one tap, feeding the
+    ///   forum's own attempt lockout. Values below `1` are treated as `1`.
     public func fetch(
         _ request: URLRequest,
-        in session: URLSession = .shared
+        in session: URLSession = .shared,
+        attempts: Int = 4
     ) async throws(AppError) -> (data: Data, response: URLResponse) {
         var lastError: any Error = URLError(.unknown)
-        for _ in 1...4 {
+        for _ in 0..<max(1, attempts) {
             do {
                 return try await session.data(for: request)
             } catch {

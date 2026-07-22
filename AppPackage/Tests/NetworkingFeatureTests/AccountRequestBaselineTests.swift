@@ -438,24 +438,37 @@ struct AccountRequestBaselineTests {
         expectJSONRequest(request, url: url, fields: expected)
     }
 
+    // The four-attempt transport policy is the account layer's default, and this pins it. It is
+    // deliberately no longer read through `LoginRequest`: replaying a credential POST spends the
+    // forum's own login-attempt budget, so that one request asks for a single attempt and
+    // `aLostLoginResponseIsNotRetriedIntoTheForumsAttemptLockout` pins the exception.
     @Test
     func accountPOSTPersistentTransportFailureRetriesFourTimes() async {
-        let url = Defaults.URL.login
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
         let (session, handle) = makeStubbedSession(
             script: StubScript([url: [.transportFailure(.timedOut)]])
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
-            try await LoginRequest(
-                username: "baseline-user",
-                password: "dummy-password",
+        let result = await capture { () async throws(AppError) in
+            try await VoteGalleryTagRequest(
+                host: host,
+                apiuid: 13,
+                apikey: "dummy-key",
+                gid: 1001,
+                token: "token",
+                tag: "artist:baseline",
+                vote: 1,
                 urlSession: session
             )
             .response()
         }
 
-        #expect(result == .failure(.networkingFailed))
+        // `Result<Void, _>` is not Equatable, so the failure is read back through the throw.
+        #expect(throws: AppError.networkingFailed) {
+            try result.get()
+        }
         #expect(handle.attempts(for: url) == 4)
     }
 }
