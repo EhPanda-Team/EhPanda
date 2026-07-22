@@ -221,6 +221,12 @@ final class ChallengeWebViewController: UIViewController, WKHTTPCookieStoreObser
             return
         }
 
+        // The entry guard above is only a fast path. Main-actor isolation serialises the *steps* of
+        // this method, not the method itself: the two `await`s above are suspension points where a
+        // second invocation — the poll, `cookiesDidChange` and `didFinish` all call in — can pass the
+        // entry guard and run to here as well. Latching after the last suspension is what actually
+        // makes the "exactly once" in this file's doc comment true.
+        guard !hasReportedClearance else { return }
         hasReportedClearance = true
         stopObservingCookieStore()
         logger.notice("Captured Cloudflare clearance.")
