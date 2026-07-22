@@ -10,3 +10,6 @@ Config/LocalSigning.xcconfig
 AppPackage/.build
 AppPackage/.swiftpm/xcode/xcuserdata
 AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
+
+# GSD research tooling's content cache: hash-named fetch results, not planning artifacts
+.planning/research/.cache
