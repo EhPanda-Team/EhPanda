@@ -101,6 +101,43 @@ struct AppErrorStructuredTests {
         #expect(AppError.parseFailed.solution == nil)
     }
 
+    @Test
+    func cloudflareChallengeFailureIsNotRetryable() throws {
+        #expect(AppError.cloudflareChallengeFailed.isRetryable == false)
+    }
+
+    @Test
+    func cloudflareChallengeFailureIsFullyDescribed() throws {
+        let error = AppError.cloudflareChallengeFailed
+        let localizedError: any LocalizedError = error
+
+        #expect(!error.localizedDescription.isEmpty)
+        #expect(!error.alertText.isEmpty)
+        #expect(error.solution != nil)
+        #expect(localizedError.recoverySuggestion == error.solution)
+    }
+
+    @Test
+    func everyErrorCaseCarriesADistinctIdentifier() throws {
+        let allCases: [AppError] = [
+            .copyrightClaim("Alice"),
+            .ipBanned(.hours(hours: 1, minutes: nil)),
+            .expunged("Removed by the uploader."),
+            .networkingFailed,
+            .webImageFailed,
+            .parseFailed,
+            .quotaExceeded,
+            .authenticationRequired,
+            .cloudflareChallengeFailed,
+            .fileOperationFailed("Disk full."),
+            .noUpdates,
+            .notFound,
+            .unknown
+        ]
+
+        #expect(Set(allCases.map(\.id)).count == allCases.count)
+    }
+
     @Test(arguments: [
         AppError.networkingFailed,
         .authenticationRequired,
