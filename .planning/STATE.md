@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 11
-current_phase_name: infra-refactor-lint-capstone
-status: executing
+current_phase: 12
+current_phase_name: Cloudflare Login Restoration
+status: planning
 stopped_at: Completed 11-31-PLAN.md (G-11-8 gap closure)
-last_updated: "2026-07-21T17:37:51.983Z"
+last_updated: "2026-07-22T00:31:31.320Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 11 execution started
+last_activity_desc: Phase 11 complete, transitioned to Phase 12
 progress:
   total_phases: 15
   completed_phases: 10
@@ -21,26 +21,26 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-16)
+See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 11 — infra-refactor-lint-capstone
+**Current focus:** Phase 12 — Cloudflare Login Restoration
 
 ## Current Position
 
-Phase: 11 (infra-refactor-lint-capstone) — EXECUTING
-Plan: 2 of 32
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase 11 execution started
-Next: /gsd-plan-phase 11 (Infra Refactor & Lint Capstone)
+Phase: 12 — Cloudflare Login Restoration
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-22 — Phase 11 complete, transitioned to Phase 12
+Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
 
-Progress: [██████████] 100% (10/15 phases)
+Progress: [█████████████░░░░░░░] 67% (10/15 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 75
+- Total plans completed: 107
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -55,6 +55,7 @@ Progress: [██████████] 100% (10/15 phases)
 | 07 | 12 | - | - |
 | 08 | 18 | - | - |
 | 09 | 13 | - | - |
+| 11 | 32 | - | - |
 
 **Recent Trend:**
 
@@ -435,7 +436,6 @@ None yet.
 - Deferred follow-up (from Phase 8 UAT): remove dead legacy haptic code (`isLegacyTapticEngine`, `generateLegacyFeedback`) — targets unsupported devices.
 - Deferred follow-up (from Phase 11 UAT, G-11-7): harden the `lastAutoFetchCount` one-shot latch in `AutoLoadNextPage` (GalleryList.swift) to re-arm on the server page cursor (`pageNumber`) rather than on `galleries.count`, so a deduped, empty or failed page cannot permanently disarm thumbnail-mode pagination — today only the manual footer retry recovers. Pre-existing (Phase 2 / D-36), not a Phase 11 regression; the detail path no longer depends on it. Needs a device check for chain-fetch regression, since the known failure mode of this tuning is an endless fetch loop pinned at the bottom.
 - Standing verification item (from Phase 11 UAT, G-11-7): every future UAT touching gallery list pagination must exercise BOTH `Setting.listDisplayMode` values, `detail` and `thumbnail`. The two modes render through structurally different layouts with different fetch-more triggers, and `detail` being the default masked the thumbnail path historically and masked this regression in reverse. Testing one mode proves nothing about the other.
-- Deferred follow-up (from 11-31 / G-11-8): the debug note .planning/debug/g-11-8-page-count-symbol-size.md records the wrong root cause — it attributes the icon growth to Label's titleAndIcon style sizing from label font metrics. Measured: free-standing, a Label's icon is pixel-identical to a bare Image (20x16); the inflation only appears inside a List row. Correct the note before it is reused.
 
 ### Roadmap Evolution
 
@@ -465,6 +465,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T17:37:35.478Z
-Stopped at: Completed 11-31-PLAN.md (G-11-8 gap closure)
+Last session: 2026-07-22
+Stopped at: Phase 11 complete (UAT 8/8, verification passed, security 0 open threats), ready to plan Phase 12
 Resume file: None
