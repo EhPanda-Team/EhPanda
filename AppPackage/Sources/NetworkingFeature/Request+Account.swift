@@ -2,7 +2,10 @@ import AppModels
 import AppTools
 import Foundation
 import Kanna
+import OSLogExt
 import ParserFeature
+
+private let logger = Logger(category: .init(describing: LoginRequest.self))
 
 // MARK: Account Ops
 public struct LoginRequest: Request {
@@ -54,8 +57,26 @@ public struct LoginRequest: Request {
             request.setValue(clearance.userAgent, forHTTPHeaderField: "User-Agent")
         }
 
-        let (_, response) = try await fetch(request, in: urlSession)
-        return response as? HTTPURLResponse
+        let (data, response) = try await fetch(request, in: urlSession)
+        let httpResponse = response as? HTTPURLResponse
+        // A challenged response is Cloudflare's interstitial, not a forum page. Leave it exactly as
+        // it arrived for the caller's classifier rather than trying to read a login outcome out of it.
+        guard !isCloudflareChallenge(httpResponse) else { return httpResponse }
+        guard let content = String(data: data, encoding: .utf8) else { return httpResponse }
+        // The body was previously discarded, which left every rejection indistinguishable: a wrong
+        // password, a lockout after repeated failures and a missing field are all 200s that set no
+        // auth cookie, so the caller saw one undifferentiated "not logged in". Reading the page is
+        // the only way to tell them apart — and throwing here also stops the failure page's
+        // Set-Cookie tombstones from reaching the jar, since credentials are only applied on success.
+        if let responseError = Parser.parseResponseError(content: content) {
+            logger.warning("Login rejected: \(String(describing: responseError), privacy: .public)")
+            throw responseError
+        }
+        if let message = Parser.parseLoginErrorMessage(content: content) {
+            logger.warning("Login rejected by the forum: \(message, privacy: .public)")
+            throw AppError.unknown
+        }
+        return httpResponse
     }
 }
 

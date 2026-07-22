@@ -1,4 +1,5 @@
 import AppModels
+import Foundation
 import Kanna
 import Resources
 
@@ -19,6 +20,32 @@ extension Parser {
             }
         }
         return nil
+    }
+
+    /// The message the forum software puts in its own error box, if the page carries one.
+    ///
+    /// A rejected login is an HTTP 200 carrying an ordinary forum page. A wrong password, a
+    /// temporary lockout after repeated failures, and a missing field all share that status code and
+    /// all leave the auth cookies unset, so the status line and the cookie jar cannot tell them
+    /// apart — this box is the only thing that can. Its text is passed through verbatim rather than
+    /// matched against known phrasings, because the useful part is whatever the server chose to say,
+    /// including messages this app has never seen.
+    ///
+    /// The result is untrusted remote text on its way to a log, so it is stripped of markup and
+    /// length-bounded here rather than at each call site.
+    public static func parseLoginErrorMessage(content: String) -> String? {
+        let marker = "the error returned was"
+        let stripped = content
+            .replacingOccurrences(of: "<[^>]+>", with: "\n", options: .regularExpression)
+            .replacingOccurrences(of: "&nbsp;", with: " ")
+        guard let markerRange = stripped.range(of: marker, options: .caseInsensitive) else { return nil }
+        let message = stripped[markerRange.upperBound...]
+            .split(separator: "\n")
+            .lazy
+            .map({ $0.trimmingCharacters(in: CharacterSet(charactersIn: ": \t\r\n")) })
+            .first(where: { !$0.isEmpty })
+        guard let message else { return nil }
+        return String(message.prefix(200))
     }
 
     public static func parseResponseError(content: String) -> AppError? {
