@@ -62,14 +62,17 @@ public struct LoginRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
+        // The shared jar is taken out of this POST's loop on both paths. Nothing the request needs is
+        // lost: login credentials arrive on the *response* as Set-Cookie (consumed downstream by
+        // `setCredentials`), never as cookies sent, and the returned `HTTPURLResponse` carries them
+        // regardless of this flag. What it buys is that URLSession no longer files a *rejection*
+        // page's Set-Cookie tombstones on their way past — which would otherwise clobber a working
+        // session the moment a re-login was mistyped, on the one path that still allowed it.
+        request.httpShouldHandleCookies = false
         if let clearance {
-            // The clearance must be the authoritative outbound cookie, so the shared jar is taken
-            // out of the loop rather than left to inject or overwrite the header. Nothing this POST
-            // needs is lost: login credentials arrive on the *response* as Set-Cookie (consumed
-            // downstream by `setCredentials`), never as cookies sent, and the returned
-            // `HTTPURLResponse` still carries them regardless of this flag. Suppressing the jar also
-            // keeps the clearance out of `HTTPCookieStorage.shared`, which is the point.
-            request.httpShouldHandleCookies = false
+            // The clearance must also be the authoritative outbound cookie, so it is written as the
+            // header directly rather than left for the jar to inject or overwrite. Suppressing the
+            // jar keeps the clearance out of `HTTPCookieStorage.shared` too, which is the point.
             request.setValue("cf_clearance=" + clearance.cookieValue, forHTTPHeaderField: "Cookie")
             // Cloudflare binds the clearance to the exact User-Agent that earned it, so the solving
             // web view's UA is replayed verbatim — on this retried login POST only, never on the
@@ -87,7 +90,8 @@ public struct LoginRequest: Request {
         // password, a lockout after repeated failures and a missing field are all 200s that set no
         // auth cookie, so the caller saw one undifferentiated "not logged in". Reading the page is
         // the only way to tell them apart — and throwing here also stops the failure page's
-        // Set-Cookie tombstones from reaching the jar, since credentials are only applied on success.
+        // Set-Cookie tombstones from reaching the jar, since `setCredentials` is now the only thing
+        // that files anything from this exchange and it runs on success alone.
         if let responseError = Parser.parseResponseError(content: content) {
             logger.warning("Login rejected: \(String(describing: responseError), privacy: .public)")
             throw responseError
