@@ -9,14 +9,20 @@ public struct LoginRequest: Request {
     public init(
         username: String,
         password: String,
+        clearance: CloudflareClearance? = nil,
         urlSession: URLSession = .shared
     ) {
         self.username = username
         self.password = password
+        self.clearance = clearance
         self.urlSession = urlSession
     }
     public let username: String
     public let password: String
+    /// Proof a Cloudflare wall was solved, present only on a retry after a challenge.
+    ///
+    /// Nil is the ordinary case and leaves the request byte-identical to the pre-challenge one.
+    public let clearance: CloudflareClearance?
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> HTTPURLResponse? {
@@ -33,6 +39,20 @@ public struct LoginRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
+        if let clearance {
+            // The clearance must be the authoritative outbound cookie, so the shared jar is taken
+            // out of the loop rather than left to inject or overwrite the header. Nothing this POST
+            // needs is lost: login credentials arrive on the *response* as Set-Cookie (consumed
+            // downstream by `setCredentials`), never as cookies sent, and the returned
+            // `HTTPURLResponse` still carries them regardless of this flag. Suppressing the jar also
+            // keeps the clearance out of `HTTPCookieStorage.shared`, which is the point.
+            request.httpShouldHandleCookies = false
+            request.setValue("cf_clearance=" + clearance.cookieValue, forHTTPHeaderField: "Cookie")
+            // Cloudflare binds the clearance to the exact User-Agent that earned it, so the solving
+            // web view's UA is replayed verbatim — on this retried login POST only, never on the
+            // app's general traffic.
+            request.setValue(clearance.userAgent, forHTTPHeaderField: "User-Agent")
+        }
 
         let (_, response) = try await fetch(request, in: urlSession)
         return response as? HTTPURLResponse
