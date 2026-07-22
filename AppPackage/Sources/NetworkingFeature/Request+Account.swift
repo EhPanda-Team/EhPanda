@@ -60,7 +60,7 @@ public struct LoginRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.login)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
         if let clearance {
             // The clearance must be the authoritative outbound cookie, so the shared jar is taken
@@ -247,7 +247,7 @@ public struct EhProfileRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.uConfig(host: host))
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         let (data, _) = try await fetch(request, in: urlSession)
@@ -367,7 +367,7 @@ public struct SubmitEhSettingChangesRequest: Request {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         let (data, _) = try await fetch(request, in: urlSession)
@@ -411,7 +411,7 @@ public struct FavorGalleryRequest: Request {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         _ = try await fetch(request, in: urlSession)
@@ -441,7 +441,7 @@ public struct UnfavorGalleryRequest: Request {
 
         var request = URLRequest(url: Defaults.URL.favorites(host: host))
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         _ = try await fetch(request, in: urlSession)
@@ -469,7 +469,7 @@ public struct SendDownloadCommandRequest: Request {
 
         var request = URLRequest(url: archiveURL)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         let (data, _) = try await fetch(request, in: urlSession)
@@ -541,14 +541,15 @@ public struct CommentGalleryRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) {
-        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
+        // Newlines need no hand-rolled `%0A` here: `dictString()` percent-encodes each value, so a
+        // pre-escaped one would come out as `%250A` and the comment would carry the literal text.
         let params: [String: String] = [
-            "commenttext_new": fixedContent
+            "commenttext_new": content
         ]
 
         var request = URLRequest(url: galleryURL)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         _ = try await fetch(request, in: urlSession)
@@ -573,15 +574,15 @@ public struct EditGalleryCommentRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) {
-        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
+        // See `CommentGalleryRequest`: `dictString()` owns the escaping, so the content goes in raw.
         let params: [String: String] = [
             "edit_comment": commentID,
-            "commenttext_edit": fixedContent
+            "commenttext_edit": content
         ]
 
         var request = URLRequest(url: galleryURL)
         request.httpMethod = "POST"
-        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
 
         _ = try await fetch(request, in: urlSession)

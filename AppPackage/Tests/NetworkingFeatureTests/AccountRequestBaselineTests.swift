@@ -42,6 +42,41 @@ struct AccountRequestBaselineTests {
         )
     }
 
+    /// A password built entirely from the characters that carry structure in a form body.
+    ///
+    /// All of them used to reach the wire raw: the joined `key=value` string was encoded in one pass
+    /// with `.urlQueryAllowed`, which *permits* `&`, `=` and `+`. The POST then truncated the password
+    /// at the first `&` and injected a stray parameter, and the user was told the credentials were
+    /// wrong. The assertion reads the raw body rather than decoded fields on purpose: a decoder splits
+    /// a pair at its first `=` and leaves `+` untouched, so it reports a corrupted body as intact.
+    @Test
+    func loginRequestPercentEncodesStructuralCharactersInCredentials() async throws {
+        let password = "p&w=d+q x%y"
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 204, data: Data())]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = try await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "baseline-user",
+                password: password,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+        let bodyData = try #require(request.httpBody)
+        let body = try #require(String(data: bodyData, encoding: .utf8))
+
+        #expect(body.contains("PassWord=p%26w%3Dd%2Bq%20x%25y"))
+        // The pair separators are the only bare `&`s left, so the field count is the structural check.
+        let fields = formFields(from: request)
+        #expect(fields.count == 6)
+        #expect(fields["PassWord"] == password)
+    }
+
     @Test
     func igneousRequestLocksEmptyPublisherMapping() async {
         let configuration = URLSessionConfiguration.ephemeral
@@ -306,7 +341,10 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        expectFormRequest(request, url: url, fields: ["commenttext_new": "first%0Asecond"])
+        // The newline arrives as a newline. It used to be hand-escaped to `%0A` before a second,
+        // whole-body encoding pass turned it into `%250A`, so the posted comment carried the literal
+        // characters "%0A" instead of a line break.
+        expectFormRequest(request, url: url, fields: ["commenttext_new": "first\nsecond"])
     }
 
     @Test
@@ -332,7 +370,7 @@ struct AccountRequestBaselineTests {
         expectFormRequest(
             request,
             url: url,
-            fields: ["edit_comment": "707", "commenttext_edit": "edited%0Atext"]
+            fields: ["edit_comment": "707", "commenttext_edit": "edited\ntext"]
         )
     }
 
