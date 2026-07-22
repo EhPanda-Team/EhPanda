@@ -179,7 +179,7 @@ public struct LoginReducer: Sendable {
                         state.loginState = .failed(.unknown)
                     }
                     effects.append(.run(operation: { _ in
-                        logger.notice("Login failed.")
+                        logger.warning("Login failed.")
                         await hapticsClient.generateNotificationFeedback(.error)
                     }))
                 }
