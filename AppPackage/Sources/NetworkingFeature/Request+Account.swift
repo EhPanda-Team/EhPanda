@@ -76,6 +76,15 @@ public struct LoginRequest: Request {
             logger.warning("Login rejected by the forum: \(message, privacy: .public)")
             throw AppError.unknown
         }
+        // No error box and no recognised site error, yet a login can still not have happened. The
+        // form's own submit control is the cheapest tell that the page came back as the login form
+        // rather than as a signed-in page — a shape, never any of its content.
+        let loginFormPresent = content.contains("ipb_login_submit")
+        let bodyLength = content.count
+        logger.notice("""
+            Login response shape: bytes=\(bodyLength, privacy: .public) \
+            loginFormPresent=\(loginFormPresent, privacy: .public)
+            """)
         return httpResponse
     }
 }

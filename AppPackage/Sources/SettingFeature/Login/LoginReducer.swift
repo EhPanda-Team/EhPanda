@@ -247,6 +247,12 @@ public struct LoginReducer: Sendable {
                 let ray = response?.value(forHTTPHeaderField: "cf-ray") ?? "<absent>"
                 let server = response?.value(forHTTPHeaderField: "server") ?? "<absent>"
                 let url = response?.url?.absoluteString ?? "<none>"
+                // Whether the forum handed back *any* credential-setting header. This is the fact
+                // that separates "the server declined to sign you in" from "it did, and we lost the
+                // result on the way in" — the two are otherwise identical from here: same status,
+                // same empty jar, same silent failure. Presence only; no header value is ever
+                // logged, per the Phase 8 cookie-logging gate.
+                let credentialHeaderPresent = response?.value(forHTTPHeaderField: "Set-Cookie") != nil
                 logger.notice("""
                     Login POST classified: challenged=\(challenged, privacy: .public) \
                     status=\(response?.statusCode ?? -1, privacy: .public) \
@@ -254,7 +260,8 @@ public struct LoginReducer: Sendable {
                     cf-ray=\(ray, privacy: .public) \
                     server=\(server, privacy: .public) \
                     url=\(url, privacy: .public) \
-                    clearanceHeld=\(state.cloudflareClearance != nil, privacy: .public)
+                    clearanceHeld=\(state.cloudflareClearance != nil, privacy: .public) \
+                    credentialHeader=\(credentialHeaderPresent, privacy: .public)
                     """)
                 if challenged {
                     await send(.challengeDetected)
