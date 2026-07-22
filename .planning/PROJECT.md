@@ -36,6 +36,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Client-layer test coverage (QUAL-02) — deterministic, green tests for the async `NetworkingFeature`, `CookieClient`, and `ImageClient` (per-test `DataCache`, pixel-dimension assertions) — Phase 8
 - ✓ Fix `Category.private.filterValue` (QUAL-03) — the `fatalError` landmine is gone; `.private` reports filter-math misuse and contributes zero, while the ten searchable cases still sum to all 1023 filter bits — Phase 9
 - ✓ Structured error handling + user-facing error surface (QUAL-04) — silent `try?` sites classified so genuine failures propagate through typed `throws(AppError)` while intentional fallbacks stay documented; a privacy-safe diagnostic surface (Description / Suggested Solution / Context / Environment) is reached through a persistent, accessible error toast, runtime-verified by simulator UAT — Phase 9
+- ✓ Lint hardening capstone + refactor-gated rules (LINT-01) — 8 custom/opt-in SwiftLint rules live at **error** (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, `labeled_tuple_elements`, `optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`), all violations root-fixed with only 8 owner-reviewed exceptions; test-isolation cleanup removed all 41 `.serialized` traits (suite runs in parallel across 18 targets). Two UAT-caught regressions (detail-mode pagination, page-count icon size) fixed and confirmed — Phase 11
 
 ### Active
 
@@ -54,8 +55,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - [ ] 21. **Numeric text polish** — apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text (counts, page numbers, sizes, ratings)
 - [ ] 22. **Reduce `ZStack` usage** — prefer `.overlay`/`.background` where a child overlays/underlays primary content (per-site judgment; overlay/background size to the primary child, `ZStack` to the union), at layout/appearance parity
 
-**G · Lint hardening (capstone + refactor-gated)**
-- [ ] 9. Enable the commented-out custom rules + opt-in `multiline_function_chains` & `sorted_imports` + a new **labeled-tuple-elements** rule, all at **error** level. Mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, labeled-tuples) land as a capstone sweep; refactor-gated rules sequence **with** their refactors: `optional_try` → #20, plus `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`
+<!-- item 9 (Lint hardening, LINT-01) shipped in Phase 11 → Validated -->
+
 
 ### Out of Scope
 
@@ -120,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-16 after Phase 9*
+*Last updated: 2026-07-22 after Phase 11*

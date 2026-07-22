@@ -685,7 +685,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Hygiene & Client Seams | 18/18 | Complete    | 2026-07-14 |
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
-| 11. Infra Refactor & Lint Capstone | 32/32 | In Progress|  |
+| 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
 | 12. Cloudflare Login Restoration | 0/TBD | Not started | - |
 | 13. Deep Link Hardening | 0/TBD | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
