@@ -370,6 +370,88 @@
         }
       }
     },
+    "app_error.cloudflare_challenge_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare Verification Failed"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare-Verifizierung fehlgeschlagen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare の認証に失敗しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 인증 실패"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 验证失败"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare 驗證失敗"
+          }
+        }
+      }
+    },
+    "app_error.cloudflare_challenge_failed_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloudflare's verification couldn't be completed after repeated attempts."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Verifizierung von Cloudflare konnte auch nach mehreren Versuchen nicht abgeschlossen werden."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "何度か試しましたが、Cloudflare の認証を完了できませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여러 번 시도했지만 Cloudflare 인증을 완료하지 못했습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多次尝试后仍无法完成 Cloudflare 验证。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多次嘗試後仍無法完成 Cloudflare 驗證。"
+          }
+        }
+      }
+    },
     "app_error.copyright_claim": {
       "extractionState": "manual",
       "localizations": {
@@ -18912,6 +18994,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "請重新登入後再試。"
+          }
+        }
+      }
+    },
+    "app_error.cloudflare_challenge_solution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with the web login (the globe button on the login screen), or enter your cookies manually in Account Configuration."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich über die Web-Anmeldung an (die Globus-Schaltfläche im Anmeldebildschirm) oder gib deine Cookies manuell unter „Kontoeinstellungen“ ein."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウェブログイン（ログイン画面の地球儀ボタン）でサインインするか、「アカウント設定」でクッキーを手動で入力してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹 로그인(로그인 화면의 지구본 버튼)으로 로그인하거나, ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请使用网页登录（登录界面的地球按钮），或在“账户设置”中手动输入 Cookies。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請使用網頁登入（登入畫面的地球按鈕），或在「帳號設定」中手動輸入 Cookies。"
           }
         }
       }
