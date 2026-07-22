@@ -16,6 +16,7 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     case parseFailed
     case quotaExceeded
     case authenticationRequired
+    case cloudflareChallengeFailed
     case fileOperationFailed(String)
     case noUpdates
     case notFound
@@ -29,7 +30,7 @@ extension AppError {
              .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
-             .ipBanned:
+             .ipBanned, .cloudflareChallengeFailed:
             return false
         }
     }
@@ -51,6 +52,8 @@ extension AppError {
             return String(localized: .appErrorQuotaExceeded)
         case .authenticationRequired:
             return String(localized: .appErrorAuthenticationRequired)
+        case .cloudflareChallengeFailed:
+            return String(localized: .appErrorCloudflareChallengeFailed)
         case .fileOperationFailed:
             return String(localized: .appErrorFileOperationFailed)
         case .noUpdates:
@@ -83,6 +86,8 @@ extension AppError {
             return String(localized: .appErrorQuotaExceededDescription)
         case .authenticationRequired:
             return String(localized: .appErrorAuthenticationRequiredDescription)
+        case .cloudflareChallengeFailed:
+            return String(localized: .appErrorCloudflareChallengeFailedDescription)
         case .fileOperationFailed(let reason):
             return [String(localized: .appErrorLocalFileOperationFailed), reason]
                 .filter({ !$0.isEmpty })
@@ -104,6 +109,8 @@ extension AppError {
             String(localized: .appErrorNetworkSolution)
         case .authenticationRequired:
             String(localized: .appErrorAuthenticationSolution)
+        case .cloudflareChallengeFailed:
+            String(localized: .appErrorCloudflareChallengeSolution)
         case .ipBanned:
             String(localized: .appErrorIpBannedSolution)
         case .quotaExceeded:

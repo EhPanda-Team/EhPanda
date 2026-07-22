@@ -16,6 +16,8 @@ extension AppError {
             return .gaugeWithDotsNeedle67percent
         case .authenticationRequired:
             return .lockCircleFill
+        case .cloudflareChallengeFailed:
+            return .exclamationmarkShieldFill
         case .fileOperationFailed:
             return .folderFill
         case .notFound, .unknown, .noUpdates, .webImageFailed:
