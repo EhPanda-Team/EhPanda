@@ -33,21 +33,15 @@ extension Parser {
     ///
     /// The result is untrusted remote text on its way to a log, so it is stripped of markup and
     /// length-bounded here rather than at each call site.
+    ///
+    /// Only the box counts: the labels are read where the forum software writes them and nowhere
+    /// else, so a page that merely quotes one in its ordinary content is not mistaken for a refusal.
     public static func parseLoginErrorMessage(content: String) -> String? {
-        // Two labels, because the forum uses a different one depending on how the login was
-        // refused: a board-level message for a malformed submission, and a form-level list when the
-        // form itself came back with errors. Reading only the first is how a CAPTCHA requirement
-        // went unreported through several rounds of diagnosis.
-        let markers = ["the error returned was", "the following errors were found"]
-        let stripped = content
+        guard let labelEnd = loginErrorLabelEnd(content: content) else { return nil }
+        let stripped = content[labelEnd...]
             .replacingOccurrences(of: "<[^>]+>", with: "\n", options: .regularExpression)
             .replacingOccurrences(of: "&nbsp;", with: " ")
-        let markerRange = markers
-            .lazy
-            .compactMap({ stripped.range(of: $0, options: .caseInsensitive) })
-            .min(by: { $0.lowerBound < $1.lowerBound })
-        guard let markerRange else { return nil }
-        let message = stripped[markerRange.upperBound...]
+        let message = stripped
             .split(separator: "\n")
             .lazy
             .map({ $0.trimmingCharacters(in: CharacterSet(charactersIn: ": \t\r\n")) })
@@ -115,6 +109,49 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
+    /// Two labels, because the forum uses a different one depending on how the login was refused: a
+    /// board-level message for a malformed submission, and a form-level list when the form itself
+    /// came back with errors. Reading only the first is how a CAPTCHA requirement went unreported
+    /// through several rounds of diagnosis.
+    static let loginErrorMarkers = ["the error returned was", "the following errors were found"]
+
+    /// Matches the opening tag of the forum's error-box label, whatever else its class carries.
+    static let loginErrorLabelPattern =
+        #"<[a-zA-Z][^>]*class\s*=\s*["'][^"']*(?:pformstrip|formsubtitle)[^"']*["'][^>]*>"#
+
+    /// The position just past the forum's own error label, if the page carries one at all.
+    ///
+    /// A marker phrase is only evidence of a refusal where the forum software puts it: as the text
+    /// of the error box's label. Searching the whole page for it instead means any content that
+    /// merely quotes one — a thread title, a quoted post, a search term echoed back — reads as a
+    /// rejection. That misfire costs more than a missed message: the caller throws before
+    /// `setCredentials` runs, so a login that in fact succeeded is reported as failed *and* has the
+    /// session cookies it just earned dropped on the floor. Requiring the label degrades instead to
+    /// an unlabelled generic failure on markup this parser does not recognise, which the caller
+    /// already handles, and which leaves a real session intact.
+    static func loginErrorLabelEnd(content: String) -> String.Index? {
+        var searchStart = content.startIndex
+        while let labelTag = content.range(
+            of: loginErrorLabelPattern,
+            options: [.regularExpression, .caseInsensitive],
+            range: searchStart..<content.endIndex
+        ) {
+            searchStart = labelTag.upperBound
+            // These labels hold plain text, so the label's own text is everything up to the next
+            // element. Stopping there is what keeps a marker sitting further down the page — past
+            // this label's close — from being adopted as though this box had carried it.
+            let labelText = content[labelTag.upperBound...].prefix(while: { $0 != "<" })
+            let marker = loginErrorMarkers
+                .lazy
+                .compactMap({ labelText.range(of: $0, options: .caseInsensitive) })
+                .min(by: { $0.lowerBound < $1.lowerBound })
+            if let marker {
+                return marker.upperBound
+            }
+        }
+        return nil
+    }
+
     static func responseErrorCandidates(doc: HTMLDocument) -> [String] {
         var candidates = [String]()
 
