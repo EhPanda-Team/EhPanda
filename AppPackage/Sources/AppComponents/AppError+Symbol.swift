@@ -18,6 +18,8 @@ extension AppError {
             return .lockCircleFill
         case .cloudflareChallengeFailed:
             return .exclamationmarkShieldFill
+        case .loginCaptchaRequired:
+            return .checkmarkShieldFill
         case .fileOperationFailed:
             return .folderFill
         case .notFound, .unknown, .noUpdates, .webImageFailed:

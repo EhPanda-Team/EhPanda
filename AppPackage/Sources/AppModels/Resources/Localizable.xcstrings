@@ -657,6 +657,88 @@
         }
       }
     },
+    "app_error.login_captcha_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Login Requires a CAPTCHA"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldung erfordert ein CAPTCHA"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログインに CAPTCHA が必要です"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인에 CAPTCHA가 필요합니다"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录需要验证码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入需要驗證碼"
+          }
+        }
+      }
+    },
+    "app_error.login_captcha_required_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The forum is asking for a CAPTCHA on its login form, which signing in with a username and password can't complete."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Forum verlangt in seinem Anmeldeformular ein CAPTCHA, das die Anmeldung mit Benutzername und Passwort nicht lösen kann."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォーラムのログインフォームで CAPTCHA が要求されています。ユーザー名とパスワードによるログインでは完了できません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "포럼이 로그인 양식에서 CAPTCHA를 요구하고 있어, 사용자 이름과 비밀번호 로그인으로는 완료할 수 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "论坛的登录表单要求完成验证码，使用用户名和密码登录无法完成该验证。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "論壇的登入表單要求完成驗證碼，使用使用者名稱和密碼登入無法完成該驗證。"
+          }
+        }
+      }
+    },
     "app_error.network_error": {
       "extractionState": "manual",
       "localizations": {
@@ -19076,6 +19158,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "請等待存取限制解除後再試。"
+          }
+        }
+      }
+    },
+    "app_error.login_captcha_solution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with the web login (the globe button on the login screen), where the CAPTCHA can be completed. You can also enter your cookies manually in Account Configuration."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich über die Web-Anmeldung an (die Globus-Schaltfläche im Anmeldebildschirm), wo sich das CAPTCHA lösen lässt. Alternativ kannst du deine Cookies manuell unter „Kontoeinstellungen“ eingeben."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウェブログイン（ログイン画面の地球儀ボタン）でサインインすると CAPTCHA を完了できます。または「アカウント設定」でクッキーを手動で入力してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹 로그인(로그인 화면의 지구본 버튼)으로 로그인하면 CAPTCHA를 완료할 수 있습니다. 또는 ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请使用网页登录（登录界面的地球按钮）完成验证码，或在“账户设置”中手动输入 Cookies。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請使用網頁登入（登入畫面的地球按鈕）完成驗證碼，或在「帳號設定」中手動輸入 Cookies。"
           }
         }
       }

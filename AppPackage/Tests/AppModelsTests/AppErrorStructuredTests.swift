@@ -117,6 +117,29 @@ struct AppErrorStructuredTests {
         #expect(localizedError.recoverySuggestion == error.solution)
     }
 
+    // A CAPTCHA-gated login form is not a credential problem and cannot be retried away, so it
+    // has to arrive as its own case rather than folded into the generic failure — otherwise the
+    // user is sent back to re-check a password that was never wrong.
+    @Test
+    func loginCaptchaRequirementIsNotRetryableAndFullyDescribed() throws {
+        let error = AppError.loginCaptchaRequired
+        let localizedError: any LocalizedError = error
+
+        #expect(error.isRetryable == false)
+        #expect(!error.localizedDescription.isEmpty)
+        #expect(!error.alertText.isEmpty)
+        #expect(error.solution != nil)
+        #expect(localizedError.recoverySuggestion == error.solution)
+    }
+
+    @Test
+    func loginCaptchaRequirementIsDistinctFromAnUnsolvedWall() throws {
+        // Both involve Cloudflare, and conflating them would point the user at the wrong recovery:
+        // one is cleared by the in-app challenge surface, the other never can be.
+        #expect(AppError.loginCaptchaRequired != AppError.cloudflareChallengeFailed)
+        #expect(AppError.loginCaptchaRequired.solution != AppError.cloudflareChallengeFailed.solution)
+    }
+
     @Test
     func everyErrorCaseCarriesADistinctIdentifier() throws {
         let allCases: [AppError] = [
@@ -129,6 +152,7 @@ struct AppErrorStructuredTests {
             .quotaExceeded,
             .authenticationRequired,
             .cloudflareChallengeFailed,
+            .loginCaptchaRequired,
             .fileOperationFailed("Disk full."),
             .noUpdates,
             .notFound,
