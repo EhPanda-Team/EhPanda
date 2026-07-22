@@ -93,7 +93,14 @@ public struct LoginRequest: Request {
             throw responseError
         }
         if let message = Parser.parseLoginErrorMessage(content: content) {
-            logger.warning("Login rejected by the forum: \(message, privacy: .public)")
+            // A CAPTCHA-gated form is worth calling out separately: it is the one rejection that no
+            // password and no number of retries can clear, because the submission is missing a field
+            // this request cannot produce.
+            let captchaGated = Parser.loginFormRequiresCaptcha(content: content)
+            logger.warning("""
+                Login rejected by the forum: \(message, privacy: .public) \
+                captchaGated=\(captchaGated, privacy: .public)
+                """)
             throw AppError.unknown
         }
         // No error box and no recognised site error, yet a login can still not have happened. The
