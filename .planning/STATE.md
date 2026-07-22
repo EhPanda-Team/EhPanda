@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
 current_phase: 12
-current_phase_name: Cloudflare Login Restoration
+current_phase_name: cloudflare-login-restoration
 status: executing
-stopped_at: Phase 12 context gathered
-last_updated: "2026-07-22T06:41:04.279Z"
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-07-22T07:19:23.906Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 11 complete, transitioned to Phase 12
+last_activity_desc: Phase 12 execution started
 progress:
   total_phases: 15
   completed_phases: 10
-  total_plans: 137
-  completed_plans: 137
+  total_plans: 143
+  completed_plans: 138
   percent: 67
 ---
 
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 12 — Cloudflare Login Restoration
+**Current focus:** Phase 12 — cloudflare-login-restoration
 
 ## Current Position
 
-Phase: 12 — Cloudflare Login Restoration
-Plan: Not started
+Phase: 12 (cloudflare-login-restoration) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-07-22 — Phase 11 complete, transitioned to Phase 12
+Last activity: 2026-07-22 — Phase 12 execution started
 Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
 
-Progress: [█████████████░░░░░░░] 67% (10/15 phases)
+Progress: [██████████] 97% (10/15 phases)
 
 ## Performance Metrics
 
@@ -198,6 +198,7 @@ Progress: [█████████████░░░░░░░] 67% (10
 | Phase 11 P28 | ~25 min | 2 tasks | 20 files |
 | Phase 11 P29 | ~50m | 2 tasks | 3 files |
 | Phase 11 P31 | ~50 min | 2 tasks | 3 files |
+| Phase 12 P01 | 25min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -422,6 +423,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 11-31: Page-count icon parity is restored with .imageScale(.medium), not the plan's .small — .small undershoots the pre-sweep glyph by 3.25pt (~20%)
 - [Phase ?]: 11-31: The Label icon inflation is list-specific; free-standing, a Label's icon already matches a bare Image exactly (20x16). Re-deriving this outside a List gives the wrong answer.
 - [Phase ?]: 11-31: No automated parity test ships — rendering a List for measurement needs a UIWindow, and every scene-free UIWindow initializer is deprecated on iOS 26 with no window scene available in the test host
+- [Phase ?]: 12-01: AppError.cloudflareChallengeFailed carries no associated value — per-incident diagnostics stay in ErrorInfo.context, which structurally keeps the clearance value out of every user-visible string
+- [Phase ?]: 12-01: The new error's recovery suggestion names the real screen (Account Configuration), not the plan's placeholder wording, so the suggestion points somewhere reachable
+- [Phase ?]: 12-01: An unsolved Cloudflare wall is account-level fatal in the page-download batch guard — it blocks every request and the case is non-retryable; unreachable today but the safe arm when D-05 detection widens
+- [Phase ?]: 12-01: The clearance pair is a named Sendable struct, not a tuple (labeled_tuple_elements at error), and lives in an InMemoryKey whose strategy IS the C5 no-persistence guarantee
 
 ### Pending Todos
 
@@ -465,6 +470,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T05:45:48.227Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-cloudflare-login-restoration/12-CONTEXT.md
+Last session: 2026-07-22T07:19:15.351Z
+Stopped at: Completed 12-01-PLAN.md
+Resume file: None
