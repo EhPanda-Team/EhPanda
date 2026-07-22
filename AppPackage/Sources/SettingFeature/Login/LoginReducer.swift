@@ -84,6 +84,26 @@ public struct LoginReducer: Sendable {
     public init() {}
 
     public var body: some Reducer<State, Action> {
+        // Ordered *before* `BindingReducer` on purpose — this is the swipe-to-dismiss hook (D-02).
+        //
+        // A state-only destination (every case is `@ReducerCaseIgnored`) gets no
+        // `PresentationAction.dismiss`: SwiftUI reports the swipe as an ordinary binding write of
+        // `nil`. It also *echoes* dismissals the reducer performed itself the very same way, and by
+        // the time the write has been applied the two are indistinguishable — after a capture both
+        // leave `destination` nil with the login still `.loading`, so cancelling on that shape would
+        // kill the retry the capture just started.
+        //
+        // Reading the value before it is written separates them: a swipe still has the challenge on
+        // screen here, while an echo of the reducer's own dismissal has already been nil'd.
+        Reduce { state, action in
+            guard case .binding(\.destination) = action,
+                  state.destination?.is(\.challenge) == true,
+                  state.loginState == .loading
+            else { return .none }
+            state.loginState = .idle
+            return .cancel(id: CancelID.login)
+        }
+
         BindingReducer()
 
         Reduce { state, action in
@@ -91,15 +111,10 @@ public struct LoginReducer: Sendable {
             case .binding:
                 return .none
 
-            // A swipe-down on the challenge sheet means the same thing as its cancel button. The
-            // destination is still populated here: `.ifLet` clears it after this reducer runs.
-            case .destination(.dismiss):
-                guard state.destination?.is(\.challenge) == true, state.loginState == .loading else {
-                    return .none
-                }
-                state.loginState = .idle
-                return .cancel(id: CancelID.login)
-
+            // No `.dismiss` arm here: every `Destination` case is `@ReducerCaseIgnored`, so the
+            // destination is state-only and SwiftUI never routes a `PresentationAction.dismiss`
+            // through it. Swipe-to-dismiss is handled by the pre-`BindingReducer` hook above; an
+            // arm here would read as the mechanism while never actually running.
             case .destination:
                 return .none
 

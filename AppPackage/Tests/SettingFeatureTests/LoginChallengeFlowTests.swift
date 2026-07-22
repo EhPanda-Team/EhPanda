@@ -106,6 +106,35 @@ struct LoginChallengeFlowTests {
         #expect(harness.dismissCount.value == 1)
     }
 
+    /// Driven against the reducer directly rather than through a `TestStore`, deliberately.
+    ///
+    /// SwiftUI echoes a dismissal the reducer performed itself back through the same binding a swipe
+    /// uses, and after a capture that echo lands while the retry is still in flight — `destination`
+    /// already nil, `loginState` still `.loading`. `TestStore` cannot express it: it models a nil
+    /// write to already-nil `@Presents` state as illegal and rejects the send with "Can't send action
+    /// to dismissed test store", while production sends exactly that. That mismatch is a large part of
+    /// why the swipe defect survived an otherwise exhaustive suite, so this case steps around the
+    /// harness instead of around the behaviour.
+    @MainActor
+    @Test
+    func swiftUIsEchoOfTheReducersOwnDismissalDoesNotAbortTheAttempt() {
+        withDependencies {
+            $0.defaultInMemoryStorage = InMemoryStorage()
+        } operation: {
+            var state = LoginReducer.State()
+            state.username = Self.username
+            state.password = Self.password
+            state.loginState = .loading
+
+            // Destination already nil — the shape a programmatic dismissal's echo arrives in. A real
+            // swipe still has `.challenge` here, and that difference is the entire discriminator.
+            _ = LoginReducer().reduce(into: &state, action: .binding(.set(\.destination, nil)))
+
+            // Left alone: aborting here would cancel the retry a capture had just started.
+            #expect(state.loginState == .loading)
+        }
+    }
+
     // MARK: - D-09 / D-10 / D-11 / C5: two rounds, then the dedicated failure
 
     @MainActor
@@ -213,8 +242,12 @@ struct LoginChallengeFlowTests {
             state.challengeRounds = 1
             state.destination = .challenge(Defaults.URL.login)
         }
-        // `.ifLet` clears the destination after the parent's guarded handler has read it.
-        await harness.store.send(.destination(.dismiss)) { state in
+        // The action SwiftUI actually sends for a swipe on a state-only destination. It is NOT
+        // `.destination(.dismiss)`: every `Destination` case is `@ReducerCaseIgnored`, so no
+        // `PresentationAction` is ever routed and the swipe arrives as a plain binding write.
+        // This case used to drive `.dismiss` and passed while production did nothing at all —
+        // the sheet went away and the login button span forever.
+        await harness.store.send(.binding(.set(\.destination, nil))) { state in
             state.loginState = .idle
             state.destination = nil
         }
