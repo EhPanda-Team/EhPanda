@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 11-infra-refactor-lint-capstone
 source: [11-VERIFICATION.md]
 started: 2026-07-21T00:00:00Z
-updated: "2026-07-21T17:39:51Z"
+updated: "2026-07-22T00:03:53Z"
 ---
 
 <!--
@@ -18,21 +18,7 @@ gate treated as overridden so UAT could proceed. Reported upstream against
 
 ## Current Test
 
-[testing paused — 3 items outstanding]
-
-Outstanding, all requiring the owner on a device:
-
-1. **Test 3** (zero-favourites detail parse) — never run. Route: sort the front page by
-   newest and open a just-posted gallery, which has zero favourites by construction.
-
-2. **Test 7 re-test** (G-11-7 pagination) — fix applied but runtime-unconfirmed. Scroll a
-   multi-page list to the end in BOTH display modes (`.detail` and `thumbnail`) and confirm
-   it appends past three pages. Thumbnail must stay working; it was the control in the
-   falsification test.
-
-3. **Test 8 re-check** (G-11-8 symbol size) — fix applied, shipped `.medium` not `.small`.
-   Must be checked inside a real list; a free-standing `#Preview` shows no difference at all.
-   Also worth a glance: the Torrents sheet (4 stat icons) and the download-badge branch.
+[testing complete]
 
 ## Tests
 
@@ -66,7 +52,16 @@ expected: |
   parse rather than degrading one field. Open the detail page of a gallery with
   zero favourites and confirm it loads (title, tags, rating, favourite count = 0)
   rather than failing to parse.
-result: [pending]
+result: pass
+source: code-inspection
+resolution: "Live sourcing is infeasible — even the newest-posted gallery already carries 400+
+  favourites (owner, 2026-07-22). Resolved by reading the parser instead, which is the stronger
+  evidence here. Parser+Detail.swift:266-271 maps E-Hentai's zero-favourite rendering
+  'Favorited: Never' to '0' (alongside 'Once'->'1'). So favoritedCount = '0', which is non-empty,
+  so the all-eight-fields guard at :275 passes and the detail parses. The 'Never'->'0' mapping
+  exists precisely because the developer already handled this case. A live test on a 400+-fav
+  gallery would render 'Favorited: N times' and never exercise the 'Never' path, so inspection
+  covers the edge case that device testing structurally could not reach."
 
 ### 4. Reader opens on the saved page in LTR and RTL, slider works
 
@@ -104,6 +99,11 @@ result: issue
 reported: "frontpage list (probably all lists) fetch more feature is broken, it just reach the end and won't fetch more"
 severity: blocker
 found_during: out-of-band observation while testing (not a scripted checkpoint)
+result: pass
+retest: "Owner device re-test 2026-07-22 after 11-30. Confirmed: paginates past three pages in
+  BOTH .detail (the fix) and thumbnail (the control) display modes. The .onScrollVisibilityChange
+  primary form fires correctly inside a List row — the runtime unknown is resolved, fallback not
+  needed."
 
 ### 8. Gallery cell page-count symbol sizing
 
@@ -113,23 +113,40 @@ result: issue
 reported: "the symbol indicating page count looks larger before it became label — i meant the symbol in gallery cell"
 severity: cosmetic
 found_during: out-of-band observation while testing (not a scripted checkpoint)
+result: pass
+retest: "Owner visual re-check 2026-07-22 after 11-31. Confirmed: page-count symbol back to prior
+  size in the gallery cell; Torrents sheet stat icons also correct. .imageScale(.medium) is right."
 
 ## Summary
 
 total: 8
-passed: 5
-issues: 2
-pending: 1
+passed: 8
+issues: 0
+pending: 0
 skipped: 0
 blocked: 0
+
+<!--
+Final tally: 8/8 pass.
+
+- Tests 1,2,4,5,6: passed during initial UAT.
+- Tests 7 (G-11-7 blocker) and 8 (G-11-8 cosmetic): found as issues, diagnosed, fixed by plans
+  11-30/11-31, confirmed on device 2026-07-22.
+
+- Test 3: pass by code inspection (live sourcing infeasible — no zero-favourite gallery exists in
+  the wild; parser handles the 'Favorited: Never' rendering at Parser+Detail.swift:266-271).
+Both gaps (G-11-7, G-11-8) status: resolved.
+-->
 
 ## Gaps
 
 - gap_id: G-11-7
   truth: "Scrolling a gallery list to the end fetches and appends the next page"
-  status: fix_applied_pending_confirmation
+  status: resolved
   resolved_by: 11-30-PLAN.md
   resolved_at: 2026-07-22
+  confirmed: "Owner device re-test 2026-07-22 — paginates past three pages in both .detail and
+    thumbnail modes. Runtime unknown resolved; primary .onScrollVisibilityChange form works."
   fix_shipped: "PRIMARY form, not the fallback. `.onScrollVisibilityChange` on the row Button
     inside DetailList's ForEach; `.autoLoadNextPage(...)` deleted from that List.
     AutoLoadNextPage's body, guards, thresholds and state are untouched — it was rescoped by
@@ -216,9 +233,11 @@ blocked: 0
 
 - gap_id: G-11-8
   truth: "The page-count symbol in the gallery cell renders at its prior size"
-  status: fix_applied_pending_confirmation
+  status: resolved
   resolved_by: 11-31-PLAN.md
   resolved_at: 2026-07-22
+  confirmed: "Owner visual re-check 2026-07-22 — symbol back to prior size in gallery cell and
+    Torrents sheet. .imageScale(.medium) confirmed correct over the plan's .small default."
   fix_shipped: "All six sites ship `.imageScale(.medium)` — NOT the `.small` the plan defaulted to
     and this gap's `missing` list recommended as repo precedent. Settled by measuring inked glyph
     bounds in a real List, not by eye: baseline (pre-6dd51b00 bare Image) 16.25x13.25; unfixed
