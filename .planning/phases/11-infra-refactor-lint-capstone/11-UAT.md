@@ -3,7 +3,7 @@ status: complete
 phase: 11-infra-refactor-lint-capstone
 source: [11-VERIFICATION.md]
 started: 2026-07-21T00:00:00Z
-updated: "2026-07-22T00:03:53Z"
+updated: "2026-07-22T03:39:43Z"
 ---
 
 <!--
@@ -117,17 +117,34 @@ found_during: out-of-band observation while testing (not a scripted checkpoint)
 retest: "Owner visual re-check 2026-07-22 after 11-31. Confirmed: page-count symbol back to prior
   size in the gallery cell; Torrents sheet stat icons also correct. .imageScale(.medium) is right."
 
+### 9. Detail-list row separator inset
+
+expected: |
+  The `List` row separator in the gallery list (detail mode) spans from the text-column leading
+  edge (past the thumbnail) across to the trailing edge.
+result: pass
+initially: issue
+reported: "the list row separator became extremely short ... expected separator expands to the
+  trailing edge of the gallery image from the trailing edge of the cell, but currently it only
+  extends like ten px from the trailing edge of the cell"
+severity: cosmetic
+found_during: out-of-band observation after phase completion (post-verification regression)
+retest: "Owner verified 2026-07-22 in the live iPhone Air Simulator (sim-use screenshot): separators
+  span the full width, no sliver. Gallery list AND torrents list both pass — TorrentsView was NOT
+  modified and renders correctly on its own (its rows carry a leading Label that anchors the
+  separator correctly), so the earlier regression-#4 hypothesis for TorrentsView was falsified."
+
 ## Summary
 
-total: 8
-passed: 8
+total: 9
+passed: 9
 issues: 0
 pending: 0
 skipped: 0
 blocked: 0
 
 <!--
-Final tally: 8/8 pass.
+Final tally: 9/9 pass.
 
 - Tests 1,2,4,5,6: passed during initial UAT.
 - Tests 7 (G-11-7 blocker) and 8 (G-11-8 cosmetic): found as issues, diagnosed, fixed by plans
@@ -135,7 +152,11 @@ Final tally: 8/8 pass.
 
 - Test 3: pass by code inspection (live sourcing infeasible — no zero-favourite gallery exists in
   the wild; parser handles the 'Favorited: Never' rendering at Parser+Detail.swift:266-271).
-Both gaps (G-11-7, G-11-8) status: resolved.
+
+- Test 9 (G-11-9 cosmetic): found AFTER phase completion — a post-verification regression from the
+  same 6dd51b00 "Overall UI adjustments" HStack->Label sweep that caused G-11-8. Fixed directly
+  (commit 141e3d56, not a gap-closure plan) and verified in-Simulator. Phase left complete.
+Gaps G-11-7, G-11-8, G-11-9 status: resolved.
 -->
 
 ## Gaps
@@ -309,3 +330,42 @@ Both gaps (G-11-7, G-11-8) status: resolved.
     the open question of whether .imageScale on a Label propagates into the icon under the
     default titleAndIcon style on iOS 26."
   debug_session: ".planning/debug/g-11-8-page-count-symbol-size.md"
+
+- gap_id: G-11-9
+  truth: "The detail-list row separator spans from the text-column leading edge (past the thumbnail) to the trailing edge"
+  status: resolved
+  resolved_by: "direct fix, commit 141e3d56 (not a gap-closure plan — post-completion cosmetic one-liner)"
+  resolved_at: 2026-07-22
+  severity: cosmetic
+  test: 9
+  found_post_completion: true
+  reason: "User reported the detail-mode gallery-list separator collapsed to a ~10pt right-side sliver instead of spanning past the thumbnail."
+  root_cause: "The 6dd51b00 'Overall UI adjustments' HStack->Label sweep (same commit as G-11-8)
+    opted the page-count element into a default-styled `Label`. A default-styled `Label` in a
+    `List` row publishes a `.listRowSeparatorLeading` anchor at its title's leading edge; because
+    this Label sits at the row's TRAILING edge, that anchor collapsed the separator to a sliver.
+    Confirmed by pixel measurement in a List render harness: bug = leading 349.7 / length 11.3;
+    correct = 119.3 / 241.7. The anchor is NOT intrinsic to the `Label` type — it is published
+    only by the Label's default/automatic style-resolution path; routing the Label through ANY
+    explicit `.labelStyle(...)` drops the anchor."
+  artifacts:
+
+    - path: "AppPackage/Sources/GalleryListComponents/Cells/GalleryDetailCell.swift:137-147"
+      issue: "Page-count Label (default style) at the row's trailing edge hijacked the separator inset."
+  fix_applied: "Added `.labelStyle(.titleAndIcon)` to the page-count Label, with a comment marking
+    it load-bearing (NOT a redundant restatement of the default style — a future 'remove redundant
+    modifiers' pass would silently regress the separator). Restores the separator to 119.3 / 241.7,
+    pixel-identical to correct; icon appearance unchanged (keeps .imageScale(.medium)). Considered
+    alternatives: `.alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }` (documented, states
+    intent directly), a custom LabelStyle (works, more code), and a whole-row-as-Label restructure
+    (empirically rejected — mispositions the inset AND overlaps the thumbnail)."
+  verification: "Built + launched in the live iPhone Air (iOS 26.5) Simulator via sim-use; owner
+    confirmed the gallery list separators span full width. Owner also confirmed the Torrents list
+    renders correctly WITHOUT any change — TorrentsView (also a List with trailing stat Labels) was
+    NOT modified; the regression-#4 hypothesis for it was falsified."
+  reusable_lesson: "The `label_text_image_shorthand` lint rule pushes `HStack { Image; Text }` ->
+    `Label`. In a `List` row, a default-styled `Label` at the TRAILING edge hijacks the row
+    separator's leading inset (collapses it) — and, per G-11-8, its icon also inflates vs a bare
+    Image. Any future HStack->Label sweep on List-row content must account for both side effects.
+    Fixes: an explicit `.labelStyle(...)` (drops the separator anchor) and/or an explicit
+    `.imageScale(...)` on the icon (restores glyph size)."
