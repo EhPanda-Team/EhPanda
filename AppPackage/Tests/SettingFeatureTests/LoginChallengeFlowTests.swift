@@ -300,6 +300,34 @@ struct LoginChallengeFlowTests {
         #expect(harness.store.state.toast == nil)
     }
 
+    // MARK: - Regression: the response's credentials are applied before success is judged
+
+    @MainActor
+    @Test
+    func credentialsFromTheResponseApplyBeforeSuccessIsJudged() async throws {
+        let response = try Self.credentialBearingResponse()
+        // An *empty* jar, unlike every other success case in this suite. A clearance-carrying retry
+        // sets `httpShouldHandleCookies = false`, so URLSession files nothing itself and the
+        // reducer's own `setCredentials` is the only thing that can make `didLogin` true. Handing
+        // the reducer a pre-populated jar — which the other cases do, for their own good reasons —
+        // is exactly what let this ordering bug through an otherwise exhaustive suite.
+        let harness = Self.makeHarness(responses: [response], cookieClient: .testing())
+
+        await harness.store.send(.login) { state in
+            state.loginState = .loading
+        }
+        await harness.store.receive(.loginDone(.success(response))) { state in
+            state.loginState = .idle
+        }
+        await harness.store.finish()
+
+        // Reading `didLogin` before applying the response reported this *successful* login as a
+        // failure: `.failed(.unknown)`, an error toast, and a login screen that never popped.
+        #expect(harness.store.state.loginState == .idle)
+        #expect(harness.store.state.toast == nil)
+        #expect(harness.dismissCount.value == 1)
+    }
+
     // MARK: - Fixtures
 
     private static let memberID = "member-fixture"
@@ -324,6 +352,22 @@ struct LoginChallengeFlowTests {
                 statusCode: 403,
                 httpVersion: nil,
                 headerFields: ["cf-mitigated": "challenge"]
+            )
+        )
+    }
+
+    /// A 200 whose `Set-Cookie` carries the credentials a real successful login returns, so
+    /// `setCredentials` has something to file into the jar `didLogin` then reads.
+    private static func credentialBearingResponse() throws -> HTTPURLResponse {
+        try #require(
+            HTTPURLResponse(
+                url: Defaults.URL.login,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: [
+                    "Set-Cookie": "\(Defaults.Cookie.ipbMemberId)=\(memberID); "
+                        + "\(Defaults.Cookie.ipbPassHash)=\(passHash); path=/"
+                ]
             )
         )
     }

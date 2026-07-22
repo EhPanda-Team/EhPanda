@@ -155,6 +155,15 @@ public struct LoginReducer: Sendable {
 
             case .loginDone(let result):
                 state.destination = nil
+                // The response's credentials must reach the shared jar *before* `didLogin` is read.
+                // A clearance-carrying retry sets `httpShouldHandleCookies = false`, so URLSession
+                // no longer files the response's Set-Cookie itself; while this ran as a trailing
+                // effect, `didLogin` still saw pre-login state and reported a *successful*
+                // post-challenge login as a failure — silently, because the jar filled in a moment
+                // later and nothing revisited the verdict.
+                if case .success(let response) = result, let response {
+                    cookieClient.setCredentials(response: response)
+                }
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
@@ -165,26 +174,26 @@ public struct LoginReducer: Sendable {
                     // Pop this login screen off the Setting stack now that we're signed in.
                     effects.append(.run { _ in await dismiss() })
                 } else {
-                    if case .failure(.cloudflareChallengeFailed) = result {
-                        state.loginState = .failed(.cloudflareChallengeFailed)
-                        // The clearance value itself is never carried here — only the whitelisted
-                        // rows that tell the user which request failed and how.
-                        state.toast = .error(
-                            .init(
-                                error: .cloudflareChallengeFailed,
-                                context: [.action: "Login", .statusCode: 403]
-                            )
-                        )
+                    // Every failure carries a surface. A plain rejected login used to change nothing
+                    // on screen at all, so the attempt just ended and the log was the only evidence
+                    // it had run — the failure mode that hid the ordering bug above.
+                    let failure: AppError
+                    if case .failure(let error) = result {
+                        failure = error
                     } else {
-                        state.loginState = .failed(.unknown)
+                        failure = .unknown
                     }
+                    state.loginState = .failed(failure)
+                    // The clearance value itself is never carried here — only the whitelisted
+                    // rows that tell the user which request failed and how.
+                    let context: Context = failure == .cloudflareChallengeFailed
+                        ? [.action: "Login", .statusCode: 403]
+                        : [.action: "Login"]
+                    state.toast = .error(.init(error: failure, context: context))
                     effects.append(.run(operation: { _ in
                         logger.warning("Login failed.")
                         await hapticsClient.generateNotificationFeedback(.error)
                     }))
-                }
-                if case .success(let response) = result, let response = response {
-                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
                 return .merge(effects)
             }
@@ -213,12 +222,34 @@ public struct LoginReducer: Sendable {
         .run { [state] send in
             do throws(AppError) {
                 let response = try await loginClient.login(state.username, state.password, state.cloudflareClearance)
-                if isCloudflareChallenge(response) {
+                let challenged = isCloudflareChallenge(response)
+                // What the edge actually returned, and how it was classified. A challenge is
+                // invisible from the outside — a silent login failure looks identical whether the
+                // wall fired, the POST was rejected, or detection misread the response — and this
+                // line is what tells those apart from a device log. Named headers only, never
+                // `allHeaderFields`, which would carry Set-Cookie past the Phase 8 logging gate.
+                let mitigated = response?.value(forHTTPHeaderField: "cf-mitigated") ?? "<absent>"
+                let ray = response?.value(forHTTPHeaderField: "cf-ray") ?? "<absent>"
+                let server = response?.value(forHTTPHeaderField: "server") ?? "<absent>"
+                let url = response?.url?.absoluteString ?? "<none>"
+                logger.notice("""
+                    Login POST classified: challenged=\(challenged, privacy: .public) \
+                    status=\(response?.statusCode ?? -1, privacy: .public) \
+                    cf-mitigated=\(mitigated, privacy: .public) \
+                    cf-ray=\(ray, privacy: .public) \
+                    server=\(server, privacy: .public) \
+                    url=\(url, privacy: .public) \
+                    clearanceHeld=\(state.cloudflareClearance != nil, privacy: .public)
+                    """)
+                if challenged {
                     await send(.challengeDetected)
                 } else {
                     await send(.loginDone(.success(response)))
                 }
             } catch {
+                // Distinguishes a thrown transport failure from a response that simply was not
+                // classified as a challenge — the two produce the same `.failed` state downstream.
+                logger.warning("Login POST threw: \(String(describing: error), privacy: .public)")
                 await send(.loginDone(.failure(error)))
             }
         }
