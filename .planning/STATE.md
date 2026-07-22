@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 12
 current_phase_name: cloudflare-login-restoration
 status: executing
-stopped_at: Completed 12-02-PLAN.md
-last_updated: "2026-07-22T07:32:20.388Z"
+stopped_at: Completed 12-03-PLAN.md
+last_updated: "2026-07-22T07:45:44.568Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 12 execution started
 progress:
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 12 (cloudflare-login-restoration) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-07-22 — Phase 12 execution started
 Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
@@ -200,6 +200,7 @@ Progress: [██████████] 97% (10/15 phases)
 | Phase 11 P31 | ~50 min | 2 tasks | 3 files |
 | Phase 12 P01 | 25min | 2 tasks | 6 files |
 | Phase 12 P02 | 13 min | 2 tasks | 3 files |
+| Phase 12 P03 | 13min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -428,6 +429,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 12-01: The new error's recovery suggestion names the real screen (Account Configuration), not the plan's placeholder wording, so the suggestion points somewhere reachable
 - [Phase ?]: 12-01: An unsolved Cloudflare wall is account-level fatal in the page-download batch guard — it blocks every request and the case is non-retryable; unreachable today but the safe arm when D-05 detection widens
 - [Phase ?]: 12-01: The clearance pair is a named Sendable struct, not a tuple (labeled_tuple_elements at error), and lives in an InMemoryKey whose strategy IS the C5 no-persistence guarantee
+- [Phase ?]: 12-03: ChallengeWebViewController is its own WKHTTPCookieStoreObserver — the store does not retain observers, and the view hierarchy already keeps the controller alive
+- [Phase ?]: 12-03: Observer teardown runs in dismantleUIViewController, not deinit — a MainActor-isolated deinit cannot touch WKHTTPCookieStore
+- [Phase ?]: 12-03: LoginClient.live is a named function, not a closure literal, so LoginRequest's typed throws(AppError) survives the seam
 
 ### Pending Todos
 
@@ -471,6 +475,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T07:32:20.381Z
-Stopped at: Completed 12-02-PLAN.md
+Last session: 2026-07-22T07:45:36.142Z
+Stopped at: Completed 12-03-PLAN.md
 Resume file: None
