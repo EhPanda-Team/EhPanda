@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 12
 current_phase_name: cloudflare-login-restoration
 status: executing
-stopped_at: Completed 12-03-PLAN.md
-last_updated: "2026-07-22T07:45:44.568Z"
+stopped_at: Completed 12-04-PLAN.md
+last_updated: "2026-07-22T07:59:44.666Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 12 execution started
 progress:
   total_phases: 15
   completed_phases: 10
   total_plans: 143
-  completed_plans: 139
+  completed_plans: 141
   percent: 67
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 12 (cloudflare-login-restoration) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-07-22 — Phase 12 execution started
 Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
 
-Progress: [██████████] 97% (10/15 phases)
+Progress: [██████████] 99% (10/15 phases)
 
 ## Performance Metrics
 
@@ -201,6 +201,7 @@ Progress: [██████████] 97% (10/15 phases)
 | Phase 12 P01 | 25min | 2 tasks | 6 files |
 | Phase 12 P02 | 13 min | 2 tasks | 3 files |
 | Phase 12 P03 | 13min | 2 tasks | 2 files |
+| Phase 12 P04 | 11min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -432,6 +433,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 12-03: ChallengeWebViewController is its own WKHTTPCookieStoreObserver — the store does not retain observers, and the view hierarchy already keeps the controller alive
 - [Phase ?]: 12-03: Observer teardown runs in dismantleUIViewController, not deinit — a MainActor-isolated deinit cannot touch WKHTTPCookieStore
 - [Phase ?]: 12-03: LoginClient.live is a named function, not a closure literal, so LoginRequest's typed throws(AppError) survives the seam
+- [Phase ?]: Folded the Cloudflare challenge flow into LoginReducer rather than a child feature: one destination, one counter and four actions would need the parent's credentials, loginState and CancelID anyway
+- [Phase ?]: One shared login effect serves the first POST and every retry, so a retry can never take a path that skips challenge classification
 
 ### Pending Todos
 
@@ -475,6 +478,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T07:45:36.142Z
-Stopped at: Completed 12-03-PLAN.md
+Last session: 2026-07-22T07:59:37.325Z
+Stopped at: Completed 12-04-PLAN.md
 Resume file: None
