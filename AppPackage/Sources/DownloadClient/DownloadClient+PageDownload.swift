@@ -321,7 +321,8 @@ extension DownloadCoordinator {
     /// so a per-page occurrence is treated like any other page failure rather than aborting the batch.
     public func isFatalAccountAppError(_ error: AppError) -> Bool {
         switch error {
-        case .quotaExceeded, .authenticationRequired, .ipBanned, .cloudflareChallengeFailed:
+        case .quotaExceeded, .authenticationRequired, .ipBanned, .cloudflareChallengeFailed,
+             .loginCaptchaRequired:
             return true
         case .copyrightClaim, .expunged, .networkingFailed,
              .webImageFailed, .parseFailed, .fileOperationFailed, .noUpdates,
