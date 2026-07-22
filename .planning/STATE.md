@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 12
 current_phase_name: cloudflare-login-restoration
-status: executing
-stopped_at: "12-06 Task 1 complete (186d46a9); paused at Task 2 checkpoint:human-verify (blocking) — live C1 login UAT awaiting owner"
-last_updated: "2026-07-22T08:22:48.639Z"
-last_activity: 2026-07-22
-last_activity_desc: Phase 12 execution started
+status: verifying
+stopped_at: 12-06 complete — phase 12 plans 6/6 executed; owner C1 UAT PASS; Turnstile gate on the login form recorded as a carry-forward
+last_updated: "2026-07-22T16:51:50.930Z"
+last_activity: 2026-07-23
+last_activity_desc: Phase 12 plan 06 closed — owner live C1 UAT PASS
 progress:
   total_phases: 15
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 143
-  completed_plans: 142
-  percent: 67
+  completed_plans: 143
+  percent: 73
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 12 (cloudflare-login-restoration) — EXECUTING
+Phase: 12 (cloudflare-login-restoration) — EXECUTED, AWAITING VERIFICATION
 Plan: 6 of 6
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase 12 execution started
-Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
+Status: Phase complete — ready for verification
+Last activity: 2026-07-23 — 12-06 closed; owner live C1 UAT PASS
+Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
 
-Progress: [██████████] 99% (10/15 phases)
+Progress: [███████···] 73% (11/15 phases)
 
 ## Performance Metrics
 
@@ -203,6 +203,7 @@ Progress: [██████████] 99% (10/15 phases)
 | Phase 12 P03 | 13min | 2 tasks | 2 files |
 | Phase 12 P04 | 11min | 2 tasks | 2 files |
 | Phase 12 P05 | 14min | 2 tasks | 1 files |
+| Phase 12 P06 | ~2 days (Task 1 ~35min + owner UAT) | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -440,6 +441,12 @@ Recent decisions affecting current work:
 - [Phase ?]: 12-05: The challenge bound is proven by walking two full rounds through the reducer, not by asserting on challengeRounds
 - [Phase ?]: 12-05: D-02 silence is proven by an exhaustive TestStore receiving nothing after the dismissal — no negative assertion to keep in sync
 - [Phase ?]: 12-05: LockIsolated mutates via withValue; withLock belongs to the @Shared projection (first-compile error worth remembering)
+- [Phase ?]: 12-06: The Cloudflare clearance is captured by polling the web view's cookie store — WKHTTPCookieStoreObserver alone never fired for page-set cookies on the live wall, and a didFinish check read an empty jar before WebKit propagated it
+- [Phase ?]: 12-06: A swipe-dismissal of the challenge sheet is detected by reading the destination BEFORE BindingReducer applies the write — every Destination case is @ReducerCaseIgnored, so PresentationAction.dismiss is never routed and SwiftUI echoes the reducer's own dismissals through the same binding
+- [Phase ?]: 12-06: loginDone applies the response's credentials before consulting didLogin — 12-02's clearance retry sets httpShouldHandleCookies = false, so URLSession no longer files the response's Set-Cookie and didLogin saw pre-login state
+- [Phase ?]: 12-06: Every login failure arm raises a toast; only the Cloudflare arm had one, and the missing surface is why the didLogin bug presented as total silence
+- [Phase ?]: 12-06: AppError.loginCaptchaRequired is deliberately separate from .cloudflareChallengeFailed — both are Cloudflare, but only the edge challenge is clearable by the in-app surface, so conflating them would point at the wrong recovery
+- [Phase ?]: 12-06: The login response body is parsed for the forum's error box under BOTH labels it uses; reading only the first is how the Turnstile requirement went unreported through several rounds of diagnosis
 
 ### Pending Todos
 
@@ -454,6 +461,9 @@ None yet.
 - Deferred follow-up (from Phase 8 UAT): remove dead legacy haptic code (`isLegacyTapticEngine`, `generateLegacyFeedback`) — targets unsupported devices.
 - Deferred follow-up (from Phase 11 UAT, G-11-7): harden the `lastAutoFetchCount` one-shot latch in `AutoLoadNextPage` (GalleryList.swift) to re-arm on the server page cursor (`pageNumber`) rather than on `galleries.count`, so a deduped, empty or failed page cannot permanently disarm thumbnail-mode pagination — today only the manual footer retry recovers. Pre-existing (Phase 2 / D-36), not a Phase 11 regression; the detail path no longer depends on it. Needs a device check for chain-fetch regression, since the known failure mode of this tuning is an endless fetch loop pinned at the bottom.
 - Standing verification item (from Phase 11 UAT, G-11-7): every future UAT touching gallery list pagination must exercise BOTH `Setting.listDisplayMode` values, `detail` and `thumbnail`. The two modes render through structurally different layouts with different fetch-more triggers, and `detail` being the default masked the thumbnail path historically and masked this regression in reverse. Testing one mode proves nothing about the other.
+- Carry-forward (Phase 12 UAT, 12-06): the forum gates its login form behind Cloudflare Turnstile, which contributes a `cf-turnstile-response` field a credential POST cannot produce. While the gate is active, native username/password login cannot complete whatever the password. It is detected, named (`AppError.loginCaptchaRequired`), localized in all six locales, and routed to the web-login fallback. C1 was owner-verified PASS on the live host BEFORE the gate appeared, so Phase 12's goal was met — but C1 is not currently reproducible while the gate is active. Making native login survive an active Turnstile gate needs the form rendered in a web view to obtain a token; that is new scope for a future phase.
+- Housekeeping (12-06): `.planning/research/.cache/` is tracked in git — a documentation-tool cache that arguably should be gitignored. Three of its JSON files were swept into commit 5345a9d9 alongside an unrelated one-line change. Left in place (published history, inert content); needs a .gitignore decision before it accumulates.
+- Deferred (12-06): the two `diag(12-06)` commits remain in the tree. The DEBUG-only redacted login-exchange dump is a useful diagnostic for this class of problem; decide whether it stays permanently once the login path is stable.
 
 ### Roadmap Evolution
 
@@ -483,6 +493,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T08:22:48.627Z
-Stopped at: 12-06 Task 1 complete (186d46a9); paused at Task 2 checkpoint:human-verify (blocking) — live C1 login UAT awaiting owner
-Resume file: .planning/phases/12-cloudflare-login-restoration/12-06-PLAN.md
+Last session: 2026-07-22T16:51:24.536Z
+Stopped at: 12-06 complete — phase 12 plans 6/6 executed; owner C1 UAT PASS; Turnstile gate on the login form recorded as a carry-forward
+Resume file: None
