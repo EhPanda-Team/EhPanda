@@ -53,18 +53,36 @@ struct ToastMessageView: View {
         }
     }
 
+    // One line each, so the capsule is always exactly one or two lines tall. Anything longer is
+    // truncated rather than allowed to grow the capsule: the unabridged text lives on the detail
+    // surface the toast taps through to, and VoiceOver still reads the full string.
     private var text: some View {
         VStack(spacing: 2) {
             Text(content.title)
                 .font(.footnote.bold())
                 .foregroundStyle(.primary)
+                .lineLimit(1)
             if let subtitle = content.subtitle {
                 Text(subtitle)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
         }
     }
+}
+
+/// Collapses line breaks so a multi-line message still occupies exactly one line.
+///
+/// `lineLimit(1)` alone would not be enough: several `AppError` messages are deliberately two
+/// sentences separated by a newline, and limiting those to one line would drop the second sentence
+/// outright rather than truncate the whole. Joining first keeps the sentence that would otherwise
+/// vanish visible up to the truncation point.
+private func singleLine(_ text: String) -> String {
+    text.split(whereSeparator: \.isNewline)
+        .map({ $0.trimmingCharacters(in: .whitespaces) })
+        .filter({ !$0.isEmpty })
+        .joined(separator: " ")
 }
 
 extension AppAlertState where Action == Never {
@@ -87,8 +105,8 @@ extension AppAlertState where Action == Never {
         }
         return .init(
             icon: icon,
-            title: String(state: title),
-            subtitle: message.map({ String(state: $0) }),
+            title: singleLine(String(state: title)),
+            subtitle: message.map({ singleLine(String(state: $0)) }),
             autoHide: autoHide
         )
     }
