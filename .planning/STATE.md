@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 12
 current_phase_name: cloudflare-login-restoration
 status: executing
-stopped_at: Completed 12-05-PLAN.md
-last_updated: "2026-07-22T08:14:31.685Z"
+stopped_at: "12-06 Task 1 complete (186d46a9); paused at Task 2 checkpoint:human-verify (blocking) — live C1 login UAT awaiting owner"
+last_updated: "2026-07-22T08:22:48.639Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 12 execution started
 progress:
@@ -483,6 +483,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T08:14:20.456Z
-Stopped at: Completed 12-05-PLAN.md
-Resume file: None
+Last session: 2026-07-22T08:22:48.627Z
+Stopped at: 12-06 Task 1 complete (186d46a9); paused at Task 2 checkpoint:human-verify (blocking) — live C1 login UAT awaiting owner
+Resume file: .planning/phases/12-cloudflare-login-restoration/12-06-PLAN.md
