@@ -1,3 +1,4 @@
+import AppModels
 import AppTools
 import Foundation
 @testable import NetworkingFeature
@@ -48,9 +49,110 @@ struct CloudflareChallengeDetectionTests {
         #expect(!isCloudflareChallenge(nonHTTPResponse))
     }
 
+    // MARK: - Retried login POST (C4, D-04, D-07)
+
+    @Test
+    func clearanceCarryingLoginRequestSendsTheCookieAndItsBoundUserAgent() async throws {
+        let (session, handle) = makeStubbedLoginSession()
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "challenged-user",
+                password: "dummy-password",
+                clearance: CloudflareClearance(cookieValue: "abc", userAgent: "UA-X"),
+                urlSession: session
+            )
+            .response()
+        }
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(request.value(forHTTPHeaderField: "Cookie") == "cf_clearance=abc")
+        #expect(request.value(forHTTPHeaderField: "User-Agent") == "UA-X")
+    }
+
+    @Test
+    func clearanceCarryingLoginRequestDisablesSharedJarCookieHandling() async throws {
+        let (session, handle) = makeStubbedLoginSession()
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "challenged-user",
+                password: "dummy-password",
+                clearance: CloudflareClearance(cookieValue: "abc", userAgent: "UA-X"),
+                urlSession: session
+            )
+            .response()
+        }
+        let request = try #require(handle.receivedRequests.first)
+
+        // Without this the shared jar would inject its own Cookie header and overwrite the
+        // clearance the challenge web view just earned (D-04).
+        #expect(request.httpShouldHandleCookies == false)
+    }
+
+    @Test
+    func loginRequestWithoutClearanceIsConstructedExactlyAsBefore() async throws {
+        let (session, handle) = makeStubbedLoginSession()
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "plain-user",
+                password: "dummy-password",
+                urlSession: session
+            )
+            .response()
+        }
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(request.value(forHTTPHeaderField: "Cookie") == nil)
+        #expect(request.value(forHTTPHeaderField: "User-Agent") == nil)
+        #expect(request.httpShouldHandleCookies)
+        #expect(request.httpMethod == "POST")
+        #expect(
+            request.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded"
+        )
+    }
+
+    @Test(arguments: [nil, CloudflareClearance(cookieValue: "abc", userAgent: "UA-X")])
+    func bothLoginRequestVariantsPostToTheLoginURL(clearance: CloudflareClearance?) async throws {
+        let (session, handle) = makeStubbedLoginSession()
+        defer { cleanUp(session: session, handle: handle) }
+
+        _ = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "any-user",
+                password: "dummy-password",
+                clearance: clearance,
+                urlSession: session
+            )
+            .response()
+        }
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(request.url == Defaults.URL.login)
+        #expect(request.httpMethod == "POST")
+    }
+
+    // MARK: - Fixtures
+
     // The login endpoint is where the wall was observed; any URL would do — classification never
     // reads it (D-08).
     private static let probeURL = Defaults.URL.login
+
+    /// A single 200 step suffices: these cases assert the *outbound* request, not the response.
+    private func makeStubbedLoginSession() -> (session: URLSession, handle: StubHandle) {
+        makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Data())]])
+        )
+    }
+
+    private func cleanUp(session: URLSession, handle: StubHandle) {
+        session.invalidateAndCancel()
+        handle.tearDown()
+    }
 
     private func makeResponse(
         status: Int,
