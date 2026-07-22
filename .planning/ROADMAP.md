@@ -686,7 +686,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
-| 12. Cloudflare Login Restoration | 4/6 | In Progress|  |
+| 12. Cloudflare Login Restoration | 5/6 | In Progress|  |
 | 13. Deep Link Hardening | 0/TBD | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
 | 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
@@ -706,7 +706,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 **Evidence (2026-07-20)**: GET and POST on `forums.e-hentai.org/index.php?act=Login` both return `403` + `cf-mitigated: challenge`; `e-hentai.org` / `exhentai.org` currently pass unchallenged (though `server: cloudflare`), so detection must stay response-driven.
 
-**Plans**: 4/6 plans executed
+**Plans**: 5/6 plans executed
 
 Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
 
@@ -714,7 +714,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [x] 12-02-PLAN.md — NetworkingFeature: generic `isCloudflareChallenge` classifier + clearance-carrying `LoginRequest` variant, with detection/header tests (D-04/D-05/D-07)
 - [x] 12-03-PLAN.md — `ChallengeWebView` cookie-observing WKWebView wrapper (non-persistent store) + `LoginClient` dependency seam
 - [x] 12-04-PLAN.md — LoginReducer challenge state machine (bounded rounds, cancel, toast) + LoginView challenge/error sheets (D-01/D-02/D-03/D-09/D-11)
-- [ ] 12-05-PLAN.md — `LoginChallengeFlowTests`: exhaustive TestStore coverage of pass-through, rounds, capture, session pair, cancel silence
+- [x] 12-05-PLAN.md — `LoginChallengeFlowTests`: exhaustive TestStore coverage of pass-through, rounds, capture, session pair, cancel silence
 - [ ] 12-06-PLAN.md — Privacy-mask inventory reconciliation + static/full-suite gates + blocking owner live-login UAT (C1)
 
 ### Phase 13: Deep Link Hardening
