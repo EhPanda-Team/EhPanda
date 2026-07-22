@@ -6,6 +6,7 @@ import Resources
 import SFSafeSymbolsExt
 import Sharing
 import SwiftUI
+import SystemNotification
 
 struct LoginView: View {
     @Bindable private var store: StoreOf<LoginReducer>
@@ -76,6 +77,34 @@ struct LoginView: View {
             .ignoresSafeArea(edges: .bottom)
             .privacyMask()
         }
+        // The Cloudflare wall. It carries no explanatory chrome on purpose: an auto-passing
+        // challenge is on screen for a second or two before the reducer dismisses it, and an
+        // interactive one explains itself. Cancelling goes through the reducer rather than a bare
+        // dismiss, because aborting the challenge also has to abort the login attempt behind it.
+        .sheet(item: $store.destination.challenge, id: \.absoluteString) { url in
+            NavigationStack {
+                ChallengeWebView(url: url.wrappedValue) { clearance in
+                    store.send(.challengeClearanceCaptured(clearance))
+                }
+                .ignoresSafeArea(edges: .bottom)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(role: .cancel, action: { store.send(.cancelChallenge) })
+                    }
+                }
+            }
+            .privacyMask()
+        }
+        .sheet(item: $store.destination.errorInfo) { errorInfo in
+            ErrorInfoView(errorInfo: errorInfo.wrappedValue)
+                .privacyMask()
+        }
+        .toast(
+            $store.scope(\.$toast, action: \.toast),
+            onErrorTap: { errorInfo in
+                store.send(.presentErrorInfo(errorInfo))
+            }
+        )
         .onSubmit {
             switch focusedField {
             case .username:
