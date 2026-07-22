@@ -34,11 +34,19 @@ extension Parser {
     /// The result is untrusted remote text on its way to a log, so it is stripped of markup and
     /// length-bounded here rather than at each call site.
     public static func parseLoginErrorMessage(content: String) -> String? {
-        let marker = "the error returned was"
+        // Two labels, because the forum uses a different one depending on how the login was
+        // refused: a board-level message for a malformed submission, and a form-level list when the
+        // form itself came back with errors. Reading only the first is how a CAPTCHA requirement
+        // went unreported through several rounds of diagnosis.
+        let markers = ["the error returned was", "the following errors were found"]
         let stripped = content
             .replacingOccurrences(of: "<[^>]+>", with: "\n", options: .regularExpression)
             .replacingOccurrences(of: "&nbsp;", with: " ")
-        guard let markerRange = stripped.range(of: marker, options: .caseInsensitive) else { return nil }
+        let markerRange = markers
+            .lazy
+            .compactMap({ stripped.range(of: $0, options: .caseInsensitive) })
+            .min(by: { $0.lowerBound < $1.lowerBound })
+        guard let markerRange else { return nil }
         let message = stripped[markerRange.upperBound...]
             .split(separator: "\n")
             .lazy
@@ -46,6 +54,16 @@ extension Parser {
             .first(where: { !$0.isEmpty })
         guard let message else { return nil }
         return String(message.prefix(200))
+    }
+
+    /// Whether the login form is gated behind a Cloudflare Turnstile widget.
+    ///
+    /// This is distinct from the edge challenge the app already clears: Turnstile lives *inside* the
+    /// forum's own login form and contributes a `cf-turnstile-response` field to the submission. A
+    /// plain credential POST omits that field, so the forum refuses it whatever the password —
+    /// which is not a condition more retries can resolve.
+    public static func loginFormRequiresCaptcha(content: String) -> Bool {
+        content.contains("cf-turnstile") || content.contains("challenges.cloudflare.com/turnstile")
     }
 
     public static func parseResponseError(content: String) -> AppError? {
