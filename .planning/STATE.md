@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 12
 current_phase_name: cloudflare-login-restoration
 status: executing
-stopped_at: Completed 12-04-PLAN.md
-last_updated: "2026-07-22T07:59:44.666Z"
+stopped_at: Completed 12-05-PLAN.md
+last_updated: "2026-07-22T08:14:31.685Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 12 execution started
 progress:
   total_phases: 15
   completed_phases: 10
   total_plans: 143
-  completed_plans: 141
+  completed_plans: 142
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 12 (cloudflare-login-restoration) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-07-22 — Phase 12 execution started
 Next: /gsd-plan-phase 12 (Cloudflare Login Restoration)
@@ -202,6 +202,7 @@ Progress: [██████████] 99% (10/15 phases)
 | Phase 12 P02 | 13 min | 2 tasks | 3 files |
 | Phase 12 P03 | 13min | 2 tasks | 2 files |
 | Phase 12 P04 | 11min | 2 tasks | 2 files |
+| Phase 12 P05 | 14min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -435,6 +436,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 12-03: LoginClient.live is a named function, not a closure literal, so LoginRequest's typed throws(AppError) survives the seam
 - [Phase ?]: Folded the Cloudflare challenge flow into LoginReducer rather than a child feature: one destination, one counter and four actions would need the parent's credentials, loginState and CancelID anyway
 - [Phase ?]: One shared login effect serves the first POST and every retry, so a retry can never take a path that skips challenge classification
+- [Phase ?]: 12-05: Per-case InMemoryStorage override isolates the process-wide @Shared(.cloudflareClearance) holder — isolation by construction, no teardown a future case can forget
+- [Phase ?]: 12-05: The challenge bound is proven by walking two full rounds through the reducer, not by asserting on challengeRounds
+- [Phase ?]: 12-05: D-02 silence is proven by an exhaustive TestStore receiving nothing after the dismissal — no negative assertion to keep in sync
+- [Phase ?]: 12-05: LockIsolated mutates via withValue; withLock belongs to the @Shared projection (first-compile error worth remembering)
 
 ### Pending Todos
 
@@ -478,6 +483,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T07:59:37.325Z
-Stopped at: Completed 12-04-PLAN.md
+Last session: 2026-07-22T08:14:20.456Z
+Stopped at: Completed 12-05-PLAN.md
 Resume file: None
