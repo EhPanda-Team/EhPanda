@@ -269,9 +269,9 @@ Not a rename/refactor/migration phase — this adds a runtime flow. The relevant
 **Warning signs:** Retry fails differently (not a challenge) once `httpShouldHandleCookies` is disabled.
 
 ### Pitfall 5: Privacy-mask coverage regression
-**What goes wrong:** The new challenge sheet is a new presentation root; Phase 7 reconciled privacy-mask coverage against a fixed count of explicit runtime roots. A new root without `.privacyMask()` is a content-leak gap.
-**How to avoid:** Attach `.privacyMask()` to the challenge sheet exactly like the existing web-login sheet; update the Phase 7 coverage reconciliation count (39 explicit roots → 40).
-**Warning signs:** App Switcher snapshot shows the challenge web view unmasked.
+**What goes wrong:** The phase adds **two** new presentation roots — the challenge sheet and the error-info detail sheet — and Phase 7 reconciled privacy-mask coverage against a fixed count of explicit runtime roots. A new root without `.privacyMask()` is a content-leak gap.
+**How to avoid:** Attach `.privacyMask()` to both new sheets exactly like the existing web-login sheet; update every derived count in the Phase 7 coverage reconciliation for the two new roots: 39 runtime roots → 41, 38 production modal roots → 40, 41 presentation modifiers → 43 (reconciled in plan 12-06).
+**Warning signs:** App Switcher snapshot shows the challenge web view (or the error-info sheet) unmasked.
 
 ### Pitfall 6: Cancel semantics leak an error
 **What goes wrong:** User-initiated dismissal mid-challenge fires the retry or an error toast.
@@ -338,19 +338,24 @@ This harness already models per-URL step sequences with headers — ideal for te
 | A5 | Cloudflare clearance validity (30–60 min typical) exceeds a single login attempt's duration | cf_clearance research | If it expires between capture and retry, the re-challenge path (D-06/D-09) handles it — low risk |
 | A6 | Swift-imported selector for the observer is `cookiesDidChange(in:)` (ObjC `cookiesDidChangeInCookieStore:`) | Pattern 2 | Compile-time mismatch only; verified against SDK header, confirm exact Swift signature in Xcode |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three questions were resolved during planning; the plans record the choices.
 
 1. **TLS-fingerprint binding of `cf_clearance` (the load-bearing risk).**
    - What we know: clearance is bound to UA + IP + TLS/JA3; we can match UA and (same device) IP, but `URLSession` ≠ WKWebView TLS stack.
    - What's unclear: whether e-hentai's Cloudflare config enforces TLS binding strictly enough to reject a UA-matched `URLSession` retry.
    - Recommendation: plan the primary design (URLSession retry with UA+clearance headers) but keep a **fallback in scope** — replaying the POST through the challenge web view (`WKWebView` load of a POST, or `URLSession` bound to the web view's `WKWebsiteDataStore` cookies). Treat the owner-driven live UAT (C1) as the go/no-go gate, per the Validation Architecture section.
+   - **RESOLVED (12-02/12-04/12-06):** Plans build the primary `URLSession` design (retried POST with explicit clearance + exact-UA headers). The blocking owner live-login UAT (12-06 Task 2) is the go/no-go gate; the web-view-replay fallback is pre-identified for gap closure (12-06 threat T-12-25 and the step-5 repeated-challenge signal in the checkpoint), not built speculatively.
 
 2. **Session holder location (Claude's discretion, D-06).**
    - What we know: `@Shared(.inMemory)` (Phase 7), injected client (Phase 8), or reducer state are all viable and within the no-singletons rule.
    - Recommendation: `@Shared(.inMemory("cloudflareClearance"))` mirrors the privacy-mask precedent, auto-resets per launch (satisfies "never persisted"), and is readable by a retried-request builder without threading state through. Planner picks; note the no-singletons and lint constraints.
+   - **RESOLVED (12-01):** `@Shared(.inMemory("cloudflareClearance"))` — an `InMemoryKey<CloudflareClearance?>` declared in AppModels (`AppSharedKeys.swift`), following the Phase 7 precedent; resets to nil on every launch with zero cleanup code.
 
 3. **Reducer decomposition (Claude's discretion).**
    - Recommendation: given the bounded-retry counter + destination + clearance action, a small `Feature`-suffixed child (e.g. `CloudflareChallengeFeature`) keeps `LoginReducer` focused, but folding in is acceptable given the modest surface. Either satisfies the `Feature`-suffix rule.
+   - **RESOLVED (12-04):** Folded into `LoginReducer` — no new child reducer. The surface (one destination case pair, one counter, four actions) does not justify separate composition; the `Feature`-suffix rule applies only to new reducers, and none is created.
 
 ## Environment Availability
 
@@ -436,7 +441,7 @@ This harness already models per-URL step sequences with headers — ideal for te
 **Confidence breakdown:**
 - Standard stack: HIGH — all first-party, SDK-verified; no packages added
 - Architecture: HIGH — every seam confirmed in the codebase this session
-- Challenge/cookie semantics: MEDIUM — Cloudflare docs confirm the `cf-mitigated` header and UA binding; exact TLS-binding strictness for this host is unverified (Open Question 1)
+- Challenge/cookie semantics: MEDIUM — Cloudflare docs confirm the `cf-mitigated` header and UA binding; exact TLS-binding strictness for this host is unverified (Open Question 1 — resolved by disposition: owner live UAT is the go/no-go gate, fallback pre-identified for gap closure)
 - Pitfalls: HIGH for codebase-derived (privacy-mask root, cancel, observer lifetime); MEDIUM for the TLS-fingerprint risk
 
 **Research date:** 2026-07-22
