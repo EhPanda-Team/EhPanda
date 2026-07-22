@@ -95,11 +95,11 @@ result: pass
 expected: |
   Scrolling a gallery list (front page, and presumably every list) to the bottom
   fetches the next page and appends more galleries.
-result: issue
+result: pass
+initially: issue
 reported: "frontpage list (probably all lists) fetch more feature is broken, it just reach the end and won't fetch more"
 severity: blocker
 found_during: out-of-band observation while testing (not a scripted checkpoint)
-result: pass
 retest: "Owner device re-test 2026-07-22 after 11-30. Confirmed: paginates past three pages in
   BOTH .detail (the fix) and thumbnail (the control) display modes. The .onScrollVisibilityChange
   primary form fires correctly inside a List row — the runtime unknown is resolved, fallback not
@@ -109,11 +109,11 @@ retest: "Owner device re-test 2026-07-22 after 11-30. Confirmed: paginates past 
 
 expected: |
   The page-count indicator symbol in the gallery cell renders at its prior size.
-result: issue
+result: pass
+initially: issue
 reported: "the symbol indicating page count looks larger before it became label — i meant the symbol in gallery cell"
 severity: cosmetic
 found_during: out-of-band observation while testing (not a scripted checkpoint)
-result: pass
 retest: "Owner visual re-check 2026-07-22 after 11-31. Confirmed: page-count symbol back to prior
   size in the gallery cell; Torrents sheet stat icons also correct. .imageScale(.medium) is right."
 
