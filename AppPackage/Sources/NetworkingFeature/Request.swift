@@ -29,6 +29,30 @@ private func repairedHTMLDocument(from data: Data) -> HTMLDocument? {
     }
 }
 
+/// Reports whether a response is Cloudflare's interstitial challenge rather than the page asked for.
+///
+/// The contract is Cloudflare's own: a challenge page is served as `403` carrying `cf-mitigated:
+/// challenge`. Nothing else is consulted — not the host, not the path, not the response body, and no
+/// app setting. Page content is attacker-influenced and hosts move behind and out from behind the
+/// wall over time, so classification stays purely response-driven and any `(data, response)` call
+/// site can hand its response over unchanged.
+///
+/// A challenged `403` is a *successful* transport response, so `fetch(_:in:)` returns it on the
+/// first attempt instead of burning its four-attempt retry budget; call this afterwards on the
+/// returned response. This phase wires only the login flow to a UI reaction, but the helper is
+/// deliberately free-standing so any request layer can adopt it when the wall spreads.
+///
+/// - Parameter response: The response to classify; `nil` and non-HTTP responses are not challenges.
+public func isCloudflareChallenge(_ response: URLResponse?) -> Bool {
+    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 403 else {
+        return false
+    }
+    // Header-name lookup is already case-insensitive; the value is compared the same way because
+    // the header is untrusted input whose casing Cloudflare does not guarantee.
+    let mitigation = httpResponse.value(forHTTPHeaderField: "cf-mitigated")
+    return mitigation?.caseInsensitiveCompare("challenge") == .orderedSame
+}
+
 extension Request {
 
     /// Fetches a request with the four-attempt policy formerly supplied by `retry(3)`.
