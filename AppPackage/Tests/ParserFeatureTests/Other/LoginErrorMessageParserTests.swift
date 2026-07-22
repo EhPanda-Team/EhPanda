@@ -36,11 +36,56 @@ struct LoginErrorMessageParserTests {
     @Test
     func markupAndEntitiesBetweenTheMarkerAndTheMessageAreIgnored() {
         let content = """
-            <div>The error returned was:</div>&nbsp;
+            <div class="pformstrip">The error returned was:</div>&nbsp;
             <table><tr><td><strong>Bad password</strong></td></tr></table>
             """
 
         #expect(Parser.parseLoginErrorMessage(content: content) == "Bad password")
+    }
+
+    // The label is the forum's, and its class attribute is not always just the one class.
+    @Test(arguments: ["pformstrip", "formsubtitle", "pformstrip alt", "row2 formsubtitle"])
+    func theLabelIsFoundWhateverElseItsClassAttributeCarries(labelClass: String) {
+        let content = """
+            <div class="\(labelClass)">The error returned was:</div>
+            <div class="pformleft">Bad password</div>
+            """
+
+        #expect(Parser.parseLoginErrorMessage(content: content) == "Bad password")
+    }
+
+    // A marker phrase is evidence of a refusal only where the forum writes it — as the error box's
+    // own label. Reading it anywhere on the page turns a page that merely quotes one into a refusal,
+    // and that misfire is worse than a missed message: the caller throws before `setCredentials`
+    // runs, so a login that actually succeeded is reported as failed and the session cookies it just
+    // earned are dropped.
+    @Test
+    func aMarkerQuotedInOrdinaryContentIsNotAnErrorBox() {
+        let content = """
+            <html><body>
+            <div class="borderwrap"><div class="maintitle">Welcome back</div>
+            <table><tr><td><a href="showtopic=1234">Re: the error returned was: a saga</a></td></tr>
+            <tr><td>Posted yesterday</td></tr></table>
+            </div>
+            </body></html>
+            """
+
+        #expect(Parser.parseLoginErrorMessage(content: content) == nil)
+    }
+
+    // Finding a label is not enough on its own — that label has to be the one carrying the marker,
+    // or a real board message about something else adopts a phrase from further down the page.
+    @Test
+    func aLabelSayingSomethingElseDoesNotAdoptAMarkerFromElsewhereOnThePage() {
+        let content = """
+            <html><body>
+            <div class="pformstrip">Board Message</div>
+            <div class="pformleft">Your post has been submitted.</div>
+            <div class="postcolor">Someone asked what the error returned was: nobody knew.</div>
+            </body></html>
+            """
+
+        #expect(Parser.parseLoginErrorMessage(content: content) == nil)
     }
 
     // Untrusted remote text on its way to a log, so the length bound belongs to the parser rather
