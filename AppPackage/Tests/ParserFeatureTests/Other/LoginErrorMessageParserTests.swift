@@ -67,3 +67,46 @@ struct LoginErrorMessageParserTests {
         """
     }
 }
+
+// The forum labels a refused login two different ways, and the second one is what a CAPTCHA
+// rejection arrives under. Reading only the first is how that went unreported.
+struct LoginFormErrorParserTests {
+    @Test
+    func theFormLevelErrorListIsReadToo() {
+        let message = Parser.parseLoginErrorMessage(content: Self.captchaRejectionPage)
+
+        #expect(message == "The captcha was not entered correctly. Please try again.")
+    }
+
+    @Test
+    func aTurnstileGatedFormIsRecognised() {
+        #expect(Parser.loginFormRequiresCaptcha(content: Self.captchaRejectionPage))
+    }
+
+    @Test
+    func anUngatedFormIsNotMistakenForOne() {
+        let page = """
+            <html><body><form name="LOGIN">
+            <input type="text" name="UserName" /><input type="password" name="PassWord" />
+            </form></body></html>
+            """
+
+        #expect(!Parser.loginFormRequiresCaptcha(content: page))
+    }
+
+    /// Trimmed from a real refusal: the widget in the form, and the error list above it.
+    private static let captchaRejectionPage = """
+        <html><head>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        </head><body>
+        <div class="borderwrap">
+            <div class="formsubtitle">The following errors were found:</div>
+            <div class="tablepad"><span class="postcolor">The captcha was not entered correctly. \
+        Please try again.</span></div>
+        </div>
+        <form name="LOGIN">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAC-TvH-cv03mjH96"></div>
+        </form>
+        </body></html>
+        """
+}
