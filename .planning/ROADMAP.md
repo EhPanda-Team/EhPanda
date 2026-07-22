@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface (completed 2026-07-16)
 - [x] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
-- [ ] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance
+- [x] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance (completed 2026-07-23)
 - [ ] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
 - [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
 - [ ] **Phase 15: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
@@ -686,7 +686,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Correctness & Structured Error Handling | 13/13 | Complete    | 2026-07-16 |
 | 10. UI Polish | 12/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
-| 12. Cloudflare Login Restoration | 6/6 | In Progress|  |
+| 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 0/TBD | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
 | 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
