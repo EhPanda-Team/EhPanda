@@ -80,6 +80,25 @@ struct LoginRejectionSurfacingTests {
         #expect(response.statusCode == 200)
     }
 
+    // The forum counts login attempts and locks the account out past a threshold — the very lockout
+    // the cases above exist to surface. A POST the forum received but whose response was lost on the
+    // way back is indistinguishable here from one it never saw, so a transport retry spends attempts
+    // the user never made: four recorded tries for one tap, against a budget they cannot see.
+    @Test
+    func aLostLoginResponseIsNotRetriedIntoTheForumsAttemptLockout() async {
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.transportFailure(.timedOut)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result == .failure(.networkingFailed))
+        #expect(handle.attempts(for: Defaults.URL.login) == 1)
+    }
+
     // MARK: - Fixtures
 
     private static let rejectionPage = Data(
