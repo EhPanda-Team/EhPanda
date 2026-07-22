@@ -66,7 +66,7 @@ private struct ToastViewModifier: ViewModifier {
                     .glassEffect(.regular, in: .capsule)
                     .id(id)
                     .padding(.horizontal)
-                    .padding(.bottom, 64)
+                    .padding(.bottom, 88)
                     .gesture(dismissGesture(
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id
