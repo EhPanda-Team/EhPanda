@@ -4,7 +4,9 @@ import AppTools
 @testable import ClipboardClient
 import ComposableArchitecture
 import CustomDump
+import DownloadClient
 import Foundation
+import HapticsClient
 import Testing
 @testable import UserDefaultsClient
 
@@ -70,6 +72,139 @@ struct PresentationFeatureTests {
         await store.receive(\.handleDeepLink)
 
         expectNoDifference(recordedWrites.value, [changeCount])
+    }
+
+    @MainActor
+    @Test
+    func fetchedReplacementWaitsForDetailDismissalCompletion() async throws {
+        let currentGallery = gallery(id: "111")
+        let fetchedGallery = gallery(id: "222")
+        let url = try #require(URL(string: "https://e-hentai.org/g/222/abcdef0123/"))
+        var initialState = PresentationFeature.State()
+        initialState.detail = .init(gallery: currentGallery)
+        let fetchStore = presentationStore(initialState: initialState)
+
+        await fetchStore.send(.handleDeepLink(url)) {
+            $0.detail = nil
+            $0.isAwaitingDetailDismissal = true
+        }
+        await fetchStore.receive(\.fetchGallery) {
+            $0.toast = .loading()
+        }
+        let stateWhileFetching = fetchStore.state
+        fetchStore.exhaustivity = .off(showSkippedAssertions: false)
+        await fetchStore.skipInFlightEffects(strict: false)
+        await fetchStore.skipReceivedActions(strict: false)
+
+        let store = presentationStore(initialState: stateWhileFetching)
+        await store.send(.fetchGalleryDone(url: url, result: .success(fetchedGallery))) {
+            $0.pendingGalleryLink = .init(url: url, gallery: fetchedGallery)
+            $0.toast = nil
+        }
+        await store.send(.detailDismissalCompleted) {
+            $0.isAwaitingDetailDismissal = false
+            $0.pendingGalleryLink = nil
+        }
+
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.handleGalleryLink)
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(store.state.detail?.gallery == fetchedGallery)
+    }
+
+    @MainActor
+    @Test
+    func dismissalCompletingBeforeFetchPresentsWhenFetchFinishes() async throws {
+        let fetchedGallery = gallery(id: "222")
+        let url = try #require(URL(string: "https://e-hentai.org/g/222/abcdef0123/"))
+        var initialState = PresentationFeature.State()
+        initialState.isAwaitingDetailDismissal = true
+        let store = presentationStore(initialState: initialState)
+
+        await store.send(.detailDismissalCompleted) {
+            $0.isAwaitingDetailDismissal = false
+        }
+        await store.send(.fetchGalleryDone(url: url, result: .success(fetchedGallery)))
+
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.handleGalleryLink)
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(store.state.detail?.gallery == fetchedGallery)
+        #expect(store.state.pendingGalleryLink == nil)
+    }
+
+    @MainActor
+    @Test
+    func userDismissalWithoutPendingLinkIsSilent() async {
+        let store = presentationStore()
+
+        await store.send(.detailDismissalCompleted)
+        await store.finish()
+    }
+
+    @MainActor
+    @Test
+    func deepLinkWithoutPresentedDetailFlowsStraightToPresentation() async throws {
+        let fetchedGallery = gallery(id: "222")
+        let url = try #require(URL(string: "https://e-hentai.org/g/222/abcdef0123/"))
+        let fetchStore = presentationStore()
+
+        await fetchStore.send(.handleDeepLink(url))
+        await fetchStore.receive(\.fetchGallery) {
+            $0.toast = .loading()
+        }
+        let stateWhileFetching = fetchStore.state
+        fetchStore.exhaustivity = .off(showSkippedAssertions: false)
+        await fetchStore.skipInFlightEffects(strict: false)
+        await fetchStore.skipReceivedActions(strict: false)
+
+        let store = presentationStore(initialState: stateWhileFetching)
+        await store.send(.fetchGalleryDone(url: url, result: .success(fetchedGallery))) {
+            $0.toast = nil
+        }
+
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.handleGalleryLink)
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(store.state.detail?.gallery == fetchedGallery)
+        #expect(store.state.isAwaitingDetailDismissal == false)
+        #expect(store.state.pendingGalleryLink == nil)
+    }
+
+    @MainActor
+    @Test
+    func repeatedFetchWhileDismissingKeepsLatestFetchedGallery() async throws {
+        let firstGallery = gallery(id: "222")
+        let latestGallery = gallery(id: "333")
+        let firstURL = try #require(URL(string: "https://e-hentai.org/g/222/abcdef0123/"))
+        let latestURL = try #require(URL(string: "https://e-hentai.org/g/333/fedcba3210/"))
+        var initialState = PresentationFeature.State()
+        initialState.isAwaitingDetailDismissal = true
+        let store = presentationStore(initialState: initialState)
+
+        await store.send(.fetchGalleryDone(url: firstURL, result: .success(firstGallery))) {
+            $0.pendingGalleryLink = .init(url: firstURL, gallery: firstGallery)
+        }
+        await store.send(.fetchGalleryDone(url: latestURL, result: .success(latestGallery))) {
+            $0.pendingGalleryLink = .init(url: latestURL, gallery: latestGallery)
+        }
+        await store.send(.detailDismissalCompleted) {
+            $0.isAwaitingDetailDismissal = false
+            $0.pendingGalleryLink = nil
+        }
+
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        await store.receive(\.handleGalleryLink)
+        await store.skipReceivedActions(strict: false)
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(store.state.detail?.gallery == latestGallery)
     }
 
     @Test(arguments: [
@@ -187,6 +322,37 @@ private struct GalleryFailureRouteFixture: CustomTestStringConvertible, Sendable
 }
 
 private extension PresentationFeatureTests {
+    func gallery(id: String) -> Gallery {
+        Gallery(
+            gid: id,
+            token: "token-\(id)",
+            title: "Gallery \(id)",
+            rating: 4,
+            tags: [],
+            category: .doujinshi,
+            uploader: "Uploader",
+            pageCount: 10,
+            postedDate: Date(timeIntervalSince1970: 0),
+            coverURL: nil,
+            galleryURL: nil
+        )
+    }
+
+    @MainActor
+    func presentationStore(
+        initialState: PresentationFeature.State = .init()
+    ) -> TestStoreOf<PresentationFeature> {
+        TestStore(
+            initialState: initialState,
+            reducer: PresentationFeature.init,
+            withDependencies: {
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
+    }
+
     // Seeds a conflicting value into the process-global store for the change-count key, runs the body,
     // then restores the store so the test does not pollute others.
     func withSeededProcessGlobal(conflicting value: Int, _ body: () async -> Void) async {
