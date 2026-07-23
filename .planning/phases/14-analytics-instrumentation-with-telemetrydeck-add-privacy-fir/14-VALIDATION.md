@@ -26,12 +26,17 @@ created: 2026-07-24
 | **Full suite command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone 17'` |
 | **Estimated runtime** | ~{N} seconds (measure at Wave 0) |
 
-> ⚠ **Registration hazard.** A new test target must be registered in **both**
-> `AppPackage/Tests/FeatureTests.xctestplan` **and** the `EhPanda` scheme. Phase 11 found three test
-> targets silently skipped by the scheme (`CookieClientTests`, `ImageClientTests`,
-> `ReadingFeatureTests`) — an unregistered target runs zero tests and looks green.
+> ⚠ **Registration hazard.** A new test target must be registered in
+> `AppPackage/Tests/FeatureTests.xctestplan` — an unregistered target runs zero tests and looks green.
 > There is no `AppPackage-Package` scheme; the `EhPanda` scheme is what runs the whole
 > `AppPackage` graph.
+>
+> *Correction to `14-RESEARCH.md`:* research states a new target must **also** be registered in the
+> `EhPanda` scheme. Verified false — `EhPanda.xcodeproj/xcshareddata/xcschemes/EhPanda.xcscheme`
+> contains **zero** `TestableReference` entries; its `<TestAction>` holds only two
+> `<TestPlanReference>`s, and `CookieClientTests` is registered in the xctestplan today
+> (`FeatureTests.xctestplan:130`). The xctestplan is the **sole** registration surface; there is no
+> separate scheme edit to make.
 
 ---
 
