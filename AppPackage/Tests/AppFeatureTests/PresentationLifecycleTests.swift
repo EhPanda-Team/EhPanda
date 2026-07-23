@@ -5,7 +5,6 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import Testing
-import URLClient
 
 // Presentation-driven lifecycle for the two routes that install a gallery detail *modally* rather
 // than by pushing it: the iPad tap route (`presentGalleryDetail`) and the deep-link / clipboard /
@@ -55,7 +54,6 @@ private extension PresentationLifecycleTests {
             withDependencies: {
                 $0.downloadClient = .noop
                 $0.hapticsClient = .noop
-                $0.urlClient = .noop
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
             }
         )
