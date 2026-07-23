@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 13
 current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Completed 13-06-PLAN.md
-last_updated: "2026-07-23T03:22:35.128Z"
+stopped_at: Completed 13-07-PLAN.md
+last_updated: "2026-07-23T03:45:41.341Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
   total_plans: 153
-  completed_plans: 149
+  completed_plans: 150
   percent: 73
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
-Plan: 7 of 10
+Plan: 8 of 10
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
 
-Progress: [██████████] 97% (11/15 phases)
+Progress: [██████████] 98% (11/15 phases)
 
 ## Performance Metrics
 
@@ -211,6 +211,7 @@ Progress: [██████████] 97% (11/15 phases)
 | Phase 13 P04 | 12 min | 2 tasks | 3 files |
 | Phase 13 P05 | 18 min | 2 tasks | 3 files |
 | Phase 13 P06 | 7 min | 2 tasks | 5 files |
+| Phase 13 P07 | 16 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -471,6 +472,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 13-06: Toast overlay animation follows the presented AppAlertState UUID, covering presence and replacement at one scoped boundary.
 - [Phase ?]: 13-06: Gallery failure reducers replace loading toasts synchronously; only successful resolution clears before routing.
 - [Phase ?]: 13-06: The existing id-keyed auto-dismiss task remains unchanged so replacement cancellation and timer restart semantics stay intact.
+- [Phase 13]: Use Synchronization.Mutex for the URLProtocol fixture directory. — Foundation URLProtocol callbacks are synchronous, so checked synchronous state is the correct concurrency boundary.
+- [Phase 13]: Override clipboard reads only and preserve live save endpoints. — The seam bypasses the paste prompt without changing application write behavior.
+- [Phase 13]: Attach reading_page_indicator to ControlPanel's numeric Text. — That is the actual page-index element whose existing label carries current and total pages.
 
 ### Pending Todos
 
@@ -517,6 +521,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T03:22:35.121Z
-Stopped at: Completed 13-06-PLAN.md
+Last session: 2026-07-23T03:45:41.333Z
+Stopped at: Completed 13-07-PLAN.md
 Resume file: None
