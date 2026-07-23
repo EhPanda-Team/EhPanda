@@ -80,6 +80,7 @@ public struct ReadingView: View {
 
     public var body: some View {
         changeTriggers(content: { content })
+            .accessibilityElement(children: .contain)
             .accessibilityIdentifier("reading_view")
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).readingSetting
