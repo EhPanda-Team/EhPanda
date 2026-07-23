@@ -240,9 +240,9 @@ struct PresentationFeature {
                 .cancellable(id: CancelID.fetchGallery, cancelInFlight: true)
 
             case .fetchGalleryDone(let url, let result):
-                state.toast = nil
                 switch result {
                 case .success(let gallery):
+                    state.toast = nil
                     if state.isAwaitingDetailDismissal {
                         state.pendingGalleryLink = .init(url: url, gallery: gallery)
                         return .none
@@ -255,11 +255,8 @@ struct PresentationFeature {
                         reason: error.localizedDescription
                     )
                     let errorInfo = ErrorInfo(error: error, context: context)
-                    // Let the loading toast animate out before showing the error toast.
-                    return .run { send in
-                        try await Task.sleep(for: .milliseconds(500))
-                        await send(.setToast(.error(errorInfo)))
-                    }
+                    state.toast = .error(errorInfo)
+                    return .none
                 }
 
             case .fetchGreetingDone(let result):
