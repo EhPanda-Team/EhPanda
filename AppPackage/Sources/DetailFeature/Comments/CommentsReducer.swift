@@ -272,16 +272,13 @@ public struct CommentsReducer: Sendable {
                 .cancellable(id: CancelID.fetchGallery)
 
             case .fetchGalleryDone(let url, let result):
-                state.toast = nil
                 switch result {
                 case .success(let gallery):
+                    state.toast = nil
                     return .send(.handleGalleryLink(url: url, gallery: gallery))
                 case .failure:
-                    // Let the loading toast animate out before showing the error toast.
-                    return .run { send in
-                        try await Task.sleep(for: .milliseconds(500))
-                        await send(.setToast(.error()))
-                    }
+                    state.toast = .error()
+                    return .none
                 }
             }
         }
