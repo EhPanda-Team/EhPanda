@@ -56,7 +56,9 @@ final class UITestStubURLProtocol: URLProtocol {
         if path.hasPrefix("/s/") {
             return "GallerySinglePage.html"
         }
-        if path == "/" {
+        // Home renders nothing until its popular section resolves, so the popular
+        // list is served the same gallery-list markup as the front page.
+        if path == "/" || path == "/popular" {
             return "FrontPageList.html"
         }
         return nil
