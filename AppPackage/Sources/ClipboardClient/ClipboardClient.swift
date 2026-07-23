@@ -3,6 +3,20 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct ClipboardClient: Sendable {
+    public init(
+        url: @escaping @Sendable () -> URL?,
+        changeCount: @escaping @Sendable () -> Int,
+        saveText: @escaping @Sendable (String) -> Void,
+        saveImage: @escaping @Sendable (UIImage, Bool) -> Void,
+        saveImageData: @escaping @Sendable (Data) -> Bool
+    ) {
+        self.url = url
+        self.changeCount = changeCount
+        self.saveText = saveText
+        self.saveImage = saveImage
+        self.saveImageData = saveImageData
+    }
+
     public let url: @Sendable () -> URL?
     public let changeCount: @Sendable () -> Int
     public let saveText: @Sendable (String) -> Void
