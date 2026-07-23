@@ -18,6 +18,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A13080000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
+			remoteInfo = EhPanda;
+		};
 		AB5BE67E26B95FDD007D4A55 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
@@ -41,6 +48,7 @@
 
 /* Begin PBXFileReference section */
 		A0F00000000000000000F004 /* AppPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppPackage; sourceTree = "<group>"; };
+		A13080000000000000000001 /* EhPandaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
@@ -56,6 +64,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A1308000000000000000000E /* Exceptions for "EhPandaUITests" folder in "EhPandaUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = A13080000000000000000006 /* EhPandaUITests */;
+		};
 		A6844C242F780C8700BBF6E5 /* Exceptions for "App" folder in "EhPanda" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -94,9 +109,24 @@
 			path = ShareExtension;
 			sourceTree = "<group>";
 		};
+		A13080000000000000000002 /* EhPandaUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1308000000000000000000E /* Exceptions for "EhPandaUITests" folder in "EhPandaUITests" target */,
+			);
+			path = EhPandaUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A13080000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB5BE67326B95FDD007D4A55 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -123,6 +153,7 @@
 			children = (
 				A0F00000000000000000F004 /* AppPackage */,
 				A6844B3D2F780C8600BBF6E5 /* App */,
+				A13080000000000000000002 /* EhPandaUITests */,
 				A6844C272F780C8B00BBF6E5 /* ShareExtension */,
 				EA0C92472C3EB44300D211F6 /* Config */,
 				EA0C92422C3EB40100D211F6 /* GitHub */,
@@ -136,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7542593696C00E0C11B /* EhPanda.app */,
+				A13080000000000000000001 /* EhPandaUITests.xctest */,
 				AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */,
 			);
 			name = Products;
@@ -176,6 +208,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A13080000000000000000006 /* EhPandaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1308000000000000000000D /* Build configuration list for PBXNativeTarget "EhPandaUITests" */;
+			buildPhases = (
+				A13080000000000000000003 /* Sources */,
+				A13080000000000000000004 /* Frameworks */,
+				A13080000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A13080000000000000000008 /* PBXTargetDependency */,
+				A1308000000000000000000A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A13080000000000000000002 /* EhPandaUITests */,
+			);
+			name = EhPandaUITests;
+			productName = EhPandaUITests;
+			productReference = A13080000000000000000001 /* EhPandaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		AB5BE67526B95FDD007D4A55 /* ShareExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB5BE68426B95FDD007D4A55 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
@@ -230,6 +284,10 @@
 				LastSwiftUpdateCheck = 1300;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					A13080000000000000000006 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = ABC3C7532593696C00E0C11B;
+					};
 					AB5BE67526B95FDD007D4A55 = {
 						CreatedOnToolsVersion = 13.0;
 					};
@@ -260,12 +318,20 @@
 			projectRoot = "";
 			targets = (
 				ABC3C7532593696C00E0C11B /* EhPanda */,
+				A13080000000000000000006 /* EhPandaUITests */,
 				AB5BE67526B95FDD007D4A55 /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A13080000000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB5BE67426B95FDD007D4A55 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -285,6 +351,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A13080000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB5BE67226B95FDD007D4A55 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -298,6 +371,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A13080000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ABC3C7532593696C00E0C11B /* EhPanda */;
+			targetProxy = A13080000000000000000007 /* PBXContainerItemProxy */;
+		};
+		A1308000000000000000000A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = A13080000000000000000009 /* SwiftLintBuildToolPlugin */;
+		};
 		A66A766D2F77C88A00FC07B8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = A66A766C2F77C88A00FC07B8 /* SwiftLintBuildToolPlugin */;
@@ -314,6 +396,44 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A1308000000000000000000B /* Debug configuration for PBXNativeTarget "EhPandaUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = EhPanda;
+			};
+			name = Debug;
+		};
+		A1308000000000000000000C /* Release configuration for PBXNativeTarget "EhPandaUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = EhPanda;
+			};
+			name = Release;
+		};
 		AB5BE68226B95FDD007D4A55 /* Debug configuration for PBXNativeTarget "ShareExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -565,6 +685,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A1308000000000000000000D /* Build configuration list for PBXNativeTarget "EhPandaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1308000000000000000000B /* Debug configuration for PBXNativeTarget "EhPandaUITests" */,
+				A1308000000000000000000C /* Release configuration for PBXNativeTarget "EhPandaUITests" */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AB5BE68426B95FDD007D4A55 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -621,6 +750,11 @@
 			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		A66A766E2F77C89100FC07B8 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		A13080000000000000000009 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

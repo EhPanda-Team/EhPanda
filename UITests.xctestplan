@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "13080000-0000-4000-8000-000000000001",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "maximumTestRepetitions" : 3,
+    "testRepetitionMode" : "retryOnFailure",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:EhPanda.xcodeproj",
+        "identifier" : "A13080000000000000000006",
+        "name" : "EhPandaUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
