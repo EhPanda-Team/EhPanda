@@ -80,15 +80,47 @@ extension Dictionary where Key == ContextKey, Value == AnyHashableBox {
         }
         return context
     }
+
+    /// Builds diagnostics for an unsupported link without retaining access-bearing URL components.
+    public static func unsupportedLink(url: URL) -> Self {
+        [
+            .action: "Open link",
+            .reason: "The link is not a recognized gallery link.",
+            .link: AnyHashableBox(sanitizedUnsupportedLink(url))
+        ]
+    }
+
+    private static func sanitizedUnsupportedLink(_ url: URL) -> String {
+        guard let source = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let scheme = source.scheme,
+              let host = source.host else {
+            return "Unsupported link"
+        }
+
+        var sanitized = URLComponents()
+        sanitized.scheme = scheme
+        sanitized.host = host
+
+        let pathComponents = source.path.split(separator: "/", omittingEmptySubsequences: true)
+        if let firstPathComponent = pathComponents.first {
+            sanitized.path = "/\(firstPathComponent)"
+        }
+
+        guard let rendering = sanitized.string else {
+            return "Unsupported link"
+        }
+        return pathComponents.count > 1 ? rendering + "/…" : rendering
+    }
 }
 
-/// User-visible diagnostic labels. This fixed whitelist deliberately has no raw URL slot; gallery diagnostics
-/// retain only a validated numeric identifier through ``Dictionary/galleryFailure(url:action:reason:)``.
+/// User-visible diagnostic labels. This fixed whitelist deliberately has no raw URL slot: gallery diagnostics
+/// retain only a validated numeric identifier, while unsupported-link diagnostics retain a sanitized rendering.
 public enum ContextKey: String, Hashable, Sendable {
     case action = "Action"
     case reason = "Reason"
     case statusCode = "Status Code"
     case gid = "Gallery ID"
+    case link = "Link"
 }
 
 /// A surfaced error and its per-incident diagnostic context.
