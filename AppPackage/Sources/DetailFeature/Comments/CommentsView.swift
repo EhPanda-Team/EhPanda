@@ -39,6 +39,7 @@ struct CommentsView: View {
                     gid: gid, comment: comment,
                     linkAction: { store.send(.handleCommentLink($0)) }
                 )
+                .accessibilityIdentifier("comment_cell_" + comment.commentID)
                 .animation(.default) {
                     $0.opacity(
                         comment.commentID == store.scrollCommentID
@@ -82,6 +83,7 @@ struct CommentsView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("comments_view")
             // View-local scrolling needs the `proxy`, so it stays in the view. `initial: true` gives
             // the first-render fire the former `onAppear` provided, for the deep-linked comment id
             // the screen is constructed with; later changes are no-ops because the id only clears.

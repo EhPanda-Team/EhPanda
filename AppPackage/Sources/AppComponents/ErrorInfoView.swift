@@ -49,6 +49,7 @@ public struct ErrorInfoView: View {
                     )
                 }
             }
+            .accessibilityIdentifier("error_info_view")
             .navigationTitle(.error)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

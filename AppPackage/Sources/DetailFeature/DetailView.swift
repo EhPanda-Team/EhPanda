@@ -173,6 +173,7 @@ private extension DetailView {
                     $0.opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
                 }
         }
+        .accessibilityIdentifier("detail_view")
     }
 
     func modalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
