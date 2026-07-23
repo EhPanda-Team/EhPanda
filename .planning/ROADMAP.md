@@ -687,7 +687,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. UI Polish | 12/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
-| 13. Deep Link Hardening | 0/TBD | Not started | - |
+| 13. Deep Link Hardening | 0/10 | Not started | - |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
 | 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
 
@@ -728,7 +728,20 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   2. UI automation tests exercise deep-link navigation end-to-end (launch/foreground via a deep link → land on the correct destination screen) for the app's supported deep-link routes.
   3. Malformed or unresolvable deep links fail gracefully (no crash, no silent no-op the user can't recover from).
 
-**Plans**: TBD
+**Plans**: 10 plans
+
+Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
+
+- [ ] 13-01-PLAN.md — Pure `GalleryURLParser` in AppTools + new AppToolsTests suite (D-11/D-12/D-13 core)
+- [ ] 13-02-PLAN.md — `AppError.unsupportedDeepLink` + 6-locale l10n + sanitized link context (D-03)
+- [ ] 13-03-PLAN.md — Migrate all URLClient call sites to the parser; delete the URLClient module (D-13, parity)
+- [ ] 13-04-PLAN.md — Entry-source policy: explicit-open failure toast, clipboard silence (D-01/D-02) + ShareExtension URLComponents rewrite (F8)
+- [ ] 13-05-PLAN.md — D-14a: dismissal-completion coordination replaces the 1000ms modal sleep
+- [ ] 13-06-PLAN.md — D-14b: identity-keyed toast replacement removes both 500ms loading→error sleeps
+- [ ] 13-07-PLAN.md — Hermetic stub seam: DEBUG URLProtocol fixtures + clipboard override + EhPandaApp arm point (D-06)
+- [ ] 13-08-PLAN.md — First XCUITest target + UITests.xctestplan + accessibility identifiers + cold-delivery probe + smoke (D-05/D-07)
+- [ ] 13-09-PLAN.md — Scheme matrix: /g/, /s/, #c + malformed × cold/warm — 8 UI tests (D-09)
+- [ ] 13-10-PLAN.md — Entry representatives: clipboard, comments link, real share sheet (D-10), iPad tab-modal (D-08) + phase test gate
 
 ### Phase 14: Analytics Instrumentation (TelemetryDeck)
 
