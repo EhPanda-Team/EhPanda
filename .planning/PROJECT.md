@@ -38,6 +38,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Structured error handling + user-facing error surface (QUAL-04) — silent `try?` sites classified so genuine failures propagate through typed `throws(AppError)` while intentional fallbacks stay documented; a privacy-safe diagnostic surface (Description / Suggested Solution / Context / Environment) is reached through a persistent, accessible error toast, runtime-verified by simulator UAT — Phase 9
 - ✓ Lint hardening capstone + refactor-gated rules (LINT-01) — 8 custom/opt-in SwiftLint rules live at **error** (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, `labeled_tuple_elements`, `optional_try`, `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`), all violations root-fixed with only 8 owner-reviewed exceptions; test-isolation cleanup removed all 41 `.serialized` traits (suite runs in parallel across 18 targets). Two UAT-caught regressions (detail-mode pagination, page-count icon size) fixed and confirmed — Phase 11
 - ✓ Cloudflare login restoration — username/password login restored behind the Cloudflare wall: response-driven challenge detection (403 + `cf-mitigated`), an in-app auto-dismissing `WKWebView` challenge surface, memory-only `(cf_clearance, User-Agent)` capture replayed on the retried POST, bounded retries into a structured error; owner-verified live pass. A forum-side Turnstile CAPTCHA gate (appeared during UAT) is detected and routed to web login as fallback — Phase 12
+- ✓ Deep-link hardening — every entry path (custom scheme, clipboard, in-comment link, ShareExtension, iPad tab modal) routes through one `GalleryURLParser` that normalizes and rejects spoofed input; `URLClient` deleted; unsupported links get a distinct non-retryable error whose context drops access-bearing URL components; modal replacement awaits real sheet dismissal instead of a fixed 1s delay, and the routing path no longer sleeps 500ms before swapping a loading toast for an error toast. Backed by a new UI-test target on a non-default retrying `UITests` plan with hermetic fixtures — 9 UI tests covering cold and warm lifecycles on iPhone plus the iPad class — Phase 13
 
 ### Active
 
@@ -102,6 +103,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | Fold in networking/cookie/image tests, `.private.filterValue` fix; defer Parser/Download refactors | Coupled concerns are cheap while their seams are open; standalone refactors are separate scope | Tests validated in Phase 8; `.private.filterValue` pending |
 | Recommended sequence: small-blast deps → swaps/spikes → migrations (#8/#13) → architecture (#10/#11/#12/#14/#15/#19) → concerns (#16–18,#20) → lint capstone (#9) | Minimize churn; write new code to the new bar; lint ratchets last | Migrations validated through Phase 4 |
 | Expand the TCA trait migration to the complete 66-site compiler inventory | D-11 found 45 presentation scopes, 11 Store scopes, and 10 reducer Scope initializers rather than the expected 24 sites | ✓ Owner-approved and validated in Phase 4 |
+| Deep-link entry paths converge on one `GalleryURLParser`; `URLClient` is deleted rather than refactored | A single parse/normalize/reject seam is what makes spoofed-input rejection and destination correctness testable; a second URL abstraction only re-splits it | ✓ Validated in Phase 13 |
+| Deep-link correctness is proven by a real UI-test target on a second, non-default `UITests` plan | Routing bugs live in the app's actual launch/foreground lifecycle, which TestStore cannot reach; keeping the plan non-default holds the ordinary scheme unit-only and fast | ✓ Validated in Phase 13 |
 | Masonry grid columns derive from the `Layout`'s own container width via an adaptive rule (min cell width 185pt, min 2 columns); all cells share one identical flexible width; exact 2/4/5 count parity dropped | Owner requirement is stable, content-independent tiling at any width — not exact counts; kills the deprecated `UIScreen.main` + `isPadWidth` reads at the grid call site | — Pending |
 
 ## Evolution
@@ -122,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 after Phase 12*
+*Last updated: 2026-07-23 after Phase 13*
