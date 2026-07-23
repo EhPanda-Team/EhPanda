@@ -41,27 +41,12 @@ class ShareViewController: UIViewController {
 
     @MainActor
     private func openMainApp(url: URL) {
-        extensionContext?.completeRequest(
-            returningItems: nil,
-            completionHandler: { [weak self] _ in
-                Task { @MainActor in
-                    self?.openURL(url)
-                }
+        // The hand-off has to run before the request completes: completing tears the
+        // extension down and invalidates the context that carries the open.
+        extensionContext?.open(url) { [weak self] _ in
+            Task { @MainActor in
+                self?.extensionContext?.completeRequest(returningItems: nil)
             }
-        )
-    }
-
-    @discardableResult
-    @objc private func openURL(_ url: URL) -> Bool {
-        var responder: UIResponder? = self
-        while responder != nil {
-            if let application = responder as? UIApplication {
-                return application.perform(
-                    #selector(openURL(_:)), with: url
-                ) != nil
-            }
-            responder = responder?.next
         }
-        return false
     }
 }
