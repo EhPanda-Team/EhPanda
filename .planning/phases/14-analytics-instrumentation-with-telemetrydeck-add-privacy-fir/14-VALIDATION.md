@@ -22,8 +22,8 @@ created: 2026-07-24
 |----------|-------|
 | **Framework** | Swift Testing (`import Testing`, `@Suite` / `@Test`) + TCA `TestStore` |
 | **Config file** | `AppPackage/Tests/FeatureTests.xctestplan` |
-| **Quick run command** | `swift test --package-path AppPackage --filter AnalyticsClientTests` |
-| **Full suite command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone 17'` |
+| **Quick run command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone Air' -only-testing:AnalyticsClientTests` |
+| **Full suite command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone Air'` |
 | **Estimated runtime** | ~{N} seconds (measure at Wave 0) |
 
 > ⚠ **Registration hazard.** A new test target must be registered in
@@ -42,8 +42,8 @@ created: 2026-07-24
 
 ## Sampling Rate
 
-- **After every task commit:** `swift test --package-path AppPackage --filter <target touched by the task>`
-- **After every plan wave:** full `AppPackage` test run
+- **After every task commit:** `xcodebuild test … -only-testing:<target touched by the task>`
+- **After every plan wave:** full `EhPanda` scheme test run
 - **Before `/gsd-verify-work`:** full suite green through the `EhPanda` scheme
 - **Max feedback latency:** {N} seconds (set at Wave 0)
 
@@ -56,11 +56,11 @@ created: 2026-07-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | D-09 | — | `AnalyticsSignal` renders stable names + parameter keys for every case | unit | `swift test --package-path AppPackage --filter AnalyticsSignalRenderingTests` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | D-06 / D-09 | T-14-01 | No rendered parameter value can be a free-form `String` (exhaustive over all cases) | unit | `swift test --package-path AppPackage --filter AnalyticsSignalRenderingTests` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | D-08 | T-14-02 | Bucket boundaries map correctly at every edge | unit | `swift test --package-path AppPackage --filter BucketTests` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | D-13 | T-14-03 | `liveValue` resolves to `.noop` when the app ID is absent | unit | `swift test --package-path AppPackage --filter AnalyticsClientGateTests` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | D-11 | — | Default-parameter closure reflects a *changed* setting, not an init-time snapshot | unit | `swift test --package-path AppPackage --filter AnalyticsDefaultParametersTests` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | D-09 | — | `AnalyticsSignal` renders stable names + parameter keys for every case | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsSignalRenderingTests` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | D-06 / D-09 | T-14-01 | No rendered parameter value can be a free-form `String` (exhaustive over all cases) | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsSignalRenderingTests` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | D-08 | T-14-02 | Bucket boundaries map correctly at every edge | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/BucketTests` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | D-13 | T-14-03 | `liveValue` resolves to `.noop` when the app ID is absent | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsClientGateTests` | ❌ W0 | ⬜ pending |
+| TBD | TBD | TBD | D-11 | — | Default-parameter closure reflects a *changed* setting, not an init-time snapshot | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsDefaultParametersTests` | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | D-14 | — | Each instrumented reducer action emits exactly the expected signal | unit (`TestStore` + `LockIsolated` spy) | per existing feature test target | ❌ per-target | ⬜ pending |
 | TBD | TBD | TBD | D-14 | — | No signal emitted on non-instrumented actions | structural | covered by `testValue = .unimplemented` | ✅ free | ⬜ pending |
 
