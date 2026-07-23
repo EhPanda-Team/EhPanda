@@ -11,7 +11,6 @@ import HapticsClient
 import ImageClient
 @testable import ReadingFeature
 import Testing
-import URLClient
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
@@ -84,7 +83,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
                 }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
-                $0.urlClient = .noop
             }
         )
         store.exhaustivity = .off
@@ -133,7 +131,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
             $0.deviceClient = .noop
             $0.hapticsClient = .noop
             $0.imageClient = .noop
-            $0.urlClient = .noop
         }
         store.exhaustivity = .off
 

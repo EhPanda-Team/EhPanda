@@ -3,7 +3,6 @@ import AppModels
 import AppTools
 import SwiftUI
 import Testing
-import URLClient
 
 struct SettingDownloadTests {
     @Test
@@ -101,13 +100,13 @@ struct SettingDownloadTests {
     func testCheckIfMPVURLHandlesHostOnlyURL() throws {
         let url = try #require(URL(string: "https://e-hentai.org"))
 
-        #expect(!URLClient.live.checkIfMPVURL(url))
+        #expect(GalleryURLParser.isMPVURL(url) == false)
     }
 
     @Test
     func testCheckIfMPVURLDetectsMPVPath() throws {
         let url = try #require(URL(string: "https://e-hentai.org/mpv/123456/token"))
 
-        #expect(URLClient.live.checkIfMPVURL(url))
+        #expect(GalleryURLParser.isMPVURL(url))
     }
 }

@@ -11,7 +11,6 @@ import HapticsClient
 import ImageClient
 @testable import ReadingFeature
 import Testing
-import URLClient
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
@@ -153,7 +152,6 @@ private extension ReadingReducerDownloadTests {
                 }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
-                $0.urlClient = .noop
             }
         )
         store.exhaustivity = .off
@@ -187,7 +185,6 @@ private extension ReadingReducerDownloadTests {
                 }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
-                $0.urlClient = .noop
             }
         )
         store.exhaustivity = .off

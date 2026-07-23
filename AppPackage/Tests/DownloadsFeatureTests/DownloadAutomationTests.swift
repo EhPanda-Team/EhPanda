@@ -14,7 +14,6 @@ import HapticsClient
 import LibraryClient
 import SwiftUI
 import Testing
-import URLClient
 import UserDefaultsClient
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
@@ -178,11 +177,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.downloadClient = .noop
-                $0.urlClient = .init(
-                    checkIfHandleable: { _ in false },
-                    checkIfMPVURL: { _ in false },
-                    parseGalleryID: { _ in .init() }
-                )
             }
         )
 
@@ -230,7 +224,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
-                $0.urlClient = .noop
                 $0.logsClient = .noop
                 $0.continuousClock = TestClock()
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
@@ -278,11 +271,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
-                $0.urlClient = .init(
-                    checkIfHandleable: { _ in false },
-                    checkIfMPVURL: { _ in false },
-                    parseGalleryID: { _ in .init() }
-                )
             }
         )
         store.exhaustivity = .off
@@ -335,11 +323,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
-                $0.urlClient = .init(
-                    checkIfHandleable: { _ in false },
-                    checkIfMPVURL: { _ in false },
-                    parseGalleryID: { _ in .init() }
-                )
             }
         )
         store.exhaustivity = .off
