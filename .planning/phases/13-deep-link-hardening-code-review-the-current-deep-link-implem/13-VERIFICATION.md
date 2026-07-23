@@ -1,21 +1,22 @@
 ---
 phase: 13-deep-link-hardening-code-review-the-current-deep-link-implem
 verified: 2026-07-23T12:45:00Z
-status: human_needed
-score: 37/38 must-haves verified
+status: passed
+score: 38/38 must-haves verified
 behavior_unverified: 0
-overrides_applied: 0
-human_verification:
-  - test: "Confirm the ShareExtension → app hand-off may rest on the private `LSApplicationWorkspace` API (ShareExtension/ShareViewController.swift:63-85)."
-    expected: "Owner accepts private API here, or requires a different route. If accepted, record a VERIFICATION override so SC-1 (‘less hacky’) closes explicitly rather than implicitly."
-    why_human: "Whether a private-API dependency counts as ‘resolved at root’ or as new fragility is a product/distribution judgement, not a code fact. The only recorded acceptance is inside 13-10-SUMMARY.md (an executor artifact), not an owner-signed decision record."
+overrides_applied: 1
+overrides:
+  - must_have: "Hacky/fragile spots resolved at root (SC-1) — ShareExtension app hand-off"
+    reason: "No public route exists on iOS 26.5 — NSExtensionContext.open(_:) is honoured only for Today/iMessage extension points, the deprecated responder-chain openURL: is force-failed by UIKit, and _UIHostedWindowScene accepts openURL:options:completionHandler: without ever opening anything. This build does not ship to the App Store, and ShareSheetUITests drives the real share sheet end to end so the route turns red the moment it breaks."
+    accepted_by: "Chihchy"
+    accepted_at: "2026-07-23T13:10:00Z"
 ---
 
 # Phase 13: Deep Link Hardening Verification Report
 
 **Phase Goal:** Code-review the current deep-link implementation (`GalleryDeepLink.swift`, `AppRouteReducer.swift`) and make it less hacky and more durable at navigating the user to the correct destination screen, backed by UI automation tests.
 **Verified:** 2026-07-23
-**Status:** human_needed (1 decision item; no gaps)
+**Status:** passed (1 override applied; no gaps)
 **Re-verification:** No — initial verification (retroactive; execute-phase never emitted a report)
 
 ## Goal Achievement
@@ -24,7 +25,7 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| SC-1 | Hacky/fragile spots resolved at root, destination routing unchanged for supported links | ⚠️ VERIFIED with one open decision | `GalleryURLParser.swift` replaces the spoofable substring host check with an exact-host set (`:26-30`, `:86-93`); `URLClient` module fully deleted (zero references repo-wide); both magic-number sleeps gone from the routing path; ShareExtension scheme rewrite is `URLComponents`-based. **Open:** the extension's app hand-off now uses private API (see Human Verification). |
+| SC-1 | Hacky/fragile spots resolved at root, destination routing unchanged for supported links | ✓ VERIFIED (1 override) | `GalleryURLParser.swift` replaces the spoofable substring host check with an exact-host set (`:26-30`, `:86-93`); `URLClient` module fully deleted (zero references repo-wide); both magic-number sleeps gone from the routing path; ShareExtension scheme rewrite is `URLComponents`-based. The extension's private-API app hand-off is PASSED (override) — accepted by Chihchy on 2026-07-23 (see Accepted Trade-offs). |
 | SC-2 | UI automation tests exercise deep-link navigation end-to-end for supported routes | ✓ VERIFIED | `EhPandaUITests` target exists in `project.pbxproj` (id `A13080000000000000000006`), driven by the non-default `UITests.xctestplan`; 13 XCUITests across 5 files cover /g/, /s/, #c, malformed × cold/warm, clipboard, comment-link, share sheet, iPad tab-modal. |
 | SC-3 | Malformed/unresolvable deep links fail gracefully — no crash, no unrecoverable silent no-op | ✓ VERIFIED | `PresentationFeature.swift:175-183` emits `.error(ErrorInfo(.unsupportedDeepLink, .unsupportedLink(url:)))` on parse failure; toast is tappable → `error_info_view`; asserted in `DeepLinkSchemeUITests.assertMalformedLinkDestination` (:177-208) for both lifecycles. Clipboard stays deliberately silent by pre-validating (`PresentationFeature.swift:158`). |
 
@@ -137,34 +138,25 @@ Note: the destination named in the task brief (`iPhone 17 Pro`) does not exist o
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
 | — | — | `TODO`/`FIXME`/`TBD`/`XXX`/`HACK` across the 45 Swift files changed in this phase | ℹ️ INFO | none found |
-| `ShareExtension/ShareViewController.swift` | 63-85 | Private API (`LSApplicationWorkspace` via `NSSelectorFromString` + `unsafeBitCast`) | ⚠️ WARNING | See Human Verification. Documented, measured against three dead public routes, and covered by `ShareSheetUITests` so breakage is loud. |
+| `ShareExtension/ShareViewController.swift` | 63-85 | Private API (`LSApplicationWorkspace` via `NSSelectorFromString` + `unsafeBitCast`) | ✓ ACCEPTED | Owner-accepted 2026-07-23 (see Accepted Trade-offs). Documented, measured against three dead public routes, and covered by `ShareSheetUITests` so breakage is loud. |
 | `AppPackage/Tests/DownloadsFeatureTests/DownloadObserverBatchTests.swift` | 65 | Load-dependent flake in the full-suite run | ℹ️ INFO | Unrelated to Phase 13 (last touched in Phase 11); passes in isolation |
 | `.planning/ROADMAP.md` | 731, 742-743 | Bookkeeping drift: `Plans: 9/10 executed`, `13-10-PLAN.md` left unchecked | ⚠️ WARNING | `13-10-SUMMARY.md` is complete and commit `94ac4956` closed the plan; ROADMAP should read 10/10 |
 | `EhPandaUITests/*` + `AppPackage/Sources/*` | — | 7 identifier literals mirrored by 18 literal call sites, no compile-time link | ℹ️ INFO | Already recorded as a deferred follow-up in `13-UAT.md` |
 
-### Human Verification Required
+### Accepted Trade-offs
 
-#### 1. Accept (or reject) the private-API share-extension hand-off
+#### 1. Private-API share-extension hand-off — ACCEPTED 2026-07-23 by Chihchy
 
-**Test:** Read `ShareExtension/ShareViewController.swift:50-85`. Decide whether routing the extension→app hand-off through `LSApplicationWorkspace` is acceptable for this build.
-**Expected:** Either an explicit acceptance recorded as a VERIFICATION override, or a directive to find another route.
-**Why human:** The phase goal is "less hacky and more durable". This replaced one undocumented trick (the deprecated responder-chain `openURL:`) with another (private API). The code's rationale — all three public routes measured dead on iOS 26.5, build not shipped to the App Store — is plausible and is E2E-guarded, but the distribution premise and the "hackiness" trade-off are owner calls, not code facts. The only recorded acceptance is inside an executor-authored summary (`13-10-SUMMARY.md:158`).
-
-To accept, add to this file's frontmatter:
-
-```yaml
-overrides:
-  - must_have: "Hacky/fragile spots resolved at root (SC-1) — ShareExtension app hand-off"
-    reason: "No public route exists on iOS 26.5; this build does not ship to the App Store; ShareSheetUITests turns red if the route breaks."
-    accepted_by: "<name>"
-    accepted_at: "<ISO timestamp>"
-```
+**Item:** `ShareExtension/ShareViewController.swift:50-85` routes the extension→app hand-off through the private `LSApplicationWorkspace` API (`NSSelectorFromString` + `unsafeBitCast`).
+**Decision:** Accepted as satisfying SC-1. Recorded as a frontmatter override; SC-1 closes explicitly rather than implicitly.
+**Rationale:** No public route exists on iOS 26.5 — `NSExtensionContext.open(_:)` is honoured only for the Today and iMessage extension points, UIKit force-fails the deprecated responder-chain `openURL:`, and the terminating `_UIHostedWindowScene` accepts `openURL:options:completionHandler:` without ever opening anything. This build does not ship to the App Store, so the private-API prohibition does not bind it, and `ShareSheetUITests` drives the real share sheet end to end, so the route turns red the moment it stops working.
+**Revisit if:** distribution intent changes (any App Store submission), or a sanctioned extension→app route appears in a later iOS release.
 
 ### Gaps Summary
 
 No gaps. Every plan artifact exists, is substantive, is wired, and carries real data flow. The three ROADMAP Success Criteria are each backed by code plus tests: SC-1 by the parser rewrite, the URLClient deletion, and the removal of both magic-number sleeps from the routing path; SC-2 by a real XCUITest target on a second test plan with 13 tests across all supported routes and entry paths; SC-3 by a dedicated non-retryable error case with six-locale strings, a sanitized diagnostic context, and a tappable toast proven to reach `ErrorInfoView` in both lifecycles.
 
-Two bookkeeping items and one decision item remain. The decision item (private API in the share extension) is the only thing standing between this phase and an unqualified pass — it is not a defect, it is an unrecorded trade-off that the phase goal's own wording makes worth signing off explicitly.
+The one decision item — private API in the share extension — was resolved on 2026-07-23: the owner accepted it, and it is now recorded as a frontmatter override rather than an unsigned executor assumption. The two bookkeeping items (ROADMAP plan count, REQUIREMENTS SC entries) close with phase completion.
 
 ---
 

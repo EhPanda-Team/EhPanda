@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
 - [x] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance (completed 2026-07-23)
-- [ ] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation
+- [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
 - [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
 - [ ] **Phase 15: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
 
@@ -687,7 +687,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. UI Polish | 12/12 | In Progress|  |
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
-| 13. Deep Link Hardening | 9/10 | In Progress|  |
+| 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 0/TBD | Not started | - |
 | 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
 
@@ -721,14 +721,14 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 
 **Goal**: Code-review the current deep-link implementation (`GalleryDeepLink.swift`, `AppRouteReducer.swift`) and make it less hacky and more durable at navigating the user to the correct destination screen, backed by UI automation tests.
 **Depends on**: Phase 11
-**Requirements**: TBD
+**Requirements**: None mapped — the scope contract is this phase's three success criteria, referenced by plans as SC-labels
 **Success Criteria** (what must be TRUE):
 
   1. The deep-link implementation's hacky/fragile spots (identified by code review) are resolved at root, at unchanged destination-routing behavior for currently-supported links.
   2. UI automation tests exercise deep-link navigation end-to-end (launch/foreground via a deep link → land on the correct destination screen) for the app's supported deep-link routes.
   3. Malformed or unresolvable deep links fail gracefully (no crash, no silent no-op the user can't recover from).
 
-**Plans**: 9/10 plans executed
+**Plans**: 10/10 plans executed
 
 Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
 
@@ -741,7 +741,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [x] 13-07-PLAN.md — App-side test preparation: DEBUG URLProtocol stub seam + clipboard override + EhPandaApp arm point (D-06) + accessibility identifiers on destination screens
 - [x] 13-08-PLAN.md — First XCUITest target + UITests.xctestplan + fixtures + cold-delivery probe + hermetic smoke (D-05/D-07)
 - [x] 13-09-PLAN.md — Scheme matrix: /g/, /s/, #c + malformed × cold/warm — 8 UI tests (D-09)
-- [ ] 13-10-PLAN.md — Entry representatives: clipboard, comments link, real share sheet (D-10), iPad tab-modal (D-08) + phase test gate
+- [x] 13-10-PLAN.md — Entry representatives: clipboard, comments link, real share sheet (D-10), iPad tab-modal (D-08) + phase test gate
 
 ### Phase 14: Analytics Instrumentation (TelemetryDeck)
 
