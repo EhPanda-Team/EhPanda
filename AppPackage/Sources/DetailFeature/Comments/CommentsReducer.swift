@@ -1,13 +1,13 @@
 import AppComponents
 import ApplicationClient
 import AppModels
+import AppTools
 import ComposableArchitecture
 import CookieClient
 import Foundation
 import HapticsClient
 import NetworkingFeature
 import Sharing
-import URLClient
 
 @Reducer
 public struct CommentsReducer: Sendable {
@@ -86,7 +86,6 @@ public struct CommentsReducer: Sendable {
     @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
-    @Dependency(\.urlClient) private var urlClient
     @Dependency(\.date) private var date
 
     public init() {}
@@ -156,18 +155,17 @@ public struct CommentsReducer: Sendable {
                 )
 
             case .handleCommentLink(let url):
-                guard urlClient.checkIfHandleable(url) else {
+                guard let route = GalleryURLParser.parse(url) else {
                     return .run(operation: { _ in await applicationClient.openURL(url) })
                 }
                 // Always fetch the linked gallery so the pushed detail is seeded from it (no cache).
-                let analysis = urlClient.analyzeURL(url)
-                return .send(.fetchGallery(url: url, isGalleryImageURL: analysis.isGalleryImageURL))
+                return .send(.fetchGallery(url: route.url, isGalleryImageURL: route.isGalleryImageURL))
 
             case .handleGalleryLink(let url, let gallery):
-                let analysis = urlClient.analyzeURL(url)
-                let deepLink = GalleryDeepLink(pageIndex: analysis.pageIndex, commentID: analysis.commentID)
+                let route = GalleryURLParser.parse(url)
+                let deepLink = GalleryDeepLink(pageIndex: route?.pageIndex, commentID: route?.commentID)
                 var effects = [Effect<Action>]()
-                if let pageIndex = analysis.pageIndex {
+                if let pageIndex = route?.pageIndex {
                     effects.append(.send(.updateReadingProgress(
                         gid: gallery.id, token: gallery.token, progress: pageIndex
                     )))

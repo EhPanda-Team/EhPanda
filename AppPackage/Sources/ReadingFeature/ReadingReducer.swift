@@ -12,7 +12,6 @@ import NetworkingFeature
 import ReadingSettingFeature
 import Sharing
 import SwiftUI
-import URLClient
 
 @Reducer
 public struct ReadingReducer: Sendable {
@@ -228,7 +227,6 @@ public struct ReadingReducer: Sendable {
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.imageClient) var imageClient
-    @Dependency(\.urlClient) var urlClient
     @Dependency(\.date) var date
     @Dependency(\.continuousClock) var clock
 

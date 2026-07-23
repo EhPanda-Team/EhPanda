@@ -3,7 +3,6 @@ import AppTools
 import Foundation
 import NetworkingFeature
 import OSLogExt
-import URLClient
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
@@ -190,7 +189,7 @@ extension DownloadCoordinator {
         else {
             throw AppError.notFound
         }
-        if URLClient.isMPVURL(firstURL) {
+        if GalleryURLParser.isMPVURL(firstURL) {
             let (mpvKey, imageKeys) = try await MPVKeysRequest(
                 mpvURL: firstURL,
                 urlSession: urlSession,

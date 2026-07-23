@@ -164,7 +164,7 @@ extension ReadingReducer {
                         }
                         return .none
                     }
-                    if let url = thumbnailURLs[page], urlClient.checkIfMPVURL(url) {
+                    if let url = thumbnailURLs[page], GalleryURLParser.isMPVURL(url) {
                         return .send(.fetchMPVKeys(index: page, url: url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
