@@ -79,7 +79,10 @@ struct TabBarView: View {
             )
             .privacyMask()
         }
-        .sheet(item: $store.scope(\.presentationState.$detail, action: \.presentation.detail)) { detailStore in
+        .sheet(
+            item: $store.scope(\.presentationState.$detail, action: \.presentation.detail),
+            onDismiss: { store.send(.presentation(.detailDismissalCompleted)) }
+        ) { detailStore in
             NavigationStack(
                 path: $store.scope(\.presentationState.path, action: \.presentation.path)
             ) {
