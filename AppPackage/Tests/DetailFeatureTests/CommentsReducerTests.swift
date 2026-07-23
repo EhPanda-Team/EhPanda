@@ -1,3 +1,4 @@
+import AppComponents
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -11,6 +12,23 @@ import Testing
 // Any case left unannotated is deliberately free to run off the main actor.
 @Suite
 struct CommentsReducerTests {
+    @MainActor
+    @Test
+    func galleryFetchFailureReplacesLoadingToastWithoutFollowUpAction() async throws {
+        let url = try #require(URL(string: "https://e-hentai.org/g/123/abcdef0123/"))
+        var initialState = CommentsReducer.State(galleryURL: .mock)
+        initialState.toast = .loading()
+        let store = TestStore(
+            initialState: initialState,
+            reducer: CommentsReducer.init
+        )
+
+        await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed))) {
+            $0.toast = .error()
+        }
+        await store.finish()
+    }
+
     // Regression: editing a comment then opening a new one used to leak the edited text, because the
     // compose state was reset only on dismiss (which a swipe-down never triggers). The reset now
     // happens on present, so a fresh compose always starts empty regardless of how the sheet closed.

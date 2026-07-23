@@ -226,15 +226,17 @@ struct PresentationFeatureTests {
             reason: AppError.networkingFailed.localizedDescription
         )
         let errorInfo = ErrorInfo(error: .networkingFailed, context: context)
+        var initialState = PresentationFeature.State()
+        initialState.toast = .loading()
         let store = TestStore(
-            initialState: PresentationFeature.State(),
+            initialState: initialState,
             reducer: PresentationFeature.init
         )
 
-        await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed)))
-        await store.receive(\.setToast, timeout: .seconds(1)) {
+        await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed))) {
             $0.toast = .error(errorInfo)
         }
+        await store.finish()
 
         let values = context.values.map(\.displayValue)
         #expect(values.contains(where: { $0.contains(fixture.secret) }) == false)
