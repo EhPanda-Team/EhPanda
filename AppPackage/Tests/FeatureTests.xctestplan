@@ -29,6 +29,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "AppToolsTests",
+        "name" : "AppToolsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "DetailFeatureTests",
         "name" : "DetailFeatureTests"
       }
