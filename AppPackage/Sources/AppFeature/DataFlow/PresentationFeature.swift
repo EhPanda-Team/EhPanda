@@ -12,6 +12,10 @@ import UserDefaultsClient
 
 @Reducer
 struct PresentationFeature {
+    private enum CancelID {
+        case fetchGallery
+    }
+
     @Reducer
     enum Destination {
         @ReducerCaseIgnored
@@ -22,6 +26,11 @@ struct PresentationFeature {
         case newDawn(Greeting)
     }
 
+    struct PendingGalleryLink: Equatable, Sendable {
+        let url: URL
+        let gallery: Gallery
+    }
+
     @ObservableState
     struct State: Equatable {
         @Presents var toast: AppAlertState<Never>?
@@ -29,6 +38,8 @@ struct PresentationFeature {
         @Presents var detail: DetailReducer.State?
         var path = StackState<GalleryPath.State>()
         @Presents var destination: Destination.State?
+        var isAwaitingDetailDismissal = false
+        var pendingGalleryLink: PendingGalleryLink?
 
         init() {}
     }
@@ -46,6 +57,7 @@ struct PresentationFeature {
         case setToast(AppAlertState<Never>)
 
         case detectClipboardURL
+        case detailDismissalCompleted
         case handleDeepLink(URL)
         case handleGalleryLink(url: URL, gallery: Gallery)
 
@@ -151,6 +163,16 @@ struct PresentationFeature {
                 }
                 return .merge(effects)
 
+            case .detailDismissalCompleted:
+                guard state.isAwaitingDetailDismissal else { return .none }
+                state.isAwaitingDetailDismissal = false
+                guard let pendingGalleryLink = state.pendingGalleryLink else { return .none }
+                state.pendingGalleryLink = nil
+                return .send(.handleGalleryLink(
+                    url: pendingGalleryLink.url,
+                    gallery: pendingGalleryLink.gallery
+                ))
+
             case .handleDeepLink(let url):
                 guard let route = GalleryURLParser.parse(url) else {
                     let errorInfo = ErrorInfo(
@@ -160,17 +182,18 @@ struct PresentationFeature {
                     state.toast = .error(errorInfo)
                     return .none
                 }
-                var delay = 0
                 if state.detail != nil {
-                    delay = 1000
+                    state.isAwaitingDetailDismissal = true
                     state.detail = nil
                     state.path.removeAll()
                 }
-                // Always fetch the gallery so the pushed detail is seeded from it.
-                return .run { [delay] send in
-                    try await Task.sleep(for: .milliseconds(delay))
-                    await send(.fetchGallery(url: route.url, isGalleryImageURL: route.isGalleryImageURL))
+                if state.isAwaitingDetailDismissal {
+                    // A later deep link supersedes any fetched link still waiting for the same
+                    // dismissal completion. Its in-flight fetch also replaces the previous one.
+                    state.pendingGalleryLink = nil
                 }
+                // Always fetch the gallery so the pushed detail is seeded from it.
+                return .send(.fetchGallery(url: route.url, isGalleryImageURL: route.isGalleryImageURL))
 
             case .handleGalleryLink(let url, let gallery):
                 let route = GalleryURLParser.parse(url)
@@ -210,14 +233,20 @@ struct PresentationFeature {
                         .response()
                         await send(.fetchGalleryDone(url: url, result: .success(gallery)))
                     } catch {
+                        guard Task.isCancelled == false else { return }
                         await send(.fetchGalleryDone(url: url, result: .failure(error)))
                     }
                 }
+                .cancellable(id: CancelID.fetchGallery, cancelInFlight: true)
 
             case .fetchGalleryDone(let url, let result):
                 state.toast = nil
                 switch result {
                 case .success(let gallery):
+                    if state.isAwaitingDetailDismissal {
+                        state.pendingGalleryLink = .init(url: url, gallery: gallery)
+                        return .none
+                    }
                     return .send(.handleGalleryLink(url: url, gallery: gallery))
                 case .failure(let error):
                     let context = Context.galleryFailure(
