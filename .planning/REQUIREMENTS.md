@@ -77,6 +77,11 @@
   - **Delivered:** all 8 rules live at `severity: error`; **0 violations in 452 files** across `AppPackage/Sources`, `AppPackage/Tests`, `App` and `ShareExtension`, with every rule proven to fire by negative-control probe. **8 approved exceptions** repo-wide (6 `lifecycle_modifiers`, 2 `unchecked_subscript_index_access`), inventoried in `.planning/phases/11-infra-refactor-lint-capstone/11-EXCEPTIONS.md`; the other six rules shipped with zero. `optional_try` is enforced in test code too, with no path exclusion (D-15). `.serialized` is gone entirely and the full 565-test suite runs in parallel across 18 targets.
   - **Fell short:** D-13's `@MainActor` sweep freed only **17 of 186 cases** — 84% remain main-actor-isolated because TCA's `TestStore` is main-actor-bound — with no measurable wall-clock gain. D-09's stable preview identities are **half-done**: `PreviewSupport` ships, but `AppModels`' shared `Gallery` fixtures still mint random `UUID()`. 11-02's "unparseable list page throws" must-have is **inert** — D-04 Group A's degradation helper makes row-level failures non-throwing, so the conversion changed nothing observable. There is still **no network seam** (`urlSession: URLSession = .shared` as an init default at 50 sites), which capped reducer test coverage across plans 11-07…11-10.
 
+### ANALYTICS — Usage analytics
+
+- [ ] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
+  - The public signal API accepts no bare `String`, so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with exact search-keyword length as the single documented exception; the client no-ops entirely when the build carries no ingestion credential, keeping contributor, fork and CI builds out of the dataset; and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
+
 ## v2 Requirements
 
 None. Deferred work is captured under Out of Scope (future milestone), not staged as v2 here.
@@ -121,13 +126,14 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | POLISH-02 | Phase 10 | Complete |
 | POLISH-03 | Phase 10 | Complete |
 | LINT-01 | Phase 11 | Complete |
+| ANALYTICS-01 | Phase 14 | In progress |
 
 **Coverage:**
 
-- v1 requirements: 22 total
-- Mapped to phases: 22 ✓
+- v1 requirements: 23 total
+- Mapped to phases: 23 ✓
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-13 — UIARCH-02 rescoped: `GenericList` decomposition rejected (owner); delivered as a `GenericList`→`GalleryList` rename instead (22/22 mapped)*
+*Last updated: 2026-07-24 — ANALYTICS-01 opened for Phase 14 (analytics instrumentation); 23/23 mapped*
