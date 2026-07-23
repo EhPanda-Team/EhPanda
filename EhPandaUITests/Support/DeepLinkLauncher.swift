@@ -65,6 +65,7 @@ extension XCUIApplication {
         let resourceURL = try XCTUnwrap(
             Bundle(for: DeepLinkLauncherBundleToken.self).resourceURL
         )
+        launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         launchEnvironment[UITestConstants.stubNetworkEnvironmentKey] = "1"
         launchEnvironment[UITestConstants.fixtureDirectoryEnvironmentKey] = resourceURL.path()
         for (key, value) in extraEnvironment {

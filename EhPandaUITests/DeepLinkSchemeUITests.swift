@@ -68,6 +68,26 @@ final class DeepLinkSchemeUITests: XCTestCase {
         assertCommentDestination(in: app)
     }
 
+    func testMalformedLinkColdLaunchShowsErrorToast() throws {
+        let app = XCUIApplication()
+        let url = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
+
+        try app.openCold(url)
+
+        assertMalformedLinkDestination(in: app)
+    }
+
+    func testMalformedLinkWarmForegroundShowsErrorToast() throws {
+        let app = XCUIApplication()
+        let url = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
+
+        try app.launchStubbed()
+        app.requireForeground()
+        app.openWarm(url)
+
+        assertMalformedLinkDestination(in: app)
+    }
+
     private func assertGalleryDestination(
         in app: XCUIApplication,
         file: StaticString = #filePath,
@@ -152,5 +172,38 @@ final class DeepLinkSchemeUITests: XCTestCase {
         )
         backButton.tap()
         app.requireElement("detail_view", matching: .scrollView, file: file, line: line)
+    }
+
+    private func assertMalformedLinkDestination(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        app.requireForeground(file: file, line: line)
+        let toast = app.requireElement("toast_message", file: file, line: line)
+        XCTAssertTrue(
+            toast.label.contains(UITestConstants.unsupportedLinkDescription),
+            "The malformed-link toast did not explain that the link is unsupported; "
+                + "its accessibility label was \(toast.label.debugDescription).",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            toast.isHittable,
+            "The malformed-link toast was not tappable.",
+            file: file,
+            line: line
+        )
+        XCTAssertFalse(
+            app.descendants(matching: .scrollView)["detail_view"]
+                .waitForExistence(timeout: 2),
+            "A malformed link unexpectedly opened a gallery detail screen.",
+            file: file,
+            line: line
+        )
+
+        toast.tap()
+
+        app.requireElement("error_info_view", file: file, line: line)
     }
 }
