@@ -17,6 +17,11 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.64.1"),
+    // TelemetryDeck's Swift SDK. The repository is named `SwiftSDK` while the product it vends is
+    // named `TelemetryDeck`, so the `.product(name:package:)` alias below cannot use one name for
+    // both. Pinned with an explicit `.upToNextMajor` range rather than a bare `from:`: 3.0.0 has
+    // only pre-release tags, and a bare `from:` can resolve one of those.
+    .package(url: "https://github.com/TelemetryDeck/SwiftSDK", .upToNextMajor(from: "2.14.1")),
     .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
@@ -47,6 +52,7 @@ extension PackageDescription.Target.Dependency {
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
+    static let telemetryDeck: Self = .product(name: "TelemetryDeck", package: "SwiftSDK")
 }
 
 let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
@@ -62,6 +68,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 
 // MARK: Module
 enum Module: String {
+    case analyticsClient = "AnalyticsClient"
     case animatedImageFeature = "AnimatedImageFeature"
     case appComponents = "AppComponents"
     case appFeature = "AppFeature"
@@ -128,6 +135,9 @@ enum Module: String {
     case galleryListComponentsTests = "GalleryListComponentsTests"
     case readingFeatureTests = "ReadingFeatureTests"
     case systemNotificationTests = "SystemNotificationTests"
+    case analyticsClientTests = "AnalyticsClientTests"
+    case searchFeatureTests = "SearchFeatureTests"
+    case favoritesFeatureTests = "FavoritesFeatureTests"
 }
 
 extension Module {
@@ -261,6 +271,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
@@ -397,6 +408,21 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.animatedImageFeature),
             .targetDependency(.composableArchitecture)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    // The sole owner of the TelemetryDeck SDK: no other module may import it, so every payload
+    // that leaves the app is minted through this module's closed signal vocabulary. The
+    // `.cookieClient` edge exists because the per-signal login-state snapshot reads
+    // `@SharedReader(.didLogin)`, whose key is declared there.
+    .target(
+        module: .analyticsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.cookieClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing),
+            .targetDependency(.telemetryDeck)
         ],
         plugins: swiftLintPlugins
     ),
@@ -588,6 +614,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .quickSearchFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appComponents),
             .module(.appModels),
             .module(.resources),
@@ -601,6 +628,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .downloadsFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appModels),
@@ -622,6 +650,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .favoritesFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
@@ -643,6 +672,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .settingFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appModels),
@@ -670,6 +700,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .searchFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
@@ -697,6 +728,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .homeFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
@@ -726,6 +758,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .detailFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
@@ -756,6 +789,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .readingFeature,
         dependencies: [
+            .module(.analyticsClient),
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appModels),
@@ -846,6 +880,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .appFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appFeature)
         ],
         plugins: swiftLintPlugins
@@ -860,6 +895,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .homeFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .module(.homeFeature)
         ],
         plugins: swiftLintPlugins
@@ -881,6 +917,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .downloadsFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .module(.testingSupport),
             .module(.appFeature),
             .module(.appLaunchAutomationClient),
@@ -919,6 +956,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .settingFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appModels),
             .module(.cookieClient),
             .module(.fileClient),
@@ -933,6 +971,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .detailFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .module(.appModels),
             .module(.detailFeature),
             .module(.hapticsClient),
@@ -1015,6 +1054,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .readingFeatureTests,
         dependencies: [
+            .module(.analyticsClient),
             .targetDependency(.composableArchitecture),
             .module(.testingSupport),
             .module(.appModels),
@@ -1028,6 +1068,38 @@ let targets: [PackageDescription.Target] = [
         module: .systemNotificationTests,
         dependencies: [
             .module(.systemNotification)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .analyticsClientTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            .module(.cookieClient),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .searchFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            .module(.quickSearchFeature),
+            .module(.searchFeature),
+            .targetDependency(.composableArchitecture)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .favoritesFeatureTests,
+        dependencies: [
+            .module(.analyticsClient),
+            .module(.appModels),
+            .module(.favoritesFeature),
+            .targetDependency(.composableArchitecture)
         ],
         plugins: swiftLintPlugins
     )
