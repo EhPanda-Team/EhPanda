@@ -60,20 +60,22 @@ struct UITestStubTests {
     func environmentResolutionIsOptInAndBuildsClipboardOverride() throws {
         let now = Date(timeIntervalSinceReferenceDate: 123)
         #expect(UITestAutomation.prepare(environment: [:], now: now) == nil)
+        #expect(UITestAutomation.shouldDetectClipboardURL(environment: [:]) == false)
 
         let clipboardURL = try #require(URL(string: "https://e-hentai.org/g/2725078/token/"))
         let fixturePath = "/tmp/EhPanda UI Test Fixtures"
-        let configuration = try #require(UITestAutomation.resolve(
-            environment: [
-                "EHPANDA_UITEST_STUB_NETWORK": " 1 ",
-                "EHPANDA_UITEST_FIXTURE_DIR": " \(fixturePath) ",
-                "EHPANDA_UITEST_CLIPBOARD_URL": " \(clipboardURL.absoluteString) "
-            ],
-            now: now
-        ))
+        let environment = [
+            "EHPANDA_UITEST_STUB_NETWORK": " 1 ",
+            "EHPANDA_UITEST_FIXTURE_DIR": " \(fixturePath) ",
+            "EHPANDA_UITEST_CLIPBOARD_URL": " \(clipboardURL.absoluteString) "
+        ]
+        let configuration = try #require(
+            UITestAutomation.resolve(environment: environment, now: now)
+        )
         let clipboardClient = try #require(configuration.clipboardClient)
 
         #expect(configuration.shouldStubNetwork)
+        #expect(UITestAutomation.shouldDetectClipboardURL(environment: environment))
         expectNoDifference(
             configuration.fixtureDirectory?.path(percentEncoded: false),
             fixturePath

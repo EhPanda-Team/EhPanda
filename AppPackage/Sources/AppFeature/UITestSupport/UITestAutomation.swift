@@ -3,6 +3,14 @@ import ComposableArchitecture
 import Foundation
 
 public enum UITestAutomation {
+    public static var shouldDetectClipboardURL: Bool {
+        #if DEBUG
+        shouldDetectClipboardURL(environment: ProcessInfo.processInfo.environment)
+        #else
+        false
+        #endif
+    }
+
     public static func prepareIfNeeded() {
         #if DEBUG
         prepare(environment: ProcessInfo.processInfo.environment)
@@ -72,6 +80,15 @@ public enum UITestAutomation {
             clipboardClient: clipboardClient,
             shouldStubNetwork: shouldStubNetwork
         )
+    }
+
+    static func shouldDetectClipboardURL(
+        environment: [String: String]
+    ) -> Bool {
+        trimmedValue(
+            environment: environment,
+            key: "EHPANDA_UITEST_CLIPBOARD_URL"
+        ) != nil
     }
 
     private static func clipboardClient(
