@@ -144,6 +144,27 @@
         "identifier" : "ReadingFeatureTests",
         "name" : "ReadingFeatureTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "AnalyticsClientTests",
+        "name" : "AnalyticsClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "SearchFeatureTests",
+        "name" : "SearchFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "FavoritesFeatureTests",
+        "name" : "FavoritesFeatureTests"
+      }
     }
   ],
   "version" : 1
