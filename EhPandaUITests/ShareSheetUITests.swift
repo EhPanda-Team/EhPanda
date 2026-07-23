@@ -23,19 +23,35 @@ final class ShareSheetUITests: XCTestCase {
             tabOverviewDoneButton.tap()
         }
 
-        let addressButton = safari.buttons["TabBarItemTitle"].firstMatch
-        XCTAssertTrue(
-            addressButton.waitForExistence(timeout: 5),
-            "Safari did not expose its TabBarItemTitle address button.\n\(safari.debugDescription)"
-        )
-        addressButton.tap()
+        // The start page can carry an onboarding card whose dimming overlay sits
+        // over the capsule toolbar; dismiss it before reaching for the address bar.
+        let onboardingCloseButton = safari.buttons["close"].firstMatch
+        if onboardingCloseButton.waitForExistence(timeout: 3) {
+            onboardingCloseButton.tap()
+        }
 
-        let addressField = safari.textFields.firstMatch
+        // Probed and pinned on iOS 26.5: the capsule toolbar exposes the address
+        // bar as a *text field* identified `TabBarItemTitle` (it was a button in
+        // earlier releases). Re-probe `safari.debugDescription` if this drifts.
+        let addressField = safari.textFields["TabBarItemTitle"].firstMatch
         XCTAssertTrue(
-            addressField.waitForExistence(timeout: 5),
-            "Safari did not expose an address field after activating its address button."
+            addressField.waitForExistence(timeout: 10),
+            "Safari did not expose its TabBarItemTitle address field.\n\(safari.debugDescription)"
         )
-        addressField.typeText(sharePageServer.url.absoluteString + "\n")
+        addressField.tap()
+
+        XCTAssertTrue(
+            safari.keyboards.firstMatch.waitForExistence(timeout: 10),
+            "Safari did not raise the keyboard for its address field.\n\(safari.debugDescription)"
+        )
+        safari.typeText(sharePageServer.url.absoluteString + "\n")
+
+        // Safari greets a fresh simulator with a feature tip popover that covers
+        // the page; it has to go before the link is long-pressable.
+        let tipCloseButton = safari.buttons["xmark.circle.fill"].firstMatch
+        if tipCloseButton.waitForExistence(timeout: 3) {
+            tipCloseButton.tap()
+        }
 
         let galleryLink = safari.links[LocalSharePageServer.linkLabel]
         XCTAssertTrue(
@@ -44,7 +60,19 @@ final class ShareSheetUITests: XCTestCase {
         )
         galleryLink.press(forDuration: 1)
 
-        let shareMenuItem = safari.buttons["Share"].firstMatch
+        // The link menu renders a page preview above its actions, which pushes the
+        // lower actions past the bottom of the screen; collapsing it lifts the whole
+        // menu into hittable space (and stops Safari rendering the fetched preview).
+        let hidePreviewAction = safari.staticTexts["Hide preview"].firstMatch
+        if hidePreviewAction.waitForExistence(timeout: 5) {
+            hidePreviewAction.tap()
+        }
+
+        // Matched by prefix: the action is titled "Share…" with a horizontal
+        // ellipsis, which an exact-label lookup misses.
+        let shareMenuItem = safari.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH %@", "Share"))
+            .firstMatch
         XCTAssertTrue(
             shareMenuItem.waitForExistence(timeout: 5),
             "Safari's link menu did not expose Share.\n\(safari.debugDescription)"
@@ -69,7 +97,13 @@ final class ShareSheetUITests: XCTestCase {
         )
         ehPandaActivity.tap()
 
-        app.requireForeground(timeout: 15)
+        XCTAssertTrue(
+            app.wait(for: .runningForeground, timeout: 20),
+            """
+            The share hand-off did not foreground EhPanda (state \(app.state.rawValue)).
+            \(safari.debugDescription)
+            """
+        )
         app.requireElement("detail_view", matching: .scrollView, timeout: 15)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle]
@@ -150,13 +184,15 @@ private final class LocalSharePageServer {
         <a href="\(galleryURL.absoluteString)">\(linkLabel)</a>
         """
         let htmlData = Data(html.utf8)
-        let headers = """
-        HTTP/1.1 200 OK\r
-        Content-Type: text/html; charset=utf-8\r
-        Content-Length: \(htmlData.count)\r
-        Connection: close\r
-        \r
-        """
+        // CRLF-joined explicitly: a multi-line literal would drop the terminating
+        // newline of the blank header-separator line and Safari would reject the
+        // response with "cannot parse response".
+        let headers = [
+            "HTTP/1.1 200 OK",
+            "Content-Type: text/html; charset=utf-8",
+            "Content-Length: \(htmlData.count)",
+            "Connection: close"
+        ].joined(separator: "\r\n") + "\r\n\r\n"
         var response = Data(headers.utf8)
         response.append(htmlData)
         return response
