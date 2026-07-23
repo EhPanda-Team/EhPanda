@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 13
 current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Completed 13-02-PLAN.md
-last_updated: "2026-07-23T02:17:34.614Z"
+stopped_at: Completed 13-03-PLAN.md
+last_updated: "2026-07-23T02:30:44.099Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
   total_plans: 153
-  completed_plans: 145
+  completed_plans: 146
   percent: 73
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
@@ -207,6 +207,7 @@ Progress: [██████████] 95% (11/15 phases)
 | Phase 12 P06 | ~2 days (Task 1 ~35min + owner UAT) | 2 tasks | 18 files |
 | Phase 13 P01 | 12 min | 2 tasks | 5 files |
 | Phase 13 P02 | 11 min | 2 tasks | 6 files |
+| Phase 13 P03 | 19 min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -455,6 +456,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 13-02: Context.unsupportedLink(url:) stores a URLComponents-sanitized rendering under ContextKey.link.
 - [Phase ?]: 13-02: Unsupported-link diagnostics retain scheme, host, and first path component only; deeper paths become one ellipsis.
 - [Phase ?]: 13-02: AppError.unsupportedDeepLink is non-retryable and non-fatal to account-wide download batches.
+- [Phase 13]: Use GalleryURLParser route.url after parsing custom-scheme links. — Preserves the former HTTPS normalization while removing the injected client.
+- [Phase 13]: Keep fallback, timing, cancellation, and no-op behavior unchanged during the parser seam swap. — Failure policy and deterministic timing changes belong to later Phase 13 plans.
+- [Phase 13]: Reducer tests now exercise production GalleryURLParser behavior directly. — The removed deterministic dependency no longer needs noop or custom test overrides.
 
 ### Pending Todos
 
@@ -501,6 +505,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T02:17:34.607Z
-Stopped at: Completed 13-02-PLAN.md
+Last session: 2026-07-23T02:30:44.092Z
+Stopped at: Completed 13-03-PLAN.md
 Resume file: None

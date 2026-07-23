@@ -75,7 +75,8 @@
 ## Webhooks & Callbacks
 
 **Incoming:**
-- Custom URL scheme / deep links handled via `AppPackage/Sources/URLClient` (opening `e-hentai.org` gallery URLs into the app)
+- Custom URL scheme / deep links parsed by `AppTools/GalleryURLParser.swift` and routed by feature reducers
+  (opening supported `e-hentai.org` and `exhentai.org` gallery URLs into the app)
 - Share Extension (`ShareExtension/`) - receives shared URLs from other apps
 
 **Outgoing:**
