@@ -8,7 +8,6 @@ import HapticsClient
 import NetworkingFeature
 import Sharing
 import SwiftUI
-import URLClient
 import UserDefaultsClient
 
 @Reducer
@@ -60,7 +59,6 @@ struct PresentationFeature {
     @Dependency(\.userDefaultsClient) private var userDefaultsClient
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.hapticsClient) private var hapticsClient
-    @Dependency(\.urlClient) private var urlClient
     @Dependency(\.date) private var date
 
     var body: some Reducer<State, Action> {
@@ -154,8 +152,7 @@ struct PresentationFeature {
                 return .merge(effects)
 
             case .handleDeepLink(let url):
-                let url = urlClient.resolveAppSchemeURL(url) ?? url
-                guard urlClient.checkIfHandleable(url) else { return .none }
+                guard let route = GalleryURLParser.parse(url) else { return .none }
                 var delay = 0
                 if state.detail != nil {
                     delay = 1000
@@ -163,17 +160,16 @@ struct PresentationFeature {
                     state.path.removeAll()
                 }
                 // Always fetch the gallery so the pushed detail is seeded from it.
-                let analysis = urlClient.analyzeURL(url)
                 return .run { [delay] send in
                     try await Task.sleep(for: .milliseconds(delay))
-                    await send(.fetchGallery(url: url, isGalleryImageURL: analysis.isGalleryImageURL))
+                    await send(.fetchGallery(url: route.url, isGalleryImageURL: route.isGalleryImageURL))
                 }
 
             case .handleGalleryLink(let url, let gallery):
-                let analysis = urlClient.analyzeURL(url)
-                let deepLink = GalleryDeepLink(pageIndex: analysis.pageIndex, commentID: analysis.commentID)
+                let route = GalleryURLParser.parse(url)
+                let deepLink = GalleryDeepLink(pageIndex: route?.pageIndex, commentID: route?.commentID)
                 var effects = [Effect<Action>]()
-                if let pageIndex = analysis.pageIndex {
+                if let pageIndex = route?.pageIndex {
                     effects.append(.send(.updateReadingProgress(
                         gid: gallery.id, token: gallery.token, progress: pageIndex
                     )))

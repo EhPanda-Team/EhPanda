@@ -1,5 +1,6 @@
 import AppLaunchAutomationClient
 import AppModels
+import AppTools
 import BackgroundProcessingClient
 import ComposableArchitecture
 import CookieClient
@@ -13,7 +14,6 @@ import OSLogExt
 import SearchFeature
 import SettingFeature
 import SwiftUI
-import URLClient
 
 private let logger = Logger(category: .init(describing: AppReducer.self))
 
@@ -61,7 +61,6 @@ struct AppReducer {
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.backgroundProcessingClient) private var backgroundProcessingClient
     @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
-    @Dependency(\.urlClient) private var urlClient
 
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -158,7 +157,7 @@ struct AppReducer {
                 state.didRunLaunchAutomation = true
                 return .run { send in
                     if let galleryURL = automation.galleryURL,
-                       urlClient.checkIfHandleable(galleryURL) {
+                       GalleryURLParser.parse(galleryURL) != nil {
                         await send(.presentation(.handleDeepLink(galleryURL)))
                     } else if let initialTab = automation.initialTab {
                         await send(.tabBar(.setTabBarItemType(initialTab)))
