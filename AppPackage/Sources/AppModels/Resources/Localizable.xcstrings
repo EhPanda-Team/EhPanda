@@ -19325,6 +19325,129 @@
           }
         }
       }
+    },
+    "app_error.unsupported_deep_link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported Link"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht unterstützter Link"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "対応していないリンク"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지원되지 않는 링크"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支持的链接"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支援的連結"
+          }
+        }
+      }
+    },
+    "app_error.unsupported_deep_link.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This link wasn't recognized as an EhPanda gallery link."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Link wurde nicht als von EhPanda unterstützter Galerie-Link erkannt."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このリンクは EhPanda が対応するギャラリーリンクとして認識されませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 링크는 EhPanda가 지원하는 갤러리 링크로 인식되지 않았습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此链接未被识别为 EhPanda 支持的画廊链接。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此連結未被識別為 EhPanda 支援的畫廊連結。"
+          }
+        }
+      }
+    },
+    "app_error.unsupported_deep_link.solution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open an e-hentai.org or exhentai.org gallery link (/g/…), gallery page link (/s/…), or gallery comment link."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne einen Galerie-Link (/g/…), Galerie-Seiten-Link (/s/…) oder Galerie-Kommentar-Link von e-hentai.org oder exhentai.org."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e-hentai.org または exhentai.org のギャラリーリンク（/g/…）、ギャラリーページリンク（/s/…）、またはギャラリーコメントリンクを開いてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e-hentai.org 또는 exhentai.org의 갤러리 링크(/g/…), 갤러리 페이지 링크(/s/…), 갤러리 댓글 링크를 여세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请打开 e-hentai.org 或 exhentai.org 的画廊链接（/g/…）、画廊页面链接（/s/…）或画廊评论链接。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請開啟 e-hentai.org 或 exhentai.org 的畫廊連結（/g/…）、畫廊頁面連結（/s/…）或畫廊留言連結。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
