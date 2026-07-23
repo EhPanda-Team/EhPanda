@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 13
 current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Completed 13-04-PLAN.md
-last_updated: "2026-07-23T02:47:11.946Z"
+stopped_at: Completed 13-05-PLAN.md
+last_updated: "2026-07-23T03:10:53.462Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
   total_plans: 153
-  completed_plans: 147
+  completed_plans: 148
   percent: 73
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
 
-Progress: [██████████] 96% (11/15 phases)
+Progress: [██████████] 97% (11/15 phases)
 
 ## Performance Metrics
 
@@ -209,6 +209,7 @@ Progress: [██████████] 96% (11/15 phases)
 | Phase 13 P02 | 11 min | 2 tasks | 6 files |
 | Phase 13 P03 | 19 min | 2 tasks | 16 files |
 | Phase 13 P04 | 12 min | 2 tasks | 3 files |
+| Phase 13 P05 | 18 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -463,6 +464,9 @@ Recent decisions affecting current work:
 - [Phase 13]: Clipboard discovery validates route support before entering the explicit-open handler, preserving silence for unsolicited URLs.
 - [Phase 13]: Unsupported explicit input uses the sanitized unsupported-link context directly so raw access-bearing URLs do not enter ErrorInfo.
 - [Phase 13]: ShareExtension rewrites only URLComponents.scheme and completes the request when conversion cannot produce a URL.
+- [Phase 13]: SwiftUI reports sheet dismissal completion as a fact; PresentationFeature alone decides whether to re-present a pending gallery.
+- [Phase 13]: Gallery fetching begins immediately while only the final presentation waits for dismissal completion.
+- [Phase 13]: A later deep link clears any pending replacement and cancels the superseded fetch so the latest request wins.
 
 ### Pending Todos
 
@@ -509,6 +513,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T02:47:11.938Z
-Stopped at: Completed 13-04-PLAN.md
+Last session: 2026-07-23T03:10:53.454Z
+Stopped at: Completed 13-05-PLAN.md
 Resume file: None
