@@ -751,16 +751,32 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 **Plans:** 18 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 14-01-PLAN.md — SPM dependency, AnalyticsClient module, all three new test targets, D-08 bucket vocabulary, ANALYTICS-01
 - [ ] 14-02-PLAN.md — Owner decision checkpoint for the five open questions (D-15…D-19)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 14-03-PLAN.md — Closed vocabulary + the two audited content-reduction types + AppErrorKind
 - [ ] 14-04-PLAN.md — Build-time app-ID plumbing: xcconfig → Info.plist → AppInfo accessor
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 14-05-PLAN.md — AnalyticsSignal enum and its rendering layer (the single String-minting site)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 14-06-PLAN.md — AnalyticsClient with the D-13 gate and D-11 global default parameters
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 14-07-PLAN.md — Harden DownloadsFeatureTests against the unimplemented analytics default
 - [ ] 14-08-PLAN.md — Harden SettingFeatureTests
 - [ ] 14-09-PLAN.md — Harden AppFeatureTests, HomeFeatureTests, DetailFeatureTests, ReadingFeatureTests
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 14-10-PLAN.md — AppFeature: SDK init, tab opens, modal gallery detail, user-visible errors
 - [ ] 14-11-PLAN.md — HomeFeature: five sections, gallery-detail push, sub-screen panels
 - [ ] 14-12-PLAN.md — Search, QuickSearch and Favorites, plus the two search-family emission suites
@@ -768,8 +784,18 @@ Plans:
 - [ ] 14-14-PLAN.md — ReadingFeature: one bucketed end-of-session signal
 - [ ] 14-15-PLAN.md — DownloadsFeature: edge-triggered completion/failure, delete, move
 - [ ] 14-16-PLAN.md — SettingFeature: classified login failures and Cloudflare encounters
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 14-17-PLAN.md — README disclosure, roadmap/requirements bookkeeping, conditional lint rule
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 14-18-PLAN.md — Phase verification: static sweeps plus the two manual-only checks
+
+**Cross-cutting constraints:**
+
+- The unimplemented default still applies to every target not touched here, so an unexpected analytics call outside the hardened targets still fails loudly
 
 ### Phase 15: Dynamic Type Accessibility
 
