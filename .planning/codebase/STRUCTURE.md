@@ -54,13 +54,14 @@ EhPanda/
 - `HomeFeature`, `SearchFeature`, `FavoritesFeature`, `DownloadsFeature`, `SettingFeature`, `DetailFeature`, `ReadingFeature`, `ReadingSettingFeature`, `FiltersFeature`, `QuickSearchFeature`, `DateSeekFeature`, `TagTranslationFeature`, `AnimatedImageFeature`, `NetworkingFeature`, `ParserFeature`.
 
 **Client modules (`@DependencyClient` side-effect boundaries):**
-- `AppDelegateClient`, `AppLaunchAutomationClient`, `ApplicationClient`, `AuthorizationClient`, `BackgroundProcessingClient`, `ClipboardClient`, `CookieClient`, `DFClient`, `DeviceClient`, `DownloadClient`, `FileClient`, `HapticsClient`, `ImageClient`, `LibraryClient`, `LogsClient`, `URLClient`, `UserDefaultsClient`.
+- `AppDelegateClient`, `AppLaunchAutomationClient`, `ApplicationClient`, `AuthorizationClient`, `BackgroundProcessingClient`, `ClipboardClient`, `CookieClient`, `DFClient`, `DeviceClient`, `DownloadClient`, `FileClient`, `HapticsClient`, `ImageClient`, `LibraryClient`, `LogsClient`, `UserDefaultsClient`.
 
 **Model / data:**
 - `AppModels` — `Persistent/` (Setting, Filter, User, GalleryHistory, AppIconType), `Persistence/` (AppSharedKeys, SchemaMigrator, SchemaVersion, VersionedSchema, JSONValue), plus `Gallery/`, `Download/`, `Tags/`, `Support/`, `Utilities/`, `Resources/`.
 
 **Shared UI / utilities:**
-- `AppComponents`, `GalleryListComponents`, `AppTools` (DeviceType, CookieUtil, FileUtil, DataCache, Extensions), `Resources`, `TestingSupport`.
+- `AppComponents`, `GalleryListComponents`, `AppTools` (DeviceType, GalleryURLParser, CookieUtil,
+  FileUtil, DataCache, Extensions), `Resources`, `TestingSupport`.
 
 **Catalog / library extensions:**
 - `CommonMarkExt`, `OSLogExt`, `OpenCCExt`, `SFSafeSymbolsExt`, `SystemNotificationExt`.
