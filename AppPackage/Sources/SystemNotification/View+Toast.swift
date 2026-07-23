@@ -90,7 +90,7 @@ private struct ToastViewModifier: ViewModifier {
             }
             // Scoped inside the overlay: the host view can mutate in the same transaction that
             // presents or clears the toast, and must not inherit this animation.
-            .animation(toastAnimation, value: item != nil)
+            .animation(toastAnimation, value: item?.state.id)
         }
     }
 
