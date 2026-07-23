@@ -21,8 +21,42 @@ extension XCUIApplication {
     /// to the closest D-05 system-open mechanism that also preserves D-06's
     /// hermetic launch environment; warm delivery uses the literal D-05 API.
     func openCold(_ url: URL) throws {
+        terminate()
         try configureStubbedLaunch()
         open(url)
+    }
+
+    func requireForeground(
+        timeout: TimeInterval = 15,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertTrue(
+            wait(for: .runningForeground, timeout: timeout),
+            "EhPanda did not reach the foreground.",
+            file: file,
+            line: line
+        )
+    }
+
+    @discardableResult
+    func requireElement(
+        _ accessibilityIdentifier: String,
+        matching elementType: XCUIElement.ElementType = .any,
+        timeout: TimeInterval = 15,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
+        let element = descendants(matching: elementType)
+            .matching(identifier: accessibilityIdentifier)
+            .firstMatch
+        XCTAssertTrue(
+            element.waitForExistence(timeout: timeout),
+            "EhPanda did not present \(accessibilityIdentifier).",
+            file: file,
+            line: line
+        )
+        return element
     }
 
     private func configureStubbedLaunch(
