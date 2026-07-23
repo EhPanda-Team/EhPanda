@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 13
 current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Completed 13-05-PLAN.md
-last_updated: "2026-07-23T03:10:53.462Z"
+stopped_at: Completed 13-06-PLAN.md
+last_updated: "2026-07-23T03:22:35.128Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
   total_plans: 153
-  completed_plans: 148
+  completed_plans: 149
   percent: 73
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
@@ -210,6 +210,7 @@ Progress: [██████████] 97% (11/15 phases)
 | Phase 13 P03 | 19 min | 2 tasks | 16 files |
 | Phase 13 P04 | 12 min | 2 tasks | 3 files |
 | Phase 13 P05 | 18 min | 2 tasks | 3 files |
+| Phase 13 P06 | 7 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -467,6 +468,9 @@ Recent decisions affecting current work:
 - [Phase 13]: SwiftUI reports sheet dismissal completion as a fact; PresentationFeature alone decides whether to re-present a pending gallery.
 - [Phase 13]: Gallery fetching begins immediately while only the final presentation waits for dismissal completion.
 - [Phase 13]: A later deep link clears any pending replacement and cancels the superseded fetch so the latest request wins.
+- [Phase ?]: 13-06: Toast overlay animation follows the presented AppAlertState UUID, covering presence and replacement at one scoped boundary.
+- [Phase ?]: 13-06: Gallery failure reducers replace loading toasts synchronously; only successful resolution clears before routing.
+- [Phase ?]: 13-06: The existing id-keyed auto-dismiss task remains unchanged so replacement cancellation and timer restart semantics stay intact.
 
 ### Pending Todos
 
@@ -513,6 +517,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T03:10:53.454Z
-Stopped at: Completed 13-05-PLAN.md
+Last session: 2026-07-23T03:22:35.121Z
+Stopped at: Completed 13-06-PLAN.md
 Resume file: None
