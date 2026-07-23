@@ -477,18 +477,24 @@ xcodebuild test -scheme EhPanda -testPlan UITests \
 | A5 | Kingfisher image loads bypass the URLProtocol stub (own session) and degrade to placeholders without breaking navigation assertions | Pitfall 4 | Assert only on structure; if a screen blocks on image load (none known), stub that session too |
 | A6 | `withAnimation(_:completionCriteria:_:completion:)` (iOS 17+) is available as the alternative toast hand-off | Pattern 4 | Option 1 (id-keyed transition) needs no such API; zero design risk |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All four questions were closed during phase planning. Each resolution below names the plan that encodes it; the plans are the authority if they ever drift from this note.
 
 1. **Does `XCUIApplication.open(_:)` reliably deliver the URL on the current toolchain?** (A1)
    - What we know: API verified in the local SDK; header says it launches through the harness "similar to -launch"; 2023-era community reports said URL delivery was broken at introduction; current behavior unverified.
    - Recommendation: Wave-0 probe (one throwaway test: open `ehpanda://` cold, assert detail). Decide cold-variant mechanism from the result; both outcomes have a locked-decision-compatible path (Pattern 7).
+   - **RESOLVED — probe-bound, plan 13-08 Task 2.** The recommendation was adopted verbatim: the task runs the delivery probe against a hermetic fixture and pins `openCold` from the outcome — `XCUIApplication.open(_:)` if it delivers both URL and launch environment, fallback B (`launchStubbed` + `EHPANDA_AUTOMATION_GALLERY_URL`) otherwise. Both branches are locked-decision-compatible, and the pinned mechanism is recorded in `openCold`'s doc comment and the 13-08 summary. Warm opens are unaffected: they use `XCUIDevice.shared.system.open` per D-05 in either branch.
 2. **Where does the pure parser live?** (D-13 discretion)
    - What we know: `URLClient` module's only contents become pure; dependents are AppFeature, DetailFeature, ReadingFeature, DownloadClient. Options: reshape the `URLClient` module in place (rename target + type; fewest Package.swift edits but a target rename touches Package.swift enum + module `.swiftlint.yml`), or fold into `AppTools` beside `URL+Components.swift` (kills a module; more import churn).
    - Recommendation: planner picks after sizing the Package.swift diff; either satisfies the Phase 8 precedent.
+   - **RESOLVED — `AppTools`, plan 13-01.** The parser lands as `GalleryURLParser` in `AppPackage/Sources/AppTools/` beside `URL+Components.swift`, with its unit suite in the new `AppToolsTests` target; plan 13-03 then deletes the `URLClient` module outright (source dir, Package.swift target, every dependency reference and import). The fold-in option won: killing a whole module for a set of pure static functions is the cleaner end state, and the import churn is mechanical and confined to the six call sites 13-03 migrates.
 3. **How does the stub seam arm before the store's first effects?**
    - What we know: `AppDelegate` creates the store (`AppDelegateReducer.swift:52`); `AppLaunchAutomation` resolves at `onLaunchFinish`. `URLProtocol.registerClass` and `prepareDependencies` must run before the first request/dependency resolution.
    - Recommendation: arm in the app entry path (`EhPandaApp.init` calling an `AppFeature`-exposed DEBUG hook) — earliest deterministic point; keep `AppLaunchAutomation` semantics untouched.
-4. **Fixture comment content for the two comments tests** — does `GalleryDetail.html` contain a comment with a usable ID/gallery link, or does the fixture need a patched variant? (Check during planning; trivial either way.)
+   - **RESOLVED — `EhPandaApp.init`, plan 13-07 Task 2.** The recommendation was adopted: an explicit `init()` on `EhPandaApp` calls `UITestAutomation.prepareIfNeeded()`, whose body is `#if DEBUG`. `AppLaunchAutomation` semantics are untouched, and the ordering guarantee is asserted by the in-process regressions in the same task.
+4. **Fixture comment content for the two comments tests** — does `GalleryDetail.html` contain a comment with a usable ID/gallery link, or does the fixture need a patched variant?
+   - **RESOLVED — patched fixtures, plan 13-08 Task 1.** Planning did not gamble on the stock fixture's contents. 13-08 copies the `TestingSupport` fixtures into `EhPandaUITests/Fixtures/` and patches them: `GalleryDetail.html` gains the marker title "EhPanda UITest Fixture", `GalleryDetailAlt.html` is a second variant serving gid 2930572 (the gallery URL that appears inside the primary fixture's own comments, which is what 13-10's comment-link test taps), and `GallerySinglePage.html`'s embedded gallery URL is repointed at the primary fixture path. `UITestConstants.swift` is then derived *from the patched files* — including the last comment ID actually present, so 13-09's scroll-to-comment assertion is observable. Whatever the stock fixture happened to contain is therefore no longer load-bearing.
 
 ## Environment Availability
 
