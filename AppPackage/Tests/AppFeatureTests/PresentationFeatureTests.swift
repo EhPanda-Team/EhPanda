@@ -13,6 +13,65 @@ import Testing
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
 struct PresentationFeatureTests {
+    @MainActor
+    @Test
+    func unsupportedExplicitDeepLinkSurfacesErrorToast() async throws {
+        let url = try #require(URL(string: "ehpanda://evil.example/g/123/token?secret=value"))
+        let errorInfo = ErrorInfo(error: .unsupportedDeepLink, context: .unsupportedLink(url: url))
+        let store = TestStore(
+            initialState: PresentationFeature.State(),
+            reducer: PresentationFeature.init
+        )
+
+        await store.send(.handleDeepLink(url)) {
+            $0.toast = .error(errorInfo)
+        }
+    }
+
+    @MainActor
+    @Test
+    func unsupportedClipboardURLStaysSilentAfterPersistingChangeCount() async throws {
+        let recordedWrites = LockIsolated<[Int]>([])
+        let url = try #require(URL(string: "https://example.com/not-a-gallery"))
+        let changeCount = 42
+        let store = TestStore(
+            initialState: PresentationFeature.State(),
+            reducer: PresentationFeature.init,
+            withDependencies: {
+                $0.clipboardClient = .fixed(url: url, changeCount: changeCount)
+                $0.userDefaultsClient = .recording(read: 7, writes: recordedWrites)
+            }
+        )
+
+        await store.send(.detectClipboardURL)
+        await store.finish()
+
+        expectNoDifference(recordedWrites.value, [changeCount])
+        #expect(store.state.toast == nil)
+    }
+
+    @MainActor
+    @Test
+    func recognizedClipboardURLForwardsToDeepLinkHandler() async throws {
+        let recordedWrites = LockIsolated<[Int]>([])
+        let url = try #require(URL(string: "https://e-hentai.org/g/123/abcdef0123/"))
+        let changeCount = 42
+        let store = TestStore(
+            initialState: PresentationFeature.State(),
+            reducer: PresentationFeature.init,
+            withDependencies: {
+                $0.clipboardClient = .fixed(url: url, changeCount: changeCount)
+                $0.userDefaultsClient = .recording(read: 7, writes: recordedWrites)
+            }
+        )
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.detectClipboardURL)
+        await store.receive(\.handleDeepLink)
+
+        expectNoDifference(recordedWrites.value, [changeCount])
+    }
+
     @Test(arguments: [
         GalleryFailureRouteFixture(
             url: "https://e-hentai.org/g/123/secret-token?next=private",
@@ -144,9 +203,9 @@ private extension PresentationFeatureTests {
 }
 
 private extension ClipboardClient {
-    static func fixed(changeCount: Int) -> Self {
+    static func fixed(url: URL? = nil, changeCount: Int) -> Self {
         .init(
-            url: { nil },
+            url: { url },
             changeCount: { changeCount },
             saveText: { _ in },
             saveImage: { _, _ in },
