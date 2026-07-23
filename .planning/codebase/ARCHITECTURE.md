@@ -28,11 +28,11 @@
 │  Detail · Reading · ReadingSetting · Filters · QuickSearch · │
 │  DateSeek · TagTranslation · Networking · Parser             │
 └──────────────────────────────┬──────────────────────────────┘
-                               │  @Dependency clients
+                               │  @Dependency clients / pure AppTools parsing
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Client layer (Dependencies): CookieClient · DownloadClient ·│
-│  ImageClient · FileClient · URLClient · DeviceClient · …      │
+│  ImageClient · FileClient · DeviceClient · …                  │
 └──────────────────────────────┬──────────────────────────────┘
                                │
                                ▼
@@ -108,7 +108,8 @@
 ### Primary Request Path (browse galleries)
 
 1. User action dispatches an Action into a feature reducer (e.g. `HomeReducer`) (`AppPackage/Sources/HomeFeature/`).
-2. Reducer returns an `Effect` invoking a client, e.g. `@Dependency(\.urlClient)` / networking request (`AppPackage/Sources/NetworkingFeature/Request+Gallery.swift`).
+2. Reducer validates deep-link input with `GalleryURLParser` where needed, then returns an `Effect`
+   invoking a networking request (`AppPackage/Sources/NetworkingFeature/Request+Gallery.swift`).
 3. NetworkingFeature performs the HTTP request and scrapes HTML via Kanna.
 4. `ParserFeature` parses the response into `AppModels` gallery types (`AppPackage/Sources/ParserFeature/`).
 5. Parsed models flow back as a follow-up Action; reducer mutates `@ObservableState`; SwiftUI view re-renders.
