@@ -12,7 +12,6 @@ import HapticsClient
 import ImageClient
 @testable import ReadingFeature
 import Testing
-import URLClient
 
 // `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. It is applied
@@ -49,7 +48,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.downloadClient = .noop
             $0.hapticsClient = .noop
             $0.imageClient = .noop
-            $0.urlClient = .noop
         }
         store.exhaustivity = .off
         defer { removeTemporaryItem(at: folderURL) }
@@ -191,7 +189,6 @@ private extension DownloadObserverReadingTests {
                 }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
-                $0.urlClient = .noop
             }
         )
         store.exhaustivity = .off

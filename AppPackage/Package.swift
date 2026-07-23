@@ -103,7 +103,6 @@ enum Module: String {
     case sfSafeSymbolsExt = "SFSafeSymbolsExt"
     case systemNotification = "SystemNotification"
     case tagTranslationFeature = "TagTranslationFeature"
-    case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
     // Test support
@@ -293,7 +292,6 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.settingFeature),
             .module(.systemNotification),
-            .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.colorfulX),
             .targetDependency(.composableArchitecture),
@@ -342,7 +340,6 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.resources),
             .module(.animatedImageFeature),
-            .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.sharing)
@@ -748,7 +745,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.systemNotification),
             .module(.tagTranslationFeature),
-            .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
@@ -776,7 +772,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.animatedImageFeature),
             .module(.systemNotification),
-            .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
@@ -823,15 +818,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .applicationClient,
         dependencies: [
-            .module(.appTools),
-            .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .urlClient,
-        dependencies: [
-            .module(.appModels),
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
@@ -888,7 +874,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.networkingFeature),
             .module(.parserFeature),
-            .module(.urlClient),
             .targetDependency(.kanna)
         ],
         plugins: swiftLintPlugins
@@ -916,7 +901,6 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.networkingFeature),
             .module(.readingFeature),
-            .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
