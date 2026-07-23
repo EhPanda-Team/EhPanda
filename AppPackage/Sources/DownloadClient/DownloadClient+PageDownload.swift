@@ -326,7 +326,7 @@ extension DownloadCoordinator {
             return true
         case .copyrightClaim, .expunged, .networkingFailed,
              .webImageFailed, .parseFailed, .fileOperationFailed, .noUpdates,
-             .notFound, .unknown:
+             .notFound, .unknown, .unsupportedDeepLink:
             return false
         }
     }

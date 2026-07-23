@@ -20,6 +20,8 @@ extension AppError {
             return .exclamationmarkShieldFill
         case .loginCaptchaRequired:
             return .checkmarkShieldFill
+        case .unsupportedDeepLink:
+            return .exclamationmarkTriangleFill
         case .fileOperationFailed:
             return .folderFill
         case .notFound, .unknown, .noUpdates, .webImageFailed:

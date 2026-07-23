@@ -18,6 +18,7 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     case authenticationRequired
     case cloudflareChallengeFailed
     case loginCaptchaRequired
+    case unsupportedDeepLink
     case fileOperationFailed(String)
     case noUpdates
     case notFound
@@ -31,7 +32,7 @@ extension AppError {
              .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
-             .ipBanned, .cloudflareChallengeFailed, .loginCaptchaRequired:
+             .ipBanned, .cloudflareChallengeFailed, .loginCaptchaRequired, .unsupportedDeepLink:
             return false
         }
     }
@@ -57,6 +58,8 @@ extension AppError {
             return String(localized: .appErrorCloudflareChallengeFailed)
         case .loginCaptchaRequired:
             return String(localized: .appErrorLoginCaptchaRequired)
+        case .unsupportedDeepLink:
+            return String(localized: .appErrorUnsupportedDeepLink)
         case .fileOperationFailed:
             return String(localized: .appErrorFileOperationFailed)
         case .noUpdates:
@@ -93,6 +96,8 @@ extension AppError {
             return String(localized: .appErrorCloudflareChallengeFailedDescription)
         case .loginCaptchaRequired:
             return String(localized: .appErrorLoginCaptchaRequiredDescription)
+        case .unsupportedDeepLink:
+            return String(localized: .appErrorUnsupportedDeepLinkDescription)
         case .fileOperationFailed(let reason):
             return [String(localized: .appErrorLocalFileOperationFailed), reason]
                 .filter({ !$0.isEmpty })
@@ -118,6 +123,8 @@ extension AppError {
             String(localized: .appErrorCloudflareChallengeSolution)
         case .loginCaptchaRequired:
             String(localized: .appErrorLoginCaptchaSolution)
+        case .unsupportedDeepLink:
+            String(localized: .appErrorUnsupportedDeepLinkSolution)
         case .ipBanned:
             String(localized: .appErrorIpBannedSolution)
         case .quotaExceeded:
