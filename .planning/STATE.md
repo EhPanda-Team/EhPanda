@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
 current_phase: 13
-current_phase_name: Deep Link Hardening
+current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Phase 13 context gathered
-last_updated: "2026-07-23T01:34:19.328Z"
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-07-23T02:00:39.362Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase 12 complete, transitioned to Phase 13
+last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
-  total_plans: 143
-  completed_plans: 143
+  total_plans: 153
+  completed_plans: 144
   percent: 73
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 12 — cloudflare-login-restoration
+**Current focus:** Phase 13 — deep-link-hardening-code-review-the-current-deep-link-implem
 
 ## Current Position
 
-Phase: 13 — Deep Link Hardening
-Plan: Not started
+Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
-Last activity: 2026-07-23 — Phase 12 complete, transitioned to Phase 13
+Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
 
 Progress: [███████···] 73% (11/15 phases)
@@ -205,6 +205,7 @@ Progress: [███████···] 73% (11/15 phases)
 | Phase 12 P04 | 11min | 2 tasks | 2 files |
 | Phase 12 P05 | 14min | 2 tasks | 1 files |
 | Phase 12 P06 | ~2 days (Task 1 ~35min + owner UAT) | 2 tasks | 18 files |
+| Phase 13 P01 | 12 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -448,6 +449,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 12-06: Every login failure arm raises a toast; only the Cloudflare arm had one, and the missing surface is why the didLogin bug presented as total silence
 - [Phase ?]: 12-06: AppError.loginCaptchaRequired is deliberately separate from .cloudflareChallengeFailed — both are Cloudflare, but only the edge challenge is clearable by the in-app surface, so conflating them would point at the wrong recovery
 - [Phase ?]: 12-06: The login response body is parsed for the forum's error box under BOTH labels it uses; reading only the first is how the Turnstile requirement went unreported through several rounds of diagnosis
+- [Phase 13]: GalleryURLParser.Route carries normalized url, gid, pageIndex, commentID, and isGalleryImageURL as the call-site migration contract. — Centralizes normalization and eliminates optional round-trips and empty-string failure sentinels.
+- [Phase 13]: Gallery hosts are derived from Defaults.URL anchors and matched exactly with computed www variants. — Preserves the canonical hosts while rejecting substring spoofing and accepting real-world www share links.
 
 ### Pending Todos
 
@@ -494,6 +497,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T00:02:35.087Z
-Stopped at: Phase 13 context gathered
-Resume file: .planning/phases/13-deep-link-hardening-code-review-the-current-deep-link-implem/13-CONTEXT.md
+Last session: 2026-07-23T02:00:39.354Z
+Stopped at: Completed 13-01-PLAN.md
+Resume file: None
