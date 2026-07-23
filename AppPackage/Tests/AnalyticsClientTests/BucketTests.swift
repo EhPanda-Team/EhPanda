@@ -4,13 +4,13 @@ import Testing
 
 // One fixture per assertion triple. A named struct rather than a positional tuple: the boundary
 // tables below are long, and `.0`/`.1`/`.2` reads would carry no meaning at the assertion site.
-private struct CountFixture: Sendable {
+struct CountFixture: Sendable {
     let count: Int
     let bucket: CountBucket
     let rendering: String
 }
 
-private struct DurationFixture: Sendable {
+struct DurationFixture: Sendable {
     let seconds: TimeInterval
     let bucket: DurationBucket
     let rendering: String
