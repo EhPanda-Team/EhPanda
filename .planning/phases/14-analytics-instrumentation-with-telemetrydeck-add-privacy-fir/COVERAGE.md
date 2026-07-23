@@ -108,8 +108,13 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` â€
 
 ## Coverage summary
 
+Counts are the capability rows in the seven tables above, recounted against the body on 2026-07-24.
+
 | | count |
 |---|---|
-| INTEGRATE | 15 |
-| OPT-OUT | 37 |
+| Capabilities enumerated | 59 |
+| INTEGRATE | 14 |
+| OPT-OUT | 45 |
 | OPT-OUT without a reason | 0 |
+
+Per section â€” Initialization & configuration 10/15, Signal emission 1/7, Duration signals 0/3, Error signals 2/3, Navigation signals 0/4, Purchase & preset APIs 0/9, Legacy & interop 1/4 (INTEGRATE/OPT-OUT).
