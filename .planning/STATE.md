@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 13
 current_phase_name: deep-link-hardening-code-review-the-current-deep-link-implem
 status: executing
-stopped_at: Completed 13-08-PLAN.md
-last_updated: "2026-07-23T04:16:13.119Z"
+stopped_at: Completed 13-09-PLAN.md
+last_updated: "2026-07-23T04:58:11.733Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 execution started
 progress:
   total_phases: 15
   completed_phases: 11
   total_plans: 153
-  completed_plans: 151
+  completed_plans: 152
   percent: 73
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 13 (deep-link-hardening-code-review-the-current-deep-link-implem) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 13 execution started
 Next: /gsd-verify-work 12 (Cloudflare Login Restoration)
@@ -213,6 +213,7 @@ Progress: [██████████] 99% (11/15 phases)
 | Phase 13 P06 | 7 min | 2 tasks | 5 files |
 | Phase 13 P07 | 16 min | 3 tasks | 11 files |
 | Phase 13 P08 | 23 min | 2 tasks | 11 files |
+| Phase 13 P09 | 36 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -478,6 +479,9 @@ Recent decisions affecting current work:
 - [Phase 13]: Attach reading_page_indicator to ControlPanel's numeric Text. — That is the actual page-index element whose existing label carries current and total pages.
 - [Phase 13]: Cold UI-test delivery uses XCUIApplication.open(_:) after the Xcode 26.6 / iOS 26.5 probe proved both URL and hermetic environment delivery.
 - [Phase 13]: Warm UI-test delivery uses XCUIDevice.shared.system.open exactly; runner-bundled fixtures keep the UI suite offline and credential-free.
+- [Phase 13]: Cold scheme tests explicitly terminate before URL delivery; warm tests prove foreground state and never relaunch after opening.
+- [Phase 13]: Reader and toast identifiers are assigned after forming explicit accessibility containers so nested destination markers remain distinct.
+- [Phase 13]: Comment deep-link coverage proves detail remains beneath comments by navigating back after locating the linked comment.
 
 ### Pending Todos
 
@@ -524,6 +528,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T04:16:13.112Z
-Stopped at: Completed 13-08-PLAN.md
+Last session: 2026-07-23T04:58:11.726Z
+Stopped at: Completed 13-09-PLAN.md
 Resume file: None
