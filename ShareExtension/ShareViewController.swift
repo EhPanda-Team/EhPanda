@@ -18,12 +18,23 @@ class ShareViewController: UIViewController {
         }
 
         itemProvider.loadItem(forTypeIdentifier: "public.url") { [weak self] (item, _) in
-            if let shareURL = item as? URL, let scheme = shareURL.scheme,
-               let replacedURL = URL(string: shareURL.absoluteString
-                                        .replacingOccurrences(of: scheme, with: "ehpanda")) {
+            guard let shareURL = item as? URL,
+                  var components = URLComponents(url: shareURL, resolvingAgainstBaseURL: false)
+            else {
                 Task { @MainActor in
-                    self?.openMainApp(url: replacedURL)
+                    self?.extensionContext?.completeRequest(returningItems: nil)
                 }
+                return
+            }
+            components.scheme = "ehpanda"
+            guard let replacedURL = components.url else {
+                Task { @MainActor in
+                    self?.extensionContext?.completeRequest(returningItems: nil)
+                }
+                return
+            }
+            Task { @MainActor in
+                self?.openMainApp(url: replacedURL)
             }
         }
     }
