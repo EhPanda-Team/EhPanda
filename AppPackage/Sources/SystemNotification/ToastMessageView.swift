@@ -34,6 +34,7 @@ struct ToastMessageView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
+        .accessibilityIdentifier("toast_message")
         .accessibilityElement(children: .combine)
     }
 

@@ -172,6 +172,7 @@ private struct UpperPanel: View {
                     .fontWeight(.bold)
                     .monospacedDigit()
                     .contentTransition(.numericText())
+                    .accessibilityIdentifier("reading_page_indicator")
                     .lineLimit(1)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
