@@ -748,27 +748,28 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 **Goal:** Add privacy-first analytics via the TelemetryDeck SDK — on by default with no opt-out (D-01) — instrumenting key user flows behind a closed, type-enforced signal vocabulary
 **Requirements**: ANALYTICS-01
 **Depends on:** Phase 13
-**Plans:** 17 plans
+**Plans:** 18 plans
 
 Plans:
 
-- [ ] 14-01-PLAN.md — SPM dependency, AnalyticsClient module + test target, D-08 bucket vocabulary
+- [ ] 14-01-PLAN.md — SPM dependency, AnalyticsClient module, all three new test targets, D-08 bucket vocabulary, ANALYTICS-01
 - [ ] 14-02-PLAN.md — Owner decision checkpoint for the five open questions (D-15…D-19)
 - [ ] 14-03-PLAN.md — Closed vocabulary + the two audited content-reduction types + AppErrorKind
 - [ ] 14-04-PLAN.md — Build-time app-ID plumbing: xcconfig → Info.plist → AppInfo accessor
 - [ ] 14-05-PLAN.md — AnalyticsSignal enum and its rendering layer (the single String-minting site)
 - [ ] 14-06-PLAN.md — AnalyticsClient with the D-13 gate and D-11 global default parameters
 - [ ] 14-07-PLAN.md — Harden DownloadsFeatureTests against the unimplemented analytics default
-- [ ] 14-08-PLAN.md — Harden the five remaining affected test targets
-- [ ] 14-09-PLAN.md — AppFeature: SDK init, tab opens, modal gallery detail, user-visible errors
-- [ ] 14-10-PLAN.md — HomeFeature: five sections, gallery-detail push, sub-screen panels
-- [ ] 14-11-PLAN.md — Search, QuickSearch and Favorites, plus two new test targets
-- [ ] 14-12-PLAN.md — DetailFeature: tag taps, download start/retry/delete, detail-search panels
-- [ ] 14-13-PLAN.md — ReadingFeature: one bucketed end-of-session signal
-- [ ] 14-14-PLAN.md — DownloadsFeature: edge-triggered completion/failure, delete, move
-- [ ] 14-15-PLAN.md — SettingFeature: classified login failures and Cloudflare encounters
-- [ ] 14-16-PLAN.md — README disclosure, roadmap/requirements bookkeeping, conditional lint rule
-- [ ] 14-17-PLAN.md — Phase verification: static sweeps plus the two manual-only checks
+- [ ] 14-08-PLAN.md — Harden SettingFeatureTests
+- [ ] 14-09-PLAN.md — Harden AppFeatureTests, HomeFeatureTests, DetailFeatureTests, ReadingFeatureTests
+- [ ] 14-10-PLAN.md — AppFeature: SDK init, tab opens, modal gallery detail, user-visible errors
+- [ ] 14-11-PLAN.md — HomeFeature: five sections, gallery-detail push, sub-screen panels
+- [ ] 14-12-PLAN.md — Search, QuickSearch and Favorites, plus the two search-family emission suites
+- [ ] 14-13-PLAN.md — DetailFeature: tag taps, download start/retry/delete, detail-search panels
+- [ ] 14-14-PLAN.md — ReadingFeature: one bucketed end-of-session signal
+- [ ] 14-15-PLAN.md — DownloadsFeature: edge-triggered completion/failure, delete, move
+- [ ] 14-16-PLAN.md — SettingFeature: classified login failures and Cloudflare encounters
+- [ ] 14-17-PLAN.md — README disclosure, roadmap/requirements bookkeeping, conditional lint rule
+- [ ] 14-18-PLAN.md — Phase verification: static sweeps plus the two manual-only checks
 
 ### Phase 15: Dynamic Type Accessibility
 

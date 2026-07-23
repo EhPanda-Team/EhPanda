@@ -42,7 +42,7 @@ created: 2026-07-24
 
 ## Sampling Rate
 
-- **After every task commit:** `xcodebuild test … -only-testing:<target touched by the task>`
+- **After every task commit:** `xcodebuild test … -only-testing:<target touched by the task>`, narrowed to `-only-testing:<Target>/<Suite>` where the task owns a single suite. Tasks that instrument an existing reducer stay at target granularity on purpose: the point of that run is to prove the target's *pre-existing* suites survived the instrumentation, which a suite-scoped filter would not show.
 - **After every plan wave:** full `EhPanda` scheme test run
 - **Before `/gsd-verify-work`:** full suite green through the `EhPanda` scheme
 - **Max feedback latency:** {N} seconds (set at Wave 0)
@@ -71,7 +71,7 @@ created: 2026-07-24
 ## Wave 0 Requirements
 
 - [ ] `AppPackage/Tests/AnalyticsClientTests/` — new test target (declare in `Package.swift` `Module` enum + `targets`, with `plugins: swiftLintPlugins`)
-- [ ] Register the new target in `AppPackage/Tests/FeatureTests.xctestplan` **and** the `EhPanda` scheme
+- [ ] Register the new target in `AppPackage/Tests/FeatureTests.xctestplan` (sole registration surface — do **not** edit `EhPanda.xcscheme`; see the correction above)
 - [ ] `AppPackage/Sources/AnalyticsClient/.swiftlint.yml` with `parent_config: ../../../.swiftlint.yml`
 - [ ] Decide and implement the `.noop` override strategy for existing suites — `testValue = .unimplemented` (locked by D-12) means instrumenting a reducer breaks its existing tests; research counted **127 `TestStore(` sites across 6 targets**, `DownloadsFeatureTests` alone carrying 75
 - [ ] Make `AnalyticsSignal: Equatable` so `TestStore` spies can assert on associated values
