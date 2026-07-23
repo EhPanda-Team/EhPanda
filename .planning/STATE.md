@@ -5,7 +5,7 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: TelemetryDeck
 status: planning
-stopped_at: Completed 13-09-PLAN.md
+stopped_at: Completed phase 13
 last_updated: "2026-07-23T13:14:17.395Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 13 complete, transitioned to Phase 14
@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 13 — deep-link-hardening-code-review-the-current-deep-link-implem
+**Current focus:** Phase 14 — Analytics Instrumentation (TelemetryDeck)
 
 ## Current Position
 
@@ -32,9 +32,9 @@ Phase: 14 — Analytics Instrumentation (TelemetryDeck)
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-07-23 — Phase 13 complete, transitioned to Phase 14
-Next: /gsd-verify-work 13 (Deep Link Hardening)
+Next: /gsd-plan-phase 14 (Analytics Instrumentation)
 
-Progress: [██████████] 99% (11/15 phases)
+Progress: [████████░░] 80% (12/15 phases)
 
 ## Performance Metrics
 
