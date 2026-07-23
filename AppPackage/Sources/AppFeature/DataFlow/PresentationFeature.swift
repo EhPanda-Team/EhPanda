@@ -146,13 +146,20 @@ struct PresentationFeature {
                 var effects: [Effect<Action>] = [
                     .run(operation: { _ in userDefaultsClient.setValue(currentChangeCount, .clipboardChangeCount) })
                 ]
-                if let url = clipboardClient.url() {
+                if let url = clipboardClient.url(), GalleryURLParser.parse(url) != nil {
                     effects.append(.send(.handleDeepLink(url)))
                 }
                 return .merge(effects)
 
             case .handleDeepLink(let url):
-                guard let route = GalleryURLParser.parse(url) else { return .none }
+                guard let route = GalleryURLParser.parse(url) else {
+                    let errorInfo = ErrorInfo(
+                        error: .unsupportedDeepLink,
+                        context: .unsupportedLink(url: url)
+                    )
+                    state.toast = .error(errorInfo)
+                    return .none
+                }
                 var delay = 0
                 if state.detail != nil {
                     delay = 1000
