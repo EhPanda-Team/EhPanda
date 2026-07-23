@@ -738,8 +738,8 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [ ] 13-04-PLAN.md — Entry-source policy: explicit-open failure toast, clipboard silence (D-01/D-02) + ShareExtension URLComponents rewrite (F8)
 - [ ] 13-05-PLAN.md — D-14a: dismissal-completion coordination replaces the 1000ms modal sleep
 - [ ] 13-06-PLAN.md — D-14b: identity-keyed toast replacement removes both 500ms loading→error sleeps
-- [ ] 13-07-PLAN.md — Hermetic stub seam: DEBUG URLProtocol fixtures + clipboard override + EhPandaApp arm point (D-06)
-- [ ] 13-08-PLAN.md — First XCUITest target + UITests.xctestplan + accessibility identifiers + cold-delivery probe + smoke (D-05/D-07)
+- [ ] 13-07-PLAN.md — App-side test preparation: DEBUG URLProtocol stub seam + clipboard override + EhPandaApp arm point (D-06) + accessibility identifiers on destination screens
+- [ ] 13-08-PLAN.md — First XCUITest target + UITests.xctestplan + fixtures + cold-delivery probe + hermetic smoke (D-05/D-07)
 - [ ] 13-09-PLAN.md — Scheme matrix: /g/, /s/, #c + malformed × cold/warm — 8 UI tests (D-09)
 - [ ] 13-10-PLAN.md — Entry representatives: clipboard, comments link, real share sheet (D-10), iPad tab-modal (D-08) + phase test gate
 
