@@ -745,14 +745,30 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 
 ### Phase 14: Analytics Instrumentation (TelemetryDeck)
 
-**Goal:** Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
-**Requirements**: TBD
+**Goal:** Add privacy-first analytics via the TelemetryDeck SDK — on by default with no opt-out (D-01) — instrumenting key user flows behind a closed, type-enforced signal vocabulary
+**Requirements**: ANALYTICS-01
 **Depends on:** Phase 13
-**Plans:** TBD
+**Plans:** 17 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md — SPM dependency, AnalyticsClient module + test target, D-08 bucket vocabulary
+- [ ] 14-02-PLAN.md — Owner decision checkpoint for the five open questions (D-15…D-19)
+- [ ] 14-03-PLAN.md — Closed vocabulary + the two audited content-reduction types + AppErrorKind
+- [ ] 14-04-PLAN.md — Build-time app-ID plumbing: xcconfig → Info.plist → AppInfo accessor
+- [ ] 14-05-PLAN.md — AnalyticsSignal enum and its rendering layer (the single String-minting site)
+- [ ] 14-06-PLAN.md — AnalyticsClient with the D-13 gate and D-11 global default parameters
+- [ ] 14-07-PLAN.md — Harden DownloadsFeatureTests against the unimplemented analytics default
+- [ ] 14-08-PLAN.md — Harden the five remaining affected test targets
+- [ ] 14-09-PLAN.md — AppFeature: SDK init, tab opens, modal gallery detail, user-visible errors
+- [ ] 14-10-PLAN.md — HomeFeature: five sections, gallery-detail push, sub-screen panels
+- [ ] 14-11-PLAN.md — Search, QuickSearch and Favorites, plus two new test targets
+- [ ] 14-12-PLAN.md — DetailFeature: tag taps, download start/retry/delete, detail-search panels
+- [ ] 14-13-PLAN.md — ReadingFeature: one bucketed end-of-session signal
+- [ ] 14-14-PLAN.md — DownloadsFeature: edge-triggered completion/failure, delete, move
+- [ ] 14-15-PLAN.md — SettingFeature: classified login failures and Cloudflare encounters
+- [ ] 14-16-PLAN.md — README disclosure, roadmap/requirements bookkeeping, conditional lint rule
+- [ ] 14-17-PLAN.md — Phase verification: static sweeps plus the two manual-only checks
 
 ### Phase 15: Dynamic Type Accessibility
 
