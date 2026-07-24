@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-15-PLAN.md — wave 6 in progress (14-16 remains)
+stopped_at: Completed 14-16-PLAN.md — wave 6 complete; 14-17 close-out and 14-18 UAT remain
 last_updated: "2026-07-25T00:00:00.000Z"
 last_activity: 2026-07-25
-last_activity_desc: 14-15 DownloadsFeature edge-triggered; fixed a 14-14 cross-module date regression
+last_activity_desc: 14-16 login instrumented; wave 6 complete, all seven instrumentation plans landed
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 168
+  completed_plans: 169
   percent: 80
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 15 of 18 complete (14-01 … 14-15); waves 1–5 complete, wave 6 in progress
-Status: Executing Phase 14 — wave 6 (instrumentation), 6 of 7 plans done
-Last activity: 2026-07-25 — 14-15 DownloadsFeature instrumented (edge-triggered snapshot diff)
-Next: /gsd-execute-phase 14 — wave 6 remainder (14-16 SettingFeature), then 14-17 close-out
+Plan: 16 of 18 complete (14-01 … 14-16); waves 1–6 complete
+Status: Executing Phase 14 — instrumentation complete; close-out (14-17) and UAT (14-18) remain
+Last activity: 2026-07-25 — 14-16 login instrumented; wave 6 complete, suite green at 759 tests
+Next: /gsd-execute-phase 14 — 14-17 close-out (D-16 corrections, D-20, D-18 lint rule, ANALYTICS-01), then 14-18 UAT
 
 Progress: [██████████] 96% (13/15 phases)
 
