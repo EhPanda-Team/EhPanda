@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -72,6 +73,7 @@ public struct WatchedReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -107,11 +109,17 @@ public struct WatchedReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 // Presenting the sheet loads the persisted filters into it, replacing the form's
                 // former `onAppear`. Every screen that presents Filters must send this.
-                return .send(.destination(.presented(.filters(.fetchFilters))))
+                // Records that the filter panel was opened here (D-14). Applying a filter mutates a
+                // persisted shared value with no distinct reducer action, so only the open is counted.
+                return .merge(
+                    .send(.destination(.presented(.filters(.fetchFilters)))),
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.watched)) })
+                )
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
-                return .none
+                // Records that the quick-search panel was opened from the Watched surface (D-14).
+                return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.watched)) })
 
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
