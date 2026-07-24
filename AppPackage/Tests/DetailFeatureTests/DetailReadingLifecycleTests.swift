@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -31,6 +32,7 @@ struct DetailReadingLifecycleTests {
     @MainActor
     private func makeStore() -> TestStore<DetailReducer.State, DetailReducer.Action> {
         let store = TestStore(initialState: makeState(), reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off

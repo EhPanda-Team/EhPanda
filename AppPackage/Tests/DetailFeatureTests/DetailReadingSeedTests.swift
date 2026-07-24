@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 @testable import DetailFeature
@@ -36,6 +37,7 @@ struct DetailReadingSeedTests {
         // Presenting the reader now starts its load in the same transition, so the reader's
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off
@@ -59,6 +61,7 @@ struct DetailReadingSeedTests {
         // Presenting the reader now starts its load in the same transition, so the reader's
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off

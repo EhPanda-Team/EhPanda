@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import ComposableArchitecture
@@ -20,7 +21,8 @@ struct CommentsReducerTests {
         initialState.toast = .loading()
         let store = TestStore(
             initialState: initialState,
-            reducer: CommentsReducer.init
+            reducer: CommentsReducer.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed))) {
@@ -39,6 +41,7 @@ struct CommentsReducerTests {
             initialState: CommentsReducer.State(galleryURL: .mock),
             reducer: CommentsReducer.init
         ) {
+            $0.analyticsClient = .noop
             $0.hapticsClient = .noop
         }
 
