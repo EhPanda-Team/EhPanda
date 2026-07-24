@@ -142,4 +142,94 @@ struct AnalyticsSignalRenderingTests {
 
         #expect(rendered == .signal(name: "Search.tagTapped", parameters: ["Gallery.tagNamespace": "unrecognized"]))
     }
+
+    // The SDK reserves the `TelemetryDeck.` name prefix and this exact parameter-key set, matched
+    // case-insensitively (copied verbatim from research §Common Pitfalls, Pitfall 2). A collision
+    // is only *logged* by the SDK — the signal is still sent, silently shadowing device metadata —
+    // so it has to be caught here rather than at runtime.
+    private static let reservedKeys = [
+        "type", "clientUser", "appID", "sessionID", "floatValue", "newSessionBegan", "platform",
+        "systemVersion", "majorSystemVersion", "majorMinorSystemVersion", "appVersion",
+        "buildNumber", "isSimulator", "isDebug", "isTestFlight", "isAppStore", "modelName",
+        "architecture", "operatingSystem", "targetEnvironment", "locale", "region", "appLanguage",
+        "preferredLanguage", "telemetryClientVersion"
+    ]
+
+    private static let reservedNamePrefix = "TelemetryDeck."
+
+    @Test
+    func noRenderedKeyCollidesWithAReservedKeyAndNoNameCarriesTheReservedPrefix() {
+        let lowercasedReserved = Set(Self.reservedKeys.map({ $0.lowercased() }))
+
+        // Guards against a vacuous pass: an empty fixture list would satisfy both loops below
+        // without inspecting a single rendered key or name.
+        #expect(Self.fixtures.isEmpty == false)
+
+        for fixture in Self.fixtures {
+            let rendered = fixture.signal.rendered
+
+            #expect(Self.name(of: rendered)?.hasPrefix(Self.reservedNamePrefix) != true)
+
+            for key in Self.parameterKeys(of: rendered) {
+                #expect(
+                    lowercasedReserved.contains(key.lowercased()) == false,
+                    "rendered key \(key) collides with a reserved SDK key"
+                )
+            }
+        }
+    }
+
+    // The D-06 never-send guarantee as a test rather than a review convention. Every fixture was
+    // built from inputs whose content strings are the sentinel — a tag list, a keyword, an error
+    // payload. If the token appears in any rendered name, key or value, content survived the
+    // reduction, and this fails.
+    @Test
+    func noSentinelSurvivesIntoAnyRenderedNameKeyOrValue() {
+        #expect(Self.fixtures.isEmpty == false)
+
+        for fixture in Self.fixtures {
+            let rendered = fixture.signal.rendered
+
+            for token in Self.allStrings(of: rendered) {
+                #expect(
+                    token.contains(Self.sentinel) == false,
+                    "the sentinel survived into a rendered string: \(token)"
+                )
+            }
+        }
+    }
+
+    // MARK: Rendered accessors
+
+    private static func name(of rendered: AnalyticsSignal.Rendered) -> String? {
+        switch rendered {
+        case .signal(let name, _):
+            name
+
+        case .error:
+            nil
+        }
+    }
+
+    private static func parameterKeys(of rendered: AnalyticsSignal.Rendered) -> [String] {
+        switch rendered {
+        case .signal(_, let parameters):
+            Array(parameters.keys)
+
+        case .error(_, _, let parameters):
+            Array(parameters.keys)
+        }
+    }
+
+    // Every string that crosses the boundary: the name or error id, the category spelling, and
+    // every parameter key and value. This is the surface the sentinel sweep must inspect in full.
+    private static func allStrings(of rendered: AnalyticsSignal.Rendered) -> [String] {
+        switch rendered {
+        case .signal(let name, let parameters):
+            [name] + parameters.keys + parameters.values
+
+        case .error(let id, let category, let parameters):
+            [id, category.rawValue] + parameters.keys + parameters.values
+        }
+    }
 }
