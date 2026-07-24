@@ -107,7 +107,7 @@ private extension DetailView {
                     TagsSection(
                         tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
                         voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
-                        navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
+                        navigateSearchAction: { store.send(.tagSearchTapped(keyword: $0, namespace: $1)) },
                         navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                         translateAction: {
                             store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
