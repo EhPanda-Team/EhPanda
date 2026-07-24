@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -74,8 +75,21 @@ extension DetailReducer {
                 return .none
 
             case .tagDetailButtonTapped(let tagDetail):
+                // No emission here: this presents an informational sheet about a tag, not a search,
+                // and `TagDetail` carries no namespace to emit. Tag-search analytics lives in
+                // `.tagSearchTapped` below.
                 state.destination = .tagDetail(tagDetail)
                 return .none
+
+            case .tagSearchTapped(let keyword, let namespace):
+                // The namespace rides on the action instead of being recovered from `keyword`:
+                // parsing the assembled search keyword back apart would put tag text on the analytics
+                // path, which the never-send list (D-06) forbids. The keyword still reaches the same
+                // delegate unchanged, in this same reducer turn, so the search behavior is untouched.
+                return .merge(
+                    .run(operation: { _ in analyticsClient.send(.tagTapped(namespace: namespace)) }),
+                    .send(.delegate(.pushDetailSearch(keyword)))
+                )
 
             case .onPresented:
                 return handleOnPresented(state: &state)
