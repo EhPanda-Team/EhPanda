@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import AppTools
@@ -22,7 +23,8 @@ struct PresentationFeatureTests {
         let errorInfo = ErrorInfo(error: .unsupportedDeepLink, context: .unsupportedLink(url: url))
         let store = TestStore(
             initialState: PresentationFeature.State(),
-            reducer: PresentationFeature.init
+            reducer: PresentationFeature.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.handleDeepLink(url)) {
@@ -40,6 +42,7 @@ struct PresentationFeatureTests {
             initialState: PresentationFeature.State(),
             reducer: PresentationFeature.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .fixed(url: url, changeCount: changeCount)
                 $0.userDefaultsClient = .recording(read: 7, writes: recordedWrites)
             }
@@ -62,6 +65,7 @@ struct PresentationFeatureTests {
             initialState: PresentationFeature.State(),
             reducer: PresentationFeature.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .fixed(url: url, changeCount: changeCount)
                 $0.userDefaultsClient = .recording(read: 7, writes: recordedWrites)
             }
@@ -230,7 +234,8 @@ struct PresentationFeatureTests {
         initialState.toast = .loading()
         let store = TestStore(
             initialState: initialState,
-            reducer: PresentationFeature.init
+            reducer: PresentationFeature.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed))) {
@@ -254,7 +259,8 @@ struct PresentationFeatureTests {
         )
         let store = TestStore(
             initialState: PresentationFeature.State(),
-            reducer: PresentationFeature.init
+            reducer: PresentationFeature.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.presentErrorInfo(errorInfo)) {
@@ -277,6 +283,7 @@ struct PresentationFeatureTests {
                 initialState: PresentationFeature.State(),
                 reducer: PresentationFeature.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.clipboardClient = .fixed(changeCount: matchingChangeCount)
                     $0.userDefaultsClient = .recording(read: matchingChangeCount, writes: recordedWrites)
                 }
@@ -303,6 +310,7 @@ struct PresentationFeatureTests {
                 initialState: PresentationFeature.State(),
                 reducer: PresentationFeature.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.clipboardClient = .fixed(changeCount: clipboardChangeCount)
                     $0.userDefaultsClient = .recording(read: injectedReadValue, writes: recordedWrites)
                 }
@@ -348,6 +356,7 @@ private extension PresentationFeatureTests {
             initialState: initialState,
             reducer: PresentationFeature.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = .noop
                 $0.hapticsClient = .noop

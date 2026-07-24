@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -52,6 +53,7 @@ private extension PresentationLifecycleTests {
             initialState: PresentationFeature.State(),
             reducer: PresentationFeature.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = .noop
                 $0.hapticsClient = .noop
                 $0.date = .constant(.init(timeIntervalSince1970: 0))

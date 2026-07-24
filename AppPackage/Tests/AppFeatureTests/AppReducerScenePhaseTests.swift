@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
@@ -120,6 +121,7 @@ private extension AppReducerScenePhaseTests {
                 initialState: initialState,
                 reducer: AppReducer.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.appLaunchAutomationClient = .none
                     $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
                     $0.continuousClock = TestClock()
