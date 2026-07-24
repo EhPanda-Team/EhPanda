@@ -1,3 +1,4 @@
+import AnalyticsClient
 import ComposableArchitecture
 import Foundation
 @testable import SettingFeature
@@ -14,7 +15,9 @@ struct GeneralSettingReducerTests {
     @MainActor
     @Test
     func importButtonPresentsFileImporter() async {
-        let store = TestStore(initialState: .init(), reducer: GeneralSettingReducer.init)
+        let store = TestStore(initialState: .init(), reducer: GeneralSettingReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         await store.send(.importCustomTranslationsButtonTapped) {
             $0.destination = .importTranslations
@@ -29,7 +32,9 @@ struct GeneralSettingReducerTests {
     @MainActor
     @Test
     func filePickedCausesNoLocalStateChange() async {
-        let store = TestStore(initialState: .init(), reducer: GeneralSettingReducer.init)
+        let store = TestStore(initialState: .init(), reducer: GeneralSettingReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         // The child only relays the URL and mutates no local state; the import itself is handled by
         // `SettingReducer` (covered by `generalFilePickedImportsAndStoresTagTranslator`).

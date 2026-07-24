@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -54,6 +55,7 @@ struct SettingPresentationTests {
     func pushingAccountLoadsCookies() async throws {
         let cookieClient = CookieClient.testing(memberID: "member-fixture", passHash: "pass-fixture")
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = cookieClient
         }
 
@@ -75,6 +77,7 @@ struct SettingPresentationTests {
     @Test
     func pushingGeneralMeasuresTheImageCache() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.libraryClient = .init(
                 initializeWebImage: {},
                 removeAllCachedImages: {},
@@ -111,6 +114,7 @@ struct SettingPresentationTests {
         logsClient.listRunFiles = { [run] }
 
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.defaultInMemoryStorage = InMemoryStorage()
             $0.libraryClient = .noop
             $0.logsClient = logsClient
@@ -137,6 +141,7 @@ struct SettingPresentationTests {
     @Test
     func dedupedPushStartsNothing() async {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.libraryClient = .noop
         }
         store.exhaustivity = .off
@@ -164,6 +169,7 @@ struct SettingPresentationTests {
         initialState.path.append(.ehSetting(ehSettingState))
 
         let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = cookieClient
         }
         let id = try #require(store.state.path.ids.last)
@@ -188,6 +194,7 @@ struct SettingPresentationTests {
         initialState.path.append(.about(.init()))
 
         let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = cookieClient
         }
         let id = try #require(store.state.path.ids.last)

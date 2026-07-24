@@ -1,3 +1,4 @@
+import AnalyticsClient
 import ComposableArchitecture
 import DFClient
 import HapticsClient
@@ -16,6 +17,7 @@ struct LaboratorySettingReducerTests {
     @Test
     func bypassesSNIFilteringChangedRunsToCompletion() async {
         let store = TestStore(initialState: .init(), reducer: LaboratorySettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.hapticsClient = .noop
             $0.dfClient = .noop
         }
