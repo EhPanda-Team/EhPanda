@@ -215,10 +215,18 @@ site, so no new state or plumbing is required.
 1. Add `paused` and `resumed` to `DownloadOutcome` in
    `AppPackage/Sources/AnalyticsClient/AnalyticsVocabulary.swift`.
 2. Add the two rendering entries, if the rendering layer enumerates outcomes explicitly.
-3. Emit from `toggleDownloadPauseDone`'s success arm in
-   `AppPackage/Sources/DetailFeature/DetailReducer+Download.swift`, choosing the outcome from the
-   pre-mutation badge status. The failure arm stays silent, consistent with the other three
-   download outcomes.
+3. Emit from `toggleDownloadPauseDone`'s success arm in **both** modules that own the action,
+   choosing the outcome from the pre-mutation badge status. The failure arms stay silent,
+   consistent with the other three download outcomes:
+   - `AppPackage/Sources/DetailFeature/DetailReducer+Download.swift` (found by plan 14-13)
+   - `AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift` (found by plan 14-15)
+
+   **Scope correction, added 2026-07-25.** This decision originally named only the `DetailFeature`
+   site, because 14-13 was the plan that raised it. Plan 14-15's inventory search then found the
+   same action in `DownloadsReducer`. Instrumenting only one would measure pause/resume from the
+   detail screen while silently missing it from the downloads list — a half-measured metric, which
+   is more misleading than an unmeasured one, since a gap in coverage is indistinguishable from
+   users not pausing.
 4. **Replace** the `toggleDownloadPauseRecordsNothing` test in
    `AppPackage/Tests/DetailFeatureTests/AnalyticsEmissionTests.swift`. It currently pins the
    *exclusion* and will fail once the emission exists — that is the test working as intended, not
