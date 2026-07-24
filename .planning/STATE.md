@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-13-PLAN.md — wave 6 in progress (14-14 … 14-16 remain)
+stopped_at: Completed 14-14-PLAN.md — wave 6 in progress (14-15, 14-16 remain)
 last_updated: "2026-07-25T00:00:00.000Z"
 last_activity: 2026-07-25
-last_activity_desc: 14-13 DetailFeature instrumented; completed inline after a provider quota interruption
+last_activity_desc: 14-14 ReadingFeature instrumented; one bucketed end-of-session signal
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 166
+  completed_plans: 167
   percent: 80
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 13 of 18 complete (14-01 … 14-13); waves 1–5 complete, wave 6 in progress
-Status: Executing Phase 14 — wave 6 (instrumentation), 4 of 7 plans done
-Last activity: 2026-07-25 — 14-13 DetailFeature instrumented (tag taps, download outcomes, detail-search panels)
-Next: /gsd-execute-phase 14 — wave 6 remainder (14-14 ReadingFeature, 14-15 DownloadsFeature, 14-16 SettingFeature)
+Plan: 14 of 18 complete (14-01 … 14-14); waves 1–5 complete, wave 6 in progress
+Status: Executing Phase 14 — wave 6 (instrumentation), 5 of 7 plans done
+Last activity: 2026-07-25 — 14-14 ReadingFeature instrumented (one bucketed end-of-session signal)
+Next: /gsd-execute-phase 14 — wave 6 remainder (14-15 DownloadsFeature, 14-16 SettingFeature)
 
 Progress: [██████████] 96% (13/15 phases)
 
