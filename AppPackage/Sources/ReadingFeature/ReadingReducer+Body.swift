@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppTools
 import ComposableArchitecture
@@ -74,13 +75,37 @@ extension ReadingReducer {
                 // Flush synchronously here — this runs before the parent nils the presentation and
                 // cancels the pending debounce, so the last page swiped-to isn't lost on a normal close.
                 flushReadingProgress(state)
-                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
+                let haptics = Effect<Action>.run(operation: { _ in
+                    await hapticsClient.generateFeedback(.light)
+                })
+                // One end-of-session signal rather than a start/end pair: a start without a matching
+                // end is unanalyzable, the vendor bills per signal, and this synchronous teardown seam
+                // is the one place both the visited-page count and the elapsed time are still known.
+                // The duration is bucketed here rather than delegated to the SDK's duration-signal
+                // pair, which transmits an exact rounded second count that D-08 forbids.
+                // A reader torn down without ever being presented has no start instant and emits
+                // nothing, rather than reporting a zero-duration session that never happened.
+                guard let sessionStartDate = state.sessionStartDate else { return haptics }
+                let elapsed = date.now.timeIntervalSince(sessionStartDate)
+                let pagesRead = CountBucket(count: state.visitedPages.count)
+                let duration = DurationBucket(seconds: elapsed)
+                return .merge(
+                    haptics,
+                    .run(operation: { _ in
+                        analyticsClient.send(.readingSessionEnded(pagesRead: pagesRead, duration: duration))
+                    })
+                )
 
             // Sent by whoever presents the reader, in the same transition that sets the
             // destination. The gid used to arrive from the view; every construction site seeds
             // `gallery`, so it was always this value.
             case .onPresented:
                 let gid = state.gallery.id
+                // Session tracking starts here and emits nothing: the signal is sent once at
+                // dismissal, where both facts are known. Seed the visited set with the page the
+                // reader opens on, which a resumed session makes non-zero.
+                state.sessionStartDate = date.now
+                state.visitedPages = [state.readingProgress]
                 return .merge(
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid))
