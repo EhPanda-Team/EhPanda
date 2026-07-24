@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppLaunchAutomationClient
 import AppModels
 import AppTools
@@ -56,6 +57,7 @@ struct AppReducer {
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
@@ -234,6 +236,10 @@ struct AppReducer {
                         effects.append(hapticEffect)
                     }
                 } else {
+                    // A genuine tab switch is the only thing that counts as a tab open. The equal-`type`
+                    // branch above is refresh / pop-to-root, so emitting there would inflate the metric
+                    // with scroll-to-top gestures that never changed which tab is showing (D-14, T-14-13).
+                    effects.append(.run(operation: { _ in analyticsClient.send(.tabOpened(AppTab(type))) }))
                     // Presentation-driven lifecycle: tab roots are built once and live for the whole
                     // session, so "this tab became the visible one" is what replaces their former
                     // view `onAppear`. Their presentation actions are guarded, so re-activating a
