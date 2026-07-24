@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -22,6 +23,7 @@ struct AppIconReducerTests {
             $0.defaultAppStorage = defaults
         } operation: {
             let store = TestStore(initialState: .init(), reducer: AppIconReducer.init) {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
             }
             store.exhaustivity = .off

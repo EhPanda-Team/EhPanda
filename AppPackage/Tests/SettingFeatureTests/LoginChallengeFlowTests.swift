@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -462,6 +463,7 @@ struct LoginChallengeFlowTests {
             initialState: makeInitialState(focusedField: focusedField, toast: toast),
             reducer: LoginReducer.init
         ) {
+            $0.analyticsClient = .noop
             $0.defaultInMemoryStorage = storage
             $0.cookieClient = cookieClient
             $0.hapticsClient = .noop

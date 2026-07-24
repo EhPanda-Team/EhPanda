@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -41,6 +42,7 @@ struct AppActivityLogsReducerTests {
                 initialState: AppActivityLogsPumpReducer.State(),
                 reducer: AppActivityLogsPumpReducer.init
             ) {
+                $0.analyticsClient = .noop
                 $0.logsClient = client
                 $0.continuousClock = TestClock()
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
@@ -93,6 +95,7 @@ struct AppActivityLogsReducerTests {
             initialState.previousRuns = [run]
 
             let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
+                $0.analyticsClient = .noop
                 $0.logsClient = client
                 $0.defaultInMemoryStorage = storage
             }
@@ -134,6 +137,7 @@ struct AppActivityLogsReducerTests {
             initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
 
             let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
+                $0.analyticsClient = .noop
                 $0.logsClient = .noop
                 $0.defaultInMemoryStorage = storage
             }
@@ -163,6 +167,7 @@ struct AppActivityLogsReducerTests {
                 initialState: AppActivityLogsReducer.State(),
                 reducer: AppActivityLogsReducer.init
             ) {
+                $0.analyticsClient = .noop
                 $0.logsClient = .noop
                 $0.defaultInMemoryStorage = storage
             }

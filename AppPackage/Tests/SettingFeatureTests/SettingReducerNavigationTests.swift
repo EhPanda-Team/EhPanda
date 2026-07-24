@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -26,6 +27,7 @@ struct SettingReducerNavigationTests {
         initialState: SettingReducer.State = .init()
     ) -> TestStoreOf<SettingReducer> {
         TestStore(initialState: initialState, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = .noop
             $0.libraryClient = .noop
             $0.logsClient = .noop
@@ -53,7 +55,9 @@ struct SettingReducerNavigationTests {
     @MainActor
     @Test
     func pushLoginAppendsLoginScreen() async {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         await store.send(.pushLogin) {
             $0.path.append(.login(.init()))
@@ -123,6 +127,7 @@ struct SettingReducerNavigationTests {
         // The logs screen reads in-memory `@SharedReader` keys; isolate them so the read can't see
         // another test's pump state.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.defaultInMemoryStorage = InMemoryStorage()
             $0.libraryClient = .noop
             $0.logsClient = .noop
@@ -158,6 +163,7 @@ struct SettingReducerNavigationTests {
             initialState.tagTranslatorLoadingState = .loading
 
             let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.libraryClient = .noop
                 $0.fileClient.loadCachedTagTranslator = { (_: TagTranslatorInfo) throws(AppError) in
@@ -180,6 +186,7 @@ struct SettingReducerNavigationTests {
         // `enableTagsExtension` defaults to false, so the delegate must emit no rebuild — the exhaustive
         // store fails if any effect is left unhandled.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.defaultAppStorage = UserDefaults.inMemory
             $0.libraryClient = .noop
         }
@@ -202,6 +209,7 @@ struct SettingReducerNavigationTests {
     func generalFilePickedImportsAndStoresTagTranslator() async throws {
         let imported = TagTranslator(hasCustomTranslations: true)
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.libraryClient = .noop
             $0.fileClient.importTagTranslator = { _ in .success(imported) }
         }
@@ -229,6 +237,7 @@ struct SettingReducerNavigationTests {
     @Test
     func loginDoneRunsPostLoginFetchCascade() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = .noop
             $0.hapticsClient = .noop
         }
@@ -252,6 +261,7 @@ struct SettingReducerNavigationTests {
     @Test
     func fetchIgneousDoneSuccessSignalsRefreshed() async throws {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = .noop
         }
         store.exhaustivity = .off
@@ -266,7 +276,9 @@ struct SettingReducerNavigationTests {
     @MainActor
     @Test
     func fetchIgneousDoneFailureStillSignalsRefreshed() async {
-        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+        }
         store.exhaustivity = .off
 
         await store.send(.fetchIgneousDone(.failure(.notFound)))

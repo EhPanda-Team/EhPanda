@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -47,6 +48,7 @@ struct SettingReducerTests {
             let state = SettingReducer.State()
             state.$setting.withLock({ $0.galleryHost = .ehentai })
             return TestStore(initialState: state, reducer: SettingReducer.init) {
+                $0.analyticsClient = .noop
                 $0.cookieClient = cookieClient
                 $0.defaultAppStorage = defaults
             }
