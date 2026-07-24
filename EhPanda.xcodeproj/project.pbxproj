@@ -49,6 +49,7 @@
 /* Begin PBXFileReference section */
 		A0F00000000000000000F004 /* AppPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppPackage; sourceTree = "<group>"; };
 		A13080000000000000000001 /* EhPandaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A14C0F1600000000000000A1 /* Analytics.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Analytics.xcconfig; path = Config/Analytics.xcconfig; sourceTree = "<group>"; };
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
@@ -188,6 +189,7 @@
 				EA0C924C2C3EB45E00D211F6 /* .gitignore */,
 				EA0C924B2C3EB45E00D211F6 /* .swiftlint.yml */,
 				EA0C92482C3EB45E00D211F6 /* AltStore.json */,
+				A14C0F1600000000000000A1 /* Analytics.xcconfig */,
 			);
 			name = Config;
 			sourceTree = "<group>";
@@ -624,6 +626,7 @@
 		};
 		ABC3C7642593696E00E0C11B /* Debug configuration for PBXNativeTarget "EhPanda" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A14C0F1600000000000000A1 /* Analytics.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -654,6 +657,7 @@
 		};
 		ABC3C7652593696E00E0C11B /* Release configuration for PBXNativeTarget "EhPanda" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A14C0F1600000000000000A1 /* Analytics.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
