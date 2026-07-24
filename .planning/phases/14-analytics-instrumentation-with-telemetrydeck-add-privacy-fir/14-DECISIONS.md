@@ -181,5 +181,53 @@ nothing content-bearing survives the reduction. Plan **14-03** owns both.
 
 ---
 
+### D-20: Pause and resume become measurable — an amendment to D-05
+
+**`DownloadOutcome` gains pause/resume coverage, and `toggleDownloadPauseDone` is instrumented.**
+Owned by plan **14-17**.
+
+*Question:* plan 14-13 verified the download-completion inventory by search and found a fourth
+case the plan had not named — `toggleDownloadPauseDone`. `DownloadOutcome` had no case able to
+express it (`started`, `retried`, `completed`, `failed`, `deleted`, `moved`), so pause/resume was
+unmeasurable by construction and 14-13 left it uninstrumented, pinned by a zero-signal test, and
+raised it rather than widening a locked vocabulary on its own authority.
+
+*Answer:* add the capability. The owner chose to make pause/resume visible rather than leave it
+outside the taxonomy.
+
+**This amends D-05**, which fixed the signal families and their outcomes. It is the phase's
+**third** amendment to a locked decision, alongside D-16 (D-08) and D-19 (D-09). Like those, it
+*widens* rather than narrows, so it clears the standing no-tightening rule.
+
+**Two cases, not one — recorded as an inference, correct it if wrong.** The toggle is
+bidirectional: the reducer sends the same action for both directions and decides which happened
+from `state.downloadBadge?.status` before mutating it (`.active` → `.inactive` is a pause,
+`.inactive` → `.queued` is a resume). A single `paused` case would therefore count two opposite
+user actions under one name. This phase has already rejected exactly that error twice — D-16
+records it as the reason to keep metrics distinct, and 14-13 assigned download *failure*
+exclusively to the downloads-list diff so start-time and transfer-time failures would not share a
+name. Applying the same principle, this decision is recorded as **two** cases, `paused` and
+`resumed`, rather than one conflated case. The direction is already available at the emission
+site, so no new state or plumbing is required.
+
+**What plan 14-17 must do:**
+
+1. Add `paused` and `resumed` to `DownloadOutcome` in
+   `AppPackage/Sources/AnalyticsClient/AnalyticsVocabulary.swift`.
+2. Add the two rendering entries, if the rendering layer enumerates outcomes explicitly.
+3. Emit from `toggleDownloadPauseDone`'s success arm in
+   `AppPackage/Sources/DetailFeature/DetailReducer+Download.swift`, choosing the outcome from the
+   pre-mutation badge status. The failure arm stays silent, consistent with the other three
+   download outcomes.
+4. **Replace** the `toggleDownloadPauseRecordsNothing` test in
+   `AppPackage/Tests/DetailFeatureTests/AnalyticsEmissionTests.swift`. It currently pins the
+   *exclusion* and will fail once the emission exists — that is the test working as intended, not
+   a regression. It becomes a two-direction emission assertion, keeping a zero-signal assertion
+   for the failure arm only.
+5. Note in the 14-17 summary that this is an amendment to D-05, so the taxonomy's history stays
+   auditable.
+
+---
+
 *Phase: 14-analytics-instrumentation*
-*Decisions answered: 2026-07-24*
+*Decisions answered: 2026-07-24; D-20 added 2026-07-25*
