@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -91,6 +92,7 @@ public struct SearchRootReducer: Sendable {
         case fetchHistoryGalleriesDone(Result<[Gallery], AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -139,6 +141,9 @@ public struct SearchRootReducer: Sendable {
                 return .none
 
             case let .path(.element(id: _, action: .search(.delegate(.searchPerformed(keyword))))):
+                // Deliberately emits no analytics signal. This is the persistence path for the raw
+                // keyword; the performed-search signal is emitted once at SearchReducer's fetch
+                // completion as a reduced SearchShape, never here. Do not add an emission (D-06).
                 state.appendHistoryKeywords([keyword])
                 return .none
 
@@ -165,16 +170,25 @@ public struct SearchRootReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 // Presenting the sheet loads the persisted filters into it, replacing the form's
                 // former `onAppear`. Every screen that presents Filters must send this.
-                return .send(.destination(.presented(.filters(.fetchFilters))))
+                // Records that the filter panel was opened from the Search-root surface (D-14).
+                return .merge(
+                    .send(.destination(.presented(.filters(.fetchFilters)))),
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.searchRoot)) })
+                )
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
-                return .none
+                // Records that the quick-search panel was opened from the Search-root surface (D-14).
+                return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.searchRoot)) })
 
             case .destination:
                 return .none
 
             case .appendHistoryKeyword(let keyword):
+                // Deliberately emits no analytics signal despite carrying the raw keyword: this is a
+                // persistence action, and the keyword must not cross the analytics boundary in any
+                // form other than the SearchShape already emitted at fetch completion (D-06). A later
+                // reader must not add an emission here for completeness.
                 state.appendHistoryKeywords([keyword])
                 return .none
 

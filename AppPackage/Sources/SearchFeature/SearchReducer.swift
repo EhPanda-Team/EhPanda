@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -76,6 +77,7 @@ public struct SearchReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -112,11 +114,16 @@ public struct SearchReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 // Presenting the sheet loads the persisted filters into it, replacing the form's
                 // former `onAppear`. Every screen that presents Filters must send this.
-                return .send(.destination(.presented(.filters(.fetchFilters))))
+                // Records that the filter panel was opened from the Search surface (D-14).
+                return .merge(
+                    .send(.destination(.presented(.filters(.fetchFilters)))),
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.search)) })
+                )
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
-                return .none
+                // Records that the quick-search panel was opened from the Search surface (D-14).
+                return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.search)) })
 
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
@@ -156,22 +163,37 @@ public struct SearchReducer: Sendable {
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
+                // The performed-search signal is emitted here, at fetch completion — the only point
+                // the result count is known. The fetch-request case emits nothing, so a search is
+                // counted exactly once and retries never double-count (T-14-13). The keyword is
+                // reduced to a SearchShape at the call site and never forwarded; only its word-count
+                // bucket, tag-syntax flag and exact length cross the boundary (D-06/D-07/D-08).
+                let resultCount: Int = switch result {
+                case .success(let response): response.galleries.count
+                case .failure: 0
+                }
+                let searchPerformed = Effect<Action>.run(operation: { [keyword = state.lastKeyword] _ in
+                    analyticsClient.send(.searchPerformed(
+                        shape: SearchShape(keyword: keyword),
+                        resultCount: CountBucket(count: resultCount)
+                    ))
+                })
                 switch result {
                 case .success(let response):
                     let galleries = response.galleries
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
-                        guard response.pageNumber.hasNextPage() else { return .none }
-                        return .send(.fetchMoreGalleries)
+                        guard response.pageNumber.hasNextPage() else { return searchPerformed }
+                        return .merge(searchPerformed, .send(.fetchMoreGalleries))
                     }
                     state.pageNumber = response.pageNumber
                     state.dateSeekNavigation = response.dateSeekNavigation
                     state.galleries = galleries
-                    return .none
+                    return searchPerformed
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
-                return .none
+                return searchPerformed
 
             case .fetchMoreGalleries:
                 let pageNumber = state.pageNumber
