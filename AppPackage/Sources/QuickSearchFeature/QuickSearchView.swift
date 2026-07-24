@@ -27,6 +27,9 @@ public struct QuickSearchView: View {
 
                 ForEach(store.quickSearchWords) { word in
                     Button {
+                        // Record the word-usage signal at the reducer seam, then run the host's search
+                        // callback exactly as before — the callback and its argument are unchanged.
+                        store.send(.wordTapped)
                         searchAction(word.effectiveSearchText)
                     } label: {
                         VStack(alignment: .leading, spacing: 5) {
