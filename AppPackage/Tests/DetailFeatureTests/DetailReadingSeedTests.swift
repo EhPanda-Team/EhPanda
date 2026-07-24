@@ -38,6 +38,8 @@ struct DetailReadingSeedTests {
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader's session tracking reads the date dependency on presentation (14-14).
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off
@@ -62,6 +64,8 @@ struct DetailReadingSeedTests {
         // download observation runs inside this store.
         let store = TestStore(initialState: makeSeededState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader's session tracking reads the date dependency on presentation (14-14).
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off

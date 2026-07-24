@@ -328,6 +328,8 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             reducer: DownloadsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
