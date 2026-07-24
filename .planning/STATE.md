@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-09-PLAN.md
-last_updated: "2026-07-24T05:53:12.692Z"
+stopped_at: Completed 14-10-PLAN.md
+last_updated: "2026-07-24T06:13:06.420Z"
 last_activity: 2026-07-24
 last_activity_desc: 14-02's five open questions answered and recorded as D-15 … D-19
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 162
+  completed_plans: 163
   percent: 80
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 9 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
+Plan: 10 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
 Status: Ready to execute
 Last activity: 2026-07-24 — 14-02's five open questions answered and recorded as D-15 … D-19
 Next: /gsd-execute-phase 14 — wave 2 (plans 14-03 and 14-04)
@@ -223,6 +223,7 @@ Progress: [██████████] 95% (13/15 phases)
 | Phase 14 P07 | 40min | 2 tasks | 23 files |
 | Phase 14 P08 | 18min | 2 tasks | 11 files |
 | Phase 14 P09 | ~12min | 3 tasks | 9 files |
+| Phase 14 P10 | 14min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -516,6 +517,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 14]: 14-08: Hardened all 28 SettingFeatureTests TestStore sites to analyticsClient = .noop (via factories where present) ahead of wave-6 SettingFeature instrumentation; testValue = .unimplemented left untouched.
 - [Phase ?]: [Phase 14]: 14-08: Behavioral probe PASS — a temporary real analyticsClient.send from LoginReducer.login kept the target green, proving per-store dependency resolution, then reverted with an empty git status for AppPackage/Sources.
 - [Phase ?]: 14-09: Hardened all 24 TestStores across AppFeatureTests/HomeFeatureTests/DetailFeatureTests/ReadingFeatureTests to analyticsClient = .noop; scoped-child stores in the app-root target included; behavioral probe green from all four modules.
+- [Phase ?]: 14-10: analytics SDK initialized once from onLaunchFinish reducer effect, never a view callback (D-14)
+- [Phase ?]: 14-10: tabOpened emits only on a genuine tab switch; error-detail drill-down and caption-only toasts emit nothing (T-14-13)
 
 ### Pending Todos
 
@@ -562,6 +565,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T05:53:12.685Z
-Stopped at: Completed 14-09-PLAN.md
+Last session: 2026-07-24T06:12:54.896Z
+Stopped at: Completed 14-10-PLAN.md
 Resume file: None
