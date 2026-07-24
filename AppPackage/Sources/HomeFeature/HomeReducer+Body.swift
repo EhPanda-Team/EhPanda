@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import DetailFeature
@@ -38,6 +39,9 @@ extension HomeReducer {
                  let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
                  let .path(.element(id: _, action: .history(.delegate(.pushDetail(gallery))))):
+                // No analytics here: this tap routes to a phone push (`.pushGalleryDetail`, counted
+                // there) or an iPad modal (counted by the app-root `presentGalleryDetail`); emitting
+                // at the tap would double-count one open across the two device paths (T-14-13).
                 return GalleryNavigation.routeGalleryDetail(
                     deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(gallery)) },
@@ -46,45 +50,77 @@ extension HomeReducer {
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(.gallery(screen)),
-                    screen: screen,
-                    embed: { .path(.element(id: $0, action: .gallery($1))) }
+                return .merge(
+                    GalleryNavigation.presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.gallery(screen)),
+                        screen: screen,
+                        embed: { .path(.element(id: $0, action: .gallery($1))) }
+                    ),
+                    // Same content-free derivation as the other four gallery-detail entry paths: a
+                    // closed `Category` plus exact per-namespace tag counts — no gid, token, title,
+                    // URL or tag text (D-06, D-09).
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: gallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: gallery.tags)
+                        ))
+                    })
                 )
 
             case .delegate:
                 return .none
 
             case .sectionTapped(let type):
+                let sectionViewed = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
+                })
                 switch type {
                 case .frontpage:
-                    return presentationEffect(
-                        id: state.path.appendGuardingDuplicate(.frontpage(.init())),
-                        action: .frontpage(.onPresented)
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.frontpage(.init())),
+                            action: .frontpage(.onPresented)
+                        ),
+                        sectionViewed
                     )
                 case .toplists:
-                    return presentationEffect(
-                        id: state.path.appendGuardingDuplicate(.toplists(.init())),
-                        action: .toplists(.onPresented)
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.toplists(.init())),
+                            action: .toplists(.onPresented)
+                        ),
+                        sectionViewed
                     )
                 }
 
             case .miscTapped(let type):
+                let sectionViewed = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.homeSectionViewed(homeSection(for: type)))
+                })
                 switch type {
                 case .popular:
-                    return presentationEffect(
-                        id: state.path.appendGuardingDuplicate(.popular(.init())),
-                        action: .popular(.onPresented)
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.popular(.init())),
+                            action: .popular(.onPresented)
+                        ),
+                        sectionViewed
                     )
                 case .watched:
-                    return presentationEffect(
-                        id: state.path.appendGuardingDuplicate(.watched(.init())),
-                        action: .watched(.onPresented)
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.watched(.init())),
+                            action: .watched(.onPresented)
+                        ),
+                        sectionViewed
                     )
                 case .history:
-                    return presentationEffect(
-                        id: state.path.appendGuardingDuplicate(.history(.init())),
-                        action: .history(.onPresented)
+                    return .merge(
+                        presentationEffect(
+                            id: state.path.appendGuardingDuplicate(.history(.init())),
+                            action: .history(.onPresented)
+                        ),
+                        sectionViewed
                     )
                 }
 
@@ -238,5 +274,32 @@ extension HomeReducer {
     private func presentationEffect(id: StackElementID?, action: HomePath.Action) -> Effect<Action> {
         guard let id else { return .none }
         return .send(.path(.element(id: id, action: action)))
+    }
+
+    /// Folds the two Home source enums onto the analytics module's closed `HomeSection`.
+    ///
+    /// `HomeFeature` splits its five destinations across `HomeSectionType` (two list sections) and
+    /// `HomeMiscGridType` (three grids); both map here, in one place, so "all five sections are
+    /// covered" is checkable by reading a single helper. Each switch is exhaustive with no `default:`
+    /// arm, so a sixth Home destination is a compile error at exactly this mapping rather than a
+    /// screen that ships silently unmeasured (T-14-14).
+    private func homeSection(for type: HomeSectionType) -> HomeSection {
+        switch type {
+        case .frontpage:
+            return .frontpage
+        case .toplists:
+            return .toplists
+        }
+    }
+
+    private func homeSection(for type: HomeMiscGridType) -> HomeSection {
+        switch type {
+        case .popular:
+            return .popular
+        case .watched:
+            return .watched
+        case .history:
+            return .history
+        }
     }
 }
