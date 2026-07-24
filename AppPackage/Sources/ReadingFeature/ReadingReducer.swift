@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -58,6 +59,14 @@ public struct ReadingReducer: Sendable {
         // from `readingProgress` (which seeds the slider) so tracking it never feeds back into the pager.
         public var pendingReadingProgress: Int = .zero
         public var forceRefreshID: UUID = .init()
+
+        // Transient per-session analytics tracking, reset with the reducer state on every present.
+        // A *set* of visited pages rather than a counter: scrubbing the slider back and forth
+        // revisits pages, and a counter would report fidgeting as reading. Neither property is
+        // persisted, so no stored model or schema version is affected.
+        public var visitedPages = Set<Int>()
+        // Noun form, not `...At` — the repository's `date_property_at_suffix` rule is error severity.
+        public var sessionStartDate: Date?
 
         public var webImageLoadSuccessIndices = Set<Int>()
         public var imageURLLoadingStates = [Int: LoadingState]()
@@ -221,6 +230,7 @@ public struct ReadingReducer: Sendable {
         case captureCachedPage(Int)
     }
 
+    @Dependency(\.analyticsClient) var analyticsClient
     @Dependency(\.clipboardClient) var clipboardClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
