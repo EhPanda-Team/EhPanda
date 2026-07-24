@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -68,6 +69,7 @@ public struct FrontpageReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -94,7 +96,12 @@ public struct FrontpageReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 // Presenting the sheet loads the persisted filters into it, replacing the form's
                 // former `onAppear`. Every screen that presents Filters must send this.
-                return .send(.destination(.presented(.filters(.fetchFilters))))
+                // Records that the filter panel was opened here (D-14). Applying a filter mutates a
+                // persisted shared value with no distinct reducer action, so only the open is counted.
+                return .merge(
+                    .send(.destination(.presented(.filters(.fetchFilters)))),
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.frontpage)) })
+                )
 
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
