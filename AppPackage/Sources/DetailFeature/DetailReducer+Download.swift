@@ -215,9 +215,14 @@ extension DetailReducer {
                     state.hasLoadedDownloadBadge = true
                     return .merge(
                         .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.started)) }),
                         .send(.fetchDownloadBadge)
                     )
                 }
+                // No emission on the failure arm, here or in the sibling retry/delete cases below:
+                // a download that fails during transfer is observed by the downloads-list transition
+                // diff, which owns the `failed` outcome. Emitting start-time failures here too would
+                // count two different things under one name.
                 return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
 
             case .toggleDownloadPause:
@@ -277,6 +282,7 @@ extension DetailReducer {
                     state.hasLoadedDownloadBadge = true
                     return .merge(
                         .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.retried)) }),
                         .send(.fetchDownloadBadge)
                     )
                 }
@@ -297,6 +303,7 @@ extension DetailReducer {
                     state.shouldCheckForRemoteUpdates = false
                     return .merge(
                         .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.deleted)) }),
                         .send(.fetchDownloadBadge)
                     )
                 }
