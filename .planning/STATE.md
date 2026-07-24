@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 4 of 18 complete (14-01, 14-02); wave 1 complete
+Plan: 4 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
 Status: Ready to execute
 Last activity: 2026-07-24 — 14-02's five open questions answered and recorded as D-15 … D-19
 Next: /gsd-execute-phase 14 — wave 2 (plans 14-03 and 14-04)
