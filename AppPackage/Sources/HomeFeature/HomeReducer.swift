@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -82,6 +83,9 @@ public struct HomeReducer: Sendable {
         )
     }
 
+    // Not `private`: this reducer's body lives in `HomeReducer+Body.swift`, so its dependencies
+    // must be file-crossing `internal` like `deviceClient` and `libraryClient` below.
+    @Dependency(\.analyticsClient) var analyticsClient
     @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.libraryClient) var libraryClient
 
