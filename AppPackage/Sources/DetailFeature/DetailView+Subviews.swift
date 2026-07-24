@@ -230,7 +230,9 @@ struct TagsSection: View {
     let tags: [GalleryTag]
     let showsImages: Bool
     let voteTagAction: (String, Int) -> Void
-    let navigateSearchAction: (String) -> Void
+    // Carries the tapped tag's namespace alongside the assembled search keyword so the reducer can
+    // emit the namespace without parsing it back out of the keyword (which would be tag content).
+    let navigateSearchAction: (String, TagNamespace?) -> Void
     let navigateTagDetailAction: (TagDetail) -> Void
     let translateAction: (String) -> TagTranslationLookup
 
@@ -258,7 +260,9 @@ extension TagsSection {
         let tag: GalleryTag
         let showsImages: Bool
         let voteTagAction: (String, Int) -> Void
-        let navigateSearchAction: (String) -> Void
+        // Mirrors `TagsSection`: the row passes the namespace it already holds for its header text,
+        // so no caller has to recover it from the assembled keyword.
+        let navigateSearchAction: (String, TagNamespace?) -> Void
         let navigateTagDetailAction: (TagDetail) -> Void
         let translateAction: (String) -> TagTranslationLookup
 
@@ -284,7 +288,7 @@ extension TagsSection {
         private func tagContentView(content: GalleryTag.Content) -> some View {
             let translation = translateAction(content.rawNamespace + content.text).translation
             Button {
-                navigateSearchAction(content.serachKeyword(tag: tag))
+                navigateSearchAction(content.serachKeyword(tag: tag), tag.namespace)
             } label: {
                 TagCloudCell(
                     text: translation?.displayValue ?? content.text,
@@ -365,7 +369,7 @@ extension TagsSection {
             ],
             showsImages: false,
             voteTagAction: { _, _ in },
-            navigateSearchAction: { _ in },
+            navigateSearchAction: { _, _ in },
             navigateTagDetailAction: { _ in },
             translateAction: { .init(text: $0, translation: nil) }
         )

@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppLaunchAutomationClient
 import AppModels
@@ -129,6 +130,7 @@ public struct DetailReducer: Sendable {
         case postCommentButtonTapped
         case presentNewDawn(Greeting)
         case tagDetailButtonTapped(TagDetail)
+        case tagSearchTapped(keyword: String, namespace: TagNamespace?)
         case alert(PresentationAction<Alert>)
         case deleteDownloadButtonTapped
         case retryDownloadButtonTapped(DownloadStartMode)
@@ -175,6 +177,11 @@ public struct DetailReducer: Sendable {
         case anyGalleryOpsDone(Result<Void, AppError>)
     }
 
+    // Not `private`: the reducer body is split across sibling extension files (`+Actions`,
+    // `+Download`), and `private` type members are invisible to extensions in other files. Every
+    // dependency this reducer vends is declared internal for exactly that reason; the analytics
+    // emission sites live in `navigationReducer` and `downloadReducer`, both in other files.
+    @Dependency(\.analyticsClient) var analyticsClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
