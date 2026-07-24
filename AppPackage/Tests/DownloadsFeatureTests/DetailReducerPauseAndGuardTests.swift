@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
@@ -30,6 +31,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(
                     autoDownloadGID: gallery.gid
                 )
@@ -64,6 +66,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -151,6 +154,7 @@ private extension DetailReducerPauseAndGuardTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }

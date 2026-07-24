@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import BackgroundProcessingClient
@@ -176,6 +177,7 @@ private extension DownloadBackgroundProcessingTests {
             initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = .none
                 $0.cookieClient = .noop
                 $0.downloadClient = DownloadClient()

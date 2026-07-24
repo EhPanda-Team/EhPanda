@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import ApplicationClient
@@ -32,6 +33,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = .none
                 $0.cookieClient = .noop
                 $0.logsClient = .noop
@@ -172,6 +174,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             initialState: AppReducer.State(),
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
@@ -215,6 +218,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             initialState: AppReducer.State(),
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
@@ -262,6 +266,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             initialState: AppReducer.State(),
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
@@ -314,6 +319,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             initialState: AppReducer.State(),
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
                 $0.deviceClient = .noop
