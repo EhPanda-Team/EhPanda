@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -43,6 +44,7 @@ struct ReadingReducerFlushTests: DownloadFeatureTestCase {
             initialState: ReadingReducer.State(gallery: gallery, contentSource: .remote),
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.continuousClock = clock
                 $0.date = .constant(now)
@@ -90,6 +92,7 @@ struct ReadingReducerFlushTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.continuousClock = TestClock()
                 $0.date = .constant(now)

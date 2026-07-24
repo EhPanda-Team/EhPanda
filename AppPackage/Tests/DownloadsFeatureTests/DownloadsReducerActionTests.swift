@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -15,7 +16,9 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerKeepsIdleStateForEmptyLibrary() async {
-        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init)
+        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         await store.send(.fetchDownloadsDone([])) {
             $0.loadingState = .idle
@@ -39,6 +42,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.deviceClient = .noop
                 // The pushed detail now starts its own load on presentation, so its dependencies
                 // have to be stubbed even though this test only asserts the push itself.
@@ -79,6 +83,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.deviceClient = .noop
                 // The pushed detail now starts its own load on presentation, so its dependencies
                 // have to be stubbed even though this test only asserts the push itself.
@@ -115,6 +120,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.deviceClient = DeviceClient(
                     deviceType: { .pad },
                     isLandscape: { false }
@@ -157,7 +163,9 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.folderFilter = .folder("Vanished")
 
-        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init)
+        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         await store.send(.fetchFoldersDone(["Library"])) {
             $0.folders = ["Library"]
@@ -177,6 +185,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -225,6 +234,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -269,6 +279,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -316,6 +327,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -369,6 +381,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in

@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import ComposableArchitecture
 import DeviceClient
@@ -21,6 +22,7 @@ struct DownloadsReducerReadingDismissTests {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
             }
