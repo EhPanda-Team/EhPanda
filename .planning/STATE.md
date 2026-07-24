@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-02-PLAN.md — wave 1 complete, D-15 … D-19 locked
-last_updated: "2026-07-24T03:35:28.995Z"
+stopped_at: Completed 14-03-PLAN.md
+last_updated: "2026-07-24T03:59:44.936Z"
 last_activity: 2026-07-24
-last_activity_desc: 14-02 decision checkpoint answered; D-15 … D-19 locked and wave 1 complete
+last_activity_desc: 14-02's five open questions answered and recorded as D-15 … D-19
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 155
-  percent: 91
+  completed_plans: 156
+  percent: 80
 ---
 
 # Project State
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 2 of 18 complete (14-01, 14-02); wave 1 complete
-Status: Executing Phase 14 — D-15 … D-19 locked, wave 2 unblocked
+Plan: 3 of 18 complete (14-01, 14-02); wave 1 complete
+Status: Ready to execute
 Last activity: 2026-07-24 — 14-02's five open questions answered and recorded as D-15 … D-19
 Next: /gsd-execute-phase 14 — wave 2 (plans 14-03 and 14-04)
 
@@ -216,6 +216,7 @@ Progress: [█████████░] 91% (13/15 phases)
 | Phase 13 P08 | 23 min | 2 tasks | 11 files |
 | Phase 13 P09 | 36 min | 2 tasks | 5 files |
 | Phase 14 P02 | ~6 min | 1 tasks | 1 files |
+| Phase 14 P03 | 17min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -489,6 +490,13 @@ Recent decisions affecting current work:
 - [Phase 14]: D-17: a random 64-character salt is stored beside the app ID in the gitignored Analytics xcconfig; the value is write-once because changing it after release permanently resets retention and DAU/MAU
 - [Phase 14]: D-18: the SwiftLint custom rule rejecting the TelemetryDeck SDK import outside AnalyticsClient is approved, putting plan 14-17's conditional lint task in scope
 - [Phase 14]: D-19: TagNamespaceCounts(tags:) and SearchShape(keyword:) live inside AnalyticsClient as the audited reduction boundary — an amendment to D-09 permitting exactly one String parameter on the module's public API
+- [Phase ?]: [Phase 14]: 14-03: TagNamespaceCounts stores exact [TagNamespaceKey: Int] counts per D-16; the plan frontmatter's four bucketing assertions are superseded and recorded, not silently diverged from
+- [Phase ?]: [Phase 14]: 14-03: TagNamespaceKey (known/unrecognized) is a new closed key type — TagNamespace has no unrecognized case, and widening the key to String would re-admit the scraped raw namespace D-06 forbids
+- [Phase ?]: [Phase 14]: 14-03: a namespace's count is the sum of its GalleryTag contents, not the number of GalleryTag values; a zero-content tag contributes no key so absent stays absent
+- [Phase ?]: [Phase 14]: 14-03: Category gained an analyticsName spelling rather than shipping its scraped display raw values, making the eleven-case D-15 set a compile-time commitment
+- [Phase ?]: [Phase 14]: 14-03: raw values are left implicit throughout the vocabulary (redundant_string_enum_value is on by default) and every spelling is pinned in tests instead — a rename fails a test naming the dashboard column it would orphan
+- [Phase ?]: [Phase 14]: 14-03: AnalyticsErrorCategory follows failure origin — thrown-exception for a failed operation, app-state for an account/host gate, user-input for what the user supplied or asked for
+- [Phase ?]: [Phase 14]: 14-03: the reflection leak probe lives in one shared test file (Mirror.leafRenderings) rather than duplicated across three suites, and every sentinel sweep carries a vacuity guard
 
 ### Pending Todos
 
@@ -535,6 +543,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T03:35:28.986Z
-Stopped at: Completed 14-02-PLAN.md — wave 1 complete, D-15 … D-19 locked
+Last session: 2026-07-24T03:59:44.928Z
+Stopped at: Completed 14-03-PLAN.md
 Resume file: None
