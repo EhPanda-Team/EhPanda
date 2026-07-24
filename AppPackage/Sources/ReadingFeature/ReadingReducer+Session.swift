@@ -15,6 +15,9 @@ extension ReadingReducer {
                 // pending page in state and flush it at most once per second — plus immediately on
                 // teardown/background (`.flushReadingProgress`) so a force-quit loses under a second.
                 state.pendingReadingProgress = progress
+                // One set insertion, deliberately nothing more — no effect, no send, no allocation.
+                // This is the hottest action in the app; the session signal is emitted at dismissal.
+                state.visitedPages.insert(progress)
                 return .run { send in
                     try await clock.sleep(for: .seconds(1))
                     await send(.flushReadingProgress)
