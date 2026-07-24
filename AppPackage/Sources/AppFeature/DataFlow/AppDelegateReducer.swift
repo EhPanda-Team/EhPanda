@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import BackgroundProcessingClient
@@ -23,6 +24,7 @@ struct AppDelegateReducer {
 
     @Dependency(\.libraryClient) private var libraryClient
     @Dependency(\.cookieClient) private var cookieClient
+    @Dependency(\.analyticsClient) private var analyticsClient
 
     var body: some Reducer<State, Action> {
         Reduce { _, action in
@@ -40,7 +42,12 @@ struct AppDelegateReducer {
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
                     .run(operation: { _ in cookieClient.ignoreOffensive() }),
-                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() })
+                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
+                    // Initialize the analytics SDK exactly once per process, sequenced through the
+                    // launch-finish action alongside the other one-shot client calls — never from a
+                    // view lifecycle callback (D-14). This send is already gated behind the app
+                    // delegate's `!AppInfo.isTesting` check, so tests never touch the live SDK.
+                    .run(operation: { _ in analyticsClient.start() })
                 )
             }
         }
