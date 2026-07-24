@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
 current_phase: 14
-current_phase_name: TelemetryDeck
+current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Phase 14 context gathered
-last_updated: "2026-07-23T17:17:45.909Z"
-last_activity: 2026-07-23
-last_activity_desc: Phase 13 complete, transitioned to Phase 14
+stopped_at: Phase 14 wave 1 — plan 14-02 awaiting owner decisions
+last_updated: "2026-07-24T12:10:00.000Z"
+last_activity: 2026-07-24
+last_activity_desc: 14-01 closed out retroactively; wave 1 blocked on the 14-02 decision checkpoint
 progress:
   total_phases: 15
   completed_phases: 12
-  total_plans: 153
-  completed_plans: 153
+  total_plans: 171
+  completed_plans: 154
   percent: 80
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 14 — Analytics Instrumentation (TelemetryDeck)
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-23 — Phase 13 complete, transitioned to Phase 14
-Next: /gsd-plan-phase 14 (Analytics Instrumentation)
+Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
+Plan: 1 of 18 complete (14-01); wave 1 blocked on 14-02
+Status: Executing Phase 14 — awaiting owner decisions D-15 … D-19
+Last activity: 2026-07-24 — 14-01 closed out retroactively after its executor died pre-summary
+Next: answer 14-02's five open questions, then /gsd-execute-phase 14
 
 Progress: [█████████░] 87% (13/15 phases)
 
