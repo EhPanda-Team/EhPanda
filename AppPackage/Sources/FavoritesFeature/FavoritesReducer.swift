@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -96,6 +97,7 @@ public struct FavoritesReducer: Sendable {
         case performDateSeekDone(index: Int, result: Result<GalleriesResult, AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
@@ -134,10 +136,21 @@ public struct FavoritesReducer: Sendable {
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(screen),
-                    screen: screen,
-                    embed: { .path(.element(id: $0, action: $1)) }
+                return .merge(
+                    GalleryNavigation.presentationEffect(
+                        id: state.path.appendGuardingDuplicate(screen),
+                        screen: screen,
+                        embed: { .path(.element(id: $0, action: $1)) }
+                    ),
+                    // Same content-free derivation as the other four gallery-detail entry paths: a
+                    // closed `Category` plus exact per-namespace tag counts — no gid, token, title,
+                    // URL or tag text (D-06, D-09).
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: gallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: gallery.tags)
+                        ))
+                    })
                 )
 
             case .delegate:
@@ -165,7 +178,8 @@ public struct FavoritesReducer: Sendable {
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
-                return .none
+                // Records that the quick-search panel was opened from the Favorites surface (D-14).
+                return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.favorites)) })
 
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
