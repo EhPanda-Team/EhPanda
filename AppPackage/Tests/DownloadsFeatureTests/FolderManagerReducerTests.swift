@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -322,6 +323,7 @@ private extension FolderManagerReducerTests {
             initialState: FolderManagerReducer.State(),
             reducer: FolderManagerReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in continuation.finish() }

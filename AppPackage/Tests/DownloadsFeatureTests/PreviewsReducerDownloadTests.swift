@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -92,6 +93,7 @@ private extension PreviewsReducerDownloadTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
                 $0.downloadClient.fetchDownloads = { [download] }
@@ -151,6 +153,7 @@ private extension PreviewsReducerDownloadTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = downloadClient
                 $0.hapticsClient = .noop
             }

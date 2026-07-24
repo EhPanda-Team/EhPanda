@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import AppTools
@@ -61,6 +62,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
@@ -126,6 +128,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         ) {
             ReadingReducer()
         } withDependencies: {
+            $0.analyticsClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
             $0.deviceClient = .noop

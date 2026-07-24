@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -18,6 +19,7 @@ struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
     @Test
     func activatingTheDownloadsTabStartsItsLoad() async {
         let store = TestStore(initialState: AppReducer.State(), reducer: AppReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = .noop
             $0.deviceClient = .noop
             $0.hapticsClient = .noop
@@ -48,6 +50,7 @@ struct DownloadsPresentationLifecycleTests: DownloadFeatureTestCase {
         let inspection = sampleInspection(download: download)
 
         let store = TestStore(initialState: .init(), reducer: DownloadsReducer.init) {
+            $0.analyticsClient = .noop
             $0.downloadClient = .noop
             $0.downloadClient.loadInspection = { _ in inspection }
             $0.hapticsClient = .noop

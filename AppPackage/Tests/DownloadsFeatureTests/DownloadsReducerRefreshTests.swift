@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -29,6 +30,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -66,6 +68,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -109,6 +112,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
