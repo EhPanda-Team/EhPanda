@@ -146,6 +146,10 @@
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need this permission to save images to your photo library.</string>
+	<key>TelemetryDeckAppID</key>
+	<string>$(TELEMETRYDECK_APP_ID)</string>
+	<key>TelemetryDeckSalt</key>
+	<string>$(TELEMETRYDECK_SALT)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
