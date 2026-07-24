@@ -31,7 +31,9 @@ struct AnalyticsSignalRenderingTests {
     //
     // Every fixture is built from inputs whose content strings are the sentinel, so the same table
     // serves the no-content sweep below without a second set of values to keep in sync.
-    private static let fixtures: [SignalRenderingFixture] = [
+    // Internal rather than private: `AnalyticsClientGateTests` drives this same list through the
+    // live, noop and spy clients, so a single fixture list serves both suites and cannot drift.
+    static let fixtures: [SignalRenderingFixture] = [
         SignalRenderingFixture(
             signal: .homeSectionViewed(.frontpage),
             rendered: .signal(name: "Navigation.homeSectionViewed", parameters: ["Navigation.section": "frontpage"])
