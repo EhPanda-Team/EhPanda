@@ -1,0 +1,23 @@
+// Analytics build configuration — COMMITTED, and credential-free by design.
+//
+// Every value below is empty on purpose. A contributor clone, a fork and CI all build with
+// empty analytics credentials, `AppInfo.telemetryDeckAppID` resolves to nil, and the analytics
+// client no-ops entirely — so no build other than the owner's release machine can reach the
+// owner's dataset. Keeping the dataset clean is the whole point; the app ID is a write-only
+// ingestion key and is not a secret in any case.
+//
+// The release machine supplies the real values in `Config/Analytics.local.xcconfig`, which is
+// gitignored and optionally included at the bottom of this file. Order matters — a later
+// assignment wins, so the empty defaults must come first and the optional include last.
+
+// TelemetryDeck's write-only ingestion key. Absent here; supplied by the local override.
+TELEMETRYDECK_APP_ID =
+
+// The identifier salt. This value is write-once: changing it after a release re-derives every
+// anonymized identifier, so every existing install looks new to the vendor and all retention
+// and DAU/MAU history resets with no way to reconcile the two sides afterwards.
+TELEMETRYDECK_SALT =
+
+// Optional include — the trailing `?` makes an absent file a silent no-op rather than an error,
+// which is what lets a clean clone build without a configuration-file warning.
+#include? "Analytics.local.xcconfig"
