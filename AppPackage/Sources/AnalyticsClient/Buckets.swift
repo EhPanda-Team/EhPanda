@@ -2,8 +2,9 @@ import Foundation
 
 // The only numeric vocabulary an analytics payload may carry: every counter and every duration
 // ships as one of these buckets, never as an exact value, because exact counters measured against
-// a stable per-install identifier erode anonymity in aggregate. The single documented exception —
-// exact search-keyword length — is minted elsewhere and is deliberately not expressible here.
+// a stable per-install identifier erode anonymity in aggregate. D-08 carries **two** documented
+// exceptions, both minted elsewhere and deliberately not expressible here — exact search-keyword
+// length, and exact per-namespace tag counts, the latter added by D-16 as an amendment to D-08.
 // One shared vocabulary rather than per-metric boundaries keeps the guarantee auditable in one
 // file and lets unrelated metrics be compared on the same axis.
 

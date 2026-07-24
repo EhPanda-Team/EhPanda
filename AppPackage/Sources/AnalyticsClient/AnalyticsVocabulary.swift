@@ -82,6 +82,15 @@ public enum DownloadOutcome: String, CaseIterable, Equatable, Sendable {
     case failed
     case deleted
     case moved
+    // Added by D-20. Pause and resume are separate cases rather than one `paused`: the app sends a
+    // single toggle action for both directions, and collapsing them would count two opposite user
+    // intents under one name.
+    case paused
+    case resumed
+    // Added by D-21. Re-fetching an already-downloaded gallery flagged `updateAvailable` is its own
+    // outcome, deliberately not folded into `completed` — that would conflate a first download with
+    // an update.
+    case updated
 }
 
 /// Why a login attempt did not succeed.
