@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-11-PLAN.md
-last_updated: "2026-07-24T06:33:27.467Z"
+stopped_at: Completed 14-12-PLAN.md
+last_updated: "2026-07-24T07:03:24.142Z"
 last_activity: 2026-07-24
 last_activity_desc: 14-02's five open questions answered and recorded as D-15 … D-19
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 164
+  completed_plans: 165
   percent: 80
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 11 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
+Plan: 12 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
 Status: Ready to execute
 Last activity: 2026-07-24 — 14-02's five open questions answered and recorded as D-15 … D-19
 Next: /gsd-execute-phase 14 — wave 2 (plans 14-03 and 14-04)
@@ -225,6 +225,7 @@ Progress: [██████████] 96% (13/15 phases)
 | Phase 14 P09 | ~12min | 3 tasks | 9 files |
 | Phase 14 P10 | 14min | 3 tasks | 4 files |
 | Phase 14 P11 | 18min | 3 tasks | 5 files |
+| Phase 14 P12 | 14min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -522,6 +523,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 14-10: tabOpened emits only on a genuine tab switch; error-detail drill-down and caption-only toasts emit nothing (T-14-13)
 - [Phase ?]: 14-11: Home section/misc taps emit homeSectionViewed through one exhaustive mapping (no default: arm)
 - [Phase ?]: 14-11: galleryDetailOpened emits on the Home push case only, avoiding double-count with the iPad modal (T-14-13)
+- [Phase ?]: 14-12: performed-search analytics emits from the fetch-completion case (result count known there); the fetch-request and history-keyword cases stay deliberately silent to avoid double-counting and keyword leakage
+- [Phase ?]: 14-12: quick-search word usage is a payload-free QuickSearchReducer.wordTapped action — the word is forbidden content (D-06), so the signal carries nothing about it
 
 ### Pending Todos
 
@@ -568,6 +571,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T06:33:16.000Z
-Stopped at: Completed 14-11-PLAN.md
+Last session: 2026-07-24T07:03:12.747Z
+Stopped at: Completed 14-12-PLAN.md
 Resume file: None
