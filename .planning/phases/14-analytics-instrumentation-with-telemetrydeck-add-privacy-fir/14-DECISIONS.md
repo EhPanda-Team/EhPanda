@@ -237,5 +237,43 @@ site, so no new state or plumbing is required.
 
 ---
 
+### D-21: A download update is its own outcome — a further amendment to D-05
+
+**`DownloadOutcome` gains `updated`, and `updateDownloadDone` is instrumented.** Owned by plan **14-17**.
+
+*Question:* plan 14-15's inventory search found `updateDownloadDone(Result<Void, AppError>)` in
+`DownloadsReducer` — the user re-fetching a gallery flagged `updateAvailable`. It is a genuine
+user-visible download outcome, but `DownloadOutcome` had no case able to express it: exactly the
+situation pause/resume was in before D-20. Plan 14-15 raised it rather than instrumenting it.
+
+*Answer:* add the capability. The owner chose to measure it, consistent with the same choice made
+for pause/resume in D-20.
+
+**This amends D-05**, making it the phase's **fourth** amendment to a locked decision, after D-16
+(D-08), D-19 (D-09) and D-20 (D-05). Like the others it *widens* rather than narrows, so it clears
+the standing no-tightening rule.
+
+**Explicitly rejected alternative:** mapping an update onto the existing `completed` outcome. That
+would conflate a first-time download with a re-fetch of an already-downloaded gallery — the same
+"two things under one name" error that D-16 records as its central cost and that 14-13's
+failure-ownership split exists to avoid. A no-vocabulary-change option was available and was
+declined for that reason.
+
+**What plan 14-17 must do:**
+
+1. Add `updated` to `DownloadOutcome` in
+   `AppPackage/Sources/AnalyticsClient/AnalyticsVocabulary.swift`, alongside D-20's `paused` and
+   `resumed`. All three land in one pass, so the download-outcome family is completed once rather
+   than amended repeatedly.
+2. Emit from `updateDownloadDone`'s success arm in
+   `AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift`. The failure arm stays silent,
+   consistent with every other download outcome — a failed update is not an update.
+3. Extend `AppPackage/Tests/DownloadsFeatureTests/AnalyticsEmissionTests.swift` with a
+   success-arm emission assertion and a failure-arm zero-signal assertion.
+4. Note in the 14-17 summary that this is an amendment to D-05, so the taxonomy's history stays
+   auditable.
+
+---
+
 *Phase: 14-analytics-instrumentation*
-*Decisions answered: 2026-07-24; D-20 added 2026-07-25*
+*Decisions answered: 2026-07-24; D-20 added and D-21 added 2026-07-25*
