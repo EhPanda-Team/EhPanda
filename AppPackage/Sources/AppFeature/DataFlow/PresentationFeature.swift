@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -71,6 +72,7 @@ struct PresentationFeature {
     @Dependency(\.userDefaultsClient) private var userDefaultsClient
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.date) private var date
 
     var body: some Reducer<State, Action> {
@@ -122,6 +124,10 @@ struct PresentationFeature {
                 return .none
 
             case .presentErrorInfo(let errorInfo):
+                // Deliberately emits no analytics signal. This is the user drilling into a toast whose
+                // error was already counted at `.setToast`; emitting here would double-count every error
+                // a curious user inspects and skew the distribution toward errors with interesting
+                // details. Do not add one here for symmetry with the other presentation cases (T-14-13).
                 state.destination = .errorInfo(errorInfo)
                 return .none
 
@@ -138,6 +144,10 @@ struct PresentationFeature {
                 // seeded from the local download when one exists so it renders offline, otherwise
                 // from the tapped gallery.
                 state.path.removeAll()
+                // Derive the analytics payload from the same source the detail is seeded from — the
+                // download's gallery projection or the tapped gallery — so this fifth (modal) entry
+                // path emits an identical `galleryDetailOpened` shape to the four push paths.
+                let sourceGallery = download?.gallery ?? gallery
                 if let download {
                     state.detail = .init(seededFrom: download)
                 } else {
@@ -145,11 +155,29 @@ struct PresentationFeature {
                 }
                 // Presenting the modal is what starts its load — the reducer-side replacement for
                 // the detail view's former `onAppear`.
-                return .send(.detail(.presented(.onPresented)))
+                return .merge(
+                    .send(.detail(.presented(.onPresented))),
+                    // Payload is a closed `Category` plus exact per-namespace tag counts — no
+                    // identifier, no title, no URL. `TagNamespaceCounts` and `Category` are the same
+                    // audited, content-free reduction entry points the push paths use (D-06, D-09).
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: sourceGallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: sourceGallery.tags)
+                        ))
+                    })
+                )
 
             case .setToast(let config):
                 state.toast = config
-                return .none
+                // The centralized user-visible error surface (D-05 family 4). Only a toast carrying
+                // diagnostics is a classifiable error worth counting; a caption-only toast has no
+                // `AppError` and emits nothing. The payload is the `AppError` case alone, through
+                // `AppErrorKind` — never `ErrorInfo`'s per-incident String diagnostics (D-06, D-09).
+                guard let errorInfo = config.errorInfo else { return .none }
+                return .run(operation: { _ in
+                    analyticsClient.send(.errorSurfaced(AppErrorKind(errorInfo.error)))
+                })
 
             case .detectClipboardURL:
                 let currentChangeCount = clipboardClient.changeCount()
