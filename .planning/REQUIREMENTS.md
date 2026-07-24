@@ -79,7 +79,7 @@
 
 ### ANALYTICS — Usage analytics
 
-- [ ] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
+- [x] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
   - The public signal API accepts no bare `String`, so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with exact search-keyword length as the single documented exception; the client no-ops entirely when the build carries no ingestion credential, keeping contributor, fork and CI builds out of the dataset; and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
 
 ## v2 Requirements
