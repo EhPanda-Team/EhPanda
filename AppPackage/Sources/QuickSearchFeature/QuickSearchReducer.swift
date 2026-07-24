@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import ComposableArchitecture
@@ -52,6 +53,7 @@ public struct QuickSearchReducer: Sendable {
         case deleteWordButtonTapped(QuickSearchWord)
         case newWordButtonTapped
         case editWordButtonTapped(QuickSearchWord)
+        case wordTapped
 
         case toggleListEditing
 
@@ -61,6 +63,8 @@ public struct QuickSearchReducer: Sendable {
         case deleteWordWithOffsets(IndexSet)
         case moveWord(source: IndexSet, destination: Int)
     }
+
+    @Dependency(\.analyticsClient) private var analyticsClient
 
     public init() {}
 
@@ -82,6 +86,13 @@ public struct QuickSearchReducer: Sendable {
                     state.editingWord = word
                     state.editKind = .edit
                     return .none
+
+                // The five host screens each translate a selected quick-search word into a different
+                // follow-on search action, so this is the only place "a quick-search word was used"
+                // is expressible once (D-14). It is payload-free by construction: the word's name and
+                // content are user-authored text that D-06 forbids, so nothing about it is transmitted.
+                case .wordTapped:
+                    return .run(operation: { _ in analyticsClient.send(.quickSearchWordUsed) })
 
                 case .deleteWordButtonTapped(let word):
                     state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
