@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -33,6 +34,7 @@ struct ReadingReducerImageFetchTests {
                 initialState: state,
                 reducer: ReadingReducer.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.cookieClient = cookieClient
                     $0.defaultInMemoryStorage = inMemoryStorage
                 }
