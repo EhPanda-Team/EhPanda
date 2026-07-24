@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -102,6 +103,7 @@ struct AccountSettingReducerTests {
     @MainActor
     private func makeStore(cookieClient: CookieClient) -> TestStoreOf<AccountSettingReducer> {
         TestStore(initialState: AccountSettingReducer.State(), reducer: AccountSettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.cookieClient = cookieClient
         }
     }

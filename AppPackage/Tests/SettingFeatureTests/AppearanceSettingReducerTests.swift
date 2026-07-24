@@ -1,3 +1,4 @@
+import AnalyticsClient
 import ApplicationClient
 import AppModels
 import ComposableArchitecture
@@ -15,6 +16,7 @@ struct AppearanceSettingReducerTests {
     @Test
     func preferredColorSchemeChangedRunsToCompletion() async {
         let store = TestStore(initialState: .init(), reducer: AppearanceSettingReducer.init) {
+            $0.analyticsClient = .noop
             $0.applicationClient = .noop
         }
         await store.send(.preferredColorSchemeChanged(.dark))
