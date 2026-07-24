@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -65,6 +66,7 @@ public struct DetailSearchReducer: Sendable {
         case fetchMoreGalleriesDone(Result<(pageNumber: PageNumber, galleries: [Gallery]), AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -90,11 +92,14 @@ public struct DetailSearchReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 // Presenting the sheet loads the persisted filters into it, replacing the form's
                 // former `onAppear`. Every screen that presents Filters must send this.
-                return .send(.destination(.presented(.filters(.fetchFilters))))
+                return .merge(
+                    .run(operation: { _ in analyticsClient.send(.filterPanelOpened(.detailSearch)) }),
+                    .send(.destination(.presented(.filters(.fetchFilters))))
+                )
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
-                return .none
+                return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.detailSearch)) })
 
             case .destination:
                 return .none
