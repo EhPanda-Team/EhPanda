@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import FiltersFeature
@@ -30,6 +31,7 @@ struct FiltersPresentationLifecycleTests {
             $searchFilter.withLock({ $0 = stored })
 
             let store = TestStore(initialState: .init(), reducer: FrontpageReducer.init) {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.hapticsClient = .noop
             }
