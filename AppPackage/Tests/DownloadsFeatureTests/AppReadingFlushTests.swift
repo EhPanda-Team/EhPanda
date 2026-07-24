@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppLaunchAutomationClient
 import AppModels
@@ -50,6 +51,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.date = .constant(now)
                 $0.appLaunchAutomationClient = .none
@@ -91,6 +93,7 @@ struct AppReadingFlushTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: AppReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
                 $0.date = .constant(now)
                 $0.appLaunchAutomationClient = .none

@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -30,6 +31,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadInspectorReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in

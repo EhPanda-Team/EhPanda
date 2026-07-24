@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -32,6 +33,7 @@ struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadInspectorReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
@@ -83,7 +85,9 @@ struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
         initialState.loadingState = .loading
         initialState.inspectionRequestID = secondRequestID
 
-        let store = TestStore(initialState: initialState, reducer: DownloadInspectorReducer.init)
+        let store = TestStore(initialState: initialState, reducer: DownloadInspectorReducer.init) {
+            $0.analyticsClient = .noop
+        }
         store.exhaustivity = .off
 
         await store.send(.loadInspectionDone(firstRequestID, .success(staleInspection)))
