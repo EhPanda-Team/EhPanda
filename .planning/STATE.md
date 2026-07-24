@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
 status: executing
-stopped_at: Completed 14-04-PLAN.md
-last_updated: "2026-07-24T04:12:39.087Z"
+stopped_at: Completed 14-05-PLAN.md
+last_updated: "2026-07-24T04:31:01.073Z"
 last_activity: 2026-07-24
 last_activity_desc: 14-02's five open questions answered and recorded as D-15 … D-19
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 157
+  completed_plans: 158
   percent: 80
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 4 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
+Plan: 5 of 18 complete (14-01 … 14-04); waves 1 and 2 complete
 Status: Ready to execute
 Last activity: 2026-07-24 — 14-02's five open questions answered and recorded as D-15 … D-19
 Next: /gsd-execute-phase 14 — wave 2 (plans 14-03 and 14-04)
@@ -218,6 +218,7 @@ Progress: [█████████░] 92% (13/15 phases)
 | Phase 14 P02 | ~6 min | 1 tasks | 1 files |
 | Phase 14 P03 | 17min | 3 tasks | 9 files |
 | Phase 14 P04 | 7min | 3 tasks | 7 files |
+| Phase 14 P05 | ~11min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -503,6 +504,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 14-04: Committed-outer / optional-inner xcconfig confirmed on this Xcode — #include? of an absent file is a silent no-op, so a clean clone builds warning-free (research assumption A3)
 - [Phase ?]: 14-04: Bundle.main from an SPM module reaches the app bundle's substituted keys, proven by PlistBuddy against a built bundle rather than the source plist (research assumption A2)
 - [Phase ?]: 14-04: AppInfo's analytics accessors trim before testing emptiness, so a stray space or newline in the local override cannot present as a credential the SDK would reject at runtime
+- [Phase ?]: 14-05: AnalyticsSignal is a closed thirteen-case enum no reducer can escape; the single no-default rendering switch is the only site that mints an analytics name or key (D-09)
+- [Phase ?]: 14-05: both D-08 exact-Int exceptions render decimal — keyword length (D-07) and per-namespace tag counts (D-16); Task 2's 'one permitted exact Int' wording is superseded
 
 ### Pending Todos
 
@@ -549,6 +552,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T04:12:28.680Z
-Stopped at: Completed 14-04-PLAN.md
+Last session: 2026-07-24T04:30:51.168Z
+Stopped at: Completed 14-05-PLAN.md
 Resume file: None
