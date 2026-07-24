@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ComposableArchitecture
@@ -86,6 +87,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
                 $0.hapticsClient = .noop
                 $0.cookieClient = .noop
@@ -111,6 +113,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = makeNoManifestClient()
                 $0.hapticsClient = .noop
                 $0.cookieClient = .noop
@@ -140,6 +143,7 @@ private extension DetailReducerObserveTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }
