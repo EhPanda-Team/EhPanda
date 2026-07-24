@@ -88,6 +88,8 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             reducer: DetailReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
                 $0.hapticsClient = .noop
                 $0.cookieClient = .noop
@@ -114,6 +116,8 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             reducer: DetailReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = makeNoManifestClient()
                 $0.hapticsClient = .noop
                 $0.cookieClient = .noop
@@ -144,6 +148,8 @@ private extension DetailReducerObserveTests {
             reducer: DetailReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }

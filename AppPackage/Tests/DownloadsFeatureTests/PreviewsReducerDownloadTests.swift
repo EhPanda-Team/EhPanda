@@ -94,6 +94,8 @@ private extension PreviewsReducerDownloadTests {
             reducer: PreviewsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
                 $0.downloadClient.fetchDownloads = { [download] }
@@ -154,6 +156,8 @@ private extension PreviewsReducerDownloadTests {
             reducer: PreviewsReducer.init,
             withDependencies: {
                 $0.analyticsClient = .noop
+                // The reader's session tracking reads the date dependency on presentation (14-14).
+                $0.date = .constant(Date(timeIntervalSince1970: 0))
                 $0.downloadClient = downloadClient
                 $0.hapticsClient = .noop
             }
