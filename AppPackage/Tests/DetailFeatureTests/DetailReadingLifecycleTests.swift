@@ -33,6 +33,8 @@ struct DetailReadingLifecycleTests {
     private func makeStore() -> TestStore<DetailReducer.State, DetailReducer.Action> {
         let store = TestStore(initialState: makeState(), reducer: DetailReducer.init) {
             $0.analyticsClient = .noop
+            // The reader's session tracking reads the date dependency on presentation (14-14).
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
             $0.downloadClient = .noop
         }
         store.exhaustivity = .off
