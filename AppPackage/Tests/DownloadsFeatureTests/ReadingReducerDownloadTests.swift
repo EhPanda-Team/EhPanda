@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ClipboardClient
@@ -34,7 +35,9 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
             firstGID: download.gid, firstKey: download.token
         )
 
-        let store = TestStore(initialState: initialState, reducer: DetailReducer.init)
+        let store = TestStore(initialState: initialState, reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
+        }
         await store.send(.fetchVersionMetadataDone(.success(metadata))) {
             $0.galleryVersionMetadata = metadata
         }
@@ -133,6 +136,7 @@ private extension ReadingReducerDownloadTests {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
@@ -167,6 +171,7 @@ private extension ReadingReducerDownloadTests {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop

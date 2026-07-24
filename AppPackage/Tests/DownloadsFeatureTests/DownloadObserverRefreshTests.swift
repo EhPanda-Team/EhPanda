@@ -1,3 +1,4 @@
+import AnalyticsClient
 @testable import AppFeature
 import AppModels
 import ClipboardClient
@@ -110,6 +111,7 @@ private extension DownloadObserverRefreshTests {
             initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
                 $0.deviceClient = .noop
@@ -134,6 +136,7 @@ private extension DownloadObserverRefreshTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.downloadClient = makeObserveDownloadClient(
                     stream: stream, loadLocalPageURLs: loadLocalPageURLs
                 )
