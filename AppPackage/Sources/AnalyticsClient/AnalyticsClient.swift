@@ -78,10 +78,13 @@ extension DependencyValues {
 extension AnalyticsClient {
     public static let noop = Self(start: {}, send: { _ in })
 
-    public static func placeholder<Result>() -> Result { fatalError() }
-
+    // Both closures return `Void`, so this uses the default-placeholder `unimplemented` form rather
+    // than the `HapticsClient` template's `placeholder:` form. The template's form fits a client with
+    // value-returning closures; here it would evaluate a `fatalError` placeholder and crash the test
+    // runner the moment an un-hardened test actually invokes `send`, which is the very case Task 3
+    // asserts on. The default `()` placeholder reports a catchable issue and returns cleanly.
     public static let unimplemented = Self(
-        start: IssueReporting.unimplemented(placeholder: placeholder()),
-        send: IssueReporting.unimplemented(placeholder: placeholder())
+        start: IssueReporting.unimplemented("AnalyticsClient.start"),
+        send: IssueReporting.unimplemented("AnalyticsClient.send")
     )
 }
