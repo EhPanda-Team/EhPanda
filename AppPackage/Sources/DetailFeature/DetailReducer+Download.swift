@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -238,6 +239,14 @@ extension DetailReducer {
             case .toggleDownloadPauseDone(let result):
                 state.isPreparingDownload = false
                 if case .success = result {
+                    // Read before the mutation below, which is what distinguishes the two directions
+                    // of a single toggle action: `.active` was running and is being paused,
+                    // `.inactive` was paused and is being resumed (D-20).
+                    let pauseOutcome: DownloadOutcome? = switch state.downloadBadge?.status {
+                    case .active: .paused
+                    case .inactive: .resumed
+                    default: nil
+                    }
                     switch state.downloadBadge?.status {
                     case .active:
                         if let badge = state.downloadBadge {
@@ -251,10 +260,18 @@ extension DetailReducer {
                         break
                     }
                     state.hasLoadedDownloadBadge = state.downloadBadge != nil
-                    return .merge(
+                    var effects: [Effect<Action>] = [
                         .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                         .send(.fetchDownloadBadge)
-                    )
+                    ]
+                    // A toggle from any other badge status is not a user-meaningful pause or resume,
+                    // so it stays silent rather than guessing a direction.
+                    if let pauseOutcome {
+                        effects.append(.run(operation: { _ in
+                            analyticsClient.send(.downloadStateChanged(pauseOutcome))
+                        }))
+                    }
+                    return .merge(effects)
                 }
                 return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
 
