@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -83,6 +84,29 @@ public struct LoginReducer: Sendable {
         case cancelChallenge
     }
 
+    /// The classified login failure, mapped onto the closed analytics vocabulary.
+    ///
+    /// A `switch` rather than an `if` chain so the shape is auditable at a glance and a new `AppError`
+    /// case has one obvious place to be considered. `.unknown` maps to `rejected` because that is what
+    /// a plainly refused credential produces — the case Phase 12 found was previously invisible.
+    static func loginFailureKind(for error: AppError) -> LoginFailureKind {
+        switch error {
+        case .loginCaptchaRequired:
+            return .captchaRequired
+        case .cloudflareChallengeFailed:
+            return .cloudflareChallengeFailed
+        case .networkingFailed:
+            return .networkingFailed
+        case .unknown:
+            return .rejected
+        case .copyrightClaim, .ipBanned, .expunged, .webImageFailed, .parseFailed, .quotaExceeded,
+             .authenticationRequired, .unsupportedDeepLink, .fileOperationFailed, .noUpdates,
+             .notFound:
+            return .other
+        }
+    }
+
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.loginClient) private var loginClient
@@ -148,16 +172,25 @@ public struct LoginReducer: Sendable {
                 )
 
             case .challengeDetected:
+                // Emitted on every round, including the one that exhausts the bound below. An
+                // encounter and a failure are different facts: counting encounters per round is what
+                // makes an exhausted-rounds sequence visible as repeated walls rather than one event.
+                let challengeEncountered = Effect<Action>.run(operation: { _ in
+                    analyticsClient.send(.cloudflareChallengeEncountered)
+                })
                 guard state.challengeRounds < Self.maxChallengeRounds else {
                     logger.notice("Cloudflare challenge rounds exhausted.")
-                    return .send(.loginDone(.failure(.cloudflareChallengeFailed)))
+                    return .merge(
+                        challengeEncountered,
+                        .send(.loginDone(.failure(.cloudflareChallengeFailed)))
+                    )
                 }
                 state.challengeRounds += 1
                 // Presented straight away, with no hidden pre-attempt: an auto-passing wall flashes
                 // by and dismisses itself, and an interactive one is ready with zero added delay.
                 // `loginState` stays `.loading`, so the login button's spinner spans the whole flow.
                 state.destination = .challenge(Defaults.URL.login)
-                return .none
+                return challengeEncountered
 
             case .challengeClearanceCaptured(let clearance):
                 // Ignore a capture that arrives without a challenge on screen: it can only be a
@@ -216,6 +249,13 @@ public struct LoginReducer: Sendable {
                         logger.warning("Login failed.")
                         await hapticsClient.generateNotificationFeedback(.error)
                     }))
+                    // Deliberately the login-failure signal ONLY, never the generic `errorSurfaced`,
+                    // even though this branch also raises an error toast: the classified signal is
+                    // strictly more informative, and emitting both would count one failure twice and
+                    // skew the error distribution toward login. That is why the generic error signal
+                    // lives on the app-root toast action instead of in every reducer that toasts.
+                    let kind = Self.loginFailureKind(for: failure)
+                    effects.append(.run(operation: { _ in analyticsClient.send(.loginFailed(kind)) }))
                 }
                 return .merge(effects)
             }
