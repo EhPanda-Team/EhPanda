@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import AppTools
@@ -103,6 +104,7 @@ public struct DownloadsReducer: Sendable {
         case deleteDownloadDone(Result<Void, AppError>)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.deviceClient) private var deviceClient
 
@@ -130,10 +132,21 @@ public struct DownloadsReducer: Sendable {
                 // Seed the detail with the locally downloaded gallery/badge so it renders offline.
                 // The download is carried through the action, so there is no re-lookup by gid.
                 let screen = GalleryPath.State.detail(.init(seededFrom: download))
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(screen),
-                    screen: screen,
-                    embed: { .path(.element(id: $0, action: $1)) }
+                // Same derivation as the other four gallery-detail entry paths, taken from the
+                // download's gallery projection so all five produce an identical payload shape.
+                let sourceGallery = download.gallery
+                return .merge(
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: sourceGallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: sourceGallery.tags)
+                        ))
+                    }),
+                    GalleryNavigation.presentationEffect(
+                        id: state.path.appendGuardingDuplicate(screen),
+                        screen: screen,
+                        embed: { .path(.element(id: $0, action: $1)) }
+                    )
                 )
 
             case .delegate:
@@ -220,9 +233,15 @@ public struct DownloadsReducer: Sendable {
                 guard state.downloads != downloads || state.loadingState != .idle else {
                     return .none
                 }
+                // Taken before the assignment below — `state.downloads` is still the previous
+                // snapshot at this point, and it is the only copy of it that exists.
+                let outcomes = Self.outcomeTransitions(from: state.downloads, to: downloads)
                 state.downloads = downloads
                 state.loadingState = .idle
-                return .none
+                guard !outcomes.isEmpty else { return .none }
+                return .merge(outcomes.map({ outcome in
+                    .run(operation: { _ in analyticsClient.send(.downloadStateChanged(outcome)) })
+                }))
 
             case .observeDownloads:
                 return .run { send in
@@ -265,8 +284,14 @@ public struct DownloadsReducer: Sendable {
 
             case .moveDownloadDone(let result):
                 if case .success = result {
-                    return .send(.fetchFolders)
+                    // Outcome only. The destination folder name is user-authored text and never
+                    // crosses the boundary; the signal says a move happened, not where to.
+                    return .merge(
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.moved)) }),
+                        .send(.fetchFolders)
+                    )
                 }
+                // Failure arms stay silent here and in the delete case: a failed move is not a move.
                 return .none
 
             case .openReading(let gid):
@@ -337,8 +362,11 @@ public struct DownloadsReducer: Sendable {
                     await send(.deleteDownloadDone(.failure(AppError(error))))
                 }
 
-            case .deleteDownloadDone:
-                return .none
+            case .deleteDownloadDone(let result):
+                // A delete from the detail screen is a different user path in another module and
+                // emits on its own completion action, so neither site double-counts the other.
+                guard case .success = result else { return .none }
+                return .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.deleted)) })
 
             case let .path(.element(id: _, action: .detail(.destination(.presented(.folderManager(action)))))):
                 switch action {
@@ -383,3 +411,51 @@ public struct DownloadsReducer: Sendable {
 }
 
 extension DownloadsReducer.Destination.State: Equatable {}
+
+// MARK: Outcome transitions
+
+extension DownloadsReducer {
+    /// The outcome signals implied by moving from one downloads snapshot to the next.
+    ///
+    /// The observation stream delivers **full snapshots**, not events, so the obvious instrumentation
+    /// — emit whenever a download reads as completed — reports one finished download again on every
+    /// tick, hundreds of times. Only the *edge* is a real event, so a status is compared against the
+    /// same gallery's previous status and emits only when it changed into a terminal one.
+    ///
+    /// Galleries absent from `previous` are excluded rather than treated as fresh transitions. On the
+    /// first observation after launch the previous snapshot is empty, so without that exclusion every
+    /// already-finished download in the library would look like a completion that just happened — a
+    /// phantom burst on every cold start, proportional to how much the user has downloaded.
+    ///
+    /// A pure function of its two arguments: no state, no dependencies, so the edge semantics are
+    /// unit-testable directly rather than only through a store.
+    static func outcomeTransitions(
+        from previous: [DownloadedGallery],
+        to incoming: [DownloadedGallery]
+    ) -> [DownloadOutcome] {
+        let previousStatuses = Dictionary(
+            previous.map({ ($0.id, $0.displayStatus) }),
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        // Driven by `incoming`'s order so the emitted sequence is deterministic when several
+        // galleries transition in one snapshot.
+        return incoming.compactMap({ download in
+            // Absent from the previous snapshot: no edge was observed, so nothing is emitted.
+            guard let previousStatus = previousStatuses[download.id] else { return nil }
+            guard previousStatus != download.displayStatus else { return nil }
+
+            switch download.displayStatus {
+            case .completed:
+                return .completed
+            case .error:
+                return .failed
+            // Every other status change is an intermediate step, not an outcome. `.deleted` and
+            // `.moved` are owned by their explicit actions, and a gallery leaving the snapshot is
+            // deletion — observed there, not inferred here.
+            case .active, .queued, .updateAvailable, .inactive:
+                return nil
+            }
+        })
+    }
+}
