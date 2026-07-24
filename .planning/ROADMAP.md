@@ -772,7 +772,7 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [x] 14-07-PLAN.md — Harden DownloadsFeatureTests against the unimplemented analytics default
-- [ ] 14-08-PLAN.md — Harden SettingFeatureTests
+- [x] 14-08-PLAN.md — Harden SettingFeatureTests
 - [ ] 14-09-PLAN.md — Harden AppFeatureTests, HomeFeatureTests, DetailFeatureTests, ReadingFeatureTests
 
 **Wave 6** *(blocked on Wave 5 completion)*
