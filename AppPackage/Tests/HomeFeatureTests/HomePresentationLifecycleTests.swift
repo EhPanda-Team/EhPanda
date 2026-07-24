@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CustomDump
@@ -85,7 +86,8 @@ struct HomePresentationLifecycleTests {
                 state.popularGalleries = [.preview]
                 return state
             }(),
-            reducer: HomeReducer.init
+            reducer: HomeReducer.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.onPresented)
@@ -102,7 +104,10 @@ struct HomePresentationLifecycleTests {
                 return state
             }(),
             reducer: HistoryReducer.init,
-            withDependencies: { $0.downloadClient = .noop }
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.downloadClient = .noop
+            }
         )
 
         await store.send(.onPresented)
@@ -119,7 +124,8 @@ struct HomePresentationLifecycleTests {
                 state.galleries = [.preview]
                 return state
             }(),
-            reducer: FrontpageReducer.init
+            reducer: FrontpageReducer.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.onPresented)
@@ -135,7 +141,8 @@ struct HomePresentationLifecycleTests {
                 state.galleries = [.preview]
                 return state
             }(),
-            reducer: PopularReducer.init
+            reducer: PopularReducer.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.onPresented)
@@ -151,7 +158,8 @@ struct HomePresentationLifecycleTests {
                 state.rawGalleries[state.type] = [.preview]
                 return state
             }(),
-            reducer: ToplistsReducer.init
+            reducer: ToplistsReducer.init,
+            withDependencies: { $0.analyticsClient = .noop }
         )
 
         await store.send(.onPresented)
@@ -167,6 +175,7 @@ struct HomePresentationLifecycleTests {
             initialState: WatchedReducer.State(),
             reducer: WatchedReducer.init,
             withDependencies: {
+                $0.analyticsClient = .noop
                 $0.cookieClient = .noop
                 $0.downloadClient = .noop
             }
@@ -194,6 +203,7 @@ private extension HomePresentationLifecycleTests {
                 initialState: state,
                 reducer: HomeReducer.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.cookieClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.downloadClient = downloadClient
