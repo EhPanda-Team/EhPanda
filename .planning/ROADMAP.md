@@ -688,7 +688,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Infra Refactor & Lint Capstone | 32/32 | Complete    | 2026-07-22 |
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
-| 14. Analytics Instrumentation (TelemetryDeck) | 4/18 | In Progress|  |
+| 14. Analytics Instrumentation (TelemetryDeck) | 5/18 | In Progress|  |
 | 15. Dynamic Type Accessibility | 0/TBD | Not started | - |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -748,7 +748,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 **Goal:** Add privacy-first analytics via the TelemetryDeck SDK — on by default with no opt-out (D-01) — instrumenting key user flows behind a closed, type-enforced signal vocabulary
 **Requirements**: ANALYTICS-01
 **Depends on:** Phase 13
-**Plans:** 4/18 plans executed
+**Plans:** 5/18 plans executed
 
 Plans:
 **Wave 1**
@@ -763,7 +763,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 14-05-PLAN.md — AnalyticsSignal enum and its rendering layer (the single String-minting site)
+- [x] 14-05-PLAN.md — AnalyticsSignal enum and its rendering layer (the single String-minting site)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
