@@ -79,8 +79,8 @@
 
 ### ANALYTICS — Usage analytics
 
-- [ ] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
-  - The public signal API accepts no bare `String`, so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with exact search-keyword length as the single documented exception; the client no-ops entirely when the build carries no ingestion credential, keeping contributor, fork and CI builds out of the dataset; and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
+- [x] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
+  - The public signal API accepts no bare `String` apart from one audited exception — `SearchShape(keyword:)`, whose reduction is proven by sentinel reflection tests to transmit no keyword text (D-19) — so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with two documented exceptions: exact search-keyword length, and exact per-namespace tag counts (D-16); the client no-ops entirely when the build carries no ingestion credential, keeping contributor, fork and CI builds out of the dataset; and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
 
 ## v2 Requirements
 
@@ -126,7 +126,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | POLISH-02 | Phase 10 | Complete |
 | POLISH-03 | Phase 10 | Complete |
 | LINT-01 | Phase 11 | Complete |
-| ANALYTICS-01 | Phase 14 | In progress |
+| ANALYTICS-01 | Phase 14 | Complete |
 
 **Coverage:**
 
@@ -136,4 +136,4 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-24 — ANALYTICS-01 opened for Phase 14 (analytics instrumentation); 23/23 mapped*
+*Last updated: 2026-07-25 — ANALYTICS-01 verified against the shipped signal surface and closed out (14-17); 23/23 mapped*
