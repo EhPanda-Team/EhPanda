@@ -235,6 +235,24 @@ site, so no new state or plumbing is required.
 5. Note in the 14-17 summary that this is an amendment to D-05, so the taxonomy's history stays
    auditable.
 
+**Second scope correction, added 2026-07-25 during 14-17.** Implementation found a **third**
+entry point: `DownloadInspectorReducer` also owns a `toggleDownloadPause`/`toggleDownloadPauseDone`
+pair. The owner confirmed the emission strategy as **per-reducer at all three sites** — detail
+screen, inspector sheet, downloads list — rather than moving pause into the snapshot diff. Two
+reasons, both structural:
+
+- The download-outcome family already splits by mechanism: *transfer endings* (`completed`,
+  `failed`) are observed by the snapshot diff, while *management actions* (`deleted`, `moved`)
+  emit per-reducer at each screen's own completion so they count from any screen. Pause/resume is
+  a management action; putting it in the diff would split one category across two mechanisms.
+- The diff only sees what the downloads list is observing. A pause from a Home-pushed detail
+  screen may never cross that stream, and the resulting gap would be invisible in the data.
+
+The direction is computed **at request time** from state each reducer already holds (the list's
+`state.downloads`, the inspector's `state.inspection`, detail's own badge), so no action
+signature changes and the existing `Done` flow is untouched. The diff already ignores
+active↔inactive transitions, so there is no double-count.
+
 ---
 
 ### D-21: A download update is its own outcome — a further amendment to D-05
@@ -272,6 +290,17 @@ declined for that reason.
    success-arm emission assertion and a failure-arm zero-signal assertion.
 4. Note in the 14-17 summary that this is an amendment to D-05, so the taxonomy's history stays
    auditable.
+
+**Naming correction, added 2026-07-25 during 14-17.** Implementation found that the detail
+screen's update path — `DetailView` sends `retryDownloadButtonTapped(.update)` — already emits
+`.retried` (shipped in plan 14-13), so D-21 as written would have reported one user intent under
+two names depending on which screen initiated it. The owner confirmed **one name from both
+sites**: `.updated` emits at queue time from the list's `updateDownloadDone` **and** from
+detail's `retryDownloadDone` when the pre-mutation badge status was `.updateAvailable`. Genuine
+error-retries (pre-mutation status `.error`) keep `.retried`. This narrows plan 14-13's shipped
+retry emission and updates its test — recorded as a correction, not a regression. `.updated`
+stays a queue-time outcome like `started` and `retried`; detecting it in the finish-time snapshot
+diff was considered and rejected as incoherent with the family's timing semantics.
 
 ---
 
