@@ -106,15 +106,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         )
 
         let observationStream = await manager.observeDownloads()
-        let emissionTask = Task<Int, Never> {
-            var emissionCount = 0
-            for await downloads in observationStream {
-                guard let relevantDownload = downloads.first(where: { $0.gid == gid }) else { continue }
-                emissionCount += 1
-                if relevantDownload.completedPageCount == pageCount { break }
-            }
-            return emissionCount
-        }
 
         var pendingResolvedPages = [DownloadCoordinator.PageResult]()
         var lastFlushDate = Date.distantPast
@@ -146,9 +137,25 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             force: true
         )
 
+        // Every flush's emission is already sitting in the stream's unbounded buffer by the time
+        // the forced flush returns, terminal one included, so draining here counts exactly what a
+        // consumer running alongside the loop would have counted — without making the total a race
+        // against the scheduler. That race is what failed under CI's parallel load: the wait's
+        // timer fired on schedule while the starved consumer had not been given the CPU to reach
+        // the values waiting for it. The timeout below now only bounds a regression that never
+        // completes the gallery, so it can be generous.
+        let emissionTask = Task<Int, Never> {
+            var emissionCount = 0
+            for await downloads in observationStream {
+                guard let relevantDownload = downloads.first(where: { $0.gid == gid }) else { continue }
+                emissionCount += 1
+                if relevantDownload.completedPageCount == pageCount { break }
+            }
+            return emissionCount
+        }
         let emissionCount = try await waitForTaskValue(
             emissionTask,
-            timeout: .seconds(2),
+            timeout: .seconds(30),
             description: "observer updates for progress flush"
         )
         let stored = await manager.fetchDownload(gid: gid)
