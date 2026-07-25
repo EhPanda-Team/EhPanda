@@ -36,7 +36,12 @@ struct SettingReducerTests {
 
         await store.send(.fetchEhProfileIndexDone(host: .ehentai, result: .success(response)))
         await store.receive(\.createDefaultEhProfile, .ehentai)
-        await store.skipInFlightEffects()
+        // The received action is the whole assertion; the effect it starts is `EhProfileRequest`,
+        // which has no injectable session, so it issues a live request whose duration decides
+        // whether anything is still in flight by the time this line runs. `strict` would turn that
+        // into the assertion — passing on a loaded machine and failing on an idle one. Cancelling
+        // without requiring a survivor keeps the case about the host it routed to.
+        await store.skipInFlightEffects(strict: false)
     }
 
     @MainActor
