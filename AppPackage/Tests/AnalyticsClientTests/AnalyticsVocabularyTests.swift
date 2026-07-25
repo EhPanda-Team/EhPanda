@@ -39,10 +39,13 @@ struct AnalyticsVocabularyTests {
 
     @Test
     func downloadOutcomeSpellsEveryCase() {
-        #expect(DownloadOutcome.allCases.count == 6)
+        // paused/resumed added by D-20, updated by D-21 — the phase's two approved widenings of
+        // this vocabulary. This pin failing on their arrival was it working as intended.
+        #expect(DownloadOutcome.allCases.count == 9)
         #expect(
             DownloadOutcome.allCases.map(\.rawValue) == [
-                "started", "retried", "completed", "failed", "deleted", "moved"
+                "started", "retried", "completed", "failed", "deleted", "moved",
+                "paused", "resumed", "updated"
             ]
         )
     }
