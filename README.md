@@ -27,6 +27,15 @@ The content in this application is derived from E-Hentai, which is user-generate
 
 **Users of this application should access the E-Hentai content at their own risk.**
 
+## Analytics
+EhPanda sends anonymous usage data to [TelemetryDeck](https://telemetrydeck.com) so its maintainers can see which features matter. **This is on by default, and there is no in-app setting to opt out.**
+
+The data describes usage in broad strokes: which screens and panels are opened, searches as a shape (word count, whether tag syntax was used, keyword length) rather than as text, reading sessions as bucketed page counts and durations, download outcomes such as completed or failed, which kinds of errors occur, and the current values of six app settings on every event — gallery site, login state, reading direction, dual-page mode, tag translation, and list display mode. It never includes gallery identifiers, tokens or titles, any gallery or page URL, search keyword text, tag values, usernames, cookies or any other credential, or file paths.
+
+Events carry TelemetryDeck's built-in anonymous per-install identifier, hashed on the device before sending, and TelemetryDeck retains no IP addresses. The identifier is not tied to you, and it resets whenever iOS regenerates the device's vendor identifier — which happens when every app from the same developer is removed. See the [TelemetryDeck privacy policy](https://telemetrydeck.com/privacy) for how the data is handled.
+
+A build made without the local analytics configuration file (`Config/Analytics.local.xcconfig`) sends nothing at all. Contributor builds from source and any release cut without that file have analytics silently disabled.
+
 ## Questions & Feedback
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
