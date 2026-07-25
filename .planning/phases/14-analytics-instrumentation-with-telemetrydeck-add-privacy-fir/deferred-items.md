@@ -13,6 +13,7 @@
 - **Cause:** the assertion requires constructing a `GalleriesResult` fixture, whose type lives in `NetworkingFeature`, and the `searchFeatureTests` target declared by plan 14-01 has no `.module(.networkingFeature)` edge. Plan 14-12 correctly declined to edit `AppPackage/Package.swift` under the wave-6 manifest-freeze rule and reported the gap instead.
 - **Note on the freeze:** the manifest-freeze rationale is parallel sibling builds within wave 6. This run executed wave 6 sequentially (worktree isolation auto-degraded off per #683), so the hazard did not actually materialize — the edge can be added safely once wave 6's manifest-sensitive plans are complete.
 - **Recommendation:** after wave 6, add `.module(.networkingFeature)` to the `searchFeatureTests` target in `AppPackage/Package.swift`, then add a success-arm test asserting a non-zero `CountBucket` result. Verify against the `-only-testing:SearchFeatureTests` gate. This is the phase's only known coverage gap.
+- **RESOLVED (14-17, 2026-07-25):** the edge was added once wave 6 completed and the freeze lifted; `aSuccessfulSearchRecordsThePerformedSignalWithTheResultBucket` asserts three fixture galleries land in the 2-5 bucket. SearchFeatureTests now runs 10 tests, green.
 
 ## `updateDownloadDone` has no expressible outcome (surfaced by plan 14-15)
 
@@ -20,3 +21,4 @@
 - **Why it was raised rather than instrumented:** exactly the same situation as pause/resume before D-20. Widening a locked signal vocabulary is an owner decision, not an executor's, and plan 14-15's instructions were explicit about raising rather than silently instrumenting.
 - **Options for the owner:** (a) leave it unmeasured, so an update reads as no outcome at all; (b) add an `updated` case to `DownloadOutcome` and emit from the success arm, mirroring what D-20 does for pause/resume; (c) map it onto the existing `completed` outcome, which conflates a fresh download with an update and is **not** recommended — that is the "two things under one name" error D-16 and the download-failure ownership split both exist to avoid.
 - **Recommendation:** decide alongside D-20's implementation in plan 14-17, since both are the same kind of vocabulary question and touch the same enum.
+- **RESOLVED (14-17, 2026-07-25):** the owner chose option (b), recorded as D-21 with a naming correction — `.updated` emits at queue time from both the list's `updateDownloadDone` and detail's mode-`.update` retry path, so one intent carries one name from either screen.
