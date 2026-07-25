@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
+import NetworkingFeature
 import QuickSearchFeature
 @testable import SearchFeature
 import Testing
@@ -27,13 +28,8 @@ struct AnalyticsEmissionTests {
     // The performed-search signal is emitted from the fetch-completion case as a reduced `SearchShape`
     // and a result bucket. This drives the failure arm — a search that returned nothing is still a
     // performed search worth counting — and pins the zero bucket and the shape reduced from the state's
-    // last-performed keyword.
-    //
-    // The success arm (a non-zero bucket derived from `response.galleries.count`) is not exercised here:
-    // constructing a `GalleriesResult` requires the `NetworkingFeature` module, which this test target
-    // does not depend on, and the wave-6 manifest freeze forbids adding the edge from this plan. The
-    // `CountBucket(count:)` mapping the success arm uses is exhaustively covered in
-    // `AnalyticsClientTests/BucketTests`. See the plan summary's Deviations section.
+    // last-performed keyword. The success arm is driven below, now that the wave-6 manifest freeze is
+    // lifted and this target carries the `NetworkingFeature` edge the fixture needs (14-17).
     @MainActor
     @Test
     func aFailedSearchRecordsOnePerformedSignalWithAZeroBucket() async {
@@ -47,6 +43,29 @@ struct AnalyticsEmissionTests {
         expectNoDifference(
             recorded.value,
             [.searchPerformed(shape: SearchShape(keyword: Self.sentinelKeyword), resultCount: .zero)]
+        )
+    }
+
+    // The success arm: the result bucket derives from `response.galleries.count`, so three fixture
+    // galleries must land in the 2-5 bucket. Only the count matters — the galleries' content never
+    // reaches the signal, which the sentinel sweep below proves separately. Deferred from 14-12 by
+    // the wave-6 manifest freeze; the `NetworkingFeature` test edge closing that gap landed in 14-17.
+    @MainActor
+    @Test
+    func aSuccessfulSearchRecordsThePerformedSignalWithTheResultBucket() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeSearchStore(keyword: Self.sentinelKeyword, analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(.success(GalleriesResult(
+            pageNumber: PageNumber(),
+            galleries: [.preview, .preview, .preview]
+        ))))
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(
+            recorded.value,
+            [.searchPerformed(shape: SearchShape(keyword: Self.sentinelKeyword), resultCount: .twoToFive)]
         )
     }
 
