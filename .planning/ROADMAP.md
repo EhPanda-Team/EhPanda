@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 11: Infra Refactor & Lint Capstone** - Resolve infra-level refactors (incl. test-isolation cleanup), then ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
 - [x] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance (completed 2026-07-23)
 - [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
-- [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first, opt-in analytics via the TelemetryDeck SDK to instrument key user flows
+- [ ] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with no opt-out (D-01) — instrumenting key user flows
 - [ ] **Phase 15: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
 
 ## Phase Details
