@@ -288,6 +288,14 @@ extension DetailReducer {
             case .retryDownloadDone(let result):
                 state.isPreparingDownload = false
                 if case .success = result {
+                    // Read before the badge is overwritten below: the retry button serves two
+                    // intents, and the pre-mutation status is what tells them apart. A gallery
+                    // flagged `.updateAvailable` is being *updated*, and reporting that as
+                    // `.retried` would put one user intent under two names depending on which
+                    // screen initiated it — the downloads list emits `.updated` for the same
+                    // action (D-21). Genuine error-retries keep `.retried`.
+                    let outcome: DownloadOutcome =
+                        state.downloadBadge?.status == .updateAvailable ? .updated : .retried
                     state.downloadBadge = DownloadBadge(
                         status: .queued,
                         progress: state.downloadBadge?.progress ?? DownloadProgress(
@@ -299,7 +307,7 @@ extension DetailReducer {
                     state.hasLoadedDownloadBadge = true
                     return .merge(
                         .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
-                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.retried)) }),
+                        .run(operation: { _ in analyticsClient.send(.downloadStateChanged(outcome)) }),
                         .send(.fetchDownloadBadge)
                     )
                 }
