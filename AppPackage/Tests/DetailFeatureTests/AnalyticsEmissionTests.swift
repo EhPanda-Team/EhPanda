@@ -160,17 +160,59 @@ struct AnalyticsEmissionTests {
         #expect(recorded.value.isEmpty)
     }
 
-    // Pause/resume is the module's fourth download completion case and is deliberately uninstrumented:
-    // `DownloadOutcome` has no `paused` case, so the outcome is inexpressible in the closed
-    // vocabulary and sits outside the agreed taxonomy. Pinned in both arms so that adding an
-    // emission here becomes a test failure rather than a silent widening of that vocabulary.
+    // The retry button serves two intents, told apart by the pre-mutation badge status: a gallery
+    // flagged `.updateAvailable` is being *updated* and must report `.updated`, the same name the
+    // downloads list emits for the same action — one intent, one name (D-21). This replaces the
+    // original assertion that the badge status did not matter.
     @MainActor
-    @Test(arguments: [Result<Void, AppError>.success(()), .failure(.notFound)])
-    func toggleDownloadPauseRecordsNothing(result: Result<Void, AppError>) async {
+    @Test
+    func retryFromUpdateAvailableRecordsUpdatedNotRetried() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDetailStore(
+            analyticsClient: .recording(into: recorded),
+            badgeStatus: .updateAvailable
+        )
+
+        await store.send(.retryDownloadDone(.success(())))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.downloadStateChanged(.updated)])
+    }
+
+    // MARK: Pause and resume (D-20)
+    //
+    // One toggle action serves both directions; the pre-mutation badge status is what tells them
+    // apart. This replaced the zero-signal test that pinned the pre-D-20 exclusion — that test
+    // failing on D-20's arrival was it working as intended.
+
+    @MainActor
+    @Test(arguments: [
+        (badge: DownloadDisplayStatus.active, outcome: DownloadOutcome.paused),
+        (badge: DownloadDisplayStatus.inactive, outcome: DownloadOutcome.resumed)
+    ])
+    func togglePauseSuccessRecordsTheDirection(
+        badge: DownloadDisplayStatus,
+        outcome: DownloadOutcome
+    ) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDetailStore(analyticsClient: .recording(into: recorded), badgeStatus: badge)
+
+        await store.send(.toggleDownloadPauseDone(.success(())))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.downloadStateChanged(outcome)])
+    }
+
+    // A toggle from any other badge status is not a user-meaningful pause or resume; guessing a
+    // direction would be worse than silence. The failure arm is silent like every other outcome.
+    @MainActor
+    @Test
+    func togglePauseWithoutADirectionOrOnFailureRecordsNothing() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeDetailStore(analyticsClient: .recording(into: recorded))
 
-        await store.send(.toggleDownloadPauseDone(result))
+        await store.send(.toggleDownloadPauseDone(.success(())))
+        await store.send(.toggleDownloadPauseDone(.failure(.notFound)))
         await store.finish()
 
         #expect(recorded.value.isEmpty)
@@ -226,7 +268,10 @@ private extension AnalyticsEmissionTests {
     static let everyNamespaceAndNil: [TagNamespace?] = TagNamespace.allCases.map({ $0 }) + [nil]
 
     @MainActor
-    func makeDetailStore(analyticsClient: AnalyticsClient) -> TestStoreOf<DetailReducer> {
+    func makeDetailStore(
+        analyticsClient: AnalyticsClient,
+        badgeStatus: DownloadDisplayStatus? = nil
+    ) -> TestStoreOf<DetailReducer> {
         var state = DetailReducer.State(
             gallery: Gallery(
                 gid: "42", token: "abc123", title: "Seed", rating: 4.5, tags: [],
@@ -235,6 +280,12 @@ private extension AnalyticsEmissionTests {
             )
         )
         state.galleryDetail = .preview
+        if let badgeStatus {
+            state.downloadBadge = DownloadBadge(
+                status: badgeStatus,
+                progress: DownloadProgress(completedPageCount: 0, pageCount: 30)
+            )
+        }
 
         let store = TestStore(initialState: state, reducer: DetailReducer.init) {
             $0.analyticsClient = analyticsClient

@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import AppModels
 import ComposableArchitecture
@@ -47,6 +48,7 @@ public struct DownloadInspectorReducer: Sendable {
         case validateImageDataDone(DownloadValidationState?)
     }
 
+    @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
 
     public init() {}
@@ -182,8 +184,18 @@ public struct DownloadInspectorReducer: Sendable {
                 guard let download = state.inspection?.download,
                       download.canTogglePause
                 else { return .none }
+                // Direction from the inspected download's current status, read at request time —
+                // the same shape as the downloads list's site (D-20).
+                let pauseOutcome: DownloadOutcome? = switch download.displayStatus {
+                case .active: .paused
+                case .inactive: .resumed
+                default: nil
+                }
                 return .run { send in
                     try await downloadClient.togglePause(download.gid)
+                    if let pauseOutcome {
+                        analyticsClient.send(.downloadStateChanged(pauseOutcome))
+                    }
                     await send(.toggleDownloadPauseDone(.success(())))
                 } catch: { error, send in
                     await send(.toggleDownloadPauseDone(.failure(AppError(error))))
