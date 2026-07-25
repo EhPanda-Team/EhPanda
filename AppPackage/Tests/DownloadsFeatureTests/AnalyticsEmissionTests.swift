@@ -174,6 +174,60 @@ struct AnalyticsEmissionTests: DownloadFeatureTestCase {
         #expect(recorded.value.isEmpty)
     }
 
+    // MARK: Pause, resume and update (D-20 / D-21)
+
+    // The list's Done action carries no gid, so the direction is read at request time from the
+    // snapshot already in state. The first observation seeds that snapshot and — being the
+    // cold-start case — records nothing itself.
+    @MainActor
+    @Test(arguments: [
+        (fixture: DownloadFixtureStatus.downloading, outcome: DownloadOutcome.paused),
+        (fixture: DownloadFixtureStatus.paused, outcome: DownloadOutcome.resumed)
+    ])
+    func togglingPauseFromTheListRecordsTheDirection(
+        fixture: DownloadFixtureStatus,
+        outcome: DownloadOutcome
+    ) async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDownloadsStore(recorded: recorded)
+        let download = Self.download(gid: "1", status: fixture)
+
+        await store.send(.observeDownloadsDone([download]))
+        await store.send(.toggleDownloadPause(download.gid))
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.downloadStateChanged(outcome)])
+    }
+
+    // A gid the snapshot does not contain has no readable direction; silence beats a guess.
+    @MainActor
+    @Test
+    func togglingPauseForAnUnknownGidRecordsNothing() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDownloadsStore(recorded: recorded)
+
+        await store.send(.toggleDownloadPause("missing"))
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(recorded.value.isEmpty)
+    }
+
+    @MainActor
+    @Test
+    func updateSuccessRecordsUpdatedAndFailureRecordsNothing() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDownloadsStore(recorded: recorded)
+
+        await store.send(.updateDownloadDone(.success(())))
+        await store.skipInFlightEffects(strict: false)
+        expectNoDifference(recorded.value, [.downloadStateChanged(.updated)])
+
+        recorded.setValue([])
+        await store.send(.updateDownloadDone(.failure(.notFound)))
+        await store.skipInFlightEffects(strict: false)
+        #expect(recorded.value.isEmpty)
+    }
+
     @MainActor
     @Test
     func pushingAGalleryDetailRecordsOneSignalMatchingTheFixture() async {

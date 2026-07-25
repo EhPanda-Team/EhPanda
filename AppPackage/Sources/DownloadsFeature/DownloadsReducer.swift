@@ -330,8 +330,21 @@ public struct DownloadsReducer: Sendable {
                 return .send(.destination(.presented(.reading(.onPresented))))
 
             case .toggleDownloadPause(let gid):
+                // Direction is read here, at request time, because the `Done` action carries no gid
+                // and the snapshot may have moved on by then. `.active` is being paused,
+                // `.inactive` resumed; any other status is not a user-meaningful toggle and stays
+                // silent rather than guessing a direction (D-20).
+                let pauseOutcome: DownloadOutcome? = switch
+                    state.downloads.first(where: { $0.id == gid })?.displayStatus {
+                case .active: .paused
+                case .inactive: .resumed
+                default: nil
+                }
                 return .run { send in
                     try await downloadClient.togglePause(gid)
+                    if let pauseOutcome {
+                        analyticsClient.send(.downloadStateChanged(pauseOutcome))
+                    }
                     await send(.toggleDownloadPauseDone(.success(())))
                 } catch: { error, send in
                     await send(.toggleDownloadPauseDone(.failure(AppError(error))))
@@ -351,8 +364,12 @@ public struct DownloadsReducer: Sendable {
             // List-level mutations don't surface a per-op toast: the `observeDownloads` stream is the
             // user-facing feedback from the DES-3 write-through index. Failures leave the current
             // observed state in place; the download client performs any targeted surprise repair.
-            case .updateDownloadDone:
-                return .none
+            case .updateDownloadDone(let result):
+                // `.updated`, not `.retried` or `.completed`: an update is its own queue-time
+                // outcome (D-21), and the detail screen's update path reports the same name. The
+                // failure arm stays silent — a failed update is not an update.
+                guard case .success = result else { return .none }
+                return .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.updated)) })
 
             case .deleteDownload(let gid):
                 return .run { send in
