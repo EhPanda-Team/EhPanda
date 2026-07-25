@@ -55,6 +55,19 @@ custom_rules:
       - string
     severity: error
 
+  analytics_sdk_import_boundary:
+    name: "Analytics SDK Import Boundary"
+    regex: '\bimport\s+TelemetryDeck\b'
+    message: "Only the AnalyticsClient module may import the TelemetryDeck SDK (D-12/D-18). Emit through AnalyticsClient's closed signal API instead."
+    # `excluded` matches file paths, not source text: the one module that legitimately owns the import.
+    excluded:
+      - ".*/Sources/AnalyticsClient/.*"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
   binding_initializer:
     name: "Binding Initializer"
     regex: '\bBinding\s*(?:<[^>]*>)?\s*\(\s*get\s*:'
