@@ -4,11 +4,11 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
-status: executing
-stopped_at: Completed 14-17-PLAN.md — close-out done; only 14-18 manual UAT remains
+status: awaiting-owner-verification
+stopped_at: 14-18 Task 1 done; BLOCKED on Task 2 owner checkpoint (live delivery + silence-without-credential)
 last_updated: "2026-07-25T00:00:00.000Z"
 last_activity: 2026-07-25
-last_activity_desc: 14-17 close-out — README disclosure, D-18 lint rule, D-20/D-21 landed, ANALYTICS-01 closed
+last_activity_desc: 14-18 static checks all green; awaiting owner Checks A/B/C before the phase can be verified
 progress:
   total_phases: 15
   completed_phases: 12
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
 Plan: 17 of 18 complete (14-01 … 14-17); waves 1–7 complete
-Status: Executing Phase 14 — only 14-18 manual verification remains (needs owner credentials)
-Last activity: 2026-07-25 — 14-17 close-out complete, suite green at 765 tests
-Next: /gsd-execute-phase 14 — 14-18 manual verification (create Config/Analytics.local.xcconfig per 14-USER-SETUP.md first)
+Status: Phase 14 BLOCKED at the 14-18 owner checkpoint — all automated work done and green
+Last activity: 2026-07-25 — 14-18 Task 1 recorded; two manual-only verifications await the owner
+Next: OWNER ACTION — run 14-18 Task 2 Checks A/B/C (see 14-18-PLAN.md); create Config/Analytics.local.xcconfig per 14-USER-SETUP.md for Check B
 
 Progress: [██████████] 96% (13/15 phases)
 
