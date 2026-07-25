@@ -174,8 +174,11 @@ private extension DownloadBackgroundAssertionTests {
         )
     }
 
+    // The poll returns the moment the condition holds, so the deadline costs nothing on a healthy
+    // run and only bounds a genuine hang. One second did not survive CI, where the whole target's
+    // suites run in parallel and a task can sit unscheduled far longer than the work itself takes.
     func waitUntil(
-        timeout: Duration = .seconds(1),
+        timeout: Duration = .seconds(10),
         _ condition: @Sendable () async -> Bool
     ) async throws {
         let clock = ContinuousClock()
