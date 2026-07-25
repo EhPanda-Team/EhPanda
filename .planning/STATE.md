@@ -558,7 +558,7 @@ None yet.
 - Phase 11 edited: criterion 4: also remove @MainActor from tests unless a real main-actor need exists; run in parallel on any thread
 - Phase 12 added: added Deep Link Hardening: code-review + durability fixes for deep-link routing, backed by UI automation tests
 - Phase 10 edited: added success criterion: rename SystemNotificationExt module -> SystemNotification (full impl, not an extension)
-- Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics
+- Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics *(historical wording — D-01 later chose on-by-default with no opt-out, and the phase shipped that way as Phase 14)*
 - Phase 12 added (integer, Cloudflare Login Restoration): restore username/password login broken by the Cloudflare challenge wall (403 + cf-mitigated on forums.e-hentai.org); in-app browser clearance capture, in-memory cf_clearance. Cascaded existing phases: Deep Link Hardening 12→13, Analytics/TelemetryDeck 13→14, Dynamic Type Accessibility 14→15 (owner chose integer over decimal 12.1)
 
 ## Deferred Items
