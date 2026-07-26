@@ -240,7 +240,11 @@ public struct LoginReducer: Sendable {
                     if case .failure(let error) = result {
                         failure = error
                     } else {
-                        failure = .unknown
+                        // A response that threw nothing, yet left the jar without credentials: the
+                        // POST was answered and the sign-in still did not happen. Reported as a
+                        // reasonless refusal rather than `.unknown`, because which of the two it is
+                        // was never in doubt — only why.
+                        failure = .loginRejected(nil)
                     }
                     state.loginState = .failed(failure)
                     // The clearance value itself is never carried here — only the whitelisted

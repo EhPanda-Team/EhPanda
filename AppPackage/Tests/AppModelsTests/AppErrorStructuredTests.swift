@@ -67,6 +67,15 @@ struct AppErrorStructuredTests {
             localizedDescription: "Login Rejected",
             alertText: "You must enter a password."
         ),
+        // A refusal the page gave no reason for is still a refusal, never an unknown error: the
+        // title is unchanged and the body says plainly that no reason was given.
+        Expectation(
+            error: .loginRejected(nil),
+            isRetryable: true,
+            localizedDescription: "Login Rejected",
+            alertText: "The site refused the sign-in without saying why.\n"
+                + "Check your username and password, then try again."
+        ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
             isRetryable: true,
