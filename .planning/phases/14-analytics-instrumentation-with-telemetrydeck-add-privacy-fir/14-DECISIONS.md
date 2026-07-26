@@ -107,6 +107,34 @@ a build carrying it has shipped.
 The salt rides in the same gitignored file as the app ID, so a release build that carries the
 file carries both, and a build that carries neither already transmits nothing under D-13.
 
+**CI injection, added 2026-07-26 — an amendment to D-13.** D-13 as written had contributor
+clones, forks *and CI* all building with empty credentials by design. That was right while the
+only credentialed build was the owner's machine, but it makes every workflow-cut release silent:
+neither deploy workflow referenced the credentials at all, so the first release carrying this
+phase would have shipped with analytics fully disabled and nothing would have reported it. Both
+`deploy.yml` and `deploy-pre-release.yml` now pass the two values to `xcodebuild archive` as
+command-line build settings drawn from repository secrets. Command-line settings outrank the
+committed xcconfig's empty defaults, so `Config/Analytics.xcconfig` is untouched and a
+contributor clone or fork still builds silent — the property D-13 exists to protect, that only
+official releases reach the owner's dataset, is unchanged. Writing `Analytics.local.xcconfig`
+from CI was considered and rejected: it would put a credential file in a working tree that a
+later step pushes, and it would lean on that file's deliberately fail-open `#include?`, which is
+the correct primitive for a clone and the wrong one for a release.
+
+The owner ruled the two values stay stored together, so they move as a unit: one step, one `env`
+block, one gate. Hard-coding the salt into the committed xcconfig was raised — it ships inside
+every `.ipa` regardless, so keeping it out of the repository protects nothing already private,
+and version control would guard the write-once value better than a secret that can be
+regenerated without a diff. It was declined in favour of keeping the pair inseparable.
+
+Because every failure mode here is silent, a `Verify analytics credentials` step follows the
+archive in both workflows, reading `TelemetryDeckAppID` and `TelemetryDeckSalt` back out of the
+archived `Info.plist` and failing the release if either is empty. It asserts against the built
+artifact rather than the inputs, so a missing secret, a mistyped setting name and a future break
+in the `Info.plist` substitution wiring are all caught by the same check. Pre-release builds are
+included deliberately: unlike fork traffic they are distinguishable in the data, since the SDK
+sends app version and build number on every signal.
+
 *Owned by:* plan **14-04**, which owns the xcconfig and `Info.plist` plumbing.
 
 ### D-18: A SwiftLint custom rule enforces the single-SDK-import boundary
@@ -305,4 +333,4 @@ diff was considered and rejected as incoherent with the family's timing semantic
 ---
 
 *Phase: 14-analytics-instrumentation*
-*Decisions answered: 2026-07-24; D-20 added and D-21 added 2026-07-25*
+*Decisions answered: 2026-07-24; D-20 added and D-21 added 2026-07-25; D-17/D-13 CI-injection amendment added 2026-07-26*
