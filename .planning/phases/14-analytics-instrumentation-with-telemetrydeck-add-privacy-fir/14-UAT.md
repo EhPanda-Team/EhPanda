@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir
 source: [14-01-SUMMARY.md, 14-02-SUMMARY.md, 14-03-SUMMARY.md, 14-04-SUMMARY.md, 14-05-SUMMARY.md, 14-06-SUMMARY.md, 14-07-SUMMARY.md, 14-08-SUMMARY.md, 14-09-SUMMARY.md, 14-10-SUMMARY.md, 14-11-SUMMARY.md, 14-12-SUMMARY.md, 14-13-SUMMARY.md, 14-14-SUMMARY.md, 14-15-SUMMARY.md, 14-16-SUMMARY.md, 14-17-SUMMARY.md, 14-18-SUMMARY.md]
 started: 2026-07-26T13:56:46Z
-updated: 2026-07-26T14:19:34Z
+updated: 2026-07-26T15:12:00Z
 ---
 
 ## Current Test
@@ -356,7 +356,10 @@ blocked: 0
 
 - gap_id: G-14-6
   truth: "A login failure surfaces a toast whose message describes the login failure"
-  status: failed
+  status: resolved
+  resolved_by: "commit 3fcce0f0 (fix: stop login refusal reading as auth error)"
+  resolved_at: 2026-07-26
+  resolution: "Two parts. (1) `app_error.authentication_required_description` is now context-neutral in all six locales (\"Login required to access this content.\"), since the case it serves is general. (2) `LoginRequest.response()` no longer lets the site-wide `.authenticationRequired` verdict escape as a login outcome: it reports a plain refusal (`.unknown`, which `LoginReducer.loginFailureKind` maps to `.rejected`), matching what the error-box branch already throws for the same condition. Every other site error keeps its own case. Guarded by `aRefusalPageIsNotReportedAsAGeneralAuthenticationError`, verified as a real guard by reverting the mapping and confirming the test fails with exactly `.authenticationRequired`."
   reason: "User reported: pass. but a login failure presents a toast with message \"Login required to access this download.\" is not appropriate"
   severity: major
   test: 6
@@ -379,7 +382,10 @@ blocked: 0
 
 - gap_id: G-14-7
   truth: "The README analytics disclosure describes what actually ships, in all six languages"
-  status: failed
+  status: resolved
+  resolved_by: "commit 2c7e0d0f (docs: correct analytics release disclosure)"
+  resolved_at: 2026-07-26
+  resolution: "The sentence now states that official releases are built with credentials supplied by the release workflow from repository secrets and therefore do send, while a build without those credentials sends nothing (contributor clones and forks). Rewritten in all six READMEs. `Config/Analytics.xcconfig`'s header comment carried the same stale claim (\"a contributor clone, a fork and CI all build with empty analytics credentials\") and now documents both credential paths, including that command-line build settings outrank the xcconfig and that each workflow reads the archived Info.plist back to fail an uncredentialed release. Verified: zero em dashes per the repo's public-docs rule, no residual `Analytics.local.xcconfig` reference in any README, and the CI D-03 disclosure gate passes against all six files."
   reason: "User reported: \"A build made without the local analytics configuration file (`Config/Analytics.local.xcconfig`) sends nothing at all, whatever that setting says. Contributor builds from source and any release cut without that file have analytics silently disabled.\" is stale since we've shifted to use ci secrets"
   severity: major
   test: 7
