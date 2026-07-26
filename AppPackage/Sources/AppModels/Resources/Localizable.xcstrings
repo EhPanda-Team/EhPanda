@@ -335,37 +335,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Login required to access this download."
+            "value": "Login required to access this content."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Für diesen Download ist eine Anmeldung erforderlich."
+            "value": "Für den Zugriff auf diesen Inhalt ist eine Anmeldung erforderlich."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このダウンロードにアクセスするにはログインが必要です。"
+            "value": "このコンテンツにアクセスするにはログインが必要です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 다운로드에 접근하려면 로그인해야 합니다."
+            "value": "이 콘텐츠에 접근하려면 로그인해야 합니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "访问此下载内容需要登录。"
+            "value": "访问此内容需要登录。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "存取此下載內容需要登入。"
+            "value": "存取此內容需要登入。"
           }
         }
       }
