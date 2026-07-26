@@ -83,43 +83,84 @@
         }
       }
     },
-    "default_filter": {
+    "browse_only_expunged_galleries": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Default Filter"
+            "value": "Browse Only Expunged Galleries"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standardfilter"
+            "value": "Nur gelöschte Galerien zeigen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "既定フィルター"
+            "value": "削除済みのギャラリーのみを表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기본 옵션"
+            "value": "삭제된 갤러리만 보기"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "默认筛选"
+            "value": "仅浏览已被删除的画廊"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "預設篩選"
+            "value": "僅瀏覽已被刪除的畫廊"
+          }
+        }
+      }
+    },
+    "custom_filters": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Filters"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Filter"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタムフィルター"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 필터"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义筛选"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂篩選"
           }
         }
       }
@@ -288,47 +329,6 @@
         }
       }
     },
-    "only_show_galleries_with_torrents": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only Show Galleries with Torrents"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nur Galerien mit Torrents zeigen"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トレントを含むもののみを表示"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "토렌트 있는 갤러리만 보이기"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "只显示带有种子的画廊"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "只顯示有種子的畫廊"
-          }
-        }
-      }
-    },
     "pages_range": {
       "extractionState": "manual",
       "localizations": {
@@ -366,6 +366,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "頁數範圍"
+          }
+        }
+      }
+    },
+    "require_gallery_torrent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Require Gallery Torrent"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Galerie-Torrent erforderlich"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トレント必須"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "토렌트 필수"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "必须包含种子"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "必須包含種子"
           }
         }
       }
@@ -530,47 +571,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜尋低評價標籤"
-          }
-        }
-      }
-    },
-    "search_expunged_galleries": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search Expunged Galleries"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gelöschte Galerien zeigen"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "削除済みのギャラリーを表示"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "삭제된 갤러리를 보여주기"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "显示已被删除的画廊"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "顯示被刪除的畫廊"
           }
         }
       }
