@@ -24,7 +24,8 @@ created: 2026-07-24
 | **Config file** | `AppPackage/Tests/FeatureTests.xctestplan` |
 | **Quick run command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone Air' -only-testing:AnalyticsClientTests` |
 | **Full suite command** | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -destination 'platform=iOS Simulator,name=iPhone Air'` |
-| **Measured runtime** | ~76 seconds, full app scheme, 765 tests (measured 2026-07-25 at 14-18) |
+| **Measured runtime** | ~107 seconds, full app scheme, 773 tests across 22 targets (re-measured 2026-07-26 at validate-phase; was ~76s/765 tests at 14-18 — the delta is the Check D opt-out suite) |
+| **Repo-invariant checks** | `.github/workflows/test.yml` steps `Verify no app-owned privacy manifest (D-04)` and `Verify analytics disclosure in every README (D-03)`, on every push |
 
 > ⚠ **Registration hazard.** A new test target must be registered in
 > `AppPackage/Tests/FeatureTests.xctestplan` — an unregistered target runs zero tests and looks green.
@@ -45,7 +46,7 @@ created: 2026-07-24
 - **After every task commit:** `xcodebuild test … -only-testing:<target touched by the task>`, narrowed to `-only-testing:<Target>/<Suite>` where the task owns a single suite. Tasks that instrument an existing reducer stay at target granularity on purpose: the point of that run is to prove the target's *pre-existing* suites survived the instrumentation, which a suite-scoped filter would not show.
 - **After every plan wave:** full `EhPanda` scheme test run
 - **Before `/gsd-verify-work`:** full suite green through the `EhPanda` scheme
-- **Max feedback latency:** 76 seconds (full suite; a single-target filter returns in ~25-50s)
+- **Max feedback latency:** 107 seconds (full suite, re-measured 2026-07-26; a single-target filter returns in ~25-50s). The two new CI invariant checks add well under a second and run before the suite, so they fail fast.
 
 ---
 
@@ -56,6 +57,7 @@ created: 2026-07-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
+| 14-03 T1 | 14-03 | 2 | D-09 / D-15 | T-14-01 | Every closed vocabulary enum spells all of its cases; `Category` covers all eleven; spellings are distinct within each enum and never numeric; the `TabBarItemType` → tab mapping is total and injective | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsVocabularyTests` | ✅ | ✅ green |
 | 14-05 T2 | 14-05 | 3 | D-09 | — | `AnalyticsSignal` renders stable names + parameter keys for every case | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsSignalRenderingTests` | ✅ | ✅ green |
 | 14-05 T3 | 14-05 | 3 | D-06 / D-09 | T-14-01 | No rendered parameter value can be a free-form `String`; reserved-key collision sweep over all 13 cases | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/AnalyticsSignalRenderingTests` | ✅ | ✅ green |
 | 14-01 T3 | 14-01 | 1 | D-08 | T-14-02 | Bucket boundaries map correctly at every edge | unit | `xcodebuild test … -only-testing:AnalyticsClientTests/BucketTests` | ✅ | ✅ green |
@@ -73,6 +75,11 @@ created: 2026-07-24
 | 14-15 T3 | 14-15 | 6 | D-05 | T-14-13 | Edge-triggered outcomes; a cold start emits nothing; repeated identical snapshots emit once | unit (pure + store) | `xcodebuild test … -only-testing:DownloadsFeatureTests/AnalyticsEmissionTests` | ✅ | ✅ green |
 | 14-16 T2 | 14-16 | 6 | D-05 | T-14-01 / T-14-13 | Login failures classify by kind; sentinel credentials survive nowhere; the generic error signal never accompanies them | unit | `xcodebuild test … -only-testing:SettingFeatureTests/AnalyticsEmissionTests` | ✅ | ✅ green |
 | 14-17 T3 | 14-17 | 7 | D-12 / D-18 | T-14-01 | Only `AnalyticsClient` may import the SDK — enforced by lint at error severity, proven to fire | static (lint) | `swiftlint lint --config .swiftlint.yml` (build-plugin enforced) | ✅ | ✅ green |
+| 14-17 T1′ | 14-17 | 7 | D-20 / D-21 | T-14-13 | Pause and resume record their own direction from every entry point and an unknown gid records nothing; a re-fetch records `updated`, never `completed`, and its failure records nothing; all nine `DownloadOutcome` spellings re-pinned | unit | `xcodebuild test … -only-testing:DownloadsFeatureTests/AnalyticsEmissionTests -only-testing:AnalyticsClientTests/AnalyticsVocabularyTests` | ✅ | ✅ green |
+| Check D | post-14-18 | — | D-01 (reversed) | T-14-13 | A blob written before the toggle existed still decodes and resolves to opted-in; the accessor round-trips; opting out empties the default-parameter snapshot under every other setting combination | unit | `xcodebuild test … -only-testing:AppModelsTests/SettingAnalyticsOptOutTests -only-testing:AnalyticsClientTests/AnalyticsDefaultParametersTests` | ✅ | ✅ green |
+| — | — | — | D-04 | — | No **app-owned** `PrivacyInfo.xcprivacy` exists; SDK-vendored copies under `.build`/`checkouts`/`DerivedData`/`SourcePackages` are tolerated | static (CI, every push) | `.github/workflows/test.yml` → `Verify no app-owned privacy manifest (D-04)` | ✅ | ✅ green |
+| — | — | — | D-03 | T-14-17 | The analytics disclosure is **present** in all six READMEs — locale heading, vendor link and privacy-policy link each asserted per file, tolerant of the repo's mixed CRLF/LF endings | static (CI, every push) | `.github/workflows/test.yml` → `Verify analytics disclosure in every README (D-03)` | ✅ | ✅ green |
+| — | — | — | D-13 (amended) | T-14-03 | A release archive carries a non-empty app ID **and** salt, read back out of the archived `Info.plist` rather than from the inputs | static (CI, release only) | `.github/workflows/deploy.yml` + `deploy-pre-release.yml` → `Verify analytics credentials` | ✅ | ⬜ untriggered (fires on next release) |
 | — | — | 6 | D-14 | — | No signal emitted on non-instrumented actions | structural | covered by `testValue = .unimplemented` | ✅ free | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
@@ -91,12 +98,12 @@ created: 2026-07-24
 
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
 | Behavior | Requirement | Why Manual | Status |
 |----------|-------------|------------|--------|
 | Signals actually arrive in the TelemetryDeck dashboard | D-10 | Requires a real app ID and the vendor's ingestion endpoint; not reachable from a test target | ✅ **verified 2026-07-26** — Check B below. Delivery confirmed at the ingestion endpoint (8/8 `POST /v2/` → `200 OK`) with decrypted payload inspection. Visual confirmation in the vendor's web console was not separately performed. |
 | A build with **no** app ID ships zero network traffic | D-13 | Negative network assertion is not expressible in the unit suite | ✅ **verified by owner 2026-07-26** — Check A in plan 14-18 Task 2. See the Check A record below. |
+| The disclosure is **accurate** against observed traffic | D-03 / T-14-17 | Comparing prose to decrypted payloads needs a live capture; only the disclosure's *presence* is automatable, and that half is now CI-enforced (see the D-03 map row) | ✅ **verified by owner 2026-07-26** — Check C below. Irreducibly manual: re-run a Check C style comparison whenever the SDK's enrichment set or the signal vocabulary changes. |
+| The runtime opt-out suppresses every app-authored signal on device | D-01 (reversed) | Negative network assertion, as above | ✅ **verified by owner 2026-07-26** — Check D below. |
 
 ---
 
@@ -106,8 +113,8 @@ created: 2026-07-24
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify
 - [x] Wave 0 covers all MISSING references
 - [x] No watch-mode flags
-- [x] Feedback latency < 76s (full suite; single-target filters ~25-50s)
-- [x] `nyquist_compliant: true` set in frontmatter — released 2026-07-26 on Checks A and B; this flag tracks test-sampling adequacy, which is unaffected by the Check C disclosure gap recorded under Approval
+- [x] Feedback latency ~107s (full suite, re-measured 2026-07-26; single-target filters ~25-50s)
+- [x] `nyquist_compliant: true` set in frontmatter — released 2026-07-26 on Checks A and B; this flag tracks test-sampling adequacy, which is unaffected by the Check C disclosure gap recorded under Approval. Re-affirmed by the 2026-07-26 validation audit, which closed the last two unpinned decisions (D-03, D-04) with CI checks proven to fire.
 
 ## Whole-Phase Static Verification (14-18 Task 1, 2026-07-25)
 
@@ -212,5 +219,57 @@ Note for future verification: an injected instantaneous tap does not actuate a S
 - **D**: the runtime opt-out added after the fact suppresses every app-authored signal while preserving install counts, confirmed on device.
 
 The phase reverses **D-01** (no runtime opt-out) at the owner's direction; `COVERAGE.md` records the supersession on the `analyticsDisabled` row.
+
+---
+
+## Validation Audit 2026-07-26
+
+Retroactive Nyquist audit (`/gsd-validate-phase 14`, State A). The suite was in better shape than this
+document was: every one of the 46 automated tasks already had a passing verify, and all 22 targets were
+registered. The findings were almost entirely **map staleness** — coverage that existed on disk but was
+recorded nowhere — plus two decisions with no automated pin at all.
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 7 |
+| Resolved | 7 |
+| Escalated | 0 |
+| — of which map-only (test already existed) | 5 |
+| — of which needed new automation | 2 |
+
+**Re-measured ground truth:** full app-scheme run, **773 tests across 22 targets, `** TEST SUCCEEDED **`, ~107 s**,
+zero real failures. Four `withKnownIssue` reports: two deliberate in `AnalyticsClientGateTests` (the
+unimplemented client reporting rather than crashing) and two pre-existing outside this phase's scope
+(`AppErrorStructuredTests`, `SettingPresentationTests`). `AnalyticsVocabularyTests` and
+`SettingAnalyticsOptOutTests` were both confirmed to *execute*, not merely exist — the registration hazard
+called out above is the reason that distinction was checked by suite name rather than inferred.
+
+**Map-only gaps closed** (tests pre-existed, rows were missing): `AnalyticsVocabularyTests` had no row at
+all despite carrying D-09/D-15; D-15, D-20 and D-21 appeared in no row; the Check D opt-out suites were
+described in prose only; and the CI credential injection added at `eb4567fc` was recorded nowhere.
+
+**New automation added** — two repository-level invariants that held in fact but were unguarded, both
+implemented as shell steps in `.github/workflows/test.yml` (on every push) rather than as Swift tests,
+because a simulator-hosted test cannot read the repo tree or the READMEs and faking that access would
+have been a workaround rather than a check:
+
+- **D-04** — fails if an app-owned `PrivacyInfo.xcprivacy` appears; tolerates SDK-vendored copies.
+  Proven to fire at the repo root and nested under `App/Resources/`, and proven *not* to fire for
+  `AppPackage/.build/checkouts/…`.
+- **D-03 / T-14-17** — fails if any of the six READMEs loses its disclosure, asserting the locale heading,
+  the vendor link and the privacy-policy link per file. Proven to fire for all six locales' headings
+  individually, for both link forms, and to report all three anchors when a whole section is deleted.
+  Writing this check surfaced a real trap: five of the six READMEs are CRLF and `README.de.md` is LF, so a
+  naively anchored heading match reported five false failures. The anchor now tolerates a trailing `CR`
+  instead of being loosened.
+
+Every check above was re-verified by the orchestrator independently of the agent that wrote it, by
+extracting the step bodies from the committed YAML and running them against deliberately broken copies.
+The workflow parses as valid YAML with its six steps in the intended order.
+
+**Residual, accepted:** the D-03 check guards the disclosure's *presence*, not its *accuracy* against live
+traffic — that comparison is irreducibly manual and is now recorded as such in Manual-Only. The
+`Verify analytics credentials` release gate is real but cannot be exercised until the next release, so it
+carries ⬜ rather than a green tick; claiming otherwise would be asserting a run that has not happened.
 
 **Cleanup:** `Config/Analytics.local.xcconfig` was deleted after the checks, on the owner's confirmation that the write-once salt is backed up outside the repository. `Config/` holds only the tracked default and `git status --porcelain Config/` is empty, satisfying the plan's closing requirement that the working tree end credential-free.
