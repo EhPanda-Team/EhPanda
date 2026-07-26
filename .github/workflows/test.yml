@@ -17,6 +17,49 @@ jobs:
           max_attempts: 10
           timeout_minutes: 999
           command: xcodebuild -downloadPlatform iOS
+      - name: Verify no app-owned privacy manifest (D-04)
+        run: |
+          set -euo pipefail
+          # D-04: the app adds no PrivacyInfo.xcprivacy. SDK-vendored copies (checked-out
+          # dependencies, build products) are expected and must not be flagged.
+          found="$(find . -name PrivacyInfo.xcprivacy \
+            -not -path './.git/*' \
+            -not -path '*/.build/*' \
+            -not -path '*/.swiftpm/*' \
+            -not -path '*/DerivedData/*' \
+            -not -path '*/SourcePackages/*' \
+            -not -path '*/checkouts/*')"
+          if [[ -n "$found" ]]; then
+            echo "::error::D-04 violated: app-owned PrivacyInfo.xcprivacy found:"
+            echo "$found"
+            exit 1
+          fi
+          echo "D-04 holds: no app-owned PrivacyInfo.xcprivacy."
+      - name: Verify analytics disclosure in every README (D-03)
+        run: |
+          set -euo pipefail
+          # D-03 / T-14-17: the analytics disclosure must exist in all six READMEs.
+          # Anchors per file: the locale's Analytics heading, the vendor link and the
+          # privacy-policy link. Losing the section removes all three.
+          status=0
+          check() {
+            local file="$1" heading="$2"
+            # The READMEs have mixed line endings, so tolerate a trailing CR.
+            grep -qE "^${heading}"$'\r''?$' "$file" \
+              || { echo "::error file=$file::D-03 violated: missing heading '$heading'"; status=1; }
+            grep -qF 'https://telemetrydeck.com)' "$file" \
+              || { echo "::error file=$file::D-03 violated: missing TelemetryDeck vendor link"; status=1; }
+            grep -qF 'https://telemetrydeck.com/privacy' "$file" \
+              || { echo "::error file=$file::D-03 violated: missing privacy-policy link"; status=1; }
+          }
+          check README.md '## Analytics'
+          check READMEs/README.chs.md '## 分析'
+          check READMEs/README.cht.md '## 分析'
+          check READMEs/README.de.md '## Analyse'
+          check READMEs/README.jpn.md '## 分析'
+          check READMEs/README.ko.md '## 분석'
+          [[ $status -eq 0 ]] || exit 1
+          echo "D-03 holds: analytics disclosure present in all six READMEs."
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
