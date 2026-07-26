@@ -116,13 +116,10 @@ private struct AdvancedSection: View {
                 AppToggle(.searchGalleryTags, isOn: $filter.galleryTags)
                 AppToggle(.searchGalleryDescription, isOn: $filter.galleryDesc)
                 AppToggle(.searchTorrentFilenames, isOn: $filter.torrentFilenames)
-                AppToggle(
-                    .onlyShowGalleriesWithTorrents,
-                    isOn: $filter.onlyWithTorrents
-                )
+                AppToggle(.requireGalleryTorrent, isOn: $filter.onlyWithTorrents)
                 AppToggle(.searchLowPowerTags, isOn: $filter.lowPowerTags)
                 AppToggle(.searchDownvotedTags, isOn: $filter.downvotedTags)
-                AppToggle(.searchExpungedGalleries, isOn: $filter.expungedGalleries)
+                AppToggle(.browseOnlyExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {
                 AppToggle(.setMinimumRating, isOn: $filter.minRatingActivated)
@@ -138,7 +135,7 @@ private struct AdvancedSection: View {
                 )
                 .disabled(!filter.pageRangeActivated)
             }
-            Section(.defaultFilter) {
+            Section(.customFilters) {
                 AppToggle(.disableLanguageFilter, isOn: $filter.disableLanguage)
                 AppToggle(.disableUploaderFilter, isOn: $filter.disableUploader)
                 AppToggle(.disableTagsFilter, isOn: $filter.disableTags)
