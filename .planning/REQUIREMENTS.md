@@ -80,7 +80,7 @@
 ### ANALYTICS — Usage analytics
 
 - [x] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
-  - The public signal API accepts no bare `String` apart from one audited exception — `SearchShape(keyword:)`, whose reduction is proven by sentinel reflection tests to transmit no keyword text (D-19) — so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with two documented exceptions: exact search-keyword length, and exact per-namespace tag counts (D-16); the client no-ops entirely when the build carries no ingestion credential, keeping contributor, fork and CI builds out of the dataset; and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
+  - The public signal API accepts no bare `String` apart from one audited exception — `SearchShape(keyword:)`, whose reduction is proven by sentinel reflection tests to transmit no keyword text (D-19) — so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with two documented exceptions: exact search-keyword length, and exact per-namespace tag counts (D-16); the client no-ops entirely when the build carries no ingestion credential, keeping contributor clones, forks and the test workflow out of the dataset, while the two deploy workflows inject the credentials from repository secrets so official releases do report (the D-13 amendment recorded in `14-DECISIONS.md`); a runtime opt-out in General Settings stops every app-authored signal and empties the per-signal settings snapshot, leaving only the SDK's own session signal so installs still count (the D-01 reversal); and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
 
 ## v2 Requirements
 
@@ -136,4 +136,4 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-25 — ANALYTICS-01 verified against the shipped signal surface and closed out (14-17); 23/23 mapped*
+*Last updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*
