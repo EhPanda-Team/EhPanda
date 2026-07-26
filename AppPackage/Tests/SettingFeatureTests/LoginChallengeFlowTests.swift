@@ -107,7 +107,8 @@ struct LoginChallengeFlowTests {
         #expect(harness.dismissCount.value == 1)
     }
 
-    /// Driven against the reducer directly rather than through a `TestStore`, deliberately.
+    /// Driven through a plain `Store` rather than the `TestStore` harness every other case uses,
+    /// deliberately.
     ///
     /// SwiftUI echoes a dismissal the reducer performed itself back through the same binding a swipe
     /// uses, and after a capture that echo lands while the retry is still in flight — `destination`
@@ -116,6 +117,11 @@ struct LoginChallengeFlowTests {
     /// to dismissed test store", while production sends exactly that. That mismatch is a large part of
     /// why the swipe defect survived an otherwise exhaustive suite, so this case steps around the
     /// harness instead of around the behaviour.
+    ///
+    /// A plain `Store` is the harness that *does* accept it: it is the same type the app runs on, so
+    /// the action arrives exactly as SwiftUI delivers it. Invoking the reducer directly would be a
+    /// third option, and was the original one, but `Reducer.reduce(into:action:)` is deprecated — and
+    /// a store is what the deprecation points at.
     @MainActor
     @Test
     func swiftUIsEchoOfTheReducersOwnDismissalDoesNotAbortTheAttempt() {
@@ -126,13 +132,14 @@ struct LoginChallengeFlowTests {
             state.username = Self.username
             state.password = Self.password
             state.loginState = .loading
+            let store = Store(initialState: state, reducer: LoginReducer.init)
 
             // Destination already nil — the shape a programmatic dismissal's echo arrives in. A real
             // swipe still has `.challenge` here, and that difference is the entire discriminator.
-            _ = LoginReducer().reduce(into: &state, action: .binding(.set(\.destination, nil)))
+            store.send(.binding(.set(\.destination, nil)))
 
             // Left alone: aborting here would cancel the retry a capture had just started.
-            #expect(state.loginState == .loading)
+            #expect(store.state.loginState == .loading)
         }
     }
 
