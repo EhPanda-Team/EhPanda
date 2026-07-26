@@ -102,8 +102,24 @@ public struct LoginRequest: Request {
         // Set-Cookie tombstones from reaching the jar, since `setCredentials` is now the only thing
         // that files anything from this exchange and it runs on success alone.
         if let responseError = Parser.parseResponseError(content: content) {
-            logger.warning("Login rejected: \(String(describing: responseError), privacy: .public)")
-            throw responseError
+            // `.authenticationRequired` is the site-wide "you are not signed in" verdict, which is
+            // meaningless as the *outcome of a login POST*: not being signed in is the premise here,
+            // not a diagnosis. It fires readily on this path too — the parser reads `bounce_login.php`
+            // as the marker, and the login form the forum hands back on a refusal is exactly the page
+            // that links to it — so an ordinary wrong password surfaced as a general authentication
+            // error, wearing copy written for another caller entirely.
+            //
+            // Reported as a plain refusal instead. `.unknown` is what that already means on this path:
+            // the error-box branch below throws it for the same condition, and
+            // `LoginReducer.loginFailureKind` maps it to `.rejected`. Every other site error keeps its
+            // own case and its tailored recovery suggestion, so a genuine quota or ban still reads as
+            // itself. Both verdicts are logged, so narrowing the surface costs no diagnostic detail.
+            let failure: AppError = responseError == .authenticationRequired ? .unknown : responseError
+            logger.warning("""
+                Login rejected: parsed=\(String(describing: responseError), privacy: .public) \
+                reported=\(String(describing: failure), privacy: .public)
+                """)
+            throw failure
         }
         if let message = Parser.parseLoginErrorMessage(content: content) {
             // A CAPTCHA-gated form gets its own case rather than collapsing into the generic

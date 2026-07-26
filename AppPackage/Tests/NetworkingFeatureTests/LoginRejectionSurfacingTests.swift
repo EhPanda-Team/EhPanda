@@ -42,6 +42,26 @@ struct LoginRejectionSurfacingTests {
         #expect(result == .failure(.quotaExceeded))
     }
 
+    // The site-wide "you are not signed in" verdict is not a login outcome: not being signed in is
+    // the premise of a login POST. It reached users as an authentication error carrying copy written
+    // for another caller, because the forum's refusal page is the login form and the login form links
+    // to `bounce_login.php`, which is the marker the parser reads.
+    @Test
+    func aRefusalPageIsNotReportedAsAGeneralAuthenticationError() async {
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.bounceLoginPage)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result != .failure(.authenticationRequired))
+        // `.unknown` is a plain refusal on this path, which `LoginReducer` classifies as `rejected`.
+        #expect(result == .failure(.unknown))
+    }
+
     @Test
     func challengedResponseIsNeverReadAsALoginRejection() async throws {
         // A Cloudflare interstitial is not a forum page. Throwing on its body would break detection
@@ -112,6 +132,18 @@ struct LoginRejectionSurfacingTests {
 
     private static let quotaPage = Data(
         "<html><body><p>You have exceeded your image viewing limits.</p></body></html>".utf8
+    )
+
+    /// The refused login form: no forum error box, but it carries the re-login link the site-wide
+    /// parser reads as an authentication verdict.
+    private static let bounceLoginPage = Data(
+        """
+        <html><body>
+        <form name="LOGIN" action="/bounce_login.php?b=d&bt=1-1" method="post">
+        <input type="submit" name="ipb_login_submit" value="Login!">
+        </form>
+        </body></html>
+        """.utf8
     )
 
     private func cleanUp(session: URLSession, handle: StubHandle) {
