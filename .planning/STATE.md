@@ -4,16 +4,16 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 14
 current_phase_name: Analytics Instrumentation (TelemetryDeck)
-status: awaiting-owner-verification
-stopped_at: 14-18 Task 1 done; BLOCKED on Task 2 owner checkpoint (live delivery + silence-without-credential)
-last_updated: "2026-07-25T00:00:00.000Z"
-last_activity: 2026-07-25
-last_activity_desc: 14-18 static checks all green; awaiting owner Checks A/B/C before the phase can be verified
+status: awaiting-phase-verification
+stopped_at: 14-18 complete; owner Checks A-D passed; phase verification not yet run
+last_updated: "2026-07-26T00:00:00.000Z"
+last_activity: 2026-07-26
+last_activity_desc: owner checkpoint cleared; runtime opt-out added, disclosure translated into all six locales, CI credential injection wired
 progress:
   total_phases: 15
   completed_phases: 12
   total_plans: 171
-  completed_plans: 170
+  completed_plans: 171
   percent: 80
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — EXECUTING
-Plan: 17 of 18 complete (14-01 … 14-17); waves 1–7 complete
-Status: Phase 14 BLOCKED at the 14-18 owner checkpoint — all automated work done and green
-Last activity: 2026-07-25 — 14-18 Task 1 recorded; two manual-only verifications await the owner
-Next: OWNER ACTION — run 14-18 Task 2 Checks A/B/C (see 14-18-PLAN.md); create Config/Analytics.local.xcconfig per 14-USER-SETUP.md for Check B
+Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — AWAITING VERIFICATION
+Plan: 18 of 18 complete (14-01 … 14-18); waves 1–7 complete
+Status: All plans executed and green; owner Checks A–D passed and recorded in 14-VALIDATION.md
+Last activity: 2026-07-26 — owner checkpoint cleared; D-01 reversed with a runtime opt-out, disclosure written into all six READMEs, analytics credentials injected by both deploy workflows
+Next: run phase verification to produce 14-VERIFICATION.md — `gsd-tools phase complete 14` refuses to close the phase without it
 
 Progress: [██████████] 96% (13/15 phases)
 
