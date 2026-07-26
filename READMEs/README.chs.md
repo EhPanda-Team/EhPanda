@@ -38,7 +38,7 @@ EhPanda 会向 [TelemetryDeck](https://telemetrydeck.com) 发送匿名分析数�
 
 关闭「共享分析数据」后，上述所有事件以及随其发送的六项应用设置都会停止发送。但你的安装仍会被计入，以便维护者了解有多少人在使用本应用；也就是说，匿名标识符和上一段所述的技术信息仍会在每个会话中发送一次。关闭后能被了解到的信息会大幅减少，但这并不意味着应用完全静默。
 
-未包含本地分析配置文件（`Config/Analytics.local.xcconfig`）的构建不会发送任何内容，无论该设置为何。从源码构建的版本，以及在打包时未包含该文件的任何发行版，分析功能都会自动处于关闭状态。
+官方发行版在构建时会包含分析凭据，由发布工作流从仓库密钥中获取，因此除非你关闭该设置，否则会发送上述事件。未包含这些凭据的构建不会发送任何内容，无论该设置为何：从源码自行构建的版本以及各类分支仓库，都会因缺少凭据而关闭分析功能。
 
 ## 提问、反馈
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
