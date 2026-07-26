@@ -58,7 +58,7 @@ struct AppErrorStructuredTests {
             error: .authenticationRequired,
             isRetryable: false,
             localizedDescription: "Authentication Required",
-            alertText: "Login required to access this download."
+            alertText: "Login required to access this content."
         ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
