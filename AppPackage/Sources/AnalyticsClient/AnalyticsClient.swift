@@ -1,5 +1,6 @@
 import AppModels
 import ComposableArchitecture
+import Sharing
 import Synchronization
 import TelemetryDeck
 
@@ -43,6 +44,16 @@ extension AnalyticsClient {
             },
             send: { signal in
                 guard started.withLock({ $0 }) else { return }
+
+                // The runtime opt-out. Read live inside the closure, never captured, so toggling the
+                // setting takes effect on the very next signal rather than at the next launch.
+                //
+                // The gate sits on `send` alone, deliberately leaving `start` untouched: the SDK stays
+                // initialized so its own session signal keeps counting installs and retention, while
+                // every app-authored signal stops. `Config.analyticsDisabled` would silence both and is
+                // opted out in COVERAGE.md for that reason.
+                @Shared(.setting) var setting
+                guard setting.isSharingAnalyticsData else { return }
 
                 switch signal.rendered {
                 case let .signal(name, parameters):
