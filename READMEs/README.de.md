@@ -38,7 +38,7 @@ Ereignisse tragen die in TelemetryDeck eingebaute anonyme Installationskennung, 
 
 Wenn du "Analysedaten teilen" abschaltest, werden alle oben beschriebenen Ereignisse und die sechs App-Einstellungen, die sie begleiten, nicht mehr gesendet. Deine Installation wird weiterhin gezählt, damit die Betreuer wissen, wie viele Menschen die App nutzen: Die anonyme Kennung und die technischen Angaben aus dem vorigen Absatz werden also weiterhin einmal pro Sitzung gesendet. Abgeschaltet verrät die App deutlich weniger über dich, aber sie schweigt nicht vollständig.
 
-Ein Build ohne die lokale Analyse-Konfigurationsdatei (`Config/Analytics.local.xcconfig`) sendet überhaupt nichts, unabhängig von dieser Einstellung. Selbst aus dem Quellcode erstellte Builds und jede Veröffentlichung ohne diese Datei haben die Analyse stillschweigend deaktiviert.
+Offizielle Releases werden mit Analyse-Zugangsdaten gebaut, die der Release-Workflow aus den Repository-Secrets bezieht, und senden daher die oben beschriebenen Ereignisse, sofern Sie die Einstellung nicht deaktivieren. Ein Build ohne diese Zugangsdaten sendet überhaupt nichts, unabhängig von dieser Einstellung: Bei selbst aus dem Quellcode erstellten Builds und bei Forks ist die Analyse deaktiviert, weil die Zugangsdaten fehlen.
 
 ## Fragen & Feedback
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
