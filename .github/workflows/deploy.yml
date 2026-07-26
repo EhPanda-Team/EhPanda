@@ -44,6 +44,9 @@ jobs:
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone Air'
       - name: Xcode archive
+        env:
+          TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
+          TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
         run: xcodebuild archive
           -skipMacroValidation
           -skipPackagePluginValidation
@@ -56,6 +59,15 @@ jobs:
           CODE_SIGNING_REQUIRED=NO
           GCC_OPTIMIZATION_LEVEL=s
           SWIFT_OPTIMIZATION_LEVEL=-O
+          TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
+          TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+      - name: Verify analytics credentials
+        run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          app_id="$(plutil -extract TelemetryDeckAppID raw -o - "$app_info_plist")"
+          salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
+          [[ ! -z "$app_id" ]] || exit 1
+          [[ ! -z "$salt" ]] || exit 1
       - name: Export .ipa file
         run: |
           mkdir -p ${{ env.PAYLOAD_PATH }}
