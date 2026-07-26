@@ -97,7 +97,11 @@ public struct LoginReducer: Sendable {
             return .cloudflareChallengeFailed
         case .networkingFailed:
             return .networkingFailed
-        case .unknown:
+        // Both are a plainly refused credential. `.loginRejected` is the classified form, carrying
+        // the forum's own wording; `.unknown` remains the fallback for a refusal whose page this app
+        // could not read. They share a kind because the analytics vocabulary counts the fact, not
+        // the wording — which is also why the wording cannot ride along.
+        case .loginRejected, .unknown:
             return .rejected
         case .copyrightClaim, .ipBanned, .expunged, .webImageFailed, .parseFailed, .quotaExceeded,
              .authenticationRequired, .unsupportedDeepLink, .fileOperationFailed, .noUpdates,

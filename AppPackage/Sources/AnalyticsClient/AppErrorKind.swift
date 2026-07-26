@@ -2,14 +2,19 @@ import AppModels
 
 // A payload-free mirror of `AppError`.
 //
-// Four `AppError` cases carry associated values: three carry free-form `String`s scraped from the
+// Five `AppError` cases carry associated values: four carry free-form `String`s scraped from the
 // site or built from a file operation, and one carries a `BanInterval` that can itself hold
 // unrecognized scraped text. None of them may reach a payload, so the mirror below has no
 // associated values at all — there is nothing for a future emission site to forward even by
 // accident, which is D-06 enforced by the shape of the type.
 //
+// `.loginRejected` is the sharpest illustration: it carries the forum's refusal message verbatim so
+// the user can read it, and that message is remote text this app does not control. The mirror drops
+// it at the type level, so the signal counts that a login was refused without any route by which the
+// wording could travel.
+//
 // `init(_:)` switches exhaustively and binds nothing. The absence of a catch-all arm is the whole
-// guarantee: a sixteenth `AppError` case is a compile error here, raised at exactly the moment
+// guarantee: a seventeenth `AppError` case is a compile error here, raised at exactly the moment
 // someone has to decide whether it is safe to count and what to call it. A catch-all would have
 // absorbed it silently into a neighbouring bucket instead, and nothing in the collected data
 // would ever have shown that it happened.
@@ -25,6 +30,7 @@ public enum AppErrorKind: String, CaseIterable, Equatable, Sendable {
     case authenticationRequired
     case cloudflareChallengeFailed
     case loginCaptchaRequired
+    case loginRejected
     case unsupportedDeepLink
     case fileOperationFailed
     case noUpdates
@@ -64,6 +70,9 @@ extension AppErrorKind {
 
         case .loginCaptchaRequired:
             self = .loginCaptchaRequired
+
+        case .loginRejected:
+            self = .loginRejected
 
         case .unsupportedDeepLink:
             self = .unsupportedDeepLink
@@ -115,7 +124,9 @@ extension AppErrorKind {
              .cloudflareChallengeFailed, .unknown:
             .thrownException
 
-        case .loginCaptchaRequired, .unsupportedDeepLink, .notFound:
+        // `.loginRejected` is user input: the credential the user typed is what the forum declined,
+        // which is the same origin as a CAPTCHA the user must satisfy — not an account-state gate.
+        case .loginCaptchaRequired, .unsupportedDeepLink, .notFound, .loginRejected:
             .userInput
 
         case .copyrightClaim, .ipBanned, .expunged, .quotaExceeded, .authenticationRequired,

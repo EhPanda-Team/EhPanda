@@ -35,13 +35,18 @@ struct AnalyticsEmissionTests {
 
     // MARK: Classified login failures
 
-    // Sweeps the four mapped errors plus one unmapped case exercising the catch-all kind, so a new
+    // Sweeps the five mapped errors plus one unmapped case exercising the catch-all kind, so a new
     // AppError case that should be classified cannot quietly land in `other` unnoticed.
+    //
+    // `.loginRejected` carries the forum's refusal wording, and the recorded signal is asserted as an
+    // exact one-element sequence below — so this argument doubles as the proof that the wording does
+    // not ride along into analytics with it.
     @MainActor
     @Test(arguments: [
         (error: AppError.loginCaptchaRequired, kind: LoginFailureKind.captchaRequired),
         (error: AppError.cloudflareChallengeFailed, kind: LoginFailureKind.cloudflareChallengeFailed),
         (error: AppError.networkingFailed, kind: LoginFailureKind.networkingFailed),
+        (error: AppError.loginRejected("You must enter a username"), kind: LoginFailureKind.rejected),
         (error: AppError.unknown, kind: LoginFailureKind.rejected),
         (error: AppError.quotaExceeded, kind: LoginFailureKind.other)
     ])
@@ -66,6 +71,7 @@ struct AnalyticsEmissionTests {
         (error: AppError.loginCaptchaRequired, kind: LoginFailureKind.captchaRequired),
         (error: AppError.cloudflareChallengeFailed, kind: LoginFailureKind.cloudflareChallengeFailed),
         (error: AppError.networkingFailed, kind: LoginFailureKind.networkingFailed),
+        (error: AppError.loginRejected("Bad password."), kind: LoginFailureKind.rejected),
         (error: AppError.unknown, kind: LoginFailureKind.rejected),
         (error: AppError.quotaExceeded, kind: LoginFailureKind.other),
         (error: AppError.notFound, kind: LoginFailureKind.other),

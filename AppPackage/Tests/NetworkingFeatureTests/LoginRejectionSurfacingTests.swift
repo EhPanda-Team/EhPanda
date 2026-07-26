@@ -22,8 +22,9 @@ struct LoginRejectionSurfacingTests {
             try await LoginRequest(username: "u", password: "p", urlSession: session).response()
         }
 
-        // Previously `.success` carrying a 200, with the reason discarded unread.
-        #expect(result == .failure(.unknown))
+        // Previously `.success` carrying a 200, with the reason discarded unread — and after that,
+        // `.unknown`, which read the reason and then dropped it. The forum's wording now travels.
+        #expect(result == .failure(.loginRejected("You must enter a username")))
     }
 
     @Test
@@ -58,8 +59,27 @@ struct LoginRejectionSurfacingTests {
         }
 
         #expect(result != .failure(.authenticationRequired))
-        // `.unknown` is a plain refusal on this path, which `LoginReducer` classifies as `rejected`.
+        // This page carries the marker but no readable reason, so there is nothing to quote and the
+        // generic refusal is correct. `LoginReducer` classifies it as `rejected`.
         #expect(result == .failure(.unknown))
+    }
+
+    // The same site-wide marker on a page that DOES carry the forum's error box. The marker must not
+    // short-circuit the reading below it: this branch runs first, so throwing on it would have made
+    // the forum's own wording — and the CAPTCHA detection beside it — unreachable on the pages where
+    // they matter most, since a refusal page is a login form and a login form links to the marker.
+    @Test
+    func theSiteMarkerDoesNotSuppressTheForumsOwnReason() async {
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.bounceLoginRejectionPage)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result == .failure(.loginRejected("You must enter a username")))
     }
 
     @Test
@@ -139,6 +159,19 @@ struct LoginRejectionSurfacingTests {
     private static let bounceLoginPage = Data(
         """
         <html><body>
+        <form name="LOGIN" action="/bounce_login.php?b=d&bt=1-1" method="post">
+        <input type="submit" name="ipb_login_submit" value="Login!">
+        </form>
+        </body></html>
+        """.utf8
+    )
+
+    /// The realistic shape: the forum's error box *and* the re-login link on the same page.
+    private static let bounceLoginRejectionPage = Data(
+        """
+        <html><body><div class="maintitle">Board Message</div>
+        <div class="pformstrip">The error returned was:</div>
+        <div class="pformleft">You must enter a username</div>
         <form name="LOGIN" action="/bounce_login.php?b=d&bt=1-1" method="post">
         <input type="submit" name="ipb_login_submit" value="Login!">
         </form>
@@ -257,7 +290,7 @@ struct CaptchaGatedLoginTests {
             try await LoginRequest(username: "u", password: "p", urlSession: session).response()
         }
 
-        #expect(result == .failure(.unknown))
+        #expect(result == .failure(.loginRejected("Bad password.")))
     }
 
     /// Trimmed from the real refusal captured during UAT.

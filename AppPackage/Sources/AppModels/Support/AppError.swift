@@ -18,6 +18,14 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     case authenticationRequired
     case cloudflareChallengeFailed
     case loginCaptchaRequired
+    /// The forum refused the credential and said why, in its own words.
+    ///
+    /// Carries the message from the forum's error box verbatim, already markup-stripped and length
+    /// bounded by `Parser.parseLoginErrorMessage`. It exists because that reason was previously
+    /// parsed, logged and then dropped: every refusal — a wrong password, a missing field, the
+    /// attempt-lockout — arrived on screen as `.unknown`, so the app knew exactly what had happened
+    /// and told the user nothing.
+    case loginRejected(String)
     case unsupportedDeepLink
     case fileOperationFailed(String)
     case noUpdates
@@ -28,8 +36,10 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
 extension AppError {
     public var isRetryable: Bool {
         switch self {
+        // `.loginRejected` is retryable: unlike a CAPTCHA gate, a refused credential is exactly the
+        // condition a corrected one clears, and it reported as `.unknown` (retryable) until now.
         case .networkingFailed, .parseFailed,
-             .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
+             .fileOperationFailed, .noUpdates, .unknown, .webImageFailed, .loginRejected:
             return true
         case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
              .ipBanned, .cloudflareChallengeFailed, .loginCaptchaRequired, .unsupportedDeepLink:
@@ -58,6 +68,8 @@ extension AppError {
             return String(localized: .appErrorCloudflareChallengeFailed)
         case .loginCaptchaRequired:
             return String(localized: .appErrorLoginCaptchaRequired)
+        case .loginRejected:
+            return String(localized: .appErrorLoginRejected)
         case .unsupportedDeepLink:
             return String(localized: .appErrorUnsupportedDeepLink)
         case .fileOperationFailed:
@@ -96,6 +108,11 @@ extension AppError {
             return String(localized: .appErrorCloudflareChallengeFailedDescription)
         case .loginCaptchaRequired:
             return String(localized: .appErrorLoginCaptchaRequiredDescription)
+        case .loginRejected(let reason):
+            // The forum's own wording, verbatim — the same treatment `.expunged` gives a
+            // server-supplied reason. Substituting app-authored copy here would discard the only
+            // part of the response that distinguishes one refusal from another.
+            return reason
         case .unsupportedDeepLink:
             return String(localized: .appErrorUnsupportedDeepLinkDescription)
         case .fileOperationFailed(let reason):
@@ -131,8 +148,10 @@ extension AppError {
             String(localized: .appErrorQuotaExceededSolution)
         case .notFound:
             String(localized: .appErrorNotFoundSolution)
+        // `.loginRejected` carries the forum's own explanation as its alert text, which is more
+        // specific than any solution this app could write for it.
         case .copyrightClaim, .expunged, .webImageFailed, .parseFailed, .fileOperationFailed,
-             .noUpdates, .unknown:
+             .noUpdates, .unknown, .loginRejected:
             nil
         }
     }

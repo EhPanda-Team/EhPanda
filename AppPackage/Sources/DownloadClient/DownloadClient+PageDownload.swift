@@ -321,8 +321,12 @@ extension DownloadCoordinator {
     /// so a per-page occurrence is treated like any other page failure rather than aborting the batch.
     public func isFatalAccountAppError(_ error: AppError) -> Bool {
         switch error {
+        // `.loginRejected` is unreachable from a page batch — it is thrown only by the login POST —
+        // but it is account-level auth by the rule above, so it is classified with its neighbours
+        // rather than defaulted. If a future path ever does surface it here, aborting the batch is
+        // the safe reading: no page request succeeds while the credential is refused.
         case .quotaExceeded, .authenticationRequired, .ipBanned, .cloudflareChallengeFailed,
-             .loginCaptchaRequired:
+             .loginCaptchaRequired, .loginRejected:
             return true
         case .copyrightClaim, .expunged, .networkingFailed,
              .webImageFailed, .parseFailed, .fileOperationFailed, .noUpdates,

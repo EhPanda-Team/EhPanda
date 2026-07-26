@@ -18,12 +18,15 @@ struct AppErrorKindTests {
     // other rendering the mirrored value legitimately carries.
     private static let sentinel = "zqxsentinelerror4718"
 
-    // `AppError` has fifteen cases. Counting them here rather than trusting the mirror to be
-    // complete is the point: if a sixteenth is added, `AppErrorKind.init(_:)` stops compiling and
+    // `AppError` has sixteen cases. Counting them here rather than trusting the mirror to be
+    // complete is the point: if a seventeenth is added, `AppErrorKind.init(_:)` stops compiling and
     // this number stops matching, and both have to be answered deliberately.
+    //
+    // It has already earned its keep once: `.loginRejected` tripped both halves at the moment it was
+    // added, which is exactly when someone had to decide whether its payload was safe to count.
     @Test
     func theMirrorHasOneCasePerAppErrorCase() {
-        #expect(AppErrorKind.allCases.count == 15)
+        #expect(AppErrorKind.allCases.count == 16)
     }
 
     @Test
@@ -31,13 +34,15 @@ struct AppErrorKindTests {
         #expect(AppErrorKind.allCases.map(\.rawValue) == [
             "copyrightClaim", "ipBanned", "expunged", "networkingFailed", "webImageFailed",
             "parseFailed", "quotaExceeded", "authenticationRequired", "cloudflareChallengeFailed",
-            "loginCaptchaRequired", "unsupportedDeepLink", "fileOperationFailed", "noUpdates",
-            "notFound", "unknown"
+            "loginCaptchaRequired", "loginRejected", "unsupportedDeepLink", "fileOperationFailed",
+            "noUpdates", "notFound", "unknown"
         ])
     }
 
-    // The three String-carrying cases and the one carrying a `BanInterval` are constructed with
+    // The four String-carrying cases and the one carrying a `BanInterval` are constructed with
     // sentinel payloads, so the mapping is exercised on exactly the values that could leak.
+    // `.loginRejected` matters most of the four: its payload is remote text the app deliberately
+    // shows the user, so it is the one a reader is most likely to assume is safe to forward.
     @Test(arguments: [
         ErrorKindFixture(error: .copyrightClaim(AppErrorKindTests.sentinel), kind: .copyrightClaim),
         ErrorKindFixture(error: .ipBanned(.unrecognized(content: AppErrorKindTests.sentinel)), kind: .ipBanned),
@@ -49,6 +54,7 @@ struct AppErrorKindTests {
         ErrorKindFixture(error: .authenticationRequired, kind: .authenticationRequired),
         ErrorKindFixture(error: .cloudflareChallengeFailed, kind: .cloudflareChallengeFailed),
         ErrorKindFixture(error: .loginCaptchaRequired, kind: .loginCaptchaRequired),
+        ErrorKindFixture(error: .loginRejected(AppErrorKindTests.sentinel), kind: .loginRejected),
         ErrorKindFixture(error: .unsupportedDeepLink, kind: .unsupportedDeepLink),
         ErrorKindFixture(error: .fileOperationFailed(AppErrorKindTests.sentinel), kind: .fileOperationFailed),
         ErrorKindFixture(error: .noUpdates, kind: .noUpdates),
@@ -101,6 +107,7 @@ struct AppErrorKindTests {
         ErrorCategoryFixture(kind: .authenticationRequired, category: .appState),
         ErrorCategoryFixture(kind: .cloudflareChallengeFailed, category: .thrownException),
         ErrorCategoryFixture(kind: .loginCaptchaRequired, category: .userInput),
+        ErrorCategoryFixture(kind: .loginRejected, category: .userInput),
         ErrorCategoryFixture(kind: .unsupportedDeepLink, category: .userInput),
         ErrorCategoryFixture(kind: .fileOperationFailed, category: .thrownException),
         ErrorCategoryFixture(kind: .noUpdates, category: .appState),
