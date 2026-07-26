@@ -38,7 +38,7 @@ Events carry TelemetryDeck's built-in anonymous per-install identifier, hashed o
 
 Turning off "Share Analytics Data" stops every one of the events described above, along with the six app settings that accompany them. Your installation is still counted, so the maintainers can tell how many people use the app: that means the anonymous identifier, and the technical details in the paragraph above, are still sent once per session. Switching it off makes you far less legible, but it does not make the app silent.
 
-A build made without the local analytics configuration file (`Config/Analytics.local.xcconfig`) sends nothing at all, whatever that setting says. Contributor builds from source and any release cut without that file have analytics silently disabled.
+Official releases are built with analytics credentials, which the release workflow supplies from repository secrets, so they send the events described above unless you turn the setting off. A build made without those credentials sends nothing at all, whatever that setting says: contributor builds from source and forks have analytics disabled because the credentials are absent.
 
 ## Questions & Feedback
 [![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
