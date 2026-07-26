@@ -59,9 +59,10 @@ struct LoginRejectionSurfacingTests {
         }
 
         #expect(result != .failure(.authenticationRequired))
-        // This page carries the marker but no readable reason, so there is nothing to quote and the
-        // generic refusal is correct. `LoginReducer` classifies it as `rejected`.
-        #expect(result == .failure(.unknown))
+        // This page carries the marker but no readable reason, so there is nothing to quote — but it
+        // is still a refusal, and reporting it as `.unknown` would discard the part that is certain.
+        #expect(result != .failure(.unknown))
+        #expect(result == .failure(.loginRejected(nil)))
     }
 
     // The same site-wide marker on a page that DOES carry the forum's error box. The marker must not

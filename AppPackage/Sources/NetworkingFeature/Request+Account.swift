@@ -137,11 +137,11 @@ public struct LoginRequest: Request {
             throw captchaGated ? AppError.loginCaptchaRequired : AppError.loginRejected(message)
         }
         if refusedWithoutDiagnosis {
-            // The page says the credential did not take but carries no readable reason. A refusal
-            // with nothing to quote is exactly what `.unknown` means; throwing still keeps the
-            // rejection page's Set-Cookie tombstones away from the jar.
-            logger.warning("Login refused with no readable reason; reporting unknown.")
-            throw AppError.unknown
+            // The page says the credential did not take but carries no readable reason. Still a
+            // login refusal, reported as one: `.unknown` would discard the half of this that is
+            // certain. Throwing also keeps the rejection page's Set-Cookie tombstones out of the jar.
+            logger.warning("Login refused with no readable reason.")
+            throw AppError.loginRejected(nil)
         }
         // No error box and no recognised site error, yet a login can still not have happened. The
         // form's own submit control is the cheapest tell that the page came back as the login form

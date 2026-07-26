@@ -18,14 +18,19 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     case authenticationRequired
     case cloudflareChallengeFailed
     case loginCaptchaRequired
-    /// The forum refused the credential and said why, in its own words.
+    /// The forum refused the credential, with its own explanation when it gave one.
     ///
-    /// Carries the message from the forum's error box verbatim, already markup-stripped and length
-    /// bounded by `Parser.parseLoginErrorMessage`. It exists because that reason was previously
-    /// parsed, logged and then dropped: every refusal — a wrong password, a missing field, the
-    /// attempt-lockout — arrived on screen as `.unknown`, so the app knew exactly what had happened
-    /// and told the user nothing.
-    case loginRejected(String)
+    /// A non-nil payload is the message from the forum's error box verbatim, already markup-stripped
+    /// and length bounded by `Parser.parseLoginErrorMessage`. It exists because that reason was
+    /// previously parsed, logged and then dropped: every refusal — a wrong password, a missing field,
+    /// the attempt-lockout — arrived on screen as `.unknown`, so the app knew exactly what had
+    /// happened and told the user nothing.
+    ///
+    /// `nil` is the refusal whose page carried no readable reason. It is still this case and not
+    /// `.unknown`: the app does not know *why* the sign-in was refused, but it does know **that** it
+    /// was, and reporting a known login failure as an unknown error throws away the half that is
+    /// certain.
+    case loginRejected(String?)
     case unsupportedDeepLink
     case fileOperationFailed(String)
     case noUpdates
@@ -111,8 +116,10 @@ extension AppError {
         case .loginRejected(let reason):
             // The forum's own wording, verbatim — the same treatment `.expunged` gives a
             // server-supplied reason. Substituting app-authored copy here would discard the only
-            // part of the response that distinguishes one refusal from another.
-            return reason
+            // part of the response that distinguishes one refusal from another. When the page
+            // carried no reason there is nothing to quote, so the app says that plainly rather than
+            // retreating to "unknown error" and discarding what it does know.
+            return reason ?? String(localized: .appErrorLoginRejectedDescription)
         case .unsupportedDeepLink:
             return String(localized: .appErrorUnsupportedDeepLinkDescription)
         case .fileOperationFailed(let reason):

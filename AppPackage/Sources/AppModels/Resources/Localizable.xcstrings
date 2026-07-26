@@ -780,6 +780,47 @@
         }
       }
     },
+    "app_error.login_rejected_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The site refused the sign-in without saying why.\nCheck your username and password, then try again."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Website hat die Anmeldung ohne Angabe von Gründen abgelehnt.\nÜberprüfe Benutzername und Passwort und versuche es erneut."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サイトは理由を示さずにサインインを拒否しました。\nユーザー名とパスワードを確認して、もう一度お試しください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사이트가 이유를 밝히지 않고 로그인을 거부했습니다.\n사용자 이름과 비밀번호를 확인한 후 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网站拒绝了本次登录，但未说明原因。\n请检查用户名和密码后重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網站拒絕了本次登入，但未說明原因。\n請檢查使用者名稱和密碼後再試一次。"
+          }
+        }
+      }
+    },
     "app_error.network_error": {
       "extractionState": "manual",
       "localizations": {
