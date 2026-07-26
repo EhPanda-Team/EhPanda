@@ -786,37 +786,78 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The site refused the sign-in without saying why.\nCheck your username and password, then try again."
+            "value": "The site refused the sign-in without saying why."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Website hat die Anmeldung ohne Angabe von Gründen abgelehnt.\nÜberprüfe Benutzername und Passwort und versuche es erneut."
+            "value": "Die Website hat die Anmeldung ohne Angabe von Gründen abgelehnt."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サイトは理由を示さずにサインインを拒否しました。\nユーザー名とパスワードを確認して、もう一度お試しください。"
+            "value": "サイトは理由を示さずにサインインを拒否しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "사이트가 이유를 밝히지 않고 로그인을 거부했습니다.\n사용자 이름과 비밀번호를 확인한 후 다시 시도해 주세요."
+            "value": "사이트가 이유를 밝히지 않고 로그인을 거부했습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "网站拒绝了本次登录，但未说明原因。\n请检查用户名和密码后重试。"
+            "value": "网站拒绝了本次登录，但未说明原因。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "網站拒絕了本次登入，但未說明原因。\n請檢查使用者名稱和密碼後再試一次。"
+            "value": "網站拒絕了本次登入，但未說明原因。"
+          }
+        }
+      }
+    },
+    "app_error.login_rejected_solution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your username and password, then try again.\nIf it keeps failing, sign in through the website using the globe button in the top-right corner."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überprüfe Benutzername und Passwort und versuche es erneut.\nWenn es weiterhin fehlschlägt, melde dich über die Website an: Nutze die Globus-Schaltfläche oben rechts."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ユーザー名とパスワードを確認して、もう一度お試しください。\n失敗が続く場合は、右上の地球儀ボタンからウェブサイトでサインインしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 이름과 비밀번호를 확인한 후 다시 시도해 주세요.\n계속 실패하면 오른쪽 위의 지구본 버튼을 눌러 웹사이트에서 로그인해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查用户名和密码后重试。\n如果仍然失败，请点击右上角的地球按钮，通过网站登录。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請檢查使用者名稱和密碼後再試一次。\n如果仍然失敗，請點選右上角的地球按鈕，透過網站登入。"
           }
         }
       }
