@@ -129,6 +129,50 @@ struct AnalyticsEmissionTests {
         #expect(leaves.contains(where: { $0.contains(Self.sentinelKeyword) }) == false)
     }
 
+    // MARK: Gallery detail push (SearchRootReducer)
+
+    // The Search tab's phone-side push. `.galleryTapped` routes by device idiom — iPad to the
+    // app-root modal, iPhone to this push — so an unwired push does not merely undercount: it makes
+    // search-originated opens appear to come from iPads only, which reads as a real behavioural
+    // finding rather than as missing instrumentation.
+    @MainActor
+    @Test
+    func pushingAGalleryDetailRecordsOneSignalMatchingTheFixture() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let fixture = Self.sentinelGallery()
+        let expected = TagNamespaceCounts(tags: fixture.tags)
+        let store = makeSearchRootDetailStore(analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.pushGalleryDetail(fixture))
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(
+            recorded.value,
+            [.galleryDetailOpened(category: fixture.category, tagNamespaces: expected)]
+        )
+    }
+
+    // Reflect over the whole recorded signal graph and prove the fixture's distinctive title and tag
+    // text survive nowhere. A closed `Category` plus exact per-namespace counts cannot carry either
+    // sentinel (T-14-01).
+    @MainActor
+    @Test
+    func pushedGalleryDetailSignalCarriesNoFixtureTitleOrTagText() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let fixture = Self.sentinelGallery()
+        let store = makeSearchRootDetailStore(analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.pushGalleryDetail(fixture))
+        await store.skipInFlightEffects(strict: false)
+
+        #expect(recorded.value.isEmpty == false)
+        let leaves = Mirror(reflecting: recorded.value).leafRenderings
+        #expect(leaves.contains(where: { $0.contains(Self.sentinelTitle) }) == false)
+        #expect(leaves.contains(where: { $0.contains(Self.sentinelTagText) }) == false)
+    }
+
     // MARK: Filter and quick-search panels
 
     @MainActor
@@ -230,6 +274,67 @@ private extension AnalyticsClient {
 private extension AnalyticsEmissionTests {
     static let sentinelKeyword = "SENTINEL_KEYWORD_must_never_leak"
     static let sentinelWord = "SENTINEL_WORD_must_never_leak"
+    static let sentinelTitle = "SENTINEL_TITLE_must_never_leak"
+    static let sentinelTagText = "SENTINEL_TAGTEXT_must_never_leak"
+
+    // A gallery whose title and tag text are distinctive sentinels, with two recognized namespaces
+    // carrying known counts (female: 2, artist: 1) so the emitted `TagNamespaceCounts` is exactly
+    // predictable while the sentinels give the reflection assertion something to hunt for. No
+    // `galleryURL`, so the pushed detail's fetch short-circuits and no network request is made.
+    static func sentinelGallery() -> Gallery {
+        Gallery(
+            gid: "9001",
+            token: "sentinel-token",
+            title: sentinelTitle,
+            rating: 4,
+            tags: [
+                GalleryTag(rawNamespace: "female", contents: [
+                    tagContent(sentinelTagText + "-a"),
+                    tagContent(sentinelTagText + "-b")
+                ]),
+                GalleryTag(rawNamespace: "artist", contents: [
+                    tagContent(sentinelTagText + "-c")
+                ])
+            ],
+            category: .manga,
+            uploader: "Uploader",
+            pageCount: 10,
+            postedDate: Date(timeIntervalSince1970: 0),
+            coverURL: nil,
+            galleryURL: nil
+        )
+    }
+
+    static func tagContent(_ text: String) -> GalleryTag.Content {
+        GalleryTag.Content(rawNamespace: "female", text: text, isVotedUp: false, isVotedDown: false)
+    }
+
+    // A separate store from `makeSearchRootStore`: pushing a gallery detail seeds a `DetailFeature`
+    // screen, which reads dependencies the panel-only cases never touch. Plan 14-15 hit the same
+    // thing — a dependency newly read on a presentation path breaks the *caller's* suite, not the
+    // owner's — so the push case gets its own fully-supplied store rather than widening the shared
+    // one and coupling three passing cases to it.
+    @MainActor
+    func makeSearchRootDetailStore(analyticsClient: AnalyticsClient) -> TestStoreOf<SearchRootReducer> {
+        let appStorage = UserDefaults.inMemory
+
+        return withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            TestStore(
+                initialState: SearchRootReducer.State(),
+                reducer: SearchRootReducer.init,
+                withDependencies: {
+                    $0.analyticsClient = analyticsClient
+                    $0.cookieClient = .noop
+                    $0.date = .constant(.init(timeIntervalSince1970: 0))
+                    $0.defaultAppStorage = appStorage
+                    $0.downloadClient = .noop
+                    $0.hapticsClient = .noop
+                }
+            )
+        }
+    }
 
     @MainActor
     func makeSearchStore(keyword: String, analyticsClient: AnalyticsClient) -> TestStoreOf<SearchReducer> {
