@@ -205,9 +205,9 @@ struct AnalyticsDefaultParametersTests {
     // `DidLoginKeyTests` header documents; the shared setting is isolated to in-memory defaults so the
     // suite neither pollutes nor is polluted by the process-wide holder.
     @Test
-    func liveReReadsTheSharedSettingOnEveryCall() async throws {
+    func liveReReadsTheSharedSettingOnEveryCall() {
         let defaults = UserDefaults.inMemory
-        try await withDependencies {
+        withDependencies {
             $0.defaultAppStorage = defaults
             $0.cookieClient = .testing()
         } operation: {
