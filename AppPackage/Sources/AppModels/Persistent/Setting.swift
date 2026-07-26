@@ -129,6 +129,22 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public var downloadAllowCellular = Self.downloadAllowCellularDefaultValue
     public var downloadAutoRetryFailedPages = Self.downloadAutoRetryFailedPagesDefaultValue
 
+    // Analytics
+    // Optional by necessity, not by taste: synthesized `Codable` throws on a missing non-optional key,
+    // so a `Setting` blob written before this field existed would fail to decode and reset every other
+    // preference to its default. `nil` therefore means "written before the toggle shipped", which is
+    // the opt-in state the build already had. Read it through ``isSharingAnalyticsData``, not directly.
+    public var shareAnalyticsData: Bool?
+
+    /// Whether analytics may be sent, resolving the pre-toggle `nil` blob to the shipped default.
+    ///
+    /// Settable so a SwiftUI `Toggle` can bind to a plain `Bool`; writing here is what first pins the
+    /// stored value, after which `nil` never reappears.
+    public var isSharingAnalyticsData: Bool {
+        get { shareAnalyticsData ?? true }
+        set { shareAnalyticsData = newValue }
+    }
+
     // Laboratory
     public var bypassSNIFiltering = false
 }

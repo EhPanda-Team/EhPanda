@@ -17,7 +17,7 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 | `TelemetryDeck.initialize(config:)` | INTEGRATE | |
 | `TelemetryDeck.Config.init(appID:)` | INTEGRATE | |
 | `TelemetryDeck.Config.salt` | INTEGRATE | Set once from the gitignored local xcconfig; permanent commitment, owner-confirmed in plan `14-02`. |
-| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal. |
+| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal. Returns empty for an opted-out install, so no app-authored parameter rides on the session signal. |
 | `TelemetryDeck.Config.sendNewSessionBeganSignal` | INTEGRATE | Kept at its `true` default; this *is* D-05 family 1 (launch / foreground). |
 | `TelemetryDeck.Config.sessionStatsEnabled` | INTEGRATE | Kept at its `true` default; feeds the vendor's built-in session insights. |
 | `TelemetryDeck.Config.testMode` | INTEGRATE | Kept at its auto-`DEBUG` default so debug builds are segregated server-side. |
@@ -34,7 +34,7 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 | `TelemetryDeck.Config.cacheLimit` | OPT-OUT | Not needed — the 10 000 default is correct; tuning transport is explicitly out of scope. |
 | `TelemetryDeck.Config.transmitInterval` | OPT-OUT | Not needed — the 10 s default is correct. |
 | `TelemetryDeck.Config.maxBackoffInterval` | OPT-OUT | Not needed — the 300 s default is correct. |
-| `TelemetryDeck.Config.analyticsDisabled` | OPT-OUT | D-01 — there is no runtime opt-out; D-13's absent-app-ID gate is the only disable mechanism, and it resolves before the SDK is touched. |
+| `TelemetryDeck.Config.analyticsDisabled` | OPT-OUT | Supersedes D-01 (owner reversed it 2026-07-26): a runtime opt-out now exists, but it gates `AnalyticsClient.send` so install counts survive. This flag would silence the session signal too. |
 | `TelemetryDeck.Config.metadataEnrichers` (`SignalEnricher`) | OPT-OUT | Explicitly out of scope — a second parameter-injection point would sit outside the D-09 type wall; `defaultParameters` covers the same need inside it. |
 | `TelemetryDeck.Config.sendSignalsInDebugConfiguration` | OPT-OUT | Deprecated in the SDK in favour of `testMode`; this project does not accept deprecation warnings. |
 | `TelemetryDeck.Config.showDebugLogs` | OPT-OUT | Deprecated in the SDK in favour of `logHandler`. |
