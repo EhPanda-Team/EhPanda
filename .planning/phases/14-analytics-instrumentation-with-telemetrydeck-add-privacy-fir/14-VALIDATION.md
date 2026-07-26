@@ -3,9 +3,9 @@ phase: 14
 slug: analytics-instrumentation-with-telemetrydeck-add-privacy-fir
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-24
 ---
 
@@ -95,8 +95,8 @@ created: 2026-07-24
 |----------|-------------|------------|-------------------|
 | Behavior | Requirement | Why Manual | Status |
 |----------|-------------|------------|--------|
-| Signals actually arrive in the TelemetryDeck dashboard | D-10 | Requires a real app ID and the vendor's ingestion endpoint; not reachable from a test target | ⬜ **pending owner** — Check B in plan 14-18 Task 2; blocked on the owner creating `Config/Analytics.local.xcconfig` per `14-USER-SETUP.md` |
-| A build with **no** app ID ships zero network traffic | D-13 | Negative network assertion is not expressible in the unit suite | ⬜ **pending owner** — Check A in plan 14-18 Task 2; requires a network inspection proxy |
+| Signals actually arrive in the TelemetryDeck dashboard | D-10 | Requires a real app ID and the vendor's ingestion endpoint; not reachable from a test target | ✅ **verified 2026-07-26** — Check B below. Delivery confirmed at the ingestion endpoint (8/8 `POST /v2/` → `200 OK`) with decrypted payload inspection. Visual confirmation in the vendor's web console was not separately performed. |
+| A build with **no** app ID ships zero network traffic | D-13 | Negative network assertion is not expressible in the unit suite | ✅ **verified by owner 2026-07-26** — Check A in plan 14-18 Task 2. See the Check A record below. |
 
 ---
 
@@ -107,7 +107,7 @@ created: 2026-07-24
 - [x] Wave 0 covers all MISSING references
 - [x] No watch-mode flags
 - [x] Feedback latency < 76s (full suite; single-target filters ~25-50s)
-- [ ] `nyquist_compliant: true` set in frontmatter — **held pending the two owner checks below**
+- [x] `nyquist_compliant: true` set in frontmatter — released 2026-07-26 on Checks A and B; this flag tracks test-sampling adequacy, which is unaffected by the Check C disclosure gap recorded under Approval
 
 ## Whole-Phase Static Verification (14-18 Task 1, 2026-07-25)
 
@@ -123,4 +123,94 @@ created: 2026-07-24
 | Clean build warnings | ✅ 0 code warnings; the single log line is `appintentsmetadataprocessor` noting no AppIntents dependency, which is not a code warning |
 | SDK pin is a 2.x stable tag | ✅ TelemetryDeck/SwiftSDK **2.14.1**, no pre-release suffix |
 
-**Approval:** ⬜ **pending owner** — every automated and static check passes. The two manual-only rows above (Checks A and B of plan 14-18 Task 2) are the remaining gate; the phase is not verified until the owner runs them.
+## Check A — Silence Without a Credential (14-18 Task 2, 2026-07-26)
+
+D-13's terminal check: a build carrying no app ID must reach the ingestion host zero times.
+
+**Preconditions confirmed before the run**
+
+| Precondition | Evidence |
+|--------------|----------|
+| Working tree credential-free | `git status --porcelain Config/` empty; `Config/` holds only the tracked `Analytics.xcconfig` |
+| Built bundle carries no credential | `TelemetryDeckAppID` and `TelemetryDeckSalt` both read back empty (length 0) from the **built** `EhPanda.app/Info.plist`, not the source plist |
+| Bundle is not a stale artifact | Freshly built at 10:22 on the day of the check |
+
+**Method** — Proxyman capturing the simulator via the macOS system proxy, no certificate installed (undecrypted HTTPS still exposes the CONNECT host, which is all a presence/absence check needs). Positive control taken first: with the filter cleared, the app's ordinary `e-hentai.org` and image-CDN traffic appeared, proving capture was live. Filter then set to `Host` `Contains` `telemetrydeck`. Flows run, then a 25 s wait to cover the SDK's 10 s `transmitInterval` so an unflushed batch could not masquerade as silence.
+
+**Flows exercised** — two Home sections (Frontpage, Toplists–Yesterday), a gallery detail open, a reader session opened and closed, a tab switch, and a tag-syntax search (`Language:chinese big breasts`). Six emissions across five of the thirteen signal cases, plus the SDK's own `sendNewSessionBeganSignal` at init.
+
+**Result: ✅ PASS — zero requests.** 79 domains captured overall; zero rows matching `telemetrydeck`.
+
+The absent session-start signal is the load-bearing part: that signal is emitted by the SDK itself rather than by app instrumentation, so its absence shows the D-13 gate resolves *before* the SDK is initialized, rather than merely suppressing app-level call sites.
+
+---
+
+## Check B, Live Delivery and Payload Inspection (14-18 Task 2, 2026-07-26)
+
+A build carrying the real app ID and salt, run against the same instrumented flows as Check A, captured through a decrypting proxy so the inspection reads the bytes that left the device rather than the vendor's post-parse view.
+
+**Delivery:** 8 requests, all `POST https://nom.telemetrydeck.com/v2/` returning `200 OK`. Every emitted signal is accounted for: `TelemetryDeck.Session.started`, `Navigation.homeSectionViewed` (2), `Navigation.galleryDetailOpened`, `Reading.sessionEnded`, `Navigation.tabOpened` (4), `Search.performed`. Nothing unexpected was sent.
+
+**Forbidden-value sweep** over every request body, with a positive control (`App.readingDirection` matched 8/8) proving the body search was live rather than silently matching nothing:
+
+| Probe | Meaning | Matches |
+|-------|---------|---------|
+| `big breasts`, `chinese` | search keyword text | 0 |
+| `女王` | gallery title | 0 |
+| `lgtx486` | uploader name | 0 |
+| `4073049` | gallery identifier | 0 |
+| `3899c10fdd` | gallery token | 0 |
+| `http` | any URL | 0 |
+
+No `Cookie` header on any request.
+
+**Payload shape confirmed on the three highest-risk signals**
+
+| Signal | Observed payload |
+|--------|------------------|
+| `Search.performed` | `keywordLength: 28`, `wordCount: 2-5`, `usedTagSyntax: true`, `resultCount: 21-50`. A 28-character, 4-word tag-syntax query rendered as numbers and a flag. |
+| `Navigation.galleryDetailOpened` | `category: manga`, `tagNamespace.language: 1`, `tagNamespace.female: 11`. About 30 tags reduced to two namespace counts, no values. |
+| `Reading.sessionEnded` | `pagesRead: 1`, `duration: 10-60s`, with no reference to which gallery was read. |
+
+**D-11 per-signal freshness confirmed.** Within one `sessionID` and with no relaunch, `Search.performed` at 08:29:11 carried `App.readingDirection: leftToRight` and `Navigation.tabOpened` at 08:29:47 carried `vertical`. The parameters are re-read at emission, not snapshotted at launch. All six `App.*` parameters were present on every signal, and `clientUser` was a 64-character device hash (D-10), with `isTestMode: true` throughout.
+
+**Result: ✅ PASS.** Visual confirmation in the vendor's web console was not separately performed; delivery is evidenced by the ingestion endpoint's `200` responses plus the decrypted bodies.
+
+---
+
+## Check C, Disclosure Against Observed Reality (14-18 Task 2, 2026-07-26)
+
+**Finding: the README's never-collected list held, but the section understated the payload.** Nothing on the never-send list appeared, yet every signal also carried SDK-attached enrichment the disclosure did not mention: device model, architecture, screen metrics and orientation, OS version, locale, region and time zone, seven accessibility settings, appearance, retention and session counts, first-session date, and the date and time of day of the event. `Search.resultCount` was likewise absent from the section's description of a search.
+
+This is the case threat **T-14-17** exists to catch, and it was reachable only by reading the disclosure against observed traffic rather than against intent. The accessibility flags carry the most weight, since reduce-motion, bold-text and text-size settings can imply disability status, and `region` plus `timeZone` are coarse location.
+
+**Resolution:** the code was left unchanged, since the enrichment follows from the `sessionStatsEnabled: INTEGRATE` decision already recorded in `COVERAGE.md`. `README.md` was extended to disclose the enrichment and the search result count. The wording deliberately describes the SDK's date and time-of-day fields as "the date and time of day the event was sent" and never as calendar data, so a reader cannot mistake them for personal calendar events, and without an explicit denial that would plant the same idea.
+
+**Second finding: the disclosure exists in English only.** `READMEs/README.chs.md`, `.cht.md`, `.de.md`, `.jpn.md` and `.ko.md` are structurally identical to `README.md` but carry no `## Analytics` section and no mention of the vendor at all. The section sits between Content & Copyright and Questions & Feedback in English and is simply absent from all five. A reader of any translated README receives no disclosure, which is a wider gap than the enrichment omission above.
+
+**Result: ✅ PASS after the README corrections.** The English disclosure now matches observed traffic, and the section was added to all five translated READMEs (`chs`, `cht`, `de`, `jpn`, `ko`) once the wording had settled around the opt-out. All six sit at the same position, between Content & Copyright and Questions & Feedback, and each names the opt-out path using that locale's own UI strings, verified against the string catalogs rather than translated by feel (this caught two wrong paths: Simplified Chinese uses 一般 rather than 通用, and Traditional Chinese uses 一般設定 rather than 一般).
+
+---
+
+## Check D, The Runtime Opt-Out (added 2026-07-26, post-verification scope change)
+
+The owner reversed D-01 after Checks A to C and asked for an in-app opt-out. `Setting.shareAnalyticsData` (optional, so pre-toggle blobs still decode) gates `AnalyticsClient.send` and empties `AnalyticsDefaultParameters.snapshot`. `start` is untouched, so the SDK still initializes and its session signal still counts installs.
+
+**Automated:** full suite green, including new `SettingAnalyticsOptOutTests` (old-blob decode tolerance, opted-in resolution of `nil`, accessor round-trip) and new opt-out sweeps in `AnalyticsDefaultParametersTests` (empty snapshot under every other setting combination).
+
+**On device, same proxy method as Check A.** With "Share Analytics Data" off, the instrumented flows were run again. Telemetry flow IDs stopped at 1924 and did not advance, while `e-hentai.org` traffic from the same session reached 2261, including the search request itself. About 340 captured flows of real app activity produced zero analytics requests.
+
+Note for future verification: an injected instantaneous tap does not actuate a SwiftUI `Toggle`; a touch path with a short dwell does. Three taps appeared to be a binding failure until a known-good toggle in the same form reproduced it.
+
+---
+
+**Approval:** ✅ **owner-verified 2026-07-26.** Every automated and static check passes, and all four owner checks are complete:
+
+- **A**: a build with no credential reaches the ingestion host zero times.
+- **B**: a build with one delivers correct, leak-free payloads, confirmed against the decrypted bytes.
+- **C**: the disclosure matches observed traffic, in English and in all five translations.
+- **D**: the runtime opt-out added after the fact suppresses every app-authored signal while preserving install counts, confirmed on device.
+
+The phase reverses **D-01** (no runtime opt-out) at the owner's direction; `COVERAGE.md` records the supersession on the `analyticsDisabled` row.
+
+**Cleanup:** `Config/Analytics.local.xcconfig` was deleted after the checks, on the owner's confirmation that the write-once salt is backed up outside the repository. `Config/` holds only the tracked default and `git status --porcelain Config/` is empty, satisfying the plan's closing requirement that the working tree end credential-free.
