@@ -20,6 +20,8 @@ extension AppError {
             return .exclamationmarkShieldFill
         case .loginCaptchaRequired:
             return .checkmarkShieldFill
+        case .loginRejected:
+            return .personCropCircleFillBadgeXmark
         case .unsupportedDeepLink:
             return .exclamationmarkTriangleFill
         case .fileOperationFailed:

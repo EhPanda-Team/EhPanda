@@ -101,25 +101,24 @@ public struct LoginRequest: Request {
         // the only way to tell them apart — and throwing here also stops the failure page's
         // Set-Cookie tombstones from reaching the jar, since `setCredentials` is now the only thing
         // that files anything from this exchange and it runs on success alone.
-        if let responseError = Parser.parseResponseError(content: content) {
-            // `.authenticationRequired` is the site-wide "you are not signed in" verdict, which is
-            // meaningless as the *outcome of a login POST*: not being signed in is the premise here,
-            // not a diagnosis. It fires readily on this path too — the parser reads `bounce_login.php`
-            // as the marker, and the login form the forum hands back on a refusal is exactly the page
-            // that links to it — so an ordinary wrong password surfaced as a general authentication
-            // error, wearing copy written for another caller entirely.
-            //
-            // Reported as a plain refusal instead. `.unknown` is what that already means on this path:
-            // the error-box branch below throws it for the same condition, and
-            // `LoginReducer.loginFailureKind` maps it to `.rejected`. Every other site error keeps its
-            // own case and its tailored recovery suggestion, so a genuine quota or ban still reads as
-            // itself. Both verdicts are logged, so narrowing the surface costs no diagnostic detail.
-            let failure: AppError = responseError == .authenticationRequired ? .unknown : responseError
-            logger.warning("""
-                Login rejected: parsed=\(String(describing: responseError), privacy: .public) \
-                reported=\(String(describing: failure), privacy: .public)
-                """)
-            throw failure
+        let siteError = Parser.parseResponseError(content: content)
+        // `.authenticationRequired` is the site-wide "you are not signed in" verdict, which is
+        // meaningless as the *outcome of a login POST*: not being signed in is the premise here, not
+        // a diagnosis. It fires readily on this path too — the parser reads `bounce_login.php` as its
+        // marker, and the login form the forum hands back on a refusal is exactly the page that links
+        // to it — so an ordinary wrong password surfaced as a general authentication error, wearing
+        // copy written for another caller entirely.
+        //
+        // It does not throw here, it falls through: this branch runs *before* the login-specific
+        // reading below, so throwing on it would skip the forum's own error box and the CAPTCHA
+        // detection on every page carrying that link, which is most refusal pages. The verdict is
+        // kept only as the fallback for a page nothing further can read.
+        let refusedWithoutDiagnosis = siteError == .authenticationRequired
+        if let siteError, !refusedWithoutDiagnosis {
+            // A genuine site condition — a quota, a ban — keeps its own case and its tailored
+            // recovery suggestion rather than collapsing into a login refusal.
+            logger.warning("Login blocked by a site error: \(String(describing: siteError), privacy: .public)")
+            throw siteError
         }
         if let message = Parser.parseLoginErrorMessage(content: content) {
             // A CAPTCHA-gated form gets its own case rather than collapsing into the generic
@@ -132,7 +131,17 @@ public struct LoginRequest: Request {
                 Login rejected by the forum: \(message, privacy: .public) \
                 captchaGated=\(captchaGated, privacy: .public)
                 """)
-            throw captchaGated ? AppError.loginCaptchaRequired : AppError.unknown
+            // The message is carried rather than logged and dropped. It is the only part of the
+            // response that separates a wrong password from a missing field from the attempt
+            // lockout, and dropping it is what made every refusal arrive on screen as "unknown".
+            throw captchaGated ? AppError.loginCaptchaRequired : AppError.loginRejected(message)
+        }
+        if refusedWithoutDiagnosis {
+            // The page says the credential did not take but carries no readable reason. A refusal
+            // with nothing to quote is exactly what `.unknown` means; throwing still keeps the
+            // rejection page's Set-Cookie tombstones away from the jar.
+            logger.warning("Login refused with no readable reason; reporting unknown.")
+            throw AppError.unknown
         }
         // No error box and no recognised site error, yet a login can still not have happened. The
         // form's own submit control is the cheapest tell that the page came back as the login form
