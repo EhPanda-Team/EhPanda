@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 14
-current_phase_name: Analytics Instrumentation (TelemetryDeck)
-status: awaiting-phase-verification
-stopped_at: 14-18 complete; owner Checks A-D passed; phase verification not yet run
-last_updated: "2026-07-26T00:00:00.000Z"
-last_activity: 2026-07-26
-last_activity_desc: owner checkpoint cleared; runtime opt-out added, disclosure translated into all six locales, CI credential injection wired
+current_phase: 15
+current_phase_name: Dynamic Type Accessibility
+status: planning
+stopped_at: Phase 14 complete and verified 8/8; Phase 15 not yet planned
+last_updated: "2026-07-26T16:28:24.551Z"
+last_activity: 2026-07-27
+last_activity_desc: Phase 14 complete, transitioned to Phase 15
 progress:
   total_phases: 15
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 171
   completed_plans: 171
-  percent: 80
+  percent: 87
 ---
 
 # Project State
@@ -24,23 +24,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 14 — Analytics Instrumentation (TelemetryDeck)
+**Current focus:** Phase 15 — Dynamic Type Accessibility
 
 ## Current Position
 
-Phase: 14 (Analytics Instrumentation (TelemetryDeck)) — AWAITING VERIFICATION
-Plan: 18 of 18 complete (14-01 … 14-18); waves 1–7 complete
-Status: All plans executed and green; owner Checks A–D passed and recorded in 14-VALIDATION.md
-Last activity: 2026-07-26 — owner checkpoint cleared; D-01 reversed with a runtime opt-out, disclosure written into all six READMEs, analytics credentials injected by both deploy workflows
-Next: run phase verification to produce 14-VERIFICATION.md — `gsd-tools phase complete 14` refuses to close the phase without it
+Phase: 15 — Dynamic Type Accessibility
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-27 — Phase 14 complete, transitioned to Phase 15
+Next: plan Phase 15 — note it is human-implemented, agent verify-only (no executor agents)
 
-Progress: [██████████] 96% (13/15 phases)
+Progress: [█████████░] 87% (13/15 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 123
+- Total plans completed: 141
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -58,6 +58,7 @@ Progress: [██████████] 96% (13/15 phases)
 | 11 | 32 | - | - |
 | 12 | 6 | - | - |
 | 13 | 10 | - | - |
+| 14 | 18 | - | - |
 
 **Recent Trend:**
 
@@ -558,7 +559,7 @@ None yet.
 - Phase 11 edited: criterion 4: also remove @MainActor from tests unless a real main-actor need exists; run in parallel on any thread
 - Phase 12 added: added Deep Link Hardening: code-review + durability fixes for deep-link routing, backed by UI automation tests
 - Phase 10 edited: added success criterion: rename SystemNotificationExt module -> SystemNotification (full impl, not an extension)
-- Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics *(historical wording — D-01 later chose on-by-default with no opt-out, and the phase shipped that way as Phase 14)*
+- Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics *(historical wording — D-01 then chose on-by-default with no opt-out; the owner reversed D-01 during 14-18, so the phase shipped as Phase 14 on-by-default with a runtime opt-out in General Settings)*
 - Phase 12 added (integer, Cloudflare Login Restoration): restore username/password login broken by the Cloudflare challenge wall (403 + cf-mitigated on forums.e-hentai.org); in-app browser clearance capture, in-memory cf_clearance. Cascaded existing phases: Deep Link Hardening 12→13, Analytics/TelemetryDeck 13→14, Dynamic Type Accessibility 14→15 (owner chose integer over decimal 12.1)
 
 ## Deferred Items
