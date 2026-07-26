@@ -18,6 +18,19 @@ public struct ErrorInfoView: View {
             Form {
                 Section(.errorInfoDescription) {
                     Text(errorInfo.error.localizedDescription)
+                    // The detail, which this view previously dropped: `localizedDescription` is only
+                    // the short title, so everything that distinguishes one occurrence of an error
+                    // from another — the forum's refusal wording, the expunge reason, the failed
+                    // file operation, the ban's remaining interval — reached the toast and then
+                    // vanished on the way to the surface built to explain it.
+                    //
+                    // Skipped when empty (`.noUpdates`, `.webImageFailed`) and when it merely repeats
+                    // the title, so no error gains a duplicated row.
+                    if !errorInfo.error.alertText.isEmpty,
+                       errorInfo.error.alertText != errorInfo.error.localizedDescription {
+                        Text(errorInfo.error.alertText)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 if let solution = errorInfo.error.solution {
                     Section(.errorInfoSolution) {

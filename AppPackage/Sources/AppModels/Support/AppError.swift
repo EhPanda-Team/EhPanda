@@ -147,6 +147,10 @@ extension AppError {
             String(localized: .appErrorCloudflareChallengeSolution)
         case .loginCaptchaRequired:
             String(localized: .appErrorLoginCaptchaSolution)
+        case .loginRejected:
+            // Applies whether or not the forum gave a reason: the credential is the first thing to
+            // re-check, and the web-login route is the escalation when it is not the problem.
+            String(localized: .appErrorLoginRejectedSolution)
         case .unsupportedDeepLink:
             String(localized: .appErrorUnsupportedDeepLinkSolution)
         case .ipBanned:
@@ -155,10 +159,8 @@ extension AppError {
             String(localized: .appErrorQuotaExceededSolution)
         case .notFound:
             String(localized: .appErrorNotFoundSolution)
-        // `.loginRejected` carries the forum's own explanation as its alert text, which is more
-        // specific than any solution this app could write for it.
         case .copyrightClaim, .expunged, .webImageFailed, .parseFailed, .fileOperationFailed,
-             .noUpdates, .unknown, .loginRejected:
+             .noUpdates, .unknown:
             nil
         }
     }

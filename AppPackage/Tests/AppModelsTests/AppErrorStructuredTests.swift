@@ -68,13 +68,13 @@ struct AppErrorStructuredTests {
             alertText: "You must enter a password."
         ),
         // A refusal the page gave no reason for is still a refusal, never an unknown error: the
-        // title is unchanged and the body says plainly that no reason was given.
+        // title is unchanged and the body says plainly that no reason was given. What to do about it
+        // lives in `solution`, asserted separately.
         Expectation(
             error: .loginRejected(nil),
             isRetryable: true,
             localizedDescription: "Login Rejected",
-            alertText: "The site refused the sign-in without saying why.\n"
-                + "Check your username and password, then try again."
+            alertText: "The site refused the sign-in without saying why."
         ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
@@ -114,7 +114,28 @@ struct AppErrorStructuredTests {
         #expect(AppError.ipBanned(.minutes(minutes: 1, seconds: nil)).solution != nil)
         #expect(AppError.quotaExceeded.solution != nil)
         #expect(AppError.notFound.solution != nil)
+        // Both shapes of a refusal are actionable, and by the same route: re-check the credential,
+        // then fall back to the web-login button. A reasonless refusal needs it most, since its
+        // description has nothing else to offer.
+        #expect(AppError.loginRejected("Bad password.").solution != nil)
+        #expect(AppError.loginRejected(nil).solution != nil)
         #expect(AppError.parseFailed.solution == nil)
+    }
+
+    // Every part of an error the detail surface renders must be non-empty and distinct, or the
+    // surface built to explain the failure repeats the title twice and explains nothing. This is the
+    // shape `ErrorInfoView` reads: title, detail, recovery.
+    @Test
+    func aRefusalIsFullyDescribedForTheDetailSurface() throws {
+        for error in [AppError.loginRejected("You must enter a username"), .loginRejected(nil)] {
+            let localizedError: any LocalizedError = error
+
+            #expect(!error.localizedDescription.isEmpty)
+            #expect(!error.alertText.isEmpty)
+            #expect(error.alertText != error.localizedDescription)
+            #expect(error.solution != nil)
+            #expect(localizedError.recoverySuggestion == error.solution)
+        }
     }
 
     @Test
