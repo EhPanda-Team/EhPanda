@@ -123,6 +123,9 @@ public struct SearchRootReducer: Sendable {
 
             case .galleryTapped(let gallery),
                  let .path(.element(id: _, action: .search(.delegate(.pushDetail(gallery))))):
+                // No analytics here: this tap routes to a phone push (`.pushGalleryDetail`, counted
+                // there) or an iPad modal (counted by the app-root `presentGalleryDetail`); emitting
+                // at the tap would double-count one open across the two device paths (T-14-13).
                 return GalleryNavigation.routeGalleryDetail(
                     deviceType: deviceClient.deviceType,
                     present: { .delegate(.presentGalleryDetail(gallery)) },
@@ -131,10 +134,25 @@ public struct SearchRootReducer: Sendable {
 
             case .pushGalleryDetail(let gallery):
                 let screen = GalleryPath.State.detail(.init(gallery: gallery))
-                return GalleryNavigation.presentationEffect(
-                    id: state.path.appendGuardingDuplicate(.gallery(screen)),
-                    screen: screen,
-                    embed: { .path(.element(id: $0, action: .gallery($1))) }
+                return .merge(
+                    GalleryNavigation.presentationEffect(
+                        id: state.path.appendGuardingDuplicate(.gallery(screen)),
+                        screen: screen,
+                        embed: { .path(.element(id: $0, action: .gallery($1))) }
+                    ),
+                    // Same content-free derivation as the other four gallery-detail entry paths: a
+                    // closed `Category` plus exact per-namespace tag counts — no gid, token, title,
+                    // URL or tag text (D-06, D-09).
+                    //
+                    // Load-bearing because of the device split above: without it a search-originated
+                    // open is recorded from iPads only, so the metric is not merely short but skewed
+                    // by device idiom — worse than an absent one, since it still looks complete.
+                    .run(operation: { _ in
+                        analyticsClient.send(.galleryDetailOpened(
+                            category: gallery.category,
+                            tagNamespaces: TagNamespaceCounts(tags: gallery.tags)
+                        ))
+                    })
                 )
 
             case .delegate:
