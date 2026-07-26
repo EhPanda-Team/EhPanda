@@ -60,6 +60,13 @@ struct AppErrorStructuredTests {
             localizedDescription: "Authentication Required",
             alertText: "Login required to access this content."
         ),
+        // The forum's own refusal wording is the alert text, verbatim — the point of the case.
+        Expectation(
+            error: .loginRejected("You must enter a password."),
+            isRetryable: true,
+            localizedDescription: "Login Rejected",
+            alertText: "You must enter a password."
+        ),
         Expectation(
             error: .fileOperationFailed("Disk full."),
             isRetryable: true,
@@ -153,6 +160,7 @@ struct AppErrorStructuredTests {
             .authenticationRequired,
             .cloudflareChallengeFailed,
             .loginCaptchaRequired,
+            .loginRejected("You must enter a password."),
             .fileOperationFailed("Disk full."),
             .noUpdates,
             .notFound,
