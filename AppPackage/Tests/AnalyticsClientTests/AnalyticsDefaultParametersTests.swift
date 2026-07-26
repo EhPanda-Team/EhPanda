@@ -146,6 +146,55 @@ struct AnalyticsDefaultParametersTests {
         #expect(parameters["App.translateTags"] == (enabled ? "true" : "false"))
     }
 
+    // MARK: The opt-out
+
+    // The runtime opt-out's half of the contract that lives in this file. An opted-out install still
+    // emits the SDK's own session signal — that is what keeps install and retention counts working —
+    // so the guarantee cannot be "nothing is sent"; it has to be "no app-authored parameter rides on
+    // what is sent". Asserting emptiness rather than a smaller key set is deliberate: a future
+    // parameter added to `snapshot` above the guard would leak onto an opted-out user's session
+    // signal, and this fails the moment it does.
+    @Test
+    func snapshotIsEmptyWhenTheUserHasOptedOut() {
+        var setting = Self.baseSetting()
+        setting.isSharingAnalyticsData = false
+
+        #expect(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: false).isEmpty)
+        #expect(AnalyticsDefaultParameters.snapshot(setting: setting, didLogin: true).isEmpty)
+    }
+
+    // The opt-out must not depend on any other field's value, or a particular combination of
+    // preferences could keep leaking parameters after the user opted out.
+    @Test
+    func optingOutEmptiesTheSnapshotUnderEveryOtherSetting() {
+        for host in GalleryHost.allCases {
+            for direction in ReadingDirection.allCases {
+                for mode in ListDisplayMode.allCases {
+                    for didLogin in [true, false] {
+                        var setting = Self.baseSetting()
+                        setting.galleryHost = host
+                        setting.readingDirection = direction
+                        setting.listDisplayMode = mode
+                        setting.isSharingAnalyticsData = false
+
+                        let parameters = AnalyticsDefaultParameters.snapshot(
+                            setting: setting, didLogin: didLogin
+                        )
+
+                        #expect(parameters.isEmpty, "leaked \(parameters.keys.sorted()) while opted out")
+                    }
+                }
+            }
+        }
+    }
+
+    // The shipped default is opt-in, so a caller that never touches the toggle must still see all six.
+    @Test
+    func aDefaultSettingIsOptedIn() {
+        #expect(Setting().isSharingAnalyticsData)
+        #expect(AnalyticsDefaultParameters.snapshot(setting: Setting(), didLogin: false).count == 6)
+    }
+
     // MARK: The live closure
 
     // The assertion that distinguishes a closure from a snapshot: read `live` once, mutate the shared

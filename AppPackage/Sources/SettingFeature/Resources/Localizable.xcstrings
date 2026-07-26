@@ -206,6 +206,47 @@
         }
       }
     },
+    "analytics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analytics"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "분석"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析"
+          }
+        }
+      }
+    },
     "app_activity_logs" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4865,6 +4906,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "閱讀"
+          }
+        }
+      }
+    },
+    "shareAnalyticsData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysedaten teilen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share Analytics Data"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分析データを共有"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "분석 데이터 공유"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共享分析数据"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享分析資料"
+          }
+        }
+      }
+    },
+    "shareAnalyticsDataFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hilft den Betreuern von EhPanda zu erkennen, welche Funktionen wichtig sind. Suchanfragen werden nur als Form übertragen, nie als Text, und niemals ein Galerietitel, Link oder Bezeichner. Wenn dies deaktiviert ist, werden keine Ereignisse mehr gesendet; deine Installation wird weiterhin gezählt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helps EhPanda's maintainers see which features matter. Searches are sent as a shape, never as text, and no gallery title, link or identifier is ever included. Turning this off stops these events; your installation is still counted."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どの機能が重要かを EhPanda の開発者が把握するのに役立ちます。検索は本文ではなく特徴のみが送信され、ギャラリーのタイトル・リンク・識別子が含まれることはありません。オフにするとこれらの送信は停止しますが、インストール数は引き続き集計されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어떤 기능이 중요한지 EhPanda 관리자가 파악하는 데 도움이 됩니다. 검색은 본문이 아니라 형태만 전송되며, 갤러리 제목·링크·식별자는 절대 포함되지 않습니다. 이 설정을 끄면 이러한 전송이 중단되지만 설치 수는 계속 집계됩니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帮助 EhPanda 的维护者了解哪些功能重要。搜索仅以特征形式发送，绝不发送文本，也绝不包含任何画廊标题、链接或标识符。关闭后将停止发送这些事件，但仍会统计你的安装。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "協助 EhPanda 的維護者了解哪些功能重要。搜尋僅以特徵形式傳送，絕不傳送文字，也絕不包含任何畫廊標題、連結或識別碼。關閉後將停止傳送這些事件，但仍會統計你的安裝。"
           }
         }
       }

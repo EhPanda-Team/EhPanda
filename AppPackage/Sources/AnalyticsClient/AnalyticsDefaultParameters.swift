@@ -22,7 +22,13 @@ enum AnalyticsDefaultParameters {
     /// that an upstream case insertion could silently re-number. No key collides with the SDK's flat
     /// reserved set — every key carries a dot.
     static func snapshot(setting: Setting, didLogin: Bool) -> [String: String] {
-        [
+        // An opted-out install still emits the SDK's own session signal, which is what keeps install
+        // and retention counts working. These six are app-authored telemetry rather than SDK
+        // enrichment, so they stop: an opted-out user's host, login state and reading preferences
+        // must not ride along on that session signal.
+        guard setting.isSharingAnalyticsData else { return [:] }
+
+        return [
             "App.host": setting.galleryHost.rawValue,
             "App.loggedIn": String(didLogin),
             "App.readingDirection": setting.readingDirection.analyticsName,
