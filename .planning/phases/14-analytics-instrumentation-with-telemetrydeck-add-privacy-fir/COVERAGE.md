@@ -10,7 +10,20 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 
 ---
 
-## Initialization & configuration
+## Capability matrix
+
+The seven capability groups are laid out in row order inside one table rather
+than as seven separate tables: the matrix validator recognizes a single header
+row per file, so a repeated `| capability | decision | reason |` header reads as
+a malformed data row. Group boundaries, by row number:
+
+- Rows 1–25 — Initialization & configuration
+- Rows 26–33 — Signal emission
+- Rows 34–36 — Duration signals
+- Rows 37–41 — Error signals
+- Rows 42–45 — Navigation signals
+- Rows 46–54 — Purchase, subscription & "pirate metric" presets
+- Rows 55–59 — Legacy / interop surface
 
 | capability | decision | reason |
 |---|---|---|
@@ -39,11 +52,6 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 | `TelemetryDeck.Config.sendSignalsInDebugConfiguration` | OPT-OUT | Deprecated in the SDK in favour of `testMode`; this project does not accept deprecation warnings. |
 | `TelemetryDeck.Config.showDebugLogs` | OPT-OUT | Deprecated in the SDK in favour of `logHandler`. |
 | `TelemetryDeck.Config.telemetryAllowDebugBuilds` | OPT-OUT | Deprecated alias of `sendSignalsInDebugConfiguration`. |
-
-## Signal emission
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryDeck.signal(_:parameters:)` | INTEGRATE | The single emission call behind `AnalyticsClient.send`. |
 | `TelemetryDeck.signal(_:floatValue:)` | OPT-OUT | Explicitly out of scope — `floatValue` is an exact `Double`; D-08 requires every numeric to be bucketed, so leaving it unused keeps the bucketing guarantee total. |
 | `TelemetryDeck.signal(_:customUserID:)` | OPT-OUT | D-10 — the built-in anonymized identifier is the only identity; a per-signal override would defeat it. |
@@ -52,38 +60,18 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 | `TelemetryDeck.generateNewSession()` | OPT-OUT | Not needed — the SDK's own session boundaries (cold launch, foreground after 5 min) are the intended semantics. |
 | `TelemetryDeck.requestImmediateSync()` | OPT-OUT | Not needed — the SDK's batching and backoff are correct; a manual flush has no trigger in this app. |
 | `TelemetryDeck.terminate()` | OPT-OUT | Not needed — there is no teardown point; the client lives for the process. |
-
-## Duration signals
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryDeck.startDurationSignal(_:parameters:)` | OPT-OUT | D-08 — the pair emits `TelemetryDeck.Signal.durationInSeconds` as an exact rounded value. Reader session length is computed in the reducer and bucketed instead. |
 | `TelemetryDeck.stopAndSendDurationSignal(_:parameters:)` | OPT-OUT | D-08 — same. |
 | `TelemetryDeck.cancelDurationSignal(_:)` | OPT-OUT | Unreachable — the start/stop pair it cancels is opted out. |
-
-## Error signals
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryDeck.errorOccurred(id:category:)` | INTEGRATE | D-05 family 4 renders through it with `id` drawn from the closed `AppErrorKind` vocabulary, minted inside `AnalyticsClient`'s rendering layer. Unlocks the vendor's built-in error insights. |
 | `ErrorCategory` (`.thrownException` / `.userInput` / `.appState`) | INTEGRATE | Closed SDK enum; each `AppErrorKind` maps to one case. |
 | `TelemetryDeck.errorOccurred(id:category:message:)` | OPT-OUT | D-06 — `message` is free-form and the natural value would be an error description that can embed a title, path or URL. |
 | `TelemetryDeck.errorOccurred(identifiableError:...)` (both overloads) | OPT-OUT | D-06 — the overloads send `error.localizedDescription` as `message`; `AppError`'s string-carrying cases would leak through it. |
 | `IdentifiableError` / `AnyIdentifiableError` / `.with(id:)` | OPT-OUT | Unreachable — only used by the `identifiableError:` overloads, which are opted out. |
-
-## Navigation signals
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryDeck.navigationPathChanged(from:to:)` | OPT-OUT | D-14 — screen views are sourced from reducer navigation actions, which the app already centralizes; the from/to form needs total screen coverage to produce correct graphs. |
 | `TelemetryDeck.navigationPathChanged(to:)` | OPT-OUT | D-14, and the single-argument form keeps hidden global previous-path state that fabricates transitions the user never made under partial instrumentation. |
 | `View.trackNavigation(path:)` / `TrackNavigationModifier` | OPT-OUT | D-14 forbids view-lifecycle emission, and the modifier trips this repository's error-severity `lifecycle_modifiers` lint rule. |
 | `TelemetryDeck.navigate(from:to:)` / `navigate(to:)` | OPT-OUT | Marked unavailable in the SDK — a hard compile error, not a warning. |
-
-## Purchase, subscription & "pirate metric" presets
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryDeck.Purchase.purchaseCompleted(...)` | OPT-OUT | Not needed — the app sells nothing; there is no StoreKit surface. |
 | `TrialConversionTracker` | OPT-OUT | Not needed — no trials, no subscriptions. |
 | `TelemetryDeck.Revenue.paywallShown(...)` | OPT-OUT | Not needed — no paywall. |
@@ -93,11 +81,6 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 | `TelemetryDeck.Activation.coreFeatureUsed(featureName:)` | OPT-OUT | Explicitly out of scope — it would duplicate the D-05 flow-family signals under a second name and split the same event across two dashboard insights. |
 | `TelemetryDeck.Referral.referralSent(...)` | OPT-OUT | Not needed — no referral mechanism. |
 | `TelemetryDeck.Referral.userRatingSubmitted(...)` | OPT-OUT | Not needed — no in-app rating prompt (and D-01 adds no UI this phase). |
-
-## Legacy / interop surface
-
-| capability | decision | reason |
-|---|---|---|
 | `TelemetryClient` SPM product | OPT-OUT | Legacy alias retained for migration; it re-exports the deprecated manager API. |
 | `TelemetryManager.initialize(with:)` / `.send(...)` / `.updateDefaultUser(to:)` | OPT-OUT | Deprecated across the board; this project treats warning cleanliness as load-bearing. |
 | `TelemetryManager.shared` / `.isInitialized` | OPT-OUT | Internal accessor; reaching it is what trips the SDK's uninitialized `assertionFailure`. The D-13 gate keeps the app off this path entirely. |
@@ -108,7 +91,7 @@ Decision keys reference the locked owner decisions in `14-CONTEXT.md` (`D-01` �
 
 ## Coverage summary
 
-Counts are the capability rows in the seven tables above, recounted against the body on 2026-07-24.
+Counts are the capability rows in the matrix above, recounted against the body on 2026-07-24.
 
 | | count |
 |---|---|
