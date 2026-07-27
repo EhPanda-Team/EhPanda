@@ -149,9 +149,13 @@ extension AppError {
             String(localized: .appErrorLoginCaptchaSolution)
         case .loginRejected:
             // Applies whether or not the forum gave a reason: the credential is the first thing to
-            // re-check, and the web-login route is the escalation when it is not the problem. The
-            // copy names the browser and its position, never the control's appearance — an icon can
-            // be restyled without anyone thinking to revisit a localized string in six languages.
+            // re-check, and the web-login route is the escalation when it is not the problem.
+            //
+            // This and the `.cloudflareChallengeFailed` / `.loginCaptchaRequired` solutions above
+            // name the browser and its position, never the control's appearance — an icon can be
+            // restyled without anyone thinking to revisit a localized string in six languages. All
+            // three point at the same control, so reword them together; they drifted once already
+            // when only this one was updated.
             String(localized: .appErrorLoginRejectedSolution)
         case .unsupportedDeepLink:
             String(localized: .appErrorUnsupportedDeepLinkSolution)
