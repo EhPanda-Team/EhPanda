@@ -4,11 +4,11 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: Continued Background Downloads
-status: planning
-stopped_at: Phase 15 context gathered
-last_updated: "2026-07-27T17:44:54.814Z"
+status: executing
+stopped_at: Phase 15 planned (7 plans, 7 waves)
+last_updated: "2026-07-27T19:06:37.207Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 15 inserted (BGContinuedProcessingTask adoption); Dynamic Type Accessibility renumbered 15 → 16
+last_activity_desc: Phase 15 planned — research, pattern map, validation strategy and 7 sequential plans; plan-checker passed after one revision
 progress:
   total_phases: 16
   completed_phases: 13
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 15 — Continued Background Downloads
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-28 — Phase 15 inserted (BGContinuedProcessingTask adoption); Dynamic Type Accessibility renumbered 15 → 16
-Next: discuss Phase 15 — two open scope questions recorded in the ROADMAP entry (replace vs. complement the discretionary BGProcessingTask path; download-only vs. general seam)
+Status: Ready to execute
+Last activity: 2026-07-28 — Phase 15 planned (7 plans, 7 waves); plan-checker passed after one revision
+Next: /gsd-execute-phase 15 — both former open scope questions are resolved in 15-CONTEXT.md (full replacement per D-01/D-02; general-shape seam per D-04)
 
 Progress: [████████░░] 81% (13/16 phases)
 
