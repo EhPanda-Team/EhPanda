@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
-current_phase_name: Continued Background Downloads
+current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Phase 15 planned (7 plans, 7 waves)
-last_updated: "2026-07-27T19:06:37.207Z"
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-07-27T23:57:59.535Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 15 planned — research, pattern map, validation strategy and 7 sequential plans; plan-checker passed after one revision
+last_activity_desc: Phase 15 execution started
 progress:
   total_phases: 16
   completed_phases: 13
-  total_plans: 171
-  completed_plans: 171
+  total_plans: 178
+  completed_plans: 172
   percent: 81
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 15 — Continued Background Downloads
+**Current focus:** Phase 15 — continued-background-downloads
 
 ## Current Position
 
-Phase: 15 — Continued Background Downloads
-Plan: Not started
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-07-28 — Phase 15 planned (7 plans, 7 waves); plan-checker passed after one revision
+Last activity: 2026-07-28 — Phase 15 execution started
 Next: /gsd-execute-phase 15 — both former open scope questions are resolved in 15-CONTEXT.md (full replacement per D-01/D-02; general-shape seam per D-04)
 
 Progress: [████████░░] 81% (13/16 phases)
@@ -227,6 +227,7 @@ Progress: [████████░░] 81% (13/16 phases)
 | Phase 14 P10 | 14min | 3 tasks | 4 files |
 | Phase 14 P11 | 18min | 3 tasks | 5 files |
 | Phase 14 P12 | 14min | 3 tasks | 9 files |
+| Phase 15 P01 | 7min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -526,6 +527,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 14-11: galleryDetailOpened emits on the Home push case only, avoiding double-count with the iPad modal (T-14-13)
 - [Phase ?]: 14-12: performed-search analytics emits from the fetch-completion case (result count known there); the fetch-request and history-keyword cases stay deliberately silent to avoid double-counting and keyword leakage
 - [Phase ?]: 14-12: quick-search word usage is a payload-free QuickSearchReducer.wordTapped action — the word is forbidden content (D-06), so the signal carries nothing about it
+- [Phase ?]: 15-01: UIBackgroundModes keeps processing with an in-plist rationale comment — no Apple source says it is unnecessary for continued-processing, and a wrong removal fails every submission with notPermitted.
+- [Phase ?]: 15-01: RESEARCH A2 settled by observation — $(PRODUCT_BUNDLE_IDENTIFIER) DOES expand inside a BGTaskSchedulerPermittedIdentifiers array entry (built plist prints app.ehpanda.continued.*); no literal fallback needed.
+- [Phase ?]: 15-01: Deletions took their orphans with them — AppDelegateReducer's file-scoped logger + OSLogExt import, and the test suite's stale @MainActor rationale comment.
 
 ### Pending Todos
 
@@ -573,6 +577,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-27T17:44:54.806Z
-Stopped at: Phase 15 context gathered
-Resume file: .planning/phases/15-continued-background-downloads/15-CONTEXT.md
+Last session: 2026-07-27T23:57:59.526Z
+Stopped at: Completed 15-01-PLAN.md
+Resume file: None
