@@ -19209,37 +19209,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in with the web login (the globe button on the login screen), or enter your cookies manually in Account Configuration."
+            "value": "Sign in through the browser at the top right of the login screen, or enter your cookies manually in Account Configuration."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Melde dich über die Web-Anmeldung an (die Globus-Schaltfläche im Anmeldebildschirm) oder gib deine Cookies manuell unter „Kontoeinstellungen“ ein."
+            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an oder gib deine Cookies manuell unter „Kontoeinstellungen“ ein."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウェブログイン（ログイン画面の地球儀ボタン）でサインインするか、「アカウント設定」でクッキーを手動で入力してください。"
+            "value": "ログイン画面右上のブラウザからサインインするか、「アカウント設定」でクッキーを手動で入力してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "웹 로그인(로그인 화면의 지구본 버튼)으로 로그인하거나, ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하거나, ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请使用网页登录（登录界面的地球按钮），或在“账户设置”中手动输入 Cookies。"
+            "value": "请通过登录界面右上角的浏览器登录，或在“账户设置”中手动输入 Cookies。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請使用網頁登入（登入畫面的地球按鈕），或在「帳號設定」中手動輸入 Cookies。"
+            "value": "請透過登入畫面右上角的瀏覽器登入，或在「帳號設定」中手動輸入 Cookies。"
           }
         }
       }
@@ -19291,37 +19291,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in with the web login (the globe button on the login screen), where the CAPTCHA can be completed. You can also enter your cookies manually in Account Configuration."
+            "value": "Sign in through the browser at the top right of the login screen, where the CAPTCHA can be completed. You can also enter your cookies manually in Account Configuration."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Melde dich über die Web-Anmeldung an (die Globus-Schaltfläche im Anmeldebildschirm), wo sich das CAPTCHA lösen lässt. Alternativ kannst du deine Cookies manuell unter „Kontoeinstellungen“ eingeben."
+            "value": "Melde dich über den Browser oben rechts im Anmeldebildschirm an, wo sich das CAPTCHA lösen lässt. Alternativ kannst du deine Cookies manuell unter „Kontoeinstellungen“ eingeben."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ウェブログイン（ログイン画面の地球儀ボタン）でサインインすると CAPTCHA を完了できます。または「アカウント設定」でクッキーを手動で入力してください。"
+            "value": "ログイン画面右上のブラウザからサインインすると CAPTCHA を完了できます。または「アカウント設定」でクッキーを手動で入力してください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "웹 로그인(로그인 화면의 지구본 버튼)으로 로그인하면 CAPTCHA를 완료할 수 있습니다. 또는 ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
+            "value": "로그인 화면 오른쪽 위의 브라우저에서 로그인하면 CAPTCHA를 완료할 수 있습니다. 또는 ‘계정 설정’에서 쿠키를 직접 입력해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请使用网页登录（登录界面的地球按钮）完成验证码，或在“账户设置”中手动输入 Cookies。"
+            "value": "请通过登录界面右上角的浏览器登录以完成验证码，或在“账户设置”中手动输入 Cookies。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請使用網頁登入（登入畫面的地球按鈕）完成驗證碼，或在「帳號設定」中手動輸入 Cookies。"
+            "value": "請透過登入畫面右上角的瀏覽器登入以完成驗證碼，或在「帳號設定」中手動輸入 Cookies。"
           }
         }
       }
