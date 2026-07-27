@@ -1,17 +1,12 @@
 import AnalyticsClient
 import AppModels
 import AppTools
-import BackgroundProcessingClient
-import BackgroundTasks
 import ComposableArchitecture
 import CookieClient
 import DownloadClient
 import LibraryClient
-import OSLogExt
 import Sharing
 import SwiftUI
-
-private let logger = Logger(category: .init(describing: AppDelegateReducer.self))
 
 @Reducer
 struct AppDelegateReducer {
@@ -68,38 +63,8 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         if !AppInfo.isTesting {
             store.send(.appDelegate(.onLaunchFinish))
-            // Must register before launch completes so iOS can relaunch us later to
-            // drain the download queue in a discretionary background window.
-            BackgroundProcessingClient.live.register { task in
-                AppDelegate.handleProcessingTask(task)
-            }
         }
         return true
-    }
-
-    /// Drains the download queue in the granted background window. On expiration the
-    /// in-flight work is cancelled and a fresh request is scheduled so iOS can hand the
-    /// remaining work back later.
-    @MainActor
-    static func handleProcessingTask(_ task: BGProcessingTask) {
-        @Dependency(\.downloadClient) var downloadClient
-        @Dependency(\.backgroundProcessingClient) var backgroundProcessingClient
-
-        let work = Task { @MainActor in
-            logger.notice("Background processing started.")
-            await downloadClient.runBackgroundProcessing()
-            // Reschedule only if we stopped on our own with work still pending; an
-            // expiration cancels this task and reschedules from its own handler.
-            if !Task.isCancelled, await downloadClient.hasPendingWork() {
-                backgroundProcessingClient.schedule()
-            }
-            task.setTaskCompleted(success: !Task.isCancelled)
-            logger.notice("Background processing finished, cancelled: \(Task.isCancelled, privacy: .public).")
-        }
-        task.expirationHandler = {
-            work.cancel()
-            backgroundProcessingClient.schedule()
-        }
     }
 
     public func application(
