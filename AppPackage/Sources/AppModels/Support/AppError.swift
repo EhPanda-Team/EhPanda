@@ -149,7 +149,9 @@ extension AppError {
             String(localized: .appErrorLoginCaptchaSolution)
         case .loginRejected:
             // Applies whether or not the forum gave a reason: the credential is the first thing to
-            // re-check, and the web-login route is the escalation when it is not the problem.
+            // re-check, and the web-login route is the escalation when it is not the problem. The
+            // copy names the browser and its position, never the control's appearance — an icon can
+            // be restyled without anyone thinking to revisit a localized string in six languages.
             String(localized: .appErrorLoginRejectedSolution)
         case .unsupportedDeepLink:
             String(localized: .appErrorUnsupportedDeepLinkSolution)
