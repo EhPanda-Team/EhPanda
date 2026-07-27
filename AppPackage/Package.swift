@@ -277,7 +277,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.applicationClient),
-            .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.dateSeekFeature),

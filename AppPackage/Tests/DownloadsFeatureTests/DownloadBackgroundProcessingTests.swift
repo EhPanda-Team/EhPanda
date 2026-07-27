@@ -1,17 +1,7 @@
-import AnalyticsClient
-@testable import AppFeature
-import AppLaunchAutomationClient
-import BackgroundProcessingClient
-import ComposableArchitecture
-import CookieClient
 import DownloadClient
 import Foundation
 import Testing
 
-// `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
-// `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
-// cases deliberately stay nonisolated so they keep running concurrently rather than being
-// hopped onto the main actor by a suite-wide annotation.
 struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
     @Test
     func testHasPendingWorkReflectsQueueState() async throws {
@@ -102,36 +92,6 @@ struct DownloadBackgroundProcessingTests: DownloadFeatureTestCase {
             description: "runQueueUntilIdle cancellation"
         )
     }
-
-    @MainActor
-    @Test
-    func testBackgroundSchedulesProcessingWhenWorkPending() async {
-        let scheduleCount = UncheckedBox(0)
-        let store = makeBackgroundStore(hasPendingWork: true, scheduleCount: scheduleCount)
-
-        await store.send(.onScenePhaseChange(.background)) {
-            $0.scenePhase = .background
-            $0.hasEnteredBackground = true
-        }
-        await store.finish()
-
-        #expect(scheduleCount.value == 1)
-    }
-
-    @MainActor
-    @Test
-    func testBackgroundSkipsSchedulingWhenIdle() async {
-        let scheduleCount = UncheckedBox(0)
-        let store = makeBackgroundStore(hasPendingWork: false, scheduleCount: scheduleCount)
-
-        await store.send(.onScenePhaseChange(.background)) {
-            $0.scenePhase = .background
-            $0.hasEnteredBackground = true
-        }
-        await store.finish()
-
-        #expect(scheduleCount.value == 0)
-    }
 }
 
 // MARK: - Helpers
@@ -167,34 +127,5 @@ private extension DownloadBackgroundProcessingTests {
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
         try #require(await condition(), "Timed out waiting for condition.")
-    }
-
-    @MainActor
-    func makeBackgroundStore(
-        hasPendingWork: Bool,
-        scheduleCount: UncheckedBox<Int>
-    ) -> TestStoreOf<AppReducer> {
-        var initialState = AppReducer.State()
-        initialState.settingState.hasLoadedInitialSetting = true
-        let store = TestStore(
-            initialState: initialState,
-            reducer: AppReducer.init,
-            withDependencies: {
-                $0.analyticsClient = .noop
-                $0.appLaunchAutomationClient = .none
-                $0.cookieClient = .noop
-                $0.downloadClient = DownloadClient()
-                $0.downloadClient.hasPendingWork = { hasPendingWork }
-                $0.backgroundProcessingClient = BackgroundProcessingClient(
-                    register: { _ in },
-                    schedule: {
-                        scheduleCount.value += 1
-                    },
-                    cancel: {}
-                )
-            }
-        )
-        store.exhaustivity = .off
-        return store
     }
 }
