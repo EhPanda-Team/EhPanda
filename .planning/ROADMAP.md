@@ -812,7 +812,36 @@ Plans:
 
 **Open for discuss-phase**: whether `BGContinuedProcessingTask` *replaces* the discretionary `BGProcessingTask` path for downloads or runs alongside it as the user-initiated tier; and whether the same seam should cover any non-download work. `Info.plist` already carries `BGTaskSchedulerPermittedIdentifiers` and `UIBackgroundModes`, so the entitlement surface is an edit, not a new capability.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 15-01-PLAN.md — Info.plist continued-processing identifier + AppFeature discretionary-path deletion
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 15-02-PLAN.md — Delete the execution assertion, the drain loop, and their façade endpoints
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 15-03-PLAN.md — Rebuild BackgroundProcessingClient as a main-actor-confined session seam
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 15-04-PLAN.md — Neutral card strings, coordinator injection, session client spy
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 15-05-PLAN.md — Coordinator session lifecycle and the four queue-mobilizing tap sites
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 15-06-PLAN.md — Progress push, completion reconcile, expiration and unavailable coverage
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 15-07-PLAN.md — Topology invariant, roadmap amendment, phase gates and device observation
 
 ### Phase 16: Dynamic Type Accessibility
 
