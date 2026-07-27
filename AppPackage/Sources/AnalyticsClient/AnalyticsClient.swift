@@ -38,7 +38,17 @@ extension AnalyticsClient {
 
         // Overrides the SDK's own always-"Unknown" orientation parameter. Held here rather than
         // rebuilt per signal so its cache survives between signals; see `OrientationEnricher`.
-        let orientation = OrientationEnricher(read: DeviceClient.live.interfaceOrientation)
+        //
+        // The dependency is declared *inside* the read closure, never captured out here, for the
+        // same reason `AnalyticsDefaultParameters.live` declares its readers inside its body: this
+        // value is a `static let`, so anything resolved at its scope would freeze whatever the
+        // container held at static-init time and ignore every override applied afterwards. Reaching
+        // for `DeviceClient.live` directly would sidestep the container entirely, which Phase 5
+        // ruled out when it made this client `@Dependency`-only.
+        let orientation = OrientationEnricher(read: {
+            @Dependency(\.deviceClient) var deviceClient
+            return deviceClient.interfaceOrientation()
+        })
 
         return Self(
             start: {
