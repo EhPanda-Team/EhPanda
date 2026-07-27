@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>app.ehpanda.downloads.processing</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).continued.*</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
@@ -157,6 +157,12 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- `processing` is kept deliberately, not left over from the deleted discretionary
+	     BGProcessingTask tier. No Apple source states whether a continued-processing
+	     submission consults UIBackgroundModes, and the failure modes are asymmetric: an
+	     unnecessary declaration costs one stray key, while a wrong removal makes every
+	     submission fail with the scheduler's notPermitted error. Removing it would need a
+	     device-verified experiment of its own. -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>
