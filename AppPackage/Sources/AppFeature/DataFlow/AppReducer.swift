@@ -2,7 +2,6 @@ import AnalyticsClient
 import AppLaunchAutomationClient
 import AppModels
 import AppTools
-import BackgroundProcessingClient
 import ComposableArchitecture
 import CookieClient
 import DeviceClient
@@ -61,7 +60,6 @@ struct AppReducer {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
-    @Dependency(\.backgroundProcessingClient) private var backgroundProcessingClient
     @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
 
     var body: some Reducer<State, Action> {
@@ -130,16 +128,13 @@ struct AppReducer {
                     return .none
 
                 case .background:
-                    // Ask iOS for a later background window to finish the queue; the
-                    // beginBackgroundTask assertion only covers the brief grace
-                    // period right after backgrounding.
+                    // Backgrounding no longer requests any background window: a
+                    // continued-processing session, if one exists, was started earlier by the
+                    // user action that mobilized the download queue.
                     var effects: [Effect<Action>] = [
                         .send(.appLogsPump(.pausePump)),
                         .run { _ in
                             logger.notice("App entered background.")
-                            if await downloadClient.hasPendingWork() {
-                                backgroundProcessingClient.schedule()
-                            }
                         }
                     ]
                     // Backgrounding fires no reader `onDisappear`/dismiss, so flush the active reading
