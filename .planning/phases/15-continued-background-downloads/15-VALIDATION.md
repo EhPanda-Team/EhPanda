@@ -65,7 +65,8 @@ task must map onto.
 | TBD | TBD | TBD | SC3 | — | `.unavailable` produces no reducer action, no `AppError`, no toast | unit | TestStore receives nothing | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | SC3 | — | Queue state after `.unavailable` is identical to the no-session path (no lost/duplicated work) | unit | run same queue with `.noop` vs `.unavailable` client, compare manifests | ❌ W0 | ⬜ pending |
 | TBD | TBD | TBD | SC4 | — | `testValue` unimplemented — an unexpected call fails the test loudly | unit | construct coordinator with `BackgroundProcessingClient()`, assert issue reported | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | SC4 | — | No `BGTaskScheduler` reference outside the client module | static | `grep -rn "BGTaskScheduler" App AppPackage` returns exactly the client-module hits | ✅ | ⬜ pending |
+| TBD | TBD | TBD | SC4 | — | No `BGTaskScheduler` reference in Swift sources outside the client module | static | `grep -rn --include='*.swift' "BGTaskScheduler" App AppPackage ShareExtension \| cut -d: -f1 \| sort -u` returns exactly the client-module paths | ✅ | ⬜ pending |
+| TBD | TBD | TBD | SC4 | — | The plist's only scheduler mention is the permitted-identifiers key it must keep | static | `grep -c "BGTaskScheduler" App/Info.plist` and `grep -c "BGTaskSchedulerPermittedIdentifiers" App/Info.plist` both return `1` | ✅ | ⬜ pending |
 | TBD | TBD | TBD | — | — | Existing scheduling behavior unchanged | regression | `… -only-testing:DownloadsFeatureTests/DownloadSchedulingTests` | ✅ exists | ⬜ pending |
 | TBD | TBD | TBD | — | — | `hasPendingWork()` still reflects queue state | regression | `… -only-testing:DownloadsFeatureTests` (`testHasPendingWorkReflectsQueueState`) | ✅ exists | ⬜ pending |
 
@@ -73,6 +74,18 @@ task must map onto.
 
 **`DownloadSchedulingTests` must stay green.** It was flaky and was made deterministic; a
 failure there is a real regression, not flake.
+
+**Why the SC4 static gate is split in two.** `App/Info.plist` must keep the key
+`BGTaskSchedulerPermittedIdentifiers` for the phase to work at all, and that key's *name*
+contains the scheduler type name as a substring by construction. A single unrestricted
+`grep -rn "BGTaskScheduler" App AppPackage` can therefore never return only client-module hits,
+however correct the code is — it would be an unsatisfiable gate, not a strict one. The first
+row scopes the module assertion to Swift sources; the second pays for that exemption with a
+stricter check on the exempted file, requiring its scheduler mentions and its
+permitted-identifiers-key mentions to be equal and to be exactly one. Nothing can hide behind
+the exemption, and the plist stays fully in scope for every other gate — including the
+`downloads.processing` / `downloads.assertion` zero-gates, which is where a regression there
+would surface first.
 
 ---
 
