@@ -3,7 +3,7 @@ status: complete
 phase: 14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir
 source: [14-01-SUMMARY.md, 14-02-SUMMARY.md, 14-03-SUMMARY.md, 14-04-SUMMARY.md, 14-05-SUMMARY.md, 14-06-SUMMARY.md, 14-07-SUMMARY.md, 14-08-SUMMARY.md, 14-09-SUMMARY.md, 14-10-SUMMARY.md, 14-11-SUMMARY.md, 14-12-SUMMARY.md, 14-13-SUMMARY.md, 14-14-SUMMARY.md, 14-15-SUMMARY.md, 14-16-SUMMARY.md, 14-17-SUMMARY.md, 14-18-SUMMARY.md]
 started: 2026-07-26T13:56:46Z
-updated: 2026-07-26T15:12:00Z
+updated: 2026-07-27T00:43:39Z
 ---
 
 ## Current Test
@@ -33,18 +33,19 @@ expected: Open a gallery in the reader, page forward and back, scrub the slider,
 result: pass
 
 ### 6. Login, including the Cloudflare challenge path
-expected: A correct credential signs in; a wrong one surfaces the refusal toast; if a Cloudflare challenge appears, resolving it completes the login. Plan 14-16 added emissions to the login-failure and challenge-detected paths and states it left untouched the credential-ordering that Phase 12 found load-bearing (credentials must reach the shared cookie jar before didLogin is read, or a successful post-challenge login reports as a failure).
-result: issue
-reported: "pass. but a login failure presents a toast with message \"Login required to access this download.\" is not appropriate"
-severity: major
-note: Login flow itself passed; the defect is the failure toast copy.
+expected: Re-check after the G-14-6 fix, as extended over four follow-up rounds. A correct credential still signs in and a Cloudflare challenge still completes. A refused credential now reports as "Login Rejected" carrying the forum's own wording verbatim when it gave any, and "The site refused the sign-in without saying why." when it did not; neither "Login required to access this download." nor "Unknown Error" may appear on any login outcome. Tapping the toast opens the error detail, which shows title, detail and solution as three distinct rows.
+result: pass
+resolved_by: commits 3fcce0f0, be92818c, 9ef11c1e, 49b0166d, d39f479d, b01c3750
+severity: minor
+reported: "i got an unknown error instead. it is better than a incorrect \"Login required to access this download.\", but still provide too less information."
+first_run: "issue — 'a login failure presents a toast with message \"Login required to access this download.\" is not appropriate' (gap G-14-6, now resolved)"
 
 ### 7. README analytics disclosure, all six languages
 expected: README.md and the five files in READMEs/ each carry an Analytics section (all at line 30) describing what actually ships: on by default with an opt-out, the collected categories including searches-as-shape, the SDK's own enrichment (device model and architecture, screen metrics, OS version, locale, region, time zone, seven accessibility settings, appearance, retention and session counts), the never-collected list, the hashed per-install identifier, and the vendor privacy-policy link. Read at least the English one against that list and confirm nothing is overstated or missing.
-result: issue
-reported: "\"A build made without the local analytics configuration file (`Config/Analytics.local.xcconfig`) sends nothing at all, whatever that setting says. Contributor builds from source and any release cut without that file have analytics silently disabled.\" is stale since we've shifted to use ci secrets"
-severity: major
-note: Present at line 41 of all six READMEs. deploy.yml:50 and deploy-pre-release.yml:51 inject TELEMETRYDECK_APP_ID / TELEMETRYDECK_SALT from CI secrets, so an official release does carry credentials.
+result: pass
+resolved_by: commit 2c7e0d0f
+first_run: "issue — the 'a build without Config/Analytics.local.xcconfig sends nothing' sentence was stale after credential delivery moved to CI secrets (gap G-14-7, now resolved)"
+recheck: Line 41 of all six READMEs now reads that official releases are built with analytics credentials supplied by the release workflow from repository secrets and therefore do send unless the setting is off, while a build made without those credentials sends nothing (contributor builds and forks). Verified mechanically: zero remaining `Analytics.local.xcconfig` references in any README, zero em dashes, and the CI D-03 disclosure gate passes on all six files.
 
 ### 8. A credential-free build reaches the ingestion host zero times
 expected: With no Config/Analytics.local.xcconfig present (which is the current working-tree state), a proxied run driving several instrumented flows shows zero requests to the analytics ingestion host, including no TelemetryDeck.Session.started. That absent signal is the load-bearing part: it comes from the SDK itself, so its absence shows the gate resolves before initialization rather than merely muting call sites. Recorded evidence, 14-18 Check A: six emissions across five signal cases, a 25s wait covering the 10s transmit interval, 79 domains captured, zero vendor matches, with a positive control taken first.
@@ -346,8 +347,8 @@ coverage_id: 14-12:D5
 ## Summary
 
 total: 57
-passed: 55
-issues: 2
+passed: 57
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -357,9 +358,9 @@ blocked: 0
 - gap_id: G-14-6
   truth: "A login failure surfaces a toast whose message describes the login failure"
   status: resolved
-  resolved_by: "commit 3fcce0f0 (fix: stop login refusal reading as auth error)"
-  resolved_at: 2026-07-26
-  resolution: "Two parts. (1) `app_error.authentication_required_description` is now context-neutral in all six locales (\"Login required to access this content.\"), since the case it serves is general. (2) `LoginRequest.response()` no longer lets the site-wide `.authenticationRequired` verdict escape as a login outcome: it reports a plain refusal (`.unknown`, which `LoginReducer.loginFailureKind` maps to `.rejected`), matching what the error-box branch already throws for the same condition. Every other site error keeps its own case. Guarded by `aRefusalPageIsNotReportedAsAGeneralAuthenticationError`, verified as a real guard by reverting the mapping and confirming the test fails with exactly `.authenticationRequired`."
+  resolved_by: "commits 3fcce0f0, be92818c, 9ef11c1e, 49b0166d, d39f479d, b01c3750"
+  resolved_at: 2026-07-27
+  resolution: "Resolved over five rounds, each opened by user review of the previous one. (1) 3fcce0f0 made `app_error.authentication_required_description` context-neutral in all six locales (\"Login required to access this content.\") and stopped `LoginRequest.response()` letting the site-wide `.authenticationRequired` verdict escape as a login outcome, which removed the download wording but left the toast reading \"Unknown Error\". (2) be92818c added `AppError.loginRejected(String?)` and restructured `Request+Account.swift` so `.authenticationRequired` no longer short-circuits login-specific parsing: the forum's error-box message, already parsed and logged and then discarded, now reaches the user verbatim, and a CAPTCHA-gated form still throws `.loginCaptchaRequired` rather than being masked by it. (3) 49b0166d made the reasonless refusal `loginRejected(nil)` rather than `.unknown` at both remaining sites, on the ground that the app does not know why the sign-in failed but does know that it did. (4) d39f479d fixed a wider defect the round exposed: `ErrorInfoView` rendered only `localizedDescription` and never `alertText`, so the detail that distinguishes one occurrence from another vanished on the way to the surface built to explain it — this also restored the missing detail for `.expunged`, `.copyrightClaim`, `.fileOperationFailed` and `.ipBanned`. It also added the web-login escalation to the solution copy. (5) b01c3750 reworded that copy to name the browser and its position rather than the control's appearance, so restyling an icon cannot silently invalidate six localized strings. Guarded by `aRefusalPageIsNotReportedAsAGeneralAuthenticationError` (verified as a real guard by reverting the mapping and confirming it fails with exactly `.authenticationRequired`) and by `aRefusalIsFullyDescribedForTheDetailSurface`, which pins title, detail and solution as non-empty and mutually distinct for both refusal shapes."
   reason: "User reported: pass. but a login failure presents a toast with message \"Login required to access this download.\" is not appropriate"
   severity: major
   test: 6
