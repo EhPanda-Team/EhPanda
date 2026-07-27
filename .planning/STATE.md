@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
-current_phase_name: Dynamic Type Accessibility
+current_phase_name: Continued Background Downloads
 status: planning
-stopped_at: Phase 14 complete and verified 8/8; Phase 15 not yet planned
-last_updated: "2026-07-26T16:28:24.551Z"
-last_activity: 2026-07-27
-last_activity_desc: Phase 14 complete, transitioned to Phase 15
+stopped_at: Phase 14 complete and verified 8/8; Phase 15 (Continued Background Downloads) inserted, not yet planned
+last_updated: "2026-07-28T00:00:00.000Z"
+last_activity: 2026-07-28
+last_activity_desc: Inserted Phase 15 (Continued Background Downloads); Dynamic Type Accessibility renumbered 15 to 16
 progress:
-  total_phases: 15
+  total_phases: 16
   completed_phases: 13
   total_plans: 171
   completed_plans: 171
-  percent: 87
+  percent: 81
 ---
 
 # Project State
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 15 — Dynamic Type Accessibility
+**Current focus:** Phase 15 — Continued Background Downloads
 
 ## Current Position
 
-Phase: 15 — Dynamic Type Accessibility
+Phase: 15 — Continued Background Downloads
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-27 — Phase 14 complete, transitioned to Phase 15
-Next: plan Phase 15 — note it is human-implemented, agent verify-only (no executor agents)
+Last activity: 2026-07-28 — Phase 15 inserted (BGContinuedProcessingTask adoption); Dynamic Type Accessibility renumbered 15 → 16
+Next: discuss Phase 15 — two open scope questions recorded in the ROADMAP entry (replace vs. complement the discretionary BGProcessingTask path; download-only vs. general seam)
 
-Progress: [█████████░] 87% (13/15 phases)
+Progress: [████████░░] 81% (13/16 phases)
 
 ## Performance Metrics
 
@@ -561,6 +561,7 @@ None yet.
 - Phase 10 edited: added success criterion: rename SystemNotificationExt module -> SystemNotification (full impl, not an extension)
 - Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics *(historical wording — D-01 then chose on-by-default with no opt-out; the owner reversed D-01 during 14-18, so the phase shipped as Phase 14 on-by-default with a runtime opt-out in General Settings)*
 - Phase 12 added (integer, Cloudflare Login Restoration): restore username/password login broken by the Cloudflare challenge wall (403 + cf-mitigated on forums.e-hentai.org); in-app browser clearance capture, in-memory cf_clearance. Cascaded existing phases: Deep Link Hardening 12→13, Analytics/TelemetryDeck 13→14, Dynamic Type Accessibility 14→15 (owner chose integer over decimal 12.1)
+- Phase 15 inserted after Phase 14: Continued Background Downloads (BGContinuedProcessingTask); Dynamic Type Accessibility renumbered 15 to 16
 
 ## Deferred Items
 
