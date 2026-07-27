@@ -414,12 +414,15 @@ let targets: [PackageDescription.Target] = [
     // The sole owner of the TelemetryDeck SDK: no other module may import it, so every payload
     // that leaves the app is minted through this module's closed signal vocabulary. The
     // `.cookieClient` edge exists because the per-signal login-state snapshot reads
-    // `@SharedReader(.didLogin)`, whose key is declared there.
+    // `@SharedReader(.didLogin)`, whose key is declared there. The `.deviceClient` edge exists
+    // because the orientation enricher reads the window scene through it rather than reaching for
+    // UIKit from this module.
     .target(
         module: .analyticsClient,
         dependencies: [
             .module(.appModels),
             .module(.cookieClient),
+            .module(.deviceClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .targetDependency(.telemetryDeck)

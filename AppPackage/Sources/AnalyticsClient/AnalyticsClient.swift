@@ -1,5 +1,6 @@
 import AppModels
 import ComposableArchitecture
+import DeviceClient
 import Sharing
 import Synchronization
 import TelemetryDeck
@@ -35,11 +36,17 @@ extension AnalyticsClient {
         // uninitialized SDK and trip its assertion (threat T-14-11).
         let started = Mutex(false)
 
+        // Overrides the SDK's own always-"Unknown" orientation parameter. Held here rather than
+        // rebuilt per signal so its cache survives between signals; see `OrientationEnricher`.
+        let orientation = OrientationEnricher(read: DeviceClient.live.interfaceOrientation)
+
         return Self(
             start: {
                 let config = TelemetryDeck.Config(appID: appID, salt: AppInfo.telemetryDeckSalt)
                 config.defaultParameters = AnalyticsDefaultParameters.live
+                config.metadataEnrichers = [orientation]
                 TelemetryDeck.initialize(config: config)
+                orientation.refresh()
                 started.withLock({ $0 = true })
             },
             send: { signal in
@@ -54,6 +61,10 @@ extension AnalyticsClient {
                 // opted out in COVERAGE.md for that reason.
                 @Shared(.setting) var setting
                 guard setting.isSharingAnalyticsData else { return }
+
+                // Refreshed here, after the opt-out gate, so an opted-out install never touches the
+                // scene graph on behalf of analytics.
+                orientation.refresh()
 
                 switch signal.rendered {
                 case let .signal(name, parameters):
