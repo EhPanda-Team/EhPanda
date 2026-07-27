@@ -55,8 +55,18 @@ extension AnalyticsClient {
                 let config = TelemetryDeck.Config(appID: appID, salt: AppInfo.telemetryDeckSalt)
                 config.defaultParameters = AnalyticsDefaultParameters.live
                 config.metadataEnrichers = [orientation]
-                TelemetryDeck.initialize(config: config)
+
+                // Primed before `initialize`, not after. Initializing assigns `Config.sessionID`,
+                // whose `didSet` emits `TelemetryDeck.Session.started` — the one signal that never
+                // passes through `send` below, so it is the only one this refresh cannot catch
+                // later. Priming afterwards left the cache empty at exactly that moment and every
+                // session signal reported "Unknown" forever.
+                //
+                // Ordering is enough to fix it even when `start` runs off the main queue: this
+                // refresh and the SDK's payload assembly both hop through the main queue, and it is
+                // FIFO, so enqueueing ours first lands the value before the session signal is built.
                 orientation.refresh()
+                TelemetryDeck.initialize(config: config)
                 started.withLock({ $0 = true })
             },
             send: { signal in
