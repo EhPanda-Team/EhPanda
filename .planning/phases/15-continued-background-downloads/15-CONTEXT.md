@@ -95,8 +95,8 @@ rule) and should verify API claims against Apple's official `BackgroundTasks` do
   reach, and the Phase 14 never-send list already treats titles as radioactive. Shape:
   a static localized title (e.g. "Downloading galleries") plus a count subtitle (e.g.
   "128 of 340 pages · 2 galleries"). Exact wording is Claude's discretion.
-- **D-10: Progress fraction = completed pages / total pages across all schedulable
-  galleries.** Smooth, honest motion; steady progress reporting is also what keeps the
+- **D-10: Progress fraction = completed pages / total pages across all schedulable galleries.**
+  Smooth, honest motion; steady progress reporting is also what keeps the
   system from expiring the task early. Totals recompute when galleries join the queue.
 - **D-11: Expiration pauses all schedulable work.** A user cancel on the card and a system
   reclaim arrive as the same expiration callback and are indistinguishable, so one policy
