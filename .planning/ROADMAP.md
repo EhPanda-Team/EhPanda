@@ -35,7 +35,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Cloudflare Login Restoration** - Restore username/password login broken by the Cloudflare wall: detect the challenge, clear it in an in-app browser, replay login with an in-memory cf_clearance (completed 2026-07-23)
 - [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
-- [ ] **Phase 15: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
+- [ ] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI
+- [ ] **Phase 16: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
 
 ## Phase Details
 
@@ -448,7 +449,7 @@ Plans:
 
 ### Phase 10: UI Polish
 
-**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content, and land the accompanying UI-modernization sweeps (deprecated-API removal, custom corner-modifier removal, `\.inSheet` removal, Label conversions, `SystemNotificationExt` module rename, `#Preview` migration) — all at appearance/layout parity. **Comprehensive Dynamic Type support is deferred to Phase 15 (Dynamic Type Accessibility)**; a font-scaling + reflow foundation was delivered here in plans 10-10/10-11.
+**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content, and land the accompanying UI-modernization sweeps (deprecated-API removal, custom corner-modifier removal, `\.inSheet` removal, Label conversions, `SystemNotificationExt` module rename, `#Preview` migration) — all at appearance/layout parity. **Comprehensive Dynamic Type support is deferred to Phase 16 (Dynamic Type Accessibility)**; a font-scaling + reflow foundation was delivered here in plans 10-10/10-11.
 **Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
 **Requirements**: POLISH-01, POLISH-02, POLISH-03
 **Success Criteria** (what must be TRUE):
@@ -457,7 +458,7 @@ Plans:
   2. Numeric values animate as numeric transitions on change.
   3. No layout jitter occurs on value change.
   4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
-  5. *(Deferred to Phase 15 — Dynamic Type Accessibility.)* Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls. **Foundation delivered** in 10-10 (7 fixed-pixel font sites scaled) and 10-11 (B1–B10 AX5 reflows, verified on-device); the remaining cosmetic AX5 edge cases, full accessibility-range readability/operability, and the owner-signed device UAT are deferred to Phase 15 for human implementation.
+  5. *(Deferred to Phase 16 — Dynamic Type Accessibility.)* Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls. **Foundation delivered** in 10-10 (7 fixed-pixel font sites scaled) and 10-11 (B1–B10 AX5 reflows, verified on-device); the remaining cosmetic AX5 edge cases, full accessibility-range readability/operability, and the owner-signed device UAT are deferred to Phase 16 for human implementation.
   6. The `\.inSheet` environment value is removed, with any presentation-context logic it drove reimplemented via a native/non-custom-environment mechanism.
   7. Deprecated SwiftUI APIs (e.g. `.foregroundColor` → `.foregroundStyle`) are swept and replaced with their current non-deprecated equivalents, at appearance parity, with no new SwiftLint or compiler deprecation warnings.
   8. The custom `cornerRadius(_:corners:)` view modifier in `ViewModifiers.swift` is removed, with its call site(s) replaced by the standard SwiftUI API (`.clipShape(.rect(cornerRadii:))`), at appearance parity.
@@ -514,7 +515,7 @@ Plans:
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
-- [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 15
+- [x] 10-12-PLAN.md — Full suite + phase grep battery (criteria 1-4, 6-12) + ProgressView tint-regression fix; criterion-5 D-03 Dynamic Type device UAT deferred to Phase 16
 
 **Cross-cutting constraints:**
 
@@ -797,7 +798,23 @@ Plans:
 
 - The unimplemented default still applies to every target not touched here, so an unexpected analytics call outside the hardened targets still fails loudly
 
-### Phase 15: Dynamic Type Accessibility
+### Phase 15: Continued Background Downloads
+
+**Goal**: Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just started keeps running when the app is backgrounded, surfaced by the system-provided progress UI, instead of being cut short by the `beginBackgroundTask` grace period and left to the discretionary `BGProcessingTask` window.
+**Depends on**: Phase 14
+**Requirements**: None mapped — the scope contract is this phase's four success criteria, referenced by plans as SC-labels
+**Success Criteria** (what must be TRUE):
+
+  1. A download started in the foreground continues to completion after the app is backgrounded, for a queue large enough to outlast the `beginBackgroundTask` grace period that bounds today's behavior.
+  2. The system-provided progress UI reflects real download progress and its cancel affordance stops the queue, leaving download state consistent with an in-app cancel.
+  3. Submission is treated as best-effort: when the system refuses or expires the request, the app falls back to the existing paths (`BackgroundTaskClient` assertion, `BackgroundProcessingClient` discretionary window) with no lost or duplicated work, and no user-visible error.
+  4. The new capability is reached through a testable client seam in the `BackgroundProcessingClient` module — mirroring its `register`/`schedule`/`cancel` shape — with `testValue` unimplemented, so no reducer touches `BGTaskScheduler` directly.
+
+**Open for discuss-phase**: whether `BGContinuedProcessingTask` *replaces* the discretionary `BGProcessingTask` path for downloads or runs alongside it as the user-initiated tier; and whether the same seam should cover any non-download work. `Info.plist` already carries `BGTaskSchedulerPermittedIdentifiers` and `UIBackgroundModes`, so the entitlement surface is an edit, not a new capability.
+
+**Plans**: TBD
+
+### Phase 16: Dynamic Type Accessibility
 
 **Goal**: Complete comprehensive Dynamic Type support so every user-facing screen stays readable and operable across the full Dynamic Type range (including accessibility sizes AX1–AX5) with no clipped essential text, overlapping content, or unreachable controls — building on the font-scaling and reflow foundation delivered in Phase 10 (plans 10-10/10-11, verified on-device).
 **Depends on**: Phase 10 (Dynamic Type foundation) — runs last, against the fully-settled UI.
