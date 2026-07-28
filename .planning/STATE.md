@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-07-PLAN.md
-last_updated: "2026-07-28T03:10:35.860Z"
+stopped_at: Completed 15-08-PLAN.md
+last_updated: "2026-07-28T03:47:46.441Z"
 last_activity: 2026-07-28
-last_activity_desc: Planned gap closure 15-08/15-09 (session-lifecycle defects, waves 8-9)
+last_activity_desc: 15-08 executed (scheduler seam + client-side session-lifecycle fixes)
 progress:
   total_phases: 16
-  completed_phases: 14
-  total_plans: 178
-  completed_plans: 178
-  percent: 88
+  completed_phases: 13
+  total_plans: 180
+  completed_plans: 179
+  percent: 81
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 7 of 9 executed
-Status: Ready to execute (gap closure)
-Last activity: 2026-07-28 — Planned gap closure 15-08/15-09 (session-lifecycle defects, waves 8-9)
-Next: /gsd-execute-phase 15 — wave 8 (15-08 scheduler seam + client fixes), then wave 9 (15-09 coordinator session identity)
+Plan: 8 of 9
+Status: Executing Phase 15
+Last activity: 2026-07-28 — 15-08 executed (scheduler seam + client-side session-lifecycle fixes)
+Next: /gsd-execute-phase 15 — wave 9 (15-09 coordinator session identity)
 
-Progress: [██████████] 100% (13/16 phases)
+Progress: [██████████] 99% (13/16 phases)
 
 ## Performance Metrics
 
@@ -234,6 +234,7 @@ Progress: [██████████] 100% (13/16 phases)
 | Phase 15 P05 | 15min | 2 tasks | 6 files |
 | Phase 15 P06 | 22min | 3 tasks | 5 files |
 | Phase 15 P07 | 16min | 3 tasks | 2 files |
+| Phase 15 P08 | 32min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -600,6 +601,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T01:46:48.142Z
-Stopped at: Completed 15-07-PLAN.md
+Last session: 2026-07-28T03:47:46.433Z
+Stopped at: Completed 15-08-PLAN.md
 Resume file: None
