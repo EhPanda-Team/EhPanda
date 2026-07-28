@@ -54,5 +54,11 @@ extension DownloadCoordinator {
     public func testingHasContinuedSession() -> Bool {
         hasLiveContinuedSession
     }
+
+    /// Returns the coordinator identity the current continued-processing session must present to
+    /// every late-arriving mutation.
+    public func testingContinuedSessionID() -> UUID? {
+        continuedSessionID
+    }
 }
 #endif

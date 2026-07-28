@@ -366,8 +366,15 @@ public actor DownloadCoordinator {
     ///
     /// Stamping the session is what makes teardown and event delivery safe against staleness: a
     /// superseded session's trailing teardown routinely lands late, and on a reentrant actor a
-    /// queue-mobilizing tap can legitimately have started a successor by then.
+    /// queue-mobilizing tap can legitimately have started a successor by then. It pairs with the
+    /// client-side identity in `continuedClientSessionID`.
     public var continuedSessionID: UUID?
+    /// The client-side identity of the live continued-processing session.
+    ///
+    /// Recorded by `ensureContinuedSession()` only after its ownership re-check passes, nil while
+    /// a start is still in flight and after teardown, and the only value the coordinator may pass
+    /// to the client's completion verb.
+    public var continuedClientSessionID: UUID?
     public var continuedSessionTask: Task<Void, Never>?
     public var lastPushedCompletedPageCount = 0
 

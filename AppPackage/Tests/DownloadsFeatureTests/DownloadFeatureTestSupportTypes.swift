@@ -77,13 +77,21 @@ final class BackgroundProcessingClientSpy: Sendable {
         let subtitle: String
     }
 
+    /// One `finish` call. Naming both fields keeps identity assertions readable and satisfies the
+    /// project's error-severity tuple rule.
+    struct FinishRecord: Equatable {
+        let sessionID: UUID
+        let success: Bool
+    }
+
     private struct State {
         var startCount = 0
         var startTitles = [String]()
         var startSubtitles = [String]()
+        var startSessionIDs = [UUID]()
         var progressUpdates = [ProgressUpdate]()
-        var finishCount = 0
-        var finishSuccesses = [Bool]()
+        var finishRecords = [FinishRecord]()
+        var currentSessionID: UUID?
         var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
     }
 
@@ -92,9 +100,11 @@ final class BackgroundProcessingClientSpy: Sendable {
     var startCount: Int { state.withLock({ $0.startCount }) }
     var startTitles: [String] { state.withLock({ $0.startTitles }) }
     var startSubtitles: [String] { state.withLock({ $0.startSubtitles }) }
+    var startSessionIDs: [UUID] { state.withLock({ $0.startSessionIDs }) }
     var progressUpdates: [ProgressUpdate] { state.withLock({ $0.progressUpdates }) }
-    var finishCount: Int { state.withLock({ $0.finishCount }) }
-    var finishSuccesses: [Bool] { state.withLock({ $0.finishSuccesses }) }
+    var finishRecords: [FinishRecord] { state.withLock({ $0.finishRecords }) }
+    var finishCount: Int { finishRecords.count }
+    var finishSuccesses: [Bool] { finishRecords.map(\.success) }
 
     /// Delivers one event to whoever is consuming the live stream, leaving the stream open.
     func emit(_ event: BackgroundProcessingEvent) {
@@ -116,6 +126,7 @@ final class BackgroundProcessingClientSpy: Sendable {
     private func takeContinuation() -> AsyncStream<BackgroundProcessingEvent>.Continuation? {
         state.withLock {
             let continuation = $0.continuation
+            $0.currentSessionID = nil
             $0.continuation = nil
             return continuation
         }
@@ -127,13 +138,16 @@ final class BackgroundProcessingClientSpy: Sendable {
                 let (stream, continuation) = AsyncStream.makeStream(
                     of: BackgroundProcessingEvent.self
                 )
+                let sessionID = UUID()
                 self.state.withLock {
                     $0.startCount += 1
                     $0.startTitles.append(title)
                     $0.startSubtitles.append(subtitle)
+                    $0.startSessionIDs.append(sessionID)
+                    $0.currentSessionID = sessionID
                     $0.continuation = continuation
                 }
-                return stream
+                return BackgroundProcessingSession(id: sessionID, events: stream)
             },
             updateProgress: { completedUnitCount, totalUnitCount, subtitle in
                 self.state.withLock {
@@ -146,12 +160,19 @@ final class BackgroundProcessingClientSpy: Sendable {
                     )
                 }
             },
-            finish: { success in
-                self.state.withLock {
-                    $0.finishCount += 1
-                    $0.finishSuccesses.append(success)
-                }
-                self.takeContinuation()?.finish()
+            finish: { sessionID, success in
+                let continuation: AsyncStream<BackgroundProcessingEvent>.Continuation? =
+                    self.state.withLock {
+                        $0.finishRecords.append(
+                            FinishRecord(sessionID: sessionID, success: success)
+                        )
+                        guard $0.currentSessionID == sessionID else { return nil }
+                        let continuation = $0.continuation
+                        $0.currentSessionID = nil
+                        $0.continuation = nil
+                        return continuation
+                    }
+                continuation?.finish()
             }
         )
     }

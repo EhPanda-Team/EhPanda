@@ -301,6 +301,112 @@ extension DownloadFeatureTestCase {
 
 }
 
+// MARK: - Continued Session Fixtures
+
+/// One gallery to seed on disk. A named value rather than a tuple, so a case that cares only
+/// about page counts still reads as page counts at the call site.
+struct SessionGallery {
+    let gid: String
+    let title: String
+    let pageCount: Int
+    var completedPageCount = 0
+}
+
+struct SessionFixture {
+    let manager: DownloadCoordinator
+    let storage: DownloadStore
+    let rootURL: URL
+}
+
+extension DownloadFeatureTestCase {
+    /// The blocking fixture with its queue cleared, so the single download starts out inactive and
+    /// unschedulable. That is the state a resume has to move, which makes the tap under test the
+    /// only thing that can produce schedulable work.
+    func makeInactiveCoordinator(
+        gid: String,
+        client: BackgroundProcessingClient,
+        galleryTitle: String = "Queued"
+    ) async throws -> BlockingCoordinatorContext {
+        let context = try await makeBlockingCoordinator(
+            gid: gid,
+            title: galleryTitle,
+            backgroundProcessingClient: client
+        )
+        await context.manager.testingSetQueuedGalleryIDs([])
+        return context
+    }
+
+    /// A coordinator holding `galleries` on disk with `queuedGIDs` enqueued, and nothing running.
+    ///
+    /// Deliberately not the blocking fixture: a queued gallery is schedulable on its own, so this
+    /// makes the queue's *shape* the only variable an arithmetic case has to reason about. No task
+    /// runner is installed either, so no download can start and mutate the counts underneath an
+    /// assertion.
+    func makeQueuedCoordinator(
+        galleries: [SessionGallery],
+        queuedGIDs: [String]? = nil,
+        client: BackgroundProcessingClient,
+        now: @escaping @Sendable () -> Date = { Date() }
+    ) async throws -> SessionFixture {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared,
+            backgroundProcessingClient: client,
+            now: now
+        )
+
+        try storage.ensureRootDirectory()
+        for gallery in galleries {
+            try writeGalleryFolder(storage: storage, gallery: gallery)
+        }
+        await manager.reloadDownloadIndex()
+        await manager.testingSetQueuedGalleryIDs(queuedGIDs ?? galleries.map(\.gid))
+        return SessionFixture(manager: manager, storage: storage, rootURL: rootURL)
+    }
+
+    /// Writes one gallery folder whose manifest reports `completedPageCount` finished pages: a
+    /// page counts as done when its hash entry is non-empty, which is the same rule the index
+    /// derives progress from.
+    private func writeGalleryFolder(
+        storage: DownloadStore,
+        gallery: SessionGallery
+    ) throws {
+        let folderURL = storage.folderURL(
+            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
+        )
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(manifest(for: gallery), folderURL: folderURL)
+    }
+
+    func manifest(for gallery: SessionGallery) -> DownloadManifest {
+        DownloadManifest(
+            gid: gallery.gid,
+            host: .ehentai,
+            token: "token",
+            title: gallery.title,
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
+            uploader: "Uploader",
+            tags: [],
+            postedDate: .now,
+            rating: 4,
+            pages: Dictionary(
+                uniqueKeysWithValues: (0..<gallery.pageCount).map { offset in
+                    (offset + 1, offset < gallery.completedPageCount ? "sha256:done" : "")
+                }
+            )
+        )
+    }
+}
+
 // MARK: - Blocking Coordinator Fixture
 
 /// Gives the free functions below a receiver for `DownloadFeatureTestCase`'s shared factories.
