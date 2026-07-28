@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-05-PLAN.md
-last_updated: "2026-07-28T01:02:59.262Z"
+stopped_at: Completed 15-06-PLAN.md
+last_updated: "2026-07-28T01:28:08.649Z"
 last_activity: 2026-07-28
 last_activity_desc: Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 178
-  completed_plans: 176
+  completed_plans: 177
   percent: 81
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-28 — Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
 Next: /gsd-execute-phase 15 — plan 15-06 reconciles the session at the queue convergence points and pushes progress on the flush cadence
@@ -232,6 +232,7 @@ Progress: [██████████] 99% (13/16 phases)
 | Phase 15 P03 | 6min | 2 tasks | 2 files |
 | Phase 15 P04 | 13min | 3 tasks | 7 files |
 | Phase 15 P05 | 15min | 2 tasks | 6 files |
+| Phase 15 P06 | 22min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -544,6 +545,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-04: The session spy takes and clears its continuation in one critical section, so a double terminal transition is structurally impossible in tests as it is in production
 - [Phase ?]: 15-05: Session lifecycle methods are public, matching the module convention, so the lifecycle suite can drive them without @testable
 - [Phase ?]: 15-05: The pushed session total is held at or above the monotonic completed count, so a queue shrink cannot report a fraction above one
+- [Phase ?]: 15-06: the card's pushed subtitle is built from the same clamped counts the progress bar receives, so a queue shrink cannot show a full bar beside a zero-of-four caption
+- [Phase ?]: 15-06: expiration parity is asserted against a per-gallery pause baseline computed from an identical fixture, never against a hard-coded display status
+- [Phase ?]: 15-06: session progress rides the throttled manifest flush (one throttle for both the manifest write and the card), because steady progress reporting is what keeps the scheduler from expiring the task as stalled
 
 ### Pending Todos
 
@@ -591,6 +595,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T01:02:59.254Z
-Stopped at: Completed 15-05-PLAN.md
+Last session: 2026-07-28T01:28:00.126Z
+Stopped at: Completed 15-06-PLAN.md
 Resume file: None
