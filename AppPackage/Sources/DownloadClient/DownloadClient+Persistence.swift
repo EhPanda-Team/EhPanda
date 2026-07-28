@@ -180,6 +180,24 @@ extension DownloadCoordinator {
         await queueStore.remove(gid)
     }
 
+    /// Persists accumulated page progress, subject to the throttle, and reports it onwards.
+    ///
+    /// The continued-processing session's card is refreshed from here, not from the page loop
+    /// that calls this, and not only from queue mutations. Three reasons, in ascending order of
+    /// how much they matter:
+    ///
+    /// This routine is where the throttle decision is made, so one throttle governs both the
+    /// manifest write and the card update, and the two can never drift onto different cadences.
+    /// It also covers forced flushes as well as cadence flushes, which the page-loop site would
+    /// miss. And it already runs on the coordinator, so session state is reachable without
+    /// introducing a new suspension hazard.
+    ///
+    /// The reason the push exists at all is liveness, not decoration: the scheduler forcibly
+    /// expires tasks that appear stalled, and prioritizes terminating the ones reporting the
+    /// least progress. A session whose completed count only moved when a gallery finished would
+    /// look stalled for the whole of a long gallery. Reporting on the page cadence is therefore
+    /// a functional requirement of keeping the session alive, which is why it rides the flush
+    /// rather than the queue mutation.
     public func flushDownloadProgress(
         context: ProgressFlushContext,
         pendingResolvedPages: inout [PageResult],
@@ -202,6 +220,7 @@ extension DownloadCoordinator {
             .removeAll(keepingCapacity: true)
         lastFlushDate = now()
         await notifyObservers()
+        await pushContinuedSessionProgress()
     }
 
     public func flushManifestPageProgress(
