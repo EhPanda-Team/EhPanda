@@ -96,7 +96,9 @@ extension DownloadCoordinator {
             .first
     }
 
-    private func isSchedulableDownload(
+    /// Internal rather than private so the continued-processing session selects the very same
+    /// gallery set the scheduler does. A second, divergent predicate is the bug this avoids.
+    func isSchedulableDownload(
         _ download: DownloadedGallery
     ) -> Bool {
         !schedulingBlockedGalleryIDs.contains(download.gid)

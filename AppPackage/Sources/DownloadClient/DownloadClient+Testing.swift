@@ -50,5 +50,9 @@ extension DownloadCoordinator {
     public func testingActiveGalleryID() -> String? {
         activeGalleryID
     }
+
+    public func testingHasContinuedSession() -> Bool {
+        hasLiveContinuedSession
+    }
 }
 #endif
