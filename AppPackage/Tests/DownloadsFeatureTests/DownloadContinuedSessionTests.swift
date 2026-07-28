@@ -102,7 +102,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210001"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
+        // The defer guarantees fixture teardown; the trailing pause below proves behavior.
 
         // Nothing schedulable yet, so nothing has been requested.
         #expect(spy.startCount == 0)
@@ -123,7 +124,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210002"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
         #expect(spy.startCount == 1)
@@ -145,7 +146,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210003"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         await context.manager.ensureContinuedSession()
 
@@ -168,7 +169,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             client: spy.client,
             galleryTitle: galleryTitle
         )
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
 
@@ -193,7 +194,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210005"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         // Pushing before the tap records nothing at all: no session, no card, no update.
         await context.manager.pushContinuedSessionProgress(sessionID: UUID())
@@ -221,7 +222,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210006"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
         #expect(spy.startCount == 1)
@@ -242,7 +243,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210007"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
         #expect(spy.startCount == 1)
@@ -263,7 +264,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210008"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
         _ = await context.manager.pause(gid: gid)
@@ -701,7 +702,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     func testUnavailableSessionSurfacesNothingAndLeavesNoLiveSession() async throws {
         let gid = "210130"
         let context = try await makeInactiveCoordinator(gid: gid, client: .unavailable)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         // `.get()` is the assertion: the mobilizing tap must still report success even though the
         // session it asked for was refused outright.
@@ -728,7 +729,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let gid = "210140"
         let spy = BackgroundProcessingClientSpy()
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
-        defer { removeTemporaryItem(at: context.rootURL) }
+        defer { context.cleanUp() }
 
         try await context.manager.togglePause(gid: gid).get()
         let sessionID = try #require(await context.manager.testingContinuedSessionID())
