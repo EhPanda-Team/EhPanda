@@ -174,8 +174,9 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         #expect(await fixture.manager.testingHasContinuedSession() == false)
     }
 
-    /// WR-08: an expiration from a superseded session must stop before pausing any work covered
-    /// by the successor, and the successor must remain live enough to push and finish normally.
+    /// WR-08: pause-all belonging to a superseded session stops before its first pause, and the
+    /// successor remains live enough to push and finish normally. The post-guard suspension window
+    /// itself is covered by `DownloadContinuedSessionInterleaveTests`.
     @Test
     func testAForeignExpirationCannotPauseWorkASuccessorSessionCovers() async throws {
         let gid = "210180"
