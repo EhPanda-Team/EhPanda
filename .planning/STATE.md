@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-07-28T00:28:25.077Z"
+stopped_at: Completed 15-04-PLAN.md
+last_updated: "2026-07-28T00:44:54.764Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 15-03 (BackgroundProcessingClient rebuilt as a session seam)
+last_activity_desc: Completed 15-04 (card strings, coordinator injection, session client spy)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 178
-  completed_plans: 174
+  completed_plans: 175
   percent: 81
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
-Last activity: 2026-07-28 — Completed 15-03 (BackgroundProcessingClient rebuilt as a session seam)
-Next: /gsd-execute-phase 15 — plan 15-04 injects the session client into DownloadCoordinator; the seam exists but nothing consumes it yet
+Last activity: 2026-07-28 — Completed 15-04 (card strings, coordinator injection, session client spy)
+Next: /gsd-execute-phase 15 — plan 15-05 gives the coordinator its session lifecycle and wires the four queue-mobilizing tap sites
 
 Progress: [████████░░] 81% (13/16 phases)
 
@@ -230,6 +230,7 @@ Progress: [████████░░] 81% (13/16 phases)
 | Phase 15 P01 | 7min | 2 tasks | 5 files |
 | Phase 15 P02 | 14min | 3 tasks | 16 files |
 | Phase 15 P03 | 6min | 2 tasks | 2 files |
+| Phase 15 P04 | 13min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -537,6 +538,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-02: Shared test fixtures that non-conforming suites must reach live at file scope, reaching protocol-extension factories through a private empty conformer — Seven suites in DownloadsFeatureTests declare no DownloadFeatureTestCase conformance, and a file-scope function has no receiver for a protocol default
 - [Phase ?]: [Phase 15]: 15-03: The continued-processing launch handler and expiration handler inherit main-actor isolation directly; no MainActor.assumeIsolated is needed (settles RESEARCH Assumption A3).
 - [Phase ?]: [Phase 15]: 15-03: The session store clears its task and continuation before any terminal call, making a second terminal transition structurally impossible rather than merely guarded.
+- [Phase ?]: 15-04: Card subtitle declares completed/total/galleries as named lld substitutions, so the generated symbol takes three labeled Int parameters and no String — no gallery identity can reach the system card
+- [Phase ?]: 15-04: DownloadCoordinator stores backgroundProcessingClient with a .noop default; the live composition root injects .live, keeping every pre-existing test construction compiling
+- [Phase ?]: 15-04: The session spy takes and clears its continuation in one critical section, so a double terminal transition is structurally impossible in tests as it is in production
 
 ### Pending Todos
 
@@ -584,6 +588,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T00:27:57.824Z
-Stopped at: Completed 15-03-PLAN.md
+Last session: 2026-07-28T00:44:54.754Z
+Stopped at: Completed 15-04-PLAN.md
 Resume file: None
