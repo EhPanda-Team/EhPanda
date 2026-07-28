@@ -186,13 +186,25 @@ extension DownloadCoordinator {
             snapshot.progress.displayCompletedPageCount
         )
         lastPushedCompletedPageCount = completedPageCount
+        // The counts the card renders as a bar and the counts it renders as text are built from
+        // this one value, not from the raw snapshot, because they are two views of the same fact
+        // and a reader can see both at once. They only differ from the snapshot in the rare queue
+        // shrink handled above — but that is exactly when a bar sitting at full while the text
+        // reads "0 / 4 pages" would look like a defect.
+        let pushed = ContinuedSessionProgress(
+            progress: DownloadProgress(
+                completedPageCount: completedPageCount,
+                // Held at or above the monotonic completed count, so the rare shrink that drops
+                // the summed total below pages this session has already finished still cannot
+                // report a fraction above one.
+                pageCount: max(snapshot.progress.displayPageCount, completedPageCount)
+            ),
+            galleryCount: snapshot.galleryCount
+        )
         await backgroundProcessingClient.updateProgress(
-            Int64(completedPageCount),
-            // Held at or above the monotonic completed count, so the rare shrink that drops the
-            // summed total below pages this session has already finished still cannot report a
-            // fraction above one.
-            Int64(max(snapshot.progress.displayPageCount, completedPageCount)),
-            continuedSessionSubtitle(for: snapshot)
+            Int64(pushed.progress.displayCompletedPageCount),
+            Int64(pushed.progress.displayPageCount),
+            continuedSessionSubtitle(for: pushed)
         )
     }
 
