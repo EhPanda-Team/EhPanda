@@ -207,6 +207,10 @@ None - no external service configuration required.
 - The store's end of the seam now enforces the one-session-at-a-time invariant. Plan 15-09 closes the coordinator side (CR-02 session identity, CR-04 the `cancelQueuedWorkItem` reconciliation gap), after which SC1's automatable half is complete.
 - SC1's device half stays open: background launch, card presentation and system expiration are only observable on iOS 26 hardware, and the simulator does not support background processing at all.
 
+## Self-Check: PASSED
+
+All three created/modified artifacts exist on disk and all four commits (`8a13c58e`, `35dfae0e`, `5b7ecb19`, `343de099`) are present in git history.
+
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-07-28*

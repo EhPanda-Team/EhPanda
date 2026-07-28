@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 7/7 | In Progress|  |
+| 15. Continued Background Downloads | 8/9 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 9 plans — 7/9 executed (15-08 and 15-09 are gap-closure plans from the verification report)
+**Plans**: 8/9 plans executed
 
 Plans:
 **Wave 1**
@@ -845,7 +845,7 @@ Plans:
 
 **Wave 8** *(gap closure — after Wave 7)*
 
-- [ ] 15-08-PLAN.md — Session store: cancel abandoned requests, identity-check adoption, store regression suite
+- [x] 15-08-PLAN.md — Session store: cancel abandoned requests, identity-check adoption, store regression suite
 
 **Wave 9** *(gap closure — blocked on 15-08; serialization only, no code dependency — xcodebuild invocations must never overlap on this machine)*
 
