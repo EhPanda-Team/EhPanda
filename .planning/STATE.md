@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-06-PLAN.md
-last_updated: "2026-07-28T01:28:08.649Z"
+status: verifying
+stopped_at: Completed 15-07-PLAN.md
+last_updated: "2026-07-28T01:46:48.150Z"
 last_activity: 2026-07-28
 last_activity_desc: Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 178
-  completed_plans: 177
-  percent: 81
+  completed_plans: 178
+  percent: 88
 ---
 
 # Project State
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 15 (continued-background-downloads) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-28 — Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
 Next: /gsd-execute-phase 15 — plan 15-06 reconciles the session at the queue convergence points and pushes progress on the flush cadence
 
-Progress: [██████████] 99% (13/16 phases)
+Progress: [██████████] 100% (13/16 phases)
 
 ## Performance Metrics
 
@@ -233,6 +233,7 @@ Progress: [██████████] 99% (13/16 phases)
 | Phase 15 P04 | 13min | 3 tasks | 7 files |
 | Phase 15 P05 | 15min | 2 tasks | 6 files |
 | Phase 15 P06 | 22min | 3 tasks | 5 files |
+| Phase 15 P07 | 16min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -548,6 +549,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-06: the card's pushed subtitle is built from the same clamped counts the progress bar receives, so a queue shrink cannot show a full bar beside a zero-of-four caption
 - [Phase ?]: 15-06: expiration parity is asserted against a per-gallery pause baseline computed from an identical fixture, never against a hard-coded display status
 - [Phase ?]: 15-06: session progress rides the throttled manifest flush (one throttle for both the manifest write and the card), because steady progress reporting is what keeps the scheduler from expiring the task as stalled
+- [Phase ?]: The topology decision is enforced by a source-tree invariant that scans the app target, package sources, package tests, the extension and App/Info.plist for eight deleted background-execution spellings, demonstrated failing on a deliberate violation before acceptance
+- [Phase ?]: App/Info.plist is exempt only from the scheduler-scope assertion and is paid for by a paired count assertion, because the system key name contains the scheduler type name by construction
+- [Phase ?]: Every scanned token is assembled from fragments at run time so the invariant file is not a self-match and the repository grep gates can still read zero
+- [Phase ?]: ROADMAP Phase 15 amended to the shipped contract: no fallback tier in SC3, session seam plus coordinator in SC4, and the open scope question recorded as resolved rather than deleted
 
 ### Pending Todos
 
@@ -595,6 +600,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T01:28:00.126Z
-Stopped at: Completed 15-06-PLAN.md
+Last session: 2026-07-28T01:46:48.142Z
+Stopped at: Completed 15-07-PLAN.md
 Resume file: None
