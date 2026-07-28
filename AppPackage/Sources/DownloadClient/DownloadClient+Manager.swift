@@ -346,6 +346,13 @@ public actor DownloadCoordinator {
     public var activeGalleryID: String?
     public var activeTask: Task<Void, Never>?
     public var activeTaskGeneration = 0
+    /// Stamps the most recent user action that wrote queue intent for each gallery.
+    ///
+    /// `activeTaskGeneration` is the established scheduled-task stamp; this generation instead
+    /// names user intent. An expiration-owned pause needs both identities and its session id to
+    /// prove that its work is still current. Missing entries are generation zero and remain
+    /// comparable forever, so this dictionary needs no cleanup path.
+    public var queueIntentGenerations = [String: Int]()
     public var schedulingBlockedGalleryIDs = Set<String>()
     /// Whether this coordinator currently believes a continued-processing session is live.
     ///
@@ -467,6 +474,14 @@ public actor DownloadObserverHub {
 }
 
 extension DownloadCoordinator {
+    public func queueIntentGeneration(for gid: String) -> Int {
+        queueIntentGenerations[gid, default: 0]
+    }
+
+    public func advanceQueueIntentGeneration(for gid: String) {
+        queueIntentGenerations[gid, default: 0] += 1
+    }
+
     public func clearDownloadFailureState(
         gid: String,
         includePageFailures: Bool = true
