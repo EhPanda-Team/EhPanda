@@ -72,6 +72,7 @@ final class BackgroundProcessingClientSpy: Sendable {
     /// One `updateProgress` call. A named record rather than a tuple: an unlabeled tuple type is
     /// banned at error severity here, and `.0`/`.1` reads carry no meaning at an assertion site.
     struct ProgressUpdate: Equatable {
+        let sessionID: UUID
         let completedUnitCount: Int64
         let totalUnitCount: Int64
         let subtitle: String
@@ -113,8 +114,11 @@ final class BackgroundProcessingClientSpy: Sendable {
         var startCount = 0
         var startTitles = [String]()
         var startSubtitles = [String]()
+        var startCompletedUnitCounts = [Int64]()
+        var startTotalUnitCounts = [Int64]()
         var startSessionIDs = [UUID]()
         var progressUpdates = [ProgressUpdate]()
+        var rejectedProgressUpdates = [ProgressUpdate]()
         var finishRecords = [FinishRecord]()
         var currentSessionID: UUID?
         var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
@@ -127,8 +131,13 @@ final class BackgroundProcessingClientSpy: Sendable {
     var startCount: Int { state.withLock({ $0.startCount }) }
     var startTitles: [String] { state.withLock({ $0.startTitles }) }
     var startSubtitles: [String] { state.withLock({ $0.startSubtitles }) }
+    var startCompletedUnitCounts: [Int64] { state.withLock({ $0.startCompletedUnitCounts }) }
+    var startTotalUnitCounts: [Int64] { state.withLock({ $0.startTotalUnitCounts }) }
     var startSessionIDs: [UUID] { state.withLock({ $0.startSessionIDs }) }
     var progressUpdates: [ProgressUpdate] { state.withLock({ $0.progressUpdates }) }
+    var rejectedProgressUpdates: [ProgressUpdate] {
+        state.withLock({ $0.rejectedProgressUpdates })
+    }
     var finishRecords: [FinishRecord] { state.withLock({ $0.finishRecords }) }
     var finishCount: Int { finishRecords.count }
     var finishSuccesses: [Bool] { finishRecords.map(\.success) }
@@ -186,11 +195,13 @@ final class BackgroundProcessingClientSpy: Sendable {
 
     var client: BackgroundProcessingClient {
         BackgroundProcessingClient(
-            start: { title, subtitle in
+            start: { title, subtitle, completedUnitCount, totalUnitCount in
                 let shouldRefuse = self.state.withLock {
                     $0.startCount += 1
                     $0.startTitles.append(title)
                     $0.startSubtitles.append(subtitle)
+                    $0.startCompletedUnitCounts.append(completedUnitCount)
+                    $0.startTotalUnitCounts.append(totalUnitCount)
                     guard !$0.refusesNextStart else {
                         $0.refusesNextStart = false
                         return true
@@ -220,15 +231,19 @@ final class BackgroundProcessingClientSpy: Sendable {
                 }
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
-            updateProgress: { completedUnitCount, totalUnitCount, subtitle in
+            updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
                 self.state.withLock {
-                    $0.progressUpdates.append(
-                        ProgressUpdate(
-                            completedUnitCount: completedUnitCount,
-                            totalUnitCount: totalUnitCount,
-                            subtitle: subtitle
-                        )
+                    let update = ProgressUpdate(
+                        sessionID: sessionID,
+                        completedUnitCount: completedUnitCount,
+                        totalUnitCount: totalUnitCount,
+                        subtitle: subtitle
                     )
+                    if $0.currentSessionID == sessionID {
+                        $0.progressUpdates.append(update)
+                    } else {
+                        $0.rejectedProgressUpdates.append(update)
+                    }
                 }
             },
             finish: { sessionID, success in

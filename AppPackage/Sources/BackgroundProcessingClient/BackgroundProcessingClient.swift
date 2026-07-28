@@ -31,11 +31,22 @@ public struct BackgroundProcessingClient: Sendable {
     /// finishes itself after `expired`, after `unavailable`, or after `finish`, so a consuming
     /// effect never needs external cancellation. A `nil` result means the store's single-session
     /// guard refused the call, which is observable and retryable rather than a dead stream.
-    public var start: @Sendable (_ title: String, _ subtitle: String) async
-        -> BackgroundProcessingSession?
-    /// Pushes fresh counts and a refreshed subtitle to the system card. The caller owns
-    /// clamping and monotonicity.
+    ///
+    /// The counts are the caller's already-clamped snapshot at submission time. They are
+    /// recorded before the request is submitted so a task the system launches immediately
+    /// adopts real progress rather than an empty `Progress`.
+    public var start: @Sendable (
+        _ title: String,
+        _ subtitle: String,
+        _ completedUnitCount: Int64,
+        _ totalUnitCount: Int64
+    ) async -> BackgroundProcessingSession?
+    /// Pushes fresh counts and a refreshed subtitle to the named system card. The caller owns
+    /// clamping and monotonicity. A push is applied only when `sessionID` names the session the
+    /// store currently holds, so a caller that lost ownership across its own suspension cannot
+    /// repaint a successor's card.
     public var updateProgress: @Sendable (
+        _ sessionID: UUID,
         _ completedUnitCount: Int64,
         _ totalUnitCount: Int64,
         _ subtitle: String
@@ -49,11 +60,17 @@ public struct BackgroundProcessingClient: Sendable {
 
 extension BackgroundProcessingClient {
     public static let live = Self(
-        start: { title, subtitle in
-            await ContinuedProcessingSession.shared.start(title: title, subtitle: subtitle)
+        start: { title, subtitle, completedUnitCount, totalUnitCount in
+            await ContinuedProcessingSession.shared.start(
+                title: title,
+                subtitle: subtitle,
+                completedUnitCount: completedUnitCount,
+                totalUnitCount: totalUnitCount
+            )
         },
-        updateProgress: { completedUnitCount, totalUnitCount, subtitle in
+        updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
             await ContinuedProcessingSession.shared.updateProgress(
+                sessionID: sessionID,
                 completedUnitCount: completedUnitCount,
                 totalUnitCount: totalUnitCount,
                 subtitle: subtitle
@@ -82,8 +99,8 @@ extension DependencyValues {
 // MARK: Test
 extension BackgroundProcessingClient {
     public static let noop = Self(
-        start: { _, _ in nil },
-        updateProgress: { _, _, _ in },
+        start: { _, _, _, _ in nil },
+        updateProgress: { _, _, _, _ in },
         finish: { _, _ in }
     )
 }
