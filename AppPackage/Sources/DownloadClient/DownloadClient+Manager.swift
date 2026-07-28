@@ -347,15 +347,27 @@ public actor DownloadCoordinator {
     public var activeTask: Task<Void, Never>?
     public var activeTaskGeneration = 0
     public var schedulingBlockedGalleryIDs = Set<String>()
-    /// Whether this coordinator has already started a continued-processing session.
+    /// Whether this coordinator currently believes a continued-processing session is live.
     ///
-    /// One flag is enough here, unlike the two-state guard the deleted execution assertion
-    /// needed, because it is set synchronously before the start path's first suspension point
-    /// and is never rolled back: no window exists in which a concurrent caller sees it false
-    /// while a start is already in flight. That matters because registering a second session
-    /// under the same identifier terminates the app, and two live sessions would put two
-    /// progress cards on screen.
+    /// Set together with `continuedSessionID` in the same synchronous run as the guard in
+    /// `ensureContinuedSession()`, before that path's first suspension, so two callers racing the
+    /// guard cannot both reach the start call. That is what it guards against: registering a
+    /// second session under the same identifier terminates the app, and two live sessions would
+    /// put two progress cards on screen. The client store carries an independent re-entry guard
+    /// as a second line of defense behind it.
+    ///
+    /// It is rolled back, though — the teardown clears it — and `ensureContinuedSession()`
+    /// suspends twice after setting it, so a concurrent caller can legitimately see it false
+    /// while a start is still in flight. The flag alone therefore cannot say *which* session it
+    /// refers to, and this actor is reentrant: that is what `continuedSessionID` is for.
     public var hasLiveContinuedSession = false
+    /// Identifies the session `hasLiveContinuedSession` refers to, minted per session by
+    /// `ensureContinuedSession()` and nil exactly when no session is live.
+    ///
+    /// Stamping the session is what makes teardown and event delivery safe against staleness: a
+    /// superseded session's trailing teardown routinely lands late, and on a reentrant actor a
+    /// queue-mobilizing tap can legitimately have started a successor by then.
+    public var continuedSessionID: UUID?
     public var continuedSessionTask: Task<Void, Never>?
     public var lastPushedCompletedPageCount = 0
 
