@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 9/9 plans executed
+**Plans**: 11 plans — 9 executed, 2 pending (gap closure round 2)
 
 Plans:
 **Wave 1**
@@ -850,6 +850,14 @@ Plans:
 **Wave 9** *(gap closure — blocked on 15-08; serialization only, no code dependency — xcodebuild invocations must never overlap on this machine)*
 
 - [x] 15-09-PLAN.md — Coordinator: session-id-stamped teardown and the convergence-point cancel route
+
+**Wave 10** *(gap closure round 2 — blocked on 15-09: real code dependency on the 15-09 session-id lifecycle)*
+
+- [ ] 15-10-PLAN.md — Promote the store's session identity into the seam (session handle from start, id-taking finish) and thread it through every completion path, the pause loop, and the progress push; store-side identity regression cases
+
+**Wave 11** *(blocked on 15-10 — real code dependency plus xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-11-PLAN.md — Coordinator identity regressions in a new suite: the drain-then-second-tap interleave, refusal rollback, and the foreign-expiration pause-all gate
 
 ### Phase 16: Dynamic Type Accessibility
 
