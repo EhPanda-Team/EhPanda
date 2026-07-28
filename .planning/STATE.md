@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: ready to execute
-stopped_at: Gap-closure round 3 planned (15-12..15-16); awaiting execution
-last_updated: "2026-07-29T00:00:00.000Z"
+status: executing
+stopped_at: Completed 15-12-PLAN.md
+last_updated: "2026-07-28T16:21:31.232Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 15 gap-closure round 3 planned — 5 plans (15-12..15-16), plan-checker passed
+last_activity_desc: Phase 15 plan 12 completed
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 187
-  completed_plans: 182
-  percent: 88
+  completed_plans: 183
+  percent: 98
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY TO EXECUTE
-Plan: 11 of 16 (11 executed; 15-12..15-16 planned for gap closure, waves 12-16)
-Status: Gap-closure round 3 planned — plan-checker passed; 15-16 blocks on an owner decision
-Last activity: 2026-07-29 — Phase 15 gap-closure planning: 5 plans created, revised once, verified
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 12 of 16
+Status: Plan 12 complete; ready to execute plan 13
+Last activity: 2026-07-29 — Seeded and session-identified continued progress
 Next: /gsd-execute-phase 15 — execute the gap-closure plans
 
-Progress: [█████████░] 88% (14/16 phases)
+Progress: [██████████] 98% (14/16 phases)
 
 ## Performance Metrics
 
@@ -238,6 +238,7 @@ Progress: [█████████░] 88% (14/16 phases)
 | Phase 15 P09 | 47min | 2 tasks | 4 files |
 | Phase 15 P10 | 25min | 2 tasks | 10 files |
 | Phase 15 P11 | 10min | 2 tasks | 2 files |
+| Phase 15 P12 | 12min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -565,6 +566,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-10: Shared continued-session fixtures live in DownloadFeatureTestHelpers to preserve the hard file-length gate and support plan 15-11.
 - [Phase 15]: Record accepted starts completely before parking behind the deterministic one-shot gate. — The entered signal must expose the exact in-flight identity state without polling.
 - [Phase 15]: Model client refusal as an observable call that creates no session identity or event stream. — The spy must reproduce the store contract so coordinator rollback and retry remain testable.
+- [Phase 15]: 15-12: Capture title, subtitle, completed count, and total count from one coordinator snapshot before submitting the continued session.
+- [Phase 15]: 15-12: Every card progress mutation presents the client session id read after the coordinator's post-suspension ownership re-check.
+- [Phase 15]: 15-12: Stage stale progress after seam entry but before the identity guard so S1-to-S2 rejection is deterministic.
 
 ### Pending Todos
 
@@ -612,6 +616,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T10:47:43.351Z
-Stopped at: Completed 15-11-PLAN.md
+Last session: 2026-07-28T16:21:31.225Z
+Stopped at: Completed 15-12-PLAN.md
 Resume file: None
