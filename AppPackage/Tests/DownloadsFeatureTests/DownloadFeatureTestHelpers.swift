@@ -339,14 +339,16 @@ extension DownloadFeatureTestCase {
     /// A coordinator holding `galleries` on disk with `queuedGIDs` enqueued, and nothing running.
     ///
     /// Deliberately not the blocking fixture: a queued gallery is schedulable on its own, so this
-    /// makes the queue's *shape* the only variable an arithmetic case has to reason about. No task
-    /// runner is installed either, so no download can start and mutate the counts underneath an
-    /// assertion.
+    /// makes the queue's *shape* the only variable an arithmetic case has to reason about. The
+    /// default runner preserves the existing setup behavior: fixture construction never invokes
+    /// scheduling, so no download can start underneath an assertion. Tests that need to observe
+    /// scheduling without performing a download inject a task runner.
     func makeQueuedCoordinator(
         galleries: [SessionGallery],
         queuedGIDs: [String]? = nil,
         client: BackgroundProcessingClient,
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        taskRunner: DownloadTaskRunner = DownloadTaskRunner()
     ) async throws -> SessionFixture {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -355,6 +357,7 @@ extension DownloadFeatureTestCase {
             storage: storage,
             urlSession: .shared,
             backgroundProcessingClient: client,
+            taskRunner: taskRunner,
             now: now
         )
 
