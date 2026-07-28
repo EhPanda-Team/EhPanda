@@ -256,12 +256,7 @@ extension DownloadCoordinator {
             // `.active`; every exit path notifies here instead, after ownership
             // is cleared, so the settled status (completed/error) is what lands.
             await self.notifyObservers()
-            guard schedulesNext else {
-                // The collision-cleanup path skips rescheduling, but the assertion still
-                // has to be released if this was the last in-flight download.
-                await self.reconcileBackgroundAssertion()
-                return
-            }
+            guard schedulesNext else { return }
             await self.scheduleNextIfNeeded()
         }
     }
