@@ -344,6 +344,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
+            .module(.backgroundProcessingClient),
             .module(.libraryClient),
             .module(.networkingFeature),
             .module(.osLogExt),
@@ -396,7 +397,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .backgroundProcessingClient,
         dependencies: [
-            .module(.appModels),
             .module(.osLogExt),
             .targetDependency(.composableArchitecture)
         ],
