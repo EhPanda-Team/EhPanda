@@ -90,6 +90,11 @@ extension DownloadCoordinator {
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
+            // Ensured here, after the work is committed and already running, rather than at the
+            // scheduling convergence point: only a foreground user action can submit a session.
+            // Work that becomes schedulable without a tap — the queue resuming at cold launch,
+            // say — therefore runs foreground-only until the next qualifying tap, deliberately.
+            await ensureContinuedSession()
             logger.notice(
                 """
                 Download enqueued, gid: \(payload.gallery.gid, privacy: .public), \
@@ -162,7 +167,12 @@ extension DownloadCoordinator {
         case .queued, .active:
             return await pause(gid: gid)
         case .inactive:
-            return await resume(gid: gid)
+            // The one branch of this toggle that mobilizes the queue. The branches above pause an
+            // active download or cancel a queued work item, and neither may start a session.
+            let result = await resume(gid: gid)
+            guard case .success = result else { return result }
+            await ensureContinuedSession()
+            return result
         case .completed, .error, .updateAvailable:
             return .failure(.unknown)
         }
