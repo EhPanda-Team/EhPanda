@@ -65,4 +65,75 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         ])
         #expect(await fixture.manager.testingHasContinuedSession() == false)
     }
+
+    /// WR-01: a refused store start must synchronously surrender coordinator ownership so the
+    /// next queue-mobilizing tap can install a real session instead of consuming a dead stream.
+    @Test
+    func testARefusedStartRollsBookkeepingBackAndTheNextTapStartsARealSession() async throws {
+        let gid = "210170"
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [
+                .init(gid: gid, title: "Retryable", pageCount: 6, completedPageCount: 2)
+            ],
+            client: spy.client
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        spy.refuseNextStart()
+        await fixture.manager.ensureContinuedSession()
+
+        #expect(spy.startCount == 1)
+        #expect(await fixture.manager.testingHasContinuedSession() == false)
+        #expect(spy.finishRecords.isEmpty)
+
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startCount == 2)
+        #expect(await fixture.manager.testingHasContinuedSession())
+
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        let updatesBeforePush = spy.progressUpdates.count
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        #expect(spy.progressUpdates.count == updatesBeforePush + 1)
+
+        _ = await fixture.manager.pause(gid: gid)
+        #expect(spy.finishRecords == [
+            .init(sessionID: try #require(spy.startSessionIDs.last), success: true)
+        ])
+        #expect(await fixture.manager.testingHasContinuedSession() == false)
+    }
+
+    /// WR-08: an expiration from a superseded session must stop before pausing any work covered
+    /// by the successor, and the successor must remain live enough to push and finish normally.
+    @Test
+    func testAForeignExpirationCannotPauseWorkASuccessorSessionCovers() async throws {
+        let gid = "210180"
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [
+                .init(gid: gid, title: "Successor", pageCount: 7, completedPageCount: 3)
+            ],
+            client: spy.client
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startCount == 1)
+        #expect(await fixture.manager.testingHasContinuedSession())
+
+        await fixture.manager.pauseAllSchedulable(expiring: UUID())
+        #expect(spy.finishRecords.isEmpty)
+        #expect(await fixture.manager.testingHasContinuedSession())
+
+        let updatesBeforeReconcile = spy.progressUpdates.count
+        await fixture.manager.reconcileContinuedSession()
+        #expect(spy.progressUpdates.count == updatesBeforeReconcile + 1)
+        #expect(spy.finishRecords.isEmpty)
+
+        _ = await fixture.manager.pause(gid: gid)
+        #expect(spy.finishRecords == [
+            .init(sessionID: try #require(spy.startSessionIDs.last), success: true)
+        ])
+        #expect(await fixture.manager.testingHasContinuedSession() == false)
+    }
 }
