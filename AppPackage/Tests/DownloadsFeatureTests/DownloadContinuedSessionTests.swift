@@ -720,6 +720,44 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(spy.finishSuccesses == [true])
         #expect(!(await context.manager.testingHasContinuedSession()))
     }
+
+    /// WR-04: the update, redownload and repair cancel mutated the queue without reaching the
+    /// convergence point every other mutation exits through, so a cancel that emptied the
+    /// schedulable set left the session live with nothing able to complete it — after which the
+    /// system force-expired the card as stalled and the D-11 policy paused downloads the user
+    /// never touched. Ordinary tap reachability: `toggleDownloadPause` routes a queued update here.
+    @Test
+    func testCancellingTheLastQueuedWorkItemCompletesTheSession() async throws {
+        let gid = "210150"
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [.init(gid: gid, title: "Updating", pageCount: 5, completedPageCount: 1)],
+            client: spy.client
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startCount == 1)
+        #expect(await fixture.manager.testingHasContinuedSession())
+
+        let download = try #require(await fixture.manager.indexedDownloads(gids: [gid]).first)
+        try await fixture.manager.cancelQueuedWorkItem(download, mode: .update).get()
+
+        #expect(spy.finishCount == 1)
+        #expect(spy.finishSuccesses == [true])
+        #expect(!(await fixture.manager.testingHasContinuedSession()))
+
+        // D-07: the next queue-mobilizing moment starts a fresh session rather than folding into
+        // the dead one — and that one still drains, so the case leaves nothing live behind it.
+        await fixture.manager.testingSetQueuedGalleryIDs([gid])
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startCount == 2)
+
+        _ = await fixture.manager.pause(gid: gid)
+        #expect(spy.finishCount == 2)
+        #expect(spy.finishSuccesses == [true, true])
+        #expect(!(await fixture.manager.testingHasContinuedSession()))
+    }
 }
 
 // MARK: - Helpers

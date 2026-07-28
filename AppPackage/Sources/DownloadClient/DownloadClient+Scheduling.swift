@@ -219,6 +219,10 @@ extension DownloadCoordinator {
         clearDownloadQueueIntent(gid: download.gid)
         await queueStore.remove(download.gid)
         await notifyObservers()
+        // This removal can take the last schedulable item out of the queue, and only the
+        // convergence point's tail can then complete a live session. The `.initial` branch above
+        // reaches it through `pause`, which converges on its own.
+        await scheduleNextIfNeeded()
         return .success(())
     }
 
