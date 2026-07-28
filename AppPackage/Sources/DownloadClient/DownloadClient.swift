@@ -1,5 +1,6 @@
 import AppModels
 import AppTools
+import BackgroundProcessingClient
 import ComposableArchitecture
 import Foundation
 import OSLogExt
@@ -73,6 +74,7 @@ extension DownloadClient {
             urlSession: urlSession,
             pageDownloader: pageDownloader,
             backgroundTaskStore: backgroundTaskStore,
+            backgroundProcessingClient: .live,
             downloadOptionsProvider: {
                 @Shared(.setting) var setting
                 return setting.downloadRequestOptions
