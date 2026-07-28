@@ -68,17 +68,19 @@ extension DownloadCoordinator {
     /// identifier for a session that never starts. Work that becomes schedulable without a tap
     /// therefore runs foreground-only until the next qualifying tap.
     ///
-    /// Setting the liveness flag synchronously, before the first point another caller could
-    /// interleave, is the whole guard against a second session; nothing rolls it back. It matters
-    /// for more than a duplicate card: identifiers are minted per session, and registering a
-    /// second launch handler for one terminates the app.
+    /// Setting the liveness flag and stamping the session id synchronously, before the first
+    /// point another caller could interleave, is the guard against two callers both reaching the
+    /// start call. It matters for more than a duplicate card: identifiers are minted per session,
+    /// and registering a second launch handler for one terminates the app.
     ///
     /// Nothing here gates download work. The queue is already running by the time this is called,
     /// and a submission can silently never start, so the session is background insurance rather
     /// than a precondition for the work.
     public func ensureContinuedSession() async {
         guard !hasLiveContinuedSession, await hasPendingWork() else { return }
+        let sessionID = UUID()
         hasLiveContinuedSession = true
+        continuedSessionID = sessionID
         lastPushedCompletedPageCount = 0
 
         let snapshot = await schedulableProgress()
@@ -86,13 +88,23 @@ extension DownloadCoordinator {
             String(localized: .continuedSessionTitle),
             continuedSessionSubtitle(for: snapshot)
         )
+        // Both awaits above are windows: this actor is reentrant, so a reconcile running from
+        // another task can drain the queue and tear this very session down inside them — and its
+        // `finish` can even land on the store before the `start` above does, making that finish a
+        // no-op. Losing ownership here therefore leaves the client session `start` just created
+        // with nothing that will ever complete it, so it is completed here rather than handed a
+        // consuming task for a session the coordinator has already moved on from.
+        guard continuedSessionID == sessionID else {
+            await backgroundProcessingClient.finish(true)
+            return
+        }
         continuedSessionTask = Task { [weak self] in
             for await event in stream {
-                await self?.handleContinuedSessionEvent(event)
+                await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
             }
             // The stream finishes itself, so falling out of this loop *is* the session ending;
             // no external cancellation exists, and none is needed.
-            await self?.markContinuedSessionEnded()
+            await self?.markContinuedSessionEnded(sessionID: sessionID)
         }
     }
 
@@ -106,31 +118,47 @@ extension DownloadCoordinator {
     /// accepted, because no fallback tier exists: after a reclaim the work could not have
     /// continued anyway. Read as two behaviors that happen to coincide, the uniformity looks like
     /// a bug, which is exactly why it is written down here.
+    ///
+    /// That policy belongs to the live session alone, which is why the identity gate comes first:
+    /// an event surfacing from a superseded session's stream must not log as current, must not
+    /// clear the live session's state, and above all must not pause work a newer session covers.
     public func handleContinuedSessionEvent(
-        _ event: BackgroundProcessingEvent
+        _ event: BackgroundProcessingEvent,
+        sessionID: UUID
     ) async {
+        guard continuedSessionID == sessionID else { return }
         switch event {
         case .granted:
             // Nothing to start: the work has been running since the tap that requested this.
             logger.notice("Continued-processing session granted.")
         case .expired:
             logger.notice("Continued-processing session expired, pausing schedulable downloads.")
-            markContinuedSessionEnded()
+            markContinuedSessionEnded(sessionID: sessionID)
             await pauseAllSchedulable()
         case .unavailable:
             // Silent by contract: nothing reaches a reducer, there is no error surface, and the
             // queue behaves exactly as it does in the foreground.
             logger.notice("Continued-processing session unavailable, the queue runs foreground-only.")
-            markContinuedSessionEnded()
+            markContinuedSessionEnded(sessionID: sessionID)
         }
     }
 
-    /// Clears every trace of a live session.
+    /// Clears every trace of *this* session, and of no other.
     ///
-    /// Safe to call more than once, and routinely called twice: the event handler ends the
-    /// session before acting on an expiration, and the consuming task ends it again when the
-    /// stream finishes immediately behind that same event.
-    public func markContinuedSessionEnded() {
+    /// Safe to call more than once for the same session, and routinely called twice: the event
+    /// handler ends the session before acting on an expiration, and the consuming task ends it
+    /// again when the stream finishes immediately behind that same event.
+    ///
+    /// The identity guard is why the second call is harmless even when a *different* session is
+    /// live by then. That teardown routinely lands late — the expired branch awaits an unbounded
+    /// run of per-gallery pauses before its loop exits — and on this reentrant actor a
+    /// queue-mobilizing tap can legitimately start a successor inside that window. A teardown
+    /// finding a different id must be a no-op, or it detaches the live session: the coordinator
+    /// would believe none exists while the system still shows its card, so nothing would push
+    /// progress and nothing would complete it.
+    public func markContinuedSessionEnded(sessionID: UUID) {
+        guard continuedSessionID == sessionID else { return }
+        continuedSessionID = nil
         hasLiveContinuedSession = false
         continuedSessionTask = nil
         lastPushedCompletedPageCount = 0
@@ -158,12 +186,17 @@ extension DownloadCoordinator {
     /// Built to hang off the single point every queue mutation converges on, so a session can
     /// never be left running after the last download is paused or deleted — those paths null the
     /// active task directly, but they still reschedule afterwards.
+    ///
+    /// The id is bound before the schedulable-work read and re-checked after it because that read
+    /// suspends: a reconcile that crosses a session transition there must neither clear the
+    /// successor's state nor finish the successor's client-side stream.
     public func reconcileContinuedSession() async {
-        guard hasLiveContinuedSession else { return }
+        guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
+            guard continuedSessionID == sessionID else { return }
             // Ended first: completion is the last thing this session does, and the client's
             // stream finishing behind it must find no state left to clear.
-            markContinuedSessionEnded()
+            markContinuedSessionEnded(sessionID: sessionID)
             await backgroundProcessingClient.finish(true)
             return
         }
