@@ -292,4 +292,100 @@ struct ContinuedProcessingSessionTests {
         }
         #expect(events == [.granted, .expired])
     }
+
+    /// CR-04 regression: a caller that lost ownership while suspended must not be able to finish
+    /// the successor session now held by the store.
+    @Test
+    func testFinishWithAForeignSessionIDIsANoOp() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery"
+            )
+        )
+        let identifier = try #require(spy.registeredIdentifiers.first)
+        let task = ContinuedTaskSpy()
+        spy.launch(identifier, with: task)
+
+        store.finish(sessionID: UUID(), success: false)
+        #expect(task.completionSuccesses.isEmpty)
+
+        store.updateProgress(
+            completedUnitCount: 4,
+            totalUnitCount: 10,
+            subtitle: "4 / 10 pages · 1 gallery"
+        )
+        #expect(task.progress.totalUnitCount == 10)
+        #expect(task.progress.completedUnitCount == 4)
+        #expect(
+            task.titleUpdates == [
+                .init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")
+            ]
+        )
+
+        store.finish(sessionID: session.id, success: true)
+        #expect(task.completionSuccesses == [true])
+
+        var events = [BackgroundProcessingEvent]()
+        for await event in session.events {
+            events.append(event)
+        }
+        #expect(events == [.granted])
+    }
+
+    /// Refusal-observability regression: re-entry must return `nil` without touching the
+    /// scheduler, and completing the held session must make the next start genuinely usable.
+    @Test
+    func testStartWhileASessionIsHeldIsRefusedAndALaterStartSucceeds() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        let firstSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery"
+            )
+        )
+        let firstIdentifier = try #require(spy.registeredIdentifiers.first)
+        #expect(spy.registeredIdentifiers.count == 1)
+        #expect(spy.submissions.count == 1)
+
+        let refusedSession = store.start(
+            title: "Downloading galleries",
+            subtitle: "0 / 20 pages · 2 galleries"
+        )
+        #expect(refusedSession == nil)
+        #expect(spy.registeredIdentifiers.count == 1)
+        #expect(spy.submissions.count == 1)
+
+        store.finish(sessionID: firstSession.id, success: true)
+
+        let laterSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 20 pages · 2 galleries"
+            )
+        )
+        let laterIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(spy.registeredIdentifiers.count == 2)
+        #expect(laterIdentifier != firstIdentifier)
+        #expect(spy.submissions.map(\.identifier) == [firstIdentifier, laterIdentifier])
+
+        store.finish(sessionID: laterSession.id, success: true)
+
+        var firstEvents = [BackgroundProcessingEvent]()
+        for await event in firstSession.events {
+            firstEvents.append(event)
+        }
+        #expect(firstEvents.isEmpty)
+
+        var laterEvents = [BackgroundProcessingEvent]()
+        for await event in laterSession.events {
+            laterEvents.append(event)
+        }
+        #expect(laterEvents.isEmpty)
+    }
 }
