@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Dynamic Type Accessibility | 2/7 | In Progress|  |
+| 15. Dynamic Type Accessibility | 3/7 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Open for discuss-phase**: whether `BGContinuedProcessingTask` *replaces* the discretionary `BGProcessingTask` path for downloads or runs alongside it as the user-initiated tier; and whether the same seam should cover any non-download work. `Info.plist` already carries `BGTaskSchedulerPermittedIdentifiers` and `UIBackgroundModes`, so the entitlement surface is an edit, not a new capability.
 
-**Plans**: 2/7 plans executed
+**Plans**: 3/7 plans executed
 
 Plans:
 **Wave 1**
@@ -825,7 +825,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 15-03-PLAN.md — Rebuild BackgroundProcessingClient as a main-actor-confined session seam
+- [x] 15-03-PLAN.md — Rebuild BackgroundProcessingClient as a main-actor-confined session seam
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
