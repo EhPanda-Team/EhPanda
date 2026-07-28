@@ -4,11 +4,11 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: verifying
+status: executing
 stopped_at: Completed 15-07-PLAN.md
-last_updated: "2026-07-28T01:46:48.150Z"
+last_updated: "2026-07-28T03:10:35.860Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
+last_activity_desc: Planned gap closure 15-08/15-09 (session-lifecycle defects, waves 8-9)
 progress:
   total_phases: 16
   completed_phases: 14
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-07-28 — Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
-Next: /gsd-execute-phase 15 — plan 15-06 reconciles the session at the queue convergence points and pushes progress on the flush cadence
+Plan: 7 of 9 executed
+Status: Ready to execute (gap closure)
+Last activity: 2026-07-28 — Planned gap closure 15-08/15-09 (session-lifecycle defects, waves 8-9)
+Next: /gsd-execute-phase 15 — wave 8 (15-08 scheduler seam + client fixes), then wave 9 (15-09 coordinator session identity)
 
 Progress: [██████████] 100% (13/16 phases)
 
