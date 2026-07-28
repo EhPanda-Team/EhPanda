@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 7/7 plans executed
+**Plans**: 9 plans — 7/9 executed (15-08 and 15-09 are gap-closure plans from the verification report)
 
 Plans:
 **Wave 1**
@@ -842,6 +842,11 @@ Plans:
 **Wave 7** *(blocked on Wave 6 completion)*
 
 - [x] 15-07-PLAN.md — Topology invariant, roadmap amendment, phase gates and device observation
+
+**Wave 8** *(gap closure — parallel, after Wave 7)*
+
+- [ ] 15-08-PLAN.md — Session store: cancel abandoned requests, identity-check adoption, store regression suite
+- [ ] 15-09-PLAN.md — Coordinator: session-id-stamped teardown and the convergence-point cancel route
 
 ### Phase 16: Dynamic Type Accessibility
 
