@@ -84,6 +84,31 @@ final class BackgroundProcessingClientSpy: Sendable {
         let success: Bool
     }
 
+    /// One-shot rendezvous for a staged start. `entered()` returns only after the spy has recorded
+    /// the start, and `release()` lets that start return its session handle.
+    struct StartGate: Sendable {
+        fileprivate let enteredEvents: AsyncStream<Void>
+        fileprivate let releaseContinuation: AsyncStream<Void>.Continuation
+
+        func entered() async {
+            for await _ in enteredEvents {
+                return
+            }
+        }
+
+        func release() {
+            releaseContinuation.yield()
+            releaseContinuation.finish()
+        }
+    }
+
+    /// The spy-owned half of a start gate. Keeping both continuations in the mutex-protected state
+    /// lets the next start take the gate atomically with its complete recording.
+    private struct ArmedStartGate: Sendable {
+        let enteredContinuation: AsyncStream<Void>.Continuation
+        let releaseEvents: AsyncStream<Void>
+    }
+
     private struct State {
         var startCount = 0
         var startTitles = [String]()
@@ -93,6 +118,8 @@ final class BackgroundProcessingClientSpy: Sendable {
         var finishRecords = [FinishRecord]()
         var currentSessionID: UUID?
         var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
+        var armedStartGate: ArmedStartGate?
+        var refusesNextStart = false
     }
 
     private let state = Mutex(State())
@@ -105,6 +132,31 @@ final class BackgroundProcessingClientSpy: Sendable {
     var finishRecords: [FinishRecord] { state.withLock({ $0.finishRecords }) }
     var finishCount: Int { finishRecords.count }
     var finishSuccesses: [Bool] { finishRecords.map(\.success) }
+
+    /// Arms a one-shot gate for the next accepted start.
+    ///
+    /// The start records its complete session state before signaling `entered`, then parks until
+    /// the returned handle is released. No clock or polling participates in the rendezvous.
+    func armStartGate() -> StartGate {
+        let (enteredEvents, enteredContinuation) = AsyncStream.makeStream(of: Void.self)
+        let (releaseEvents, releaseContinuation) = AsyncStream.makeStream(of: Void.self)
+        state.withLock {
+            $0.armedStartGate = ArmedStartGate(
+                enteredContinuation: enteredContinuation,
+                releaseEvents: releaseEvents
+            )
+        }
+        return StartGate(
+            enteredEvents: enteredEvents,
+            releaseContinuation: releaseContinuation
+        )
+    }
+
+    /// Makes the next start observable as a refusal: the call and strings are recorded, but no
+    /// session identity or event continuation is created.
+    func refuseNextStart() {
+        state.withLock({ $0.refusesNextStart = true })
+    }
 
     /// Delivers one event to whoever is consuming the live stream, leaving the stream open.
     func emit(_ event: BackgroundProcessingEvent) {
@@ -135,17 +187,36 @@ final class BackgroundProcessingClientSpy: Sendable {
     var client: BackgroundProcessingClient {
         BackgroundProcessingClient(
             start: { title, subtitle in
+                let shouldRefuse = self.state.withLock {
+                    $0.startCount += 1
+                    $0.startTitles.append(title)
+                    $0.startSubtitles.append(subtitle)
+                    guard !$0.refusesNextStart else {
+                        $0.refusesNextStart = false
+                        return true
+                    }
+                    return false
+                }
+                guard !shouldRefuse else { return nil }
+
                 let (stream, continuation) = AsyncStream.makeStream(
                     of: BackgroundProcessingEvent.self
                 )
                 let sessionID = UUID()
-                self.state.withLock {
-                    $0.startCount += 1
-                    $0.startTitles.append(title)
-                    $0.startSubtitles.append(subtitle)
+                let gate = self.state.withLock {
                     $0.startSessionIDs.append(sessionID)
                     $0.currentSessionID = sessionID
                     $0.continuation = continuation
+                    let gate = $0.armedStartGate
+                    $0.armedStartGate = nil
+                    return gate
+                }
+                if let gate {
+                    gate.enteredContinuation.yield()
+                    gate.enteredContinuation.finish()
+                    for await _ in gate.releaseEvents {
+                        break
+                    }
                 }
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
