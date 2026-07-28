@@ -1,4 +1,5 @@
 import AppModels
+import BackgroundProcessingClient
 import Foundation
 import LibraryClient
 
@@ -297,6 +298,16 @@ public actor DownloadCoordinator {
     public let urlSession: URLSession
     public let pageDownloader: DownloadPageDownloader
     public let backgroundTaskStore: DownloadBackgroundTaskStore
+    /// Starts and drives the continued-processing session that keeps a backgrounded queue running.
+    ///
+    /// Deliberately divergent from the execution assertion it replaces: that one was a plain
+    /// struct with no dependency-key registration, so it had nowhere for an unimplemented test
+    /// value to live. This client keeps both its key registration and its `DependencyValues`
+    /// accessor — that is what gives it the unimplemented `testValue` an unexpected call must
+    /// fail on — yet it is still injected straight in here rather than resolved through
+    /// `DependencyValues`, because download-start calls flow synchronously from user actions
+    /// into this actor and this is the only place that knows real queue progress.
+    public let backgroundProcessingClient: BackgroundProcessingClient
     public let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     public let libraryClient: LibraryClient
     /// Supplies the latest runtime settings immediately before a queued download starts.
@@ -336,12 +347,24 @@ public actor DownloadCoordinator {
     public var activeTask: Task<Void, Never>?
     public var activeTaskGeneration = 0
     public var schedulingBlockedGalleryIDs = Set<String>()
+    /// Whether this coordinator has already started a continued-processing session.
+    ///
+    /// One flag is enough here, unlike the two-state guard the deleted execution assertion
+    /// needed, because it is set synchronously before the start path's first suspension point
+    /// and is never rolled back: no window exists in which a concurrent caller sees it false
+    /// while a start is already in flight. That matters because registering a second session
+    /// under the same identifier terminates the app, and two live sessions would put two
+    /// progress cards on screen.
+    public var hasLiveContinuedSession = false
+    public var continuedSessionTask: Task<Void, Never>?
+    public var lastPushedCompletedPageCount = 0
 
     public init(
         storage: DownloadStore,
         urlSession: URLSession,
         pageDownloader: DownloadPageDownloader? = nil,
         backgroundTaskStore: DownloadBackgroundTaskStore? = nil,
+        backgroundProcessingClient: BackgroundProcessingClient = .noop,
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie] = {
             HTTPCookieStorage.shared.cookies(for: $0) ?? []
         },
@@ -359,6 +382,7 @@ public actor DownloadCoordinator {
         self.backgroundTaskStore = backgroundTaskStore ?? DownloadBackgroundTaskStore(
             fileURL: storage.backgroundTaskRegistryURL()
         )
+        self.backgroundProcessingClient = backgroundProcessingClient
         self.storedCookiesProvider = storedCookiesProvider
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider
