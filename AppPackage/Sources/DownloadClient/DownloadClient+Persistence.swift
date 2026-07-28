@@ -220,7 +220,9 @@ extension DownloadCoordinator {
             .removeAll(keepingCapacity: true)
         lastFlushDate = now()
         await notifyObservers()
-        await pushContinuedSessionProgress()
+        if let continuedSessionID {
+            await pushContinuedSessionProgress(sessionID: continuedSessionID)
+        }
     }
 
     public func flushManifestPageProgress(
