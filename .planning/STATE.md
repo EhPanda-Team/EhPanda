@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-04-PLAN.md
-last_updated: "2026-07-28T00:44:54.764Z"
+stopped_at: Completed 15-05-PLAN.md
+last_updated: "2026-07-28T01:02:59.262Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 15-04 (card strings, coordinator injection, session client spy)
+last_activity_desc: Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 178
-  completed_plans: 175
+  completed_plans: 176
   percent: 81
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
-Last activity: 2026-07-28 — Completed 15-04 (card strings, coordinator injection, session client spy)
-Next: /gsd-execute-phase 15 — plan 15-05 gives the coordinator its session lifecycle and wires the four queue-mobilizing tap sites
+Last activity: 2026-07-28 — Completed 15-05 (coordinator session lifecycle, four mobilizing tap sites)
+Next: /gsd-execute-phase 15 — plan 15-06 reconciles the session at the queue convergence points and pushes progress on the flush cadence
 
-Progress: [████████░░] 81% (13/16 phases)
+Progress: [██████████] 99% (13/16 phases)
 
 ## Performance Metrics
 
@@ -231,6 +231,7 @@ Progress: [████████░░] 81% (13/16 phases)
 | Phase 15 P02 | 14min | 3 tasks | 16 files |
 | Phase 15 P03 | 6min | 2 tasks | 2 files |
 | Phase 15 P04 | 13min | 3 tasks | 7 files |
+| Phase 15 P05 | 15min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -541,6 +542,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-04: Card subtitle declares completed/total/galleries as named lld substitutions, so the generated symbol takes three labeled Int parameters and no String — no gallery identity can reach the system card
 - [Phase ?]: 15-04: DownloadCoordinator stores backgroundProcessingClient with a .noop default; the live composition root injects .live, keeping every pre-existing test construction compiling
 - [Phase ?]: 15-04: The session spy takes and clears its continuation in one critical section, so a double terminal transition is structurally impossible in tests as it is in production
+- [Phase ?]: 15-05: Session lifecycle methods are public, matching the module convention, so the lifecycle suite can drive them without @testable
+- [Phase ?]: 15-05: The pushed session total is held at or above the monotonic completed count, so a queue shrink cannot report a fraction above one
 
 ### Pending Todos
 
@@ -588,6 +591,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T00:44:54.754Z
-Stopped at: Completed 15-04-PLAN.md
+Last session: 2026-07-28T01:02:59.254Z
+Stopped at: Completed 15-05-PLAN.md
 Resume file: None
