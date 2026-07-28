@@ -40,6 +40,12 @@ public final class ContinuedProcessingSession {
 
     private var task: (any ContinuedProcessingTasking)?
     private var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
+    /// The identifier of the request this session submitted, non-`nil` exactly between a
+    /// successful submission and either adoption or the end of the session.
+    ///
+    /// It is the handle the store needs to take a request back. Without it the only cancellation
+    /// available is the all-requests sweep, which is far too broad to run per session.
+    private var pendingIdentifier: String?
     /// Covers the window between a successful submission and the launch handler firing, when
     /// a session exists as far as the scheduler is concerned but no task object is held yet.
     private var isAwaitingTask = false
@@ -73,6 +79,9 @@ public final class ContinuedProcessingSession {
         let (stream, continuation) = AsyncStream.makeStream(of: BackgroundProcessingEvent.self)
         // Stored before anything below can yield or finish.
         self.continuation = continuation
+        // A push that landed after the previous session ended must not seed this one's card.
+        lastCompletedUnitCount = 0
+        lastTotalUnitCount = 0
 
         if !didCancelStaleRequests {
             didCancelStaleRequests = true
@@ -81,6 +90,12 @@ public final class ContinuedProcessingSession {
             // than over-broad: the app submits exactly one kind of request, and the
             // single-session guard above means this process cannot yet have a submission of its
             // own in flight on the first call.
+            //
+            // This does not subsume the per-request cancellation in ``endSession``, nor the other
+            // way around: the sweep covers requests left behind by a *previous build*, whose
+            // handlers are not in this binary at all, and by construction runs once; the
+            // per-request cancel is this process's own per-session bookkeeping and has to run
+            // every time a session ends without adopting its task.
             scheduling.cancelAllRequests()
         }
 
@@ -97,15 +112,10 @@ public final class ContinuedProcessingSession {
 
         let registered = scheduling.register(identifier) { [weak self] task in
             guard let self else { return }
-            guard let task else {
-                // The seam already completed the stray; only the session state is left to reset.
-                endSession(yielding: .unavailable, success: false)
-                return
-            }
-            // Adoption is all this handler may do. It runs on the main queue, so looping or
-            // sleeping here — as some samples do — would freeze the UI; returning does not
-            // complete the task.
-            adopt(task)
+            // Handling the launch is all this handler may do. It runs on the main queue, so
+            // looping or sleeping here — as some samples do — would freeze the UI; returning does
+            // not complete the task.
+            handleLaunch(task, expecting: identifier)
         }
         guard registered else {
             logger.error("Identifier \(identifier, privacy: .public) is not permitted by Info.plist.")
@@ -122,6 +132,7 @@ public final class ContinuedProcessingSession {
             return stream
         }
 
+        pendingIdentifier = identifier
         isAwaitingTask = true
         return stream
     }
@@ -151,7 +162,33 @@ public final class ContinuedProcessingSession {
         endSession(yielding: nil, success: success)
     }
 
-    private func adopt(_ task: any ContinuedProcessingTasking) {
+    /// Applies one launch of the request registered under `identifier`.
+    ///
+    /// A launch handler can never be unregistered, so every identifier this process has ever
+    /// registered keeps a live handler that can fire long after its session ended. The expected
+    /// identifier is what lets this store tell its own launch from someone else's leftovers.
+    private func handleLaunch(_ task: (any ContinuedProcessingTasking)?, expecting identifier: String) {
+        guard let task else {
+            // The launch was not a continued-processing task and the seam has already completed
+            // the stray, so only session state is left to reset — and only if the failed launch
+            // is this session's. A stale handler's failure concerns no live session.
+            guard pendingIdentifier == identifier else { return }
+            endSession(yielding: .unavailable, success: false)
+            return
+        }
+        adopt(task, expecting: identifier)
+    }
+
+    private func adopt(_ task: any ContinuedProcessingTasking, expecting identifier: String) {
+        // Completing what is turned away is the point, not an accessory: a dropped stray is a
+        // leaked system task, a second progress card, and — once the system force-expires it for
+        // reporting no progress — a foreign expiration delivered into a live session, pausing
+        // work the user never touched.
+        guard pendingIdentifier == identifier, self.task == nil else {
+            task.setTaskCompleted(success: false)
+            return
+        }
+        pendingIdentifier = nil
         self.task = task
         task.progress.totalUnitCount = lastTotalUnitCount
         task.progress.completedUnitCount = lastCompletedUnitCount
@@ -172,15 +209,34 @@ public final class ContinuedProcessingSession {
     /// the expiration handler once it fires or once `setTaskCompleted(success:)` runs, so a late
     /// completion on an expired task is harmless in itself; local state still has to be reset
     /// here, because nothing else resets it.
+    ///
+    /// A session that never adopted a task still owns a request the scheduler is holding, and
+    /// that request is taken back here. Under the chosen queue submission strategy a submission
+    /// routinely outlives a short session — the queue drains and the caller finishes in seconds
+    /// while the request is still waiting its turn — so without this cancel the system starts it
+    /// later against a session that no longer exists. The launch would then be adopted into
+    /// nothing, wedge the single-session re-entry guard, and leave background coverage silently
+    /// dead for the rest of the process.
+    ///
+    /// The early unavailable paths — no bundle identifier, refused registration, throwing
+    /// submission — all run before `pendingIdentifier` is set, so they cancel nothing. That is
+    /// correct: none of them left a request pending.
     private func endSession(yielding event: BackgroundProcessingEvent?, success: Bool) {
         let endingTask = task
         let endingContinuation = continuation
+        // Adoption already cleared the identifier, so a session that holds a task has no request
+        // left to take back. The conditional is written defense rather than live logic.
+        let abandonedIdentifier = endingTask == nil ? pendingIdentifier : nil
         task = nil
         continuation = nil
+        pendingIdentifier = nil
         isAwaitingTask = false
         lastCompletedUnitCount = 0
         lastTotalUnitCount = 0
 
+        if let abandonedIdentifier {
+            scheduling.cancel(abandonedIdentifier)
+        }
         endingTask?.setTaskCompleted(success: success)
         if let event {
             endingContinuation?.yield(event)
