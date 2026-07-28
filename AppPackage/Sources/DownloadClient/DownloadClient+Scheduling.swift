@@ -14,8 +14,12 @@ extension DownloadCoordinator {
     public func scheduleNextIfNeeded() async {
         // Deliberately a forwarder: every queue mutation converges here, so this tail is
         // the one place a reconcile sees every exit path of the core (both its early-return
-        // guards and its happy path).
+        // guards and its happy path). That is what keeps a live session matched to queue
+        // state, and what stops one being left running after the last active download is
+        // paused or deleted — those paths null the active task directly, but they still
+        // reschedule afterwards, so they arrive here too.
         await scheduleNextIfNeededCore()
+        await reconcileContinuedSession()
     }
 
     private func scheduleNextIfNeededCore() async {

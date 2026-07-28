@@ -190,6 +190,70 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         _ = await context.manager.pause(gid: gid)
     }
+
+    /// The session must not outlive its work. Pausing the only download drains the queue and
+    /// converges on the scheduling entry point, whose tail is the single place that notices — so
+    /// this is also the case that fails if that tail call is ever dropped again.
+    @Test
+    func testDrainingTheQueueCompletesTheSessionWithSuccess() async throws {
+        let gid = "210006"
+        let spy = BackgroundProcessingClientSpy()
+        let context = try await makeInactiveCoordinator(gid: gid, spy: spy)
+        defer { removeTemporaryItem(at: context.rootURL) }
+
+        try await context.manager.togglePause(gid: gid).get()
+        #expect(spy.startCount == 1)
+        #expect(spy.finishCount == 0)
+
+        _ = await context.manager.pause(gid: gid)
+
+        #expect(spy.finishCount == 1)
+        #expect(spy.finishSuccesses == [true])
+        #expect(!(await context.manager.testingHasContinuedSession()))
+    }
+
+    /// A scheduling pass is not evidence the work is over — it runs on every queue mutation,
+    /// most of which leave plenty to do. Completing on one of those would hand the background
+    /// coverage back while the queue is still full, and only a fresh tap could get it again.
+    @Test
+    func testSchedulingPassWithWorkStillPendingCompletesNothing() async throws {
+        let gid = "210007"
+        let spy = BackgroundProcessingClientSpy()
+        let context = try await makeInactiveCoordinator(gid: gid, spy: spy)
+        defer { removeTemporaryItem(at: context.rootURL) }
+
+        try await context.manager.togglePause(gid: gid).get()
+        #expect(spy.startCount == 1)
+
+        await context.manager.scheduleNextIfNeeded()
+
+        #expect(spy.finishCount == 0)
+        #expect(spy.finishSuccesses.isEmpty)
+        #expect(await context.manager.testingHasContinuedSession())
+
+        _ = await context.manager.pause(gid: gid)
+    }
+
+    /// Completion is terminal, and the tail it hangs off runs again on every later mutation, so
+    /// "at most once" is a property of the liveness flag rather than of the caller's discipline.
+    @Test
+    func testSchedulingPassesAfterTheDrainAddNoSecondCompletion() async throws {
+        let gid = "210008"
+        let spy = BackgroundProcessingClientSpy()
+        let context = try await makeInactiveCoordinator(gid: gid, spy: spy)
+        defer { removeTemporaryItem(at: context.rootURL) }
+
+        try await context.manager.togglePause(gid: gid).get()
+        _ = await context.manager.pause(gid: gid)
+        #expect(spy.finishCount == 1)
+
+        await context.manager.scheduleNextIfNeeded()
+        await context.manager.scheduleNextIfNeeded()
+
+        #expect(spy.finishCount == 1)
+        #expect(spy.finishSuccesses == [true])
+        #expect(!(await context.manager.testingHasContinuedSession()))
+    }
 }
 
 // MARK: - Helpers
