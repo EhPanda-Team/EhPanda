@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-09-PLAN.md
-last_updated: "2026-07-28T05:20:17.543Z"
+stopped_at: Planned 15-10/15-11 (gap closure round 2)
+last_updated: "2026-07-28T15:45:00.000Z"
 last_activity: 2026-07-28
-last_activity_desc: 15-09 executed (coordinator session identity + convergent queued cancel)
+last_activity_desc: gap closure round 2 planned (15-10 seam session identity, 15-11 identity regression suite)
 progress:
   total_phases: 16
   completed_phases: 14
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 9 of 9 (executed)
-Status: All 9 plans executed — phase verification pending
-Last activity: 2026-07-28 — 15-09 executed (coordinator session identity + convergent queued cancel)
-Next: re-verify phase 15 — both halves of the SC1 session-lifecycle gap (15-08 store, 15-09 coordinator) are now closed
+Plan: 9 of 11 (executed; 15-10/15-11 planned, ready to execute)
+Status: Gap closure round 2 planned — re-verification found the WR-01 fix introduced a session-blind finish (CR-04) plus sibling identity gaps; 15-10 promotes session identity into the client seam, 15-11 pins the interleaves
+Last activity: 2026-07-28 — gap closure round 2 planned (15-10, 15-11; waves 10–11)
+Next: /gsd-execute-phase 15 — waves 10 then 11, one xcodebuild invocation at a time
 
 Progress: [█████████░] 88% (14/16 phases)
 
