@@ -4,6 +4,19 @@ import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
+/// Binds an expiration-owned pause to both the session that requested it and the gallery intent
+/// that was current at that decision. The session alone cannot distinguish a still-live owner from
+/// a gallery that a newer user action has already moved forward.
+struct ExpirationPauseOwnership {
+    let sessionID: UUID
+    let queueIntentGeneration: Int
+}
+
+private enum PauseCommitOutcome {
+    case settled(Result<Void, AppError>)
+    case superseded
+}
+
 // MARK: - Observer Management & Scheduling
 extension DownloadCoordinator {
     public func notifyObservers() async {
@@ -141,6 +154,36 @@ extension DownloadCoordinator {
 // MARK: - Pause & Resume
 extension DownloadCoordinator {
     public func pause(gid: String) async -> Result<Void, AppError> {
+        await pause(gid: gid, expiration: nil)
+    }
+
+    func pause(
+        gid: String,
+        expiration: ExpirationPauseOwnership?
+    ) async -> Result<Void, AppError> {
+        switch await commitPause(gid: gid, expiration: expiration) {
+        case .settled(let result):
+            return result
+        case .superseded:
+            logger.notice(
+                "Expiration pause abandoned after newer intent, gid: \(gid, privacy: .public)."
+            )
+            // A queue-mobilizing user action reached this gallery while the expiration held its
+            // scheduling block. This is that action's deferred convergence, not a background
+            // session start: once the block is gone, notify and scheduling make the gallery
+            // runnable, and the scheduler's own foreground validation makes a late ensure inert
+            // if the action no longer qualifies.
+            await notifyObservers()
+            await scheduleNextIfNeeded()
+            await ensureContinuedSession()
+            return .success(())
+        }
+    }
+
+    private func commitPause(
+        gid: String,
+        expiration: ExpirationPauseOwnership?
+    ) async -> PauseCommitOutcome {
         do {
             schedulingBlockedGalleryIDs.insert(gid)
             defer {
@@ -148,20 +191,31 @@ extension DownloadCoordinator {
             }
             guard let currentDownload = await fetchDownload(gid: gid)
             else {
-                return .failure(.notFound)
+                return .settled(.failure(.notFound))
+            }
+            guard ownsExpirationPause(expiration, gid: gid) else {
+                return .superseded
             }
             guard [.queued, .active]
                     .contains(currentDownload.displayStatus)
             else {
                 await notifyObservers()
                 await scheduleNextIfNeeded()
-                return .success(())
+                return .settled(.success(()))
             }
+            // The ownership checks guard the far side of both real suspensions: the indexed
+            // record read above and the unbounded active-task wait below. A user action landing
+            // inside `writeInitialPauseRecord`'s queue-store hop remains last-writer-wins; that
+            // single actor hop is the accepted residual, rather than false transactional
+            // atomicity across the persisted queue.
             let taskToCancel = try await writeInitialPauseRecord(
                 gid: gid,
                 download: currentDownload
             )
             await taskToCancel?.value
+            guard ownsExpirationPause(expiration, gid: gid) else {
+                return .superseded
+            }
             try await writeSettledPauseRecord(
                 gid: gid,
                 download: currentDownload
@@ -169,13 +223,22 @@ extension DownloadCoordinator {
             await notifyObservers()
             await scheduleNextIfNeeded()
             logger.notice("Download paused, gid: \(gid, privacy: .public).")
-            return .success(())
+            return .settled(.success(()))
         } catch let error as AppError {
-            return .failure(error)
+            return .settled(.failure(error))
         } catch {
             logger.error("\(error, privacy: .public)")
-            return .failure(.unknown)
+            return .settled(.failure(.unknown))
         }
+    }
+
+    private func ownsExpirationPause(
+        _ expiration: ExpirationPauseOwnership?,
+        gid: String
+    ) -> Bool {
+        guard let expiration else { return true }
+        return (continuedSessionID == nil || continuedSessionID == expiration.sessionID)
+            && queueIntentGeneration(for: gid) == expiration.queueIntentGeneration
     }
 
     private func writeInitialPauseRecord(
@@ -231,6 +294,7 @@ extension DownloadCoordinator {
             return .failure(.notFound)
         }
 
+        advanceQueueIntentGeneration(for: gid)
         clearDownloadFailureState(gid: gid)
         queuedModes[gid] = resumeMode(for: download)
         queuedPageSelections[gid] = nil

@@ -87,6 +87,7 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderRelativePath: folderRelativePath
             )
+            advanceQueueIntentGeneration(for: payload.gallery.gid)
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
