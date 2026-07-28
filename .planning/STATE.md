@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-12-PLAN.md
-last_updated: "2026-07-28T16:21:31.232Z"
+stopped_at: Completed 15-13-PLAN.md
+last_updated: "2026-07-28T16:43:22.172Z"
 last_activity: 2026-07-29
-last_activity_desc: Phase 15 plan 12 completed
+last_activity_desc: Vanished-record deletion convergence and shared schedulable-work authority
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 187
-  completed_plans: 183
+  completed_plans: 184
   percent: 98
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 12 of 16
-Status: Plan 12 complete; ready to execute plan 13
-Last activity: 2026-07-29 — Seeded and session-identified continued progress
+Plan: 13 of 16
+Status: Plan 13 complete; ready to execute plan 14
+Last activity: 2026-07-29 — Vanished-record deletion convergence and shared schedulable-work authority
 Next: /gsd-execute-phase 15 — execute the gap-closure plans
 
 Progress: [██████████] 98% (14/16 phases)
@@ -239,6 +239,7 @@ Progress: [██████████] 98% (14/16 phases)
 | Phase 15 P10 | 25min | 2 tasks | 10 files |
 | Phase 15 P11 | 10min | 2 tasks | 2 files |
 | Phase 15 P12 | 12min | 2 tasks | 7 files |
+| Phase 15 P13 | 21min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -569,6 +570,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-12: Capture title, subtitle, completed count, and total count from one coordinator snapshot before submitting the continued session.
 - [Phase 15]: 15-12: Every card progress mutation presents the client session id read after the coordinator's post-suspension ownership re-check.
 - [Phase 15]: 15-12: Stage stale progress after seam entry but before the identity guard so S1-to-S2 rejection is deterministic.
+- [Phase 15]: 15-13: Preserve the vanished-record delete's not-found contract, but publish settled state and enter scheduling convergence before returning.
+- [Phase 15]: 15-13: Keep activeTask as a documented fast path while routing every disk-backed schedulable-work decision through one actor-isolated authority.
+- [Phase 15]: 15-13: Observe scheduling with an injected skipped-operation runner and await observer task values instead of polling.
 
 ### Pending Todos
 
@@ -616,6 +620,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T16:21:31.225Z
-Stopped at: Completed 15-12-PLAN.md
+Last session: 2026-07-28T16:43:22.164Z
+Stopped at: Completed 15-13-PLAN.md
 Resume file: None
