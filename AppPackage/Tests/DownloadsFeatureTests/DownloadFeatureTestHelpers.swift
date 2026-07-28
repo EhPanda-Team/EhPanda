@@ -8,6 +8,7 @@ import DownloadClient
 import Foundation
 import Kingfisher
 import LibraryClient
+import Synchronization
 import Testing
 import TestingSupport
 import UIKit
@@ -325,12 +326,14 @@ extension DownloadFeatureTestCase {
     func makeInactiveCoordinator(
         gid: String,
         client: BackgroundProcessingClient,
-        galleryTitle: String = "Queued"
+        galleryTitle: String = "Queued",
+        releasesOnCancellation: Bool = true
     ) async throws -> BlockingCoordinatorContext {
         let context = try await makeBlockingCoordinator(
             gid: gid,
             title: galleryTitle,
-            backgroundProcessingClient: client
+            backgroundProcessingClient: client,
+            releasesOnCancellation: releasesOnCancellation
         )
         await context.manager.testingSetQueuedGalleryIDs([])
         return context
@@ -418,27 +421,131 @@ extension DownloadFeatureTestCase {
 /// forcing conformance onto every suite that wants the fixture.
 private struct SharedDownloadTestFactories: DownloadFeatureTestCase {}
 
+/// A synchronous, idempotent release token for a runner parked on a checked continuation.
+///
+/// Started and cancellation rendezvous make the runner's lifecycle observable without polling.
+/// Cancellation does not inherently end the park, which lets an interleave case deliberately hold
+/// the cancelled runner until it has inspected the coordinator's suspended state.
+final class BlockingRunnerControl: Sendable {
+    private struct State {
+        var isReleased = false
+        var didStart = false
+        var didObserveCancellation = false
+        var parkContinuation: CheckedContinuation<Void, Never>?
+        var startedContinuations = [CheckedContinuation<Void, Never>]()
+        var cancellationContinuations = [CheckedContinuation<Void, Never>]()
+    }
+
+    private let state = Mutex(State())
+
+    func release() {
+        let continuation: CheckedContinuation<Void, Never>? = state.withLock {
+            guard $0.isReleased == false else { return nil }
+            $0.isReleased = true
+            let continuation = $0.parkContinuation
+            $0.parkContinuation = nil
+            return continuation
+        }
+        continuation?.resume()
+    }
+
+    func park() async {
+        let startedContinuations = state.withLock {
+            $0.didStart = true
+            let continuations = $0.startedContinuations
+            $0.startedContinuations.removeAll()
+            return continuations
+        }
+        startedContinuations.forEach({ $0.resume() })
+
+        await withCheckedContinuation { continuation in
+            let isReleased = state.withLock {
+                guard $0.isReleased == false else { return true }
+                $0.parkContinuation = continuation
+                return false
+            }
+            if isReleased {
+                continuation.resume()
+            }
+        }
+    }
+
+    func started() async {
+        await withCheckedContinuation { continuation in
+            let didStart = state.withLock {
+                guard $0.didStart == false else { return true }
+                $0.startedContinuations.append(continuation)
+                return false
+            }
+            if didStart {
+                continuation.resume()
+            }
+        }
+    }
+
+    func recordCancellation() {
+        let cancellationContinuations = state.withLock {
+            $0.didObserveCancellation = true
+            let continuations = $0.cancellationContinuations
+            $0.cancellationContinuations.removeAll()
+            return continuations
+        }
+        cancellationContinuations.forEach({ $0.resume() })
+    }
+
+    func cancellationObserved() async {
+        await withCheckedContinuation { continuation in
+            let didObserveCancellation = state.withLock {
+                guard $0.didObserveCancellation == false else { return true }
+                $0.cancellationContinuations.append(continuation)
+                return false
+            }
+            if didObserveCancellation {
+                continuation.resume()
+            }
+        }
+    }
+}
+
 struct BlockingCoordinatorContext {
     let manager: DownloadCoordinator
     let storage: DownloadStore
     let rootURL: URL
+    let control: BlockingRunnerControl
+
+    /// Unblocks the runner before removing the directory it may still touch.
+    func cleanUp() {
+        control.release()
+        removeTemporaryItem(at: rootURL)
+    }
 }
 
-/// Builds a coordinator whose single queued download blocks forever once scheduled,
-/// so `activeTask` stays installed and queue lifecycle behavior can be observed while
-/// a download is genuinely in flight.
+/// Builds a coordinator whose single queued download parks on a test-owned token once scheduled,
+/// so `activeTask` stays installed and queue lifecycle behavior can be observed in flight.
+///
+/// The default releases the token when cancellation arrives, preserving the existing pause
+/// behavior. Passing `false` holds the runner after cancellation for a staged interleave; without a
+/// matching `control.release()` that mode hangs by construction, so the control is part of the
+/// returned context and `cleanUp()` always releases it.
 func makeBlockingCoordinator(
     gid: String,
     title: String,
-    backgroundProcessingClient: BackgroundProcessingClient = .noop
+    backgroundProcessingClient: BackgroundProcessingClient = .noop,
+    releasesOnCancellation: Bool = true
 ) async throws -> BlockingCoordinatorContext {
     let rootURL = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
     let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+    let control = BlockingRunnerControl()
     let taskRunner = DownloadTaskRunner(
         runScheduledDownload: { _, _ in
-            while !Task.isCancelled {
-                await sleepIgnoringCancellation(for: .milliseconds(10))
+            await withTaskCancellationHandler {
+                await control.park()
+            } onCancel: {
+                control.recordCancellation()
+                if releasesOnCancellation {
+                    control.release()
+                }
             }
             return .skippedOperation
         }
@@ -465,7 +572,8 @@ func makeBlockingCoordinator(
     return BlockingCoordinatorContext(
         manager: manager,
         storage: storage,
-        rootURL: rootURL
+        rootURL: rootURL,
+        control: control
     )
 }
 
