@@ -976,7 +976,9 @@ extension DownloadCoordinator {
 | A4 | The system card refreshes acceptably when `totalUnitCount` grows mid-session (fraction dips). Community reports describe card update quirks around child `Progress`; direct-count growth is untested here. | Pattern 3 | The card could look jumpy when a second gallery joins. Cosmetic only; D-06 accepts recomputation. Observable on device during SC2 verification. |
 | A5 | Deleting `runQueueUntilIdle` is safe because the existing detached reschedule chain keeps the queue moving inside a live process. | Standard Stack / Blast Radius | If the chain stalls, a large queue could go idle mid-session. Directly testable: `DownloadSchedulingTests` + the existing drain-behaviour coverage repointed onto `scheduleNextIfNeeded()`. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+**Shipped disposition (Q6):** `UIBackgroundModes: processing` was KEPT exactly as recommended below — implemented and verified in the executed phase.
 
 1. **Q6 — Is `UIBackgroundModes: processing` still required?**
    - *What we know:* The SDK header documents the mode requirement explicitly for
