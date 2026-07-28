@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-13-PLAN.md
-last_updated: "2026-07-28T16:43:22.172Z"
+stopped_at: Completed 15-14-PLAN.md
+last_updated: "2026-07-28T16:59:40.712Z"
 last_activity: 2026-07-29
-last_activity_desc: Vanished-record deletion convergence and shared schedulable-work authority
+last_activity_desc: Expiration pause reentrancy guard and explicit blocking-fixture lifecycle
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 187
-  completed_plans: 184
-  percent: 98
+  completed_plans: 185
+  percent: 99
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 13 of 16
-Status: Plan 13 complete; ready to execute plan 14
-Last activity: 2026-07-29 — Vanished-record deletion convergence and shared schedulable-work authority
+Plan: 14 of 16
+Status: Plan 14 complete; ready to execute plan 15
+Last activity: 2026-07-29 — Expiration pause reentrancy guard and explicit blocking-fixture lifecycle
 Next: /gsd-execute-phase 15 — execute the gap-closure plans
 
-Progress: [██████████] 98% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -240,6 +240,7 @@ Progress: [██████████] 98% (14/16 phases)
 | Phase 15 P11 | 10min | 2 tasks | 2 files |
 | Phase 15 P12 | 12min | 2 tasks | 7 files |
 | Phase 15 P13 | 21min | 2 tasks | 5 files |
+| Phase 15 P14 | 11min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -573,6 +574,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-13: Preserve the vanished-record delete's not-found contract, but publish settled state and enter scheduling convergence before returning.
 - [Phase 15]: 15-13: Keep activeTask as a documented fast path while routing every disk-backed schedulable-work decision through one actor-isolated authority.
 - [Phase 15]: 15-13: Observe scheduling with an injected skipped-operation runner and await observer task values instead of polling.
+- [Phase 15]: Queue-intent generation is distinct from active-task generation and advances only when a user action writes fresh queue intent.
+- [Phase 15]: A superseded expiration pause converges only after its scheduling block is lifted, completing the queue-mobilizing user action that superseded it.
+- [Phase 15]: Blocking runners release on cancellation by default while an explicit opt-out preserves a deterministic interleave window.
 
 ### Pending Todos
 
@@ -620,6 +624,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T16:43:22.164Z
-Stopped at: Completed 15-13-PLAN.md
+Last session: 2026-07-28T16:59:40.705Z
+Stopped at: Completed 15-14-PLAN.md
 Resume file: None
