@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 14/16 | In Progress|  |
+| 15. Continued Background Downloads | 15/16 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 14/16 plans executed
+**Plans**: 15/16 plans executed
 
 Plans:
 **Wave 1**
@@ -873,7 +873,7 @@ Plans:
 
 **Wave 15** *(blocked on 15-14 — real code dependency: the cases stage on the new fixture control and assert the new guard)*
 
-- [ ] 15-15-PLAN.md — The gated expiration-versus-user-action interleave regressions, replacing the foreign-id case that never entered the suspension window
+- [x] 15-15-PLAN.md — The gated expiration-versus-user-action interleave regressions, replacing the foreign-id case that never entered the suspension window
 
 **Wave 16** *(blocked on 15-15 — serialization plus sequencing; contains a blocking owner decision)*
 
