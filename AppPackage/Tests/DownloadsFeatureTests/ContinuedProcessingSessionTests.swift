@@ -1,4 +1,5 @@
 @testable import BackgroundProcessingClient
+import CustomDump
 import Foundation
 import Testing
 
@@ -115,6 +116,87 @@ final class ContinuedTaskSchedulingSpy {
 @MainActor
 @Suite
 struct ContinuedProcessingSessionTests {
+    /// CR-02 regression: a launch that arrives immediately after submission must adopt the
+    /// non-zero snapshot start recorded, without waiting for a later progress push.
+    @Test
+    func testAdoptionSeedsProgressFromTheStartSnapshot() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "6 / 20 pages · 1 gallery",
+                completedUnitCount: 6,
+                totalUnitCount: 20
+            )
+        )
+        let identifier = try #require(spy.registeredIdentifiers.first)
+
+        let task = ContinuedTaskSpy()
+        spy.launch(identifier, with: task)
+
+        #expect(task.progress.completedUnitCount == 6)
+        #expect(task.progress.totalUnitCount == 20)
+        expectNoDifference(task.titleUpdates, [])
+
+        store.finish(sessionID: session.id, success: true)
+        var events = [BackgroundProcessingEvent]()
+        for await event in session.events {
+            events.append(event)
+        }
+        expectNoDifference(events, [.granted])
+    }
+
+    /// CR-01 regression: a progress push carrying any id but the held session's must alter
+    /// neither the adopted task nor the saved counts from which that task is driven.
+    @Test
+    func testAForeignProgressPushCannotRepaintTheHeldSession() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "1 / 10 pages · 1 gallery",
+                completedUnitCount: 1,
+                totalUnitCount: 10
+            )
+        )
+        let identifier = try #require(spy.registeredIdentifiers.first)
+        let task = ContinuedTaskSpy()
+        spy.launch(identifier, with: task)
+
+        store.updateProgress(
+            sessionID: session.id,
+            completedUnitCount: 4,
+            totalUnitCount: 10,
+            subtitle: "4 / 10 pages · 1 gallery"
+        )
+        expectNoDifference(
+            task.titleUpdates,
+            [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
+        )
+
+        store.updateProgress(
+            sessionID: UUID(),
+            completedUnitCount: 99,
+            totalUnitCount: 100,
+            subtitle: "99 / 100 pages · 9 galleries"
+        )
+        #expect(task.progress.completedUnitCount == 4)
+        #expect(task.progress.totalUnitCount == 10)
+        expectNoDifference(
+            task.titleUpdates,
+            [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
+        )
+
+        store.finish(sessionID: session.id, success: true)
+        var events = [BackgroundProcessingEvent]()
+        for await event in session.events {
+            events.append(event)
+        }
+        expectNoDifference(events, [.granted])
+    }
+
     /// The regression the verification report names: a request abandoned by a short session must
     /// be taken back, must be refused if the system launches it anyway, and must not leave the
     /// store's single-session guard wedged against every later start.
