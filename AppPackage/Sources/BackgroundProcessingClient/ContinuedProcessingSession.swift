@@ -1,4 +1,3 @@
-import BackgroundTasks
 import Foundation
 import OSLogExt
 
@@ -25,17 +24,21 @@ public enum BackgroundProcessingEvent: Equatable, Sendable {
 /// Owns the single continued-processing task this process may have in flight, and every touch
 /// of it.
 ///
-/// `BGContinuedProcessingTask` and its `Progress` are system-owned and non-`Sendable`.
-/// Registering the launch handler with `using: .main` and confining this whole store to the
-/// main actor is what makes holding them safe: the system objects never cross an isolation
-/// boundary, and only `Int64`, `String` and `Bool` cross the seam callers use. That confinement
-/// is the deliberate alternative to boxing the task in an unchecked-`Sendable` handle, which
-/// would trade a real guarantee for an annotation.
+/// The system task and its `Progress` are system-owned and non-`Sendable`. Registering the launch
+/// handler on the main queue and confining this whole store to the main actor is what makes
+/// holding them safe: the system objects never cross an isolation boundary, and only `Int64`,
+/// `String` and `Bool` cross the seam callers use. That confinement is the deliberate alternative
+/// to boxing the task in an unchecked-`Sendable` handle, which would trade a real guarantee for
+/// an annotation.
 @MainActor
 public final class ContinuedProcessingSession {
     public static let shared = ContinuedProcessingSession()
 
-    private var task: BGContinuedProcessingTask?
+    /// Every scheduler touch this store makes. Injected so the lifecycle below is testable; the
+    /// live value is the only place the system scheduler is named.
+    private let scheduling: ContinuedTaskScheduling
+
+    private var task: (any ContinuedProcessingTasking)?
     private var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
     /// Covers the window between a successful submission and the launch handler firing, when
     /// a session exists as far as the scheduler is concerned but no task object is held yet.
@@ -46,7 +49,12 @@ public final class ContinuedProcessingSession {
     private var lastCompletedUnitCount: Int64 = 0
     private var lastTotalUnitCount: Int64 = 0
 
-    private init() {}
+    /// Internal rather than private only so lifecycle tests can build an isolated store over spy
+    /// scheduling. Production code must keep resolving this store through ``shared``: a second
+    /// live store would submit a second session, which is precisely what the design forbids.
+    init(scheduling: ContinuedTaskScheduling = .live) {
+        self.scheduling = scheduling
+    }
 
     /// Registers and submits a continued-processing session, returning the stream that reports
     /// its fate. The stream finishes itself after `expired`, after `unavailable`, or after
@@ -73,7 +81,7 @@ public final class ContinuedProcessingSession {
             // than over-broad: the app submits exactly one kind of request, and the
             // single-session guard above means this process cannot yet have a submission of its
             // own in flight on the first call.
-            BGTaskScheduler.shared.cancelAllTaskRequests()
+            scheduling.cancelAllRequests()
         }
 
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
@@ -87,20 +95,17 @@ public final class ContinuedProcessingSession {
         // rather than anything — a clock included — that can repeat.
         let identifier = "\(bundleIdentifier).continued.\(UUID().uuidString)"
 
-        let registered = BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: identifier,
-            using: .main
-        ) { [weak self] task in
+        let registered = scheduling.register(identifier) { [weak self] task in
             guard let self else { return }
-            guard let continuedTask = task as? BGContinuedProcessingTask else {
-                task.setTaskCompleted(success: false)
+            guard let task else {
+                // The seam already completed the stray; only the session state is left to reset.
                 endSession(yielding: .unavailable, success: false)
                 return
             }
             // Adoption is all this handler may do. It runs on the main queue, so looping or
             // sleeping here — as some samples do — would freeze the UI; returning does not
             // complete the task.
-            adopt(continuedTask)
+            adopt(task)
         }
         guard registered else {
             logger.error("Identifier \(identifier, privacy: .public) is not permitted by Info.plist.")
@@ -108,16 +113,8 @@ public final class ContinuedProcessingSession {
             return stream
         }
 
-        let request = BGContinuedProcessingTaskRequest(
-            identifier: identifier,
-            title: title,
-            subtitle: subtitle
-        )
-        // A request the system cannot start immediately waits behind other work instead of
-        // failing outright, which matters because nothing catches a lost session.
-        request.strategy = .queue
         do {
-            try BGTaskScheduler.shared.submit(request)
+            try scheduling.submit(identifier, title, subtitle)
             logger.notice("Submitted continued-processing request.")
         } catch {
             logger.error("\(error, privacy: .public)")
@@ -154,11 +151,11 @@ public final class ContinuedProcessingSession {
         endSession(yielding: nil, success: success)
     }
 
-    private func adopt(_ task: BGContinuedProcessingTask) {
+    private func adopt(_ task: any ContinuedProcessingTasking) {
         self.task = task
         task.progress.totalUnitCount = lastTotalUnitCount
         task.progress.completedUnitCount = lastCompletedUnitCount
-        task.expirationHandler = { [weak self] in
+        task.setExpirationHandler { [weak self] in
             // There is no documented budget after expiration, so this does nothing but perform
             // the terminal transition — no I/O, no awaits.
             self?.endSession(yielding: .expired, success: false)
