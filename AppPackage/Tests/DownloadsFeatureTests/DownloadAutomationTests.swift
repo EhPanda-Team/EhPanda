@@ -46,7 +46,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.downloadClient.reconcileDownloads = {
                     reconcileCount.value += 1
                 }
-                $0.downloadClient.hasPendingWork = { false }
                 $0.downloadClient.refreshDownloads = {}
                 $0.downloadClient.enqueue = { _ in }
                 $0.downloadClient.togglePause = { _ in }

@@ -158,7 +158,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<!-- `processing` is kept deliberately, not left over from the deleted discretionary
-	     BGProcessingTask tier. No Apple source states whether a continued-processing
+	     background-processing tier. No Apple source states whether a continued-processing
 	     submission consults UIBackgroundModes, and the failure modes are asymmetric: an
 	     unnecessary declaration costs one stray key, while a wrong removal makes every
 	     submission fail with the scheduler's notPermitted error. Removing it would need a
