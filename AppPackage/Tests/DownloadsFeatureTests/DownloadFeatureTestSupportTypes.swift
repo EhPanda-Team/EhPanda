@@ -103,9 +103,34 @@ final class BackgroundProcessingClientSpy: Sendable {
         }
     }
 
+    /// One-shot rendezvous for a staged progress push. `entered()` returns after the call has
+    /// crossed the seam with its complete arguments; `release()` lets the identity guard decide
+    /// whether the update still belongs to the held session.
+    struct ProgressGate: Sendable {
+        fileprivate let enteredEvents: AsyncStream<Void>
+        fileprivate let releaseContinuation: AsyncStream<Void>.Continuation
+
+        func entered() async {
+            for await _ in enteredEvents {
+                return
+            }
+        }
+
+        func release() {
+            releaseContinuation.yield()
+            releaseContinuation.finish()
+        }
+    }
+
     /// The spy-owned half of a start gate. Keeping both continuations in the mutex-protected state
     /// lets the next start take the gate atomically with its complete recording.
     private struct ArmedStartGate: Sendable {
+        let enteredContinuation: AsyncStream<Void>.Continuation
+        let releaseEvents: AsyncStream<Void>
+    }
+
+    /// The spy-owned half of a progress gate, taken atomically by the next progress call.
+    private struct ArmedProgressGate: Sendable {
         let enteredContinuation: AsyncStream<Void>.Continuation
         let releaseEvents: AsyncStream<Void>
     }
@@ -123,6 +148,8 @@ final class BackgroundProcessingClientSpy: Sendable {
         var currentSessionID: UUID?
         var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
         var armedStartGate: ArmedStartGate?
+        var armedProgressGate: ArmedProgressGate?
+        var inFlightProgressUpdate: ProgressUpdate?
         var refusesNextStart = false
     }
 
@@ -156,6 +183,26 @@ final class BackgroundProcessingClientSpy: Sendable {
             )
         }
         return StartGate(
+            enteredEvents: enteredEvents,
+            releaseContinuation: releaseContinuation
+        )
+    }
+
+    /// Arms a one-shot gate for the next progress push.
+    ///
+    /// The call records its complete argument set before signaling `entered`, then parks before
+    /// the identity guard. Releasing it after a successor starts therefore exercises the same
+    /// stale actor hop as the live seam without a clock, polling, or scheduler assumption.
+    func armProgressGate() -> ProgressGate {
+        let (enteredEvents, enteredContinuation) = AsyncStream.makeStream(of: Void.self)
+        let (releaseEvents, releaseContinuation) = AsyncStream.makeStream(of: Void.self)
+        state.withLock {
+            $0.armedProgressGate = ArmedProgressGate(
+                enteredContinuation: enteredContinuation,
+                releaseEvents: releaseEvents
+            )
+        }
+        return ProgressGate(
             enteredEvents: enteredEvents,
             releaseContinuation: releaseContinuation
         )
@@ -232,13 +279,27 @@ final class BackgroundProcessingClientSpy: Sendable {
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
             updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+                let update = ProgressUpdate(
+                    sessionID: sessionID,
+                    completedUnitCount: completedUnitCount,
+                    totalUnitCount: totalUnitCount,
+                    subtitle: subtitle
+                )
+                let gate = self.state.withLock {
+                    $0.inFlightProgressUpdate = update
+                    let gate = $0.armedProgressGate
+                    $0.armedProgressGate = nil
+                    return gate
+                }
+                if let gate {
+                    gate.enteredContinuation.yield()
+                    gate.enteredContinuation.finish()
+                    for await _ in gate.releaseEvents {
+                        break
+                    }
+                }
                 self.state.withLock {
-                    let update = ProgressUpdate(
-                        sessionID: sessionID,
-                        completedUnitCount: completedUnitCount,
-                        totalUnitCount: totalUnitCount,
-                        subtitle: subtitle
-                    )
+                    $0.inFlightProgressUpdate = nil
                     if $0.currentSessionID == sessionID {
                         $0.progressUpdates.append(update)
                     } else {

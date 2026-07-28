@@ -1,3 +1,4 @@
+import CustomDump
 import DownloadClient
 import Foundation
 import Testing
@@ -8,6 +9,76 @@ import Testing
 /// project's hard file-length boundary (IN-09).
 @Suite
 struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
+    /// CR-01: a push that crossed the client seam under S1 must be rejected if S2 becomes the
+    /// held client session before that push reaches the client's identity guard.
+    @Test
+    func testAHeldProgressPushCannotRepaintASuccessorSessionsCard() async throws {
+        let gid = "210150"
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [
+                .init(gid: gid, title: "Held push", pageCount: 5, completedPageCount: 1)
+            ],
+            client: spy.client
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let firstCoordinatorSessionID = try #require(
+            await fixture.manager.testingContinuedSessionID()
+        )
+        let firstClientSessionID = try #require(spy.startSessionIDs.first)
+        let download = try #require(await fixture.manager.indexedDownloads(gids: [gid]).first)
+
+        let gate = spy.armProgressGate()
+        defer { gate.release() }
+        let heldPush = Task { @concurrent in
+            await fixture.manager.pushContinuedSessionProgress(
+                sessionID: firstCoordinatorSessionID
+            )
+        }
+        await gate.entered()
+
+        try await fixture.manager.cancelQueuedWorkItem(download, mode: .update).get()
+        #expect(await fixture.manager.testingHasContinuedSession() == false)
+
+        await fixture.manager.testingSetQueuedGalleryIDs([gid])
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startCount == 2)
+        #expect(await fixture.manager.testingHasContinuedSession())
+        let secondCoordinatorSessionID = try #require(
+            await fixture.manager.testingContinuedSessionID()
+        )
+        let secondClientSessionID = try #require(spy.startSessionIDs.last)
+
+        gate.release()
+        await heldPush.value
+
+        expectNoDifference(
+            spy.rejectedProgressUpdates.map(\.sessionID),
+            [firstClientSessionID]
+        )
+        #expect(!spy.progressUpdates.contains(where: { $0.sessionID == firstClientSessionID }))
+
+        await fixture.manager.pushContinuedSessionProgress(
+            sessionID: secondCoordinatorSessionID
+        )
+        expectNoDifference(
+            spy.progressUpdates.map(\.sessionID),
+            [secondClientSessionID]
+        )
+
+        _ = await fixture.manager.pause(gid: gid)
+        expectNoDifference(
+            spy.finishRecords,
+            [
+                .init(sessionID: firstClientSessionID, success: true),
+                .init(sessionID: secondClientSessionID, success: true)
+            ]
+        )
+        #expect(await fixture.manager.testingHasContinuedSession() == false)
+    }
+
     /// CR-04: draining while a start is in flight, then tapping again, must never let the first
     /// start's bail-out complete the second tap's session. The pre-fix seam finished whichever
     /// session the store held and destroyed the second tap's live coverage.
