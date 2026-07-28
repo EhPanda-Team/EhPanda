@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-08-PLAN.md
-last_updated: "2026-07-28T03:47:46.441Z"
+stopped_at: Completed 15-09-PLAN.md
+last_updated: "2026-07-28T05:20:17.543Z"
 last_activity: 2026-07-28
-last_activity_desc: 15-08 executed (scheduler seam + client-side session-lifecycle fixes)
+last_activity_desc: 15-09 executed (coordinator session identity + convergent queued cancel)
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 180
-  completed_plans: 179
-  percent: 81
+  completed_plans: 180
+  percent: 88
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 8 of 9
-Status: Executing Phase 15
-Last activity: 2026-07-28 — 15-08 executed (scheduler seam + client-side session-lifecycle fixes)
-Next: /gsd-execute-phase 15 — wave 9 (15-09 coordinator session identity)
+Plan: 9 of 9 (executed)
+Status: All 9 plans executed — phase verification pending
+Last activity: 2026-07-28 — 15-09 executed (coordinator session identity + convergent queued cancel)
+Next: re-verify phase 15 — both halves of the SC1 session-lifecycle gap (15-08 store, 15-09 coordinator) are now closed
 
-Progress: [██████████] 99% (13/16 phases)
+Progress: [█████████░] 88% (14/16 phases)
 
 ## Performance Metrics
 
@@ -235,6 +235,7 @@ Progress: [██████████] 99% (13/16 phases)
 | Phase 15 P06 | 22min | 3 tasks | 5 files |
 | Phase 15 P07 | 16min | 3 tasks | 2 files |
 | Phase 15 P08 | 32min | 3 tasks | 3 files |
+| Phase 15 P09 | 47min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -554,6 +555,8 @@ Recent decisions affecting current work:
 - [Phase ?]: App/Info.plist is exempt only from the scheduler-scope assertion and is paid for by a paired count assertion, because the system key name contains the scheduler type name by construction
 - [Phase ?]: Every scanned token is assembled from fragments at run time so the invariant file is not a self-match and the repository grep gates can still read zero
 - [Phase ?]: ROADMAP Phase 15 amended to the shipped contract: no fallback tier in SC3, session seam plus coordinator in SC4, and the open scope question recorded as resolved rather than deleted
+- [Phase 15]: 15-09: The continued session carries a per-session UUID minted with the liveness flag; every late-arriving teardown, event and post-suspension resume must present it, so a superseded session can no longer detach a live one (CR-02/WR-01).
+- [Phase 15]: 15-09: The non-initial cancelQueuedWorkItem branch converges through scheduleNextIfNeeded rather than reconciling inline, so it inherits the reconcile tail like every other queue mutation (WR-04).
 
 ### Pending Todos
 
@@ -601,6 +604,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T03:47:46.433Z
-Stopped at: Completed 15-08-PLAN.md
+Last session: 2026-07-28T05:20:17.535Z
+Stopped at: Completed 15-09-PLAN.md
 Resume file: None
