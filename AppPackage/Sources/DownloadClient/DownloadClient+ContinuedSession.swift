@@ -268,13 +268,4 @@ extension DownloadCoordinator {
         )
     }
 
-    /// The galleries the scheduler would run, read exactly the way the schedulable-work predicate
-    /// reads them, so the card can never describe a different set than the queue works on.
-    private func schedulableDownloads() async -> [DownloadedGallery] {
-        let queuedGIDs = queueStore.gids
-        let downloads = queuedGIDs.isEmpty
-            ? await indexedDownloads()
-            : await indexedDownloads(gids: queuedGIDs)
-        return downloads.filter(isSchedulableDownload)
-    }
 }

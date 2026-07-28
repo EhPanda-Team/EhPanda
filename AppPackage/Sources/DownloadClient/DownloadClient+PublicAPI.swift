@@ -197,6 +197,10 @@ extension DownloadCoordinator {
             clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
             await queueStore.remove(gid)
             await backgroundTaskStore.removeAll(for: gid)
+            // The cancelled task's generation no longer owns `activeGalleryID`, so its deferred
+            // cleanup cannot schedule. Returning here would strand both the queue and its session.
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(.notFound)
         }
         do {
