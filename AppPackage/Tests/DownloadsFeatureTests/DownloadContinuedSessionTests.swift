@@ -1,5 +1,6 @@
 import AppModels
 import BackgroundProcessingClient
+import CustomDump
 import DownloadClient
 import Foundation
 import Testing
@@ -184,8 +185,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         _ = await context.manager.pause(gid: gid)
     }
 
-    /// Ordering is a contract of the client seam: a progress push before the session exists has
-    /// nothing to push to, and would be dropped rather than queued.
+    /// Ordering is a contract of the client seam: the initial counts ride the start call, so no
+    /// follow-up update is needed to make the new card internally consistent. A progress push
+    /// before the session exists still has nothing to push to and is dropped rather than queued.
     @Test
     func testStartIsRecordedBeforeAnyProgressUpdate() async throws {
         let gid = "210005"
@@ -201,6 +203,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let sessionID = try #require(await context.manager.testingContinuedSessionID())
         #expect(spy.startCount == 1)
         #expect(spy.progressUpdates.isEmpty)
+        expectNoDifference(spy.startCompletedUnitCounts, [0])
+        expectNoDifference(spy.startTotalUnitCounts, [2])
 
         await context.manager.pushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.startCount == 1)
