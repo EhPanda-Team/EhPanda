@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 10/11 | In Progress|  |
+| 15. Continued Background Downloads | 11/11 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 10/11 plans executed
+**Plans**: 11/11 plans executed
 
 Plans:
 **Wave 1**
@@ -857,7 +857,7 @@ Plans:
 
 **Wave 11** *(blocked on 15-10 — real code dependency plus xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-11-PLAN.md — Coordinator identity regressions in a new suite: the drain-then-second-tap interleave, refusal rollback, and the foreign-expiration pause-all gate
+- [x] 15-11-PLAN.md — Coordinator identity regressions in a new suite: the drain-then-second-tap interleave, refusal rollback, and the foreign-expiration pause-all gate
 
 ### Phase 16: Dynamic Type Accessibility
 

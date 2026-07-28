@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-10-PLAN.md
-last_updated: "2026-07-28T10:29:21.016Z"
+stopped_at: Completed 15-11-PLAN.md
+last_updated: "2026-07-28T10:47:43.359Z"
 last_activity: 2026-07-28
 last_activity_desc: Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 182
-  completed_plans: 181
-  percent: 81
+  completed_plans: 182
+  percent: 88
 ---
 
 # Project State
@@ -34,7 +34,7 @@ Status: Ready to execute plan 15-11
 Last activity: 2026-07-28 — Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
 Next: /gsd-execute-phase 15 — execute plan 15-11, one xcodebuild invocation at a time
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -237,6 +237,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P08 | 32min | 3 tasks | 3 files |
 | Phase 15 P09 | 47min | 2 tasks | 4 files |
 | Phase 15 P10 | 25min | 2 tasks | 10 files |
+| Phase 15 P11 | 10min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -562,6 +563,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-10: The coordinator records the client id only after its ownership re-check and leaves it nil while start is in flight.
 - [Phase 15]: 15-10: A refused start rolls back only the requesting coordinator stamp so the next queue-mobilizing action can retry.
 - [Phase 15]: 15-10: Shared continued-session fixtures live in DownloadFeatureTestHelpers to preserve the hard file-length gate and support plan 15-11.
+- [Phase 15]: Record accepted starts completely before parking behind the deterministic one-shot gate. — The entered signal must expose the exact in-flight identity state without polling.
+- [Phase 15]: Model client refusal as an observable call that creates no session identity or event stream. — The spy must reproduce the store contract so coordinator rollback and retry remain testable.
 
 ### Pending Todos
 
@@ -609,6 +612,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T10:28:34.987Z
-Stopped at: Completed 15-10-PLAN.md
+Last session: 2026-07-28T10:47:43.351Z
+Stopped at: Completed 15-11-PLAN.md
 Resume file: None
