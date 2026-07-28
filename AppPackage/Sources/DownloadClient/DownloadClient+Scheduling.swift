@@ -12,10 +12,10 @@ extension DownloadCoordinator {
     }
 
     public func scheduleNextIfNeeded() async {
+        // Deliberately a forwarder: every queue mutation converges here, so this tail is
+        // the one place a reconcile sees every exit path of the core (both its early-return
+        // guards and its happy path).
         await scheduleNextIfNeededCore()
-        // Reconcile on every exit path of the core (both early-return guards and the
-        // happy path), so the background-task assertion always matches queue state.
-        await reconcileBackgroundAssertion()
     }
 
     private func scheduleNextIfNeededCore() async {
