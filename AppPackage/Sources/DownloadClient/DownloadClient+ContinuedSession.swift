@@ -185,14 +185,19 @@ extension DownloadCoordinator {
     /// notification, and a second path would have to re-implement all three in step with it.
     ///
     /// The session must already be marked ended before this runs, because each pause reschedules
-    /// and the reschedule tail reconciles the session. Each pause genuinely suspends on file I/O,
-    /// so a D-07 tap can start a successor inside the loop; the identity gate prevents the stale
-    /// expiration from undoing that user action.
+    /// and the reschedule tail reconciles the session. Each gallery's pause is bound to both the
+    /// expiring session and the queue-intent generation current when this loop chose it, so a D-07
+    /// tap that lands across the pause's suspensions advances the intent and makes the stale pause
+    /// abandon its write.
     public func pauseAllSchedulable(expiring sessionID: UUID) async {
         let gids = await schedulableDownloads().map(\.gid)
         for gid in gids {
             guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
-            _ = await pause(gid: gid)
+            let expiration = ExpirationPauseOwnership(
+                sessionID: sessionID,
+                queueIntentGeneration: queueIntentGeneration(for: gid)
+            )
+            _ = await pause(gid: gid, expiration: expiration)
         }
     }
 

@@ -34,6 +34,7 @@ extension DownloadCoordinator {
             for: download, requestedMode: mode
         )
         clearDownloadSessionState(gid: gid)
+        advanceQueueIntentGeneration(for: gid)
         queuedModes[gid] = resolvedMode
         queuedPageSelections[gid] = nil
         await queueStore.enqueue(gid)
@@ -85,6 +86,7 @@ extension DownloadCoordinator {
     ) async throws {
         clearSelectedFailedPages(gid: gid, selectedPageIndices: selectedPageIndices)
         clearDownloadFailureState(gid: gid, includePageFailures: false)
+        advanceQueueIntentGeneration(for: gid)
         queuedModes[gid] = mode
         queuedPageSelections[gid] = selectedPageIndices
         await queueStore.enqueue(gid)
