@@ -75,7 +75,6 @@ extension DownloadClient {
             urlSession: urlSession,
             pageDownloader: pageDownloader,
             backgroundTaskStore: backgroundTaskStore,
-            backgroundTaskClient: .live,
             downloadOptionsProvider: {
                 @Shared(.setting) var setting
                 return setting.downloadRequestOptions

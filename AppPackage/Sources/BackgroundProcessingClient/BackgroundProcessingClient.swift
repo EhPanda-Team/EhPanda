@@ -13,9 +13,7 @@ public enum BackgroundProcessing {
 
 /// Wraps `BGTaskScheduler` so the app can ask iOS to relaunch it in a discretionary,
 /// multi-minute background window to drain the download queue after the foreground
-/// grace period ends. Unlike `BackgroundTaskClient`, this is resolved through
-/// `DependencyValues` because both the AppDelegate (registration) and `AppReducer`
-/// (scheduling) need it.
+/// grace period ends.
 @DependencyClient
 public struct BackgroundProcessingClient: Sendable {
     /// Registers the launch handler for the download processing task. Must be called
