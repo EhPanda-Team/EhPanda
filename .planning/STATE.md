@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-11-PLAN.md
-last_updated: "2026-07-28T10:47:43.359Z"
+stopped_at: Verification found gaps after 15-11
+last_updated: "2026-07-28T11:11:51.121Z"
 last_activity: 2026-07-28
-last_activity_desc: Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
+last_activity_desc: Phase 15 re-verification found lifecycle gaps after plans 15-10 and 15-11
 progress:
   total_phases: 16
   completed_phases: 14
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 11 of 11
-Status: Ready to execute plan 15-11
-Last activity: 2026-07-28 — Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
-Next: /gsd-execute-phase 15 — execute plan 15-11, one xcodebuild invocation at a time
+Plan: 11 of 11 (executed; verification found 3 gap groups)
+Status: Verification found gaps — 1/4 criteria verified; gap planning required
+Last activity: 2026-07-28 — Phase 15 re-verification found lifecycle gaps after plans 15-10 and 15-11
+Next: /gsd-plan-phase 15 --gaps — plan fixes for verified lifecycle gaps
 
 Progress: [██████████] 100% (14/16 phases)
 
