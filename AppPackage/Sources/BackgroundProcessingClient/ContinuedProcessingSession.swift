@@ -56,8 +56,8 @@ public final class ContinuedProcessingSession {
     /// a session exists as far as the scheduler is concerned but no task object is held yet.
     private var isAwaitingTask = false
     private var didCancelStaleRequests = false
-    /// The last counts pushed by the caller, kept so a task adopted after the first progress
-    /// push is seeded with real numbers instead of starting the card back at zero.
+    /// The last counts supplied by the caller, seeded by start and refreshed by later progress
+    /// pushes, so a task adopted at any point reports real numbers.
     private var lastCompletedUnitCount: Int64 = 0
     private var lastTotalUnitCount: Int64 = 0
 
@@ -74,7 +74,12 @@ public final class ContinuedProcessingSession {
     ///
     /// Must be called in the foreground, in response to a user action: the scheduler validates
     /// foreground state itself and silently drops submissions it disagrees with.
-    public func start(title: String, subtitle: String) -> BackgroundProcessingSession? {
+    public func start(
+        title: String,
+        subtitle: String,
+        completedUnitCount: Int64,
+        totalUnitCount: Int64
+    ) -> BackgroundProcessingSession? {
         // One session at a time. A second registration of an identifier kills the app, and the
         // store holds exactly one task, so re-entry is refused before any scheduler touch.
         guard task == nil, continuation == nil, !isAwaitingTask else {
@@ -87,9 +92,10 @@ public final class ContinuedProcessingSession {
         // Stored before anything below can yield or finish.
         self.continuation = continuation
         self.sessionID = sessionID
-        // A push that landed after the previous session ended must not seed this one's card.
-        lastCompletedUnitCount = 0
-        lastTotalUnitCount = 0
+        // A predecessor's trailing push must not seed this card. The caller's fresh snapshot is
+        // recorded instead: zeroing here traded a stale number for a false one.
+        lastCompletedUnitCount = completedUnitCount
+        lastTotalUnitCount = totalUnitCount
 
         if !didCancelStaleRequests {
             didCancelStaleRequests = true
@@ -145,15 +151,23 @@ public final class ContinuedProcessingSession {
         return session
     }
 
-    /// Pushes fresh counts and a refreshed subtitle to the system card.
+    /// Pushes fresh counts and a refreshed subtitle to the named system card.
     ///
     /// The caller owns clamping and monotonicity: this store is domain-agnostic and knows
     /// nothing about what a unit means, so recomputing totals is the caller's policy.
+    /// The saved counts are what adoption seeds from, so a foreign push must not reach either
+    /// those counts or an already adopted task.
     ///
     /// Calling this steadily is a liveness requirement, not decoration. The scheduler forcibly
     /// expires tasks that appear stalled, and prioritises terminating the ones reporting the
     /// least progress.
-    public func updateProgress(completedUnitCount: Int64, totalUnitCount: Int64, subtitle: String) {
+    public func updateProgress(
+        sessionID: UUID,
+        completedUnitCount: Int64,
+        totalUnitCount: Int64,
+        subtitle: String
+    ) {
+        guard self.sessionID == sessionID else { return }
         lastCompletedUnitCount = completedUnitCount
         lastTotalUnitCount = totalUnitCount
         guard let task else { return }
@@ -201,6 +215,7 @@ public final class ContinuedProcessingSession {
         }
         pendingIdentifier = nil
         self.task = task
+        // These counts come from the snapshot captured by start, or a newer accepted push.
         task.progress.totalUnitCount = lastTotalUnitCount
         task.progress.completedUnitCount = lastCompletedUnitCount
         task.setExpirationHandler { [weak self] in

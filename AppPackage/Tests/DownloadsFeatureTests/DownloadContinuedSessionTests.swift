@@ -14,10 +14,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let client = BackgroundProcessingClient()
 
         await withKnownIssue("start is unimplemented") {
-            _ = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+            _ = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
         }
         await withKnownIssue("updateProgress is unimplemented") {
-            await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
+            await client.updateProgress(UUID(), 3, 10, "3 / 10 pages · 1 gallery")
         }
         await withKnownIssue("finish is unimplemented") {
             await client.finish(UUID(), true)
@@ -30,10 +30,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     func testNoopClientRefusesEveryStart() async {
         let client = BackgroundProcessingClient.noop
 
-        let session = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+        let session = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
         #expect(session == nil)
 
-        await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
+        await client.updateProgress(UUID(), 3, 10, "3 / 10 pages · 1 gallery")
         await client.finish(UUID(), true)
     }
 
@@ -47,7 +47,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let client = spy.client
 
         let session = try #require(
-            await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+            await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
         )
         #expect(spy.startCount == 1)
         #expect(spy.startTitles == ["Downloading galleries"])
@@ -57,9 +57,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let foreignSessionID = UUID()
         await client.finish(foreignSessionID, false)
         spy.emit(.granted)
-        await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
+        await client.updateProgress(session.id, 3, 10, "3 / 10 pages · 1 gallery")
         #expect(spy.progressUpdates == [
             .init(
+                sessionID: session.id,
                 completedUnitCount: 3,
                 totalUnitCount: 10,
                 subtitle: "3 / 10 pages · 1 gallery"
@@ -78,7 +79,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(events == [.granted])
 
         let expiringSession = try #require(
-            await client.start("Downloading galleries", "3 / 10 pages · 1 gallery")
+            await client.start("Downloading galleries", "3 / 10 pages · 1 gallery", 3, 10)
         )
         spy.expire()
         var expiringEvents = [BackgroundProcessingEvent]()
@@ -903,14 +904,14 @@ private extension BackgroundProcessingClient {
     /// Answers every start with an identified session that immediately reports unavailable —
     /// what the Simulator reports, and what the system reports when it will not grant a task.
     static let unavailable = Self(
-        start: { _, _ in
+        start: { _, _, _, _ in
             let events = AsyncStream<BackgroundProcessingEvent> { continuation in
                 continuation.yield(.unavailable)
                 continuation.finish()
             }
             return BackgroundProcessingSession(id: UUID(), events: events)
         },
-        updateProgress: { _, _, _ in },
+        updateProgress: { _, _, _, _ in },
         finish: { _, _ in }
     )
 }
