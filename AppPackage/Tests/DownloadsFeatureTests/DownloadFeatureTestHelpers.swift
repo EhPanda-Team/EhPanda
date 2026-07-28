@@ -299,3 +299,75 @@ extension DownloadFeatureTestCase {
     }
 
 }
+
+// MARK: - Blocking Coordinator Fixture
+
+/// Gives the free functions below a receiver for `DownloadFeatureTestCase`'s shared factories.
+/// The protocol declares no requirement without a default implementation, so an empty conformer
+/// is a complete witness; it exists only so file-scope code can reach those factories without
+/// forcing conformance onto every suite that wants the fixture.
+private struct SharedDownloadTestFactories: DownloadFeatureTestCase {}
+
+struct BlockingCoordinatorContext {
+    let manager: DownloadCoordinator
+    let storage: DownloadStore
+    let rootURL: URL
+}
+
+/// Builds a coordinator whose single queued download blocks forever once scheduled,
+/// so `activeTask` stays installed and queue lifecycle behavior can be observed while
+/// a download is genuinely in flight.
+func makeBlockingCoordinator(
+    gid: String,
+    title: String
+) async throws -> BlockingCoordinatorContext {
+    let rootURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+    let taskRunner = DownloadTaskRunner(
+        runScheduledDownload: { _, _ in
+            while !Task.isCancelled {
+                await sleepIgnoringCancellation(for: .milliseconds(10))
+            }
+            return .skippedOperation
+        }
+    )
+    let manager = DownloadCoordinator(
+        storage: storage,
+        urlSession: .shared,
+        taskRunner: taskRunner
+    )
+
+    try storage.ensureRootDirectory()
+    let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
+    try FileManager.default.createDirectory(
+        at: folderURL,
+        withIntermediateDirectories: true
+    )
+    try storage.writeManifest(
+        SharedDownloadTestFactories().sampleManifest(gid: gid, title: title),
+        folderURL: folderURL
+    )
+    await manager.reloadDownloadIndex()
+    await manager.testingSetQueuedGalleryIDs([gid])
+    return BlockingCoordinatorContext(
+        manager: manager,
+        storage: storage,
+        rootURL: rootURL
+    )
+}
+
+// The poll returns the moment the condition holds, so the deadline costs nothing on a healthy
+// run and only bounds a genuine hang. One second did not survive CI, where the whole target's
+// suites run in parallel and a task can sit unscheduled far longer than the work itself takes.
+func waitUntil(
+    timeout: Duration = .seconds(10),
+    _ condition: @Sendable () async -> Bool
+) async throws {
+    let clock = ContinuousClock()
+    let deadline = clock.now.advanced(by: timeout)
+    while await !condition(), clock.now < deadline {
+        await sleepIgnoringCancellation(for: .milliseconds(10))
+    }
+    try #require(await condition(), "Timed out waiting for condition.")
+}
