@@ -1,64 +1,47 @@
-import AppModels
-import BackgroundTasks
 import ComposableArchitecture
-import OSLogExt
 
-private let logger = Logger(category: .init(describing: BackgroundProcessingClient.self))
-
-public enum BackgroundProcessing {
-    /// Fixed task identifier, independent of the bundle id. Must stay in sync with the
-    /// `BGTaskSchedulerPermittedIdentifiers` entry in Info.plist.
-    public static let downloadTaskIdentifier = "app.ehpanda.downloads.processing"
-}
-
-/// Wraps `BGTaskScheduler` so the app can ask iOS to relaunch it in a discretionary,
-/// multi-minute background window to drain the download queue after the foreground
-/// grace period ends.
+/// Wraps the system's continued-processing task so a user-started, foreground-initiated job
+/// keeps running after the app is backgrounded, surfaced by the system-provided progress card.
+///
+/// The client is domain-agnostic: callers supply already-localized strings and already-clamped
+/// counts, and nothing about what the work *is* lives here.
+///
+/// It is both resolvable through `DependencyValues` — which is where the unimplemented
+/// `testValue` lives — and injected directly into its one consumer. That double shape is
+/// deliberate, and diverges from the execution-assertion client it replaces, which had no
+/// `DependencyValues` entry at all.
 @DependencyClient
 public struct BackgroundProcessingClient: Sendable {
-    /// Registers the launch handler for the download processing task. Must be called
-    /// before the app finishes launching.
-    public var register: @MainActor @Sendable (@escaping @MainActor @Sendable (BGProcessingTask) -> Void) -> Void
-    /// Submits a processing-task request. Best-effort and fire-and-forget: the system may
-    /// refuse it (Background App Refresh disabled, identifier not permitted), which the
-    /// live implementation logs and tolerates.
-    public var schedule: @Sendable () -> Void
-    /// Cancels any pending download processing-task request.
-    public var cancel: @Sendable () -> Void
+    /// Registers and submits a session, returning the stream that reports its fate. The stream
+    /// finishes itself after `expired`, after `unavailable`, or after `finish`, so a consuming
+    /// effect never needs external cancellation.
+    public var start: @Sendable (_ title: String, _ subtitle: String) async
+        -> AsyncStream<BackgroundProcessingEvent> = { _, _ in AsyncStream { $0.finish() } }
+    /// Pushes fresh counts and a refreshed subtitle to the system card. The caller owns
+    /// clamping and monotonicity.
+    public var updateProgress: @Sendable (
+        _ completedUnitCount: Int64,
+        _ totalUnitCount: Int64,
+        _ subtitle: String
+    ) async -> Void
+    /// Completes the session and finishes its stream.
+    public var finish: @Sendable (_ success: Bool) async -> Void
 }
 
 extension BackgroundProcessingClient {
     public static let live = Self(
-        register: { handler in
-            _ = BGTaskScheduler.shared.register(
-                forTaskWithIdentifier: BackgroundProcessing.downloadTaskIdentifier,
-                using: .main
-            ) { task in
-                guard let processingTask = task as? BGProcessingTask else {
-                    task.setTaskCompleted(success: false)
-                    return
-                }
-                handler(processingTask)
-            }
+        start: { title, subtitle in
+            await ContinuedProcessingSession.shared.start(title: title, subtitle: subtitle)
         },
-        schedule: {
-            let request = BGProcessingTaskRequest(
-                identifier: BackgroundProcessing.downloadTaskIdentifier
+        updateProgress: { completedUnitCount, totalUnitCount, subtitle in
+            await ContinuedProcessingSession.shared.updateProgress(
+                completedUnitCount: completedUnitCount,
+                totalUnitCount: totalUnitCount,
+                subtitle: subtitle
             )
-            request.requiresNetworkConnectivity = true
-            request.requiresExternalPower = false
-            request.earliestBeginDate = nil
-            do {
-                try BGTaskScheduler.shared.submit(request)
-                logger.notice("Scheduled background processing task.")
-            } catch {
-                logger.error("\(error, privacy: .public)")
-            }
         },
-        cancel: {
-            BGTaskScheduler.shared.cancel(
-                taskRequestWithIdentifier: BackgroundProcessing.downloadTaskIdentifier
-            )
+        finish: { success in
+            await ContinuedProcessingSession.shared.finish(success: success)
         }
     )
 }
@@ -80,8 +63,8 @@ extension DependencyValues {
 // MARK: Test
 extension BackgroundProcessingClient {
     public static let noop = Self(
-        register: { _ in },
-        schedule: {},
-        cancel: {}
+        start: { _, _ in AsyncStream { $0.finish() } },
+        updateProgress: { _, _, _ in },
+        finish: { _ in }
     )
 }
