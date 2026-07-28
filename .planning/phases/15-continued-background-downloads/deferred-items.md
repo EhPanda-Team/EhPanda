@@ -16,3 +16,10 @@ and should end at 16.
 
 Both are documentation staleness in a file outside this phase's edit scope (the plan scopes
 Task 2 to the Phase 15 detail section). Neither affects any code or gate.
+
+## Existing UI-test actor-isolation warnings
+
+Building the targeted package tests with Xcode 26.6 reports two Swift concurrency warnings in
+`EhPandaUITests/DeepLinkPadUITests.swift:9`: the nonisolated assertion autoclosure reads
+`UIDevice.current.userInterfaceIdiom`. The file is outside Plan 15-10's session-identity scope,
+and the warnings predate its changes.
