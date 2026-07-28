@@ -4,15 +4,15 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Verification found gaps after 15-11
-last_updated: "2026-07-28T11:11:51.121Z"
-last_activity: 2026-07-28
-last_activity_desc: Phase 15 re-verification found lifecycle gaps after plans 15-10 and 15-11
+status: ready to execute
+stopped_at: Gap-closure round 3 planned (15-12..15-16); awaiting execution
+last_updated: "2026-07-29T00:00:00.000Z"
+last_activity: 2026-07-29
+last_activity_desc: Phase 15 gap-closure round 3 planned — 5 plans (15-12..15-16), plan-checker passed
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 182
+  total_plans: 187
   completed_plans: 182
   percent: 88
 ---
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 11 of 11 (executed; verification found 3 gap groups)
-Status: Verification found gaps — 1/4 criteria verified; gap planning required
-Last activity: 2026-07-28 — Phase 15 re-verification found lifecycle gaps after plans 15-10 and 15-11
-Next: /gsd-plan-phase 15 --gaps — plan fixes for verified lifecycle gaps
+Phase: 15 (continued-background-downloads) — READY TO EXECUTE
+Plan: 11 of 16 (11 executed; 15-12..15-16 planned for gap closure, waves 12-16)
+Status: Gap-closure round 3 planned — plan-checker passed; 15-16 blocks on an owner decision
+Last activity: 2026-07-29 — Phase 15 gap-closure planning: 5 plans created, revised once, verified
+Next: /gsd-execute-phase 15 — execute the gap-closure plans
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [█████████░] 88% (14/16 phases)
 
 ## Performance Metrics
 
