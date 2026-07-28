@@ -1,4 +1,19 @@
 import ComposableArchitecture
+import Foundation
+
+/// An identified continued-processing session and the events it reports.
+///
+/// A caller must present this handle's id to complete the session. That extends the identity
+/// invariant used by every late-arriving coordinator mutation across the client seam.
+public struct BackgroundProcessingSession: Sendable {
+    public let id: UUID
+    public let events: AsyncStream<BackgroundProcessingEvent>
+
+    public init(id: UUID, events: AsyncStream<BackgroundProcessingEvent>) {
+        self.id = id
+        self.events = events
+    }
+}
 
 /// Wraps the system's continued-processing task so a user-started, foreground-initiated job
 /// keeps running after the app is backgrounded, surfaced by the system-provided progress card.
@@ -12,11 +27,12 @@ import ComposableArchitecture
 /// `DependencyValues` entry at all.
 @DependencyClient
 public struct BackgroundProcessingClient: Sendable {
-    /// Registers and submits a session, returning the stream that reports its fate. The stream
+    /// Registers and submits a session, returning its identified event stream. The stream
     /// finishes itself after `expired`, after `unavailable`, or after `finish`, so a consuming
-    /// effect never needs external cancellation.
+    /// effect never needs external cancellation. A `nil` result means the store's single-session
+    /// guard refused the call, which is observable and retryable rather than a dead stream.
     public var start: @Sendable (_ title: String, _ subtitle: String) async
-        -> AsyncStream<BackgroundProcessingEvent> = { _, _ in AsyncStream { $0.finish() } }
+        -> BackgroundProcessingSession?
     /// Pushes fresh counts and a refreshed subtitle to the system card. The caller owns
     /// clamping and monotonicity.
     public var updateProgress: @Sendable (
@@ -24,8 +40,11 @@ public struct BackgroundProcessingClient: Sendable {
         _ totalUnitCount: Int64,
         _ subtitle: String
     ) async -> Void
-    /// Completes the session and finishes its stream.
-    public var finish: @Sendable (_ success: Bool) async -> Void
+    /// Completes `sessionID` only when it is the session the store currently holds.
+    ///
+    /// A caller that lost ownership across its own suspension must not be able to end a
+    /// successor.
+    public var finish: @Sendable (_ sessionID: UUID, _ success: Bool) async -> Void
 }
 
 extension BackgroundProcessingClient {
@@ -40,8 +59,8 @@ extension BackgroundProcessingClient {
                 subtitle: subtitle
             )
         },
-        finish: { success in
-            await ContinuedProcessingSession.shared.finish(success: success)
+        finish: { sessionID, success in
+            await ContinuedProcessingSession.shared.finish(sessionID: sessionID, success: success)
         }
     )
 }
@@ -63,8 +82,8 @@ extension DependencyValues {
 // MARK: Test
 extension BackgroundProcessingClient {
     public static let noop = Self(
-        start: { _, _ in AsyncStream { $0.finish() } },
+        start: { _, _ in nil },
         updateProgress: { _, _, _ in },
-        finish: { _ in }
+        finish: { _, _ in }
     )
 }

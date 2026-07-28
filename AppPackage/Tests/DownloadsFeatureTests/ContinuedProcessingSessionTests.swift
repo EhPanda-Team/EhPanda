@@ -124,18 +124,20 @@ struct ContinuedProcessingSessionTests {
     @Test
     func testEndedSessionCancelsItsPendingRequestAndALaterStartIsGranted() async throws {
         let spy = ContinuedTaskSchedulingSpy()
-        let session = ContinuedProcessingSession(scheduling: spy.scheduling)
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
 
-        let firstStream = session.start(
-            title: "Downloading galleries",
-            subtitle: "0 / 10 pages · 1 gallery"
+        let firstSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery"
+            )
         )
         #expect(spy.registeredIdentifiers.count == 1)
         let abandonedIdentifier = try #require(spy.registeredIdentifiers.first)
         #expect(spy.submissions.map(\.identifier) == [abandonedIdentifier])
 
         // The queue drained before the system ever got around to launching the request.
-        session.finish(success: true)
+        store.finish(sessionID: firstSession.id, success: true)
         #expect(spy.cancelledIdentifiers == [abandonedIdentifier])
 
         // Cancellation is best-effort, so the system may still launch the request it was handed.
@@ -144,22 +146,24 @@ struct ContinuedProcessingSessionTests {
         #expect(strayTask.completionSuccesses == [false])
 
         var firstEvents = [BackgroundProcessingEvent]()
-        for await event in firstStream {
+        for await event in firstSession.events {
             firstEvents.append(event)
         }
         #expect(firstEvents.isEmpty)
 
         // A push arriving while no session is live: the caller owns clamping and monotonicity, so
         // the store cannot assume this never happens.
-        session.updateProgress(
+        store.updateProgress(
             completedUnitCount: 7,
             totalUnitCount: 9,
             subtitle: "7 / 9 pages · 1 gallery"
         )
 
-        let secondStream = session.start(
-            title: "Downloading galleries",
-            subtitle: "0 / 4 pages · 1 gallery"
+        let secondSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 4 pages · 1 gallery"
+            )
         )
         #expect(spy.registeredIdentifiers.count == 2)
         let awaitedIdentifier = try #require(spy.registeredIdentifiers.last)
@@ -172,7 +176,7 @@ struct ContinuedProcessingSessionTests {
         #expect(adoptedTask.progress.totalUnitCount == 0)
         #expect(adoptedTask.progress.completedUnitCount == 0)
 
-        session.finish(success: true)
+        store.finish(sessionID: secondSession.id, success: true)
         #expect(adoptedTask.completionSuccesses == [true])
         // An adopted session owns no pending request, so ending it cancels nothing further.
         #expect(spy.cancelledIdentifiers == [abandonedIdentifier])
@@ -180,7 +184,7 @@ struct ContinuedProcessingSessionTests {
         #expect(spy.cancelAllCount == 1)
 
         var secondEvents = [BackgroundProcessingEvent]()
-        for await event in secondStream {
+        for await event in secondSession.events {
             secondEvents.append(event)
         }
         #expect(secondEvents == [.granted])
@@ -195,24 +199,28 @@ struct ContinuedProcessingSessionTests {
     @Test
     func testAStaleLaunchIsCompletedAndNeverDisplacesTheAwaitedTask() async throws {
         let spy = ContinuedTaskSchedulingSpy()
-        let session = ContinuedProcessingSession(scheduling: spy.scheduling)
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
 
-        let firstStream = session.start(
-            title: "Downloading galleries",
-            subtitle: "0 / 10 pages · 1 gallery"
+        let firstSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery"
+            )
         )
-        session.finish(success: true)
+        store.finish(sessionID: firstSession.id, success: true)
         let staleIdentifier = try #require(spy.registeredIdentifiers.first)
 
         var firstEvents = [BackgroundProcessingEvent]()
-        for await event in firstStream {
+        for await event in firstSession.events {
             firstEvents.append(event)
         }
         #expect(firstEvents.isEmpty)
 
-        let secondStream = session.start(
-            title: "Downloading galleries",
-            subtitle: "0 / 6 pages · 1 gallery"
+        let secondSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 6 pages · 1 gallery"
+            )
         )
         let liveIdentifier = try #require(spy.registeredIdentifiers.last)
         #expect(liveIdentifier != staleIdentifier)
@@ -225,13 +233,13 @@ struct ContinuedProcessingSessionTests {
         spy.launch(liveIdentifier, with: liveTask)
         #expect(liveTask.completionSuccesses.isEmpty)
 
-        session.finish(success: true)
+        store.finish(sessionID: secondSession.id, success: true)
         #expect(liveTask.completionSuccesses == [true])
         // Only the request nobody adopted was cancelled; the live one was launched, not withdrawn.
         #expect(spy.cancelledIdentifiers == [staleIdentifier])
 
         var secondEvents = [BackgroundProcessingEvent]()
-        for await event in secondStream {
+        for await event in secondSession.events {
             secondEvents.append(event)
         }
         #expect(secondEvents == [.granted])
@@ -243,14 +251,16 @@ struct ContinuedProcessingSessionTests {
     @Test
     func testAdoptionSeedsProgressAndExpirationStillEndsTheSession() async throws {
         let spy = ContinuedTaskSchedulingSpy()
-        let session = ContinuedProcessingSession(scheduling: spy.scheduling)
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
 
-        let stream = session.start(
-            title: "Downloading galleries",
-            subtitle: "0 / 10 pages · 1 gallery"
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery"
+            )
         )
         let identifier = try #require(spy.registeredIdentifiers.first)
-        session.updateProgress(
+        store.updateProgress(
             completedUnitCount: 3,
             totalUnitCount: 10,
             subtitle: "3 / 10 pages · 1 gallery"
@@ -261,7 +271,7 @@ struct ContinuedProcessingSessionTests {
         #expect(task.progress.totalUnitCount == 10)
         #expect(task.progress.completedUnitCount == 3)
 
-        session.updateProgress(
+        store.updateProgress(
             completedUnitCount: 6,
             totalUnitCount: 10,
             subtitle: "6 / 10 pages · 1 gallery"
@@ -277,7 +287,7 @@ struct ContinuedProcessingSessionTests {
         #expect(task.completionSuccesses == [false])
 
         var events = [BackgroundProcessingEvent]()
-        for await event in stream {
+        for await event in session.events {
             events.append(event)
         }
         #expect(events == [.granted, .expired])

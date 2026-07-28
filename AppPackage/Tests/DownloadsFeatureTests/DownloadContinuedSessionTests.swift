@@ -20,41 +20,42 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
         }
         await withKnownIssue("finish is unimplemented") {
-            await client.finish(true)
+            await client.finish(UUID(), true)
         }
     }
 
-    /// The no-op value is inert in both directions: it starts nothing, and the stream it hands
-    /// back is already finished, so a consumer written against the live contract drops straight
-    /// out of its loop rather than hanging on a session that will never report.
+    /// The no-op value is inert in both directions: every start is visibly refused, so no
+    /// consumer can mistake a dead stream for a session that exists.
     @Test
-    func testNoopClientStartsAnAlreadyFinishedStream() async {
+    func testNoopClientRefusesEveryStart() async {
         let client = BackgroundProcessingClient.noop
 
-        var events = [BackgroundProcessingEvent]()
-        for await event in await client.start("Downloading galleries", "0 / 10 pages · 1 gallery") {
-            events.append(event)
-        }
-        #expect(events.isEmpty)
+        let session = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+        #expect(session == nil)
 
         await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
-        await client.finish(true)
+        await client.finish(UUID(), true)
     }
 
     /// The spy has to hold up the same contract the live client does, because every later
-    /// behavior assertion reads its recordings and drives its events. Note the drain loop below
-    /// exits without anything cancelling it: `expire()` finishes the stream itself, exactly as
-    /// the live session does after the system reclaims or the user cancels the card.
+    /// behavior assertion reads its recordings and drives its events. A foreign completion is
+    /// recorded but cannot finish the held stream; the matching id can, and expiration still
+    /// finishes a later stream without outside cancellation.
     @Test
-    func testSpyRecordsPushedValuesAndFinishesItsStreamOnExpiration() async {
+    func testSpyRecordsPushedValuesAndFinishesItsStreamOnExpiration() async throws {
         let spy = BackgroundProcessingClientSpy()
         let client = spy.client
 
-        let stream = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+        let session = try #require(
+            await client.start("Downloading galleries", "0 / 10 pages · 1 gallery")
+        )
         #expect(spy.startCount == 1)
         #expect(spy.startTitles == ["Downloading galleries"])
         #expect(spy.startSubtitles == ["0 / 10 pages · 1 gallery"])
+        #expect(spy.startSessionIDs == [session.id])
 
+        let foreignSessionID = UUID()
+        await client.finish(foreignSessionID, false)
         spy.emit(.granted)
         await client.updateProgress(3, 10, "3 / 10 pages · 1 gallery")
         #expect(spy.progressUpdates == [
@@ -64,18 +65,31 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
                 subtitle: "3 / 10 pages · 1 gallery"
             )
         ])
+        #expect(spy.finishRecords == [
+            .init(sessionID: foreignSessionID, success: false)
+        ])
 
-        spy.expire()
+        await client.finish(session.id, true)
 
         var events = [BackgroundProcessingEvent]()
-        for await event in stream {
+        for await event in session.events {
             events.append(event)
         }
-        #expect(events == [.granted, .expired])
+        #expect(events == [.granted])
 
-        await client.finish(true)
-        #expect(spy.finishCount == 1)
-        #expect(spy.finishSuccesses == [true])
+        let expiringSession = try #require(
+            await client.start("Downloading galleries", "3 / 10 pages · 1 gallery")
+        )
+        spy.expire()
+        var expiringEvents = [BackgroundProcessingEvent]()
+        for await event in expiringSession.events {
+            expiringEvents.append(event)
+        }
+        #expect(expiringEvents == [.expired])
+        #expect(spy.finishRecords == [
+            .init(sessionID: foreignSessionID, success: false),
+            .init(sessionID: session.id, success: true)
+        ])
     }
 
     /// The mobilizing tap this case drives is a resume, reached through the pause toggle exactly
@@ -179,14 +193,15 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: context.rootURL) }
 
         // Pushing before the tap records nothing at all: no session, no card, no update.
-        await context.manager.pushContinuedSessionProgress()
+        await context.manager.pushContinuedSessionProgress(sessionID: UUID())
         #expect(spy.progressUpdates.isEmpty)
 
         try await context.manager.togglePause(gid: gid).get()
+        let sessionID = try #require(await context.manager.testingContinuedSessionID())
         #expect(spy.startCount == 1)
         #expect(spy.progressUpdates.isEmpty)
 
-        await context.manager.pushContinuedSessionProgress()
+        await context.manager.pushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.startCount == 1)
         #expect(spy.progressUpdates.count == 1)
 
@@ -274,7 +289,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.first)
         #expect(spy.progressUpdates.count == 1)
@@ -300,10 +316,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         await fixture.manager.testingSetQueuedGalleryIDs(["210020", joiningGID])
-        await fixture.manager.pushContinuedSessionProgress()
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [4, 13])
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [1, 3])
@@ -330,12 +347,13 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         // The shrink that makes this case worth having: the gallery holding all the completed
         // pages leaves, so the raw snapshot would report 0 completed out of 4.
         await fixture.manager.testingSetQueuedGalleryIDs(["210031"])
-        await fixture.manager.pushContinuedSessionProgress()
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let completedCounts = spy.progressUpdates.map(\.completedUnitCount)
         #expect(completedCounts == [6, 6])
@@ -372,7 +390,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.first)
         #expect(update.totalUnitCount >= 1)
@@ -395,9 +414,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
         await fixture.manager.testingSetQueuedGalleryIDs([])
-        await fixture.manager.pushContinuedSessionProgress()
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.last)
         #expect(update.totalUnitCount >= 1)
@@ -429,9 +449,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
         await fixture.manager.testingSetQueuedGalleryIDs([firstGID])
-        await fixture.manager.pushContinuedSessionProgress()
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "4 / 8 pages · 2 galleries",
@@ -613,13 +634,14 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.ensureContinuedSession()
-        await fixture.manager.pushContinuedSessionProgress()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
         let updatesBeforeExpiration = spy.progressUpdates.count
         #expect(updatesBeforeExpiration == 1)
 
         try await expireSession(of: fixture, spy: spy, ensuresSession: false)
         await fixture.manager.scheduleNextIfNeeded()
-        await fixture.manager.pushContinuedSessionProgress()
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.count == updatesBeforeExpiration)
         #expect(spy.finishCount == 0)
@@ -704,6 +726,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: context.rootURL) }
 
         try await context.manager.togglePause(gid: gid).get()
+        let sessionID = try #require(await context.manager.testingContinuedSessionID())
         #expect(spy.startCount == 1)
         #expect(await context.manager.testingHasContinuedSession())
 
@@ -711,7 +734,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         // Still live, and still pushing: the foreign teardown touched nothing.
         #expect(await context.manager.testingHasContinuedSession())
-        await context.manager.pushContinuedSessionProgress()
+        await context.manager.pushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.progressUpdates.count == 1)
 
         // The correct-id path still tears the session down end to end.
@@ -763,108 +786,6 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 // MARK: - Helpers
 
 private extension DownloadContinuedSessionTests {
-    /// The blocking fixture with its queue cleared, so the single download starts out inactive and
-    /// unschedulable. That is the state a resume has to move, which makes the tap under test the
-    /// only thing that can produce schedulable work.
-    func makeInactiveCoordinator(
-        gid: String,
-        client: BackgroundProcessingClient,
-        galleryTitle: String = "Queued"
-    ) async throws -> BlockingCoordinatorContext {
-        let context = try await makeBlockingCoordinator(
-            gid: gid,
-            title: galleryTitle,
-            backgroundProcessingClient: client
-        )
-        await context.manager.testingSetQueuedGalleryIDs([])
-        return context
-    }
-
-    /// One gallery to seed on disk. A named value rather than a tuple, so a case that cares only
-    /// about page counts still reads as page counts at the call site.
-    struct SessionGallery {
-        let gid: String
-        let title: String
-        let pageCount: Int
-        var completedPageCount = 0
-    }
-
-    struct SessionFixture {
-        let manager: DownloadCoordinator
-        let storage: DownloadStore
-        let rootURL: URL
-    }
-
-    /// A coordinator holding `galleries` on disk with `queuedGIDs` enqueued, and nothing running.
-    ///
-    /// Deliberately not the blocking fixture: a queued gallery is schedulable on its own, so this
-    /// makes the queue's *shape* the only variable an arithmetic case has to reason about. No task
-    /// runner is installed either, so no download can start and mutate the counts underneath an
-    /// assertion.
-    func makeQueuedCoordinator(
-        galleries: [SessionGallery],
-        queuedGIDs: [String]? = nil,
-        client: BackgroundProcessingClient,
-        now: @escaping @Sendable () -> Date = { Date() }
-    ) async throws -> SessionFixture {
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadCoordinator(
-            storage: storage,
-            urlSession: .shared,
-            backgroundProcessingClient: client,
-            now: now
-        )
-
-        try storage.ensureRootDirectory()
-        for gallery in galleries {
-            try writeGalleryFolder(storage: storage, gallery: gallery)
-        }
-        await manager.reloadDownloadIndex()
-        await manager.testingSetQueuedGalleryIDs(queuedGIDs ?? galleries.map(\.gid))
-        return SessionFixture(manager: manager, storage: storage, rootURL: rootURL)
-    }
-
-    /// Writes one gallery folder whose manifest reports `completedPageCount` finished pages: a
-    /// page counts as done when its hash entry is non-empty, which is the same rule the index
-    /// derives progress from.
-    func writeGalleryFolder(
-        storage: DownloadStore,
-        gallery: SessionGallery
-    ) throws {
-        let folderURL = storage.folderURL(
-            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
-        )
-        try FileManager.default.createDirectory(
-            at: folderURL,
-            withIntermediateDirectories: true
-        )
-        try storage.writeManifest(manifest(for: gallery), folderURL: folderURL)
-    }
-
-    func manifest(for gallery: SessionGallery) -> DownloadManifest {
-        DownloadManifest(
-            gid: gallery.gid,
-            host: .ehentai,
-            token: "token",
-            title: gallery.title,
-            jpnTitle: nil,
-            category: .doujinshi,
-            language: .japanese,
-            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
-            uploader: "Uploader",
-            tags: [],
-            postedDate: .now,
-            rating: 4,
-            pages: Dictionary(
-                uniqueKeysWithValues: (0..<gallery.pageCount).map { offset in
-                    (offset + 1, offset < gallery.completedPageCount ? "sha256:done" : "")
-                }
-            )
-        )
-    }
-
     /// Everything about one gallery that a pause is allowed to change, plus the two facts a lost
     /// or duplicated page would move. Compared as a whole so a divergence anywhere fails, rather
     /// than only where an assertion happened to look.
@@ -979,16 +900,17 @@ private extension DownloadContinuedSessionTests {
 }
 
 private extension BackgroundProcessingClient {
-    /// Answers every start with an immediate refusal and a finished stream — what the Simulator
-    /// reports, and what the system reports when it will not grant a session at all.
+    /// Answers every start with an identified session that immediately reports unavailable —
+    /// what the Simulator reports, and what the system reports when it will not grant a task.
     static let unavailable = Self(
         start: { _, _ in
-            AsyncStream { continuation in
+            let events = AsyncStream<BackgroundProcessingEvent> { continuation in
                 continuation.yield(.unavailable)
                 continuation.finish()
             }
+            return BackgroundProcessingSession(id: UUID(), events: events)
         },
         updateProgress: { _, _, _ in },
-        finish: { _ in }
+        finish: { _, _ in }
     )
 }
