@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 9/9 | In Progress|  |
+| 15. Continued Background Downloads | 10/11 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 11 plans — 9 executed, 2 pending (gap closure round 2)
+**Plans**: 10/11 plans executed
 
 Plans:
 **Wave 1**
@@ -853,7 +853,7 @@ Plans:
 
 **Wave 10** *(gap closure round 2 — blocked on 15-09: real code dependency on the 15-09 session-id lifecycle)*
 
-- [ ] 15-10-PLAN.md — Promote the store's session identity into the seam (session handle from start, id-taking finish) and thread it through every completion path, the pause loop, and the progress push; store-side identity regression cases
+- [x] 15-10-PLAN.md — Promote the store's session identity into the seam (session handle from start, id-taking finish) and thread it through every completion path, the pause loop, and the progress push; store-side identity regression cases
 
 **Wave 11** *(blocked on 15-10 — real code dependency plus xcodebuild serialization; invocations must never overlap on this machine)*
 

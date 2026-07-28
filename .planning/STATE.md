@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Planned 15-10/15-11 (gap closure round 2)
-last_updated: "2026-07-28T15:45:00.000Z"
+stopped_at: Completed 15-10-PLAN.md
+last_updated: "2026-07-28T10:29:21.016Z"
 last_activity: 2026-07-28
-last_activity_desc: gap closure round 2 planned (15-10 seam session identity, 15-11 identity regression suite)
+last_activity_desc: Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
 progress:
   total_phases: 16
-  completed_phases: 14
-  total_plans: 180
-  completed_plans: 180
-  percent: 88
+  completed_phases: 13
+  total_plans: 182
+  completed_plans: 181
+  percent: 81
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 9 of 11 (executed; 15-10/15-11 planned, ready to execute)
-Status: Gap closure round 2 planned — re-verification found the WR-01 fix introduced a session-blind finish (CR-04) plus sibling identity gaps; 15-10 promotes session identity into the client seam, 15-11 pins the interleaves
-Last activity: 2026-07-28 — gap closure round 2 planned (15-10, 15-11; waves 10–11)
-Next: /gsd-execute-phase 15 — waves 10 then 11, one xcodebuild invocation at a time
+Plan: 11 of 11
+Status: Ready to execute plan 15-11
+Last activity: 2026-07-28 — Completed 15-10 session identity promotion; ready for 15-11 interleave regressions
+Next: /gsd-execute-phase 15 — execute plan 15-11, one xcodebuild invocation at a time
 
-Progress: [█████████░] 88% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -236,6 +236,7 @@ Progress: [█████████░] 88% (14/16 phases)
 | Phase 15 P07 | 16min | 3 tasks | 2 files |
 | Phase 15 P08 | 32min | 3 tasks | 3 files |
 | Phase 15 P09 | 47min | 2 tasks | 4 files |
+| Phase 15 P10 | 25min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -557,6 +558,10 @@ Recent decisions affecting current work:
 - [Phase ?]: ROADMAP Phase 15 amended to the shipped contract: no fallback tier in SC3, session seam plus coordinator in SC4, and the open scope question recorded as resolved rather than deleted
 - [Phase 15]: 15-09: The continued session carries a per-session UUID minted with the liveness flag; every late-arriving teardown, event and post-suspension resume must present it, so a superseded session can no longer detach a live one (CR-02/WR-01).
 - [Phase 15]: 15-09: The non-initial cancelQueuedWorkItem branch converges through scheduleNextIfNeeded rather than reconciling inline, so it inherits the reconcile tail like every other queue mutation (WR-04).
+- [Phase 15]: 15-10: The background-processing seam returns an optional identified session handle; only that handle's id may complete the store session.
+- [Phase 15]: 15-10: The coordinator records the client id only after its ownership re-check and leaves it nil while start is in flight.
+- [Phase 15]: 15-10: A refused start rolls back only the requesting coordinator stamp so the next queue-mobilizing action can retry.
+- [Phase 15]: 15-10: Shared continued-session fixtures live in DownloadFeatureTestHelpers to preserve the hard file-length gate and support plan 15-11.
 
 ### Pending Todos
 
@@ -604,6 +609,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T05:20:17.535Z
-Stopped at: Completed 15-09-PLAN.md
+Last session: 2026-07-28T10:28:34.987Z
+Stopped at: Completed 15-10-PLAN.md
 Resume file: None
