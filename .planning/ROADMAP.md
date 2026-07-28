@@ -843,9 +843,12 @@ Plans:
 
 - [x] 15-07-PLAN.md — Topology invariant, roadmap amendment, phase gates and device observation
 
-**Wave 8** *(gap closure — parallel, after Wave 7)*
+**Wave 8** *(gap closure — after Wave 7)*
 
 - [ ] 15-08-PLAN.md — Session store: cancel abandoned requests, identity-check adoption, store regression suite
+
+**Wave 9** *(gap closure — blocked on 15-08; serialization only, no code dependency — xcodebuild invocations must never overlap on this machine)*
+
 - [ ] 15-09-PLAN.md — Coordinator: session-id-stamped teardown and the convergence-point cancel route
 
 ### Phase 16: Dynamic Type Accessibility
