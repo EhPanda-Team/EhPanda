@@ -689,6 +689,37 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         _ = await context.manager.pause(gid: gid)
     }
+
+    /// CR-02: a superseded session's trailing teardown used to clear whatever session was live
+    /// when it finally re-entered the actor. The interleave that produces it — a drain completing
+    /// S1 while its consuming task is still suspended, then a tap starting S2 before that task
+    /// resumes — has no deterministic staging, but its effect does: a teardown carrying a foreign
+    /// id, driven directly here. Before the fix it detached the live session, after which nothing
+    /// pushed progress and nothing completed it.
+    @Test
+    func testStaleTeardownDoesNotClearANewerSession() async throws {
+        let gid = "210140"
+        let spy = BackgroundProcessingClientSpy()
+        let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
+        defer { removeTemporaryItem(at: context.rootURL) }
+
+        try await context.manager.togglePause(gid: gid).get()
+        #expect(spy.startCount == 1)
+        #expect(await context.manager.testingHasContinuedSession())
+
+        await context.manager.markContinuedSessionEnded(sessionID: UUID())
+
+        // Still live, and still pushing: the foreign teardown touched nothing.
+        #expect(await context.manager.testingHasContinuedSession())
+        await context.manager.pushContinuedSessionProgress()
+        #expect(spy.progressUpdates.count == 1)
+
+        // The correct-id path still tears the session down end to end.
+        _ = await context.manager.pause(gid: gid)
+        #expect(spy.finishCount == 1)
+        #expect(spy.finishSuccesses == [true])
+        #expect(!(await context.manager.testingHasContinuedSession()))
+    }
 }
 
 // MARK: - Helpers
