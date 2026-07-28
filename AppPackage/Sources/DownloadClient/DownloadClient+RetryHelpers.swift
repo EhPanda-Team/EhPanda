@@ -15,6 +15,7 @@ extension DownloadCoordinator {
         }
         do {
             try await performRetry(gid: gid, download: download, mode: mode)
+            await ensureContinuedSession()
             return .success(())
         } catch let error as AppError {
             return .failure(error)
@@ -65,6 +66,7 @@ extension DownloadCoordinator {
                 selectedPageIndices: selectedPageIndices,
                 folderURL: folderURL
             )
+            await ensureContinuedSession()
             return .success(())
         } catch let error as AppError {
             return .failure(error)
