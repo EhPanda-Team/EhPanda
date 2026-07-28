@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 11/11 | In Progress|  |
+| 15. Continued Background Downloads | 11/16 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 11/11 plans executed
+**Plans**: 11/16 plans executed (waves 12–16 close the gaps 15-VERIFICATION.md found after wave 11)
 
 Plans:
 **Wave 1**
@@ -858,6 +858,26 @@ Plans:
 **Wave 11** *(blocked on 15-10 — real code dependency plus xcodebuild serialization; invocations must never overlap on this machine)*
 
 - [x] 15-11-PLAN.md — Coordinator identity regressions in a new suite: the drain-then-second-tap interleave, refusal rollback, and the foreign-expiration pause-all gate
+
+**Wave 12** *(gap closure round 3 — blocked on 15-11: real code dependency on the identified seam, plus xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-12-PLAN.md — Seed the start snapshot into the client seam so an adopted task never reports 0 / 0, and give every progress push the client session id the store checks before applying it
+
+**Wave 13** *(blocked on 15-12 — serialization plus a light code dependency on the threaded session identities)*
+
+- [ ] 15-13-PLAN.md — Route the vanished-record delete branch through observer notification and the scheduling convergence point, and collapse the duplicated schedulable-work predicate onto one authority
+
+**Wave 14** *(blocked on 15-13 — real code dependency: the expiration pause loop reads the extracted schedulable-work authority)*
+
+- [ ] 15-14-PLAN.md — Per-gallery queue-intent generations, an expiration pause that abandons its writes when a newer user action lands and converges afterwards, and a blocking test fixture that cannot leak
+
+**Wave 15** *(blocked on 15-14 — real code dependency: the cases stage on the new fixture control and assert the new guard)*
+
+- [ ] 15-15-PLAN.md — The gated expiration-versus-user-action interleave regressions, replacing the foreign-id case that never entered the suspension window
+
+**Wave 16** *(blocked on 15-15 — serialization plus sequencing; contains a blocking owner decision)*
+
+- [ ] 15-16-PLAN.md — Owner disposition of the unread background-processing dependency registration, and the end-of-phase device verification handoff
 
 ### Phase 16: Dynamic Type Accessibility
 
