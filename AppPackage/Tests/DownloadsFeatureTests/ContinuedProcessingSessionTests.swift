@@ -129,7 +129,9 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery"
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
             )
         )
         #expect(spy.registeredIdentifiers.count == 1)
@@ -154,6 +156,7 @@ struct ContinuedProcessingSessionTests {
         // A push arriving while no session is live: the caller owns clamping and monotonicity, so
         // the store cannot assume this never happens.
         store.updateProgress(
+            sessionID: UUID(),
             completedUnitCount: 7,
             totalUnitCount: 9,
             subtitle: "7 / 9 pages · 1 gallery"
@@ -162,7 +165,9 @@ struct ContinuedProcessingSessionTests {
         let secondSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery"
+                subtitle: "2 / 4 pages · 1 gallery",
+                completedUnitCount: 2,
+                totalUnitCount: 4
             )
         )
         #expect(spy.registeredIdentifiers.count == 2)
@@ -173,8 +178,8 @@ struct ContinuedProcessingSessionTests {
         let adoptedTask = ContinuedTaskSpy()
         spy.launch(awaitedIdentifier, with: adoptedTask)
         #expect(adoptedTask.completionSuccesses.isEmpty)
-        #expect(adoptedTask.progress.totalUnitCount == 0)
-        #expect(adoptedTask.progress.completedUnitCount == 0)
+        #expect(adoptedTask.progress.totalUnitCount == 4)
+        #expect(adoptedTask.progress.completedUnitCount == 2)
 
         store.finish(sessionID: secondSession.id, success: true)
         #expect(adoptedTask.completionSuccesses == [true])
@@ -204,7 +209,9 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery"
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
             )
         )
         store.finish(sessionID: firstSession.id, success: true)
@@ -219,7 +226,9 @@ struct ContinuedProcessingSessionTests {
         let secondSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 6 pages · 1 gallery"
+                subtitle: "0 / 6 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 6
             )
         )
         let liveIdentifier = try #require(spy.registeredIdentifiers.last)
@@ -245,9 +254,9 @@ struct ContinuedProcessingSessionTests {
         #expect(secondEvents == [.granted])
     }
 
-    /// Refactor parity for the seam: adoption still seeds the card from the counts already pushed,
-    /// later pushes still refresh the subtitle without disturbing the title, and the expiration
-    /// handler the store installs still performs the terminal transition.
+    /// Refactor parity for the seam: adoption seeds the card from the start snapshot, later pushes
+    /// still refresh the subtitle without disturbing the title, and the expiration handler the
+    /// store installs still performs the terminal transition.
     @Test
     func testAdoptionSeedsProgressAndExpirationStillEndsTheSession() async throws {
         let spy = ContinuedTaskSchedulingSpy()
@@ -256,15 +265,12 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery"
+                subtitle: "3 / 10 pages · 1 gallery",
+                completedUnitCount: 3,
+                totalUnitCount: 10
             )
         )
         let identifier = try #require(spy.registeredIdentifiers.first)
-        store.updateProgress(
-            completedUnitCount: 3,
-            totalUnitCount: 10,
-            subtitle: "3 / 10 pages · 1 gallery"
-        )
 
         let task = ContinuedTaskSpy()
         spy.launch(identifier, with: task)
@@ -272,6 +278,7 @@ struct ContinuedProcessingSessionTests {
         #expect(task.progress.completedUnitCount == 3)
 
         store.updateProgress(
+            sessionID: session.id,
             completedUnitCount: 6,
             totalUnitCount: 10,
             subtitle: "6 / 10 pages · 1 gallery"
@@ -303,7 +310,9 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery"
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
             )
         )
         let identifier = try #require(spy.registeredIdentifiers.first)
@@ -314,6 +323,7 @@ struct ContinuedProcessingSessionTests {
         #expect(task.completionSuccesses.isEmpty)
 
         store.updateProgress(
+            sessionID: session.id,
             completedUnitCount: 4,
             totalUnitCount: 10,
             subtitle: "4 / 10 pages · 1 gallery"
@@ -346,7 +356,9 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery"
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
             )
         )
         let firstIdentifier = try #require(spy.registeredIdentifiers.first)
@@ -355,7 +367,9 @@ struct ContinuedProcessingSessionTests {
 
         let refusedSession = store.start(
             title: "Downloading galleries",
-            subtitle: "0 / 20 pages · 2 galleries"
+            subtitle: "0 / 20 pages · 2 galleries",
+            completedUnitCount: 0,
+            totalUnitCount: 20
         )
         #expect(refusedSession == nil)
         #expect(spy.registeredIdentifiers.count == 1)
@@ -366,7 +380,9 @@ struct ContinuedProcessingSessionTests {
         let laterSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 20 pages · 2 galleries"
+                subtitle: "0 / 20 pages · 2 galleries",
+                completedUnitCount: 0,
+                totalUnitCount: 20
             )
         )
         let laterIdentifier = try #require(spy.registeredIdentifiers.last)

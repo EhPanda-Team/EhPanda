@@ -86,7 +86,9 @@ extension DownloadCoordinator {
         let snapshot = await schedulableProgress()
         let clientSession = await backgroundProcessingClient.start(
             String(localized: .continuedSessionTitle),
-            continuedSessionSubtitle(for: snapshot)
+            continuedSessionSubtitle(for: snapshot),
+            Int64(snapshot.progress.displayCompletedPageCount),
+            Int64(snapshot.progress.displayPageCount)
         )
         guard let clientSession else {
             // The store still holds a predecessor whose completion has not landed. Roll this
@@ -104,6 +106,7 @@ extension DownloadCoordinator {
             return
         }
         continuedClientSessionID = clientSession.id
+        lastPushedCompletedPageCount = snapshot.progress.displayCompletedPageCount
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
@@ -232,6 +235,11 @@ extension DownloadCoordinator {
     public func pushContinuedSessionProgress(sessionID: UUID) async {
         guard continuedSessionID == sessionID else { return }
         let snapshot = await schedulableProgress()
+        guard continuedSessionID == sessionID else { return }
+        // Read the client identity only after the ownership re-check. Capturing it before the
+        // suspending progress read could present a predecessor's id after a successor took over;
+        // nil here means start is still in flight and there is no card to push to yet.
+        guard let clientSessionID = continuedClientSessionID else { return }
         let completedPageCount = max(
             lastPushedCompletedPageCount,
             snapshot.progress.displayCompletedPageCount
@@ -253,6 +261,7 @@ extension DownloadCoordinator {
             galleryCount: snapshot.galleryCount
         )
         await backgroundProcessingClient.updateProgress(
+            clientSessionID,
             Int64(pushed.progress.displayCompletedPageCount),
             Int64(pushed.progress.displayPageCount),
             continuedSessionSubtitle(for: pushed)
