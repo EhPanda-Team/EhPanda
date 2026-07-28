@@ -800,17 +800,17 @@ Plans:
 
 ### Phase 15: Continued Background Downloads
 
-**Goal**: Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just started keeps running when the app is backgrounded, surfaced by the system-provided progress UI, instead of being cut short by the `beginBackgroundTask` grace period and left to the discretionary `BGProcessingTask` window.
+**Goal**: Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just started keeps running when the app is backgrounded, surfaced by the system-provided progress UI, instead of being cut short by the short grace period that bounded the previous behavior.
 **Depends on**: Phase 14
 **Requirements**: None mapped — the scope contract is this phase's four success criteria, referenced by plans as SC-labels
 **Success Criteria** (what must be TRUE):
 
   1. A download started in the foreground continues to completion after the app is backgrounded, for a queue large enough to outlast the `beginBackgroundTask` grace period that bounds today's behavior.
   2. The system-provided progress UI reflects real download progress and its cancel affordance stops the queue, leaving download state consistent with an in-app cancel.
-  3. Submission is treated as best-effort: when the system refuses or expires the request, the app falls back to the existing paths (`BackgroundTaskClient` assertion, `BackgroundProcessingClient` discretionary window) with no lost or duplicated work, and no user-visible error.
-  4. The new capability is reached through a testable client seam in the `BackgroundProcessingClient` module — mirroring its `register`/`schedule`/`cancel` shape — with `testValue` unimplemented, so no reducer touches `BGTaskScheduler` directly.
+  3. Submission is treated as best-effort and there is **no fallback tier**: when the system refuses the request, queues it indefinitely, or expires it, downloads suspend with the process and resume on the next foreground, with no lost or duplicated work and no user-visible error. The discretionary processing-task path and the UIKit execution assertion are deleted outright rather than fallen back to.
+  4. The new capability is reached through a testable client seam in the `BackgroundProcessingClient` module exposing a continued-processing **session** API — start, update-progress, complete, with events on a self-finishing stream — with `testValue` unimplemented, so no reducer **or coordinator** touches the system task scheduler directly.
 
-**Open for discuss-phase**: whether `BGContinuedProcessingTask` *replaces* the discretionary `BGProcessingTask` path for downloads or runs alongside it as the user-initiated tier; and whether the same seam should cover any non-download work. `Info.plist` already carries `BGTaskSchedulerPermittedIdentifiers` and `UIBackgroundModes`, so the entitlement surface is an edit, not a new capability.
+**Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
 **Plans**: 6/7 plans executed
 
