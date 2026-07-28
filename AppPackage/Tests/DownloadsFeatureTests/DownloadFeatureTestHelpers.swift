@@ -1,6 +1,7 @@
 @testable import AppFeature
 import AppModels
 import AppTools
+import BackgroundProcessingClient
 import ComposableArchitecture
 @testable import DetailFeature
 import DownloadClient
@@ -319,7 +320,8 @@ struct BlockingCoordinatorContext {
 /// a download is genuinely in flight.
 func makeBlockingCoordinator(
     gid: String,
-    title: String
+    title: String,
+    backgroundProcessingClient: BackgroundProcessingClient = .noop
 ) async throws -> BlockingCoordinatorContext {
     let rootURL = FileManager.default.temporaryDirectory
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -335,6 +337,7 @@ func makeBlockingCoordinator(
     let manager = DownloadCoordinator(
         storage: storage,
         urlSession: .shared,
+        backgroundProcessingClient: backgroundProcessingClient,
         taskRunner: taskRunner
     )
 

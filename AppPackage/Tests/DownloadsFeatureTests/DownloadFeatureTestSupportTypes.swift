@@ -1,4 +1,5 @@
 @testable import AppFeature
+import BackgroundProcessingClient
 import Foundation
 import Synchronization
 
@@ -59,6 +60,100 @@ final class RequestRecorder: Sendable {
 
     func snapshot() -> RequestRecorderSnapshot {
         state.withLock({ $0 })
+    }
+}
+
+/// Stands in for the continued-processing session client, recording everything a case pushes at
+/// the seam and letting the case deliver events on its own schedule.
+///
+/// The whole of its state sits behind one `Mutex` so the spy is genuinely `Sendable` and can be
+/// read from the case while the coordinator's actor writes to it.
+final class BackgroundProcessingClientSpy: Sendable {
+    /// One `updateProgress` call. A named record rather than a tuple: an unlabeled tuple type is
+    /// banned at error severity here, and `.0`/`.1` reads carry no meaning at an assertion site.
+    struct ProgressUpdate: Equatable {
+        let completedUnitCount: Int64
+        let totalUnitCount: Int64
+        let subtitle: String
+    }
+
+    private struct State {
+        var startCount = 0
+        var startTitles = [String]()
+        var startSubtitles = [String]()
+        var progressUpdates = [ProgressUpdate]()
+        var finishCount = 0
+        var finishSuccesses = [Bool]()
+        var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
+    }
+
+    private let state = Mutex(State())
+
+    var startCount: Int { state.withLock({ $0.startCount }) }
+    var startTitles: [String] { state.withLock({ $0.startTitles }) }
+    var startSubtitles: [String] { state.withLock({ $0.startSubtitles }) }
+    var progressUpdates: [ProgressUpdate] { state.withLock({ $0.progressUpdates }) }
+    var finishCount: Int { state.withLock({ $0.finishCount }) }
+    var finishSuccesses: [Bool] { state.withLock({ $0.finishSuccesses }) }
+
+    /// Delivers one event to whoever is consuming the live stream, leaving the stream open.
+    func emit(_ event: BackgroundProcessingEvent) {
+        let continuation = state.withLock({ $0.continuation })
+        continuation?.yield(event)
+    }
+
+    /// Delivers an expiration and then finishes the stream, mirroring the real client's
+    /// self-finishing contract: a consumer's `for await` loop falls out on its own, so no case
+    /// has to cancel the consuming task to end it.
+    func expire() {
+        let continuation = takeContinuation()
+        continuation?.yield(.expired)
+        continuation?.finish()
+    }
+
+    /// Hands back the live continuation and clears it in the same critical section, so a
+    /// terminal transition can never be applied twice to the same stream.
+    private func takeContinuation() -> AsyncStream<BackgroundProcessingEvent>.Continuation? {
+        state.withLock {
+            let continuation = $0.continuation
+            $0.continuation = nil
+            return continuation
+        }
+    }
+
+    var client: BackgroundProcessingClient {
+        BackgroundProcessingClient(
+            start: { title, subtitle in
+                let (stream, continuation) = AsyncStream.makeStream(
+                    of: BackgroundProcessingEvent.self
+                )
+                self.state.withLock {
+                    $0.startCount += 1
+                    $0.startTitles.append(title)
+                    $0.startSubtitles.append(subtitle)
+                    $0.continuation = continuation
+                }
+                return stream
+            },
+            updateProgress: { completedUnitCount, totalUnitCount, subtitle in
+                self.state.withLock {
+                    $0.progressUpdates.append(
+                        ProgressUpdate(
+                            completedUnitCount: completedUnitCount,
+                            totalUnitCount: totalUnitCount,
+                            subtitle: subtitle
+                        )
+                    )
+                }
+            },
+            finish: { success in
+                self.state.withLock {
+                    $0.finishCount += 1
+                    $0.finishSuccesses.append(success)
+                }
+                self.takeContinuation()?.finish()
+            }
+        )
     }
 }
 
