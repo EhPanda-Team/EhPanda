@@ -256,7 +256,14 @@ extension DownloadCoordinator {
             // `.active`; every exit path notifies here instead, after ownership
             // is cleared, so the settled status (completed/error) is what lands.
             await self.notifyObservers()
-            guard schedulesNext else { return }
+            guard schedulesNext else {
+                // The collision-cleanup branch: another owner is already driving the queue,
+                // so rescheduling here would double-schedule. It still has to reach the
+                // session, because the scheduling tail is what normally reconciles one and
+                // this download may have been the last in flight.
+                await self.reconcileContinuedSession()
+                return
+            }
             await self.scheduleNextIfNeeded()
         }
     }
