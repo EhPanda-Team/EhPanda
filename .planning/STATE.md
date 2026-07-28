@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-07-28T00:16:39.340Z"
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-07-28T00:28:25.077Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 15 execution started
+last_activity_desc: Completed 15-03 (BackgroundProcessingClient rebuilt as a session seam)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 178
-  completed_plans: 173
+  completed_plans: 174
   percent: 81
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
-Last activity: 2026-07-28 — Completed 15-02 (assertion tier and drain loop deleted)
-Next: /gsd-execute-phase 15 — plan 15-03 rebuilds BackgroundProcessingClient; the tree currently has no background-execution mechanism at all (intended, D-01/D-02)
+Last activity: 2026-07-28 — Completed 15-03 (BackgroundProcessingClient rebuilt as a session seam)
+Next: /gsd-execute-phase 15 — plan 15-04 injects the session client into DownloadCoordinator; the seam exists but nothing consumes it yet
 
 Progress: [████████░░] 81% (13/16 phases)
 
@@ -229,6 +229,7 @@ Progress: [████████░░] 81% (13/16 phases)
 | Phase 14 P12 | 14min | 3 tasks | 9 files |
 | Phase 15 P01 | 7min | 2 tasks | 5 files |
 | Phase 15 P02 | 14min | 3 tasks | 16 files |
+| Phase 15 P03 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -534,6 +535,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-02: Both older background-execution mechanisms are deleted outright; hasPendingWork survives as a mechanism-free schedulable-work predicate in DownloadClient+PendingWork.swift — D-01/D-02 make the deletion the design; deleting before rebuilding keeps every intermediate commit green
 - [Phase 15]: 15-02: scheduleNextIfNeeded stays a forwarder over its core, with a comment recording that its tail is the single convergence point every queue mutation reaches — Plan 15-06 re-hangs a session reconcile there; collapsing the forwarder would delete the rationale with the call
 - [Phase 15]: 15-02: Shared test fixtures that non-conforming suites must reach live at file scope, reaching protocol-extension factories through a private empty conformer — Seven suites in DownloadsFeatureTests declare no DownloadFeatureTestCase conformance, and a file-scope function has no receiver for a protocol default
+- [Phase ?]: [Phase 15]: 15-03: The continued-processing launch handler and expiration handler inherit main-actor isolation directly; no MainActor.assumeIsolated is needed (settles RESEARCH Assumption A3).
+- [Phase ?]: [Phase 15]: 15-03: The session store clears its task and continuation before any terminal call, making a second terminal transition structurally impossible rather than merely guarded.
 
 ### Pending Todos
 
@@ -581,6 +584,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T00:16:26.189Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-07-28T00:27:57.824Z
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None
