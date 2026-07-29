@@ -260,7 +260,8 @@ extension DownloadCoordinator {
                 // The collision-cleanup branch: another owner is already driving the queue,
                 // so rescheduling here would double-schedule. It still has to reach the
                 // session, because the scheduling tail is what normally reconciles one and
-                // this download may have been the last in flight.
+                // this download may have been the last in flight. This is the
+                // ACTIVE-OWNERSHIP CONVERGENCE disposition for a deliberately non-scheduling exit.
                 await self.reconcileContinuedSession()
                 return
             }

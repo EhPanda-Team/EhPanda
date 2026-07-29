@@ -208,10 +208,18 @@ extension DownloadCoordinator {
             try removeGalleryFolders(gid: download.gid, token: download.token)
         } catch let error as AppError {
             await reloadDownloadRecord(gid: download.gid, token: download.token)
+            // ACTIVE-OWNERSHIP CONVERGENCE: the function-scoped defer has not run yet, so release
+            // the failed gallery before converging or the scheduler would silently skip it.
+            schedulingBlockedGalleryIDs.remove(gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(error)
         } catch {
             logger.error("\(error, privacy: .public)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
+            schedulingBlockedGalleryIDs.remove(gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
         // Clear session and queue state only once the folders are gone; a failed
