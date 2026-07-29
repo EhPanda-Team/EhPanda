@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 16/16 | In Progress|  |
+| 15. Continued Background Downloads | 17/19 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 19 plans (16 executed; 15-17 through 15-19 are gap-closure round 4, planned and pending execution)
+**Plans**: 17/19 plans executed
 
 Plans:
 **Wave 1**
@@ -881,7 +881,7 @@ Plans:
 
 **Wave 17** *(gap closure round 4 — blocked on 15-16 by sequencing; xcodebuild invocations must never overlap on this machine)*
 
-- [ ] 15-17-PLAN.md — Defer reconciliation while a client start is in flight so coordinator ownership is never surrendered without a client id, bind the session spy to the live single-session contract and triage the suite behind it, and correct the documentation describing the deleted dependency API
+- [x] 15-17-PLAN.md — Defer reconciliation while a client start is in flight so coordinator ownership is never surrendered without a client id, bind the session spy to the live single-session contract and triage the suite behind it, and correct the documentation describing the deleted dependency API
 
 **Wave 18** *(blocked on 15-17 — real code dependency: the new regressions assert session liveness through the deferred-reconciliation contract and run under the corrected spy)*
 
