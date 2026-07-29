@@ -1,8 +1,8 @@
 ---
 phase: 15-continued-background-downloads
-reviewed: 2026-07-28T11:01:13Z
+reviewed: 2026-07-29T00:41:45Z
 depth: standard
-files_reviewed: 26
+files_reviewed: 28
 files_reviewed_list:
   - App/Info.plist
   - AppPackage/Package.swift
@@ -26,198 +26,225 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadAutomationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadDeleteConvergenceTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadPendingWorkTests.swift
 findings:
-  critical: 4
+  critical: 3
   warning: 3
   info: 0
-  total: 7
+  total: 6
 status: issues_found
 ---
 
 # Phase 15: Code Review Report
 
-**Reviewed:** 2026-07-28T11:01:13Z
+**Reviewed:** 2026-07-29T00:41:45Z
 **Depth:** standard
-**Files Reviewed:** 26
+**Files Reviewed:** 28
 **Status:** issues_found
 
 ## Summary
 
-The submitted continued-processing implementation compiles under the iOS 26 simulator target, and
-its plist and string catalog parse successfully. The lifecycle still has four shipping correctness
-defects, however: progress mutations are not client-session identified, a newly adopted system task
-starts with a false `0 / 0` progress state, expiration can overwrite a user action that interleaves
-inside a per-gallery pause, and one delete edge leaves both queue scheduling and the system session
-stranded. The new tests also miss the suspension window they claim to cover and can leak their
-deliberately infinite task on an early test exit.
+The phase still has three shipping defects. The coordinator clears an in-flight session before the
+client start returns, allowing a second user action to collide with the live store's single-session
+guard and leave the newest work without background coverage. A failed filesystem deletion of the
+active gallery similarly leaves the queue without an owner or convergence pass. Download identities
+and titles are also deliberately emitted as public unified-log fields despite being sensitive
+library data. The current tests conceal the first race because their client spy accepts overlapping
+starts that the live store refuses.
+
+The plist and string catalog parse successfully, and the continued-session plural substitutions
+match the repository's locale rules. Option B did remove the unused dependency key and accessor,
+but source and test documentation still claims both exist.
 
 Review guidance used: `gsd-code-review`, `swift-concurrency-pro` (actor reentrancy, cancellation,
-unstructured tasks, and `AsyncStream` lifecycle), and `swift-testing-pro` (parallel async-test
-determinism and teardown).
+unstructured tasks, and `AsyncStream` lifecycle), and `swift-testing-pro` (async-test fidelity and
+teardown).
 
 ## Critical Issues
 
-### CR-01: Progress updates can mutate a successor session
+### CR-01 [BLOCKER]: A drain during client start can make the newest tap lose background coverage
 
-**File:** `AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift:38-42`
-**Issue:** `finish` carries a client session ID, but `updateProgress` does not. The coordinator only
-checks its own ID before suspending into the client (`DownloadClient+ContinuedSession.swift:232-259`);
-the live closure then hops to `ContinuedProcessingSession.shared` on the main actor. Actor executors
-do not provide a cross-actor FIFO guarantee. If the old session expires or drains and a new tap
-starts a successor before that hop executes, the stale counts and subtitle are written into the
-successor. `ContinuedProcessingSession.updateProgress` (`:145-155`) has no identity check with which
-to reject the mutation. This breaks the identity invariant already applied to completion and can
-rewind or replace the new card's progress.
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:87-107`
 
-**Fix:**
-```swift
-public var updateProgress: @Sendable (
-    _ sessionID: UUID,
-    _ completedUnitCount: Int64,
-    _ totalUnitCount: Int64,
-    _ subtitle: String
-) async -> Void
+**Issue:** `ensureContinuedSession` marks coordinator session S1 live and then suspends in
+`backgroundProcessingClient.start`. While that main-actor hop is returning, a queue drain can enter
+`reconcileContinuedSession` and clear S1 even though `continuedClientSessionID` is still `nil`
+(`:213-227`). A second queue-mobilizing tap can then create coordinator session S2 and call
+`start`. The live `ContinuedProcessingSession` still holds S1 at that instant and refuses S2 through
+its single-session guard (`ContinuedProcessingSession.swift:85-87`). S2 rolls its bookkeeping back
+at `:93-99`; when S1 finally resumes, its ownership check fails and it finishes S1. The final state
+has pending/running work but no continued-processing session, and only another user tap can restore
+coverage.
 
-@MainActor
-public func updateProgress(
-    sessionID: UUID,
-    completedUnitCount: Int64,
-    totalUnitCount: Int64,
-    subtitle: String
-) {
-    guard self.sessionID == sessionID else { return }
-    // Apply counts and subtitle.
-}
-```
+The regression at
+`DownloadContinuedSessionIdentityTests.swift:86-137` does not exercise production behavior:
+`BackgroundProcessingClientSpy` accepts S2 while S1 is held and overwrites its current continuation,
+whereas the live store returns `nil`.
 
-Pass `continuedClientSessionID`, not the coordinator-only ID, from every push. Update the spy to
-ignore foreign IDs and add a gated regression where an S1 update resumes only after S2 starts.
-
-### CR-02: A granted task is deliberately seeded with false `0 / 0` progress
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:86-114`
-**Issue:** `ensureContinuedSession` computes a real queue snapshot and includes it in the subtitle,
-but after `start` succeeds it never sends those counts to the client. The store resets its saved
-counts to zero at `ContinuedProcessingSession.swift:87-88`, and adoption writes those zeros into the
-system `Progress` at `:199-200`. The result is an internally contradictory card (a subtitle such as
-`120 / 300 pages` backed by a `0 / 0` progress object) until some later manifest flush or queue
-mutation happens. During a slow metadata fetch there may be no later push for a long time; this is
-also exactly when the scheduler sees a task reporting no progress and may reclaim it as stalled.
-The test at `DownloadContinuedSessionTests.swift:189-208` currently enshrines this defect by
-requiring no update after start.
-
-**Fix:** Seed the identified client session immediately after the ownership re-check, before
-installing the event consumer, using the snapshot already computed:
+**Fix:** Do not clear coordinator ownership while its client start is in flight. Record that
+reconciliation is deferred, keep `hasLiveContinuedSession` and `continuedSessionID` set so a newer
+tap folds into the pending session, and reconcile immediately after the client ID is installed:
 
 ```swift
-continuedClientSessionID = clientSession.id
-await backgroundProcessingClient.updateProgress(
-    clientSession.id,
-    Int64(snapshot.progress.displayCompletedPageCount),
-    Int64(snapshot.progress.displayPageCount),
-    continuedSessionSubtitle(for: snapshot)
-)
-guard continuedSessionID == sessionID else {
-    await backgroundProcessingClient.finish(clientSession.id, true)
+// reconcileContinuedSession
+guard await hasPendingWork() else {
+    guard continuedSessionID == sessionID else { return }
+    guard let clientSessionID = continuedClientSessionID else {
+        continuedSessionNeedsReconciliation = true
+        return
+    }
+    markContinuedSessionEnded(sessionID: sessionID)
+    await backgroundProcessingClient.finish(clientSessionID, true)
     return
 }
-```
 
-Alternatively make the initial counts part of `start`, so the main-actor store records them before
-submission and even a synchronous launch adopts a correctly seeded `Progress`.
-
-### CR-03: Expiration can overwrite a user action inside the pause suspension
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:188-193`
-**Issue:** The session-identity guard protects only the instant before `await pause(gid:)`.
-`pause` then performs several real suspension points (`DownloadClient+Scheduling.swift:160-170`),
-starting with persisted queue removal. A resume/retry/enqueue for that same gallery can interleave
-after the guard, report success, and write fresh queue intent. When the stale expiration-owned
-`pause` resumes, `writeSettledPauseRecord` clears that new intent again. Because the gallery is in
-`schedulingBlockedGalleryIDs` during the interleave, the new tap can also fail to start a successor
-session, leaving the user with a successful action that did not mobilize the download. The
-per-iteration guard does not make the multi-await mutation atomic.
-
-**Fix:** Give gallery scheduling mutations an epoch/generation and make the expiration pause
-conditional on both the expiring session ID and the captured gallery epoch at every post-suspension
-commit. A cleaner solution is a coordinator-owned bulk expiration transition that synchronously
-marks all captured galleries paused/blocked and removes their in-memory queue intent before doing
-persisted saves, then cancels/awaits the captured tasks. A new user action must advance the epoch so
-stale persistence cannot clear it.
-
-### CR-04: Deleting a vanished active record strands the remaining queue and card
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift:181-200`
-**Issue:** `delete` cancels and clears an active task before fetching its indexed download. If that
-record has disappeared (external file deletion, a stale index repair, or a concurrent reload), the
-`notFound` branch clears queue bookkeeping and returns without `notifyObservers()` or
-`scheduleNextIfNeeded()`. The cancelled task's generation no longer owns `activeGalleryID`, so its
-deferred `finishActiveTaskIfOwned` also refuses to schedule. Remaining queued galleries therefore
-stall, and a live continued-processing session is never reconciled or finished; with no remaining
-work it leaves an empty card, and with other work it eventually looks stalled and expires.
-
-**Fix:**
-```swift
-guard let download = await fetchDownload(gid: gid) else {
-    clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
-    await queueStore.remove(gid)
-    await backgroundTaskStore.removeAll(for: gid)
-    await notifyObservers()
-    await scheduleNextIfNeeded()
-    return .failure(.notFound)
+// ensureContinuedSession, after start returns and ownership is rechecked
+continuedClientSessionID = clientSession.id
+if continuedSessionNeedsReconciliation {
+    continuedSessionNeedsReconciliation = false
+    await reconcileContinuedSession()
 }
 ```
+
+Add a deterministic regression using a spy that refuses an overlapping start exactly like
+`ContinuedProcessingSession`: drain while S1 start is held, enqueue/tap again, release S1, and assert
+the pending/live S1 is reconciled against the new work rather than leaving the queue uncovered.
+
+### CR-02 [BLOCKER]: A failed active-gallery deletion permanently stalls scheduling
+
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift:182-215`
+
+**Issue:** Deleting the active gallery cancels its task and clears both `activeTask` and
+`activeGalleryID` before removing the folder. If `removeGalleryFolders` fails (permissions,
+filesystem error, or a transient coordination failure), both catch branches reload the record and
+return without notifying or calling `scheduleNextIfNeeded`. The cancelled task's deferred cleanup
+cannot recover: its generation no longer owns `activeGalleryID`, so
+`finishActiveTaskIfOwned` returns without scheduling. The failed gallery remains queued, any
+following galleries remain stranded, and the continued-processing session is neither refreshed nor
+completed.
+
+The two deletion convergence tests cover only a record that vanished successfully; neither forces
+folder removal to throw after active-task ownership has been cleared.
+
+**Fix:** On both removal-error branches, release the gallery's scheduling block and run the same
+notification/scheduling convergence used by the not-found and success paths before returning the
+error:
+
+```swift
+} catch let error as AppError {
+    await reloadDownloadRecord(gid: download.gid, token: download.token)
+    schedulingBlockedGalleryIDs.remove(gid)
+    await notifyObservers()
+    await scheduleNextIfNeeded()
+    return .failure(error)
+} catch {
+    logger.error("\(error)")
+    await reloadDownloadRecord(gid: download.gid, token: download.token)
+    schedulingBlockedGalleryIDs.remove(gid)
+    await notifyObservers()
+    await scheduleNextIfNeeded()
+    return .failure(.fileOperationFailed(error.localizedDescription))
+}
+```
+
+Keep the existing `defer` removal as an idempotent safety net, and add a failure-injected test that
+starts with an active item plus a queued successor.
+
+### CR-03 [BLOCKER]: Unified logs disclose the user's downloaded gallery identities
+
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift:59-64`
+
+**Issue:** Download completion logs the gallery title and GID with `privacy: .public`.
+`DownloadClient+PublicAPI.swift:99-103` does the same when enqueueing, while failure, pause, resume,
+delete, and expiration-interleave logs publicly emit the GID at
+`DownloadClient+Execution.swift:171-198`, `DownloadClient+PublicAPI.swift:225`, and
+`DownloadClient+Scheduling.swift:168-169,225,304`. A GID resolves to a specific public gallery, and
+the title is direct content-identifying data. Marking these fields public puts a user's library into
+unredacted unified logs and collected diagnostics, contradicting the phase's explicit effort to
+keep gallery identity out of system-owned surfaces.
+
+**Fix:** Remove titles from operational logs and make identifiers private (hash masking preserves
+correlation without disclosure). Do the same for error descriptions that can contain gallery-named
+paths:
+
+```swift
+logger.notice(
+    "Download completed, gid: \(gid, privacy: .private(mask: .hash)), pages: \(download.pageCount)."
+)
+logger.error(
+    "Download failed, gid: \(context.gid, privacy: .private(mask: .hash)), error: \(error)."
+)
+```
+
+Audit every `.public` interpolation in the listed DownloadClient files rather than fixing only the
+two title-bearing messages.
 
 ## Warnings
 
-### WR-01: The expiration identity test never enters the reentrant pause window
+### WR-01 [WARNING]: The session spy violates the live client's single-session contract
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift:106-137`
-**Issue:** The test description claims to cover a queue-mobilizing tap arriving inside
-`pauseAllSchedulable`, but it calls the method with a foreign UUID while the successor is already
-live. The first guard returns before `pause(gid:)` or any suspension executes. It therefore passes
-with CR-03 present and cannot detect a stale pause overwriting queue intent.
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:243-279`
 
-**Fix:** Inject a deterministic gate into the pause/queue persistence seam. Start S1 expiration,
-wait until the pause has crossed its identity guard and is suspended, perform the resume/retry that
-starts or belongs to S2, then release the gate and assert the new queue intent, active work, and
-client session survive.
+**Issue:** Every accepted `start` mints a new ID and replaces `currentSessionID` and
+`continuation`, even when a previous session is still held. The live store explicitly refuses that
+call. This mismatch makes the most important in-flight-start regression pass under a lifecycle that
+production cannot exhibit and hides CR-01.
 
-### WR-02: Blocking fixtures leak an infinite task when a test exits early
+**Fix:** Make refusal on an already-held session the spy's default behavior, while retaining an
+explicit one-shot refusal control for tests that need it:
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift:424-466`
-**Issue:** `makeBlockingCoordinator` installs a runner that loops until cancellation. The lifecycle
-tests defer only temporary-directory deletion and call `pause` as their final statement (for
-example `DownloadContinuedSessionTests.swift:102-113`). Any throwing `#require`, thrown client call,
-or future early return before that final pause leaves the task running indefinitely. The task and
-coordinator retain the in-flight operation, so a failing test can hang or contaminate parallel
-tests rather than report its original failure.
+```swift
+guard $0.currentSessionID == nil, !$0.refusesNextStart else {
+    $0.refusesNextStart = false
+    return true
+}
+```
 
-**Fix:** Make the fixture own a synchronous, idempotent release token that the runner waits on and
-that each test can release from `defer`; then await task completion on the normal path. Alternatively
-wrap each case in an async fixture helper that guarantees cancellation and awaiting in its own
-cleanup path.
+Update the drain/start interleave test to assert the corrected deferred-reconciliation behavior
+rather than allowing one session to overwrite another.
 
-### WR-03: Pending-work and progress selection duplicate the scheduler's set definition
+### WR-02 [WARNING]: Option B left authoritative comments describing the deleted dependency API
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PendingWork.swift:9-18`
-**Issue:** `hasPendingWork` manually repeats the queue selection and blocked/schedulable filtering
-also implemented by `schedulableDownloads` (`DownloadClient+ContinuedSession.swift:264-269`). The
-current predicates happen to agree, but session start/completion uses the first while card counts
-use the second. A future scheduler predicate change can make the client complete a nonempty card or
-keep an empty one alive without a compiler or test forcing the two copies to change together.
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift:301-310`
 
-**Fix:** Extract one actor-isolated `schedulableDownloads()`/`hasSchedulableDownloads()` authority
-used by scheduling, pending-work checks, and progress snapshots. Preserve the `activeTask != nil`
-fast path only if it is expressed as an explicit additional invariant rather than a second copy of
-the filtering rules.
+**Issue:** The coordinator property documentation says the client keeps a dependency-key
+registration and `DependencyValues` accessor and obtains its unimplemented `testValue` from them.
+Option B deleted all three claims. The test documentation at
+`DownloadContinuedSessionTests.swift:10-12` repeats the nonexistent `testValue` explanation.
+These comments now describe an override/composition path that cannot be used and directly undo the
+architectural clarity Option B was chosen to provide.
+
+**Fix:** State that `DownloadClient.live` injects `.live` directly, tests inject a client directly,
+and `BackgroundProcessingClient()` gets macro-generated unimplemented endpoints without a
+dependency key. Remove references to the deleted key, accessor, and `testValue`.
+
+### WR-03 [WARNING]: The held-start test can leak its parked task on an early failure
+
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift:97-114`
+
+**Issue:** `testBailOutFinishNeverLandsOnTheMostRecentStartsSession` parks `firstTap` behind a start
+gate, but does not install the defensive `defer { gate.release() }` used by the progress-gate test
+above it. Any throwing `#require` or assertion failure before line 113 leaves the task waiting on
+the gate's stream. That can turn the intended failure into a leaked task or a hung test process.
+
+**Fix:** Install the release defer immediately after arming the gate, and keep the explicit release
+at the intended interleave point (release is idempotent):
+
+```swift
+let gate = spy.armStartGate()
+defer { gate.release() }
+let firstTap = Task {
+    await fixture.manager.ensureContinuedSession()
+}
+```
 
 ---
 
-_Reviewed: 2026-07-28T11:01:13Z_
+_Reviewed: 2026-07-29T00:41:45Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
