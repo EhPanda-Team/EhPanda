@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Planned 15-17 through 15-19 (gap-closure round 4)
-last_updated: "2026-07-29T01:51:27.000Z"
+stopped_at: Completed 15-17-PLAN.md
+last_updated: "2026-07-29T02:19:54.123Z"
 last_activity: 2026-07-29
-last_activity_desc: Gap-closure round 4 planned and plan-checker verified
+last_activity_desc: Completed Phase 15 Plan 17 deferred session reconciliation
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 190
-  completed_plans: 187
-  percent: 98
+  completed_plans: 188
+  percent: 99
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 16 of 19
-Status: Gap-closure round 4 planned (15-17..15-19, waves 17-19 serial) and plan-checker verified; pending execution
-Last activity: 2026-07-29 — Gap-closure round 4 planned and plan-checker verified
-Next: /gsd-execute-phase 15 — execute 15-17 → 15-18 → 15-19, then re-verify and run the owner device checks
+Plan: 17 of 19
+Status: Completed 15-17; ready to execute 15-18
+Last activity: 2026-07-29 — Completed Phase 15 Plan 17 deferred session reconciliation
+Next: /gsd-execute-phase 15 — execute 15-18 → 15-19, then re-verify and run the owner device checks
 
-Progress: [█████████░] 98% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -243,6 +243,7 @@ Progress: [█████████░] 98% (14/16 phases)
 | Phase 15 P14 | 11min | 2 tasks | 7 files |
 | Phase 15 P15 | 12min | 2 tasks | 2 files |
 | Phase 15 P16 | 8min | 2 tasks | 1 files |
+| Phase 15 P17 | 21min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -583,6 +584,8 @@ Recent decisions affecting current work:
 - [Phase 15]: Hold the scheduled runner after cancellation so retry lands after the first ownership guard and before settled pause writes.
 - [Phase 15]: Keep user-initiated pause last-writer-wins behavior as the explicit boundary of the expiration-only generation guard.
 - [Phase 15]: Owner selected option-b on 2026-07-29: remove the unread background-processing dependency registration while preserving direct injection and the macro-generated unimplemented client.
+- [Phase 15]: A queue drain that cannot name the client session is early rather than authoritative; reconciliation remains debt owned by the current coordinator session.
+- [Phase 15]: The session spy records every start attempt but refuses one while an identity is held, releasing that identity only through matching finish or expiration.
 
 ### Pending Todos
 
@@ -630,6 +633,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-29T00:31:32.116Z
-Stopped at: Completed 15-16-PLAN.md
+Last session: 2026-07-29T02:19:54.116Z
+Stopped at: Completed 15-17-PLAN.md
 Resume file: None
