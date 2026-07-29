@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-18-PLAN.md
-last_updated: "2026-07-29T02:41:01.117Z"
+stopped_at: Completed 15-19-PLAN.md
+last_updated: "2026-07-29T03:14:04.154Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed Phase 15 Plan 18 active-ownership convergence
+last_activity_desc: Completed Phase 15 Plan 19 download-log privacy enforcement
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 190
-  completed_plans: 189
-  percent: 99
+  completed_plans: 190
+  percent: 100
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 18 of 19
-Status: Completed 15-18; ready to execute 15-19
-Last activity: 2026-07-29 — Completed Phase 15 Plan 18 active-ownership convergence
-Next: /gsd-execute-phase 15 — execute 15-19, then re-verify and run the owner device checks
+Plan: 19 of 19
+Status: Completed 15-19; ready to re-verify Phase 15 and run the owner device checks
+Last activity: 2026-07-29 — Completed Phase 15 Plan 19 download-log privacy enforcement
+Next: /gsd-verify-work 15 — re-verify the completed phase, then run the owner device checks
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -245,6 +245,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P16 | 8min | 2 tasks | 1 files |
 | Phase 15 P17 | 21min | 3 tasks | 6 files |
 | Phase 15 P18 | 16min | 2 tasks | 10 files |
+| Phase 15 P19 | 28min | 3 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -589,6 +590,10 @@ Recent decisions affecting current work:
 - [Phase 15]: The session spy records every start attempt but refuses one while an identity is held, releasing that identity only through matching finish or expiration.
 - [Phase 15]: Pause error exits converge unconditionally, including expiration-owned pauses, without starting a continued-processing session.
 - [Phase 15]: Interrupted-download normalization may omit scheduling only when no active task exists and its caller deliberately requested notification-only reconciliation.
+- [Phase 15]: Remove gallery titles from completion and enqueue logs; neither operational message needs content names.
+- [Phase 15]: Hash-mask gallery identifiers so download events remain correlatable without disclosing gallery identity.
+- [Phase 15]: Keep raw errors, localized descriptions, and rejected-response snippets private throughout DownloadClient.
+- [Phase 15]: Scope the log-privacy invariant to DownloadClient after auditing two non-gallery BackgroundProcessingClient fields.
 
 ### Pending Todos
 
@@ -636,6 +641,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-29T02:41:01.109Z
-Stopped at: Completed 15-18-PLAN.md
+Last session: 2026-07-29T03:14:04.145Z
+Stopped at: Completed 15-19-PLAN.md
 Resume file: None

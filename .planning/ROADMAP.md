@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 18/19 | In Progress|  |
+| 15. Continued Background Downloads | 19/19 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 18/19 plans executed
+**Plans**: 19/19 plans executed
 
 Plans:
 **Wave 1**
@@ -889,7 +889,7 @@ Plans:
 
 **Wave 19** *(blocked on 15-18 — file overlap in the public API, folders and scheduling sources, plus xcodebuild serialization)*
 
-- [ ] 15-19-PLAN.md — Remove gallery titles from unified logs, hash-mask identifiers, reclassify every error, description and response-body disclosure in the module, and add a permanent scan that fails the build if any of it returns
+- [x] 15-19-PLAN.md — Remove gallery titles from unified logs, hash-mask identifiers, reclassify every error, description and response-body disclosure in the module, and add a permanent scan that fails the build if any of it returns
 
 ### Phase 16: Dynamic Type Accessibility
 
