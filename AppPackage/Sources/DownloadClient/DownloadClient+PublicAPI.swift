@@ -96,17 +96,16 @@ extension DownloadCoordinator {
             // Work that becomes schedulable without a tap — the queue resuming at cold launch,
             // say — therefore runs foreground-only until the next qualifying tap, deliberately.
             await ensureContinuedSession()
+            // Hash masking preserves cross-line gallery correlation without disclosure. Errors stay
+            // private because gallery-folder paths embed titles; titles add no operational signal.
             logger.notice(
-                """
-                Download enqueued, gid: \(payload.gallery.gid, privacy: .public), \
-                title: \(payload.gallery.title, privacy: .public).
-                """
+                "Download enqueued, gid: \(payload.gallery.gid, privacy: .private(mask: .hash))."
             )
             return .success(())
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             return .failure(.unknown)
         }
     }
@@ -215,7 +214,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .failure(error)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
             schedulingBlockedGalleryIDs.remove(gid)
             await notifyObservers()
@@ -230,7 +229,7 @@ extension DownloadCoordinator {
         downloadIndex[gid] = nil
         await notifyObservers()
         await scheduleNextIfNeeded()
-        logger.notice("Download deleted, gid: \(gid, privacy: .public).")
+        logger.notice("Download deleted, gid: \(gid, privacy: .private(mask: .hash)).")
         return .success(())
     }
 
@@ -317,7 +316,7 @@ extension DownloadCoordinator {
             updateDownloadIndex(folderURL: captureTarget.folderURL, manifest: manifest)
             _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
         }
     }
 

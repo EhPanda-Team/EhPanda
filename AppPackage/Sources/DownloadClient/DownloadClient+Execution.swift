@@ -56,11 +56,12 @@ extension DownloadCoordinator {
         download: DownloadedGallery,
         result: ProcessDownloadResult
     ) async {
+        // Gallery identifiers stay correlatable without disclosure by using hash masking. Errors
+        // are private because gallery-folder paths embed titles; titles provide no operational value.
         logger.notice(
             """
-            Download completed, gid: \(gid, privacy: .public), \
-            pages: \(download.pageCount, privacy: .public), \
-            title: \(download.title, privacy: .public).
+            Download completed, gid: \(gid, privacy: .private(mask: .hash)), \
+            pages: \(download.pageCount, privacy: .public).
             """
         )
         await settleCompletedDownload(gid: gid)
@@ -82,7 +83,7 @@ extension DownloadCoordinator {
         do {
             try removeGalleryFolders(gid: gid, token: token, keeping: folderURL)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
         }
     }
 
@@ -170,9 +171,9 @@ extension DownloadCoordinator {
         }
         logger.error(
             """
-            Download failed, gid: \(context.gid, privacy: .public), \
+            Download failed, gid: \(context.gid, privacy: .private(mask: .hash)), \
             mode: \(context.mode.rawValue, privacy: .public), \
-            error: \(error.localizedDescription, privacy: .public)
+            error: \(error.localizedDescription, privacy: .private)
             """
         )
         await persistFailure(error: error, context: context)
@@ -193,7 +194,7 @@ extension DownloadCoordinator {
         )
         logger.error(
             """
-            Download partially failed, gid: \(context.gid, privacy: .public), \
+            Download partially failed, gid: \(context.gid, privacy: .private(mask: .hash)), \
             mode: \(context.mode.rawValue, privacy: .public), \
             failedPages: \(String(describing: error.failedPages.map(\.index)), privacy: .public)
             """
@@ -227,7 +228,7 @@ extension DownloadCoordinator {
         guard !shouldSuppressFailurePersistence(for: context.gid) else {
             return
         }
-        logger.error("\(error, privacy: .public)")
+        logger.error("\(error, privacy: .private)")
         await persistFailure(
             error: appError,
             context: context
