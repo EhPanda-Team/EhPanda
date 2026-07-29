@@ -73,6 +73,17 @@ extension DownloadCoordinator {
     /// start call. It matters for more than a duplicate card: identifiers are minted per session,
     /// and registering a second launch handler for one terminates the app.
     ///
+    /// Interleavings around the suspending client start have explicit dispositions:
+    /// - FORBIDDEN: a drain cannot clear ownership mid-start and let a second tap issue an
+    ///   overlapping start the live store refuses. Ownership stays live until the client id lands,
+    ///   so the second tap folds into the pending session.
+    /// - REACHABLE BY DESIGN: a start the store refuses still rolls back and leaves work uncovered
+    ///   until the next qualifying tap. D-03 and SC3 provide no fallback tier.
+    /// - REACHABLE BY DESIGN: work that becomes schedulable without a tap stays foreground-only
+    ///   until the next qualifying tap under D-07; deferred reconciliation never starts a session.
+    /// - REACHABLE BY DESIGN: if the queue empties and refills during start, deferred
+    ///   reconciliation re-reads the queue and keeps the surviving session covering the new work.
+    ///
     /// Nothing here gates download work. The queue is already running by the time this is called,
     /// and a submission can silently never start, so the session is background insurance rather
     /// than a precondition for the work.
@@ -91,6 +102,7 @@ extension DownloadCoordinator {
             Int64(snapshot.progress.displayPageCount)
         )
         guard let clientSession else {
+            // TERMINAL: refusal ends this coordinator session, and teardown clears its debt.
             // The store still holds a predecessor whose completion has not landed. Roll this
             // call's bookkeeping back so the next D-07 tap can start a real session rather than
             // consuming a dead stream. A successor already owning the state must remain untouched.
@@ -114,6 +126,11 @@ extension DownloadCoordinator {
             // The stream finishes itself, so falling out of this loop *is* the session ending;
             // no external cancellation exists, and none is needed.
             await self?.markContinuedSessionEnded(sessionID: sessionID)
+        }
+        if continuedSessionNeedsReconciliation {
+            // Clear before awaiting: the reconcile may legitimately record fresh debt.
+            continuedSessionNeedsReconciliation = false
+            await reconcileContinuedSession()
         }
     }
 
@@ -171,6 +188,7 @@ extension DownloadCoordinator {
         guard continuedSessionID == sessionID else { return }
         continuedSessionID = nil
         continuedClientSessionID = nil
+        continuedSessionNeedsReconciliation = false
         hasLiveContinuedSession = false
         continuedSessionTask = nil
         lastPushedCompletedPageCount = 0
@@ -214,16 +232,16 @@ extension DownloadCoordinator {
         guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
             guard continuedSessionID == sessionID else { return }
-            let clientSessionID = continuedClientSessionID
+            // DEFERRED: a drain crossing the suspending start is early, not authoritative. Keep
+            // ownership so a second tap cannot reach an overlapping start the live store refuses.
+            guard let clientSessionID = continuedClientSessionID else {
+                continuedSessionNeedsReconciliation = true
+                return
+            }
             // Ended first: completion is the last thing this session does, and the client's
             // stream finishing behind it must find no state left to clear.
             markContinuedSessionEnded(sessionID: sessionID)
-            if let clientSessionID {
-                await backgroundProcessingClient.finish(clientSessionID, true)
-            }
-            // A nil client id means this session's start is still in flight. Its own ensure
-            // re-check completes the session it created; completing anything here without an id
-            // would recreate the wrong-session completion defect.
+            await backgroundProcessingClient.finish(clientSessionID, true)
             return
         }
         await pushContinuedSessionProgress(sessionID: sessionID)
@@ -243,7 +261,8 @@ extension DownloadCoordinator {
         guard continuedSessionID == sessionID else { return }
         // Read the client identity only after the ownership re-check. Capturing it before the
         // suspending progress read could present a predecessor's id after a successor took over;
-        // nil here means start is still in flight and there is no card to push to yet.
+        // SKIPPED: nil means there is no card to paint yet. The deferred reconcile after start
+        // re-reads schedulable work and pushes fresh counts, so this update is recovered.
         guard let clientSessionID = continuedClientSessionID else { return }
         let completedPageCount = max(
             lastPushedCompletedPageCount,
