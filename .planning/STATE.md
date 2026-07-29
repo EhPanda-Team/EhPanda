@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-17-PLAN.md
-last_updated: "2026-07-29T02:19:54.123Z"
+stopped_at: Completed 15-18-PLAN.md
+last_updated: "2026-07-29T02:41:01.117Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed Phase 15 Plan 17 deferred session reconciliation
+last_activity_desc: Completed Phase 15 Plan 18 active-ownership convergence
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 190
-  completed_plans: 188
+  completed_plans: 189
   percent: 99
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 17 of 19
-Status: Completed 15-17; ready to execute 15-18
-Last activity: 2026-07-29 — Completed Phase 15 Plan 17 deferred session reconciliation
-Next: /gsd-execute-phase 15 — execute 15-18 → 15-19, then re-verify and run the owner device checks
+Plan: 18 of 19
+Status: Completed 15-18; ready to execute 15-19
+Last activity: 2026-07-29 — Completed Phase 15 Plan 18 active-ownership convergence
+Next: /gsd-execute-phase 15 — execute 15-19, then re-verify and run the owner device checks
 
 Progress: [██████████] 99% (14/16 phases)
 
@@ -244,6 +244,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P15 | 12min | 2 tasks | 2 files |
 | Phase 15 P16 | 8min | 2 tasks | 1 files |
 | Phase 15 P17 | 21min | 3 tasks | 6 files |
+| Phase 15 P18 | 16min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -586,6 +587,8 @@ Recent decisions affecting current work:
 - [Phase 15]: Owner selected option-b on 2026-07-29: remove the unread background-processing dependency registration while preserving direct injection and the macro-generated unimplemented client.
 - [Phase 15]: A queue drain that cannot name the client session is early rather than authoritative; reconciliation remains debt owned by the current coordinator session.
 - [Phase 15]: The session spy records every start attempt but refuses one while an identity is held, releasing that identity only through matching finish or expiration.
+- [Phase 15]: Pause error exits converge unconditionally, including expiration-owned pauses, without starting a continued-processing session.
+- [Phase 15]: Interrupted-download normalization may omit scheduling only when no active task exists and its caller deliberately requested notification-only reconciliation.
 
 ### Pending Todos
 
@@ -633,6 +636,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-29T02:19:54.116Z
-Stopped at: Completed 15-17-PLAN.md
+Last session: 2026-07-29T02:41:01.109Z
+Stopped at: Completed 15-18-PLAN.md
 Resume file: None
