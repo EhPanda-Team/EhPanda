@@ -46,7 +46,7 @@ public struct DownloadQueueStore: Sendable {
         do {
             try await identifiers.save()
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
         }
     }
 }

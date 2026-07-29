@@ -37,7 +37,7 @@ extension DownloadCoordinator {
         do {
             prefixData = try readResponsePrefixData(at: fileURL)
         } catch {
-            logger.error("Download response prefix read failed: \(error, privacy: .public)")
+            logger.error("Download response prefix read failed: \(error, privacy: .private)")
             prefixData = Data()
         }
         if let error = detectPlaceholderFileErrors(
@@ -268,7 +268,7 @@ extension DownloadCoordinator {
             """
             Download received unexpected HTML response, \
             url: \(requestURL?.absoluteString ?? ""), \
-            snippet: \(String(textPrefix.prefix(240)), privacy: .public)
+            snippet: \(String(textPrefix.prefix(240)), privacy: .private)
             """
         )
         if statusCode(for: response) == 404 {

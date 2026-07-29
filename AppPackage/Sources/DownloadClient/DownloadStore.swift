@@ -81,7 +81,7 @@ public struct DownloadStore: Sendable {
             try mutableRootURL.setResourceValues(resourceValues)
         } catch {
             // Backup exclusion is advisory metadata; directory creation remains successful if the OS rejects it.
-            logger.error("Download root backup exclusion failed: \(error, privacy: .public)")
+            logger.error("Download root backup exclusion failed: \(error, privacy: .private)")
         }
     }
 
@@ -152,7 +152,7 @@ public struct DownloadStore: Sendable {
             }
         } catch {
             // Launch cleanup is best-effort; a later staging pass recreates or reuses the directory safely.
-            logger.error("Background holding directory purge failed: \(error, privacy: .public)")
+            logger.error("Background holding directory purge failed: \(error, privacy: .private)")
         }
     }
 
@@ -590,7 +590,7 @@ public struct DownloadStore: Sendable {
         do {
             try fileManager.operate { try $0.removeItem(at: url) }
         } catch {
-            logger.error("Rejected download asset removal failed: \(error, privacy: .public)")
+            logger.error("Rejected download asset removal failed: \(error, privacy: .private)")
         }
     }
 
@@ -601,7 +601,7 @@ public struct DownloadStore: Sendable {
         do {
             try handle.close()
         } catch {
-            logger.error("Download read handle close failed: \(error, privacy: .public)")
+            logger.error("Download read handle close failed: \(error, privacy: .private)")
         }
     }
 
