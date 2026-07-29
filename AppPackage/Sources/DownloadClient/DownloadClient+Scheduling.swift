@@ -142,7 +142,9 @@ extension DownloadCoordinator {
         do {
             try storage.ensureRootDirectory()
         } catch {
-            logger.error("\(error, privacy: .public)")
+            // Hash-masked identifiers remain correlatable without disclosure. Errors are private
+            // because gallery-folder paths embed titles even when the log statement does not.
+            logger.error("\(error, privacy: .private)")
         }
         await reconcileActiveDownloadState()
         await notifyObservers()
@@ -166,7 +168,10 @@ extension DownloadCoordinator {
             return result
         case .superseded:
             logger.notice(
-                "Expiration pause abandoned after newer intent, gid: \(gid, privacy: .public)."
+                """
+                Expiration pause abandoned after newer intent, \
+                gid: \(gid, privacy: .private(mask: .hash)).
+                """
             )
             // A queue-mobilizing user action reached this gallery while the expiration held its
             // scheduling block. This is that action's deferred convergence, not a background
@@ -223,7 +228,7 @@ extension DownloadCoordinator {
             )
             await notifyObservers()
             await scheduleNextIfNeeded()
-            logger.notice("Download paused, gid: \(gid, privacy: .public).")
+            logger.notice("Download paused, gid: \(gid, privacy: .private(mask: .hash)).")
             return .settled(.success(()))
         } catch let error as AppError {
             // The do-scoped defer has already released the scheduling block before either catch.
@@ -236,7 +241,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .settled(.failure(error))
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .settled(.failure(.unknown))
@@ -312,7 +317,7 @@ extension DownloadCoordinator {
         await queueStore.enqueue(gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
-        logger.notice("Download resumed, gid: \(gid, privacy: .public).")
+        logger.notice("Download resumed, gid: \(gid, privacy: .private(mask: .hash)).")
         return .success(())
     }
 
