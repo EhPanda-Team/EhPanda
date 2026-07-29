@@ -382,6 +382,14 @@ public actor DownloadCoordinator {
     /// a start is still in flight and after teardown, and the only value the coordinator may pass
     /// to the client's completion verb.
     public var continuedClientSessionID: UUID?
+    /// Whether the session named by `continuedSessionID` owes a reconciliation after its client
+    /// identity lands.
+    ///
+    /// Set only when a reconcile still owns the live coordinator session but cannot name the
+    /// client session it would complete. The client's start verb suspends, so a queue drain that
+    /// crosses that suspension is early rather than authoritative. The debt is cleared before it
+    /// is discharged and whenever the session it belongs to is torn down.
+    public var continuedSessionNeedsReconciliation = false
     public var continuedSessionTask: Task<Void, Never>?
     public var lastPushedCompletedPageCount = 0
 
