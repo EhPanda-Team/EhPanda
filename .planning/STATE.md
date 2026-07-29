@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-15-PLAN.md
-last_updated: "2026-07-28T17:15:23.307Z"
+stopped_at: Completed 15-16-PLAN.md
+last_updated: "2026-07-29T00:31:32.124Z"
 last_activity: 2026-07-29
-last_activity_desc: Deterministic expiration and user-pause interleave regressions
+last_activity_desc: Background-processing dependency seam disposition
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 187
-  completed_plans: 186
-  percent: 99
+  completed_plans: 187
+  percent: 100
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 15 of 16
-Status: Plan 15 complete; ready to execute plan 16
-Last activity: 2026-07-29 — Deterministic expiration and user-pause interleave regressions
-Next: /gsd-execute-phase 15 — execute the gap-closure plans
+Plan: 16 of 16
+Status: Plan 16 complete; ready for end-of-phase device verification
+Last activity: 2026-07-29 — Background-processing dependency seam disposition
+Next: /gsd-verify-work 15 — run the owner device checks and seal the phase
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -242,6 +242,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P13 | 21min | 2 tasks | 5 files |
 | Phase 15 P14 | 11min | 2 tasks | 7 files |
 | Phase 15 P15 | 12min | 2 tasks | 2 files |
+| Phase 15 P16 | 8min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -581,6 +582,7 @@ Recent decisions affecting current work:
 - [Phase 15]: Drive expiration through the real event handler so coverage includes session teardown before the per-gallery pause.
 - [Phase 15]: Hold the scheduled runner after cancellation so retry lands after the first ownership guard and before settled pause writes.
 - [Phase 15]: Keep user-initiated pause last-writer-wins behavior as the explicit boundary of the expiration-only generation guard.
+- [Phase 15]: Owner selected option-b on 2026-07-29: remove the unread background-processing dependency registration while preserving direct injection and the macro-generated unimplemented client.
 
 ### Pending Todos
 
@@ -628,6 +630,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-28T17:15:23.299Z
-Stopped at: Completed 15-15-PLAN.md
+Last session: 2026-07-29T00:31:32.116Z
+Stopped at: Completed 15-16-PLAN.md
 Resume file: None
