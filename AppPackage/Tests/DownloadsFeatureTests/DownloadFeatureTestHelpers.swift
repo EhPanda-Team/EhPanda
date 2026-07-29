@@ -345,17 +345,20 @@ extension DownloadFeatureTestCase {
     /// makes the queue's *shape* the only variable an arithmetic case has to reason about. The
     /// default runner preserves the existing setup behavior: fixture construction never invokes
     /// scheduling, so no download can start underneath an assertion. Tests that need to observe
-    /// scheduling without performing a download inject a task runner.
+    /// scheduling without performing a download inject a task runner. The default file manager
+    /// preserves every existing caller; removal-failure cases inject one instead of relying on
+    /// temporary-directory permissions that vary across machines and sandboxes.
     func makeQueuedCoordinator(
         galleries: [SessionGallery],
         queuedGIDs: [String]? = nil,
         client: BackgroundProcessingClient,
         now: @escaping @Sendable () -> Date = { Date() },
-        taskRunner: DownloadTaskRunner = DownloadTaskRunner()
+        taskRunner: DownloadTaskRunner = DownloadTaskRunner(),
+        fileManager: sending FileManager = FileManager.default
     ) async throws -> SessionFixture {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
         let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
