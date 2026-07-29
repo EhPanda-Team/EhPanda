@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 17/19 | In Progress|  |
+| 15. Continued Background Downloads | 18/19 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 17/19 plans executed
+**Plans**: 18/19 plans executed
 
 Plans:
 **Wave 1**
@@ -885,7 +885,7 @@ Plans:
 
 **Wave 18** *(blocked on 15-17 — real code dependency: the new regressions assert session liveness through the deferred-reconciliation contract and run under the corrected spy)*
 
-- [ ] 15-18-PLAN.md — State the active-ownership convergence invariant once and satisfy it on every enumerated exit path that clears ownership, with a parameterised failure-injected regression across both delete entry points and both error shapes
+- [x] 15-18-PLAN.md — State the active-ownership convergence invariant once and satisfy it on every enumerated exit path that clears ownership, with a parameterised failure-injected regression across both delete entry points and both error shapes
 
 **Wave 19** *(blocked on 15-18 — file overlap in the public API, folders and scheduling sources, plus xcodebuild serialization)*
 
