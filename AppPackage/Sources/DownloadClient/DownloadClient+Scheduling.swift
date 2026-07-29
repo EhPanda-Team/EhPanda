@@ -172,7 +172,8 @@ extension DownloadCoordinator {
             // scheduling block. This is that action's deferred convergence, not a background
             // session start: once the block is gone, notify and scheduling make the gallery
             // runnable, and the scheduler's own foreground validation makes a late ensure inert
-            // if the action no longer qualifies.
+            // if the action no longer qualifies. This is the one-frame-up
+            // ACTIVE-OWNERSHIP CONVERGENCE path for the ownership cleared inside `commitPause`.
             await notifyObservers()
             await scheduleNextIfNeeded()
             await ensureContinuedSession()
@@ -225,9 +226,19 @@ extension DownloadCoordinator {
             logger.notice("Download paused, gid: \(gid, privacy: .public).")
             return .settled(.success(()))
         } catch let error as AppError {
+            // The do-scoped defer has already released the scheduling block before either catch.
+            // Convergence is intentionally unconditional, including expiration-owned pauses:
+            // surrounding exits already converge during expiration, the failed pause's gallery is
+            // precisely the work that must not be stranded, and scheduling does not start a new
+            // continued-processing session. Gating this on `expiration == nil` would violate
+            // ACTIVE-OWNERSHIP CONVERGENCE on the expiration path.
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .settled(.failure(error))
         } catch {
             logger.error("\(error, privacy: .public)")
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .settled(.failure(.unknown))
         }
     }
