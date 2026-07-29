@@ -172,7 +172,7 @@ extension DownloadCoordinator {
                     """
                     Download operation will retry, operation: \(operation, privacy: .public), \
                     attempt: \(attempt, privacy: .public), \
-                    error: \(error.localizedDescription, privacy: .public)
+                    error: \(error.localizedDescription, privacy: .private)
                     """
                 )
                 attempt += 1
@@ -185,7 +185,7 @@ extension DownloadCoordinator {
                     Download operation will retry after unexpected error, \
                     operation: \(operation, privacy: .public), \
                     attempt: \(attempt, privacy: .public), \
-                    error: \(error.localizedDescription, privacy: .public)
+                    error: \(error.localizedDescription, privacy: .private)
                     """
                 )
                 attempt += 1
@@ -282,7 +282,7 @@ extension DownloadCoordinator {
                 try $0.removeItem(at: fileURL)
             }
         } catch {
-            logger.error("Rejected download response removal failed: \(error, privacy: .public)")
+            logger.error("Rejected download response removal failed: \(error, privacy: .private)")
         }
     }
 }
