@@ -30,27 +30,27 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
         let queueStore = DownloadQueueStore(fileURL: context.storage.queueURL())
 
         await context.manager.ensureContinuedSession()
-        let expiringSessionID = try #require(
-            await context.manager.testingContinuedSessionID()
-        )
+        let sessionTask = try #require(await context.manager.continuedSessionTask)
         #expect(spy.startCount == 1)
 
         try await context.manager.resume(gid: gid).get()
         await context.control.started()
 
-        let expiration = Task { @concurrent in
-            await context.manager.handleContinuedSessionEvent(
-                .expired,
-                sessionID: expiringSessionID
-            )
-        }
+        // Expire through the seam so the spy releases the same live-session identity the real
+        // store releases before delivering its terminal event. Injecting the event directly would
+        // describe an impossible client contract while leaving the predecessor artificially held.
+        spy.expire()
         await context.control.cancellationObserved()
 
         try await context.manager.retry(gid: gid, mode: .initial).get()
         #expect(spy.startCount == 1)
 
         context.control.release()
-        await expiration.value
+        try await waitForTaskValue(
+            sessionTask,
+            timeout: .seconds(10),
+            description: "expiration settlement after the interleaved retry"
+        )
 
         #expect(queueStore.contains(gid))
         #expect(await context.manager.queuedModes[gid] == .initial)
