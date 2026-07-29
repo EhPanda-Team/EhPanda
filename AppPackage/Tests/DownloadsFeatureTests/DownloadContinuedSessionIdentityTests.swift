@@ -79,11 +79,13 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         #expect(await fixture.manager.testingHasContinuedSession() == false)
     }
 
-    /// CR-04: draining while a start is in flight, then tapping again, must never let the first
-    /// start's bail-out complete the second tap's session. The pre-fix seam finished whichever
-    /// session the store held and destroyed the second tap's live coverage.
+    /// CR-01 real-behavior change: a drain crossing an in-flight start defers reconciliation.
+    ///
+    /// The pre-fix seam cleared ownership mid-start and let a second tap reach an overlapping
+    /// start that the live store refuses. This deliberately inverts the old impossible-contract
+    /// assertion: the successor tap now folds into the first session instead of starting another.
     @Test
-    func testBailOutFinishNeverLandsOnTheMostRecentStartsSession() async throws {
+    func testADrainDuringAnInFlightStartDefersReconciliationAndKeepsCoverage() async throws {
         let gid = "210160"
         let spy = BackgroundProcessingClientSpy()
         let fixture = try await makeQueuedCoordinator(
@@ -95,6 +97,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         let gate = spy.armStartGate()
+        defer { gate.release() }
         let firstTap = Task {
             await fixture.manager.ensureContinuedSession()
         }
@@ -103,36 +106,28 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         let download = try #require(await fixture.manager.indexedDownloads(gids: [gid]).first)
         try await fixture.manager.cancelQueuedWorkItem(download, mode: .update).get()
         #expect(spy.finishRecords.isEmpty)
-        #expect(await fixture.manager.testingHasContinuedSession() == false)
+        #expect(await fixture.manager.testingHasContinuedSession())
 
         await fixture.manager.testingSetQueuedGalleryIDs([gid])
         await fixture.manager.ensureContinuedSession()
-        #expect(spy.startCount == 2)
+        #expect(spy.startCount == 1)
         #expect(await fixture.manager.testingHasContinuedSession())
 
         gate.release()
         await firstTap.value
 
         let firstSessionID = try #require(spy.startSessionIDs.first)
-        let mostRecentSessionID = try #require(spy.startSessionIDs.last)
-        let bailOutFinish = try #require(spy.finishRecords.first)
-        #expect(spy.finishRecords.count == 1)
-        #expect(bailOutFinish.sessionID == firstSessionID)
-        #expect(bailOutFinish.sessionID != mostRecentSessionID)
-        #expect(bailOutFinish.success)
+        #expect(spy.finishRecords.isEmpty)
+        #expect(spy.startSessionIDs == [firstSessionID])
         #expect(await fixture.manager.testingHasContinuedSession())
-
-        let survivorSessionID = try #require(
-            await fixture.manager.testingContinuedSessionID()
+        expectNoDifference(
+            spy.progressUpdates.map(\.sessionID),
+            [firstSessionID]
         )
-        let updatesBeforePush = spy.progressUpdates.count
-        await fixture.manager.pushContinuedSessionProgress(sessionID: survivorSessionID)
-        #expect(spy.progressUpdates.count == updatesBeforePush + 1)
 
         _ = await fixture.manager.pause(gid: gid)
         #expect(spy.finishRecords == [
-            .init(sessionID: firstSessionID, success: true),
-            .init(sessionID: mostRecentSessionID, success: true)
+            .init(sessionID: firstSessionID, success: true)
         ])
         #expect(await fixture.manager.testingHasContinuedSession() == false)
     }
