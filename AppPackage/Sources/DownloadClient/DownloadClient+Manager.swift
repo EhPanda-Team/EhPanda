@@ -300,13 +300,12 @@ public actor DownloadCoordinator {
     public let backgroundTaskStore: DownloadBackgroundTaskStore
     /// Starts and drives the continued-processing session that keeps a backgrounded queue running.
     ///
-    /// Deliberately divergent from the execution assertion it replaces: that one was a plain
-    /// struct with no dependency-key registration, so it had nowhere for an unimplemented test
-    /// value to live. This client keeps both its key registration and its `DependencyValues`
-    /// accessor — that is what gives it the unimplemented `testValue` an unexpected call must
-    /// fail on — yet it is still injected straight in here rather than resolved through
-    /// `DependencyValues`, because download-start calls flow synchronously from user actions
-    /// into this actor and this is the only place that knows real queue progress.
+    /// `DownloadClient.live` supplies the live value directly when it constructs this manager, and
+    /// tests supply clients of their own through the same initializer. The no-argument client
+    /// carries macro-generated unimplemented endpoints that report an issue when called.
+    ///
+    /// Direct composition here is intentional: download-start calls flow synchronously from user
+    /// actions into this actor, and this is the only place that knows real queue progress.
     public let backgroundProcessingClient: BackgroundProcessingClient
     public let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     public let libraryClient: LibraryClient
