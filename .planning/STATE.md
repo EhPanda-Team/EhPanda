@@ -4,11 +4,11 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-19-PLAN.md
-last_updated: "2026-07-29T03:14:04.154Z"
+status: verifying
+stopped_at: Phase 15 re-verified — awaiting device UAT
+last_updated: "2026-07-29T03:54:41Z"
 last_activity: 2026-07-29
-last_activity_desc: Completed Phase 15 Plan 19 download-log privacy enforcement
+last_activity_desc: Re-verified Phase 15 — all three gaps closed, 4 device checks pending
 progress:
   total_phases: 16
   completed_phases: 14
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING
+Phase: 15 (continued-background-downloads) — VERIFYING
 Plan: 19 of 19
-Status: Completed 15-19; ready to re-verify Phase 15 and run the owner device checks
-Last activity: 2026-07-29 — Completed Phase 15 Plan 19 download-log privacy enforcement
-Next: /gsd-verify-work 15 — re-verify the completed phase, then run the owner device checks
+Status: Re-verified 2026-07-29 — all three prior gaps closed, 0 remaining, 0 regressions; SC4 verified, SC1/SC2/SC3 present but device-unverifiable
+Last activity: 2026-07-29 — Re-verified Phase 15 after gap-closure plans 15-17/18/19
+Next: /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
 
 Progress: [██████████] 100% (14/16 phases)
 
