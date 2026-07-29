@@ -1,263 +1,312 @@
 ---
 phase: 15-continued-background-downloads
-verified: 2026-07-28T11:08:29Z
+verified: 2026-07-29T00:54:46Z
 status: gaps_found
 score: 1/4 must-haves verified
-behavior_unverified: 0
+behavior_unverified: 1
 overrides_applied: 0
+next_action: "Gaps found. Plan the fixes, then re-run execute-phase before shipping."
+next_command: "/gsd:plan-phase 15 --gaps"
 re_verification:
   previous_status: gaps_found
-  previous_score: 2/4
+  previous_score: 1/4
   gaps_closed:
-    - "Client completion is now session-identified, so a stale completion cannot finish a successor session."
-    - "Store re-entry refusal is observable and coordinator bookkeeping rolls back for a later retry."
-    - "Expiration checks coordinator identity before beginning each per-gallery pause."
+    - "Initial system-task progress is seeded from the real queue snapshot rather than 0 / 0."
+    - "Progress updates carry a client session id and the store rejects updates for another session."
+    - "The vanished-record delete branch now notifies observers and reaches scheduling/session convergence."
+    - "Expiration-owned pauses use queue-intent generations and deterministic suspension-window regressions."
+    - "The owner selected option B and the unused dependency key/accessor were removed."
   gaps_remaining:
-    - "SC1 remains blocked by unseeded initial progress, a reentrant expiration pause, and a delete path that bypasses queue/session convergence."
-    - "SC2 remains blocked because progress updates are not client-session identified and cancel is not atomic with respect to a new user action."
+    - "A drain while client start is in flight can clear coordinator ownership; a second tap is then refused by the live single-session store and the final pending work has no continued-processing session."
+    - "A failed active-gallery folder removal clears the active owner and returns without notifying or rescheduling, stranding the queue and its session."
+    - "Downloaded gallery titles and identifiers are emitted as public unified-log fields."
   regressions: []
 gaps:
-  - truth: "SC1 — A foreground-started download continues to completion after backgrounding beyond the old grace period."
+  - truth: "SC1/SC2 — every foreground user action that leaves schedulable work retains exactly one live continued-processing session and its system progress card."
     status: failed
     reason: >-
-      A granted system task is adopted with 0/0 progress until a later flush or queue mutation,
-      making a legitimately running download look stalled. In addition, deleting an active gallery
-      whose indexed record has vanished clears the active owner and returns without scheduling or
-      reconciling, so remaining queued work and the system card can be stranded.
+      `ensureContinuedSession()` suspends in client start. A concurrent drain can run
+      `reconcileContinuedSession()`, clear the coordinator session while its client id is still nil,
+      and let a second tap attempt another start. The live store refuses that overlapping start,
+      the second coordinator session rolls back, and the first start later finishes itself after
+      losing ownership. Pending work is left with no background coverage or progress card. The
+      held-start regression passes only because its spy accepts overlapping starts, unlike the live
+      store.
     artifacts:
       - path: "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
-        issue: "ensureContinuedSession computes real counts but does not push them after start succeeds."
-      - path: "AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift"
-        issue: "start resets saved counts to zero and adopt writes those zero counts into the task's Progress."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift"
-        issue: "delete(gid:)'s notFound branch returns without notifyObservers() or scheduleNextIfNeeded()."
-    missing:
-      - "Seed the identified session with the start snapshot before a granted task can report 0/0."
-      - "Route the vanished-record delete branch through observer notification and queue/session convergence."
-      - "Add regression coverage for both initial task seeding and the vanished-active-record delete path."
-  - truth: "SC2 — The system progress UI reflects real progress and cancel stops the queue consistently with an in-app cancel."
-    status: failed
-    reason: >-
-      updateProgress has no client session identity, so an old actor continuation can hop to the
-      main-actor store after a successor starts and overwrite the successor card. The initial card
-      is also seeded with false 0/0 counts. Finally, expiration checks identity only before calling
-      the multi-suspension pause primitive; a new resume/retry can interleave inside that pause and
-      have its fresh queue intent cleared by the stale expiration.
-    artifacts:
-      - path: "AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift"
-        issue: "updateProgress accepts counts and subtitle but no BackgroundProcessingSession id."
-      - path: "AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift"
-        issue: "updateProgress applies every call to whichever task the singleton currently holds."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
-        issue: "push re-checks only coordinator identity before suspending into a session-blind client update; pauseAllSchedulable cannot invalidate a pause already in progress."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift"
-        issue: "pause commits queue removal on both sides of real suspension points without a gallery mutation generation."
-    missing:
-      - "Add the client session id to updateProgress and reject foreign updates in ContinuedProcessingSession."
-      - "Make expiration-owned pause commits conditional on a gallery/session generation, or perform an atomic coordinator-owned bulk transition."
-      - "Add deterministic tests that hold an S1 progress update and an expiration pause across suspension while S2 or a user resume starts."
-  - truth: "SC3 — Best-effort refusal, queuing, and expiration preserve work and resume semantics without a fallback tier or visible error."
-    status: failed
-    reason: >-
-      The no-fallback and silent-refusal topology is present, but expiration resume semantics are
-      not preserved under actor reentrancy. After pauseAllSchedulable's identity check, pause(gid:)
-      suspends during persisted queue mutations; a foreground resume/retry can succeed in that
-      window and then be erased by the stale expiration's settled write. The existing foreign-id
-      test returns before entering this window and therefore does not prove the required behavior.
-    artifacts:
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
-        issue: "The per-iteration identity guard does not protect post-suspension writes inside pause(gid:)."
+        issue: "reconcileContinuedSession clears a session whose client start is still in flight instead of deferring reconciliation."
+      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift"
+        issue: "BackgroundProcessingClientSpy replaces the held session on every accepted start rather than enforcing the live store's single-session guard."
       - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift"
-        issue: "The foreign-expiration case supplies a foreign UUID while the successor is already live, so the guard returns before pause or any suspension."
+        issue: "The held-start test therefore proves behavior production cannot exhibit."
     missing:
-      - "Protect expiration-owned queue writes with an epoch/generation that a later user action advances."
-      - "Replace the foreign-id early-return test with a gated interleave that enters pause, performs a resume/retry, then releases the stale pause."
-unverified_prohibitions: 1
-prohibition_flags:
-  - statement: "Must NOT leave orphaned or unreferenced background-execution machinery in the tree."
-    disposition: "unverified-prohibition — human review recommended"
-    evidence: >-
-      BackgroundProcessingClientKey and DependencyValues.backgroundProcessingClient have no
-      source consumer outside their declarations, while the live client is injected directly.
-      Later plans explicitly preserved this owner-pending judgment.
+      - "Keep coordinator ownership while client start is in flight and defer reconciliation until the returned client id is installed."
+      - "Make the spy refuse a start while a session is held, matching ContinuedProcessingSession."
+      - "Add a deterministic drain/start/tap regression under the corrected spy contract."
+  - truth: "SC1 — queue mutations preserve scheduling and continued-session convergence even when deleting the active gallery fails."
+    status: failed
+    reason: >-
+      `delete(gid:)` cancels the active task and clears both active ownership fields before removing
+      gallery folders. Both folder-removal catch branches reload and return without notifying or
+      calling `scheduleNextIfNeeded()`. The cancelled task's deferred cleanup no longer owns the
+      cleared active id, so it cannot recover. The failed gallery and queued successors can remain
+      stranded and the continued-processing session is not reconciled.
+    artifacts:
+      - path: "AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift"
+        issue: "Both folder-removal failure branches return before observer and scheduling convergence."
+      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadDeleteConvergenceTests.swift"
+        issue: "Coverage exercises only successfully vanished records; no test injects folder-removal failure after active ownership is cleared."
+    missing:
+      - "Release the scheduling block and run observer/scheduling convergence on both removal-error branches."
+      - "Add a failure-injected active-item plus queued-successor regression."
+  - truth: "Critical privacy gate — downloaded gallery identity is not disclosed through public system logs."
+    status: failed
+    reason: >-
+      Download completion and enqueue logs publish gallery titles and GIDs, and failure, pause,
+      resume, delete, and expiration-interleave logs publish GIDs with `privacy: .public`.
+      Titles are direct content identity and a GID resolves to a gallery. This is the current code
+      review's third Critical finding. Most affected log lines predate Phase 15, but Phase 15
+      modified these files and added another public GID log, so the shipping review gate remains
+      open even though the progress-card strings themselves are neutral.
+    artifacts:
+      - path: "AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift"
+        issue: "Completion and failure logs expose title/GID as public fields."
+      - path: "AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift"
+        issue: "Enqueue and delete logs expose title/GID as public fields."
+      - path: "AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift"
+        issue: "Pause, resume, and expiration-interleave logs expose GID as a public field."
+    missing:
+      - "Remove content titles from operational logs and mark identifiers private, preferably hash-masked."
+      - "Audit error descriptions that may contain gallery-named paths before logging them publicly."
+behavior_unverified_items:
+  - truth: "SC3 — real system refusal, indefinite queuing, expiration, process suspension, and next-foreground resume preserve work with no visible error."
+    test: "On a physical iOS 26 device, exercise refusal/queued/expiration paths, background beyond the old grace window, foreground again, and compare persisted page and queue state."
+    expected: "The app has no fallback tier or visible error; work resumes without lost or duplicated pages."
+    why_human: "Simulator tests cover the coordinator policies, but the real scheduler grant/queue/expiration and process-suspension transitions are device-owned and cannot be proven by source presence."
 ---
 
 # Phase 15: Continued Background Downloads Verification Report
 
-**Phase Goal:** Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just started keeps running when the app is backgrounded, surfaced by the system-provided progress UI, instead of being cut short by the old short grace period.
-**Verified:** 2026-07-28T11:08:29Z
-**Status:** gaps_found
-**Re-verification:** Yes — after the 15-10/15-11 session-identity closure round
+**Phase Goal:** Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just
+started keeps running when the app is backgrounded, surfaced by the system progress UI, rather than
+being cut short by the old grace period.
 
-The mandatory clean build, 296-test `DownloadsFeatureTests` run, and complete `FeatureTests`
-plan are green. Those gates prove compilation and existing assertions, not the phase goal.
-All four Critical and three Warning findings in `15-REVIEW.md` were checked independently
-against the current source. Every one is substantiated.
+**Verified:** 2026-07-29T00:54:46Z
+
+**Status:** `gaps_found`
+
+**Re-verification:** Yes — after plans 15-12 through 15-16
+
+**Canonical next action:** Gaps found. Plan the fixes, then re-run execute-phase before shipping.
+
+**Canonical next command:** `/gsd:plan-phase 15 --gaps`
+
+The earlier 0 / 0 seed, session-unidentified progress, vanished-record delete, expiration
+reentrancy, and unused dependency-registration gaps are closed. The current code review's three
+Critical findings and three Warnings were checked against source and tests. All six are
+substantiated.
 
 ## Goal Achievement
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| SC1 | A foreground-started download continues beyond the old grace period and completes in background | ✗ FAILED | `ensureContinuedSession` passes real counts only in the subtitle (`DownloadClient+ContinuedSession.swift:86-90`), while store start resets counts to zero and adoption writes 0/0 (`ContinuedProcessingSession.swift:90-92, 204-205`). The vanished-record delete branch returns without convergence (`DownloadClient+PublicAPI.swift:196-200`) |
-| SC2 | System UI reflects real progress and cancel matches in-app cancel | ✗ FAILED | `updateProgress` has no session id (`BackgroundProcessingClient.swift:38-42`) and the singleton applies it to its current task (`ContinuedProcessingSession.swift:156-164`). Expiration's guard does not cover the awaited pause's later commits (`ContinuedSession.swift:188-193`; `Scheduling.swift:160-170`) |
-| SC3 | No fallback; refusal/queue/expiration preserve work and resume semantics silently | ✗ FAILED | The legacy tiers are deleted and unavailable is silent, but a stale expiration pause can erase a user resume/retry that interleaves after the identity guard. The test at `DownloadContinuedSessionIdentityTests.swift:109-137` exercises only an early foreign-id return |
-| SC4 | Testable session seam owns scheduler access, exposes start/update/complete plus self-finishing events, and has unimplemented testValue | ✓ VERIFIED | The client exposes the three verbs and optional identified event stream; `ContinuedProcessingSession.endSession` finishes the stream; `BackgroundProcessingClient()` is exercised as unimplemented for all endpoints; `BGTaskScheduler` and `import BackgroundTasks` occur in one source file, `ContinuedTaskScheduling.swift` |
+| # | Roadmap truth | Status | Evidence |
+|---|---|---|---|
+| SC1 | A foreground-started download continues to completion after backgrounding beyond the old grace period | ✗ FAILED | A drain during the suspended client start can leave pending work without a session (`DownloadClient+ContinuedSession.swift:79-118,213-227`). Failed active deletion can also strand scheduling (`DownloadClient+PublicAPI.swift:182-215`) |
+| SC2 | System UI shows real progress and card cancel matches in-app cancel | ✗ FAILED | Seeded/session-identified progress and expiration parity are implemented, but the start/drain race can leave the newest tap with no card at all. The green held-start test uses a spy lifecycle the live store rejects |
+| SC3 | Best-effort refusal/queue/expiration has no fallback, loss, duplication, or visible error | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Legacy tiers are absent and deterministic unavailable/expiration tests exist. Real scheduler queuing, process suspension, and foreground resume remain device-only backstops |
+| SC4 | A testable session seam owns scheduler access and exposes start/update/finish plus self-finishing events with an unimplemented value | ✓ VERIFIED | Three-endpoint identified seam; `endSession` finishes its stream; exact refusal/self-finish test passed; scheduler names are confined to `ContinuedTaskScheduling.swift`; direct injection remains after option B |
 
-**Score:** 1/4 truths verified
+**Score:** 1/4 roadmap truths verified (1 present, behavior-unverified)
 
-No item is deferred to Phase 16; that phase concerns Dynamic Type and does not cover these
-background-execution defects.
+Phase 16 is Dynamic Type work. None of these gaps is specifically covered by a later milestone
+phase, so no item is deferred.
 
-### Required Artifacts
+## Re-verification of Previous Gaps
+
+| Previous concern | Current evidence | Status |
+|---|---|---|
+| Adopted task begins at 0 / 0 | Start records the snapshot at `ContinuedProcessingSession.swift:95-98`; adoption writes it at `:218-220` | ✓ CLOSED |
+| Stale progress can repaint a successor | `updateProgress` takes a session id and rejects foreign ids at `ContinuedProcessingSession.swift:164-178` | ✓ CLOSED |
+| Vanished-record delete bypasses convergence | The not-found branch now notifies and schedules at `DownloadClient+PublicAPI.swift:197-205` | ✓ CLOSED |
+| Expiration pause overwrites a newer retry | Generation checks bracket the real suspensions at `DownloadClient+Scheduling.swift:192-222`; the exact gated interleave passed | ✓ CLOSED |
+| Unread dependency registration remains | `BackgroundProcessingClientKey` and its accessor are absent; `.live` is injected directly | ✓ CLOSED |
+
+## Plan Must-Have Coverage
+
+Every PLAN frontmatter truth, artifact, key link, prohibition, and SC label was inventoried. The
+table groups related checks by plan; backstop truths are carried into the device checks below.
+
+| Plan | Automated must-haves | Result |
+|---|---|---|
+| 15-01 | Plist wildcard, retained processing mode, old AppFeature wiring and package edge removed | ✓ VERIFIED; built plist resolves `app.ehpanda.continued.*` |
+| 15-02 | Assertion state, old drain loop, and fallback tier removed; pending-work helper retained | ✓ VERIFIED |
+| 15-03 | Main-actor store, three-endpoint/self-finishing seam, scheduler confinement, lint config | ✓ VERIFIED; the old `BackgroundProcessingClientKey` artifact expectation was intentionally superseded by 15-16 option B |
+| 15-04 | Neutral six-locale card strings, numeric substitutions, direct client injection, loud unimplemented client | ✓ VERIFIED in code/tests; system rendering remains device-only |
+| 15-05 | One session per queue-mobilizing action, no duplicate session, ordered lifecycle | ✗ FAILED by CR-01's in-flight start/drain overlap |
+| 15-06 | Real aggregate progress, pause parity, unavailable silence, convergence | ⚠️ PARTIAL; progress/expiration behaviors are present, but in-flight start convergence is defective and device behavior remains unverified |
+| 15-07 | Permanent topology checks and roadmap contract | ✓ VERIFIED automated portion; three physical-device backstops remain |
+| 15-08 | Pending-request cancellation, stale-launch rejection, reusable later session | ✓ VERIFIED |
+| 15-09 | Coordinator session stamping, stale teardown rejection, cancel convergence | ✓ VERIFIED |
+| 15-10 | Identified client completion/refusal/progress threading | ⚠️ PARTIAL; identities work, but a nil client id during start is treated as terminal rather than deferred reconciliation |
+| 15-11 | Coordinator identity regressions and deterministic gates | ✗ COVERAGE GAP; the held-start spy accepts overlapping sessions and its parked task lacks failure-safe release |
+| 15-12 | Real initial seed, session-identified progress, monotonic floor | ✓ VERIFIED |
+| 15-13 | Vanished-record convergence and one schedulable-work authority | ✓ VERIFIED as written; it does not cover the distinct folder-removal failure found by CR-02 |
+| 15-14 | Expiration-owned generation guards and leak-safe blocking fixture | ✓ VERIFIED, including deterministic interleave behavior |
+| 15-15 | Post-guard expiration/retry interleaves with no sleeps or polling | ✓ VERIFIED; exact named test passed |
+| 15-16 | Owner option B, direct composition, preserved loud unimplemented client | ⚠️ PARTIAL QUALITY; implementation matches the decision, but source/test comments still describe the deleted dependency API |
+
+## Required Artifacts
 
 | Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `App/Info.plist` | One bundle-scoped continued-processing wildcard | ✓ VERIFIED | Exactly one `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*`; `processing` background mode retained |
-| `BackgroundProcessingClient.swift` | Identified, testable session API | ⚠️ PARTIAL | Start and finish are identified; update-progress is not, leaving stale writes able to target a successor |
-| `ContinuedProcessingSession.swift` | Main-actor session/task store | ⚠️ DEFECTIVE | Substantive and scheduler-wired, but adopts with 0/0 and accepts progress for whichever session is current |
-| `ContinuedTaskScheduling.swift` | Sole scheduler-access seam | ✓ VERIFIED | Only Swift file naming the scheduler or importing `BackgroundTasks`; substantive register/submit/cancel operations |
-| `DownloadClient+ContinuedSession.swift` | Coordinator lifecycle, progress, completion, expiration | ⚠️ DEFECTIVE | Session-targeted completion is fixed; progress loses client identity and expiration pause is non-atomic |
-| `DownloadClient+PublicAPI.swift` | Queue mutations converge on scheduling/session reconcile | ✗ INCOMPLETE | `delete` not-found branch bypasses notification and `scheduleNextIfNeeded()` |
-| `DownloadClient+PendingWork.swift` | Canonical schedulable-work predicate | ⚠️ WARNING | Substantive and used, but duplicates filtering also present in `schedulableDownloads()` |
-| `DownloadContinuedSessionTests.swift` | Lifecycle/progress/expiration coverage | ⚠️ INCOMPLETE | Existing cases pass, but one explicitly expects no initial update after start |
-| `DownloadContinuedSessionIdentityTests.swift` | Reentrant identity regressions | ⚠️ INCOMPLETE | Completion/refusal cases are substantive; foreign expiration never enters the suspension window it claims to cover |
-| `BackgroundExecutionInvariantTests.swift` | Permanent topology prohibition | ✓ VERIFIED | Scans source/plist scope, bans both legacy tiers and concurrency escapes, and confines scheduler naming |
+|---|---|---|---|
+| `App/Info.plist` | One bundle-scoped continued wildcard; processing mode retained | ✓ VERIFIED | Source has one wildcard; built product resolves it to `app.ehpanda.continued.*` |
+| `BackgroundProcessingClient.swift` | Identified start/update/finish seam | ✓ VERIFIED | Substantive and wired directly into `DownloadClient.live` |
+| `ContinuedProcessingSession.swift` | Main-actor task/session store | ✓ VERIFIED | Real seed, session checks, request cancel, stream finish |
+| `ContinuedTaskScheduling.swift` | Sole scheduler adapter | ✓ VERIFIED | Register/submit/cancel operations; only Swift source importing `BackgroundTasks` |
+| `DownloadClient+ContinuedSession.swift` | Coordinator session lifecycle | ✗ DEFECTIVE | In-flight start can be cleared before the client id arrives |
+| `DownloadClient+PublicAPI.swift` | User actions converge scheduling/session state | ✗ DEFECTIVE | Folder-removal catch branches bypass convergence |
+| `DownloadClient+PendingWork.swift` | Single schedulable-work authority | ✓ VERIFIED | Progress, expiration, and pending checks use it |
+| `DownloadContinuedSessionIdentityTests.swift` | Reentrant lifecycle regressions | ⚠️ MISLEADING | Held-start case passes against a spy that violates the live single-session contract |
+| `DownloadDeleteConvergenceTests.swift` | Delete-path regressions | ⚠️ INCOMPLETE | Vanished-record cases pass; removal-failure path is absent |
+| `BackgroundExecutionInvariantTests.swift` | Permanent topology and prohibition guard | ✓ VERIFIED | Source scope includes app/package/tests/extension and the plist |
 | `BackgroundProcessingClient/.swiftlint.yml` | New-module lint inheritance | ✓ VERIFIED | `parent_config: ../../../.swiftlint.yml` |
 
-All artifacts declared in the 11 PLAN frontmatters exist and pass the basic artifact query.
-Several generated key-link checks reported an invalid escaped regex; their underlying links
-were inspected manually rather than treated as failures or passes.
+The artifact query reported one historical mismatch: plan 15-03 expected
+`BackgroundProcessingClientKey`, while the owner explicitly chose its removal in plan 15-16.
+That is a superseded artifact detail, not missing SC4 substance.
 
-### Key Link Verification
+## Key Link Verification
 
 | From | To | Via | Status | Details |
-|------|----|-----|--------|---------|
-| Queue-mobilizing user actions | `ensureContinuedSession()` | Four foreground tap paths | ✓ WIRED | Enqueue/resume/retry/update success paths call ensure after mobilizing work |
-| Client live closures | `ContinuedProcessingSession.shared` | Main-actor store methods | ✓ WIRED | Start, update and finish all delegate to the store |
-| Store | System scheduler | `ContinuedTaskScheduling.live` | ✓ WIRED | Register/submit/cancel confined to the client module |
-| Start snapshot | Adopted task progress | Initial progress seed | ✗ NOT WIRED | Snapshot appears in subtitle only; task gets 0/0 |
-| Coordinator progress | Current client session | `updateProgress` | ✗ NOT WIRED (identity) | The coordinator id guard is lost at the client seam |
-| Expiration event | Pause-all behavior | `pauseAllSchedulable` → `pause(gid:)` | ⚠️ PARTIAL | Correct primitive, but identity cannot invalidate a pause already past the guard |
-| Vanished active delete | Queue/session convergence | `scheduleNextIfNeeded()` | ✗ NOT WIRED | Not-found branch returns before the convergence call |
-| Queue drain | Client completion | Identified `finish(sessionID:success:)` | ✓ WIRED | Both completion paths now carry the client id and store rejects foreign ids |
+|---|---|---|---|---|
+| Plist wildcard | Runtime identifiers | Bundle prefix plus `.continued.<UUID>` | ✓ WIRED | Built plist and source prefix agree |
+| Live client closures | Session store | Main-actor `start`/`updateProgress`/`finish` calls | ✓ WIRED | All three delegate to `ContinuedProcessingSession.shared` |
+| Session store | System scheduler | `ContinuedTaskScheduling.live` | ✓ WIRED | System types remain confined |
+| User start/resume/retry/update | `ensureContinuedSession()` | Success-path calls | ✓ WIRED | Four foreground tap paths call ensure |
+| Client start in flight | Queue-drain reconcile | Deferred reconciliation | ✗ NOT WIRED | Nil client id causes ownership to be cleared |
+| Held-start test spy | Live store lifecycle | Single-session refusal | ✗ NOT WIRED | Spy overwrites; live store returns nil |
+| Delete failure | Queue/session convergence | Notify plus `scheduleNextIfNeeded()` | ✗ NOT WIRED | Both catch branches return first |
+| Progress snapshot | Adopted task/card | Seed plus identified updates | ✓ FLOWING | Counts are real, monotonic, and session-scoped |
+| Expiration | Per-gallery pause | Session and queue-intent ownership | ✓ WIRED | Exact suspension-window regression passed |
 
-### Data-Flow Trace (Level 4)
+The generated key-link checker reported invalid escaped regexes for several older plan patterns.
+Their links were inspected manually: per-gallery pause, injected-store construction, persistence
+progress push, and foreign-expiration calls all exist at the declared call sites.
 
-| Artifact | Data Variable | Source | Produces Real Data | Status |
-|----------|---------------|--------|--------------------|--------|
-| Card subtitle at start | completed/total/gallery count | `schedulableProgress()` from indexed queued downloads | Yes | ✓ FLOWING |
-| Adopted `Progress` at start | `lastCompletedUnitCount`, `lastTotalUnitCount` | Reset in `start`; no initial coordinator push | No — 0/0 | ✗ HOLLOW INITIAL STATE |
-| Later card progress | clamped queue-wide snapshot | Page-flush and scheduling reconcile | Yes, but unscoped to client session | ⚠️ FLOWING TO WRONG POSSIBLE OWNER |
-| Cancel/expiration queue mutation | captured schedulable gids | Per-gallery `pause(gid:)` | Real persisted queue state | ⚠️ REENTRANT WRITE HAZARD |
-| Completion | `continuedClientSessionID` | Identified handle returned by start | Yes | ✓ FLOWING |
+## Data-Flow Trace
 
-### Behavioral Spot-Checks
+| Data | Source | Sink | Status |
+|---|---|---|---|
+| Initial completed/total counts | One schedulable queue snapshot | Start storage, then adopted task `Progress` | ✓ FLOWING |
+| Later card progress | Throttled page flush and scheduling reconcile | Session-identified `updateProgress` | ✓ FLOWING |
+| Client session ownership | Client start return | Coordinator liveness/task consumer | ✗ DISCONNECTED during the start suspension |
+| Delete error recovery | Reloaded active gallery and retained queue entry | Observer, scheduler, session reconcile | ✗ DISCONNECTED |
+| Card text | Localized count-only builder | System title/subtitle | ✓ FLOWING without gallery identity |
+| Operational log identity | Gallery title/GID | Unified logging with `.public` privacy | ✗ DISCLOSING |
 
-| Behavior | Evidence | Result | Status |
-|----------|----------|--------|--------|
-| Legacy discretionary and UIKit assertion tiers are absent | Tree-wide search for all deleted spellings returned no matches | No fallback tier remains | ✓ PASS |
-| Scheduler access is confined | Only `ContinuedTaskScheduling.swift` names `BGTaskScheduler` or imports `BackgroundTasks` | One client-module source file | ✓ PASS |
-| Permitted identifier is correctly shaped | `PlistBuddy` shows one `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*` entry | One entry; `processing` mode retained | ✓ PASS |
-| Existing automated gates | Orchestrator-supplied clean build, 296 Downloads tests, complete FeatureTests plan | All green | ✓ PASS, but not evidence against the four uncovered Critical paths |
-| Initial adopted progress | Static execution trace from start through adopt | Real subtitle, `Progress(total: 0, completed: 0)` | ✗ FAIL |
-| Foreign expiration regression | Static execution trace of test and production guard | Test exits before first pause | ✗ FAIL AS COVERAGE |
-| System grant/card/device cancel | Requires a physical iOS 26 device | Not run here | ? DEVICE CHECK AFTER CODE FIXES |
+## Behavioral Spot-Checks
 
-### Probe Execution
+The first targeted build attempt was sandbox-blocked; the second used the installed iPhone Air
+simulator. Test enumeration was required because Swift Testing identifiers include trailing
+parentheses. The final exact run executed four tests, not four suites or zero tests.
 
-| Probe | Command | Result | Status |
-|-------|---------|--------|--------|
-| — | — | No phase-declared or conventional probe scripts exist | n/a |
+| Behavior | Result | Status |
+|---|---|---|
+| Live store refuses an overlapping start and later starts again | Exact `testStartWhileASessionIsHeldIsRefusedAndALaterStartSucceeds()` passed | ✓ PASS |
+| Existing held-start coordinator regression | Exact `testBailOutFinishNeverLandsOnTheMostRecentStartsSession()` passed | ⚠️ MISLEADING PASS — spy contract differs from live store |
+| Retry survives a cancellation-held expiration pause | Exact `testAResumeInsideAStaleExpirationPauseSurvivesAndMobilizesTheQueue()` passed | ✓ PASS |
+| Vanished last record completes its session | Exact `testDeletingAVanishedLastRecordCompletesTheSession()` passed | ✓ PASS |
+| Actual client grant/card/device cancel | Requires physical iOS 26 hardware | ? DEVICE BACKSTOP |
 
-### Requirements Coverage
+The exact run finished with `TEST EXECUTE SUCCEEDED` and 4 tests passed. A green test does not
+override the static execution trace when the test double permits a state production refuses.
 
-The PLAN `requirements:` fields use only `SC1`–`SC4`, and collectively cover all four
-ROADMAP criteria. `.planning/REQUIREMENTS.md` maps no requirement ID to Phase 15, exactly as
-the ROADMAP declares; there are no orphaned requirement IDs.
+## Probe Execution
 
-| Requirement | Source Plans | Status | Evidence |
-|-------------|--------------|--------|----------|
-| SC1 | 15-05, 15-06, 15-07, 15-08, 15-09, 15-10, 15-11 | ✗ BLOCKED | CR-02 and CR-04 directly undermine continued execution; CR-03 can erase a new user action |
-| SC2 | 15-04, 15-06, 15-07 | ✗ BLOCKED | CR-01, CR-02 and CR-03 contradict real, correctly-owned progress and cancel parity |
-| SC3 | 15-01, 15-02, 15-06, 15-07 | ✗ BLOCKED | No fallback is verified, but the expiration reentrancy path does not preserve resume intent |
-| SC4 | 15-01, 15-03, 15-04, 15-07 | ✓ SATISFIED | Three-endpoint seam, self-finishing event stream, unimplemented test value, one scheduler-owning module |
+No phase-declared or conventional `probe-*.sh` scripts exist.
 
-### Code Review Findings Independently Verified
+## Requirements Coverage
 
-| Finding | Classification | Independent evidence | Goal impact |
-|---------|----------------|----------------------|-------------|
-| CR-01 | 🛑 BLOCKER | `updateProgress` has no session id at either seam or store; actor hops can apply an S1 update to S2 | SC2 |
-| CR-02 | 🛑 BLOCKER | Start resets saved counts and ensure sends no update; adopt writes 0/0 | SC1, SC2 |
-| CR-03 | 🛑 BLOCKER | Pause has multiple awaits and post-await queue clears; expiration guards only before the call | SC2, SC3 |
-| CR-04 | 🛑 BLOCKER | Vanished-record delete returns after clearing active/queue state without scheduling/reconcile | SC1 |
-| WR-01 | ⚠️ WARNING | Foreign-id expiration test returns at the first guard and never suspends in pause | Coverage gap for CR-03 |
-| WR-02 | ⚠️ WARNING | Blocking fixture loops until cancellation; tests defer only directory deletion and cancel at the end of the happy path | Early thrown exit can leak a retained task |
-| WR-03 | ⚠️ WARNING | `hasPendingWork` and `schedulableDownloads` independently reproduce queue/index/filter selection | Future predicate drift can desynchronize session lifetime and card counts |
+There are no mapped requirement IDs for Phase 15. PLAN frontmatter uses only SC1-SC4 and
+collectively covers all four roadmap criteria; `.planning/REQUIREMENTS.md` has no Phase 15 orphan.
 
-No `TBD`, `FIXME`, or `XXX` debt marker was found in the reviewed phase files.
+| Contract | Source plans | Status |
+|---|---|---|
+| SC1 | 15-05 through 15-13 as applicable | ✗ BLOCKED by CR-01 and CR-02 |
+| SC2 | 15-04, 15-06, 15-07, 15-12 through 15-15 | ✗ BLOCKED by CR-01; no card remains for the newest tap |
+| SC3 | 15-01, 15-02, 15-06, 15-07, 15-14, 15-15 | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED on physical-device scheduler/process behavior |
+| SC4 | 15-01, 15-03, 15-04, 15-07, 15-16 | ✓ SATISFIED |
 
-### Prohibition Review
+## Current Code Review Findings
+
+| Finding | Independent verification | Goal impact |
+|---|---|---|
+| CR-01: drain during client start loses newest tap's coverage | Confirmed by actor execution trace and mismatch between `ContinuedProcessingSession` and the spy | 🛑 BLOCKER — SC1/SC2 |
+| CR-02: failed active deletion stalls scheduling | Confirmed catch branches return after ownership clear; deferred task cleanup fails its ownership guard | 🛑 BLOCKER — SC1/queue lifecycle |
+| CR-03: public logs disclose gallery identity | Confirmed title/GID `.public` interpolations in execution, public API, and scheduling | 🛑 BLOCKER — privacy shipping gate |
+| WR-01: spy violates the live single-session contract | Confirmed: spy overwrites `currentSessionID`; store returns nil | ⚠️ WARNING — hides CR-01 |
+| WR-02: comments describe deleted dependency API | Confirmed at `DownloadClient+Manager.swift:301-309` and `DownloadContinuedSessionTests.swift:10-12` | ⚠️ WARNING — misleading architecture documentation |
+| WR-03: held-start test can leak parked task | Confirmed: no `defer { gate.release() }` after `armStartGate()` | ⚠️ WARNING — failure can hang/leak test work |
+
+No `TBD`, `FIXME`, or `XXX` marker exists in the reviewed phase files. The security-specialist
+domains (Keychain, biometrics, CryptoKit, trust evaluation) are not touched by this phase; the
+relevant security issue here is the independently confirmed unified-log privacy disclosure.
+
+## Prohibitions
 
 | Prohibition | Status | Evidence |
-|-------------|--------|----------|
-| No second background-execution tier | ✓ VERIFIED | Legacy token scan is empty and invariant test encodes it |
-| No content-identifying card text | ✓ VERIFIED | Title is neutral; subtitle accepts only three numeric substitutions |
-| No lint/concurrency escape hatch | ✓ VERIFIED | No suppression, unchecked-Sendable conformance, unsafe-nonisolated annotation, or preconcurrency attribute in scope |
-| Scheduler named only in client module | ✓ VERIFIED | One Swift source file |
-| Do not strand dead machinery | ? HUMAN DECISION | Dependency key/accessor have no source consumer; later plans explicitly leave this owner-pending |
+|---|---|---|
+| No second background-execution tier | ✓ VERIFIED | Deleted tokens absent; invariant test encodes the topology |
+| No content identity in system-card strings | ✓ VERIFIED | Builder accepts only three numeric values across six locales |
+| No concurrency/lint escape hatch | ✓ VERIFIED | No phase-source unchecked Sendable, unsafe nonisolated, preconcurrency, or suppression |
+| Scheduler named only in the client module | ✓ VERIFIED | One Swift source file owns all scheduler calls |
+| No orphaned dependency registration | ✓ VERIFIED | Owner chose option B; key and accessor are absent |
 
-### Human Verification Required After Gap Closure
+CR-03 is broader than the card-string prohibition: the card itself is neutral, but operational
+unified logs still disclose the same sensitive identity.
 
-1. **Physical-device continuation and progress**
+## Human Verification Required After Gap Closure
 
-   **Test:** Queue at least three galleries totalling at least 300 pages, start in foreground,
-   background for more than 60 seconds, and observe the system card.
+### 1. Continuation and honest progress
 
-   **Expected:** Download completes beyond the old grace period; one neutral card appears and its
-   bar/counts track the app without initially showing 0/0.
+**Test:** On a physical iOS 26 device, queue at least three galleries totaling at least 300 pages,
+start in foreground, background for more than 60 seconds, and observe the system card.
 
-   **Why human:** Simulator does not grant continued-processing tasks or render the system card.
+**Expected:** Work continues beyond the old grace period; one neutral card appears immediately with
+real counts and its bar/counts continue advancing.
 
-2. **Physical-device cancel parity**
+**Why human:** Simulator does not grant continued-processing tasks or render the system card.
 
-   **Test:** While the card is live, use its cancel affordance and foreground the app.
+### 2. Cancel parity and foreground race
 
-   **Expected:** Every previously schedulable gallery is paused exactly as an in-app pause would
-   leave it, with no later resume/retry overwritten by stale expiration work.
+**Test:** Cancel from the live system card, then foreground and immediately resume/retry a gallery.
 
-   **Why human:** System card cancel and resource expiration share a device-only callback.
+**Expected:** Card cancel leaves the same state as in-app pause, and no settling expiration
+overwrites the newer user action.
 
-3. **Force-quit durability**
+**Why human:** The card cancel/resource-expiration callback is system-owned and device-only.
 
-   **Test:** Force-quit from the app switcher mid-session and relaunch.
+### 3. Force-quit durability and best-effort resume
 
-   **Expected:** No crash and no duplicated pages.
+**Test:** Force-quit mid-session, relaunch, and also observe a refused or queued submission.
 
-   **Why human:** Process lifecycle and queued scheduler behavior are not reproducible in unit tests.
+**Expected:** No crash, no duplicated/lost pages, no visible background-processing error, and
+persisted work resumes on foreground.
 
-4. **Dead dependency accessor disposition**
+**Why human:** Process death and real scheduler decisions are not reproducible in unit tests.
 
-   **Test:** Decide whether the unused `BackgroundProcessingClientKey` and
-   `DependencyValues.backgroundProcessingClient` are justified solely to host `testValue`, or
-   whether live composition should resolve that dependency.
+## Gaps Summary
 
-   **Expected:** Either the accessor is made a real composition path or the seam is reshaped without
-   leaving unreachable machinery.
-
-   **Why human:** This is a judgment-tier PLAN prohibition explicitly left owner-pending.
-
-### Gaps Summary
-
-The session-identity closure fixed targeted completion and refusal recovery, but it did not
-carry identity through progress updates, seed the task's initial `Progress`, make expiration
-pause atomic with respect to a newer user action, or converge the vanished-record delete edge.
-Those are observable implementation gaps, not device uncertainty, and green build/test gates
-do not cover them. Phase 15 must not proceed as achieved until the three structured gap groups
-above are closed and their missing interleaving tests exist.
+The previous gap-closure rounds fixed their named defects, but the phase goal is still not
+achieved. The coordinator must retain or defer reconciliation of an in-flight start, deletion
+failure must converge scheduling after active ownership is cleared, and public gallery identity
+must be removed from unified logs. The spy and held-start regression must then be made faithful to
+the live store. Only after those fixes should the three physical-device checks decide the remaining
+SC3 backstop and the device-only halves of SC1/SC2.
 
 ---
 
-_Verified: 2026-07-28T11:08:29Z_
+_Verified: 2026-07-29T00:54:46Z_
+
 _Verifier: the agent (gsd-verifier)_
