@@ -68,6 +68,11 @@ final class RequestRecorder: Sendable {
 ///
 /// The whole of its state sits behind one `Mutex` so the spy is genuinely `Sendable` and can be
 /// read from the case while the coordinator's actor writes to it.
+///
+/// The spy mirrors the live store's single-session guard: `start` refuses while a session identity
+/// is held. A matching `finish` releases that identity, while `expire()` takes the continuation and
+/// releases the identity atomically before delivering the terminal event. The one-shot
+/// `refuseNextStart()` control remains available for explicit refusal coverage.
 final class BackgroundProcessingClientSpy: Sendable {
     /// One `updateProgress` call. A named record rather than a tuple: an unlabeled tuple type is
     /// banned at error severity here, and `.0`/`.1` reads carry no meaning at an assertion site.
@@ -221,16 +226,16 @@ final class BackgroundProcessingClientSpy: Sendable {
     }
 
     /// Delivers an expiration and then finishes the stream, mirroring the real client's
-    /// self-finishing contract: a consumer's `for await` loop falls out on its own, so no case
-    /// has to cancel the consuming task to end it.
+    /// self-finishing contract: the held session identity is released with the continuation and a
+    /// consumer's `for await` loop falls out on its own.
     func expire() {
         let continuation = takeContinuation()
         continuation?.yield(.expired)
         continuation?.finish()
     }
 
-    /// Hands back the live continuation and clears it in the same critical section, so a
-    /// terminal transition can never be applied twice to the same stream.
+    /// Hands back the live continuation and clears the held identity in the same critical section,
+    /// matching the live store's terminal cleanup so a transition cannot apply twice.
     private func takeContinuation() -> AsyncStream<BackgroundProcessingEvent>.Continuation? {
         state.withLock {
             let continuation = $0.continuation
@@ -249,7 +254,7 @@ final class BackgroundProcessingClientSpy: Sendable {
                     $0.startSubtitles.append(subtitle)
                     $0.startCompletedUnitCounts.append(completedUnitCount)
                     $0.startTotalUnitCounts.append(totalUnitCount)
-                    guard !$0.refusesNextStart else {
+                    guard $0.currentSessionID == nil, !$0.refusesNextStart else {
                         $0.refusesNextStart = false
                         return true
                     }
@@ -279,6 +284,7 @@ final class BackgroundProcessingClientSpy: Sendable {
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
             updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+                // The live store accepts progress only for the identity it still owns.
                 let update = ProgressUpdate(
                     sessionID: sessionID,
                     completedUnitCount: completedUnitCount,
@@ -308,6 +314,7 @@ final class BackgroundProcessingClientSpy: Sendable {
                 }
             },
             finish: { sessionID, success in
+                // The live store records the request at this seam but releases only a matching ID.
                 let continuation: AsyncStream<BackgroundProcessingEvent>.Continuation? =
                     self.state.withLock {
                         $0.finishRecords.append(
