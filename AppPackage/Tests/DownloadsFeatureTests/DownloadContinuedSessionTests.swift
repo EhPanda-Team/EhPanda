@@ -7,9 +7,9 @@ import Testing
 
 @Suite
 struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
-    /// Every endpoint of the unimplemented test value must report an issue when called. That is
-    /// the whole point of the seam's `testValue`: a call the test did not arrange for fails the
-    /// test loudly instead of silently succeeding against a do-nothing stub.
+    /// Every endpoint on the client type's no-argument value must report an issue when called.
+    /// A call the test did not arrange for therefore fails loudly instead of silently succeeding
+    /// against a do-nothing stub.
     @Test
     func testUnimplementedClientReportsAnIssueForEveryEndpoint() async {
         let client = BackgroundProcessingClient()
