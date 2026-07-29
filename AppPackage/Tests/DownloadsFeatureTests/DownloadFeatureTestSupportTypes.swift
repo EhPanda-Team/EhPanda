@@ -344,6 +344,34 @@ final class ScheduledGalleryRecorder: Sendable {
     }
 }
 
+/// Fails one named removal while forwarding every other filesystem operation to `FileManager`.
+///
+/// The production path reaches removal through `DownloadFileManager.operate`, so injection here
+/// exercises that real call chain, including the store's path-escape guard. A named path failure is
+/// deterministic on every machine and under every sandbox, unlike changing temporary-directory
+/// permissions.
+final class FailingRemovalFileManager: FileManager {
+    private let pathFragment: String
+    private let error: any Error & Sendable
+
+    init(
+        pathFragment: String,
+        error: any Error & Sendable
+    ) {
+        self.pathFragment = pathFragment
+        self.error = error
+        super.init()
+    }
+
+    override func removeItem(at url: URL) throws {
+        guard url.path.contains(pathFragment) else {
+            try super.removeItem(at: url)
+            return
+        }
+        throw error
+    }
+}
+
 /// Removes a temporary file or directory a case created, absorbing the failure.
 func removeTemporaryItem(at url: URL) {
     do {
