@@ -21,10 +21,9 @@ public struct BackgroundProcessingSession: Sendable {
 /// The client is domain-agnostic: callers supply already-localized strings and already-clamped
 /// counts, and nothing about what the work *is* lives here.
 ///
-/// It is both resolvable through `DependencyValues` — which is where the unimplemented
-/// `testValue` lives — and injected directly into its one consumer. That double shape is
-/// deliberate, and diverges from the execution-assertion client it replaces, which had no
-/// `DependencyValues` entry at all.
+/// The client is injected directly into its one consumer. The macro-synthesized
+/// `BackgroundProcessingClient()` value leaves every endpoint unimplemented so tests fail loudly
+/// on any call they did not arrange; the client tests exercise that behavior for every endpoint.
 @DependencyClient
 public struct BackgroundProcessingClient: Sendable {
     /// Registers and submits a session, returning its identified event stream. The stream
@@ -80,20 +79,6 @@ extension BackgroundProcessingClient {
             await ContinuedProcessingSession.shared.finish(sessionID: sessionID, success: success)
         }
     )
-}
-
-// MARK: API
-public enum BackgroundProcessingClientKey: DependencyKey {
-    public static let liveValue = BackgroundProcessingClient.live
-    public static let previewValue = BackgroundProcessingClient.noop
-    public static let testValue = BackgroundProcessingClient()
-}
-
-extension DependencyValues {
-    public var backgroundProcessingClient: BackgroundProcessingClient {
-        get { self[BackgroundProcessingClientKey.self] }
-        set { self[BackgroundProcessingClientKey.self] = newValue }
-    }
 }
 
 // MARK: Test
