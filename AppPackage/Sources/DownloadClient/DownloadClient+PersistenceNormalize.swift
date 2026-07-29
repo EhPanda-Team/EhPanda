@@ -58,6 +58,10 @@ extension DownloadCoordinator {
             hasActiveTask: hasActiveTask
         ) {
             if activeGalleryID == download.gid, !hasActiveTask {
+                // ACTIVE-OWNERSHIP CONVERGENCE does not require scheduling here: there is no task
+                // to cancel, so no deferred cleanup is disarmed. `syncDownloadsState` always
+                // notifies and its caller deliberately decides whether this normalization pass
+                // should schedule.
                 self.activeGalleryID = nil
             }
         }

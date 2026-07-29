@@ -7,6 +7,8 @@ extension DownloadCoordinator {
         gid: String,
         task: Task<Void, Never>
     ) {
+        // This test seam installs ownership; it does not clear completed work and is outside
+        // ACTIVE-OWNERSHIP CONVERGENCE.
         activeTaskGeneration += 1
         activeGalleryID = gid
         activeTask = task

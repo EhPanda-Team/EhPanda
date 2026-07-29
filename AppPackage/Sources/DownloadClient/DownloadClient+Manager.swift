@@ -342,6 +342,23 @@ public actor DownloadCoordinator {
     public var updatedGalleryIDs = Set<String>()
     public var queuedModes = [String: DownloadStartMode]()
     public var queuedPageSelections = [String: [Int]]()
+    /// ACTIVE-OWNERSHIP CONVERGENCE
+    ///
+    /// Every path that clears `activeGalleryID` or `activeTask` must notify observers and reach
+    /// `scheduleNextIfNeeded()` before returning on every exit, including failure. Once ownership
+    /// is cleared, `finishActiveTaskIfOwned` rejects the cancelled task's deferred cleanup, so the
+    /// clearing path owns the queue's last scheduling opportunity. Missing it leaves downloads
+    /// silently stuck and a continued-processing session with no progress.
+    ///
+    /// Forbidden: returning after ownership is cleared, or converging while the affected gallery
+    /// remains scheduling-blocked. Clearing paths release their block before convergence.
+    ///
+    /// Reachable by design: convergence can suspend while another user action lands; two racing
+    /// failures can converge twice; and the scheduler can select the still-queued gallery whose
+    /// removal failed. These are existing, idempotent scheduling windows protected by the
+    /// scheduler's ownership and generation guards. A failed expiration pause also converges
+    /// unconditionally: its surrounding exits already do, the unpaused gallery must not be
+    /// stranded, and this schedules work without starting a new continued-processing session.
     public var activeGalleryID: String?
     public var activeTask: Task<Void, Never>?
     public var activeTaskGeneration = 0
