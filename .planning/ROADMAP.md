@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 16/16 plans executed
+**Plans**: 19 plans (16 executed; 15-17 through 15-19 are gap-closure round 4, planned and pending execution)
 
 Plans:
 **Wave 1**
@@ -878,6 +878,18 @@ Plans:
 **Wave 16** *(blocked on 15-15 — serialization plus sequencing; contains a blocking owner decision)*
 
 - [x] 15-16-PLAN.md — Owner disposition of the unread background-processing dependency registration, and the end-of-phase device verification handoff
+
+**Wave 17** *(gap closure round 4 — blocked on 15-16 by sequencing; xcodebuild invocations must never overlap on this machine)*
+
+- [ ] 15-17-PLAN.md — Defer reconciliation while a client start is in flight so coordinator ownership is never surrendered without a client id, bind the session spy to the live single-session contract and triage the suite behind it, and correct the documentation describing the deleted dependency API
+
+**Wave 18** *(blocked on 15-17 — real code dependency: the new regressions assert session liveness through the deferred-reconciliation contract and run under the corrected spy)*
+
+- [ ] 15-18-PLAN.md — State the active-ownership convergence invariant once and satisfy it on every enumerated exit path that clears ownership, with a parameterised failure-injected regression across both delete entry points and both error shapes
+
+**Wave 19** *(blocked on 15-18 — file overlap in the public API, folders and scheduling sources, plus xcodebuild serialization)*
+
+- [ ] 15-19-PLAN.md — Remove gallery titles from unified logs, hash-mask identifiers, reclassify every error, description and response-body disclosure in the module, and add a permanent scan that fails the build if any of it returns
 
 ### Phase 16: Dynamic Type Accessibility
 
