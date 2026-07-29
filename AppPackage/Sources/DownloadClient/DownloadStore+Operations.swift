@@ -217,7 +217,7 @@ extension DownloadStore {
         do {
             manifest = try readManifest(folderURL: folderURL)
         } catch {
-            logger.error("Download manifest read failed during validation: \(error, privacy: .public)")
+            logger.error("Download manifest read failed during validation: \(error, privacy: .private)")
             return .missingFiles(.RLocalizable.downloadStoreManifestCorrupted)
         }
         if let pageValidationFailure = validatePages(
@@ -310,7 +310,7 @@ extension DownloadStore {
             do {
                 actualHash = try fileHash(at: pageURL)
             } catch {
-                logger.error("Download page hash read failed during validation: \(error, privacy: .public)")
+                logger.error("Download page hash read failed during validation: \(error, privacy: .private)")
                 actualHash = nil
             }
             guard actualHash == expectedHash else {

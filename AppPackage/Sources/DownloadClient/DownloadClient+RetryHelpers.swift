@@ -20,7 +20,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             return .failure(.unknown)
         }
     }
@@ -72,7 +72,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             return .failure(.unknown)
         }
     }

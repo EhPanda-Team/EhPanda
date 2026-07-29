@@ -303,7 +303,7 @@ extension DownloadCoordinator {
                     try $0.removeItem(at: folderURL)
                 }
             } catch {
-                logger.error("Stale working folder removal failed: \(error, privacy: .public)")
+                logger.error("Stale working folder removal failed: \(error, privacy: .private)")
             }
         }
         if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {

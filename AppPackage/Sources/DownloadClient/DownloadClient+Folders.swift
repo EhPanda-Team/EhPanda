@@ -31,7 +31,7 @@ extension DownloadCoordinator {
             try storage.ensureRootDirectory()
             try createDirectory(at: folderURL)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
         insertUserFolder(normalizedName)
@@ -79,7 +79,7 @@ extension DownloadCoordinator {
                 try $0.moveItem(at: sourceURL, to: destinationURL)
             }
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             await reloadDownloadRecordIfPossible(gidInFolder: oldName)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
@@ -125,7 +125,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .failure(error)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             await reloadDownloadRecords(containedRecords)
             for gid in containedGIDs {
                 schedulingBlockedGalleryIDs.remove(gid)
@@ -196,7 +196,7 @@ extension DownloadCoordinator {
                 try $0.moveItem(at: download.folderURL, to: destinationURL)
             }
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }

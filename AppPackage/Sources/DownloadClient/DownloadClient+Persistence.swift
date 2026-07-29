@@ -16,7 +16,7 @@ extension DownloadCoordinator {
             hasLoadedIndex = true
             return await downloads(from: scanResult.records)
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             downloadIndex = [:]
             userFolders = []
             hasLoadedIndex = true

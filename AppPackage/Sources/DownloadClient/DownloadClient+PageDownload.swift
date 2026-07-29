@@ -202,7 +202,7 @@ extension DownloadCoordinator {
                         force: false
                     )
                 } catch {
-                    logger.error("Download progress cadence flush failed: \(error, privacy: .public)")
+                    logger.error("Download progress cadence flush failed: \(error, privacy: .private)")
                 }
                 if let nextIndex = pendingIterator.next() {
                     addPageDownloadTask(

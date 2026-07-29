@@ -128,7 +128,7 @@ extension DownloadClient {
                     return metadata
 
                 case .failure(let error):
-                    logger.error("Remote version metadata fetch failed: \(error, privacy: .public)")
+                    logger.error("Remote version metadata fetch failed: \(error, privacy: .private)")
                     return nil
                 }
             },
@@ -151,7 +151,7 @@ extension DownloadClient {
                     return pageURLs
 
                 case .failure(let error):
-                    logger.error("Local download page URL load failed: \(error, privacy: .public)")
+                    logger.error("Local download page URL load failed: \(error, privacy: .private)")
                     return nil
                 }
             },

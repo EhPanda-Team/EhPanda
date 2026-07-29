@@ -22,7 +22,7 @@ extension DownloadCoordinator {
         } catch {
             // Data-cache eviction is best-effort housekeeping; continue clearing the
             // independent library image cache even when disk eviction fails.
-            logger.error("Download image data-cache eviction failed: \(error, privacy: .public)")
+            logger.error("Download image data-cache eviction failed: \(error, privacy: .private)")
         }
         for key in uniqueKeys {
             await libraryClient.removeCachedImage(key)

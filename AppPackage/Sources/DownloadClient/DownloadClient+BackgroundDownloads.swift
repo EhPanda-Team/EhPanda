@@ -101,7 +101,7 @@ extension DownloadCoordinator {
                 response: response
             )
         } catch {
-            logger.error("\(error, privacy: .public)")
+            logger.error("\(error, privacy: .private)")
             removeStagedBackgroundFile(fileURL)
             // A fatal account error (quota/auth/ban) detected on an orphaned page must
             // settle the whole download like the foreground does, so scheduleNextIfNeeded
@@ -239,7 +239,7 @@ extension DownloadCoordinator {
                 try $0.removeItem(at: fileURL)
             }
         } catch {
-            logger.error("Staged background file removal failed: \(error, privacy: .public)")
+            logger.error("Staged background file removal failed: \(error, privacy: .private)")
         }
     }
 }
