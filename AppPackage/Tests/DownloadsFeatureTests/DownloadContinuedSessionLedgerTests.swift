@@ -280,6 +280,62 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
         #expect(deletedPair.completedUnitCount < deletedPair.totalUnitCount)
     }
+
+    /// A gallery that leaves the schedulable set and comes back is worth its pages once.
+    ///
+    /// Resuming a paused download is an ordinary tap — D-07 makes it a qualifying one, and D-06
+    /// folds the returning work into the live session rather than starting a second — so the third
+    /// push here is a state the product reaches, not a contrivance. It must read exactly
+    /// `6 / 14` again. `12 / 24` is the failure this case exists for: the same six finished pages
+    /// counted in the ledger and in the live sum at once, a card claiming more finished pages than
+    /// the queue contains, and a denominator inflated by a gallery that is present exactly once.
+    /// That is the shape a ledger accumulated into a scalar takes: with no per-gallery key there is
+    /// nothing to correct when a gallery returns.
+    ///
+    /// The departure and the rejoin are staged through the queue-set test seam rather than through
+    /// `pause` and `resume`, and deliberately so: this case is about a single arithmetic hazard, and
+    /// it asserts the whole pushed series, so it must not also depend on how many times the
+    /// scheduling tail happens to converge. The product's own departure primitives are covered by
+    /// the pause and delete cases above, which assert their last update for exactly that reason.
+    @Test
+    func testResumedGalleryIsCountedOnce() async throws {
+        let large = SessionGallery(
+            gid: "210250",
+            title: "Departing",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let small = SessionGallery(gid: "210251", title: "Surviving", pageCount: 4)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [large, small],
+            client: spy.client
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        await fixture.manager.testingSetQueuedGalleryIDs([small.gid])
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        await fixture.manager.testingSetQueuedGalleryIDs([large.gid, small.gid])
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        #expect(spy.progressUpdates.map(\.completedUnitCount) == [6, 6, 6])
+        #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 10, 14])
+        #expect(spy.progressUpdates.map(\.subtitle) == [
+            "6 / 14 pages · 2 galleries",
+            "6 / 10 pages · 1 gallery",
+            "6 / 14 pages · 2 galleries"
+        ])
+        // Stated as an equality as well as as literals: what the rejoin owes is *the first pair
+        // back*, whatever that pair happens to be worth.
+        let openingPair = try firstPushedPair(spy.progressUpdates)
+        let rejoinedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(rejoinedPair == openingPair)
+    }
 }
 
 // MARK: - Helpers
