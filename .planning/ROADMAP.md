@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 24/24 plans executed
+**Plans**: 25 plans (24/25 executed)
 
 Plans:
 **Wave 1**
@@ -910,6 +910,10 @@ Plans:
 **Wave 24** *(gap closure round 7, review gap G-15-4 — blocked on 15-23 by file overlap in DownloadClient+ContinuedSession.swift and the continued-session suites, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
 - [x] 15-24-PLAN.md — Count a complete-reading record as zero session pages until the session observes it doing real work, so a queued update/redownload can never open the card at its own ceiling; gate the retirement's record read on the same observed-incomplete trust set, and re-derive the one case whose literals encoded the defect
+
+**Wave 25** *(gap closure round 8, review gap G-15-5 — blocked on 15-24 by file overlap in DownloadClient+ContinuedSession.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files (D-G5-01), so a repair of a complete-reading record earns session trust through the existing basis and its card climbs instead of pinning at zero; prove the arc end to end through production seams with the pre-fix pinned-zero observed
 
 ### Phase 16: Dynamic Type Accessibility
 
