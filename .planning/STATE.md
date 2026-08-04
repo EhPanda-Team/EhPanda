@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-25-PLAN.md — G-15-5 closed
-last_updated: "2026-08-04T15:24:12.620Z"
+stopped_at: 15-25 verified — G-15-5 closed, G-15-6 found (blocker, introduced by 15-25)
+last_updated: "2026-08-05T00:00:00.000Z"
 last_activity: 2026-08-05
-last_activity_desc: Plan 15-25 executed — G-15-5 closed (D-G5-01 reconciliation + run-start announcement + WR-03 seed merge); full DownloadsFeatureTests green
+last_activity_desc: Phase 15 verification round 9 — 3/4 SC, G-15-5 closed, new blocker G-15-6 (queue-wide progress floor vs D-G5-01 blanking); SC2 still device-unverified
 progress:
   total_phases: 16
   completed_phases: 14
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING (all 25 plans executed; human UAT gate open)
+Phase: 15 (continued-background-downloads) — EXECUTING (all 25 plans executed; gap round 9 open + human UAT gate open)
 Plan: 25 of 25 executed
-Status: Gap round 8 closed — 15-25 landed D-G5-01, the run-start announcement, and the WR-03 seed merge; both pinned-zero readings observed by recorded revert and the full DownloadsFeatureTests plan is green (323 tests, 62 suites)
-Last activity: 2026-08-05 — plan 15-25 executed (G-15-5 closed)
-Next: /gsd-verify-work 15 — 15-UAT.md test 2 remains a physical-device re-run on iOS 26 hardware, now also the observational check that a repair's card climbs instead of pinning at zero
+Status: Gap round 8 closed, round 9 opened. 15-25 landed D-G5-01, the run-start announcement, and the WR-03 seed merge; G-15-5 verified closed in source and the full FeatureTests plan is green. The post-15-25 review then found CR-01, confirmed by the orchestrator and by verification as G-15-6: the queue-wide monotonic floor (`lastPushedCompletedPageCount`) predates a basis that can now shrink, because D-G5-01's blanking is the first mechanism that lowers an already-counted gallery's contribution
+Last activity: 2026-08-05 — plan 15-25 executed and verified (G-15-5 closed, G-15-6 opened)
+Next: /gsd-plan-phase 15 --gaps — close G-15-6. The verifier's scoping correction is load-bearing: the queue is serial, so a regression test that merely stages two galleries and blanks K pages of one is vacuous; the reachable case is blanked pages that are never re-earned by the gallery that lost them. Separately and independently, 15-UAT.md test 2 still needs a physical-device re-run on iOS 26 — closing G-15-6 does not discharge it, and a green device run would not close G-15-6
 
 Progress: [██████████] 100% (14/16 phases)
 
