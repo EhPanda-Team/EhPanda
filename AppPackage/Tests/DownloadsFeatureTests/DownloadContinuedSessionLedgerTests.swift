@@ -5,17 +5,22 @@ import Foundation
 import Testing
 
 /// The multi-gallery half of the continued session's arithmetic: what the card reports as galleries
-/// finish one after another and the queue drains.
+/// leave the schedulable set — by finishing, by being paused, by being deleted — and what it
+/// reports when one of them comes back.
 ///
 /// A new file rather than more cases in `DownloadContinuedSessionTests.swift` for a concrete
 /// reason: that file already sits past 900 lines against a `file_length` limit of 1000 at error
 /// severity, so the coverage this gap needs does not fit there.
 ///
-/// Every case stages a completion the way the product does — patch the gallery's record to a
-/// complete manifest through the same index seam a page flush uses, then call
-/// `settleCompletedDownload(gid:)`, which is what removes it from the queue store — and pushes
-/// progress explicitly between steps, so the recorded update list is a fact about the arithmetic
-/// rather than about scheduling timing.
+/// A completion is staged the way the product does it — patch the gallery's record to a complete
+/// manifest through the same index seam a page flush uses, then call `settleCompletedDownload(gid:)`,
+/// which is what removes it from the queue store — and progress is pushed explicitly between steps,
+/// so the recorded update list is a fact about the arithmetic rather than about scheduling timing.
+///
+/// A pause and a delete are driven through the coordinator's own `pause(gid:)` and `delete(gid:)`
+/// instead, because those cases exist to prove the product's entry points reach the ledger. Both
+/// converge on `scheduleNextIfNeeded`, whose tail reconciles the session, so those cases assert the
+/// last recorded update rather than a list of them.
 @Suite
 struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// The pair a drained three-gallery queue owes, whatever order its galleries finished in.
@@ -28,6 +33,20 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         completedUnitCount: 20,
         totalUnitCount: 20,
         subtitle: "20 / 20 pages · 0 galleries"
+    )
+
+    /// The pair both departure paths owe once a 10-page gallery with 6 finished has left a queue
+    /// that also holds an untouched 4-page gallery.
+    ///
+    /// Named once and asserted from both cases, so a pause and a delete are pinned to each other
+    /// rather than to two copies of one literal. The ledger reaches this value by different routes:
+    /// the paused gallery still has a record to read, while the deleted one has none and is worth
+    /// only what the last observation says it finished. D-G2-01 is precisely the claim that those
+    /// two routes cannot disagree.
+    static let departedPair = PushedPair(
+        completedUnitCount: 6,
+        totalUnitCount: 10,
+        subtitle: "6 / 10 pages · 1 gallery"
     )
 
     /// Everything about a pushed update except the session identity it rode on, so two runs driven
@@ -161,6 +180,106 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
             "0 / 1 page · 0 galleries"
         ])
     }
+
+    /// D-G2-01 on the pause path: a gallery leaving by pause retires exactly the pages it had
+    /// already finished, and its unfinished pages leave the denominator with it.
+    ///
+    /// The departure is driven through the coordinator's own `pause(gid:)` rather than the
+    /// queue-set test seam, because what this case is for is that the product's pause reaches the
+    /// ledger at all. Retiring the wrong value is visible either way: retiring the paused gallery's
+    /// full 10 pages keeps 4 pages in the denominator that this session will never do, pinning the
+    /// card below 1.0 for as long as it lives, and retiring nothing at all rewinds the numerator
+    /// from 6 to 0, which is the stall signal the scheduler reads before it forcibly expires the
+    /// tasks that look most stuck.
+    @Test
+    func testPausedGalleryRetiresOnlyItsFinishedPages() async throws {
+        let large = SessionGallery(
+            gid: "210230",
+            title: "Paused",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let small = SessionGallery(gid: "210231", title: "Surviving", pageCount: 4)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [large, small],
+            client: spy.client,
+            // Pausing converges on scheduling, which would otherwise start the surviving gallery's
+            // download for real. Skipping the operation keeps the convergence and drops the network.
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        let openingPair = try firstPushedPair(spy.progressUpdates)
+        #expect(openingPair.completedUnitCount == 6)
+        #expect(openingPair.totalUnitCount == 14)
+        #expect(openingPair.subtitle == "6 / 14 pages · 2 galleries")
+
+        try await fixture.manager.pause(gid: large.gid).get()
+
+        // Asserted on the last update rather than against a list of a known length: `pause`
+        // converges through `scheduleNextIfNeeded`, and the surviving gallery's skipped scheduling
+        // converges again behind it, so how many pushes land is a property of the convergence path
+        // and not of this case's subject. The arithmetic is what is under test, and every push
+        // after the pause owes the same pair.
+        let pausedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(pausedPair.completedUnitCount == 6)
+        #expect(pausedPair.totalUnitCount == 10)
+        #expect(pausedPair.subtitle == "6 / 10 pages · 1 gallery")
+        #expect(pausedPair == Self.departedPair)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        // A pause must never be able to report the session finished.
+        #expect(pausedPair.completedUnitCount < pausedPair.totalUnitCount)
+    }
+
+    /// D-G2-01 on the delete path, which is the one with no record left to read.
+    ///
+    /// Deleting removes the gallery's folders and takes it out of the index, so the ledger cannot
+    /// ask what it finished and falls back to the last observation. Both wrong answers are
+    /// available there: dropping the six pages rewinds the numerator, and promoting the gallery to
+    /// its full 10 pages claims work that was never done. The pair is asserted against the pause
+    /// case's own constant as well as its literal, because a delete accounted differently from a
+    /// pause would mean the single formula D-G2-01 describes had quietly become two.
+    @Test
+    func testDeletedGalleryRetiresTheSamePagesAsAPause() async throws {
+        let large = SessionGallery(
+            gid: "210240",
+            title: "Deleted",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let small = SessionGallery(gid: "210241", title: "Surviving", pageCount: 4)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [large, small],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        let openingPair = try firstPushedPair(spy.progressUpdates)
+        #expect(openingPair.completedUnitCount == 6)
+        #expect(openingPair.totalUnitCount == 14)
+        #expect(openingPair.subtitle == "6 / 14 pages · 2 galleries")
+
+        try await fixture.manager.delete(gid: large.gid).get()
+
+        let deletedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(deletedPair.completedUnitCount == 6)
+        #expect(deletedPair.totalUnitCount == 10)
+        #expect(deletedPair.subtitle == "6 / 10 pages · 1 gallery")
+        #expect(deletedPair == Self.departedPair)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(deletedPair.completedUnitCount < deletedPair.totalUnitCount)
+    }
 }
 
 // MARK: - Helpers
@@ -206,11 +325,35 @@ private extension DownloadContinuedSessionLedgerTests {
         #expect(drain.completedUnitCount == drain.totalUnitCount)
     }
 
+    /// The numerator never goes backwards, whatever else moved.
+    ///
+    /// Written over adjacent pairs rather than as a comparison of the first and last update: a
+    /// rewind that is later recovered is still a rewind, and it is exactly what the scheduler reads
+    /// as a task losing ground.
+    func expectTheCompletedSeriesNeverRewinds(
+        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
+    ) {
+        for (earlier, later) in zip(updates, updates.dropFirst()) {
+            #expect(earlier.completedUnitCount <= later.completedUnitCount)
+        }
+    }
+
+    func firstPushedPair(
+        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
+    ) throws -> PushedPair {
+        try pushedPair(#require(updates.first))
+    }
+
     func lastPushedPair(
         _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
     ) throws -> PushedPair {
-        let update = try #require(updates.last)
-        return PushedPair(
+        try pushedPair(#require(updates.last))
+    }
+
+    func pushedPair(
+        _ update: BackgroundProcessingClientSpy.ProgressUpdate
+    ) -> PushedPair {
+        PushedPair(
             completedUnitCount: update.completedUnitCount,
             totalUnitCount: update.totalUnitCount,
             subtitle: update.subtitle
