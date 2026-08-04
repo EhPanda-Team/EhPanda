@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: verifying
-stopped_at: Phase 15 re-verified — awaiting device UAT
-last_updated: "2026-07-29T03:54:41Z"
-last_activity: 2026-07-29
-last_activity_desc: Re-verified Phase 15 — all three gaps closed, 4 device checks pending
+status: executing
+stopped_at: Completed 15-20-PLAN.md
+last_updated: "2026-08-04T06:54:50.641Z"
+last_activity: 2026-08-04
+last_activity_desc: Plan 15-20 complete — continued-session retirement ledger
 progress:
   total_phases: 16
-  completed_phases: 14
-  total_plans: 190
-  completed_plans: 190
-  percent: 100
+  completed_phases: 13
+  total_plans: 192
+  completed_plans: 191
+  percent: 99
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — VERIFYING
-Plan: 19 of 19
-Status: Re-verified 2026-07-29 — all three prior gaps closed, 0 remaining, 0 regressions; SC4 verified, SC1/SC2/SC3 present but device-unverifiable
-Last activity: 2026-07-29 — Re-verified Phase 15 after gap-closure plans 15-17/18/19
-Next: /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 21 of 21
+Status: Executing Phase 15
+Last activity: 2026-08-04 — Plan 15-20 complete (continued-session retirement ledger)
+Next: execute 15-21-PLAN.md, then /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -246,6 +246,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P17 | 21min | 3 tasks | 6 files |
 | Phase 15 P18 | 16min | 2 tasks | 10 files |
 | Phase 15 P19 | 28min | 3 tasks | 18 files |
+| Phase 15 P20 | 25 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -594,6 +595,9 @@ Recent decisions affecting current work:
 - [Phase 15]: Hash-mask gallery identifiers so download events remain correlatable without disclosing gallery identity.
 - [Phase 15]: Keep raw errors, localized descriptions, and rejected-response snippets private throughout DownloadClient.
 - [Phase 15]: Scope the log-privacy invariant to DownloadClient after auditing two non-gallery BackgroundProcessingClient fields.
+- [Phase 15]: 15-20: D-G2-01 — a gallery leaving the schedulable set retires exactly the pages it finished, added to both sides of the session fraction; one formula covers every departure path
+- [Phase 15]: 15-20: The retirement ledger is maintained by a push-time membership sweep, not a hook in settleCompletedDownload, so all six departure paths are covered by construction
+- [Phase 15]: 15-20: D-10 is extended (not reopened) — the pushed pair carries retired pages alongside live schedulable work; the user-visible contract is unchanged
 
 ### Pending Todos
 
@@ -641,6 +645,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-29T03:14:04.145Z
-Stopped at: Completed 15-19-PLAN.md
+Last session: 2026-08-04T06:54:38.395Z
+Stopped at: Completed 15-20-PLAN.md
 Resume file: None
