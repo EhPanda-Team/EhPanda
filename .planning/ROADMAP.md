@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 25/25 | In Progress|  |
+| 15. Continued Background Downloads | 25/26 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 25/25 plans executed
+**Plans**: 25/26 plans executed
 
 Plans:
 **Wave 1**
@@ -914,6 +914,10 @@ Plans:
 **Wave 25** *(gap closure round 8, review gap G-15-5 — blocked on 15-24 by file overlap in DownloadClient+ContinuedSession.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
 - [x] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files, and have the run announce that post-preparation basis to the session before any page work (D-G5-01, both halves), so a repair of a complete-reading record is guaranteed to earn trust through the existing basis — deterministically even at one missing page — and its card climbs instead of pinning at zero; prove the K=1 arc end to end on production-issued pushes with the pre-fix pinned-zero observed
+
+**Wave 26** *(gap closure round 9, review gap G-15-6 — blocked on 15-25 by file overlap in DownloadClient+ContinuedSession.swift, DownloadClient+ExecutionSupport.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-26-PLAN.md — Withdraw a coordinator-made basis correction from the monotonic floor in the same synchronous stretch that lowers the basis (D-G6-01): the reconciliation gives back exactly the counted portion it blanked — an untrusted complete-reading record withdraws nothing, preserving D-G4-01 — and the session-start seed merges the scalar instead of re-installing the pre-hop total, so a frozen-at-the-pre-correction-total card can no longer outlive the correction; prove the reachable case (the reconciled gallery departs without re-earning, the survivor's next pushes advance) with the pre-fix frozen band observed, and close WR-01 (the schedulable authority unions the active gallery), WR-02 (the silent seed preparation goes private), and WR-03 (the storage.validate consequence documented) in the same pass
 
 ### Phase 16: Dynamic Type Accessibility
 
