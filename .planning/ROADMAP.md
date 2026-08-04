@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 20/21 | In Progress|  |
+| 15. Continued Background Downloads | 21/21 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 20/21 plans executed
+**Plans**: 21/21 plans executed
 
 Plans:
 **Wave 1**
@@ -897,7 +897,7 @@ Plans:
 
 **Wave 21** *(blocked on 15-20 — real code dependency: the cases assert the new ledger, and they extend the suite file 15-20 creates)*
 
-- [ ] 15-21-PLAN.md — Prove the retirement rule on every other departure path: pause and delete retire only finished pages, a resumed gallery is counted once, and the suite fails when the ledger's contribution is removed
+- [x] 15-21-PLAN.md — Prove the retirement rule on every other departure path: pause and delete retire only finished pages, a resumed gallery is counted once, and the suite fails when the ledger's contribution is removed
 
 ### Phase 16: Dynamic Type Accessibility
 
