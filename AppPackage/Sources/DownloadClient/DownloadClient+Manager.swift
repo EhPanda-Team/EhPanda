@@ -408,6 +408,29 @@ public actor DownloadCoordinator {
     public var continuedSessionNeedsReconciliation = false
     public var continuedSessionTask: Task<Void, Never>?
     public var lastPushedCompletedPageCount = 0
+    /// Pages this session finished for galleries that have since left the schedulable set.
+    ///
+    /// Added to both the numerator and the denominator of every later push, which is what stops a
+    /// completed gallery from taking its own pages out of both sides of the fraction at once. The
+    /// retirement rule itself (D-G2-01) is written down on
+    /// `reconcileRetiredSessionPages(finishedPages:)`, where it is implemented.
+    ///
+    /// Keyed by gallery rather than accumulated into a scalar, deliberately: a scalar could not be
+    /// corrected when a paused gallery is resumed back into the queue, and would then count that
+    /// gallery's finished pages twice — once in the ledger and once in the live sum.
+    ///
+    /// Session-scoped, like `lastPushedCompletedPageCount`: cleared when a session starts and when
+    /// one ends, so no ledger survives into the next session.
+    public var retiredSessionPages = [String: Int]()
+    /// The schedulable galleries the last snapshot counted, and how many pages each had finished at
+    /// that moment.
+    ///
+    /// The ledger above is derived from this by difference: a gallery recorded here and absent from
+    /// the next snapshot has departed. Observing membership at the point that already reads the
+    /// schedulable set covers every departure path by construction — completion settle, the
+    /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
+    /// pause-all — rather than only the paths someone remembered to instrument.
+    public var observedSchedulablePages = [String: Int]()
 
     public init(
         storage: DownloadStore,

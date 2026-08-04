@@ -5,8 +5,14 @@ import OSLogExt
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
-/// Everything one continued-processing session reports about the work it covers: page progress
-/// summed across every schedulable gallery, plus how many galleries that is.
+/// Everything one continued-processing session reports about the work it covers: one summed page
+/// fraction, plus how many galleries are still schedulable.
+///
+/// The fraction is not summed over the live schedulable set alone. A gallery leaving that set
+/// retires the pages it finished into the session's ledger, and `pushContinuedSessionProgress`
+/// adds that ledger to both sides of the pushed pair, so the pair keeps describing the whole queue
+/// the session covers rather than whatever happens to remain schedulable (D-G2-01, extending
+/// D-10). The gallery count is the remaining schedulable galleries and only those.
 ///
 /// A small named value rather than a pair of numbers, for two reasons. An unlabeled tuple type is
 /// banned at error severity here, and `DownloadProgress` already owns the clamping that stops a
@@ -24,20 +30,51 @@ public struct ContinuedSessionProgress: Equatable, Sendable {
     }
 }
 
+/// One read of the schedulable set: what it sums to, and who was in it.
+///
+/// A small named value for the same reason as above — an unlabeled tuple type is banned at error
+/// severity here — and one value rather than two calls because the ledger has to be reconciled
+/// against the very read whose sums it corrects. Reconciling against a second read would let a
+/// gallery be retired while the sums still counted it, or counted twice.
+public struct SchedulableSnapshot: Equatable, Sendable {
+    /// What the live schedulable set alone reports, before any retired pages are added to it.
+    public let sessionProgress: ContinuedSessionProgress
+    /// Finished pages per schedulable gallery, keyed by gallery identifier.
+    public let finishedPages: [String: Int]
+
+    public init(
+        sessionProgress: ContinuedSessionProgress,
+        finishedPages: [String: Int]
+    ) {
+        self.sessionProgress = sessionProgress
+        self.finishedPages = finishedPages
+    }
+}
+
 // MARK: - Continued Processing Session
 extension DownloadCoordinator {
-    /// Sums page progress across every gallery the scheduler would run, from a single index read.
+    /// Sums page progress across every gallery the scheduler would run, and reports which galleries
+    /// those were, from a single index read.
     ///
-    /// Both numbers come from one snapshot on purpose: mixing snapshots is what makes a reported
-    /// fraction jump around.
-    public func schedulableProgress() async -> ContinuedSessionProgress {
+    /// Every number here comes from one snapshot on purpose: mixing snapshots is what makes a
+    /// reported fraction jump around, and it would also let the retirement ledger disagree with the
+    /// sums it exists to correct.
+    public func schedulableSnapshot() async -> SchedulableSnapshot {
         let downloads = await schedulableDownloads()
-        return ContinuedSessionProgress(
-            progress: DownloadProgress(
-                completedPageCount: downloads.map(\.completedPageCount).reduce(0, +),
-                pageCount: downloads.map(\.pageCount).reduce(0, +)
+        return SchedulableSnapshot(
+            sessionProgress: ContinuedSessionProgress(
+                progress: DownloadProgress(
+                    completedPageCount: downloads.map(\.completedPageCount).reduce(0, +),
+                    pageCount: downloads.map(\.pageCount).reduce(0, +)
+                ),
+                galleryCount: downloads.count
             ),
-            galleryCount: downloads.count
+            // `reduce(into:)` rather than `Dictionary(uniqueKeysWithValues:)`, which traps on a
+            // duplicate key: the index's own deduplication would be the only thing between a
+            // duplicated gallery folder and a crash on the card's progress path.
+            finishedPages: downloads.reduce(into: [String: Int]()) { finished, download in
+                finished[download.gid] = download.completedPageCount
+            }
         )
     }
 
@@ -93,13 +130,15 @@ extension DownloadCoordinator {
         hasLiveContinuedSession = true
         continuedSessionID = sessionID
         lastPushedCompletedPageCount = 0
+        retiredSessionPages = [:]
+        observedSchedulablePages = [:]
 
-        let snapshot = await schedulableProgress()
+        let snapshot = await schedulableSnapshot()
         let clientSession = await backgroundProcessingClient.start(
             String(localized: .continuedSessionTitle),
-            continuedSessionSubtitle(for: snapshot),
-            Int64(snapshot.progress.displayCompletedPageCount),
-            Int64(snapshot.progress.displayPageCount)
+            continuedSessionSubtitle(for: snapshot.sessionProgress),
+            Int64(snapshot.sessionProgress.progress.displayCompletedPageCount),
+            Int64(snapshot.sessionProgress.progress.displayPageCount)
         )
         guard let clientSession else {
             // TERMINAL: refusal ends this coordinator session, and teardown clears its debt.
@@ -118,7 +157,10 @@ extension DownloadCoordinator {
             return
         }
         continuedClientSessionID = clientSession.id
-        lastPushedCompletedPageCount = snapshot.progress.displayCompletedPageCount
+        lastPushedCompletedPageCount = snapshot.sessionProgress.progress.displayCompletedPageCount
+        // Seeded after the ownership re-check, so a superseded start seeds no membership: the
+        // successor's own start snapshot is the only baseline its departures are measured against.
+        observedSchedulablePages = snapshot.finishedPages
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
@@ -192,6 +234,8 @@ extension DownloadCoordinator {
         hasLiveContinuedSession = false
         continuedSessionTask = nil
         lastPushedCompletedPageCount = 0
+        retiredSessionPages = [:]
+        observedSchedulablePages = [:]
     }
 
     /// Pauses every gallery the scheduler would run, one at a time, through the same primitive an
@@ -247,42 +291,125 @@ extension DownloadCoordinator {
         await pushContinuedSessionProgress(sessionID: sessionID)
     }
 
+    /// Folds galleries that have left the schedulable set into this session's retirement ledger.
+    ///
+    /// **D-G2-01: a gallery leaving retires exactly the pages it had already finished — added to
+    /// both the numerator and the denominator of every later push — and nothing more.** Its
+    /// unfinished pages leave the denominator with it. One formula covers completion, pause,
+    /// delete, the queued-work-item cancel and the expiration pause-all alike, for three reasons:
+    ///
+    /// 1. The denominator must describe work this session has done plus work it still intends to
+    ///    do. Pages of a paused or deleted gallery will never be done in this session, so keeping
+    ///    them would pin the card permanently below 1.0 — the mirror image of the defect this
+    ///    ledger fixes.
+    /// 2. Dropping the finished pages as well would rewind the numerator, which is the stall
+    ///    signal the scheduler reads.
+    /// 3. Symmetric retirement is the only rule under which the numerator never rewinds *and* the
+    ///    fraction reaches 1.0 exactly at queue drain. A completed gallery is that same rule with
+    ///    nothing left over — finished equals total — which is why no call site has to classify
+    ///    *why* a gallery left.
+    ///
+    /// Membership is swept here rather than hooked into `settleCompletedDownload` because galleries
+    /// leave through at least six paths, and instrumenting the one path a user happened to report
+    /// would leave the other five. Sweeping at the single point that already reads the schedulable
+    /// set covers every departure by construction, and covers a rejoining gallery too.
+    ///
+    /// One consequence looks like a leak and is not: a gallery that both joins and fully departs
+    /// between two pushes is never observed, so it enters neither the live sum nor the ledger. That
+    /// is correct rather than lossy — it was never part of the fraction, so its absence rewinds
+    /// nothing and double-counts nothing. The alternative, a ledger fed from every queue mutation
+    /// rather than from observed membership, would have to distinguish work this session actually
+    /// reported from work it never saw.
+    private func reconcileRetiredSessionPages(finishedPages: [String: Int]) async {
+        // A gallery that rejoined is counted by the live sum again, so leaving it retired would
+        // count its finished pages twice.
+        for gid in finishedPages.keys {
+            retiredSessionPages[gid] = nil
+        }
+        let departedGIDs = observedSchedulablePages.keys.filter({ finishedPages[$0] == nil })
+        if !departedGIDs.isEmpty {
+            // The record is authoritative where the last observation is merely recent: reading it
+            // is what makes a gallery that completed between two pushes retire its full page count.
+            let departedRecords = await indexedDownloads(gids: departedGIDs)
+                .reduce(into: [String: DownloadedGallery]()) { records, download in
+                    records[download.gid] = download
+                }
+            for gid in departedGIDs {
+                guard let record = departedRecords[gid] else {
+                    // Deleted outright: no record survives it, so the last observation is all the
+                    // evidence there is of what this session finished for it.
+                    retiredSessionPages[gid] = observedSchedulablePages[gid] ?? 0
+                    continue
+                }
+                retiredSessionPages[gid] = min(max(record.completedPageCount, 0), record.pageCount)
+            }
+        }
+        // Replacing the map is what makes each departure detected exactly once; a retired value is
+        // then frozen until that gallery rejoins the schedulable set.
+        observedSchedulablePages = finishedPages
+    }
+
     /// Pushes one snapshot's counts, and the subtitle built from it, to the card.
     ///
-    /// The monotonic clamp lives here rather than in the client because the client is
-    /// domain-agnostic: it cannot know that a total shrinking as a gallery leaves the queue is
-    /// legal and expected, while a completed count going backwards is not. The scheduler reads a
-    /// steadily advancing completed count as evidence the task is not stalled, and forcibly
-    /// expires the tasks that look most stalled first, so this is a liveness requirement rather
-    /// than cosmetics.
+    /// A gallery completing is the **ordinary** departure from the schedulable set rather than a
+    /// rare one: `settleCompletedDownload` removes every finished gallery from the queue store, and
+    /// its now-complete manifest fails `shouldSchedule` afterwards. Summing only the live set
+    /// therefore took a completed gallery's pages out of the numerator and the denominator at once,
+    /// and the two clamps below pinned the pair at a literal 100% card that could not advance again
+    /// until the survivors collectively re-earned those pages. The retirement ledger — not the
+    /// clamp — is what keeps the count rising across a gallery boundary, by putting those pages
+    /// back on both sides.
+    ///
+    /// The monotonic floor survives as residual defence only. With the accounting basis no longer
+    /// shrinking, the one movement it still catches is a genuine regression in a gallery's own
+    /// finished count — pages disappearing from disk between two flushes — which the scheduler
+    /// would read as a task losing ground, and it forcibly expires the tasks that look most stalled
+    /// first. It lives here rather than in the client because the client is domain-agnostic: it
+    /// cannot know which movements of these numbers are legal.
+    ///
+    /// The total clamp exists so the bar and the text can never describe different pairs. A reader
+    /// sees both at once, and a bar sitting at full beside text reading "0 / 4 pages" looks like a
+    /// defect however defensible each number is on its own.
+    ///
+    /// The live sums enter the arithmetic raw, and exactly one display clamp applies, at the end,
+    /// over the summed pair. Adding the retired total to an already-clamped denominator would be
+    /// the natural mistake and a wrong one: `displayPageCount` floors at one page, so an emptied
+    /// schedulable set would contribute a phantom page and no drained queue could ever report a
+    /// fraction of exactly one.
+    ///
+    /// Interleaving dispositions: the snapshot read and the retirement reconcile can both suspend,
+    /// so ownership is re-checked after each of them. The reconcile deliberately runs before the
+    /// client-identity guard — a departure during the start window must still be recorded even when
+    /// there is no card to paint yet, and the deferred reconcile after start then pushes counts
+    /// that already account for it.
     public func pushContinuedSessionProgress(sessionID: UUID) async {
         guard continuedSessionID == sessionID else { return }
-        let snapshot = await schedulableProgress()
+        let snapshot = await schedulableSnapshot()
+        guard continuedSessionID == sessionID else { return }
+        await reconcileRetiredSessionPages(finishedPages: snapshot.finishedPages)
         guard continuedSessionID == sessionID else { return }
         // Read the client identity only after the ownership re-check. Capturing it before the
         // suspending progress read could present a predecessor's id after a successor took over;
         // SKIPPED: nil means there is no card to paint yet. The deferred reconcile after start
         // re-reads schedulable work and pushes fresh counts, so this update is recovered.
         guard let clientSessionID = continuedClientSessionID else { return }
+        let liveProgress = snapshot.sessionProgress.progress
+        let retiredPageCount = retiredSessionPages.values.reduce(0, +)
+        let sessionProgress = DownloadProgress(
+            completedPageCount: liveProgress.completedPageCount + retiredPageCount,
+            pageCount: liveProgress.pageCount + retiredPageCount
+        )
         let completedPageCount = max(
             lastPushedCompletedPageCount,
-            snapshot.progress.displayCompletedPageCount
+            sessionProgress.displayCompletedPageCount
         )
         lastPushedCompletedPageCount = completedPageCount
-        // The counts the card renders as a bar and the counts it renders as text are built from
-        // this one value, not from the raw snapshot, because they are two views of the same fact
-        // and a reader can see both at once. They only differ from the snapshot in the rare queue
-        // shrink handled above — but that is exactly when a bar sitting at full while the text
-        // reads "0 / 4 pages" would look like a defect.
         let pushed = ContinuedSessionProgress(
             progress: DownloadProgress(
                 completedPageCount: completedPageCount,
-                // Held at or above the monotonic completed count, so the rare shrink that drops
-                // the summed total below pages this session has already finished still cannot
-                // report a fraction above one.
-                pageCount: max(snapshot.progress.displayPageCount, completedPageCount)
+                pageCount: max(sessionProgress.displayPageCount, completedPageCount)
             ),
-            galleryCount: snapshot.galleryCount
+            galleryCount: snapshot.sessionProgress.galleryCount
         )
         await backgroundProcessingClient.updateProgress(
             clientSessionID,
