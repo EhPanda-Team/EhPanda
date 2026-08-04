@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-04T08:12:52Z
+updated: 2026-08-04T08:35:00Z
 ---
 
 ## Current Test
@@ -140,5 +140,58 @@ blocked: 0
     subtitle still reads "1 gallery" after both galleries have completed, rather than describing
     zero remaining schedulable galleries.
   narrowed_from: G-15-2
-  artifacts: []  # Filled by diagnosis
-  missing: []    # Filled by diagnosis
+  root_cause: |
+    There is no terminal push. The subtitle can only be written by
+    `backgroundProcessingClient.updateProgress`, whose single call site is inside
+    `pushContinuedSessionProgress`, which has exactly two callers — the `hasPendingWork() == true`
+    branch of `reconcileContinuedSession`, and the throttled manifest flush inside a live page
+    loop. When the last gallery settles, `finishActiveTaskIfOwned` converges on
+    `scheduleNextIfNeeded`, whose tail reconciles the session; `hasPendingWork()` is now false, so
+    control takes the drain branch, which calls `markContinuedSessionEnded` and `finish` — and
+    `finish` carries no subtitle (it only reaches `setTaskCompleted(success:)`). The last string
+    the card ever receives is the one written by the `force: true` flush at the end of the final
+    gallery's page loop, taken while `activeGalleryID` still names that gallery. A gallery being
+    downloaded is always `.active` and therefore always schedulable, so that string always ends
+    "1 gallery".
+  diagnosis_verdict: |
+    Stale value from a MISSING terminal push — not a wrong count. Every value ever pushed is
+    correct for the instant it was taken, `galleryCount` comes straight from the snapshot's
+    `schedulableDownloads().count` and is never derived from a pre-removal or cached read, and a
+    `galleryCount == 0` push is structurally unreachable in production (it would need
+    `activeTask != nil` with an empty schedulable set, but `displayStatus(for:)` forces `.active`
+    whenever `activeGalleryID == gid` and `shouldSchedule` short-circuits `.active` to true).
+    The retirement ledger is NOT implicated: `reconcileRetiredSessionPages` touches only
+    `retiredSessionPages`/`observedSchedulablePages`, which feed numerator and denominator only.
+  coverage_gap: |
+    No test covers the terminal push, which is why this shipped green.
+    `DownloadContinuedSessionLedgerTests.swift:93` pins a drained
+    "20 / 20 pages · 0 galleries" but manufactures that fourth push by calling
+    `pushContinuedSessionProgress(sessionID:)` DIRECTLY after the last `settleCompletedDownload` —
+    a call the product never makes, because at that point `reconcileContinuedSession` takes the
+    drain branch. The three tests that do drive a real drain through production entry points
+    assert only `finishCount`/`finishSuccesses` and never inspect `spy.progressUpdates`; the two
+    production-path cases that do assert a subtitle (pause, delete) both stop one gallery short of
+    an empty queue. Contract-unfaithful test double, same failure mode as the earlier gap rounds.
+  artifacts:
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
+      issue: "277-289 — the drain branch of reconcileContinuedSession ends the session with no push. This is the defect. (385-420 pushContinuedSessionProgress is correct in itself, simply never invoked at drain.)"
+    - path: "AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift"
+      issue: "185-188, 250-272 — finish/endSession carry no subtitle (endSession(yielding: nil,) → setTaskCompleted only), confirming the last updateProgress is terminal"
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+PageDownload.swift"
+      issue: "61 — the force: true flush that writes the stale final string"
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+Persistence.swift"
+      issue: "97-99 — .active derivation that keeps the running gallery permanently in its own schedulable set, making a 0-gallery push structurally unreachable"
+    - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift"
+      issue: "93 — synthesizes the terminal push the product omits, by invoking pushContinuedSessionProgress directly"
+    - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift"
+      issue: "221-236, 263-279, 805-835 — the three real-drain tests, none asserting a subtitle"
+  missing:
+    - "Emit one final push in the drain branch of reconcileContinuedSession before ending the session. Order is load-bearing: it must sit AFTER the existing `continuedClientSessionID == nil` deferral (281-284) and BEFORE markContinuedSessionEnded, which clears continuedSessionID (failing the push's own ownership guard) and zeroes retiredSessionPages (the ledger the terminal fraction needs). With the ledger intact this yields \"N / N pages · 0 galleries\"."
+    - "Decide during planning whether a push immediately followed by setTaskCompleted actually repaints on device — a real empirical risk, since the card is system-rendered and has surprised this phase twice. If it does not repaint, the alternative is to change galleryCount's basis to the session's whole coverage so no stale value is possible — that is a documented-contract change, not a bug fix, and must be decided deliberately."
+    - "Assert the last recorded subtitle on a PRODUCTION-PATH drain — extend testDrainingTheQueueCompletesTheSessionWithSuccess and testCancellingTheLastQueuedWorkItemCompletesTheSession to inspect spy.progressUpdates.last. Do NOT add another directly-invoked push, or the same blind spot reopens."
+    - "No localization work needed: the string catalog already renders 0 correctly via the plural `other` category."
+  secondary_note: |
+    Non-blocking, but it constrains the fix choice: post-ledger the pushed pair mixes bases — the
+    fraction is session-cumulative while the count is live-only — so a mid-run read is e.g.
+    "16 / 20 pages · 1 gallery" where the 20 spans three galleries. Documented as deliberate.
+  debug_session: ".planning/debug/continued-session-subtitle-stuck-at-one-gallery.md"
