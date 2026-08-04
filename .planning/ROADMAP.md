@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 22/22 plans executed
+**Plans**: 24 plans — 22 executed, 2 pending (gap closure round 7)
 
 Plans:
 **Wave 1**
@@ -902,6 +902,14 @@ Plans:
 **Wave 22** *(gap closure round 6, UAT gap G-15-2B — blocked on 15-21 by file overlap in the continued-session suites and by xcodebuild serialization)*
 
 - [x] 15-22-PLAN.md — Emit one terminal progress push in the drain branch before the session ends, ordered after the client-session deferral and before the teardown, and replace the synthesized terminal pushes with production-path drains across every exit path
+
+**Wave 23** *(gap closure round 7, review gap G-15-3 — blocked on 15-22 by file overlap in the drain branch and its suites, and by xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-23-PLAN.md — Re-validate drain-ness (not just session identity) behind the terminal push's main-actor hop so a mid-hop mobilization can never lose the session, correct the doc comment that named the wrong suspension, make the client-seam spy suspend like the live seam, and sweep every teardown site against the invariant
+
+**Wave 24** *(gap closure round 7, review gap G-15-4 — blocked on 15-23 by file overlap in DownloadClient+ContinuedSession.swift and the continued-session suites, plus xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-24-PLAN.md — Count a complete-reading record as zero session pages until the session observes it doing real work, so a queued update/redownload can never open the card at its own ceiling; gate the retirement's record read on the same observed-incomplete trust set, and re-derive the one case whose literals encoded the defect
 
 ### Phase 16: Dynamic Type Accessibility
 
