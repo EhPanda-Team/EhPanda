@@ -579,6 +579,204 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
+
+    /// G-15-5 end to end, at the one missing page where the defect is deterministic.
+    ///
+    /// A `.repair` runs precisely because files are missing, yet before D-G5-01 the manifest went on
+    /// claiming every page: `shouldReuseWorkingFolder` returns `true` unconditionally for `.repair`
+    /// and `ensureWorkingManifest` returns the valid manifest verbatim. `isIncomplete` stayed false,
+    /// so D-G4-01's basis counted zero session pages for the whole run and the untrusted departure
+    /// retired zero — a terminal `0 / 1 page · 0 galleries` reported with a successful completion.
+    /// That is the maximally stalled reading D-11's expiration policy punishes by pausing every
+    /// schedulable download, so 15-24 traded a pinned-100% card for a pinned-zero one.
+    ///
+    /// K=1 is the case record honesty alone cannot rescue, which is why the run-start announcement
+    /// exists. Trust is admitted only inside a push's reconcile; the tap-time convergence push
+    /// snapshots before the spawned run prepares its seed, and the single completion flush restores
+    /// completeness before its own push. With one missing page there is no third push, so without
+    /// the announcement the incomplete window is real on disk and observed by nobody.
+    ///
+    /// Every record state here comes from the disk contract or a production write — the fixture's
+    /// complete manifest, the run's own preparation, the production flush — and every push is
+    /// production-issued: the opening is read off `start`, the mid-run pair is the announcement's
+    /// own, and the terminal is the drain's. The case owns only the macro-ordering production itself
+    /// guarantees: prepare, then flush, then settle.
+    @Test
+    func testARepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull() async throws {
+        let repair = SessionGallery(
+            gid: "210310",
+            title: "Repair",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [repair],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        try writePageFiles(for: repair, in: fixture, indices: [1, 2, 4, 5, 6])
+        await manager.reloadDownloadIndex()
+
+        // Grounded in the production route rather than asserted about it: the missingFiles branch is
+        // what turns a complete-reading record with a vanished file into a repair.
+        let staged = try #require(await manager.fetchDownload(gid: repair.gid))
+        #expect(staged.completedPageCount == 6)
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        try await manager.retryPages(gid: repair.gid, pageIndices: [3]).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        // The queued window still counts zero, which is D-G4-01's guarantee and not a regression:
+        // nothing has run yet, so the manifest's six pages are the redo's target.
+        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
+        )
+        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: repair),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        #expect(await manager.fetchDownload(gid: repair.gid)?.completedPageCount == 5)
+        // Asserted by presence rather than by position: a straggling convergence push may land on
+        // either side of the preparation, and both values it can carry are admitted by the series
+        // properties below.
+        #expect(spy.progressUpdates.map(\.subtitle).contains("5 / 6 pages · 1 gallery"))
+
+        let pageThreeRelativePath = fixture.storage.makePageRelativePath(
+            gid: repair.gid,
+            token: "token",
+            index: 3,
+            fileExtension: "jpg"
+        )
+        try Data("page-3".utf8).write(
+            to: folderURL.appendingPathComponent(pageThreeRelativePath),
+            options: .atomic
+        )
+        try await manager.flushManifestPageProgress(
+            folderURL: folderURL,
+            pages: [
+                DownloadCoordinator.PageResult(
+                    index: 3,
+                    relativePath: pageThreeRelativePath,
+                    imageURL: nil
+                )
+            ]
+        )
+
+        await manager.settleCompletedDownload(gid: repair.gid)
+        await manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 6)
+        #expect(terminalPair.totalUnitCount == 6)
+        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
+    }
+
+    /// WR-03 folded into the closure: an announcement landing inside the client-start main-actor hop
+    /// must survive the seeding that follows it.
+    ///
+    /// This interleaving is reachable on the canonical `retryPages` route, where the run is scheduled
+    /// before the trailing `ensureContinuedSession`. The announcement's push deliberately runs its
+    /// reconcile ahead of the nil-client guard, so it records membership and trust while there is no
+    /// card to paint — and the post-start seeding then *assigned* the pre-hop snapshot over both
+    /// collections. The pre-hop snapshot saw a still-complete record, so the trust the announcement
+    /// had just earned was discarded, and at one missing page that reproduced the pinned zero
+    /// exactly.
+    ///
+    /// The gate makes the ordering a fact rather than a race: the start parks inside the spy, the
+    /// production preparation runs against a coordinator whose session id is already stamped, and the
+    /// start is released only afterwards. Merging is what makes the drain read six of six here.
+    @Test
+    func testAnAnnouncementDuringTheClientStartHopSurvivesTheSeed() async throws {
+        let repair = SessionGallery(
+            gid: "210320",
+            title: "Interleaved",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [repair],
+            queuedGIDs: [repair.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        try writePageFiles(for: repair, in: fixture, indices: [1, 2, 4, 5, 6])
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: repair.gid))
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        let gate = spy.armStartGate()
+        defer { gate.release() }
+        let sessionStart = Task { await manager.ensureContinuedSession() }
+        await gate.entered()
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
+        )
+        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: repair),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        #expect(await manager.fetchDownload(gid: repair.gid)?.completedPageCount == 5)
+        // The announcement's push records its reconcile and then skips the card at the nil-client
+        // guard, so the held-open hop paints nothing. Trust exists only in coordinator state here,
+        // which is exactly why the seed's semantics decide the outcome.
+        #expect(spy.progressUpdates.isEmpty)
+
+        gate.release()
+        await sessionStart.value
+
+        let pageThreeRelativePath = fixture.storage.makePageRelativePath(
+            gid: repair.gid,
+            token: "token",
+            index: 3,
+            fileExtension: "jpg"
+        )
+        try Data("page-3".utf8).write(
+            to: folderURL.appendingPathComponent(pageThreeRelativePath),
+            options: .atomic
+        )
+        try await manager.flushManifestPageProgress(
+            folderURL: folderURL,
+            pages: [
+                DownloadCoordinator.PageResult(
+                    index: 3,
+                    relativePath: pageThreeRelativePath,
+                    imageURL: nil
+                )
+            ]
+        )
+
+        await manager.settleCompletedDownload(gid: repair.gid)
+        await manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 6)
+        #expect(terminalPair.totalUnitCount == 6)
+        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+    }
 }
 
 // MARK: - Helpers
@@ -617,6 +815,35 @@ private extension DownloadContinuedSessionLedgerTests {
                     completedPageCount: completedPageCount
                 )
             )
+        )
+    }
+
+    /// The payload a repair run carries for a fixture gallery, matching the folder the fixture
+    /// staged so the working-seed preparation resolves it.
+    ///
+    /// Modelled on `DownloadCoordinatorRepairSeedTests.makeRepairSeedPayload`, at the fixture's page
+    /// count and title rather than that suite's.
+    func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
+        DownloadRequestPayload(
+            gallery: Gallery(
+                gid: gallery.gid, token: "token", title: gallery.title,
+                rating: 4, tags: [], category: .doujinshi,
+                uploader: "Uploader", pageCount: gallery.pageCount, postedDate: .now,
+                coverURL: URL(string: "https://example.com/cover.jpg"),
+                galleryURL: URL(string: "https://e-hentai.org/g/\(gallery.gid)/token")
+            ),
+            galleryDetail: GalleryDetail(
+                gid: gallery.gid, title: gallery.title, jpnTitle: nil,
+                isFavorited: false, visibility: .yes,
+                rating: 4, userRating: 0, ratingCount: 1,
+                category: .doujinshi, language: .japanese,
+                uploader: "Uploader", postedDate: .now,
+                coverURL: URL(string: "https://example.com/cover.jpg"),
+                favoritedCount: 0, pageCount: gallery.pageCount,
+                sizeCount: 1, sizeType: "MB", torrentCount: 0
+            ),
+            previewURLs: [:], previewConfig: .normal(rows: 4),
+            host: .ehentai, folderName: "Folder", mode: .repair
         )
     }
 
