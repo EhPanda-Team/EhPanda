@@ -409,9 +409,9 @@ None — no external service configuration required.
 
 None — no placeholder values, empty data sources or TODO markers were introduced.
 
-## Self-Check
+## Self-Check: PASSED
 
-*(appended below)*
+All seven claimed files exist on disk; all three claimed commits (`06763885`, `7b0fa678`, `9a471321`) exist in the repository.
 
 ---
 *Phase: 15-continued-background-downloads*
