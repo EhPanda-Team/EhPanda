@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-23-PLAN.md
-last_updated: "2026-08-04T11:51:45.313Z"
+stopped_at: Completed 15-24-PLAN.md
+last_updated: "2026-08-04T12:22:34.562Z"
 last_activity: 2026-08-04
-last_activity_desc: "Completed 15-23 (G-15-3: drain-ness re-check behind the terminal push)"
+last_activity_desc: "Completed 15-24 (G-15-4: session basis for a queued redo)"
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 195
-  completed_plans: 194
-  percent: 81
+  completed_plans: 195
+  percent: 88
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 23 of 24
-Status: Executing Phase 15
-Last activity: 2026-08-04 — Completed 15-23 (G-15-3: drain-ness re-check behind the terminal push)
-Next: /gsd-execute-phase 15 — run gap-closure wave 24 (15-24, G-15-4; one xcodebuild invocation at a time), then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
+Plan: 24 of 24
+Status: All plans executed — awaiting verification
+Last activity: 2026-08-04 — Completed 15-24 (G-15-4: session basis for a queued redo)
+Next: /gsd-verify-work 15 — the physical-device checks in 15-UAT.md; test 2 now also covers a queued update no longer opening the card at 100%
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -250,6 +250,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P21 | 35 | 2 tasks | 1 files |
 | Phase 15 P22 | 35 | 2 tasks | 4 files |
 | Phase 15 P23 | 22min | 2 tasks | 3 files |
+| Phase 15 P24 | 35min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -609,6 +610,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-23: The drain-branch re-check guards drain-ness (hasPendingWork() == false), not session identity — identity provably cannot change inside the terminal push's main-actor hop, while drain-ness can.
 - [Phase ?]: 15-23: The client-seam test double must suspend wherever the live main-actor-confined value does; BackgroundProcessingClientSpy now yields on start/updateProgress/finish.
 - [Phase ?]: 15-23: One terminal-shaped progress push is accepted as a transient — the push's arguments are computed before the hop and re-checking ahead of the push cannot exist, because the push is the suspension.
+- [Phase ?]: 15-24: D-G4-01: a schedulable gallery's session-completed pages are its record's count only when the record reads incomplete or this session already observed it incomplete; otherwise zero
+- [Phase ?]: 15-24: The G-15-4 fix keys on the record and an earned trust set, not on queuedModes: mode-keying would mask mid-run progress and misses the bare re-enqueue route
+- [Phase ?]: 15-24: shouldSchedule is deliberately untouched: reordering its completeness check ahead of the work-item short-circuit would make every queued redo unschedulable
 
 ### Pending Todos
 
@@ -657,6 +661,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T11:51:45.302Z
-Stopped at: Completed 15-23-PLAN.md
+Last session: 2026-08-04T12:22:34.553Z
+Stopped at: Completed 15-24-PLAN.md
 Resume file: None
