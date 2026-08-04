@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-20-PLAN.md
-last_updated: "2026-08-04T06:54:50.641Z"
+status: verifying
+stopped_at: Completed 15-21-PLAN.md
+last_updated: "2026-08-04T07:24:13.129Z"
 last_activity: 2026-08-04
-last_activity_desc: Plan 15-20 complete — continued-session retirement ledger
+last_activity_desc: Plan 15-21 complete — departure-path coverage for the retirement ledger
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 192
-  completed_plans: 191
-  percent: 99
+  completed_plans: 192
+  percent: 88
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING
+Phase: 15 (continued-background-downloads) — READY FOR VERIFICATION
 Plan: 21 of 21
-Status: Executing Phase 15
-Last activity: 2026-08-04 — Plan 15-20 complete (continued-session retirement ledger)
-Next: execute 15-21-PLAN.md, then /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
+Status: Phase complete — ready for verification
+Last activity: 2026-08-04 — Plan 15-21 complete (departure-path coverage for the retirement ledger)
+Next: /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -247,6 +247,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P18 | 16min | 2 tasks | 10 files |
 | Phase 15 P19 | 28min | 3 tasks | 18 files |
 | Phase 15 P20 | 25 | 2 tasks | 4 files |
+| Phase 15 P21 | 35 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -598,6 +599,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-20: D-G2-01 — a gallery leaving the schedulable set retires exactly the pages it finished, added to both sides of the session fraction; one formula covers every departure path
 - [Phase 15]: 15-20: The retirement ledger is maintained by a push-time membership sweep, not a hook in settleCompletedDownload, so all six departure paths are covered by construction
 - [Phase 15]: 15-20: D-10 is extended (not reopened) — the pushed pair carries retired pages alongside live schedulable work; the user-visible contract is unchanged
+- [Phase 15]: 15-21: no production code changed — D-G2-01's single formula already covered pause, delete and rejoin, and every new case passed on its first run
+- [Phase 15]: 15-21: cases driving a real product primitive assert the last pushed update; cases asserting a whole pushed series use the deterministic queue-set seam
 
 ### Pending Todos
 
@@ -645,6 +648,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T06:54:38.395Z
-Stopped at: Completed 15-20-PLAN.md
+Last session: 2026-08-04T07:24:13.116Z
+Stopped at: Completed 15-21-PLAN.md
 Resume file: None
