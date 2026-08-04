@@ -1,0 +1,34 @@
+// Signing build configuration — COMMITTED, and identity-free by design.
+//
+// Both values below are empty on purpose. A contributor clone and a fork build with no
+// development team and the upstream bundle identifiers (`app.ehpanda`, and
+// `app.ehpanda.shareExtension` for the extension), so nothing here ties the checked-in project
+// to one developer's account. Signing identities are per-machine, so they never belong in a
+// tracked file.
+//
+// Two things supply the real values, and neither is committed:
+//
+//   * Local development — `Config/LocalSigning.xcconfig`, gitignored and optionally included at
+//     the bottom of this file. Order matters — a later assignment wins, so the empty defaults
+//     must come first and the optional include last. A personal team needs its own bundle
+//     identifiers, hence the suffix knob: set it and both targets shift together, which keeps a
+//     personal build installable alongside a release copy of the app.
+//   * Release CI — `.github/workflows/deploy.yml` and `deploy-pre-release.yml` archive with
+//     `CODE_SIGNING_ALLOWED=NO`, so no team is involved at all and the identifiers stay at the
+//     upstream defaults this file declares.
+//
+// This file is the project-level base configuration, which is the lowest-priority layer, so it
+// reaches every target — including ShareExtension, which carries no xcconfig of its own — while
+// still yielding to anything a target sets explicitly.
+
+// The Apple Developer team that signs local builds. Empty here; supplied by the local override.
+DEVELOPMENT_TEAM =
+
+// Inserted into every target's bundle identifier, right after the `app.ehpanda` prefix and
+// before any target-specific segment, so the extension stays nested under the app as code
+// signing requires. Include the leading dot (`.personal`, not `personal`).
+BUNDLE_ID_SUFFIX =
+
+// Optional include — the trailing `?` makes an absent file a silent no-op rather than an error,
+// which is what lets a clean clone build without a configuration-file warning.
+#include? "LocalSigning.xcconfig"
