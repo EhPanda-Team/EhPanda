@@ -73,6 +73,12 @@ final class RequestRecorder: Sendable {
 /// is held. A matching `finish` releases that identity, while `expire()` takes the continuation and
 /// releases the identity atomically before delivering the terminal event. The one-shot
 /// `refuseNextStart()` control remains available for explicit refusal coverage.
+///
+/// It also mirrors the live seam's *timing*: the live value is main-actor-confined, so every
+/// endpoint hops off the calling actor, and every one of the three closures below therefore yields
+/// at least once before it records. A double that is atomic where the seam suspends certifies
+/// reentrancy races as impossible, which is how a drain suite can be green against a tail that
+/// interleaves in production.
 final class BackgroundProcessingClientSpy: Sendable {
     /// One `updateProgress` call. A named record rather than a tuple: an unlabeled tuple type is
     /// banned at error severity here, and `.0`/`.1` reads carry no meaning at an assertion site.
@@ -248,6 +254,7 @@ final class BackgroundProcessingClientSpy: Sendable {
     var client: BackgroundProcessingClient {
         BackgroundProcessingClient(
             start: { title, subtitle, completedUnitCount, totalUnitCount in
+                await Task.yield()
                 let shouldRefuse = self.state.withLock {
                     $0.startCount += 1
                     $0.startTitles.append(title)
@@ -284,6 +291,7 @@ final class BackgroundProcessingClientSpy: Sendable {
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
             updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+                await Task.yield()
                 // The live store accepts progress only for the identity it still owns.
                 let update = ProgressUpdate(
                     sessionID: sessionID,
@@ -314,6 +322,7 @@ final class BackgroundProcessingClientSpy: Sendable {
                 }
             },
             finish: { sessionID, success in
+                await Task.yield()
                 // The live store records the request at this seam but releases only a matching ID.
                 let continuation: AsyncStream<BackgroundProcessingEvent>.Continuation? =
                     self.state.withLock {
