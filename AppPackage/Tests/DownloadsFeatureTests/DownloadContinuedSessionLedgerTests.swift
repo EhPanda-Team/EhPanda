@@ -14,8 +14,16 @@ import Testing
 ///
 /// A completion is staged the way the product does it — patch the gallery's record to a complete
 /// manifest through the same index seam a page flush uses, then call `settleCompletedDownload(gid:)`,
-/// which is what removes it from the queue store — and progress is pushed explicitly between steps,
-/// so the recorded update list is a fact about the arithmetic rather than about scheduling timing.
+/// which is what removes it from the queue store — and the *mid-queue* progress is pushed explicitly
+/// between steps, so the recorded update list is a fact about the arithmetic rather than about
+/// scheduling timing.
+///
+/// The *terminal* push is deliberately not taken that way. A directly invoked push after the last
+/// settle is a call the product never makes at a drain — control takes the drain branch of
+/// `reconcileContinuedSession` there — so pinning the drained value on one asserted nothing about
+/// what the card is actually left showing, which is precisely how G-15-2B shipped green twice. Each
+/// drain below therefore ends at `scheduleNextIfNeeded()`, the tail every queue mutation converges
+/// on, and asserts the value that tail produced.
 ///
 /// A pause and a delete are driven through the coordinator's own `pause(gid:)` and `delete(gid:)`
 /// instead, because those cases exist to prove the product's entry points reach the ledger. Both
@@ -90,7 +98,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
 
         await completeManifest(of: small, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: small.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.scheduleNextIfNeeded()
 
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [0, 10, 16, 20])
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [20, 20, 20, 20])
@@ -103,6 +111,11 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         let finalPair = try lastPushedPair(spy.progressUpdates)
         #expect(finalPair == Self.drainedPair)
+        // The drain completed the session exactly once, and every push it made was accepted while
+        // the session still owned the card. The rejected list is what fails if the terminal push
+        // is ever moved after the completion: the spy routes it there rather than dropping it.
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
     /// The same three sizes in a fresh fixture, finished smallest first.
@@ -136,13 +149,15 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
 
         await completeManifest(of: large, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: large.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.scheduleNextIfNeeded()
 
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [0, 4, 10, 20])
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [20, 20, 20, 20])
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         let finalPair = try lastPushedPair(spy.progressUpdates)
         #expect(finalPair == Self.drainedPair)
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
     /// The zero-denominator guard, inherited from `testEmptySchedulableSetStillPushesAPositiveTotal`
