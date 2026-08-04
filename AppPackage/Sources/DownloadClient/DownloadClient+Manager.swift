@@ -407,6 +407,27 @@ public actor DownloadCoordinator {
     /// is discharged and whenever the session it belongs to is torn down.
     public var continuedSessionNeedsReconciliation = false
     public var continuedSessionTask: Task<Void, Never>?
+    /// The monotonic floor under the numerator this session pushes to the card.
+    ///
+    /// Four writers, and no others: `ensureContinuedSession`'s synchronous reset to zero, that same
+    /// function's additive seed merge once the client start returns, the re-latch at the end of
+    /// every accepted push, and the **D-G6-01** withdrawal inside
+    /// `reconcileWorkingManifestAgainstPageFiles`, which gives back exactly the portion of a
+    /// coordinator-made basis correction the numerator was actually counting. The floor's own
+    /// premise (why a deliberate correction must be excused rather than masked) is written on
+    /// `pushContinuedSessionProgress`, and the withdrawal's exact-portion rule on the reconciliation
+    /// itself.
+    ///
+    /// One deliberate transient: inside the client start's main-actor hop this value can read
+    /// NEGATIVE. The reset has already run, so a withdrawal landing in that window leaves "zero
+    /// minus corrections the seed has not yet absorbed", and the seed's merge is what folds them
+    /// into the pre-hop snapshot. Elsewhere a negative value is inert — the push compares it
+    /// against a `displayCompletedPageCount` that is never negative. A reader finding a negative
+    /// value must not "fix" it by clamping the withdrawal: that silently re-opens the seed
+    /// overwrite, which is the second half of G-15-6.
+    ///
+    /// Session-scoped: cleared when a session starts and when one ends, so no floor survives into
+    /// the next session.
     public var lastPushedCompletedPageCount = 0
     /// Pages this session finished for galleries that have since left the schedulable set.
     ///

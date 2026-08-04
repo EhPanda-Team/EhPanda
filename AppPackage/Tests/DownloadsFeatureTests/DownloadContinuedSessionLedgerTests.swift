@@ -57,14 +57,6 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         subtitle: "6 / 10 pages · 1 gallery"
     )
 
-    /// Everything about a pushed update except the session identity it rode on, so two runs driven
-    /// by different sessions compare directly.
-    struct PushedPair: Equatable {
-        let completedUnitCount: Int64
-        let totalUnitCount: Int64
-        let subtitle: String
-    }
-
     /// The direct regression for the device-reported gap, at full size: three queued galleries, and
     /// the largest finishes first.
     ///
@@ -815,88 +807,6 @@ private extension DownloadContinuedSessionLedgerTests {
                     completedPageCount: completedPageCount
                 )
             )
-        )
-    }
-
-    /// The payload a repair run carries for a fixture gallery, matching the folder the fixture
-    /// staged so the working-seed preparation resolves it.
-    ///
-    /// Modelled on `DownloadCoordinatorRepairSeedTests.makeRepairSeedPayload`, at the fixture's page
-    /// count and title rather than that suite's.
-    func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
-        DownloadRequestPayload(
-            gallery: Gallery(
-                gid: gallery.gid, token: "token", title: gallery.title,
-                rating: 4, tags: [], category: .doujinshi,
-                uploader: "Uploader", pageCount: gallery.pageCount, postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: URL(string: "https://e-hentai.org/g/\(gallery.gid)/token")
-            ),
-            galleryDetail: GalleryDetail(
-                gid: gallery.gid, title: gallery.title, jpnTitle: nil,
-                isFavorited: false, visibility: .yes,
-                rating: 4, userRating: 0, ratingCount: 1,
-                category: .doujinshi, language: .japanese,
-                uploader: "Uploader", postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                favoritedCount: 0, pageCount: gallery.pageCount,
-                sizeCount: 1, sizeType: "MB", torrentCount: 0
-            ),
-            previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, folderName: "Folder", mode: .repair
-        )
-    }
-
-    /// Every push but the last is strictly below its own total, and the last is exactly equal.
-    ///
-    /// Written over the recorded list rather than as four hand-written comparisons, so a fifth push
-    /// appearing later cannot slip past it. The final pair being exactly `20 / 20` rather than
-    /// `20 / 21` is also this suite's half of the clamp-ordering canary: if the retired total is
-    /// ever added to a denominator `displayPageCount` has already floored at one page, every drain
-    /// comes out one page high. That is a wrong operand in the push, never a wrong expectation
-    /// here.
-    func expectTheFractionReachesOneOnlyAtTheDrain(
-        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
-    ) throws {
-        for update in updates.dropLast() {
-            #expect(update.completedUnitCount < update.totalUnitCount)
-        }
-        let drain = try #require(updates.last)
-        #expect(drain.completedUnitCount == drain.totalUnitCount)
-    }
-
-    /// The numerator never goes backwards, whatever else moved.
-    ///
-    /// Written over adjacent pairs rather than as a comparison of the first and last update: a
-    /// rewind that is later recovered is still a rewind, and it is exactly what the scheduler reads
-    /// as a task losing ground.
-    func expectTheCompletedSeriesNeverRewinds(
-        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
-    ) {
-        for (earlier, later) in zip(updates, updates.dropFirst()) {
-            #expect(earlier.completedUnitCount <= later.completedUnitCount)
-        }
-    }
-
-    func firstPushedPair(
-        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
-    ) throws -> PushedPair {
-        try pushedPair(#require(updates.first))
-    }
-
-    func lastPushedPair(
-        _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
-    ) throws -> PushedPair {
-        try pushedPair(#require(updates.last))
-    }
-
-    func pushedPair(
-        _ update: BackgroundProcessingClientSpy.ProgressUpdate
-    ) -> PushedPair {
-        PushedPair(
-            completedUnitCount: update.completedUnitCount,
-            totalUnitCount: update.totalUnitCount,
-            subtitle: update.subtitle
         )
     }
 }
