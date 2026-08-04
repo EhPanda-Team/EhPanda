@@ -520,11 +520,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         await fixture.manager.testingSetQueuedGalleryIDs([firstGID])
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
-        // The second gallery is already complete and leaves the queue mid-case, so its three
-        // finished pages retire to both sides: the total holds at eight while the count stands.
+        // The second gallery's record was complete before the session began, so its three pages are
+        // the redo's target rather than session work: it counts zero, and retires zero (D-G4-01).
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "4 / 8 pages · 2 galleries",
-            "4 / 8 pages · 1 gallery"
+            "1 / 8 pages · 2 galleries",
+            "1 / 5 pages · 1 gallery"
         ])
         for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
             #expect(!recorded.contains(firstTitle))
