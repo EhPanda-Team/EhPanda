@@ -5,7 +5,7 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-26-PLAN.md (G-15-6 closed)
+stopped_at: Completed 15-26-PLAN.md (G-15-6 closed); round-10 verification found gaps
 last_updated: "2026-08-04T17:34:58.980Z"
 last_activity: 2026-08-05
 last_activity_desc: executed 15-26 (G-15-6 closure), commits 0421700f + cabf5ff9
@@ -32,7 +32,7 @@ Phase: 15 (continued-background-downloads) — EXECUTING (26 of 26 plans execute
 Plan: 26 of 26 executed
 Status: Gap round 9 EXECUTED. 15-26 installed D-G6-01 — a coordinator-made basis correction withdraws its counted portion from the monotonic floor (`lastPushedCompletedPageCount`) in the same synchronous stretch that lowers the basis, inside `reconcileWorkingManifestAgainstPageFiles` so every route inherits it; exact-portion so an untrusted complete-reading record withdraws nothing (D-G4-01's ceiling guarantee intact, the whole 15-25 arc byte-identical); the session-start seed became `max(snapshot + floor, 0)` so a hop-window withdrawal survives it. All three open review warnings closed: WR-01 (`schedulableDownloads()` unions `activeGalleryID`, predicates untouched), WR-02 (`prepareWorkingSeed` private, so the silent-variant revert is a compile error), WR-03 (the `storage.validate` consequence documented at the code). Three new regressions in `DownloadContinuedSessionBasisTests`, all observed failing first with the pre-fix readings recorded verbatim. Full `FeatureTests` green in one invocation, 0 SwiftLint violations, trust set unchanged (7 sites before and after)
 Last activity: 2026-08-05 — executed 15-26 (G-15-6 closure), commits 0421700f + cabf5ff9
-Next: /gsd-verify-work 15 — re-verify G-15-6 closed in source. Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26; nothing in 15-26 discharges it, and it should now include a `.repair` gallery inside a multi-gallery queue plus a mid-queue pause of a reconciled gallery — the correction route this plan changed. The floor is no longer known-defective, so the device run can be scheduled
+Next: /gsd-plan-phase 15 --gaps — round-10 verification scored 2/4 and reopened SC1 and SC2. G-15-6 IS closed as written, but code review (15-REVIEW.md, CR-01) and verification both confirmed D-G6-01's invariant is stated too narrowly: the withdrawal is attached to the blanking LOOP, not to the basis MOVEMENT, and at least four deliberate downward movers exist. A `.redownload`/`.update` of a counted gallery drops its basis from C to 0 and withdraws nothing, so the floor keeps holding C. Six gaps transcribed into 15-VERIFICATION.md frontmatter (G-15-7..G-15-12; G-15-7 carries an explicit ALL-MOVERS SWEEP mandate — key the withdrawal on the pre/post `downloadIndex[gid]` delta rather than on any single site, since three prior rounds each closed one site and left its siblings). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26; nothing in 15-26 discharges it, and it must now cover the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue
 
 Progress: [██████████] 100% (14/16 phases)
 
