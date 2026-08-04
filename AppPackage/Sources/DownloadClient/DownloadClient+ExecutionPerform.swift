@@ -26,7 +26,7 @@ extension DownloadCoordinator {
         let workingFolderURL = storage.folderURL(
             relativePath: folderRelativePath
         )
-        let workingSeed = try prepareWorkingSeed(
+        let workingSeed = try await prepareWorkingSeedAnnouncingProgress(
             payload: payload,
             existingDownload: existingDownload,
             folderURL: workingFolderURL

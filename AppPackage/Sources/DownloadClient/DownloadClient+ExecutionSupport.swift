@@ -229,16 +229,114 @@ extension DownloadCoordinator {
             folderURL: folderURL,
             manifest: manifest
         )
+        let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
+            manifest: manifest,
+            existingPages: existingPages,
+            folderURL: folderURL
+        )
         let coverRelativePath = storage.existingCoverRelativePath(
             folderURL: folderURL,
-            manifest: manifest
+            manifest: reconciledManifest
         )
         return .init(
             folderURL: folderURL,
-            manifest: manifest,
+            manifest: reconciledManifest,
             existingPages: existingPages,
             coverRelativePath: coverRelativePath
         )
+    }
+
+    /// Prepares the working seed and then tells the live session what basis the run starts from.
+    ///
+    /// Record honesty alone does not reach the card. Session trust is admitted in exactly one
+    /// place — the `formUnion` inside a push's `reconcileRetiredSessionPages` — and no pre-existing
+    /// push is guaranteed to run while a repaired record reads incomplete. The tap-time convergence
+    /// push takes its snapshot before the spawned run can prepare its seed (the core spawns the task
+    /// and returns without suspending, and the reconcile's snapshot reads are same-actor), and the
+    /// flush push runs only after `flushManifestPageProgress` has written the repaired pages — so
+    /// whenever one flush batch carries every remaining missing page, which is always true for a
+    /// single missing page, completeness is restored before that push's snapshot is taken. The
+    /// incomplete window would then exist on disk and be observed by nobody, and the gallery would
+    /// finish a terminal `0 / N` card: the maximally stalled reading D-11's expiration policy
+    /// punishes by pausing every schedulable download (G-15-5).
+    ///
+    /// So the run announces its own post-preparation basis before any page work. The push's
+    /// reconcile records the observation even when the client start is still in flight, because that
+    /// reconcile deliberately runs ahead of the nil-client guard; `ensureContinuedSession`'s seed
+    /// merges rather than overwrites, so the recording survives the start's main-actor hop.
+    ///
+    /// The suspension this adds is named: the `updateProgress` main-actor hop to
+    /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
+    /// body, which is already reentrant at its payload fetch, cover download and source resolution
+    /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
+    /// inside that push. `prepareWorkingSeed` itself therefore stays synchronous.
+    public func prepareWorkingSeedAnnouncingProgress(
+        payload: DownloadRequestPayload,
+        existingDownload: DownloadedGallery,
+        folderURL: URL
+    ) async throws -> WorkingSeed {
+        let workingSeed = try prepareWorkingSeed(
+            payload: payload,
+            existingDownload: existingDownload,
+            folderURL: folderURL
+        )
+        if let continuedSessionID, !workingSeed.manifest.isComplete {
+            await pushContinuedSessionProgress(sessionID: continuedSessionID)
+        }
+        return workingSeed
+    }
+
+    /// Blanks the recorded hash of every page the working manifest claims but whose file is not in
+    /// the working folder, persisting and re-indexing the manifest only when something changed.
+    ///
+    /// **D-G5-01: a working manifest never claims a page whose file is not in the working folder.**
+    ///
+    /// It closes G-15-5. A `.repair` exists precisely because files are missing, yet nothing lowered
+    /// the record's finished-page count for them: `shouldReuseWorkingFolder` returns `true`
+    /// unconditionally for `.repair`, so the folder survives, and `ensureWorkingManifest` finds a
+    /// valid manifest and returns it verbatim. The record went on reading complete for the whole
+    /// run, `isIncomplete` stayed false, so D-G4-01's basis counted zero session pages for the
+    /// gallery from its first push to its untrusted departure, and the session finished a terminal
+    /// `0 / N pages · 0 galleries` card over real repair work. That is the maximally stalled reading
+    /// the scheduler force-expires first, and D-11 turns that expiration into a pause of every
+    /// schedulable download — so the lie costs liveness, not just honesty.
+    ///
+    /// This is the single point every start mode's run converges on, which is why one reconciliation
+    /// covers them all rather than patching the branch a report named. `.redownload` and `.update`
+    /// delete the working folder and arrive with a fresh all-empty manifest, and a fresh `.initial`
+    /// does too, so this is a no-op for them. The modes it does work for are the ones that reuse a
+    /// manifest they did not write: `.repair`, the `.initial` reuse of a matching complete manifest,
+    /// and the repair-seed materialization, which copies only the pages whose source files existed
+    /// and passed sanitization while copying the manifest whole.
+    ///
+    /// Deliberate consequence, recorded because it looks like a regression and is not: an
+    /// interrupted repair's record now honestly reads incomplete, so its `displayStatus` is
+    /// `.inactive` rather than `.completed`. `resumeMode`'s incomplete-inactive branch resolves
+    /// `.repair` for it exactly as its missingFiles branch did before, so no route is lost — the
+    /// files really are missing, and the record finally says so.
+    ///
+    /// No suspension is introduced: `existingPages` is the dictionary `prepareWorkingSeed` already
+    /// read, so no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are
+    /// same-actor synchronous calls.
+    private func reconcileWorkingManifestAgainstPageFiles(
+        manifest: DownloadManifest,
+        existingPages: [Int: String],
+        folderURL: URL
+    ) throws -> DownloadManifest {
+        var pages = manifest.pages
+        var didBlankAnyPage = false
+        for page in manifest.pages.keys.sorted() {
+            guard pages[page]?.isEmpty == false, existingPages[page] == nil else { continue }
+            pages[page] = ""
+            didBlankAnyPage = true
+        }
+        guard didBlankAnyPage else { return manifest }
+
+        var reconciledManifest = manifest
+        reconciledManifest.pages = pages
+        try storage.writeManifest(reconciledManifest, folderURL: folderURL)
+        updateDownloadIndex(folderURL: folderURL, manifest: reconciledManifest)
+        return reconciledManifest
     }
 
     // The disk index drops manifest-less folders and progress flushes skip
