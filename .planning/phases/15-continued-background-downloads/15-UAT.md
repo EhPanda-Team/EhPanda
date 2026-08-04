@@ -1,19 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-07-29T03:54:41Z
+updated: 2026-08-04T05:52:32Z
 ---
 
 ## Current Test
 
-number: 1
-name: Backgrounded queue outlasts the old grace window
-expected: |
-  Pages keep landing while backgrounded, well past the old grace window; no page lost
-  or duplicated.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -25,7 +20,7 @@ persisted page counts against the queue.
 expected: Pages keep landing while backgrounded, well past the old grace window; no page lost or duplicated.
 why_human: The simulator neither grants continued-processing tasks nor suspends the process as a device does.
 covers: SC1
-result: [pending]
+result: pass
 
 ### 2. System progress card renders real progress and its cancel matches the in-app pause baseline
 
@@ -35,7 +30,10 @@ expected: One neutral card with real, monotonically advancing counts; card-cance
 in-app per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: [pending]
+result: issue
+reported: "pass but please note the following issue: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
+severity: major
+note: "Card rendering (one neutral card, monotonically advancing counts) and card-cancel parity with the in-app pause baseline were observed to match; the defect is the session ending early on first-gallery completion."
 
 ### 3. Refusal, indefinite queuing, expiration and process death lose no work and show no error
 
@@ -44,7 +42,8 @@ mid-session and relaunch.
 expected: No crash, no visible error, no duplicated or lost pages, and persisted work resuming on foreground.
 why_human: Real scheduler decisions and process death are not reproducible in unit tests.
 covers: SC3
-result: [pending]
+result: pass
+note: "Duplicate pages are structurally precluded by index-keyed page filenames; lost pages were checked via the inspector's per-page status and its hash-verifying Validate action."
 
 ### 4. Collected diagnostics carry no gallery title and no unmasked identifier
 
@@ -55,15 +54,24 @@ collected diagnostics.
 why_human: The invariant suite proves the source spellings; only a real collected archive proves
 what the system actually persists.
 covers: Privacy gate (gap C closure)
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 4
-passed: 0
-issues: 0
-pending: 4
+passed: 3
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- gap_id: G-15-2
+  truth: "One queue-wide continued-processing session stays alive until the whole queue drains; its subtitle keeps describing the remaining galleries, not just one."
+  status: failed
+  reason: "User reported: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
+  severity: major
+  test: 2
+  artifacts: []
+  missing: []
