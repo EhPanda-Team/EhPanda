@@ -315,6 +315,54 @@ extension DownloadCoordinator {
     /// `.repair` for it exactly as its missingFiles branch did before, so no route is lost — the
     /// files really are missing, and the record finally says so.
     ///
+    /// The same movement reaches `storage.validate`, and that consequence was considered rather
+    /// than missed. `validatePage` (`DownloadStore+Operations.swift`) returns nil for an empty
+    /// expected hash — nothing claimed, nothing to check — so a blanked page that previously
+    /// produced `.missingFiles` now leaves the record reporting `.valid`. Two consumers see it:
+    /// `validateImageData(gid:)`, the inspector's user-initiated integrity check, and
+    /// `loadManifest(gid:)`, whose missingFiles gate decides whether the offline reader opens the
+    /// gallery or falls back to remote. Both answer differently for an interrupted repair, and
+    /// that is correct rather than lost coverage: the manifest genuinely no longer claims those
+    /// pages, which is the exact state an interrupted `.initial` download has always presented,
+    /// and mode resolution still reaches `.repair` through `isIncomplete` so the missing pages are
+    /// still fetched. Validation reports what the record claims; it is not a second source of
+    /// truth about what the gallery ought to contain.
+    ///
+    /// **D-G6-01: a coordinator-made basis correction withdraws its counted portion from the
+    /// monotonic floor in the same synchronous stretch that lowers the basis.** The floor masks
+    /// only movements the coordinator did not deliberately make.
+    ///
+    /// It closes G-15-6, which this reconciliation itself introduced. `lastPushedCompletedPageCount`
+    /// is a single scalar over the whole-queue SUMMED numerator, and its correctness argument
+    /// assumed the accounting basis could only rise. This is the first mechanism in the phase that
+    /// deliberately LOWERS an already-counted gallery's record mid-session, and the floor cannot
+    /// tell that correction from the disk regression it was built to mask — so it absorbed the
+    /// credit, and real work by ANY gallery stayed invisible until the summed numerator climbed
+    /// back over the pre-correction total. A card whose numerator does not advance while work
+    /// proceeds is the maximally stalled reading the scheduler force-expires first, and D-11 turns
+    /// that expiration into a pause of every schedulable download: the same liveness family as
+    /// G-15-5, one round later.
+    ///
+    /// The withdrawal is exact-portion, and that is D-G4-01's ceiling guarantee rather than a
+    /// refinement of it. Only a record the basis was actually counting withdraws: one that read
+    /// incomplete before the blanking, or whose gid this session has already observed incomplete.
+    /// An untrusted complete-reading record contributed zero to the numerator and to the floor, so
+    /// it withdraws zero — withdrawing there would push the floor below other galleries'
+    /// legitimately pushed work and weaken the mask for all of them.
+    ///
+    /// The subtraction is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
+    /// main-actor hop the scalar has just been reset to zero, so a correction landing there drives
+    /// it negative — "zero minus corrections the seed has not yet absorbed" — which is exactly what
+    /// that seed's additive merge folds into the pre-hop snapshot. Outside the hop a negative floor
+    /// is inert, because the push's `max()` compares it against a `displayCompletedPageCount` that
+    /// is never negative.
+    ///
+    /// Placing it here rather than in the announcing wrapper is what makes the pairing structural:
+    /// whoever blanks, withdraws, so every route that converges on `prepareWorkingSeed` inherits it
+    /// by construction. It is also what makes the correction atomic. No suspension exists between
+    /// the blanking, the manifest write, the index update and the floor write, so no interleaved
+    /// push can observe the lowered basis under an un-lowered floor or the reverse.
+    ///
     /// No suspension is introduced: `existingPages` is the dictionary `prepareWorkingSeed` already
     /// read, so no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are
     /// same-actor synchronous calls.
@@ -324,18 +372,25 @@ extension DownloadCoordinator {
         folderURL: URL
     ) throws -> DownloadManifest {
         var pages = manifest.pages
-        var didBlankAnyPage = false
+        var blankedPageCount = 0
         for page in manifest.pages.keys.sorted() {
             guard pages[page]?.isEmpty == false, existingPages[page] == nil else { continue }
             pages[page] = ""
-            didBlankAnyPage = true
+            blankedPageCount += 1
         }
-        guard didBlankAnyPage else { return manifest }
+        guard blankedPageCount > 0 else { return manifest }
 
         var reconciledManifest = manifest
         reconciledManifest.pages = pages
         try storage.writeManifest(reconciledManifest, folderURL: folderURL)
         updateDownloadIndex(folderURL: folderURL, manifest: reconciledManifest)
+        // D-G6-01, read off the PRE-blanking manifest: the basis was counting this record only if
+        // it already read incomplete, or if this session had already watched it doing work.
+        let wasCountedBasis = manifest.completedPageCount < manifest.pageCount
+            || observedIncompleteSessionGIDs.contains(manifest.gid)
+        if continuedSessionID != nil, wasCountedBasis {
+            lastPushedCompletedPageCount -= blankedPageCount
+        }
         return reconciledManifest
     }
 

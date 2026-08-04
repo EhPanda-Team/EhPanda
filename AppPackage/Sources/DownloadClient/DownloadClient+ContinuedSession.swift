@@ -223,7 +223,20 @@ extension DownloadCoordinator {
             return
         }
         continuedClientSessionID = clientSession.id
-        lastPushedCompletedPageCount = snapshot.sessionProgress.progress.displayCompletedPageCount
+        // Merged rather than assigned, for the reason the two collections below give, reaching the
+        // scalar through a different writer. A D-G6-01 withdrawal landing inside the client start's
+        // main-actor hop is a real correction made by THIS session's own scheduled run, and it
+        // outranks the pre-hop snapshot, which still counted the pages that correction just blanked.
+        // The withdrawal is the scalar's ONLY writer inside that window — a start-window push
+        // returns at the nil-client guard before it reaches its floor update — so the value here is
+        // zero minus any hop-window corrections, and adding it folds them in instead of discarding
+        // them. The clamp at zero is what keeps a correction for work the snapshot never counted
+        // from over-withdrawing: it may only under-seed, which is the safe direction, because a
+        // floor seeded low re-latches at the very next push while a floor seeded high is the defect.
+        lastPushedCompletedPageCount = max(
+            snapshot.sessionProgress.progress.displayCompletedPageCount + lastPushedCompletedPageCount,
+            0
+        )
         // Merged rather than assigned, because a push landing inside the client start's main-actor
         // hop is a real observation by THIS session and outranks the pre-hop snapshot. That push's
         // reconcile deliberately runs ahead of the nil-client guard, so it records membership and
@@ -521,12 +534,18 @@ extension DownloadCoordinator {
     /// clamp — is what keeps the count rising across a gallery boundary, by putting those pages
     /// back on both sides.
     ///
-    /// The monotonic floor survives as residual defence only. With the accounting basis no longer
-    /// shrinking, the one movement it still catches is a genuine regression in a gallery's own
-    /// finished count — pages disappearing from disk between two flushes — which the scheduler
-    /// would read as a task losing ground, and it forcibly expires the tasks that look most stalled
-    /// first. It lives here rather than in the client because the client is domain-agnostic: it
-    /// cannot know which movements of these numbers are legal.
+    /// The monotonic floor survives as residual defence only. The accounting basis has exactly one
+    /// deliberate downward mover — D-G5-01's `reconcileWorkingManifestAgainstPageFiles` — and
+    /// **D-G6-01** withdraws that correction's counted portion from the floor at the correction
+    /// site (`DownloadClient+ExecutionSupport.swift`), in the same synchronous stretch that lowers
+    /// the basis. So the one movement this floor still catches is a genuine regression in a
+    /// gallery's own finished count with no coordinator correction behind it — pages disappearing
+    /// from disk between two flushes — which the scheduler would read as a task losing ground, and
+    /// it forcibly expires the tasks that look most stalled first. Masking a movement the
+    /// coordinator itself made is the defect G-15-6 was: the credit for every later page of real
+    /// work is absorbed until the summed numerator climbs back over the pre-correction total. It
+    /// lives here rather than in the client because the client is domain-agnostic: it cannot know
+    /// which movements of these numbers are legal.
     ///
     /// The total clamp exists so the bar and the text can never describe different pairs. A reader
     /// sees both at once, and a bar sitting at full beside text reading "0 / 4 pages" looks like a
