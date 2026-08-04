@@ -1,14 +1,20 @@
 ---
-status: diagnosed
+status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-04T05:52:32Z
+updated: 2026-08-04T07:40:00Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 2
+name: System progress card renders real progress and its cancel matches the in-app pause baseline
+expected: |
+  One neutral card whose counts keep advancing past the first gallery's completion, whose subtitle
+  keeps naming the remaining galleries, and which still reaches completion after a mid-queue pause.
+  Card-cancel state still matches the in-app per-gallery pause baseline.
+awaiting: user response
 
 ## Tests
 
@@ -30,10 +36,22 @@ expected: One neutral card with real, monotonically advancing counts; card-cance
 in-app per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: issue
-reported: "pass but please note the following issue: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
-severity: major
-note: "Card rendering (one neutral card, monotonically advancing counts) and card-cancel parity with the in-app pause baseline were observed to match; the defect is the session ending early on first-gallery completion."
+result: pending
+retest_reason: |
+  G-15-2's fix landed in plans 15-20 and 15-21 (commits 425b5a8b, 925669bf, b76c310c, 00bfd9ad).
+  The accounting basis was replaced with a session-scoped retirement ledger, so this item needs a
+  fresh device run. Deterministic in tests; the card itself is system-rendered and has already
+  surprised this phase once, so 15-VERIFICATION.md holds SC2 at present-behavior-unverified until
+  a device confirms it.
+retest_steps: |
+  Queue several galleries, background the app, and watch the card across the first gallery's
+  completion (counts must keep advancing, subtitle must keep naming the remaining galleries),
+  then pause one gallery mid-queue and confirm the card can still reach completion. Finally
+  cancel from the card and compare against the in-app per-gallery pause baseline.
+prior_result: issue
+prior_reported: "pass but please note the following issue: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
+prior_severity: major
+note: "Card rendering (one neutral card, monotonically advancing counts) and card-cancel parity with the in-app pause baseline were observed to match on the first run; the defect was the session ending early on first-gallery completion."
 
 ### 3. Refusal, indefinite queuing, expiration and process death lose no work and show no error
 
@@ -60,8 +78,8 @@ result: pass
 
 total: 4
 passed: 3
-issues: 1
-pending: 0
+issues: 0
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -69,7 +87,19 @@ blocked: 0
 
 - gap_id: G-15-2
   truth: "One queue-wide continued-processing session stays alive until the whole queue drains; its subtitle keeps describing the remaining galleries, not just one."
-  status: failed
+  status: fix_landed_awaiting_retest
+  fix_plans: [15-20, 15-21]
+  fix_commits: [425b5a8b, 925669bf, b76c310c, 00bfd9ad]
+  fix_note: |
+    All five `missing[]` items below are addressed in code and covered by tests. The fix is a
+    cumulative session-scoped retirement ledger (`retiredSessionPages` +
+    `reconcileRetiredSessionPages`), applied as a push-time membership sweep at the single point
+    that already reads the schedulable set — so completion, pause, delete, cancel and a scheduling
+    block all retire through one formula with no departure-reason branch in production code.
+    The three defect-encoding test expectations were rewritten, not supplemented. Removing the
+    ledger's contribution was observed to fail 8 cases, so the coverage is not vacuous.
+    NOT marked `resolved`: the fix has never been re-observed on a physical device, and the card
+    is system-rendered. Test 2 above is the confirming run.
   reason: "User reported: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
   severity: major
   test: 2
