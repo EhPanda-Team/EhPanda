@@ -272,6 +272,28 @@ extension DownloadCoordinator {
     /// The id is bound before the schedulable-work read and re-checked after it because that read
     /// suspends: a reconcile that crosses a session transition there must neither clear the
     /// successor's state nor finish the successor's client-side stream.
+    ///
+    /// **D-G2B-01: the drain branch emits exactly one progress push, positioned after the
+    /// `continuedClientSessionID` deferral and before `markContinuedSessionEnded`.** Completion
+    /// carries no subtitle — it reaches `setTaskCompleted` and nothing else — so without that push
+    /// the last string the card holds is the final gallery's forced flush, taken while that gallery
+    /// was still downloading and therefore still inside its own schedulable set. That string always
+    /// names one remaining gallery, whatever the queue actually did afterwards.
+    ///
+    /// The position is the whole fix, because the same call a few lines later compiles, ships and
+    /// does nothing. After `markContinuedSessionEnded` it is rejected twice over: that teardown
+    /// clears `continuedSessionID`, which fails the push's own ownership guard, *and* it zeroes
+    /// `retiredSessionPages`, so even a push that got through would report a bare live sum. After
+    /// the completion the store has released the task, and `updateProgress` returns at its own
+    /// identity guard with nothing left to paint.
+    ///
+    /// The terminal fraction is honest arithmetic rather than a special case. The retirement ledger
+    /// already holds every page this session finished, so a drained queue sums to N of N with no
+    /// gallery remaining, and no new arithmetic is introduced here.
+    ///
+    /// The push suspends — an index read plus the ledger's record read — where this branch's tail
+    /// was previously suspension-free, so ownership is re-checked behind it exactly as it is after
+    /// every other suspension in this file.
     public func reconcileContinuedSession() async {
         guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
@@ -282,6 +304,10 @@ extension DownloadCoordinator {
                 continuedSessionNeedsReconciliation = true
                 return
             }
+            // D-G2B-01: the card's last word, taken while this session still owns it.
+            await pushContinuedSessionProgress(sessionID: sessionID)
+            guard continuedSessionID == sessionID else { return }
+            logger.notice("Continued-processing session drained, terminal progress pushed.")
             // Ended first: completion is the last thing this session does, and the client's
             // stream finishing behind it must find no state left to clear.
             markContinuedSessionEnded(sessionID: sessionID)
