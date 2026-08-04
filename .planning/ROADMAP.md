@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 23/24 | In Progress|  |
+| 15. Continued Background Downloads | 24/24 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 23/24 plans executed
+**Plans**: 24/24 plans executed
 
 Plans:
 **Wave 1**
@@ -909,7 +909,7 @@ Plans:
 
 **Wave 24** *(gap closure round 7, review gap G-15-4 — blocked on 15-23 by file overlap in DownloadClient+ContinuedSession.swift and the continued-session suites, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-24-PLAN.md — Count a complete-reading record as zero session pages until the session observes it doing real work, so a queued update/redownload can never open the card at its own ceiling; gate the retirement's record read on the same observed-incomplete trust set, and re-derive the one case whose literals encoded the defect
+- [x] 15-24-PLAN.md — Count a complete-reading record as zero session pages until the session observes it doing real work, so a queued update/redownload can never open the card at its own ceiling; gate the retirement's record read on the same observed-incomplete trust set, and re-derive the one case whose literals encoded the defect
 
 ### Phase 16: Dynamic Type Accessibility
 
