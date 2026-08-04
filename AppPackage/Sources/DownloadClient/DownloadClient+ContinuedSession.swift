@@ -87,6 +87,25 @@ extension DownloadCoordinator {
     /// different door, and one the scheduler reads as a stalled task before it force-expires the
     /// least-progressing ones. Those pages are the redo's *target*, not work this session did.
     ///
+    /// **How long the zero branch actually covers each of those routes, re-derived.** The list above
+    /// says which taps make a complete-reading gallery schedulable; it does not say the zero lasts.
+    /// For every one of them the zero covers only the window between the qualifying tap and the
+    /// run's own working-seed preparation. An update or a redownload deletes the working folder and
+    /// prepares a fresh all-empty manifest; a repair keeps its folder, and **D-G5-01**
+    /// (`reconcileWorkingManifestAgainstPageFiles`, `DownloadClient+ExecutionSupport.swift`) blanks
+    /// the hash of every page whose file is gone, which is what a repair exists for — so its record
+    /// reads incomplete from that moment too, and the raw-counting half takes over. Reading the list
+    /// as a claim that a repair is *handled by counting zero* is what G-15-5 was: without D-G5-01
+    /// the repair's zero never ended, and the session finished a terminal `0 / N` card over real
+    /// work.
+    ///
+    /// Honesty is necessary but not sufficient, because trust is admitted only inside a push's
+    /// reconcile. The run therefore announces its post-preparation basis before any page work
+    /// (`prepareWorkingSeedAnnouncingProgress`), which makes the observation independent of flush
+    /// cadence — deterministically so where one flush batch would otherwise carry every missing page
+    /// and restore completeness before its own push — and `ensureContinuedSession`'s merged seed is
+    /// what keeps that observation when it lands inside the client start's main-actor hop.
+    ///
     /// Each half of the predicate earns its place:
     /// - The record's own incompleteness is the common case, and it is what stops mid-run progress
     ///   from ever being masked: the instant a redo's own manifest writes make the record
@@ -205,12 +224,25 @@ extension DownloadCoordinator {
         }
         continuedClientSessionID = clientSession.id
         lastPushedCompletedPageCount = snapshot.sessionProgress.progress.displayCompletedPageCount
-        // Seeded after the ownership re-check, so a superseded start seeds no membership: the
-        // successor's own start snapshot is the only baseline its departures are measured against.
-        observedSchedulablePages = snapshot.finishedPages
-        // Seeded beside the membership and under the same rule: a superseded start grants no trust
-        // either, so only the successor's own start snapshot can say what it opened watching.
-        observedIncompleteSessionGIDs = snapshot.incompleteGalleryIDs
+        // Merged rather than assigned, because a push landing inside the client start's main-actor
+        // hop is a real observation by THIS session and outranks the pre-hop snapshot. That push's
+        // reconcile deliberately runs ahead of the nil-client guard, so it records membership and
+        // trust while there is still no card to paint; assigning the pre-hop snapshot over it
+        // discarded exactly that. On the canonical `retryPages` route the run is scheduled before
+        // this trailing ensure, so the run-start announcement (D-G5-01) can land precisely here —
+        // and with the old assignment a single-missing-page repair lost the trust it had just
+        // earned and finished a pinned-zero card in that interleaving.
+        //
+        // The seeding's position still carries the superseded-start rule, and merging cannot weaken
+        // it: "a superseded start seeds nothing" is enforced by the ownership guard above, which a
+        // superseded start never passes, and both collections were cleared by this session's own
+        // synchronous reset — so anything present at seed time is this session's own identity-gated
+        // observation, never a predecessor's.
+        observedSchedulablePages.merge(
+            snapshot.finishedPages,
+            uniquingKeysWith: { observed, _ in observed }
+        )
+        observedIncompleteSessionGIDs.formUnion(snapshot.incompleteGalleryIDs)
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
