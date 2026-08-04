@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Gap round 8 planned — 15-25 ready to execute
-last_updated: "2026-08-04T14:42:39.346Z"
-last_activity: 2026-08-04
-last_activity_desc: Gap round 8 planned — 15-25 (G-15-5 closure, D-G5-01 + announcement + WR-03 seed merge) passed the plan checker after 2 revisions
+stopped_at: Completed 15-25-PLAN.md — G-15-5 closed
+last_updated: "2026-08-04T15:24:12.620Z"
+last_activity: 2026-08-05
+last_activity_desc: Plan 15-25 executed — G-15-5 closed (D-G5-01 reconciliation + run-start announcement + WR-03 seed merge); full DownloadsFeatureTests green
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 196
-  completed_plans: 195
+  completed_plans: 196
   percent: 88
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 24 of 25 executed (15-25 planned, checker-verified)
-Status: Gap round 8 planned — 15-25 closes G-15-5 (manifest reconciliation in prepareWorkingSeed + production-guaranteed announcement push + WR-03 seed merge folded in); passed gsd-plan-checker after 2 revision iterations
-Last activity: 2026-08-04 — Planned 15-25; checker confirmed the K=1 pinned-zero hole and the start-window interleaving are both closed, D-G4-01 ceiling guarantee preserved
-Next: /gsd-execute-phase 15 — run plan 15-25. Then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
+Phase: 15 (continued-background-downloads) — EXECUTING (all 25 plans executed; human UAT gate open)
+Plan: 25 of 25 executed
+Status: Gap round 8 closed — 15-25 landed D-G5-01, the run-start announcement, and the WR-03 seed merge; both pinned-zero readings observed by recorded revert and the full DownloadsFeatureTests plan is green (323 tests, 62 suites)
+Last activity: 2026-08-05 — plan 15-25 executed (G-15-5 closed)
+Next: /gsd-verify-work 15 — 15-UAT.md test 2 remains a physical-device re-run on iOS 26 hardware, now also the observational check that a repair's card climbs instead of pinning at zero
 
 Progress: [██████████] 100% (14/16 phases)
 
@@ -251,6 +251,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P22 | 35 | 2 tasks | 4 files |
 | Phase 15 P23 | 22min | 2 tasks | 3 files |
 | Phase 15 P24 | 35min | 2 tasks | 4 files |
+| Phase 15 P25 | 45min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -613,6 +614,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-24: D-G4-01: a schedulable gallery's session-completed pages are its record's count only when the record reads incomplete or this session already observed it incomplete; otherwise zero
 - [Phase ?]: 15-24: The G-15-4 fix keys on the record and an earned trust set, not on queuedModes: mode-keying would mask mid-run progress and misses the bare re-enqueue route
 - [Phase ?]: 15-24: shouldSchedule is deliberately untouched: reordering its completeness check ahead of the work-item short-circuit would make every queued redo unschedulable
+- [Phase 15]: 15-25: D-G5-01 — the working manifest never claims a page whose file is absent; reconciled inside prepareWorkingSeed, the one point every start mode's run converges on, so .repair, the .initial reuse and the repair-seed materialization are covered by one rule.
+- [Phase 15]: 15-25: Record honesty alone is not observable — the run announces its post-preparation basis through prepareWorkingSeedAnnouncingProgress before any page work, because trust is admitted only inside a push's reconcile and no pre-existing push is guaranteed to run during the incomplete window (deterministically none at one missing page).
+- [Phase 15]: 15-25: WR-03 folded in as the one recorded trust-machinery exception — ensureContinuedSession's post-re-check seed merges (formUnion / keep-observed) instead of overwriting, so an observation recorded inside the client-start main-actor hop survives; safe because the superseded-start rule is enforced by the preceding identity guard.
+- [Phase 15]: 15-25: The plan's holdNextStart/releaseHeldStart spy artifact was not added — the spy's pre-existing armStartGate() already parks the next accepted start with the identical contract, so a second pair would be a thin wrapper CLAUDE.md forbids.
 
 ### Pending Todos
 
@@ -661,6 +666,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T12:22:34.553Z
-Stopped at: Completed 15-24-PLAN.md
+Last session: 2026-08-04T15:24:00.385Z
+Stopped at: Completed 15-25-PLAN.md — G-15-5 closed
 Resume file: None

@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 24/24 | In Progress|  |
+| 15. Continued Background Downloads | 25/25 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 25 plans (24/25 executed)
+**Plans**: 25/25 plans executed
 
 Plans:
 **Wave 1**
@@ -913,7 +913,7 @@ Plans:
 
 **Wave 25** *(gap closure round 8, review gap G-15-5 — blocked on 15-24 by file overlap in DownloadClient+ContinuedSession.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files, and have the run announce that post-preparation basis to the session before any page work (D-G5-01, both halves), so a repair of a complete-reading record is guaranteed to earn trust through the existing basis — deterministically even at one missing page — and its card climbs instead of pinning at zero; prove the K=1 arc end to end on production-issued pushes with the pre-fix pinned-zero observed
+- [x] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files, and have the run announce that post-preparation basis to the session before any page work (D-G5-01, both halves), so a repair of a complete-reading record is guaranteed to earn trust through the existing basis — deterministically even at one missing page — and its card climbs instead of pinning at zero; prove the K=1 arc end to end on production-issued pushes with the pre-fix pinned-zero observed
 
 ### Phase 16: Dynamic Type Accessibility
 
