@@ -232,6 +232,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         #expect(spy.finishCount == 1)
         #expect(spy.finishSuccesses == [true])
+        // The card's last word. Its denominator is `displayPageCount`'s one-page floor rather than
+        // a page count: the gallery finished nothing before the pause, so it retired nothing.
+        #expect(spy.progressUpdates.count == 1)
+        #expect(spy.progressUpdates.last?.subtitle == "0 / 1 page · 0 galleries")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await context.manager.testingHasContinuedSession()))
     }
 
@@ -269,12 +274,18 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         try await context.manager.togglePause(gid: gid).get()
         _ = await context.manager.pause(gid: gid)
         #expect(spy.finishCount == 1)
+        let pushesAtDrain = spy.progressUpdates.count
 
         await context.manager.scheduleNextIfNeeded()
         await context.manager.scheduleNextIfNeeded()
 
         #expect(spy.finishCount == 1)
         #expect(spy.finishSuccesses == [true])
+        // "At most once" covers the terminal push too: the later passes find no live session, so
+        // the card keeps the one string the drain left it.
+        #expect(spy.progressUpdates.count == pushesAtDrain)
+        #expect(spy.progressUpdates.last?.subtitle == "0 / 1 page · 0 galleries")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await context.manager.testingHasContinuedSession()))
     }
 
@@ -442,6 +453,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// A genuinely zero denominator — a session outliving work nobody finished at all — is reached
     /// under the ledger only when the departing gallery finished no pages, so that guard is not
     /// lost but moved: `DownloadContinuedSessionLedgerTests` supplies it.
+    ///
+    /// The terminal push is taken through `scheduleNextIfNeeded` rather than invoked directly. The
+    /// pair it owes is unchanged; what changes is that the product now makes the call, and a value
+    /// pinned on a call the product never makes is what hid G-15-2B.
     @Test
     func testEmptySchedulableSetStillPushesAPositiveTotal() async throws {
         let gid = "210045"
@@ -466,7 +481,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             )
         )
         await fixture.manager.settleCompletedDownload(gid: gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.scheduleNextIfNeeded()
 
         let update = try #require(spy.progressUpdates.last)
         #expect(update.totalUnitCount >= 1)
@@ -476,6 +491,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             "2 / 6 pages · 1 gallery",
             "6 / 6 pages · 0 galleries"
         ])
+        #expect(spy.finishSuccesses == [true])
     }
 
     /// The start string is already covered; this covers every *later* string, because the card is
@@ -675,6 +691,12 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// reschedules — so the scheduling tail runs several times against an ended session. Nothing
     /// it does may reach the client: the identifier is already gone, and a completion for a
     /// session the system ended is a call the seam should never make.
+    ///
+    /// This is also the one drain-shaped exit that is deliberately excluded from D-G2B-01's
+    /// terminal push: the store completed the task inside its own expiration handler before the
+    /// event was ever delivered, so no card survives to repaint. The rejected list staying empty is
+    /// the stronger half of that claim — the coordinator's own guard refused before anything
+    /// reached the client seam, which is what the handler's end-before-pause ordering depends on.
     @Test
     func testEndedSessionReceivesNoFurtherUpdateOrCompletion() async throws {
         let gids = ["210100", "210101"]
@@ -696,6 +718,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.count == updatesBeforeExpiration)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(spy.finishCount == 0)
     }
 
@@ -820,6 +843,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         #expect(spy.finishCount == 1)
         #expect(spy.finishSuccesses == [true])
+        #expect(spy.progressUpdates.last?.subtitle == "1 / 1 page · 0 galleries")
         #expect(!(await fixture.manager.testingHasContinuedSession()))
 
         // D-07: the next queue-mobilizing moment starts a fresh session rather than folding into
@@ -831,6 +855,13 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         _ = await fixture.manager.pause(gid: gid)
         #expect(spy.finishCount == 2)
         #expect(spy.finishSuccesses == [true, true])
+        // One terminal string per drained session, and the same one both times: the single page
+        // this gallery finished retires, and its four unfinished pages leave with the departure.
+        #expect(spy.progressUpdates.map(\.subtitle) == [
+            "1 / 1 page · 0 galleries",
+            "1 / 1 page · 0 galleries"
+        ])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await fixture.manager.testingHasContinuedSession()))
     }
 }

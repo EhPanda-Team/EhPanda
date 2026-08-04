@@ -51,6 +51,12 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         )
         let secondClientSessionID = try #require(spy.startSessionIDs.last)
 
+        // The cancel above drained S1, so under D-G2B-01 it emitted S1's own terminal push before
+        // completing. That push is legitimate — it landed while S1 still owned the card — so the
+        // discriminator for the *held* push is not "nothing under S1 was accepted" but "releasing
+        // it adds nothing": what crossed the seam under S1 and arrived after S2 took over must be
+        // rejected, never appended.
+        let acceptedBeforeRelease = spy.progressUpdates
         gate.release()
         await heldPush.value
 
@@ -58,14 +64,14 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
             spy.rejectedProgressUpdates.map(\.sessionID),
             [firstClientSessionID]
         )
-        #expect(!spy.progressUpdates.contains(where: { $0.sessionID == firstClientSessionID }))
+        expectNoDifference(spy.progressUpdates, acceptedBeforeRelease)
 
         await fixture.manager.pushContinuedSessionProgress(
             sessionID: secondCoordinatorSessionID
         )
         expectNoDifference(
             spy.progressUpdates.map(\.sessionID),
-            [secondClientSessionID]
+            [firstClientSessionID, secondClientSessionID]
         )
 
         _ = await fixture.manager.pause(gid: gid)

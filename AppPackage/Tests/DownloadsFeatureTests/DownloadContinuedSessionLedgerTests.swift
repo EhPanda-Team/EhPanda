@@ -296,6 +296,50 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(deletedPair.completedUnitCount < deletedPair.totalUnitCount)
     }
 
+    /// The delete that empties the queue, which is the state the device run fails in.
+    ///
+    /// The sibling delete case above leaves a survivor and therefore stops one gallery short of a
+    /// drain; this one goes all the way, so the session ends and the card's last word is the
+    /// terminal push D-G2B-01 installs rather than the stale pre-delete string. It also exercises
+    /// the ledger's no-record fallback at that drain: nothing survives the delete, so the six
+    /// finished pages are known only from the last observation, and they are what makes the
+    /// terminal fraction read six of six rather than rewinding to zero.
+    @Test
+    func testDeletingTheLastGalleryEndsTheSessionWithNoStaleSubtitle() async throws {
+        let only = SessionGallery(
+            gid: "210260",
+            title: "Deleted",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [only],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        let openingPair = try firstPushedPair(spy.progressUpdates)
+        #expect(openingPair.completedUnitCount == 6)
+        #expect(openingPair.totalUnitCount == 10)
+        #expect(openingPair.subtitle == "6 / 10 pages · 1 gallery")
+
+        try await fixture.manager.delete(gid: only.gid).get()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 6)
+        #expect(terminalPair.totalUnitCount == 6)
+        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
     /// A gallery that leaves the schedulable set and comes back is worth its pages once.
     ///
     /// Resuming a paused download is an ordinary tap — D-07 makes it a qualifying one, and D-06
