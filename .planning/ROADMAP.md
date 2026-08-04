@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 21/21 | In Progress|  |
+| 15. Continued Background Downloads | 22/22 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 21/22 plans executed
+**Plans**: 22/22 plans executed
 
 Plans:
 **Wave 1**
@@ -901,7 +901,7 @@ Plans:
 
 **Wave 22** *(gap closure round 6, UAT gap G-15-2B — blocked on 15-21 by file overlap in the continued-session suites and by xcodebuild serialization)*
 
-- [ ] 15-22-PLAN.md — Emit one terminal progress push in the drain branch before the session ends, ordered after the client-session deferral and before the teardown, and replace the synthesized terminal pushes with production-path drains across every exit path
+- [x] 15-22-PLAN.md — Emit one terminal progress push in the drain branch before the session ends, ordered after the client-session deferral and before the teardown, and replace the synthesized terminal pushes with production-path drains across every exit path
 
 ### Phase 16: Dynamic Type Accessibility
 

@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: verifying
-stopped_at: Completed 15-21-PLAN.md
-last_updated: "2026-08-04T07:24:13.129Z"
+stopped_at: Completed 15-22-PLAN.md
+last_updated: "2026-08-04T10:15:13.904Z"
 last_activity: 2026-08-04
-last_activity_desc: Plan 15-21 complete — departure-path coverage for the retirement ledger
+last_activity_desc: Plan 15-22 complete (terminal progress push at queue drain)
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 192
-  completed_plans: 192
+  total_plans: 193
+  completed_plans: 193
   percent: 88
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — READY FOR VERIFICATION
-Plan: 21 of 21
-Status: Phase complete — ready for verification
-Last activity: 2026-08-04 — Plan 15-21 complete (departure-path coverage for the retirement ledger)
+Plan: 22 of 22
+Status: Phase complete in code — G-15-2B awaits the physical-device retest (DEC-B)
+Last activity: 2026-08-04 — Plan 15-22 complete (terminal progress push at queue drain)
 Next: /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
 
 Progress: [██████████] 100% (14/16 phases)
@@ -248,6 +248,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P19 | 28min | 3 tasks | 18 files |
 | Phase 15 P20 | 25 | 2 tasks | 4 files |
 | Phase 15 P21 | 35 | 2 tasks | 1 files |
+| Phase 15 P22 | 35 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -601,6 +602,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-20: D-10 is extended (not reopened) — the pushed pair carries retired pages alongside live schedulable work; the user-visible contract is unchanged
 - [Phase 15]: 15-21: no production code changed — D-G2-01's single formula already covered pause, delete and rejoin, and every new case passed on its first run
 - [Phase 15]: 15-21: cases driving a real product primitive assert the last pushed update; cases asserting a whole pushed series use the deterministic queue-set seam
+- [Phase ?]: 15-22: D-G2B-01: the drain branch of reconcileContinuedSession emits exactly one progress push, after the client-session deferral and before markContinuedSessionEnded — a later position compiles and silently does nothing
+- [Phase ?]: 15-22: DEC-A left unresolved: the terminal push ships with an identifier-free drain log as the discriminator; rebasing galleryCount onto the session's whole coverage is a documented-contract change withheld from the executor
+- [Phase ?]: 15-22: DEC-B: nothing in this plan closes G-15-2B — 15-UAT.md test 2 stays a physical-device gate and SC2 stays PRESENT_BEHAVIOR_UNVERIFIED
 
 ### Pending Todos
 
@@ -618,6 +622,7 @@ None yet.
 - Carry-forward (Phase 12 UAT, 12-06): the forum gates its login form behind Cloudflare Turnstile, which contributes a `cf-turnstile-response` field a credential POST cannot produce. While the gate is active, native username/password login cannot complete whatever the password. It is detected, named (`AppError.loginCaptchaRequired`), localized in all six locales, and routed to the web-login fallback. C1 was owner-verified PASS on the live host BEFORE the gate appeared, so Phase 12's goal was met — but C1 is not currently reproducible while the gate is active. Making native login survive an active Turnstile gate needs the form rendered in a web view to obtain a token; that is new scope for a future phase.
 - Housekeeping (12-06): `.planning/research/.cache/` is tracked in git — a documentation-tool cache that arguably should be gitignored. Three of its JSON files were swept into commit 5345a9d9 alongside an unrelated one-line change. Left in place (published history, inert content); needs a .gitignore decision before it accumulates.
 - Deferred (12-06): the two `diag(12-06)` commits remain in the tree. The DEBUG-only redacted login-exchange dump is a useful diagnostic for this class of problem; decide whether it stays permanently once the login path is stable.
+- DownloadContinuedSessionTests.swift sits at 999 of 1000 lines (file_length is error severity); the next added line fails the build. Sanctioned remedy recorded in 15-22-SUMMARY.md: relocate testEmptySchedulableSetStillPushesAPositiveTotal into the ledger suite.
 
 ### Roadmap Evolution
 
@@ -648,6 +653,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T07:24:13.116Z
-Stopped at: Completed 15-21-PLAN.md
+Last session: 2026-08-04T10:14:46.617Z
+Stopped at: Completed 15-22-PLAN.md
 Resume file: None
