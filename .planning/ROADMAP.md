@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 26/26 plans executed
+**Plans**: 26/32 plans executed
 
 Plans:
 **Wave 1**
@@ -918,6 +918,30 @@ Plans:
 **Wave 26** *(gap closure round 9, review gap G-15-6 — blocked on 15-25 by file overlap in DownloadClient+ContinuedSession.swift, DownloadClient+ExecutionSupport.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
 - [x] 15-26-PLAN.md — Withdraw a coordinator-made basis correction from the monotonic floor in the same synchronous stretch that lowers the basis (D-G6-01): the reconciliation gives back exactly the counted portion it blanked — an untrusted complete-reading record withdraws nothing, preserving D-G4-01 — and the session-start seed merges the scalar instead of re-installing the pre-hop total, so a frozen-at-the-pre-correction-total card can no longer outlive the correction; prove the reachable case (the reconciled gallery departs without re-earning, the survivor's next pushes advance) with the pre-fix frozen band observed, and close WR-01 (the schedulable authority unions the active gallery), WR-02 (the silent seed preparation goes private), and WR-03 (the storage.validate consequence documented) in the same pass
+
+**Wave 27** *(gap closure round 11, review gap G-15-10 — blocked on 15-26 by xcodebuild serialization; test-double fidelity lands before the regressions that lean on it)*
+
+- [ ] 15-27-PLAN.md — Split the session spy's refusal guard so the one-shot refusal arm is consumed only by the refusal it causes (a live-session guard refusal leaves the arm held), audit every refuseNextStart caller against the changed rule, and pin the armed-refusal-versus-overlapping-start race with a case observed failing first
+
+**Wave 28** *(gap closure round 11, review gap G-15-11 — blocked on 15-27 by xcodebuild serialization; also restores the 999-line file's headroom every later plan needs)*
+
+- [ ] 15-28-PLAN.md — Drop the nine public session-lifecycle mutators to internal (zero production callers outside DownloadClient, verified) and route the six the suites use through thin #if DEBUG testing forwarders in the module's established seam; first relocate the expiration-and-teardown case family out of the 999-line DownloadContinuedSessionTests.swift so the re-spell cannot trip the 1000-line file_length error gate
+
+**Wave 29** *(gap closure round 11, review gap G-15-7 — blocked on 15-28: the counted-record regressions drive the preparation through the seam 15-28 chooses; file overlap on the execution-support and continued-session sources)*
+
+- [ ] 15-29-PLAN.md — Key the floor withdrawal on the basis MOVEMENT instead of the blanking mechanism (D-G7-01): a non-async bracket reads the index record before and after the preparation (and the enqueue route's initial-manifest write) and withdraws max(before−after, 0) when the basis was counting, so a .redownload/.update of a counted gallery, a validatedManifest mismatch, and every unenumerated future mover are excused by construction; remove the per-mechanism withdrawal from the reconciliation, correct both single-mover doc premises, sweep every downloadIndex writer with dispositions (deletions stay the retirement ledger's), and stage three counted-record regressions with the pre-fix frozen bands observed
+
+**Wave 30** *(gap closure round 11, review gap G-15-9 — blocked on 15-29: same reconciliation function, after the withdrawal has been relocated out of it)*
+
+- [ ] 15-30-PLAN.md — Make the destructive half of the reconciliation require a positive signal: surface directory-enumeration failure from the store (PageFileScan with scanSucceeded), refuse to blank on a failed scan and refuse wholesale blanking of a folder whose manifest read succeeded (tradeoff documented), log every real blanking at .notice with count and hash-masked gid, and prove with an execute-only-folder regression that a wholesale scan failure blanks nothing, writes nothing, and withdraws nothing
+
+**Wave 31** *(gap closure round 11, review gap G-15-8 + WR-03 — blocked on 15-30 by file overlap in the public API and by xcodebuild serialization)*
+
+- [ ] 15-31-PLAN.md — State the ownership-convergence invariant on moveDownload ("no exit may leave a gid blocked or the queue unconverged") and satisfy it on all six exits; convert the scheduling block set to a reference count with block/release helpers so overlapping same-gid operations can no longer release each other's blocks (WR-03), sweep every insert site to single-release-per-exit, and pin the move-exit convergence with regressions observed failing first
+
+**Wave 32** *(gap closure round 11, review gap G-15-12 — blocked on 15-31: IN-01's note names 15-30's landed refusal shape, and the rename sweep overlaps files every earlier plan touches)*
+
+- [ ] 15-32-PLAN.md — Close the six hygiene items: replace resolveSource's dead force-unwrap with the producer's own guard-throw, correct the one authority's false dedupe rationale, write the why-still-reachable note on resumeMode's validate branch, close the log scanner's unclassified-interpolation blind spot RED-first and replace the underived masked-count threshold with a named per-file inventory, rename UncheckedBox to LockedBox target-wide, and add the active-gallery-union coverage with a control assertion — with the 999-line file's headroom disposition recorded and nothing added to it
 
 ### Phase 16: Dynamic Type Accessibility
 
