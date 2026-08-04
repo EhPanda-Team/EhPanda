@@ -336,16 +336,24 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         ])
     }
 
-    /// A total may shrink — a gallery leaving the queue is ordinary — but the completed count is
-    /// the stall signal the scheduler reads, and a rewind there reads as a task losing ground.
-    /// The pushed total is held up with it so the pair can never describe a fraction above one.
+    /// The gap's own regression case. A gallery completing is the ordinary departure, and the
+    /// pushed pair has to survive it: the pages it finished stay on both sides of the fraction, so
+    /// the total does *not* shrink and the completed count rises across the gallery boundary.
+    ///
+    /// The completed count still never rewinds, but that is now a property of the accounting basis
+    /// rather than of the `max()` floor. Which is why the discriminating assertion is the second
+    /// push sitting strictly below its own total: under the old basis the finished gallery's pages
+    /// left the numerator and the denominator at once, the floor held the numerator up, and the
+    /// total clamp lifted the denominator to meet it — an exact 100% card with four pages still to
+    /// fetch.
     @Test
-    func testPushedCompletedCountNeverDecreasesWithinASession() async throws {
+    func testACompletedGalleryHoldsTheTotalAndAdvancesTheCount() async throws {
         let leavingGID = "210030"
+        let leavingTitle = "Mostly Done"
         let spy = BackgroundProcessingClientSpy()
         let fixture = try await makeQueuedCoordinator(
             galleries: [
-                .init(gid: leavingGID, title: "Mostly Done", pageCount: 10, completedPageCount: 6),
+                .init(gid: leavingGID, title: leavingTitle, pageCount: 10, completedPageCount: 6),
                 .init(gid: "210031", title: "Barely Started", pageCount: 4, completedPageCount: 0)
             ],
             client: spy.client
@@ -356,18 +364,33 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
-        // The shrink that makes this case worth having: the gallery holding all the completed
-        // pages leaves, so the raw snapshot would report 0 completed out of 4.
-        await fixture.manager.testingSetQueuedGalleryIDs(["210031"])
+        // The departure this case exists for, staged the way the product reaches it: the manifest
+        // completes, then the settle takes the gallery out of the queue store.
+        await fixture.manager.updateDownloadIndex(
+            folderURL: fixture.storage.folderURL(
+                relativePath: "Folder/[\(leavingGID)_token] \(leavingTitle)"
+            ),
+            manifest: manifest(
+                for: .init(
+                    gid: leavingGID,
+                    title: leavingTitle,
+                    pageCount: 10,
+                    completedPageCount: 10
+                )
+            )
+        )
+        await fixture.manager.settleCompletedDownload(gid: leavingGID)
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let completedCounts = spy.progressUpdates.map(\.completedUnitCount)
-        #expect(completedCounts == [6, 6])
+        #expect(completedCounts == [6, 10])
         #expect(zip(completedCounts, completedCounts.dropFirst()).allSatisfy({ $0 <= $1 }))
-        #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 6])
+        #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 14])
+        let secondUpdate = try #require(spy.progressUpdates.last)
+        #expect(secondUpdate.completedUnitCount < secondUpdate.totalUnitCount)
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "6 / 14 pages · 2 galleries",
-            "6 / 6 pages · 1 gallery"
+            "10 / 14 pages · 1 gallery"
         ])
     }
 
@@ -406,15 +429,26 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(update.subtitle == "0 / 1 page · 1 gallery")
     }
 
-    /// The other zero-denominator input, and the reachable one: a session outliving its work for
-    /// the moment between the queue emptying and the scheduling tail completing it. A push taken
-    /// in that window sums nothing at all.
+    /// The reachable empty-live-sum input: a session outliving its work for the moment between the
+    /// queue emptying and the scheduling tail completing it. A push taken in that window sums
+    /// nothing live at all, and here the emptying is a real completion rather than a bare dequeue.
+    ///
+    /// What holds the pair up is the ledger, not the monotonic floor: the departing gallery retires
+    /// all six of its pages to both sides, so completed equals total *because* nothing is
+    /// outstanding — the one moment a 1.0 fraction is honest. Under the old basis this same staging
+    /// pushed `2 / 2 pages`, a full card with two thirds of the work never done, so the case now
+    /// fails on the pre-fix code instead of passing verbatim on it.
+    ///
+    /// A genuinely zero denominator — a session outliving work nobody finished at all — is reached
+    /// under the ledger only when the departing gallery finished no pages, so that guard is not
+    /// lost but moved: `DownloadContinuedSessionLedgerTests` supplies it.
     @Test
     func testEmptySchedulableSetStillPushesAPositiveTotal() async throws {
         let gid = "210045"
+        let title = "Departing"
         let spy = BackgroundProcessingClientSpy()
         let fixture = try await makeQueuedCoordinator(
-            galleries: [.init(gid: gid, title: "Departing", pageCount: 6, completedPageCount: 2)],
+            galleries: [.init(gid: gid, title: title, pageCount: 6, completedPageCount: 2)],
             client: spy.client
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
@@ -422,16 +456,26 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         await fixture.manager.ensureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
-        await fixture.manager.testingSetQueuedGalleryIDs([])
+
+        await fixture.manager.updateDownloadIndex(
+            folderURL: fixture.storage.folderURL(
+                relativePath: "Folder/[\(gid)_token] \(title)"
+            ),
+            manifest: manifest(
+                for: .init(gid: gid, title: title, pageCount: 6, completedPageCount: 6)
+            )
+        )
+        await fixture.manager.settleCompletedDownload(gid: gid)
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.last)
         #expect(update.totalUnitCount >= 1)
-        // The monotonic floor is what the total is held up to here: two pages were already
-        // pushed, so an empty sum cannot rewind the card below them.
-        #expect(spy.progressUpdates.map(\.completedUnitCount) == [2, 2])
-        #expect(update.totalUnitCount == 2)
-        #expect(update.subtitle == "2 / 2 pages · 0 galleries")
+        #expect(spy.progressUpdates.map(\.completedUnitCount) == [2, 6])
+        #expect(update.totalUnitCount == 6)
+        #expect(spy.progressUpdates.map(\.subtitle) == [
+            "2 / 6 pages · 1 gallery",
+            "6 / 6 pages · 0 galleries"
+        ])
     }
 
     /// The start string is already covered; this covers every *later* string, because the card is
@@ -460,9 +504,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         await fixture.manager.testingSetQueuedGalleryIDs([firstGID])
         await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
 
+        // The second gallery is already complete and leaves the queue mid-case, so its three
+        // finished pages retire to both sides: the total holds at eight while the count stands.
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "4 / 8 pages · 2 galleries",
-            "4 / 5 pages · 1 gallery"
+            "4 / 8 pages · 1 gallery"
         ])
         for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
             #expect(!recorded.contains(firstTitle))
