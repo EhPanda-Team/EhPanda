@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: 15-25 verified — G-15-5 closed, G-15-6 found (blocker, introduced by 15-25)
-last_updated: "2026-08-05T00:00:00.000Z"
+stopped_at: Planned 15-26 — gap closure round 9 for G-15-6
+last_updated: "2026-08-05T04:30:00.000Z"
 last_activity: 2026-08-05
-last_activity_desc: Phase 15 verification round 9 — 3/4 SC, G-15-5 closed, new blocker G-15-6 (queue-wide progress floor vs D-G5-01 blanking); SC2 still device-unverified
+last_activity_desc: Planned gap closure 15-26 for G-15-6 (D-G6-01 floor withdrawal inside the reconciliation, seed merge on the scalar, WR-01/02/03 all incorporated); plan-checker passed with 0 blockers, 0 warnings
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 196
+  total_plans: 197
   completed_plans: 196
   percent: 88
 ---
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING (all 25 plans executed; gap round 9 open + human UAT gate open)
-Plan: 25 of 25 executed
-Status: Gap round 8 closed, round 9 opened. 15-25 landed D-G5-01, the run-start announcement, and the WR-03 seed merge; G-15-5 verified closed in source and the full FeatureTests plan is green. The post-15-25 review then found CR-01, confirmed by the orchestrator and by verification as G-15-6: the queue-wide monotonic floor (`lastPushedCompletedPageCount`) predates a basis that can now shrink, because D-G5-01's blanking is the first mechanism that lowers an already-counted gallery's contribution
-Last activity: 2026-08-05 — plan 15-25 executed and verified (G-15-5 closed, G-15-6 opened)
-Next: /gsd-plan-phase 15 --gaps — close G-15-6. The verifier's scoping correction is load-bearing: the queue is serial, so a regression test that merely stages two galleries and blanks K pages of one is vacuous; the reachable case is blanked pages that are never re-earned by the gallery that lost them. Separately and independently, 15-UAT.md test 2 still needs a physical-device re-run on iOS 26 — closing G-15-6 does not discharge it, and a green device run would not close G-15-6
+Phase: 15 (continued-background-downloads) — EXECUTING (25 of 26 plans executed; gap round 9 planned + human UAT gate open)
+Plan: 25 of 26 executed — 15-26 planned, not yet run
+Status: Gap round 9 planned. 15-26 installs D-G6-01: a coordinator-made basis correction withdraws its counted portion from the monotonic floor (`lastPushedCompletedPageCount`) in the same synchronous stretch that lowers the basis — inside `reconcileWorkingManifestAgainstPageFiles`, so every route (repair, initial reuse, repair-seed materialization) inherits it; exact-portion conditions preserve D-G4-01 (an untrusted complete-reading record withdraws nothing); the session-start seed merges the scalar instead of overwriting (the WR-03 class, now on the floor). All three open review warnings are incorporated: WR-01 (schedulableDownloads unions activeGalleryID), WR-02 (prepareWorkingSeed goes private so the silent revert cannot compile), WR-03 (storage.validate consequence documented). Plan-checker passed 0/0; regression tests honor the serial-queue vacuity correction (survivor's next pushes assert advancement, pre-fix frozen band recorded verbatim)
+Last activity: 2026-08-05 — planned 15-26 (G-15-6 closure), checker passed, committed 40f1ec60
+Next: /gsd-execute-phase 15 — run plan 15-26 (wave 26; xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 still needs a physical-device re-run on iOS 26 — closing G-15-6 does not discharge it, and a green device run would not close G-15-6; run the device UAT only after G-15-6 is closed or it will observe a known-defective floor
 
 Progress: [██████████] 100% (14/16 phases)
 
