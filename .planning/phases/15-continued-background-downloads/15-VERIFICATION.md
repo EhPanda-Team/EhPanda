@@ -5,17 +5,20 @@ status: gaps_found
 score: 3/4 must-haves verified
 behavior_unverified: 1
 overrides_applied: 0
-amended: 2026-08-04T10:20:00Z
-amendment_note: "Body above the amendment section was written at HEAD d246b1a3, BEFORE gap-closure plan 15-22 landed. Gaps G-15-3 and G-15-4 were added afterwards from the post-15-22 code review (15-REVIEW.md, commit 7b8513d2) and confirmed against source by the execute-phase orchestrator. Nothing above was re-derived at the new HEAD."
-next_action: "Close gaps G-15-3 and G-15-4, then re-run UAT test 2 on a physical iOS 26 device — SC2 remains behaviourally unverified regardless of the gap round."
+amended: 2026-08-04T12:55:00Z
+amendment_note: "Body above the amendment section was written at HEAD d246b1a3, BEFORE gap-closure plan 15-22 landed. Gaps G-15-3 and G-15-4 were added afterwards from the post-15-22 code review (15-REVIEW.md, commit 7b8513d2) and confirmed against source by the execute-phase orchestrator; both were CLOSED by plans 15-23 and 15-24. Gap G-15-5 was added on top from the post-15-24 re-review (15-REVIEW.md, commit 613270a7) and independently confirmed against source by the execute-phase orchestrator. Nothing above was re-derived at the new HEAD."
+next_action: "Close gap G-15-5, then re-run UAT test 2 on a physical iOS 26 device — SC2 remains behaviourally unverified regardless of the gap round."
 next_command: "/gsd-plan-phase 15 --gaps"
 re_verification:
   previous_status: human_needed
   previous_score: 1/4
   gaps_closed:
     - "G-15-2 — a gallery finishing mid-session collapsed the card to a 100% fraction and a shrinking gallery count, freezing the numerator the scheduler reads as a liveness signal."
-  gaps_remaining: []
-  regressions: []
+    - "G-15-3 — closed by plan 15-23 (commit 60b660fb): the drain branch now re-validates drain-ness, not session identity, behind the terminal push, and the client-seam spy suspends on every endpoint so the race is expressible."
+    - "G-15-4 — closed by plan 15-24 (commit 0c0f3995): a complete-reading record contributes zero session pages until this session observes it doing real work, gated on an `observedIncompleteSessionGIDs` trust set shared with the retirement path."
+  gaps_remaining: [G-15-5]
+  regressions:
+    - "G-15-5 — introduced by the G-15-4 fix in plan 15-24. See the gaps list."
 behavior_unverified_items:
   - truth: "SC2 — the system-provided progress UI reflects real download progress and its cancel affordance stops the queue, leaving state consistent with an in-app cancel."
     test: "On a physical iOS 26 device, queue at least three galleries of clearly different sizes, start in the foreground, background the app, and watch the system card across the FIRST gallery's completion and then across a manual pause of one remaining gallery. Then cancel from the card, foreground, and compare queue state against pausing each gallery by hand."
@@ -75,6 +78,51 @@ gaps:
     suggested_fix: "Order the completeness check ahead of the `isQueuedWorkItem` short-circuit, or exclude already-complete update/redownload items from the session snapshot's finished-page basis, so the session does not open at its own ceiling."
     files:
       - "AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift"
+  - id: G-15-5
+    severity: blocker
+    source: "15-REVIEW.md CR-01 (post-15-24 re-review), confirmed in source by the execute-phase orchestrator"
+    introduced_by: "15-24 — the G-15-4 fix"
+    truth_violated: "SC2 — the system-provided progress UI reflects real download progress; and SC1 through the stall-expiration consequence D-11 amplifies."
+    summary: "A `.repair` of a gallery whose record already reads complete never earns session trust, so it reports 0 pages for its entire run and finishes the card at a pinned zero."
+    detail: |
+      D-G4-01 grants session trust only from `Set(downloads.filter(\.isIncomplete).map(\.gid))`
+      (`DownloadClient+ContinuedSession.swift:123`), and `isIncomplete` is
+      `completedPageCount < pageCount`, where `completedPageCount` counts the manifest's
+      non-empty page hashes (`DownloadedGallery+Manifest.swift:67-69`). A repair never lowers
+      that count:
+
+      - `shouldReuseWorkingFolder` returns `true` unconditionally for `.repair`
+        (`DownloadClient+ExecutionSupport.swift:281-282`), so the working folder survives, unlike
+        `.redownload`/`.update`, which return `false` and have the folder deleted.
+      - `ensureWorkingManifest` then finds a valid manifest and returns it verbatim
+        (`DownloadClient+ExecutionSupport.swift:251-257`); no fresh all-empty-hash manifest is
+        written.
+      - Nothing blanks hashes for pages whose files vanished, and the repair's own flushes write
+        non-empty hashes.
+
+      So the gid can never enter `observedIncompleteSessionGIDs`, `isSessionWork` stays `false`,
+      its session count is `0` for the whole run, and its untrusted departure retires `0` — a
+      terminal card of `0 / N pages · 0 galleries` reported with `finish(_, true)`.
+
+      This is a first-class production path, not a corner: the scheduler's own mode selection at
+      `DownloadClient+SchedulingHelpers.swift:52-57` reaches
+      `if case .missingFiles = storage.validate(...) { return .repair }` only AFTER the
+      `download.isIncomplete` branch above it fails — that is, exactly when the record reads
+      complete and the files are missing. It is also reachable from product UI via
+      `DownloadsView+Subviews.swift:76` → `DownloadInspectorReducer:169` → `retryPages` →
+      `DownloadClient+RetryHelpers.swift:66` (`mode: .repair`), and from
+      `DetailView.swift:264` when `downloadNeedsRepair` is true.
+
+      Per D-11 the scheduler force-expires the tasks reporting the LEAST progress and an
+      expiration pauses every schedulable download, so this trades G-15-4's pinned-100% card for
+      a pinned-0% one, which is strictly worse for SC1 liveness.
+    why_tests_missed_it: "The one ledger case that exercises trust manufactures incompleteness by hand via `patchManifest(of:completedPageCount:in:)` — precisely the step a repair never performs — so the suite is green against a basis the repair path can never satisfy."
+    suggested_fix: "Grant session trust from an observation the repair path can actually produce rather than from the record's manifest hash count alone — e.g. admit a gid to `observedIncompleteSessionGIDs` when its resolved start mode is a redo (`.repair` included) that this session scheduled, or have the repair's own file-validation result mark the record incomplete before the snapshot reads it. Any fix must keep D-G4-01's original guarantee that a queued update/redownload cannot open at its own ceiling, and must not make a queued redo unschedulable (the rejected option 1 of G-15-4)."
+    files:
+      - "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
+      - "AppPackage/Sources/DownloadClient/DownloadClient+SchedulingHelpers.swift"
+      - "AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift"
+      - "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift"
 deferred: []
 ---
 
