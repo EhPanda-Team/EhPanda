@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-24-PLAN.md
-last_updated: "2026-08-04T12:22:34.562Z"
+stopped_at: Re-review after 15-24 found blocker G-15-5
+last_updated: "2026-08-04T13:05:00.000Z"
 last_activity: 2026-08-04
-last_activity_desc: "Completed 15-24 (G-15-4: session basis for a queued redo)"
+last_activity_desc: "Re-review found G-15-5 (a .repair of a complete-reading record reports zero progress), introduced by the 15-24 fix"
 progress:
   total_phases: 16
   completed_phases: 14
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 15 (continued-background-downloads) — EXECUTING
 Plan: 24 of 24
-Status: All plans executed — awaiting verification
-Last activity: 2026-08-04 — Completed 15-24 (G-15-4: session basis for a queued redo)
-Next: /gsd-verify-work 15 — the physical-device checks in 15-UAT.md; test 2 now also covers a queued update no longer opening the card at 100%
+Status: 24/24 plans executed; G-15-3 and G-15-4 closed, but the post-15-24 re-review found blocker G-15-5 — phase NOT complete
+Last activity: 2026-08-04 — Re-review found G-15-5 (a .repair of a complete-reading record reports zero progress), introduced by the 15-24 fix
+Next: /gsd-plan-phase 15 --gaps — round 8, closing G-15-5 (recorded in 15-VERIFICATION.md). Then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
 
 Progress: [██████████] 100% (14/16 phases)
 
