@@ -2,7 +2,7 @@
 phase: 15-continued-background-downloads
 reviewed: 2026-08-04T00:00:00Z
 depth: standard
-files_reviewed: 35
+files_reviewed: 34
 files_reviewed_list:
   - App/Info.plist
   - AppPackage/Package.swift
@@ -40,10 +40,10 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadPendingWorkTests.swift
 findings:
-  critical: 1
-  warning: 10
-  info: 5
-  total: 16
+  critical: 2
+  warning: 11
+  info: 0
+  total: 13
 status: issues_found
 ---
 
@@ -51,453 +51,364 @@ status: issues_found
 
 **Reviewed:** 2026-08-04
 **Depth:** standard
-**Files Reviewed:** 35
+**Files Reviewed:** 34
 **Status:** issues_found
+
+> Severity mapping: **BLOCKER** findings are recorded under the canonical `critical:` frontmatter
+> key and carry `CR-` ids. **WARNING** findings carry `WR-` ids.
 
 ## Summary
 
-The phase replaces two background-execution tiers (`BGProcessingTask` + `beginBackgroundTask`)
-with a single `BGContinuedProcessingTask` session owned by `ContinuedProcessingSession` and driven
-by `DownloadCoordinator`. The session store's state machine is genuinely well factored: the
-scheduling seam is injectable, identity gating is applied on both sides of every suspension, and
-the retirement-ledger arithmetic in `reconcileRetiredSessionPages` is idempotent under concurrent
-pushes (a re-detected departure re-assigns rather than accumulates), so the interleavings the doc
-comments enumerate really do hold. The localized-string catalog conforms to the project's
-labeled-substitution and per-locale rules, and the log-privacy sweep is real rather than cosmetic.
+The continued-processing seam is unusually well documented, and the identity discipline around
+`continuedSessionID` is genuinely careful. Two defects survive that discipline, and both are
+user-visible on ordinary taps.
 
-The defects concentrate in two places. First, the set of "queue-mobilizing user actions" that
-start a session is incomplete: `enqueue`, `togglePause(.inactive)`, `retry`, `retryPages` and the
-superseded-pause path all call `ensureContinuedSession()`, but pull-to-refresh
-(`refreshDownloads` -> `syncDownloadsState(scheduleNext: true)`) restarts interrupted downloads
-without it, so exactly the work this phase exists to protect can run uncovered. Second, the
-ACTIVE-OWNERSHIP CONVERGENCE invariant was closed in `delete`/`deleteFolder` this phase but
-`moveDownload` was left with the same scheduling-block-without-convergence shape, and the two
-convergence blocks added to `commitPause` sit in `catch` arms that are unreachable because the
-functions they guard are declared `throws` but cannot throw.
+The first is the change under review. Plan 15-22 inserted `pushContinuedSessionProgress` into the
+drain branch of `reconcileContinuedSession`, and the branch's own doc comment reasons about that
+insertion from a false premise: it claims the push suspends at "an index read plus the ledger's
+record read". Those two reads are same-actor calls that never suspend. The call that *does* suspend
+is `backgroundProcessingClient.updateProgress`, which in `.live` hops to the `@MainActor`
+`ContinuedProcessingSession`. Because the mitigation was chosen against the wrong suspension, it
+guards the wrong invariant: it re-checks *ownership* (unchanged across the window by construction)
+but never re-checks *drain-ness*, which is what the branch decided before the window opened. The
+result is a reentrancy hole in a tail that was atomic before this commit (CR-01).
 
-Findings CR-01/CR-02/CR-03 from the earlier round are not re-reported: the concrete-identifier
-registration idiom, the start-snapshot seeding and the foreign-progress-push guard are all present
-and tested in the current tree.
+The second is older than 15-22 but sits squarely inside the reviewed surface: the session's page
+arithmetic treats a queued `.update`/`.redownload` work item on an already-complete gallery as N of
+N finished pages, so the system card opens at 100% and the monotonic floor then pins it there for
+the whole session. That is the "literal 100% card that could not advance again" failure that
+`pushContinuedSessionProgress`'s own doc comment says the retirement ledger fixed, reintroduced
+through a different door (CR-02).
 
-## Narrative Findings (AI reviewer)
+Beyond those, the biggest structural concern is that the test double for the client seam
+(`BackgroundProcessingClientSpy.updateProgress`) never suspends unless a case explicitly arms a
+gate, and no drain case arms one. Every drain assertion added by 15-22 is therefore green for a
+reason unrelated to the hazard the same commit introduced (WR-02) — the same shape as the recorded
+"contract-faithful test doubles" lesson from the earlier gap rounds.
 
-### Critical Issues
+Checked and clean: localization (`continued_session.*` uses named numeric substitutions in every
+locale, `en`/`de` category sets match, CJK/`ko` are `other`-only), SwiftLint budgets (no line over
+120 characters in any reviewed file; module `.swiftlint.yml` present with `parent_config`), the
+log-privacy masking invariant, the deleted-tier grep invariant, and the path-escape guards in
+`DownloadStore`.
 
-#### CR-01: Pull-to-refresh mobilizes the download queue without starting a continued-processing session
+## Critical Issues
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift:27-29`
-(reached via `AppPackage/Sources/DownloadClient/DownloadClient.swift:116`)
+### CR-01: Terminal push reopens the drain branch to reentrancy; a live session is torn down over freshly queued work
 
-**Issue:** `ensureContinuedSession()` is documented as the thing every queue-mobilizing user
-action must call, and it is called from `enqueue` (`+PublicAPI.swift:98`), `togglePause`'s
-`.inactive` branch (`+PublicAPI.swift:174`), `retry` (`+RetryHelpers.swift:18`), `retryPages`
-(`+RetryHelpers.swift:70`) and the superseded-pause path (`+Scheduling.swift:184`).
-`refreshDownloads` is the one remaining user-initiated entry point that mobilizes the queue and it
-does not.
-
-The path is not theoretical. `refreshDownloads` -> `syncDownloadsState(scheduleNext: true)`
-(`+Scheduling.swift:137-153`) runs `normalizeNeedsAttentionDownloads` (clears cancellation-like
-errors) and `normalizeInterruptedDownloads` (`+PersistenceNormalize.swift:50-68`, which nulls a
-stale `activeGalleryID`), then calls `scheduleNextIfNeeded()`. Both normalizations exist precisely
-to make a stranded download schedulable again, and the gid is still in `queueStore`, so
-`isQueuedWorkItem` makes it pass `shouldSchedule`. A user who relaunches after a crash, pulls to
-refresh on the Downloads tab to restart the queue, and then backgrounds the app gets no session
-and no card - the pre-phase behavior this phase was written to remove.
-
-The failure is silent by construction: there is no session to log, and `.unavailable` is silent by
-contract, so nothing distinguishes "covered" from "uncovered" at runtime.
-
-**Fix:** Mirror the `togglePause` shape - mobilize, then ensure - in the refresh endpoint:
-
-```swift
-// DownloadClient+PublicAPI.swift
-public func refreshDownloads() async {
-    await syncDownloadsState(scheduleNext: true)
-    // Pull-to-refresh is a foreground user gesture that restarts normalized/interrupted
-    // downloads, so it is a qualifying tap under D-07 just as enqueue and resume are.
-    await ensureContinuedSession()
-}
-```
-
-`reconcileDownloads()` (the scene-phase path, `AppReducer.swift:121`) must deliberately keep *not*
-calling it, since it is not a user action - worth stating in a comment so the asymmetry reads as a
-decision rather than the same omission.
-
-### Warnings
-
-#### WR-01: `moveDownload` releases its scheduling block without converging
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift:163-206`
-
-**Issue:** `moveDownload` inserts `gid` into `schedulingBlockedGalleryIDs` at line 163 with a
-function-scoped `defer` that removes it, then suspends at `await fetchDownload(gid:)` (167) and
-`await reloadDownloadRecord(...)` (200/203). On every exit - success (204-205, only
-`notifyObservers()`), `.notFound` (168), busy (170-176), same-destination (182-183),
-already-exists (185-191) and the move failure (198-202) - it returns without calling
-`scheduleNextIfNeeded()`.
-
-Every sibling that takes a scheduling block converges: `commitPause`
-(`+Scheduling.swift:209-210, 229-230, 240-241, 245-246`), `delete`
-(`+PublicAPI.swift:202-203, 213-214, 220-221, 230-231`) and `deleteFolder`
-(`+Folders.swift:124-125, 133-134, 147-148`) - the latter two fixed in this very phase.
-`moveDownload` was not. If a `scheduleNextIfNeeded()` from another path (for example the `Task`
-spawned by `finishActiveTaskIfOwned`, `+Execution.swift:254`) lands inside the block window and
-this gallery is the only schedulable work, the scheduler skips it *and*
-`reconcileContinuedSession()` sees `hasPendingWork() == false` and completes the live session -
-taking the card down while the gallery is about to become schedulable again with nothing left to
-reschedule it.
-
-**Fix:** Converge on the exits that can leave work schedulable, after the block is released:
-
-```swift
-// end of moveDownload, replacing the bare notify:
-await reloadDownloadRecord(gid: download.gid, token: download.token)
-schedulingBlockedGalleryIDs.remove(gid)
-await notifyObservers()
-await scheduleNextIfNeeded()
-return .success(())
-```
-
-and the same `remove` + `notifyObservers` + `scheduleNextIfNeeded` on the `catch` at 198-202 and
-on the `.notFound` return at 168.
-
-#### WR-02: Expiration pause-all starts the next gallery on every iteration, then immediately cancels it
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:254-264`
-(with `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:229-230`)
-
-**Issue:** `pauseAllSchedulable` walks `gids` and calls `pause(gid:expiration:)` for each. On its
-happy path `commitPause` ends with `await scheduleNextIfNeeded()` (line 230) while only the
-*current* gid is scheduling-blocked - the `defer` that releases it has not run yet. So pausing A
-schedules B, which sets `activeGalleryID`/`activeTask` and begins real network work
-(`processScheduledDownload` -> `processDownload` -> `fetchLatestPayload`). The next loop iteration
-then pauses B and cancels that task.
-
-A user tapping Cancel on the system card therefore fires a spurious gallery-detail request per
-queued gallery, in a background window where the session has just been torn down. On this backend
-that is not free: gallery fetches count against the image/quota limits the client already has
-explicit 509 handling for (`DownloadCoordinator.quotaExceededImageURLSuffixes`).
-
-**Fix:** Block the whole set before pausing any of it, so the intermediate reschedules find
-nothing to start:
-
-```swift
-public func pauseAllSchedulable(expiring sessionID: UUID) async {
-    let gids = await schedulableDownloads().map(\.gid)
-    for gid in gids { schedulingBlockedGalleryIDs.insert(gid) }
-    defer { for gid in gids { schedulingBlockedGalleryIDs.remove(gid) } }
-    for gid in gids { /* unchanged body */ }
-}
-```
-
-This needs WR-06's counted-block fix first, or the inner `commitPause` `defer` will release a gid
-the outer sweep still owns.
-
-#### WR-03: The single-session guard is not atomic across `await hasPendingWork()`
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:127-131`
-
-**Issue:** The doc comment states "Setting the liveness flag and stamping the session id
-synchronously, before the first point another caller could interleave, is the guard against two
-callers both reaching the start call." The code does the opposite order:
-
-```swift
-guard !hasLiveContinuedSession, await hasPendingWork() else { return }   // await BEFORE the set
-let sessionID = UUID()
-hasLiveContinuedSession = true
-```
-
-The claim only holds because `hasPendingWork()` -> `schedulableDownloads()` ->
-`indexedDownloads()` happen not to contain a real suspension today (`queueStore.gids` is a
-synchronous `Shared` read, `DownloadQueueStore.swift:15-17`). That is an implementation detail of
-three callees in two other files, and the comment at 152-154 admits it ("whose callees do not
-suspend today"). Making `queueStore` an actor, or adding any true `await` inside
-`indexedDownloads`, silently converts this into two coordinator sessions racing one client store:
-the loser's rollback path (`guard continuedSessionID == sessionID`, line 148) no longer matches,
-and both sessions end up torn down with the card gone.
-
-**Fix:** Set the flag first and roll back if there is no work, so the guard is genuinely a
-synchronous critical section:
-
-```swift
-guard !hasLiveContinuedSession else { return }
-let sessionID = UUID()
-hasLiveContinuedSession = true
-continuedSessionID = sessionID
-guard await hasPendingWork() else {
-    markContinuedSessionEnded(sessionID: sessionID)
-    return
-}
-lastPushedCompletedPageCount = 0
-retiredSessionPages = [:]
-observedSchedulablePages = [:]
-```
-
-#### WR-04: Both `catch` arms in `commitPause` are unreachable dead code
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:233-248`
-
-**Issue:** The two `catch` blocks carry the phase's ACTIVE-OWNERSHIP CONVERGENCE fix and a
-six-line rationale comment, but nothing inside the `do` block can throw. The only `try`
-expressions are `try await writeInitialPauseRecord(...)` (217) and
-`try await writeSettledPauseRecord(...)` (225), and neither body contains a throwing call -
-`clearDownloadSessionState`, `queueStore.remove`, `backgroundTaskStore.removeAll` and
-`notifyObservers` are all non-throwing (lines 260-285). `fetchDownload` does not throw either.
-
-So `.settled(.failure(error))` and `.settled(.failure(.unknown))` can never be returned, the
-convergence they perform can never run, and no test can cover them. A reader - or a future
-reviewer checking the invariant - sees convergence that is not actually installed on any live
-path.
-
-**Fix:** Drop the vestigial `throws` from both writers (see WR-05), remove the `do`/`catch`
-scaffolding, and hoist the block release to a plain `defer` at the top of `commitPause`. If the
-writers are expected to throw later, give them a throwing call now; otherwise delete the arms so
-the file stops documenting behavior it does not have.
-
-#### WR-05: `writeInitialPauseRecord` / `writeSettledPauseRecord` take an unused parameter and duplicate each other
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:260-285`
-
-**Issue:** Both functions declare `download: DownloadedGallery` and never reference it; both
-declare `throws` and never throw. `writeSettledPauseRecord`'s entire body is the first three lines
-of `writeInitialPauseRecord`. The call sites (217-220, 225-228) pass `currentDownload` purely to
-satisfy the signature, which makes the record read at line 198 look load-bearing for the write
-when it is only used by the `displayStatus` guard at 205-207.
-
-**Fix:**
-
-```swift
-private func writeInitialPauseRecord(gid: String) async -> Task<Void, Never>? {
-    await clearPauseState(gid: gid)
-    await notifyObservers()
-    guard activeGalleryID == gid else { return nil }
-    let task = activeTask
-    activeTask?.cancel()
-    activeTask = nil
-    activeGalleryID = nil
-    return task
-}
-
-private func clearPauseState(gid: String) async {
-    clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
-    await queueStore.remove(gid)
-    await backgroundTaskStore.removeAll(for: gid)
-}
-```
-
-with the settled write becoming a direct `await clearPauseState(gid: gid)`.
-
-#### WR-06: `schedulingBlockedGalleryIDs` is a plain `Set`, so overlapping blocks on one gid release early
-
-**Files:**
-`AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:194-197`,
-`AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift:183-186`,
-`AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift:99-106`,
-`AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift:163-166`
-
-**Issue:** Four call sites use the `insert` + `defer remove` idiom on a `Set<String>`. All four
-suspend while holding the block (`fetchDownload`, `taskToCancel?.value`, `removeFolder`,
-`moveItem`), and `DownloadCoordinator` is a reentrant actor, so two of them can hold the same gid
-at once - `delete(gid:)` and `commitPause(gid:)` for the same gallery, or `deleteFolder` for a
-folder and `moveDownload` for a gallery inside it. Whichever finishes first removes the shared
-entry, and the scheduler is then free to start a download inside a folder that is mid-removal or a
-gallery whose active task is mid-cancellation. WR-02's fix cannot be written safely until this is
-addressed.
-
-**Fix:** Make it a counted set:
-
-```swift
-public var schedulingBlockCounts = [String: Int]()
-
-func beginSchedulingBlock(gid: String) { schedulingBlockCounts[gid, default: 0] += 1 }
-
-func endSchedulingBlock(gid: String) {
-    guard let count = schedulingBlockCounts[gid] else { return }
-    schedulingBlockCounts[gid] = count > 1 ? count - 1 : nil
-}
-```
-
-and route `isSchedulableDownload` (`+Scheduling.swift:118-123`) through
-`schedulingBlockCounts[download.gid] == nil`.
-
-#### WR-07: Session-lifecycle mutators are `public` purely so a cross-module test target can call them
-
-**Files:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:62, 88, 127,
-195, 229, 254, 275, 385`; `AppPackage/Sources/DownloadClient/DownloadClient+PendingWork.swift:10`
-
-**Issue:** `ensureContinuedSession`, `handleContinuedSessionEvent`, `markContinuedSessionEnded`,
-`pauseAllSchedulable`, `reconcileContinuedSession`, `pushContinuedSessionProgress`,
-`schedulableSnapshot`, `continuedSessionSubtitle` and `hasPendingWork` have no caller outside the
-`DownloadClient` module - every production call is same-module, and `hasPendingWork` lost its only
-cross-module caller when the `DownloadClient.hasPendingWork` endpoint was deleted this phase. They
-are `public` only because `DownloadsFeatureTests` links the module normally. That publishes
-state-machine mutators to every module that links `DownloadClient` (`AppFeature`,
-`DownloadsFeature`, `DetailFeature`, `HomeFeature`, `SearchFeature`, `FavoritesFeature`,
-`ReadingFeature`): any of them can call `markContinuedSessionEnded(sessionID:)` or
-`pauseAllSchedulable(expiring:)` and detach a live session while the system card is still on
-screen.
-
-The module already has the right pattern - `DownloadClient+Testing.swift` wraps its seams in
-`#if DEBUG`, and this phase added `testingHasContinuedSession()` / `testingContinuedSessionID()`
-there.
-
-**Fix:** Demote them to `internal` and add `#if DEBUG public` forwarders in
-`DownloadClient+Testing.swift` for the ones tests genuinely drive:
-
-```swift
-#if DEBUG
-extension DownloadCoordinator {
-    public func testingEnsureContinuedSession() async { await ensureContinuedSession() }
-    public func testingPauseAllSchedulable(expiring sessionID: UUID) async {
-        await pauseAllSchedulable(expiring: sessionID)
-    }
-}
-#endif
-```
-
-#### WR-08: The client spy consumes its one-shot `refuseNextStart` flag on refusals it did not cause
-
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:251-262`
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:297-318`
+(introduced by `f8159740`; supporting doc claim at lines 294-296)
 
 **Issue:**
 
-```swift
-guard $0.currentSessionID == nil, !$0.refusesNextStart else {
-    $0.refusesNextStart = false
-    return true
-}
-```
-
-The `else` branch clears `refusesNextStart` whichever condition failed. If a session is already
-held, an armed refusal is silently consumed by a start that would have been refused anyway, and
-the *next* start - the one the test armed the refusal for - is accepted. A test written as "arm
-refusal, then drive an action that happens to attempt two starts" would pass for the wrong reason.
-The live store has no such coupling: its guard (`ContinuedProcessingSession.swift:85-87`) has no
-one-shot flag at all.
-
-**Fix:** Only consume the flag when it is the cause of the refusal:
+The drain branch now reads:
 
 ```swift
-let shouldRefuse = self.state.withLock { state -> Bool in
-    // ...recording...
-    if state.refusesNextStart {
-        state.refusesNextStart = false
-        return true
+guard await hasPendingWork() else {
+    guard continuedSessionID == sessionID else { return }
+    guard let clientSessionID = continuedClientSessionID else {
+        continuedSessionNeedsReconciliation = true
+        return
     }
-    return state.currentSessionID != nil
+    await pushContinuedSessionProgress(sessionID: sessionID)   // <-- suspends (main-actor hop)
+    guard continuedSessionID == sessionID else { return }      // <-- ownership only
+    markContinuedSessionEnded(sessionID: sessionID)
+    await backgroundProcessingClient.finish(clientSessionID, true)
+    return
 }
 ```
 
-#### WR-09: A superseded expiration pause reports `.success(())` for work it did not do
+Trace the suspension points, not the `await` keywords:
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:169-186`
+- `hasPendingWork()` → `schedulableDownloads()` → `queueStore.gids` (a synchronous `Shared` read)
+  → `indexedDownloads()` → `downloads(from:)`. Every one of these is a same-actor `async` function
+  with no suspension point in its body, so `hasPendingWork()` **does not suspend**.
+- Inside `pushContinuedSessionProgress`, `schedulableSnapshot()` and `reconcileRetiredSessionPages`
+  → `indexedDownloads(gids:)` are the same — **they do not suspend either**, contrary to the doc
+  comment at line 294.
+- The last statement, `await backgroundProcessingClient.updateProgress(...)`, resolves in `.live` to
+  `await ContinuedProcessingSession.shared.updateProgress(...)` on a `@MainActor` type
+  (`BackgroundProcessingClient.swift:70-77`, `ContinuedProcessingSession.swift:33`). That is a real
+  cross-actor hop out of and back into the reentrant `DownloadCoordinator` actor.
 
-**Issue:** The `.superseded` arm of `pause(gid:expiration:)` returns `.success(())` after
-deliberately abandoning the pause. Today the only caller that can reach it discards the result
-(`_ = await pause(gid: gid, expiration: expiration)`, `+ContinuedSession.swift:262`), so nothing
-is misled - but the public `pause(gid:)` shares the same return type, and the arm is one caller
-away from telling a UI that a pause succeeded while the download is still running.
+So before this commit the sequence `hasPendingWork() == false → markContinuedSessionEnded → finish`
+was atomic with respect to actor reentrancy. It is no longer. Inside the `updateProgress` hop, a
+queue-mobilizing action can land:
 
-**Fix:** Give the outcome a name the caller cannot misread - return `Result<PauseOutcome, AppError>`
-with `.paused` / `.abandoned`, or keep `.superseded` unreachable from the public verb by having
-`pauseAllSchedulable` call `commitPause` directly.
+1. `enqueue(payload:)` runs: writes the manifest, `queueStore.enqueue(gid)`, `notifyObservers()`,
+   `scheduleNextIfNeeded()`. The queue now has pending work and may already hold an `activeTask`.
+2. `enqueue` then calls `ensureContinuedSession()`, which returns immediately — its first guard is
+   `!hasLiveContinuedSession`, and the draining session has not cleared that flag yet because
+   `markContinuedSessionEnded` has not run. The new work folds into the doomed session.
+3. The drain resumes. `continuedSessionID == sessionID` still holds — nothing minted a successor —
+   so the guard passes, `markContinuedSessionEnded` runs, and `finish(clientSessionID, true)`
+   completes the system task.
 
-#### WR-10: Every session attempt permanently registers a new launch handler, including failed ones
+Net effect: the card disappears and background coverage is dropped while a download the user just
+started is running. Per D-03/SC3 there is no fallback tier and no retry, so that work runs
+foreground-only until the next qualifying tap. The same window is reachable from
+`resume`/`togglePause` (`DownloadClient+PublicAPI.swift:174`), `retry` and `retryPages`
+(`DownloadClient+RetryHelpers.swift:18, 70`), which all reach `scheduleNextIfNeeded()` before their
+own `ensureContinuedSession()`.
 
-**File:** `AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift:125-147`
+The ownership re-check the commit added cannot catch this: `continuedSessionID` changing would
+require `markContinuedSessionEnded` to have run first, which is exactly what has not happened.
 
-**Issue:** `start` mints a fresh UUID identifier and calls `scheduling.register(identifier)`
-before `scheduling.submit(...)`. A launch handler can never be unregistered (stated at lines
-192-194), so every attempted session leaves a permanent registration behind for the process
-lifetime - including the ones whose submission throws and yields `.unavailable` (140-147). The
-per-session UUID is forced by the API (re-registering an identifier terminates the app), so some
-growth is inherent, but failed attempts currently cost exactly as much as successful ones and
-nothing bounds or reports the total.
+**Fix:** re-validate the branch's own predicate, not just ownership, behind the suspension:
 
-This compounds with the `.superseded` path at `+Scheduling.swift:184`, which calls
-`ensureContinuedSession()` from inside expiration handling - a background context where the
-scheduler is expected to refuse the submission. Each such refusal burns a registration and logs an
-error, and the surrounding comment's justification ("the scheduler's own foreground validation
-makes a late ensure inert") is true of the *submission* but not of the *registration* that
-precedes it.
+```swift
+            // D-G2B-01: the card's last word, taken while this session still owns it.
+            await pushContinuedSessionProgress(sessionID: sessionID)
+            guard continuedSessionID == sessionID else { return }
+            // The push crosses the client seam's main-actor hop, so the drain decision taken
+            // before it is no longer authoritative. Work mobilized inside that window folds into
+            // *this* session — its own `ensureContinuedSession` is inert while
+            // `hasLiveContinuedSession` is true — so completing here would drop coverage nothing
+            // can restore. Leave the session live; the next convergence reconciles it.
+            guard await hasPendingWork() == false else { return }
+            logger.notice("Continued-processing session drained, terminal progress pushed.")
+            markContinuedSessionEnded(sessionID: sessionID)
+            await backgroundProcessingClient.finish(clientSessionID, true)
+```
 
-**Fix:** Two independent mitigations:
+Also correct the doc comment at lines 294-296 (see WR-01): it is the premise the insufficient guard
+was chosen from.
 
-1. Gate the `.superseded` re-ensure on foreground state, or defer it via a
-   `pendingEnsureOnNextForeground` flag consumed by the next qualifying tap, rather than
-   attempting a submission the scheduler is documented to drop.
-2. Count registrations in `ContinuedProcessingSession` and log at `notice` when the total crosses
-   a sane bound, so unbounded growth is observable rather than invisible.
+### CR-02: A queued update/redownload of a complete gallery opens the card at 100% and pins it there for the whole session
 
-### Info
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:127-142, 411-446`
+(with `DownloadClient+Scheduling.swift:125-135` and `DownloadClient+RetryHelpers.swift:9-26`)
 
-#### IN-01: `UncheckedBox` is not unchecked
+**Issue:**
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:8-19`
+`shouldSchedule(download:)` returns `true` for `download.displayStatus == .active ||
+download.isQueuedWorkItem` **before** it consults completeness. `isQueuedWorkItem` is
+`displayStatus == .queued` (`DownloadedGallery+SupportTypes.swift:83`), and `displayStatus` is
+`.queued` whenever `queueStore.contains(gid)`. So a *fully complete* gallery enqueued for `.update`
+or `.redownload` is schedulable, and its manifest still reports `completedPageCount == pageCount`
+(`DownloadedGallery+Manifest.swift:67-73`) because the fresh manifest has not been written yet.
 
-**Issue:** The type is `Mutex`-backed and genuinely `Sendable`; "Unchecked" names a safety
-property it does not have. In a repository whose lint config bans `@unchecked Sendable` at error
-severity and whose new invariant suite greps for that spelling, the name actively misleads.
+Ordinary tap sequence — user taps Update on a completed gallery:
 
-**Fix:** Rename to `LockedBox` or `MutexBox`.
+1. `retry(gid:mode: .update)` → `performRetry` → `queueStore.enqueue(gid)` →
+   `scheduleNextIfNeeded()` (which sets `activeGalleryID = gid`) → `ensureContinuedSession()`.
+2. `schedulableSnapshot()` sums that one gallery: `completedPageCount == pageCount == N`.
+3. `ensureContinuedSession` submits `start(title, "N / N pages · 1 gallery", N, N)` (lines 136-142).
+   The system card opens at **100% with one gallery still to go**, and on adoption
+   `ContinuedProcessingSession.adopt` seeds `task.progress` to `N/N` — a `Progress` already
+   fulfilled the moment the system launches the task.
+4. `lastPushedCompletedPageCount = N` is latched (line 160).
+5. The update then rewrites the manifest to `0` of `M` done. Every later push computes
+   `completedPageCount = max(lastPushedCompletedPageCount, ...) = N` (lines 428-431) and
+   `pageCount = max(displayPageCount, completedPageCount) = max(M, N)`. When `M == N` — the normal
+   case for a redownload, and common for an update — the card reads `N / N` for the whole session
+   and never moves.
 
-#### IN-02: A process-shared singleton is defaulted into a `sending` parameter
+This is precisely the failure mode the doc comment on `pushContinuedSessionProgress` (lines 380-387)
+says the retirement ledger was built to eliminate: "the two clamps below pinned the pair at a
+literal 100% card that could not advance again". It also defeats the liveness requirement stated at
+`DownloadClient+Persistence.swift:195-200` — the scheduler "forcibly expires tasks that appear
+stalled, and prioritizes terminating the ones reporting the least progress" — and per D-11 an
+expiration pauses every schedulable download, i.e. it pauses work the user never touched. The
+suite's own invariant helper `expectTheFractionReachesOneOnlyAtTheDrain`
+(`DownloadContinuedSessionLedgerTests.swift:433-441`) encodes "1.0 only at drain" as the intended
+property; this path violates it on the very first push.
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift:357`
+No test covers a queued work item on a *complete* gallery:
+`testCancellingTheLastQueuedWorkItemCompletesTheSession` uses `.update` but seeds
+`completedPageCount: 1, pageCount: 5`, so it never reaches the degenerate pair.
 
-**Issue:** `fileManager: sending FileManager = FileManager.default`. `sending` asserts the callee
-receives a disconnected value it may take exclusive ownership of; `FileManager.default` is the
-process-wide shared instance. It compiles, but the annotation now documents a guarantee the
-default violates.
+**Fix:** a queued work item's already-finished pages are work this session has *not* done, so they
+must not enter the numerator. Exclude them in the snapshot, which is the one place the card's
+arithmetic is derived:
 
-**Fix:** Default to `FileManager()` - which is what `DownloadClient.live` itself uses
-(`DownloadClient.swift:43`) - rather than `.default`.
+```swift
+    public func schedulableSnapshot() async -> SchedulableSnapshot {
+        let downloads = await schedulableDownloads()
+        // A redownload/update work item intends to redo pages its manifest still reports as done.
+        // Counting them opens the card at 1.0 and, with the monotonic floor latched at that value,
+        // pins it there for the session — the failure the ledger exists to prevent.
+        func sessionCompletedPageCount(_ download: DownloadedGallery) -> Int {
+            switch queuedModes[download.gid] {
+            case .redownload, .update: 0
+            case .initial, .repair, .none: download.completedPageCount
+            }
+        }
+        ...
+    }
+```
 
-#### IN-03: The store's `.unavailable` branches are never exercised
+Add a regression case pinning the opening pair for a complete gallery queued for `.update`, and run
+`expectTheFractionReachesOneOnlyAtTheDrain` over that fixture too.
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift:75-93`
+## Warnings
 
-**Issue:** `ContinuedTaskSchedulingSpy.scheduling` always returns `true` from `register` and never
-throws from `submit`, so none of `ContinuedProcessingSession`'s three `.unavailable` paths
-(missing bundle identifier, refused registration, throwing submission -
-`ContinuedProcessingSession.swift:116-147`) is covered. Coordinator-side coverage uses a separate
-`BackgroundProcessingClient.unavailable` fixture that bypasses the store entirely
-(`DownloadContinuedSessionTests.swift:957-965`), so the store's own early-teardown behavior (no
-pending request to cancel, stream finished before return, `didCancelStaleRequests` already
-latched) is asserted nowhere.
+### WR-01: Doc comment names the wrong suspension, and CR-01's insufficient guard was derived from it
 
-**Fix:** Add spy controls (`refusesNextRegistration`, `submissionError`) and one case per branch,
-asserting the returned handle's stream yields exactly `[.unavailable]` and that
-`cancelledIdentifiers` stays empty.
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:294-296`
+**Issue:** "The push suspends — an index read plus the ledger's record read — where this branch's
+tail was previously suspension-free, so ownership is re-checked behind it exactly as it is after
+every other suspension in this file." Both named reads are same-actor `async` calls with no
+suspension point (`schedulableSnapshot` → `schedulableDownloads` → `indexedDownloads` →
+`downloads(from:)`; `reconcileRetiredSessionPages` → `indexedDownloads(gids:)`). The real
+suspension is the `@MainActor` hop in `backgroundProcessingClient.updateProgress`. This is not
+cosmetic: it is the premise CR-01's guard was chosen from, and it will lead the next reader to the
+same conclusion.
+**Fix:** replace with the actual mechanism, e.g. "The push's tail crosses the client seam, whose
+live value is `@MainActor`-confined, so this branch now yields the actor where its tail previously
+did not. Ownership *and* the drain predicate are therefore re-checked behind it."
 
-#### IN-04: `BackgroundExecutionInvariantTests` duplicates two SwiftLint rules
+### WR-02: The client-seam double cannot suspend, so the window CR-01 opens is structurally untestable
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/BackgroundExecutionInvariantTests.swift:101-108`
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:286-315`
+**Issue:** `BackgroundProcessingClientSpy.updateProgress` only awaits when a case has armed a
+progress gate; with no gate its body is two `state.withLock` blocks and returns without ever
+suspending. No drain case in `DownloadContinuedSessionTests`, `DownloadContinuedSessionLedgerTests`
+or `DownloadDeleteConvergenceTests` arms one. The live seam always suspends. So the entire drain
+suite added by 15-22 exercises a tail that is atomic in tests and reentrant in production — green
+for a reason that does not hold on device.
+**Fix:** make the spy's `updateProgress` (and `start`/`finish`) always yield at least once before
+recording — e.g. `await Task.yield()` at entry — so every existing case runs against a seam that can
+interleave. Then add a case that enqueues fresh work from inside a held progress gate at a drain and
+asserts `finishRecords.isEmpty` and `testingHasContinuedSession() == true`.
 
-**Issue:** The `@unchecked Sendable` and `nonisolated(unsafe)` tokens are already enforced at error
-severity by the root `.swiftlint.yml` (`no_unchecked_sendable`) and the lint gate. Two enforcement
-points for one rule means a future relaxation has to be found in two places, and the test's
-failure message ("reappeared in: ...") is less actionable than the lint message.
+### WR-03: `finish(_:success:)` is hard-coded to `true` on every exit, including abandoned queues
 
-**Fix:** Drop those two tokens and leave the phase-specific deletions (`BGProcessingTask`,
-`beginBackgroundTask`, `BackgroundTaskClient`, `runQueueUntilIdle`, the two identifiers), which is
-what the suite uniquely covers.
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:156, 314`
+**Issue:** The drain always reports `success: true`, and so does the superseded-start rollback at
+line 156. That value reaches `BGContinuedProcessingTask.setTaskCompleted(success:)`, the system's
+signal of whether the work finished. The tests pin drains that ended at
+`"0 / 1 page · 0 galleries"` (`DownloadContinuedSessionTests.swift:238`) and
+`"1 / 1 page · 0 galleries"` for a 5-page gallery with 4 pages never fetched (line 846) — both
+reported as successes. Nothing in the file documents why `true` is unconditional, which is unusual
+for this codebase's standard on deliberate designs.
+**Fix:** derive it or document it. A derivation is available at the call site without new state: the
+terminal push already knows whether the session finished what it intended, so pass `false` when the
+drain was produced by a departure that retired unfinished pages. If `true` really is correct for all
+exits, say why on `reconcileContinuedSession`.
 
-#### IN-05: A drained-queue push can render "N / N pages - 0 galleries"
+### WR-04: The terminal push can rewind the card's denominator to the one-page floor
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:407-419`
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:428-439`
+**Issue:** The monotonic floor protects only the numerator; the denominator is
+`max(sessionProgress.displayPageCount, completedPageCount)`, and `displayPageCount` floors an empty
+sum at `1`. A user who pauses a 12-page download that had finished nothing sees the card's last
+state jump from "0 / 12 pages · 1 gallery" to "0 / 1 page · 0 galleries" — pinned as intended
+behavior at `DownloadContinuedSessionTests.swift:238` and `:287`. The terminal push exists so the
+card's final string is meaningful; a job that visibly shrinks from 12 pages to 1 page, and a
+subtitle that always ends "· 0 galleries", is not obviously better than the stale string it
+replaced. This is a design call rather than a coding error, but it is the user-facing output of the
+fix and is currently locked in by literals rather than argued for.
+**Fix:** either extend the monotonic floor to the denominator (`max(lastPushedPageCount, ...)`) so
+the terminal pair keeps the last honest denominator, or give the drained state its own subtitle key
+without a gallery clause. Either way, record the reasoning next to the clamp — the current comment
+explains only the numerator floor.
 
-**Issue:** `pushed.galleryCount` is taken raw from the live snapshot while the numerator and
-denominator include the retirement ledger, so a push made once the schedulable set is empty reads
-"20 / 20 pages - 0 galleries" - the value the ledger suite pins as the drained pair
-(`DownloadContinuedSessionLedgerTests.swift:31-35`). In production the pair should be unreachable
-because `reconcileContinuedSession` completes the session before pushing when `hasPendingWork()`
-is false, but nothing in `pushContinuedSessionProgress` enforces that, and `flushDownloadProgress`
-calls it on a path that never checks pending work (`+Persistence.swift:223-225`).
+### WR-05: The terminal-push log cannot make the distinction it was added for
 
-**Fix:** Either guard the push (`guard snapshot.sessionProgress.galleryCount > 0 else { return }`)
-or floor the reported count at one, and state in the doc comment which invariant makes the zero
-case unreachable.
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:310`
+**Issue:** `f8159740`'s message says the notice exists "so a device run can tell 'never pushed' from
+'pushed and not repainted'". It is emitted unconditionally after the call returns, but the push can
+be silently dropped downstream: `ContinuedProcessingSession.updateProgress` returns at
+`guard self.sessionID == sessionID` (the store already ended the session inside its expiration
+handler, before the coordinator's event handler ran) or at `guard let task` (submission accepted,
+never launched). In both cases the log claims "terminal progress pushed" while nothing reached the
+card — exactly the state it is supposed to discriminate.
+**Fix:** have the push report whether it crossed the seam and log the outcome, e.g. make
+`pushContinuedSessionProgress` `@discardableResult ... -> Bool` returning `false` at each early
+guard, and log `"Continued-processing session drained, terminal progress \(pushed ? "pushed" :
+"skipped", privacy: .public)."`.
+
+### WR-06: `ensureContinuedSession` resets four session-scoped fields but not the reconciliation debt
+
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:130-134`
+**Issue:** A new session explicitly zeroes `lastPushedCompletedPageCount`, `retiredSessionPages` and
+`observedSchedulablePages`, but leaves `continuedSessionNeedsReconciliation` at whatever the
+previous session's teardown left. It is safe today only because `markContinuedSessionEnded` clears
+it and the `!hasLiveContinuedSession` guard implies teardown ran — an invariant maintained two hops
+away from where it is relied on, on a reentrant actor where every other field in the same block is
+defended directly.
+**Fix:** add `continuedSessionNeedsReconciliation = false` to the same synchronous block so the
+session-scoped reset is complete by inspection.
+
+### WR-07: Session lifecycle state is unconditionally `public var` while the debug accessors imply it should not be
+
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift:386-433`
+**Issue:** `hasLiveContinuedSession`, `continuedSessionID`, `continuedClientSessionID`,
+`continuedSessionNeedsReconciliation`, `continuedSessionTask`, `lastPushedCompletedPageCount`,
+`retiredSessionPages` and `observedSchedulablePages` are all `public var` on a `public actor`, so
+any module linking `DownloadClient` can write them and break invariants the continued-session file
+spends ~450 lines defending. Meanwhile `DownloadClient+Testing.swift:56-64` wraps
+`hasLiveContinuedSession` and `continuedSessionID` in `#if DEBUG` accessors, which is only
+meaningful if the stored properties are not already public. The only external reader is
+`continuedSessionTask`, in three test cases.
+**Fix:** demote the set to `internal` (or `private(set)`) and expose the one test-needed value
+through the existing `#if DEBUG` seam, e.g.
+`public func testingContinuedSessionTask() -> Task<Void, Never>?`.
+
+### WR-08: `UIBackgroundModes: processing` is retained on a justification that understates the cost
+
+**File:** `App/Info.plist:160-169`
+**Issue:** The comment argues that "an unnecessary declaration costs one stray key, while a wrong
+removal makes every submission fail". The first half is not true: App Review Guideline 2.5.4 rejects
+apps that declare background modes they do not use, and this phase deleted the only tier that used
+`processing`. The documented requirement for a continued-processing submission is
+`BGTaskSchedulerPermittedIdentifiers`, already declared at lines 5-8. The failure modes are
+asymmetric in the opposite direction from what the comment claims.
+**Fix:** keep the key until the device experiment settles it if you must, but correct the comment to
+name the real cost (2.5.4 rejection risk) and tie the removal decision to the already-open SC2
+physical-device UAT item rather than leaving it as an open-ended "experiment of its own".
+
+### WR-09: The store's three `unavailable` exits are untested despite a seam extracted to test them
+
+**File:** `AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift:116-147`;
+`AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift:75-94`
+**Issue:** `ContinuedTaskScheduling` was extracted precisely so "every lifecycle case drives the
+store through a double" (`ContinuedTaskScheduling.swift:6-11`), yet `ContinuedTaskSchedulingSpy`
+hard-codes `register` to `true` and a non-throwing `submit`, and nothing covers the
+nil-bundle-identifier branch. Those three paths encode a non-obvious contract nothing pins: unlike
+the re-entry refusal (which returns `nil`), they return a **non-`nil`** `BackgroundProcessingSession`
+whose stream is already finished with a buffered `.unavailable` and whose store-side `sessionID` is
+already `nil`. The coordinator then records `continuedClientSessionID` for a session the store no
+longer holds and keeps `hasLiveContinuedSession == true` until the consuming task drains the
+buffered event — a window in which another tap's `ensureContinuedSession()` folds into a dead
+session. Simulator runs take this path on every launch.
+**Fix:** parameterize the spy (`registerResult: Bool`, `submitError: (any Error)?`) and add a case
+per exit asserting `cancelledIdentifiers.isEmpty` (no request was left pending), that the stream
+yields exactly `[.unavailable]` and finishes, and that a subsequent `start` is granted.
+
+### WR-10: Dead state in the client spy
+
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:157, 295, 308`
+**Issue:** `State.inFlightProgressUpdate` is written on entry to `updateProgress` and cleared on
+exit, but never read by any accessor or assertion. It is also a single slot shared by concurrent
+pushes (`testAHeldProgressPushCannotRepaintASuccessorSessionsCard` has two in flight at once), so it
+could not report anything reliable even if a reader were added.
+**Fix:** delete the property and its two writes, or expose the accessor the gated cases apparently
+wanted (`var inFlightProgressUpdate: ProgressUpdate?`) and assert on it.
+
+### WR-11: `DownloadContinuedSessionTests.swift` is one line from breaking the build *(already tracked)*
+
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift:999`
+**Issue:** Confirmed independently — the file is at 999 lines against `file_length: error: 1000`.
+Three sibling suites (`...IdentityTests`, `...InterleaveTests`, `...LedgerTests`) exist solely
+because of this ceiling, and each re-derives fixture setup. Spawning one suite per gap round is a
+slow-motion duplication problem rather than a solved one.
+**Fix:** move a coherent group out rather than adding a fifth suite next round — the expiration
+cases (`testExpirationLeavesTheQueueInThePerGalleryPauseBaselineState`,
+`testExpirationLeavesTheSchedulingBlockedSetAsAPauseDoes`,
+`testExpirationResultIsIndependentOfEnqueueOrder`,
+`testEndedSessionReceivesNoFurtherUpdateOrCompletion`) are self-contained and reclaim roughly 150
+lines.
+
+## Note on known items
+
+- SC2 (present-behavior on a physical device) remains deliberately unverified, and CR-01 and WR-04
+  are both properties of the card the user actually sees, so the open physical-device UAT item is
+  the only thing that can close them observationally. The D-G2B-01 fix's premise — that iOS renders
+  the last-pushed subtitle in the completed card at all — is itself unverified.
+- WR-11 restates the tracked file-length ceiling; it is included because CR-01's and CR-02's
+  regression cases will need somewhere to live.
 
 ---
 
