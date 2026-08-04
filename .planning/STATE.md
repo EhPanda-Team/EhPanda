@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Re-review after 15-24 found blocker G-15-5
-last_updated: "2026-08-04T13:05:00.000Z"
+stopped_at: Gap round 8 planned — 15-25 ready to execute
+last_updated: "2026-08-04T14:42:39.346Z"
 last_activity: 2026-08-04
-last_activity_desc: "Re-review found G-15-5 (a .repair of a complete-reading record reports zero progress), introduced by the 15-24 fix"
+last_activity_desc: Gap round 8 planned — 15-25 (G-15-5 closure, D-G5-01 + announcement + WR-03 seed merge) passed the plan checker after 2 revisions
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 195
+  total_plans: 196
   completed_plans: 195
   percent: 88
 ---
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 24 of 24
-Status: 24/24 plans executed; G-15-3 and G-15-4 closed, but the post-15-24 re-review found blocker G-15-5 — phase NOT complete
-Last activity: 2026-08-04 — Re-review found G-15-5 (a .repair of a complete-reading record reports zero progress), introduced by the 15-24 fix
-Next: /gsd-plan-phase 15 --gaps — round 8, closing G-15-5 (recorded in 15-VERIFICATION.md). Then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
+Plan: 24 of 25 executed (15-25 planned, checker-verified)
+Status: Gap round 8 planned — 15-25 closes G-15-5 (manifest reconciliation in prepareWorkingSeed + production-guaranteed announcement push + WR-03 seed merge folded in); passed gsd-plan-checker after 2 revision iterations
+Last activity: 2026-08-04 — Planned 15-25; checker confirmed the K=1 pinned-zero hole and the start-window interleaving are both closed, D-G4-01 ceiling guarantee preserved
+Next: /gsd-execute-phase 15 — run plan 15-25. Then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
 
 Progress: [██████████] 100% (14/16 phases)
 
