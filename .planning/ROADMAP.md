@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 25/26 | In Progress|  |
+| 15. Continued Background Downloads | 26/26 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 25/26 plans executed
+**Plans**: 26/26 plans executed
 
 Plans:
 **Wave 1**
@@ -917,7 +917,7 @@ Plans:
 
 **Wave 26** *(gap closure round 9, review gap G-15-6 — blocked on 15-25 by file overlap in DownloadClient+ContinuedSession.swift, DownloadClient+ExecutionSupport.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-26-PLAN.md — Withdraw a coordinator-made basis correction from the monotonic floor in the same synchronous stretch that lowers the basis (D-G6-01): the reconciliation gives back exactly the counted portion it blanked — an untrusted complete-reading record withdraws nothing, preserving D-G4-01 — and the session-start seed merges the scalar instead of re-installing the pre-hop total, so a frozen-at-the-pre-correction-total card can no longer outlive the correction; prove the reachable case (the reconciled gallery departs without re-earning, the survivor's next pushes advance) with the pre-fix frozen band observed, and close WR-01 (the schedulable authority unions the active gallery), WR-02 (the silent seed preparation goes private), and WR-03 (the storage.validate consequence documented) in the same pass
+- [x] 15-26-PLAN.md — Withdraw a coordinator-made basis correction from the monotonic floor in the same synchronous stretch that lowers the basis (D-G6-01): the reconciliation gives back exactly the counted portion it blanked — an untrusted complete-reading record withdraws nothing, preserving D-G4-01 — and the session-start seed merges the scalar instead of re-installing the pre-hop total, so a frozen-at-the-pre-correction-total card can no longer outlive the correction; prove the reachable case (the reconciled gallery departs without re-earning, the survivor's next pushes advance) with the pre-fix frozen band observed, and close WR-01 (the schedulable authority unions the active gallery), WR-02 (the silent seed preparation goes private), and WR-03 (the storage.validate consequence documented) in the same pass
 
 ### Phase 16: Dynamic Type Accessibility
 

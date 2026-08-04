@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Planned 15-26 — gap closure round 9 for G-15-6
-last_updated: "2026-08-05T04:30:00.000Z"
+stopped_at: Completed 15-26-PLAN.md (G-15-6 closed)
+last_updated: "2026-08-04T17:34:58.980Z"
 last_activity: 2026-08-05
-last_activity_desc: Planned gap closure 15-26 for G-15-6 (D-G6-01 floor withdrawal inside the reconciliation, seed merge on the scalar, WR-01/02/03 all incorporated); plan-checker passed with 0 blockers, 0 warnings
+last_activity_desc: executed 15-26 (G-15-6 closure), commits 0421700f + cabf5ff9
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 197
-  completed_plans: 196
+  completed_plans: 197
   percent: 88
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING (25 of 26 plans executed; gap round 9 planned + human UAT gate open)
-Plan: 25 of 26 executed — 15-26 planned, not yet run
-Status: Gap round 9 planned. 15-26 installs D-G6-01: a coordinator-made basis correction withdraws its counted portion from the monotonic floor (`lastPushedCompletedPageCount`) in the same synchronous stretch that lowers the basis — inside `reconcileWorkingManifestAgainstPageFiles`, so every route (repair, initial reuse, repair-seed materialization) inherits it; exact-portion conditions preserve D-G4-01 (an untrusted complete-reading record withdraws nothing); the session-start seed merges the scalar instead of overwriting (the WR-03 class, now on the floor). All three open review warnings are incorporated: WR-01 (schedulableDownloads unions activeGalleryID), WR-02 (prepareWorkingSeed goes private so the silent revert cannot compile), WR-03 (storage.validate consequence documented). Plan-checker passed 0/0; regression tests honor the serial-queue vacuity correction (survivor's next pushes assert advancement, pre-fix frozen band recorded verbatim)
-Last activity: 2026-08-05 — planned 15-26 (G-15-6 closure), checker passed, committed 40f1ec60
-Next: /gsd-execute-phase 15 — run plan 15-26 (wave 26; xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 still needs a physical-device re-run on iOS 26 — closing G-15-6 does not discharge it, and a green device run would not close G-15-6; run the device UAT only after G-15-6 is closed or it will observe a known-defective floor
+Phase: 15 (continued-background-downloads) — EXECUTING (26 of 26 plans executed; human UAT gate open)
+Plan: 26 of 26 executed
+Status: Gap round 9 EXECUTED. 15-26 installed D-G6-01 — a coordinator-made basis correction withdraws its counted portion from the monotonic floor (`lastPushedCompletedPageCount`) in the same synchronous stretch that lowers the basis, inside `reconcileWorkingManifestAgainstPageFiles` so every route inherits it; exact-portion so an untrusted complete-reading record withdraws nothing (D-G4-01's ceiling guarantee intact, the whole 15-25 arc byte-identical); the session-start seed became `max(snapshot + floor, 0)` so a hop-window withdrawal survives it. All three open review warnings closed: WR-01 (`schedulableDownloads()` unions `activeGalleryID`, predicates untouched), WR-02 (`prepareWorkingSeed` private, so the silent-variant revert is a compile error), WR-03 (the `storage.validate` consequence documented at the code). Three new regressions in `DownloadContinuedSessionBasisTests`, all observed failing first with the pre-fix readings recorded verbatim. Full `FeatureTests` green in one invocation, 0 SwiftLint violations, trust set unchanged (7 sites before and after)
+Last activity: 2026-08-05 — executed 15-26 (G-15-6 closure), commits 0421700f + cabf5ff9
+Next: /gsd-verify-work 15 — re-verify G-15-6 closed in source. Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26; nothing in 15-26 discharges it, and it should now include a `.repair` gallery inside a multi-gallery queue plus a mid-queue pause of a reconciled gallery — the correction route this plan changed. The floor is no longer known-defective, so the device run can be scheduled
 
 Progress: [██████████] 100% (14/16 phases)
 
@@ -252,6 +252,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P23 | 22min | 2 tasks | 3 files |
 | Phase 15 P24 | 35min | 2 tasks | 4 files |
 | Phase 15 P25 | 45min | 2 tasks | 6 files |
+| Phase 15 P26 | 45min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -618,6 +619,10 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-25: Record honesty alone is not observable — the run announces its post-preparation basis through prepareWorkingSeedAnnouncingProgress before any page work, because trust is admitted only inside a push's reconcile and no pre-existing push is guaranteed to run during the incomplete window (deterministically none at one missing page).
 - [Phase 15]: 15-25: WR-03 folded in as the one recorded trust-machinery exception — ensureContinuedSession's post-re-check seed merges (formUnion / keep-observed) instead of overwriting, so an observation recorded inside the client-start main-actor hop survives; safe because the superseded-start rule is enforced by the preceding identity guard.
 - [Phase 15]: 15-25: The plan's holdNextStart/releaseHeldStart spy artifact was not added — the spy's pre-existing armStartGate() already parks the next accepted start with the identical contract, so a second pair would be a thin wrapper CLAUDE.md forbids.
+- [Phase 15]: 15-26 D-G6-01: a coordinator-made basis correction withdraws its counted portion from the monotonic floor in the same synchronous stretch that lowers the basis — the floor masks only movements the coordinator did not deliberately make.
+- [Phase 15]: 15-26: the withdrawal lives inside reconcileWorkingManifestAgainstPageFiles (whoever blanks, withdraws), unclamped, with the session-start floor seed converted to max(snapshot + floor, 0) so a hop-window correction is folded in rather than overwritten.
+- [Phase 15]: 15-26 WR-01: schedulableDownloads() unions activeGalleryID into its queue-scoped read (dedupe, empty-queue full read preserved); the predicates and scheduleNextIfNeededCore's own read are untouched.
+- [Phase 15]: 15-26 WR-02: prepareWorkingSeed is private so the announcing wiring cannot silently revert — the demonstrated suite-green revert is now a compile error.
 
 ### Pending Todos
 
@@ -666,6 +671,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T15:24:00.385Z
-Stopped at: Completed 15-25-PLAN.md — G-15-5 closed
+Last session: 2026-08-04T17:34:10.392Z
+Stopped at: Completed 15-26-PLAN.md (G-15-6 closed)
 Resume file: None
