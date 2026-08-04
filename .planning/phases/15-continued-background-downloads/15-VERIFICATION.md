@@ -1,12 +1,14 @@
 ---
 phase: 15-continued-background-downloads
 verified: 2026-08-04T17:10:00Z
-status: human_needed
+status: gaps_found
 score: 3/4 must-haves verified
 behavior_unverified: 1
 overrides_applied: 0
-next_action: "Re-run UAT test 2 on a physical iOS 26 device: the G-15-2 defect it found is fixed in code but has never been re-observed on hardware."
-next_command: "/gsd:verify-work 15"
+amended: 2026-08-04T10:20:00Z
+amendment_note: "Body above the amendment section was written at HEAD d246b1a3, BEFORE gap-closure plan 15-22 landed. Gaps G-15-3 and G-15-4 were added afterwards from the post-15-22 code review (15-REVIEW.md, commit 7b8513d2) and confirmed against source by the execute-phase orchestrator. Nothing above was re-derived at the new HEAD."
+next_action: "Close gaps G-15-3 and G-15-4, then re-run UAT test 2 on a physical iOS 26 device — SC2 remains behaviourally unverified regardless of the gap round."
+next_command: "/gsd-plan-phase 15 --gaps"
 re_verification:
   previous_status: human_needed
   previous_score: 1/4
@@ -23,7 +25,56 @@ human_verification:
   - test: "Re-run 15-UAT.md test 2 on a physical iOS 26 device with a multi-gallery queue, watching the card across the first gallery's completion and across a mid-queue pause, then cancelling from the card."
     expected: "Counts advance past the first completion, the total holds, the subtitle names the remaining galleries, the queue keeps downloading, and card-cancel matches the in-app per-gallery pause baseline."
     why_human: "The reported defect was device-observed; the card and the scheduler's stall handling do not exist in the simulator, and the UAT record still reads `result: issue`."
-gaps: []
+gaps:
+  - id: G-15-3
+    severity: blocker
+    source: "15-REVIEW.md CR-01 (post-15-22 review), confirmed in source by the execute-phase orchestrator"
+    introduced_by: "15-22"
+    truth_violated: "SC1 — a continued-processing session stays alive for as long as the queue has schedulable work."
+    summary: "The terminal progress push plan 15-22 added to the drain branch of `reconcileContinuedSession` turned a previously suspension-free tail into a reentrant one, so the session can be torn down over work that arrived after the drain was observed."
+    detail: |
+      `DownloadCoordinator` is an actor; `ContinuedProcessingSession` is a `@MainActor final class`
+      and `BackgroundProcessingClient.updateProgress` hops to it. That hop is the real suspension
+      point. Before 15-22 the drain branch observed `hasPendingWork() == false` and then tore the
+      session down synchronously via `markContinuedSessionEnded`, so the observation could not go
+      stale. The new `await pushContinuedSessionProgress(...)` sits between those two points and
+      suspends across the main-actor hop.
+
+      The re-check added behind the push is `continuedSessionID == sessionID`, which provably
+      cannot fail in that window: minting a successor requires `ensureContinuedSession` to pass
+      `!hasLiveContinuedSession`, and that flag stays `true` until the very next line. So the
+      mitigation guards a property that cannot change and leaves unguarded the one that can —
+      drain-ness. An `enqueue`/`resume`/`retry` landing during the hop adds pending work, its own
+      `ensureContinuedSession()` is inert for the same reason, and the drain then resumes into
+      teardown. Phase 15 removed the discretionary BGTask tier, so there is no fallback.
+
+      The doc comment the commit added is also factually wrong about which call suspends — it names
+      "an index read plus the ledger's record read", both of which are same-actor and do not
+      suspend. The wrong premise is why the wrong invariant was guarded.
+    why_tests_missed_it: "`BackgroundProcessingClientSpy.updateProgress` never suspends unless a case arms a gate, and no drain case arms one. Every drain assertion 15-22 added is green against a tail that is atomic in the double and reentrant in production."
+    suggested_fix: "Re-check drain-ness rather than session identity behind the push (`guard await hasPendingWork() == false else { return }`), correct the doc comment to name the `updateProgress` main-actor hop as the suspension point, and arm a spy suspension gate on a drain case so the race is actually expressible in the suite."
+    files:
+      - "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
+      - "AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift"
+      - "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift"
+  - id: G-15-4
+    severity: blocker
+    source: "15-REVIEW.md CR-02 (post-15-22 review), confirmed in source by the execute-phase orchestrator"
+    introduced_by: "pre-existing — predates 15-22"
+    truth_violated: "SC2 — the system-provided progress UI reflects real download progress."
+    summary: "A complete gallery queued for update/redownload opens the continued-processing card at 100% and the monotonic floor pins it there for the rest of the session."
+    detail: |
+      `shouldSchedule` returns `true` on `download.isQueuedWorkItem` before it ever checks
+      `isIncomplete`, so a gallery that is already complete but queued for `.update` is schedulable
+      and is counted in the session snapshot as N finished of N total. `ensureContinuedSession`
+      submits `start(..., N, N)`, `lastPushedCompletedPageCount` latches at N, and the `max()` floor
+      keeps the numerator there. When the rewritten manifest has the same page count the card reads
+      N / N and never advances — the same pinned-at-1.0 card the G-15-2 ledger was built to fix,
+      reached by a different route. The scheduler force-expires the tasks reporting least progress,
+      and D-11 makes an expiration pause every schedulable download.
+    suggested_fix: "Order the completeness check ahead of the `isQueuedWorkItem` short-circuit, or exclude already-complete update/redownload items from the session snapshot's finished-page basis, so the session does not open at its own ceiling."
+    files:
+      - "AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift"
 deferred: []
 ---
 
@@ -343,5 +394,31 @@ this area is touched again.
 
 ---
 
+## Amendment — 2026-08-04, after gap-closure plan 15-22
+
+Everything above this heading was written at HEAD `d246b1a3`, **before** plan 15-22 landed. It has
+not been re-derived at the new HEAD; treat it as the record of the previous round.
+
+Plan 15-22 closed G-15-2B by adding a terminal progress push to the drain branch of
+`reconcileContinuedSession`. The full suite is green at that HEAD (827 tests across 22 targets,
+`** TEST SUCCEEDED **`). The post-15-22 code review (`15-REVIEW.md`, commit `7b8513d2`) then raised
+two blocker-severity findings, both of which the orchestrator confirmed directly against source
+rather than accepting on the reviewer's account:
+
+| Gap | Origin | What it breaks |
+|-----|--------|----------------|
+| **G-15-3** | Introduced by 15-22 | The drain branch's tail is now reentrant across a main-actor hop, so a session can be torn down over work that arrived after the drain was observed. The mitigation 15-22 shipped guards session identity, which cannot change in that window, instead of drain-ness, which can. |
+| **G-15-4** | Pre-existing | A complete gallery queued for update/redownload opens the card at 100%, and the monotonic floor pins it there — the G-15-2 symptom reached by a different route. |
+
+The full reasoning for each, including why the 15-22 suite could not have caught G-15-3, is in the
+`gaps:` block of this file's frontmatter and in `15-REVIEW.md`.
+
+**SC2 is unaffected by this amendment and remains behaviourally unverified.** Closing G-15-3 and
+G-15-4 does not discharge the physical-device UAT item; `15-UAT.md` test 2 still has to be re-run on
+hardware after the gap round.
+
+---
+
 _Verified: 2026-08-04T17:10:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Amended: 2026-08-04 by the execute-phase orchestrator — gaps G-15-3 / G-15-4 recorded from 15-REVIEW.md and confirmed in source._
