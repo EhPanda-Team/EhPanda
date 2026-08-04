@@ -4,15 +4,15 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: verifying
-stopped_at: Completed 15-22-PLAN.md
-last_updated: "2026-08-04T10:15:13.904Z"
+status: executing
+stopped_at: Planned gap closure round 7 (15-23, 15-24)
+last_updated: "2026-08-04T11:27:48.126Z"
 last_activity: 2026-08-04
-last_activity_desc: Plan 15-22 complete (terminal progress push at queue drain)
+last_activity_desc: Gap closure round 7 planned (plans 15-23, 15-24)
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 193
+  total_plans: 195
   completed_plans: 193
   percent: 88
 ---
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY FOR VERIFICATION
-Plan: 22 of 22
-Status: Phase complete in code — G-15-2B awaits the physical-device retest (DEC-B)
-Last activity: 2026-08-04 — Plan 15-22 complete (terminal progress push at queue drain)
-Next: /gsd-verify-work 15 — walk the 4 physical iOS 26 device checks in 15-UAT.md, which marks the phase complete when they pass
+Phase: 15 (continued-background-downloads) — GAP CLOSURE ROUND 7 PLANNED
+Plan: 22 of 24
+Status: Ready to execute
+Last activity: 2026-08-04 — Gap closure round 7 planned (plans 15-23, 15-24 close G-15-3 and G-15-4)
+Next: /gsd-execute-phase 15 — run gap-closure waves 23-24 (one xcodebuild invocation at a time), then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
 
 Progress: [██████████] 100% (14/16 phases)
 
