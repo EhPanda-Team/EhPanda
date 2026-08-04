@@ -244,6 +244,74 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
     }
+
+    /// WR-01: the gallery that is actually downloading must stay in the card's numerator, its
+    /// denominator and its gallery count even when the persisted queue no longer lists it.
+    ///
+    /// `schedulableDownloads()` is the one authority for selecting work the scheduler can run, but
+    /// it scoped its index read by queue-store membership alone, while `isSchedulableDownload`
+    /// accepts `displayStatus == .active` — the running gallery — independently of that membership.
+    /// The predicate and the read therefore disagreed exactly when the running gallery was absent
+    /// from a NON-EMPTY persisted queue, which is a state three production routes reach:
+    /// `nextUnqueuedSchedulableDownload` exists precisely to run a gallery the queue has not caught
+    /// up with, and both `handleProcessDownloadIncompleteError` and `settleDownloadFailure` remove
+    /// the active gid from the queue store while `activeGalleryID` is still set and the deferred
+    /// task teardown has not run.
+    ///
+    /// Two consequences, both in the false-stall family this plan closes. The running gallery's
+    /// real progress leaves the pushed pair and it is then detected as departed and retired at a
+    /// frozen value while it is still downloading; and `pauseAllSchedulable(expiring:)` selects
+    /// through this same call, so an expiration would skip pausing the one gallery actually
+    /// consuming resources — the SC2 cancel half.
+    @Test
+    func testTheRunningGalleryStaysInTheSessionBasisWhenThePersistedQueueLagsBehindIt() async throws {
+        let running = SessionGallery(
+            gid: "210350",
+            title: "Running",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let queued = SessionGallery(gid: "210351", title: "Queued", pageCount: 4)
+        let spy = BackgroundProcessingClientSpy()
+        let control = BlockingRunnerControl()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [running, queued],
+            queuedGIDs: [running.gid, queued.gid],
+            client: spy.client,
+            // Parked rather than skipped: this case needs a genuinely installed active task, so the
+            // coordinator's `activeGalleryID` is set while the assertions run.
+            taskRunner: DownloadTaskRunner(
+                runScheduledDownload: { _, _ in
+                    await withTaskCancellationHandler {
+                        await control.park()
+                    } onCancel: {
+                        control.recordCancellation()
+                        control.release()
+                    }
+                    return .skippedOperation
+                }
+            )
+        )
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+        let manager = fixture.manager
+
+        await manager.scheduleNextIfNeeded()
+        await control.started()
+
+        // The lag state: the running gallery leaves the persisted queue while it downloads.
+        await manager.testingSetQueuedGalleryIDs([queued.gid])
+
+        await manager.ensureContinuedSession()
+        #expect(spy.startSubtitles.last == "6 / 14 pages · 2 galleries")
+
+        control.release()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+    }
 }
 
 // MARK: - Helpers
