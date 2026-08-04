@@ -393,6 +393,36 @@ extension DownloadFeatureTestCase {
         try storage.writeManifest(manifest(for: gallery), folderURL: folderURL)
     }
 
+    /// Writes a real page file for each requested index inside the gallery's fixture folder.
+    ///
+    /// Fixture manifests carry hash entries but no files, which is enough for arithmetic over the
+    /// record alone. It is not enough for the states the production folder contract distinguishes:
+    /// a record that reads complete while some of its files are gone is what `storage.validate`
+    /// reports as `.missingFiles`, what `resumeMode` resolves to `.repair`, and what the working
+    /// seed's reconciliation blanks. Staging those files here is what lets a case reach that state
+    /// through the contract instead of patching the index behind it.
+    func writePageFiles(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture,
+        indices: [Int]
+    ) throws {
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
+        )
+        for index in indices {
+            let relativePath = fixture.storage.makePageRelativePath(
+                gid: gallery.gid,
+                token: "token",
+                index: index,
+                fileExtension: "jpg"
+            )
+            try Data("page-\(index)".utf8).write(
+                to: folderURL.appendingPathComponent(relativePath),
+                options: .atomic
+            )
+        }
+    }
+
     func manifest(for gallery: SessionGallery) -> DownloadManifest {
         DownloadManifest(
             gid: gallery.gid,
