@@ -291,9 +291,26 @@ extension DownloadCoordinator {
     /// already holds every page this session finished, so a drained queue sums to N of N with no
     /// gallery remaining, and no new arithmetic is introduced here.
     ///
-    /// The push suspends — an index read plus the ledger's record read — where this branch's tail
-    /// was previously suspension-free, so ownership is re-checked behind it exactly as it is after
-    /// every other suspension in this file.
+    /// The push's tail crosses the client seam — `updateProgress` hops to the `@MainActor`
+    /// `ContinuedProcessingSession` — where this branch's tail was previously suspension-free. The
+    /// index read and the ledger's record read inside the push are same-actor calls that do not
+    /// suspend; that main-actor hop is the whole of the window. Ownership *and* the drain predicate
+    /// are therefore re-checked behind it (**D-G3-01: teardown runs only over a still-true
+    /// justifying observation**). Re-checking identity alone would guard the invariant that cannot
+    /// fail: minting a successor requires `ensureContinuedSession` to pass `!hasLiveContinuedSession`
+    /// and that flag stays true until teardown, while drain-ness can and does go stale there.
+    ///
+    /// The re-check itself must not suspend, exactly as `ensureContinuedSession` states for its own
+    /// guard: `hasPendingWork()` reads `activeTask` and then the queue store through
+    /// `schedulableDownloads()`, and those callees do not suspend today. An `await` introduced
+    /// inside them later would reopen the window behind this guard and would need its own
+    /// re-validation.
+    ///
+    /// One stale-shaped push is accepted rather than removed. The terminal push's arguments are
+    /// computed before the hop, so a mid-hop mobilization means the card can briefly hold a
+    /// terminal-shaped pair before the next live push corrects it. Re-checking ahead of the push
+    /// cannot exist, because the push *is* the suspension; the numerator floor holds throughout and
+    /// the very next convergence repaints, so this is a transient string rather than a state defect.
     public func reconcileContinuedSession() async {
         guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
@@ -307,6 +324,13 @@ extension DownloadCoordinator {
             // D-G2B-01: the card's last word, taken while this session still owns it.
             await pushContinuedSessionProgress(sessionID: sessionID)
             guard continuedSessionID == sessionID else { return }
+            // D-G3-01: the push crossed the client seam's main-actor hop, so the drain decision
+            // taken before it is no longer authoritative. Work mobilized inside that window folded
+            // into this session — its own `ensureContinuedSession` is inert while
+            // `hasLiveContinuedSession` is true — so completing here would surrender coverage
+            // nothing can restore until the next qualifying tap (D-03/SC3: no fallback tier).
+            // Leave the session live; the next convergence reconciles it.
+            guard await hasPendingWork() == false else { return }
             logger.notice("Continued-processing session drained, terminal progress pushed.")
             // Ended first: completion is the last thing this session does, and the client's
             // stream finishing behind it must find no state left to clear.
