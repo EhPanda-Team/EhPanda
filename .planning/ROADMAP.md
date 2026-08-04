@@ -913,7 +913,7 @@ Plans:
 
 **Wave 25** *(gap closure round 8, review gap G-15-5 — blocked on 15-24 by file overlap in DownloadClient+ContinuedSession.swift and the ledger suite, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files (D-G5-01), so a repair of a complete-reading record earns session trust through the existing basis and its card climbs instead of pinning at zero; prove the arc end to end through production seams with the pre-fix pinned-zero observed
+- [ ] 15-25-PLAN.md — Make the repair's own working-seed preparation mark its record incomplete by blanking manifest hashes for vanished page files, and have the run announce that post-preparation basis to the session before any page work (D-G5-01, both halves), so a repair of a complete-reading record is guaranteed to earn trust through the existing basis — deterministically even at one missing page — and its card climbs instead of pinning at zero; prove the K=1 arc end to end on production-issued pushes with the pre-fix pinned-zero observed
 
 ### Phase 16: Dynamic Type Accessibility
 
