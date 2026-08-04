@@ -413,7 +413,7 @@ public actor DownloadCoordinator {
     /// Added to both the numerator and the denominator of every later push, which is what stops a
     /// completed gallery from taking its own pages out of both sides of the fraction at once. The
     /// retirement rule itself (D-G2-01) is written down on
-    /// `reconcileRetiredSessionPages(finishedPages:)`, where it is implemented.
+    /// `reconcileRetiredSessionPages(snapshot:)`, where it is implemented.
     ///
     /// Keyed by gallery rather than accumulated into a scalar, deliberately: a scalar could not be
     /// corrected when a paused gallery is resumed back into the queue, and would then count that
@@ -431,6 +431,24 @@ public actor DownloadCoordinator {
     /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
     /// pause-all — rather than only the paths someone remembered to instrument.
     public var observedSchedulablePages = [String: Int]()
+    /// The galleries this session has ever observed incomplete while they were schedulable.
+    ///
+    /// For a gallery in here the record is authoritative twice over: its finished pages count raw
+    /// even once the record reads complete again — which is exactly the completion flush, where the
+    /// forced push reports a full count while the gallery is still inside its own schedulable set —
+    /// and its departure retires what that record says it finished (D-G2-01).
+    ///
+    /// A gallery never seen incomplete counts zero and retires zero, because its record's finished
+    /// pages predate the session. `shouldSchedule` returns true for any queued work item before it
+    /// consults `isIncomplete`, so a complete gallery queued for an update, a redownload, a repair
+    /// or a bare re-enqueue is schedulable — correctly, the redo must run — but those pages are the
+    /// redo's target rather than this session's progress. The rule itself (D-G4-01) is written down
+    /// on `schedulableSnapshot()` and on `reconcileRetiredSessionPages(snapshot:)`, where the two
+    /// halves are implemented.
+    ///
+    /// Session-scoped like the two above: cleared when a session starts and when one ends, seeded
+    /// from the start snapshot, and accumulated from every snapshot a push reconciles.
+    public var observedIncompleteSessionGIDs = Set<String>()
 
     public init(
         storage: DownloadStore,

@@ -395,6 +395,190 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let rejoinedPair = try lastPushedPair(spy.progressUpdates)
         #expect(rejoinedPair == openingPair)
     }
+
+    /// G-15-4 on the opening pair: a complete gallery queued for an update opens the card at zero.
+    ///
+    /// `shouldSchedule` returns `true` on `isQueuedWorkItem` before it ever consults `isIncomplete`,
+    /// so the redo is schedulable — correctly, it has to run — and the old basis then read the
+    /// manifest's six finished pages as six of six session pages. `start` arrived at its own
+    /// ceiling, `lastPushedCompletedPageCount` latched there, and the monotonic floor pinned the
+    /// card at 100% for the rest of the session: the pinned-card failure the retirement ledger
+    /// exists to eliminate, reached through a different door, and one the scheduler reads as a
+    /// stalled task before it force-expires the least-progressing ones. Those six pages are the
+    /// redo's *target* rather than this session's progress, which is what D-G4-01 says.
+    ///
+    /// Driven through `retry`, the product's own update tap: it resolves the mode, enqueues,
+    /// schedules and only then ensures the session, so the opening pair is the one a real update
+    /// produces rather than one a test staged. The gallery starts out unqueued so that tap is the
+    /// only thing that can make it schedulable.
+    @Test
+    func testACompleteGalleryQueuedForUpdateOpensTheCardAtZero() async throws {
+        let redo = SessionGallery(gid: "210270", title: "Redo", pageCount: 6, completedPageCount: 6)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [redo],
+            queuedGIDs: [],
+            client: spy.client,
+            // The tap schedules for real; skipping the operation keeps the convergence and drops
+            // the network, exactly as the pause and delete cases above do.
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+
+        try await manager.retry(gid: redo.gid, mode: .update).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        #expect(spy.startCompletedUnitCounts.last == 0)
+        #expect(spy.startTotalUnitCounts.last == 6)
+        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        let openingPair = try lastPushedPair(spy.progressUpdates)
+        #expect(openingPair.completedUnitCount == 0)
+        #expect(openingPair.totalUnitCount == 6)
+        #expect(openingPair.subtitle == "0 / 6 pages · 1 gallery")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
+    /// The retirement half of D-G4-01: a redo that never ran retires nothing when it is cancelled.
+    ///
+    /// D-G2-01 makes a departed gallery's record authoritative, which is what lets a gallery
+    /// completing between two pushes retire its full count. For a redo the session never watched
+    /// doing work, that record is authoritative about the *manifest* rather than about the session:
+    /// retiring its six pages would put six pages the session never downloaded on both sides of the
+    /// fraction and report a finished session. The trust set is what keeps the two rules apart, and
+    /// it is one formula still — no call site classifies why a gallery left.
+    ///
+    /// Staged by enqueueing the complete manifest directly rather than through `retry`, because
+    /// that is the second route into the same defect: a bare re-enqueue never touches `queuedModes`
+    /// at all, so a mode-keyed basis would have missed it entirely. It is also the route with no
+    /// scheduling in it, which is what makes the drain here a single, unraced terminal push.
+    @Test
+    func testCancellingANeverStartedUpdateRetiresNothing() async throws {
+        let redo = SessionGallery(gid: "210280", title: "Redo", pageCount: 6, completedPageCount: 6)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(galleries: [redo], client: spy.client)
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
+
+        let download = try #require(await fixture.manager.indexedDownloads(gids: [redo.gid]).first)
+        try await fixture.manager.cancelQueuedWorkItem(download, mode: .update).get()
+
+        // Nothing retired, so both sides reach zero and the display floor supplies the one page —
+        // the same shape `testASessionOutlivingWorkNobodyFinishedStillPushesAPositiveTotal` reaches
+        // from a gallery that finished nothing, which is exactly what this session observed here.
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 0)
+        #expect(terminalPair.totalUnitCount == 1)
+        #expect(terminalPair.subtitle == "0 / 1 page · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        #expect(!(await fixture.manager.testingHasContinuedSession()))
+    }
+
+    /// The survivors' half: cancelling a never-started redo must not move the fraction it leaves.
+    ///
+    /// Under the old basis the queue opened at nine of fourteen — three pages genuinely downloaded
+    /// plus six that predate the session — and the numerator floor then held the card at nine for
+    /// as long as the session lived, so the surviving gallery's real work could never show. The
+    /// redo's pages leave the denominator with it because it never ran, and the numerator holds at
+    /// the three pages that were actually finished.
+    @Test
+    func testAMidQueueUpdateCancelDoesNotInflateTheSurvivors() async throws {
+        let redo = SessionGallery(gid: "210290", title: "Redo", pageCount: 6, completedPageCount: 6)
+        let ordinary = SessionGallery(
+            gid: "210291",
+            title: "Ordinary",
+            pageCount: 8,
+            completedPageCount: 3
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [redo, ordinary],
+            queuedGIDs: [ordinary.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+
+        try await manager.retry(gid: redo.gid, mode: .redownload).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        #expect(spy.startSubtitles.last == "3 / 14 pages · 2 galleries")
+
+        let download = try #require(await manager.indexedDownloads(gids: [redo.gid]).first)
+        try await manager.cancelQueuedWorkItem(download, mode: .redownload).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        // Asserted on the last update for the reason the pause case states: the cancel converges
+        // through scheduling, and the surviving gallery's skipped scheduling converges again behind
+        // it, so how many pushes land belongs to the convergence path rather than to this subject.
+        let survivingPair = try lastPushedPair(spy.progressUpdates)
+        #expect(survivingPair.completedUnitCount == 3)
+        #expect(survivingPair.totalUnitCount == 8)
+        #expect(survivingPair.subtitle == "3 / 8 pages · 1 gallery")
+        // The numerator never reaches nine, on any push and on the start: that value is the whole
+        // defect, and a series that merely ends correctly could still have shown it on the way.
+        #expect(spy.startCompletedUnitCounts == [3])
+        #expect(spy.progressUpdates.allSatisfy({ $0.completedUnitCount == 3 }))
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
+    /// The other half of the basis: a redo the session *does* watch running earns its record back.
+    ///
+    /// Nothing here may be masked. The moment the redo's own manifest writes make the record
+    /// incomplete its finished pages count raw, with no dependence on the trust set having caught
+    /// up; and once the session has watched it doing real work, its completion flush reports the
+    /// full count even though the record reads complete again by then. That second half is what
+    /// keeps the cadence suite's pinned series intact, and it is what makes the drain here read six
+    /// of six rather than rewinding to the zero this gallery opened at.
+    @Test
+    func testARedoObservedRunningEarnsItsRecordBackAtTheDrain() async throws {
+        let redo = SessionGallery(gid: "210300", title: "Redo", pageCount: 6, completedPageCount: 6)
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(galleries: [redo], client: spy.client)
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        await fixture.manager.ensureContinuedSession()
+        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        // The redo's first manifest writes land: the record reads incomplete, so the basis counts
+        // it raw on the very next push rather than waiting for the session to have trusted it.
+        await patchManifest(of: redo, completedPageCount: 2, in: fixture)
+        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+
+        let midRunPair = try lastPushedPair(spy.progressUpdates)
+        #expect(midRunPair.completedUnitCount == 2)
+        #expect(midRunPair.totalUnitCount == 6)
+        #expect(midRunPair.subtitle == "2 / 6 pages · 1 gallery")
+
+        await completeManifest(of: redo, in: fixture)
+        await fixture.manager.settleCompletedDownload(gid: redo.gid)
+        await fixture.manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 6)
+        #expect(terminalPair.totalUnitCount == 6)
+        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
 }
 
 // MARK: - Helpers
@@ -407,6 +591,20 @@ private extension DownloadContinuedSessionLedgerTests {
         of gallery: SessionGallery,
         in fixture: SessionFixture
     ) async {
+        await patchManifest(
+            of: gallery,
+            completedPageCount: gallery.pageCount,
+            in: fixture
+        )
+    }
+
+    /// The same index seam at an arbitrary count: the mid-run state a download reaches once some of
+    /// its own page writes have landed and its record still reads incomplete.
+    func patchManifest(
+        of gallery: SessionGallery,
+        completedPageCount: Int,
+        in fixture: SessionFixture
+    ) async {
         await fixture.manager.updateDownloadIndex(
             folderURL: fixture.storage.folderURL(
                 relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
@@ -416,7 +614,7 @@ private extension DownloadContinuedSessionLedgerTests {
                     gid: gallery.gid,
                     title: gallery.title,
                     pageCount: gallery.pageCount,
-                    completedPageCount: gallery.pageCount
+                    completedPageCount: completedPageCount
                 )
             )
         )
