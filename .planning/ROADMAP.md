@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 22/22 | In Progress|  |
+| 15. Continued Background Downloads | 23/24 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 24 plans — 22 executed, 2 pending (gap closure round 7)
+**Plans**: 23/24 plans executed
 
 Plans:
 **Wave 1**
@@ -905,7 +905,7 @@ Plans:
 
 **Wave 23** *(gap closure round 7, review gap G-15-3 — blocked on 15-22 by file overlap in the drain branch and its suites, and by xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-23-PLAN.md — Re-validate drain-ness (not just session identity) behind the terminal push's main-actor hop so a mid-hop mobilization can never lose the session, correct the doc comment that named the wrong suspension, make the client-seam spy suspend like the live seam, and sweep every teardown site against the invariant
+- [x] 15-23-PLAN.md — Re-validate drain-ness (not just session identity) behind the terminal push's main-actor hop so a mid-hop mobilization can never lose the session, correct the doc comment that named the wrong suspension, make the client-seam spy suspend like the live seam, and sweep every teardown site against the invariant
 
 **Wave 24** *(gap closure round 7, review gap G-15-4 — blocked on 15-23 by file overlap in DownloadClient+ContinuedSession.swift and the continued-session suites, plus xcodebuild serialization; invocations must never overlap on this machine)*
 
