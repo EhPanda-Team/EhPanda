@@ -202,7 +202,14 @@ extension DownloadCoordinator {
         }
     }
 
-    public func prepareWorkingSeed(
+    /// Prepares the working seed silently — private so no caller outside this file can prepare one
+    /// without announcing it.
+    ///
+    /// The announcing wrapper below is the only public preparation, which is what turns a revert of
+    /// `performDownload`'s call site back to the silent variant into a compile error rather than a
+    /// suite-green regression: D-G5-01's whole liveness half rests on that one line, and both
+    /// functions being public left it unguarded (the post-15-25 review's WR-02).
+    private func prepareWorkingSeed(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
         folderURL: URL

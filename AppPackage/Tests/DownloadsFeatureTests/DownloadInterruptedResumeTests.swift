@@ -57,7 +57,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             folderURL: folderURL
         )
 
-        let workingSeed = try await manager.prepareWorkingSeed(
+        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
             payload: makePayload(gid: gid, title: "Redownload", mode: .redownload),
             existingDownload: download,
             folderURL: folderURL
@@ -95,7 +95,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             folderURL: folderURL
         )
 
-        _ = try await manager.prepareWorkingSeed(
+        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
             payload: makePayload(gid: gid, title: "Pause Survives", mode: .redownload),
             existingDownload: download,
             folderURL: folderURL

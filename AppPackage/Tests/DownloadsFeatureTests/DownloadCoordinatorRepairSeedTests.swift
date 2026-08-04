@@ -36,7 +36,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         )
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         removeTemporaryItem(at: folderURL)
-        let workingSeed = try await manager.prepareWorkingSeed(
+        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
             payload: payload,
             existingDownload: existingDownload,
             folderURL: folderURL
@@ -71,7 +71,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     }
 
     /// D-G5-01 on the route G-15-5 names: a `.repair` whose working folder lost one page file must
-    /// come out of `prepareWorkingSeed` with a record that reads incomplete.
+    /// come out of `prepareWorkingSeedAnnouncingProgress` with a record that reads incomplete.
     ///
     /// Before the reconciliation the manifest came back verbatim — `shouldReuseWorkingFolder`
     /// returns `true` unconditionally for `.repair`, `ensureWorkingManifest` finds a valid manifest
@@ -98,9 +98,10 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     /// The guard on the other side: an honest complete record is left byte-identical.
     ///
     /// The reconciliation writes only when it blanked something, so a working folder whose files are
-    /// all present must survive `prepareWorkingSeed` with the same manifest it went in with. Without
-    /// this, a rewrite-always implementation would pass both cases above while churning the manifest
-    /// on every run — and D-G4-01's ceiling guarantee depends on a complete record staying complete.
+    /// all present must survive `prepareWorkingSeedAnnouncingProgress` with the same manifest it
+    /// went in with. Without this, a rewrite-always implementation would pass both cases above while
+    /// churning the manifest on every run — and D-G4-01's ceiling guarantee depends on a complete
+    /// record staying complete.
     @Test
     func testARepairWithAllFilesPresentRewritesNothing() async throws {
         let gid = "reconcile-intact-\(UUID().uuidString)"
@@ -121,7 +122,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         let existingDownload = try #require(await manager.fetchDownload(gid: gid))
 
-        let workingSeed = try await manager.prepareWorkingSeed(
+        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: .repair),
             existingDownload: existingDownload,
             folderURL: folderURL
@@ -197,8 +198,8 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
 // MARK: - Repair Seed Helpers
 
 private extension DownloadCoordinatorRepairSeedTests {
-    /// Drives `prepareWorkingSeed` over a three-page working folder that claims every page while
-    /// page 3's file is gone, and states what D-G5-01 owes afterwards.
+    /// Drives `prepareWorkingSeedAnnouncingProgress` over a three-page working folder that claims
+    /// every page while page 3's file is gone, and states what D-G5-01 owes afterwards.
     ///
     /// Shared by the `.repair` and `.initial` cases because the rule is the same one at the same
     /// site: both modes reach `ensureWorkingManifest`'s verbatim-return branch, and the whole point
@@ -223,7 +224,7 @@ private extension DownloadCoordinatorRepairSeedTests {
         let existingDownload = try #require(await manager.fetchDownload(gid: gid))
         #expect(existingDownload.completedPageCount == 3)
 
-        let workingSeed = try await manager.prepareWorkingSeed(
+        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: mode),
             existingDownload: existingDownload,
             folderURL: folderURL
