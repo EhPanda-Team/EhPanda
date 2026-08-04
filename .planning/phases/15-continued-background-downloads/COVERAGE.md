@@ -29,7 +29,7 @@ the subtraction record against that surface; every row was decided, none was lef
 | task `identifier` (read) | OPT-OUT | the store already holds the identifier it registered and submitted; the system copy adds nothing |
 | task `expirationHandler` | INTEGRATE | |
 | task `setTaskCompleted(success:)` | INTEGRATE | |
-| `BGTaskScheduler.Error.Code` per-case branching | OPT-OUT | SC3/D-01/D-02 make every submission failure the same silent outcome — a single `unavailable` event, no user-visible error, no fallback tier — so branching on the code could only produce behavior the phase forbids |
+| `BGTaskScheduler.Error.Code` per-case branching | OPT-OUT | SC3/D-01/D-02 make every submission failure the same silent outcome — one `unavailable` event, no user-visible error, no fallback tier — so branching could only produce behavior the phase forbids |
 
 ## Decision provenance
 
