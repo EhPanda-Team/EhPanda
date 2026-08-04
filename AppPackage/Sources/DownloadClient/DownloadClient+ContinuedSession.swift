@@ -30,51 +30,97 @@ public struct ContinuedSessionProgress: Equatable, Sendable {
     }
 }
 
-/// One read of the schedulable set: what it sums to, and who was in it.
+/// One read of the schedulable set: what it sums to, who was in it, and which of them still had
+/// work left to do.
 ///
 /// A small named value for the same reason as above — an unlabeled tuple type is banned at error
 /// severity here — and one value rather than two calls because the ledger has to be reconciled
 /// against the very read whose sums it corrects. Reconciling against a second read would let a
 /// gallery be retired while the sums still counted it, or counted twice.
+///
+/// The incompleteness membership rides along for the same reason the sums do. D-G4-01's session
+/// basis is decided from a gallery's record *and* from what this session has already seen it doing,
+/// so the trust that grants the second half has to be accumulated from the same read the basis was
+/// computed from. Taken from a second read, the numerator's opening rule and the retirement's
+/// departure rule could disagree about the same gallery.
 public struct SchedulableSnapshot: Equatable, Sendable {
     /// What the live schedulable set alone reports, before any retired pages are added to it.
     public let sessionProgress: ContinuedSessionProgress
-    /// Finished pages per schedulable gallery, keyed by gallery identifier.
+    /// Session-completed pages per schedulable gallery, keyed by gallery identifier — the D-G4-01
+    /// basis the numerator above is summed from, not the raw record counts.
     public let finishedPages: [String: Int]
+    /// The galleries in this read whose records still report unfinished pages.
+    public let incompleteGalleryIDs: Set<String>
 
     public init(
         sessionProgress: ContinuedSessionProgress,
-        finishedPages: [String: Int]
+        finishedPages: [String: Int],
+        incompleteGalleryIDs: Set<String>
     ) {
         self.sessionProgress = sessionProgress
         self.finishedPages = finishedPages
+        self.incompleteGalleryIDs = incompleteGalleryIDs
     }
 }
 
 // MARK: - Continued Processing Session
 extension DownloadCoordinator {
-    /// Sums page progress across every gallery the scheduler would run, and reports which galleries
-    /// those were, from a single index read.
+    /// Sums *this session's* page progress across every gallery the scheduler would run, and reports
+    /// which galleries those were, from a single index read.
     ///
     /// Every number here comes from one snapshot on purpose: mixing snapshots is what makes a
     /// reported fraction jump around, and it would also let the retirement ledger disagree with the
     /// sums it exists to correct.
+    ///
+    /// **D-G4-01: a schedulable gallery's session-completed page count is its record's
+    /// `completedPageCount` when the record reads incomplete or this session has already observed it
+    /// incomplete, and zero otherwise.** The per-gallery `pageCount` denominator and the schedulable
+    /// `galleryCount` are untouched by the rule; only the numerator's basis is.
+    ///
+    /// It exists because schedulability and progress answer different questions. `shouldSchedule`
+    /// returns true for any queued work item before it ever consults `isIncomplete`, so a gallery
+    /// whose record is already complete is schedulable the moment it is queued for an update, a
+    /// redownload, a repair or a bare re-enqueue — correctly, because the redo has to run. Counting
+    /// its manifest's finished pages as session progress then opens the card at its own ceiling,
+    /// latches `lastPushedCompletedPageCount` there and lets the monotonic floor pin it at 100% for
+    /// the whole session: the pinned card the retirement ledger exists to prevent, reached through a
+    /// different door, and one the scheduler reads as a stalled task before it force-expires the
+    /// least-progressing ones. Those pages are the redo's *target*, not work this session did.
+    ///
+    /// Each half of the predicate earns its place:
+    /// - The record's own incompleteness is the common case, and it is what stops mid-run progress
+    ///   from ever being masked: the instant a redo's own manifest writes make the record
+    ///   incomplete, its finished pages count raw, with no dependence on trust having caught up.
+    /// - The trust set covers the completion flush, where a gallery the session watched doing real
+    ///   work reports its full count while its record already reads complete again and it is still
+    ///   inside its own schedulable set.
+    ///
+    /// Keying on the record rather than on `queuedModes` is deliberate and was the design's one
+    /// hardening. A mode-keyed basis stays set for a whole active run, so it would mask the redo's
+    /// real progress at zero — a fresh stall — and it is never set at all on the bare enqueue that
+    /// reuses a complete manifest, so that route would have stayed open.
     public func schedulableSnapshot() async -> SchedulableSnapshot {
         let downloads = await schedulableDownloads()
+        // `reduce(into:)` rather than `Dictionary(uniqueKeysWithValues:)`, which traps on a
+        // duplicate key: the index's own deduplication would be the only thing between a
+        // duplicated gallery folder and a crash on the card's progress path.
+        let sessionCompletedPages = downloads.reduce(into: [String: Int]()) { pages, download in
+            let isSessionWork = download.isIncomplete
+                || observedIncompleteSessionGIDs.contains(download.gid)
+            pages[download.gid] = isSessionWork ? download.completedPageCount : 0
+        }
         return SchedulableSnapshot(
             sessionProgress: ContinuedSessionProgress(
                 progress: DownloadProgress(
-                    completedPageCount: downloads.map(\.completedPageCount).reduce(0, +),
+                    // Summed from the very map the ledger observes, so the pushed numerator and the
+                    // per-gallery values a departure is measured against cannot come apart.
+                    completedPageCount: sessionCompletedPages.values.reduce(0, +),
                     pageCount: downloads.map(\.pageCount).reduce(0, +)
                 ),
                 galleryCount: downloads.count
             ),
-            // `reduce(into:)` rather than `Dictionary(uniqueKeysWithValues:)`, which traps on a
-            // duplicate key: the index's own deduplication would be the only thing between a
-            // duplicated gallery folder and a crash on the card's progress path.
-            finishedPages: downloads.reduce(into: [String: Int]()) { finished, download in
-                finished[download.gid] = download.completedPageCount
-            }
+            finishedPages: sessionCompletedPages,
+            incompleteGalleryIDs: Set(downloads.filter(\.isIncomplete).map(\.gid))
         )
     }
 
@@ -132,6 +178,7 @@ extension DownloadCoordinator {
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
+        observedIncompleteSessionGIDs = []
 
         let snapshot = await schedulableSnapshot()
         let clientSession = await backgroundProcessingClient.start(
@@ -161,6 +208,9 @@ extension DownloadCoordinator {
         // Seeded after the ownership re-check, so a superseded start seeds no membership: the
         // successor's own start snapshot is the only baseline its departures are measured against.
         observedSchedulablePages = snapshot.finishedPages
+        // Seeded beside the membership and under the same rule: a superseded start grants no trust
+        // either, so only the successor's own start snapshot can say what it opened watching.
+        observedIncompleteSessionGIDs = snapshot.incompleteGalleryIDs
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
@@ -236,6 +286,7 @@ extension DownloadCoordinator {
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
+        observedIncompleteSessionGIDs = []
     }
 
     /// Pauses every gallery the scheduler would run, one at a time, through the same primitive an
@@ -370,7 +421,26 @@ extension DownloadCoordinator {
     /// nothing and double-counts nothing. The alternative, a ledger fed from every queue mutation
     /// rather than from observed membership, would have to distinguish work this session actually
     /// reported from work it never saw.
-    private func reconcileRetiredSessionPages(finishedPages: [String: Int]) async {
+    ///
+    /// **The record's authority is earned, not assumed (D-G4-01).** It is authoritative about the
+    /// *manifest*; only for a gallery this session has already observed incomplete is it also
+    /// authoritative about this session's work. A redo that never ran — a complete manifest queued
+    /// for an update and then cancelled — would otherwise retire pages the session never downloaded
+    /// into both sides of the fraction and report a finished session. So a departed gallery outside
+    /// `observedIncompleteSessionGIDs` retires its last observation instead, which the same rule
+    /// made zero while it was present.
+    ///
+    /// This is not a departure-reason branch. The formula still takes no reason parameter, no call
+    /// site classifies why a gallery left, and completion, pause, delete, cancel and expiration are
+    /// treated identically; the gate reads only what this session observed while the gallery was
+    /// there.
+    ///
+    /// Accepted residual: a never-trusted redo that starts *and* finishes entirely between two
+    /// observations retires at its observed basis of zero. That is the unobserved-work convention
+    /// above reached from one observation further out, and the direction is deliberate —
+    /// under-retiring keeps the fraction at or below truth, while over-retiring is the defect.
+    private func reconcileRetiredSessionPages(snapshot: SchedulableSnapshot) async {
+        let finishedPages = snapshot.finishedPages
         // A gallery that rejoined is counted by the live sum again, so leaving it retired would
         // count its finished pages twice.
         for gid in finishedPages.keys {
@@ -385,6 +455,12 @@ extension DownloadCoordinator {
                     records[download.gid] = download
                 }
             for gid in departedGIDs {
+                guard observedIncompleteSessionGIDs.contains(gid) else {
+                    // Never watched doing work, so its record speaks for the manifest rather than
+                    // for this session: retire what was observed, which the basis made zero.
+                    retiredSessionPages[gid] = observedSchedulablePages[gid] ?? 0
+                    continue
+                }
                 guard let record = departedRecords[gid] else {
                     // Deleted outright: no record survives it, so the last observation is all the
                     // evidence there is of what this session finished for it.
@@ -397,6 +473,9 @@ extension DownloadCoordinator {
         // Replacing the map is what makes each departure detected exactly once; a retired value is
         // then frozen until that gallery rejoins the schedulable set.
         observedSchedulablePages = finishedPages
+        // Accumulated from the same read the basis was computed from, so the numerator's opening
+        // rule and the departure rule can never disagree about a gallery.
+        observedIncompleteSessionGIDs.formUnion(snapshot.incompleteGalleryIDs)
     }
 
     /// Pushes one snapshot's counts, and the subtitle built from it, to the card.
@@ -436,7 +515,7 @@ extension DownloadCoordinator {
         guard continuedSessionID == sessionID else { return }
         let snapshot = await schedulableSnapshot()
         guard continuedSessionID == sessionID else { return }
-        await reconcileRetiredSessionPages(finishedPages: snapshot.finishedPages)
+        await reconcileRetiredSessionPages(snapshot: snapshot)
         guard continuedSessionID == sessionID else { return }
         // Read the client identity only after the ownership re-check. Capturing it before the
         // suspending progress read could present a predecessor's id after a successor took over;
