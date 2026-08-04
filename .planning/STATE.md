@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Planned gap closure round 7 (15-23, 15-24)
-last_updated: "2026-08-04T11:27:48.126Z"
+stopped_at: Completed 15-23-PLAN.md
+last_updated: "2026-08-04T11:51:45.313Z"
 last_activity: 2026-08-04
-last_activity_desc: Gap closure round 7 planned (plans 15-23, 15-24)
+last_activity_desc: "Completed 15-23 (G-15-3: drain-ness re-check behind the terminal push)"
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 13
   total_plans: 195
-  completed_plans: 193
-  percent: 88
+  completed_plans: 194
+  percent: 81
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — GAP CLOSURE ROUND 7 PLANNED
-Plan: 22 of 24
-Status: Ready to execute
-Last activity: 2026-08-04 — Gap closure round 7 planned (plans 15-23, 15-24 close G-15-3 and G-15-4)
-Next: /gsd-execute-phase 15 — run gap-closure waves 23-24 (one xcodebuild invocation at a time), then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 23 of 24
+Status: Executing Phase 15
+Last activity: 2026-08-04 — Completed 15-23 (G-15-3: drain-ness re-check behind the terminal push)
+Next: /gsd-execute-phase 15 — run gap-closure wave 24 (15-24, G-15-4; one xcodebuild invocation at a time), then /gsd-verify-work 15 for the physical-device checks in 15-UAT.md
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -249,6 +249,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P20 | 25 | 2 tasks | 4 files |
 | Phase 15 P21 | 35 | 2 tasks | 1 files |
 | Phase 15 P22 | 35 | 2 tasks | 4 files |
+| Phase 15 P23 | 22min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -605,6 +606,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-22: D-G2B-01: the drain branch of reconcileContinuedSession emits exactly one progress push, after the client-session deferral and before markContinuedSessionEnded — a later position compiles and silently does nothing
 - [Phase ?]: 15-22: DEC-A left unresolved: the terminal push ships with an identifier-free drain log as the discriminator; rebasing galleryCount onto the session's whole coverage is a documented-contract change withheld from the executor
 - [Phase ?]: 15-22: DEC-B: nothing in this plan closes G-15-2B — 15-UAT.md test 2 stays a physical-device gate and SC2 stays PRESENT_BEHAVIOR_UNVERIFIED
+- [Phase ?]: 15-23: The drain-branch re-check guards drain-ness (hasPendingWork() == false), not session identity — identity provably cannot change inside the terminal push's main-actor hop, while drain-ness can.
+- [Phase ?]: 15-23: The client-seam test double must suspend wherever the live main-actor-confined value does; BackgroundProcessingClientSpy now yields on start/updateProgress/finish.
+- [Phase ?]: 15-23: One terminal-shaped progress push is accepted as a transient — the push's arguments are computed before the hop and re-checking ahead of the push cannot exist, because the push is the suspension.
 
 ### Pending Todos
 
@@ -653,6 +657,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T10:14:46.617Z
-Stopped at: Completed 15-22-PLAN.md
+Last session: 2026-08-04T11:51:45.302Z
+Stopped at: Completed 15-23-PLAN.md
 Resume file: None
