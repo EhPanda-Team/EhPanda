@@ -1,20 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-04T07:40:00Z
+updated: 2026-08-04T08:12:52Z
 ---
 
 ## Current Test
 
-number: 2
-name: System progress card renders real progress and its cancel matches the in-app pause baseline
-expected: |
-  One neutral card whose counts keep advancing past the first gallery's completion, whose subtitle
-  keeps naming the remaining galleries, and which still reaches completion after a mid-queue pause.
-  Card-cancel state still matches the in-app per-gallery pause baseline.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -36,7 +30,15 @@ expected: One neutral card with real, monotonically advancing counts; card-cance
 in-app per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: pending
+result: issue
+reported: "it now doesn't complete the background task when one of the tasks finished, but still the notification description updated to \"1 gallery\" when both completed"
+severity: major
+retest_outcome: |
+  Retest confirms the session-liveness half of G-15-2 is fixed on device: the continued-processing
+  session no longer finishes when the first gallery of the queue completes. The subtitle half is
+  NOT fixed — with two galleries queued, the card's description still reads "1 gallery" once both
+  have completed, instead of describing zero remaining schedulable galleries (or the card ending).
+  Recorded as a new, narrowed gap G-15-2B; G-15-2 is closed as partially resolved.
 retest_reason: |
   G-15-2's fix landed in plans 15-20 and 15-21 (commits 425b5a8b, 925669bf, b76c310c, 00bfd9ad).
   The accounting basis was replaced with a session-scoped retirement ledger, so this item needs a
@@ -78,8 +80,8 @@ result: pass
 
 total: 4
 passed: 3
-issues: 0
-pending: 1
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -87,7 +89,13 @@ blocked: 0
 
 - gap_id: G-15-2
   truth: "One queue-wide continued-processing session stays alive until the whole queue drains; its subtitle keeps describing the remaining galleries, not just one."
-  status: fix_landed_awaiting_retest
+  status: partially_resolved
+  resolved_by: [15-20-PLAN.md, 15-21-PLAN.md]
+  resolved_at: 2026-08-04
+  retest_verdict: |
+    Device retest 2026-08-04 confirms the liveness clause: the session no longer finishes when the
+    first gallery of the queue completes. The subtitle clause is still failing and continues as the
+    narrowed gap G-15-2B below.
   fix_plans: [15-20, 15-21]
   fix_commits: [425b5a8b, 925669bf, b76c310c, 00bfd9ad]
   fix_note: |
@@ -119,3 +127,18 @@ blocked: 0
     - "Rewrite DownloadContinuedSessionTests expectations at 342-372 and 413-435 to assert queue-wide progress across a gallery completion"
   debug_session: ".planning/debug/continued-session-ends-on-first-gallery-completion.md"
   liveness_note: "No per-gallery completion predicate exists — finish() is gated on hasPendingWork() == false, so the session's end condition is genuinely queue-wide. The hazard is indirect: every later flush pushes the same frozen completedUnitCount, destroying the liveness signal the scheduler uses to detect a stalled task, which invites a forced expiration that routes to pauseAllSchedulable and pauses the remaining galleries. Not cosmetic."
+
+- gap_id: G-15-2B
+  truth: "When the queue drains, the card's subtitle describes the galleries that actually remain schedulable — it must not report a leftover gallery once every queued gallery has completed."
+  status: failed
+  reason: "User reported: it now doesn't complete the background task when one of the tasks finished, but still the notification description updated to \"1 gallery\" when both completed"
+  severity: major
+  test: 2
+  observed: |
+    Two galleries queued and run to completion on a physical device. The session correctly stays
+    alive past the first gallery's completion (G-15-2's liveness clause is fixed), but the final
+    subtitle still reads "1 gallery" after both galleries have completed, rather than describing
+    zero remaining schedulable galleries.
+  narrowed_from: G-15-2
+  artifacts: []  # Filled by diagnosis
+  missing: []    # Filled by diagnosis
