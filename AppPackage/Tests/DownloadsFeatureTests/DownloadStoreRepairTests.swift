@@ -19,10 +19,16 @@ struct DownloadStoreRepairTests {
             sourceFolderURL: sourceFolderURL, storage: storage, manifest: manifest
         )
 
-        try storage.materializeRepairSeed(
+        let unansweredPages = try storage.materializeRepairSeed(
             from: sourceFolderURL, manifest: manifest, to: destinationFolderURL
         )
 
+        // Full probeability is a stated property of this fixture, not an accident: every source
+        // file it writes is a real non-empty regular file over the real file manager, so the copy
+        // carried no non-answer across it. The set is what the destination reconciliation reads as
+        // unprobed, so a fixture that quietly became unprobeable would otherwise change what the
+        // page-by-page expectations below prove.
+        #expect(unansweredPages.isEmpty)
         verifyRepairSeedResult(destinationFolderURL: destinationFolderURL)
     }
 
@@ -41,10 +47,14 @@ struct DownloadStoreRepairTests {
             sourceRootURL: sourceRootURL, destRootURL: destRootURL
         )
 
-        try env.destStorage.materializeRepairSeed(
+        let unansweredPages = try env.destStorage.materializeRepairSeed(
             from: env.sourceFolderURL, manifest: env.manifest, to: env.destinationFolderURL
         )
 
+        // Page 1's file is real and probeable and page 2's was never written, so the escape file
+        // outside the folder is refused by containment rather than by a failed probe: the carried
+        // set stays empty and the traversal rejection is what this case still measures.
+        #expect(unansweredPages.isEmpty)
         #expect(FileManager.default.fileExists(
             atPath: env.destinationFolderURL.appendingPathComponent("123_token_1.jpg").path
         ))

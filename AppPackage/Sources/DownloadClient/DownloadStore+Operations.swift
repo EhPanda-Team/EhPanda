@@ -35,11 +35,44 @@ extension DownloadStore {
         }
     }
 
+    /// Copies a completed gallery's manifest, cover and reusable page files into a fresh working
+    /// folder, and returns the claimed pages whose SOURCE-side classification was a NON-ANSWER.
+    ///
+    /// **The returned set is load-bearing, not diagnostic (G-15-19).** The manifest is copied
+    /// WHOLE while the pages are copied selectively, so every page this function does not land at
+    /// the destination becomes, to a later scan of that destination, a claimed page whose file a
+    /// successful listing simply did not yield — a POSITIVE absence, which
+    /// `reconcileWorkingManifestAgainstPageFiles` is licensed to blank. That reading is correct for
+    /// a page the source scan positively rejected or never listed. It is a LIE for a page the
+    /// source probe could not classify: nothing at all was established about that file, and
+    /// D-G13-01 holds absolutely that a non-answer is never authority to destroy a recorded hash.
+    /// Selecting through `existingPageRelativePaths` discarded exactly that distinction one layer
+    /// below the round-12 defence, which is how a source-side non-answer was laundered into a
+    /// destination-side positive absence: the destination listing is honest, its `scanSucceeded` is
+    /// true and its `unprobedPages` is empty, so nothing downstream could tell the two apart. The
+    /// classification therefore crosses the copy with the caller instead of dying at it.
+    ///
+    /// Two populations join the set, and both are disagreements about a file the source listing DID
+    /// yield rather than absences: the scan's own `unprobedPages`, and any page the scan selected
+    /// that the per-page copy guard below nonetheless skipped — a relative path that fails
+    /// containment validation, or a file the scan classified `.usable` that no longer probes as
+    /// such because it changed between the scan and the copy.
+    ///
+    /// The cover keeps its plain `Bool` guard deliberately: it carries no per-page recorded hash,
+    /// so an uncopied cover costs a re-download and destroys nothing. It is outside this signal's
+    /// blast radius.
+    ///
+    /// A throw from the manifest or page copy still propagates — a failed preparation is a
+    /// recoverable failed download. Refusing the seed on a non-answer is NOT the remedy and is not
+    /// taken: `setupWorkingFolder` would fall through to `createDirectory`, `ensureWorkingManifest`
+    /// would write a fresh all-empty manifest at the empty destination, and the record would be
+    /// republished at 0-of-N — converting a K-page hash loss into an N-page one plus a full
+    /// D-G7-01 withdrawal, strictly worse than the defect it closes.
     public func materializeRepairSeed(
         from sourceFolderURL: URL,
         manifest: DownloadManifest,
         to destinationFolderURL: URL
-    ) throws {
+    ) throws -> Set<Int> {
         try fileManager.operate {
             try $0.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true)
         }
@@ -60,18 +93,23 @@ extension DownloadStore {
             }
         }
 
-        let existingPages = existingPageRelativePaths(
-            folderURL: sourceFolderURL,
-            manifest: manifest
-        )
+        let sourceScan = pageFileScan(folderURL: sourceFolderURL, manifest: manifest)
+        var unansweredPages = sourceScan.unprobedPages
         for page in manifest.pages.keys.sorted() {
-            guard let relativePath = existingPages[page],
-                  let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: relativePath),
-                  let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: relativePath)
-            else { continue }
-            guard sanitizeAssetFileIfNeeded(at: sourcePageURL) else { continue }
+            // Not selected by the scan: the listing either never yielded a file for this page or
+            // positively rejected the one it did. Both are determinations, so the destination's
+            // own scan may treat the page as absent.
+            guard let relativePath = sourceScan.pages[page] else { continue }
+            guard let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: relativePath),
+                  let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: relativePath),
+                  sanitizeAssetFileIfNeeded(at: sourcePageURL)
+            else {
+                unansweredPages.insert(page)
+                continue
+            }
             try linkOrCopyReadableAsset(at: sourcePageURL, to: destPageURL)
         }
+        return unansweredPages
     }
 
     /// Returns the manifest with any missing page hashes filled in. Hashes are recorded at
