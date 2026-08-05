@@ -90,6 +90,19 @@ extension DownloadCoordinator {
         markContinuedSessionEnded(sessionID: sessionID)
     }
 
+    /// The task consuming the live session's event stream — the exact settle point for an
+    /// expiration, whose whole policy runs inside that task.
+    ///
+    /// Four consumers, all capturing the task BEFORE firing the expiration because the handler
+    /// nils the property on its way through: `DownloadContinuedSessionExpirationTests`'s
+    /// `testConsumingTaskEndsOnItsOwnAfterExpiration` (twice — the capture and the post-settle
+    /// nil check) and its shared `expireSession(of:spy:ensuresSession:)` helper, and
+    /// `DownloadContinuedSessionInterleaveTests`'s
+    /// `testAResumeInsideAStaleExpirationPauseSurvivesAndMobilizesTheQueue`.
+    public func testingContinuedSessionTask() -> Task<Void, Never>? {
+        continuedSessionTask
+    }
+
     /// Forwards to `pauseAllSchedulable(expiring:)`, the expiration policy's bulk pause.
     public func testingPauseAllSchedulable(expiring sessionID: UUID) async {
         await pauseAllSchedulable(expiring: sessionID)
