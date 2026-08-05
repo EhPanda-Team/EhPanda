@@ -209,4 +209,45 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         ])
         #expect(await fixture.manager.testingHasContinuedSession() == false)
     }
+
+    /// G-15-10: the spy's one-shot refusal arm may be consumed only by the refusal it causes.
+    ///
+    /// The spy's start refuses for two distinct reasons — the single-session guard (a live
+    /// `currentSessionID`) and the armed `refuseNextStart()` — and pre-fix it reset the arm on
+    /// both. A case that armed a refusal beside an overlapping start therefore lost the arm to a
+    /// refusal it did not cause, and every assertion after that point ran against control state the
+    /// case believed it still held. That is the G-15-3 double-fidelity class one layer up: the
+    /// double's control surface, rather than its suspension surface, failed to model which event
+    /// consumes it.
+    ///
+    /// The subject under test here is the double itself, so the spy's own client endpoints are the
+    /// correct seam and no coordinator participates.
+    @Test
+    func testASessionGuardRefusalLeavesAnArmedRefusalHeld() async throws {
+        let spy = BackgroundProcessingClientSpy()
+        let client = spy.client
+
+        let firstSession = try #require(await client.start("Held arm", "0 / 4 pages", 0, 4))
+
+        // Armed while a session is live: the arm belongs to the start it is armed against, not to
+        // whatever the single-session guard happens to refuse in the meantime.
+        spy.refuseNextStart()
+        let guardRefusal = await client.start("Overlapping", "0 / 4 pages", 0, 4)
+        #expect(guardRefusal == nil)
+
+        // Terminal cleanup releases the held identity, so the single-session guard stops refusing.
+        spy.expire()
+
+        // The armed refusal fires here — the start it was armed for. Pre-fix the overlapping start
+        // above burned the arm, so this call minted a session instead of being refused.
+        let armedRefusal = await client.start("Armed refusal", "0 / 4 pages", 0, 4)
+        #expect(armedRefusal == nil)
+
+        // One-shot: the arm is spent, so the next start mints a real session.
+        let fourthSession = try #require(await client.start("Arm spent", "0 / 4 pages", 0, 4))
+
+        #expect(spy.startCount == 4)
+        #expect(spy.startSessionIDs.count == 2)
+        expectNoDifference(spy.startSessionIDs, [firstSession.id, fourthSession.id])
+    }
 }
