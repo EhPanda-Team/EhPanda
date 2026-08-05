@@ -20,6 +20,16 @@ extension DownloadCoordinator {
         )
         .response()
         let detail = detailResponse.galleryDetail
+        // D-G14-01, the mid-run half: a freshly parsed detail carrying no page count settles the
+        // download as FAILED, never a silent no-op. It joins the missing-gallery-URL guard above at
+        // one boundary because both mean "this detail cannot support a run". The throw propagates
+        // through `fetchNormalizeAndDownload` to `processDownload`'s catch, then
+        // `handleProcessDownloadError` → `handleProcessDownloadAppError` → `persistFailure` →
+        // `settleDownloadFailure`, which records the error and clears the queue intent — a visible
+        // state the user can retry. No-opping instead would leave a 0-of-0 record that reads
+        // complete and fake-finishes the gallery. The guard is synchronous: nothing that did not
+        // await before awaits now.
+        guard detail.pageCount > 0 else { throw AppError.notFound }
         let galleryState = detailResponse.galleryState
         let components = buildGalleryComponents(
             download: download,

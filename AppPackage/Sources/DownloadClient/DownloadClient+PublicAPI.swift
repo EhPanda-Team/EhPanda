@@ -59,9 +59,18 @@ extension DownloadCoordinator {
         return await fetchDownload(gid: gid)
     }
 
+    /// Commits a gallery to the download queue.
+    ///
+    /// **D-G14-01: a zero-page payload is refused here, ahead of every folder and queue mutation.**
+    /// The run could not finish such a gallery — each page range it would build is empty — and this
+    /// phase deleted the discretionary background tier, so a queue entry no run can finish is a
+    /// standing liveness hazard rather than a harmless no-op. `.notFound` is the disposition the
+    /// fetch boundary already gives a detail that cannot support a run, so both entrances answer
+    /// the same degenerate parse the same way.
     public func enqueue(
         payload: DownloadRequestPayload
     ) async -> Result<Void, AppError> {
+        guard payload.galleryDetail.pageCount > 0 else { return .failure(.notFound) }
         do {
             try storage.ensureRootDirectory()
             // An already-known gallery keeps its current folder; only brand-new

@@ -148,4 +148,36 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
         )
         #expect(inspectionPages.isEmpty)
     }
+
+    // MARK: - Entrance Dispositions (D-G14-01)
+
+    @Test
+    func testEnqueueRejectsAZeroPagePayload() async throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore
+        )
+        // Warm the index the way launch does, so a missing record afterwards is a refusal to
+        // commit rather than an index that was never loaded.
+        await manager.reloadDownloadIndex()
+
+        let payload = makeZeroPagePayload()
+        let result = await manager.enqueue(payload: payload)
+
+        guard case .failure(let error) = result else {
+            Issue.record("Expected enqueue to reject a zero-page payload, got \(result).")
+            return
+        }
+        #expect(error == .notFound)
+        let record = await manager.fetchDownload(gid: payload.gallery.gid)
+        #expect(record == nil)
+        #expect(queueStore.gids.isEmpty)
+    }
 }
