@@ -311,13 +311,19 @@ extension DownloadCoordinator {
     /// forced flush; and every page task removes its own background-task record on each exit,
     /// inside the task group the run awaits.
     ///
-    /// The writers this re-clears are the queue-mobilizing entry points, which take no scheduling
-    /// block and so are free to land inside the wait: `performRetry` and `performRetryPages` each
-    /// set `queuedModes[gid]` and enqueue the gid, and `resume(gid:)` does the same. For an
-    /// expiration-owned pause the `ownsExpirationPause` re-check above turns exactly that
-    /// interleaving into `.superseded`, so this line is never reached; for a user pause there is
-    /// deliberately no such guard, because an explicit pause that a background retry could quietly
-    /// undo is not a pause. `testAUserPauseIsNeverAbandonedByAnInterleavingRetry` pins the
+    /// The writers this re-clears are the queue-mobilizing entry points, stated as an invariant
+    /// rather than as an inventory: NO queue-mobilizing entry point takes a scheduling block, so any
+    /// of them is free to land inside the unbounded wait above and put back the queue intent this
+    /// pause has just removed. The invariant holds from the other side — every operation that takes
+    /// a block parks, deletes or moves a gallery, and none of them mobilizes the queue — which is
+    /// why `DownloadSourceInventoryTests` pins the `blockScheduling(gid:)` call-site census instead:
+    /// a mobilizer quietly gaining a block, or a new blocking operation appearing, fails that test.
+    /// The enumeration this replaces named three such writers and source answered with a fourth,
+    /// `enqueue(payload:)`, which advances the gid's queue intent and enqueues it exactly as
+    /// `resume(gid:)` does. For an expiration-owned pause the `ownsExpirationPause` re-check above
+    /// turns exactly that interleaving into `.superseded`, so this line is never reached; for a user
+    /// pause there is deliberately no such guard, because an explicit pause a background retry could
+    /// quietly undo is not a pause. `testAUserPauseIsNeverAbandonedByAnInterleavingRetry` pins the
     /// difference from both sides.
     private func writeSettledPauseRecord(gid: String) async {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
