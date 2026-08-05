@@ -311,13 +311,15 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderURL: folderURL
             )
-            let existingPages = storage.existingPageRelativePaths(
+            let pageFileScan = storage.pageFileScan(
                 folderURL: folderURL,
                 manifest: manifest
             )
+            let existingPages = pageFileScan.pages
             let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
                 manifest: manifest,
                 existingPages: existingPages,
+                scanSucceeded: pageFileScan.scanSucceeded,
                 folderURL: folderURL
             )
             let coverRelativePath = storage.existingCoverRelativePath(
@@ -426,11 +428,38 @@ extension DownloadCoordinator {
     /// No suspension is introduced: `existingPages` is the dictionary `prepareWorkingSeed` already
     /// read, so no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are
     /// same-actor synchronous calls.
+    ///
+    /// **Positive-signal rule: a best-effort probe's non-answer is never authority for destroying
+    /// recorded hashes (G-15-9).** The scan that produces `existingPages` swallows failure at three
+    /// levels — `existingAssetFileURLs` on any `contentsOfDirectory` failure, the per-page
+    /// `sanitizeAssetFileIfNeeded` drop, and its `canReadNonEmptyFile` fallback on any open or read
+    /// failure. Each of those fails for transient reasons: descriptor exhaustion, `EBUSY`, and a
+    /// data-protection denial while the device is locked, which is precisely the state a backgrounded
+    /// continued-processing session runs in. `prepareWorkingSeed` scans once and hands the single
+    /// answer here, so before this guard ONE failed enumeration blanked every claimed page of the
+    /// gallery in one pass, rewrote the manifest, published a 0-of-N record and — through the
+    /// enclosing D-G7-01 bracket — withdrew the full count from the floor, all unlogged. While the
+    /// empty answer only caused a re-fetch it was harmless; D-G5-01 made it destructive.
+    ///
+    /// **Wholesale refusal, and the tradeoff it deliberately accepts.** The refusal is also taken
+    /// when a NOMINALLY SUCCESSFUL listing would blank every claimed page. The manifest was just read
+    /// out of this very folder, so a listing of it that accounts for none of its claimed pages is the
+    /// signature of per-file probe failure en masse — the sanitization levels above failing for every
+    /// file — rather than proof that every page vanished. The cost is that a genuinely
+    /// all-pages-vanished repair is no longer reconciled: it falls back to the pre-D-G5-01 arc, where
+    /// the seed's empty `existingPages` makes the run re-fetch every page and the record's honesty
+    /// catches up at flush time, and `resumeMode`'s `storage.validate` branch remains the route that
+    /// resolves `.repair` for such a record. That is accepted against the alternative — letting one
+    /// transient enumeration failure destroy every recorded hash a gallery has. Partial blanking is
+    /// untouched: a scan that succeeds and finds SOME claimed files missing blanks exactly those.
     private func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         existingPages: [Int: String],
+        scanSucceeded: Bool,
         folderURL: URL
     ) throws -> DownloadManifest {
+        guard scanSucceeded else { return manifest }
+
         var pages = manifest.pages
         var blankedPageCount = 0
         for page in manifest.pages.keys.sorted() {
@@ -439,11 +468,23 @@ extension DownloadCoordinator {
             blankedPageCount += 1
         }
         guard blankedPageCount > 0 else { return manifest }
+        // Only claimed pages are blanked above, so equality here means every one of them would go.
+        guard blankedPageCount < manifest.completedPageCount else { return manifest }
 
         var reconciledManifest = manifest
         reconciledManifest.pages = pages
         try storage.writeManifest(reconciledManifest, folderURL: folderURL)
         updateDownloadIndex(folderURL: folderURL, manifest: reconciledManifest)
+        // Destroying recorded hashes is irreversible, so it leaves a trail a device archive can show:
+        // a real blanking and a refused one are otherwise indistinguishable after the fact. The count
+        // is an operational scalar; the gid follows the module's hash-masked identity pattern.
+        logger.notice(
+            """
+            Working manifest reconciled, blanked page count: \
+            \(blankedPageCount, privacy: .public), \
+            gid: \(manifest.gid, privacy: .private(mask: .hash)).
+            """
+        )
         return reconciledManifest
     }
 

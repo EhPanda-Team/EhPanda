@@ -563,6 +563,97 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
     }
+
+    /// G-15-9: the reconciliation must not destroy recorded hashes on a probe's NON-answer.
+    ///
+    /// `existingPageRelativePaths` is a best-effort probe that swallows failure at three levels —
+    /// `existingAssetFileURLs` returned `[]` on any `contentsOfDirectory` failure,
+    /// `sanitizeAssetFileIfNeeded` falls back to `canReadNonEmptyFile`, and that returns `false` on
+    /// any open or read failure. While the empty answer only caused a re-fetch it was harmless.
+    /// D-G5-01 made it authority for blanking, so one failed enumeration blanked EVERY claimed page
+    /// of the gallery in a single pass, rewrote the manifest, published a 0-of-N record and — since
+    /// D-G7-01's bracket — withdrew the full count from the floor, all unlogged.
+    ///
+    /// The staging is an execute-only working folder: with the read bit cleared,
+    /// `contentsOfDirectory` throws `EACCES` while the by-name manifest read and the manifest
+    /// rewrite both still work, so the failure is exactly a lost LISTING rather than a lost folder.
+    /// That is the deterministic stand-in for the transient failure family this defends against —
+    /// descriptor exhaustion, a transient `EBUSY`, and the data-protection denial a backgrounded
+    /// continued-processing session runs directly into, none of which can be provoked on demand.
+    ///
+    /// Every claimed page's file is present here, so a SUCCESSFUL scan would blank nothing: what the
+    /// case discriminates is the failed scan alone. The no-withdrawal half needs no separate
+    /// mechanism — a refusal moves no index record, so D-G7-01's delta-keyed bracket subtracts zero
+    /// by construction.
+    @Test
+    func testAWholesaleScanFailureBlanksNothingWritesNothingAndWithdrawsNothing() async throws {
+        let unlisted = SessionGallery(
+            gid: "210370",
+            title: "Unlisted",
+            pageCount: 6,
+            completedPageCount: 4
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [unlisted],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        let manager = fixture.manager
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(unlisted.gid)_token] \(unlisted.title)"
+        )
+        let originalPermissions = try #require(
+            FileManager.default.attributesOfItem(atPath: folderURL.path)[.posixPermissions]
+                as? NSNumber
+        )
+        defer {
+            // Removing the tree needs the read bit back, so the restore runs ahead of the cleanup
+            // in the same deferred block rather than racing it as a second one.
+            restoreFolderPermissions(at: folderURL, to: originalPermissions)
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+
+        try writePageFiles(for: unlisted, in: fixture, indices: [1, 2, 3, 4])
+        await manager.reloadDownloadIndex()
+        let staged = try #require(await manager.fetchDownload(gid: unlisted.gid))
+        #expect(staged.completedPageCount == 4)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+
+        // Owner write + execute, no read anywhere: listing is denied, path-addressed opens are not.
+        try FileManager.default.setAttributes(
+            [.posixPermissions: NSNumber(value: 0o311)],
+            ofItemAtPath: folderURL.path
+        )
+
+        let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: unlisted),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        // Nothing blanked and nothing re-indexed: the record the card sums from is where it was.
+        #expect(await manager.fetchDownload(gid: unlisted.gid)?.completedPageCount == 4)
+        // The probe's answer stays a probe. An empty seed makes the run re-fetch, which is the
+        // pre-D-G5-01 behavior this refusal deliberately falls back to.
+        #expect(seed.existingPages.isEmpty)
+        // The announcement's own push, and the only push recorded: no withdrawal was taken, because
+        // the refusal moved no record for the bracket's delta to measure.
+        #expect(spy.progressUpdates.count == 1)
+        let refusalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(refusalPair.completedUnitCount == 4)
+        #expect(refusalPair.totalUnitCount == 6)
+        #expect(refusalPair.subtitle == "4 / 6 pages · 1 gallery")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+
+        // Nothing written: the manifest on disk is the one the fixture staged, hash for hash.
+        restoreFolderPermissions(at: folderURL, to: originalPermissions)
+        let onDiskManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(onDiskManifest.pages == manifest(for: unlisted).pages)
+        #expect(onDiskManifest.completedPageCount == 4)
+    }
 }
 
 // MARK: - Helpers
@@ -591,6 +682,23 @@ private extension DownloadContinuedSessionBasisTests {
                 ),
                 imageURL: nil
             )
+        }
+    }
+
+    /// Puts a folder staged execute-only back to its original mode, so the fixture tree can be
+    /// enumerated and removed.
+    ///
+    /// Idempotent on purpose: the wholesale-failure case restores once to re-read the manifest and
+    /// once more in its `defer`. A failure here strands the temporary tree rather than affecting the
+    /// assertions, so it is recorded as an issue instead of thrown from a deferred block.
+    func restoreFolderPermissions(at folderURL: URL, to permissions: NSNumber) {
+        do {
+            try FileManager.default.setAttributes(
+                [.posixPermissions: permissions],
+                ofItemAtPath: folderURL.path
+            )
+        } catch {
+            Issue.record("Restoring the fixture folder's permissions failed: \(error)")
         }
     }
 }
