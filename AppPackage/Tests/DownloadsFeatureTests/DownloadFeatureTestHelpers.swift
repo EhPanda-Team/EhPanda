@@ -431,6 +431,28 @@ extension DownloadFeatureTestCase {
         }
     }
 
+    /// Puts an item a case staged unreadable — an execute-only folder, a mode-`0o000` page file —
+    /// back to its original mode, so the fixture tree can be enumerated and removed.
+    ///
+    /// Idempotent on purpose: a case that clears the read bit to make one enumeration fail restores
+    /// once to keep asserting and once more in its `defer`. A failure here strands the temporary
+    /// tree rather than affecting the assertions, so it is recorded as an issue instead of thrown
+    /// from a deferred block.
+    ///
+    /// Shared rather than file-private because the refusal families are staged from two suites now:
+    /// the reconciliation cases, which assert what a refusal does to the manifest, and the ledger's
+    /// refusal cases, which assert what the session reports for the run that follows one.
+    func restorePermissions(at url: URL, to permissions: NSNumber) {
+        do {
+            try FileManager.default.setAttributes(
+                [.posixPermissions: permissions],
+                ofItemAtPath: url.path
+            )
+        } catch {
+            Issue.record("Restoring the fixture folder's permissions failed: \(error)")
+        }
+    }
+
     func manifest(for gallery: SessionGallery) -> DownloadManifest {
         DownloadManifest(
             gid: gallery.gid,
