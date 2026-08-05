@@ -400,8 +400,8 @@ public actor DownloadCoordinator {
     /// put two progress cards on screen. The client store carries an independent re-entry guard
     /// as a second line of defense behind it.
     ///
-    /// It is rolled back, though — the teardown clears it — and `ensureContinuedSession()`
-    /// suspends twice after setting it, so a concurrent caller can legitimately see it false
+    /// It is rolled back, though — the teardown clears it — and `ensureContinuedSession()` suspends
+    /// at the client start after setting it, so a concurrent caller can legitimately see it false
     /// while a start is still in flight. The flag alone therefore cannot say *which* session it
     /// refers to, and this actor is reentrant: that is what `continuedSessionID` is for.
     public var hasLiveContinuedSession = false
@@ -430,16 +430,24 @@ public actor DownloadCoordinator {
     public var continuedSessionTask: Task<Void, Never>?
     /// The monotonic floor under the numerator this session pushes to the card.
     ///
-    /// Four writers, and no others: `ensureContinuedSession`'s synchronous reset to zero, that same
-    /// function's additive seed merge once the client start returns, the re-latch at the end of
-    /// every accepted push, and the **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`,
-    /// which gives back exactly the portion of a deliberate basis movement the numerator was
-    /// actually counting. That bracket has two call sites — `prepareWorkingSeed`'s whole preparation
-    /// and `writeInitialManifest`'s body, both in `DownloadClient+ExecutionSupport.swift` and
-    /// `DownloadClient+PublicAPI.swift` respectively — but one implementation, so the fourth writer
-    /// is one rule rather than a list of mechanisms. The floor's own premise (why a deliberate
-    /// movement must be excused rather than masked) is written on `pushContinuedSessionProgress`,
-    /// and the withdrawal's exact-portion rule on the bracket itself.
+    /// Five writers, verified exhaustive at this HEAD by grepping every assignment to this property
+    /// across `AppPackage/Sources/DownloadClient`:
+    ///
+    /// 1. `ensureContinuedSession`'s synchronous reset to zero, at the start of a session.
+    /// 2. That same function's additive seed merge, once the client start returns.
+    /// 3. `markContinuedSessionEnded`'s teardown zero, at the end of a session.
+    /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
+    /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
+    ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
+    ///    That bracket has two call sites — `prepareWorkingSeed`'s whole preparation in
+    ///    `DownloadClient+ExecutionSupport.swift` and `writeInitialManifest`'s body in
+    ///    `DownloadClient+PublicAPI.swift` — but one implementation, so this writer is one rule
+    ///    rather than a list of mechanisms.
+    ///
+    /// The floor's own premise (why a deliberate movement must be excused rather than masked) is
+    /// written on `pushContinuedSessionProgress`, and the withdrawal's exact-portion rule on the
+    /// bracket itself. Re-run that grep before trusting this list: an exhaustive-sounding inventory
+    /// that source answers with one more entry is what this phase has already lost rounds to.
     ///
     /// One deliberate transient: inside the client start's main-actor hop this value can read
     /// NEGATIVE. The reset has already run, so a withdrawal landing in that window leaves "zero
@@ -449,8 +457,9 @@ public actor DownloadCoordinator {
     /// value must not "fix" it by clamping the withdrawal: that silently re-opens the seed
     /// overwrite, which is the second half of G-15-6.
     ///
-    /// Session-scoped: cleared when a session starts and when one ends, so no floor survives into
-    /// the next session.
+    /// Session-scoped: cleared when a session starts (writer 1) and when one ends (writer 3), so no
+    /// floor survives into the next session. The rule and the inventory name the same two writers,
+    /// which is what keeps them from drifting apart.
     public var lastPushedCompletedPageCount = 0
     /// Pages this session finished for galleries that have since left the schedulable set.
     ///
