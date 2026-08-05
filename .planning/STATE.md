@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-30-PLAN.md
-last_updated: "2026-08-05T01:28:02.565Z"
+stopped_at: Completed 15-31-PLAN.md
+last_updated: "2026-08-05T01:57:22.770Z"
 last_activity: 2026-08-05
-last_activity_desc: Completed 15-30 (G-15-9 closed)
+last_activity_desc: Completed 15-31 (G-15-8 closed, WR-03 bundled)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 203
-  completed_plans: 201
-  percent: 99
+  completed_plans: 202
+  percent: 81
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 31 of 32
+Plan: 32 of 32
 Status: Ready to execute
-Last activity: 2026-08-05 — Completed 15-30 (G-15-9 closed)
-Next: /gsd-execute-phase 15 (plans 15-31..15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7 and G-15-9 are closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29 or 15-30, and closing those gaps does not discharge it
+Last activity: 2026-08-05 — Completed 15-31 (G-15-8 closed, WR-03 bundled)
+Next: /gsd-execute-phase 15 (plan 15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7, G-15-8 and G-15-9 are closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29, 15-30 or 15-31, and closing those gaps does not discharge it
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -257,6 +257,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P28 | 9min | 2 tasks | 13 files |
 | Phase 15 P29 | 70min | 2 tasks | 6 files |
 | Phase 15 P30 | 55min | 1 tasks | 3 files |
+| Phase 15 P31 | 50min | 1 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -637,6 +638,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-30: Enumeration failure is surfaced as an optional from existingAssetFileURLs; ~10 non-destructive probe callers keep their [] fallback through existingPageRelativePaths, now a pages-only forward to pageFileScan.
 - [Phase ?]: 15-30: The wholesale-blank refusal is blankedPageCount < manifest.completedPageCount — only claimed pages are blanked, so equality means every claimed page would go: the signature of per-file probe failure en masse, not proof of loss.
 - [Phase ?]: 15-30: An all-pages-vanished repair deliberately falls back to the pre-D-G5-01 arc (empty existingPages makes the run re-fetch; honesty catches up at flush time), accepted against letting one transient enumeration failure destroy every recorded hash.
+- [Phase ?]: 15-31: The scheduling block is a per-operation reference count ([String: Int]); schedulability tests ABSENCE of a key, never a stored zero, so releaseScheduling removes the entry at zero and the three readers cannot drift from the count.
+- [Phase ?]: 15-31: commitPause's not-found exit converged nowhere and its caller returns .settled verbatim — the plan's expected 'convergence owned one frame up on every path' was false in source, so the exit was fixed rather than documented as intended.
+- [Phase ?]: 15-31: An unmatched releaseScheduling logs at .error and leaves the dictionary untouched; decrementing anyway would consume a different live operation's hold and strand that operation's download.
+- [Phase ?]: 15-31: The mid-suspension teardown window is narrowed to each operation's own suspensions but deliberately left unstaged — closing it deterministically would need production suspension hooks the gap's suggested_fix does not ask for.
 
 ### Pending Todos
 
@@ -685,6 +690,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T01:28:02.555Z
-Stopped at: Completed 15-30-PLAN.md
+Last session: 2026-08-05T01:57:13.980Z
+Stopped at: Completed 15-31-PLAN.md
 Resume file: None
