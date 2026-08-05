@@ -190,77 +190,55 @@ extension DownloadCoordinator {
         gid: String,
         expiration: ExpirationPauseOwnership?
     ) async -> PauseCommitOutcome {
-        do {
-            blockScheduling(gid: gid)
-            guard let currentDownload = await fetchDownload(gid: gid)
-            else {
-                // ACTIVE-OWNERSHIP CONVERGENCE, swept for G-15-8. The former function-scoped
-                // `defer` made this the one `.settled` exit that converged nowhere: a pause of a
-                // record that vanished across the read above returned while its gid was still
-                // hidden from `schedulableDownloads()`, and nothing rescheduled afterwards. The
-                // release comes first on every exit below for the same reason — converging while
-                // the affected gallery is still blocked makes the scheduler skip it silently.
-                releaseScheduling(gid: gid)
-                await notifyObservers()
-                await scheduleNextIfNeeded()
-                return .settled(.failure(.notFound))
-            }
-            guard ownsExpirationPause(expiration, gid: gid) else {
-                // The one-frame-up convergence: `pause(gid:expiration:)` notifies, schedules and
-                // re-ensures on every `.superseded` value it receives, after this release lands.
-                releaseScheduling(gid: gid)
-                return .superseded
-            }
-            guard [.queued, .active]
-                    .contains(currentDownload.displayStatus)
-            else {
-                releaseScheduling(gid: gid)
-                await notifyObservers()
-                await scheduleNextIfNeeded()
-                return .settled(.success(()))
-            }
-            // The ownership checks guard the far side of both real suspensions: the indexed
-            // record read above and the unbounded active-task wait below. A user action landing
-            // inside `writeInitialPauseRecord`'s queue-store hop remains last-writer-wins; that
-            // single actor hop is the accepted residual, rather than false transactional
-            // atomicity across the persisted queue.
-            let taskToCancel = try await writeInitialPauseRecord(
-                gid: gid,
-                download: currentDownload
-            )
-            await taskToCancel?.value
-            guard ownsExpirationPause(expiration, gid: gid) else {
-                releaseScheduling(gid: gid)
-                return .superseded
-            }
-            try await writeSettledPauseRecord(
-                gid: gid,
-                download: currentDownload
-            )
+        // This path is non-throwing end to end, and deliberately so: no member reached from here
+        // can fail, so every exit below is a real exit and each one releases the scheduling block
+        // before it converges. A future addition that does throw stops compiling until it is given
+        // its own `catch`, which forces that release-then-converge decision to be made explicitly
+        // instead of letting a standing arm absorb it unexamined.
+        blockScheduling(gid: gid)
+        guard let currentDownload = await fetchDownload(gid: gid)
+        else {
+            // ACTIVE-OWNERSHIP CONVERGENCE, swept for G-15-8. The former function-scoped
+            // `defer` made this the one `.settled` exit that converged nowhere: a pause of a
+            // record that vanished across the read above returned while its gid was still
+            // hidden from `schedulableDownloads()`, and nothing rescheduled afterwards. The
+            // release comes first on every exit below for the same reason — converging while
+            // the affected gallery is still blocked makes the scheduler skip it silently.
             releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
-            logger.notice("Download paused, gid: \(gid, privacy: .private(mask: .hash)).")
-            return .settled(.success(()))
-        } catch let error as AppError {
-            // Both catches are reachable only from the two record writes above, which sit past the
-            // block and ahead of every release, so this is that path's single release.
-            releaseScheduling(gid: gid)
-            // Convergence is intentionally unconditional, including expiration-owned pauses:
-            // surrounding exits already converge during expiration, the failed pause's gallery is
-            // precisely the work that must not be stranded, and scheduling does not start a new
-            // continued-processing session. Gating this on `expiration == nil` would violate
-            // ACTIVE-OWNERSHIP CONVERGENCE on the expiration path.
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return .settled(.failure(error))
-        } catch {
-            logger.error("\(error, privacy: .private)")
-            releaseScheduling(gid: gid)
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return .settled(.failure(.unknown))
+            return .settled(.failure(.notFound))
         }
+        guard ownsExpirationPause(expiration, gid: gid) else {
+            // The one-frame-up convergence: `pause(gid:expiration:)` notifies, schedules and
+            // re-ensures on every `.superseded` value it receives, after this release lands.
+            releaseScheduling(gid: gid)
+            return .superseded
+        }
+        guard [.queued, .active]
+                .contains(currentDownload.displayStatus)
+        else {
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
+            return .settled(.success(()))
+        }
+        // The ownership checks guard the far side of both real suspensions: the indexed
+        // record read above and the unbounded active-task wait below. A user action landing
+        // inside `writeInitialPauseRecord`'s queue-store hop remains last-writer-wins; that
+        // single actor hop is the accepted residual, rather than false transactional
+        // atomicity across the persisted queue.
+        let taskToCancel = await writeInitialPauseRecord(gid: gid)
+        await taskToCancel?.value
+        guard ownsExpirationPause(expiration, gid: gid) else {
+            releaseScheduling(gid: gid)
+            return .superseded
+        }
+        releaseScheduling(gid: gid)
+        await notifyObservers()
+        await scheduleNextIfNeeded()
+        logger.notice("Download paused, gid: \(gid, privacy: .private(mask: .hash)).")
+        return .settled(.success(()))
     }
 
     private func ownsExpirationPause(
@@ -272,10 +250,23 @@ extension DownloadCoordinator {
             && queueIntentGeneration(for: gid) == expiration.queueIntentGeneration
     }
 
+    /// Writes the pause's record — once — and hands back the run task the caller must await before
+    /// the pause settles.
+    ///
+    /// Once, not twice, is the load-bearing part, and it is a property of the run this cancels
+    /// rather than of this function: nothing that run can still write between here and
+    /// `taskToCancel?.value` returning re-establishes any of these three clears. Its four
+    /// failure-persistence handlers are each gated on `shouldSuppressFailurePersistence(for:)`,
+    /// which stays true for exactly as long as the caller holds this gallery's scheduling block;
+    /// its page loop cancels the batch on that same block and then skips its forced flush; and
+    /// every page task removes its own background-task record on each of its exits, inside the
+    /// task group the run awaits. So a second, settling copy of these mutations would re-clear
+    /// nothing. It would only clobber whatever newer intent landed during the wait, which is the
+    /// reverse of the newest-intent-wins rule `queueIntentGeneration` encodes and the
+    /// `ownsExpirationPause` re-check applies.
     private func writeInitialPauseRecord(
-        gid: String,
-        download: DownloadedGallery
-    ) async throws -> Task<Void, Never>? {
+        gid: String
+    ) async -> Task<Void, Never>? {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
         await backgroundTaskStore.removeAll(for: gid)
@@ -288,15 +279,6 @@ extension DownloadCoordinator {
             return task
         }
         return nil
-    }
-
-    private func writeSettledPauseRecord(
-        gid: String,
-        download: DownloadedGallery
-    ) async throws {
-        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
-        await queueStore.remove(gid)
-        await backgroundTaskStore.removeAll(for: gid)
     }
 
     public func cancelQueuedWorkItem(
