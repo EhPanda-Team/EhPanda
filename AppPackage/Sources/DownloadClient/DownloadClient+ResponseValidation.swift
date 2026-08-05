@@ -264,10 +264,13 @@ extension DownloadCoordinator {
             }
             return nil
         }
+        // A gallery request URL embeds the gallery path, so it is private, and the classification is
+        // written rather than left to the unified log's default for dynamic strings: an unwritten
+        // classification is invisible to the module's log-privacy invariant either way.
         logger.error(
             """
             Download received unexpected HTML response, \
-            url: \(requestURL?.absoluteString ?? ""), \
+            url: \(requestURL?.absoluteString ?? "", privacy: .private), \
             snippet: \(String(textPrefix.prefix(240)), privacy: .private)
             """
         )

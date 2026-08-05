@@ -14,6 +14,10 @@ struct DownloadLogPrivacyInvariantTests {
     private struct ScannedFile {
         let relativePath: String
         let contents: String
+
+        var fileName: String {
+            relativePath.split(separator: "/").last.map(String.init) ?? relativePath
+        }
     }
 
     private struct ForbiddenInterpolation {
@@ -53,6 +57,34 @@ struct DownloadLogPrivacyInvariantTests {
         "privacy: ." + "private(mask: .hash)"
     }
 
+    /// The scanner's own detection tokens, assembled from fragments for the same reason the
+    /// forbidden shapes are: a repository grep gate counting a log classification must not match
+    /// the invariant that enforces it.
+    private static var loggerCallPrefix: String { "logger" + "." }
+    private static var interpolationOpening: String { "\\" + "(" }
+    private static var classificationLabel: String { "privacy" + ":" }
+
+    /// Every hash-masked interpolation the module carries, named per file.
+    ///
+    /// The former bare lower-bound threshold pinned nothing derivable: it could not say which sites
+    /// it stood for, so a masked log added or removed anywhere moved the real count while the
+    /// assertion kept passing. An equality against this table makes every such change a deliberate,
+    /// visible edit here — including the working-manifest reconciliation notice, whose whole purpose
+    /// is to leave a blanking trail a device archive can show.
+    private static let expectedHashMaskedCounts = [
+        "DownloadClient+Execution.swift": 3,
+        "DownloadClient+ExecutionSupport.swift": 1,
+        "DownloadClient+Manager.swift": 1,
+        "DownloadClient+PublicAPI.swift": 2,
+        "DownloadClient+Scheduling.swift": 3
+    ]
+
+    /// The table's sum, asserted separately against a count taken over the joined module text.
+    ///
+    /// The table is keyed by file name, so two same-named files anywhere under the module would
+    /// collapse into one entry and hide a site. The joined count cannot collapse.
+    private static let expectedHashMaskedTotal = 10
+
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {
         let files = try Self.scannedFiles()
@@ -70,6 +102,29 @@ struct DownloadLogPrivacyInvariantTests {
         }
     }
 
+    /// An interpolation with no classification at all is invisible to the check above, which can
+    /// only match a classification that is written down.
+    ///
+    /// Such a site is not wrong today — the unified log defaults a dynamic string to private — but
+    /// its correctness rests on a default rather than on an authored decision, and the boundary
+    /// this suite guards cannot see it either way. Requiring the classification at every
+    /// interpolation is what removes that blind spot.
+    @Test
+    func testEveryDownloadLogInterpolationCarriesAnExplicitPrivacyClassification() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try #require(files.contains(where: { $0.relativePath == Self.knownMember }))
+
+        let unclassified = files.flatMap({ file in
+            Self.unclassifiedInterpolations(in: file.contents)
+                .map({ "\(file.relativePath): \($0)" })
+        })
+        #expect(
+            unclassified.isEmpty,
+            "A log interpolation carries no explicit privacy classification: \(unclassified)"
+        )
+    }
+
     @Test
     func testDownloadIdentityLogsStayHashMasked() throws {
         let files = try Self.scannedFiles()
@@ -77,8 +132,17 @@ struct DownloadLogPrivacyInvariantTests {
         try #require(files.contains(where: { $0.relativePath == Self.knownMember }))
         let contents = files.map(\.contents).joined(separator: "\n")
 
-        let maskedCount = contents.components(separatedBy: Self.hashMaskedClassification).count - 1
-        #expect(maskedCount >= 8)
+        var maskedCounts = [String: Int]()
+        for file in files {
+            let count = Self.hashMaskedCount(in: file.contents)
+            guard count > 0 else { continue }
+            maskedCounts[file.fileName, default: 0] += count
+        }
+        #expect(
+            maskedCounts == Self.expectedHashMaskedCounts,
+            "The module's hash-masked log inventory moved; update the table deliberately."
+        )
+        #expect(Self.hashMaskedCount(in: contents) == Self.expectedHashMaskedTotal)
         for message in [
             "Download completed",
             "Download enqueued",
@@ -87,6 +151,86 @@ struct DownloadLogPrivacyInvariantTests {
         ] {
             #expect(contents.contains(message), "The operational log message disappeared: \(message)")
         }
+    }
+}
+
+// MARK: - Interpolation Scanning
+
+private extension DownloadLogPrivacyInvariantTests {
+    static func hashMaskedCount(in contents: String) -> Int {
+        contents.components(separatedBy: hashMaskedClassification).count - 1
+    }
+
+    /// Every interpolation inside a logger call that carries no explicit classification argument.
+    static func unclassifiedInterpolations(in contents: String) -> [String] {
+        loggerCallSpans(in: contents).flatMap({ span in
+            interpolations(in: span).filter({ $0.contains(classificationLabel) == false })
+        })
+    }
+
+    /// Each logger call's argument list, from its opening parenthesis to the balanced closing one.
+    ///
+    /// Balancing rather than reading to the end of the line is what lets the scan see the module's
+    /// multi-line messages, where every classified interpolation this suite cares about lives.
+    static func loggerCallSpans(in contents: String) -> [Substring] {
+        var spans = [Substring]()
+        var searchStart = contents.startIndex
+
+        while let prefix = contents.range(
+            of: loggerCallPrefix,
+            range: searchStart..<contents.endIndex
+        ) {
+            searchStart = prefix.upperBound
+            guard let openIndex = contents[prefix.upperBound...].firstIndex(of: "("),
+                  let closeIndex = balancedClosingIndex(in: contents, openedAt: openIndex)
+            else { continue }
+            spans.append(contents[openIndex...closeIndex])
+            searchStart = contents.index(after: closeIndex)
+        }
+        return spans
+    }
+
+    /// Each interpolation in `span`, spelled from its own opening parenthesis to the balanced
+    /// closing one, so a nested call inside an interpolation cannot end it early.
+    static func interpolations(in span: Substring) -> [String] {
+        var results = [String]()
+        var searchStart = span.startIndex
+
+        while let opening = span.range(
+            of: interpolationOpening,
+            range: searchStart..<span.endIndex
+        ) {
+            let openIndex = span.index(before: opening.upperBound)
+            guard let closeIndex = balancedClosingIndex(in: span, openedAt: openIndex) else {
+                searchStart = opening.upperBound
+                continue
+            }
+            results.append(String(span[openIndex...closeIndex]))
+            searchStart = span.index(after: closeIndex)
+        }
+        return results
+    }
+
+    static func balancedClosingIndex<Text: StringProtocol>(
+        in text: Text,
+        openedAt openIndex: Text.Index
+    ) -> Text.Index? {
+        var depth = 0
+        var index = openIndex
+
+        while index < text.endIndex {
+            switch text[index] {
+            case "(":
+                depth += 1
+            case ")":
+                depth -= 1
+                if depth == 0 { return index }
+            default:
+                break
+            }
+            index = text.index(after: index)
+        }
+        return nil
     }
 }
 

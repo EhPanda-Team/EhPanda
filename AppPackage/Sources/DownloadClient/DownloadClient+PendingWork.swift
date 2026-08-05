@@ -31,10 +31,14 @@ extension DownloadCoordinator {
     /// numerator while it downloads, then being retired at a frozen value — and let an expiration's
     /// `pauseAllSchedulable` skip the one gallery actually consuming resources.
     ///
-    /// The union widens WHICH records the scoped read fetches, never WHAT the predicate accepts, and
-    /// it deduplicates because a gid reaching `indexedDownloads(gids:)` twice would double that
-    /// gallery's pages in the summed denominator. The empty-queue branch keeps its full index read
-    /// verbatim: `nextUnqueuedSchedulableDownload` and the resume-without-queue states depend on it.
+    /// The union widens WHICH records the scoped read fetches, never WHAT the predicate accepts. Its
+    /// membership check is redundant defence rather than load-bearing arithmetic:
+    /// `indexedDownloads(gids:)` filters `downloadIndex.values`, which holds exactly one record per
+    /// gid, and `downloads(from:)` deduplicates by gid again — so a duplicated scoped gid could not
+    /// double that gallery's pages in the summed denominator. The check stays because a cheap
+    /// invariant at the read keeps the scoped list canonical if either downstream shape ever
+    /// changes. The empty-queue branch keeps its full index read verbatim:
+    /// `nextUnqueuedSchedulableDownload` and the resume-without-queue states depend on it.
     func schedulableDownloads() async -> [DownloadedGallery] {
         let queuedGIDs = queueStore.gids
         var scopedGIDs = queuedGIDs
