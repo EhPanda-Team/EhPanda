@@ -170,10 +170,15 @@ extension DownloadCoordinator {
     /// identifier for a session that never starts. Work that becomes schedulable without a tap
     /// therefore runs foreground-only until the next qualifying tap.
     ///
-    /// Setting the liveness flag and stamping the session id synchronously, before the first
-    /// point another caller could interleave, is the guard against two callers both reaching the
-    /// start call. It matters for more than a duplicate card: identifiers are minted per session,
-    /// and registering a second launch handler for one terminates the app.
+    /// Setting the liveness flag and stamping the session id is the guard against two callers both
+    /// reaching the start call. It matters for more than a duplicate card: identifiers are minted
+    /// per session, and registering a second launch handler for one terminates the app.
+    ///
+    /// The guard line below awaits `hasPendingWork()`, which reads `activeTask` and then the queue
+    /// store through `schedulableDownloads()`. These are same-actor calls that do not suspend today,
+    /// so the stretch from that guard through the id stamp admits no interleaving as written; an
+    /// `await` introduced inside them reopens the two-starters window this guard closes and needs
+    /// its own re-validation.
     ///
     /// Interleavings around the suspending client start have explicit dispositions:
     /// - FORBIDDEN: a drain cannot clear ownership mid-start and let a second tap issue an
@@ -216,8 +221,9 @@ extension DownloadCoordinator {
             return
         }
         // The client start's main-actor hop is the real reentrancy window above. The pending-work
-        // and progress reads are same-actor calls whose callees do not suspend today, and this
-        // ownership re-check defends the path regardless.
+        // and progress reads are same-actor calls that do not suspend today; an `await` introduced
+        // inside them reopens this window and needs its own re-validation, and this ownership
+        // re-check defends the path regardless.
         guard continuedSessionID == sessionID else {
             await backgroundProcessingClient.finish(clientSession.id, true)
             return
@@ -390,16 +396,16 @@ extension DownloadCoordinator {
     /// The push's tail crosses the client seam — `updateProgress` hops to the `@MainActor`
     /// `ContinuedProcessingSession` — where this branch's tail was previously suspension-free. The
     /// index read and the ledger's record read inside the push are same-actor calls that do not
-    /// suspend; that main-actor hop is the whole of the window. Ownership *and* the drain predicate
-    /// are therefore re-checked behind it (**D-G3-01: teardown runs only over a still-true
+    /// suspend today; that main-actor hop is the whole of the window. Ownership *and* the drain
+    /// predicate are therefore re-checked behind it (**D-G3-01: teardown runs only over a still-true
     /// justifying observation**). Re-checking identity alone would guard the invariant that cannot
     /// fail: minting a successor requires `ensureContinuedSession` to pass `!hasLiveContinuedSession`
     /// and that flag stays true until teardown, while drain-ness can and does go stale there.
     ///
     /// The re-check itself must not suspend, exactly as `ensureContinuedSession` states for its own
     /// guard: `hasPendingWork()` reads `activeTask` and then the queue store through
-    /// `schedulableDownloads()`, and those callees do not suspend today. An `await` introduced
-    /// inside them later would reopen the window behind this guard and would need its own
+    /// `schedulableDownloads()`, and these are same-actor calls that do not suspend today; an
+    /// `await` introduced inside them reopens the window behind this guard and needs its own
     /// re-validation.
     ///
     /// One stale-shaped push is accepted rather than removed. The terminal push's arguments are
@@ -560,21 +566,36 @@ extension DownloadCoordinator {
     /// schedulable set would contribute a phantom page and no drained queue could ever report a
     /// fraction of exactly one.
     ///
-    /// Interleaving dispositions: the snapshot read and the retirement reconcile can both suspend,
-    /// so ownership is re-checked after each of them. The reconcile deliberately runs before the
-    /// client-identity guard — a departure during the start window must still be recorded even when
-    /// there is no card to paint yet, and the deferred reconcile after start then pushes counts
-    /// that already account for it.
+    /// Interleaving dispositions: the snapshot read and the retirement reconcile are same-actor
+    /// calls that do not suspend today; an `await` introduced inside them reopens the window each
+    /// following guard closes and needs its own re-validation, and the ownership re-checks after
+    /// them stand as defence under that single justification. This push's ONE real suspension is
+    /// its tail, where `updateProgress` crosses the client seam's main-actor hop.
+    ///
+    /// The reconcile deliberately runs before the client-identity guard — a departure during the
+    /// start window must still be recorded even when there is no card to paint yet — so whichever
+    /// push next reaches the card already accounts for it.
     func pushContinuedSessionProgress(sessionID: UUID) async {
         guard continuedSessionID == sessionID else { return }
         let snapshot = await schedulableSnapshot()
         guard continuedSessionID == sessionID else { return }
         await reconcileRetiredSessionPages(snapshot: snapshot)
         guard continuedSessionID == sessionID else { return }
-        // Read the client identity only after the ownership re-check. Capturing it before the
-        // suspending progress read could present a predecessor's id after a successor took over;
-        // SKIPPED: nil means there is no card to paint yet. The deferred reconcile after start
-        // re-reads schedulable work and pushes fresh counts, so this update is recovered.
+        // Read the client identity only after the ownership re-check, so the ordering survives an
+        // `await` introduced into the reads above: a capture taken ahead of them could present a
+        // predecessor's id after a successor took over.
+        //
+        // SKIPPED: nil means there is no card to paint yet, and this update is DROPPED rather than
+        // replayed. Reconciliation debt is recorded in exactly one place — the drain branch of
+        // `reconcileContinuedSession` — so every other push landing in the start window returns
+        // here recording nothing: the flush push, the run-start announcement (D-G5-01) and the
+        // non-drain convergence tail alike. That asymmetry is deliberate. A dropped TERMINAL word
+        // is the one loss no later push can repaint, which is why the drain branch defers; a
+        // dropped live push is repainted by the next flush or convergence push, each of which
+        // recomputes the whole pair from the authoritative snapshot rather than carrying this one
+        // forward. Setting the debt flag here instead would discharge a deferred reconcile for
+        // every start-window push, running repair work for windows that need none and changing
+        // production choreography for no observable defect.
         guard let clientSessionID = continuedClientSessionID else { return }
         let liveProgress = snapshot.sessionProgress.progress
         let retiredPageCount = retiredSessionPages.values.reduce(0, +)
