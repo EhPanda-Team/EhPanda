@@ -666,5 +666,4 @@ extension DownloadCoordinator {
             continuedSessionSubtitle(for: pushed)
         )
     }
-
 }

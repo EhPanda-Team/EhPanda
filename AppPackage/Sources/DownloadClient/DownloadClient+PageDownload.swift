@@ -39,11 +39,7 @@ extension DownloadCoordinator {
             progress: &progress
         )
 
-        let restoredIndices = Set(
-            progress.results
-                .prefix(progress.completedCount)
-                .map(\.index)
-        )
+        let restoredIndices = Set(progress.results.map(\.index))
         let remainingPageIndices = pendingPageIndices
             .filter({ !restoredIndices.contains($0) })
         var control = PageDownloadControl()
