@@ -1,14 +1,16 @@
 import AppModels
+import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
 
-/// Pins ACTIVE-OWNERSHIP CONVERGENCE across the ownership-clearing removal exits.
+/// Pins ACTIVE-OWNERSHIP CONVERGENCE across the removal exits and the folder-move exits.
 ///
-/// The regression is deliberately parameterized: CR-02 identified one branch, while the same
-/// defect was live in a second entry point. Before the production fix, every argument fails both
-/// the scheduling and post-failure observer assertions; a branch-only case would preserve only the
-/// path the review happened to report.
+/// The removal regression is deliberately parameterized: CR-02 identified one branch, while the
+/// same defect was live in a second entry point. Before the production fix, every argument fails
+/// both the scheduling and post-failure observer assertions; a branch-only case would preserve only
+/// the path the review happened to report. The move cases below extend the same invariant to the
+/// one family member the phase's convergence rounds never swept.
 @Suite
 struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
     @Test(arguments: RemovalFailureCase.all)
@@ -95,6 +97,126 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         #expect(emissions.count == 2)
         #expect(await fixture.manager.testingHasContinuedSession())
         #expect(clientSpy.finishRecords.isEmpty)
+    }
+
+    /// G-15-8, the success exit: `moveDownload` is the one ACTIVE-OWNERSHIP CONVERGENCE family
+    /// member the phase's convergence rounds never swept. It blocked its gid, suspended three
+    /// times, and returned on every exit without scheduling — so a move that fully succeeded left
+    /// the moved gallery queued and idle until some unrelated mutation happened to converge. With
+    /// D-03's fallback tier deleted, nothing restarts that work without a fresh qualifying tap.
+    ///
+    /// The scheduling assertion is deterministic rather than polled: `scheduleNextIfNeeded` is
+    /// awaited inside the operation and the runner records its selection synchronously within it,
+    /// so the recorder is authoritative the moment `moveDownload` returns. Nothing else in the
+    /// fixture schedules — construction deliberately does not, and `createFolder` does not — so an
+    /// empty recorder means the move alone failed to converge.
+    @Test
+    func testAMoveLeavesTheGalleryUnblockedAndTheQueueConverged() async throws {
+        let gallery = MoveConvergenceGallery.fixtureGallery(gid: "210380")
+        let scheduledGalleryRecorder = ScheduledGalleryRecorder()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            client: .noop,
+            taskRunner: MoveConvergenceGallery.inertRunner(recording: scheduledGalleryRecorder)
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        try await fixture.manager
+            .createFolder(name: MoveConvergenceGallery.destinationFolderName)
+            .get()
+
+        let result = await fixture.manager.moveDownload(
+            gid: gallery.gid,
+            toFolderName: MoveConvergenceGallery.destinationFolderName
+        )
+
+        try result.get()
+        #expect(await fixture.manager.testingIsSchedulingBlocked(gallery.gid) == false)
+        #expect(scheduledGalleryRecorder.snapshot() == [gallery.gid])
+    }
+
+    /// G-15-8, a failure exit: the destination-exists guard returns before the move is attempted,
+    /// with the block still held and nothing converged. The gallery never left its folder, so it is
+    /// precisely the still-queued work the exit must hand back to the scheduler.
+    ///
+    /// The occupied destination is staged on disk rather than through a second download, so the
+    /// guard is reached by its own condition and no second gallery can supply the scheduling the
+    /// assertion looks for.
+    @Test
+    func testAFailedMoveReleasesTheBlockAndConverges() async throws {
+        let gallery = MoveConvergenceGallery.fixtureGallery(gid: "210390")
+        let scheduledGalleryRecorder = ScheduledGalleryRecorder()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            client: .noop,
+            taskRunner: MoveConvergenceGallery.inertRunner(recording: scheduledGalleryRecorder)
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        try await fixture.manager
+            .createFolder(name: MoveConvergenceGallery.destinationFolderName)
+            .get()
+        try FileManager.default.createDirectory(
+            at: MoveConvergenceGallery.destinationGalleryURL(for: gallery, in: fixture),
+            withIntermediateDirectories: true
+        )
+
+        let result = await fixture.manager.moveDownload(
+            gid: gallery.gid,
+            toFolderName: MoveConvergenceGallery.destinationFolderName
+        )
+
+        guard case .failure = result else {
+            Issue.record("Expected the occupied destination to fail the move.")
+            return
+        }
+        #expect(await fixture.manager.testingIsSchedulingBlocked(gallery.gid) == false)
+        #expect(scheduledGalleryRecorder.snapshot() == [gallery.gid])
+    }
+}
+
+// MARK: - Move Convergence Fixture
+
+/// The shared staging for the move-exit cases: one incomplete queued gallery, a runner that
+/// records what the scheduler picked without performing any download, and the destination folder
+/// both exits target.
+private enum MoveConvergenceGallery {
+    static let destinationFolderName = "Destination"
+
+    /// Strictly between zero and `pageCount` finished pages, so the gallery is genuinely
+    /// incomplete work the scheduler must still want after the move settles.
+    static func fixtureGallery(gid: String) -> SessionGallery {
+        SessionGallery(
+            gid: gid,
+            title: "Moved",
+            pageCount: 4,
+            completedPageCount: 1
+        )
+    }
+
+    static func inertRunner(
+        recording recorder: ScheduledGalleryRecorder
+    ) -> DownloadTaskRunner {
+        DownloadTaskRunner(
+            recordScheduledGallery: { gid in
+                recorder.record(gid)
+            },
+            runScheduledDownload: { _, _ in
+                .skippedOperation
+            }
+        )
+    }
+
+    /// The exact path `moveDownload` computes for its destination, so occupying it reaches the
+    /// destination-exists guard rather than merely resembling it.
+    static func destinationGalleryURL(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture
+    ) -> URL {
+        fixture.storage
+            .userFolderURL(name: destinationFolderName)
+            .appendingPathComponent(
+                "[\(gallery.gid)_token] \(gallery.title)",
+                isDirectory: true
+            )
     }
 }
 
