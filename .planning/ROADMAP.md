@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 38/38 plans executed
+**Plans**: 41 plans — 38 executed, 3 pending (gap-closure round 13)
 
 Plans:
 **Wave 1**
@@ -966,6 +966,18 @@ Plans:
 **Wave 38** *(gap closure round 12, verification gap G-15-17 — blocked on 15-37: the producer cases assert the post-WR-08 ordering, with file overlap on ContinuedProcessingSession.swift)*
 
 - [x] 15-38-PLAN.md — Give the scheduling spy controllable outcomes (refusesNextRegistration, nextSubmissionError) and an injectable bundle identifier on the internal initializer, execute all three unavailable producers and both nil-launch arms with full release-contract assertions, verify the client's every-endpoint claim, and drive the WR-07 lag staging through testingPauseAllSchedulable asserting the running gallery is among the paused set — the SC2 cancel half as an assertion, not prose
+
+**Wave 39** *(gap closure round 13, verification blocker G-15-19 — blocked on 15-38 by round continuity from the round-12 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-39-PLAN.md — Stop the repair-seed materialization from laundering a SOURCE-side per-file non-answer into a positive absence at the DESTINATION (SC3, D-G13-01 across the route): materializeRepairSeed selects through the full PageFileScan and returns the source scan's unprobed set, setupWorkingFolder hands it back, and prepareWorkingSeed unions it into the destination scan so the EXISTING refusal line covers laundered pages — explicitly NOT the review's refuse-the-seed remedy, which the verifier traced to a strictly-worse all-N hash loss; the consumer sweep re-derived by grep with dispositions, the crossed regression (probe-failure staging × title-change materialization branch) RED-first in a NEW test file beside a genuine-absence companion that keeps destination blanking honest
+
+**Wave 40** *(gap closure round 13, verification gap G-15-20 — blocked on 15-39: WR-03/WR-04 describe the exact seam 15-39 reworks, with file overlap on DownloadStore.swift and DownloadClient+ExecutionSupport.swift)*
+
+- [ ] 15-40-PLAN.md — Kill the doc-drift generator (fourth consecutive round): correct the five contradicted claims decide-one each from fresh source enumerations — WR-01's convergence ownership as a settled/superseded category rule, WR-02's writer list replaced by the no-block-on-mobilizers invariant, WR-03's existence-guard rationale decided against the post-15-39 seam, WR-04's unreachable-equality sentence decided by trace (pinning regression required if the comparison changes), IN-01 count-free — and pair every surviving inventory with a drift-failing source-census test (blockScheduling call sites, floor writers) on the DownloadLogPrivacyInvariantTests pattern, retiring the re-run-this-grep comment
+
+**Wave 41** *(gap closure round 13, verification gap G-15-21 — blocked on 15-40 by file overlap on DownloadClient+ExecutionSupport.swift and xcodebuild serialization)*
+
+- [ ] 15-41-PLAN.md — Close the hygiene group at the roots: WR-06's dead disjunct deleted and the normalizer renamed to what it does with all callers swept, IN-02's stray indentation leveled, IN-03's max-widened bound replaced by the G-15-14 guard shape (the sweep's one widened site), IN-04's redundant Set rebuild dropped — and restore the basis suite's headroom by splitting DownloadContinuedSessionBasisTests.swift (996/1000) as a pure relocation into an extension file, proven by an unchanged test count and a green full run
 
 ### Phase 16: Dynamic Type Accessibility
 
