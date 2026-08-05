@@ -277,7 +277,7 @@ extension DownloadCoordinator {
     /// body, which is already reentrant at its payload fetch, cover download and source resolution
     /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
     /// inside that push. `prepareWorkingSeed` itself therefore stays synchronous.
-    public func prepareWorkingSeedAnnouncingProgress(
+    func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
         folderURL: URL

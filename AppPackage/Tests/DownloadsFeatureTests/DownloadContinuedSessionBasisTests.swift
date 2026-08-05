@@ -80,13 +80,13 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(staged.completedPageCount == 4)
         #expect(await manager.resumeMode(for: staged) == .repair)
 
-        await manager.ensureContinuedSession()
+        await manager.testingEnsureContinuedSession()
         #expect(spy.startSubtitles.last == "7 / 14 pages · 2 galleries")
 
         let correctedFolderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(corrected.gid)_token] \(corrected.title)"
         )
-        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: corrected),
             existingDownload: staged,
             folderURL: correctedFolderURL
@@ -121,13 +121,13 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
 
         let pageFour = try landPageFiles([4], of: survivor, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: survivorFolderURL, pages: pageFour)
-        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let firstSurvivorPair = try lastPushedPair(spy.progressUpdates)
         #expect(firstSurvivorPair.subtitle == "6 / 10 pages · 1 gallery")
 
         let pageFive = try landPageFiles([5], of: survivor, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: survivorFolderURL, pages: pageFive)
-        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let secondSurvivorPair = try lastPushedPair(spy.progressUpdates)
         #expect(secondSurvivorPair.subtitle == "7 / 10 pages · 1 gallery")
 
@@ -192,13 +192,13 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
 
         let gate = spy.armStartGate()
         defer { gate.release() }
-        let sessionStart = Task { await manager.ensureContinuedSession() }
+        let sessionStart = Task { await manager.testingEnsureContinuedSession() }
         await gate.entered()
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(seeded.gid)_token] \(seeded.title)"
         )
-        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: seeded),
             existingDownload: staged,
             folderURL: folderURL
@@ -219,14 +219,14 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let sessionID = try #require(await manager.testingContinuedSessionID())
         let pageThree = try landPageFiles([3], of: seeded, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageThree)
-        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         // The discriminator: with the seed merged the floor is 2, so the honest 3 shows.
         let firstPair = try lastPushedPair(spy.progressUpdates)
         #expect(firstPair.subtitle == "3 / 6 pages · 1 gallery")
 
         let pageFour = try landPageFiles([4], of: seeded, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageFour)
-        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         // The honest value meets the stale floor here, so this pair reads the same either way.
         let secondPair = try lastPushedPair(spy.progressUpdates)
         #expect(secondPair.subtitle == "4 / 6 pages · 1 gallery")
@@ -304,7 +304,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         // The lag state: the running gallery leaves the persisted queue while it downloads.
         await manager.testingSetQueuedGalleryIDs([queued.gid])
 
-        await manager.ensureContinuedSession()
+        await manager.testingEnsureContinuedSession()
         #expect(spy.startSubtitles.last == "6 / 14 pages · 2 galleries")
 
         control.release()

@@ -118,7 +118,7 @@ extension DownloadCoordinator {
     /// hardening. A mode-keyed basis stays set for a whole active run, so it would mask the redo's
     /// real progress at zero — a fresh stall — and it is never set at all on the bare enqueue that
     /// reuses a complete manifest, so that route would have stayed open.
-    public func schedulableSnapshot() async -> SchedulableSnapshot {
+    func schedulableSnapshot() async -> SchedulableSnapshot {
         let downloads = await schedulableDownloads()
         // `reduce(into:)` rather than `Dictionary(uniqueKeysWithValues:)`, which traps on a
         // duplicate key: the index's own deduplication would be the only thing between a
@@ -150,7 +150,7 @@ extension DownloadCoordinator {
     /// accident of the current wording: the card renders in system UI, outside the app's privacy
     /// mask and outside App Switcher snapshot protection, where a gallery name would be readable
     /// by anyone glancing at the screen.
-    public func continuedSessionSubtitle(
+    func continuedSessionSubtitle(
         for progress: ContinuedSessionProgress
     ) -> String {
         String(
@@ -189,7 +189,7 @@ extension DownloadCoordinator {
     /// Nothing here gates download work. The queue is already running by the time this is called,
     /// and a submission can silently never start, so the session is background insurance rather
     /// than a precondition for the work.
-    public func ensureContinuedSession() async {
+    func ensureContinuedSession() async {
         guard !hasLiveContinuedSession, await hasPendingWork() else { return }
         let sessionID = UUID()
         hasLiveContinuedSession = true
@@ -287,7 +287,7 @@ extension DownloadCoordinator {
     /// That policy belongs to the live session alone, which is why the identity gate comes first:
     /// an event surfacing from a superseded session's stream must not log as current, must not
     /// clear the live session's state, and above all must not pause work a newer session covers.
-    public func handleContinuedSessionEvent(
+    func handleContinuedSessionEvent(
         _ event: BackgroundProcessingEvent,
         sessionID: UUID
     ) async {
@@ -321,7 +321,7 @@ extension DownloadCoordinator {
     /// finding a different id must be a no-op, or it detaches the live session: the coordinator
     /// would believe none exists while the system still shows its card, so nothing would push
     /// progress and nothing would complete it.
-    public func markContinuedSessionEnded(sessionID: UUID) {
+    func markContinuedSessionEnded(sessionID: UUID) {
         guard continuedSessionID == sessionID else { return }
         continuedSessionID = nil
         continuedClientSessionID = nil
@@ -347,7 +347,7 @@ extension DownloadCoordinator {
     /// expiring session and the queue-intent generation current when this loop chose it, so a D-07
     /// tap that lands across the pause's suspensions advances the intent and makes the stale pause
     /// abandon its write.
-    public func pauseAllSchedulable(expiring sessionID: UUID) async {
+    func pauseAllSchedulable(expiring sessionID: UUID) async {
         let gids = await schedulableDownloads().map(\.gid)
         for gid in gids {
             guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
@@ -407,7 +407,7 @@ extension DownloadCoordinator {
     /// terminal-shaped pair before the next live push corrects it. Re-checking ahead of the push
     /// cannot exist, because the push *is* the suspension; the numerator floor holds throughout and
     /// the very next convergence repaints, so this is a transient string rather than a state defect.
-    public func reconcileContinuedSession() async {
+    func reconcileContinuedSession() async {
         guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
             guard continuedSessionID == sessionID else { return }
@@ -562,7 +562,7 @@ extension DownloadCoordinator {
     /// client-identity guard — a departure during the start window must still be recorded even when
     /// there is no card to paint yet, and the deferred reconcile after start then pushes counts
     /// that already account for it.
-    public func pushContinuedSessionProgress(sessionID: UUID) async {
+    func pushContinuedSessionProgress(sessionID: UUID) async {
         guard continuedSessionID == sessionID else { return }
         let snapshot = await schedulableSnapshot()
         guard continuedSessionID == sessionID else { return }

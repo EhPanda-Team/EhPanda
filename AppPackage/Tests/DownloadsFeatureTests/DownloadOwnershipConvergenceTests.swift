@@ -48,7 +48,7 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(await fixture.manager.testingHasContinuedSession())
         let activeTask = Task<Void, Never> {
             await sleepIgnoringCancellation(for: .seconds(60))

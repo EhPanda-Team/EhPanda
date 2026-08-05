@@ -23,7 +23,7 @@ struct DownloadDeleteConvergenceTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let clientSessionID = try #require(clientSpy.startSessionIDs.first)
         #expect(await fixture.manager.testingHasContinuedSession())
 
@@ -80,7 +80,7 @@ struct DownloadDeleteConvergenceTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(await fixture.manager.testingHasContinuedSession())
 
         let downloads = await fixture.manager.observeDownloads()
