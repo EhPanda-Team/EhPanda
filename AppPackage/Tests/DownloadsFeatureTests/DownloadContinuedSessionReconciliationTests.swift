@@ -319,24 +319,3 @@ extension DownloadContinuedSessionBasisTests {
         #expect(onDiskManifest.pages.filter({ !$0.value.isEmpty }).keys.sorted() == [1, 2])
     }
 }
-
-// MARK: - Helpers
-
-private extension DownloadContinuedSessionBasisTests {
-    /// Puts an item a case staged unreadable — an execute-only folder, a mode-`0o000` page file —
-    /// back to its original mode, so the fixture tree can be enumerated and removed.
-    ///
-    /// Idempotent on purpose: the wholesale-failure case restores once to re-read the manifest and
-    /// once more in its `defer`. A failure here strands the temporary tree rather than affecting the
-    /// assertions, so it is recorded as an issue instead of thrown from a deferred block.
-    func restorePermissions(at url: URL, to permissions: NSNumber) {
-        do {
-            try FileManager.default.setAttributes(
-                [.posixPermissions: permissions],
-                ofItemAtPath: url.path
-            )
-        } catch {
-            Issue.record("Restoring the fixture folder's permissions failed: \(error)")
-        }
-    }
-}
