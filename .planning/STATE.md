@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-37-PLAN.md
-last_updated: "2026-08-05T09:05:26.805Z"
+status: verifying
+stopped_at: Completed 15-38-PLAN.md
+last_updated: "2026-08-05T10:17:54.070Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-37 (G-15-18 six hygiene items; WR-09's removal disproved and replaced by the gap's second remedy)
+last_activity_desc: Executed 15-38 (G-15-17 closed: the scheduling double can refuse and throw, every unavailable producer and both nil-launch arms are driven, and WR-07's pause-all is asserted)
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 209
-  completed_plans: 208
-  percent: 100
+  completed_plans: 209
+  percent: 88
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTING
+Phase: 15 (continued-background-downloads) — VERIFYING
 Plan: 38 of 38
-Status: Ready to execute
-Last activity: 2026-08-05 — Executed 15-37 (G-15-18 six hygiene items; WR-09's removal disproved and replaced by the gap's second remedy)
-Next: execute phase 15 plan 15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning groups G-15-15, G-15-16 and G-15-18 are CLOSED — G-15-18 with WR-09 landing as the gap's SECOND authorized remedy, see 15-37-SUMMARY.md Deviation 1; warning group G-15-17 remains), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
+Status: Phase complete — ready for verification
+Last activity: 2026-08-05 — Executed 15-38 (G-15-17 closed: the scheduling double can refuse and throw, every unavailable producer and both nil-launch arms are driven, and WR-07's pause-all is asserted)
+Next: verify phase 15 (all 38 plans executed; round-12 gap closure complete — blockers G-15-13 and G-15-14 CLOSED, warning groups G-15-15, G-15-16, G-15-17 and G-15-18 CLOSED, G-15-18 with WR-09 landing as the gap's SECOND authorized remedy per 15-37-SUMMARY.md Deviation 1); separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included) and closing the gaps does not discharge it
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [████████░░] 88% (14/16 phases)
 
 ## Performance Metrics
 
@@ -264,6 +264,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P35 | 22min | 1 tasks | 2 files |
 | Phase 15 P36 | 37min | 2 tasks | 4 files |
 | Phase 15 P37 | 90min | 2 tasks | 9 files |
+| Phase 15 P38 | 105min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -664,6 +665,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-37: WR-09's dispositioned removal of the superseded-arm ensure was probed and REVERTED — it fails the pinned interleave regression because the mobilizing action's own ensure is swallowed by this pause's scheduling block; the gap's second authorized remedy (observable restatement) landed instead
 - [Phase 15]: 15-37: The log-privacy invariant scans BackgroundProcessingClient under the download client's rules with a per-root known member, no allowlist entry and no exemption; extended before the log fix, it failed RED on the raw error value
 - [Phase 15]: 15-37: The continued-session state is module-internal; testingContinuedSessionTask() is the suites' one route to the session task, both boundary greps empty
+- [Phase 15]: 15-38: The throwing-submission producer asserts a defensive take-back, not the gap's cancels-nothing expectation, which predates 15-37's identity-before-submission reorder.
+- [Phase 15]: 15-38: A test double's bounded rendezvous must precede its unbounded one, so the regression the case exists to catch fails at a deadline instead of hanging the suite.
 
 ### Pending Todos
 
@@ -712,6 +715,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T09:05:26.795Z
-Stopped at: Completed 15-37-PLAN.md
+Last session: 2026-08-05T10:17:45.698Z
+Stopped at: Completed 15-38-PLAN.md
 Resume file: None
