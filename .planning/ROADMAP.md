@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 41/41 | In Progress|  |
+| 15. Continued Background Downloads | 42/45 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 41/45 plans executed
+**Plans**: 42/45 plans executed
 
 Plans:
 **Wave 1**
@@ -981,7 +981,7 @@ Plans:
 
 **Wave 42** *(gap closure round 14, verification blocker G-15-22 — blocked on 15-41 by round continuity from the round-13 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-42-PLAN.md — Stop the expiration sweep from silently pausing away a just-mobilized download (SC1/SC3): pauseAllSchedulable captures every gallery's queue-intent generation in the SAME synchronous stretch as the gid snapshot — the verifier-endorsed CR-01 hoist, sound because schedulableDownloads() performs no suspending call today — so a tap landing anywhere after the sweep began forces the affected pause to .superseded and its rescue re-ensure; the multi-gallery regression lands the tap BEFORE the target gallery's iteration with a session-start discriminator proving the loop did not return early, the mobilizer census (four advanceQueueIntentGeneration callers, none stamping the session id first) re-derived by grep, and the pause doc corrected to the snapshot rule without restating G-15-24's false authority sentence
+- [x] 15-42-PLAN.md — Stop the expiration sweep from silently pausing away a just-mobilized download (SC1/SC3): pauseAllSchedulable captures every gallery's queue-intent generation in the SAME synchronous stretch as the gid snapshot — the verifier-endorsed CR-01 hoist, sound because schedulableDownloads() performs no suspending call today — so a tap landing anywhere after the sweep began forces the affected pause to .superseded and its rescue re-ensure; the multi-gallery regression lands the tap BEFORE the target gallery's iteration with a session-start discriminator proving the loop did not return early, the mobilizer census (four advanceQueueIntentGeneration callers, none stamping the session id first) re-derived by grep, and the pause doc corrected to the snapshot rule without restating G-15-24's false authority sentence
 
 **Wave 43** *(gap closure round 14, verification blocker G-15-23 — blocked on 15-42 by file overlap on DownloadClient+ContinuedSession.swift and xcodebuild serialization)*
 

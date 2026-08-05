@@ -4,16 +4,16 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: ready_to_execute
-stopped_at: Planned gap-closure round 14 — plans 15-42..15-45 verified, ready to execute
-last_updated: "2026-08-05T14:53:50.000Z"
-last_activity: 2026-08-05
-last_activity_desc: "Planned gap-closure round 14 (plans 15-42..15-45, commit 1715ad6d): 15-42 closes blocker G-15-22 with the round-13-endorsed CR-01 hoist (queue-intent generation reads move into the same synchronous stretch as the gid snapshot, justified by `schedulableDownloads()` performing no suspending call today), 15-43 closes blocker G-15-23 by gating the run-start announcement on real page work (`existingPages.count < pageCount`, true on all THREE refusal kinds per the verifier's broadening) plus an explicit trust insert (both `formUnion` writers provably cannot admit a complete-reading record), 15-44 closes G-15-24 (both false one-authority sentences corrected from fresh three-caller enumerations pinned by a drift-failing census case; device-verified registration note; timing change PROHIBITED per the WR-02 refutation), 15-45 closes G-15-25 hygiene (dead public API decided delete-or-justify). Plan-checker passed on iteration 1; decision coverage 11/11"
+status: executing
+stopped_at: Completed 15-42-PLAN.md (G-15-22 closed)
+last_updated: "2026-08-05T15:35:02.232Z"
+last_activity: 2026-08-06
+last_activity_desc: "Executed 15-42 (gap-closure round 14): blocker G-15-22 closed — `pauseAllSchedulable` now records every gallery's queue-intent generation in the same synchronous stretch as the gid snapshot (file-private `ExpirationPauseTarget` pairs), so a mobilizing tap landing anywhere after the sweep began forces `.superseded` and its re-converge-and-re-ensure rescue instead of being paused away. Multi-gallery regression RED-first (startCount 1, mobilized gid unqueued, mode nil, no live session) then green, with the session-start discriminator taken before the deferred ensure; both covered-case pins byte-unchanged; mobilizer census re-derived (four callers, none stamping `continuedSessionID` before advancing); full FeatureTests green"
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 212
-  completed_plans: 212
+  total_plans: 216
+  completed_plans: 213
   percent: 88
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY TO EXECUTE (gap-closure round 14)
-Plan: 41 of 45 executed
-Status: Round-14 plans 15-42..15-45 written, checker-verified (iteration 1), committed — not yet executed
-Last activity: 2026-08-05 — Planned gap-closure round 14: 15-42 (blocker G-15-22, SC1/SC3 — hoist the expiration sweep's queue-intent generation reads into the same synchronous stretch as the gid snapshot, the round-13-endorsed CR-01 remedy whose suspension-free justification is re-derived at execution; a tap landing anywhere after the sweep began forces `.superseded` and its rescue re-ensure; multi-gallery regression lands the tap BEFORE the target gallery's iteration with a session-start discriminator, and the double holds at the production `await taskToCancel?.value` suspension; mobilizer census over all four `advanceQueueIntentGeneration` callers with a STOP-on-discrepancy condition; widening `ownsExpirationPause` prohibited, user-pause asymmetry pinned byte-unchanged), 15-43 (blocker G-15-23, SC1/SC2 — run-start announcement gated on `existingPages.count < pageCount`, true on all THREE refusal kinds — failed enumeration, all-unprobed, all-or-nothing residual — per the verifier's broadening, plus an explicit trust insert into `observedIncompleteSessionGIDs` because the Step-0 writer census proves both `formUnion(snapshot.incompleteGalleryIDs)` writers cannot admit a complete-reading record; K=N residual and failed-enumeration regressions RED-first in a new ledger extension file via production `retryPages` with `resumeMode == .repair` grounding; D-G4-01 ceiling and D-G7-01 bracket constraints asserted; K=1 case byte-unchanged; manifest-patching helpers prohibited), 15-44 (G-15-24 — the false `schedulableDownloads()` single-authority sentence corrected at BOTH sites from a fresh enumeration (three callers: `+PendingWork.swift:14`, `+ContinuedSession.swift:122, :357`; the scheduler shares only the predicate, divergence inert behind `guard activeTask == nil`), pinned by a new drift-failing `DownloadSourceInventoryTests` census case; device-verified post-launch registration note beside `ContinuedTaskScheduling.live.register` citing 15-UAT.md test 1 in the App/Info.plist:160-165 note's shape; any registration-timing change PROHIBITED — WR-02 stands refuted), 15-45 (G-15-25 hygiene — WR-03's always-whole-array `prefix` dropped with the two-writer equivalence derived, WR-04/WR-05 formatting deleted, and the dead public API decided delete-or-justify: `validPageCount` deleted, `isReadableAssetFile` deleted with its attributes-throw fallback pin rerouted or kept with the why at the declaration; keep-with-no-recorded-why prohibited)
-Next: /gsd-execute-phase 15 (waves 42→45, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; per the round-13 verification, run it AFTER G-15-23 lands, since until then a complete-reading `.repair`/re-download legitimately reports zero progress for its whole run
+Phase: 15 (continued-background-downloads) — EXECUTING (gap-closure round 14)
+Plan: 42 of 45 executed
+Status: 15-42 complete — G-15-22 closed; 15-43, 15-44 and 15-45 still to run
+Last activity: 2026-08-06 — Executed 15-42: the expiration sweep captures each gallery's queue-intent generation with the gid snapshot, so a tap landing before that gallery's own iteration is rescued by `.superseded` instead of paused away; multi-gallery regression RED→green with the session-start discriminator, mobilizer census re-derived, full FeatureTests green
+Next: /gsd-execute-phase 15 (waves 43→45, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; per the round-13 verification, run it AFTER G-15-23 lands, since until then a complete-reading `.repair`/re-download legitimately reports zero progress for its whole run
 
 Progress: [████████░░] 88% (14/16 phases)
 
@@ -268,6 +268,7 @@ Progress: [████████░░] 88% (14/16 phases)
 | Phase 15 P39 | 25min | 2 tasks | 5 files |
 | Phase 15 P40 | 22min | 2 tasks | 5 files |
 | Phase 15 P41 | 41min | 2 tasks | 8 files |
+| Phase 15 P42 | 35min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -678,6 +679,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-41: WR-06 took both halves — dead disjunct deleted AND the function renamed clearCancellationLikeDownloadErrors, precision over normalize* prefix symmetry
 - [Phase ?]: 15-41: IN-03 took the test pin over a recorded derivation — makeInitialManifest + updateDownloadIndex reach captureCachedPage with a zero-page record without any new seam
 - [Phase ?]: 15-41: the basis suite split cut on helper usage — landPageFiles stays, restorePermissions travels, nothing promoted; 996 lines becomes 692 + 342
+- [Phase 15]: 15-42: the mid-sweep regression stages BOTH galleries queued — a gallery outside the queue is not in the sweep's gid snapshot, gets no iteration, and can express neither the defect nor the fix
+- [Phase 15]: 15-42: testingContinuedSessionTask's four-consumer roster replaced by the invariant it stood for (capture before firing the expiration), so an added case cannot falsify it
 
 ### Pending Todos
 
@@ -726,6 +729,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T13:22:39.881Z
-Stopped at: Completed 15-41-PLAN.md
+Last session: 2026-08-05T15:35:02.221Z
+Stopped at: Completed 15-42-PLAN.md (G-15-22 closed)
 Resume file: None
