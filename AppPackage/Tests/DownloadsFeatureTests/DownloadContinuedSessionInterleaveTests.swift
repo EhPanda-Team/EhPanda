@@ -65,6 +65,109 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
         )
     }
 
+    /// G-15-22: a tap landing after the expiration sweep's snapshot but BEFORE the tapped gallery's
+    /// own iteration must survive, and must still get the session it asked for.
+    ///
+    /// The sibling above lands its tap inside the held gallery's OWN pause, which is the only shape
+    /// a per-iteration generation read can detect. This case is the window that read cannot see:
+    /// two schedulable galleries, the sweep parked on the first one's cancellation hold, and the
+    /// second mobilized while its iteration is still ahead of the loop. Read at that iteration, the
+    /// expectation was the value the tap had already advanced, compared against itself — so
+    /// `ownsExpirationPause` succeeded, the stale pause settled over the user's action, and the
+    /// `.superseded` rescue that starts the tap's session never ran.
+    ///
+    /// `spy.startCount == 2` taken BEFORE the deferred ensure is the discriminator. Only the
+    /// `.superseded` arm's re-ensure can have minted a session by that point, which is also what
+    /// proves the loop reached the mobilized gallery's iteration rather than returning early at its
+    /// session guard.
+    @Test
+    func testAMobilizationLandingBeforeItsOwnIterationSurvivesTheExpirationSweep() async throws {
+        let heldGID = "210194"
+        let mobilizedGID = "210195"
+        let heldControl = BlockingRunnerControl()
+        let mobilizedControl = BlockingRunnerControl()
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [
+                .init(gid: heldGID, title: "Held", pageCount: 5, completedPageCount: 1),
+                .init(gid: mobilizedGID, title: "Mobilized", pageCount: 4)
+            ],
+            // Both are queued, so both are in the sweep's snapshot and the mobilized one has an
+            // iteration of its own for the tap to land ahead of. The active gallery sorts first,
+            // which fixes the walk order the staging depends on.
+            queuedGIDs: [heldGID, mobilizedGID],
+            client: spy.client,
+            // Each scheduled gallery parks on its own token. Only the held one stays parked through
+            // cancellation, which is what keeps the sweep's first pause suspended on its cancelled
+            // run; releasing the mobilized one on cancellation is what lets the pre-fix sweep settle
+            // instead of deadlocking against the very pause under test.
+            taskRunner: DownloadTaskRunner(
+                runScheduledDownload: { gid, _ in
+                    let control = gid == heldGID ? heldControl : mobilizedControl
+                    await withTaskCancellationHandler {
+                        await control.park()
+                    } onCancel: {
+                        control.recordCancellation()
+                        if gid != heldGID {
+                            control.release()
+                        }
+                    }
+                    return .skippedOperation
+                }
+            )
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        defer { mobilizedControl.release() }
+        defer { heldControl.release() }
+        let queueStore = DownloadQueueStore(fileURL: fixture.storage.queueURL())
+        let stagedMobilized = try #require(
+            await fixture.manager.indexedDownloads(gids: [mobilizedGID]).first
+        )
+        // Derived from the staged record rather than assumed: this is the intent the production
+        // resume records for it, and the intent a settled stale pause would erase.
+        let mobilizedMode = await fixture.manager.resumeMode(for: stagedMobilized)
+
+        await fixture.manager.testingEnsureContinuedSession()
+        let sessionTask = try #require(await fixture.manager.testingContinuedSessionTask())
+        #expect(spy.startCount == 1)
+
+        try await fixture.manager.resume(gid: heldGID).get()
+        await heldControl.started()
+
+        // The production `.expired` arm: it ends the session and then sweeps, so the snapshot under
+        // test is taken here and the first pause parks on the held gallery's cancelled run.
+        spy.expire()
+        await heldControl.cancellationObserved()
+
+        // The tap, landing after that snapshot and a whole iteration ahead of its own gallery. Its
+        // trailing ensure is deliberately not issued yet: production issues it one frame up, after
+        // `resume(gid:)` returns, which is exactly the window this case exists for.
+        try await fixture.manager.resume(gid: mobilizedGID).get()
+        await mobilizedControl.started()
+
+        heldControl.release()
+        try await waitForTaskValue(
+            sessionTask,
+            timeout: .seconds(10),
+            description: "expiration settlement after the mid-sweep mobilization"
+        )
+
+        #expect(spy.startCount == 2)
+
+        // `togglePause`'s trailing `ensureContinuedSession()`, deferred across the resume await
+        // exactly as production defers it. It finds the rescue's session already live.
+        await fixture.manager.testingEnsureContinuedSession()
+        #expect(spy.startCount == 2)
+
+        #expect(queueStore.contains(mobilizedGID))
+        #expect(await fixture.manager.queuedModes[mobilizedGID] == mobilizedMode)
+        #expect(await fixture.manager.testingHasContinuedSession())
+        // The held gallery's own pause still settled: the loop ran its first iteration to
+        // completion rather than abandoning the sweep.
+        #expect(queueStore.contains(heldGID) == false)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
     /// Keeps the generation guard scoped to expiration ownership: a user pause does not yield to
     /// an action that arrives while its cancellation is suspended. Widening the guard to every
     /// pause would reverse last-writer-wins behavior and make an explicit pause unreliable.
