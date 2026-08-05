@@ -23,7 +23,7 @@ struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
             completedPageCount: 1
         )
         let inspection = sampleInspection(download: download)
-        let loadInspectionCount = UncheckedBox(0)
+        let loadInspectionCount = LockedBox(0)
 
         var initialState = DownloadInspectorReducer.State(gid: download.gid)
         initialState.inspection = inspection

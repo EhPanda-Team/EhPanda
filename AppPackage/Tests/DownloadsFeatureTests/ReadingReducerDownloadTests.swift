@@ -91,7 +91,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async throws {
-        let capturedCalls = UncheckedBox([CapturedPageCall]())
+        let capturedCalls = LockedBox([CapturedPageCall]())
         let gallery = sampleGallery()
         let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
         var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
@@ -165,7 +165,7 @@ private extension ReadingReducerDownloadTests {
     @MainActor
     func makeCapturePageStore(
         initialState: ReadingReducer.State,
-        capturedCalls: UncheckedBox<[CapturedPageCall]>
+        capturedCalls: LockedBox<[CapturedPageCall]>
     ) -> TestStoreOf<ReadingReducer> {
         let store = TestStore(
             initialState: initialState,

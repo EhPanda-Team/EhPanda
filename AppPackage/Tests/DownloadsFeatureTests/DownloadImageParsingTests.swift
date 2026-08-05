@@ -266,7 +266,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             urlSession: URLSession(configuration: configuration)
         )
 
-        let receivedSkipServerTokens = UncheckedBox([String?]())
+        let receivedSkipServerTokens = LockedBox([String?]())
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             let body = requestBodyJSONObject(from: request)
             let skipServer = body?["nl"] as? String

@@ -16,7 +16,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { removeTemporaryItem(at: rootURL) }
-        let cachedKeysBox = UncheckedBox(Set<String>())
+        let cachedKeysBox = LockedBox(Set<String>())
         let libraryClient = try makeCacheLibraryClient(
             cachedKeys: cachedKeysBox
         )
@@ -199,7 +199,7 @@ private extension DownloadProcessCacheTests {
     func prepareCacheTestAssets(
         manager: DownloadCoordinator, gid: String,
         pageIndex: Int,
-        cachedKeysBox: UncheckedBox<Set<String>>
+        cachedKeysBox: LockedBox<Set<String>>
     ) async throws -> Set<String> {
         let currentPageImageURL = try #require(
             Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
@@ -280,7 +280,7 @@ private extension DownloadProcessCacheTests {
     }
 
     func makeCacheLibraryClient(
-        cachedKeys: UncheckedBox<Set<String>>
+        cachedKeys: LockedBox<Set<String>>
     ) throws -> LibraryClient {
         let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemTeal.setFill()

@@ -18,7 +18,7 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerObserveDownloadDoneAlsoTriggersMetadataCheckWithoutDuplicateRequests() async throws {
-        let updateCheckCount = UncheckedBox(0)
+        let updateCheckCount = LockedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let completedDownload = sampleDownload(
@@ -44,7 +44,7 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerRemoteUpdateFlagDoesNotStayStickyWhenBadgeReturnsToNone() async throws {
-        let updateCheckCount = UncheckedBox(0)
+        let updateCheckCount = LockedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let completedDownload = sampleDownload(
@@ -127,7 +127,7 @@ private extension DetailReducerMetadataUpdateTests {
     func makeUpdateTestStore(
         gid: String, gallery: Gallery, detail: GalleryDetail,
         updatedDownload: DownloadedGallery,
-        updateCheckCount: UncheckedBox<Int>
+        updateCheckCount: LockedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State(gallery: gallery)
         initialState.gid = gid

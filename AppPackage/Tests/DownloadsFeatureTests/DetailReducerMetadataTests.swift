@@ -19,7 +19,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async throws {
-        let updateCheckCount = UncheckedBox(0)
+        let updateCheckCount = LockedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = GalleryState(gid: gallery.gid)
@@ -48,7 +48,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesAfterDetail() async throws {
-        let updateCheckCount = UncheckedBox(0)
+        let updateCheckCount = LockedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
@@ -85,7 +85,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesBeforeDetail() async throws {
-        let updateCheckCount = UncheckedBox(0)
+        let updateCheckCount = LockedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
@@ -126,7 +126,7 @@ private extension DetailReducerMetadataTests {
     @MainActor
     func makeMetadataTestStore(
         gid: String, gallery: Gallery,
-        downloadValue: DownloadedGallery?, updateCheckCount: UncheckedBox<Int>
+        downloadValue: DownloadedGallery?, updateCheckCount: LockedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State(gallery: gallery)
         initialState.gid = gid
@@ -164,7 +164,7 @@ private extension DetailReducerMetadataTests {
     @MainActor
     func makeDownloadedMetadataTestStore(
         gid: String, gallery: Gallery,
-        downloadValue: DownloadedGallery?, updateCheckCount: UncheckedBox<Int>
+        downloadValue: DownloadedGallery?, updateCheckCount: LockedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         let updatedDownload = sampleDownload(
             gid: gallery.gid, title: gallery.title, status: .completed

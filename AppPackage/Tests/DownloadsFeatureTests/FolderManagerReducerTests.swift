@@ -29,7 +29,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testCreateFolderForwardsNormalizedEditingNameAndRefetches() async {
-        let createdName = UncheckedBox<String?>(nil)
+        let createdName = LockedBox<String?>(nil)
         let store = makeStore(
             folders: { createdName.value.map({ [$0] }) ?? [] },
             createFolder: { name in
@@ -55,7 +55,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testRenameFolderForwardsOriginalAndNormalizedEditedNames() async {
-        let renamedPair = UncheckedBox<(oldName: String, newName: String)?>(nil)
+        let renamedPair = LockedBox<(oldName: String, newName: String)?>(nil)
         let store = makeStore(
             folders: { ["New Name"] },
             renameFolder: { oldName, newName in
@@ -82,7 +82,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDeleteFolderForwardsNameAndRefetches() async {
-        let deletedName = UncheckedBox<String?>(nil)
+        let deletedName = LockedBox<String?>(nil)
         let store = makeStore(
             folders: { deletedName.value == nil ? ["Doomed"] : [] },
             deleteFolder: { name in
@@ -129,7 +129,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testSubmitEditingFieldCreatesFolderWhenNameIsValid() async {
-        let createdName = UncheckedBox<String?>(nil)
+        let createdName = LockedBox<String?>(nil)
         let store = makeStore(
             folders: { createdName.value.map({ [$0] }) ?? [] },
             createFolder: { name in
@@ -161,7 +161,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testSubmitEditingFieldRenamesFolderWithOriginalName() async {
-        let renamedPair = UncheckedBox<(oldName: String, newName: String)?>(nil)
+        let renamedPair = LockedBox<(oldName: String, newName: String)?>(nil)
         let store = makeStore(
             folders: { renamedPair.value == nil ? ["Old Name"] : ["New Name"] },
             renameFolder: { oldName, newName in
@@ -236,7 +236,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testCreateFolderFailureSetsFailedStateWithoutRefetching() async {
-        let fetchCount = UncheckedBox(0)
+        let fetchCount = LockedBox(0)
         let error = AppError.fileOperationFailed("disk full")
         let store = makeStore(
             folders: {
@@ -261,7 +261,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testRenameFolderFailureSetsFailedStateWithoutRefetching() async {
-        let fetchCount = UncheckedBox(0)
+        let fetchCount = LockedBox(0)
         let error = AppError.fileOperationFailed("folder busy")
         let store = makeStore(
             folders: {
@@ -286,7 +286,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDeleteFolderFailureSetsFailedStateWithoutRefetching() async {
-        let fetchCount = UncheckedBox(0)
+        let fetchCount = LockedBox(0)
         let error = AppError.fileOperationFailed("permission denied")
         let store = makeStore(
             folders: {

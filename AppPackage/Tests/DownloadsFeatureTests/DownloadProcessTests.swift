@@ -169,8 +169,8 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             allowCellular: false,
             autoRetryFailedPages: false
         )
-        let optionsBox = UncheckedBox(DownloadRequestOptions(allowCellular: true))
-        let detailAllowsCellular = UncheckedBox<Bool?>(nil)
+        let optionsBox = LockedBox(DownloadRequestOptions(allowCellular: true))
+        let detailAllowsCellular = LockedBox<Bool?>(nil)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { removeTemporaryItem(at: rootURL) }
