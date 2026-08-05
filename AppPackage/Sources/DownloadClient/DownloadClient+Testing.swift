@@ -117,6 +117,10 @@ extension DownloadCoordinator {
     }
 
     /// Forwards to `releaseScheduling(gid:)`, one operation's hand-back of that block.
+    ///
+    /// Two consumers: the overlapping-holders case, and the canary that drives an *unmatched*
+    /// release — a call no production path makes, and the only way to prove the guard reports the
+    /// violation and still mutates nothing.
     public func testingReleaseScheduling(gid: String) {
         releaseScheduling(gid: gid)
     }
