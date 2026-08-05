@@ -175,10 +175,36 @@ extension DownloadCoordinator {
             )
             // A queue-mobilizing user action reached this gallery while the expiration held its
             // scheduling block. This is that action's deferred convergence, not a background
-            // session start: once the block is gone, notify and scheduling make the gallery
-            // runnable, and the scheduler's own foreground validation makes a late ensure inert
-            // if the action no longer qualifies. This is the one-frame-up
-            // ACTIVE-OWNERSHIP CONVERGENCE path for the ownership cleared inside `commitPause`.
+            // session start. This is the one-frame-up ACTIVE-OWNERSHIP CONVERGENCE path for the
+            // ownership cleared inside `commitPause`.
+            //
+            // **The trailing ensure is stated on what the coordinator can observe (WR-09).** The
+            // former argument here — "the scheduler's own foreground validation makes a late ensure
+            // inert" — named behavior no code on this side can check, and a second claim, that the
+            // session-liveness guard would stop the call anyway, is false: the `.expired` handler
+            // calls `markContinuedSessionEnded` BEFORE `pauseAllSchedulable`
+            // (`+ContinuedSession.swift`), so by the time an expiration pause reaches this arm the
+            // liveness flag is already down. The observable bound is `ownsExpirationPause`, whose
+            // two failure branches are the only ways to arrive here:
+            //
+            // 1. **The gid's queue-intent generation advanced.** Only a queue-mobilizing user
+            //    action advances it, and every such action does call `ensureContinuedSession()` —
+            //    but that call can legitimately have done nothing, because THIS pause still held
+            //    the gallery's scheduling block when it ran: `isSchedulableDownload` rejects a
+            //    blocked gid, so `hasPendingWork()` answered false and the action's own ensure
+            //    returned at its first guard. `releaseScheduling` ran just above, so this line is
+            //    the first moment the mobilized gallery is visible to that same predicate. Dropping
+            //    the call leaves a successful tap with running work and no session — half of the
+            //    defect `testAResumeInsideAStaleExpirationPauseSurvivesAndMobilizesTheQueue` pins,
+            //    which fails on exactly `spy.startCount` and `testingHasContinuedSession()` without
+            //    it.
+            // 2. **A live successor session exists** (a non-`nil` session id that is not the
+            //    expiring one), minted by a qualifying tap that owned its own ensure. Here the call
+            //    is inert for a reason this side can check rather than infer: `hasLiveContinuedSession`
+            //    is true, which is `ensureContinuedSession()`'s own first guard.
+            //
+            // So the call starts a session on exactly the branch that would otherwise have none,
+            // and returns at a locally observable guard on the branch that already has one.
             await notifyObservers()
             await scheduleNextIfNeeded()
             await ensureContinuedSession()

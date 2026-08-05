@@ -405,7 +405,7 @@ public actor DownloadCoordinator {
     /// at the client start after setting it, so a concurrent caller can legitimately see it false
     /// while a start is still in flight. The flag alone therefore cannot say *which* session it
     /// refers to, and this actor is reentrant: that is what `continuedSessionID` is for.
-    public var hasLiveContinuedSession = false
+    var hasLiveContinuedSession = false
     /// Identifies the session `hasLiveContinuedSession` refers to, minted per session by
     /// `ensureContinuedSession()` and nil exactly when no session is live.
     ///
@@ -413,13 +413,13 @@ public actor DownloadCoordinator {
     /// superseded session's trailing teardown routinely lands late, and on a reentrant actor a
     /// queue-mobilizing tap can legitimately have started a successor by then. It pairs with the
     /// client-side identity in `continuedClientSessionID`.
-    public var continuedSessionID: UUID?
+    var continuedSessionID: UUID?
     /// The client-side identity of the live continued-processing session.
     ///
     /// Recorded by `ensureContinuedSession()` only after its ownership re-check passes, nil while
     /// a start is still in flight and after teardown, and the only value the coordinator may pass
     /// to the client's completion verb.
-    public var continuedClientSessionID: UUID?
+    var continuedClientSessionID: UUID?
     /// Whether the session named by `continuedSessionID` owes a reconciliation after its client
     /// identity lands.
     ///
@@ -427,8 +427,13 @@ public actor DownloadCoordinator {
     /// client session it would complete. The client's start verb suspends, so a queue drain that
     /// crosses that suspension is early rather than authoritative. The debt is cleared before it
     /// is discharged and whenever the session it belongs to is torn down.
-    public var continuedSessionNeedsReconciliation = false
-    public var continuedSessionTask: Task<Void, Never>?
+    var continuedSessionNeedsReconciliation = false
+    /// The task consuming the live session's event stream, nil exactly when no session is live.
+    ///
+    /// Awaiting it is how a suite settles an expiration exactly: the expiration handler's whole
+    /// policy runs inside it. Suites reach it through `testingContinuedSessionTask()` rather than
+    /// directly, which is what keeps this property — like the eight above — module-internal.
+    var continuedSessionTask: Task<Void, Never>?
     /// The monotonic floor under the numerator this session pushes to the card.
     ///
     /// Five writers, verified exhaustive at this HEAD by grepping every assignment to this property
@@ -461,7 +466,7 @@ public actor DownloadCoordinator {
     /// Session-scoped: cleared when a session starts (writer 1) and when one ends (writer 3), so no
     /// floor survives into the next session. The rule and the inventory name the same two writers,
     /// which is what keeps them from drifting apart.
-    public var lastPushedCompletedPageCount = 0
+    var lastPushedCompletedPageCount = 0
     /// Pages this session finished for galleries that have since left the schedulable set.
     ///
     /// Added to both the numerator and the denominator of every later push, which is what stops a
@@ -475,7 +480,7 @@ public actor DownloadCoordinator {
     ///
     /// Session-scoped, like `lastPushedCompletedPageCount`: cleared when a session starts and when
     /// one ends, so no ledger survives into the next session.
-    public var retiredSessionPages = [String: Int]()
+    var retiredSessionPages = [String: Int]()
     /// The schedulable galleries the last snapshot counted, and how many pages each had finished at
     /// that moment.
     ///
@@ -484,7 +489,7 @@ public actor DownloadCoordinator {
     /// schedulable set covers every departure path by construction — completion settle, the
     /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
     /// pause-all — rather than only the paths someone remembered to instrument.
-    public var observedSchedulablePages = [String: Int]()
+    var observedSchedulablePages = [String: Int]()
     /// The galleries this session has ever observed incomplete while they were schedulable.
     ///
     /// For a gallery in here the record is authoritative twice over: its finished pages count raw
@@ -502,7 +507,7 @@ public actor DownloadCoordinator {
     ///
     /// Session-scoped like the two above: cleared when a session starts and when one ends, seeded
     /// from the start snapshot, and accumulated from every snapshot a push reconciles.
-    public var observedIncompleteSessionGIDs = Set<String>()
+    var observedIncompleteSessionGIDs = Set<String>()
 
     public init(
         storage: DownloadStore,

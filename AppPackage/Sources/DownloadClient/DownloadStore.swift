@@ -428,9 +428,30 @@ public struct DownloadStore: Sendable {
         )
     }
 
+    /// Finds one named asset, collapsing a failed listing into "not found".
+    ///
+    /// **The binding rule this collapse rests on: a probe consumer may flatten a failed listing
+    /// into an empty answer only while NONE of its own consumers acts irreversibly on that
+    /// answer.** The moment one does, it must stop asking here and consume the surfaced-signal
+    /// scan instead — `pageFileScan(...)`, whose `scanSucceeded` and `unprobedPages` say
+    /// "unlistable" and "unprobeable" out loud rather than as an absence.
+    ///
+    /// G-15-9 is the recorded cost of losing that property silently: a consumer that blanked
+    /// recorded content hashes on an empty answer was reading a failed listing as an empty folder,
+    /// so a transient `contentsOfDirectory` failure — descriptor exhaustion, `EBUSY`, a
+    /// data-protection denial while the device is locked — destroyed real state. Nothing about
+    /// this function's answer distinguishes those cases; only its callers' restraint does.
+    ///
+    /// The audited-safe set at this HEAD is exactly the two lookups below it —
+    /// `existingPageFileURL(folderURL:gid:token:index:)` and
+    /// `existingCoverFileURL(folderURL:gid:token:)` — verified exhaustive by grepping this
+    /// function's name over `AppPackage/Sources`. Their own consumers all treat a nil answer as
+    /// "redo the work": the page lookup reaches `refreshManifestPageFileHash`, which returns the
+    /// manifest unchanged when it resolves nothing, and the cover lookup reaches `localCoverURL`
+    /// and `existingCoverRelativePath`, whose nil means the online cover is shown or the cover is
+    /// fetched again. Nothing on either route deletes or overwrites recorded state. Adding a third
+    /// caller means re-running that audit, not extending its conclusion.
     private func existingAssetFileURL(folderURL: URL, prefix: String) -> URL? {
-        // A cover or page lookup is a probe: an unlistable folder has no findable asset, which is
-        // the same answer an empty one gives. Collapsing nil here preserves that behavior exactly.
         existingAssetFileURL(
             in: existingAssetFileURLs(folderURL: folderURL) ?? [],
             prefix: prefix

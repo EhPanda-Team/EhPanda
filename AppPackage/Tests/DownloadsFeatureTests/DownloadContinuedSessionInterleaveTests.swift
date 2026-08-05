@@ -33,7 +33,7 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
         let queueStore = DownloadQueueStore(fileURL: context.storage.queueURL())
 
         await context.manager.testingEnsureContinuedSession()
-        let sessionTask = try #require(await context.manager.continuedSessionTask)
+        let sessionTask = try #require(await context.manager.testingContinuedSessionTask())
         #expect(spy.startCount == 1)
 
         try await context.manager.resume(gid: gid).get()

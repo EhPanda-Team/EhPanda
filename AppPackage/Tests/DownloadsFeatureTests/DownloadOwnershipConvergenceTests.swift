@@ -28,7 +28,14 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
             pageCount: 2
         )
         let clientSpy = BackgroundProcessingClientSpy()
-        defer { clientSpy.expire() }
+        // IN-03: no teardown expiration here, deliberately. A `defer { clientSpy.expire() }`
+        // registered before the fixture-removal defer runs AFTER it under LIFO, so it delivered
+        // `.expired` — and with it the handler's whole pause-all policy, unawaited — into a folder
+        // this case had already deleted, with nothing left to observe the result. Nothing consumes
+        // it either: every assertion below, `clientSpy.finishRecords` included, is evaluated before
+        // any defer runs, and this spy is local to the case. The consuming task needs no expiration
+        // to unwind — the spy holds the stream's only continuation, and it is released with the
+        // coordinator that holds the client, which finishes the stream and ends the task.
         let scheduledGalleryRecorder = ScheduledGalleryRecorder()
         let taskRunner = DownloadTaskRunner(
             recordScheduledGallery: { gid in
