@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-40-PLAN.md (G-15-20 closed; next 15-41)
-last_updated: "2026-08-05T13:04:47.465Z"
+stopped_at: Completed 15-41-PLAN.md
+last_updated: "2026-08-05T13:22:49.120Z"
 last_activity: 2026-08-05
-last_activity_desc: "Executed 15-40 (commits 6aba1457 + 8b57004c): warning group G-15-20 closed — the five doc claims source contradicted are re-derived from fresh enumerations and phrased as rules (commitPause's convergence split by exit CATEGORY; writeSettledPauseRecord's three-writer list replaced by the block-free mobilizer invariant; probeAssetFile's existence guard licensed per CONSUMER; the residual guard's true narrow reach; continuedSessionTask's count-free aside). TWO of the five gap premises did not survive re-derivation: four of seven probe callers read LISTING-derived paths (not manifest-constructed), and WR-04's suggested comparison change contradicts the verification's own detail — so both took the comment-only remedy and NO executable line moved. New DownloadSourceInventoryTests pins the blockScheduling call-site census (5) and the lastPushedCompletedPageCount writer census (5) per file plus joined total; the floor doc points at it instead of asking for a grep. Full FeatureTests green in one invocation"
+last_activity_desc: "Executed 15-41 (commits f1cc1723 + 23059bd4): hygiene group G-15-21 closed at the roots. WR-06 took BOTH halves — the dead `.error` disjunct deleted and the function renamed `clearCancellationLikeDownloadErrors` with its one caller swept, since deleting the disjunct alone leaves a name promising a normalization the body never performed. IN-02 re-indented. IN-03, the one page-count site the G-15-14 sweep WIDENED rather than guarded, now carries the sweep's own shape (`pageCount > 0` plus the honest bound) and took the TEST PIN rather than a recorded derivation: `makeInitialManifest` + the public `updateDownloadIndex` reach `captureCachedPage` with a zero-page record through production functions, and a staged cache entry makes the pre-fix unclaimed write observable. IN-04's redundant Set rebuild dropped. `DownloadContinuedSessionBasisTests.swift` split at 996 lines into 692 + 342 as a proven pure relocation — moved lines diffed byte-identical against HEAD, cut chosen by helper usage (`landPageFiles` stays, `restorePermissions` travels, nothing promoted), and the count proved neutral two independent ways: static @Test census 867 → 868 and the runner's own total 868, the +1 being Task 1's pin. Full FeatureTests green in one invocation, 868 tests, zero failures"
 progress:
   total_phases: 16
   completed_phases: 14
   total_plans: 212
-  completed_plans: 211
+  completed_plans: 212
   percent: 88
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING (gap-closure round 13)
-Plan: 40 of 41 executed
-Status: 15-40 complete (warning group G-15-20 closed) — 15-41 remains
-Last activity: 2026-08-05 — Executed 15-40: G-15-20's five doc-vs-source contradictions closed, each correction derived from an enumeration performed at execution time rather than from the gap's wording — which is what caught the gap record drifting itself: WR-03's stated mechanism ("seven call sites pass manifest-constructed paths") is false post-15-39 (four read LISTING-derived paths via `existingPageRelativePaths`/`sourceScan.pages`; only two ROUTES construct, and both throw), and WR-04's `suggested_fix` contradicts the same entry's `detail`. Both therefore took the comment-only remedy, so the production diff touches NO executable line. WR-01/WR-02/IN-01 are now rules rather than counts, and the two inventories that survive in docs are pinned by the new `DownloadSourceInventoryTests` (per-file equality + joined total, known-member guard, fragment-assembled tokens)
-Next: /gsd-execute-phase 15 (wave 41 — G-15-21's hygiene group; xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close. Note for 15-41: `validPageCount` and `isReadableAssetFile` have no production caller at all (found while enumerating for WR-03), which is that group's shape
+Plan: 41 of 41 executed
+Status: 15-41 complete (hygiene group G-15-21 closed) — round 13's three plans (15-39, 15-40, 15-41) all executed, no plan outstanding
+Last activity: 2026-08-05 — Executed 15-41: G-15-21 closed at the roots. WR-06 took BOTH halves — the dead `.error` disjunct deleted and the function renamed `clearCancellationLikeDownloadErrors` with its one caller swept, since deleting the disjunct alone leaves a name promising a normalization the body never performed. IN-02 re-indented. IN-03, the one page-count site the G-15-14 sweep WIDENED rather than guarded, now carries the sweep's own shape (`pageCount > 0` plus the honest bound) and took the TEST PIN rather than a recorded derivation: `makeInitialManifest` + the public `updateDownloadIndex` reach `captureCachedPage` with a zero-page record through production functions, and a staged cache entry makes the pre-fix unclaimed write observable. IN-04's redundant Set rebuild dropped. `DownloadContinuedSessionBasisTests.swift` split at 996 lines into 692 + 342 as a proven pure relocation — moved lines diffed byte-identical against HEAD, cut chosen by helper usage (`landPageFiles` stays, `restorePermissions` travels, nothing promoted), and the count proved neutral two independent ways: static @Test census 867 → 868 and the runner's own total 868, the +1 being Task 1's pin. Full FeatureTests green in one invocation, 868 tests, zero failures
+Next: /gsd-verify-phase 15 (round 13 verification — G-15-19, G-15-20 and G-15-21 all claim closure; verify each in source rather than trusting the summaries, which is what round 13 itself twice caught paying off). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified. Carried and still untaken: `validPageCount` and `isReadableAssetFile` have no production caller at all, and WR-05's `waitForTaskValue` default is fixable only at the helper for all seven call sites
 
 Progress: [████████░░] 88% (14/16 phases)
 
@@ -267,6 +267,7 @@ Progress: [████████░░] 88% (14/16 phases)
 | Phase 15 P38 | 105min | 2 tasks | 4 files |
 | Phase 15 P39 | 25min | 2 tasks | 5 files |
 | Phase 15 P40 | 22min | 2 tasks | 5 files |
+| Phase 15 P41 | 41min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -674,6 +675,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 15]: 15-39: PageFileScan's collapse licence is route-scoped, not call-scoped: a caller may collapse the pairs only if its output can never feed a destructive decision, in this folder or any other.
 - [Phase ?]: 15-40: WR-03 and WR-04 both took the comment-only remedy — the gap record's own premises did not survive re-derivation (four of seven probe callers read listing-derived paths, and the suggested comparison change contradicts the verification's own detail)
 - [Phase ?]: 15-40: Every inventory a doc still carries is pinned by DownloadSourceInventoryTests, whose scanner skips comment lines so a doc citing an inventory is not part of it
+- [Phase ?]: 15-41: WR-06 took both halves — dead disjunct deleted AND the function renamed clearCancellationLikeDownloadErrors, precision over normalize* prefix symmetry
+- [Phase ?]: 15-41: IN-03 took the test pin over a recorded derivation — makeInitialManifest + updateDownloadIndex reach captureCachedPage with a zero-page record without any new seam
+- [Phase ?]: 15-41: the basis suite split cut on helper usage — landPageFiles stays, restorePermissions travels, nothing promoted; 996 lines becomes 692 + 342
 
 ### Pending Todos
 
@@ -722,6 +726,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T13:04:47.457Z
-Stopped at: Completed 15-40-PLAN.md (G-15-20 closed; next 15-41)
+Last session: 2026-08-05T13:22:39.881Z
+Stopped at: Completed 15-41-PLAN.md
 Resume file: None
