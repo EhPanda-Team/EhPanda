@@ -65,13 +65,28 @@ final class ContinuedTaskSchedulingSpy {
     }
 
     private(set) var cancelAllCount = 0
+    /// Every identifier a registration was ATTEMPTED under, refused ones included: a refusal has to
+    /// stay visible as an attempt that stored no handler, not as a call that never happened.
     private(set) var registeredIdentifiers = [String]()
     private(set) var submissions = [Submission]()
     private(set) var cancelledIdentifiers = [String]()
     private var launchHandlers = [String: ContinuedTaskLaunchHandler]()
 
-    /// The seam value to hand the store under test. Registration always succeeds here; the
-    /// refusal path is the store's early-unavailable branch, which owns no pending request.
+    /// Refuses exactly one registration, the way `BGTaskScheduler` refuses an identifier its
+    /// `Info.plist` does not permit.
+    var refusesNextRegistration = false
+    /// Thrown by exactly one submission, standing in for whichever refusal the real scheduler
+    /// raises — the store treats the type as opaque and only its throwing matters here.
+    var nextSubmissionError: (any Error)?
+
+    /// The seam value to hand the store under test.
+    ///
+    /// Both outcomes the real scheduler can produce are controllable, because the store's three
+    /// `.unavailable` producers are otherwise unreachable and the coordinator's liveness flag is
+    /// released by nothing else than the event they yield. Each control is ONE-SHOT and is consumed
+    /// only by the call it actually changes — the discipline G-15-10 established for the client
+    /// spy's start arm, where an arm consumed by a call it did not cause left every later assertion
+    /// running against control state the case believed it still held.
     var scheduling: ContinuedTaskScheduling {
         ContinuedTaskScheduling(
             cancelAllRequests: {
@@ -79,10 +94,24 @@ final class ContinuedTaskSchedulingSpy {
             },
             register: { identifier, launchHandler in
                 self.registeredIdentifiers.append(identifier)
+                guard !self.refusesNextRegistration else {
+                    // Consumed on the refusing branch alone, and no handler is kept: the real
+                    // scheduler registers nothing it refused, so a later launch under this
+                    // identifier is impossible rather than merely unused.
+                    self.refusesNextRegistration = false
+                    return false
+                }
                 self.launchHandlers[identifier] = launchHandler
                 return true
             },
             submit: { identifier, title, subtitle in
+                if let error = self.nextSubmissionError {
+                    // Cleared by the submission that throws it, and recorded as no submission at
+                    // all: a request whose `submit` threw never reached the scheduler's queue, so
+                    // listing it beside accepted ones would model an acceptance that did not happen.
+                    self.nextSubmissionError = nil
+                    throw error
+                }
                 self.submissions.append(
                     Submission(identifier: identifier, title: title, subtitle: subtitle)
                 )
@@ -101,6 +130,11 @@ final class ContinuedTaskSchedulingSpy {
         launchHandlers[identifier]?(task)
     }
 }
+
+/// What an armed submission throws. Deliberately featureless: the store branches on the throw
+/// itself and never on what was thrown, so a richer stand-in would model a distinction the
+/// production code does not make.
+struct ContinuedSubmissionFailure: Error {}
 
 // MARK: - Tests
 
@@ -485,5 +519,301 @@ struct ContinuedProcessingSessionTests {
             laterEvents.append(event)
         }
         #expect(laterEvents.isEmpty)
+    }
+
+    /// G-15-17, first `.unavailable` producer: a process whose bundle carries no identifier.
+    ///
+    /// The arm executes before any scheduler touch, so its signature among the three is the empty
+    /// registration list — no other producer leaves that. What the case pins is not the log line but
+    /// the release contract: the coordinator treats every non-`nil` handle as a started session and
+    /// learns otherwise only from the stream, so the yielded `.unavailable` plus the stream's own
+    /// finish is the SOLE mechanism that releases `hasLiveContinuedSession`, with no fallback tier
+    /// behind it (SC3's refusal half).
+    @Test
+    func testAMissingBundleIdentifierYieldsUnavailableAndReleasesTheStore() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling, bundleIdentifier: nil)
+
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+
+        var events = [BackgroundProcessingEvent]()
+        for await event in session.events {
+            events.append(event)
+        }
+        // The whole array, not a membership check: a second event or a stream left open would both
+        // be release failures, and the loop exiting at all is what proves the self-finish ran.
+        expectNoDifference(events, [.unavailable])
+        // Nothing was named, so nothing was handed over and nothing can be taken back.
+        expectNoDifference(spy.registeredIdentifiers, [])
+        expectNoDifference(spy.submissions, [])
+        expectNoDifference(spy.cancelledIdentifiers, [])
+        // The stale-build sweep still ran: it precedes the identifier check.
+        #expect(spy.cancelAllCount == 1)
+
+        // The re-entry guard is not wedged. This store still has no bundle identifier, so the next
+        // start takes the same arm — a non-`nil` handle proves it was granted rather than refused.
+        let laterSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 4 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 4
+            )
+        )
+        var laterEvents = [BackgroundProcessingEvent]()
+        for await event in laterSession.events {
+            laterEvents.append(event)
+        }
+        expectNoDifference(laterEvents, [.unavailable])
+    }
+
+    /// G-15-17, second `.unavailable` producer: the scheduler refuses to register the identifier,
+    /// which is what an `Info.plist` that does not permit it produces.
+    ///
+    /// Its signature is one attempted registration and no submission — the arm reaches the
+    /// scheduler and stops there. The follow-up start is the release proof and also pins that the
+    /// store mints FRESH identity rather than retrying the refused one: re-registering an
+    /// identifier is what the system kills the app for.
+    @Test
+    func testARefusedRegistrationYieldsUnavailableAndReleasesTheStore() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        spy.refusesNextRegistration = true
+        let refusedSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+
+        var refusedEvents = [BackgroundProcessingEvent]()
+        for await event in refusedSession.events {
+            refusedEvents.append(event)
+        }
+        expectNoDifference(refusedEvents, [.unavailable])
+        #expect(spy.registeredIdentifiers.count == 1)
+        let refusedIdentifier = try #require(spy.registeredIdentifiers.first)
+        // The arm stopped at the registration: nothing was submitted, so there is nothing pending
+        // for `endSession` to take back.
+        expectNoDifference(spy.submissions, [])
+        expectNoDifference(spy.cancelledIdentifiers, [])
+
+        let grantedSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 4 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 4
+            )
+        )
+        #expect(spy.registeredIdentifiers.count == 2)
+        let freshIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(freshIdentifier != refusedIdentifier)
+        expectNoDifference(spy.submissions.map(\.identifier), [freshIdentifier])
+
+        store.finish(sessionID: grantedSession.id, success: true)
+        // The granted session never adopted a task, so ending it takes its own request back — and
+        // only its own.
+        expectNoDifference(spy.cancelledIdentifiers, [freshIdentifier])
+        var grantedEvents = [BackgroundProcessingEvent]()
+        for await event in grantedSession.events {
+            grantedEvents.append(event)
+        }
+        #expect(grantedEvents.isEmpty)
+    }
+
+    /// G-15-17, third `.unavailable` producer: the submission itself throws.
+    ///
+    /// Its signature is an attempted registration with no recorded submission — the spy records a
+    /// submission only when it did not throw, because a request whose `submit` threw never reached
+    /// the scheduler's queue.
+    ///
+    /// **The cancelled list is the POST-WR-08 contract, deliberately.** G-15-17's suggested fix
+    /// expects every producer to cancel nothing; that expectation was written against the ordering
+    /// 15-37 replaced. `start` now records `pendingIdentifier` BEFORE handing the request over, so
+    /// this arm — and only this one of the three — arrives at `endSession` holding an identifier and
+    /// the take-back fires. `endSession`'s own paragraph states why that is deliberate rather than
+    /// an oversight: "a throw is exactly the case where the store cannot know how far the submission
+    /// got — so taking the request back covers a half-submitted request, while the alternative
+    /// ordering covers nothing and risks leaving one behind."
+    @Test
+    func testAThrowingSubmissionYieldsUnavailableTakesItsRequestBackAndReleasesTheStore() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        spy.nextSubmissionError = ContinuedSubmissionFailure()
+        let failedSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+
+        var failedEvents = [BackgroundProcessingEvent]()
+        for await event in failedSession.events {
+            failedEvents.append(event)
+        }
+        expectNoDifference(failedEvents, [.unavailable])
+        #expect(spy.registeredIdentifiers.count == 1)
+        let failedIdentifier = try #require(spy.registeredIdentifiers.first)
+        expectNoDifference(spy.submissions, [])
+        expectNoDifference(spy.cancelledIdentifiers, [failedIdentifier])
+
+        let grantedSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 4 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 4
+            )
+        )
+        // One-shot: the armed error was consumed by the submission that threw it, so this one
+        // reaches the scheduler normally.
+        let freshIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(freshIdentifier != failedIdentifier)
+        expectNoDifference(spy.submissions.map(\.identifier), [freshIdentifier])
+
+        store.finish(sessionID: grantedSession.id, success: true)
+        expectNoDifference(spy.cancelledIdentifiers, [failedIdentifier, freshIdentifier])
+        var grantedEvents = [BackgroundProcessingEvent]()
+        for await event in grantedSession.events {
+            grantedEvents.append(event)
+        }
+        #expect(grantedEvents.isEmpty)
+    }
+
+    /// `handleLaunch`'s nil-task path, first arm: the launch the store is actually waiting for is
+    /// not a continued-processing task.
+    ///
+    /// The live seam has already completed that stray itself before handing the store a `nil`, so
+    /// only session state is left to reset — and the session must end honestly rather than wait for
+    /// a task that will never arrive. This arm is reached only AFTER a successful submission, which
+    /// is what distinguishes it from the three producers above: the request was accepted, and the
+    /// launch is what failed.
+    @Test
+    func testANilLaunchForTheAwaitedRequestYieldsUnavailable() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        let session = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+        let identifier = try #require(spy.registeredIdentifiers.first)
+        expectNoDifference(spy.submissions.map(\.identifier), [identifier])
+        expectNoDifference(spy.cancelledIdentifiers, [])
+
+        spy.launch(identifier, with: nil)
+
+        var events = [BackgroundProcessingEvent]()
+        for await event in session.events {
+            events.append(event)
+        }
+        expectNoDifference(events, [.unavailable])
+        // Never adopted, so the request is still the store's to take back.
+        expectNoDifference(spy.cancelledIdentifiers, [identifier])
+
+        let laterSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 4 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 4
+            )
+        )
+        let laterIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(laterIdentifier != identifier)
+        let laterTask = ContinuedTaskSpy()
+        spy.launch(laterIdentifier, with: laterTask)
+        store.finish(sessionID: laterSession.id, success: true)
+        #expect(laterTask.completionSuccesses == [true])
+
+        var laterEvents = [BackgroundProcessingEvent]()
+        for await event in laterSession.events {
+            laterEvents.append(event)
+        }
+        expectNoDifference(laterEvents, [.granted])
+    }
+
+    /// `handleLaunch`'s nil-task path, second arm: the identity gate, which no case has driven.
+    ///
+    /// A launch handler can never be unregistered, so an identifier this process retired keeps a
+    /// live handler that can fire at any later moment — the spy's keyed handlers mirror exactly
+    /// that, keeping A's handler after A ends. A failed launch under a retired identifier concerns
+    /// no live session, and ending B on it would tear down a session whose card the system is still
+    /// showing.
+    ///
+    /// The two assertions after the stale delivery are what discriminate the gate from its absence:
+    /// without it B is ended, so B's minted launch would be turned away and completed
+    /// unsuccessfully, and B's stream would drain `[.unavailable]` instead of `[.granted]`.
+    @Test
+    func testAStaleNilLaunchCannotEndALiveSession() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        let staleSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+        let staleIdentifier = try #require(spy.registeredIdentifiers.first)
+        store.finish(sessionID: staleSession.id, success: true)
+
+        var staleEvents = [BackgroundProcessingEvent]()
+        for await event in staleSession.events {
+            staleEvents.append(event)
+        }
+        #expect(staleEvents.isEmpty)
+
+        let liveSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 6 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 6
+            )
+        )
+        let liveIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(liveIdentifier != staleIdentifier)
+
+        spy.launch(staleIdentifier, with: nil)
+
+        // The live session is still the one the store awaits: its own launch is adopted rather than
+        // turned away, which an ended session could not do.
+        let liveTask = ContinuedTaskSpy()
+        spy.launch(liveIdentifier, with: liveTask)
+        #expect(liveTask.completionSuccesses.isEmpty)
+        #expect(liveTask.progress.totalUnitCount == 6)
+
+        store.finish(sessionID: liveSession.id, success: true)
+        #expect(liveTask.completionSuccesses == [true])
+        // Only the retired request was ever taken back; the stale nil launch added no cancellation
+        // of its own, because it belonged to a session that had already ended.
+        expectNoDifference(spy.cancelledIdentifiers, [staleIdentifier])
+
+        var liveEvents = [BackgroundProcessingEvent]()
+        for await event in liveSession.events {
+            liveEvents.append(event)
+        }
+        expectNoDifference(liveEvents, [.granted])
     }
 }

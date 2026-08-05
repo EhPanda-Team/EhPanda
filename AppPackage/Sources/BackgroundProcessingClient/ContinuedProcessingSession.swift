@@ -37,6 +37,12 @@ public final class ContinuedProcessingSession {
     /// Every scheduler touch this store makes. Injected so the lifecycle below is testable; the
     /// live value is the only place the system scheduler is named.
     private let scheduling: ContinuedTaskScheduling
+    /// The prefix every minted request identifier is built from, resolved once at construction.
+    ///
+    /// Injected for the same reason `scheduling` is: without it the missing-identifier arm of
+    /// `start` is unreachable by any case, and an unexecuted arm is an unverified one. `nil` means
+    /// a process with no bundle identifier at all, which no shipping app is.
+    private let bundleIdentifier: String?
 
     private var task: (any ContinuedProcessingTasking)?
     private var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
@@ -68,8 +74,12 @@ public final class ContinuedProcessingSession {
     /// Internal rather than private only so lifecycle tests can build an isolated store over spy
     /// scheduling. Production code must keep resolving this store through ``shared``: a second
     /// live store would submit a second session, which is precisely what the design forbids.
-    init(scheduling: ContinuedTaskScheduling = .live) {
+    init(
+        scheduling: ContinuedTaskScheduling = .live,
+        bundleIdentifier: String? = Bundle.main.bundleIdentifier
+    ) {
         self.scheduling = scheduling
+        self.bundleIdentifier = bundleIdentifier
     }
 
     /// Registers and submits a continued-processing session, returning its identified event
@@ -117,7 +127,7 @@ public final class ContinuedProcessingSession {
             scheduling.cancelAllRequests()
         }
 
-        guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
+        guard let bundleIdentifier = bundleIdentifier else {
             logger.error("No bundle identifier; cannot mint a continued-processing identifier.")
             endSession(yielding: .unavailable, success: false)
             return session
