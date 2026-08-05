@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 32/32 | In Progress|  |
+| 15. Continued Background Downloads | 33/38 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 38 plans (32 executed; 33–38 are gap-closure round 12, pending)
+**Plans**: 33/38 plans executed
 
 Plans:
 **Wave 1**
@@ -945,7 +945,7 @@ Plans:
 
 **Wave 33** *(gap closure round 12, verification gap G-15-13 — blocked on 15-32 by round continuity: it extends the reconciliation 15-30 landed inside the basis suite 15-32 last touched; xcodebuild serialization — invocations must never overlap on this machine)*
 
-- [ ] 15-33-PLAN.md — Give the blanking consumer a positive PER-FILE signal (D-G13-01): classify every per-file probe exit exhaustively (usable / rejected / unprobeable), extend PageFileScan with unprobedPages, refuse to blank any listed-but-unanswerable page while keeping the failed-scan and all-or-nothing guards as the outer lines, correct the refusal-site doc's false per-file-en-masse claim, and pin the N-1 mass-partial case (nothing blanked, written, indexed, or withdrawn) RED-first beside the genuine-partial companion (exactly K blanked) so the fix cannot be satisfied by disabling partial blanking
+- [x] 15-33-PLAN.md — Give the blanking consumer a positive PER-FILE signal (D-G13-01): classify every per-file probe exit exhaustively (usable / rejected / unprobeable), extend PageFileScan with unprobedPages, refuse to blank any listed-but-unanswerable page while keeping the failed-scan and all-or-nothing guards as the outer lines, correct the refusal-site doc's false per-file-en-masse claim, and pin the N-1 mass-partial case (nothing blanked, written, indexed, or withdrawn) RED-first beside the genuine-partial companion (exactly K blanked) so the fix cannot be satisfied by disabling partial blanking
 
 **Wave 34** *(gap closure round 12, verification gap G-15-14 — blocked on 15-33 by file overlap in DownloadClient+ExecutionSupport.swift and xcodebuild serialization)*
 
