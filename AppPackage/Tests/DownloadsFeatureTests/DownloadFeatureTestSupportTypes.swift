@@ -261,7 +261,12 @@ final class BackgroundProcessingClientSpy: Sendable {
                     $0.startSubtitles.append(subtitle)
                     $0.startCompletedUnitCounts.append(completedUnitCount)
                     $0.startTotalUnitCounts.append(totalUnitCount)
-                    guard $0.currentSessionID == nil, !$0.refusesNextStart else {
+                    // The single-session guard and the one-shot arm are separate refusal causes,
+                    // and only the arm's own branch may consume it (G-15-10): a refusal caused by
+                    // a live session must leave an armed refusal held for the start it was armed
+                    // against.
+                    guard $0.currentSessionID == nil else { return true }
+                    guard !$0.refusesNextStart else {
                         $0.refusesNextStart = false
                         return true
                     }
