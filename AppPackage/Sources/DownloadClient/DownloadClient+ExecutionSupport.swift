@@ -352,30 +352,86 @@ extension DownloadCoordinator {
         }
     }
 
-    /// Prepares the working seed and then tells the live session what basis the run starts from.
+    /// Prepares the working seed, tells the live session what basis the run starts from, and admits
+    /// the gallery to that session's trust set when this run really does have pages to fetch.
     ///
-    /// Record honesty alone does not reach the card. Session trust is admitted in exactly one
-    /// place — the `formUnion` inside a push's `reconcileRetiredSessionPages` — and no pre-existing
-    /// push is guaranteed to run while a repaired record reads incomplete. The tap-time convergence
-    /// push takes its snapshot before the spawned run can prepare its seed (the core spawns the task
-    /// and returns without suspending, and the reconcile's snapshot reads are same-actor), and the
-    /// flush push runs only after `flushManifestPageProgress` has written the repaired pages — so
-    /// whenever one flush batch carries every remaining missing page, which is always true for a
-    /// single missing page, completeness is restored before that push's snapshot is taken. The
-    /// incomplete window would then exist on disk and be observed by nobody, and the gallery would
-    /// finish a terminal `0 / N` card: the maximally stalled reading D-11's expiration policy
-    /// punishes by pausing every schedulable download (G-15-5).
+    /// Record honesty alone does not reach the card, and no pre-existing push is guaranteed to run
+    /// while a repaired record reads incomplete. The tap-time convergence push takes its snapshot
+    /// before the spawned run can prepare its seed (the core spawns the task and returns without
+    /// suspending, and the reconcile's snapshot reads are same-actor), and the flush push runs only
+    /// after `flushManifestPageProgress` has written the repaired pages — so whenever one flush
+    /// batch carries every remaining missing page, which is always true for a single missing page,
+    /// completeness is restored before that push's snapshot is taken. The incomplete window would
+    /// then exist on disk and be observed by nobody, and the gallery would finish a terminal
+    /// `0 / N` card: the maximally stalled reading D-11's expiration policy punishes by pausing
+    /// every schedulable download (G-15-5).
     ///
-    /// So the run announces its own post-preparation basis before any page work. The push's
-    /// reconcile records the observation even when the client start is still in flight, because that
-    /// reconcile deliberately runs ahead of the nil-client guard; `ensureContinuedSession`'s seed
-    /// merges rather than overwrites, so the recording survives the start's main-actor hop.
+    /// **Trust is admitted where the session can OBSERVE incompleteness or PROVE page work.** Those
+    /// are the push-side `formUnion` over a snapshot's incomplete galleries — inside
+    /// `reconcileRetiredSessionPages`, and in the start seed built from the same snapshot shape —
+    /// and the insert below, over a record whose working folder cannot supply the pages its manifest
+    /// claims. Written as that rule rather than as a count of sites, because a count is a number
+    /// that goes stale the moment a writer is added.
+    ///
+    /// The insert is explicit because an announcement alone provably admits nothing on one whole
+    /// family. The push-side admission is sourced from `incompleteGalleryIDs`, which
+    /// `schedulableSnapshot` builds from `isIncomplete`, so it cannot by construction contain a
+    /// record that reads complete — and `reconcileWorkingManifestAgainstPageFiles` has three refusal
+    /// exits that all return the manifest verbatim, blanking nothing and republishing nothing. A
+    /// repair of a complete-reading record therefore stays complete-reading for the whole run, and
+    /// the flush path only ever moves a record upward, so it never becomes honest mid-run either.
+    /// Without this insert the gallery contributes zero to the numerator from its first push to its
+    /// untrusted departure and retires zero — G-15-5's terminal card, reached again inside the very
+    /// branches the positive-signal defence built (G-15-23).
+    ///
+    /// **The gate is real page work rather than record incompleteness**, because that is what the
+    /// two admissions have in common and what D-G4-01 actually rations trust on. `existingPages` is
+    /// the destination scan's `pages` — the manifest-claimed page numbers whose file this folder
+    /// yielded and probed usable — and `pendingPageIndices` fetches exactly the pages missing from
+    /// it, so `existingPages.count < manifest.pageCount` is precisely "this run has pages to fetch".
+    /// It is true on every refusal over a complete-reading record, true on the proceeding branch
+    /// whenever a claimed page's file is gone, and true for the fresh all-empty manifest an update,
+    /// a redownload or an initial run arrives with. It is false exactly where the folder already
+    /// holds every page the manifest counts, which is the redo that will download nothing — and
+    /// trusting that one would retire N pages this session never fetched, which is the ceiling
+    /// D-G4-01 closed.
+    ///
+    /// One consequence is deliberate rather than an oversight: a record that reads incomplete while
+    /// its folder holds every page it claims — an interruption between a page write and its manifest
+    /// flush — no longer announces, because that run fetches nothing. Its record already reads
+    /// incomplete, so the basis counts it raw for as long as it does, and the hashes the run
+    /// re-records are for pages an earlier session downloaded. Under-reporting there is the
+    /// direction D-G4-01 and the retirement ledger both choose on purpose; over-reporting is the
+    /// defect.
+    ///
+    /// **Which side of D-G7-01's bracket the insert lands on, and why the composition holds.** It
+    /// lands AFTER the bracket has closed: `prepareWorkingSeed` opens and closes
+    /// `withdrawingCountedBasisMovement` around its own movements and has already returned by the
+    /// time this line runs. So the preparation's OWN movement is measured against the
+    /// pre-announcement trust state — an untrusted complete-reading record read `wasCountedBasis`
+    /// false, contributed nothing to the floor and withdraws nothing from it, which is what keeps
+    /// D-G4-01's ceiling guarantee intact. Every LATER movement of the same gid in the same session
+    /// finds `wasCountedBasis` true through the trust set and withdraws its counted portion, which
+    /// is correct because from the announcement on the gallery's pages really are in the numerator.
+    /// Granting trust inside the bracket would invert both halves: it would withdraw for a basis the
+    /// floor had not yet counted.
+    ///
+    /// Trust granted at the RUN's own preparation and nowhere earlier is also what keeps the queued
+    /// window at zero. Nothing here runs at queue time, so a complete gallery queued for an update
+    /// still opens the card at zero and a redo that never ran still retires nothing.
+    ///
+    /// The push's reconcile records the observation even when the client start is still in flight,
+    /// because that reconcile deliberately runs ahead of the nil-client guard;
+    /// `ensureContinuedSession`'s seed merges rather than overwrites, so the recording survives the
+    /// start's main-actor hop.
     ///
     /// The suspension this adds is named: the `updateProgress` main-actor hop to
     /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
     /// body, which is already reentrant at its payload fetch, cover download and source resolution
     /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
-    /// inside that push. `prepareWorkingSeed` itself therefore stays synchronous.
+    /// inside that push. The insert itself is a synchronous same-actor write taken before that hop,
+    /// so no push can observe the announcement without the trust it announces on.
+    /// `prepareWorkingSeed` itself therefore stays synchronous.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
@@ -386,7 +442,9 @@ extension DownloadCoordinator {
             existingDownload: existingDownload,
             folderURL: folderURL
         )
-        if let continuedSessionID, !workingSeed.manifest.isComplete {
+        let hasRealPageWork = workingSeed.existingPages.count < workingSeed.manifest.pageCount
+        if let continuedSessionID, hasRealPageWork {
+            observedIncompleteSessionGIDs.insert(payload.gallery.gid)
             await pushContinuedSessionProgress(sessionID: continuedSessionID)
         }
         return workingSeed
@@ -495,12 +553,24 @@ extension DownloadCoordinator {
     ///
     /// **What the defence deliberately costs.** A genuinely all-pages-vanished repair is no longer
     /// reconciled: it falls back to the pre-D-G5-01 arc, where the seed's empty `existingPages`
-    /// makes the run re-fetch every page and the record's honesty catches up at flush time, and
-    /// `resumeMode`'s `storage.validate` branch remains the route that resolves `.repair` for such a
-    /// record. An unprobed page pays the same way, one page at a time. That is accepted against the
-    /// alternative — letting a transient failure destroy recorded hashes. Genuine absence is
-    /// untouched and stays fully blankable: a claimed page whose file a SUCCESSFUL listing simply
-    /// did not yield is a positive absence, and a scan that finds K of them blanks exactly those K.
+    /// makes the run re-fetch every page, and `resumeMode`'s `storage.validate` branch remains the
+    /// route that resolves `.repair` for such a record — re-verified, and its (a)/(b) doc still
+    /// reads true, since a refusal is exactly its case (a). An unprobed page pays the same way, one
+    /// page at a time. That is accepted against the alternative — letting a transient failure
+    /// destroy recorded hashes. Genuine absence is untouched and stays fully blankable: a claimed
+    /// page whose file a SUCCESSFUL listing simply did not yield is a positive absence, and a scan
+    /// that finds K of them blanks exactly those K.
+    ///
+    /// What the cost is NOT is a merely delayed honesty. This paragraph used to close by claiming
+    /// the flush restores the record, and for the refusal family that claim is refuted: the flush
+    /// path is monotone upward — `refreshManifestPageFileHashes` only ever assigns non-empty
+    /// hashes — so a record that reads COMPLETE when a refusal hands the manifest back never becomes
+    /// incomplete during the run, and the session's push-side trust writer, sourced from
+    /// `isIncomplete`, can never admit it. What covers that family is the explicit admission in
+    /// `prepareWorkingSeedAnnouncingProgress`, taken on the run's own proof of page work rather than
+    /// on the record (G-15-23). A record already reading incomplete when a refusal fires is the
+    /// other case, and for it the flush really is enough — which is what the sibling refusal cases
+    /// in `DownloadContinuedSessionReconciliationTests` stage.
     private func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
