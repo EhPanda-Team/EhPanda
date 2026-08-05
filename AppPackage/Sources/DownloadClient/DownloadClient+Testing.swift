@@ -95,10 +95,30 @@ extension DownloadCoordinator {
         await pauseAllSchedulable(expiring: sessionID)
     }
 
+    /// The galleries at least one live operation currently holds a scheduling block on.
+    ///
+    /// The keys rather than the counts: a parity comparison asks which galleries are blocked, and
+    /// spelling that as a `Set` keeps those assertions reading exactly as they did against the
+    /// former set-typed storage.
+    public func testingSchedulingBlockedGalleryIDs() -> Set<String> {
+        Set(schedulingBlockedGalleryCounts.keys)
+    }
+
     /// Whether `gid` is currently blocked from scheduling — the exact fact
     /// `isSchedulableDownload` tests before it consults `shouldSchedule`.
     public func testingIsSchedulingBlocked(_ gid: String) -> Bool {
-        schedulingBlockedGalleryIDs.contains(gid)
+        schedulingBlockedGalleryCounts[gid] != nil
+    }
+
+    /// Forwards to `blockScheduling(gid:)`, one operation's claim on the gallery's scheduling
+    /// block, so a suite can stage two overlapping holders without racing two real operations.
+    public func testingBlockScheduling(gid: String) {
+        blockScheduling(gid: gid)
+    }
+
+    /// Forwards to `releaseScheduling(gid:)`, one operation's hand-back of that block.
+    public func testingReleaseScheduling(gid: String) {
+        releaseScheduling(gid: gid)
     }
 
     /// Forwards to `prepareWorkingSeedAnnouncingProgress(payload:existingDownload:folderURL:)`, the

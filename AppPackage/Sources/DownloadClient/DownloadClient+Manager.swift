@@ -2,6 +2,9 @@ import AppModels
 import BackgroundProcessingClient
 import Foundation
 import LibraryClient
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 public typealias ScheduledDownloadOperation = @Sendable () async -> Void
 
@@ -369,7 +372,25 @@ public actor DownloadCoordinator {
     /// prove that its work is still current. Missing entries are generation zero and remain
     /// comparable forever, so this dictionary needs no cleanup path.
     public var queueIntentGenerations = [String: Int]()
-    public var schedulingBlockedGalleryIDs = Set<String>()
+    /// How many live operations currently hold a scheduling block on each gallery.
+    ///
+    /// **G-15-8 — no exit may leave a gid blocked or the queue unconverged.** Every operation that
+    /// blocks pairs each of its exits with exactly one `releaseScheduling(gid:)` followed by
+    /// convergence (`notifyObservers()` then `scheduleNextIfNeeded()`); `commitPause` is the one
+    /// site whose convergence its callers own on every path instead. A gid left blocked is
+    /// invisible to `schedulableDownloads()` — the single authority the card, the pending-work gate
+    /// and the scheduler all read — so a convergence landing inside that window can declare the
+    /// queue drained over work that is merely hidden, and an exit that releases without converging
+    /// leaves the gallery queued and idle with no fallback tier to restart it (D-03).
+    ///
+    /// **WR-03 — a count, not a `Set`.** All four blocking operations suspend while holding the
+    /// block and this actor is reentrant, so two operations on the same gallery routinely overlap.
+    /// Under set membership the first to finish removed the entry and unblocked a gallery the
+    /// second still held. A count is released per operation, so the block survives until its last
+    /// holder is gone. Absence of a key — never a stored zero — means schedulable:
+    /// `releaseScheduling(gid:)` removes the entry rather than storing zero, so the readers'
+    /// `== nil` / `!= nil` tests cannot disagree with the count.
+    var schedulingBlockedGalleryCounts = [String: Int]()
     /// Whether this coordinator currently believes a continued-processing session is live.
     ///
     /// Set together with `continuedSessionID` in the same synchronous run as the guard in
@@ -562,6 +583,38 @@ public actor DownloadObserverHub {
 }
 
 extension DownloadCoordinator {
+    /// Takes one operation's scheduling block on `gid`, balanced by exactly one
+    /// `releaseScheduling(gid:)` on every exit of the operation that called this.
+    func blockScheduling(gid: String) {
+        schedulingBlockedGalleryCounts[gid, default: 0] += 1
+    }
+
+    /// Gives back one operation's scheduling block on `gid`, unblocking the gallery only once no
+    /// other live operation still holds it.
+    ///
+    /// A release with no matching block is a contract violation rather than a tolerated no-op: the
+    /// former `Set` made a double-remove harmless, so the conversion away from it cannot assume the
+    /// old insert / `defer` / explicit-remove shapes were balanced. It is logged rather than
+    /// trapped, and it leaves the dictionary untouched, because the alternative — decrementing
+    /// anyway — would consume a *different* live operation's hold and strand the download that
+    /// operation is protecting.
+    func releaseScheduling(gid: String) {
+        guard let count = schedulingBlockedGalleryCounts[gid] else {
+            logger.error(
+                """
+                Scheduling release without a matching block, \
+                gid: \(gid, privacy: .private(mask: .hash)).
+                """
+            )
+            return
+        }
+        if count > 1 {
+            schedulingBlockedGalleryCounts[gid] = count - 1
+        } else {
+            schedulingBlockedGalleryCounts[gid] = nil
+        }
+    }
+
     public func queueIntentGeneration(for gid: String) -> Int {
         queueIntentGenerations[gid, default: 0]
     }

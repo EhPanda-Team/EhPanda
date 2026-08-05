@@ -66,8 +66,8 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         }
         try await expireSession(of: fixture, spy: spy)
 
-        let expiredBlocked = await fixture.manager.schedulingBlockedGalleryIDs
-        let pausedBlocked = await baseline.manager.schedulingBlockedGalleryIDs
+        let expiredBlocked = await fixture.manager.testingSchedulingBlockedGalleryIDs()
+        let pausedBlocked = await baseline.manager.testingSchedulingBlockedGalleryIDs()
         #expect(expiredBlocked == pausedBlocked)
         #expect(!(await fixture.manager.testingHasContinuedSession()))
     }
@@ -100,8 +100,8 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         let reversedSnapshot = await queueSnapshot(reversed.manager)
         #expect(forwardSnapshot == reversedSnapshot)
         #expect(
-            await forward.manager.schedulingBlockedGalleryIDs
-                == (await reversed.manager.schedulingBlockedGalleryIDs)
+            await forward.manager.testingSchedulingBlockedGalleryIDs()
+                == (await reversed.manager.testingSchedulingBlockedGalleryIDs())
         )
     }
 
