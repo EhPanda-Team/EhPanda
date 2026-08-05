@@ -29,7 +29,18 @@ extension DownloadCoordinator {
         return completedFolderExists ? completedFolderURL : nil
     }
 
-    public func normalizeNeedsAttentionDownloads(
+    /// Clears the recorded error of every download whose last failure was cancellation-like.
+    ///
+    /// A cancellation-like failure is interruption residue rather than something the user must
+    /// attend to: `isCancellationLikeAppError` matches only a `fileOperationFailed` whose reason
+    /// reads as a cancellation, which is what a pause, a superseded run or a cancelled task leaves
+    /// behind. Keeping it recorded would present the app's own decision as a gallery-level failure.
+    ///
+    /// `displayStatus` is deliberately not consulted. It used to appear as an
+    /// `|| displayStatus == .error` disjunct on this loop's guard, which admitted iterations whose
+    /// body then did nothing — the clearing has only ever been conditioned on the error's own kind,
+    /// and the old name promised an `.error` normalization no line here performed.
+    public func clearCancellationLikeDownloadErrors(
         _ downloads: [DownloadedGallery]
     ) async {
         for download in downloads {
@@ -37,13 +48,8 @@ extension DownloadCoordinator {
                 download.lastError.map {
                     isCancellationLikeAppError($0.appError)
                 } ?? false
-            guard download.displayStatus == .error
-                    || shouldClearCancellationError else {
-                continue
-            }
-            if shouldClearCancellationError {
-                downloadErrors[download.gid] = nil
-            }
+            guard shouldClearCancellationError else { continue }
+            downloadErrors[download.gid] = nil
         }
     }
 

@@ -136,7 +136,7 @@ extension DownloadCoordinator {
 
     public func syncDownloadsState(scheduleNext: Bool) async {
         let downloads = await fetchDownloadsFromStore()
-        await normalizeNeedsAttentionDownloads(downloads)
+        await clearCancellationLikeDownloadErrors(downloads)
         await normalizeInterruptedDownloads(downloads)
 
         do {

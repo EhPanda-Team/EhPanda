@@ -1,8 +1,11 @@
 @testable import AppFeature
 import AppModels
+import AppTools
+import ComposableArchitecture
 import DownloadClient
 import Foundation
 import Testing
+import UIKit
 
 /// Zero-page payload coverage for G-15-14.
 ///
@@ -147,6 +150,77 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
             failedPages: [:]
         )
         #expect(inspectionPages.isEmpty)
+    }
+
+    // MARK: - Bounded Sites
+
+    /// `captureCachedPage` is the one page-count site the G-15-14 sweep WIDENED rather than
+    /// guarded: its bound read `index <= max(download.pageCount, 1)`, which admitted index 1 for a
+    /// record claiming no pages at all. The consequence is not a trap but an unclaimed write — a
+    /// page file no manifest names, invisible to `pageFileScan` and skipped by
+    /// `refreshManifestPageFileHashes`.
+    ///
+    /// The record is staged through `updateDownloadIndex(folderURL:manifest:)`, the same production
+    /// index writer every capture and flush publishes through, fed by the manifest
+    /// `makeInitialManifest` produces for a zero-page payload. No test-only seam exists for this
+    /// site and none was added. A restorable cached page is staged deliberately: without one the
+    /// capture would come back empty-handed for a reason unrelated to the bound, and this case
+    /// could not fail.
+    @Test
+    func testCaptureCachedPageRefusesAZeroPageRecord() async throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
+        let payload = makeZeroPagePayload()
+        let gid = payload.gallery.gid
+        let folderURL = rootURL.appendingPathComponent(
+            "Folder/\(gid) - Zero Page",
+            isDirectory: true
+        )
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+
+        // Warm the index the way launch does, then publish the zero-page record through the
+        // production writer so `fetchDownload` answers with a record whose page count is zero.
+        await manager.reloadDownloadIndex()
+        let manifest = await manager.makeInitialManifest(payload: payload)
+        #expect(manifest.pages.isEmpty)
+        await manager.updateDownloadIndex(folderURL: folderURL, manifest: manifest)
+        let staged = await manager.fetchDownload(gid: gid)
+        #expect(staged?.pageCount == 0)
+
+        let imageURL = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-\(UUID().uuidString).jpg")
+        )
+        let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemGreen.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.jpegData(compressionQuality: 1))
+        let cacheKeys = imageURL.imageCacheKeys
+        let dataCache = DataCache(
+            configuration: .init(
+                rootURL: rootURL.appendingPathComponent("DataCache", isDirectory: true)
+            )
+        )
+        try await withDependencies {
+            $0.dataCache = dataCache
+        } operation: {
+            try await dataCache.store(imageData, forKeys: cacheKeys)
+
+            await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
+
+            let written = try FileManager.default.contentsOfDirectory(atPath: folderURL.path)
+            #expect(written.isEmpty)
+            let afterwards = await manager.fetchDownload(gid: gid)
+            #expect(afterwards?.manifest.pages.isEmpty == true)
+            try await dataCache.removeData(forKeys: cacheKeys)
+        }
     }
 
     // MARK: - Entrance Dispositions (D-G14-01)
