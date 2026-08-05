@@ -51,6 +51,25 @@ public struct DownloadScanResult: Equatable, Sendable {
     }
 }
 
+/// The page files a working folder was found to hold, together with whether the folder could be
+/// listed at all.
+///
+/// The flag exists because `pages` alone cannot tell "this folder holds none of the manifest's
+/// pages" apart from "this folder could not be read". Every non-destructive caller is entitled to
+/// collapse the two — a probe that finds nothing re-fetches, which is harmless either way — but the
+/// working-seed reconciliation destroys recorded content hashes on that answer, and destroying
+/// state on a non-answer is what G-15-9 reported. `scanSucceeded` is what lets that one consumer
+/// require a positive signal.
+public struct PageFileScan: Equatable, Sendable {
+    public let pages: [Int: String]
+    public let scanSucceeded: Bool
+
+    public init(pages: [Int: String], scanSucceeded: Bool) {
+        self.pages = pages
+        self.scanSucceeded = scanSucceeded
+    }
+}
+
 /// Pure filesystem / manifest / hash I/O for downloads. The filesystem is the source of
 /// truth (per-folder `manifest.json` + page files), so this type holds no cross-call
 /// in-memory state and is race-free by construction: every method reads or writes disk and
@@ -156,14 +175,26 @@ public struct DownloadStore: Sendable {
         }
     }
 
+    /// The page files present for `manifest`, as a probe: an unlistable folder answers `[:]`.
+    ///
+    /// Preserved verbatim for its non-destructive callers, which re-fetch or re-derive on an empty
+    /// answer and are unaffected by why it is empty. A caller that acts irreversibly on the answer
+    /// must use `pageFileScan(folderURL:manifest:)` instead and honour its `scanSucceeded` flag.
     public func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
-        let pageNumbers = Set(manifest.pages.keys)
-        guard !pageNumbers.isEmpty else { return [:] }
+        pageFileScan(folderURL: folderURL, manifest: manifest).pages
+    }
 
-        let fileURLs = existingAssetFileURLs(folderURL: folderURL)
+    /// The same scan, with the enumeration's success surfaced alongside its result (G-15-9).
+    public func pageFileScan(folderURL: URL, manifest: DownloadManifest) -> PageFileScan {
+        let pageNumbers = Set(manifest.pages.keys)
+        guard !pageNumbers.isEmpty else { return .init(pages: [:], scanSucceeded: true) }
+
+        guard let fileURLs = existingAssetFileURLs(folderURL: folderURL) else {
+            return .init(pages: [:], scanSucceeded: false)
+        }
         let prefix = identityPrefix(gid: manifest.gid, token: manifest.token)
 
-        return fileURLs.reduce(into: [:]) { result, fileURL in
+        let pages: [Int: String] = fileURLs.reduce(into: [:]) { result, fileURL in
             let fileName = fileURL.lastPathComponent
             guard fileName.hasPrefix(prefix) else { return }
             let suffix = fileName.dropFirst(prefix.count)
@@ -178,6 +209,7 @@ public struct DownloadStore: Sendable {
 
             result[page] = fileURL.lastPathComponent
         }
+        return .init(pages: pages, scanSucceeded: true)
     }
 
     public func imageURLs(folderURL: URL, manifest: DownloadManifest) -> [Int: URL] {
@@ -366,13 +398,23 @@ public struct DownloadStore: Sendable {
     }
 
     private func existingAssetFileURL(folderURL: URL, prefix: String) -> URL? {
+        // A cover or page lookup is a probe: an unlistable folder has no findable asset, which is
+        // the same answer an empty one gives. Collapsing nil here preserves that behavior exactly.
         existingAssetFileURL(
-            in: existingAssetFileURLs(folderURL: folderURL),
+            in: existingAssetFileURLs(folderURL: folderURL) ?? [],
             prefix: prefix
         )
     }
 
-    private func existingAssetFileURLs(folderURL: URL) -> [URL] {
+    /// Lists a folder's assets, or answers nil when the listing itself failed.
+    ///
+    /// Absence is the normal case here — most callers ask about folders that may not exist — so the
+    /// error is still not logged. What changed for G-15-9 is that the failure is no longer flattened
+    /// into an empty array: `contentsOfDirectory` fails for transient reasons too (descriptor
+    /// exhaustion, `EBUSY`, a data-protection denial while the device is locked), and one caller
+    /// destroys recorded content hashes on an empty answer. Interpreting the failure is now the
+    /// caller's, so a probe keeps its empty fallback while the destructive consumer can refuse.
+    private func existingAssetFileURLs(folderURL: URL) -> [URL]? {
         let fileURLs: [URL]
         do {
             fileURLs = try fileManager.operate {
@@ -382,9 +424,7 @@ public struct DownloadStore: Sendable {
                 )
             }
         } catch {
-            // Missing or unreadable folders have no discoverable assets; callers preserve that
-            // empty fallback. Absence is the normal case here, so the error is not logged.
-            return []
+            return nil
         }
 
         return fileURLs.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
