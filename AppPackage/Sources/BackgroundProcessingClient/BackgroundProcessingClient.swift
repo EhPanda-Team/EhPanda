@@ -23,7 +23,14 @@ public struct BackgroundProcessingSession: Sendable {
 ///
 /// The client is injected directly into its one consumer. The macro-synthesized
 /// `BackgroundProcessingClient()` value leaves every endpoint unimplemented so tests fail loudly
-/// on any call they did not arrange; the client tests exercise that behavior for every endpoint.
+/// on any call they did not arrange, and `testUnimplementedClientReportsAnIssueForEveryEndpoint`
+/// calls all three of its endpoints to prove it.
+///
+/// That sentence is about the unimplemented VALUE and claims nothing about the session store
+/// behind `.live`, which this seam only forwards to. The store's own lifecycle — including the
+/// three arms that yield `.unavailable` and both arms of its launch handler's nil-task path — is
+/// covered separately by `ContinuedProcessingSessionTests` over the store's injected scheduling
+/// seam, whose spy can refuse a registration and throw from a submission.
 @DependencyClient
 public struct BackgroundProcessingClient: Sendable {
     /// Registers and submits a session, returning its identified event stream. The stream
