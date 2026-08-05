@@ -20,7 +20,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerStartDownloadEnqueuesGalleryPayload() async throws {
-        let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
+        let capturedPayload = LockedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
@@ -109,7 +109,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerCreateDefaultFolderCreatesNamedFolderAndRefetches() async {
-        let capturedFolderName = UncheckedBox<String?>(nil)
+        let capturedFolderName = LockedBox<String?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let store = makeDownloadTestStore(
@@ -134,7 +134,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async throws {
-        let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
+        let capturedPayload = LockedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))

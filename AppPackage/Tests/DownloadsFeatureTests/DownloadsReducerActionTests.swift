@@ -181,7 +181,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerMoveActionUsesDownloadClientMove() async {
-        let moved = UncheckedBox<(gid: String, folder: String)?>(nil)
+        let moved = LockedBox<(gid: String, folder: String)?>(nil)
         let store = TestStore(
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
@@ -222,7 +222,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerUpdateActionUsesDownloadClientRetry() async {
-        let retried = UncheckedBox<[String]>([])
+        let retried = LockedBox<[String]>([])
         let download = sampleDownload(
             gid: "123456",
             title: "Completed Gallery",
@@ -267,7 +267,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerDeleteActionUsesDownloadClientDelete() async {
-        let deleted = UncheckedBox<[String]>([])
+        let deleted = LockedBox<[String]>([])
         let download = sampleDownload(
             gid: "654321",
             title: "Completed Gallery",
@@ -370,7 +370,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerTogglePauseActionUsesDownloadClientPause() async {
-        let toggled = UncheckedBox<[String]>([])
+        let toggled = LockedBox<[String]>([])
         let download = sampleDownload(
             gid: "987654",
             title: "Downloading Gallery",

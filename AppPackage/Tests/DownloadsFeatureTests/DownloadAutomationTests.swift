@@ -25,7 +25,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testAppForegroundReturnReconcilesDownloads() async {
-        let reconcileCount = UncheckedBox(0)
+        let reconcileCount = LockedBox(0)
         var initialState = AppReducer.State()
         initialState.settingState.hasLoadedInitialSetting = true
 
