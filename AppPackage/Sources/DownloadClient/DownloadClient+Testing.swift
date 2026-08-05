@@ -95,6 +95,12 @@ extension DownloadCoordinator {
         await pauseAllSchedulable(expiring: sessionID)
     }
 
+    /// Whether `gid` is currently blocked from scheduling — the exact fact
+    /// `isSchedulableDownload` tests before it consults `shouldSchedule`.
+    public func testingIsSchedulingBlocked(_ gid: String) -> Bool {
+        schedulingBlockedGalleryIDs.contains(gid)
+    }
+
     /// Forwards to `prepareWorkingSeedAnnouncingProgress(payload:existingDownload:folderURL:)`, the
     /// redo path's pre-page-work preparation and basis announcement.
     public func testingPrepareWorkingSeedAnnouncingProgress(
