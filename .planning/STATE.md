@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-34-PLAN.md
-last_updated: "2026-08-05T07:40:41.833Z"
+stopped_at: Completed 15-35-PLAN.md
+last_updated: "2026-08-05T07:52:45.245Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-34 (G-15-14 zero-page range guards + D-G14-01 dispositions)
+last_activity_desc: Executed 15-35 (G-15-15 contradicted-premise doc corrections, comment-only)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 209
-  completed_plans: 205
-  percent: 98
+  completed_plans: 206
+  percent: 99
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 35 of 38
+Plan: 36 of 38
 Status: Ready to execute
-Last activity: 2026-08-05 — Executed 15-34 (G-15-14 zero-page range guards + D-G14-01 dispositions)
-Next: execute phase 15 plans 15-35..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are now CLOSED; warning groups G-15-15..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
+Last activity: 2026-08-05 — Executed 15-35 (G-15-15 contradicted-premise doc corrections, comment-only)
+Next: execute phase 15 plans 15-36..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning group G-15-15 is CLOSED; warning groups G-15-16..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
 
-Progress: [██████████] 98% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -261,6 +261,7 @@ Progress: [██████████] 98% (14/16 phases)
 | Phase 15 P32 | 50min | 2 tasks | 24 files |
 | Phase 15 P33 | 50min | 1 tasks | 4 files |
 | Phase 15 P34 | 12min | 2 tasks | 5 files |
+| Phase 15 P35 | 22min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -652,6 +653,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-33: unprobedPages is added ALONGSIDE scanSucceeded, not in place of it — the directory-level and per-file signals answer different questions and the reconciliation consumes them independently.
 - [Phase 15]: 15-34: D-G14-01 — a zero-page payload is refused at enqueue with .notFound before any folder or queue mutation, and a zero-page mid-run refetch throws at fetchLatestPayload so the run's existing catch settles the download as failed rather than fake-completing a 0-of-0 record.
 - [Phase 15]: 15-34: The zero-page range-guard invariant was swept to its whole class (four sites), so each guard's module-wide comment is derivable in source rather than aspirational.
+- [Phase 15]: 15-35 WR-01: a push landing while the client identity is nil is dropped, not replayed — only the drain branch records reconciliation debt, and the next flush or convergence push repaints. The flag is deliberately not set at the skip.
+- [Phase 15]: 15-35 WR-02: one canonical wording — 'same-actor calls that do not suspend today; an await introduced inside them reopens this window and needs its own re-validation' — applied at every site claiming about the hasPendingWork/schedulableDownloads chain.
+- [Phase 15]: 15-35 WR-04: lastPushedCompletedPageCount names five writers including markContinuedSessionEnded's teardown zero, labeled exhaustive by grep at HEAD.
 
 ### Pending Todos
 
@@ -700,6 +704,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T07:40:33.071Z
-Stopped at: Completed 15-34-PLAN.md
+Last session: 2026-08-05T07:52:45.235Z
+Stopped at: Completed 15-35-PLAN.md
 Resume file: None
