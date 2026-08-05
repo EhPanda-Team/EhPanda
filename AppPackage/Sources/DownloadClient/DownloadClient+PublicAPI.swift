@@ -283,9 +283,18 @@ extension DownloadCoordinator {
         imageURL: URL?
     ) async {
         guard downloadIndex[gid] != nil else { return }
+        // G-15-14, same class as the range sites this module guards: a record's page count bounds
+        // an index here too, so a zero-page record is refused rather than widened past. The upper
+        // bound used to raise that count to a floor of one instead of guarding it, which ADMITTED
+        // index 1 for a record claiming no pages — a capture that would write a page file no
+        // manifest claims, invisible to `pageFileScan` and skipped by
+        // `refreshManifestPageFileHashes`. Reachability is closed upstream (`enqueue` refuses a
+        // zero-page payload, `validateDecodedManifest` rejects an empty page dictionary on every
+        // manifest read), so this is defence in depth, not a live defect.
         guard let download = await fetchDownload(gid: gid),
+              download.pageCount > 0,
               index >= 1,
-              index <= max(download.pageCount, 1)
+              index <= download.pageCount
         else { return }
 
         guard let captureTarget = captureTarget(

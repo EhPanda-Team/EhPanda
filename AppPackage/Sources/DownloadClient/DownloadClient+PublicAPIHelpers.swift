@@ -32,13 +32,13 @@ extension DownloadCoordinator {
             }
 
             if let failedPage = failedPages[page] {
-                    return .init(
-                        index: page,
-                        status: .failed,
-                        relativePath: failedPage.relativePath,
-                        fileURL: nil,
-                        failure: .init(error: failedPage.error)
-                    )
+                return .init(
+                    index: page,
+                    status: .failed,
+                    relativePath: failedPage.relativePath,
+                    fileURL: nil,
+                    failure: .init(error: failedPage.error)
+                )
             }
 
             return .init(
