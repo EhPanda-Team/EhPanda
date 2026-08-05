@@ -153,7 +153,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.testingEnsureContinuedSession()
-        let sessionTask = try #require(await fixture.manager.continuedSessionTask)
+        let sessionTask = try #require(await fixture.manager.testingContinuedSessionTask())
         spy.expire()
         try await waitForTaskValue(
             sessionTask,
@@ -163,7 +163,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
 
         #expect(!sessionTask.isCancelled)
         #expect(!(await fixture.manager.testingHasContinuedSession()))
-        #expect(await fixture.manager.continuedSessionTask == nil)
+        #expect(await fixture.manager.testingContinuedSessionTask() == nil)
     }
 
     /// SC3 as amended: with no fallback tier left, an unavailable session is not a degraded mode
@@ -339,7 +339,7 @@ private extension DownloadContinuedSessionExpirationTests {
         if ensuresSession {
             await fixture.manager.testingEnsureContinuedSession()
         }
-        let sessionTask = try #require(await fixture.manager.continuedSessionTask)
+        let sessionTask = try #require(await fixture.manager.testingContinuedSessionTask())
         spy.expire()
         try await waitForTaskValue(
             sessionTask,
