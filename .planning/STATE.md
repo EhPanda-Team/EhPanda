@@ -4,16 +4,16 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: ready_to_execute
-stopped_at: Planned gap-closure round 13 — plans 15-39..15-41 verified, ready to execute
-last_updated: "2026-08-05T12:18:36.000Z"
+status: executing
+stopped_at: Completed 15-39-PLAN.md (G-15-19 closed; next 15-40)
+last_updated: "2026-08-05T12:45:14.301Z"
 last_activity: 2026-08-05
-last_activity_desc: "Planned gap-closure round 13 (plans 15-39..15-41, commits effe7f47 + 6a993886): 15-39 closes blocker G-15-19 with the verifier's carry-the-set remedy (unprobedPages crosses the repair-seed copy; the review's refuse-the-seed remedy is a frontmatter prohibition — traced to all-N hash loss), 15-40 closes G-15-20 by pairing every surviving doc inventory with a drift-failing census test, 15-41 closes G-15-21 hygiene and splits the 996/1000 basis suite. Plan-checker passed on iteration 2 (one vacuous grep anchor fixed); decision coverage 11/11"
+last_activity_desc: "Executed 15-39 (commits 29b6c5a0 + dc84d193): blocker G-15-19 (SC3) closed — materializeRepairSeed selects through the full source PageFileScan and returns the claimed pages whose classification was a non-answer, setupWorkingFolder hands the set back, and prepareWorkingSeed unions it into the destination scan's unprobedPages so the existing D-G13-01 refusal covers laundered pages with no new refusal mechanism. Crossed regression staged RED-first in the new DownloadRepairSeedSignalPropagationTests.swift (per-file probe failure x title-change re-slot) and flipped green with its assertions unchanged; the genuine-absence companion never moved. Consumer census re-derived by grep: 11 pre-fix existingPageRelativePaths call sites, one destructive consumer, one laundering route — now closed. Full FeatureTests green in one invocation"
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 209
-  completed_plans: 209
+  total_plans: 212
+  completed_plans: 210
   percent: 88
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY TO EXECUTE (gap-closure round 13)
-Plan: 38 of 41 executed
-Status: Round-13 plans 15-39..15-41 written, checker-verified (iteration 2), committed — not yet executed
-Last activity: 2026-08-05 — Planned gap-closure round 13: 15-39 (blocker G-15-19, SC3 — carry `unprobedPages` across the repair-seed copy and union it into the destination scan so the existing D-G13-01 refusal covers laundered pages; the review's refuse-the-seed remedy is PROHIBITED in frontmatter, traced to a strictly-worse all-N hash loss via the `createDirectory` fallthrough; crossed regression RED-first in NEW file `DownloadRepairSeedSignalPropagationTests.swift` beside a genuine-absence companion; 11-site consumer census re-derived by grep at execution time), 15-40 (G-15-20 — five doc corrections as rules/decided remedies, surviving inventories paired with drift-failing census tests on the `DownloadLogPrivacyInvariantTests` pattern), 15-41 (G-15-21 hygiene at the roots + basis-suite split restoring the 996/1000 `file_length` headroom as a pure relocation with unchanged test count)
-Next: /gsd-execute-phase 15 (waves 39→41, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; under G-15-19 a `.repair` re-slot can legitimately step the card BACKWARDS by the blanked count until 15-39 lands, so a mid-run drop is a symptom to report
+Phase: 15 (continued-background-downloads) — EXECUTING (gap-closure round 13)
+Plan: 39 of 41 executed
+Status: 15-39 complete (blocker G-15-19 closed, SC3) — 15-40 and 15-41 remain
+Last activity: 2026-08-05 — Executed 15-39: the repair-seed materialization now carries the SOURCE scan's per-file non-answers across the copy into the destination scan's `unprobedPages`, so a probe that established nothing can no longer launder into a positive absence that destroys up to N-1 recorded content hashes. The review's refuse-the-seed remedy was provably NOT taken (no new throw; the `createDirectory` fallthrough stays unreachable from a materialization). Route docs corrected at the four sentences the defect hid behind; the all-or-nothing wording and `probeAssetFile`'s guard comment deliberately left for 15-40
+Next: /gsd-execute-phase 15 (waves 40→41, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; with 15-39 landed, a `.repair` re-slot stepping the card BACKWARDS by a blanked count is no longer expected, so a mid-run drop is now a regression to report
 
 Progress: [████████░░] 88% (14/16 phases)
 
@@ -265,6 +265,7 @@ Progress: [████████░░] 88% (14/16 phases)
 | Phase 15 P36 | 37min | 2 tasks | 4 files |
 | Phase 15 P37 | 90min | 2 tasks | 9 files |
 | Phase 15 P38 | 105min | 2 tasks | 4 files |
+| Phase 15 P39 | 25min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -667,6 +668,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-37: The continued-session state is module-internal; testingContinuedSessionTask() is the suites' one route to the session task, both boundary greps empty
 - [Phase 15]: 15-38: The throwing-submission producer asserts a defensive take-back, not the gap's cancels-nothing expectation, which predates 15-37's identity-before-submission reorder.
 - [Phase 15]: 15-38: A test double's bounded rendezvous must precede its unbounded one, so the regression the case exists to catch fails at a deadline instead of hanging the suite.
+- [Phase ?]: [Phase 15]: 15-39: materializeRepairSeed carries the source scan's non-answers across the seed copy — setupWorkingFolder returns them and prepareWorkingSeed unions them into the destination scan, so the existing D-G13-01 refusal covers laundered pages with no new refusal mechanism.
+- [Phase ?]: [Phase 15]: 15-39: A scan-selected page the pre-copy guard skips joins the carried set rather than throwing — carrying re-fetches one page, throwing fails the whole preparation.
+- [Phase ?]: [Phase 15]: 15-39: PageFileScan's collapse licence is route-scoped, not call-scoped: a caller may collapse the pairs only if its output can never feed a destructive decision, in this folder or any other.
 
 ### Pending Todos
 
@@ -715,6 +719,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T10:17:45.698Z
-Stopped at: Completed 15-38-PLAN.md
+Last session: 2026-08-05T12:45:14.291Z
+Stopped at: Completed 15-39-PLAN.md (G-15-19 closed; next 15-40)
 Resume file: None
