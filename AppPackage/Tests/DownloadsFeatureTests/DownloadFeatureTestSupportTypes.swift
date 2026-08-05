@@ -391,6 +391,42 @@ final class FailingRemovalFileManager: FileManager {
     }
 }
 
+/// Fails the metadata read for named paths while forwarding every other filesystem operation to
+/// `FileManager`.
+///
+/// This is the faithful staging of the reachability class G-15-13 was narrowed to. The review's
+/// candidates do not reach the failing branch: `attributesOfItem` is metadata-only, so descriptor
+/// exhaustion never gets there, and it still answers for a data-protected file whose CONTENT is
+/// unreadable. The reachable trigger is the narrower one where the attributes read ITSELF throws
+/// for many-but-not-all files — an I/O error, a permission change, a volume going away mid-scan —
+/// so the double throws from exactly that call and from nothing else.
+///
+/// Everything around it stays real, which is what makes the staging contract-faithful rather than
+/// a shortcut to the outcome: the store still reaches the throw through `DownloadFileManager
+/// .operate`, the directory enumeration and the existence check run against the real filesystem
+/// and succeed, and the probe's content-read fallback is denied by real permissions rather than by
+/// this double. No production path is bypassed.
+final class PartialProbeFailureFileManager: FileManager {
+    private let pathFragments: [String]
+    private let error: any Error & Sendable
+
+    init(
+        pathFragments: [String],
+        error: any Error & Sendable
+    ) {
+        self.pathFragments = pathFragments
+        self.error = error
+        super.init()
+    }
+
+    override func attributesOfItem(atPath path: String) throws -> [FileAttributeKey: Any] {
+        guard pathFragments.contains(where: { path.contains($0) }) else {
+            return try super.attributesOfItem(atPath: path)
+        }
+        throw error
+    }
+}
+
 /// Removes a temporary file or directory a case created, absorbing the failure.
 func removeTemporaryItem(at url: URL) {
     do {
