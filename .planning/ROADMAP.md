@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 30/32 | In Progress|  |
+| 15. Continued Background Downloads | 31/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 30/32 plans executed
+**Plans**: 31/32 plans executed
 
 Plans:
 **Wave 1**
@@ -937,7 +937,7 @@ Plans:
 
 **Wave 31** *(gap closure round 11, review gap G-15-8 + WR-03 — blocked on 15-30 by file overlap in the public API and by xcodebuild serialization)*
 
-- [ ] 15-31-PLAN.md — State the ownership-convergence invariant on moveDownload ("no exit may leave a gid blocked or the queue unconverged") and satisfy it on all six exits; convert the scheduling block set to a reference count with block/release helpers so overlapping same-gid operations can no longer release each other's blocks (WR-03), sweep every insert site to single-release-per-exit, and pin the move-exit convergence with regressions observed failing first
+- [x] 15-31-PLAN.md — State the ownership-convergence invariant on moveDownload ("no exit may leave a gid blocked or the queue unconverged") and satisfy it on all six exits; convert the scheduling block set to a reference count with block/release helpers so overlapping same-gid operations can no longer release each other's blocks (WR-03), sweep every insert site to single-release-per-exit, and pin the move-exit convergence with regressions observed failing first
 
 **Wave 32** *(gap closure round 11, review gap G-15-12 — blocked on 15-31: IN-01's note names 15-30's landed refusal shape, and the rename sweep overlaps files every earlier plan touches)*
 
