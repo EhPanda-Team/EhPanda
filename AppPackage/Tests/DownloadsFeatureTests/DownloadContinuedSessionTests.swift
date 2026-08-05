@@ -129,7 +129,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(spy.startCount == 1)
 
         try await context.manager.retryPages(gid: gid, pageIndices: [1]).get()
-        await context.manager.ensureContinuedSession()
+        await context.manager.testingEnsureContinuedSession()
 
         #expect(spy.startCount == 1)
         #expect(spy.startTitles.count == 1)
@@ -147,7 +147,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let context = try await makeInactiveCoordinator(gid: gid, client: spy.client)
         defer { context.cleanUp() }
 
-        await context.manager.ensureContinuedSession()
+        await context.manager.testingEnsureContinuedSession()
 
         #expect(spy.startCount == 0)
         #expect(spy.startTitles.isEmpty)
@@ -196,7 +196,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         defer { context.cleanUp() }
 
         // Pushing before the tap records nothing at all: no session, no card, no update.
-        await context.manager.pushContinuedSessionProgress(sessionID: UUID())
+        await context.manager.testingPushContinuedSessionProgress(sessionID: UUID())
         #expect(spy.progressUpdates.isEmpty)
 
         try await context.manager.togglePause(gid: gid).get()
@@ -206,7 +206,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         expectNoDifference(spy.startCompletedUnitCounts, [0])
         expectNoDifference(spy.startTotalUnitCounts, [2])
 
-        await context.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await context.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.startCount == 1)
         #expect(spy.progressUpdates.count == 1)
 
@@ -304,9 +304,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.first)
         #expect(spy.progressUpdates.count == 1)
@@ -331,12 +331,12 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await fixture.manager.testingSetQueuedGalleryIDs(["210020", joiningGID])
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [4, 13])
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [1, 3])
@@ -370,9 +370,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         // The departure this case exists for, staged the way the product reaches it: the manifest
         // completes, then the settle takes the gallery out of the queue store.
@@ -390,7 +390,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             )
         )
         await fixture.manager.settleCompletedDownload(gid: leavingGID)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let completedCounts = spy.progressUpdates.map(\.completedUnitCount)
         #expect(completedCounts == [6, 10])
@@ -428,9 +428,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             manifest: manifest(for: .init(gid: gid, title: title, pageCount: 0))
         )
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.first)
         #expect(update.totalUnitCount >= 1)
@@ -467,9 +467,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await fixture.manager.updateDownloadIndex(
             folderURL: fixture.storage.folderURL(
@@ -513,11 +513,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         await fixture.manager.testingSetQueuedGalleryIDs([firstGID])
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         // The second gallery's record was complete before the session began, so its three pages are
         // the redo's target rather than session work: it counts zero, and retires zero (D-G4-01).
@@ -555,7 +555,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             relativePath: "Folder/[\(gid)_token] Flushing"
         )
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
 
         var pendingResolvedPages = [DownloadCoordinator.PageResult]()
         var lastFlushDate = frozenNow

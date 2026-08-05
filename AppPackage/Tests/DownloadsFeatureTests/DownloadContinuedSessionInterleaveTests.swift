@@ -32,7 +32,7 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
         defer { context.control.release() }
         let queueStore = DownloadQueueStore(fileURL: context.storage.queueURL())
 
-        await context.manager.ensureContinuedSession()
+        await context.manager.testingEnsureContinuedSession()
         let sessionTask = try #require(await context.manager.continuedSessionTask)
         #expect(spy.startCount == 1)
 
@@ -128,7 +128,7 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         _ = try #require(await fixture.manager.testingContinuedSessionID())
         #expect(spy.startCount == 1)
 

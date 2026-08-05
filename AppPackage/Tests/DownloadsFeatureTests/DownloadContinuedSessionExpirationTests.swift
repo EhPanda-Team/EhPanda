@@ -125,15 +125,15 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let updatesBeforeExpiration = spy.progressUpdates.count
         #expect(updatesBeforeExpiration == 1)
 
         try await expireSession(of: fixture, spy: spy, ensuresSession: false)
         await fixture.manager.scheduleNextIfNeeded()
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.count == updatesBeforeExpiration)
         #expect(spy.rejectedProgressUpdates.isEmpty)
@@ -152,7 +152,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionTask = try #require(await fixture.manager.continuedSessionTask)
         spy.expire()
         try await waitForTaskValue(
@@ -223,11 +223,11 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         #expect(spy.startCount == 1)
         #expect(await context.manager.testingHasContinuedSession())
 
-        await context.manager.markContinuedSessionEnded(sessionID: UUID())
+        await context.manager.testingMarkContinuedSessionEnded(sessionID: UUID())
 
         // Still live, and still pushing: the foreign teardown touched nothing.
         #expect(await context.manager.testingHasContinuedSession())
-        await context.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await context.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.progressUpdates.count == 1)
 
         // The correct-id path still tears the session down end to end.
@@ -252,7 +252,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 1)
         #expect(await fixture.manager.testingHasContinuedSession())
 
@@ -267,7 +267,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         // D-07: the next queue-mobilizing moment starts a fresh session rather than folding into
         // the dead one — and that one still drains, so the case leaves nothing live behind it.
         await fixture.manager.testingSetQueuedGalleryIDs([gid])
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 2)
 
         _ = await fixture.manager.pause(gid: gid)
@@ -337,7 +337,7 @@ private extension DownloadContinuedSessionExpirationTests {
         ensuresSession: Bool = true
     ) async throws {
         if ensuresSession {
-            await fixture.manager.ensureContinuedSession()
+            await fixture.manager.testingEnsureContinuedSession()
         }
         let sessionTask = try #require(await fixture.manager.continuedSessionTask)
         spy.expire()
@@ -365,7 +365,7 @@ private extension DownloadContinuedSessionExpirationTests {
             relativePath: "Folder/[\(gid)_token] \(title)"
         )
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
 
         var pendingResolvedPages = [DownloadCoordinator.PageResult]()
         var lastFlushDate = Date.distantPast

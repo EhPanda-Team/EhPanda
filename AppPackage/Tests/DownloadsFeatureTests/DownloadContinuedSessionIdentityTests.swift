@@ -23,7 +23,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let firstCoordinatorSessionID = try #require(
             await fixture.manager.testingContinuedSessionID()
         )
@@ -33,7 +33,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         let gate = spy.armProgressGate()
         defer { gate.release() }
         let heldPush = Task { @concurrent in
-            await fixture.manager.pushContinuedSessionProgress(
+            await fixture.manager.testingPushContinuedSessionProgress(
                 sessionID: firstCoordinatorSessionID
             )
         }
@@ -43,7 +43,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         #expect(await fixture.manager.testingHasContinuedSession() == false)
 
         await fixture.manager.testingSetQueuedGalleryIDs([gid])
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 2)
         #expect(await fixture.manager.testingHasContinuedSession())
         let secondCoordinatorSessionID = try #require(
@@ -66,7 +66,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         )
         expectNoDifference(spy.progressUpdates, acceptedBeforeRelease)
 
-        await fixture.manager.pushContinuedSessionProgress(
+        await fixture.manager.testingPushContinuedSessionProgress(
             sessionID: secondCoordinatorSessionID
         )
         expectNoDifference(
@@ -105,7 +105,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         let gate = spy.armStartGate()
         defer { gate.release() }
         let firstTap = Task {
-            await fixture.manager.ensureContinuedSession()
+            await fixture.manager.testingEnsureContinuedSession()
         }
         await gate.entered()
 
@@ -115,7 +115,7 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         #expect(await fixture.manager.testingHasContinuedSession())
 
         await fixture.manager.testingSetQueuedGalleryIDs([gid])
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 1)
         #expect(await fixture.manager.testingHasContinuedSession())
 
@@ -153,19 +153,19 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         spy.refuseNextStart()
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
 
         #expect(spy.startCount == 1)
         #expect(await fixture.manager.testingHasContinuedSession() == false)
         #expect(spy.finishRecords.isEmpty)
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 2)
         #expect(await fixture.manager.testingHasContinuedSession())
 
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
         let updatesBeforePush = spy.progressUpdates.count
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         #expect(spy.progressUpdates.count == updatesBeforePush + 1)
 
         _ = await fixture.manager.pause(gid: gid)
@@ -190,16 +190,16 @@ struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startCount == 1)
         #expect(await fixture.manager.testingHasContinuedSession())
 
-        await fixture.manager.pauseAllSchedulable(expiring: UUID())
+        await fixture.manager.testingPauseAllSchedulable(expiring: UUID())
         #expect(spy.finishRecords.isEmpty)
         #expect(await fixture.manager.testingHasContinuedSession())
 
         let updatesBeforeReconcile = spy.progressUpdates.count
-        await fixture.manager.reconcileContinuedSession()
+        await fixture.manager.testingReconcileContinuedSession()
         #expect(spy.progressUpdates.count == updatesBeforeReconcile + 1)
         #expect(spy.finishRecords.isEmpty)
 
