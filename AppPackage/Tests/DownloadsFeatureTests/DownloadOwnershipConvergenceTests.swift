@@ -199,6 +199,40 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         #expect(await manager.testingIsSchedulingBlocked(gid) == false)
         #expect(await manager.testingSchedulingBlockedGalleryIDs().isEmpty)
     }
+
+    /// G-15-16 / IN-05: a release with no matching block is documented as a contract violation, and
+    /// it used to be a device log line and nothing more. That is what made the invariant this suite
+    /// guards unassertable — with `commitPause`'s two dead `catch` arms counted as release sites,
+    /// an imbalance a later edit introduced would have passed every case here. `reportIssue` moves
+    /// the violation into the suite's field of view.
+    ///
+    /// `withKnownIssue` is the pin rather than decoration: it fails when its body records *no*
+    /// issue, so this case falls over the moment the report is dropped — which is exactly how it
+    /// was first run, against the unreported guard.
+    ///
+    /// The report must stay purely additive, so the case then proves the guard mutated nothing: an
+    /// ordinary block/release pair on the same gid still balances exactly. A release that consumed
+    /// or created a count would leave that pair off by one and strand whichever operation still
+    /// needed the gallery hidden.
+    @Test
+    func testAnUnmatchedSchedulingReleaseReportsAnIssue() async throws {
+        let gid = "210410"
+        let manager = makeTestingDownloadCoordinator()
+
+        await withKnownIssue {
+            await manager.testingReleaseScheduling(gid: gid)
+        }
+
+        #expect(await manager.testingIsSchedulingBlocked(gid) == false)
+        #expect(await manager.testingSchedulingBlockedGalleryIDs().isEmpty)
+
+        await manager.testingBlockScheduling(gid: gid)
+        #expect(await manager.testingIsSchedulingBlocked(gid))
+
+        await manager.testingReleaseScheduling(gid: gid)
+        #expect(await manager.testingIsSchedulingBlocked(gid) == false)
+        #expect(await manager.testingSchedulingBlockedGalleryIDs().isEmpty)
+    }
 }
 
 // MARK: - Move Convergence Fixture
