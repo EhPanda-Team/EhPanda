@@ -83,9 +83,11 @@ extension DownloadCoordinator {
     /// sums it exists to correct.
     ///
     /// **D-G4-01: a schedulable gallery's session-completed page count is its record's
-    /// `completedPageCount` when the record reads incomplete or this session has already observed it
-    /// incomplete, and zero otherwise.** The per-gallery `pageCount` denominator and the schedulable
-    /// `galleryCount` are untouched by the rule; only the numerator's basis is.
+    /// `completedPageCount` when the record reads incomplete or this session has already trusted the
+    /// gallery — having observed it incomplete, or having proven at the run's own preparation that
+    /// its working folder cannot supply the pages its manifest claims — and zero otherwise.** The
+    /// per-gallery `pageCount` denominator and the schedulable `galleryCount` are untouched by the
+    /// rule; only the numerator's basis is.
     ///
     /// It exists because schedulability and progress answer different questions. `shouldSchedule`
     /// returns true for any queued work item before it ever consults `isIncomplete`, so a gallery
@@ -109,12 +111,21 @@ extension DownloadCoordinator {
     /// the repair's zero never ended, and the session finished a terminal `0 / N` card over real
     /// work.
     ///
-    /// Honesty is necessary but not sufficient, because trust is admitted only inside a push's
-    /// reconcile. The run therefore announces its post-preparation basis before any page work
-    /// (`prepareWorkingSeedAnnouncingProgress`), which makes the observation independent of flush
-    /// cadence — deterministically so where one flush batch would otherwise carry every missing page
-    /// and restore completeness before its own push — and `ensureContinuedSession`'s merged seed is
-    /// what keeps that observation when it lands inside the client start's main-actor hop.
+    /// Blanking is not guaranteed, though, which is why record honesty cannot be the whole rule. The
+    /// reconciliation has three refusal exits, and at any of them the manifest comes back verbatim:
+    /// a repair of a record that reads COMPLETE stays complete-reading for the whole run, and the
+    /// flush path only ever moves a record upward. That is G-15-23 — G-15-5's card reached again
+    /// through the honesty defence itself — and the trust set is what covers it.
+    ///
+    /// Honesty is necessary but not sufficient, because the record alone never speaks for a session.
+    /// The run therefore announces its post-preparation basis before any page work
+    /// (`prepareWorkingSeedAnnouncingProgress`) and, when its own working folder cannot supply the
+    /// pages the manifest claims, admits the gallery to the trust set in the same breath. That makes
+    /// the observation independent of flush cadence — deterministically so where one flush batch
+    /// would otherwise carry every missing page and restore completeness before its own push — and
+    /// independent of whether the reconciliation blanked anything at all.
+    /// `ensureContinuedSession`'s merged seed is what keeps that observation when it lands inside
+    /// the client start's main-actor hop.
     ///
     /// Each half of the predicate earns its place:
     /// - The record's own incompleteness is the common case, and it is what stops mid-run progress
@@ -122,7 +133,9 @@ extension DownloadCoordinator {
     ///   incomplete, its finished pages count raw, with no dependence on trust having caught up.
     /// - The trust set covers the completion flush, where a gallery the session watched doing real
     ///   work reports its full count while its record already reads complete again and it is still
-    ///   inside its own schedulable set.
+    ///   inside its own schedulable set — and, through the announcement's own admission, the refusal
+    ///   family, where the record reads complete for the entire run and there is no incompleteness
+    ///   for the push-side writer to observe.
     ///
     /// Keying on the record rather than on `queuedModes` is deliberate and was the design's one
     /// hardening. A mode-keyed basis stays set for a whole active run, so it would mask the redo's
@@ -504,8 +517,9 @@ extension DownloadCoordinator {
     /// reported from work it never saw.
     ///
     /// **The record's authority is earned, not assumed (D-G4-01).** It is authoritative about the
-    /// *manifest*; only for a gallery this session has already observed incomplete is it also
-    /// authoritative about this session's work. A redo that never ran — a complete manifest queued
+    /// *manifest*; only for a gallery this session has already trusted — observed incomplete, or
+    /// proven page work for at the run's own preparation — is it also authoritative about this
+    /// session's work. A redo that never ran — a complete manifest queued
     /// for an update and then cancelled — would otherwise retire pages the session never downloaded
     /// into both sides of the fraction and report a finished session. So a departed gallery outside
     /// `observedIncompleteSessionGIDs` retires its last observation instead, which the same rule
