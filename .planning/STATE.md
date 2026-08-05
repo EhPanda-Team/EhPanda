@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: ready to execute
-stopped_at: Planned round-11 gap closure (15-27..15-32); ready for /gsd-execute-phase 15
-last_updated: "2026-08-04T23:46:16.000Z"
+status: executing
+stopped_at: Completed 15-27-PLAN.md
+last_updated: "2026-08-05T00:11:07.561Z"
 last_activity: 2026-08-05
-last_activity_desc: planned round-11 gap closure (15-27..15-32), commits 83fae667 + 01379470
+last_activity_desc: Completed 15-27 (G-15-10 closed)
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 13
   total_plans: 203
-  completed_plans: 197
-  percent: 88
+  completed_plans: 198
+  percent: 81
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY TO EXECUTE (26 of 32 plans executed; round-11 gap closure planned)
-Plan: 26 of 32 executed
-Status: Gap round 11 PLANNED. Six plans (15-27..15-32) close the round-10 gaps G-15-7..G-15-12, checker-verified with 0 blockers and 0 remaining warnings (one acceptance-criterion arithmetic warning found and fixed in revision iteration 1). Waves strictly sequential 27→32 (shared files + one-xcodebuild-at-a-time constraint): 15-27 fixes the spy's refusal-arm consumption first (G-15-10, contract-faithful-doubles mandate); 15-28 drops nine public session mutators to internal behind `#if DEBUG` `testing…` forwarders and relocates the expiration family out of the 999-line DownloadContinuedSessionTests.swift for file_length headroom (G-15-11); 15-29 installs D-G7-01 — the floor withdrawal keyed on the pre/post `downloadIndex[gid]` delta via a non-async `withdrawingCountedBasisMovement<T>(gid:_:)` bracket around `prepareWorkingSeed` AND `writeInitialManifest`, withdrawal removed from the reconciliation, 12-row writer sweep with dispositions, both single-mover doc premises corrected, three counted-record regressions RED-first (G-15-7, subsumes WR-05); 15-30 gates the destructive blanking on a positive scan signal with refusals, `.notice` logging and a wholesale-failure regression (G-15-9); 15-31 makes all six `moveDownload` exits release + converge and turns the block set into a refcount (G-15-8 + WR-03); 15-32 sweeps the six hygiene items incl. `UncheckedBox`→`LockedBox` (G-15-12)
-Last activity: 2026-08-05 — planned round-11 gap closure (15-27..15-32), commits 83fae667 + 01379470
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 28 of 32
+Status: Executing Phase 15 (gap-closure round 11)
+Last activity: 2026-08-05 — Completed 15-27 (G-15-10 closed)
 Next: /gsd-execute-phase 15 — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 AFTER G-15-7 closes, now covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; a green device run does not close G-15-7 and closing G-15-7 does not discharge the device item
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [██████████] 98% (14/16 phases)
 
 ## Performance Metrics
 
@@ -253,6 +253,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P24 | 35min | 2 tasks | 4 files |
 | Phase 15 P25 | 45min | 2 tasks | 6 files |
 | Phase 15 P26 | 45min | 2 tasks | 9 files |
+| Phase 15 P27 | 26min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -623,6 +624,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-26: the withdrawal lives inside reconcileWorkingManifestAgainstPageFiles (whoever blanks, withdraws), unclamped, with the session-start floor seed converted to max(snapshot + floor, 0) so a hop-window correction is folded in rather than overwritten.
 - [Phase 15]: 15-26 WR-01: schedulableDownloads() unions activeGalleryID into its queue-scoped read (dedupe, empty-queue full read preserved); the predicates and scheduleNextIfNeededCore's own read are untouched.
 - [Phase 15]: 15-26 WR-02: prepareWorkingSeed is private so the announcing wiring cannot silently revert — the demonstrated suite-green revert is now a compile error.
+- [Phase ?]: [Phase 15]: 15-27: The spy's single-session guard and its one-shot refuseNextStart arm are separate refusal causes with separate guards; only the arm's own branch consumes the arm (G-15-10)
+- [Phase ?]: [Phase 15]: 15-27: When the double itself is the subject under test, the regression drives the spy's own client endpoints; a coordinator fixture would add choreography that cannot discriminate the defect
 
 ### Pending Todos
 
@@ -671,6 +674,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-04T17:34:10.392Z
-Stopped at: Completed 15-26-PLAN.md (G-15-6 closed)
+Last session: 2026-08-05T00:10:40.139Z
+Stopped at: Completed 15-27-PLAN.md
 Resume file: None
