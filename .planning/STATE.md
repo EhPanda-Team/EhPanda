@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-35-PLAN.md
-last_updated: "2026-08-05T07:52:45.245Z"
+stopped_at: Completed 15-36-PLAN.md
+last_updated: "2026-08-05T08:32:12.856Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-35 (G-15-15 contradicted-premise doc corrections, comment-only)
+last_activity_desc: Executed 15-36 (G-15-16 pause-path dead exits + assertable release imbalance)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 209
-  completed_plans: 206
+  completed_plans: 207
   percent: 99
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 36 of 38
+Plan: 37 of 38
 Status: Ready to execute
-Last activity: 2026-08-05 — Executed 15-35 (G-15-15 contradicted-premise doc corrections, comment-only)
-Next: execute phase 15 plans 15-36..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning group G-15-15 is CLOSED; warning groups G-15-16..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
+Last activity: 2026-08-05 — Executed 15-36 (G-15-16 pause-path dead exits + assertable release imbalance)
+Next: execute phase 15 plans 15-37..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning groups G-15-15 and G-15-16 are CLOSED; warning groups G-15-17..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
 
 Progress: [██████████] 99% (14/16 phases)
 
@@ -262,6 +262,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P33 | 50min | 1 tasks | 4 files |
 | Phase 15 P34 | 12min | 2 tasks | 5 files |
 | Phase 15 P35 | 22min | 1 tasks | 2 files |
+| Phase 15 P36 | 37min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -656,6 +657,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-35 WR-01: a push landing while the client identity is nil is dropped, not replayed — only the drain branch records reconciliation debt, and the next flush or convergence push repaints. The flag is deliberately not set at the skip.
 - [Phase 15]: 15-35 WR-02: one canonical wording — 'same-actor calls that do not suspend today; an await introduced inside them reopens this window and needs its own re-validation' — applied at every site claiming about the hasPendingWork/schedulableDownloads chain.
 - [Phase 15]: 15-35 WR-04: lastPushedCompletedPageCount names five writers including markContinuedSessionEnded's teardown zero, labeled exhaustive by grep at HEAD.
+- [Phase 15]: 15-36: writeSettledPauseRecord is KEPT with a traced reason — its writers are the queue-mobilizing entry points landing inside the unbounded wait, not the cancelled run's teardown
+- [Phase 15]: 15-36: commitPause is non-throwing end to end by compiler enforcement; both pause-record helpers drop throws and the unread download parameter
+- [Phase 15]: 15-36: an unmatched scheduling release is reported via reportIssue with a static identity-free message before the hash-masked log; the guard still returns without mutating
 
 ### Pending Todos
 
@@ -704,6 +708,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T07:52:45.235Z
-Stopped at: Completed 15-35-PLAN.md
+Last session: 2026-08-05T08:32:04.638Z
+Stopped at: Completed 15-36-PLAN.md
 Resume file: None

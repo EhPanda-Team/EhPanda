@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 35/38 | In Progress|  |
+| 15. Continued Background Downloads | 36/38 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 35/38 plans executed
+**Plans**: 36/38 plans executed
 
 Plans:
 **Wave 1**
@@ -957,7 +957,7 @@ Plans:
 
 **Wave 36** *(gap closure round 12, verification gap G-15-16 — blocked on 15-35 by file overlap in DownloadClient+Manager.swift and xcodebuild serialization)*
 
-- [ ] 15-36-PLAN.md — Drop the pause-record helpers' unproducible throws and unread parameter so the compiler forces the dead catch arms out of commitPause (the wrong exit comment dies with them), decide writeSettledPauseRecord's duplicate mutations from a traced enumeration of the cancelled task's teardown writers, and report a scheduling-release imbalance via reportIssue beside the existing log — pinned by a withKnownIssue canary through a new testing forwarder, RED-first
+- [x] 15-36-PLAN.md — Drop the pause-record helpers' unproducible throws and unread parameter so the compiler forces the dead catch arms out of commitPause (the wrong exit comment dies with them), decide writeSettledPauseRecord's duplicate mutations from a traced enumeration of the cancelled task's teardown writers, and report a scheduling-release imbalance via reportIssue beside the existing log — pinned by a withKnownIssue canary through a new testing forwarder, RED-first
 
 **Wave 37** *(gap closure round 12, verification gap G-15-18 — blocked on 15-36 by file overlap in Scheduling, Manager, the testing seam, and the convergence suite)*
 
