@@ -502,7 +502,8 @@ public actor DownloadCoordinator {
     /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
     /// pause-all — rather than only the paths someone remembered to instrument.
     var observedSchedulablePages = [String: Int]()
-    /// The galleries this session has ever observed incomplete while they were schedulable.
+    /// The galleries this session has ever observed incomplete, or proven page work for, while they
+    /// were schedulable.
     ///
     /// For a gallery in here the record is authoritative twice over: its finished pages count raw
     /// even once the record reads complete again — which is exactly the completion flush, where the
@@ -516,6 +517,14 @@ public actor DownloadCoordinator {
     /// redo's target rather than this session's progress. The rule itself (D-G4-01) is written down
     /// on `schedulableSnapshot()` and on `reconcileRetiredSessionPages(snapshot:)`, where the two
     /// halves are implemented.
+    ///
+    /// Membership is granted where the session can OBSERVE incompleteness or PROVE page work, never
+    /// at queue time: the snapshot-sourced merges below, and the run's own working-seed announcement
+    /// (`prepareWorkingSeedAnnouncingProgress`), which admits a gallery whose working folder cannot
+    /// supply the pages its manifest claims. The second rule exists because the first structurally
+    /// cannot reach one family — a reconciliation that REFUSES its destructive half hands the
+    /// manifest back verbatim, so a repair of a complete-reading record has no incompleteness for a
+    /// snapshot to see, and the flush path only ever moves a record upward (G-15-23).
     ///
     /// Session-scoped like the two above: cleared when a session starts and when one ends, seeded
     /// from the start snapshot, and accumulated from every snapshot a push reconciles.
