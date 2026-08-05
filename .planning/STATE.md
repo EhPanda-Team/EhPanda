@@ -4,11 +4,11 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: verifying
-stopped_at: Verified phase 15 after round 12 — gaps found
-last_updated: "2026-08-05T11:35:00.000Z"
+status: ready_to_execute
+stopped_at: Planned gap-closure round 13 — plans 15-39..15-41 verified, ready to execute
+last_updated: "2026-08-05T12:18:36.000Z"
 last_activity: 2026-08-05
-last_activity_desc: Verified phase 15 at HEAD 47d23e1c (round-12 fifth amendment) — all six round-12 gaps CLOSED and all three executor deviations judged correct, but three new gaps recorded: G-15-19 (blocker, SC3) plus G-15-20 and G-15-21 (warnings)
+last_activity_desc: "Planned gap-closure round 13 (plans 15-39..15-41, commits effe7f47 + 6a993886): 15-39 closes blocker G-15-19 with the verifier's carry-the-set remedy (unprobedPages crosses the repair-seed copy; the review's refuse-the-seed remedy is a frontmatter prohibition — traced to all-N hash loss), 15-40 closes G-15-20 by pairing every surviving doc inventory with a drift-failing census test, 15-41 closes G-15-21 hygiene and splits the 996/1000 basis suite. Plan-checker passed on iteration 2 (one vacuous grep anchor fixed); decision coverage 11/11"
 progress:
   total_phases: 16
   completed_phases: 14
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — VERIFYING
-Plan: 38 of 38
-Status: All 38 plans executed and verified — gaps found, phase NOT complete
-Last activity: 2026-08-05 — Verified phase 15 at HEAD 47d23e1c (fifth amendment, round 12): G-15-13..G-15-18 all CLOSED in source, all three executor deviations (restored `writeSettledPauseRecord`, kept `ensureContinuedSession()` in the `.superseded` arm, asserted the request take-back) judged CORRECT; score 2/4 must-haves
-Next: plan gap-closure round 13 for the three new gaps — G-15-19 (blocker, SC3: `materializeRepairSeed` selects through the collapsed scan and re-probes with the `Bool` forward, so an unprobeable SOURCE page is not copied while the manifest is copied whole and the destination scan reads a positive absence; note the review's suggested fix is WORSE than the defect — refusing the seed falls through to `createDirectory` and destroys all N hashes instead of K), G-15-20 and G-15-21 (warnings; five doc-vs-source contradictions, three of them written by round 12's own doc-correction work, plus hygiene — and `DownloadContinuedSessionBasisTests.swift` is at 996/1000 lines so G-15-19's regression cannot go there). SC2 moved OUT of failed into behaviour-unverified; SC3 moved INTO failed. Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and now the ONLY thing between SC2 and verified
+Phase: 15 (continued-background-downloads) — READY TO EXECUTE (gap-closure round 13)
+Plan: 38 of 41 executed
+Status: Round-13 plans 15-39..15-41 written, checker-verified (iteration 2), committed — not yet executed
+Last activity: 2026-08-05 — Planned gap-closure round 13: 15-39 (blocker G-15-19, SC3 — carry `unprobedPages` across the repair-seed copy and union it into the destination scan so the existing D-G13-01 refusal covers laundered pages; the review's refuse-the-seed remedy is PROHIBITED in frontmatter, traced to a strictly-worse all-N hash loss via the `createDirectory` fallthrough; crossed regression RED-first in NEW file `DownloadRepairSeedSignalPropagationTests.swift` beside a genuine-absence companion; 11-site consumer census re-derived by grep at execution time), 15-40 (G-15-20 — five doc corrections as rules/decided remedies, surviving inventories paired with drift-failing census tests on the `DownloadLogPrivacyInvariantTests` pattern), 15-41 (G-15-21 hygiene at the roots + basis-suite split restoring the 996/1000 `file_length` headroom as a pure relocation with unchanged test count)
+Next: /gsd-execute-phase 15 (waves 39→41, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; under G-15-19 a `.repair` re-slot can legitimately step the card BACKWARDS by the blanked count until 15-39 lands, so a mid-run drop is a symptom to report
 
 Progress: [████████░░] 88% (14/16 phases)
 
