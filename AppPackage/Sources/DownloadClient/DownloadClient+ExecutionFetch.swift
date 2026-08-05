@@ -147,8 +147,13 @@ extension DownloadCoordinator {
         mode: DownloadStartMode,
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {
+        // G-15-14, same class as the two range sites: validating a page number by comparison
+        // rather than by building `1...pageCount` means no range exists here to be invalid. The
+        // predicate is identical for every positive count; at zero it simply admits nothing,
+        // where the range form trapped the process.
+        let pageCount = payload.galleryDetail.pageCount
         let validPageSelection = rawPageSelection?
-            .filter({ (1...payload.galleryDetail.pageCount).contains($0) })
+            .filter({ $0 >= 1 && $0 <= pageCount })
         let pageSelection = validPageSelection?.isEmpty == false && mode != .update
             ? validPageSelection
             : nil

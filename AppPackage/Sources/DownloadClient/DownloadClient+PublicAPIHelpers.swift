@@ -9,7 +9,13 @@ extension DownloadCoordinator {
         existingRelativePaths: [Int: String],
         failedPages: [Int: PageFailure]
     ) -> [DownloadPageInspection] {
-        (1...download.pageCount).map { page -> DownloadPageInspection in
+        // G-15-14, same class as the two range sites: a record's page count reaches a range here
+        // too. `validateDecodedManifest` rejects an empty page dictionary, so no manifest READ from
+        // disk can be zero — but an in-memory index record is written straight from
+        // `makeInitialManifest`, and this function is public, so the guard stands for direct
+        // callers and future routes rather than resting on a producer-side argument.
+        guard download.pageCount > 0 else { return [] }
+        return (1...download.pageCount).map { page -> DownloadPageInspection in
             if let relativePath = existingRelativePaths[page],
                let folderURL = activeFolderURL {
                 let fileURL = folderURL
