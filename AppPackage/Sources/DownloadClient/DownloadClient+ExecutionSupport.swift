@@ -735,7 +735,7 @@ extension DownloadCoordinator {
         // sits ahead of the selection branch because a selected page cannot rescue a range that
         // never formed.
         guard payload.galleryDetail.pageCount > 0 else { return [] }
-        let selectedIndices = payload.pageSelection.map(Set.init)
+        let selectedIndices = payload.pageSelection
         return (1...payload.galleryDetail.pageCount).filter { page in
             if let selectedIndices,
                !selectedIndices.contains(page) {
