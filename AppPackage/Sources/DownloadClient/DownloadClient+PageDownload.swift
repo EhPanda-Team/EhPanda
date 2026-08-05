@@ -78,9 +78,15 @@ extension DownloadCoordinator {
         existingPages: [Int: String],
         progress: inout PageDownloadProgress
     ) async throws {
-        let pageIndices = Array(
-            1...context.payload.galleryDetail.pageCount
-        )
+        // G-15-14. The invariant is the whole class, not this site: no range in this module is
+        // built from an unguarded page count. `makeInitialManifest` and `reusableExistingManifest`
+        // already branch on the same value, so zero is a modeled input here too — and `1...0` is an
+        // invalid ClosedRange that traps the process rather than failing the download. The empty
+        // case is spelled as a conditional construction, in `makeInitialManifest`'s shape, rather
+        // than an early return: the rest of this body then runs unchanged over an empty index list,
+        // so no input reaches a different tail than it did before.
+        let pageCount = context.payload.galleryDetail.pageCount
+        let pageIndices = pageCount > 0 ? Array(1...pageCount) : []
         collectExistingPages(
             pageIndices: pageIndices,
             existingPages: existingPages,

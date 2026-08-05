@@ -685,6 +685,13 @@ extension DownloadCoordinator {
         folderURL: URL,
         existingPageRelativePaths: [Int: String]
     ) -> [Int] {
+        // G-15-14. The invariant is the whole class, not this site: no range in this module is
+        // built from an unguarded page count. `makeInitialManifest` and `reusableExistingManifest`
+        // already branch on the same value, so zero is a modeled input here too — and `1...0` is an
+        // invalid ClosedRange that traps the process rather than failing the download. The guard
+        // sits ahead of the selection branch because a selected page cannot rescue a range that
+        // never formed.
+        guard payload.galleryDetail.pageCount > 0 else { return [] }
         let selectedIndices = payload.pageSelection.map(Set.init)
         return (1...payload.galleryDetail.pageCount).filter { page in
             if let selectedIndices,
