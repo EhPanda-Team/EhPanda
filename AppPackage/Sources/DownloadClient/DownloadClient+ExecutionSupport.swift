@@ -324,8 +324,7 @@ extension DownloadCoordinator {
             let existingPages = pageFileScan.pages
             let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
                 manifest: manifest,
-                existingPages: existingPages,
-                scanSucceeded: pageFileScan.scanSucceeded,
+                pageFileScan: pageFileScan,
                 folderURL: folderURL
             )
             let coverRelativePath = storage.existingCoverRelativePath(
@@ -431,45 +430,62 @@ extension DownloadCoordinator {
     /// early return above fires and a `.redownload` that had just wiped the same record from C of N
     /// to 0 of N withdrew nothing. The rule belongs to the movement, not to the mechanism.
     ///
-    /// No suspension is introduced: `existingPages` is the dictionary `prepareWorkingSeed` already
-    /// read, so no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are
-    /// same-actor synchronous calls.
+    /// No suspension is introduced: `pageFileScan` is the scan `prepareWorkingSeed` already took, so
+    /// no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are same-actor
+    /// synchronous calls.
     ///
     /// **Positive-signal rule: a best-effort probe's non-answer is never authority for destroying
-    /// recorded hashes (G-15-9).** The scan that produces `existingPages` swallows failure at three
-    /// levels — `existingAssetFileURLs` on any `contentsOfDirectory` failure, the per-page
-    /// `sanitizeAssetFileIfNeeded` drop, and its `canReadNonEmptyFile` fallback on any open or read
-    /// failure. Each of those fails for transient reasons: descriptor exhaustion, `EBUSY`, and a
-    /// data-protection denial while the device is locked, which is precisely the state a backgrounded
-    /// continued-processing session runs in. `prepareWorkingSeed` scans once and hands the single
-    /// answer here, so before this guard ONE failed enumeration blanked every claimed page of the
-    /// gallery in one pass, rewrote the manifest, published a 0-of-N record and — through the
-    /// enclosing D-G7-01 bracket — withdrew the full count from the floor, all unlogged. While the
-    /// empty answer only caused a re-fetch it was harmless; D-G5-01 made it destructive.
+    /// recorded hashes.** The scan swallows failure at three levels — `existingAssetFileURLs` on any
+    /// `contentsOfDirectory` failure, the per-file probe's metadata read, and that probe's
+    /// content-read fallback on any open or read failure. Every one of them fails for transient
+    /// reasons, and while an empty answer only caused a re-fetch it was harmless; D-G5-01 made it
+    /// destructive. So this consumer is defended in three lines, in this order:
     ///
-    /// **Wholesale refusal, and the tradeoff it deliberately accepts.** The refusal is also taken
-    /// when a NOMINALLY SUCCESSFUL listing would blank every claimed page. The manifest was just read
-    /// out of this very folder, so a listing of it that accounts for none of its claimed pages is the
-    /// signature of per-file probe failure en masse — the sanitization levels above failing for every
-    /// file — rather than proof that every page vanished. The cost is that a genuinely
-    /// all-pages-vanished repair is no longer reconciled: it falls back to the pre-D-G5-01 arc, where
-    /// the seed's empty `existingPages` makes the run re-fetch every page and the record's honesty
-    /// catches up at flush time, and `resumeMode`'s `storage.validate` branch remains the route that
-    /// resolves `.repair` for such a record. That is accepted against the alternative — letting one
-    /// transient enumeration failure destroy every recorded hash a gallery has. Partial blanking is
-    /// untouched: a scan that succeeds and finds SOME claimed files missing blanks exactly those.
+    /// 1. **The directory-level positive signal (G-15-9).** `scanSucceeded` false means the
+    ///    enumeration itself failed, so the whole answer is a non-answer and nothing is blanked. One
+    ///    failed enumeration used to blank every claimed page of the gallery in a single pass,
+    ///    rewrite the manifest, publish a 0-of-N record and — through the enclosing D-G7-01
+    ///    bracket — withdraw the full count from the floor, all unlogged.
+    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01).** `unprobedPages` carries the
+    ///    claimed pages whose file the successful listing DID yield but whose probe could not
+    ///    classify, and no page in that set is blanked. The trigger is narrow and real: the metadata
+    ///    read itself throwing for many-but-not-all files — an I/O error, a permission change, a
+    ///    volume going away mid-scan. It is not descriptor exhaustion and not a locked device, since
+    ///    a metadata read needs no descriptor and still answers under data protection. Line 1 cannot
+    ///    reach this population, because the listing succeeded, and line 3 cannot either, because it
+    ///    disables itself as soon as one claimed page survives: a gallery with 100 claimed pages and
+    ///    99 failed probes passed `99 < 100` and lost 99 recorded hashes irreversibly.
+    /// 3. **The all-or-nothing guard, as the residual second line.** A refusal is still taken when a
+    ///    nominally successful listing that answered for every file it did probe would nonetheless
+    ///    blank every claimed page. The manifest was just read out of this very folder, so that is
+    ///    more likely a shape neither signal above caught than proof that every page vanished at
+    ///    once.
+    ///
+    /// A refusal at any of the three moves no index record, so D-G7-01's delta-keyed bracket
+    /// withdraws exactly zero from the floor by construction, without coordination here.
+    ///
+    /// **What the defence deliberately costs.** A genuinely all-pages-vanished repair is no longer
+    /// reconciled: it falls back to the pre-D-G5-01 arc, where the seed's empty `existingPages`
+    /// makes the run re-fetch every page and the record's honesty catches up at flush time, and
+    /// `resumeMode`'s `storage.validate` branch remains the route that resolves `.repair` for such a
+    /// record. An unprobed page pays the same way, one page at a time. That is accepted against the
+    /// alternative — letting a transient failure destroy recorded hashes. Genuine absence is
+    /// untouched and stays fully blankable: a claimed page whose file a SUCCESSFUL listing simply
+    /// did not yield is a positive absence, and a scan that finds K of them blanks exactly those K.
     private func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
-        existingPages: [Int: String],
-        scanSucceeded: Bool,
+        pageFileScan: PageFileScan,
         folderURL: URL
     ) throws -> DownloadManifest {
-        guard scanSucceeded else { return manifest }
+        guard pageFileScan.scanSucceeded else { return manifest }
 
         var pages = manifest.pages
         var blankedPageCount = 0
         for page in manifest.pages.keys.sorted() {
-            guard pages[page]?.isEmpty == false, existingPages[page] == nil else { continue }
+            guard pages[page]?.isEmpty == false,
+                  pageFileScan.pages[page] == nil,
+                  !pageFileScan.unprobedPages.contains(page)
+            else { continue }
             pages[page] = ""
             blankedPageCount += 1
         }
