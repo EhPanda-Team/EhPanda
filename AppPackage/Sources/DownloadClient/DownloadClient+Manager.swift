@@ -377,8 +377,13 @@ public actor DownloadCoordinator {
     ///
     /// **G-15-8 — no exit may leave a gid blocked or the queue unconverged.** Every operation that
     /// blocks pairs each of its exits with exactly one `releaseScheduling(gid:)` followed by
-    /// convergence (`notifyObservers()` then `scheduleNextIfNeeded()`); `commitPause` is the one
-    /// site whose convergence its callers own on every path instead. A gid left blocked is
+    /// convergence (`notifyObservers()` then `scheduleNextIfNeeded()`). `commitPause` splits that
+    /// convergence by exit CATEGORY rather than owning all of it or delegating all of it: every
+    /// `.settled` exit releases and then converges inline, and every `.superseded` exit releases and
+    /// hands the convergence one frame up to `pause(gid:expiration:)`, which converges on every
+    /// `.superseded` value it receives. Phrased as a rule over the two outcomes, not as a count of
+    /// sites: its exits are a set someone will add to, and a new one is covered the moment it picks
+    /// an outcome, with nothing here to drift out of date. A gid left blocked is
     /// invisible to `schedulableDownloads()` — the single authority the card, the pending-work gate
     /// and the scheduler all read — so a convergence landing inside that window can declare the
     /// queue drained over work that is merely hidden, and an exit that releases without converging
@@ -432,7 +437,11 @@ public actor DownloadCoordinator {
     ///
     /// Awaiting it is how a suite settles an expiration exactly: the expiration handler's whole
     /// policy runs inside it. Suites reach it through `testingContinuedSessionTask()` rather than
-    /// directly, which is what keeps this property — like the eight above — module-internal.
+    /// directly, which is what keeps this property module-internal like every other session-state
+    /// declaration in this section: reaching one of them from a suite would widen its access for the
+    /// test's sake, so each is reached through a testing forwarder instead. Stated as that rule
+    /// rather than as a position in the list — an unchecked count is the shape this file has already
+    /// had to correct.
     var continuedSessionTask: Task<Void, Never>?
     /// The monotonic floor under the numerator this session pushes to the card.
     ///

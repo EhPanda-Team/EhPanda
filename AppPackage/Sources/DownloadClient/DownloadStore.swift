@@ -705,10 +705,23 @@ public struct DownloadStore: Sendable {
     /// Classifies one asset file, discarding it on the rejections that have always carried that
     /// housekeeping deletion.
     private func probeAssetFile(at url: URL) -> AssetFileProbeOutcome {
-        // Not a positive absence. The callers hand this a file a directory listing just produced,
-        // so a stat-backed existence check that then denies it is a question left unanswered — a
-        // positive absence is a claimed page whose file the successful listing never yielded, and
-        // that page never reaches this function at all.
+        // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
+        // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an
+        // enumeration has just yielded, so a stat-backed existence check that then denies it is a
+        // question left unanswered; for them a positive absence is a claimed page whose file the
+        // successful listing never yielded, and that page never reaches this function at all.
+        //
+        // Two routes construct their path instead of reading it off a listing: the manifest copy in
+        // `materializeRepairSeed`, through `linkOrCopyReadableAsset`, and a just-written page file's
+        // own relative path, through `hashReadableAsset` from `refreshManifestPageFileHashes`. For
+        // those a missing file IS a positive absence, and this function still answers `unprobeable`.
+        // The licensing condition is therefore on the consumer rather than on the path: a caller
+        // holding a constructed path may keep reading the collapsed `Bool` only while its answer can
+        // never reach a decision that destroys recorded state. Both of these throw instead — a
+        // recoverable failed operation — and after G-15-19 no caller of the collapsed forward feeds
+        // an absence into a destructive decision at all. One that needed to would have to take a
+        // classification of its own, through `pageFileScan(folderURL:manifest:)`, rather than read a
+        // non-answer this comment has licensed for someone else's callers.
         guard fileManager.operate({ $0.fileExists(atPath: url.path) }) else { return .unprobeable }
 
         let attributes: [FileAttributeKey: Any]
