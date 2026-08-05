@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-31-PLAN.md
-last_updated: "2026-08-05T01:57:22.770Z"
+status: verifying
+stopped_at: Completed 15-32-PLAN.md
+last_updated: "2026-08-05T02:36:42.286Z"
 last_activity: 2026-08-05
-last_activity_desc: Completed 15-31 (G-15-8 closed, WR-03 bundled)
+last_activity_desc: Completed 15-32 (G-15-12 closed — six hygiene items)
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 203
-  completed_plans: 202
-  percent: 81
+  completed_plans: 203
+  percent: 88
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 15 (continued-background-downloads) — EXECUTING
 Plan: 32 of 32
-Status: Ready to execute
-Last activity: 2026-08-05 — Completed 15-31 (G-15-8 closed, WR-03 bundled)
-Next: /gsd-execute-phase 15 (plan 15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7, G-15-8 and G-15-9 are closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29, 15-30 or 15-31, and closing those gaps does not discharge it
+Status: Phase complete — ready for verification
+Last activity: 2026-08-05 — Completed 15-32 (G-15-12 closed — six hygiene items)
+Next: re-verify phase 15 (all 32 plans complete; round-11 gaps G-15-7..G-15-12 all closed in code); separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by 15-29, 15-30, 15-31 or 15-32, and closing those gaps does not discharge it
 
 Progress: [██████████] 100% (14/16 phases)
 
@@ -258,6 +258,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P29 | 70min | 2 tasks | 6 files |
 | Phase 15 P30 | 55min | 1 tasks | 3 files |
 | Phase 15 P31 | 50min | 1 tasks | 9 files |
+| Phase 15 P32 | 50min | 2 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -642,6 +643,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-31: commitPause's not-found exit converged nowhere and its caller returns .settled verbatim — the plan's expected 'convergence owned one frame up on every path' was false in source, so the exit was fixed rather than documented as intended.
 - [Phase ?]: 15-31: An unmatched releaseScheduling logs at .error and leaves the dictionary untouched; decrementing anyway would consume a different live operation's hold and strand that operation's download.
 - [Phase ?]: 15-31: The mid-suspension teardown window is narrowed to each operation's own suspensions but deliberately left unstaged — closing it deterministically would need production suspension hooks the gap's suggested_fix does not ask for.
+- [Phase 15]: 15-32: The IN-05 union staging premise was false in source — a complete record in the persisted queue reads .queued and is schedulable, so the queued remainder is made unschedulable by a live operation's scheduling block instead.
+- [Phase 15]: 15-32: A doc-comment falsifiability claim is run, not asserted — the union was temporarily reverted and the new case observed failing at exactly its first expectation.
 
 ### Pending Todos
 
@@ -690,6 +693,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T01:57:13.980Z
-Stopped at: Completed 15-31-PLAN.md
+Last session: 2026-08-05T02:36:31.788Z
+Stopped at: Completed 15-32-PLAN.md
 Resume file: None
