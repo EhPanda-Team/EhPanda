@@ -40,7 +40,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @Test
     func testDownloadInspectorReducerRetryPagesUsesDownloadClientRetryPages() async {
         await confirmation(expectedCount: 1) { confirm in
-            let retried = UncheckedBox<[Int]>([])
+            let retried = LockedBox<[Int]>([])
             let download = sampleDownload(
                 gid: "112233", title: "Retry Page Gallery",
                 status: .failed, completedPageCount: 1
@@ -72,7 +72,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadInspectorReducerRetryFailedPagesMarksFailedPagesPending() async {
-        let retried = UncheckedBox<[Int]>([])
+        let retried = LockedBox<[Int]>([])
         let download = sampleDownload(
             gid: "112235", title: "Retry Failed Pages Gallery",
             status: .partial, completedPageCount: 1
@@ -121,7 +121,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadInspectorReducerValidateImageDataUsesCurrentGallery() async {
-        let validatedGID = UncheckedBox<String?>(nil)
+        let validatedGID = LockedBox<String?>(nil)
         let download = sampleDownload(
             gid: "112236", title: "Validate Gallery",
             status: .completed, pageCount: 2
@@ -176,7 +176,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadInspectorReducerTogglePauseUsesCurrentGallery() async {
-        let toggledGID = UncheckedBox<String?>(nil)
+        let toggledGID = LockedBox<String?>(nil)
         let download = sampleDownload(
             gid: "112238", title: "Toggle Pause Gallery",
             status: .downloading, completedPageCount: 1
@@ -201,7 +201,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadInspectorReducerTogglePauseUsesQueuedGallery() async {
-        let toggledGID = UncheckedBox<String?>(nil)
+        let toggledGID = LockedBox<String?>(nil)
         let download = sampleDownload(
             gid: "112240", title: "Queued Gallery",
             status: .queued, completedPageCount: 0
@@ -226,7 +226,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadInspectorReducerTogglePauseIgnoredForNonPauseableStatus() async {
-        let didToggle = UncheckedBox(false)
+        let didToggle = LockedBox(false)
         let download = sampleDownload(
             gid: "112239", title: "Completed Gallery",
             status: .completed, pageCount: 2
@@ -253,7 +253,7 @@ extension DownloadInspectorLoadTests {
     @MainActor
     @Test
     func testDownloadInspectorReducerValidateImageDataIgnoredWithoutDownloadedPages() async {
-        let didValidate = UncheckedBox(false)
+        let didValidate = LockedBox(false)
         let download = sampleDownload(
             gid: "112237", title: "Validate Empty Gallery",
             status: .completed, pageCount: 2

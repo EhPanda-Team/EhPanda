@@ -22,7 +22,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             status: .queued,
             completedPageCount: 3
         )
-        let reconcileCount = UncheckedBox(0)
+        let reconcileCount = LockedBox(0)
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
@@ -61,8 +61,8 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerRefreshDownloadsUsesClientRefresh() async {
-        let refreshCount = UncheckedBox(0)
-        let reconcileCount = UncheckedBox(0)
+        let refreshCount = LockedBox(0)
+        let reconcileCount = LockedBox(0)
 
         let store = TestStore(
             initialState: DownloadsReducer.State(),
@@ -104,9 +104,9 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerOnAppearUsesCachedIndexWithoutRefresh() async {
-        let fetchCount = UncheckedBox(0)
-        let folderFetchCount = UncheckedBox(0)
-        let refreshCount = UncheckedBox(0)
+        let fetchCount = LockedBox(0)
+        let folderFetchCount = LockedBox(0)
+        let refreshCount = LockedBox(0)
 
         let store = TestStore(
             initialState: DownloadsReducer.State(),

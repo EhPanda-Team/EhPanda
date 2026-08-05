@@ -20,7 +20,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
     func testDetailReducerObservesDownloadBadgeTransitions() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let continuationBox = UncheckedBox<AsyncStream<[DownloadedGallery]>.Continuation?>(nil)
+        let continuationBox = LockedBox<AsyncStream<[DownloadedGallery]>.Continuation?>(nil)
         let stream = AsyncStream<[DownloadedGallery]> { continuation in
             continuationBox.value = continuation
         }

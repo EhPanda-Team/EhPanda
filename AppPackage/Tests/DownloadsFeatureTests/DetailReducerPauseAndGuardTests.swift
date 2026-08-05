@@ -56,7 +56,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
     func testDetailReducerIgnoresStartDownloadWhilePreparing() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let enqueueCount = UncheckedBox(0)
+        let enqueueCount = LockedBox(0)
 
         var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
@@ -104,7 +104,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             gid: gallery.gid, title: gallery.title, status: .paused,
             pageCount: 26, completedPageCount: 7
         )
-        let togglePauseCount = UncheckedBox(0)
+        let togglePauseCount = LockedBox(0)
 
         var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
@@ -148,7 +148,7 @@ private extension DetailReducerPauseAndGuardTests {
     func makeTogglePauseStore(
         initialState: DetailReducer.State,
         pausedDownload: DownloadedGallery,
-        togglePauseCount: UncheckedBox<Int>
+        togglePauseCount: LockedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         let store = TestStore(
             initialState: initialState,

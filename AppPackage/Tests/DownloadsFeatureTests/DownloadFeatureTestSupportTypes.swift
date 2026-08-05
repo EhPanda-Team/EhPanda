@@ -5,7 +5,12 @@ import Synchronization
 
 // MARK: - Supporting Types
 
-final class UncheckedBox<Value: Sendable>: Sendable {
+/// A `Mutex`-backed mutable box whose `Sendable` conformance is genuinely checked by the compiler.
+///
+/// Named for what it is. The former name said "unchecked", advertising the unchecked-Sendable
+/// escape hatch this project bans at error severity, while the type has always been the sanctioned
+/// alternative to it.
+final class LockedBox<Value: Sendable>: Sendable {
     private let storage: Mutex<Value>
 
     init(_ value: Value) {
