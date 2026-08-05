@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 41/41 plans executed
+**Plans**: 41/45 plans executed
 
 Plans:
 **Wave 1**
@@ -978,6 +978,22 @@ Plans:
 **Wave 41** *(gap closure round 13, verification gap G-15-21 — blocked on 15-40 by file overlap on DownloadClient+ExecutionSupport.swift and xcodebuild serialization)*
 
 - [x] 15-41-PLAN.md — Close the hygiene group at the roots: WR-06's dead disjunct deleted and the normalizer renamed to what it does with all callers swept, IN-02's stray indentation leveled, IN-03's max-widened bound replaced by the G-15-14 guard shape (the sweep's one widened site), IN-04's redundant Set rebuild dropped — and restore the basis suite's headroom by splitting DownloadContinuedSessionBasisTests.swift (996/1000) as a pure relocation into an extension file, proven by an unchanged test count and a green full run
+
+**Wave 42** *(gap closure round 14, verification blocker G-15-22 — blocked on 15-41 by round continuity from the round-13 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-42-PLAN.md — Stop the expiration sweep from silently pausing away a just-mobilized download (SC1/SC3): pauseAllSchedulable captures every gallery's queue-intent generation in the SAME synchronous stretch as the gid snapshot — the verifier-endorsed CR-01 hoist, sound because schedulableDownloads() performs no suspending call today — so a tap landing anywhere after the sweep began forces the affected pause to .superseded and its rescue re-ensure; the multi-gallery regression lands the tap BEFORE the target gallery's iteration with a session-start discriminator proving the loop did not return early, the mobilizer census (four advanceQueueIntentGeneration callers, none stamping the session id first) re-derived by grep, and the pause doc corrected to the snapshot rule without restating G-15-24's false authority sentence
+
+**Wave 43** *(gap closure round 14, verification blocker G-15-23 — blocked on 15-42 by file overlap on DownloadClient+ContinuedSession.swift and xcodebuild serialization)*
+
+- [ ] 15-43-PLAN.md — Give the refusal family a session voice (SC2, SC1 through D-11): the run-start announcement gates on real page work (the working seed's existingPages short of the manifest's page count — true on all THREE refusal kinds and the proceeding branch alike) and admits the gid to observedIncompleteSessionGIDs explicitly ahead of its push, since the push-side formUnion provably cannot admit a complete-reading record; trust lands at the run's own preparation never queue time (D-G4-01 ceiling pinned), the insert's bracket-side derivation recorded (D-G7-01), the K=N residual and failed-enumeration regressions RED-first in a new ledger extension file through the production retryPages route, the K=1 case byte-unchanged, and the refuted flush-time cost sentence corrected from a fresh trust-writer census
+
+**Wave 44** *(gap closure round 14, verification warning G-15-24 — blocked on 15-43: the corrected sentences must describe post-fix source, with file overlap on DownloadClient+Manager.swift)*
+
+- [ ] 15-44-PLAN.md — End the fifth doc-vs-source round at its generator: both one-authority sites corrected from fresh enumerations (schedulableDownloads() has three callers and the scheduler is not one — what is shared is the isSchedulableDownload predicate; the scheduler's own scoped read named, the active-gallery-union divergence recorded as inert behind guard activeTask == nil), the caller list pinned by a schedulableDownloads() call-site census in DownloadSourceInventoryTests, and WR-02's refuted concern closed as the doc item it is: a device-verified note beside ContinuedTaskScheduling.live.register recording that per-session UUID identifiers under the bundle-scoped wildcard make pre-launch registration structurally impossible and that 15-UAT.md test 1 device-proved the post-launch design
+
+**Wave 45** *(gap closure round 14, verification warning G-15-25 — blocked on 15-44 by file overlap on DownloadClient+ContinuedSession.swift and DownloadClient+Scheduling.swift, whose WR-04 blank lines must be located after all prior edits)*
+
+- [ ] 15-45-PLAN.md — Close the round-13 hygiene group with decisions, not deferrals: WR-03's always-whole-array prefix dropped with the two-writer equivalence derived, WR-04's two stray blank lines before closing braces deleted, WR-05's unintended parameter-list trailing comma removed, and the public dead API decided delete-or-justify with the caller census re-derived by grep — validPageCount deleted outright, isReadableAssetFile deleted with its attributes-throw fallback pin rerouted through a surviving public surface (or kept with the why recorded at the declaration), the pinned probe behavior owned by a named test either way
 
 ### Phase 16: Dynamic Type Accessibility
 
