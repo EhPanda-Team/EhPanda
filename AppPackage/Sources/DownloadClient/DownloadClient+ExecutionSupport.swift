@@ -165,6 +165,12 @@ extension DownloadCoordinator {
         options: DownloadRequestOptions,
         requiredPageIndices: [Int]
     ) async throws -> ResolvedSource {
+        // The only producer of a payload that reaches here, `fetchLatestPayload`, already guards this
+        // optional with the same error, so restating the contract where it is consumed states it
+        // locally instead of trapping on it. The sibling `resolvedImageSource`'s `?? payload.host.url`
+        // fallback is deliberately not copied: retargeting a thumbnail request at the host root is a
+        // behavior change, and this guard is behavior-identical.
+        guard let galleryURL = payload.gallery.galleryURL else { throw AppError.notFound }
         let requiredPageNumbers = Array(
             Set(requiredPageIndices.map {
                 payload.previewConfig.pageNumber(index: $0)
@@ -174,7 +180,7 @@ extension DownloadCoordinator {
         var thumbnailURLs = [Int: URL]()
         for pageNumber in requiredPageNumbers {
             let pageURLs = try await ThumbnailURLsRequest(
-                galleryURL: payload.gallery.galleryURL.forceUnwrapped,
+                galleryURL: galleryURL,
                 pageNum: pageNumber,
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular

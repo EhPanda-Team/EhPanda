@@ -47,6 +47,18 @@ extension DownloadCoordinator {
                 requestedMode: .repair
             )
         }
+        // Near-dead after D-G5-01, and deliberately kept. Most missing-file records now resolve at
+        // the branch above instead: the working-seed reconciliation blanks the recorded hash of every
+        // page whose file is gone, so the record honestly reads `isIncomplete` while inactive. Two
+        // states still arrive here, both of them a record that reads COMPLETE while files are missing:
+        //   (a) the reconciliation REFUSED its destructive half — a failed page-file scan, or a
+        //       nominally successful one that would blank every claimed page (G-15-9's
+        //       positive-signal rule) — so the manifest came back verbatim, still claiming its pages;
+        //   (b) no preparation has touched the record this session, so nothing has had the
+        //       opportunity to blank anything.
+        // In both, this branch is what still routes the record to `.repair`. Without it they would
+        // fall through to `.redownload`, which deletes the working folder and re-fetches every page,
+        // discarding the ones already on disk.
         if case .missingFiles = storage.validate(
             download: download,
             verifiesContentHashes: false
