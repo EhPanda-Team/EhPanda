@@ -191,10 +191,7 @@ extension DownloadCoordinator {
 
     public func delete(gid: String) async -> Result<Void, AppError> {
         let taskToCancel: Task<Void, Never>?
-        schedulingBlockedGalleryIDs.insert(gid)
-        defer {
-            schedulingBlockedGalleryIDs.remove(gid)
-        }
+        blockScheduling(gid: gid)
         if activeGalleryID == gid {
             taskToCancel = activeTask
             activeTask?.cancel()
@@ -210,6 +207,7 @@ extension DownloadCoordinator {
             await backgroundTaskStore.removeAll(for: gid)
             // The cancelled task's generation no longer owns `activeGalleryID`, so its deferred
             // cleanup cannot schedule. Returning here would strand both the queue and its session.
+            releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .failure(.notFound)
@@ -218,16 +216,18 @@ extension DownloadCoordinator {
             try removeGalleryFolders(gid: download.gid, token: download.token)
         } catch let error as AppError {
             await reloadDownloadRecord(gid: download.gid, token: download.token)
-            // ACTIVE-OWNERSHIP CONVERGENCE: the function-scoped defer has not run yet, so release
-            // the failed gallery before converging or the scheduler would silently skip it.
-            schedulingBlockedGalleryIDs.remove(gid)
+            // ACTIVE-OWNERSHIP CONVERGENCE: release the failed gallery before converging or the
+            // scheduler would silently skip it. Exactly one release per exit — the former
+            // function-scoped `defer` sat behind these explicit removes, which a `Set` tolerated
+            // and a reference count would not.
+            releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .failure(error)
         } catch {
             logger.error("\(error, privacy: .private)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
-            schedulingBlockedGalleryIDs.remove(gid)
+            releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .failure(.fileOperationFailed(error.localizedDescription))
@@ -238,6 +238,7 @@ extension DownloadCoordinator {
         await queueStore.remove(gid)
         await backgroundTaskStore.removeAll(for: gid)
         downloadIndex[gid] = nil
+        releaseScheduling(gid: gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
         logger.notice("Download deleted, gid: \(gid, privacy: .private(mask: .hash)).")

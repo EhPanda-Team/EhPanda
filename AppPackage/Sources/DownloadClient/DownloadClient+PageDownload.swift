@@ -174,8 +174,9 @@ extension DownloadCoordinator {
                     continue
                 }
                 if control.wasCancelled || Task.isCancelled
-                    || schedulingBlockedGalleryIDs
-                    .contains(payload.gallery.gid) {
+                    || schedulingBlockedGalleryCounts[
+                        payload.gallery.gid
+                    ] != nil {
                     control.wasCancelled = true
                     group.cancelAll()
                     continue

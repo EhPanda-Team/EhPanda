@@ -118,7 +118,7 @@ extension DownloadCoordinator {
     func isSchedulableDownload(
         _ download: DownloadedGallery
     ) -> Bool {
-        !schedulingBlockedGalleryIDs.contains(download.gid)
+        schedulingBlockedGalleryCounts[download.gid] == nil
             && shouldSchedule(download: download)
     }
 
@@ -191,20 +191,30 @@ extension DownloadCoordinator {
         expiration: ExpirationPauseOwnership?
     ) async -> PauseCommitOutcome {
         do {
-            schedulingBlockedGalleryIDs.insert(gid)
-            defer {
-                schedulingBlockedGalleryIDs.remove(gid)
-            }
+            blockScheduling(gid: gid)
             guard let currentDownload = await fetchDownload(gid: gid)
             else {
+                // ACTIVE-OWNERSHIP CONVERGENCE, swept for G-15-8. The former function-scoped
+                // `defer` made this the one `.settled` exit that converged nowhere: a pause of a
+                // record that vanished across the read above returned while its gid was still
+                // hidden from `schedulableDownloads()`, and nothing rescheduled afterwards. The
+                // release comes first on every exit below for the same reason — converging while
+                // the affected gallery is still blocked makes the scheduler skip it silently.
+                releaseScheduling(gid: gid)
+                await notifyObservers()
+                await scheduleNextIfNeeded()
                 return .settled(.failure(.notFound))
             }
             guard ownsExpirationPause(expiration, gid: gid) else {
+                // The one-frame-up convergence: `pause(gid:expiration:)` notifies, schedules and
+                // re-ensures on every `.superseded` value it receives, after this release lands.
+                releaseScheduling(gid: gid)
                 return .superseded
             }
             guard [.queued, .active]
                     .contains(currentDownload.displayStatus)
             else {
+                releaseScheduling(gid: gid)
                 await notifyObservers()
                 await scheduleNextIfNeeded()
                 return .settled(.success(()))
@@ -220,18 +230,22 @@ extension DownloadCoordinator {
             )
             await taskToCancel?.value
             guard ownsExpirationPause(expiration, gid: gid) else {
+                releaseScheduling(gid: gid)
                 return .superseded
             }
             try await writeSettledPauseRecord(
                 gid: gid,
                 download: currentDownload
             )
+            releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             logger.notice("Download paused, gid: \(gid, privacy: .private(mask: .hash)).")
             return .settled(.success(()))
         } catch let error as AppError {
-            // The do-scoped defer has already released the scheduling block before either catch.
+            // Both catches are reachable only from the two record writes above, which sit past the
+            // block and ahead of every release, so this is that path's single release.
+            releaseScheduling(gid: gid)
             // Convergence is intentionally unconditional, including expiration-owned pauses:
             // surrounding exits already converge during expiration, the failed pause's gallery is
             // precisely the work that must not be stranded, and scheduling does not start a new
@@ -242,6 +256,7 @@ extension DownloadCoordinator {
             return .settled(.failure(error))
         } catch {
             logger.error("\(error, privacy: .private)")
+            releaseScheduling(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .settled(.failure(.unknown))

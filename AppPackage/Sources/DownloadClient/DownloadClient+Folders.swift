@@ -97,12 +97,7 @@ extension DownloadCoordinator {
             .filter({ $0.parentFolderName == name })
         let containedGIDs = containedRecords.map(\.manifest.gid)
         for gid in containedGIDs {
-            schedulingBlockedGalleryIDs.insert(gid)
-        }
-        defer {
-            for gid in containedGIDs {
-                schedulingBlockedGalleryIDs.remove(gid)
-            }
+            blockScheduling(gid: gid)
         }
         if let activeGalleryID,
            containedGIDs.contains(activeGalleryID) {
@@ -116,10 +111,12 @@ extension DownloadCoordinator {
             try storage.removeFolder(at: folderURL)
         } catch let error as AppError {
             await reloadDownloadRecords(containedRecords)
-            // ACTIVE-OWNERSHIP CONVERGENCE: the function-scoped defer has not run yet, so release
-            // every contained gallery before converging or the scheduler would silently skip it.
+            // ACTIVE-OWNERSHIP CONVERGENCE: release every contained gallery before converging or
+            // the scheduler would silently skip it. Exactly one release per exit — the former
+            // function-scoped `defer` sat behind these explicit removes, which a `Set` tolerated
+            // and a reference count would not.
             for gid in containedGIDs {
-                schedulingBlockedGalleryIDs.remove(gid)
+                releaseScheduling(gid: gid)
             }
             await notifyObservers()
             await scheduleNextIfNeeded()
@@ -128,7 +125,7 @@ extension DownloadCoordinator {
             logger.error("\(error, privacy: .private)")
             await reloadDownloadRecords(containedRecords)
             for gid in containedGIDs {
-                schedulingBlockedGalleryIDs.remove(gid)
+                releaseScheduling(gid: gid)
             }
             await notifyObservers()
             await scheduleNextIfNeeded()
@@ -142,6 +139,7 @@ extension DownloadCoordinator {
             await queueStore.remove(gid)
             await backgroundTaskStore.removeAll(for: gid)
             downloadIndex[gid] = nil
+            releaseScheduling(gid: gid)
         }
         userFolders.removeAll { $0 == name }
         await notifyObservers()
@@ -149,6 +147,22 @@ extension DownloadCoordinator {
         return .success(())
     }
 
+    /// ACTIVE-OWNERSHIP CONVERGENCE, applied to the move (G-15-8).
+    ///
+    /// This is the sixth member of the family and the one the phase's convergence rounds never
+    /// swept. It blocks its gid and then suspends three times — at `fetchDownload` and at both
+    /// `reloadDownloadRecord` calls — and every exit below used to return with a function-scoped
+    /// `defer` as its only release and no scheduling at all. Two failures came out of that, and
+    /// both are closed here by releasing and then converging on every exit:
+    ///
+    /// - While the block is held the gid is invisible to `schedulableDownloads()`, so a completion
+    ///   path's convergence landing in that window could read no pending work and end the
+    ///   continued-processing session over a gallery that was merely hidden.
+    /// - Even on success nothing rescheduled, so the moved gallery stayed queued and idle until an
+    ///   unrelated mutation happened to converge. D-03 removed the fallback tier, so no tap short
+    ///   of a fresh qualifying one could restart it.
+    ///
+    /// The invalid-name guard precedes the block and therefore needs neither.
     public func moveDownload(
         gid: String,
         toFolderName folderName: String
@@ -160,14 +174,17 @@ extension DownloadCoordinator {
                 )
             )
         }
-        schedulingBlockedGalleryIDs.insert(gid)
-        defer {
-            schedulingBlockedGalleryIDs.remove(gid)
-        }
+        blockScheduling(gid: gid)
         guard let download = await fetchDownload(gid: gid) else {
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(.notFound)
         }
         guard activeGalleryID != gid else {
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(
                 .fileOperationFailed(
                     String(localized: .downloadStoreDownloadBusy)
@@ -180,9 +197,15 @@ extension DownloadCoordinator {
             isDirectory: true
         )
         guard destinationURL.standardizedFileURL != download.folderURL.standardizedFileURL else {
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .success(())
         }
         guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(
                 .fileOperationFailed(
                     String(localized: .downloadStoreFolderAlreadyExists)
@@ -198,10 +221,15 @@ extension DownloadCoordinator {
         } catch {
             logger.error("\(error, privacy: .private)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
+            releaseScheduling(gid: gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
         await reloadDownloadRecord(gid: download.gid, token: download.token)
+        releaseScheduling(gid: gid)
         await notifyObservers()
+        await scheduleNextIfNeeded()
         return .success(())
     }
 
