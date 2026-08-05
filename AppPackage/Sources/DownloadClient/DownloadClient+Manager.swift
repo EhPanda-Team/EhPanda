@@ -461,8 +461,11 @@ public actor DownloadCoordinator {
     ///
     /// The floor's own premise (why a deliberate movement must be excused rather than masked) is
     /// written on `pushContinuedSessionProgress`, and the withdrawal's exact-portion rule on the
-    /// bracket itself. Re-run that grep before trusting this list: an exhaustive-sounding inventory
-    /// that source answers with one more entry is what this phase has already lost rounds to.
+    /// bracket itself. This list does not ask to be re-grepped: `DownloadSourceInventoryTests`
+    /// asserts the same census per file and fails the build when a writer is added or removed, which
+    /// is the difference between an inventory that is owned and one that was true once. An
+    /// exhaustive-sounding inventory that source quietly answers with one more entry is what this
+    /// phase has already lost rounds to.
     ///
     /// One deliberate transient: inside the client start's main-actor hop this value can read
     /// NEGATIVE. The reset has already run, so a withdrawal landing in that window leaves "zero
