@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 39/41 | In Progress|  |
+| 15. Continued Background Downloads | 40/41 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 39/41 plans executed
+**Plans**: 40/41 plans executed
 
 Plans:
 **Wave 1**
@@ -973,7 +973,7 @@ Plans:
 
 **Wave 40** *(gap closure round 13, verification gap G-15-20 — blocked on 15-39: WR-03/WR-04 describe the exact seam 15-39 reworks, with file overlap on DownloadStore.swift and DownloadClient+ExecutionSupport.swift)*
 
-- [ ] 15-40-PLAN.md — Kill the doc-drift generator (fourth consecutive round): correct the five contradicted claims decide-one each from fresh source enumerations — WR-01's convergence ownership as a settled/superseded category rule, WR-02's writer list replaced by the no-block-on-mobilizers invariant, WR-03's existence-guard rationale decided against the post-15-39 seam, WR-04's unreachable-equality sentence decided by trace (pinning regression required if the comparison changes), IN-01 count-free — and pair every surviving inventory with a drift-failing source-census test (blockScheduling call sites, floor writers) on the DownloadLogPrivacyInvariantTests pattern, retiring the re-run-this-grep comment
+- [x] 15-40-PLAN.md — Kill the doc-drift generator (fourth consecutive round): correct the five contradicted claims decide-one each from fresh source enumerations — WR-01's convergence ownership as a settled/superseded category rule, WR-02's writer list replaced by the no-block-on-mobilizers invariant, WR-03's existence-guard rationale decided against the post-15-39 seam, WR-04's unreachable-equality sentence decided by trace (pinning regression required if the comparison changes), IN-01 count-free — and pair every surviving inventory with a drift-failing source-census test (blockScheduling call sites, floor writers) on the DownloadLogPrivacyInvariantTests pattern, retiring the re-run-this-grep comment
 
 **Wave 41** *(gap closure round 13, verification gap G-15-21 — blocked on 15-40 by file overlap on DownloadClient+ExecutionSupport.swift and xcodebuild serialization)*
 
