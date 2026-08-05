@@ -307,7 +307,7 @@ extension DownloadCoordinator {
                 existingDownload: existingDownload,
                 payload: payload
             )
-            try setupWorkingFolder(
+            let carriedUnprobedPages = try setupWorkingFolder(
                 folderURL: folderURL,
                 shouldReuse: shouldReuseFolder,
                 seedContext: seedContext
@@ -317,14 +317,26 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderURL: folderURL
             )
-            let pageFileScan = storage.pageFileScan(
+            let destinationScan = storage.pageFileScan(
                 folderURL: folderURL,
                 manifest: manifest
             )
-            let existingPages = pageFileScan.pages
+            // The seed copy's non-answers, folded into the destination's own before the single
+            // destructive consumer reads them (G-15-19). No new refusal mechanism: the existing
+            // per-file line covers the carried population exactly as it covers the destination's.
+            // `pages` and `scanSucceeded` pass through untouched — an uncopied page is re-fetched,
+            // never reused, so the seed still reports only what this folder actually holds. The
+            // union is synchronous and lands inside the enclosing D-G7-01 bracket, so it adds no
+            // suspension and no window.
+            let reconciliationScan = PageFileScan(
+                pages: destinationScan.pages,
+                scanSucceeded: destinationScan.scanSucceeded,
+                unprobedPages: destinationScan.unprobedPages.union(carriedUnprobedPages)
+            )
+            let existingPages = destinationScan.pages
             let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
                 manifest: manifest,
-                pageFileScan: pageFileScan,
+                pageFileScan: reconciliationScan,
                 folderURL: folderURL
             )
             let coverRelativePath = storage.existingCoverRelativePath(
@@ -400,8 +412,16 @@ extension DownloadCoordinator {
     /// delete the working folder and arrive with a fresh all-empty manifest, and a fresh `.initial`
     /// does too, so this is a no-op for them. The modes it does work for are the ones that reuse a
     /// manifest they did not write: `.repair`, the `.initial` reuse of a matching complete manifest,
-    /// and the repair-seed materialization, which copies only the pages whose source files existed
-    /// and passed sanitization while copying the manifest whole.
+    /// and the repair-seed materialization, which copies the manifest whole while copying the pages
+    /// selectively — and therefore hands back the claimed pages its SOURCE-side probe could not
+    /// answer for, which `prepareWorkingSeed` unions into the scan below so this reconciliation
+    /// sees them as unprobed rather than absent (G-15-19). That route needs the carry because
+    /// nothing here can derive it: the destination listing is entirely honest about a page the copy
+    /// never landed, `scanSucceeded` is true and `unprobedPages` is empty, so a source-side
+    /// non-answer and a source-side positive absence arrive indistinguishable. This paragraph used
+    /// to classify that route as safe on the grounds that it copied every page whose source file
+    /// had been sanitized — which is precisely where `.unprobeable` and `.rejected` collapse back
+    /// together, one layer below the defence, and is the written premise the gap hid behind.
     ///
     /// Deliberate consequence, recorded because it looks like a regression and is not: an
     /// interrupted repair's record now honestly reads incomplete, so its `displayStatus` is
@@ -446,9 +466,14 @@ extension DownloadCoordinator {
     ///    failed enumeration used to blank every claimed page of the gallery in a single pass,
     ///    rewrite the manifest, publish a 0-of-N record and — through the enclosing D-G7-01
     ///    bracket — withdraw the full count from the floor, all unlogged.
-    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01).** `unprobedPages` carries the
-    ///    claimed pages whose file the successful listing DID yield but whose probe could not
-    ///    classify, and no page in that set is blanked. The trigger is narrow and real: the metadata
+    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01; extended across the copy by
+    ///    G-15-19).** `unprobedPages` carries TWO populations by the time it reaches here, and no
+    ///    page in either is blanked: the pages whose file THIS folder's successful listing did
+    ///    yield but whose probe could not classify, and the pages the repair-seed materialization
+    ///    reported unanswerable in the SOURCE folder it copied from, unioned in by
+    ///    `prepareWorkingSeed`. The second exists because this folder's listing cannot see it — a
+    ///    page the copy never landed is honestly absent here — so the classification has to travel
+    ///    with the copy rather than be re-derived. The trigger is narrow and real: the metadata
     ///    read itself throwing for many-but-not-all files — an I/O error, a permission change, a
     ///    volume going away mid-scan. It is not descriptor exhaustion and not a locked device, since
     ///    a metadata read needs no descriptor and still answers under data protection. Line 1 cannot
@@ -559,11 +584,18 @@ extension DownloadCoordinator {
         let payload: DownloadRequestPayload
     }
 
+    /// Prepares the working folder, and hands back the claimed pages whose SOURCE-side
+    /// classification was a non-answer (G-15-19).
+    ///
+    /// Empty on every path but the materialization, by construction rather than by omission: a
+    /// reused folder, an already-existing one and a freshly created empty one are all judged by a
+    /// scan of the very folder `reconcileWorkingManifestAgainstPageFiles` will scan, so no
+    /// classification crossed a folder boundary and there is nothing to carry.
     private func setupWorkingFolder(
         folderURL: URL,
         shouldReuse: Bool,
         seedContext: RepairSeedContext
-    ) throws {
+    ) throws -> Set<Int> {
         if !shouldReuse {
             // Removing a stale working folder is best-effort preparation; the
             // existence check below preserves the established reuse fallback.
@@ -580,15 +612,15 @@ extension DownloadCoordinator {
                 for: seedContext.existingDownload,
                 payload: seedContext.payload
             ) {
-                try storage.materializeRepairSeed(
+                return try storage.materializeRepairSeed(
                     from: seed.folderURL,
                     manifest: seed.manifest,
                     to: folderURL
                 )
-            } else {
-                try createDirectory(at: folderURL)
             }
+            try createDirectory(at: folderURL)
         }
+        return []
     }
 
     /// - Parameter page: the 1-based page number, which is also the key space of the

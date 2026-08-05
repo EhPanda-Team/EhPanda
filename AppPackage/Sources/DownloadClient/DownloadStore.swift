@@ -62,6 +62,14 @@ public struct DownloadScanResult: Equatable, Sendable {
 /// but the working-seed reconciliation destroys recorded content hashes on that answer, and
 /// destroying state on a non-answer is what G-15-9 and then G-15-13 reported.
 ///
+/// **"Non-destructive" is a property of the ROUTE, not of the call (G-15-19).** A caller may
+/// collapse the pairs only if its output can never become the input of a destructive decision — in
+/// this folder or in any other, one step later or ten. `materializeRepairSeed` read as such a
+/// caller and was not one: it collapsed the pairs while scanning a SOURCE folder, and the pages it
+/// therefore did not copy became positive absences in the DESTINATION folder's own entirely honest
+/// scan, where nothing downstream could recover the distinction. A caller whose answer crosses a
+/// folder boundary must carry the classification with it, not the collapse.
+///
 /// - `scanSucceeded` answers at the DIRECTORY level: false means the enumeration itself failed, so
 ///   the whole answer is a non-answer (G-15-9).
 /// - `unprobedPages` answers one level down, PER FILE: a claimed page whose file the enumeration
@@ -191,8 +199,16 @@ public struct DownloadStore: Sendable {
     /// The page files present for `manifest`, as a probe: an unlistable folder answers `[:]`.
     ///
     /// Preserved verbatim for its non-destructive callers, which re-fetch or re-derive on an empty
-    /// answer and are unaffected by why it is empty. A caller that acts irreversibly on the answer
-    /// must use `pageFileScan(folderURL:manifest:)` instead and honour its `scanSucceeded` flag.
+    /// answer and are unaffected by why it is empty. A caller that acts irreversibly on the answer —
+    /// or whose answer FEEDS something that does, even one step later and in a DIFFERENT folder —
+    /// must use `pageFileScan(folderURL:manifest:)` instead and carry both its `scanSucceeded` flag
+    /// and its `unprobedPages` set.
+    ///
+    /// The second half of that rule is not hypothetical (G-15-19): `materializeRepairSeed` called
+    /// this function, and its selection decided which pages a different folder would afterwards be
+    /// found to hold — so a page this collapse dropped for want of an answer arrived there as a
+    /// positive absence and had its recorded hash destroyed. It now selects through the full scan
+    /// and hands the unanswered pages back to its caller.
     public func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
         pageFileScan(folderURL: folderURL, manifest: manifest).pages
     }
