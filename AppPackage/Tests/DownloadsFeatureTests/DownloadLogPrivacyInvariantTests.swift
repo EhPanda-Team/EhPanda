@@ -3,12 +3,18 @@ import Testing
 
 /// Keeps gallery-derived values out of public unified-log fields without removing operational logs.
 ///
-/// The scan is intentionally limited to `DownloadClient`, whose sources handle gallery identifiers,
-/// title-bearing folder paths, and gallery responses. A whole-tree rule would create exemptions
-/// wherever no gallery value can exist instead of strengthening this boundary. In particular,
-/// `ContinuedProcessingSession.swift` remains out of scope after auditing its two public fields: its
-/// identifier is a bundle identifier plus a minted UUID, and its submission error occurs before any
-/// gallery value is in scope.
+/// The scan covers two modules: `DownloadClient`, whose sources handle gallery identifiers,
+/// title-bearing folder paths and gallery responses, and `BackgroundProcessingClient`, which
+/// publishes log lines adjacent to system submission where scheduler errors flow. A whole-tree rule
+/// would create exemptions wherever no gallery value can exist instead of strengthening this
+/// boundary, and that rationale still governs everything outside these two directories.
+///
+/// The background-processing module was previously out of scope on a point-in-time audit of its two
+/// public fields. That audit was accurate about the identifier — a bundle identifier plus a minted
+/// UUID — and wrong about the other field: the submission failure logged its raw `Error` value
+/// public, and a scheduler error may embed arbitrary system strings. IN-04 retires the audit
+/// sentence in favor of this scan, so the module now passes the same rules the download client
+/// passes, with no allowlist entry and no line-level exemption.
 @Suite
 struct DownloadLogPrivacyInvariantTests {
     private struct ScannedFile {
@@ -26,7 +32,14 @@ struct DownloadLogPrivacyInvariantTests {
     }
 
     private static let clientModuleDirectory = "AppPackage/Sources/DownloadClient"
-    private static let knownMember = clientModuleDirectory + "/DownloadClient+Execution.swift"
+    private static let sessionModuleDirectory = "AppPackage/Sources/BackgroundProcessingClient"
+    private static let scannedDirectories = [clientModuleDirectory, sessionModuleDirectory]
+    /// One file per scanned directory, so an enumerator that silently walked nothing cannot let a
+    /// test pass vacuously — for either root.
+    private static let knownMembers = [
+        clientModuleDirectory + "/DownloadClient+Execution.swift",
+        sessionModuleDirectory + "/ContinuedProcessingSession.swift"
+    ]
     private static let repositoryRootMarkers = ["App", "AppPackage"]
 
     /// These tokens are assembled from fragments at run time because spelling a complete banned
@@ -64,7 +77,10 @@ struct DownloadLogPrivacyInvariantTests {
     private static var interpolationOpening: String { "\\" + "(" }
     private static var classificationLabel: String { "privacy" + ":" }
 
-    /// Every hash-masked interpolation the module carries, named per file.
+    /// Every hash-masked interpolation the scanned modules carry, named per file.
+    ///
+    /// The background-processing module contributes no entry: it masks nothing, because it holds no
+    /// value whose identity a device archive would need to correlate.
     ///
     /// The former bare lower-bound threshold pinned nothing derivable: it could not say which sites
     /// it stood for, so a masked log added or removed anywhere moved the real count while the
@@ -79,7 +95,7 @@ struct DownloadLogPrivacyInvariantTests {
         "DownloadClient+Scheduling.swift": 3
     ]
 
-    /// The table's sum, asserted separately against a count taken over the joined module text.
+    /// The table's sum, asserted separately against a count taken over the joined scanned text.
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
@@ -89,7 +105,7 @@ struct DownloadLogPrivacyInvariantTests {
     func testNoDownloadLogPublishesGalleryIdentity() throws {
         let files = try Self.scannedFiles()
         try #require(files.isEmpty == false)
-        try #require(files.contains(where: { $0.relativePath == Self.knownMember }))
+        try Self.requireKnownMembers(in: files)
 
         for forbidden in Self.forbiddenInterpolations {
             let offenders = files
@@ -113,7 +129,7 @@ struct DownloadLogPrivacyInvariantTests {
     func testEveryDownloadLogInterpolationCarriesAnExplicitPrivacyClassification() throws {
         let files = try Self.scannedFiles()
         try #require(files.isEmpty == false)
-        try #require(files.contains(where: { $0.relativePath == Self.knownMember }))
+        try Self.requireKnownMembers(in: files)
 
         let unclassified = files.flatMap({ file in
             Self.unclassifiedInterpolations(in: file.contents)
@@ -129,7 +145,7 @@ struct DownloadLogPrivacyInvariantTests {
     func testDownloadIdentityLogsStayHashMasked() throws {
         let files = try Self.scannedFiles()
         try #require(files.isEmpty == false)
-        try #require(files.contains(where: { $0.relativePath == Self.knownMember }))
+        try Self.requireKnownMembers(in: files)
         let contents = files.map(\.contents).joined(separator: "\n")
 
         var maskedCounts = [String: Int]()
@@ -140,7 +156,7 @@ struct DownloadLogPrivacyInvariantTests {
         }
         #expect(
             maskedCounts == Self.expectedHashMaskedCounts,
-            "The module's hash-masked log inventory moved; update the table deliberately."
+            "The scanned hash-masked log inventory moved; update the table deliberately."
         )
         #expect(Self.hashMaskedCount(in: contents) == Self.expectedHashMaskedTotal)
         for message in [
@@ -239,28 +255,40 @@ private extension DownloadLogPrivacyInvariantTests {
 private extension DownloadLogPrivacyInvariantTests {
     private static func scannedFiles() throws -> [ScannedFile] {
         let root = try repositoryRoot()
-        let directory = root.appending(path: clientModuleDirectory)
         let fileManager = FileManager.default
-        let enumerator = try #require(
-            fileManager.enumerator(
-                at: directory,
-                includingPropertiesForKeys: nil
-            )
-        )
         let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path
         var files = [ScannedFile]()
 
-        for case let url as URL in enumerator
-        where url.pathExtension == "swift"
-            && url.standardizedFileURL.path != invariantFilePath {
-            files.append(
-                ScannedFile(
-                    relativePath: repositoryRelativePath(of: url, under: root),
-                    contents: try String(contentsOf: url, encoding: .utf8)
+        for scannedDirectory in scannedDirectories {
+            let directory = root.appending(path: scannedDirectory)
+            let enumerator = try #require(
+                fileManager.enumerator(
+                    at: directory,
+                    includingPropertiesForKeys: nil
                 )
             )
+            for case let url as URL in enumerator
+            where url.pathExtension == "swift"
+                && url.standardizedFileURL.path != invariantFilePath {
+                files.append(
+                    ScannedFile(
+                        relativePath: repositoryRelativePath(of: url, under: root),
+                        contents: try String(contentsOf: url, encoding: .utf8)
+                    )
+                )
+            }
         }
         return files
+    }
+
+    /// Requires every scanned directory to have contributed its named file.
+    private static func requireKnownMembers(in files: [ScannedFile]) throws {
+        for knownMember in knownMembers {
+            try #require(
+                files.contains(where: { $0.relativePath == knownMember }),
+                "The scan lost its known member \(knownMember); it refuses a vacuous walk."
+            )
+        }
     }
 
     static func repositoryRoot() throws -> URL {
