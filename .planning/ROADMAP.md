@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 42/45 | In Progress|  |
+| 15. Continued Background Downloads | 43/45 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 42/45 plans executed
+**Plans**: 43/45 plans executed
 
 Plans:
 **Wave 1**
@@ -985,7 +985,7 @@ Plans:
 
 **Wave 43** *(gap closure round 14, verification blocker G-15-23 — blocked on 15-42 by file overlap on DownloadClient+ContinuedSession.swift and xcodebuild serialization)*
 
-- [ ] 15-43-PLAN.md — Give the refusal family a session voice (SC2, SC1 through D-11): the run-start announcement gates on real page work (the working seed's existingPages short of the manifest's page count — true on all THREE refusal kinds and the proceeding branch alike) and admits the gid to observedIncompleteSessionGIDs explicitly ahead of its push, since the push-side formUnion provably cannot admit a complete-reading record; trust lands at the run's own preparation never queue time (D-G4-01 ceiling pinned), the insert's bracket-side derivation recorded (D-G7-01), the K=N residual and failed-enumeration regressions RED-first in a new ledger extension file through the production retryPages route, the K=1 case byte-unchanged, and the refuted flush-time cost sentence corrected from a fresh trust-writer census
+- [x] 15-43-PLAN.md — Give the refusal family a session voice (SC2, SC1 through D-11): the run-start announcement gates on real page work (the working seed's existingPages short of the manifest's page count — true on all THREE refusal kinds and the proceeding branch alike) and admits the gid to observedIncompleteSessionGIDs explicitly ahead of its push, since the push-side formUnion provably cannot admit a complete-reading record; trust lands at the run's own preparation never queue time (D-G4-01 ceiling pinned), the insert's bracket-side derivation recorded (D-G7-01), the K=N residual and failed-enumeration regressions RED-first in a new ledger extension file through the production retryPages route, the K=1 case byte-unchanged, and the refuted flush-time cost sentence corrected from a fresh trust-writer census
 
 **Wave 44** *(gap closure round 14, verification warning G-15-24 — blocked on 15-43: the corrected sentences must describe post-fix source, with file overlap on DownloadClient+Manager.swift)*
 
