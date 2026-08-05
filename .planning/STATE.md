@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-33-PLAN.md
-last_updated: "2026-08-05T07:26:25.608Z"
+stopped_at: Completed 15-34-PLAN.md
+last_updated: "2026-08-05T07:40:41.833Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-33 (G-15-13 per-file positive signal)
+last_activity_desc: Executed 15-34 (G-15-14 zero-page range guards + D-G14-01 dispositions)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 209
-  completed_plans: 204
-  percent: 81
+  completed_plans: 205
+  percent: 98
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 34 of 38
+Plan: 35 of 38
 Status: Ready to execute
-Last activity: 2026-08-05 — Executed 15-33 (G-15-13 per-file positive signal)
-Next: execute phase 15 plans 15-34..15-38 (round-12 gap closure: blockers G-15-13, G-15-14, then warning groups G-15-15..G-15-18), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
+Last activity: 2026-08-05 — Executed 15-34 (G-15-14 zero-page range guards + D-G14-01 dispositions)
+Next: execute phase 15 plans 15-35..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are now CLOSED; warning groups G-15-15..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [██████████] 98% (14/16 phases)
 
 ## Performance Metrics
 
@@ -260,6 +260,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P31 | 50min | 1 tasks | 9 files |
 | Phase 15 P32 | 50min | 2 tasks | 24 files |
 | Phase 15 P33 | 50min | 1 tasks | 4 files |
+| Phase 15 P34 | 12min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -649,6 +650,8 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-33: D-G13-01 — destroying a recorded content hash requires a positive PER-FILE probe determination on top of the positive directory-level one; a listed-but-unanswerable page file is never blanked.
 - [Phase 15]: 15-33: The per-file probe is an exhaustively switched AssetFileProbeOutcome (usable / rejected / unprobeable) rather than a second Bool, so a probe exit nobody has enumerated yet cannot default into 'positively absent'; sanitizeAssetFileIfNeeded stays as its Bool forward for the ~10 non-destructive callers.
 - [Phase 15]: 15-33: unprobedPages is added ALONGSIDE scanSucceeded, not in place of it — the directory-level and per-file signals answer different questions and the reconciliation consumes them independently.
+- [Phase 15]: 15-34: D-G14-01 — a zero-page payload is refused at enqueue with .notFound before any folder or queue mutation, and a zero-page mid-run refetch throws at fetchLatestPayload so the run's existing catch settles the download as failed rather than fake-completing a 0-of-0 record.
+- [Phase 15]: 15-34: The zero-page range-guard invariant was swept to its whole class (four sites), so each guard's module-wide comment is derivable in source rather than aspirational.
 
 ### Pending Todos
 
@@ -697,6 +700,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T07:25:45.798Z
-Stopped at: Completed 15-33-PLAN.md
+Last session: 2026-08-05T07:40:33.071Z
+Stopped at: Completed 15-34-PLAN.md
 Resume file: None
