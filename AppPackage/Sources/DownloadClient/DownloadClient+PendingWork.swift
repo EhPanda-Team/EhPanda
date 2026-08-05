@@ -14,10 +14,30 @@ extension DownloadCoordinator {
         return await schedulableDownloads().isEmpty == false
     }
 
-    /// The one authority for selecting work the scheduler can run.
+    /// The shared read behind every consumer that asks what work is schedulable right now.
     ///
-    /// Scheduling, the pending-work gate and the continued-session card all select through this
-    /// function, so queue lifetime and reported counts cannot acquire separate definitions.
+    /// It has exactly three call sites — the pending-work gate (`hasPendingWork()`, just above), the
+    /// continued-session card's snapshot (`schedulableSnapshot()`) and the expiration sweep
+    /// (`pauseAllSchedulable(expiring:)`) — so queue lifetime and the card's reported counts cannot
+    /// acquire separate definitions. That list is owned rather than asserted:
+    /// `DownloadSourceInventoryTests` counts these call sites and fails when one is added or removed,
+    /// because this sentence has now been wrong twice in a doc nothing checked.
+    ///
+    /// **The scheduler is NOT one of those callers (G-15-24).** `scheduleNextIfNeededCore`
+    /// (`+Scheduling.swift`) performs its own read — `queueStore.gids`, then `indexedDownloads()` or
+    /// `indexedDownloads(gids: queuedGIDs)` — and reaches `isSchedulableDownload` through
+    /// `nextQueuedDownload` / `nextUnqueuedSchedulableDownload`. What the two share is the PREDICATE,
+    /// not the read scope, so widening or narrowing THIS read does not move the scheduler with it.
+    ///
+    /// The divergence is the active-gallery union below, which the scheduler's queue-scoped read does
+    /// not carry. It is inert today, for a reason that must be re-checked the moment either half
+    /// changes: `scheduleNextIfNeededCore` selects nothing behind its `guard activeTask == nil`, and
+    /// the only production assignment of a non-`nil` `activeGalleryID` sits in the same synchronous
+    /// step as the `activeTask` assignment while every clear of `activeTask` clears the gid alongside
+    /// it — `normalizeInterruptedDownloads` only ever clears the reverse pairing, a gid whose task is
+    /// already gone. So a gallery this union would add is one whose active task has already turned
+    /// that scheduler pass back at the guard. Removing the guard, or letting `activeGalleryID` outlive
+    /// its task, re-opens the question.
     ///
     /// **The authority must be able to SEE every gallery its own predicate accepts (WR-01).**
     /// `isSchedulableDownload` accepts `displayStatus == .active` — the running gallery —

@@ -383,11 +383,14 @@ public actor DownloadCoordinator {
     /// hands the convergence one frame up to `pause(gid:expiration:)`, which converges on every
     /// `.superseded` value it receives. Phrased as a rule over the two outcomes, not as a count of
     /// sites: its exits are a set someone will add to, and a new one is covered the moment it picks
-    /// an outcome, with nothing here to drift out of date. A gid left blocked is
-    /// invisible to `schedulableDownloads()` — the single authority the card, the pending-work gate
-    /// and the scheduler all read — so a convergence landing inside that window can declare the
-    /// queue drained over work that is merely hidden, and an exit that releases without converging
-    /// leaves the gallery queued and idle with no fallback tier to restart it (D-03).
+    /// an outcome, with nothing here to drift out of date. A gid left blocked is invisible to every
+    /// `schedulableDownloads()` reader — the pending-work gate, the continued-session card's snapshot
+    /// and the expiration sweep — because `isSchedulableDownload` fails on a held block before it
+    /// asks anything else. `scheduleNextIfNeededCore` does not read through that function, but it
+    /// applies the same predicate to its own queue-scoped read, so the blocked gid is skipped there
+    /// too. A convergence landing inside that window can therefore declare the queue drained over
+    /// work that is merely hidden, and an exit that releases without converging leaves the gallery
+    /// queued and idle with no fallback tier to restart it (D-03).
     ///
     /// **WR-03 — a count, not a `Set`.** All four blocking operations suspend while holding the
     /// block and this actor is reentrant, so two operations on the same gallery routinely overlap.
