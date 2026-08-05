@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 38/38 | In Progress|  |
+| 15. Continued Background Downloads | 39/41 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 41 plans — 38 executed, 3 pending (gap-closure round 13)
+**Plans**: 39/41 plans executed
 
 Plans:
 **Wave 1**
@@ -969,7 +969,7 @@ Plans:
 
 **Wave 39** *(gap closure round 13, verification blocker G-15-19 — blocked on 15-38 by round continuity from the round-12 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-39-PLAN.md — Stop the repair-seed materialization from laundering a SOURCE-side per-file non-answer into a positive absence at the DESTINATION (SC3, D-G13-01 across the route): materializeRepairSeed selects through the full PageFileScan and returns the source scan's unprobed set, setupWorkingFolder hands it back, and prepareWorkingSeed unions it into the destination scan so the EXISTING refusal line covers laundered pages — explicitly NOT the review's refuse-the-seed remedy, which the verifier traced to a strictly-worse all-N hash loss; the consumer sweep re-derived by grep with dispositions, the crossed regression (probe-failure staging × title-change materialization branch) RED-first in a NEW test file beside a genuine-absence companion that keeps destination blanking honest
+- [x] 15-39-PLAN.md — Stop the repair-seed materialization from laundering a SOURCE-side per-file non-answer into a positive absence at the DESTINATION (SC3, D-G13-01 across the route): materializeRepairSeed selects through the full PageFileScan and returns the source scan's unprobed set, setupWorkingFolder hands it back, and prepareWorkingSeed unions it into the destination scan so the EXISTING refusal line covers laundered pages — explicitly NOT the review's refuse-the-seed remedy, which the verifier traced to a strictly-worse all-N hash loss; the consumer sweep re-derived by grep with dispositions, the crossed regression (probe-failure staging × title-change materialization branch) RED-first in a NEW test file beside a genuine-absence companion that keeps destination blanking honest
 
 **Wave 40** *(gap closure round 13, verification gap G-15-20 — blocked on 15-39: WR-03/WR-04 describe the exact seam 15-39 reworks, with file overlap on DownloadStore.swift and DownloadClient+ExecutionSupport.swift)*
 
