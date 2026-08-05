@@ -36,7 +36,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         )
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         removeTemporaryItem(at: folderURL)
-        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
+        let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
             existingDownload: existingDownload,
             folderURL: folderURL
@@ -122,7 +122,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         let existingDownload = try #require(await manager.fetchDownload(gid: gid))
 
-        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
+        let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: .repair),
             existingDownload: existingDownload,
             folderURL: folderURL
@@ -224,7 +224,7 @@ private extension DownloadCoordinatorRepairSeedTests {
         let existingDownload = try #require(await manager.fetchDownload(gid: gid))
         #expect(existingDownload.completedPageCount == 3)
 
-        let workingSeed = try await manager.prepareWorkingSeedAnnouncingProgress(
+        let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: mode),
             existingDownload: existingDownload,
             folderURL: folderURL

@@ -76,17 +76,17 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: large, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: large.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: middle, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: middle.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: small, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: small.gid)
@@ -127,17 +127,17 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: small, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: small.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: middle, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: middle.gid)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await completeManifest(of: large, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: large.gid)
@@ -170,13 +170,13 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         // A departure with nothing to retire, which is the only way both sides reach zero now.
         await fixture.manager.testingSetQueuedGalleryIDs([])
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let update = try #require(spy.progressUpdates.last)
         #expect(update.totalUnitCount >= 1)
@@ -217,9 +217,9 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let openingPair = try firstPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 6)
@@ -268,9 +268,9 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let openingPair = try firstPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 6)
@@ -312,9 +312,9 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let openingPair = try firstPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 6)
@@ -364,15 +364,15 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await fixture.manager.testingSetQueuedGalleryIDs([small.gid])
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         await fixture.manager.testingSetQueuedGalleryIDs([large.gid, small.gid])
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [6, 6, 6])
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 10, 14])
@@ -428,7 +428,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
 
         let sessionID = try #require(await manager.testingContinuedSessionID())
-        await manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let openingPair = try lastPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 0)
@@ -457,7 +457,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let fixture = try await makeQueuedCoordinator(galleries: [redo], client: spy.client)
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
 
         let download = try #require(await fixture.manager.indexedDownloads(gids: [redo.gid]).first)
@@ -544,14 +544,14 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let fixture = try await makeQueuedCoordinator(galleries: [redo], client: spy.client)
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
-        await fixture.manager.ensureContinuedSession()
+        await fixture.manager.testingEnsureContinuedSession()
         let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         // The redo's first manifest writes land: the record reads incomplete, so the basis counts
         // it raw on the very next push rather than waiting for the session to have trusted it.
         await patchManifest(of: redo, completedPageCount: 2, in: fixture)
-        await fixture.manager.pushContinuedSessionProgress(sessionID: sessionID)
+        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
 
         let midRunPair = try lastPushedPair(spy.progressUpdates)
         #expect(midRunPair.completedUnitCount == 2)
@@ -631,7 +631,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
         )
-        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: repair),
             existingDownload: staged,
             folderURL: folderURL
@@ -716,13 +716,13 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
 
         let gate = spy.armStartGate()
         defer { gate.release() }
-        let sessionStart = Task { await manager.ensureContinuedSession() }
+        let sessionStart = Task { await manager.testingEnsureContinuedSession() }
         await gate.entered()
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
         )
-        _ = try await manager.prepareWorkingSeedAnnouncingProgress(
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: repair),
             existingDownload: staged,
             folderURL: folderURL
