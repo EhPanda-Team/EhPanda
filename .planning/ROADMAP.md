@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 36/38 | In Progress|  |
+| 15. Continued Background Downloads | 37/38 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 36/38 plans executed
+**Plans**: 37/38 plans executed
 
 Plans:
 **Wave 1**
@@ -961,7 +961,7 @@ Plans:
 
 **Wave 37** *(gap closure round 12, verification gap G-15-18 — blocked on 15-36 by file overlap in Scheduling, Manager, the testing seam, and the convergence suite)*
 
-- [ ] 15-37-PLAN.md — Land the six hygiene items as dispositioned: request identity established before submission with the endSession paragraph rewritten (WR-08), the superseded-arm ensure dropped with the observable generation-check argument written (WR-09), the probe-collapse invariant bound at the cover path (IN-01), the nine session-state vars internal with a testingContinuedSessionTask forwarder and grep-proven boundary (IN-02), the two expiration-after-removal teardowns fixed per recorded decisions (IN-03), and the submission-failure log type-public/value-private with the privacy scan extended over BackgroundProcessingClient, proven RED against the pre-fix line (IN-04)
+- [x] 15-37-PLAN.md — Land the six hygiene items as dispositioned: request identity established before submission with the endSession paragraph rewritten (WR-08), the superseded-arm ensure dropped with the observable generation-check argument written (WR-09), the probe-collapse invariant bound at the cover path (IN-01), the nine session-state vars internal with a testingContinuedSessionTask forwarder and grep-proven boundary (IN-02), the two expiration-after-removal teardowns fixed per recorded decisions (IN-03), and the submission-failure log type-public/value-private with the privacy scan extended over BackgroundProcessingClient, proven RED against the pre-fix line (IN-04)
 
 **Wave 38** *(gap closure round 12, verification gap G-15-17 — blocked on 15-37: the producer cases assert the post-WR-08 ordering, with file overlap on ContinuedProcessingSession.swift)*
 
