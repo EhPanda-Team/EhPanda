@@ -234,6 +234,7 @@ extension DownloadCoordinator {
             releaseScheduling(gid: gid)
             return .superseded
         }
+        await writeSettledPauseRecord(gid: gid)
         releaseScheduling(gid: gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
@@ -250,20 +251,13 @@ extension DownloadCoordinator {
             && queueIntentGeneration(for: gid) == expiration.queueIntentGeneration
     }
 
-    /// Writes the pause's record — once — and hands back the run task the caller must await before
-    /// the pause settles.
+    /// Writes the pause's record and hands back the run task the caller must await before the
+    /// pause settles.
     ///
-    /// Once, not twice, is the load-bearing part, and it is a property of the run this cancels
-    /// rather than of this function: nothing that run can still write between here and
-    /// `taskToCancel?.value` returning re-establishes any of these three clears. Its four
-    /// failure-persistence handlers are each gated on `shouldSuppressFailurePersistence(for:)`,
-    /// which stays true for exactly as long as the caller holds this gallery's scheduling block;
-    /// its page loop cancels the batch on that same block and then skips its forced flush; and
-    /// every page task removes its own background-task record on each of its exits, inside the
-    /// task group the run awaits. So a second, settling copy of these mutations would re-clear
-    /// nothing. It would only clobber whatever newer intent landed during the wait, which is the
-    /// reverse of the newest-intent-wins rule `queueIntentGeneration` encodes and the
-    /// `ownsExpirationPause` re-check applies.
+    /// This is the *first* of the pause's two identical record writes, and the pair is deliberate:
+    /// what makes the second one load-bearing is not anything the cancelled run writes on its way
+    /// out, but what a concurrent user action can write while the caller is parked on that run.
+    /// `writeSettledPauseRecord` documents that window.
     private func writeInitialPauseRecord(
         gid: String
     ) async -> Task<Void, Never>? {
@@ -279,6 +273,30 @@ extension DownloadCoordinator {
             return task
         }
         return nil
+    }
+
+    /// Re-writes the pause's record after the cancelled run has finished, re-clearing whatever the
+    /// unbounded wait on that run let a concurrent action put back.
+    ///
+    /// The re-established writes come from other operations, not from the cancelled run: its own
+    /// teardown re-establishes none of this. All four of its failure-persistence handlers are gated
+    /// on `shouldSuppressFailurePersistence(for:)`, true for as long as the caller holds this
+    /// gallery's scheduling block; its page loop cancels the batch on that same block and skips its
+    /// forced flush; and every page task removes its own background-task record on each exit,
+    /// inside the task group the run awaits.
+    ///
+    /// The writers this re-clears are the queue-mobilizing entry points, which take no scheduling
+    /// block and so are free to land inside the wait: `performRetry` and `performRetryPages` each
+    /// set `queuedModes[gid]` and enqueue the gid, and `resume(gid:)` does the same. For an
+    /// expiration-owned pause the `ownsExpirationPause` re-check above turns exactly that
+    /// interleaving into `.superseded`, so this line is never reached; for a user pause there is
+    /// deliberately no such guard, because an explicit pause that a background retry could quietly
+    /// undo is not a pause. `testAUserPauseIsNeverAbandonedByAnInterleavingRetry` pins the
+    /// difference from both sides.
+    private func writeSettledPauseRecord(gid: String) async {
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
+        await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
     }
 
     public func cancelQueuedWorkItem(
