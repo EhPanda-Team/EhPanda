@@ -258,11 +258,13 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// the active gid from the queue store while `activeGalleryID` is still set and the deferred
     /// task teardown has not run.
     ///
-    /// Two consequences, both in the false-stall family this plan closes. The running gallery's
-    /// real progress leaves the pushed pair and it is then detected as departed and retired at a
-    /// frozen value while it is still downloading; and `pauseAllSchedulable(expiring:)` selects
-    /// through this same call, so an expiration would skip pausing the one gallery actually
-    /// consuming resources — the SC2 cancel half.
+    /// Two consequences, both in the false-stall family this plan closes. This case asserts the
+    /// first: the running gallery's real progress leaves the pushed pair, and it is then detected
+    /// as departed and retired at a frozen value while it is still downloading. The second —
+    /// `pauseAllSchedulable(expiring:)` selects through this same call, so an expiration would skip
+    /// pausing the one gallery actually consuming resources, the SC2 cancel half — is not narrated
+    /// here any longer: the companion below stages the identical lag and drives that pause-all
+    /// (WR-07).
     @Test
     func testTheRunningGalleryStaysInTheSessionBasisWhenThePersistedQueueLagsBehindIt() async throws {
         let running = SessionGallery(
@@ -311,6 +313,94 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         try await waitUntil {
             await manager.testingHasActiveTask() == false
         }
+    }
+
+    /// WR-07's companion: the SC2 cancel half of the lag regression, driven instead of narrated.
+    ///
+    /// The sibling above documents that `pauseAllSchedulable(expiring:)` selects through
+    /// `schedulableDownloads()` and would therefore skip the one gallery actually consuming
+    /// resources, then asserts only a subtitle. This case stages the identical lag and issues the
+    /// expiration's own bulk pause, so the claim becomes the assertion: the RUNNING gallery the
+    /// persisted queue forgot is among the paused set, alongside the sibling the queue still lists
+    /// — D-11 pauses every schedulable download, and the 15-26 active-gallery union is what keeps
+    /// the lagging runner inside that set.
+    ///
+    /// Production-issued throughout. The only pause-related call in the body is
+    /// `testingPauseAllSchedulable(expiring:)`, the forwarder wrapping the production bulk pause;
+    /// nothing between the lag step and the assertions touches either gallery's state by hand. The
+    /// asserted shape is read off that pause path rather than invented: `writeInitialPauseRecord`
+    /// cancels the active task, clears the gid's session state and drops it from the queue store,
+    /// so `displayStatus(for:)` resolves an incomplete, unerrored, unqueued, non-active record to
+    /// `.inactive`. That is also what discriminates the fix — without the union the runner is never
+    /// selected, so it stays `activeGalleryID` and reads `.active` here.
+    @Test
+    func testAnExpirationPausesTheRunningGalleryWhenThePersistedQueueLagsBehindIt() async throws {
+        let running = SessionGallery(
+            gid: "210352",
+            title: "Running",
+            pageCount: 10,
+            completedPageCount: 6
+        )
+        let queued = SessionGallery(gid: "210353", title: "Queued", pageCount: 4)
+        let spy = BackgroundProcessingClientSpy()
+        let control = BlockingRunnerControl()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [running, queued],
+            queuedGIDs: [running.gid, queued.gid],
+            client: spy.client,
+            // Parked rather than skipped, for the sibling's reason: the pause must have a genuinely
+            // installed active task to cancel.
+            taskRunner: DownloadTaskRunner(
+                runScheduledDownload: { _, _ in
+                    await withTaskCancellationHandler {
+                        await control.park()
+                    } onCancel: {
+                        control.recordCancellation()
+                        control.release()
+                    }
+                    return .skippedOperation
+                }
+            )
+        )
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+        let manager = fixture.manager
+
+        await manager.scheduleNextIfNeeded()
+        await control.started()
+        #expect(await manager.testingActiveGalleryID() == running.gid)
+
+        // The lag state, staged exactly as the sibling stages it: the running gallery leaves the
+        // persisted queue while its task runs.
+        await manager.testingSetQueuedGalleryIDs([queued.gid])
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles.last == "6 / 14 pages · 2 galleries")
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+
+        await manager.testingPauseAllSchedulable(expiring: sessionID)
+
+        // The bounded wait comes FIRST deliberately. A regression that drops the runner out of the
+        // selected set leaves its task parked forever, and `cancellationObserved()` is an unbounded
+        // rendezvous: reaching it before anything bounded would turn that regression into a hung
+        // suite rather than a failure. `waitUntil` throws at its deadline, so the case ends there,
+        // and once it has passed the handler has necessarily already recorded — the pause awaits
+        // the cancelled task, whose `onCancel` runs before that await returns.
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+        await control.cancellationObserved()
+        #expect(await manager.testingActiveGalleryID() == nil)
+
+        let pausedRunner = try #require(await manager.fetchDownload(gid: running.gid))
+        #expect(pausedRunner.displayStatus == .inactive)
+        #expect(pausedRunner.isIncomplete)
+        // The set, not one member: the expiration pauses every schedulable download.
+        let pausedSibling = try #require(await manager.fetchDownload(gid: queued.gid))
+        #expect(pausedSibling.displayStatus == .inactive)
+        #expect(pausedSibling.isIncomplete)
     }
 
     /// D-G7-01 on the route that STARTS the session: a `.redownload` of a counted errored record
