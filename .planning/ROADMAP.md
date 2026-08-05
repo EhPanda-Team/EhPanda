@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 43/45 | In Progress|  |
+| 15. Continued Background Downloads | 44/45 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 43/45 plans executed
+**Plans**: 44/45 plans executed
 
 Plans:
 **Wave 1**
@@ -989,7 +989,7 @@ Plans:
 
 **Wave 44** *(gap closure round 14, verification warning G-15-24 — blocked on 15-43: the corrected sentences must describe post-fix source, with file overlap on DownloadClient+Manager.swift)*
 
-- [ ] 15-44-PLAN.md — End the fifth doc-vs-source round at its generator: both one-authority sites corrected from fresh enumerations (schedulableDownloads() has three callers and the scheduler is not one — what is shared is the isSchedulableDownload predicate; the scheduler's own scoped read named, the active-gallery-union divergence recorded as inert behind guard activeTask == nil), the caller list pinned by a schedulableDownloads() call-site census in DownloadSourceInventoryTests, and WR-02's refuted concern closed as the doc item it is: a device-verified note beside ContinuedTaskScheduling.live.register recording that per-session UUID identifiers under the bundle-scoped wildcard make pre-launch registration structurally impossible and that 15-UAT.md test 1 device-proved the post-launch design
+- [x] 15-44-PLAN.md — End the fifth doc-vs-source round at its generator: both one-authority sites corrected from fresh enumerations (schedulableDownloads() has three callers and the scheduler is not one — what is shared is the isSchedulableDownload predicate; the scheduler's own scoped read named, the active-gallery-union divergence recorded as inert behind guard activeTask == nil), the caller list pinned by a schedulableDownloads() call-site census in DownloadSourceInventoryTests, and WR-02's refuted concern closed as the doc item it is: a device-verified note beside ContinuedTaskScheduling.live.register recording that per-session UUID identifiers under the bundle-scoped wildcard make pre-launch registration structurally impossible and that 15-UAT.md test 1 device-proved the post-launch design
 
 **Wave 45** *(gap closure round 14, verification warning G-15-25 — blocked on 15-44 by file overlap on DownloadClient+ContinuedSession.swift and DownloadClient+Scheduling.swift, whose WR-04 blank lines must be located after all prior edits)*
 
