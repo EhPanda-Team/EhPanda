@@ -295,7 +295,7 @@ struct DownloadStoreTests {
     }
 
     @Test
-    func testIsReadableAssetFileDoesNotDeleteFileWhenAttributesLookupFails() throws {
+    func testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { removeTemporaryItem(at: rootURL) }
@@ -308,7 +308,7 @@ struct DownloadStoreTests {
             fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path)
         )
 
-        #expect(storage.isReadableAssetFile(at: fileURL))
+        #expect(storage.sanitizeAssetFileIfNeeded(at: fileURL))
         #expect(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
