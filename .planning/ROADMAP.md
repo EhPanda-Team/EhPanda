@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 37/38 | In Progress|  |
+| 15. Continued Background Downloads | 38/38 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 37/38 plans executed
+**Plans**: 38/38 plans executed
 
 Plans:
 **Wave 1**
@@ -965,7 +965,7 @@ Plans:
 
 **Wave 38** *(gap closure round 12, verification gap G-15-17 — blocked on 15-37: the producer cases assert the post-WR-08 ordering, with file overlap on ContinuedProcessingSession.swift)*
 
-- [ ] 15-38-PLAN.md — Give the scheduling spy controllable outcomes (refusesNextRegistration, nextSubmissionError) and an injectable bundle identifier on the internal initializer, execute all three unavailable producers and both nil-launch arms with full release-contract assertions, verify the client's every-endpoint claim, and drive the WR-07 lag staging through testingPauseAllSchedulable asserting the running gallery is among the paused set — the SC2 cancel half as an assertion, not prose
+- [x] 15-38-PLAN.md — Give the scheduling spy controllable outcomes (refusesNextRegistration, nextSubmissionError) and an injectable bundle identifier on the internal initializer, execute all three unavailable producers and both nil-launch arms with full release-contract assertions, verify the client's every-endpoint claim, and drive the WR-07 lag staging through testingPauseAllSchedulable asserting the running gallery is among the paused set — the SC2 cancel half as an assertion, not prose
 
 ### Phase 16: Dynamic Type Accessibility
 
