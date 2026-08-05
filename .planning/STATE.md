@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-44-PLAN.md
-last_updated: "2026-08-05T16:18:37.330Z"
+stopped_at: Completed 15-45-PLAN.md
+last_updated: "2026-08-05T16:29:01.524Z"
 last_activity: 2026-08-06
-last_activity_desc: "Executed 15-44: both `schedulableDownloads()` authority sites now say what source satisfies — three named callers, the scheduler's own queue-scoped read located, only the `isSchedulableDownload` predicate shared, and the active-gallery divergence explained as inert with BOTH supporting facts; the post-launch `BGTaskScheduler.register` exemption is recorded beside `live.register` with its 15-UAT test-1 device evidence; a drift-failing caller census (RED observed by perturbation) now owns the list, comment-only Sources diff, full FeatureTests green"
+last_activity_desc: "Executed 15-45 (round-14's last plan): G-15-25 closed — WR-03's `prefix(progress.completedCount)` bound dropped after deriving from BOTH writers of `completedCount` (assigned `results.count` immediately upstream at `:97`, incremented only downstream at `:254`, and `results` unmoved in between) that it was always the whole array; WR-04's two stray blank lines deleted at freshly located positions (`+ContinuedSession.swift` had shifted 625→669 under 15-42/15-43, `+Scheduling.swift` still 370); WR-05's trailing comma removed from `clearSelectedFailedPages`. The dead public API is DECIDED, not deferred a third time: the census re-derived by grep found exactly the 3 expected matches, `validPageCount` deleted for having no caller anywhere, and `isReadableAssetFile` deleted because it was a bare forward to the PUBLIC `sanitizeAssetFileIfNeeded(at:)` — remedy (a)'s precondition satisfied by its own callee, the surface all 7 production call sites already use — with the attributes-throw fallback pin rerouted onto it (same `ThrowingAttributesFileManager` staging, both assertions, renamed `testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails`). Full FeatureTests green in one invocation: 872 tests, 0 failures, zero count movement from 15-44's baseline"
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 216
-  completed_plans: 215
-  percent: 81
+  completed_plans: 216
+  percent: 88
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING (gap-closure round 14)
-Plan: 44 of 45 executed
-Status: 15-44 complete — G-15-24 closed (both read-authority sites corrected from fresh enumerations, the caller list pinned by a census, the registration exemption recorded); 15-45 (G-15-25 hygiene group) still to run
-Last activity: 2026-08-06 — Executed 15-44: both `schedulableDownloads()` authority sites now say what source satisfies — three named callers, the scheduler's own queue-scoped read located, only the `isSchedulableDownload` predicate shared, and the active-gallery divergence explained as inert with BOTH supporting facts (the `guard activeTask == nil` return AND the synchronous `activeGalleryID`/`activeTask` pairing the gap record never stated); the post-launch `BGTaskScheduler.register` exemption is recorded beside `live.register` with its 15-UAT test-1 device evidence; a drift-failing caller census (RED observed by perturbation) now owns the list, comment-only Sources diff, full FeatureTests green
-Next: /gsd-execute-phase 15 (wave 45, the last — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; per the round-13 verification it was to be run AFTER G-15-23 lands, which 15-43 has done, so the device test is worth running as soon as wave 45 finishes
+Plan: 45 of 45 executed
+Status: 15-45 complete — G-15-25 closed (WR-03's always-whole-array bound dropped with the two-writer equivalence derived, WR-04's two stray blank lines deleted at freshly located positions, WR-05's trailing comma removed, and BOTH dead public `DownloadStore` symbols deleted after a re-derived census, with the probe's attributes-throw fallback pin rerouted onto `sanitizeAssetFileIfNeeded(at:)`). Round-14 gap closure is DONE — all 45 plans executed, zero hygiene residue on the review surface
+Last activity: 2026-08-06 — Executed 15-45 (round-14's last plan): G-15-25 closed — WR-03's `prefix(progress.completedCount)` bound dropped after deriving from BOTH writers of `completedCount` (assigned `results.count` immediately upstream at `:97`, incremented only downstream at `:254`, and `results` unmoved in between) that it was always the whole array; WR-04's two stray blank lines deleted at freshly located positions (`+ContinuedSession.swift` had shifted 625→669 under 15-42/15-43, `+Scheduling.swift` still 370); WR-05's trailing comma removed from `clearSelectedFailedPages`. The dead public API is DECIDED, not deferred a third time: the census re-derived by grep found exactly the 3 expected matches, `validPageCount` deleted for having no caller anywhere, and `isReadableAssetFile` deleted because it was a bare forward to the PUBLIC `sanitizeAssetFileIfNeeded(at:)` — remedy (a)'s precondition satisfied by its own callee, the surface all 7 production call sites already use — with the attributes-throw fallback pin rerouted onto it (same `ThrowingAttributesFileManager` staging, both assertions, renamed `testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails`). Full FeatureTests green in one invocation: 872 tests, 0 failures, zero count movement from 15-44's baseline
+Next: run the round-15 verification for phase 15 — every round-14 gap (G-15-22..G-15-25) is now closed and the review surface is clean. Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified; per the round-13 verification it was to be run AFTER G-15-23 lands, which 15-43 has done, and wave 45 has now finished, so the device test is runnable right now
 
 Progress: [██████████] 100% (14/16 phases)
 
@@ -271,6 +271,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P42 | 35min | 2 tasks | 3 files |
 | Phase 15 P43 | 35m | 2 tasks | 5 files |
 | Phase 15 P44 | 29min | 2 tasks | 4 files |
+| Phase 15 P45 | 6min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -688,6 +689,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-43: the failed-enumeration companion uses 0o311 and five of six page files, since 0o000 blocks the manifest read and a fully-backed folder routes to .redownload instead of .repair
 - [Phase 15]: schedulableDownloads() is the SHARED READ of three named callers, not an authority the scheduler reads; only the isSchedulableDownload predicate is shared. — The scheduler performs its own queue-scoped read, so widening or narrowing this read does not move it; the false claim had survived five rounds in two files.
 - [Phase 15]: WR-02's post-launch BGTaskScheduler.register timing is answered with a device-verified note, not a code change. — A per-session UUID identifier under the bundle-scoped wildcard makes pre-launch registration structurally impossible, and 15-UAT.md test 1 passed on physical iOS 26 hardware.
+- [Phase 15]: 15-45: restoredIndices drops its prefix(completedCount) bound — proven equal to the whole array from the two writers of completedCount (assigned results.count immediately upstream, incremented only downstream), not asserted.
+- [Phase 15]: 15-45: validPageCount(folderURL:manifest:) deleted outright — zero callers repo-wide across App/, ShareExtension/, EhPandaUITests/, AppPackage/Sources and AppPackage/Tests.
+- [Phase 15]: 15-45: isReadableAssetFile(at:) deleted rather than kept-with-a-reason — it was a bare forward to the PUBLIC sanitizeAssetFileIfNeeded(at:), so remedy (a)'s precondition is satisfied by its own callee, which all seven production call sites already use.
+- [Phase 15]: 15-45: the attributes-throw fallback pin is rerouted, not dropped — testSanitizeAssetFileIfNeededDoesNotDeleteFileWhenAttributesLookupFails keeps the same ThrowingAttributesFileManager staging and both assertions on the production surface.
 
 ### Pending Todos
 
@@ -736,6 +741,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T16:18:37.321Z
-Stopped at: Completed 15-44-PLAN.md
+Last session: 2026-08-05T16:28:49.270Z
+Stopped at: Completed 15-45-PLAN.md
 Resume file: None

@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 44/45 | In Progress|  |
+| 15. Continued Background Downloads | 45/45 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 44/45 plans executed
+**Plans**: 45/45 plans executed
 
 Plans:
 **Wave 1**
@@ -993,7 +993,7 @@ Plans:
 
 **Wave 45** *(gap closure round 14, verification warning G-15-25 — blocked on 15-44 by file overlap on DownloadClient+ContinuedSession.swift and DownloadClient+Scheduling.swift, whose WR-04 blank lines must be located after all prior edits)*
 
-- [ ] 15-45-PLAN.md — Close the round-13 hygiene group with decisions, not deferrals: WR-03's always-whole-array prefix dropped with the two-writer equivalence derived, WR-04's two stray blank lines before closing braces deleted, WR-05's unintended parameter-list trailing comma removed, and the public dead API decided delete-or-justify with the caller census re-derived by grep — validPageCount deleted outright, isReadableAssetFile deleted with its attributes-throw fallback pin rerouted through a surviving public surface (or kept with the why recorded at the declaration), the pinned probe behavior owned by a named test either way
+- [x] 15-45-PLAN.md — Close the round-13 hygiene group with decisions, not deferrals: WR-03's always-whole-array prefix dropped with the two-writer equivalence derived, WR-04's two stray blank lines before closing braces deleted, WR-05's unintended parameter-list trailing comma removed, and the public dead API decided delete-or-justify with the caller census re-derived by grep — validPageCount deleted outright, isReadableAssetFile deleted with its attributes-throw fallback pin rerouted through a surviving public surface (or kept with the why recorded at the declaration), the pinned probe behavior owned by a named test either way
 
 ### Phase 16: Dynamic Type Accessibility
 
