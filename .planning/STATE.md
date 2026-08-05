@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-28-PLAN.md
-last_updated: "2026-08-05T00:23:54.683Z"
+stopped_at: Completed 15-29-PLAN.md
+last_updated: "2026-08-05T00:53:43.755Z"
 last_activity: 2026-08-05
-last_activity_desc: Completed 15-28 (G-15-11 closed)
+last_activity_desc: Completed 15-29 (G-15-7 closed)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 203
-  completed_plans: 199
-  percent: 81
+  completed_plans: 200
+  percent: 99
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 29 of 32
+Plan: 30 of 32
 Status: Executing Phase 15 (gap-closure round 11)
-Last activity: 2026-08-05 — Completed 15-28 (G-15-11 closed)
-Next: /gsd-execute-phase 15 — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 AFTER G-15-7 closes, now covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; a green device run does not close G-15-7 and closing G-15-7 does not discharge the device item
+Last activity: 2026-08-05 — Completed 15-29 (G-15-7 closed)
+Next: /gsd-execute-phase 15 (plans 15-30..15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7 is closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29 and closing G-15-7 does not discharge it
 
-Progress: [██████████] 98% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -255,6 +255,7 @@ Progress: [██████████] 98% (14/16 phases)
 | Phase 15 P26 | 45min | 2 tasks | 9 files |
 | Phase 15 P27 | 26min | 1 tasks | 2 files |
 | Phase 15 P28 | 9min | 2 tasks | 13 files |
+| Phase 15 P29 | 70min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -629,6 +630,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 15]: 15-27: When the double itself is the subject under test, the regression drives the spy's own client endpoints; a coordinator fixture would add choreography that cannot discriminate the defect
 - [Phase ?]: All nine session-lifecycle mutators drop to internal, but only six get testing forwarders: a forwarder without a test consumer is the attack surface G-15-11 removes
 - [Phase ?]: Every private helper in DownloadContinuedSessionTests.swift was exclusive to the relocated expiration family, so none was lifted into DownloadFeatureTestHelpers.swift
+- [Phase ?]: 15-29: the basis withdrawal is keyed on the pre/post downloadIndex[gid] delta (D-G7-01), never on a named mechanism — one non-async bracket wrapping prepareWorkingSeed's whole preparation and writeInitialManifest's body
+- [Phase ?]: 15-29: an absent after-reading defaults to the before-count, so a record that vanished during a movement withdraws nothing — departures stay the retirement ledger's alone
+- [Phase ?]: 15-29: the bracket is module-internal because writeInitialManifest lives in another file; one implementation stops the rule forking between the run route and the enqueue route
 
 ### Pending Todos
 
@@ -677,6 +681,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T00:23:48.166Z
-Stopped at: Completed 15-28-PLAN.md
+Last session: 2026-08-05T00:53:43.745Z
+Stopped at: Completed 15-29-PLAN.md
 Resume file: None

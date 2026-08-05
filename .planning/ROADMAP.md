@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 28/32 | In Progress|  |
+| 15. Continued Background Downloads | 29/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 28/32 plans executed
+**Plans**: 29/32 plans executed
 
 Plans:
 **Wave 1**
@@ -929,7 +929,7 @@ Plans:
 
 **Wave 29** *(gap closure round 11, review gap G-15-7 — blocked on 15-28: the counted-record regressions drive the preparation through the seam 15-28 chooses; file overlap on the execution-support and continued-session sources)*
 
-- [ ] 15-29-PLAN.md — Key the floor withdrawal on the basis MOVEMENT instead of the blanking mechanism (D-G7-01): a non-async bracket reads the index record before and after the preparation (and the enqueue route's initial-manifest write) and withdraws max(before−after, 0) when the basis was counting, so a .redownload/.update of a counted gallery, a validatedManifest mismatch, and every unenumerated future mover are excused by construction; remove the per-mechanism withdrawal from the reconciliation, correct both single-mover doc premises, sweep every downloadIndex writer with dispositions (deletions stay the retirement ledger's), and stage three counted-record regressions with the pre-fix frozen bands observed
+- [x] 15-29-PLAN.md — Key the floor withdrawal on the basis MOVEMENT instead of the blanking mechanism (D-G7-01): a non-async bracket reads the index record before and after the preparation (and the enqueue route's initial-manifest write) and withdraws max(before−after, 0) when the basis was counting, so a .redownload/.update of a counted gallery, a validatedManifest mismatch, and every unenumerated future mover are excused by construction; remove the per-mechanism withdrawal from the reconciliation, correct both single-mover doc premises, sweep every downloadIndex writer with dispositions (deletions stay the retirement ledger's), and stage three counted-record regressions with the pre-fix frozen bands observed
 
 **Wave 30** *(gap closure round 11, review gap G-15-9 — blocked on 15-29: same reconciliation function, after the withdrawal has been relocated out of it)*
 
