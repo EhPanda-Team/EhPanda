@@ -171,6 +171,34 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         #expect(await fixture.manager.testingIsSchedulingBlocked(gallery.gid) == false)
         #expect(scheduledGalleryRecorder.snapshot() == [gallery.gid])
     }
+
+    /// WR-03: the scheduling block is a reference count because every operation that takes one
+    /// suspends while holding it on a reentrant actor, so two operations on the same gallery
+    /// overlap routinely. Under the former set membership the first to finish removed the entry and
+    /// unblocked a gallery the second still needed hidden.
+    ///
+    /// Driven through the seam rather than by racing two real operations: the interleave has no
+    /// deterministic staging, while the contract it depends on does. Its falsifiability is
+    /// structural rather than historical — this case cannot be run against the pre-fix set, because
+    /// a set has no counting seam to drive; reverting the storage to one makes the first
+    /// `testingIsSchedulingBlocked` read false and the case fail.
+    @Test
+    func testOverlappingBlocksOnTheSameGalleryReleaseIndependently() async throws {
+        let gid = "210400"
+        let manager = makeTestingDownloadCoordinator()
+
+        await manager.testingBlockScheduling(gid: gid)
+        await manager.testingBlockScheduling(gid: gid)
+        await manager.testingReleaseScheduling(gid: gid)
+
+        #expect(await manager.testingIsSchedulingBlocked(gid))
+        #expect(await manager.testingSchedulingBlockedGalleryIDs() == [gid])
+
+        await manager.testingReleaseScheduling(gid: gid)
+
+        #expect(await manager.testingIsSchedulingBlocked(gid) == false)
+        #expect(await manager.testingSchedulingBlockedGalleryIDs().isEmpty)
+    }
 }
 
 // MARK: - Move Convergence Fixture

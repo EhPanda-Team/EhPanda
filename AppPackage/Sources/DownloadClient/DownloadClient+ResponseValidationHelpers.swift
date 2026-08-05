@@ -347,7 +347,7 @@ extension DownloadCoordinator {
     func shouldSuppressFailurePersistence(
         for gid: String
     ) -> Bool {
-        schedulingBlockedGalleryIDs.contains(gid)
+        schedulingBlockedGalleryCounts[gid] != nil
             || Task.isCancelled
     }
 
