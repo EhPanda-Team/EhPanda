@@ -202,6 +202,79 @@ extension DownloadCoordinator {
         }
     }
 
+    /// Runs one movement of the session accounting basis and gives back whatever counted portion of
+    /// it the numerator was holding.
+    ///
+    /// **D-G7-01: every deliberate downward movement of the session accounting basis withdraws its
+    /// counted portion from the monotonic floor, keyed on the pre/post `downloadIndex[gid]` delta —
+    /// never on a named mechanism.**
+    ///
+    /// It closes G-15-7, and the key is the whole of the fix. D-G6-01 attached the withdrawal to the
+    /// blanking loop in `reconcileWorkingManifestAgainstPageFiles` and wrote down that the blanking
+    /// was the basis's sole deliberate downward mover. Source held at least four, three of them
+    /// inside the very function that withdrawal ran in: `setupWorkingFolder`'s folder deletion on
+    /// `.redownload` / `.update`, `ensureWorkingManifest`'s fresh all-empty manifest and re-index,
+    /// the blanking itself, and `writeInitialManifest`'s fresh branch on the enqueue route. A
+    /// `.redownload` of a counted record therefore dropped it from C of N to 0 of N and withdrew
+    /// nothing — the blanking loop finds nothing to blank in an all-empty manifest and returns
+    /// before the withdrawal — so the floor kept holding C while C pages of real work downloaded
+    /// invisibly. Enumerating movers is what failed, four rounds running, so nothing here names one:
+    /// the bracket reads the record before and after and withdraws the difference, which makes
+    /// "whoever lowers the basis withdraws" true by construction for movers nobody has enumerated
+    /// yet.
+    ///
+    /// Both readings are of the INDEX record, the value the numerator is actually summed from
+    /// (`schedulableSnapshot` → `schedulableDownloads()` → `indexedDownloads(gids:)`). That subsumes
+    /// WR-05: the working manifest and the index record no longer have to agree — the
+    /// re-slot-after-title-change path included — because the amount withdrawn is measured on
+    /// exactly what the basis was counting.
+    ///
+    /// The counted-basis test is evaluated on the BEFORE reading, and that is D-G4-01's ceiling
+    /// guarantee rather than a refinement of it. Only a record the basis was actually counting
+    /// withdraws: one that read incomplete before the movement, or whose gid this session has
+    /// already observed incomplete. An untrusted complete-reading record contributed zero to the
+    /// numerator and to the floor, so it withdraws zero — withdrawing there would push the floor
+    /// below other galleries' legitimately pushed work and weaken the mask for all of them.
+    ///
+    /// Deletions never withdraw. A record that vanished between the two readings is a DEPARTURE,
+    /// which `reconcileRetiredSessionPages` already values from the honest record on the next push;
+    /// withdrawing on top of that would count the same correction twice. So an absent after-reading
+    /// is read as the before-count rather than as zero, leaving a delta of zero. Neither call site
+    /// deletes a record at all — the exclusion is stated here because it is the invariant every
+    /// other `downloadIndex[gid]` writer is dispositioned against.
+    ///
+    /// The delta is clamped at zero so an upward movement withdraws nothing, while the floor
+    /// subtraction itself is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
+    /// main-actor hop the scalar has just been reset to zero, so a withdrawal landing there drives
+    /// it negative — "zero minus corrections the seed has not yet absorbed" — which is exactly what
+    /// that seed's additive merge folds into the pre-hop snapshot. Outside the hop a negative floor
+    /// is inert, because the push's `max()` compares it against a `displayCompletedPageCount` that
+    /// is never negative.
+    ///
+    /// The whole stretch is synchronous — this function does not suspend, and neither of the two
+    /// bodies it wraps does — so no interleaved push can observe a lowered basis under an un-lowered
+    /// floor or the reverse. Two withdrawals in one session compose in either order, because each
+    /// computes its own local delta and subtracts it.
+    ///
+    /// Module-internal rather than file-private because the second call site lives in
+    /// `DownloadClient+PublicAPI.swift`. One implementation is what stops the withdrawal rule from
+    /// forking between the run route and the enqueue route.
+    func withdrawingCountedBasisMovement<T>(
+        gid: String,
+        _ movement: () throws -> T
+    ) rethrows -> T {
+        let beforeManifest = downloadIndex[gid]?.manifest
+        let beforeCount = beforeManifest?.completedPageCount ?? 0
+        let wasCountedBasis = beforeCount < (beforeManifest?.pageCount ?? 0)
+            || observedIncompleteSessionGIDs.contains(gid)
+        let result = try movement()
+        let afterCount = downloadIndex[gid]?.manifest.completedPageCount ?? beforeCount
+        if continuedSessionID != nil, wasCountedBasis {
+            lastPushedCompletedPageCount -= max(beforeCount - afterCount, 0)
+        }
+        return result
+    }
+
     /// Prepares the working seed silently — private so no caller outside this file can prepare one
     /// without announcing it.
     ///
@@ -209,48 +282,55 @@ extension DownloadCoordinator {
     /// `performDownload`'s call site back to the silent variant into a compile error rather than a
     /// suite-green regression: D-G5-01's whole liveness half rests on that one line, and both
     /// functions being public left it unguarded (the post-15-25 review's WR-02).
+    ///
+    /// The whole preparation runs inside one D-G7-01 bracket, keyed on the payload's gid. Every
+    /// mover that converges here — the folder deletion, the fresh manifest, the blanking, and any
+    /// sibling a later round adds — is enclosed by construction rather than instrumented one at a
+    /// time.
     private func prepareWorkingSeed(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
         folderURL: URL
     ) throws -> WorkingSeed {
-        let shouldReuseFolder = shouldReuseWorkingFolder(
-            payload: payload,
-            folderURL: folderURL
-        )
-        let seedContext = RepairSeedContext(
-            existingDownload: existingDownload,
-            payload: payload
-        )
-        try setupWorkingFolder(
-            folderURL: folderURL,
-            shouldReuse: shouldReuseFolder,
-            seedContext: seedContext
-        )
+        try withdrawingCountedBasisMovement(gid: payload.gallery.gid) {
+            let shouldReuseFolder = shouldReuseWorkingFolder(
+                payload: payload,
+                folderURL: folderURL
+            )
+            let seedContext = RepairSeedContext(
+                existingDownload: existingDownload,
+                payload: payload
+            )
+            try setupWorkingFolder(
+                folderURL: folderURL,
+                shouldReuse: shouldReuseFolder,
+                seedContext: seedContext
+            )
 
-        let manifest = try ensureWorkingManifest(
-            payload: payload,
-            folderURL: folderURL
-        )
-        let existingPages = storage.existingPageRelativePaths(
-            folderURL: folderURL,
-            manifest: manifest
-        )
-        let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
-            manifest: manifest,
-            existingPages: existingPages,
-            folderURL: folderURL
-        )
-        let coverRelativePath = storage.existingCoverRelativePath(
-            folderURL: folderURL,
-            manifest: reconciledManifest
-        )
-        return .init(
-            folderURL: folderURL,
-            manifest: reconciledManifest,
-            existingPages: existingPages,
-            coverRelativePath: coverRelativePath
-        )
+            let manifest = try ensureWorkingManifest(
+                payload: payload,
+                folderURL: folderURL
+            )
+            let existingPages = storage.existingPageRelativePaths(
+                folderURL: folderURL,
+                manifest: manifest
+            )
+            let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
+                manifest: manifest,
+                existingPages: existingPages,
+                folderURL: folderURL
+            )
+            let coverRelativePath = storage.existingCoverRelativePath(
+                folderURL: folderURL,
+                manifest: reconciledManifest
+            )
+            return .init(
+                folderURL: folderURL,
+                manifest: reconciledManifest,
+                existingPages: existingPages,
+                coverRelativePath: coverRelativePath
+            )
+        }
     }
 
     /// Prepares the working seed and then tells the live session what basis the run starts from.
@@ -335,40 +415,13 @@ extension DownloadCoordinator {
     /// still fetched. Validation reports what the record claims; it is not a second source of
     /// truth about what the gallery ought to contain.
     ///
-    /// **D-G6-01: a coordinator-made basis correction withdraws its counted portion from the
-    /// monotonic floor in the same synchronous stretch that lowers the basis.** The floor masks
-    /// only movements the coordinator did not deliberately make.
-    ///
-    /// It closes G-15-6, which this reconciliation itself introduced. `lastPushedCompletedPageCount`
-    /// is a single scalar over the whole-queue SUMMED numerator, and its correctness argument
-    /// assumed the accounting basis could only rise. This is the first mechanism in the phase that
-    /// deliberately LOWERS an already-counted gallery's record mid-session, and the floor cannot
-    /// tell that correction from the disk regression it was built to mask — so it absorbed the
-    /// credit, and real work by ANY gallery stayed invisible until the summed numerator climbed
-    /// back over the pre-correction total. A card whose numerator does not advance while work
-    /// proceeds is the maximally stalled reading the scheduler force-expires first, and D-11 turns
-    /// that expiration into a pause of every schedulable download: the same liveness family as
-    /// G-15-5, one round later.
-    ///
-    /// The withdrawal is exact-portion, and that is D-G4-01's ceiling guarantee rather than a
-    /// refinement of it. Only a record the basis was actually counting withdraws: one that read
-    /// incomplete before the blanking, or whose gid this session has already observed incomplete.
-    /// An untrusted complete-reading record contributed zero to the numerator and to the floor, so
-    /// it withdraws zero — withdrawing there would push the floor below other galleries'
-    /// legitimately pushed work and weaken the mask for all of them.
-    ///
-    /// The subtraction is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
-    /// main-actor hop the scalar has just been reset to zero, so a correction landing there drives
-    /// it negative — "zero minus corrections the seed has not yet absorbed" — which is exactly what
-    /// that seed's additive merge folds into the pre-hop snapshot. Outside the hop a negative floor
-    /// is inert, because the push's `max()` compares it against a `displayCompletedPageCount` that
-    /// is never negative.
-    ///
-    /// Placing it here rather than in the announcing wrapper is what makes the pairing structural:
-    /// whoever blanks, withdraws, so every route that converges on `prepareWorkingSeed` inherits it
-    /// by construction. It is also what makes the correction atomic. No suspension exists between
-    /// the blanking, the manifest write, the index update and the floor write, so no interleaved
-    /// push can observe the lowered basis under an un-lowered floor or the reverse.
+    /// This function does no basis accounting of its own, deliberately. Its index write is one of
+    /// several deliberate downward movers inside `prepareWorkingSeed`, and all of them are enclosed
+    /// by that function's D-G7-01 bracket, which withdraws each movement's counted portion from the
+    /// monotonic floor keyed on the pre/post index-record delta. Attaching the withdrawal to this
+    /// blanking loop instead is what produced G-15-7: an all-empty manifest blanks nothing, so the
+    /// early return above fires and a `.redownload` that had just wiped the same record from C of N
+    /// to 0 of N withdrew nothing. The rule belongs to the movement, not to the mechanism.
     ///
     /// No suspension is introduced: `existingPages` is the dictionary `prepareWorkingSeed` already
     /// read, so no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are
@@ -391,13 +444,6 @@ extension DownloadCoordinator {
         reconciledManifest.pages = pages
         try storage.writeManifest(reconciledManifest, folderURL: folderURL)
         updateDownloadIndex(folderURL: folderURL, manifest: reconciledManifest)
-        // D-G6-01, read off the PRE-blanking manifest: the basis was counting this record only if
-        // it already read incomplete, or if this session had already watched it doing work.
-        let wasCountedBasis = manifest.completedPageCount < manifest.pageCount
-            || observedIncompleteSessionGIDs.contains(manifest.gid)
-        if continuedSessionID != nil, wasCountedBasis {
-            lastPushedCompletedPageCount -= blankedPageCount
-        }
         return reconciledManifest
     }
 

@@ -312,6 +312,257 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
             await manager.testingHasActiveTask() == false
         }
     }
+
+    /// D-G7-01 on the route that STARTS the session: a `.redownload` of a counted errored record
+    /// drops its basis to zero, and the card must dip once and then advance with the work.
+    ///
+    /// The staging is the one the prior rounds never performed. `DetailView` sends
+    /// `.retryDownloadButtonTapped(store.downloadNeedsRepair ? .repair : .redownload)`, and
+    /// `DetailReducer.downloadNeedsRepair` requires `badge.progress.completedPageCount == 0`, so an
+    /// errored gallery with ANY downloaded page fails that guard and the button resolves
+    /// `.redownload`. A record with 0 < C < N satisfies `isIncomplete`, so D-G4-01's first half
+    /// counts it RAW and the floor opens at C. The two existing `.redownload` cases in the ledger
+    /// suite stage a 6-of-6 record instead: complete, therefore untrusted, therefore contributing
+    /// zero to the floor, so their wipe moves a basis that was already zero. That vacuity is why a
+    /// green suite was never evidence about this freeze.
+    ///
+    /// Nothing here is a blanking. `shouldReuseWorkingFolder` returns false for `.redownload`,
+    /// `setupWorkingFolder` deletes the folder, `repairSeed` declines a non-`.repair` payload, and
+    /// `ensureWorkingManifest` writes a fresh all-empty manifest and re-indexes it. The
+    /// reconciliation is then handed that all-empty manifest, blanks nothing, and returns at its
+    /// `blankedPageCount == 0` guard — which is exactly why a withdrawal attached to the blanking
+    /// loop never fires on this route.
+    @Test
+    func testARedownloadOfACountedGalleryWithdrawsItsBasisSoTheNextPushAdvances() async throws {
+        let errored = SessionGallery(
+            gid: "210360",
+            title: "Errored",
+            pageCount: 6,
+            completedPageCount: 4
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [errored],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        try writePageFiles(for: errored, in: fixture, indices: [1, 2, 3, 4])
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: errored.gid))
+        #expect(staged.completedPageCount == 4)
+        #expect(staged.isIncomplete)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(errored.gid)_token] \(errored.title)"
+        )
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeStartPayload(for: errored, mode: .redownload),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        #expect(await manager.fetchDownload(gid: errored.gid)?.completedPageCount == 0)
+        // The announcement's own push, and the only push recorded so far: no test-issued push
+        // exists before it, so the honest dip is a fact about the production sequence.
+        #expect(spy.progressUpdates.count == 1)
+        let dipPair = try lastPushedPair(spy.progressUpdates)
+        #expect(dipPair.completedUnitCount == 0)
+        #expect(dipPair.totalUnitCount == 6)
+        #expect(dipPair.subtitle == "0 / 6 pages · 1 gallery")
+
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+        let pageOne = try landPageFiles([1], of: errored, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageOne)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
+        let firstPair = try lastPushedPair(spy.progressUpdates)
+        #expect(firstPair.subtitle == "1 / 6 pages · 1 gallery")
+
+        let pageTwo = try landPageFiles([2], of: errored, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageTwo)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
+        let secondPair = try lastPushedPair(spy.progressUpdates)
+        #expect(secondPair.subtitle == "2 / 6 pages · 1 gallery")
+
+        let remainingPages = try landPageFiles([3, 4, 5, 6], of: errored, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: remainingPages)
+        await manager.settleCompletedDownload(gid: errored.gid)
+        await manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 6)
+        #expect(terminalPair.totalUnitCount == 6)
+        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        // The dip sits between the START pair and the first push, never between two pushes, so the
+        // series property the scheduler reads is intact across the whole movement.
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+    }
+
+    /// The same movement on the `.update` arm, over a gallery this session has already trusted.
+    ///
+    /// `shouldReuseWorkingFolder` returns false for `.update` exactly as it does for `.redownload`,
+    /// so the mover is the same one. What this case adds is the second disjunct of the
+    /// counted-basis predicate: `observedIncompleteSessionGIDs` admits this gid through
+    /// `ensureContinuedSession`'s start-snapshot `formUnion` and again through the retirement
+    /// reconcile inside the pre-wipe push, both production admissions rather than asserted state.
+    /// At bracket time both disjuncts therefore hold — the record still reads incomplete AND the
+    /// session has watched it — which is the shape a trusted gallery presents.
+    ///
+    /// The pre-wipe push also moves the floor by the push's own re-latch rather than by the start
+    /// seed alone, so the withdrawal is measured against a latched floor here. Its cost is that the
+    /// honest dip lands between two pushes instead of between the start pair and the first push, so
+    /// this case deliberately does not assert the never-rewinds series property; the sibling
+    /// `.redownload` case above covers that ordering, and the visible one-time dip is D-G6-01's
+    /// recorded and accepted consequence.
+    @Test
+    func testAnUpdateOfATrustedGalleryWithdrawsItsCountedPortion() async throws {
+        let trusted = SessionGallery(
+            gid: "210361",
+            title: "Trusted",
+            pageCount: 5,
+            completedPageCount: 3
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [trusted],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        try writePageFiles(for: trusted, in: fixture, indices: [1, 2, 3])
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: trusted.gid))
+        #expect(staged.completedPageCount == 3)
+        #expect(staged.isIncomplete)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles.last == "3 / 5 pages · 1 gallery")
+
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
+        let trustedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(trustedPair.subtitle == "3 / 5 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(trusted.gid)_token] \(trusted.title)"
+        )
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeStartPayload(for: trusted, mode: .update),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        #expect(await manager.fetchDownload(gid: trusted.gid)?.completedPageCount == 0)
+        let dipPair = try lastPushedPair(spy.progressUpdates)
+        #expect(dipPair.completedUnitCount == 0)
+        #expect(dipPair.totalUnitCount == 5)
+        #expect(dipPair.subtitle == "0 / 5 pages · 1 gallery")
+
+        let pageOne = try landPageFiles([1], of: trusted, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageOne)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
+        let firstPair = try lastPushedPair(spy.progressUpdates)
+        #expect(firstPair.subtitle == "1 / 5 pages · 1 gallery")
+
+        let remainingPages = try landPageFiles([2, 3, 4, 5], of: trusted, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: remainingPages)
+        await manager.settleCompletedDownload(gid: trusted.gid)
+        await manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 5)
+        #expect(terminalPair.totalUnitCount == 5)
+        #expect(terminalPair.subtitle == "5 / 5 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
+    /// The same basis movement with NO deletion and NO blanking anywhere near it: a `.repair` whose
+    /// payload reports a different upstream page count.
+    ///
+    /// `shouldReuseWorkingFolder` returns true unconditionally for `.repair`, so the working folder
+    /// and every page file in it survive this run. `ensureWorkingManifest` replaces the record all
+    /// the same, because `validatedManifest` requires `manifest.pageCount ==
+    /// payload.galleryDetail.pageCount` and returns nil on the mismatch — the state a gallery
+    /// reaches when pages are added upstream, or when a crash truncates the stored manifest. A fresh
+    /// all-empty manifest at the new page count is written and re-indexed, so the record falls from
+    /// 4 of 6 to 0 of 8 with nothing deleted and nothing blanked.
+    ///
+    /// This is the case that falsifies any mechanism-keyed fix: there is no folder wipe to key on
+    /// and no blanking loop to key on, only the index-record delta.
+    @Test
+    func testAPageCountMismatchFreshManifestWithdrawsTheCountedBasis() async throws {
+        let regrown = SessionGallery(
+            gid: "210362",
+            title: "Regrown",
+            pageCount: 6,
+            completedPageCount: 4
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [regrown],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        try writePageFiles(for: regrown, in: fixture, indices: [1, 2, 3, 4])
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: regrown.gid))
+        #expect(staged.completedPageCount == 4)
+        #expect(staged.isIncomplete)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(regrown.gid)_token] \(regrown.title)"
+        )
+        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeStartPayload(for: regrown, mode: .repair, pageCountOverride: 8),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        let wiped = try #require(await manager.fetchDownload(gid: regrown.gid))
+        #expect(wiped.completedPageCount == 0)
+        #expect(wiped.pageCount == 8)
+        #expect(spy.progressUpdates.count == 1)
+        let dipPair = try lastPushedPair(spy.progressUpdates)
+        #expect(dipPair.completedUnitCount == 0)
+        #expect(dipPair.totalUnitCount == 8)
+        #expect(dipPair.subtitle == "0 / 8 pages · 1 gallery")
+
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+        let pageOne = try landPageFiles([1], of: regrown, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageOne)
+        await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
+        let firstPair = try lastPushedPair(spy.progressUpdates)
+        #expect(firstPair.subtitle == "1 / 8 pages · 1 gallery")
+
+        let remainingPages = try landPageFiles([2, 3, 4, 5, 6, 7, 8], of: regrown, in: fixture)
+        try await manager.flushManifestPageProgress(folderURL: folderURL, pages: remainingPages)
+        await manager.settleCompletedDownload(gid: regrown.gid)
+        await manager.scheduleNextIfNeeded()
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 8)
+        #expect(terminalPair.totalUnitCount == 8)
+        #expect(terminalPair.subtitle == "8 / 8 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+    }
 }
 
 // MARK: - Helpers
