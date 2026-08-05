@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 29/32 | In Progress|  |
+| 15. Continued Background Downloads | 30/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 29/32 plans executed
+**Plans**: 30/32 plans executed
 
 Plans:
 **Wave 1**
@@ -933,7 +933,7 @@ Plans:
 
 **Wave 30** *(gap closure round 11, review gap G-15-9 — blocked on 15-29: same reconciliation function, after the withdrawal has been relocated out of it)*
 
-- [ ] 15-30-PLAN.md — Make the destructive half of the reconciliation require a positive signal: surface directory-enumeration failure from the store (PageFileScan with scanSucceeded), refuse to blank on a failed scan and refuse wholesale blanking of a folder whose manifest read succeeded (tradeoff documented), log every real blanking at .notice with count and hash-masked gid, and prove with an execute-only-folder regression that a wholesale scan failure blanks nothing, writes nothing, and withdraws nothing
+- [x] 15-30-PLAN.md — Make the destructive half of the reconciliation require a positive signal: surface directory-enumeration failure from the store (PageFileScan with scanSucceeded), refuse to blank on a failed scan and refuse wholesale blanking of a folder whose manifest read succeeded (tradeoff documented), log every real blanking at .notice with count and hash-masked gid, and prove with an execute-only-folder regression that a wholesale scan failure blanks nothing, writes nothing, and withdraws nothing
 
 **Wave 31** *(gap closure round 11, review gap G-15-8 + WR-03 — blocked on 15-30 by file overlap in the public API and by xcodebuild serialization)*
 
