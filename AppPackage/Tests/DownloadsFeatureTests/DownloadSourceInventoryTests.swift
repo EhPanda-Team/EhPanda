@@ -44,6 +44,7 @@ struct DownloadSourceInventoryTests {
     /// The scanner's own detection tokens, assembled from fragments so a repository grep gate
     /// counting either inventory cannot match the suite that pins it.
     private static var schedulingBlockCallToken: String { "block" + "Scheduling(" }
+    private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var declarationPrefix: String { "func" + " " }
     private static var storedDeclarationPrefix: String { "var" + " " }
@@ -89,6 +90,30 @@ struct DownloadSourceInventoryTests {
 
     /// The floor table's sum, asserted the same way and for the same reason.
     private static let expectedFloorWriterTotal = 5
+
+    /// Every call of the shared schedulable-work read, named per file.
+    ///
+    /// This is the caller list the read's own header carries and the G-15-8 paragraph in
+    /// `+Manager.swift` repeats: the pending-work gate in `+PendingWork.swift`, and the session
+    /// snapshot plus the expiration sweep in `+ContinuedSession.swift`. Both docs also state what is
+    /// deliberately NOT in it — `scheduleNextIfNeededCore`, which shares only the predicate and reads
+    /// its own queue-scoped set — so those sentences rot in three ways: a fourth reader appearing, a
+    /// reader being removed, or the scheduler gaining this call. Each moves a number here, and the
+    /// last one moves it into a file the table does not list at all.
+    ///
+    /// That is not a hypothetical rot path. The single-authority sentence was false in two files at
+    /// once, uncaught across five rounds, and the second of them was written by a round whose job was
+    /// correcting the first (G-15-24). Nothing counted it until this table.
+    ///
+    /// Derived from source rather than copied. The declaration is excluded, as are doc-comment
+    /// mentions — this function has more of those than calls — because the count is of calls.
+    private static let expectedSchedulableReadCallSites = [
+        "DownloadClient+ContinuedSession.swift": 2,
+        "DownloadClient+PendingWork.swift": 1
+    ]
+
+    /// The read table's sum, asserted the same way and for the same reason.
+    private static let expectedSchedulableReadCallTotal = 3
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -141,6 +166,35 @@ struct DownloadSourceInventoryTests {
         let joined = files.map(\.contents).joined(separator: "\n")
         #expect(
             Self.mutationCount(of: Self.floorPropertyName, in: joined) == Self.expectedFloorWriterTotal
+        )
+    }
+
+    @Test
+    func testSchedulableDownloadsCallSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        var callSites = [String: Int]()
+        for file in files {
+            let count = Self.callSiteCount(of: Self.schedulableReadToken, in: file.contents)
+            guard count > 0 else { continue }
+            callSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            callSites == Self.expectedSchedulableReadCallSites,
+            """
+            The schedulable-read caller census moved. Re-derive who reads through the shared \
+            schedulable-work function and whether the scheduler now does, re-read that function's \
+            own header and the G-15-8 paragraph in +Manager.swift against them, and only then \
+            update this table.
+            """
+        )
+
+        let joined = files.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.schedulableReadToken, in: joined)
+                == Self.expectedSchedulableReadCallTotal
         )
     }
 }
