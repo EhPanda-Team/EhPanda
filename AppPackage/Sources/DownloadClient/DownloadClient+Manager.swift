@@ -1,6 +1,7 @@
 import AppModels
 import BackgroundProcessingClient
 import Foundation
+import IssueReporting
 import LibraryClient
 import OSLogExt
 
@@ -607,8 +608,16 @@ extension DownloadCoordinator {
     /// trapped, and it leaves the dictionary untouched, because the alternative — decrementing
     /// anyway — would consume a *different* live operation's hold and strand the download that
     /// operation is protecting.
+    ///
+    /// The violation is reported as an issue as well as logged, so it is visible where balance is
+    /// actually decided. A device-only log line is read by nobody while a suite passes over it,
+    /// whereas an issue report surfaces in Swift Testing as a recorded issue, so any case that
+    /// trips an imbalance fails loudly. The report carries no gallery identity — the gid stays in
+    /// the hash-masked log line below — and it is purely additive: this still returns without
+    /// touching the dictionary, in release builds exactly as before.
     func releaseScheduling(gid: String) {
         guard let count = schedulingBlockedGalleryCounts[gid] else {
+            reportIssue("Scheduling release without a matching block.")
             logger.error(
                 """
                 Scheduling release without a matching block, \
