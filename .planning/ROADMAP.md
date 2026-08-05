@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 34/38 | In Progress|  |
+| 15. Continued Background Downloads | 35/38 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 34/38 plans executed
+**Plans**: 35/38 plans executed
 
 Plans:
 **Wave 1**
@@ -953,7 +953,7 @@ Plans:
 
 **Wave 35** *(gap closure round 12, verification gap G-15-15 — blocked on 15-34 by xcodebuild serialization; the rewritten docs must describe post-blocker source)*
 
-- [ ] 15-35-PLAN.md — Correct the three contradicted doc premises decide-one each: the nil-client skip states the true drop-not-replay recovery, one canonical non-suspension wording lands at all three suspension-claim sites, and the floor's writer inventory names all five writers including the teardown zero, labeled verified exhaustive by grep — a comment-only diff proven by inspection
+- [x] 15-35-PLAN.md — Correct the three contradicted doc premises decide-one each: the nil-client skip states the true drop-not-replay recovery, one canonical non-suspension wording lands at all three suspension-claim sites, and the floor's writer inventory names all five writers including the teardown zero, labeled verified exhaustive by grep — a comment-only diff proven by inspection
 
 **Wave 36** *(gap closure round 12, verification gap G-15-16 — blocked on 15-35 by file overlap in DownloadClient+Manager.swift and xcodebuild serialization)*
 
