@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 31/32 | In Progress|  |
+| 15. Continued Background Downloads | 32/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 31/32 plans executed
+**Plans**: 32/32 plans executed
 
 Plans:
 **Wave 1**
@@ -941,7 +941,7 @@ Plans:
 
 **Wave 32** *(gap closure round 11, review gap G-15-12 — blocked on 15-31: IN-01's note names 15-30's landed refusal shape, and the rename sweep overlaps files every earlier plan touches)*
 
-- [ ] 15-32-PLAN.md — Close the six hygiene items: replace resolveSource's dead force-unwrap with the producer's own guard-throw, correct the one authority's false dedupe rationale, write the why-still-reachable note on resumeMode's validate branch, close the log scanner's unclassified-interpolation blind spot RED-first and replace the underived masked-count threshold with a named per-file inventory, rename UncheckedBox to LockedBox target-wide, and add the active-gallery-union coverage with a control assertion — with the 999-line file's headroom disposition recorded and nothing added to it
+- [x] 15-32-PLAN.md — Close the six hygiene items: replace resolveSource's dead force-unwrap with the producer's own guard-throw, correct the one authority's false dedupe rationale, write the why-still-reachable note on resumeMode's validate branch, close the log scanner's unclassified-interpolation blind spot RED-first and replace the underived masked-count threshold with a named per-file inventory, rename UncheckedBox to LockedBox target-wide, and add the active-gallery-union coverage with a control assertion — with the 999-line file's headroom disposition recorded and nothing added to it
 
 ### Phase 16: Dynamic Type Accessibility
 
