@@ -46,14 +46,18 @@ public final class ContinuedProcessingSession {
     /// `endSession`. This names the session across the seam; `pendingIdentifier` separately names
     /// the request held by the system scheduler.
     private var sessionID: UUID?
-    /// The identifier of the request this session submitted, non-`nil` exactly between a
-    /// successful submission and either adoption or the end of the session.
+    /// The identifier of the request this session is handing to the scheduler, non-`nil` from just
+    /// *before* the submission call until either adoption or the end of the session.
     ///
     /// It is the handle the store needs to take a request back. Without it the only cancellation
-    /// available is the all-requests sweep, which is far too broad to run per session.
+    /// available is the all-requests sweep, which is far too broad to run per session. It is
+    /// recorded ahead of the submission rather than after it so a launch delivered during that call
+    /// can be recognized as this session's; `start` documents why, and `endSession` documents what
+    /// that ordering means for the throwing arm.
     private var pendingIdentifier: String?
-    /// Covers the window between a successful submission and the launch handler firing, when
-    /// a session exists as far as the scheduler is concerned but no task object is held yet.
+    /// Covers the window from just before the request is submitted until the launch handler fires,
+    /// when a session may exist as far as the scheduler is concerned but no task object is held
+    /// yet. It opens with `pendingIdentifier`, for the same reason.
     private var isAwaitingTask = false
     private var didCancelStaleRequests = false
     /// The last counts supplied by the caller, seeded by start and refreshed by later progress
@@ -137,17 +141,38 @@ public final class ContinuedProcessingSession {
             return session
         }
 
+        // Identity BEFORE the hand-over (WR-08). The request is named and the awaiting window is
+        // open before the scheduler can possibly launch it, so a launch delivered *during*
+        // `submit` passes `adopt`'s identity gate and is adopted. With these two lines after the
+        // call, that launch was turned away as a stray, completed unsuccessfully, and then awaited
+        // forever by a store that had just declared itself awaiting a task nobody would deliver.
+        // Production cannot stage that delivery — this type is `@MainActor` and the system delivers
+        // launches on the main queue, so `submit` cannot reenter it — but this seam exists to be
+        // driven by injected doubles, and a synchronous double is exactly what the ordering must
+        // survive. Nothing may assign either property after the call returns: `adopt` clears
+        // `pendingIdentifier` itself, and a trailing assignment would put a dead identifier back.
+        pendingIdentifier = identifier
+        isAwaitingTask = true
+
         do {
             try scheduling.submit(identifier, title, subtitle)
             logger.notice("Submitted continued-processing request.")
         } catch {
-            logger.error("\(error, privacy: .public)")
+            // The type is the operational signal — which refusal this was — and it is a closed set
+            // of symbol names. The value is not: a scheduler error may embed arbitrary system
+            // strings, so it stays private (IN-04). `DownloadLogPrivacyInvariantTests` scans this
+            // module under the download client's rules and fails on the raw-value shape.
+            logger.error(
+                """
+                Continued-processing submission failed, \
+                error type: \(String(describing: type(of: error)), privacy: .public), \
+                error: \(error, privacy: .private).
+                """
+            )
             endSession(yielding: .unavailable, success: false)
             return session
         }
 
-        pendingIdentifier = identifier
-        isAwaitingTask = true
         return session
     }
 
@@ -244,9 +269,16 @@ public final class ContinuedProcessingSession {
     /// nothing, wedge the single-session re-entry guard, and leave background coverage silently
     /// dead for the rest of the process.
     ///
-    /// The early unavailable paths — no bundle identifier, refused registration, throwing
-    /// submission — all run before `pendingIdentifier` is set, so they cancel nothing. That is
-    /// correct: none of them left a request pending.
+    /// The three early unavailable paths no longer answer alike, because the identifier is now
+    /// recorded before the request is handed over (WR-08). The no-bundle-identifier and
+    /// refused-registration arms still run before it is set and so cancel nothing, which stays
+    /// correct: neither reached `submit`, so neither left a request pending. The throwing-submission
+    /// arm now arrives here holding the identifier, so the take-back fires for a request the
+    /// scheduler never acknowledged accepting. That is a deliberate defensive no-op rather than an
+    /// oversight: cancelling an identifier the scheduler does not hold is harmless by its API
+    /// contract, and a throw is exactly the case where the store cannot know how far the submission
+    /// got — so taking the request back covers a half-submitted request, while the alternative
+    /// ordering covers nothing and risks leaving one behind.
     private func endSession(yielding event: BackgroundProcessingEvent?, success: Bool) {
         let endingTask = task
         let endingContinuation = continuation
