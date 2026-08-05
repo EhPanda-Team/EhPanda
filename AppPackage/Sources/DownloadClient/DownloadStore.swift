@@ -51,22 +51,35 @@ public struct DownloadScanResult: Equatable, Sendable {
     }
 }
 
-/// The page files a working folder was found to hold, together with whether the folder could be
-/// listed at all.
+/// The page files a working folder was found to hold, together with the two things `pages` alone
+/// cannot say: whether the folder could be listed at all, and which of the files it did list the
+/// per-file probe could not answer for.
 ///
-/// The flag exists because `pages` alone cannot tell "this folder holds none of the manifest's
-/// pages" apart from "this folder could not be read". Every non-destructive caller is entitled to
-/// collapse the two — a probe that finds nothing re-fetches, which is harmless either way — but the
-/// working-seed reconciliation destroys recorded content hashes on that answer, and destroying
-/// state on a non-answer is what G-15-9 reported. `scanSucceeded` is what lets that one consumer
-/// require a positive signal.
+/// All three members exist for one consumer. `pages` alone cannot tell "this folder holds none of
+/// the manifest's pages" apart from "this folder could not be read", nor "this page's file is gone"
+/// apart from "this page's file is there and unprobeable". Every non-destructive caller is entitled
+/// to collapse both pairs — a probe that finds nothing re-fetches, which is harmless either way —
+/// but the working-seed reconciliation destroys recorded content hashes on that answer, and
+/// destroying state on a non-answer is what G-15-9 and then G-15-13 reported.
+///
+/// - `scanSucceeded` answers at the DIRECTORY level: false means the enumeration itself failed, so
+///   the whole answer is a non-answer (G-15-9).
+/// - `unprobedPages` answers one level down, PER FILE: a claimed page whose file the enumeration
+///   did list but whose probe could not classify (G-15-13). A page here is neither usable nor
+///   positively absent, so it may be re-fetched but never blanked.
+///
+/// The two are kept apart rather than collapsed into one flag deliberately: they are answers to
+/// different questions at different granularities, the reconciliation consumes them independently,
+/// and merging them would re-conflate exactly the levels those two gaps separated.
 public struct PageFileScan: Equatable, Sendable {
     public let pages: [Int: String]
     public let scanSucceeded: Bool
+    public let unprobedPages: Set<Int>
 
-    public init(pages: [Int: String], scanSucceeded: Bool) {
+    public init(pages: [Int: String], scanSucceeded: Bool, unprobedPages: Set<Int>) {
         self.pages = pages
         self.scanSucceeded = scanSucceeded
+        self.unprobedPages = unprobedPages
     }
 }
 
@@ -184,32 +197,50 @@ public struct DownloadStore: Sendable {
         pageFileScan(folderURL: folderURL, manifest: manifest).pages
     }
 
-    /// The same scan, with the enumeration's success surfaced alongside its result (G-15-9).
+    /// The same scan, with the enumeration's success surfaced alongside its result (G-15-9) and the
+    /// pages whose listed file the probe could not classify surfaced beside both (G-15-13).
+    ///
+    /// A failed enumeration answers nothing at all, so it reports no unprobed pages either: there is
+    /// no listing to have listed them, and the directory-level refusal already covers that whole
+    /// answer.
     public func pageFileScan(folderURL: URL, manifest: DownloadManifest) -> PageFileScan {
         let pageNumbers = Set(manifest.pages.keys)
-        guard !pageNumbers.isEmpty else { return .init(pages: [:], scanSucceeded: true) }
+        guard !pageNumbers.isEmpty else {
+            return .init(pages: [:], scanSucceeded: true, unprobedPages: [])
+        }
 
         guard let fileURLs = existingAssetFileURLs(folderURL: folderURL) else {
-            return .init(pages: [:], scanSucceeded: false)
+            return .init(pages: [:], scanSucceeded: false, unprobedPages: [])
         }
         let prefix = identityPrefix(gid: manifest.gid, token: manifest.token)
 
-        let pages: [Int: String] = fileURLs.reduce(into: [:]) { result, fileURL in
+        var pages = [Int: String]()
+        var unprobedPages = Set<Int>()
+        for fileURL in fileURLs {
             let fileName = fileURL.lastPathComponent
-            guard fileName.hasPrefix(prefix) else { return }
+            guard fileName.hasPrefix(prefix) else { continue }
             let suffix = fileName.dropFirst(prefix.count)
-            guard let dotIndex = suffix.firstIndex(of: ".") else { return }
+            guard let dotIndex = suffix.firstIndex(of: ".") else { continue }
             let pageText = String(suffix[..<dotIndex])
             guard let page = Int(pageText),
                   String(page) == pageText,
                   pageNumbers.contains(page),
-                  result[page] == nil,
-                  sanitizeAssetFileIfNeeded(at: fileURL)
-            else { return }
+                  pages[page] == nil
+            else { continue }
 
-            result[page] = fileURL.lastPathComponent
+            switch probeAssetFile(at: fileURL) {
+            case .usable:
+                pages[page] = fileName
+                // A usable file settles the page outright, even if an earlier candidate for the
+                // same page was the one that could not be probed.
+                unprobedPages.remove(page)
+            case .rejected:
+                continue
+            case .unprobeable:
+                unprobedPages.insert(page)
+            }
         }
-        return .init(pages: pages, scanSucceeded: true)
+        return .init(pages: pages, scanSucceeded: true, unprobedPages: unprobedPages)
     }
 
     public func imageURLs(folderURL: URL, manifest: DownloadManifest) -> [Int: URL] {
@@ -598,34 +629,80 @@ public struct DownloadStore: Sendable {
         return "sha256:\(hex)"
     }
 
+    /// What a per-file asset probe was able to determine.
+    ///
+    /// The distinction exists because ONE consumer acts irreversibly on the answer: the working-seed
+    /// reconciliation destroys a recorded content hash for a claimed page the probe did not account
+    /// for. Only a POSITIVE determination may ever authorize that. `unprobeable` is the answer that
+    /// says the question went unanswered, and a non-answer is never authority to destroy state
+    /// (G-15-13, fixed as D-G13-01).
+    ///
+    /// It is an exhaustively switched enum rather than a second `Bool` for SCOPE, and the scope is
+    /// the point. This is the fifth consecutive round in which a fix scoped to the exact branch its
+    /// regression staged left a sibling branch open — here the sibling is any probe exit nobody has
+    /// enumerated yet. Classifying the whole function instead means a new exit cannot default into
+    /// "positively absent": it has to be named, and every reader switches over the full set.
+    private enum AssetFileProbeOutcome {
+        /// The file is there and fit to be reused as this page's content.
+        case usable
+        /// A positive determination that the file is there and NOT fit: a non-regular item, a
+        /// zero-byte file, or a file whose content read reaches end-of-file immediately.
+        case rejected
+        /// The probe could not answer. Nothing about the file was established, so it may be
+        /// re-fetched but its recorded hash may not be destroyed.
+        case unprobeable
+    }
+
+    /// Whether an asset file is usable, discarding it when the probe positively rejects it.
+    ///
+    /// The `Bool` forward of `probeAssetFile(at:)`, kept for the callers that re-fetch or re-derive
+    /// on a false answer and are unaffected by WHY it is false. Both non-usable outcomes were false
+    /// before the classification landed and are false now, so every one of those callers keeps its
+    /// behavior byte for byte. A caller that acts irreversibly on the answer must take the
+    /// classification instead, through `pageFileScan(folderURL:manifest:)`'s `unprobedPages`.
     @discardableResult
     public func sanitizeAssetFileIfNeeded(at url: URL) -> Bool {
-        guard fileManager.operate({ $0.fileExists(atPath: url.path) }) else { return false }
+        probeAssetFile(at: url) == .usable
+    }
+
+    /// Classifies one asset file, discarding it on the rejections that have always carried that
+    /// housekeeping deletion.
+    private func probeAssetFile(at url: URL) -> AssetFileProbeOutcome {
+        // Not a positive absence. The callers hand this a file a directory listing just produced,
+        // so a stat-backed existence check that then denies it is a question left unanswered — a
+        // positive absence is a claimed page whose file the successful listing never yielded, and
+        // that page never reaches this function at all.
+        guard fileManager.operate({ $0.fileExists(atPath: url.path) }) else { return .unprobeable }
 
         let attributes: [FileAttributeKey: Any]
         do {
             attributes = try fileManager.operate { try $0.attributesOfItem(atPath: url.path) }
         } catch {
-            return canReadNonEmptyFile(at: url)
+            // The narrowed G-15-13 trigger: the metadata read itself is unavailable — an I/O error,
+            // a permission change, a volume going away mid-scan. Content is the only question left
+            // to put to the file.
+            return probeAssetFileContent(at: url)
         }
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map({ $0 == .typeRegular }) ?? true
         guard isRegularFile else {
             discardRejectedAsset(at: url)
-            return false
+            return .rejected
         }
-        guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return false }
+        // Metadata that answered, but not the size question. That is not a zero-byte determination,
+        // so it authorizes neither the discard below nor blanking the page.
+        guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return .unprobeable }
         guard fileSize > 0 else {
             discardRejectedAsset(at: url)
-            return false
+            return .rejected
         }
 
-        return true
+        return .usable
     }
 
-    /// Deletes an asset the sanitizer has already rejected. Housekeeping only: the rejection
+    /// Deletes an asset the probe has already rejected. Housekeeping only: the rejection
     /// stands whether or not the file could actually be removed, so a failure is logged rather
-    /// than propagated to the caller's `Bool` answer.
+    /// than propagated to the caller's answer.
     private func discardRejectedAsset(at url: URL) {
         do {
             try fileManager.operate { try $0.removeItem(at: url) }
@@ -645,13 +722,20 @@ public struct DownloadStore: Sendable {
         }
     }
 
-    private func canReadNonEmptyFile(at url: URL) -> Bool {
+    /// The probe's last resort when metadata is unavailable: ask the file itself for a byte.
+    ///
+    /// An immediate end-of-file is a POSITIVE empty-content determination, so it rejects — without
+    /// discarding, which is the behavior this path has always had and keeps deliberately: metadata
+    /// never confirmed a zero-byte regular file here, so the housekeeping deletion the metadata
+    /// path performs is not warranted. A throw from the open or the read establishes nothing at
+    /// all, which is the exit the whole classification exists for.
+    private func probeAssetFileContent(at url: URL) -> AssetFileProbeOutcome {
         do {
             let handle = try FileHandle(forReadingFrom: url)
             defer { closeReadHandle(handle) }
-            return try handle.read(upToCount: 1)?.isEmpty == false
+            return try handle.read(upToCount: 1)?.isEmpty == false ? .usable : .rejected
         } catch {
-            return false
+            return .unprobeable
         }
     }
 }
