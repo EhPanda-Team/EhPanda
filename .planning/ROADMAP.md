@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 27/32 | In Progress|  |
+| 15. Continued Background Downloads | 28/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 27/32 plans executed
+**Plans**: 28/32 plans executed
 
 Plans:
 **Wave 1**
@@ -925,7 +925,7 @@ Plans:
 
 **Wave 28** *(gap closure round 11, review gap G-15-11 — blocked on 15-27 by xcodebuild serialization; also restores the 999-line file's headroom every later plan needs)*
 
-- [ ] 15-28-PLAN.md — Drop the nine public session-lifecycle mutators to internal (zero production callers outside DownloadClient, verified) and route the six the suites use through thin #if DEBUG testing forwarders in the module's established seam; first relocate the expiration-and-teardown case family out of the 999-line DownloadContinuedSessionTests.swift so the re-spell cannot trip the 1000-line file_length error gate
+- [x] 15-28-PLAN.md — Drop the nine public session-lifecycle mutators to internal (zero production callers outside DownloadClient, verified) and route the six the suites use through thin #if DEBUG testing forwarders in the module's established seam; first relocate the expiration-and-teardown case family out of the 999-line DownloadContinuedSessionTests.swift so the re-spell cannot trip the 1000-line file_length error gate
 
 **Wave 29** *(gap closure round 11, review gap G-15-7 — blocked on 15-28: the counted-record regressions drive the preparation through the seam 15-28 chooses; file overlap on the execution-support and continued-session sources)*
 
