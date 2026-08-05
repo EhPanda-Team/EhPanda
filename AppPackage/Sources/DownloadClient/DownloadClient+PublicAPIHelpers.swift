@@ -53,7 +53,7 @@ extension DownloadCoordinator {
 
     public func clearSelectedFailedPages(
         gid: String,
-        selectedPageIndices: [Int],
+        selectedPageIndices: [Int]
     ) {
         for index in selectedPageIndices {
             failedPageErrors[gid]?[index] = nil

@@ -367,5 +367,4 @@ extension DownloadCoordinator {
         logger.notice("Download resumed, gid: \(gid, privacy: .private(mask: .hash)).")
         return .success(())
     }
-
 }
