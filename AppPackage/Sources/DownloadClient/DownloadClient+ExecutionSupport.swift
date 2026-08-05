@@ -484,7 +484,11 @@ extension DownloadCoordinator {
     ///    nominally successful listing that answered for every file it did probe would nonetheless
     ///    blank every claimed page. The manifest was just read out of this very folder, so that is
     ///    more likely a shape neither signal above caught than proof that every page vanished at
-    ///    once.
+    ///    once. Its reach is narrow ON PURPOSE, and narrower since line 2 grew: one claimed page
+    ///    held as unprobed already puts the gallery outside this guard, because the guard exists to
+    ///    catch a shape the per-page signals explained NOTHING about, and a page they did explain is
+    ///    evidence they were answering. The mixed shape is line 2's, one page at a time, not this
+    ///    line's wholesale.
     ///
     /// A refusal at any of the three moves no index record, so D-G7-01's delta-keyed bracket
     /// withdraws exactly zero from the floor by construction, without coordination here.
@@ -515,7 +519,14 @@ extension DownloadCoordinator {
             blankedPageCount += 1
         }
         guard blankedPageCount > 0 else { return manifest }
-        // Only claimed pages are blanked above, so equality here means every one of them would go.
+        // The loop skips every claimed page the scan ACCOUNTED for — one the listing yielded, or one
+        // line 2 holds as unprobed — so this equality is reachable only where it accounted for none
+        // of them: the residual fires on the shape where a nominally successful listing explains no
+        // claimed page at all. On a MIXED shape it deliberately does not fire, and that is not a
+        // gap: line 2 has already refused the unprobed portion one page at a time, and the rest is
+        // the positive absence this reconciliation exists to record. Widening the comparison to the
+        // blankable population would refuse those genuine absences because some OTHER page went
+        // unanswered, which is the opposite of the per-page rule line 2 states.
         guard blankedPageCount < manifest.completedPageCount else { return manifest }
 
         var reconciledManifest = manifest
