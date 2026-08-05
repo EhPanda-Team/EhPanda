@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-43-PLAN.md
-last_updated: "2026-08-05T15:54:25.461Z"
+stopped_at: Completed 15-44-PLAN.md
+last_updated: "2026-08-05T16:18:37.330Z"
 last_activity: 2026-08-06
-last_activity_desc: "Executed 15-43: the run-start announcement now follows real page work and admits the gallery to the session trust set explicitly, so all three reconciliation refusal kinds over a complete-reading record announce and drain honestly instead of finishing `0 / 1 page · 0 galleries`; two family regressions RED→green, trust-writer census and D-G7-01 bracket side derived, full FeatureTests green"
+last_activity_desc: "Executed 15-44: both `schedulableDownloads()` authority sites now say what source satisfies — three named callers, the scheduler's own queue-scoped read located, only the `isSchedulableDownload` predicate shared, and the active-gallery divergence explained as inert with BOTH supporting facts; the post-launch `BGTaskScheduler.register` exemption is recorded beside `live.register` with its 15-UAT test-1 device evidence; a drift-failing caller census (RED observed by perturbation) now owns the list, comment-only Sources diff, full FeatureTests green"
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 216
-  completed_plans: 214
+  completed_plans: 215
   percent: 81
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING (gap-closure round 14)
-Plan: 43 of 45 executed
-Status: 15-43 complete — G-15-23 closed at the refusal family; 15-44 and 15-45 still to run
-Last activity: 2026-08-06 — Executed 15-43: the run-start announcement now follows real page work and admits the gallery to the session trust set explicitly, so all three reconciliation refusal kinds over a complete-reading record announce and drain honestly instead of finishing `0 / 1 page · 0 galleries`; two family regressions RED→green, trust-writer census and D-G7-01 bracket side derived, full FeatureTests green
-Next: /gsd-execute-phase 15 (waves 44→45, strictly sequential — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; per the round-13 verification it was to be run AFTER G-15-23 lands, which 15-43 has now done, so the device test is worth running as soon as the remaining waves finish
+Plan: 44 of 45 executed
+Status: 15-44 complete — G-15-24 closed (both read-authority sites corrected from fresh enumerations, the caller list pinned by a census, the registration exemption recorded); 15-45 (G-15-25 hygiene group) still to run
+Last activity: 2026-08-06 — Executed 15-44: both `schedulableDownloads()` authority sites now say what source satisfies — three named callers, the scheduler's own queue-scoped read located, only the `isSchedulableDownload` predicate shared, and the active-gallery divergence explained as inert with BOTH supporting facts (the `guard activeTask == nil` return AND the synchronous `activeGalleryID`/`activeTask` pairing the gap record never stated); the post-launch `BGTaskScheduler.register` exemption is recorded beside `live.register` with its 15-UAT test-1 device evidence; a drift-failing caller census (RED observed by perturbation) now owns the list, comment-only Sources diff, full FeatureTests green
+Next: /gsd-execute-phase 15 (wave 45, the last — xcodebuild invocations must never overlap on this machine). Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and the ONLY thing between SC2 and verified once the gaps close; per the round-13 verification it was to be run AFTER G-15-23 lands, which 15-43 has done, so the device test is worth running as soon as wave 45 finishes
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -270,6 +270,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P41 | 41min | 2 tasks | 8 files |
 | Phase 15 P42 | 35min | 2 tasks | 3 files |
 | Phase 15 P43 | 35m | 2 tasks | 5 files |
+| Phase 15 P44 | 29min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -685,6 +686,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-43: the announcement gate replaces the completeness test rather than OR-ing with it; the one shape that loses its announcement (record incomplete, folder holds every claimed page) fetches nothing, so trusting it would breach D-G4-01's ceiling
 - [Phase ?]: 15-43: trust is granted at the run's own preparation, after prepareWorkingSeed's D-G7-01 bracket closes, so the granting movement withdraws nothing and later movements withdraw their counted portion
 - [Phase ?]: 15-43: the failed-enumeration companion uses 0o311 and five of six page files, since 0o000 blocks the manifest read and a fully-backed folder routes to .redownload instead of .repair
+- [Phase 15]: schedulableDownloads() is the SHARED READ of three named callers, not an authority the scheduler reads; only the isSchedulableDownload predicate is shared. — The scheduler performs its own queue-scoped read, so widening or narrowing this read does not move it; the false claim had survived five rounds in two files.
+- [Phase 15]: WR-02's post-launch BGTaskScheduler.register timing is answered with a device-verified note, not a code change. — A per-session UUID identifier under the bundle-scoped wildcard makes pre-launch registration structurally impossible, and 15-UAT.md test 1 passed on physical iOS 26 hardware.
 
 ### Pending Todos
 
@@ -733,6 +736,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T15:54:16.439Z
-Stopped at: Completed 15-43-PLAN.md
+Last session: 2026-08-05T16:18:37.321Z
+Stopped at: Completed 15-44-PLAN.md
 Resume file: None
