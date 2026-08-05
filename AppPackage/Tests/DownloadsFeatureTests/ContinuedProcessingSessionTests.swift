@@ -72,8 +72,9 @@ final class ContinuedTaskSchedulingSpy {
     private(set) var cancelledIdentifiers = [String]()
     private var launchHandlers = [String: ContinuedTaskLaunchHandler]()
 
-    /// Refuses exactly one registration, the way `BGTaskScheduler` refuses an identifier its
-    /// `Info.plist` does not permit.
+    /// Refuses exactly one registration, the way the system scheduler refuses an identifier the
+    /// app's `Info.plist` does not permit. The scheduler's own type name stays confined to the
+    /// client module, so it is described rather than spelled here.
     var refusesNextRegistration = false
     /// Thrown by exactly one submission, standing in for whichever refusal the real scheduler
     /// raises — the store treats the type as opaque and only its throwing matters here.
