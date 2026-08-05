@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 32/32 plans executed
+**Plans**: 38 plans (32 executed; 33–38 are gap-closure round 12, pending)
 
 Plans:
 **Wave 1**
@@ -942,6 +942,30 @@ Plans:
 **Wave 32** *(gap closure round 11, review gap G-15-12 — blocked on 15-31: IN-01's note names 15-30's landed refusal shape, and the rename sweep overlaps files every earlier plan touches)*
 
 - [x] 15-32-PLAN.md — Close the six hygiene items: replace resolveSource's dead force-unwrap with the producer's own guard-throw, correct the one authority's false dedupe rationale, write the why-still-reachable note on resumeMode's validate branch, close the log scanner's unclassified-interpolation blind spot RED-first and replace the underived masked-count threshold with a named per-file inventory, rename UncheckedBox to LockedBox target-wide, and add the active-gallery-union coverage with a control assertion — with the 999-line file's headroom disposition recorded and nothing added to it
+
+**Wave 33** *(gap closure round 12, verification gap G-15-13 — blocked on 15-32 by round continuity: it extends the reconciliation 15-30 landed inside the basis suite 15-32 last touched; xcodebuild serialization — invocations must never overlap on this machine)*
+
+- [ ] 15-33-PLAN.md — Give the blanking consumer a positive PER-FILE signal (D-G13-01): classify every per-file probe exit exhaustively (usable / rejected / unprobeable), extend PageFileScan with unprobedPages, refuse to blank any listed-but-unanswerable page while keeping the failed-scan and all-or-nothing guards as the outer lines, correct the refusal-site doc's false per-file-en-masse claim, and pin the N-1 mass-partial case (nothing blanked, written, indexed, or withdrawn) RED-first beside the genuine-partial companion (exactly K blanked) so the fix cannot be satisfied by disabling partial blanking
+
+**Wave 34** *(gap closure round 12, verification gap G-15-14 — blocked on 15-33 by file overlap in DownloadClient+ExecutionSupport.swift and xcodebuild serialization)*
+
+- [ ] 15-34-PLAN.md — Guard both zero-page range sites (pendingPageIndices, initializePageDownloadState) against the trap, reject a zero-page payload at enqueue, and settle a zero-page refetch as a failed download at the fetch boundary (D-G14-01) — covered by a new three-case zero-page suite whose RED step is deliberately replaced by static derivation because a trapping run wedges testmanagerd on this machine
+
+**Wave 35** *(gap closure round 12, verification gap G-15-15 — blocked on 15-34 by xcodebuild serialization; the rewritten docs must describe post-blocker source)*
+
+- [ ] 15-35-PLAN.md — Correct the three contradicted doc premises decide-one each: the nil-client skip states the true drop-not-replay recovery, one canonical non-suspension wording lands at all three suspension-claim sites, and the floor's writer inventory names all five writers including the teardown zero, labeled verified exhaustive by grep — a comment-only diff proven by inspection
+
+**Wave 36** *(gap closure round 12, verification gap G-15-16 — blocked on 15-35 by file overlap in DownloadClient+Manager.swift and xcodebuild serialization)*
+
+- [ ] 15-36-PLAN.md — Drop the pause-record helpers' unproducible throws and unread parameter so the compiler forces the dead catch arms out of commitPause (the wrong exit comment dies with them), decide writeSettledPauseRecord's duplicate mutations from a traced enumeration of the cancelled task's teardown writers, and report a scheduling-release imbalance via reportIssue beside the existing log — pinned by a withKnownIssue canary through a new testing forwarder, RED-first
+
+**Wave 37** *(gap closure round 12, verification gap G-15-18 — blocked on 15-36 by file overlap in Scheduling, Manager, the testing seam, and the convergence suite)*
+
+- [ ] 15-37-PLAN.md — Land the six hygiene items as dispositioned: request identity established before submission with the endSession paragraph rewritten (WR-08), the superseded-arm ensure dropped with the observable generation-check argument written (WR-09), the probe-collapse invariant bound at the cover path (IN-01), the nine session-state vars internal with a testingContinuedSessionTask forwarder and grep-proven boundary (IN-02), the two expiration-after-removal teardowns fixed per recorded decisions (IN-03), and the submission-failure log type-public/value-private with the privacy scan extended over BackgroundProcessingClient, proven RED against the pre-fix line (IN-04)
+
+**Wave 38** *(gap closure round 12, verification gap G-15-17 — blocked on 15-37: the producer cases assert the post-WR-08 ordering, with file overlap on ContinuedProcessingSession.swift)*
+
+- [ ] 15-38-PLAN.md — Give the scheduling spy controllable outcomes (refusesNextRegistration, nextSubmissionError) and an injectable bundle identifier on the internal initializer, execute all three unavailable producers and both nil-launch arms with full release-contract assertions, verify the client's every-endpoint claim, and drive the WR-07 lag staging through testingPauseAllSchedulable asserting the running gallery is among the paused set — the SC2 cancel half as an assertion, not prose
 
 ### Phase 16: Dynamic Type Accessibility
 
