@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-36-PLAN.md
-last_updated: "2026-08-05T08:32:12.856Z"
+stopped_at: Completed 15-37-PLAN.md
+last_updated: "2026-08-05T09:05:26.805Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-36 (G-15-16 pause-path dead exits + assertable release imbalance)
+last_activity_desc: Executed 15-37 (G-15-18 six hygiene items; WR-09's removal disproved and replaced by the gap's second remedy)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 209
-  completed_plans: 207
-  percent: 99
+  completed_plans: 208
+  percent: 100
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 37 of 38
+Plan: 38 of 38
 Status: Ready to execute
-Last activity: 2026-08-05 — Executed 15-36 (G-15-16 pause-path dead exits + assertable release imbalance)
-Next: execute phase 15 plans 15-37..15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning groups G-15-15 and G-15-16 are CLOSED; warning groups G-15-17..G-15-18 remain), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
+Last activity: 2026-08-05 — Executed 15-37 (G-15-18 six hygiene items; WR-09's removal disproved and replaced by the gap's second remedy)
+Next: execute phase 15 plan 15-38 (round-12 gap closure: blockers G-15-13 and G-15-14 are CLOSED and warning groups G-15-15, G-15-16 and G-15-18 are CLOSED — G-15-18 with WR-09 landing as the gap's SECOND authorized remedy, see 15-37-SUMMARY.md Deviation 1; warning group G-15-17 remains), then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included), must run only after G-15-13/G-15-14 land, and closing the gaps does not discharge it
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -263,6 +263,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P34 | 12min | 2 tasks | 5 files |
 | Phase 15 P35 | 22min | 1 tasks | 2 files |
 | Phase 15 P36 | 37min | 2 tasks | 4 files |
+| Phase 15 P37 | 90min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -660,6 +661,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-36: writeSettledPauseRecord is KEPT with a traced reason — its writers are the queue-mobilizing entry points landing inside the unbounded wait, not the cancelled run's teardown
 - [Phase 15]: 15-36: commitPause is non-throwing end to end by compiler enforcement; both pause-record helpers drop throws and the unread download parameter
 - [Phase 15]: 15-36: an unmatched scheduling release is reported via reportIssue with a static identity-free message before the hash-masked log; the guard still returns without mutating
+- [Phase 15]: 15-37: WR-09's dispositioned removal of the superseded-arm ensure was probed and REVERTED — it fails the pinned interleave regression because the mobilizing action's own ensure is swallowed by this pause's scheduling block; the gap's second authorized remedy (observable restatement) landed instead
+- [Phase 15]: 15-37: The log-privacy invariant scans BackgroundProcessingClient under the download client's rules with a per-root known member, no allowlist entry and no exemption; extended before the log fix, it failed RED on the raw error value
+- [Phase 15]: 15-37: The continued-session state is module-internal; testingContinuedSessionTask() is the suites' one route to the session task, both boundary greps empty
 
 ### Pending Todos
 
@@ -708,6 +712,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T08:32:04.638Z
-Stopped at: Completed 15-36-PLAN.md
+Last session: 2026-08-05T09:05:26.795Z
+Stopped at: Completed 15-37-PLAN.md
 Resume file: None
