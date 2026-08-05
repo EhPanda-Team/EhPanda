@@ -63,6 +63,16 @@ public struct SchedulableSnapshot: Equatable, Sendable {
     }
 }
 
+/// One gallery an expiration sweep chose, paired with the ownership the sweep recorded for it in
+/// the same breath as that choice.
+///
+/// A small named value rather than a pair of members, for the same reason as above: an unlabeled
+/// tuple type is banned at error severity here.
+private struct ExpirationPauseTarget {
+    let gid: String
+    let expiration: ExpirationPauseOwnership
+}
+
 // MARK: - Continued Processing Session
 extension DownloadCoordinator {
     /// Sums *this session's* page progress across every gallery the scheduler would run, and reports
@@ -349,19 +359,39 @@ extension DownloadCoordinator {
     /// notification, and a second path would have to re-implement all three in step with it.
     ///
     /// The session must already be marked ended before this runs, because each pause reschedules
-    /// and the reschedule tail reconciles the session. Each gallery's pause is bound to both the
-    /// expiring session and the queue-intent generation current when this loop chose it, so a D-07
-    /// tap that lands across the pause's suspensions advances the intent and makes the stale pause
-    /// abandon its write.
+    /// and the reschedule tail reconciles the session.
+    ///
+    /// **Every target's ownership is captured WITH the gid list, never at that target's own
+    /// iteration (G-15-22).** Each pause is bound to the expiring session and to the queue-intent
+    /// generation that was current when the SWEEP chose its targets, so a D-07 tap landing anywhere
+    /// after that capture — including in the whole stretch before the tapped gallery's iteration is
+    /// reached — advances a generation this loop has already RECORDED. `ownsExpirationPause` then
+    /// fails, the stale pause abandons its write as `.superseded`, and that arm re-converges and
+    /// re-ensures, which is what starts the session the tap asked for. Read at each iteration
+    /// instead, the expectation for a gallery the tap had already moved was the advanced value
+    /// compared against itself: the pause settled over the user's action, the design's own
+    /// compensation never ran, and the tap produced nothing at all.
+    ///
+    /// The capture stretch is synchronous, which is what makes every recorded expectation a pre-tap
+    /// one: `schedulableDownloads()` performs no suspending call today — `queueStore.gids` is a
+    /// synchronous property read and `indexedDownloads(gids:)` awaits nothing — so nothing can
+    /// interleave between that read and the pairs built from it. An `await` introduced there
+    /// reopens exactly this window and needs its own re-validation, which is the note
+    /// `ensureContinuedSession` and `pushContinuedSessionProgress` already record for their own
+    /// guards.
     func pauseAllSchedulable(expiring sessionID: UUID) async {
-        let gids = await schedulableDownloads().map(\.gid)
-        for gid in gids {
-            guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
-            let expiration = ExpirationPauseOwnership(
-                sessionID: sessionID,
-                queueIntentGeneration: queueIntentGeneration(for: gid)
+        let targets = await schedulableDownloads().map { download in
+            ExpirationPauseTarget(
+                gid: download.gid,
+                expiration: ExpirationPauseOwnership(
+                    sessionID: sessionID,
+                    queueIntentGeneration: queueIntentGeneration(for: download.gid)
+                )
             )
-            _ = await pause(gid: gid, expiration: expiration)
+        }
+        for target in targets {
+            guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
+            _ = await pause(gid: target.gid, expiration: target.expiration)
         }
     }
 

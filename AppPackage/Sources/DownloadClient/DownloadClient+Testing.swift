@@ -93,12 +93,10 @@ extension DownloadCoordinator {
     /// The task consuming the live session's event stream — the exact settle point for an
     /// expiration, whose whole policy runs inside that task.
     ///
-    /// Four consumers, all capturing the task BEFORE firing the expiration because the handler
-    /// nils the property on its way through: `DownloadContinuedSessionExpirationTests`'s
-    /// `testConsumingTaskEndsOnItsOwnAfterExpiration` (twice — the capture and the post-settle
-    /// nil check) and its shared `expireSession(of:spy:ensuresSession:)` helper, and
-    /// `DownloadContinuedSessionInterleaveTests`'s
-    /// `testAResumeInsideAStaleExpirationPauseSurvivesAndMobilizesTheQueue`.
+    /// Stated as the rule every consumer obeys rather than as a roster of them, because a roster
+    /// goes stale the next time an interleave case is added: the capture must be taken BEFORE the
+    /// expiration is fired, since the handler nils the property on its way through and a capture
+    /// taken afterwards hands back `nil` with no settle point at all.
     public func testingContinuedSessionTask() -> Task<Void, Never>? {
         continuedSessionTask
     }
