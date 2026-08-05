@@ -5,10 +5,10 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: verifying
-stopped_at: Completed 15-38-PLAN.md
-last_updated: "2026-08-05T10:17:54.070Z"
+stopped_at: Verified phase 15 after round 12 — gaps found
+last_updated: "2026-08-05T11:35:00.000Z"
 last_activity: 2026-08-05
-last_activity_desc: Executed 15-38 (G-15-17 closed: the scheduling double can refuse and throw, every unavailable producer and both nil-launch arms are driven, and WR-07's pause-all is asserted)
+last_activity_desc: Verified phase 15 at HEAD 47d23e1c (round-12 fifth amendment) — all six round-12 gaps CLOSED and all three executor deviations judged correct, but three new gaps recorded: G-15-19 (blocker, SC3) plus G-15-20 and G-15-21 (warnings)
 progress:
   total_phases: 16
   completed_phases: 14
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 Phase: 15 (continued-background-downloads) — VERIFYING
 Plan: 38 of 38
-Status: Phase complete — ready for verification
-Last activity: 2026-08-05 — Executed 15-38 (G-15-17 closed: the scheduling double can refuse and throw, every unavailable producer and both nil-launch arms are driven, and WR-07's pause-all is asserted)
-Next: verify phase 15 (all 38 plans executed; round-12 gap closure complete — blockers G-15-13 and G-15-14 CLOSED, warning groups G-15-15, G-15-16, G-15-17 and G-15-18 CLOSED, G-15-18 with WR-09 landing as the gap's SECOND authorized remedy per 15-37-SUMMARY.md Deviation 1); separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue — that device run is not claimed by any plan (15-33..15-38 included) and closing the gaps does not discharge it
+Status: All 38 plans executed and verified — gaps found, phase NOT complete
+Last activity: 2026-08-05 — Verified phase 15 at HEAD 47d23e1c (fifth amendment, round 12): G-15-13..G-15-18 all CLOSED in source, all three executor deviations (restored `writeSettledPauseRecord`, kept `ensureContinuedSession()` in the `.superseded` arm, asserted the request take-back) judged CORRECT; score 2/4 must-haves
+Next: plan gap-closure round 13 for the three new gaps — G-15-19 (blocker, SC3: `materializeRepairSeed` selects through the collapsed scan and re-probes with the `Bool` forward, so an unprobeable SOURCE page is not copied while the manifest is copied whole and the destination scan reads a positive absence; note the review's suggested fix is WORSE than the defect — refusing the seed falls through to `createDirectory` and destroys all N hashes instead of K), G-15-20 and G-15-21 (warnings; five doc-vs-source contradictions, three of them written by round 12's own doc-correction work, plus hygiene — and `DownloadContinuedSessionBasisTests.swift` is at 996/1000 lines so G-15-19's regression cannot go there). SC2 moved OUT of failed into behaviour-unverified; SC3 moved INTO failed. Separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — not claimed by any plan, not discharged by closing the gaps, and now the ONLY thing between SC2 and verified
 
 Progress: [████████░░] 88% (14/16 phases)
 
