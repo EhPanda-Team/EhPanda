@@ -224,7 +224,7 @@ extension DownloadCoordinator {
         }
         continuedClientSessionID = clientSession.id
         // Merged rather than assigned, for the reason the two collections below give, reaching the
-        // scalar through a different writer. A D-G6-01 withdrawal landing inside the client start's
+        // scalar through a different writer. A D-G7-01 withdrawal landing inside the client start's
         // main-actor hop is a real correction made by THIS session's own scheduled run, and it
         // outranks the pre-hop snapshot, which still counted the pages that correction just blanked.
         // The withdrawal is the scalar's ONLY writer inside that window — a start-window push
@@ -534,18 +534,21 @@ extension DownloadCoordinator {
     /// clamp — is what keeps the count rising across a gallery boundary, by putting those pages
     /// back on both sides.
     ///
-    /// The monotonic floor survives as residual defence only. The accounting basis has exactly one
-    /// deliberate downward mover — D-G5-01's `reconcileWorkingManifestAgainstPageFiles` — and
-    /// **D-G6-01** withdraws that correction's counted portion from the floor at the correction
-    /// site (`DownloadClient+ExecutionSupport.swift`), in the same synchronous stretch that lowers
-    /// the basis. So the one movement this floor still catches is a genuine regression in a
-    /// gallery's own finished count with no coordinator correction behind it — pages disappearing
-    /// from disk between two flushes — which the scheduler would read as a task losing ground, and
-    /// it forcibly expires the tasks that look most stalled first. Masking a movement the
-    /// coordinator itself made is the defect G-15-6 was: the credit for every later page of real
-    /// work is absorbed until the summed numerator climbs back over the pre-correction total. It
-    /// lives here rather than in the client because the client is domain-agnostic: it cannot know
-    /// which movements of these numbers are legal.
+    /// The monotonic floor survives as residual defence only. Deliberate downward movers of the
+    /// accounting basis exist wherever the coordinator rewrites the index record, and enumerating
+    /// them is the recorded four-round failure this doc no longer attempts: G-15-7 was created by a
+    /// written premise naming a single mover while source held at least four. **D-G7-01**
+    /// (`withdrawingCountedBasisMovement`, `DownloadClient+ExecutionSupport.swift`) instead
+    /// withdraws each movement's counted portion at the movement, keyed on the pre/post
+    /// `downloadIndex[gid]` delta, in the same synchronous stretch that lowers the basis. So the one
+    /// movement this floor still catches is a movement with NO coordinator write behind it — a
+    /// genuine regression in a gallery's own finished count, pages disappearing from disk between
+    /// two flushes — which the scheduler would read as a task losing ground, and it forcibly expires
+    /// the tasks that look most stalled first. Masking a movement the coordinator itself made is the
+    /// defect G-15-6 was and G-15-7 kept: the credit for every later page of real work is absorbed
+    /// until the summed numerator climbs back over the pre-movement total. It lives here rather than
+    /// in the client because the client is domain-agnostic: it cannot know which movements of these
+    /// numbers are legal.
     ///
     /// The total clamp exists so the bar and the text can never describe different pairs. A reader
     /// sees both at once, and a bar sitting at full beside text reading "0 / 4 pages" looks like a
