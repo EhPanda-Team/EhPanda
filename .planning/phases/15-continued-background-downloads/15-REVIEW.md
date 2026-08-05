@@ -1,8 +1,8 @@
 ---
 phase: 15-continued-background-downloads
-reviewed: 2026-08-05T00:00:00Z
+reviewed: 2026-08-06T00:00:00Z
 depth: standard
-files_reviewed: 52
+files_reviewed: 54
 files_reviewed_list:
   - App/Info.plist
   - AppPackage/Package.swift
@@ -41,6 +41,7 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionExpirationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionReconciliationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift
@@ -55,433 +56,367 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadRepairSeedSignalPropagationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadStoreRepairTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadStoreTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift
 findings:
-  critical: 2
+  critical: 1
   warning: 5
   info: 0
-  total: 7
+  total: 6
 status: issues_found
 ---
 
 # Phase 15: Code Review Report
 
-**Reviewed:** 2026-08-05
+**Reviewed:** 2026-08-06
 **Depth:** standard
-**Files Reviewed:** 52
+**Files Reviewed:** 54
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the continued-processing session store and its scheduling seam, the download
-coordinator's session accounting (D-G4-01 basis, D-G2-01 ledger, D-G7-01 floor withdrawal),
-the pause/convergence paths, `DownloadStore`'s probe classification, and the phase's test
-suite.
+Re-review after gap-closure round 14 (`5cee098c`..`69dbcc92`, plus `df977ae8`). The four prior
+actionable findings were re-derived against current source and are **closed**:
+
+- **CR-01 (round-13 report), the lazy per-iteration ownership read** — closed.
+  `pauseAllSchedulable` (`DownloadClient+ContinuedSession.swift:395-409`) now builds every
+  `ExpirationPauseTarget` in the same synchronous stretch as the `schedulableDownloads()` read.
+  Re-verified that the stretch really is suspension-free: `queueStore.gids` is a synchronous
+  `Shared` read (`DownloadQueueStore.swift:15-17`), and both `indexedDownloads()` and
+  `indexedDownloads(gids:)` are same-actor `async` functions whose bodies await nothing
+  (`DownloadClient+Persistence.swift:36-57`). The new regression case
+  (`testAMobilizationLandingBeforeItsOwnIterationSurvivesTheExpirationSweep`) is genuinely
+  discriminating: it depends on `.active` sorting ahead of `.queued`, which
+  `DownloadDisplayStatus.sortPriority` (0 vs 1) supplies.
+- **CR-02, the refused-reconciliation zero basis** — closed *for the ordering it was written for*
+  (see CR-01 below for the ordering it is not).
+- **WR-02, lazy `BGTaskScheduler.register`** — closed with the device-verified note at
+  `ContinuedTaskScheduling.swift:66-83`.
+- **WR-03 / WR-04 / WR-05 hygiene** — closed. `restoredIndices` no longer takes a `prefix`; no file
+  under either module ends an extension on a blank line; the trailing comma is gone from
+  `clearSelectedFailedPages`.
 
 Mechanical gates were re-derived rather than trusted:
 
-- **Lint budget.** No file in `Sources/DownloadClient` or `Sources/BackgroundProcessingClient`
-  exceeds the 1000-line error threshold (largest: `DownloadStore.swift` at 808), and
-  `awk 'length($0)>120'` over the changed Swift sources returned nothing.
-  `AppPackage/Sources/BackgroundProcessingClient/.swiftlint.yml` exists and carries
-  `parent_config: ../../../.swiftlint.yml`, per the new-module rule in `CLAUDE.md`.
-- **Localization catalog.** `DownloadClient/Resources/Localizable.xcstrings` has 8 keys, each
-  with all six locales. Parsed the JSON and printed every substitution's plural category set
-  per locale: `continued_session.subtitle` exposes all three numeric arguments as named
-  `%#@…@` substitutions (`completed`/`total`/`galleries`, `argNum` 1/2/3, `lld`), `en` and `de`
-  category sets are identical per variable (`[other]`, `[one, other]`, `[one, other]`), and
-  `ja`/`ko`/`zh-Hans`/`zh-Hant` are `other`-only.
-- **Round 13's new censuses hold.** Independently re-derived by grep: `blockScheduling(` calls
-  are Folders 2 / PublicAPI 1 / Scheduling 1 / Testing 1 = 5 (Manager's occurrence is the
-  declaration, excluded by the scanner); mutations of `lastPushedCompletedPageCount` are
-  ContinuedSession 4 / ExecutionSupport 1 = 5. The hash-masked log inventory pinned by
-  `DownloadLogPrivacyInvariantTests` also matches source exactly (10 total, 3/1/1/2/3).
-  `DownloadSourceInventoryTests`'s scanner correctly excludes declarations and comment lines.
-- **Session store.** `ContinuedProcessingSession`'s identity-before-submit ordering, its
-  adoption/stray gate, its at-most-once `endSession` and its per-request take-back all hold
-  under adversarial tracing; the `.unavailable` arms correctly return a non-nil handle whose
-  stream is already terminal, which the coordinator's consuming task then drains.
+- **Censuses.** All three pinned tables match source exactly, re-derived independently:
+  `blockScheduling(` = Folders 2 / PublicAPI 1 / Scheduling 1 / Testing 1 = 5; floor writers =
+  ContinuedSession 4 / ExecutionSupport 1 = 5; the new `schedulableDownloads()` caller census =
+  ContinuedSession 2 / PendingWork 1 = 3. The hash-masked log inventory also matches (10 total,
+  3/1/1/2/3).
+- **Lint budget.** Largest file in either module is `DownloadClient+ExecutionSupport.swift` at 825
+  lines (limit 1000, error). `awk 'length($0)>120'` over every changed Swift source returns nothing.
+  No `swiftlint:disable` appears anywhere in the phase's files.
+- **Localization.** All 8 keys in `DownloadClient/Resources/Localizable.xcstrings` carry all six
+  locales. `continued_session.subtitle` exposes all three numeric arguments as named `%#@…@`
+  substitutions (`completed`/`total`/`galleries`, `argNum` 1/2/3, `lld`); `en` and `de` category
+  sets are identical per variable; `ja`/`ko`/`zh-Hans`/`zh-Hant` are `other`-only.
+- **Dead public API.** `validPageCount` and `isReadableAssetFile` are gone with no surviving
+  reference anywhere in `App/`, `AppPackage/` or `ShareExtension/`.
 
-The two BLOCKERs below are narrow-branch correctness defects the suite does not reach, and
-both sit next to a written premise that source contradicts — the same generator this phase has
-lost four rounds to. WR-01 is a third instance of that generator, currently without behavioral
-consequence.
+The one BLOCKER below is the same defect family CR-02 closed, reached through a session-ordering the
+fix does not cover: 15-43's proof of page work is recorded **only if a session happens to be live at
+the instant of the run's preparation**, and it is erased by every session teardown. Both docs the
+plan wrote state the rule without that qualification, so this is once more a written premise source
+contradicts — the sixth consecutive round of that generator.
 
 ## Narrative Findings (AI reviewer)
 
 ### Critical Issues
 
-#### CR-01: `pauseAllSchedulable` reads each gallery's queue-intent generation too late, so an expiration pause silently reverts a user action that landed earlier in the same loop
-
-**Classification:** BLOCKER
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:356-366`
-
-**Issue:**
-
-```swift
-func pauseAllSchedulable(expiring sessionID: UUID) async {
-    let gids = await schedulableDownloads().map(\.gid)      // snapshot taken once
-    for gid in gids {
-        guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
-        let expiration = ExpirationPauseOwnership(
-            sessionID: sessionID,
-            queueIntentGeneration: queueIntentGeneration(for: gid)   // read LAZILY, per iteration
-        )
-        _ = await pause(gid: gid, expiration: expiration)
-    }
-}
-```
-
-`ownsExpirationPause` (`DownloadClient+Scheduling.swift:271-278`) compares
-`queueIntentGeneration(for: gid)` against `expiration.queueIntentGeneration`. Because the
-expected generation is read at the top of *that gallery's own iteration*, the comparison can
-only detect a mobilizing tap that lands **during that gallery's pause**. A tap that lands
-after `gids` was computed but before the loop reaches gallery `B` advances `B`'s generation
-*before* the loop reads it; the loop then records the already-advanced value, the comparison
-succeeds, and the stale expiration pauses the gallery the user just mobilized.
-
-Reachability, derived from source:
-
-1. `pauseAllSchedulable` is entered only from `handleContinuedSessionEvent`'s `.expired` arm
-   (`+ContinuedSession.swift:306-308`), which calls `markContinuedSessionEnded` **first**. So
-   `continuedSessionID == nil` for the whole loop and the loop-level session guard passes on
-   every iteration.
-2. `pause(gid:expiration:)` suspends repeatedly per gallery — `fetchDownload`,
-   `writeInitialPauseRecord`'s three awaits, the unbounded `await taskToCancel?.value`,
-   `notifyObservers`, `scheduleNextIfNeeded`. The coordinator is a reentrant actor, so a
-   user-initiated call runs freely inside that window.
-3. Every queue-mobilizing entry point advances the generation and calls
-   `ensureContinuedSession()` only **after** several awaits, so `continuedSessionID` is still
-   `nil` in between. `enqueue(payload:)` is the clearest: `advanceQueueIntentGeneration` at
-   `+PublicAPI.swift:99`, then `await queueStore.enqueue` (100), `await notifyObservers` (101),
-   `await scheduleNextIfNeeded` (102), and only then `await ensureContinuedSession()` (107).
-   The gallery is `.queued` in that window, so `commitPause`'s
-   `[.queued, .active].contains(displayStatus)` guard admits it and the pause completes.
-
-Net effect: the user taps Download on a gallery while the system-expired queue is being paused
-and the gallery is silently removed from the queue again. `ensureContinuedSession` then finds
-no pending work, so no session starts either — the tap produces nothing at all.
-
-The suite does not reach this.
-`DownloadContinuedSessionInterleaveTests.testAResumeInsideAStaleExpirationPauseSurvivesAndMobilizesTheQueue`
-stages a single gallery and lands the retry inside *that gallery's own* cancellation wait —
-precisely the case the lazy read does cover.
-`DownloadContinuedSessionExpirationTests` runs multi-gallery expirations
-(`testExpirationResultIsIndependentOfEnqueueOrder`, 3 galleries) but never mobilizes anything
-mid-loop.
-
-**Fix:** capture every gallery's generation in the same synchronous stretch that captures the
-gid list, so any tap after the expiration is detected regardless of loop position.
-
-```swift
-func pauseAllSchedulable(expiring sessionID: UUID) async {
-    // One read, so a mobilizing tap landing anywhere after the expiration advances a
-    // generation this loop has already RECORDED — not one it is about to read.
-    let ownerships = await schedulableDownloads().map { download in
-        (
-            gid: download.gid,
-            expiration: ExpirationPauseOwnership(
-                sessionID: sessionID,
-                queueIntentGeneration: queueIntentGeneration(for: download.gid)
-            )
-        )
-    }
-    for ownership in ownerships {
-        guard continuedSessionID == nil || continuedSessionID == sessionID else { return }
-        _ = await pause(gid: ownership.gid, expiration: ownership.expiration)
-    }
-}
-```
-
-(The labelled tuple satisfies the project's `labeled_tuple_elements` rule; a small named struct
-is equally fine.) `schedulableDownloads()` does not suspend today — it is a same-actor read of
-`queueStore.gids` plus `indexedDownloads(gids:)` — which is the identical justification
-`ensureContinuedSession` already records for its own guard, so the pair stays consistent.
-
-**What would falsify this:** a production route in which every mobilizing entry point stamps
-`continuedSessionID` *before* it advances the queue-intent generation. Grepping
-`advanceQueueIntentGeneration(for:)` over `Sources/DownloadClient` gives exactly four callers —
-`resume` (`+Scheduling.swift:360`), `performRetry` (`+RetryHelpers.swift:37`),
-`performRetryPages` (`+RetryHelpers.swift:89`) and `enqueue` (`+PublicAPI.swift:99`) — and in
-all four the `ensureContinuedSession()` call is the last statement of the enclosing public
-operation, after the advance and after at least two awaits.
-
----
-
-#### CR-02: a `.repair` whose working-manifest reconciliation is REFUSED reports zero session progress for its whole run, reproducing the terminal `0 / N` card D-G5-01 exists to prevent
+#### CR-01: D-G5-01's page-work trust is session-scoped, so a refused-reconciliation repair still reports zero progress for any session that starts — or restarts — after its preparation
 
 **Classification:** BLOCKER
 
 **Files:**
-- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:389` (announcement gate)
-- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:496-503` (the false written premise)
-- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:530` (the all-or-nothing refusal)
-- `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:126-129` (D-G4-01 basis)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:435-451` (the gated admission)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:228` (session start clears the trust set)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:363` (teardown clears it)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:144-167` (the D-G4-01 basis)
+- `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift:524-533` (the false written premise)
 
-**Issue:** the D-G5-01 doc closes with
-
-> "A genuinely all-pages-vanished repair is no longer reconciled: it falls back to the
-> pre-D-G5-01 arc, where the seed's empty `existingPages` makes the run re-fetch every page and
-> **the record's honesty catches up at flush time**"
-
-The second half is false, and the state the first half describes is exactly what the whole
-session-accounting design treats as a liveness hazard. Traced:
-
-1. A completed gallery loses **every** page file (Files-app deletion, iCloud eviction, an
-   external volume). Its manifest still claims all N hashes, so `manifest.isComplete` is `true`
-   and `isIncomplete` (`completedPageCount < pageCount`) is `false`.
-2. `storage.validate(...)` reports `.missingFiles`, which is what routes such a record to
-   `.repair` — via `resumeMode`'s `storage.validate` branch (`+SchedulingHelpers.swift:62-67`)
-   and via `queuedMode`'s `.error where lastError?.code == .fileOperationFailed` branch
-   (`+SchedulingHelpers.swift:16-20`). `validateImageData(gid:)`
-   (`+PersistenceNormalize.swift:102-107`) is the production writer that puts a
-   complete-reading, all-files-missing record into exactly that `.error(fileOperationFailed)`
-   state.
-3. `shouldReuseWorkingFolder` returns `true` unconditionally for `.repair`
-   (`+ExecutionSupport.swift:586-587`), and `ensureWorkingManifest` finds a valid manifest and
-   returns it verbatim.
-4. `reconcileWorkingManifestAgainstPageFiles` blanks all N claimed pages, then hits
-   `guard blankedPageCount < manifest.completedPageCount else { return manifest }` (line 530).
-   With every file gone, `blankedPageCount == completedPageCount == N`, so the residual guard
-   **refuses** and the manifest comes back complete.
-5. `prepareWorkingSeedAnnouncingProgress` gates its announcement on
-   `!workingSeed.manifest.isComplete` (line 389), which is now `false`, so the run makes **no**
-   basis announcement.
-6. `schedulableSnapshot`'s D-G4-01 basis is
-   `download.isIncomplete || observedIncompleteSessionGIDs.contains(download.gid)`
-   (lines 127-128). The record reads complete, and the trust set is only ever grown from
-   `snapshot.incompleteGalleryIDs` — the only two additive writers are lines 264 and 529, both
-   `formUnion(snapshot.incompleteGalleryIDs)`, verified by grepping every occurrence of
-   `observedIncompleteSessionGIDs` in `Sources/DownloadClient`. So the gallery contributes
-   **0** to the numerator and N to the denominator, for the whole run.
-7. The record never becomes honest at flush time. `flushManifestPageProgress` →
-   `refreshManifestPageFileHashes` (`DownloadStore+Operations.swift:179-208`) only ever assigns
-   `pages[page] = try hashReadableAsset(...)`, a non-empty string, so `completedPageCount`
-   (`pages.values.filter({ !$0.isEmpty }).count`) can only rise or stay. It can never fall to
-   make `isIncomplete` true.
-8. At completion the gallery departs untrusted, so `reconcileRetiredSessionPages` retires
-   `observedSchedulablePages[gid] ?? 0` = 0 (line 512). The drain push then reports
-   `0 / 1 page · 0 galleries` over a full N-page re-download.
-
-That is G-15-5's exact shape — the maximally stalled reading the scheduler force-expires first,
-which D-11 turns into a pause of every schedulable download — surviving inside the branch
-G-15-9's positive-signal defence introduced.
-
-`DownloadContinuedSessionLedgerTests.testARepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull`
-covers K = 1 missing page of 6, where the reconciliation *proceeds* (`1 < 6`). Nothing covers
-K = N, where it refuses. `DownloadRepairSeedSignalPropagationTests` covers the
-unprobeable-vs-absent distinction across the seed copy, not this refusal.
-
-**Fix:** the basis has to follow "this run has real page work over a complete-reading record",
-not "the manifest reads incomplete". The seed already knows: `workingSeed.existingPages` is
-short of the manifest's page count exactly when the folder cannot supply the claimed pages.
-Admit the gid to the trust set there, inside the existing announcement, and delete the
-"catches up at flush time" sentence from the D-G5-01 doc.
+**Issue:** the new admission reads
 
 ```swift
-func prepareWorkingSeedAnnouncingProgress(
-    payload: DownloadRequestPayload,
-    existingDownload: DownloadedGallery,
-    folderURL: URL
-) async throws -> WorkingSeed {
-    let workingSeed = try prepareWorkingSeed(
-        payload: payload,
-        existingDownload: existingDownload,
-        folderURL: folderURL
-    )
-    // The record's own incompleteness is the common case. A REFUSED reconciliation leaves a
-    // complete-reading record over a folder holding none of its claimed pages, and every page
-    // this run downloads would otherwise count as zero session work for its whole life.
-    let hasUnreusablePages = workingSeed.existingPages.count < workingSeed.manifest.pageCount
-    guard let continuedSessionID, !workingSeed.manifest.isComplete || hasUnreusablePages else {
-        return workingSeed
-    }
+let hasRealPageWork = workingSeed.existingPages.count < workingSeed.manifest.pageCount
+if let continuedSessionID, hasRealPageWork {
     observedIncompleteSessionGIDs.insert(payload.gallery.gid)
     await pushContinuedSessionProgress(sessionID: continuedSessionID)
-    return workingSeed
 }
 ```
 
-The explicit `insert` is required *in addition to* the push: the push's `formUnion` is sourced
-from `snapshot.incompleteGalleryIDs`, which by construction cannot contain a complete-reading
-record, so an announcement alone changes nothing on this branch. Add a ledger case at K = N
-(write the fixture's manifest complete and stage **no** page files) asserting the drain reports
-`N / N`, not `0 / 1`.
+The proof — "this run's working folder cannot supply the pages its manifest claims" — is a fact about
+the **run**. It is recorded into `observedIncompleteSessionGIDs`, which is **session-scoped**: cleared
+at `ensureContinuedSession` (line 228) and again at `markContinuedSessionEnded` (line 363). It is also
+recorded only under `if let continuedSessionID`. So the proof is discarded in two ways, and a run whose
+proof was discarded can never regain trust: grepping every occurrence of
+`observedIncompleteSessionGIDs` in `Sources/DownloadClient` gives exactly three writers — the two
+clears, the two `formUnion(snapshot.incompleteGalleryIDs)` at lines 287 and 573, and this insert. The
+`formUnion` pair is sourced from `schedulableSnapshot`'s `Set(downloads.filter(\.isIncomplete)…)`
+(line 165), which by construction cannot contain a complete-reading record.
 
-**What would falsify this:** (a) a production path that lowers `completedPageCount` for a
-repaired record — the only manifest/index writers in the module are
-`reconcileWorkingManifestAgainstPageFiles` (refuses on this branch), `ensureWorkingManifest`
-and `writeInitialManifest` (fresh manifests, not taken for `.repair` with a valid stored
-manifest), `refreshManifestPageFileHash(es)` (monotone, above) and `addingCurrentFileHashes`
-(fills empty hashes only); or (b) proof that no production route can request `.repair` for a
-complete-reading record whose files are all gone — but `resumeMode`'s `storage.validate` branch
-exists precisely to route that state to `.repair`, and its own doc names case (a) "the
-reconciliation REFUSED its destructive half" as one of the two states that still arrive there.
+Two production orderings reach it, both derived from source:
+
+1. **`.unavailable`, then a later tap.** `handleContinuedSessionEvent`'s `.unavailable` arm
+   (`+ContinuedSession.swift:332-337`) calls `markContinuedSessionEnded` and *nothing else* — its own
+   doc says "the queue runs foreground-only". So the in-flight `.repair` keeps running with its trust
+   erased. The next qualifying tap mints session 2, whose start snapshot re-reads the same
+   complete-reading record. The gallery contributes **0** to the numerator and its full `pageCount`
+   to the denominator for the whole of session 2, and departs untrusted, so
+   `reconcileRetiredSessionPages` retires `observedSchedulablePages[gid] ?? 0` = 0 (line 556). This
+   arm is the *expected* one on Simulator and on any scheduler refusal — `ContinuedProcessingSession`
+   yields `.unavailable` from three separate arms (`ContinuedProcessingSession.swift:132`, `:151`,
+   `:182`).
+2. **A run that started before any session existed.** `DownloadClient.live` resumes the persisted
+   queue at launch (`DownloadClient.swift:83-87`: `reconcileDownloads()` then `resumeQueue()`), and
+   D-07 forbids that path from starting a session. A persisted-queue gid whose record reads complete
+   while its files are gone resolves `.repair` through `queuedMode`'s `.queued` →
+   `interruptedWorkMode` branch (`+SchedulingHelpers.swift:30-35`, `:75-79`). Its preparation runs
+   with `continuedSessionID == nil`, so **no insert happens at all**. The next qualifying tap's
+   session then covers a gallery it can never credit.
+
+In both, the outcome is the state G-15-23 was raised for: a session whose numerator sits at or near
+zero over an N-page re-download. That is the maximally stalled reading the scheduler force-expires
+first, and D-11 turns that expiration into a pause of every schedulable download — so the cost is
+liveness, not only honesty. The refusal itself is unchanged and correct; only the accounting is.
+
+The written premises say otherwise, in two places:
+
+- `+ExecutionSupport.swift:369-374`: "**Trust is admitted where the session can OBSERVE
+  incompleteness or PROVE page work.** … Written as that rule rather than as a count of sites,
+  because a count is a number that goes stale the moment a writer is added." Source admits it only
+  where the session can prove page work **and a session is already live at that instant**.
+- `+Manager.swift:524-530`: "Membership is granted where the session can OBSERVE incompleteness or
+  PROVE page work, never at queue time … The second rule exists because the first structurally
+  cannot reach one family." The second rule does not reach that family either, on these orderings.
+
+Neither the two new refusal cases nor anything else in the suite reaches this. Both
+`DownloadContinuedSessionLedgerRefusalTests` cases start their session *before* invoking
+`testingPrepareWorkingSeedAnnouncingProgress`, which is precisely the ordering the fix does cover.
+
+**Fix:** make the proof outlive the session, because the run does. Hold it on the coordinator,
+run-scoped rather than session-scoped, and seed the session's trust set from it:
+
+```swift
+// DownloadClient+Manager.swift
+/// Galleries whose IN-FLIGHT run has proven its working folder cannot supply the pages its
+/// manifest claims.
+///
+/// RUN-scoped, not session-scoped, and that is the whole point: the proof is a fact about the
+/// run, while D-07 lets a session start — or restart after an `.unavailable` teardown — at any
+/// point during it. A session-scoped record discards the only evidence the reconciliation's
+/// refusal family can ever produce, and no later writer can recreate it, because the push-side
+/// admission is sourced from `isIncomplete` and the flush path only moves a record upward.
+var runsProvingPageWork = Set<String>()
+```
+
+```swift
+// DownloadClient+ExecutionSupport.swift
+let hasRealPageWork = workingSeed.existingPages.count < workingSeed.manifest.pageCount
+guard hasRealPageWork else { return workingSeed }
+runsProvingPageWork.insert(payload.gallery.gid)
+guard let continuedSessionID else { return workingSeed }
+observedIncompleteSessionGIDs.insert(payload.gallery.gid)
+await pushContinuedSessionProgress(sessionID: continuedSessionID)
+return workingSeed
+```
+
+```swift
+// DownloadClient+ContinuedSession.swift, inside ensureContinuedSession's synchronous reset
+// A run already in flight carries its own proof; a session starting on top of it inherits that
+// proof rather than starting blind.
+observedIncompleteSessionGIDs = runsProvingPageWork
+```
+
+Retire the entry where the run does — `settleCompletedDownload(gid:)` and `settleDownloadFailure(gid:)`
+already bracket every settled exit, and `processDownload`'s `defer` covers the cancelled one — so the
+set cannot outlive the run and re-credit a later redo. Then correct both doc sentences above to state
+the rule source actually implements, and add two regression cases: (a) prepare the seed with **no**
+live session, then `testingEnsureContinuedSession()`, asserting the first pushed pair credits the
+record's pages rather than zero; (b) drive `.unavailable` through the spy, then start a second
+session, asserting the same.
+
+**What would falsify this:** a production route that makes a complete-reading record honest mid-run.
+The only manifest/index writers in the module are `reconcileWorkingManifestAgainstPageFiles` (refuses
+on this branch, by construction), `ensureWorkingManifest` and `writeInitialManifest` (fresh manifests,
+not taken for `.repair` over a valid stored manifest), `refreshManifestPageFileHash(es)` (assigns only
+non-empty hashes, `DownloadStore+Operations.swift:187-199`, so monotone upward) and
+`addingCurrentFileHashes` (fills empty hashes only). None lowers `completedPageCount`.
 
 ### Warnings
 
-#### WR-01: `schedulableDownloads()`'s "one authority" premise is contradicted by the scheduler, in two doc sites
+#### WR-01: the announcement gate's stated equivalence ignores `payload.pageSelection`, so a `retryPages` run that fetches nothing can still earn trust for its whole record
 
 **Classification:** WARNING
 
 **Files:**
-- `AppPackage/Sources/DownloadClient/DownloadClient+PendingWork.swift:17-41`
-- `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift:387-388`
-- `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:38-53`
+- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:387-397` (the premise)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:796-824` (`pendingPageIndices`)
+- `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionFetch.swift:155-186` (the selection survives `.repair`)
 
-**Issue:** `schedulableDownloads()` is documented as
+**Issue:** the doc justifying the gate reads
 
-> "The one authority for selecting work the scheduler can run. **Scheduling**, the pending-work
-> gate and the continued-session card all select through this function, so queue lifetime and
-> reported counts cannot acquire separate definitions."
+> "`existingPages` is the destination scan's `pages` … and `pendingPageIndices` fetches exactly the
+> pages missing from it, so `existingPages.count < manifest.pageCount` is precisely 'this run has
+> pages to fetch'."
 
-and `+Manager.swift:387` restates it as "the single authority the card, the pending-work gate
-and **the scheduler** all read". Source disagrees. Grepping `schedulableDownloads()` over
-`Sources/DownloadClient` yields exactly three call sites plus the declaration:
-`schedulableSnapshot()` (`+ContinuedSession.swift:122`), `pauseAllSchedulable`
-(`+ContinuedSession.swift:357`) and `hasPendingWork()` (`+PendingWork.swift:14`). The scheduler
-is not among them: `scheduleNextIfNeededCore` (`+Scheduling.swift:38-53`) performs its own
-`indexedDownloads(gids: queuedGIDs)` read and applies `isSchedulableDownload` through
-`nextQueuedDownload` / `nextUnqueuedSchedulableDownload`.
+`pendingPageIndices` does not fetch exactly the pages missing from `existingPages`. It fetches that
+set **intersected with `payload.pageSelection`**:
 
-What is genuinely shared is the *predicate* (`isSchedulableDownload`), not the *read scope*.
-The scheduler's scoped read deliberately does **not** carry the active-gallery union that WR-01
-added to `schedulableDownloads()` (`+PendingWork.swift:45-47`), so the two disagree in exactly
-the state that union was written for. Today the divergence is inert because
-`scheduleNextIfNeededCore` returns at `guard activeTask == nil` whenever an active gallery
-exists, but the invariant as written is false — and this phase's recorded defect generator is
-a later fix reasoning from a census source no longer answers to.
-
-**Fix:** state what is actually shared, and name where the scheduler's own read lives.
-
-```
-/// The read authority for the pending-work gate and the continued-session card.
-///
-/// The scheduler shares the PREDICATE (`isSchedulableDownload`) but not this read:
-/// `scheduleNextIfNeededCore` scopes its own `indexedDownloads(gids:)` to the persisted
-/// queue and does not carry the active-gallery union below. That divergence is inert only
-/// because the scheduler returns at `guard activeTask == nil` whenever an active gallery
-/// exists; anything that changes that guard has to revisit this.
+```swift
+let selectedIndices = payload.pageSelection
+return (1...payload.galleryDetail.pageCount).filter { page in
+    if let selectedIndices, !selectedIndices.contains(page) { return false }
+    ...
+}
 ```
 
-Correct the matching sentence at `+Manager.swift:387-388`, and consider adding a
-`schedulableDownloads()` call-site census to `DownloadSourceInventoryTests` so the claim is
-owned rather than merely corrected.
+and `normalizeFetchedPayload` preserves a non-empty selection for every mode but `.update`
+(`+ExecutionFetch.swift:167-169`), so the selection is live on exactly the `retryPages` → `.repair`
+route this phase treats as canonical (`+RetryHelpers.swift:80-95`).
+
+The gap has behaviour behind it. Take a complete-reading record whose page 4 file is gone while the
+user retries page 2 — reachable because `failedPageErrors` is not cleared by a cache capture
+(`performCacheCapture`, `+PublicAPI.swift:313-351`, refreshes the hash and clears only `lastError`),
+so a page can be offered as failed while its file exists. Then `existingPages.count < pageCount` is
+true, so trust is granted and the record's **full** `completedPageCount` enters the numerator — while
+`pendingPageIndices` is empty and the run downloads nothing. The run then fails at
+`missingFinalizedPageIndices` and departs *trusted*, retiring `record.completedPageCount` into both
+sides of the fraction. That is the over-report D-G4-01's own doc calls "the defect", reached through
+the gate that replaced it.
+
+**Fix:** gate on the work this run will actually do, and state that in the doc instead of the false
+equivalence:
+
+```swift
+// The gate is the run's OWN page work, not the folder's shortfall: `pendingPageIndices` intersects
+// the missing pages with `payload.pageSelection`, so a selected-page retry can leave a folder short
+// of its manifest while fetching nothing at all. Trusting there would retire pages this session
+// never fetched, which is the ceiling D-G4-01 closed.
+let hasRealPageWork = !pendingPageIndices(
+    payload: payload,
+    folderURL: workingSeed.folderURL,
+    existingPageRelativePaths: workingSeed.existingPages
+).isEmpty
+```
+
+`performDownload` already computes exactly that list one line later
+(`+ExecutionPerform.swift:34-38`), so the cleaner shape is to compute it once and hand it to the
+announcement rather than recompute it. Add a ledger case staging a selection that excludes every
+missing page and assert the gallery stays at zero.
 
 ---
 
-#### WR-02: `BGTaskScheduler.register` is called lazily at first session start, not before launch completes
+#### WR-02: both new refusal cases hand-build a selection-free payload while claiming to model the `retryPages` route that sets one
 
 **Classification:** WARNING
 
 **Files:**
-- `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift:66-80`
-- `AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift:141-152`
-- `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift:60-68`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift:103-107`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift:190-207`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift:517-519`
 
-**Issue:** `BGTaskScheduler.shared.register(forTaskWithIdentifier:using:launchHandler:)` is
-invoked only from `ContinuedProcessingSession.start`, which runs on the first qualifying user
-tap — arbitrarily long after `application(_:didFinishLaunchingWithOptions:)` returns. Grepping
-`BGTaskScheduler` across `App/` and `AppPackage/Sources` returns hits in exactly one file
-(`ContinuedTaskScheduling.swift`), so there is no launch-time registration anywhere, and
-`AppDelegate` registers nothing.
+**Issue:** `testAFailedEnumerationRepairOfACompleteReadingRecordStillEarnsSessionTrust` drives the
+production route with `retryPages(gid:pageIndices: [3])` — which stores
+`queuedPageSelections[gid] = [3]` — and then prepares the seed with
+`makeRepairPayload(for:)`, which forwards to `makeStartPayload(for:mode:)` and passes **no**
+`pageSelection` at all. The payload the assertion runs against is therefore not the payload the route
+under test produces, and it is the divergence that hides WR-01: with the real selection threaded
+through, that case's run fetches one page while the announcement credits six.
 
-Apple's documented contract for `register(forTaskWithIdentifier:using:launchHandler:)` is that
-launch handlers are registered before the application finishes launching. The module's docs
-cover identifier uniqueness, handler permanence and Info.plist permission at length but say
-nothing about *when* registration is legal — while the phase did record a comparable open
-question next to it (`App/Info.plist:160-165`: "No Apple source states whether a
-continued-processing submission consults `UIBackgroundModes` … Removing it would need a
-device-verified experiment of its own").
+The file's own header states the opposite discipline: "every push asserted is production-issued: the
+session ensure inside `retryPages`, its convergence pushes, the preparation's own announcement, and
+the drain's." The preparation here is issued by the *suite* through a testing forwarder, over a
+payload the suite built.
 
-This is raised as an unresolved contract question, not an asserted runtime failure: whether a
-post-launch `register` is honoured for `BGContinuedProcessingTask` is not derivable from this
-repository. It matters because the store's design — a fresh UUID identifier minted per session
-— makes pre-launch registration structurally impossible, so the exemption is load-bearing for
-the entire design.
-
-**Fix:** record a device-verified note beside `ContinuedTaskScheduling.live.register`, in the
-same shape as the Info.plist note, stating that post-launch registration is accepted for
-wildcard-permitted continued-processing identifiers and how that was verified. **What would
-falsify the concern:** an Apple statement that continued-processing identifiers are exempt from
-the pre-launch registration rule — in which case that statement is exactly what the comment
-should cite.
+**Fix:** build the payload from the same inputs the route stores — thread the selection through
+`makeStartPayload` (add a `pageSelection: Set<Int>? = nil` parameter) and pass `[3]` in the
+failed-enumeration case and `Set(1...6)` in the all-pages-gone case — or, better, let the production
+run reach the preparation instead of forwarding to it, so the choreography is production's rather
+than the suite's.
 
 ---
 
-#### WR-03: `restoredIndices` computes a `prefix` that is always the whole array
-
-**Classification:** WARNING
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PageDownload.swift:42-46`
-
-**Issue:**
-
-```swift
-let restoredIndices = Set(
-    progress.results
-        .prefix(progress.completedCount)
-        .map(\.index)
-)
-```
-
-`progress.completedCount` is assigned `progress.results.count` at line 97 inside
-`initializePageDownloadState`, immediately before this runs, with no other writer in between
-(the only other mutation, `progress.completedCount += 1` at line 254, happens later inside
-`applyPageTaskOutcome`). The `prefix` therefore always returns the entire array. It reads as a
-deliberate bound and is not one, which invites a future reader to preserve a relationship that
-does not exist.
-
-**Fix:**
-
-```swift
-let restoredIndices = Set(progress.results.map(\.index))
-```
-
----
-
-#### WR-04: stray trailing blank line before the closing brace of two extensions
+#### WR-03: the retired "one authority for selecting work the scheduler can run" sentence survives in the test suite, in a place the new census cannot see
 
 **Classification:** WARNING
 
 **Files:**
-- `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift:625`
-- `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift:370`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift:257`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadPendingWorkTests.swift:26`
+- `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:36, 231-236`
 
-**Issue:** both files end their `extension DownloadCoordinator` block with an empty line between
-the last member's `}` and the extension's `}`. The project config does not catch it
-(`vertical_whitespace_closing_braces` is opt-in and is not listed in the root
-`.swiftlint.yml`), and no other file in the module does this — it is residue from the
-round-by-round edits rather than a formatting choice.
+**Issue:** plan 15-44 corrected the false single-authority claim in `+PendingWork.swift` and
+`+Manager.swift`, and pinned the caller census so it cannot rot again. The sentence itself survives
+verbatim one directory over:
 
-**Fix:** delete the blank line in both files.
+> `schedulableDownloads()` is the one authority for selecting work the scheduler can run, but it
+> scoped its index read by queue-store membership alone…
+
+Source disagrees for the same reason it disagreed in the two corrected files:
+`scheduleNextIfNeededCore` (`+Scheduling.swift:38-53`) performs its own `indexedDownloads(gids:)`
+read and never calls `schedulableDownloads()`. `DownloadPendingWorkTests.swift:26` echoes the same
+retired term ("The one authority's active-gallery union").
+
+The new guard cannot catch either: `DownloadSourceInventoryTests` scopes its walk to
+`AppPackage/Sources/DownloadClient` (line 36) and its `executableLines` filter drops every line
+beginning `//` (lines 231-236), which is deliberate and correct for a *call* census but leaves prose
+anywhere unowned. Given this phase's recorded generator — a later fix reasoning from a census source
+no longer answers to — leaving the corrected sentence alive in the suite that documents the same
+invariant is the exact rot path 15-44 set out to close.
+
+**Fix:** rewrite both test doc comments to the shape 15-44 landed in `+PendingWork.swift:17-41` — the
+read authority for the pending-work gate, the session snapshot and the expiration sweep, with the
+scheduler sharing the *predicate* and not the read. If the claim is to be owned rather than merely
+corrected a third time, widen `DownloadSourceInventoryTests.clientModuleDirectory` into a list that
+also covers `AppPackage/Tests/DownloadsFeatureTests`, and add a prose assertion that the retired
+phrase appears nowhere (assembled from fragments, like every other token in that file).
 
 ---
 
-#### WR-05: unintended trailing comma in a parameter list
+#### WR-04: `PageDownloadProgress.completedCount` became dead state when 15-45 removed its last reader
 
 **Classification:** WARNING
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPIHelpers.swift:54-57`
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+PageDownload.swift:12, 93-94, 250`
 
-**Issue:**
+**Issue:** `.prefix(progress.completedCount)` was the only consumer of this counter. With it gone,
+grepping `completedCount` over `Sources/DownloadClient` returns exactly four lines: the declaration,
+the assignment `progress.completedCount = progress.results.count`, the guard
+`progress.completedCount > 0`, and `progress.completedCount += 1` inside `applyPageTaskOutcome`.
+Nothing reads the incremented value — the `+= 1` at line 250 is a pure dead write, and the guard is a
+restatement of `progress.results.isEmpty == false`. The 15-45 hygiene plan removed the misleading
+`prefix` and left behind the state that made it misleading, which reads to the next maintainer as a
+live progress counter that page completion maintains.
+
+**Fix:** delete the property and its increment, and phrase the guard on what it actually tests:
 
 ```swift
-public func clearSelectedFailedPages(
-    gid: String,
-    selectedPageIndices: [Int],
-) {
+collectExistingPages(...)
+guard !progress.results.isEmpty else { return }
+try flushManifestPageProgress(folderURL: context.folderURL, pages: progress.results)
 ```
-
-Swift accepts the trailing comma, so this compiles and lints clean, but it is the only
-occurrence in `Sources/DownloadClient` and reads as an unfinished edit rather than a style
-decision.
-
-**Fix:** remove the trailing comma after `selectedPageIndices: [Int]`.
 
 ---
 
-_Reviewed: 2026-08-05_
+#### WR-05: the client spy records an in-flight progress update no assertion can read
+
+**Classification:** WARNING
+
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift:168, 313, 326`
+
+**Issue:** `State.inFlightProgressUpdate` is set before the progress gate parks and cleared after it
+releases, but the spy exposes no accessor for it and no suite reads it — three occurrences total, all
+of them writes or the declaration. `armProgressGate`'s doc says the call "records its complete
+argument set before signaling `entered`", which is what this field is for; with no reader, a case that
+parks on the gate cannot in fact inspect the parked arguments, and the only observable effect of the
+field is that it exists.
+
+**Fix:** either expose it (`var inFlightProgressUpdate: ProgressUpdate? { state.withLock({ $0.inFlightProgressUpdate }) }`)
+and assert on it in the drain-race case that already arms the gate, or delete the field and the two
+writes and drop the "records its complete argument set" clause from the gate's doc.
+
+---
+
+_Reviewed: 2026-08-06_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
