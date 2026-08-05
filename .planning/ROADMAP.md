@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 26/26 | In Progress|  |
+| 15. Continued Background Downloads | 27/32 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 26/32 plans executed
+**Plans**: 27/32 plans executed
 
 Plans:
 **Wave 1**
@@ -921,7 +921,7 @@ Plans:
 
 **Wave 27** *(gap closure round 11, review gap G-15-10 — blocked on 15-26 by xcodebuild serialization; test-double fidelity lands before the regressions that lean on it)*
 
-- [ ] 15-27-PLAN.md — Split the session spy's refusal guard so the one-shot refusal arm is consumed only by the refusal it causes (a live-session guard refusal leaves the arm held), audit every refuseNextStart caller against the changed rule, and pin the armed-refusal-versus-overlapping-start race with a case observed failing first
+- [x] 15-27-PLAN.md — Split the session spy's refusal guard so the one-shot refusal arm is consumed only by the refusal it causes (a live-session guard refusal leaves the arm held), audit every refuseNextStart caller against the changed rule, and pin the armed-refusal-versus-overlapping-start race with a case observed failing first
 
 **Wave 28** *(gap closure round 11, review gap G-15-11 — blocked on 15-27 by xcodebuild serialization; also restores the 999-line file's headroom every later plan needs)*
 
