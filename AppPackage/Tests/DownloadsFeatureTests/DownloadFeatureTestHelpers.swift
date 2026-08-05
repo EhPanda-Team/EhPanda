@@ -453,12 +453,21 @@ extension DownloadFeatureTestCase {
         )
     }
 
-    /// The payload a repair run carries for a fixture gallery, matching the folder the fixture
+    /// The payload a run of `mode` carries for a fixture gallery, matching the folder the fixture
     /// staged so the working-seed preparation resolves it.
     ///
     /// Modelled on `DownloadCoordinatorRepairSeedTests.makeRepairSeedPayload`, at the fixture's page
     /// count and title rather than that suite's.
-    func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
+    ///
+    /// `pageCountOverride` moves only the payload's *gallery-detail* page count, which is the value
+    /// `ensureWorkingManifest` validates the stored manifest against and the value a fresh manifest
+    /// is built at. Overriding it is how a case stages the upstream-page-count change that makes
+    /// `validatedManifest` return nil without deleting anything.
+    func makeStartPayload(
+        for gallery: SessionGallery,
+        mode: DownloadStartMode,
+        pageCountOverride: Int? = nil
+    ) -> DownloadRequestPayload {
         DownloadRequestPayload(
             gallery: Gallery(
                 gid: gallery.gid, token: "token", title: gallery.title,
@@ -474,12 +483,17 @@ extension DownloadFeatureTestCase {
                 category: .doujinshi, language: .japanese,
                 uploader: "Uploader", postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                favoritedCount: 0, pageCount: gallery.pageCount,
+                favoritedCount: 0, pageCount: pageCountOverride ?? gallery.pageCount,
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, folderName: "Folder", mode: .repair
+            host: .ehentai, folderName: "Folder", mode: mode
         )
+    }
+
+    /// The `.repair` payload, spelled at every existing call site exactly as before.
+    func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
+        makeStartPayload(for: gallery, mode: .repair)
     }
 
     /// Every push but the last is strictly below its own total, and the last is exactly equal.

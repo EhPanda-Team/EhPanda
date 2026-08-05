@@ -411,12 +411,14 @@ public actor DownloadCoordinator {
     ///
     /// Four writers, and no others: `ensureContinuedSession`'s synchronous reset to zero, that same
     /// function's additive seed merge once the client start returns, the re-latch at the end of
-    /// every accepted push, and the **D-G6-01** withdrawal inside
-    /// `reconcileWorkingManifestAgainstPageFiles`, which gives back exactly the portion of a
-    /// coordinator-made basis correction the numerator was actually counting. The floor's own
-    /// premise (why a deliberate correction must be excused rather than masked) is written on
-    /// `pushContinuedSessionProgress`, and the withdrawal's exact-portion rule on the reconciliation
-    /// itself.
+    /// every accepted push, and the **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`,
+    /// which gives back exactly the portion of a deliberate basis movement the numerator was
+    /// actually counting. That bracket has two call sites — `prepareWorkingSeed`'s whole preparation
+    /// and `writeInitialManifest`'s body, both in `DownloadClient+ExecutionSupport.swift` and
+    /// `DownloadClient+PublicAPI.swift` respectively — but one implementation, so the fourth writer
+    /// is one rule rather than a list of mechanisms. The floor's own premise (why a deliberate
+    /// movement must be excused rather than masked) is written on `pushContinuedSessionProgress`,
+    /// and the withdrawal's exact-portion rule on the bracket itself.
     ///
     /// One deliberate transient: inside the client start's main-actor hop this value can read
     /// NEGATIVE. The reset has already run, so a withdrawal landing in that window leaves "zero

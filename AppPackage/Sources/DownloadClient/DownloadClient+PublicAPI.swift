@@ -110,22 +110,33 @@ extension DownloadCoordinator {
         }
     }
 
+    /// The enqueue route's own deliberate mover of the session accounting basis, wrapped in the same
+    /// D-G7-01 bracket the run route's preparation uses.
+    ///
+    /// The fresh branch replaces a record that may already be counted — an unreadable manifest, or
+    /// one whose page keys no longer match the payload's page count, at enqueue or at any retry that
+    /// re-enqueues — so it moves the very quantity the numerator is summed from. One shared bracket
+    /// rather than a second withdrawal here is what stops the rule from forking between the two
+    /// routes; the reusable branch re-indexes the same manifest, so its delta is zero and it
+    /// withdraws nothing without needing a branch of its own.
     private func writeInitialManifest(
         payload: DownloadRequestPayload,
         folderRelativePath: String
     ) throws {
-        let folderURL = storage.folderURL(relativePath: folderRelativePath)
-        try createDirectory(at: folderURL)
-        if let existingManifest = reusableExistingManifest(
-            payload: payload,
-            folderURL: folderURL
-        ) {
-            updateDownloadIndex(folderURL: folderURL, manifest: existingManifest)
-            return
+        try withdrawingCountedBasisMovement(gid: payload.gallery.gid) {
+            let folderURL = storage.folderURL(relativePath: folderRelativePath)
+            try createDirectory(at: folderURL)
+            if let existingManifest = reusableExistingManifest(
+                payload: payload,
+                folderURL: folderURL
+            ) {
+                updateDownloadIndex(folderURL: folderURL, manifest: existingManifest)
+                return
+            }
+            let manifest = makeInitialManifest(payload: payload)
+            try storage.writeManifest(manifest, folderURL: folderURL)
+            updateDownloadIndex(folderURL: folderURL, manifest: manifest)
         }
-        let manifest = makeInitialManifest(payload: payload)
-        try storage.writeManifest(manifest, folderURL: folderURL)
-        updateDownloadIndex(folderURL: folderURL, manifest: manifest)
     }
 
     private func reusableExistingManifest(
