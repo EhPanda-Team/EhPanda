@@ -268,25 +268,6 @@ extension DownloadStore {
         return .valid
     }
 
-    public func validPageCount(folderURL: URL, manifest: DownloadManifest) -> Int {
-        let existingPages = existingPageRelativePaths(
-            folderURL: folderURL,
-            manifest: manifest
-        )
-        return manifest.pages.keys.reduce(into: 0) { count, page in
-            guard let relativePath = existingPages[page],
-                  let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath)
-            else { return }
-            if sanitizeAssetFileIfNeeded(at: pageURL) {
-                count += 1
-            }
-        }
-    }
-
-    public func isReadableAssetFile(at url: URL) -> Bool {
-        sanitizeAssetFileIfNeeded(at: url)
-    }
-
     private func hashReadableAsset(
         folderURL: URL,
         relativePath: String,
