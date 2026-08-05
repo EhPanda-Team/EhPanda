@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-29-PLAN.md
-last_updated: "2026-08-05T00:53:43.755Z"
+stopped_at: Completed 15-30-PLAN.md
+last_updated: "2026-08-05T01:28:02.565Z"
 last_activity: 2026-08-05
-last_activity_desc: Completed 15-29 (G-15-7 closed)
+last_activity_desc: Completed 15-30 (G-15-9 closed)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 203
-  completed_plans: 200
+  completed_plans: 201
   percent: 99
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 30 of 32
-Status: Executing Phase 15 (gap-closure round 11)
-Last activity: 2026-08-05 — Completed 15-29 (G-15-7 closed)
-Next: /gsd-execute-phase 15 (plans 15-30..15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7 is closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29 and closing G-15-7 does not discharge it
+Plan: 31 of 32
+Status: Ready to execute
+Last activity: 2026-08-05 — Completed 15-30 (G-15-9 closed)
+Next: /gsd-execute-phase 15 (plans 15-31..15-32) — then re-verify; separately and independently, 15-UAT.md test 2 STILL needs a physical-device re-run on iOS 26 now that G-15-7 and G-15-9 are closed in code, covering the `.redownload` route as well as a `.repair` gallery in a multi-gallery queue; that device run is not claimed by 15-29 or 15-30, and closing those gaps does not discharge it
 
 Progress: [██████████] 99% (14/16 phases)
 
@@ -256,6 +256,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P27 | 26min | 1 tasks | 2 files |
 | Phase 15 P28 | 9min | 2 tasks | 13 files |
 | Phase 15 P29 | 70min | 2 tasks | 6 files |
+| Phase 15 P30 | 55min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -633,6 +634,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 15-29: the basis withdrawal is keyed on the pre/post downloadIndex[gid] delta (D-G7-01), never on a named mechanism — one non-async bracket wrapping prepareWorkingSeed's whole preparation and writeInitialManifest's body
 - [Phase ?]: 15-29: an absent after-reading defaults to the before-count, so a record that vanished during a movement withdraws nothing — departures stay the retirement ledger's alone
 - [Phase ?]: 15-29: the bracket is module-internal because writeInitialManifest lives in another file; one implementation stops the rule forking between the run route and the enqueue route
+- [Phase ?]: 15-30: Enumeration failure is surfaced as an optional from existingAssetFileURLs; ~10 non-destructive probe callers keep their [] fallback through existingPageRelativePaths, now a pages-only forward to pageFileScan.
+- [Phase ?]: 15-30: The wholesale-blank refusal is blankedPageCount < manifest.completedPageCount — only claimed pages are blanked, so equality means every claimed page would go: the signature of per-file probe failure en masse, not proof of loss.
+- [Phase ?]: 15-30: An all-pages-vanished repair deliberately falls back to the pre-D-G5-01 arc (empty existingPages makes the run re-fetch; honesty catches up at flush time), accepted against letting one transient enumeration failure destroy every recorded hash.
 
 ### Pending Todos
 
@@ -681,6 +685,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-05T00:53:43.745Z
-Stopped at: Completed 15-29-PLAN.md
+Last session: 2026-08-05T01:28:02.555Z
+Stopped at: Completed 15-30-PLAN.md
 Resume file: None
