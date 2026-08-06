@@ -84,6 +84,13 @@ final class RequestRecorder: Sendable {
 /// at least once before it records. A double that is atomic where the seam suspends certifies
 /// reentrancy races as impossible, which is how a drain suite can be green against a tail that
 /// interleaves in production.
+///
+/// That timing rule is no longer stated here and honoured only here, which is how the sibling
+/// `.unavailable` double came to ship atomic one file over (G-15-32).
+/// `DownloadSourceInventoryTests` now owns it in two halves: one counts the suspension points of
+/// every hand-built double at this seam, so a closure that stops yielding fails a build, and one
+/// counts the doubles themselves, so a NEW hand-built double cannot appear atomic in a file no
+/// table has heard of. The reasoning stays here; the enforcement is there.
 final class BackgroundProcessingClientSpy: Sendable {
     /// One `updateProgress` call. A named record rather than a tuple: an unlabeled tuple type is
     /// banned at error severity here, and `.0`/`.1` reads carry no meaning at an assertion site.
