@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 49/49 | In Progress|  |
+| 15. Continued Background Downloads | 50/53 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,9 +812,15 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 49/53 plans executed — 15-50..15-53 planned (round 17) to close G-15-30 (blocker), G-15-31, G-15-32 and G-15-33; waves 50-53 run strictly in order
+**Plans**: 50/53 plans executed
 
 Plans:
+
+- [x] 15-50-PLAN.md
+- [ ] 15-51-PLAN.md
+- [ ] 15-52-PLAN.md
+- [ ] 15-53-PLAN.md
+
 **Wave 1**
 
 - [x] 15-01-PLAN.md — Info.plist continued-processing identifier + AppFeature discretionary-path deletion
