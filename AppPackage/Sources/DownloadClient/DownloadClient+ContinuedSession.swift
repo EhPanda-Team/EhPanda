@@ -644,19 +644,35 @@ extension DownloadCoordinator {
     /// rather than from observed membership, would have to distinguish work this session actually
     /// reported from work it never saw.
     ///
-    /// **The record's authority is earned, not assumed (D-G4-01).** It is authoritative about the
-    /// *manifest*; only for a gallery this session has already trusted — observed incomplete, or
-    /// proven page work for at the run's own preparation — is it also authoritative about this
-    /// session's work. A redo that never ran — a complete manifest queued
-    /// for an update and then cancelled — would otherwise retire pages the session never downloaded
-    /// into both sides of the fraction and report a finished session. So a departed gallery outside
-    /// `observedIncompleteSessionGIDs` retires its last observation instead, which the same rule
-    /// made zero while it was present.
+    /// **The record's authority is earned AND bounded (D-G4-01, G-15-30).** It is authoritative
+    /// about the *manifest*, and about nothing else. Trust decides whether it speaks for this
+    /// session at all: only for a gallery this session has already trusted — observed incomplete, or
+    /// proven page work for at the run's own preparation — is a surviving record consulted, and a
+    /// departed gallery outside `observedIncompleteSessionGIDs` retires its last observation
+    /// instead, which the same rule made zero while it was present. A redo that never ran — a
+    /// complete manifest queued for an update and then cancelled — would otherwise retire pages the
+    /// session never downloaded into both sides of the fraction and report a finished session.
     ///
-    /// This is not a departure-reason branch. The formula still takes no reason parameter, no call
+    /// What the record is authoritative FOR is the manifest's finished-page count. What corrects it
+    /// is the pages the gallery's run still OWES: `sessionCreditedPages` subtracts them, and a
+    /// departure retires exactly that corrected number rather than the count itself. Trust alone was
+    /// not enough, because for the refusal family the two quantities are opposites — the
+    /// reconciliation hands the manifest back verbatim, so the record reads N-of-N for the entire
+    /// re-download while the run has fetched a fraction of N. Retiring N there put the run's UNDONE
+    /// work into both sides of the fraction, and when the departing gallery was the session's last
+    /// the drain branch reported a paused or expiration-swept repair as a fully successful N-page
+    /// completion.
+    ///
+    /// This is still not a departure-reason branch. The formula takes no reason parameter, no call
     /// site classifies why a gallery left, and completion, pause, delete, cancel and expiration are
     /// treated identically; the gate reads only what this session observed while the gallery was
-    /// there.
+    /// there, and the correction reads only what that gallery's run had left to do.
+    ///
+    /// Departures are also detected on either side of a run's own exit, and both sides retire the
+    /// same number by construction: `freezeSessionCreditForRetiringRun` publishes the run's final
+    /// corrected basis as this session's last observation before the run's proof is withdrawn, so
+    /// the last-observation branch below reads what the trusted branch would have computed. That
+    /// derivation lives on the freeze itself.
     ///
     /// Accepted residual: a never-trusted redo that starts *and* finishes entirely between two
     /// observations retires at its observed basis of zero. That is the unobserved-work convention
@@ -672,7 +688,10 @@ extension DownloadCoordinator {
         let departedGIDs = observedSchedulablePages.keys.filter({ finishedPages[$0] == nil })
         if !departedGIDs.isEmpty {
             // The record is authoritative where the last observation is merely recent: reading it
-            // is what makes a gallery that completed between two pushes retire its full page count.
+            // is what makes a gallery that completed between two pushes retire the pages it
+            // finished in that window rather than the stale value the last push saw. What it
+            // retires is that record corrected by the run's outstanding page debt, which for a run
+            // that really did finish is zero — so a completion still retires its whole count.
             let departedRecords = await indexedDownloads(gids: departedGIDs)
                 .reduce(into: [String: DownloadedGallery]()) { records, download in
                     records[download.gid] = download
