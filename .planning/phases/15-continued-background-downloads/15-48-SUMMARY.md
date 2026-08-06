@@ -475,3 +475,7 @@ None.
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-08-06*
+
+## Self-Check: PASSED
+
+All 9 source and test files present on disk; all 4 commits (`4acc408b`, `8d769b40`, `51fba0ad`, `d381f366`) present in git history. No absolute home path in this document.
