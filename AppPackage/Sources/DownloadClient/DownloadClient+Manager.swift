@@ -136,6 +136,30 @@ public actor DownloadCoordinator {
         }
     }
 
+    /// The working seed a run starts from, paired with the pages that run will actually fetch.
+    ///
+    /// One value rather than two returns, because the two halves must be derived ONCE and travel
+    /// together. `prepareWorkingSeedAnnouncingProgress` gates its trust admission on the pending
+    /// list being non-empty and `performDownload` feeds the very same list to the page loop, so a
+    /// second evaluation at the caller is precisely the shape that lets a later fix move one and not
+    /// the other — granting trust for a set the loop never fetches (G-15-27). The count of
+    /// evaluations is pinned by `DownloadSourceInventoryTests`, not left to review.
+    ///
+    /// A named struct rather than a labelled tuple: it crosses a public testing forwarder, and this
+    /// module's `labeled_tuple_elements` lint rule bans a multi-element tuple type in a return
+    /// position outright. It sits beside `WorkingSeed` because it is that value plus one field.
+    public struct PreparedWorkingRun: Sendable {
+        public let workingSeed: WorkingSeed
+        public let pendingPageIndices: [Int]
+        public init(
+            workingSeed: WorkingSeed,
+            pendingPageIndices: [Int]
+        ) {
+            self.workingSeed = workingSeed
+            self.pendingPageIndices = pendingPageIndices
+        }
+    }
+
     public enum ResolvedSource: Sendable {
         case normal([Int: URL])
         case mpv(key: String, imageKeys: [Int: String])
@@ -523,8 +547,10 @@ public actor DownloadCoordinator {
     ///
     /// Membership is granted where the session can OBSERVE incompleteness or PROVE page work, never
     /// at queue time: the snapshot-sourced merges below, and the run's own working-seed announcement
-    /// (`prepareWorkingSeedAnnouncingProgress`), which admits a gallery whose working folder cannot
-    /// supply the pages its manifest claims. The second rule exists because the first structurally
+    /// (`prepareWorkingSeedAnnouncingProgress`), which admits a gallery whose own run still has
+    /// pages left to fetch — its pending page list, the very list its page loop is fed, rather than
+    /// its folder's shortfall against its manifest, which over-admits a selected-page retry whose
+    /// selected pages are all present (G-15-27). The second rule exists because the first structurally
     /// cannot reach one family — a reconciliation that REFUSES its destructive half hands the
     /// manifest back verbatim, so a repair of a complete-reading record has no incompleteness for a
     /// snapshot to see, and the flush path only ever moves a record upward (G-15-23).

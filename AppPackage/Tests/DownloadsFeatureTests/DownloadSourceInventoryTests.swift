@@ -46,6 +46,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulingBlockCallToken: String { "block" + "Scheduling(" }
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
+    private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
     private static var declarationPrefix: String { "func" + " " }
     private static var storedDeclarationPrefix: String { "var" + " " }
     private static var mutationOperators: [String] { ["=", "+=", "-=", "*=", "/="] }
@@ -114,6 +115,26 @@ struct DownloadSourceInventoryTests {
 
     /// The read table's sum, asserted the same way and for the same reason.
     private static let expectedSchedulableReadCallTotal = 3
+
+    /// Every evaluation of the run's pending page list, named per file.
+    ///
+    /// This is the inventory `prepareWorkingSeedAnnouncingProgress`'s doc reasons from, and it is
+    /// the one census whose expected value is a rule rather than a tally: the list must be derived
+    /// EXACTLY ONCE per run, inside the preparation, and handed to `performDownload` for the page
+    /// loop. Two evaluations is how G-15-27 could recur — the announcement's gate and the loop would
+    /// each hold their own answer, and a later fix moving one and not the other grants trust for
+    /// work the loop never does (T-15-47-03). `performDownload` held the second evaluation until
+    /// this round; nothing failed when it did.
+    ///
+    /// Derived from source rather than copied. The declaration is excluded, as are doc-comment
+    /// mentions and the `pendingPageIndices:` argument labels the page loop is threaded through,
+    /// which carry a colon rather than a paren — the count is of calls.
+    private static let expectedPendingPageIndicesCallSites = [
+        "DownloadClient+ExecutionSupport.swift": 1
+    ]
+
+    /// The pending-list table's sum, asserted the same way and for the same reason.
+    private static let expectedPendingPageIndicesCallTotal = 1
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -195,6 +216,35 @@ struct DownloadSourceInventoryTests {
         #expect(
             Self.callSiteCount(of: Self.schedulableReadToken, in: joined)
                 == Self.expectedSchedulableReadCallTotal
+        )
+    }
+
+    @Test
+    func testPendingPageListEvaluationsMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        var callSites = [String: Int]()
+        for file in files {
+            let count = Self.callSiteCount(of: Self.pendingPageListToken, in: file.contents)
+            guard count > 0 else { continue }
+            callSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            callSites == Self.expectedPendingPageIndicesCallSites,
+            """
+            The pending-page-list census moved. A run derives that list exactly once, inside \
+            prepareWorkingSeedAnnouncingProgress, and hands it to performDownload; a second \
+            evaluation lets the announcement's gate and the page loop disagree about what this run \
+            will fetch. Re-derive who evaluates it and why before updating this table.
+            """
+        )
+
+        let joined = files.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.pendingPageListToken, in: joined)
+                == Self.expectedPendingPageIndicesCallTotal
         )
     }
 }

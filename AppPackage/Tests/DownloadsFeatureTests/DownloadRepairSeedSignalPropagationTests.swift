@@ -155,7 +155,7 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
             payload: payload,
             existingDownload: stagedDownload,
             folderURL: destinationFolderURL
-        )
+        ).workingSeed
 
         // Nothing re-indexed: the record the card sums from is where the fixture left it.
         #expect(await manager.fetchDownload(gid: laundered.gid)?.completedPageCount == 4)
@@ -253,7 +253,7 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
             payload: payload,
             existingDownload: stagedDownload,
             folderURL: destinationFolderURL
-        )
+        ).workingSeed
 
         // Exactly the two lost pages, and only them: the record the card sums from moved by two.
         #expect(await manager.fetchDownload(gid: lost.gid)?.completedPageCount == 2)

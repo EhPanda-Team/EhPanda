@@ -138,11 +138,15 @@ extension DownloadCoordinator {
 
     /// Forwards to `prepareWorkingSeedAnnouncingProgress(payload:existingDownload:folderURL:)`, the
     /// redo path's pre-page-work preparation and basis announcement.
+    ///
+    /// It returns the whole prepared run rather than only the seed, because the run's pending page
+    /// list is what the announcement is gated on: a forwarder that dropped it would let a suite
+    /// assert over the seed while the decision it cares about stayed invisible.
     public func testingPrepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
         folderURL: URL
-    ) async throws -> WorkingSeed {
+    ) async throws -> PreparedWorkingRun {
         try await prepareWorkingSeedAnnouncingProgress(
             payload: payload,
             existingDownload: existingDownload,

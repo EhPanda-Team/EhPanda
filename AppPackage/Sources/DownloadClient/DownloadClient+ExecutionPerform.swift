@@ -26,15 +26,14 @@ extension DownloadCoordinator {
         let workingFolderURL = storage.folderURL(
             relativePath: folderRelativePath
         )
-        let workingSeed = try await prepareWorkingSeedAnnouncingProgress(
+        // The preparation both announces and hands back the pages this run will fetch. Consuming
+        // that list rather than recomputing it here is what keeps the announcement's gate and the
+        // page loop reading the same set: two evaluations can be moved apart by a later fix, which
+        // is how trust came to be granted for work the loop never did (G-15-27, T-15-47-03).
+        let preparedRun = try await prepareWorkingSeedAnnouncingProgress(
             payload: payload,
             existingDownload: existingDownload,
             folderURL: workingFolderURL
-        )
-        let pendingIndices = pendingPageIndices(
-            payload: payload,
-            folderURL: workingFolderURL,
-            existingPageRelativePaths: workingSeed.existingPages
         )
 
         let executionContext = DownloadExecutionContext(
@@ -44,8 +43,8 @@ extension DownloadCoordinator {
         )
         return try await executePageDownloads(
             context: executionContext,
-            workingSeed: workingSeed,
-            pendingIndices: pendingIndices
+            workingSeed: preparedRun.workingSeed,
+            pendingIndices: preparedRun.pendingPageIndices
         )
     }
 

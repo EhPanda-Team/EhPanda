@@ -369,9 +369,9 @@ extension DownloadCoordinator {
     /// **Trust is admitted where the session can OBSERVE incompleteness or PROVE page work.** Those
     /// are the push-side `formUnion` over a snapshot's incomplete galleries — inside
     /// `reconcileRetiredSessionPages`, and in the start seed built from the same snapshot shape —
-    /// and the insert below, over a record whose working folder cannot supply the pages its manifest
-    /// claims. Written as that rule rather than as a count of sites, because a count is a number
-    /// that goes stale the moment a writer is added.
+    /// and the insert below, over a run that still has pages of its own to fetch. Written as that
+    /// rule rather than as a count of sites, because a count is a number that goes stale the moment
+    /// a writer is added.
     ///
     /// The insert is explicit because an announcement alone provably admits nothing on one whole
     /// family. The push-side admission is sourced from `incompleteGalleryIDs`, which
@@ -384,25 +384,47 @@ extension DownloadCoordinator {
     /// untrusted departure and retires zero — G-15-5's terminal card, reached again inside the very
     /// branches the positive-signal defence built (G-15-23).
     ///
-    /// **The gate is real page work rather than record incompleteness**, because that is what the
-    /// two admissions have in common and what D-G4-01 actually rations trust on. `existingPages` is
-    /// the destination scan's `pages` — the manifest-claimed page numbers whose file this folder
-    /// yielded and probed usable — and `pendingPageIndices` fetches exactly the pages missing from
-    /// it, so `existingPages.count < manifest.pageCount` is precisely "this run has pages to fetch".
-    /// It is true on every refusal over a complete-reading record, true on the proceeding branch
-    /// whenever a claimed page's file is gone, and true for the fresh all-empty manifest an update,
-    /// a redownload or an initial run arrives with. It is false exactly where the folder already
-    /// holds every page the manifest counts, which is the redo that will download nothing — and
-    /// trusting that one would retire N pages this session never fetched, which is the ceiling
-    /// D-G4-01 closed.
+    /// **The gate is the work THIS RUN will actually do**, because that is what the two admissions
+    /// have in common and what D-G4-01 actually rations trust on. It is the run's own pending page
+    /// list — the list `performDownload` feeds straight to the page loop — being non-empty.
     ///
-    /// One consequence is deliberate rather than an oversight: a record that reads incomplete while
-    /// its folder holds every page it claims — an interruption between a page write and its manifest
-    /// flush — no longer announces, because that run fetches nothing. Its record already reads
-    /// incomplete, so the basis counts it raw for as long as it does, and the hashes the run
-    /// re-records are for pages an earlier session downloaded. Under-reporting there is the
-    /// direction D-G4-01 and the retirement ledger both choose on purpose; over-reporting is the
-    /// defect.
+    /// It used to be the working folder's shortfall against its manifest — the seed's existing-page
+    /// count compared against the manifest's page count — justified here as equivalent to "this run
+    /// has pages to fetch". **The two are not equivalent, and G-15-27 is the difference.** The pending
+    /// list reads `payload.pageSelection` FIRST and drops every page outside it before it ever tests
+    /// whether a file is there, so the folder's shortfall and the run's own work are different sets
+    /// whenever a selection is live: the folder can be short on pages this run was never asked to
+    /// fetch. `normalizeFetchedPayload` preserves a non-empty in-range selection for every mode but
+    /// the update mode, and `performRetryPages` stores one alongside the repair mode, so the
+    /// difference is real on exactly the route a user's page-level retry takes. Gating on the
+    /// shortfall therefore admitted a selected-page retry whose selected pages are all present — a
+    /// run that fetches nothing, whose record's full completed page count then entered the numerator
+    /// and was retired into both sides of the fraction. That is the ceiling D-G4-01 closed, reopened
+    /// through the gate that replaced it.
+    ///
+    /// Three conditions fold into that emptiness, and the shortfall accounted for only one and a
+    /// half of them. The zero-page guard: the shortfall also refuses there, both quantities being
+    /// zero for an empty manifest. The selection membership test: the shortfall never consulted
+    /// `payload.pageSelection` at all. The per-page file existence test: the shortfall saw it only
+    /// in aggregate — a count against a count cannot say WHICH pages are missing, so it could not
+    /// intersect them with the selection even in principle.
+    ///
+    /// The narrowed gate still fires everywhere the old one legitimately did. `existingPages` is the
+    /// destination scan's `pages` — the manifest-claimed page numbers whose file this folder yielded
+    /// and probed usable — so the list is non-empty on every refusal over a complete-reading record,
+    /// on the proceeding branch whenever a claimed page's file is gone and no selection excludes it,
+    /// and for the fresh all-empty manifest an update, a redownload or an initial run arrives with.
+    /// It is empty exactly where this run's pages are already present, which is the redo that will
+    /// download nothing.
+    ///
+    /// Two consequences are deliberate rather than oversights, and they are the same rule twice. A
+    /// record that reads incomplete while its folder holds every page it claims — an interruption
+    /// between a page write and its manifest flush — does not announce, because that run fetches
+    /// nothing; neither does a selected-page retry whose selected pages are all present. In both the
+    /// record's own reading is what the basis counts, raw, for as long as it reads incomplete, and
+    /// the hashes such a run re-records are for pages an earlier session downloaded. Under-reporting
+    /// there is the direction D-G4-01 and the retirement ledger both choose on purpose;
+    /// over-reporting is the defect.
     ///
     /// **Which side of D-G7-01's bracket the insert lands on, and why the composition holds.** It
     /// lands AFTER the bracket has closed: `prepareWorkingSeed` opens and closes
@@ -425,29 +447,43 @@ extension DownloadCoordinator {
     /// `ensureContinuedSession`'s seed merges rather than overwrites, so the recording survives the
     /// start's main-actor hop.
     ///
+    /// The pending list is evaluated here and handed onward rather than recomputed by the caller,
+    /// and that is the whole of T-15-47-03's mitigation: one evaluation per run means the trust
+    /// granted and the work performed cannot come apart. It lands on the same side of D-G7-01's
+    /// bracket as the insert, which costs nothing — it is a read-only scan of a folder the
+    /// preparation has finished with, and it moves no index record for the bracket to measure.
+    ///
     /// The suspension this adds is named: the `updateProgress` main-actor hop to
     /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
     /// body, which is already reentrant at its payload fetch, cover download and source resolution
     /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
-    /// inside that push. The insert itself is a synchronous same-actor write taken before that hop,
-    /// so no push can observe the announcement without the trust it announces on.
+    /// inside that push. Both the pending-list evaluation and the insert are synchronous same-actor
+    /// work taken before that hop, so no push can observe the announcement without the trust it
+    /// announces on, and no page the loop is about to fetch can have been decided after it.
     /// `prepareWorkingSeed` itself therefore stays synchronous.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
         folderURL: URL
-    ) async throws -> WorkingSeed {
+    ) async throws -> PreparedWorkingRun {
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
             folderURL: folderURL
         )
-        let hasRealPageWork = workingSeed.existingPages.count < workingSeed.manifest.pageCount
-        if let continuedSessionID, hasRealPageWork {
+        let pendingPages = pendingPageIndices(
+            payload: payload,
+            folderURL: folderURL,
+            existingPageRelativePaths: workingSeed.existingPages
+        )
+        if let continuedSessionID, !pendingPages.isEmpty {
             observedIncompleteSessionGIDs.insert(payload.gallery.gid)
             await pushContinuedSessionProgress(sessionID: continuedSessionID)
         }
-        return workingSeed
+        return PreparedWorkingRun(
+            workingSeed: workingSeed,
+            pendingPageIndices: pendingPages
+        )
     }
 
     /// Blanks the recorded hash of every page the working manifest claims but whose file is not in

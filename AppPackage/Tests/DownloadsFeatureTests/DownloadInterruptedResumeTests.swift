@@ -61,7 +61,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             payload: makePayload(gid: gid, title: "Redownload", mode: .redownload),
             existingDownload: download,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         #expect(!FileManager.default.fileExists(atPath: stalePageURL.path))
         let persistedManifest = try storage.readManifest(folderURL: folderURL)
