@@ -94,7 +94,7 @@ extension DownloadContinuedSessionBasisTests {
             payload: makeRepairPayload(for: unlisted),
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // Nothing blanked and nothing re-indexed: the record the card sums from is where it was.
         #expect(await manager.fetchDownload(gid: unlisted.gid)?.completedPageCount == 4)
@@ -222,7 +222,7 @@ extension DownloadContinuedSessionBasisTests {
             payload: makeRepairPayload(for: partial),
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // Nothing blanked and nothing re-indexed: the record the card sums from is where it was.
         #expect(await manager.fetchDownload(gid: partial.gid)?.completedPageCount == 4)
@@ -299,7 +299,7 @@ extension DownloadContinuedSessionBasisTests {
             payload: makeRepairPayload(for: lossy),
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // Exactly the two lost pages, and only them: the record the card sums from moved by two.
         #expect(await manager.fetchDownload(gid: lossy.gid)?.completedPageCount == 2)

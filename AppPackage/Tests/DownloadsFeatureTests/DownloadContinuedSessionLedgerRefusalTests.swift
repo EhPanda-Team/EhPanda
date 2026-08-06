@@ -66,11 +66,11 @@ extension DownloadContinuedSessionLedgerTests {
     /// **The payload is production-shaped (G-15-28).** The `retryPages` call below stores this
     /// case's six indices in the coordinator's `queuedPageSelections` entry, and a production run
     /// reads that entry back into BOTH payload steps, so the payload handed to the preparation
-    /// carries the selection its own route stored. Nothing asserted here moves as a result: the
-    /// announcement gate compares the seed's existing-page count against the working manifest's
-    /// page count and does not read `payload.pageSelection` at all — which is G-15-27, still open
-    /// at this file's HEAD. The faithful payload is the precondition that lets the regression
-    /// closing it discriminate, not the fix.
+    /// carries the selection its own route stored. Nothing asserted here moves as a result, and the
+    /// reason survived G-15-27's closure: the gate now reads the run's own pending page list, which
+    /// honors that selection — and this case's selection is all six pages, none of whose files are
+    /// present, so the list is the full six either way. The faithful payload was the precondition
+    /// that let the regression closing G-15-27 discriminate; it is not itself the fix.
     @Test
     func testAnAllPagesGoneRepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull() async throws {
         let vanished = SessionGallery(
@@ -122,7 +122,7 @@ extension DownloadContinuedSessionLedgerTests {
             payload: payload,
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // The refusal blanked nothing and republished nothing, so the record is where it was.
         #expect(await manager.fetchDownload(gid: vanished.gid)?.completedPageCount == 6)
@@ -172,9 +172,10 @@ extension DownloadContinuedSessionLedgerTests {
     ///
     /// **The payload is production-shaped (G-15-28)**, on the same terms as the residual case
     /// above: the single index this case retries is what its route stored, so the payload the
-    /// preparation receives carries it. The announcement gate still never reads
-    /// `payload.pageSelection` (G-15-27), so every assertion below is unmoved by the change — which
-    /// is precisely what makes this the precondition rather than the fix.
+    /// preparation receives carries it. Every assertion below is unmoved by G-15-27's closure too,
+    /// and for a reason this staging supplies rather than inherits: the gate now reads the run's
+    /// own pending list, and page 3 — the retried one — is the page whose file this case leaves
+    /// absent, so that list is non-empty and the announcement fires exactly as before.
     @Test
     func testAFailedEnumerationRepairOfACompleteReadingRecordStillEarnsSessionTrust() async throws {
         let unlisted = SessionGallery(
@@ -236,7 +237,7 @@ extension DownloadContinuedSessionLedgerTests {
             payload: payload,
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // Nothing blanked and nothing re-indexed: the record the card sums from is where it was.
         #expect(await manager.fetchDownload(gid: unlisted.gid)?.completedPageCount == 6)
@@ -353,7 +354,7 @@ extension DownloadContinuedSessionLedgerTests {
             payload: payload,
             existingDownload: staged,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         // Non-vacuity FIRST, or the case could pass on a staging that never reached the gate: five
         // existing pages against a six-page working manifest is exactly the reading the pre-fix
