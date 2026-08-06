@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 45/45 plans executed
+**Plans**: 45/49 plans executed
 
 Plans:
 **Wave 1**
@@ -994,6 +994,22 @@ Plans:
 **Wave 45** *(gap closure round 14, verification warning G-15-25 — blocked on 15-44 by file overlap on DownloadClient+ContinuedSession.swift and DownloadClient+Scheduling.swift, whose WR-04 blank lines must be located after all prior edits)*
 
 - [x] 15-45-PLAN.md — Close the round-13 hygiene group with decisions, not deferrals: WR-03's always-whole-array prefix dropped with the two-writer equivalence derived, WR-04's two stray blank lines before closing braces deleted, WR-05's unintended parameter-list trailing comma removed, and the public dead API decided delete-or-justify with the caller census re-derived by grep — validPageCount deleted outright, isReadableAssetFile deleted with its attributes-throw fallback pin rerouted through a surviving public surface (or kept with the why recorded at the declaration), the pinned probe behavior owned by a named test either way
+
+**Wave 46** *(gap closure round 15, verification warning G-15-28 — blocked on 15-45 by round continuity from the round-15 HEAD and xcodebuild serialization; sequenced FIRST of the round on the verifier's own instruction, so the regression it unblocks can fail before either blocker fix lands)*
+
+- [ ] 15-46-PLAN.md — Make the payload doubles faithful to the route they model: both refusal cases drive retryPages (which stores a page selection) while hand-building a selection-free payload, so the suite has never run the announcement gate against a selection — the repair reproduces BOTH production steps (the fetch places the selection on the payload, the normalizer refines it and early-returns unchanged when the two agree, so normalizing alone keeps a nil selection), censuses all 14 payload call sites across 5 suites with a per-site faithfulness verdict, and pins the helper against the coordinator entry the route writes with the holding production event named; test-target only, and the plan records that both rebuilt cases stay green on both sides so its non-effect on the gate is explicit
+
+**Wave 47** *(gap closure round 15, verification blocker G-15-27 — blocked on 15-46 by file overlap on DownloadContinuedSessionLedgerRefusalTests.swift: this plan's regression only discriminates once the payload rebuild has landed)*
+
+- [ ] 15-47-PLAN.md — Gate the announcement on the work the run will actually do (SC2, SC1 through D-11): the shortfall against the manifest ignores the payload's page selection, which survives normalization for every mode but update and is live on exactly the retryPages route, so a selected-page retry that fetches nothing earns trust for its record's FULL page count — the D-G4-01 ceiling reopened by the gate that replaced it; the run's pending page list becomes the single derived predicate, computed ONCE inside the preparation and handed to the page loop (evaluation count grep-proven), the retired equivalence replaced by the derived difference from a fresh enumeration, and the discriminating regression — one page file missing, a different present page retried — RED-first with its non-vacuity asserted
+
+**Wave 48** *(gap closure round 15, verification blocker G-15-26 — blocked on 15-47 by file overlap on DownloadClient+ExecutionSupport.swift: the proof this plan re-owns must record 15-47's single derived predicate, not the shortfall binding it replaced)*
+
+- [ ] 15-48-PLAN.md — Give the proof of real page work the lifetime of the RUN it describes (SC2, SC1 through D-11): it is recorded only under a live session and into a session-scoped set both session start and teardown clear, so an unavailable teardown mid-run (three of the session type's four unavailable arms fire inside its own start) and any launch-resumed run (D-07 forbids a session there) both leave a complete-reading repair contributing zero for a whole N-page re-download; the proof moves to run-scoped state written unconditionally, seeded into the session trust set inside ensureContinuedSession's SYNCHRONOUS reset (derived: the opening subtitle is computed from the snapshot taken after it and before the client start), and retired at a point derived over EVERY enumerated exit path with the overlapping-run case dispositioned — three regressions: both orderings RED-first plus a lifetime pin green on both sides that stops the remedy re-crediting a later redo
+
+**Wave 49** *(gap closure round 15, verification warning G-15-29 — blocked on 15-48 by file overlap on DownloadSourceInventoryTests.swift, whose scan scope this plan widens, which changes what every census in that file counts)*
+
+- [ ] 15-49-PLAN.md — Close the round-14 hygiene group and own the claim that has now been wrong six rounds running: the retired single-authority sentence survives in TWO test docs where 15-44's Sources-scoped census structurally cannot see it, so both are rewritten from a fresh caller enumeration and the census scan is widened to the downloads test target with a fragment-assembled prose assertion — every pre-existing per-file table and joined total re-derived under the new scoping and asserted unchanged, so the widening cannot silently re-baseline three claims while owning one; plus the page-progress counter 15-45's own prefix removal left dead (deleted at its root after a repository-wide reader derivation, its guard restated on the results collection) and the spy's unreadable parked-update field decided expose-or-delete with the criterion recorded
 
 ### Phase 16: Dynamic Type Accessibility
 
