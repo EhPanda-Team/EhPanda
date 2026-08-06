@@ -403,15 +403,40 @@ private extension DownloadContinuedSessionExpirationTests {
 private extension BackgroundProcessingClient {
     /// Answers every start with an identified session that immediately reports unavailable —
     /// what the Simulator reports, and what the system reports when it will not grant a task.
+    ///
+    /// **Why all three closures suspend before they do anything.** The live value forwards onto
+    /// `ContinuedProcessingSession`, a `@MainActor` type, so every endpoint hops off the calling
+    /// actor — and while a call is over there the coordinator's actor is reentrant. A double that
+    /// answers synchronously does not merely run faster; it certifies that window as impossible.
+    /// Three lines of `ensureContinuedSession` exist for nothing but surviving it: the ownership
+    /// re-check behind the start (`DownloadClient+ContinuedSession.swift:358`), the additive floor
+    /// seed that folds in a withdrawal landing inside the hop (`:373`), and the merged trust seed
+    /// that folds in a push landing there (`:403-407`). Every case below runs this double through
+    /// exactly that stretch, so with the hop removed their coverage of those three was nominal.
+    ///
+    /// The family makes it the one least able to afford an atomic double, per
+    /// `DownloadContinuedSessionRunProofTests`' suite doc: `.unavailable` is the ORDINARY outcome
+    /// rather than an exotic one, and three of the four arms that yield it fire inside the store's
+    /// own start.
+    ///
+    /// The suspensions mirror `BackgroundProcessingClientSpy`'s three rather than inventing a
+    /// second convention, and the rule is no longer honoured by convention alone:
+    /// `DownloadSourceInventoryTests.testClientDoubleSuspensionSitesMatchTheRecordedCensus` counts
+    /// them, so a closure that stops yielding fails a build.
     static let unavailable = Self(
         start: { _, _, _, _ in
+            await Task.yield()
             let events = AsyncStream<BackgroundProcessingEvent> { continuation in
                 continuation.yield(.unavailable)
                 continuation.finish()
             }
             return BackgroundProcessingSession(id: UUID(), events: events)
         },
-        updateProgress: { _, _, _, _ in },
-        finish: { _, _ in }
+        updateProgress: { _, _, _, _ in
+            await Task.yield()
+        },
+        finish: { _, _ in
+            await Task.yield()
+        }
     )
 }
