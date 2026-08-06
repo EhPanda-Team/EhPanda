@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 48/49 | In Progress|  |
+| 15. Continued Background Downloads | 49/49 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 48/49 plans executed
+**Plans**: 49/49 plans executed
 
 Plans:
 **Wave 1**
@@ -1009,7 +1009,7 @@ Plans:
 
 **Wave 49** *(gap closure round 15, verification warning G-15-29 — blocked on 15-48 by file overlap on DownloadSourceInventoryTests.swift, whose scan scope this plan widens, which changes what every census in that file counts)*
 
-- [ ] 15-49-PLAN.md — Close the round-14 hygiene group and own the claim that has now been wrong six rounds running: the retired single-authority sentence survives in TWO test docs where 15-44's Sources-scoped census structurally cannot see it, so both are rewritten from a fresh caller enumeration and the census scan is widened to the downloads test target with a fragment-assembled prose assertion — every pre-existing per-file table and joined total re-derived under the new scoping and asserted unchanged, so the widening cannot silently re-baseline three claims while owning one; plus the page-progress counter 15-45's own prefix removal left dead (deleted at its root after a repository-wide reader derivation, its guard restated on the results collection) and the spy's unreadable parked-update field decided expose-or-delete with the criterion recorded
+- [x] 15-49-PLAN.md — Close the round-14 hygiene group and own the claim that has now been wrong six rounds running: the retired single-authority sentence survives in TWO test docs where 15-44's Sources-scoped census structurally cannot see it, so both are rewritten from a fresh caller enumeration and the census scan is widened to the downloads test target with a fragment-assembled prose assertion — every pre-existing per-file table and joined total re-derived under the new scoping and asserted unchanged, so the widening cannot silently re-baseline three claims while owning one; plus the page-progress counter 15-45's own prefix removal left dead (deleted at its root after a repository-wide reader derivation, its guard restated on the results collection) and the spy's unreadable parked-update field decided expose-or-delete with the criterion recorded
 
 ### Phase 16: Dynamic Type Accessibility
 
