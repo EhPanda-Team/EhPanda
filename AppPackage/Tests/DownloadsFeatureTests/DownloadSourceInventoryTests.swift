@@ -53,6 +53,9 @@ struct DownloadSourceInventoryTests {
     /// corrected in `+PendingWork.swift` and went on standing in two suites, where a
     /// Sources-scoped scan structurally could not see it (G-15-29).
     ///
+    /// The walk excludes this file itself, so the prose assertion cannot read this suite's own
+    /// description of the rule back as a violation of it; `scannedFiles()` carries that argument.
+    ///
     /// Only the prose assertion reads this whole set. Every census re-scopes it first — the five
     /// production censuses to the client module through `clientModuleFiles(in:)`, the two
     /// double-fidelity censuses to this directory through `downloadsTestFiles(in:)` — so widening
