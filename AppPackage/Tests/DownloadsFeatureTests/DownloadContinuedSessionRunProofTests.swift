@@ -407,6 +407,129 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
+    /// The same lifetime boundary read from its other side: a run that cannot prove it owns the
+    /// gallery's slot retires NOTHING, and the entry it leaves standing is the owner's to retire.
+    ///
+    /// **What this pins.** `isSupersededByALiveRun`'s generation-less arm. `processDownload`'s
+    /// `generation` is public and defaults to `nil`, and only the scheduler ever stamps one, so a
+    /// run can reach the retirement gate with nothing to compare. The policy is that such a run is
+    /// treated as superseded — leaving the entry to the live owner costs one stale proof until that
+    /// owner exits, while retiring on its behalf drops a live successor's proof and is the G-15-26
+    /// zero-progress card reached through its own fix. The arm answered that way by optional
+    /// promotion before it was written as a branch; this case is what makes the equivalence an
+    /// executed fact rather than a reading off the type system.
+    ///
+    /// **This case is the mirror of `testAProofDoesNotOutliveItsRunIntoALaterRedo` and shares its
+    /// staging deliberately**, so the single difference between them is the one thing under test:
+    /// there the exiting run owns the slot and the redo opens at zero, here a live run owns it at a
+    /// stamped generation while the exiting run carries none, and the redo opens at the two pages
+    /// the earlier run had already paid.
+    ///
+    /// **Its standing rests on the sensitivity reading, not on green.** With the branch inverted —
+    /// `return false` for the generation-less case — the retirement fires, the debt is cleared, the
+    /// next session's seed cannot find this gallery and the opening credit falls to zero. Until that
+    /// failure has been OBSERVED this case must not be reported as pinning the arm.
+    ///
+    /// **Everything asserted over is production-issued.** The proof is recorded through the
+    /// preparation forwarder as every sibling case records it; the run's exit is
+    /// `processDownload(gid:)`, the public entry point, taken at its own `generation` default so the
+    /// gate really is reached with `nil`; the redo is `retry(gid:mode:)`, the product's own tap,
+    /// which enqueues, schedules and only then ensures the session. No retirement forwarder is
+    /// called — none exists, deliberately — and no push is issued by this case.
+    ///
+    /// **The suspension the ordering hinges on**, derived rather than assumed and identical to the
+    /// mirror's: `processDownload` suspends at `try await fetchNormalizeAndDownload(...)`, whose
+    /// detail fetch the injected stub answers with a transport failure, and the `defer` runs as that
+    /// throw unwinds through the general failure catch. The gate is read synchronously inside that
+    /// `defer`, so its answer has landed by the time the awaited call returns.
+    ///
+    /// **Why no scheduled run intervenes.** `scheduleNextIfNeededCore` will not start a second run
+    /// while `activeTask` is live, and the installed run keeps it live for the whole case — which is
+    /// the premise rather than a convenience — so the card's opening is read before any successor
+    /// prepares a seed of its own.
+    @Test
+    func testAGenerationLessRunRetiresNothingWhileALiveRunOwnsTheSlot() async throws {
+        let contested = SessionGallery(
+            gid: "210408",
+            title: "Contested",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let stubSessionID = UUID().uuidString
+        SharedSessionStubURLProtocol.setHandler(for: stubSessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: stubSessionID) }
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [contested],
+            queuedGIDs: [contested.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation }),
+            urlSession: makeStubbedURLSession(stubSessionID: stubSessionID)
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: contested.gid))
+        #expect(await manager.resumeMode(for: staged) == .repair)
+        #expect(!(await manager.testingHasContinuedSession()))
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(contested.gid)_token] \(contested.title)"
+        )
+        let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: contested),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+        // Non-vacuity: the entry really exists before the exit, so there is a proof for the gate to
+        // spare — or to take, if the arm answers the other way.
+        #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+
+        // Two of the six paid inside this run, exactly as the mirror pays them and for the same
+        // reason: a surviving entry that still owes ALL six subtracts back to zero and the reading
+        // goes vacuous. No session is live, so this issues no push.
+        try writePageFiles(for: contested, in: fixture, indices: [1, 2])
+        var pendingResolvedPages = pageResults(for: contested, in: fixture, indices: [1, 2])
+        var lastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: contested.gid, folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        #expect(spy.progressUpdates.isEmpty)
+
+        // A live run takes this gallery's active slot at a stamped generation, which is the state
+        // the gate's whole question is about.
+        await manager.testingInstallActiveTask(gid: contested.gid, task: Task {})
+        // Non-vacuity: the slot really is held, and by THIS gallery, so the gate reaches its
+        // generation comparison rather than returning early on the ownership guard.
+        #expect(await manager.testingHasActiveTask())
+        #expect(await manager.testingActiveGalleryID() == contested.gid)
+
+        // The generation-less exit, through the public entry point at its own default.
+        await manager.processDownload(gid: contested.gid)
+        #expect(await manager.fetchDownload(gid: contested.gid)?.lastError != nil)
+        // Still held: `finishActiveTaskIfOwned` refused this run too, so the premise the gate was
+        // read under is still observably true after the exit rather than merely before it.
+        #expect(await manager.testingHasActiveTask())
+
+        // THE DISCRIMINATOR. A redo through the product's own tap starts a session, and a session
+        // seeds its trust from the surviving debts' keys. A retired entry leaves this
+        // complete-reading record untrusted, contributing zero at every push and unable to move on
+        // its own; a spared one credits the record less the four pages still owed.
+        try await manager.retry(gid: contested.gid, mode: .redownload).get()
+
+        #expect(spy.startCount == 1)
+        #expect(spy.startCompletedUnitCounts.last == 2)
+        #expect(spy.startTotalUnitCounts.last == 6)
+        #expect(spy.startSubtitles.last == "2 / 6 pages · 1 gallery")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
     /// G-15-30's consequence 2: the numerator must CLIMB while the pages climb, for a family whose
     /// record cannot move at all.
     ///
