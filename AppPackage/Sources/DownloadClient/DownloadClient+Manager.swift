@@ -532,10 +532,13 @@ public actor DownloadCoordinator {
     /// The galleries this session has ever observed incomplete, or proven page work for, while they
     /// were schedulable.
     ///
-    /// For a gallery in here the record is authoritative twice over: its finished pages count raw
-    /// even once the record reads complete again — which is exactly the completion flush, where the
+    /// For a gallery in here the record is authoritative twice over: its finished pages count even
+    /// once the record reads complete again — which is exactly the completion flush, where the
     /// forced push reports a full count while the gallery is still inside its own schedulable set —
-    /// and its departure retires what that record says it finished (D-G2-01).
+    /// and its departure retires that same quantity (D-G2-01). Authoritative about the COUNT, not
+    /// about how much of it this session earned: what a complete-reading record contributes is its
+    /// count minus the pages its run still owes, which `sessionCreditedPages` decides for both
+    /// halves at once (G-15-30).
     ///
     /// A gallery never seen incomplete counts zero and retires zero, because its record's finished
     /// pages predate the session. `shouldSchedule` returns true for any queued work item before it
@@ -547,10 +550,12 @@ public actor DownloadCoordinator {
     ///
     /// Membership is granted where the session can OBSERVE incompleteness or PROVE page work, never
     /// at queue time. The observed half is the snapshot-sourced merges, which read `isIncomplete`.
-    /// The proven half is `provenPageWorkRunGIDs` below, which the run's own working-seed
-    /// announcement (`prepareWorkingSeedAnnouncingProgress`) records and which this set is SEEDED
-    /// FROM at every session start — this set is no longer the owner of that proof, only a reader of
-    /// it, and G-15-26 is what that distinction cost. The proven rule exists because the observed one
+    /// The proven half is `provenPageWorkRunPageDebts` below, which the run's own working-seed
+    /// announcement (`prepareWorkingSeedAnnouncingProgress`) records and whose KEYS this set is
+    /// SEEDED FROM at every session start — this set is no longer the owner of that proof, only a
+    /// reader of it, and G-15-26 is what that distinction cost. Membership here is what SELECTS the
+    /// credited basis; the size of that basis is decided by the debt the same entry carries, which
+    /// is G-15-30. The proven rule exists because the observed one
     /// structurally cannot reach one family: a reconciliation that REFUSES its destructive half hands
     /// the manifest back verbatim, so a repair of a complete-reading record has no incompleteness for
     /// a snapshot to see, and the flush path only ever moves a record upward (G-15-23).
@@ -561,15 +566,45 @@ public actor DownloadCoordinator {
     /// it then accumulates every snapshot a push reconciles. So a session boundary re-reads the
     /// proofs of runs that are still in flight rather than discarding them, which is exactly the
     /// difference between this and the pre-G-15-26 shape.
+    ///
+    /// One membership is also withdrawn WITHIN a session, at a RUN boundary: `retireProvenPageWork`
+    /// removes the gid when its run ends. That is not the session-scoping above reached by another
+    /// name — it is the other half of the same distinction. The proven grant is a fact about a run
+    /// and stops being true when the run stops, and the observed grant is re-added by the very next
+    /// push for as long as the record honestly reads incomplete, so the removal can only strip a
+    /// credit no observation was willing to make. Leaving it standing is what let a failed repair go
+    /// on crediting its record's full count while the gallery merely sat in the queue.
     var observedIncompleteSessionGIDs = Set<String>()
-    /// The galleries whose CURRENT RUN has proved, at its own working-seed preparation, that it has
-    /// pages of its own to fetch.
+    /// The pages each gallery's CURRENT RUN proved, at its own working-seed preparation, that it
+    /// still has to fetch — and has not fetched yet.
+    ///
+    /// **Why a QUANTITY rather than a membership, which is the whole of G-15-30.** Membership alone
+    /// unlocked the record's FULL finished-page count as this session's credited work, and for the
+    /// refusal family that count IS the run's remaining work: `reconcileWorkingManifestAgainstPageFiles`
+    /// returns the manifest verbatim on all three of its refusal exits, and the flush path only ever
+    /// moves a record upward, so the record reads N-of-N from the announcement to the run's end.
+    /// Crediting N there opened the card at its ceiling before a byte was fetched, held the numerator
+    /// at that constant for the whole re-download — the stall reading D-11's expiration policy
+    /// punishes — and retired the ceiling into BOTH sides of the fraction at any mid-run departure,
+    /// which is the over-retirement D-G2-01 forbids in its own words. A paused or expiration-swept
+    /// repair then terminated through the drain branch as a fully successful N-page completion. The
+    /// credited basis is now the record MINUS what this entry still holds, so it opens at the run's
+    /// real basis and climbs page by page.
+    ///
+    /// **Why the PAGE NUMBERS rather than a count.** The decrement has to be exact in both
+    /// directions, and a count cannot be. A page can reach a flush twice — a retry re-records a hash
+    /// the previous flush already wrote — and a flush can carry pages this run never owed, because
+    /// `initializePageDownloadState` flushes the pages the working folder RESTORED, which are by
+    /// construction the complement of the pending list. Subtracting a set is idempotent on the first
+    /// and a no-op on the second; subtracting a count over-credits on both.
     ///
     /// **The lifetime rule, stated as a rule rather than as a site count.** An entry is recorded at
-    /// the run's own preparation when that run's pending page list is non-empty; it is read by every
-    /// session start, which seeds `observedIncompleteSessionGIDs` from it; and it is retired when
-    /// that run ends, at `processDownload`'s `defer`, which is the one point every exit of a run
-    /// passes through.
+    /// the run's own preparation when that run's pending page list is non-empty; it shrinks at every
+    /// manifest page flush by exactly the pages that flush recorded; it is read by every session
+    /// start, which seeds `observedIncompleteSessionGIDs` from its keys, and by the credited-pages
+    /// definition both the snapshot and the departure retirement read; and it is retired when that
+    /// run ends, at `processDownload`'s `defer`, which is the one point every exit of a run passes
+    /// through.
     ///
     /// **Why a session boundary is not a run boundary.** The proof is a fact about the RUN — this
     /// gallery's files cannot supply the pages this run was asked for — and nothing about a session
@@ -586,13 +621,14 @@ public actor DownloadCoordinator {
     /// re-credits the NEXT redo of the same gallery, whose pages are that redo's target rather than
     /// any session's progress — D-G4-01's ceiling defect reached from the other side. The retirement
     /// is gated on this run still owning the gallery's active slot, so a superseded predecessor
-    /// cannot drop a live successor's proof.
+    /// cannot drop a live successor's proof. It also withdraws the SESSION trust this proof granted,
+    /// and freezes the run's final credited basis first; both are derived on `retireProvenPageWork`.
     ///
     /// Not session-scoped, deliberately, and the two clears that make the set above session-scoped
     /// must never be extended to this one. `DownloadSourceInventoryTests` owns that: it counts every
     /// site naming this property and fails the build when one is added, which is what a comment
     /// asking to be believed could not do.
-    var provenPageWorkRunGIDs = Set<String>()
+    var provenPageWorkRunPageDebts = [String: Set<Int>]()
 
     public init(
         storage: DownloadStore,
