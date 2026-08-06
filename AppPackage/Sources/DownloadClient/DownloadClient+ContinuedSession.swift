@@ -128,7 +128,7 @@ extension DownloadCoordinator {
     /// whether the reconciliation blanked anything at all.
     ///
     /// **The proof is owned by the run, and this set is seeded from it (G-15-26).** The recording
-    /// goes to `provenPageWorkRunGIDs`, which no session boundary touches, and every session start
+    /// goes to `provenPageWorkRunPageDebts`, which no session boundary touches, and every session start
     /// seeds this set from it inside its synchronous reset; a run that starts inside a live session
     /// is additionally admitted here immediately, so the same fact reaches the session by two routes
     /// and neither depends on the other. Owning it in this set alone lost it whenever the session
@@ -142,10 +142,16 @@ extension DownloadCoordinator {
     ///   from ever being masked: the instant a redo's own manifest writes make the record
     ///   incomplete, its finished pages count raw, with no dependence on trust having caught up.
     /// - The trust set covers the completion flush, where a gallery the session watched doing real
-    ///   work reports its full count while its record already reads complete again and it is still
+    ///   work reports its count while its record already reads complete again and it is still
     ///   inside its own schedulable set — and, through the run's own proof, the refusal family, where
     ///   the record reads complete for the entire run and there is no incompleteness for the
     ///   push-side writer to observe.
+    ///
+    /// **Trust selects the branch; it does not decide the size (G-15-30).** Membership used to
+    /// unlock the record's whole count, and for the refusal family that count is by construction the
+    /// work the run has NOT done. A trusted complete-reading record therefore counts its record
+    /// minus the pages its run still owes, which is what `sessionCreditedPages` below computes for
+    /// this snapshot and for the departure retirement alike.
     ///
     /// Keying on the record rather than on `queuedModes` is deliberate and was the design's one
     /// hardening. A mode-keyed basis stays set for a whole active run, so it would mask the redo's
@@ -157,9 +163,11 @@ extension DownloadCoordinator {
         // duplicate key: the index's own deduplication would be the only thing between a
         // duplicated gallery folder and a crash on the card's progress path.
         let sessionCompletedPages = downloads.reduce(into: [String: Int]()) { pages, download in
-            let isSessionWork = download.isIncomplete
-                || observedIncompleteSessionGIDs.contains(download.gid)
-            pages[download.gid] = isSessionWork ? download.completedPageCount : 0
+            pages[download.gid] = sessionCreditedPages(
+                gid: download.gid,
+                completedPageCount: download.completedPageCount,
+                pageCount: download.pageCount
+            )
         }
         return SchedulableSnapshot(
             sessionProgress: ContinuedSessionProgress(
@@ -173,6 +181,88 @@ extension DownloadCoordinator {
             ),
             finishedPages: sessionCompletedPages,
             incompleteGalleryIDs: Set(downloads.filter(\.isIncomplete).map(\.gid))
+        )
+    }
+
+    /// The pages THIS SESSION may credit one gallery with — the single definition the opening
+    /// snapshot and the departure retirement both read.
+    ///
+    /// One definition rather than two expressions, because the two rules must never be able to
+    /// disagree about the same gallery. The snapshot decides what a gallery contributes while it is
+    /// present and the retirement decides what it leaves behind, so a gallery whose two answers
+    /// differ makes the summed numerator step at its departure in whichever direction the mismatch
+    /// points — which is the same property the summed-from-one-map comment below already claims for
+    /// the numerator, stated for the per-gallery value instead.
+    ///
+    /// **The three branches, each derived rather than transcribed.**
+    ///
+    /// 1. **A record that reads INCOMPLETE counts raw, with nothing subtracted.** Its own count
+    ///    already excludes the pages this run has not written — that is what incomplete means — so
+    ///    subtracting the run's outstanding page debt on top would remove them twice. It is also
+    ///    what keeps mid-run progress unmaskable: the instant a redo's own manifest writes make the
+    ///    record incomplete, its finished pages count with no dependence on trust.
+    /// 2. **A COMPLETE-reading record this session trusts counts its record MINUS the pages its run
+    ///    still owes.** This branch is G-15-30. For the refusal family the reconciliation returns
+    ///    the manifest verbatim, so the record reads N-of-N for the whole re-download and its count
+    ///    is precisely the work the run has not done. Crediting it whole opened the card at its
+    ///    ceiling before a byte was fetched, held the numerator at that constant for the run, and
+    ///    retired the ceiling into both sides of the fraction at any mid-run departure — the
+    ///    over-retirement D-G2-01 forbids in its own words.
+    /// 3. **Anything else counts zero**, which is D-G4-01's queued window unchanged: a complete
+    ///    gallery schedulable for a redo that has not run contributes nothing, because those pages
+    ///    are the redo's target rather than this session's progress.
+    ///
+    /// The subtraction is clamped at zero rather than assumed non-negative. The debt is seeded from
+    /// the run's own pending page list, derived against the WORKING FOLDER, while the count it is
+    /// subtracted from is the INDEX RECORD — two readings of different things, and a repair whose
+    /// folder is emptier than its record claims makes the debt legitimately exceed the count.
+    ///
+    /// **Interaction with D-G7-01, derived rather than assumed.**
+    /// `withdrawingCountedBasisMovement` withdraws the RECORD's raw before/after delta from the
+    /// monotonic floor, while the numerator moves by THIS function's delta. `max(x - owed, 0)` is
+    /// non-decreasing in `x` and moves by at most as much as `x` does, so the basis delta can only
+    /// be smaller than the record delta, never larger: a withdrawal may take more off the floor than
+    /// the numerator lost and never less. A floor left low re-latches at the very next push while a
+    /// floor left high is the defect, so the difference errs in the safe direction by construction.
+    func sessionCreditedPages(
+        gid: String,
+        completedPageCount: Int,
+        pageCount: Int
+    ) -> Int {
+        let recorded = min(max(completedPageCount, 0), max(pageCount, 0))
+        guard recorded >= pageCount else { return recorded }
+        guard observedIncompleteSessionGIDs.contains(gid) else { return 0 }
+        return max(recorded - (provenPageWorkRunPageDebts[gid]?.count ?? 0), 0)
+    }
+
+    /// Publishes a retiring run's own final credited basis as this session's last observation of the
+    /// gallery, immediately before that run's proof and the trust it granted are withdrawn.
+    ///
+    /// **This is what makes the departure retirement ordering-INSENSITIVE rather than merely lucky,
+    /// and it is the one design change G-15-30's closure needed beyond the basis itself.** A gallery
+    /// can leave the schedulable set in either order relative to its run's exit. A completion, a
+    /// failure and the incomplete-error dequeue all depart from INSIDE the run, so `processDownload`'s
+    /// `defer` retires first and the departure is only detected by the push that the exit's own
+    /// convergence issues afterwards; a user pause and D-11's expiration sweep are issued from
+    /// OUTSIDE the run, so they can depart a gallery whose run is still holding its page debt, and
+    /// neither call site controls that ordering. `reconcileRetiredSessionPages` then reads its
+    /// trusted branch in the second ordering and its last-observation branch in the first. Without
+    /// this line those two branches read different quantities — the run's credited work in one,
+    /// whatever the last push happened to record in the other. Freezing the value here makes the
+    /// last-observation branch read exactly what the trusted branch would have computed.
+    ///
+    /// Only a gallery this session is CURRENTLY observing is written. Inventing an entry for one it
+    /// never saw would present a fresh departure to the next reconcile for a gallery that was never
+    /// in the fraction, and the unobserved-work convention `reconcileRetiredSessionPages` records is
+    /// that such a gallery enters neither the live sum nor the ledger.
+    func freezeSessionCreditForRetiringRun(gid: String) {
+        guard observedSchedulablePages[gid] != nil,
+              let manifest = downloadIndex[gid]?.manifest
+        else { return }
+        observedSchedulablePages[gid] = sessionCreditedPages(
+            gid: gid,
+            completedPageCount: manifest.completedPageCount,
+            pageCount: manifest.pageCount
         )
     }
 
@@ -243,7 +333,7 @@ extension DownloadCoordinator {
         // after that subtitle was already fixed, passing a mid-session assertion while leaving the
         // card's opening reading at zero (G-15-26). The proof belongs to the run, not to any session,
         // so reading it here is not inheriting a predecessor's state.
-        observedIncompleteSessionGIDs = provenPageWorkRunGIDs
+        observedIncompleteSessionGIDs = Set(provenPageWorkRunPageDebts.keys)
 
         let snapshot = await schedulableSnapshot()
         let clientSession = await backgroundProcessingClient.start(
@@ -300,7 +390,7 @@ extension DownloadCoordinator {
         // What each collection can already hold at this point differs, and the difference is
         // deliberate (G-15-26). `observedSchedulablePages` was emptied by this session's own
         // synchronous reset, so anything in it is this session's own identity-gated observation.
-        // `observedIncompleteSessionGIDs` was SEEDED there from `provenPageWorkRunGIDs`, so it can
+        // `observedIncompleteSessionGIDs` was SEEDED there from `provenPageWorkRunPageDebts`, so it can
         // additionally hold proofs recorded by runs that are still in flight — including runs that
         // prepared under a predecessor session, or under no session at all. That is not a
         // predecessor's session state leaking in: a run's proof of its own page work is a fact about
@@ -371,7 +461,7 @@ extension DownloadCoordinator {
     ///
     /// **Session state only. A session boundary is not a run boundary (G-15-26).** Every collection
     /// cleared below describes what THIS session observed; none of them describes a run. In
-    /// particular `provenPageWorkRunGIDs` is deliberately not cleared here, and adding it would
+    /// particular `provenPageWorkRunPageDebts` is deliberately not cleared here, and adding it would
     /// re-open the exact defect this teardown caused: the `.unavailable` arm calls this and nothing
     /// else, leaving the queue running foreground-only, so clearing the run's proof here stripped an
     /// in-flight repair of the trust it had already earned and left it contributing zero for the rest
@@ -600,7 +690,11 @@ extension DownloadCoordinator {
                     retiredSessionPages[gid] = observedSchedulablePages[gid] ?? 0
                     continue
                 }
-                retiredSessionPages[gid] = min(max(record.completedPageCount, 0), record.pageCount)
+                retiredSessionPages[gid] = sessionCreditedPages(
+                    gid: gid,
+                    completedPageCount: record.completedPageCount,
+                    pageCount: record.pageCount
+                )
             }
         }
         // Replacing the map is what makes each departure detected exactly once; a retired value is
