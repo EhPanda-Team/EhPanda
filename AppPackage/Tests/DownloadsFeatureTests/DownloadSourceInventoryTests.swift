@@ -517,6 +517,14 @@ struct DownloadSourceInventoryTests {
 
     /// No scanned doc may name the shared schedulable read as the scheduler's single authority.
     ///
+    /// **The retired claim, in plain words.** It called the shared schedulable read the
+    /// scheduler's sole authority on what may start — every start, it said, passes through that
+    /// one read. Stating it here in the wording the check forbids is deliberate, and it is the
+    /// capability the scanner's self-exclusion exists to grant: before that exclusion this sentence
+    /// could not be written, so the file that owns the rule was the one file forbidden to say what
+    /// the rule is about. A repository-wide grep for the phrasing therefore no longer sums to zero;
+    /// this occurrence is it, and the live guard is this assertion rather than any grep.
+    ///
     /// The claim is retired, and what retired it is source: `scheduleNextIfNeededCore` performs its
     /// OWN read — `queueStore.gids`, then `indexedDownloads()` or `indexedDownloads(gids:)` — and
     /// reaches `isSchedulableDownload` through `nextQueuedDownload` /
@@ -600,9 +608,31 @@ private extension DownloadSourceInventoryTests {
 // MARK: - Scanning
 
 private extension DownloadSourceInventoryTests {
+    /// Every Swift file under the scanned directories except this one.
+    ///
+    /// **Why this file is excluded, and why the reason is written here.** The exclusion's shape and
+    /// its binding name come from `DownloadLogPrivacyInvariantTests.scannedFiles()`, which does the
+    /// same thing so that two scanners built from one template stay readable as one pattern. Nothing
+    /// else comes from there: that function carries no doc comment, so it implements this decision
+    /// without recording it, and the argument below is this suite's own rather than a copy.
+    ///
+    /// The assembled fragments above remain the FIRST line of defence and this is the second. They
+    /// have to: a census counts occurrences, so a token spelled whole here would count itself in
+    /// every file it also appears in, and no path filter repairs that. What the exclusion buys is
+    /// the one thing fragments cannot. `testNoScannedDocNamesTheSharedReadAsTheSchedulersSoleAuthority`
+    /// reads WHOLE FILES rather than executable lines — policing prose is its entire point — so
+    /// while this file was in its own scan, the one file whose job is to explain what the retired
+    /// claim IS could not spell it out, and the first plainly-worded maintenance edit would have
+    /// failed the suite on its own documentation.
+    ///
+    /// That asymmetry is what made it a scheduled failure rather than a tidy-up: every census
+    /// already drops comment lines through `executableLines(in:)`, precisely so a doc describing an
+    /// inventory does not become part of it, while the prose assertion deliberately reads past that
+    /// filter and went on reading the file that has to describe the rule.
     private static func scannedFiles() throws -> [ScannedFile] {
         let root = try repositoryRoot()
         let fileManager = FileManager.default
+        let invariantFilePath = URL(filePath: #filePath).standardizedFileURL.path
         var files = [ScannedFile]()
 
         for scannedDirectory in scannedDirectories {
@@ -610,7 +640,9 @@ private extension DownloadSourceInventoryTests {
             let enumerator = try #require(
                 fileManager.enumerator(at: directory, includingPropertiesForKeys: nil)
             )
-            for case let url as URL in enumerator where url.pathExtension == "swift" {
+            for case let url as URL in enumerator
+            where url.pathExtension == "swift"
+                && url.standardizedFileURL.path != invariantFilePath {
                 files.append(
                     ScannedFile(
                         relativePath: repositoryRelativePath(of: url, under: root),
