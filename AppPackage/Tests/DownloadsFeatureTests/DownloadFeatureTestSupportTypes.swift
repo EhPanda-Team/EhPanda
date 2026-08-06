@@ -165,7 +165,6 @@ final class BackgroundProcessingClientSpy: Sendable {
         var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
         var armedStartGate: ArmedStartGate?
         var armedProgressGate: ArmedProgressGate?
-        var inFlightProgressUpdate: ProgressUpdate?
         var refusesNextStart = false
     }
 
@@ -206,9 +205,20 @@ final class BackgroundProcessingClientSpy: Sendable {
 
     /// Arms a one-shot gate for the next progress push.
     ///
-    /// The call records its complete argument set before signaling `entered`, then parks before
-    /// the identity guard. Releasing it after a successor starts therefore exercises the same
-    /// stale actor hop as the live seam without a clock, polling, or scheduler assumption.
+    /// The call builds its complete argument set, signals `entered`, and parks BEFORE the identity
+    /// guard and before recording anything. So while the gate is held the spy shows no trace of the
+    /// parked push at all — `progressUpdates` and `rejectedProgressUpdates` gain their entry only
+    /// once it is released, which is where both arming cases read it. Releasing it after a successor
+    /// starts therefore exercises the same stale actor hop as the live seam without a clock,
+    /// polling, or scheduler assumption.
+    ///
+    /// The gate deliberately promises no inspection of the parked arguments: nothing needs it. Both
+    /// arming cases assert the parked push AFTER the release — `DownloadContinuedSessionIdentityTests`
+    /// through `rejectedProgressUpdates`, `DownloadContinuedSessionInterleaveTests` through the
+    /// parked push's ordered position among every recorded subtitle — and each of those is a
+    /// stronger claim than reading the argument set mid-park, because it also pins WHICH side of the
+    /// identity guard the push landed on. A field holding the in-flight update lived here unread
+    /// until G-15-29 removed it.
     func armProgressGate() -> ProgressGate {
         let (enteredEvents, enteredContinuation) = AsyncStream.makeStream(of: Void.self)
         let (releaseEvents, releaseContinuation) = AsyncStream.makeStream(of: Void.self)
@@ -325,7 +335,6 @@ final class BackgroundProcessingClientSpy: Sendable {
                     subtitle: subtitle
                 )
                 let gate = self.state.withLock {
-                    $0.inFlightProgressUpdate = update
                     let gate = $0.armedProgressGate
                     $0.armedProgressGate = nil
                     return gate
@@ -338,7 +347,6 @@ final class BackgroundProcessingClientSpy: Sendable {
                     }
                 }
                 self.state.withLock {
-                    $0.inFlightProgressUpdate = nil
                     if $0.currentSessionID == sessionID {
                         $0.progressUpdates.append(update)
                     } else {
