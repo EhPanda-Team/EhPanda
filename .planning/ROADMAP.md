@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 45/45 | In Progress|  |
+| 15. Continued Background Downloads | 46/49 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 45/49 plans executed
+**Plans**: 46/49 plans executed
 
 Plans:
 **Wave 1**
@@ -997,7 +997,7 @@ Plans:
 
 **Wave 46** *(gap closure round 15, verification warning G-15-28 — blocked on 15-45 by round continuity from the round-15 HEAD and xcodebuild serialization; sequenced FIRST of the round on the verifier's own instruction, so the regression it unblocks can fail before either blocker fix lands)*
 
-- [ ] 15-46-PLAN.md — Make the payload doubles faithful to the route they model: both refusal cases drive retryPages (which stores a page selection) while hand-building a selection-free payload, so the suite has never run the announcement gate against a selection — the repair reproduces BOTH production steps (the fetch places the selection on the payload, the normalizer refines it and early-returns unchanged when the two agree, so normalizing alone keeps a nil selection), censuses all 14 payload call sites across 5 suites with a per-site faithfulness verdict, and pins the helper against the coordinator entry the route writes with the holding production event named; test-target only, and the plan records that both rebuilt cases stay green on both sides so its non-effect on the gate is explicit
+- [x] 15-46-PLAN.md — Make the payload doubles faithful to the route they model: both refusal cases drive retryPages (which stores a page selection) while hand-building a selection-free payload, so the suite has never run the announcement gate against a selection — the repair reproduces BOTH production steps (the fetch places the selection on the payload, the normalizer refines it and early-returns unchanged when the two agree, so normalizing alone keeps a nil selection), censuses all 14 payload call sites across 5 suites with a per-site faithfulness verdict, and pins the helper against the coordinator entry the route writes with the holding production event named; test-target only, and the plan records that both rebuilt cases stay green on both sides so its non-effect on the gate is explicit
 
 **Wave 47** *(gap closure round 15, verification blocker G-15-27 — blocked on 15-46 by file overlap on DownloadContinuedSessionLedgerRefusalTests.swift: this plan's regression only discriminates once the payload rebuild has landed)*
 
