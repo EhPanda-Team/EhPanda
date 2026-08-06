@@ -94,7 +94,7 @@ completed: 2026-08-06
 status: complete
 ---
 
-# Phase 15 Plan 49: The Claim Becomes a Build Gnarl Summary
+# Phase 15 Plan 49: The Claim Becomes a Build Gate Summary
 
 **The single-authority claim that has been wrong for six consecutive rounds is no longer a sentence anyone has to notice: the census suite now walks the downloads test target too, a fragment-assembled prose assertion forbids the retired phrasing across every scanned file, and it was observed FAILING on BOTH retired docs before either was rewritten — while all five pre-existing censuses were re-scoped and re-derived so the widening moved none of them.**
 
@@ -518,3 +518,7 @@ None.
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-08-06*
+
+## Self-Check: PASSED
+
+All 5 modified source and test files present on disk; all 3 commits (`23a27799`, `fc7b27ae`, `9bfa47ce`) present in git history. No absolute home path in this document.
