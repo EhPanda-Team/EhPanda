@@ -369,11 +369,21 @@ extension DownloadCoordinator {
     /// **Trust is admitted where the session can OBSERVE incompleteness or PROVE page work.** Those
     /// are the push-side `formUnion` over a snapshot's incomplete galleries — inside
     /// `reconcileRetiredSessionPages`, and in the start seed built from the same snapshot shape —
-    /// and the insert below, over a run that still has pages of its own to fetch. Written as that
+    /// and the recording below, over a run that still has pages of its own to fetch. Written as that
     /// rule rather than as a count of sites, because a count is a number that goes stale the moment
     /// a writer is added.
     ///
-    /// The insert is explicit because an announcement alone provably admits nothing on one whole
+    /// **The proof is written to the RUN's collection, unconditionally, and to the live session's
+    /// trust set as well when there is one (G-15-26).** They are the same fact reaching the session by
+    /// two routes: `provenPageWorkRunGIDs` is what every LATER session start seeds its trust set
+    /// from, and the session insert is what credits a run that started inside a session already
+    /// live, immediately rather than only at the next start. Recording only into the session set made
+    /// the proof die with the session, which lost it on the two orderings where the session lifecycle
+    /// does not bracket the run — an `.unavailable` teardown while the queue keeps running, and a
+    /// queue resumed at launch, where D-07 forbids a session at all. The run's collection is retired
+    /// at `processDownload`'s `defer`, so the proof does not outlive the run either.
+    ///
+    /// The session insert is explicit because an announcement alone provably admits nothing on one whole
     /// family. The push-side admission is sourced from `incompleteGalleryIDs`, which
     /// `schedulableSnapshot` builds from `isIncomplete`, so it cannot by construction contain a
     /// record that reads complete — and `reconcileWorkingManifestAgainstPageFiles` has three refusal
@@ -438,6 +448,12 @@ extension DownloadCoordinator {
     /// Granting trust inside the bracket would invert both halves: it would withdraw for a basis the
     /// floor had not yet counted.
     ///
+    /// The run-scoped recording changes nothing about that composition, because the withdrawal reads
+    /// the SESSION's trust set and not the run's. With no session live it withdraws nothing at all —
+    /// its own guard is `continuedSessionID != nil` — and by the time a later session start has
+    /// seeded the trust set from the run's proof, that session's floor has been seeded from a
+    /// snapshot that already counted the gallery, so the two sides still move together.
+    ///
     /// Trust granted at the RUN's own preparation and nowhere earlier is also what keeps the queued
     /// window at zero. Nothing here runs at queue time, so a complete gallery queued for an update
     /// still opens the card at zero and a redo that never ran still retires nothing.
@@ -457,10 +473,10 @@ extension DownloadCoordinator {
     /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
     /// body, which is already reentrant at its payload fetch, cover download and source resolution
     /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
-    /// inside that push. Both the pending-list evaluation and the insert are synchronous same-actor
-    /// work taken before that hop, so no push can observe the announcement without the trust it
-    /// announces on, and no page the loop is about to fetch can have been decided after it.
-    /// `prepareWorkingSeed` itself therefore stays synchronous.
+    /// inside that push. The pending-list evaluation and BOTH recordings — the run's and the
+    /// session's — are synchronous same-actor work taken before that hop, so no push can observe the
+    /// announcement without the trust it announces on, and no page the loop is about to fetch can
+    /// have been decided after it. `prepareWorkingSeed` itself therefore stays synchronous.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
@@ -476,9 +492,12 @@ extension DownloadCoordinator {
             folderURL: folderURL,
             existingPageRelativePaths: workingSeed.existingPages
         )
-        if let continuedSessionID, !pendingPages.isEmpty {
-            observedIncompleteSessionGIDs.insert(payload.gallery.gid)
-            await pushContinuedSessionProgress(sessionID: continuedSessionID)
+        if !pendingPages.isEmpty {
+            provenPageWorkRunGIDs.insert(payload.gallery.gid)
+            if let continuedSessionID {
+                observedIncompleteSessionGIDs.insert(payload.gallery.gid)
+                await pushContinuedSessionProgress(sessionID: continuedSessionID)
+            }
         }
         return PreparedWorkingRun(
             workingSeed: workingSeed,
