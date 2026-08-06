@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 49/49 plans executed
+**Plans**: 49/53 plans executed — 15-50..15-53 planned (round 17) to close G-15-30 (blocker), G-15-31, G-15-32 and G-15-33; waves 50-53 run strictly in order
 
 Plans:
 **Wave 1**
