@@ -299,7 +299,8 @@ extension DownloadCoordinator {
     /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's proof, which
     /// is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose gallery's active
     /// slot is held by a live run at a different generation retires nothing and leaves the entry to
-    /// its owner, which retires it at its own exit.
+    /// its owner, which retires it at its own exit. The generation-LESS case is a separate
+    /// disposition and `isSupersededByALiveRun` states it; it is not repeated here.
     ///
     /// **Three steps, in an order that is itself load-bearing (G-15-30).**
     ///
@@ -332,14 +333,53 @@ extension DownloadCoordinator {
         observedIncompleteSessionGIDs.remove(gid)
     }
 
+    /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must
+    /// retire nothing.
+    ///
+    /// **The generation-less case is a policy, and this branch is where it is stated.**
+    /// `processDownload(gid:generation:)` is public and its `generation` defaults to `nil`, while
+    /// the only stamp ever issued is the scheduler's (`+Scheduling.swift`), so a run can reach this
+    /// gate carrying nothing to compare. Such a run cannot prove it owns this gallery's active slot,
+    /// and it is treated as superseded: it retires nothing and leaves the entry to whichever run
+    /// does own the slot.
+    ///
+    /// **The asymmetry is the reason, not the choice.** Leaving the entry to its owner costs one
+    /// stale proof, and costs it only until that owner reaches its own exit and retires it there.
+    /// Retiring on a live successor's behalf drops that successor's proof, which reproduces the
+    /// G-15-26 zero-progress card — an in-flight repair contributing nothing for the rest of its
+    /// re-download — through the very fix that exists to prevent it. A bounded overcount against an
+    /// unbounded stall is not a close call.
+    ///
+    /// The comparison below would already answer `true` for `nil` through optional promotion; the
+    /// branch changes no disposition. It is written so a reader can tell the case was decided rather
+    /// than inherited from the types, which is why the sibling predicate directly below spells its
+    /// own optional out too. `retireProvenPageWork`'s doc owns the overlapping-run argument this
+    /// direction stays consistent with, and it is not restated here.
     private func isSupersededByALiveRun(
         gid: String,
         generation: Int?
     ) -> Bool {
         guard activeTask != nil, activeGalleryID == gid else { return false }
+        guard let generation else { return true }
         return generation != activeTaskGeneration
     }
 
+    /// Whether this run may clear the gallery's active slot on its way out.
+    ///
+    /// **The generation-less arm, derived from the callers rather than asserted.** This predicate
+    /// has one caller, `finishActiveTaskIfOwned`, which has two of its own: the scheduler's
+    /// `processScheduledDownload`, which always passes the generation it stamped into
+    /// `activeTaskGeneration`, and `processDownload`'s `defer`, which forwards whatever its own
+    /// caller supplied — `nil` for anyone who took the public entry point's default. A
+    /// generation-less run is therefore by construction a run the scheduler never stamped, and it
+    /// has no identity to match.
+    ///
+    /// With no identity to check, ownership can only be inferred from the slot being IDLE, which is
+    /// what the two conditions below require. A live `activeTask` means some run holds the slot and
+    /// it is not this one; clearing it there would strand that run, because ACTIVE-OWNERSHIP
+    /// CONVERGENCE records that once ownership is cleared the real owner's deferred cleanup is
+    /// rejected, and the queue loses its last scheduling opportunity. An `activeGalleryID` claimed
+    /// by a different gallery is the same hazard read through the other half of the pair.
     private func isActiveTaskOwner(
         gid: String,
         generation: Int?
