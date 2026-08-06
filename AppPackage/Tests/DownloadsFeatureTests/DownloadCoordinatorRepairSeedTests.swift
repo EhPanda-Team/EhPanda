@@ -40,7 +40,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
             payload: payload,
             existingDownload: existingDownload,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         let pageOneRelativePath = storage.makePageRelativePath(
             gid: gid, token: "token", index: 1, fileExtension: "jpg"
@@ -126,7 +126,7 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
             payload: makeReconcilePayload(gid: gid, mode: .repair),
             existingDownload: existingDownload,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         #expect(workingSeed.manifest == stagedManifest)
         #expect(try storage.readManifest(folderURL: folderURL) == stagedManifest)
@@ -228,7 +228,7 @@ private extension DownloadCoordinatorRepairSeedTests {
             payload: makeReconcilePayload(gid: gid, mode: mode),
             existingDownload: existingDownload,
             folderURL: folderURL
-        )
+        ).workingSeed
 
         #expect(workingSeed.manifest.completedPageCount == 2)
         #expect(workingSeed.manifest.pages[3] == "")

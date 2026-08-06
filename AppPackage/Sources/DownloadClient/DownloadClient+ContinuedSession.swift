@@ -85,7 +85,7 @@ extension DownloadCoordinator {
     /// **D-G4-01: a schedulable gallery's session-completed page count is its record's
     /// `completedPageCount` when the record reads incomplete or this session has already trusted the
     /// gallery — having observed it incomplete, or having proven at the run's own preparation that
-    /// its working folder cannot supply the pages its manifest claims — and zero otherwise.** The
+    /// the run still has pages of its own to fetch — and zero otherwise.** The
     /// per-gallery `pageCount` denominator and the schedulable `galleryCount` are untouched by the
     /// rule; only the numerator's basis is.
     ///
@@ -119,11 +119,13 @@ extension DownloadCoordinator {
     ///
     /// Honesty is necessary but not sufficient, because the record alone never speaks for a session.
     /// The run therefore announces its post-preparation basis before any page work
-    /// (`prepareWorkingSeedAnnouncingProgress`) and, when its own working folder cannot supply the
-    /// pages the manifest claims, admits the gallery to the trust set in the same breath. That makes
-    /// the observation independent of flush cadence — deterministically so where one flush batch
-    /// would otherwise carry every missing page and restore completeness before its own push — and
-    /// independent of whether the reconciliation blanked anything at all.
+    /// (`prepareWorkingSeedAnnouncingProgress`) and, when its own pending page list is non-empty,
+    /// admits the gallery to the trust set in the same breath. That list — the one the run's page
+    /// loop is fed, honoring the payload's page selection — rather than the folder's shortfall
+    /// against its manifest, which credits a selected-page retry that will fetch nothing
+    /// (G-15-27). That makes the observation independent of flush cadence — deterministically so
+    /// where one flush batch would otherwise carry every missing page and restore completeness
+    /// before its own push — and independent of whether the reconciliation blanked anything at all.
     /// `ensureContinuedSession`'s merged seed is what keeps that observation when it lands inside
     /// the client start's main-actor hop.
     ///

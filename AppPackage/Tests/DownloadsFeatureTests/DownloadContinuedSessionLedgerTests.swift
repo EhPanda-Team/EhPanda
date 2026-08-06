@@ -597,8 +597,11 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// **The payload is production-shaped (G-15-28).** This case drives `retryPages` too, so it
     /// belongs to the same double-building family as the two refusal cases: its route stores the
     /// single retried index in `queuedPageSelections`, and a production run reads that entry back
-    /// into both payload steps. The announcement gate does not read `payload.pageSelection`
-    /// (G-15-27, open here), so carrying the selection moves nothing this case asserts.
+    /// into both payload steps. Carrying the selection moves nothing this case asserts, and the
+    /// reason survived G-15-27's closure rather than depending on the gate ignoring the selection:
+    /// the gate now reads the run's own pending page list, which honors that selection, and page 3
+    /// — the retried one — is precisely the page whose file this staging leaves absent. The list is
+    /// therefore non-empty and the announcement fires exactly as it did.
     @Test
     func testARepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull() async throws {
         let repair = SessionGallery(
