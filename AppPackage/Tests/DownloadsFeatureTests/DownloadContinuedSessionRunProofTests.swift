@@ -69,6 +69,17 @@ extension DownloadContinuedSessionLedgerTests {
     /// The precondition is asserted rather than assumed: without it a case that accidentally had a
     /// live session at the preparation would be asserting the ordinary in-session path and proving
     /// nothing about this one.
+    ///
+    /// **Where this case's proof lives, and why it moved (G-15-30).** It used to be the opening
+    /// subtitle: a kept proof opened the card at the record's six pages and a lost one at zero. That
+    /// difference existed only because membership unlocked the record's WHOLE count, which for this
+    /// family is the work the run has not done — so the reading the case pinned was the defect. The
+    /// corrected basis credits the record minus what the run still owes, which at the opening is
+    /// zero for a kept proof and zero for a lost one alike, leaving the opening with nothing to
+    /// discriminate. The proof therefore moved to the PROGRESSION: pages are landed through the
+    /// production flush after the start and the credited work must RISE, which only a trusted
+    /// gallery's can. The opening is still asserted, as the card's honest first reading, but it is
+    /// no longer what this case rests on.
     @Test
     func testARepairPreparedWithNoLiveSessionIsCreditedByTheNextSession() async throws {
         let resumed = SessionGallery(
@@ -124,9 +135,36 @@ extension DownloadContinuedSessionLedgerTests {
         await manager.testingEnsureContinuedSession()
 
         #expect(spy.startCount == 1)
-        #expect(spy.startCompletedUnitCounts.last == 6)
+        // DEMOTED, not deleted (G-15-30). This reading used to be the case's proof, back when
+        // membership unlocked the record's whole count and a kept proof opened the card at six.
+        // Under the corrected basis the opening is the same number whether the proof survived or
+        // was lost — the run owes all six pages at this instant, so the credited work is zero either
+        // way — which makes it a fact about the card's honest opening rather than a discriminator.
+        // Asserting it AS the proof would re-freeze a constant, which is the shape that produced
+        // this gap.
+        let openingCredit = try #require(spy.startCompletedUnitCounts.last)
+        #expect(openingCredit == 0)
         #expect(spy.startTotalUnitCounts.last == 6)
-        #expect(spy.startSubtitles.last == "6 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+
+        // THE DISCRIMINATOR. Pages landing through the production flush are credited only for a
+        // gallery this session trusts: an untrusted complete-reading record contributes zero at
+        // every push no matter how many pages land, because its record cannot move either. So a
+        // rise here is reachable only through the proof this run recorded while no session existed.
+        try writePageFiles(for: resumed, in: fixture, indices: [1, 2])
+        var pendingResolvedPages = pageResults(for: resumed, in: fixture, indices: [1, 2])
+        var lastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: resumed.gid, folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        // The record is where it was, so the rise is the session's accounting and nothing else.
+        #expect(await manager.fetchDownload(gid: resumed.gid)?.completedPageCount == 6)
+        let creditAfterLanding = try lastPushedPair(spy.progressUpdates).completedUnitCount
+        #expect(creditAfterLanding > openingCredit)
+        #expect(creditAfterLanding == 2)
         // Asserted alongside, so an identity refusal cannot be mistaken for the outcome.
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
@@ -157,6 +195,16 @@ extension DownloadContinuedSessionLedgerTests {
     /// The queue's continued pending work is asserted rather than assumed, because
     /// `ensureContinuedSession` guards on it and a case that had silently drained the queue would
     /// report no second start rather than a wrong one.
+    ///
+    /// **Where this case's proof lives, and why it moved (G-15-30).** Both halves used to be
+    /// subtitle constants: session 1's announcement pushing the record's six pages stood for "trust
+    /// earned", and session 2's opening reading six again stood for "trust survived". Both readings
+    /// existed only because membership unlocked the record's WHOLE count, which for a refused repair
+    /// is the work the run has not done. The corrected basis makes each of them a rise in credited
+    /// work across production-issued pushes instead: two pages land in session 1 and the numerator
+    /// must reach two, two more land in session 2 and it must reach four. Neither rise is reachable
+    /// for a gallery its session does not trust, because a complete-reading record contributes zero
+    /// at every push and cannot move on its own.
     @Test
     func testAnUnavailableTeardownDoesNotStripTheRunsProofFromTheNextSession() async throws {
         let interrupted = SessionGallery(
@@ -193,10 +241,22 @@ extension DownloadContinuedSessionLedgerTests {
             folderURL: folderURL
         )
 
-        // The run earned its trust inside session 1, and the announcement's own push proves it. The
-        // record is still complete-reading, so this credit can only have come from the proof.
+        // The run EARNED its trust inside session 1, and two pages landed through the production
+        // flush prove it: the record is complete-reading, so an untrusted gallery would have been
+        // credited zero for them. Without this the teardown below would have nothing to strip and
+        // the case would pass on a run that never earned anything.
+        var lastFlushDate = Date.distantPast
+        try writePageFiles(for: interrupted, in: fixture, indices: [1, 2])
+        var firstBatch = pageResults(for: interrupted, in: fixture, indices: [1, 2])
+        try await manager.flushDownloadProgress(
+            context: .init(gid: interrupted.gid, folderURL: folderURL),
+            pendingResolvedPages: &firstBatch,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
         #expect(await manager.fetchDownload(gid: interrupted.gid)?.completedPageCount == 6)
-        #expect(spy.progressUpdates.map(\.subtitle).contains("6 / 6 pages · 1 gallery"))
+        let creditInFirstSession = try lastPushedPair(spy.progressUpdates).completedUnitCount
+        #expect(creditInFirstSession == 2)
 
         spy.emit(.unavailable)
         try await waitUntil {
@@ -207,9 +267,24 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.hasPendingWork())
 
         await manager.testingEnsureContinuedSession()
-
         #expect(spy.startCount == 2)
-        #expect(spy.startSubtitles.last == "6 / 6 pages · 1 gallery")
+
+        // THE DISCRIMINATOR. Two more pages land through the production flush inside session 2, and
+        // the credited work must rise again — which the second session can only do for a gallery it
+        // trusts, and it can only trust this one through the proof it seeded from the still-running
+        // run. The record never moves, so nothing else can supply the rise.
+        try writePageFiles(for: interrupted, in: fixture, indices: [3, 4])
+        var secondBatch = pageResults(for: interrupted, in: fixture, indices: [3, 4])
+        try await manager.flushDownloadProgress(
+            context: .init(gid: interrupted.gid, folderURL: folderURL),
+            pendingResolvedPages: &secondBatch,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        #expect(await manager.fetchDownload(gid: interrupted.gid)?.completedPageCount == 6)
+        let creditInSecondSession = try lastPushedPair(spy.progressUpdates).completedUnitCount
+        #expect(creditInSecondSession > creditInFirstSession)
+        #expect(creditInSecondSession == 4)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -217,16 +292,24 @@ extension DownloadContinuedSessionLedgerTests {
     /// gallery.
     ///
     /// This is D-G4-01's ceiling read from the other side, and it is the case that stops the remedy
-    /// from over-correcting. A run-scoped proof keyed by gallery id and never retired makes every
-    /// later redo of that gallery open at its record's full page count — the pinned-100% card the
-    /// retirement ledger exists to prevent, reached through the fix for the pinned-ZERO one.
+    /// from over-correcting. A proof keyed by gallery id and never retired keeps the SESSION trust
+    /// it granted standing, so a later redo of that gallery selects the credited branch instead of
+    /// the queued window's zero and opens at its record's count less whatever page debt the dead run
+    /// left behind — the pinned-high card the retirement ledger exists to prevent, reached through
+    /// the fix for the pinned-ZERO one.
     ///
-    /// **This case is green on BOTH sides of the fix, and its pre-fix green is VACUOUS.** Before the
-    /// fix there is no run-scoped collection at all, so there is nothing for a redo to inherit and
-    /// the case cannot fail here however wrong the eventual retirement turns out to be. A green
-    /// reading on both sides is therefore not, by itself, evidence of a pin. Its standing rests
-    /// entirely on the sensitivity reading taken when the retirement lands: with the retirement
-    /// removed this case must FAIL, on the redo's card opening at the record's six pages instead of
+    /// **Why the first run lands two pages, which it did not have to before (G-15-30).** With the
+    /// proof a bare membership, an un-retired entry credited the redo the record's whole count and
+    /// the staging needed no page work to show it. With the proof carrying the pages the run still
+    /// owes, an un-retired entry that owes ALL of them subtracts back to exactly the zero this case
+    /// asserts — the stale debt cancels the stale trust and the assertion goes vacuous again, for a
+    /// new reason. Paying two of the six inside the first run breaks that cancellation: a surviving
+    /// entry then credits the redo those two pages, and the case fails on the difference.
+    ///
+    /// **This case is green on BOTH sides of the retirement's introduction unless that landing is
+    /// staged, and its green there is VACUOUS.** A green reading is not by itself evidence of a pin.
+    /// Its standing rests entirely on the sensitivity reading: with the retirement removed this case
+    /// must FAIL, on the redo's card opening at the pages the dead run had already paid instead of
     /// at zero, and must return to green when it is restored. Until that failure has been OBSERVED,
     /// this case must not be reported as closing the lifetime risk.
     ///
@@ -287,6 +370,20 @@ extension DownloadContinuedSessionLedgerTests {
         // Non-vacuity: this run really did prove page work, so there is a proof for the redo to
         // inherit if nothing retires it.
         #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+
+        // Two of the six paid inside the first run, so a surviving entry would credit the redo
+        // those two rather than subtracting back to the zero this case asserts. No session is live,
+        // so this issues no push; the debt falls all the same, which is the point.
+        try writePageFiles(for: redone, in: fixture, indices: [1, 2])
+        var pendingResolvedPages = pageResults(for: redone, in: fixture, indices: [1, 2])
+        var lastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: redone.gid, folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        #expect(spy.progressUpdates.isEmpty)
 
         // The run's own exit, taken through production: the detail fetch fails offline and
         // `processDownload` unwinds through its general failure catch and its `defer`.
@@ -416,6 +513,14 @@ extension DownloadContinuedSessionLedgerTests {
     /// zero, and the denominator is what shows it back in the queue: a terminal pair of two over
     /// sixteen across two galleries is the session's real work beside the whole queue it still
     /// covers, while the record's untouched six is credited nowhere.
+    ///
+    /// **This case pins the TRUST withdrawal specifically, and that was observed rather than
+    /// argued.** With `retireProvenPageWork`'s `observedIncompleteSessionGIDs.remove(gid)` deleted
+    /// and everything else left standing, it fails on a terminal `6 / 16 pages · 2 galleries`
+    /// against the expected `2 / 16`. The mechanism is worth stating because it is not obvious: the
+    /// run's exit drops the page debt as well, so a gallery left inside the trust set is credited
+    /// its record MINUS nothing — the debt that used to hold the correction has no owner any more.
+    /// Withdrawing the trust with the debt is what keeps the two from separating.
     @Test
     func testAFailedRefusalRepairsGalleryContributesNothingWhileMerelyQueued() async throws {
         let abandoned = SessionGallery(
