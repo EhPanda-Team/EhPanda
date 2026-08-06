@@ -287,9 +287,12 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 4
             )
         )
-        #expect(spy.registeredIdentifiers.count == 2)
+        // The later start re-submits the identifier this process already registered rather than
+        // registering a second permanent handler (G-15-31). The count and the equality are the same
+        // fact from both sides; neither would hold against per-session minting.
+        #expect(spy.registeredIdentifiers.count == 1)
         let awaitedIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(awaitedIdentifier != abandonedIdentifier)
+        #expect(awaitedIdentifier == abandonedIdentifier)
         #expect(spy.submissions.map(\.identifier) == [abandonedIdentifier, awaitedIdentifier])
 
         let adoptedTask = ContinuedTaskSpy()
@@ -365,14 +368,22 @@ struct ContinuedProcessingSessionTests {
         #expect(secondEvents.isEmpty)
     }
 
-    /// A launch handler outlives its session, so a stale one can fire while a different session is
-    /// live. That launch must be completed and turned away rather than displacing the task the
-    /// store is actually waiting for.
+    /// A launch handler outlives its session, so a stale one can fire long after the session that
+    /// submitted its request ended. That launch must be completed and turned away rather than
+    /// displacing the task the store is holding.
+    ///
+    /// The staging changed with G-15-31; the subject did not. Under a per-session identifier the
+    /// stale launch was told apart by its STRING, and this case delivered it while the successor was
+    /// still AWAITING. One process-scoped identifier dissolves that staging by construction — in the
+    /// awaiting window a leftover carries the live string, and `handleLaunch` records why nothing
+    /// the SDK supplies can separate them. What survives is the property this case exists for: a
+    /// launch the store is NOT awaiting is completed and turned away. So the live session adopts
+    /// first, and the stale launch arrives against a held task.
     ///
     /// The single `granted` drained at the end is what proves the stale launch never reached the
     /// live stream: an accepted stray would have yielded a second one.
     @Test
-    func testAStaleLaunchIsCompletedAndNeverDisplacesTheAwaitedTask() async throws {
+    func testAStaleLaunchIsCompletedAndNeverDisplacesTheHeldTask() async throws {
         let spy = ContinuedTaskSchedulingSpy()
         let store = ContinuedProcessingSession(scheduling: spy.scheduling)
 
@@ -385,7 +396,7 @@ struct ContinuedProcessingSessionTests {
             )
         )
         store.finish(sessionID: firstSession.id, success: true)
-        let staleIdentifier = try #require(spy.registeredIdentifiers.first)
+        let identifier = try #require(spy.registeredIdentifiers.first)
 
         var firstEvents = [BackgroundProcessingEvent]()
         for await event in firstSession.events {
@@ -401,21 +412,27 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 6
             )
         )
-        let liveIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(liveIdentifier != staleIdentifier)
-
-        let staleTask = ContinuedTaskSpy()
-        spy.launch(staleIdentifier, with: staleTask)
-        #expect(staleTask.completionSuccesses == [false])
+        #expect(spy.registeredIdentifiers.count == 1)
 
         let liveTask = ContinuedTaskSpy()
-        spy.launch(liveIdentifier, with: liveTask)
+        spy.launch(identifier, with: liveTask)
         #expect(liveTask.completionSuccesses.isEmpty)
+        #expect(liveTask.progress.totalUnitCount == 6)
+
+        // The retired session's request, launched after the store already adopted its own task.
+        let staleTask = ContinuedTaskSpy()
+        spy.launch(identifier, with: staleTask)
+        #expect(staleTask.completionSuccesses == [false])
+        // Not displaced: the held task is untouched and still carries the live session's counts.
+        #expect(liveTask.completionSuccesses.isEmpty)
+        #expect(liveTask.progress.totalUnitCount == 6)
 
         store.finish(sessionID: secondSession.id, success: true)
+        // The store still holds the task it adopted, so the caller's word completes THAT one — an
+        // accepted stray would have left this reading `[false]` from the displaced task instead.
         #expect(liveTask.completionSuccesses == [true])
         // Only the request nobody adopted was cancelled; the live one was launched, not withdrawn.
-        #expect(spy.cancelledIdentifiers == [staleIdentifier])
+        #expect(spy.cancelledIdentifiers == [identifier])
 
         var secondEvents = [BackgroundProcessingEvent]()
         for await event in secondSession.events {
@@ -542,6 +559,9 @@ struct ContinuedProcessingSessionTests {
             totalUnitCount: 20
         )
         #expect(refusedSession == nil)
+        // The registration count cannot carry this on its own now that the identifier is
+        // process-scoped — a start that reached the scheduler would register nothing either way —
+        // so the submission count is what proves the refused re-entry made no scheduler touch.
         #expect(spy.registeredIdentifiers.count == 1)
         #expect(spy.submissions.count == 1)
 
@@ -556,8 +576,8 @@ struct ContinuedProcessingSessionTests {
             )
         )
         let laterIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(spy.registeredIdentifiers.count == 2)
-        #expect(laterIdentifier != firstIdentifier)
+        #expect(spy.registeredIdentifiers.count == 1)
+        #expect(laterIdentifier == firstIdentifier)
         #expect(spy.submissions.map(\.identifier) == [firstIdentifier, laterIdentifier])
 
         store.finish(sessionID: laterSession.id, success: true)
@@ -635,6 +655,13 @@ struct ContinuedProcessingSessionTests {
     /// scheduler and stops there. The follow-up start is the release proof and also pins that the
     /// store mints FRESH identity rather than retrying the refused one: re-registering an
     /// identifier is what the system kills the app for.
+    ///
+    /// That reading survives the process-scoped identifier G-15-31 introduced, and not as an
+    /// exception carved for this arm. The store records its identifier only where
+    /// `scheduling.register` returned true, so a refusal records nothing by construction and this is
+    /// the one arm that still mints — which is why the counts below read two where every other
+    /// sequential-start case now reads one. Bounding the ATTEMPTS instead would let a single
+    /// transient refusal disable background coverage for the rest of the process.
     @Test
     func testARefusedRegistrationYieldsUnavailableAndReleasesTheStore() async throws {
         let spy = ContinuedTaskSchedulingSpy()
@@ -735,12 +762,19 @@ struct ContinuedProcessingSessionTests {
         )
         // One-shot: the armed error was consumed by the submission that threw it, so this one
         // reaches the scheduler normally.
-        let freshIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(freshIdentifier != failedIdentifier)
-        expectNoDifference(spy.submissions.map(\.identifier), [freshIdentifier])
+        //
+        // This arm is where G-15-31's accumulation actually lived, and it is the half of the split
+        // the refused-registration case does not cover: the registration SUCCEEDED here and only the
+        // submission failed, so against a device refusing submissions persistently every retry used
+        // to leave another permanent handler no launch could ever adopt. The retry now reaches the
+        // register call not at all — the count is still one — and re-submits the same identifier.
+        #expect(spy.registeredIdentifiers.count == 1)
+        let reusedIdentifier = try #require(spy.registeredIdentifiers.last)
+        #expect(reusedIdentifier == failedIdentifier)
+        expectNoDifference(spy.submissions.map(\.identifier), [reusedIdentifier])
 
         store.finish(sessionID: grantedSession.id, success: true)
-        expectNoDifference(spy.cancelledIdentifiers, [failedIdentifier, freshIdentifier])
+        expectNoDifference(spy.cancelledIdentifiers, [failedIdentifier, reusedIdentifier])
         var grantedEvents = [BackgroundProcessingEvent]()
         for await event in grantedSession.events {
             grantedEvents.append(event)
@@ -792,7 +826,7 @@ struct ContinuedProcessingSessionTests {
             )
         )
         let laterIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(laterIdentifier != identifier)
+        #expect(laterIdentifier == identifier)
         let laterTask = ContinuedTaskSpy()
         spy.launch(laterIdentifier, with: laterTask)
         store.finish(sessionID: laterSession.id, success: true)
@@ -807,15 +841,22 @@ struct ContinuedProcessingSessionTests {
 
     /// `handleLaunch`'s nil-task path, second arm: the identity gate, which no case has driven.
     ///
-    /// A launch handler can never be unregistered, so an identifier this process retired keeps a
-    /// live handler that can fire at any later moment — the spy's keyed handlers mirror exactly
-    /// that, keeping A's handler after A ends. A failed launch under a retired identifier concerns
-    /// no live session, and ending B on it would tear down a session whose card the system is still
-    /// showing.
+    /// A launch handler can never be unregistered, so the identifier this process registered keeps
+    /// a live handler that can fire at any later moment — the spy's keyed handlers mirror exactly
+    /// that, keeping the handler alive after A ends. A failed launch the store is not awaiting
+    /// concerns no live session, and ending the store on it would tear down a session whose card the
+    /// system is still showing.
+    ///
+    /// The staging changed with G-15-31; the subject did not. The gate used to be driven by a
+    /// RETIRED identifier while B was still awaiting, and one process-scoped identifier dissolves
+    /// that: in the awaiting window a leftover carries the live string, so `handleLaunch` can no
+    /// longer separate them and its doc records the accepted consequence. What survives is the
+    /// discrimination the gate still makes — a `nil` launch arriving once the store HOLDS its task
+    /// must be ignored — so B adopts before the stale delivery.
     ///
     /// The two assertions after the stale delivery are what discriminate the gate from its absence:
-    /// without it B is ended, so B's minted launch would be turned away and completed
-    /// unsuccessfully, and B's stream would drain `[.unavailable]` instead of `[.granted]`.
+    /// without it B is ended, so B's held task would be completed unsuccessfully rather than at the
+    /// caller's word, and B's stream would drain `[.granted, .unavailable]` instead of `[.granted]`.
     @Test
     func testAStaleNilLaunchCannotEndALiveSession() async throws {
         let spy = ContinuedTaskSchedulingSpy()
@@ -829,7 +870,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
-        let staleIdentifier = try #require(spy.registeredIdentifiers.first)
+        let identifier = try #require(spy.registeredIdentifiers.first)
         store.finish(sessionID: staleSession.id, success: true)
 
         var staleEvents = [BackgroundProcessingEvent]()
@@ -846,23 +887,23 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 6
             )
         )
-        let liveIdentifier = try #require(spy.registeredIdentifiers.last)
-        #expect(liveIdentifier != staleIdentifier)
+        #expect(spy.registeredIdentifiers.count == 1)
 
-        spy.launch(staleIdentifier, with: nil)
-
-        // The live session is still the one the store awaits: its own launch is adopted rather than
-        // turned away, which an ended session could not do.
         let liveTask = ContinuedTaskSpy()
-        spy.launch(liveIdentifier, with: liveTask)
+        spy.launch(identifier, with: liveTask)
         #expect(liveTask.completionSuccesses.isEmpty)
         #expect(liveTask.progress.totalUnitCount == 6)
+
+        // The retired session's handler, firing with a launch the seam could not read as a
+        // continued-processing task, once the store already holds its own.
+        spy.launch(identifier, with: nil)
+        #expect(liveTask.completionSuccesses.isEmpty)
 
         store.finish(sessionID: liveSession.id, success: true)
         #expect(liveTask.completionSuccesses == [true])
         // Only the retired request was ever taken back; the stale nil launch added no cancellation
         // of its own, because it belonged to a session that had already ended.
-        expectNoDifference(spy.cancelledIdentifiers, [staleIdentifier])
+        expectNoDifference(spy.cancelledIdentifiers, [identifier])
 
         var liveEvents = [BackgroundProcessingEvent]()
         for await event in liveSession.events {

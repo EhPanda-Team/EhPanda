@@ -63,24 +63,26 @@ extension ContinuedTaskScheduling {
         cancelAllRequests: {
             BGTaskScheduler.shared.cancelAllTaskRequests()
         },
-        // Registration happens POST-LAUNCH, at the first session start, and cannot be moved to
-        // launch. `ContinuedProcessingSession.start` mints the identifier per session as
-        // "\(bundleIdentifier).continued.\(UUID().uuidString)" — a fresh UUID every time, because a
-        // handler can never be unregistered and a second registration of one identifier kills the
-        // app — under the `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*` wildcard declared in
-        // App/Info.plist's `BGTaskSchedulerPermittedIdentifiers`. No concrete identifier exists
-        // before a session starts, so there is nothing to register at `didFinishLaunching`, and this
-        // closure has exactly one caller.
+        // Registration happens POST-LAUNCH, at the first session start.
+        // `ContinuedProcessingSession.start` mints ONE identifier per process as
+        // "\(bundleIdentifier).continued.\(UUID().uuidString)", under the
+        // `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*` wildcard declared in App/Info.plist's
+        // `BGTaskSchedulerPermittedIdentifiers`; a handler is registered for it at the first
+        // successful registration, and that same identifier is submitted again for every later
+        // session. No concrete identifier exists before a session starts, so there is nothing to
+        // register at `didFinishLaunching`, and this closure has exactly one caller.
+        //
+        // The constraint that binds is UNIQUENESS, not repetition: a handler can never be
+        // unregistered and a second registration of one identifier kills the app. That is why the
+        // store keeps its identifier rather than re-deriving one per session — re-deriving met the
+        // same rule while leaving one permanent handler behind per download burst (G-15-31).
         //
         // The design is device-proven rather than merely unfalsified: 15-UAT.md test 1 reads
         // `result: pass` on physical iOS 26 hardware, with pages continuing to land well past the
         // deleted 60-second grace window — an outcome reachable only if this post-launch
-        // registration was honoured and the system actually launched the task.
-        //
-        // The failure modes are asymmetric, as with the UIBackgroundModes note in App/Info.plist:
-        // moving registration earlier is structurally impossible under a per-session identifier,
-        // while re-raising the lazy-registration concern without new device evidence re-opens a
-        // question this record already answers.
+        // registration was honoured and the system actually launched the task. That record covers
+        // registration and launch; no device run has yet exercised a reused identifier's second
+        // submission, so it must not be read as evidence for that.
         register: { identifier, launchHandler in
             BGTaskScheduler.shared.register(
                 forTaskWithIdentifier: identifier,
