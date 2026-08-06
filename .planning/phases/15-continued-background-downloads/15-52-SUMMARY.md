@@ -75,7 +75,7 @@ Every `BackgroundProcessingClient` value the downloads test target can reach, an
 | Value | Where | Class | Why it is in that class |
 |---|---|---|---|
 | `BackgroundProcessingClientSpy.client` | `DownloadFeatureTestSupportTypes.swift:292` | **(a) HAND-BUILT DOUBLE — IN** | Written closure by closure to stand in for a main-actor-confined seam; its own header states the timing obligation |
-| `BackgroundProcessingClient.unavailable` | `DownloadContinuedSessionExpirationTests.swift:428` | **(a) HAND-BUILT DOUBLE — IN** | Same: a hand-written stand-in for the same seam, differing only in what it answers |
+| `BackgroundProcessingClient.unavailable` | `DownloadContinuedSessionExpirationTests.swift:426` | **(a) HAND-BUILT DOUBLE — IN** | Same: a hand-written stand-in for the same seam, differing only in what it answers |
 | `BackgroundProcessingClient()` | `DownloadContinuedSessionTests.swift:14` | **(b) GENERATED — OUT** | Macro-synthesized by `@DependencyClient`; nobody writes its endpoints and its whole purpose is to report an issue when called. Demanding a yield from it would be demanding one from generated code |
 | `BackgroundProcessingClient.live` | `BackgroundProcessingClient.swift:68` | **(c) PRODUCTION — OUT** | Not a double at all: the forwarder onto `ContinuedProcessingSession` that every double stands in for. It is the thing whose timing the census measures others against |
 | `BackgroundProcessingClient.noop` | `BackgroundProcessingClient.swift:93` | **(c) PRODUCTION — OUT** | The module's public inert value, shipped in `Sources` and used as a baseline by cases comparing against "no session at all". A test census must not demand yields from a production surface |
@@ -84,9 +84,10 @@ The pre-derived expectation of exactly two members in class (a) was re-derived a
 
 ### Step 2: both halves' numbers, derived from source
 
-**Property half — suspension points.** The spy's three closures each open with a yield, verified in
-source at `DownloadFeatureTestSupportTypes.swift:294` (`start`), `:336` (`updateProgress`) and
-`:365` (`finish`) — three, counted rather than assumed. Grep and result at Task 1's head:
+**Property half — suspension points.** The spy's three closures each open with a yield, counted
+rather than assumed — at Task 1's head they sat at `DownloadFeatureTestSupportTypes.swift:287`
+(`start`), `:329` (`updateProgress`) and `:358` (`finish`); at this head, after the header sentence
+Task 2 added, they are `:294`, `:336` and `:365`. Grep and result at Task 1's head:
 
 ```
 $ for f in AppPackage/Tests/DownloadsFeatureTests/*.swift; do
@@ -110,13 +111,16 @@ private static let expectedClientDoubleSuspensionSites = [
 private static let expectedClientDoubleSuspensionTotal = 6
 ```
 
-**Population half — construction sites.** Grep and result:
+**Population half — construction sites.** Grep and result, verbatim at Task 1's head:
 
 ```
 $ grep -rn "updateProgress:" AppPackage/Tests/DownloadsFeatureTests/
-  DownloadFeatureTestSupportTypes.swift:335:            updateProgress: { sessionID, ... in
-  DownloadContinuedSessionExpirationTests.swift:436:        updateProgress: { _, _, _, _ in
+  DownloadFeatureTestSupportTypes.swift:328:            updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+  DownloadContinuedSessionExpirationTests.swift:414:        updateProgress: { _, _, _, _ in },
 ```
+
+Two occurrences target-wide, both of them a hand-built double's endpoint — no call site matches,
+because a call is spelled `updateProgress(` with no colon after the name.
 
 ```swift
 private static let expectedClientDoubleConstructionSites = [
