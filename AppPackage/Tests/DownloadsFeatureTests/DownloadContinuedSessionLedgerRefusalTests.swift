@@ -42,11 +42,13 @@ extension DownloadContinuedSessionLedgerTests {
     /// folder is more likely a shape the positive signals missed than proof that six files vanished
     /// at once. That refusal is the round-11/12/13 defence and must not move. What it costs is this
     /// case's subject: nothing blanked means nothing republished, so the record goes on reading
-    /// 6-of-6, `isIncomplete` stays false, and the only writers of the session's trust set are two
-    /// `formUnion`s over `snapshot.incompleteGalleryIDs` — which by construction cannot contain a
-    /// complete-reading record. Without an explicit admission at the run's own preparation the
-    /// gallery contributes zero to the numerator for the entire six-page re-download and retires
-    /// zero when it leaves.
+    /// 6-of-6 and `isIncomplete` stays false — so every SNAPSHOT-sourced writer of the session's
+    /// trust set is closed to this gallery at once, both of them being `formUnion`s over
+    /// `snapshot.incompleteGalleryIDs`, which by construction cannot contain a complete-reading
+    /// record. The remaining writers all trace back to the run's own proof of page work: the insert
+    /// at the preparation when a session is live, and the seed each session start takes from
+    /// `provenPageWorkRunGIDs` (G-15-26). Without that proof the gallery contributes zero to the
+    /// numerator for the entire six-page re-download and retires zero when it leaves.
     ///
     /// The staging is the K=1 case with exactly one difference: no page file is written at all. The
     /// route is grounded rather than asserted about — `resumeMode` resolves `.repair` through its
@@ -156,8 +158,10 @@ extension DownloadContinuedSessionLedgerTests {
     ///
     /// `scanSucceeded` false means the enumeration itself failed, so the whole answer is a
     /// non-answer and nothing is blanked (G-15-9). The record therefore reads complete for the
-    /// whole run exactly as in the residual case above, and the announcement is the only place that
-    /// can admit the gallery to the session's trust set. Staging both exits is what makes this a
+    /// whole run exactly as in the residual case above, so the run's own proof at the announcement is
+    /// the only thing that can admit the gallery to the session's trust set — directly here, where a
+    /// session is already live, and through the session-start seed otherwise (G-15-26). Staging both
+    /// exits is what makes this a
     /// FAMILY closure rather than a fix for the branch a report named: a refusal of any kind over a
     /// complete-reading record produces the identical zero-progress run.
     ///
