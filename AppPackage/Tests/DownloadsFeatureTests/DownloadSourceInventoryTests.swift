@@ -20,6 +20,13 @@ import Testing
 /// per-file table asserted alongside a separately-counted joined total, which no two same-named
 /// files can collapse.
 ///
+/// One claim here is a SENTENCE rather than an inventory, and it is why the walk covers the
+/// downloads test target as well as the client module. A doc claim is load-bearing wherever it is
+/// written, and a Sources-scoped guard cannot see a retired claim that survives in a test — which is
+/// not hypothetical either: it is G-15-29. The censuses stay scoped to the client module through
+/// `clientModuleFiles(in:)`, because a census counts over the files the scan returns and a widened
+/// scan would otherwise re-base every table in this file at once.
+///
 /// A failure here is not a defect by itself. It means source moved and a doc that cites it must be
 /// re-read and re-derived before the table is updated — which is the whole point.
 @Suite
@@ -34,10 +41,32 @@ struct DownloadSourceInventoryTests {
     }
 
     private static let clientModuleDirectory = "AppPackage/Sources/DownloadClient"
+    private static let downloadsTestDirectory = "AppPackage/Tests/DownloadsFeatureTests"
+
+    /// Both trees this suite walks, and the reason the walk is wider than the censuses are.
+    ///
+    /// The test target joined the walk because a load-bearing doc claim does not stop being
+    /// load-bearing when it is written in a test. The retired single-authority sentence was
+    /// corrected in `+PendingWork.swift` and went on standing in two suites, where a
+    /// Sources-scoped scan structurally could not see it (G-15-29).
+    ///
+    /// Only the prose assertion reads this whole set. Every census keeps counting the client module
+    /// alone, through `clientModuleFiles(in:)`, so widening the walk moved no table. That scoping is
+    /// load-bearing rather than tidy: `DownloadZeroPagePayloadTests` evaluates the run's pending page
+    /// list three times, so an unscoped pending-list census would have silently re-baselined itself
+    /// from one to four the moment this directory joined — trading one unowned claim for a censused
+    /// one that had quietly stopped meaning what its doc says.
+    private static let scannedDirectories = [clientModuleDirectory, downloadsTestDirectory]
+
     /// One file per scanned directory, so an enumerator that silently walked nothing cannot let a
     /// test pass vacuously.
+    ///
+    /// The test target's member is deliberately the file that carried the retired claim rather than
+    /// an arbitrary one: a known member proves the walk found SOMETHING, and naming this file makes
+    /// it prove the walk reaches where the claim actually lived.
     private static let knownMembers = [
-        clientModuleDirectory + "/DownloadClient+Manager.swift"
+        clientModuleDirectory + "/DownloadClient+Manager.swift",
+        downloadsTestDirectory + "/DownloadContinuedSessionBasisTests.swift"
     ]
     private static let repositoryRootMarkers = ["App", "AppPackage"]
 
@@ -48,6 +77,12 @@ struct DownloadSourceInventoryTests {
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
     private static var runProofPropertyName: String { "provenPageWork" + "RunGIDs" }
+    /// The retired claim's recorded phrasings, assembled from fragments for exactly the reason the
+    /// census tokens are: a repository grep counting the claim must not match the check that forbids
+    /// it, or the check becomes part of the inventory it polices.
+    private static var retiredAuthorityPhrases: [String] {
+        ["one" + " authority", "sole" + " authority", "only" + " authority"]
+    }
     private static var declarationPrefix: String { "func" + " " }
     private static var storedDeclarationPrefix: String { "var" + " " }
     private static var mutationOperators: [String] { ["=", "+=", "-=", "*=", "/="] }
@@ -171,8 +206,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
         var callSites = [String: Int]()
-        for file in files {
+        for file in moduleFiles {
             let count = Self.callSiteCount(of: Self.schedulingBlockCallToken, in: file.contents)
             guard count > 0 else { continue }
             callSites[file.fileName, default: 0] += count
@@ -186,7 +223,7 @@ struct DownloadSourceInventoryTests {
             """
         )
 
-        let joined = files.map(\.contents).joined(separator: "\n")
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.callSiteCount(of: Self.schedulingBlockCallToken, in: joined)
                 == Self.expectedSchedulingBlockCallTotal
@@ -199,8 +236,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
         var writers = [String: Int]()
-        for file in files {
+        for file in moduleFiles {
             let count = Self.mutationCount(of: Self.floorPropertyName, in: file.contents)
             guard count > 0 else { continue }
             writers[file.fileName, default: 0] += count
@@ -213,7 +252,7 @@ struct DownloadSourceInventoryTests {
             """
         )
 
-        let joined = files.map(\.contents).joined(separator: "\n")
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.mutationCount(of: Self.floorPropertyName, in: joined) == Self.expectedFloorWriterTotal
         )
@@ -225,8 +264,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
         var callSites = [String: Int]()
-        for file in files {
+        for file in moduleFiles {
             let count = Self.callSiteCount(of: Self.schedulableReadToken, in: file.contents)
             guard count > 0 else { continue }
             callSites[file.fileName, default: 0] += count
@@ -241,7 +282,7 @@ struct DownloadSourceInventoryTests {
             """
         )
 
-        let joined = files.map(\.contents).joined(separator: "\n")
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.callSiteCount(of: Self.schedulableReadToken, in: joined)
                 == Self.expectedSchedulableReadCallTotal
@@ -254,8 +295,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
         var callSites = [String: Int]()
-        for file in files {
+        for file in moduleFiles {
             let count = Self.callSiteCount(of: Self.pendingPageListToken, in: file.contents)
             guard count > 0 else { continue }
             callSites[file.fileName, default: 0] += count
@@ -270,7 +313,7 @@ struct DownloadSourceInventoryTests {
             """
         )
 
-        let joined = files.map(\.contents).joined(separator: "\n")
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.callSiteCount(of: Self.pendingPageListToken, in: joined)
                 == Self.expectedPendingPageIndicesCallTotal
@@ -283,8 +326,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
         var sites = [String: Int]()
-        for file in files {
+        for file in moduleFiles {
             let count = Self.callSiteCount(of: Self.runProofPropertyName, in: file.contents)
             guard count > 0 else { continue }
             sites[file.fileName, default: 0] += count
@@ -302,10 +347,50 @@ struct DownloadSourceInventoryTests {
             """
         )
 
-        let joined = files.map(\.contents).joined(separator: "\n")
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.callSiteCount(of: Self.runProofPropertyName, in: joined)
                 == Self.expectedRunProofSiteTotal
+        )
+    }
+
+    /// No scanned doc may name the shared schedulable read as the scheduler's single authority.
+    ///
+    /// The claim is retired, and what retired it is source: `scheduleNextIfNeededCore` performs its
+    /// OWN read — `queueStore.gids`, then `indexedDownloads()` or `indexedDownloads(gids:)` — and
+    /// reaches `isSchedulableDownload` through `nextQueuedDownload` /
+    /// `nextUnqueuedSchedulableDownload`. What it shares with the shared read is the PREDICATE, not
+    /// the read. The shared read's three callers are `hasPendingWork()`, `schedulableSnapshot()` and
+    /// `pauseAllSchedulable(expiring:)`, which the caller census above already owns for Sources.
+    ///
+    /// This owns the SENTENCE rather than a count, and it owns it across the test target too,
+    /// because that is exactly where the wording kept surviving: corrected in `+PendingWork.swift`
+    /// and left standing in two suites a Sources-scoped census could not reach (G-15-29). Unlike
+    /// every census here it reads whole files rather than executable lines — policing prose is the
+    /// entire point, so the comment filter would make it vacuous.
+    ///
+    /// A failure means a doc states the retired claim again, or a legitimate new sentence collides
+    /// with the phrasing. Either way the caller list is re-derived from source FIRST and the
+    /// sentence is rewritten from that derivation — never from this test's wording.
+    @Test
+    func testNoScannedDocNamesTheSharedReadAsTheSchedulersSoleAuthority() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        var offenders = [String]()
+        for file in files where Self.namesTheRetiredClaim(file.contents) {
+            offenders.append(file.relativePath)
+        }
+        #expect(
+            offenders.sorted() == [],
+            """
+            The retired single-authority claim is present in \
+            \(offenders.sorted().joined(separator: ", ")). The schedulable read has three callers \
+            and the scheduler is not one of them: it performs its own indexed read and shares only \
+            the predicate. Re-derive that caller list from source and rewrite the sentence from the \
+            derivation before touching this check.
+            """
         )
     }
 }
@@ -357,21 +442,39 @@ private extension DownloadSourceInventoryTests {
     private static func scannedFiles() throws -> [ScannedFile] {
         let root = try repositoryRoot()
         let fileManager = FileManager.default
-        let directory = root.appending(path: clientModuleDirectory)
-        let enumerator = try #require(
-            fileManager.enumerator(at: directory, includingPropertiesForKeys: nil)
-        )
         var files = [ScannedFile]()
 
-        for case let url as URL in enumerator where url.pathExtension == "swift" {
-            files.append(
-                ScannedFile(
-                    relativePath: repositoryRelativePath(of: url, under: root),
-                    contents: try String(contentsOf: url, encoding: .utf8)
-                )
+        for scannedDirectory in scannedDirectories {
+            let directory = root.appending(path: scannedDirectory)
+            let enumerator = try #require(
+                fileManager.enumerator(at: directory, includingPropertiesForKeys: nil)
             )
+            for case let url as URL in enumerator where url.pathExtension == "swift" {
+                files.append(
+                    ScannedFile(
+                        relativePath: repositoryRelativePath(of: url, under: root),
+                        contents: try String(contentsOf: url, encoding: .utf8)
+                    )
+                )
+            }
         }
         return files
+    }
+
+    /// The client module's own files, which is what every census counts over.
+    ///
+    /// The walk is wider than the censuses on purpose, and this is the seam that keeps the two
+    /// apart. A census counts over the files the scan returns, so a widened scan silently re-bases
+    /// every table in this suite unless each one says which tree it means — and one of them really
+    /// would have moved: three test-target evaluations of the pending page list are legitimate test
+    /// code, not the production duplication that census exists to forbid.
+    private static func clientModuleFiles(in files: [ScannedFile]) -> [ScannedFile] {
+        files.filter({ $0.relativePath.hasPrefix(clientModuleDirectory + "/") })
+    }
+
+    /// Whether `contents` states the retired claim in any of its recorded phrasings.
+    static func namesTheRetiredClaim(_ contents: String) -> Bool {
+        retiredAuthorityPhrases.contains(where: { contents.contains($0) })
     }
 
     /// Requires every scanned directory to have contributed its named file.
