@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-50-PLAN.md
-last_updated: "2026-08-06T16:23:54.120Z"
-last_activity: 2026-08-06
-last_activity_desc: 15-50 executed — G-15-30 closed
+stopped_at: Completed 15-51-PLAN.md
+last_updated: "2026-08-06T16:41:09.238Z"
+last_activity: 2026-08-07
+last_activity_desc: 15-51 executed — G-15-31 closed
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 224
-  completed_plans: 221
+  completed_plans: 222
   percent: 99
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 51 of 53
-Status: Executing Phase 15
-Last activity: 2026-08-06 — 15-50 executed, blocker G-15-30 closed
-Next: /gsd-execute-phase 15 — wave 50 is DONE (G-15-30 closed at fc48fe82, full suite 883/0); run the remaining waves 51, 52 and 53 in order. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
+Plan: 52 of 53
+Status: Ready to execute
+Last activity: 2026-08-07 — 15-51 executed, warning G-15-31 closed
+Next: /gsd-execute-phase 15 — waves 50 and 51 are DONE (G-15-30 closed at fc48fe82; G-15-31 closed at eb0f8b1e, full suite 884/0); run the remaining waves 52 and 53 in order. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
 
 Progress: [██████████] 99% (14/16 phases)
 
@@ -277,6 +277,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P48 | 33min | 3 tasks | 9 files |
 | Phase 15 P49 | 14min | 2 tasks | 5 files |
 | Phase 15 P50 | 41min | 3 tasks | 9 files |
+| Phase 15 P51 | 32min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -711,6 +712,10 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-50: The run's proof of page work carries the PAGES it still owes, not a membership; a trusted complete-reading record is credited its record minus that debt (G-15-30).
 - [Phase 15]: 15-50: The decrement rides flushManifestPageProgress, not flushDownloadProgress — a background page landing reaches the manifest without passing the throttle.
 - [Phase 15]: 15-50: A retiring run freezes its final credited basis into observedSchedulablePages before dropping its debt and its session trust, which makes the departure retirement ordering-insensitive.
+- [Phase 15]: The identifier is recorded only where scheduling.register returned true; that single placement is the whole arm split, so a refused registration records nothing and a successful one is never re-registered.
+- [Phase 15]: A refused identifier is never re-attempted — the conservative reading of the store's own recorded constraint, taken because departing from it needs device evidence this plan does not have.
+- [Phase 15]: The awaiting-window loss of launch discrimination is dispositioned in writing rather than mitigated, because the SDK supplies nothing that could separate a leftover launch from a live one under one identifier.
+- [Phase 15]: Both dissolved-subject cases are rebuilt by staging the stale delivery behind adoption, which reaches the surviving property without two identifiers.
 
 ### Pending Todos
 
@@ -759,6 +764,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-06T16:23:54.111Z
-Stopped at: Completed 15-50-PLAN.md
+Last session: 2026-08-06T16:40:58.714Z
+Stopped at: Completed 15-51-PLAN.md
 Resume file: None
