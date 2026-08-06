@@ -47,8 +47,12 @@ extension DownloadContinuedSessionLedgerTests {
     /// `snapshot.incompleteGalleryIDs`, which by construction cannot contain a complete-reading
     /// record. The remaining writers all trace back to the run's own proof of page work: the insert
     /// at the preparation when a session is live, and the seed each session start takes from
-    /// `provenPageWorkRunGIDs` (G-15-26). Without that proof the gallery contributes zero to the
-    /// numerator for the entire six-page re-download and retires zero when it leaves.
+    /// `provenPageWorkRunPageDebts` (G-15-26). Without that proof the gallery contributes zero to
+    /// the numerator for the entire six-page re-download and retires zero when it leaves. With it,
+    /// what the gallery contributes is the record's count MINUS the pages the run still owes
+    /// (G-15-30) — zero at the announcement, when all six are owed, and six once all six have
+    /// landed — so the proof buys a numerator that tracks the work rather than one pinned at either
+    /// end of it.
     ///
     /// The staging is the K=1 case with exactly one difference: no page file is written at all. The
     /// route is grounded rather than asserted about — `resumeMode` resolves `.repair` through its
@@ -56,14 +60,32 @@ extension DownloadContinuedSessionLedgerTests {
     /// it — and the queued window is pinned at zero, which is D-G4-01's ceiling guarantee and the
     /// thing a fix that granted trust at queue time would break.
     ///
-    /// `expectTheFractionReachesOneOnlyAtTheDrain` is deliberately NOT asserted here, and the
-    /// omission is a fact about the family rather than a weakened assertion. A trusted
-    /// complete-reading record honestly rides at its own ceiling for a refused repair: the record
-    /// genuinely claims six pages, the refusal is precisely the defence against destroying those
-    /// six recorded hashes, so the fraction reaches one before the drain BY DESIGN. The harm this
-    /// case pins is the pinned-ZERO run, not the ceiling — and the ceiling itself is pinned by the
-    /// queued-window assertion above and by `testACompleteGalleryQueuedForUpdateOpensTheCardAtZero`
-    /// in the sibling file.
+    /// **Which series helper applies here, and why the previous answer was wrong for most of the
+    /// family (G-15-30).** This case used to record that
+    /// `expectTheFractionReachesOneOnlyAtTheDrain` did not apply, on the argument that a trusted
+    /// complete-reading record honestly rides at its own ceiling BY DESIGN — the record genuinely
+    /// claims six pages and the refusal is precisely the defence against destroying those six
+    /// recorded hashes. That argument was sound for exactly one departure, the one this case's own
+    /// staging drives: a repair that COMPLETES, where the terminal six happens to be true. It said
+    /// nothing about the paused, deleted, cancelled and expiration-swept departures that reach the
+    /// same retirement through the same line, and for those the ceiling is not honest at all.
+    ///
+    /// The rule that holds for the whole family is narrower: a refusal-family gallery is credited
+    /// with its record's count MINUS the pages its run still owes, so the fraction reaches one when
+    /// the run has actually fetched them and not before. Under that rule this case does reach one
+    /// only at the drain, because its last two pages land immediately before the settle — but the
+    /// helper is still not asserted, and now for a stated reason rather than an argued exemption:
+    /// the retirement folds those pages into both sides at the drain, so the LAST push before it
+    /// already reads six of six over one gallery. That is a fact about where this staging puts its
+    /// final flush, not a property of the family, and pinning it would pin the staging.
+    /// `expectTheCompletedSeriesNeverRewinds` is asserted instead, and the climb it guards is
+    /// asserted directly by the intermediate reading below.
+    ///
+    /// The departure half of the family — the ceiling being retired for a repair that did NOT
+    /// finish — is covered by `testARefusalRepairPausedPartWayDrainsAtTheWorkItActuallyDid` in this
+    /// file, which pauses after two of six pages and asserts the drain's terminal pair is the two.
+    /// The queued window, where nothing has run at all, stays pinned by the assertion above and by
+    /// `testACompleteGalleryQueuedForUpdateOpensTheCardAtZero` in the sibling file.
     ///
     /// **The payload is production-shaped (G-15-28).** The `retryPages` call below stores this
     /// case's six indices in the coordinator's `queuedPageSelections` entry, and a production run
@@ -130,15 +152,35 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.fetchDownload(gid: vanished.gid)?.completedPageCount == 6)
         // And the folder really can supply nothing: the run's own page work is all six pages.
         #expect(seed.existingPages.isEmpty)
-        // Asserted by presence rather than by position: a straggling convergence push may land on
-        // either side of the preparation, and both values it can carry are admitted by the series
-        // property below.
-        #expect(spy.progressUpdates.map(\.subtitle).contains("6 / 6 pages · 1 gallery"))
+        // The announcement's own push, asserted by presence rather than by position, because a
+        // straggling convergence push may land on either side of the preparation. It reads ZERO
+        // rather than the record's six (G-15-30): the record claims six pages and the run owes all
+        // six of them, so the session has credited nothing yet. This reading is deliberately NOT
+        // this case's evidence of trust — an untrusted gallery would push the same zero — and what
+        // separates the two is the rise below and the drain after it.
+        #expect(spy.progressUpdates.map(\.subtitle).contains("0 / 6 pages · 1 gallery"))
 
-        try writePageFiles(for: vanished, in: fixture, indices: [1, 2, 3, 4, 5, 6])
-        try await manager.flushManifestPageProgress(
-            folderURL: folderURL,
-            pages: pageResults(for: vanished, in: fixture, indices: [1, 2, 3, 4, 5, 6])
+        // Landed in two batches through the production flush, so the credited work is observed
+        // RISING. A gallery this session did not trust contributes zero at every push however many
+        // pages land, because a complete-reading record cannot move upward either.
+        var lastFlushDate = Date.distantPast
+        try writePageFiles(for: vanished, in: fixture, indices: [1, 2, 3])
+        var firstBatch = pageResults(for: vanished, in: fixture, indices: [1, 2, 3])
+        try await manager.flushDownloadProgress(
+            context: .init(gid: vanished.gid, folderURL: folderURL),
+            pendingResolvedPages: &firstBatch,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        #expect(try lastPushedPair(spy.progressUpdates).completedUnitCount == 3)
+
+        try writePageFiles(for: vanished, in: fixture, indices: [4, 5, 6])
+        var secondBatch = pageResults(for: vanished, in: fixture, indices: [4, 5, 6])
+        try await manager.flushDownloadProgress(
+            context: .init(gid: vanished.gid, folderURL: folderURL),
+            pendingResolvedPages: &secondBatch,
+            lastFlushDate: &lastFlushDate,
+            force: true
         )
 
         await manager.settleCompletedDownload(gid: vanished.gid)
@@ -248,7 +290,12 @@ extension DownloadContinuedSessionLedgerTests {
         // The probe's non-answer stays a probe, so the seed can supply nothing and the run re-fetches
         // everything — six pages of real work behind a record that says it has none.
         #expect(seed.existingPages.isEmpty)
-        #expect(spy.progressUpdates.map(\.subtitle).contains("6 / 6 pages · 1 gallery"))
+        // The announcement credits FIVE of the record's six pages and withholds the sixth
+        // (G-15-30): this run's selection is page 3 alone, so page 3 is all it owes, and the other
+        // five really are on disk from an earlier session. The reading discriminates — a gallery
+        // this session did not trust contributes zero to every push regardless — and it is derived
+        // from the run's own pending list rather than restated from the record's ceiling.
+        #expect(spy.progressUpdates.map(\.subtitle).contains("5 / 6 pages · 1 gallery"))
         #expect(spy.rejectedProgressUpdates.isEmpty)
 
         restorePermissions(at: folderURL, to: originalPermissions)
