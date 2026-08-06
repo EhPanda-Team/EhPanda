@@ -9,7 +9,6 @@ extension DownloadCoordinator {
     private struct PageDownloadProgress {
         var results: [PageResult] = []
         var failedPages: [Int: PageFailure?] = [:]
-        var completedCount: Int = 0
         var pendingResolvedPages: [PageResult] = []
         var lastFlushDate: Date = Date()
     }
@@ -90,8 +89,13 @@ extension DownloadCoordinator {
             results: &progress.results,
             failedPages: &progress.failedPages
         )
-        progress.completedCount = progress.results.count
-        guard progress.completedCount > 0 else { return }
+        // The collection itself is the condition, and always was: the counter this used to read was
+        // assigned `progress.results.count` on the line above and tested for positivity here, so it
+        // never said anything the collection does not. Nothing read it afterwards — the batch result
+        // is built from `progress.results`, and the manifest flush is handed the same collection —
+        // which is what made the increment in `applyPageTaskOutcome` a pure dead write once 15-45
+        // removed the last reader (G-15-29).
+        guard progress.results.isEmpty == false else { return }
         try flushManifestPageProgress(
             folderURL: context.folderURL,
             pages: progress.results
@@ -247,7 +251,6 @@ extension DownloadCoordinator {
     ) {
         switch outcome {
         case .success(let pageResult):
-            progress.completedCount += 1
             progress.failedPages[pageResult.index] = nil
             progress.results.append(pageResult)
             progress.pendingResolvedPages.append(pageResult)
