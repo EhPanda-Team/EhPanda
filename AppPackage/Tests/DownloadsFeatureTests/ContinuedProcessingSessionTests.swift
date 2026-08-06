@@ -312,6 +312,59 @@ struct ContinuedProcessingSessionTests {
         #expect(secondEvents == [.granted])
     }
 
+    /// G-15-31 regression: two sequential sessions over one process must leave ONE registered
+    /// launch handler rather than one per session.
+    ///
+    /// A handler can never be unregistered, so the rule the identifier has to satisfy is
+    /// UNIQUENESS — never registered twice — not FRESHNESS. Minting per session satisfied the
+    /// stronger rule at an unbounded price: a dozen download bursts left a dozen permanent
+    /// handlers, each retaining a closure and a string for the life of the process. `endSession`
+    /// takes the pending request back, so between sessions the scheduler holds nothing under the
+    /// identifier and the same one is free to be submitted again.
+    ///
+    /// The two submissions are what keep the count honest: a store that registered once and then
+    /// stopped submitting would read one identifier too, while covering nothing.
+    @Test
+    func testTwoSequentialSessionsRegisterOneIdentifierAndSubmitTwice() async throws {
+        let spy = ContinuedTaskSchedulingSpy()
+        let store = ContinuedProcessingSession(scheduling: spy.scheduling)
+
+        let firstSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 10 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 10
+            )
+        )
+        store.finish(sessionID: firstSession.id, success: true)
+
+        let secondSession = try #require(
+            store.start(
+                title: "Downloading galleries",
+                subtitle: "0 / 6 pages · 1 gallery",
+                completedUnitCount: 0,
+                totalUnitCount: 6
+            )
+        )
+        store.finish(sessionID: secondSession.id, success: true)
+
+        #expect(Set(spy.registeredIdentifiers).count == 1)
+        let identifier = try #require(spy.registeredIdentifiers.first)
+        expectNoDifference(spy.submissions.map(\.identifier), [identifier, identifier])
+
+        var firstEvents = [BackgroundProcessingEvent]()
+        for await event in firstSession.events {
+            firstEvents.append(event)
+        }
+        #expect(firstEvents.isEmpty)
+        var secondEvents = [BackgroundProcessingEvent]()
+        for await event in secondSession.events {
+            secondEvents.append(event)
+        }
+        #expect(secondEvents.isEmpty)
+    }
+
     /// A launch handler outlives its session, so a stale one can fire while a different session is
     /// live. That launch must be completed and turned away rather than displacing the task the
     /// store is actually waiting for.
