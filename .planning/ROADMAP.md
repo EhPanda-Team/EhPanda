@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 46/49 | In Progress|  |
+| 15. Continued Background Downloads | 47/49 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 46/49 plans executed
+**Plans**: 47/49 plans executed
 
 Plans:
 **Wave 1**
@@ -1001,7 +1001,7 @@ Plans:
 
 **Wave 47** *(gap closure round 15, verification blocker G-15-27 — blocked on 15-46 by file overlap on DownloadContinuedSessionLedgerRefusalTests.swift: this plan's regression only discriminates once the payload rebuild has landed)*
 
-- [ ] 15-47-PLAN.md — Gate the announcement on the work the run will actually do (SC2, SC1 through D-11): the shortfall against the manifest ignores the payload's page selection, which survives normalization for every mode but update and is live on exactly the retryPages route, so a selected-page retry that fetches nothing earns trust for its record's FULL page count — the D-G4-01 ceiling reopened by the gate that replaced it; the run's pending page list becomes the single derived predicate, computed ONCE inside the preparation and handed to the page loop (evaluation count grep-proven), the retired equivalence replaced by the derived difference from a fresh enumeration, and the discriminating regression — one page file missing, a different present page retried — RED-first with its non-vacuity asserted
+- [x] 15-47-PLAN.md — Gate the announcement on the work the run will actually do (SC2, SC1 through D-11): the shortfall against the manifest ignores the payload's page selection, which survives normalization for every mode but update and is live on exactly the retryPages route, so a selected-page retry that fetches nothing earns trust for its record's FULL page count — the D-G4-01 ceiling reopened by the gate that replaced it; the run's pending page list becomes the single derived predicate, computed ONCE inside the preparation and handed to the page loop (evaluation count grep-proven), the retired equivalence replaced by the derived difference from a fresh enumeration, and the discriminating regression — one page file missing, a different present page retried — RED-first with its non-vacuity asserted
 
 **Wave 48** *(gap closure round 15, verification blocker G-15-26 — blocked on 15-47 by file overlap on DownloadClient+ExecutionSupport.swift: the proof this plan re-owns must record 15-47's single derived predicate, not the shortfall binding it replaced)*
 
