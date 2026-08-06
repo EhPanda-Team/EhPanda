@@ -23,9 +23,12 @@ import Testing
 /// One claim here is a SENTENCE rather than an inventory, and it is why the walk covers the
 /// downloads test target as well as the client module. A doc claim is load-bearing wherever it is
 /// written, and a Sources-scoped guard cannot see a retired claim that survives in a test — which is
-/// not hypothetical either: it is G-15-29. The censuses stay scoped to the client module through
-/// `clientModuleFiles(in:)`, because a census counts over the files the scan returns and a widened
-/// scan would otherwise re-base every table in this file at once.
+/// not hypothetical either: it is G-15-29. Every census names the tree it counts over EXPLICITLY —
+/// through `clientModuleFiles(in:)` or through `downloadsTestFiles(in:)` — because a census counts
+/// over the files the scan returns, so a table that never said which tree it meant re-bases itself
+/// the moment the walk widens. Five censuses count the client module alone; the two
+/// double-fidelity censuses count the downloads test target alone, because a hand-built test double
+/// is only ever written there and demanding a yield from production would be a category error.
 ///
 /// A failure here is not a defect by itself. It means source moved and a doc that cites it must be
 /// re-read and re-derived before the table is updated — which is the whole point.
@@ -50,8 +53,10 @@ struct DownloadSourceInventoryTests {
     /// corrected in `+PendingWork.swift` and went on standing in two suites, where a
     /// Sources-scoped scan structurally could not see it (G-15-29).
     ///
-    /// Only the prose assertion reads this whole set. Every census keeps counting the client module
-    /// alone, through `clientModuleFiles(in:)`, so widening the walk moved no table. That scoping is
+    /// Only the prose assertion reads this whole set. Every census re-scopes it first — the five
+    /// production censuses to the client module through `clientModuleFiles(in:)`, the two
+    /// double-fidelity censuses to this directory through `downloadsTestFiles(in:)` — so widening
+    /// the walk moved no table then and adding a test-scoped table moves none now. That scoping is
     /// load-bearing rather than tidy: `DownloadZeroPagePayloadTests` evaluates the run's pending page
     /// list three times, so an unscoped pending-list census would have silently re-baselined itself
     /// from one to four the moment this directory joined — trading one unowned claim for a censused
@@ -77,6 +82,20 @@ struct DownloadSourceInventoryTests {
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
     private static var runProofPropertyName: String { "provenPageWork" + "RunPageDebts" }
+    /// The hand-built client double's construction token, and it is the seam's own endpoint LABEL
+    /// rather than the type name on purpose.
+    ///
+    /// A type-name token matches `BackgroundProcessingClient(` and misses `Self(` written inside an
+    /// extension of the type — which is exactly how the `.unavailable` double this census was
+    /// written for is spelled, so a type-name census would have carried its blind spot precisely
+    /// where the real violation lived. Every hand-built value must supply all three endpoints, so
+    /// the label reaches both spellings, while the macro-synthesized no-argument value supplies
+    /// none and falls out by construction rather than by an exclusion someone has to remember.
+    private static var clientDoubleEndpointToken: String { "updateProgress" + ":" }
+    /// The suspension each closure of a hand-built double must open with, assembled from fragments
+    /// for the reason every token here is: this file sits inside the tree the double censuses count
+    /// over, so a token written whole would count itself.
+    private static var clientDoubleSuspensionToken: String { "Task" + ".yield()" }
     /// The retired claim's recorded phrasings, assembled from fragments for exactly the reason the
     /// census tokens are: a repository grep counting the claim must not match the check that forbids
     /// it, or the check becomes part of the inventory it polices.
@@ -210,6 +229,65 @@ struct DownloadSourceInventoryTests {
 
     /// The run-proof table's sum, asserted the same way and for the same reason.
     private static let expectedRunProofSiteTotal = 6
+
+    /// Every suspension point inside the target's hand-built client doubles, named per file.
+    ///
+    /// **What this number means.** `BackgroundProcessingClient.live` forwards onto a `@MainActor`
+    /// store, so each of its three endpoints hops off the calling actor. A double that answers
+    /// synchronously is therefore not a faster stand-in but a DIFFERENT seam: it certifies as
+    /// impossible every reentrancy the live one admits, and a suite green against it is green about
+    /// a world that does not exist. Three closures apiece across two doubles is the six below.
+    ///
+    /// The full argument for the rule lives on `BackgroundProcessingClientSpy`'s header, where it
+    /// was written and — until this census — honoured alone; a reader who wants the reasoning
+    /// rather than the count should start there.
+    ///
+    /// **What would move it.** A closure that stops yielding, an endpoint added to the seam, or a
+    /// new hand-built double in a file this table has never heard of. The last of those is
+    /// invisible here, which is the entire reason `expectedClientDoubleConstructionSites` sits
+    /// beside it rather than folded into it.
+    ///
+    /// **What a failure obliges.** Re-derive the rule from the live value's isolation and re-read
+    /// the named double's closures against the spy's three; the table is rewritten from that
+    /// derivation and never adjusted to whatever the tree currently holds.
+    ///
+    /// The population is DERIVED rather than listed — the files below are whichever scanned test
+    /// files build a value of the type. Zero counts are kept rather than dropped, unlike every
+    /// census above, because a double that stops suspending ENTIRELY is the exact failure this half
+    /// exists to name and a dropped key would let it vanish from the observed table instead.
+    private static let expectedClientDoubleSuspensionSites = [
+        "DownloadContinuedSessionExpirationTests.swift": 3,
+        "DownloadFeatureTestSupportTypes.swift": 3
+    ]
+
+    /// The suspension table's sum, asserted separately for the reason every joined total here is.
+    private static let expectedClientDoubleSuspensionTotal = 6
+
+    /// Every hand-built client double in the downloads test target, named per file.
+    ///
+    /// **What this number means.** A POPULATION rather than a property. Two hand-built doubles
+    /// exist — the recording spy and the `.unavailable` refusal value — and the timing obligation
+    /// above covers exactly those two. Three further values of the type are reachable from this
+    /// target and none is counted, because none is a hand-built double: the macro-synthesized
+    /// no-argument value, whose endpoints nobody writes and whose whole purpose is to report an
+    /// issue when called, and the module's public `live` and `noop` values, which are production
+    /// surfaces a test census must not demand yields from.
+    ///
+    /// **What would move it.** A new hand-built double anywhere under the test target, including in
+    /// a file the suspension table has never heard of — the case that table structurally cannot
+    /// catch.
+    ///
+    /// **What a failure obliges.** Re-derive the population FIRST: classify the new value as
+    /// hand-built, generated or production, and only if it is hand-built add it here AND to the
+    /// suspension table with a yield opening each of its closures. Neither number is adjusted until
+    /// the double itself passes.
+    private static let expectedClientDoubleConstructionSites = [
+        "DownloadContinuedSessionExpirationTests.swift": 1,
+        "DownloadFeatureTestSupportTypes.swift": 1
+    ]
+
+    /// The population table's sum, asserted the same way and for the same reason.
+    private static let expectedClientDoubleConstructionTotal = 2
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -369,6 +447,74 @@ struct DownloadSourceInventoryTests {
         )
     }
 
+    @Test
+    func testClientDoubleSuspensionSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        let doubleFiles = Self.clientDoubleFiles(in: files)
+        try #require(doubleFiles.isEmpty == false)
+
+        var suspensionSites = [String: Int]()
+        for file in doubleFiles {
+            suspensionSites[file.fileName, default: 0] += Self.callSiteCount(
+                of: Self.clientDoubleSuspensionToken,
+                in: file.contents
+            )
+        }
+        #expect(
+            suspensionSites == Self.expectedClientDoubleSuspensionSites,
+            """
+            A hand-built client double's timing no longer mirrors the seam it stands for. The live \
+            value forwards onto a main-actor store, so all three of its endpoints hop off the \
+            calling actor; a double that answers synchronously certifies as impossible every \
+            reentrancy production admits, and the coordinator's post-start ownership re-check, its \
+            additive floor seed and its merged trust seed are then exercised in a world where the \
+            window they exist to survive cannot open. Re-read the named double's closures against \
+            the spy's three and make them suspend before touching this table.
+            """
+        )
+
+        let joined = doubleFiles.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.clientDoubleSuspensionToken, in: joined)
+                == Self.expectedClientDoubleSuspensionTotal
+        )
+    }
+
+    @Test
+    func testClientDoubleConstructionSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        let testFiles = Self.downloadsTestFiles(in: files)
+
+        var constructionSites = [String: Int]()
+        for file in testFiles {
+            let count = Self.callSiteCount(of: Self.clientDoubleEndpointToken, in: file.contents)
+            guard count > 0 else { continue }
+            constructionSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            constructionSites == Self.expectedClientDoubleConstructionSites,
+            """
+            The hand-built client double population moved. Classify the new value before touching \
+            this table: a macro-synthesized unimplemented value and the module's public inert \
+            value are not doubles and carry no timing obligation, while a hand-built stand-in for \
+            this main-actor-confined seam does. Only a hand-built one belongs here — and it belongs \
+            in the suspension table beside it, with a suspension opening each of its closures.
+            """
+        )
+
+        let joined = testFiles.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.clientDoubleEndpointToken, in: joined)
+                == Self.expectedClientDoubleConstructionTotal
+        )
+    }
+
     /// No scanned doc may name the shared schedulable read as the scheduler's single authority.
     ///
     /// The claim is retired, and what retired it is source: `scheduleNextIfNeededCore` performs its
@@ -485,6 +631,26 @@ private extension DownloadSourceInventoryTests {
     /// code, not the production duplication that census exists to forbid.
     private static func clientModuleFiles(in files: [ScannedFile]) -> [ScannedFile] {
         files.filter({ $0.relativePath.hasPrefix(clientModuleDirectory + "/") })
+    }
+
+    /// The downloads test target's own files, which is what both double censuses count over.
+    ///
+    /// The same seam `clientModuleFiles(in:)` is, pointed the other way, and load-bearing for the
+    /// same reason: a hand-built double is only ever written in a test, so a double census left
+    /// unscoped would reach the client module and start demanding suspensions from production code.
+    private static func downloadsTestFiles(in files: [ScannedFile]) -> [ScannedFile] {
+        files.filter({ $0.relativePath.hasPrefix(downloadsTestDirectory + "/") })
+    }
+
+    /// The test files that build a value of the client type.
+    ///
+    /// The suspension census's population is derived through this rather than listed, so a new
+    /// double's file joins it by existing rather than by being remembered — while the population
+    /// census beside it is what makes that new file's arrival fail a build in the first place.
+    private static func clientDoubleFiles(in files: [ScannedFile]) -> [ScannedFile] {
+        downloadsTestFiles(in: files).filter({ file in
+            callSiteCount(of: clientDoubleEndpointToken, in: file.contents) > 0
+        })
     }
 
     /// Whether `contents` states the retired claim in any of its recorded phrasings.
