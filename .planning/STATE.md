@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: ready_to_execute
-stopped_at: Round 17 PLANNED at HEAD 3961698c — four gap-closure plans (15-50..15-53) written and verified, one per gap, waves 50-53 strictly sequential. Closes G-15-30 (blocker), G-15-31, G-15-32, G-15-33. Plan-checker passed after two substantive revisions; next is /gsd-execute-phase 15
-last_updated: "2026-08-06T14:29:13.375Z"
+status: executing
+stopped_at: Completed 15-50-PLAN.md
+last_updated: "2026-08-06T16:23:54.120Z"
 last_activity: 2026-08-06
-last_activity_desc: "Planned round 17 (15-50..15-53), one plan per open gap. 15-50 promotes the run's proof of page work from a boolean membership to the run's outstanding page debt, closing G-15-30's consequence 3 — the departure retirement that reports a paused or expiration-swept repair as a successful N-page completion — and is forbidden from re-freezing the numerator the way the fix it amends did. 15-51 mints the BGTaskScheduler identifier once per process, splitting the refused-registration and throwing-submit arms. 15-52 makes the .unavailable client double suspend where the seam does, owned by a two-part census. 15-53 writes the nil-generation policy into a branch and stops the inventory scanner policing its own prose. The plan-checker took two substantive revisions, both against the SAME inherited-premise defect: the plan claimed a sibling DOCUMENTS something it merely DOES, once for isActiveTaskOwner and once for DownloadLogPrivacyInvariantTests.scannedFiles(). The second is worse than a plan error — 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence that exists nowhere in the file, 15-VERIFICATION.md's G-15-33 record inherited it, and the plan carried it to a third artifact. 15-53 now corrects the premise and requires the finding on the record rather than propagating it into a fourth"
+last_activity_desc: 15-50 executed — G-15-30 closed
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 13
   total_plans: 224
-  completed_plans: 220
-  percent: 88
+  completed_plans: 221
+  percent: 99
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — READY TO EXECUTE (round 17)
-Plan: 49 of 53 executed — 15-50..15-53 planned and verified, not yet executed
-Status: Round 17 PLANNED. Four gap-closure plans close the four gaps round 16 recorded, one plan per gap, waves 50-53 strictly sequential (only one xcodebuild test invocation may run at a time on this machine). 15-50 (G-15-30, blocker) promotes the run's proof of page work from a boolean membership to the run's outstanding page debt: the basis today is the record's ceiling, so the refusal family's card opens at 100% before a byte is fetched and any mid-run departure retires that ceiling into BOTH sides of the fraction — which, when the departing gallery is the session's last, reports a paused or expiration-swept repair to the user as a fully successful N-page completion. That consequence, not the cosmetic opening, is what the plan must close, and it carries its own case. The plan is explicitly forbidden from re-freezing the numerator the way the fix it amends did: the two existing run-proof cases currently PIN the 100% opening as expected, and correcting them by swapping one frozen string for another would restore the pre-G-15-26 constant. 15-51 (G-15-31) mints the BGTaskScheduler identifier once per process instead of per session, dispositioning the refused-registration and throwing-submit arms separately. 15-52 (G-15-32) makes the .unavailable client double suspend at all three endpoints where the main-actor-confined seam suspends, owned by a two-part census so the next hand-built double cannot ship atomic. 15-53 (G-15-33) states isSupersededByALiveRun's nil-generation policy in a written branch and stops DownloadSourceInventoryTests policing its own prose. PRIOR round context: Round 15 was COMPLETE at the plan level and all four of its gaps (G-15-26/27/28/29) are CLOSED. Wave 49 — the last — closed G-15-29's three-item hygiene group. The claim that has been wrong six rounds running is now owned by a build: the census suite scans the downloads test target as well as the client module, a fragment-assembled prose assertion forbids the retired phrasing across every scanned file, and it was observed FAILING on BOTH retired docs before either was touched. Every pre-existing census was re-scoped to the client module and re-derived unchanged — one of them (the pending-page-list rule) would otherwise have silently re-based from 1 to 4. The dead `completedCount` is removed with its guard restated on the collection it always tested, and the spy's unread parked update is deleted with its doc left honest. All four gaps of round 15 (G-15-26/27/28/29) are CLOSED
-Last activity: 2026-08-06 — Planned round 17 (/gsd-plan-phase 15 --gaps): wrote and verified 15-50..15-53, one plan per open gap, 1968 lines across four plans. Decision coverage 11/11; all four plans structurally valid with zero errors and zero warnings; none of the 49 existing plans touched. The plan-checker rejected 15-53 twice — once WARNING, once BLOCKER — both times for a premise inherited from the review record rather than derived from source, and a third pass caught three summary-level lines (a task name, a provides: field and an objective Output sentence) that still restated the corrected claim after every argument site had been fixed
-Next: /gsd-execute-phase 15 — run the four planned waves 50-53 in order. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
+Phase: 15 (continued-background-downloads) — EXECUTING
+Plan: 51 of 53
+Status: Executing Phase 15
+Last activity: 2026-08-06 — 15-50 executed, blocker G-15-30 closed
+Next: /gsd-execute-phase 15 — wave 50 is DONE (G-15-30 closed at fc48fe82, full suite 883/0); run the remaining waves 51, 52 and 53 in order. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
 
-Progress: [██████████] 100% (14/16 phases)
+Progress: [██████████] 99% (14/16 phases)
 
 ## Performance Metrics
 
@@ -276,6 +276,7 @@ Progress: [██████████] 100% (14/16 phases)
 | Phase 15 P47 | 27min | 2 tasks | 12 files |
 | Phase 15 P48 | 33min | 3 tasks | 9 files |
 | Phase 15 P49 | 14min | 2 tasks | 5 files |
+| Phase 15 P50 | 41min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -707,6 +708,9 @@ Recent decisions affecting current work:
 - [Phase 15]: 15-49: the census suite's walk was widened to the downloads test target while every census stayed scoped to the client module, because a census counts over the files the scan returns
 - [Phase 15]: 15-49: the retired single-authority claim is owned by a fragment-assembled prose assertion observed RED naming both offending paths before either doc was rewritten
 - [Phase 15]: 15-49: the spy's parked progress update was DELETED rather than exposed, because both arming cases already pin the parked push after release through a stronger observation
+- [Phase 15]: 15-50: The run's proof of page work carries the PAGES it still owes, not a membership; a trusted complete-reading record is credited its record minus that debt (G-15-30).
+- [Phase 15]: 15-50: The decrement rides flushManifestPageProgress, not flushDownloadProgress — a background page landing reaches the manifest without passing the throttle.
+- [Phase 15]: 15-50: A retiring run freezes its final credited basis into observedSchedulablePages before dropping its debt and its session trust, which makes the departure retirement ordering-insensitive.
 
 ### Pending Todos
 
@@ -755,6 +759,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-06T02:17:39.508Z
-Stopped at: Completed 15-49-PLAN.md
+Last session: 2026-08-06T16:23:54.111Z
+Stopped at: Completed 15-50-PLAN.md
 Resume file: None
