@@ -47,6 +47,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
+    private static var runProofPropertyName: String { "provenPageWork" + "RunGIDs" }
     private static var declarationPrefix: String { "func" + " " }
     private static var storedDeclarationPrefix: String { "var" + " " }
     private static var mutationOperators: [String] { ["=", "+=", "-=", "*=", "/="] }
@@ -135,6 +136,34 @@ struct DownloadSourceInventoryTests {
 
     /// The pending-list table's sum, asserted the same way and for the same reason.
     private static let expectedPendingPageIndicesCallTotal = 1
+
+    /// Every site naming the run-scoped proof of page work, named per file.
+    ///
+    /// This is the census the property's own declaration reasons from, and the claim it owns is a
+    /// LIFETIME: the proof is recorded at the run's preparation, read by every session start, retired
+    /// at the run's end, and touched nowhere else. Each of the four entries is exactly one of those
+    /// roles — the declaration in `+Manager.swift`, the recording in `+ExecutionSupport.swift`, the
+    /// session-start seed in `+ContinuedSession.swift`, and the retirement in `+Execution.swift`.
+    ///
+    /// It is a whole-name count rather than a mutation count on purpose, because the way this
+    /// invariant rots is a READ or a CLEAR appearing rather than an assignment. The specific rot this
+    /// pins against is a clear being added to `markContinuedSessionEnded` or to
+    /// `ensureContinuedSession`'s reset — conflating a session boundary with a run boundary, which is
+    /// precisely the defect G-15-26 recorded — and either would take `+ContinuedSession.swift` from
+    /// one to two. Nothing counted the equivalent claim about the session-scoped set, and it was
+    /// stated in a doc for five rounds while source disagreed.
+    ///
+    /// Derived from source rather than copied. Doc-comment mentions are excluded, as everywhere else
+    /// here — this property has more of those than uses.
+    private static let expectedRunProofSites = [
+        "DownloadClient+ContinuedSession.swift": 1,
+        "DownloadClient+Execution.swift": 1,
+        "DownloadClient+ExecutionSupport.swift": 1,
+        "DownloadClient+Manager.swift": 1
+    ]
+
+    /// The run-proof table's sum, asserted the same way and for the same reason.
+    private static let expectedRunProofSiteTotal = 4
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -245,6 +274,38 @@ struct DownloadSourceInventoryTests {
         #expect(
             Self.callSiteCount(of: Self.pendingPageListToken, in: joined)
                 == Self.expectedPendingPageIndicesCallTotal
+        )
+    }
+
+    @Test
+    func testRunScopedPageWorkProofSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        var sites = [String: Int]()
+        for file in files {
+            let count = Self.callSiteCount(of: Self.runProofPropertyName, in: file.contents)
+            guard count > 0 else { continue }
+            sites[file.fileName, default: 0] += count
+        }
+        #expect(
+            sites == Self.expectedRunProofSites,
+            """
+            The run-scoped page-work proof census moved. That proof has exactly four roles — its \
+            declaration, the recording at the run's own preparation, the seed every session start \
+            takes from it, and the retirement at the run's end — and a fifth site is almost always a \
+            clear added at a SESSION boundary, which is the G-15-26 defect: a session ending is not \
+            the run ending, and erasing the proof there leaves an in-flight repair contributing zero \
+            for the rest of its re-download. Re-derive the lifetime against the property's own \
+            declaration before updating this table.
+            """
+        )
+
+        let joined = files.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.runProofPropertyName, in: joined)
+                == Self.expectedRunProofSiteTotal
         )
     }
 }

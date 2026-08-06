@@ -546,18 +546,53 @@ public actor DownloadCoordinator {
     /// halves are implemented.
     ///
     /// Membership is granted where the session can OBSERVE incompleteness or PROVE page work, never
-    /// at queue time: the snapshot-sourced merges below, and the run's own working-seed announcement
-    /// (`prepareWorkingSeedAnnouncingProgress`), which admits a gallery whose own run still has
-    /// pages left to fetch — its pending page list, the very list its page loop is fed, rather than
-    /// its folder's shortfall against its manifest, which over-admits a selected-page retry whose
-    /// selected pages are all present (G-15-27). The second rule exists because the first structurally
-    /// cannot reach one family — a reconciliation that REFUSES its destructive half hands the
-    /// manifest back verbatim, so a repair of a complete-reading record has no incompleteness for a
-    /// snapshot to see, and the flush path only ever moves a record upward (G-15-23).
+    /// at queue time. The observed half is the snapshot-sourced merges, which read `isIncomplete`.
+    /// The proven half is `provenPageWorkRunGIDs` below, which the run's own working-seed
+    /// announcement (`prepareWorkingSeedAnnouncingProgress`) records and which this set is SEEDED
+    /// FROM at every session start — this set is no longer the owner of that proof, only a reader of
+    /// it, and G-15-26 is what that distinction cost. The proven rule exists because the observed one
+    /// structurally cannot reach one family: a reconciliation that REFUSES its destructive half hands
+    /// the manifest back verbatim, so a repair of a complete-reading record has no incompleteness for
+    /// a snapshot to see, and the flush path only ever moves a record upward (G-15-23).
     ///
-    /// Session-scoped like the two above: cleared when a session starts and when one ends, seeded
-    /// from the start snapshot, and accumulated from every snapshot a push reconciles.
+    /// Session-scoped like the two above, in the sense that no membership of this set survives into
+    /// the next session on its own: it is cleared when a session ends and re-derived when one starts.
+    /// What it is re-derived FROM is the run-scoped owner below plus that start's own snapshot, and
+    /// it then accumulates every snapshot a push reconciles. So a session boundary re-reads the
+    /// proofs of runs that are still in flight rather than discarding them, which is exactly the
+    /// difference between this and the pre-G-15-26 shape.
     var observedIncompleteSessionGIDs = Set<String>()
+    /// The galleries whose CURRENT RUN has proved, at its own working-seed preparation, that it has
+    /// pages of its own to fetch.
+    ///
+    /// **The lifetime rule, stated as a rule rather than as a site count.** An entry is recorded at
+    /// the run's own preparation when that run's pending page list is non-empty; it is read by every
+    /// session start, which seeds `observedIncompleteSessionGIDs` from it; and it is retired when
+    /// that run ends, at `processDownload`'s `defer`, which is the one point every exit of a run
+    /// passes through.
+    ///
+    /// **Why a session boundary is not a run boundary.** The proof is a fact about the RUN — this
+    /// gallery's files cannot supply the pages this run was asked for — and nothing about a session
+    /// starting or ending makes it less true. Storing it in the session-scoped set alone lost it on
+    /// two orderings production reaches (G-15-26): an `.unavailable` teardown, whose arm ends the
+    /// session and leaves the queue running foreground-only, so an in-flight repair kept running with
+    /// its trust erased; and a run that started before any session existed at all, because the live
+    /// client resumes the persisted queue at launch and D-07 forbids that path from starting one. In
+    /// both, a complete-reading repair contributed zero for an entire N-page re-download — G-15-23's
+    /// card, reached through the orderings its own fix did not cover, and the maximally stalled
+    /// reading D-11's expiration policy punishes by pausing every schedulable download.
+    ///
+    /// **Why the retirement is not optional.** Keyed by gallery id and never retired, an entry
+    /// re-credits the NEXT redo of the same gallery, whose pages are that redo's target rather than
+    /// any session's progress — D-G4-01's ceiling defect reached from the other side. The retirement
+    /// is gated on this run still owning the gallery's active slot, so a superseded predecessor
+    /// cannot drop a live successor's proof.
+    ///
+    /// Not session-scoped, deliberately, and the two clears that make the set above session-scoped
+    /// must never be extended to this one. `DownloadSourceInventoryTests` owns that: it counts every
+    /// site naming this property and fails the build when one is added, which is what a comment
+    /// asking to be believed could not do.
+    var provenPageWorkRunGIDs = Set<String>()
 
     public init(
         storage: DownloadStore,
