@@ -66,6 +66,26 @@ public final class ContinuedProcessingSession {
     /// yet. It opens with `pendingIdentifier`, for the same reason.
     private var isAwaitingTask = false
     private var didCancelStaleRequests = false
+    /// The one identifier this process has successfully registered a launch handler under, set on
+    /// the single path where `scheduling.register` returned true and never cleared.
+    ///
+    /// The rule the identifier has to satisfy is UNIQUENESS, not freshness: a handler can never be
+    /// unregistered and the system kills the app on a second registration of one identifier.
+    /// Minting a fresh one per session satisfied the stronger rule at an unbounded price — a
+    /// session ends at every queue drain, every expiration and every `.unavailable`, so one app run
+    /// with a dozen download bursts left a dozen permanent handlers, each retaining a closure and a
+    /// string for the life of the process (G-15-31). Reuse is legal because ``endSession`` takes the
+    /// pending request back, so between sessions the scheduler holds nothing under this identifier
+    /// and the same one is free to be submitted again.
+    ///
+    /// Recorded only after a SUCCESSFUL registration, which is what separates the two failure arms
+    /// without a branch that classifies them. A refused registration stored no handler, so nothing
+    /// is recorded here and the next start mints and attempts again — a transient refusal must not
+    /// permanently disable background coverage, and re-attempting under the identifier that was
+    /// refused is what the system kills the app for. A throwing submission registered successfully,
+    /// so its retry reuses this identifier and reaches the register call not at all: that arm is
+    /// where the unbounded accumulation actually lived.
+    private var registeredIdentifier: String?
     /// The last counts supplied by the caller, seeded by start and refreshed by later progress
     /// pushes, so a task adopted at any point reports real numbers.
     private var lastCompletedUnitCount: Int64 = 0
@@ -133,22 +153,30 @@ public final class ContinuedProcessingSession {
             return session
         }
 
-        // Freshly minted every session. Handlers can never be unregistered and the system kills
-        // the app on a second registration of the same identifier, so the suffix must be a UUID
-        // rather than anything — a clock included — that can repeat.
-        let identifier = "\(bundleIdentifier).continued.\(UUID().uuidString)"
-
-        let registered = scheduling.register(identifier) { [weak self] task in
-            guard let self else { return }
-            // Handling the launch is all this handler may do. It runs on the main queue, so
-            // looping or sleeping here — as some samples do — would freeze the UI; returning does
-            // not complete the task.
-            handleLaunch(task, expecting: identifier)
-        }
-        guard registered else {
-            logger.error("Identifier \(identifier, privacy: .public) is not permitted by Info.plist.")
-            endSession(yielding: .unavailable, success: false)
-            return session
+        // Registered at most once per process and re-submitted for every later session.
+        // ``registeredIdentifier`` states the rule that makes the reuse both required and legal,
+        // and why a refused registration deliberately records nothing. The suffix is a UUID rather
+        // than anything — a clock included — that can repeat, because the one identifier this
+        // process registers must be one no earlier build of it can also have registered.
+        let identifier: String
+        if let registeredIdentifier {
+            identifier = registeredIdentifier
+        } else {
+            let mintedIdentifier = "\(bundleIdentifier).continued.\(UUID().uuidString)"
+            let registered = scheduling.register(mintedIdentifier) { [weak self] task in
+                guard let self else { return }
+                // Handling the launch is all this handler may do. It runs on the main queue, so
+                // looping or sleeping here — as some samples do — would freeze the UI; returning
+                // does not complete the task.
+                handleLaunch(task, expecting: mintedIdentifier)
+            }
+            guard registered else {
+                logger.error("Identifier \(mintedIdentifier, privacy: .public) is not permitted by Info.plist.")
+                endSession(yielding: .unavailable, success: false)
+                return session
+            }
+            registeredIdentifier = mintedIdentifier
+            identifier = mintedIdentifier
         }
 
         // Identity BEFORE the hand-over (WR-08). The request is named and the awaiting window is
@@ -224,9 +252,32 @@ public final class ContinuedProcessingSession {
 
     /// Applies one launch of the request registered under `identifier`.
     ///
-    /// A launch handler can never be unregistered, so every identifier this process has ever
-    /// registered keeps a live handler that can fire long after its session ended. The expected
-    /// identifier is what lets this store tell its own launch from someone else's leftovers.
+    /// A launch handler can never be unregistered, so the one identifier this process registers
+    /// keeps a live handler that can fire long after the session that submitted a request under it
+    /// ended.
+    ///
+    /// What the comparison against `pendingIdentifier` distinguishes narrowed when that identifier
+    /// became process-scoped (G-15-31): it no longer separates this store's own launch from a
+    /// leftover by STRING — both carry the same one — only a launch this store is currently
+    /// AWAITING from one it is not. Every arrival state, and what each still does:
+    ///
+    /// - No session live, `pendingIdentifier` nil: a task launch is completed unsuccessfully and
+    ///   turned away, a `nil` launch is ignored. Unchanged.
+    /// - A session holding an adopted task, `pendingIdentifier` cleared by ``adopt(_:expecting:)``:
+    ///   the same, and the held task is never displaced. Unchanged.
+    /// - A session AWAITING a task: the one window where a leftover is indistinguishable from the
+    ///   live launch, and nothing the SDK supplies can separate them — this closure captures one
+    ///   identifier for the life of the process and the launched task carries no submission
+    ///   generation. So there is no mitigation to implement, only a consequence to state. A
+    ///   leftover TASK launch is adopted, which costs nothing real: it is this app's own earlier
+    ///   request for the same work, `adopt` re-seeds progress from the live session's snapshot, the
+    ///   caller's card title is a constant, and the only carried-over datum is a subtitle the next
+    ///   progress push replaces. A leftover `nil` launch ends the awaiting session with
+    ///   `.unavailable`, and that outcome — the only one that changed for the worse — is accepted:
+    ///   the arm is doubly defensive, since only a launch the seam cannot read as a
+    ///   continued-processing task reaches it and only requests of that kind are ever submitted
+    ///   under this identifier, and `.unavailable` is silent by contract, so no page is lost or
+    ///   duplicated and the next qualifying start opens a new session.
     private func handleLaunch(_ task: (any ContinuedProcessingTasking)?, expecting identifier: String) {
         guard let task else {
             // The launch was not a continued-processing task and the seam has already completed
@@ -244,6 +295,10 @@ public final class ContinuedProcessingSession {
         // leaked system task, a second progress card, and — once the system force-expires it for
         // reporting no progress — a foreign expiration delivered into a live session, pausing
         // work the user never touched.
+        //
+        // Both halves now discriminate by AWAITING-ness rather than by identifier string;
+        // ``handleLaunch(_:expecting:)`` enumerates every arrival state and states the one
+        // consequence that changed.
         guard pendingIdentifier == identifier, self.task == nil else {
             task.setTaskCompleted(success: false)
             return
