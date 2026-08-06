@@ -378,6 +378,114 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
+    /// G-15-30's consequence 3, and the harm that makes it a blocker rather than a display nitpick:
+    /// a refusal repair PAUSED after K of N pages must terminate at the work it actually did.
+    ///
+    /// The departure is the session's LAST gallery, so `reconcileContinuedSession` takes its drain
+    /// branch: it pushes one terminal pair and then calls `finish(clientSessionID, true)`. An
+    /// over-retirement there does not merely misreport a fraction — it reports a PAUSED repair to
+    /// the user as a fully successful N-page completion, which is the outcome
+    /// `reconcileRetiredSessionPages`' own doc forbids in its own words ("over-retiring is the
+    /// defect").
+    ///
+    /// **Which of the two retirement orderings this staging exercises: the DEPARTURE-FIRST one.**
+    /// No run is driven to an exit here — the preparation is reached through the testing forwarder,
+    /// as every sibling case reaches it, and the injected runner answers `.skippedOperation` — so
+    /// the run's own retirement never happens and the pause finds the run's outstanding page debt
+    /// still recorded. The opposite ordering, where the run's own exit retires first and the
+    /// departure follows, is covered by
+    /// `testAFailedRefusalRepairsGalleryContributesNothingWhileMerelyQueued` in the run-proof file,
+    /// which drives a real `processDownload` to a real exit ahead of its departure.
+    ///
+    /// **Non-vacuity is asserted before the outcome.** The refusal really refused (the record still
+    /// reads six), the run really did owe all six pages, and two of them really landed through the
+    /// production flush — so a terminal six can only be the record's ceiling rather than the work
+    /// done.
+    ///
+    /// **Choreography.** Every push, start and departure is production-issued: `retryPages`' own
+    /// session ensure, the preparation's announcement, `flushDownloadProgress` — the production
+    /// flush the page loop itself calls — and `pause(gid:)`, whose `commitPause` removes the gallery
+    /// from the queue store and converges through `scheduleNextIfNeeded`. This case issues no push,
+    /// no start and no retirement of its own.
+    @Test
+    func testARefusalRepairPausedPartWayDrainsAtTheWorkItActuallyDid() async throws {
+        let halted = SessionGallery(
+            gid: "210394",
+            title: "Halted",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [halted],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        // No page file at all, so the residual exit refuses and the record reads complete
+        // throughout — the family whose ceiling and whose remaining work are the same number.
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: halted.gid))
+        #expect(staged.completedPageCount == 6)
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        try await manager.retryPages(gid: halted.gid, pageIndices: [1, 2, 3, 4, 5, 6]).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(halted.gid)_token] \(halted.title)"
+        )
+        let payload = await makeRetriedPagesPayload(
+            for: halted,
+            mode: .repair,
+            retriedPageIndices: [1, 2, 3, 4, 5, 6],
+            coordinator: manager
+        )
+        let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: payload,
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        // Non-vacuity: the refusal refused, and the run owes every one of the six pages.
+        #expect(await manager.fetchDownload(gid: halted.gid)?.completedPageCount == 6)
+        #expect(preparedRun.workingSeed.existingPages.isEmpty)
+        #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+
+        // K of N: two pages land through the production flush the page loop itself calls.
+        try writePageFiles(for: halted, in: fixture, indices: [1, 2])
+        var pendingResolvedPages = pageResults(for: halted, in: fixture, indices: [1, 2])
+        var lastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: halted.gid, folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        // The record cannot say the run made progress: it claimed all six pages before any landed.
+        #expect(await manager.fetchDownload(gid: halted.gid)?.completedPageCount == 6)
+
+        // The departure, through the product's own pause.
+        try await manager.pause(gid: halted.gid).get()
+        try await waitUntil {
+            await manager.testingHasContinuedSession() == false
+        }
+
+        let terminalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(terminalPair.completedUnitCount == 2)
+        #expect(terminalPair.totalUnitCount == 2)
+        #expect(terminalPair.subtitle == "2 / 2 pages · 0 galleries")
+        #expect(spy.finishSuccesses == [true])
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+    }
+
     /// The binding between what `makeRetriedPagesPayload` feeds a payload and what the route
     /// actually stores — owned here rather than assumed by every case that uses the helper.
     ///
@@ -440,34 +548,5 @@ extension DownloadContinuedSessionLedgerTests {
             coordinator: manager
         )
         #expect(payload.pageSelection == Set(stored))
-    }
-}
-
-// MARK: - Helpers
-
-private extension DownloadContinuedSessionLedgerTests {
-    /// The results a production flush is handed for pages `writePageFiles` has just landed.
-    ///
-    /// File-private rather than promoted beside `writePageFiles`: both consumers are in this file,
-    /// and the shared helper surface earns a member when a second suite needs it. The relative
-    /// paths come from the same production API the writer used, so a naming change moves both
-    /// together rather than leaving a flush pointed at a file that is not there.
-    func pageResults(
-        for gallery: SessionGallery,
-        in fixture: SessionFixture,
-        indices: [Int]
-    ) -> [DownloadCoordinator.PageResult] {
-        indices.map { index in
-            DownloadCoordinator.PageResult(
-                index: index,
-                relativePath: fixture.storage.makePageRelativePath(
-                    gid: gallery.gid,
-                    token: "token",
-                    index: index,
-                    fileExtension: "jpg"
-                ),
-                imageURL: nil
-            )
-        }
     }
 }
