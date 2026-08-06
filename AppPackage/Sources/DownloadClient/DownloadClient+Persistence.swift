@@ -225,6 +225,31 @@ extension DownloadCoordinator {
         }
     }
 
+    /// Records the hashes of pages that have landed on disk, and lowers the run's outstanding page
+    /// debt by exactly the pages this write recorded.
+    ///
+    /// **Why the decrement lives HERE rather than in `flushDownloadProgress` (G-15-30).** The
+    /// numerator climbing page by page is the liveness the push exists to report — the scheduler
+    /// force-expires the tasks reporting the least progress — so the debt has to fall wherever a page
+    /// the run owed becomes recorded, not merely on the route the page loop happens to take. This is
+    /// the single point every such recording passes: the cadence and forced flushes reach it through
+    /// `flushDownloadProgress`, the restored pages of `initializePageDownloadState` reach it
+    /// directly, and so does a background page landing, which completes out of process and never
+    /// touches the page loop's throttle at all. Attaching the decrement to `flushDownloadProgress`
+    /// would have left the last of those crediting nothing.
+    ///
+    /// **Why it credits nothing when nothing was written.** Both early returns above it decline to
+    /// write — an empty page list, and a folder whose manifest file is gone — and neither reaches
+    /// this line. A throw from the hash refresh does not reach it either, which is the same
+    /// condition that keeps `flushDownloadProgress` from clearing its pending resolved pages: the
+    /// two cannot drift, because the write they both depend on is one call and this whole body is
+    /// synchronous, so nothing can interleave between the record moving and the debt following it.
+    ///
+    /// **Why a set subtraction rather than a count.** A page can arrive twice — a retry re-records a
+    /// hash an earlier flush already wrote — and a flush can carry pages this run never owed, since
+    /// the restored pages are by construction the complement of the run's pending list. Subtracting
+    /// the page numbers is idempotent on the first and inert on the second; subtracting a count
+    /// over-credits on both, and over-crediting is the direction D-G2-01 names as the defect.
     public func flushManifestPageProgress(
         folderURL: URL,
         pages: [PageResult]
@@ -245,6 +270,7 @@ extension DownloadCoordinator {
             pageRelativePaths: pageRelativePaths
         )
         updateDownloadIndex(folderURL: folderURL, manifest: manifest)
+        provenPageWorkRunPageDebts[manifest.gid]?.subtract(pageRelativePaths.keys)
     }
 
     public func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {

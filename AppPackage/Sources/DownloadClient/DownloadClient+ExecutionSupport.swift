@@ -375,7 +375,7 @@ extension DownloadCoordinator {
     ///
     /// **The proof is written to the RUN's collection, unconditionally, and to the live session's
     /// trust set as well when there is one (G-15-26).** They are the same fact reaching the session by
-    /// two routes: `provenPageWorkRunGIDs` is what every LATER session start seeds its trust set
+    /// two routes: `provenPageWorkRunPageDebts` is what every LATER session start seeds its trust set
     /// from, and the session insert is what credits a run that started inside a session already
     /// live, immediately rather than only at the next start. Recording only into the session set made
     /// the proof die with the session, which lost it on the two orderings where the session lifecycle
@@ -463,6 +463,14 @@ extension DownloadCoordinator {
     /// `ensureContinuedSession`'s seed merges rather than overwrites, so the recording survives the
     /// start's main-actor hop.
     ///
+    /// **What is recorded is the list itself, not the fact that it was non-empty (G-15-30).** The
+    /// gate is unchanged — this run's own pending page list being non-empty — but membership alone
+    /// unlocked the record's WHOLE finished-page count, which for the refusal family is exactly the
+    /// work the run has not done. So the same evaluation that opens the gate also supplies the
+    /// quantity behind it: the pages this run owes, which `sessionCreditedPages` subtracts from the
+    /// record and every manifest page flush shrinks by what it actually wrote. No second evaluation
+    /// appears, and nothing is derived here that the page loop is not also handed.
+    ///
     /// The pending list is evaluated here and handed onward rather than recomputed by the caller,
     /// and that is the whole of T-15-47-03's mitigation: one evaluation per run means the trust
     /// granted and the work performed cannot come apart. It lands on the same side of D-G7-01's
@@ -493,7 +501,7 @@ extension DownloadCoordinator {
             existingPageRelativePaths: workingSeed.existingPages
         )
         if !pendingPages.isEmpty {
-            provenPageWorkRunGIDs.insert(payload.gallery.gid)
+            provenPageWorkRunPageDebts[payload.gallery.gid] = Set(pendingPages)
             if let continuedSessionID {
                 observedIncompleteSessionGIDs.insert(payload.gallery.gid)
                 await pushContinuedSessionProgress(sessionID: continuedSessionID)

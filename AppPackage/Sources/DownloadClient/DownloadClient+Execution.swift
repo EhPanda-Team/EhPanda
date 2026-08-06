@@ -300,9 +300,36 @@ extension DownloadCoordinator {
     /// is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose gallery's active
     /// slot is held by a live run at a different generation retires nothing and leaves the entry to
     /// its owner, which retires it at its own exit.
+    ///
+    /// **Three steps, in an order that is itself load-bearing (G-15-30).**
+    ///
+    /// The freeze runs FIRST, while the debt and the trust it is measured through are both still
+    /// standing, because what it publishes is the value they produce. `freezeSessionCreditForRetiringRun`
+    /// carries the derivation; the short version is that a departure can be detected on either side
+    /// of this `defer` and the frozen value is what makes both sides retire the same number.
+    ///
+    /// The debt goes next, for the lifetime reason the property's own declaration records: an entry
+    /// keyed by gallery id and never retired credits the NEXT redo of that gallery against work this
+    /// run did, which is D-G4-01's ceiling reached from the other side.
+    ///
+    /// The SESSION trust this run's proof granted goes with it, and that is the arm G-15-30's
+    /// closure had to disposition rather than inherit. Nothing else withdraws it —
+    /// `observedIncompleteSessionGIDs`' only other clears are a session start's re-seed and
+    /// `markContinuedSessionEnded` — so a failed refusal repair went on selecting the trusted branch
+    /// for the rest of the session, crediting its record's untouched count for a gallery that was
+    /// merely sitting in the queue. Withdrawing here is the safe direction and costs nothing the
+    /// session can still justify: the set's other grantor is the snapshot's `formUnion` over
+    /// `incompleteGalleryIDs`, which re-adds the gid at the very next push for as long as the record
+    /// honestly reads incomplete, and which by construction can never re-add a record that reads
+    /// COMPLETE — which is precisely the reading whose credit no observation supports once the run
+    /// that owed those pages is over. What it costs is that a run's landed pages stop being credited
+    /// through the gallery while it waits for its next run; the monotonic floor still holds them, so
+    /// the effect is a numerator that does not rise rather than one that falls.
     private func retireProvenPageWork(gid: String, generation: Int?) {
         guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return }
-        provenPageWorkRunGIDs.remove(gid)
+        freezeSessionCreditForRetiringRun(gid: gid)
+        provenPageWorkRunPageDebts[gid] = nil
+        observedIncompleteSessionGIDs.remove(gid)
     }
 
     private func isSupersededByALiveRun(

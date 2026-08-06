@@ -76,7 +76,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
-    private static var runProofPropertyName: String { "provenPageWork" + "RunGIDs" }
+    private static var runProofPropertyName: String { "provenPageWork" + "RunPageDebts" }
     /// The retired claim's recorded phrasings, assembled from fragments for exactly the reason the
     /// census tokens are: a repository grep counting the claim must not match the check that forbids
     /// it, or the check becomes part of the inventory it polices.
@@ -175,30 +175,41 @@ struct DownloadSourceInventoryTests {
     /// Every site naming the run-scoped proof of page work, named per file.
     ///
     /// This is the census the property's own declaration reasons from, and the claim it owns is a
-    /// LIFETIME: the proof is recorded at the run's preparation, read by every session start, retired
-    /// at the run's end, and touched nowhere else. Each of the four entries is exactly one of those
-    /// roles — the declaration in `+Manager.swift`, the recording in `+ExecutionSupport.swift`, the
-    /// session-start seed in `+ContinuedSession.swift`, and the retirement in `+Execution.swift`.
+    /// LIFETIME. That lifetime gained a step when the proof stopped being a membership and became
+    /// the PAGES the run still owes (G-15-30), so the number here moved from four to six, and each
+    /// of the six is exactly one role: the declaration in `+Manager.swift`; the recording at the
+    /// run's own preparation in `+ExecutionSupport.swift`; the decrement at the manifest page flush
+    /// in `+Persistence.swift`, which is the one point every landed page passes; the session-start
+    /// seed and the credited-pages definition in `+ContinuedSession.swift`; and the retirement at
+    /// the run's end in `+Execution.swift`.
+    ///
+    /// **What the new number pins that the old one could not.** Four sites pinned a lifetime alone —
+    /// recorded, read, retired. Six pin the lifetime AND the arithmetic: a seventh site is either a
+    /// second reader of the credited basis, which is how the opening rule and the departure rule
+    /// come to disagree about one gallery, or a second writer of the debt, which is how the trust
+    /// granted and the work performed come apart. The `+Persistence.swift` entry in particular is
+    /// load-bearing as a count of ONE: a second decrement point means a page can be credited twice.
     ///
     /// It is a whole-name count rather than a mutation count on purpose, because the way this
     /// invariant rots is a READ or a CLEAR appearing rather than an assignment. The specific rot this
     /// pins against is a clear being added to `markContinuedSessionEnded` or to
     /// `ensureContinuedSession`'s reset — conflating a session boundary with a run boundary, which is
     /// precisely the defect G-15-26 recorded — and either would take `+ContinuedSession.swift` from
-    /// one to two. Nothing counted the equivalent claim about the session-scoped set, and it was
+    /// two to three. Nothing counted the equivalent claim about the session-scoped set, and it was
     /// stated in a doc for five rounds while source disagreed.
     ///
     /// Derived from source rather than copied. Doc-comment mentions are excluded, as everywhere else
     /// here — this property has more of those than uses.
     private static let expectedRunProofSites = [
-        "DownloadClient+ContinuedSession.swift": 1,
+        "DownloadClient+ContinuedSession.swift": 2,
         "DownloadClient+Execution.swift": 1,
         "DownloadClient+ExecutionSupport.swift": 1,
-        "DownloadClient+Manager.swift": 1
+        "DownloadClient+Manager.swift": 1,
+        "DownloadClient+Persistence.swift": 1
     ]
 
     /// The run-proof table's sum, asserted the same way and for the same reason.
-    private static let expectedRunProofSiteTotal = 4
+    private static let expectedRunProofSiteTotal = 6
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -337,13 +348,17 @@ struct DownloadSourceInventoryTests {
         #expect(
             sites == Self.expectedRunProofSites,
             """
-            The run-scoped page-work proof census moved. That proof has exactly four roles — its \
-            declaration, the recording at the run's own preparation, the seed every session start \
-            takes from it, and the retirement at the run's end — and a fifth site is almost always a \
-            clear added at a SESSION boundary, which is the G-15-26 defect: a session ending is not \
-            the run ending, and erasing the proof there leaves an in-flight repair contributing zero \
-            for the rest of its re-download. Re-derive the lifetime against the property's own \
-            declaration before updating this table.
+            The run-scoped page-work proof census moved. That proof has exactly six roles — its \
+            declaration, the recording at the run's own preparation, the decrement at the manifest \
+            page flush, the seed every session start takes from its keys, the credited-pages \
+            definition both the snapshot and the departure retirement read, and the retirement at \
+            the run's end. A seventh site is almost always one of three known defects: a clear added \
+            at a SESSION boundary (G-15-26 — a session ending is not the run ending, and erasing the \
+            proof there leaves an in-flight repair contributing zero for the rest of its \
+            re-download), a second reader of the credited basis (the opening rule and the departure \
+            rule then disagree about one gallery), or a second decrement point (a landed page \
+            credited twice). Re-derive the lifetime against the property's own declaration before \
+            updating this table.
             """
         )
 
