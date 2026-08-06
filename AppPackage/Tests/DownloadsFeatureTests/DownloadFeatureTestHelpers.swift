@@ -438,6 +438,32 @@ extension DownloadFeatureTestCase {
         }
     }
 
+    /// The results a production flush is handed for pages `writePageFiles` has just landed.
+    ///
+    /// Shared rather than file-private, on the rule its former home stated: the surface earns a
+    /// member when a second file needs it, and the run-proof cases now stage page landings through
+    /// the production flush exactly as the refusal cases do. The relative paths come from the same
+    /// production API the writer used, so a naming change moves both together rather than leaving a
+    /// flush pointed at a file that is not there.
+    func pageResults(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture,
+        indices: [Int]
+    ) -> [DownloadCoordinator.PageResult] {
+        indices.map { index in
+            DownloadCoordinator.PageResult(
+                index: index,
+                relativePath: fixture.storage.makePageRelativePath(
+                    gid: gallery.gid,
+                    token: "token",
+                    index: index,
+                    fileExtension: "jpg"
+                ),
+                imageURL: nil
+            )
+        }
+    }
+
     /// Puts an item a case staged unreadable — an execute-only folder, a mode-`0o000` page file —
     /// back to its original mode, so the fixture tree can be enumerated and removed.
     ///

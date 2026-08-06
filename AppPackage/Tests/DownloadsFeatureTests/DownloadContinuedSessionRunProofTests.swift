@@ -309,6 +309,193 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
+
+    /// G-15-30's consequence 2: the numerator must CLIMB while the pages climb, for a family whose
+    /// record cannot move at all.
+    ///
+    /// The push exists for liveness rather than decoration — the scheduler force-expires the tasks
+    /// reporting the least progress — so a numerator that holds one value for the whole re-download
+    /// is a stall signal whatever that value is. This case is deliberately written as a SERIES
+    /// property rather than as an expected string, because a pinned reading is exactly what it must
+    /// refuse: it fails against a numerator frozen at zero and against one frozen at the record's
+    /// ceiling alike, which no assertion on a single constant can do.
+    ///
+    /// Three production flush batches rather than two, so the series has to hold at least three
+    /// distinct values; a staging that merely moved once could otherwise pass. `flushDownloadProgress`
+    /// is the production flush the page loop itself calls, forced here because a case must not
+    /// depend on the throttle's wall clock.
+    ///
+    /// The record is asserted unmoved at the end for the same reason the sibling refusal cases
+    /// assert it: the refusal returned the manifest verbatim, so every value in the series comes
+    /// from what the session credits rather than from anything the record did.
+    @Test
+    func testARefusalRepairsIntermediatePushesStrictlyIncrease() async throws {
+        let climbing = SessionGallery(
+            gid: "210405",
+            title: "Climbing",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [climbing],
+            queuedGIDs: [climbing.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: climbing.gid))
+        #expect(staged.completedPageCount == 6)
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(climbing.gid)_token] \(climbing.title)"
+        )
+        let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: climbing),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+        // Non-vacuity: the folder can supply nothing, so all six pages are this run's own work.
+        #expect(preparedRun.workingSeed.existingPages.isEmpty)
+        #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+
+        var lastFlushDate = Date.distantPast
+        for batch in [[1, 2], [3, 4], [5, 6]] {
+            try writePageFiles(for: climbing, in: fixture, indices: batch)
+            var pendingResolvedPages = pageResults(for: climbing, in: fixture, indices: batch)
+            try await manager.flushDownloadProgress(
+                context: .init(gid: climbing.gid, folderURL: folderURL),
+                pendingResolvedPages: &pendingResolvedPages,
+                lastFlushDate: &lastFlushDate,
+                force: true
+            )
+        }
+
+        // The record never moved, so the series is entirely the session's own accounting.
+        #expect(await manager.fetchDownload(gid: climbing.gid)?.completedPageCount == 6)
+
+        let numerators = spy.progressUpdates.map(\.completedUnitCount)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(Set(numerators).count >= 3)
+        #expect(numerators.last == 6)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
+    /// The outliving-trust arm: once a run is over, the gallery it proved page work for contributes
+    /// NOTHING further while it merely waits in the queue.
+    ///
+    /// D-G4-01's queued-window zero says a redo's target pages are not this session's progress. A
+    /// run's proof is what suspends that rule for the run's own duration, so the rule has to come
+    /// back when the run ends — otherwise a failed refusal repair keeps its record's full count
+    /// credited for the rest of the session, on a gallery that is doing nothing at all.
+    ///
+    /// **Which of the two retirement orderings this staging exercises: the RUN-FIRST one.** The run
+    /// is driven to a real exit through `processDownload`, whose stubbed detail fetch fails offline
+    /// and whose `defer` therefore runs BEFORE the departure the same failure causes — the failure
+    /// persistence removes the gallery from the queue store, and the departure is only detected by
+    /// the reconcile inside the push that `finishActiveTaskIfOwned`'s detached convergence issues
+    /// afterwards. The opposite ordering, where an outside pause departs a gallery whose run is
+    /// still holding its page debt, is covered by
+    /// `testARefusalRepairPausedPartWayDrainsAtTheWorkItActuallyDid` in the refusal file.
+    ///
+    /// **The second gallery is load-bearing rather than scenery.** Without it the failure empties
+    /// the queue, `reconcileContinuedSession` drains and finishes the session, and the queued window
+    /// this case is about would belong to a different session. `keeper` never runs — the injected
+    /// runner answers `.skippedOperation` — so it holds exactly one thing steady: pending work.
+    ///
+    /// **What the terminal numerator is, and why it is not zero.** The two pages this session really
+    /// fetched are held by the monotonic floor, which is what stops a numerator rewind from reading
+    /// to the scheduler as a task losing ground. The gallery's OWN contribution is what returns to
+    /// zero, and the denominator is what shows it back in the queue: a terminal pair of two over
+    /// sixteen across two galleries is the session's real work beside the whole queue it still
+    /// covers, while the record's untouched six is credited nowhere.
+    @Test
+    func testAFailedRefusalRepairsGalleryContributesNothingWhileMerelyQueued() async throws {
+        let abandoned = SessionGallery(
+            gid: "210406",
+            title: "Abandoned",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let keeper = SessionGallery(gid: "210407", title: "Keeper", pageCount: 10)
+        let stubSessionID = UUID().uuidString
+        SharedSessionStubURLProtocol.setHandler(for: stubSessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: stubSessionID) }
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [abandoned, keeper],
+            queuedGIDs: [abandoned.gid, keeper.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation }),
+            urlSession: makeStubbedURLSession(stubSessionID: stubSessionID)
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: abandoned.gid))
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        await manager.testingEnsureContinuedSession()
+        #expect(spy.startSubtitles == ["0 / 16 pages · 2 galleries"])
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(abandoned.gid)_token] \(abandoned.title)"
+        )
+        let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: abandoned),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+        #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+
+        // Two pages of real work, so the trust the run earned is OBSERVED rather than argued: an
+        // untrusted complete-reading record contributes zero at every push, whatever lands.
+        try writePageFiles(for: abandoned, in: fixture, indices: [1, 2])
+        var pendingResolvedPages = pageResults(for: abandoned, in: fixture, indices: [1, 2])
+        var lastFlushDate = Date.distantPast
+        try await manager.flushDownloadProgress(
+            context: .init(gid: abandoned.gid, folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+        #expect(spy.progressUpdates.map(\.completedUnitCount).contains(2))
+
+        // The run's own exit, taken through production.
+        await manager.processDownload(gid: abandoned.gid)
+        #expect(await manager.fetchDownload(gid: abandoned.gid)?.lastError != nil)
+        // Waited on a MONOTONE production observation rather than on active-task quiescence: the
+        // exit's own convergence reschedules the surviving gallery, so the active slot legitimately
+        // flickers here and a quiescence poll can read it true and false in the same breath. The
+        // gallery count crossing to one is the departure this case needs, and it only crosses once.
+        try await waitUntil {
+            spy.progressUpdates.last?.subtitle.hasSuffix("· 1 gallery") == true
+        }
+
+        // Back in the queue, through the product's own tap, inside the SAME session.
+        try await manager.retry(gid: abandoned.gid, mode: .repair).get()
+        try await waitUntil {
+            spy.progressUpdates.last?.subtitle.hasSuffix("· 2 galleries") == true
+        }
+        #expect(spy.startCount == 1)
+        #expect(await manager.fetchDownload(gid: abandoned.gid)?.completedPageCount == 6)
+
+        let finalPair = try lastPushedPair(spy.progressUpdates)
+        #expect(finalPair.completedUnitCount == 2)
+        #expect(finalPair.totalUnitCount == 16)
+        #expect(finalPair.subtitle == "2 / 16 pages · 2 galleries")
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
 }
 
 // MARK: - Helpers
