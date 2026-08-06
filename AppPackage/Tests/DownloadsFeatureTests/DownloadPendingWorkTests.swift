@@ -23,8 +23,17 @@ struct DownloadPendingWorkTests: DownloadFeatureTestCase {
         #expect(await manager.hasPendingWork())
     }
 
-    /// The one authority's active-gallery union (WR-01, landed in plan 15-26), covered at the
-    /// pending-work seam for the first time.
+    /// The shared schedulable read's active-gallery union (WR-01, landed in plan 15-26), covered at
+    /// the pending-work seam for the first time.
+    ///
+    /// `schedulableDownloads()` is shared by three callers — this gate, the continued-session card's
+    /// `schedulableSnapshot()`, and the expiration sweep `pauseAllSchedulable(expiring:)` — and
+    /// **the scheduler is not one of them (G-15-24)**: `scheduleNextIfNeededCore` reads
+    /// `queueStore.gids` and then `indexedDownloads()` or `indexedDownloads(gids:)` for itself, and
+    /// reaches `isSchedulableDownload` through `nextQueuedDownload` /
+    /// `nextUnqueuedSchedulableDownload`. The two share the PREDICATE, not the read scope, so the
+    /// union covered here is a difference between the two reads — and this case pins it where a
+    /// consumer actually asks the question, not at the scheduler.
     ///
     /// The staging is the production state the union exists for: the running gallery is absent from
     /// a persisted queue that is not empty, so the queue-scoped read has to widen to see it. No task

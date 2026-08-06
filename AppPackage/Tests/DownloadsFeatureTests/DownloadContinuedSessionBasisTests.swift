@@ -254,11 +254,20 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// WR-01: the gallery that is actually downloading must stay in the card's numerator, its
     /// denominator and its gallery count even when the persisted queue no longer lists it.
     ///
-    /// `schedulableDownloads()` is the one authority for selecting work the scheduler can run, but
-    /// it scoped its index read by queue-store membership alone, while `isSchedulableDownload`
-    /// accepts `displayStatus == .active` — the running gallery — independently of that membership.
-    /// The predicate and the read therefore disagreed exactly when the running gallery was absent
-    /// from a NON-EMPTY persisted queue, which is a state three production routes reach:
+    /// `schedulableDownloads()` is the read three consumers share — the pending-work gate
+    /// `hasPendingWork()`, this card's own `schedulableSnapshot()`, and the expiration sweep
+    /// `pauseAllSchedulable(expiring:)`. **The scheduler is not among them (G-15-24).**
+    /// `scheduleNextIfNeededCore` reads `queueStore.gids` and then `indexedDownloads()` or
+    /// `indexedDownloads(gids:)` for itself, reaching `isSchedulableDownload` through
+    /// `nextQueuedDownload` / `nextUnqueuedSchedulableDownload`. What the two share is the
+    /// PREDICATE, not the read scope — which is why what this case asserts is the CARD's numerator
+    /// rather than what the scheduler picks up next.
+    ///
+    /// The shared read scoped its index read by queue-store membership alone, while
+    /// `isSchedulableDownload` accepts `displayStatus == .active` — the running gallery —
+    /// independently of that membership. The predicate and the read therefore disagreed exactly when
+    /// the running gallery was absent from a NON-EMPTY persisted queue, which is a state three
+    /// production routes reach:
     /// `nextUnqueuedSchedulableDownload` exists precisely to run a gallery the queue has not caught
     /// up with, and both `handleProcessDownloadIncompleteError` and `settleDownloadFailure` remove
     /// the active gid from the queue store while `activeGalleryID` is still set and the deferred
