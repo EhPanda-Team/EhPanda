@@ -593,6 +593,12 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// production-issued: the opening is read off `start`, the mid-run pair is the announcement's
     /// own, and the terminal is the drain's. The case owns only the macro-ordering production itself
     /// guarantees: prepare, then flush, then settle.
+    ///
+    /// **The payload is production-shaped (G-15-28).** This case drives `retryPages` too, so it
+    /// belongs to the same double-building family as the two refusal cases: its route stores the
+    /// single retried index in `queuedPageSelections`, and a production run reads that entry back
+    /// into both payload steps. The announcement gate does not read `payload.pageSelection`
+    /// (G-15-27, open here), so carrying the selection moves nothing this case asserts.
     @Test
     func testARepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull() async throws {
         let repair = SessionGallery(
@@ -631,8 +637,16 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
         )
+        // The index is this case's own `retryPages` set, so the payload carries what the route
+        // stored rather than a selection typed independently of it.
+        let payload = await makeRetriedPagesPayload(
+            for: repair,
+            mode: .repair,
+            retriedPageIndices: [3],
+            coordinator: manager
+        )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
-            payload: makeRepairPayload(for: repair),
+            payload: payload,
             existingDownload: staged,
             folderURL: folderURL
         )
