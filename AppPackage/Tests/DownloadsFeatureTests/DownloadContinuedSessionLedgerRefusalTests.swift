@@ -7,11 +7,12 @@ import Testing
 /// The ledger half of the reconciliation's REFUSAL family: what the card reports for the run that
 /// FOLLOWS a refusal, rather than what the refusal itself does to the manifest.
 ///
-/// An `extension` of the ledger suite rather than a suite of its own, so both cases keep that
-/// suite's membership, its traits and its test identity — the 15-41 relocation pattern applied to
-/// additions. A new file because `DownloadContinuedSessionLedgerTests.swift` sits at 812 lines
-/// against a `file_length` limit of 1000 at error severity, and two stagings of this size would
-/// crowd it.
+/// An `extension` of the ledger suite rather than a suite of its own, so every case here keeps
+/// that suite's membership, its traits and its test identity — the 15-41 relocation pattern applied
+/// to additions. A new file because `DownloadContinuedSessionLedgerTests.swift` sits at 812 lines
+/// against a `file_length` limit of 1000 at error severity, and stagings of this size would crowd
+/// it. The file has since taken the route-binding pin (G-15-28) and the selected-page-retry
+/// regression (G-15-27) on the same terms.
 ///
 /// Ledger cases rather than reconciliation ones, deliberately. The refusal cases in
 /// `DownloadContinuedSessionReconciliationTests` assert the refusal itself — nothing blanked,
@@ -262,6 +263,114 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+    }
+
+    /// G-15-27: a selected-page retry whose selected page is already present fetches NOTHING, and
+    /// must therefore earn nothing.
+    ///
+    /// **The two page sets the announcement can be gated on, and why they differ.** The gate this
+    /// case discriminates against compares the working folder's own shortfall — the seed's
+    /// `existingPages` against the working manifest's page count — while the run's page loop is fed
+    /// by `pendingPageIndices`, which reads `payload.pageSelection` FIRST and drops every page
+    /// outside it before it ever asks whether a file is there. Whenever a selection is live those
+    /// are different sets: the folder can be short of its manifest on pages this run was never
+    /// asked to fetch. Here the folder is short by page 6 while the run is asked only for page 3,
+    /// whose file is present — so the shortfall is one page and the run's pending work is empty.
+    ///
+    /// **The production route that reaches a present-file retry.** `performCacheCapture` restores a
+    /// page from the image cache into the working folder, refreshes exactly that page's manifest
+    /// hash and re-indexes, then clears only the gallery-level last error through
+    /// `sanitizeLocalFilesIfNeeded(gid:clearingLastError:)`. The PER-PAGE record the inspector
+    /// lists — `failedPageErrors[gid]`, read by `loadInspection` — is untouched by that route and
+    /// is cleared only by `clearSelectedFailedPages` inside `retryPages` itself. So a page can
+    /// still be offered to the user as failed while its file is already on disk, and tapping retry
+    /// on it stores exactly that selection.
+    ///
+    /// **The discrimination, stated.** Against pre-fix source the gate reads the shortfall, which
+    /// is non-zero, so the preparation announces and admits the gallery to the session's trust set;
+    /// the reconciliation has just blanked the one genuinely absent page, so that announcement
+    /// pushes a numerator of FIVE — five pages this run will not fetch, credited to it. After the
+    /// fix the gate reads the run's own pending list, which is empty, so no push is issued at all
+    /// and every recorded update still reads the queued window's zero.
+    ///
+    /// **Choreography.** Every push asserted over is production-issued: `retryPages`' own session
+    /// ensure and its convergence pushes, and the preparation's announcement. This case issues
+    /// none. It reaches the preparation through the testing forwarder, as both siblings do, and
+    /// that is not a shortcut around production here — the injected task runner answers
+    /// `.skippedOperation` without ever invoking the scheduled operation, so `performDownload` and
+    /// with it the preparation are unreachable from the fixture's own scheduling. The forwarder is
+    /// the only way in, and the payload it is handed is the one the route stored.
+    @Test
+    func testASelectedPageRetryThatFetchesNothingLeavesTheGalleryAtZero() async throws {
+        let selective = SessionGallery(
+            gid: "210393",
+            title: "Selected",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [selective],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        // Five of six page files. Page 6 is the absent one, so the folder is one page short of its
+        // manifest; page 3 — the page this case retries — is present. No permissions are touched:
+        // the mechanism under test is the SELECTION, and a second refusal mechanism would leave the
+        // RED reading ambiguous about which gate fired.
+        try writePageFiles(for: selective, in: fixture, indices: [1, 2, 3, 4, 5])
+        await manager.reloadDownloadIndex()
+
+        // Grounded in the production route rather than asserted about it: a complete-reading record
+        // with a missing file reaches `.repair`, which is the mode `retryPages` stores a selection
+        // for — an `.update` record is delegated to `retry`, which stores none.
+        let staged = try #require(await manager.fetchDownload(gid: selective.gid))
+        #expect(staged.completedPageCount == 6)
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        try await manager.retryPages(gid: selective.gid, pageIndices: [3]).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(selective.gid)_token] \(selective.title)"
+        )
+        // The index is this case's own `retryPages` set, so the payload carries what the route
+        // stored rather than a selection typed independently of it.
+        let payload = await makeRetriedPagesPayload(
+            for: selective,
+            mode: .repair,
+            retriedPageIndices: [3],
+            coordinator: manager
+        )
+        let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: payload,
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+
+        // Non-vacuity FIRST, or the case could pass on a staging that never reached the gate: five
+        // existing pages against a six-page working manifest is exactly the reading the pre-fix
+        // gate fires on, and page 3's presence is what empties the run's own pending list.
+        #expect(seed.existingPages.count == 5)
+        #expect(seed.manifest.pageCount == 6)
+        #expect(seed.existingPages[3] != nil)
+        // The reconciliation blanked page 6, which is untouched by this plan and is why the pre-fix
+        // crediting push carries five rather than the record's original six.
+        #expect(await manager.fetchDownload(gid: selective.gid)?.completedPageCount == 5)
+
+        // The outcome, by ABSENCE: production issued no push crediting this gallery's pages. It is
+        // the only gallery in the session, so the numerator IS its contribution. The empty rejected
+        // list is asserted alongside so an identity refusal cannot be mistaken for that absence.
+        #expect(spy.progressUpdates.allSatisfy({ $0.completedUnitCount == 0 }))
+        #expect(spy.progressUpdates.allSatisfy({ $0.subtitle == "0 / 6 pages · 1 gallery" }))
+        #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
     /// The binding between what `makeRetriedPagesPayload` feeds a payload and what the route
