@@ -232,6 +232,70 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
     }
+
+    /// The binding between what `makeRetriedPagesPayload` feeds a payload and what the route
+    /// actually stores — owned here rather than assumed by every case that uses the helper.
+    ///
+    /// `performRetryPages` writes the run's selection into the coordinator's `queuedPageSelections`
+    /// entry for the gid, and `fetchNormalizeAndDownload` reads exactly that entry back as the raw
+    /// selection it hands BOTH payload steps. The helper reproduces the route's transform instead
+    /// of copying a literal, so a later change to how `retryPages` normalizes a caller's indices
+    /// fails this case rather than silently un-faithing every double in the family again. The two
+    /// sides are deliberately different types — the coordinator entry is `[Int]`, the payload's
+    /// selection is `Set<Int>?` — so the comparison bridges them explicitly.
+    ///
+    /// **The production event that holds the entry in place while the assertion runs** is
+    /// `processScheduledDownload`'s `.skippedOperation` arm: it releases active ownership through
+    /// `finishActiveTaskIfOwned`, which touches no queue intent at all, so a schedule that runs no
+    /// operation leaves the selection standing for the run that follows — which is precisely why
+    /// the run can still read it. Nothing else in this staging can clear it: every production clear
+    /// of `queuedPageSelections` runs from a settle, a failure persistence, a pause, a resume, a
+    /// queued-item cancel or a folder deletion, and this case drives none of them.
+    @Test
+    func testTheRetriedPagesPayloadCarriesExactlyTheSelectionTheRouteStores() async throws {
+        let selective = SessionGallery(
+            gid: "210392",
+            title: "Selective",
+            pageCount: 6,
+            completedPageCount: 6
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [selective],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        // Two pages genuinely missing, which is what grounds `resumeMode` at `.repair` through the
+        // missing-files branch — `retryPages` delegates an `.update` record to `retry`, which
+        // stores no selection at all.
+        try writePageFiles(for: selective, in: fixture, indices: [1, 3, 5, 6])
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: selective.gid))
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        // Unordered and duplicated on purpose: what the route stores is its own transform of these
+        // indices, never the literal a case typed.
+        let requestedPageIndices = [4, 2, 2]
+        try await manager.retryPages(gid: selective.gid, pageIndices: requestedPageIndices).get()
+        try await waitUntil {
+            await manager.testingHasActiveTask() == false
+        }
+
+        let stored = try #require(await manager.queuedPageSelections[selective.gid])
+        #expect(stored == [2, 4])
+
+        let payload = await makeRetriedPagesPayload(
+            for: selective,
+            mode: .repair,
+            retriedPageIndices: requestedPageIndices,
+            coordinator: manager
+        )
+        #expect(payload.pageSelection == Set(stored))
+    }
 }
 
 // MARK: - Helpers

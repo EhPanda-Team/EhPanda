@@ -485,10 +485,18 @@ extension DownloadFeatureTestCase {
     /// `ensureWorkingManifest` validates the stored manifest against and the value a fresh manifest
     /// is built at. Overriding it is how a case stages the upstream-page-count change that makes
     /// `validatedManifest` return nil without deleting anything.
+    ///
+    /// `pageSelection` is placed on the payload exactly as production's fetch step places it —
+    /// `fetchLatestPayload(for:mode:options:pageSelection:)` takes the raw `[Int]?` the coordinator
+    /// stored and lands it as `pageSelection.map(Set.init)`. It defaults to nil, which is the
+    /// faithful value for every route that stores no selection, so a call site that omits it is
+    /// spelled exactly as before. Prefer `makeRetriedPagesPayload` over passing this directly: a
+    /// selection reaching production has been through the normalizer as well.
     func makeStartPayload(
         for gallery: SessionGallery,
         mode: DownloadStartMode,
-        pageCountOverride: Int? = nil
+        pageCountOverride: Int? = nil,
+        pageSelection: [Int]? = nil
     ) -> DownloadRequestPayload {
         DownloadRequestPayload(
             gallery: Gallery(
@@ -509,13 +517,52 @@ extension DownloadFeatureTestCase {
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, folderName: "Folder", mode: mode
+            host: .ehentai, folderName: "Folder", mode: mode,
+            pageSelection: pageSelection.map(Set.init)
         )
     }
 
     /// The `.repair` payload, spelled at every existing call site exactly as before.
     func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
         makeStartPayload(for: gallery, mode: .repair)
+    }
+
+    /// The payload a run carries after the case has driven `retryPages`, built the way production
+    /// builds it rather than spelled as a literal.
+    ///
+    /// Production reaches its preparation through TWO steps, in this order
+    /// (`fetchNormalizeAndDownload`): the fetch step places the coordinator's stored selection ON
+    /// the payload, and the normalizer then refines it against the fetched page count and the mode.
+    /// Both are applied here because the second one ALONE is insufficient — its equality guard
+    /// returns the payload untouched whenever the normalized selection equals the raw one, so a
+    /// base payload arriving with no selection leaves with no selection and looks repaired while
+    /// remaining unfaithful.
+    ///
+    /// The indices are transformed as `retryPages` transforms a caller's indices before storing
+    /// them — deduplicated and ordered — so the payload carries what the coordinator's entry
+    /// carries rather than what the case happened to type. The two sides are different types by
+    /// design: the coordinator stores `[Int]` and the payload holds `Set<Int>?`.
+    ///
+    /// This shape exists to prevent G-15-28: a double that drives the selection-storing route and
+    /// then hands the preparation a selection-free payload cannot reach a state the production
+    /// contract guarantees, which is what let G-15-27 ship green. Its binding to the route is owned
+    /// by `testTheRetriedPagesPayloadCarriesExactlyTheSelectionTheRouteStores`, not assumed here.
+    func makeRetriedPagesPayload(
+        for gallery: SessionGallery,
+        mode: DownloadStartMode,
+        retriedPageIndices: [Int],
+        coordinator: DownloadCoordinator
+    ) async -> DownloadRequestPayload {
+        let rawPageSelection = Array(Set(retriedPageIndices)).sorted()
+        return await coordinator.normalizeFetchedPayload(
+            makeStartPayload(
+                for: gallery,
+                mode: mode,
+                pageSelection: rawPageSelection
+            ),
+            mode: mode,
+            rawPageSelection: rawPageSelection
+        )
     }
 
     /// Every push but the last is strictly below its own total, and the last is exactly equal.
