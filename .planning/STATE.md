@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Completed 15-49-PLAN.md — G-15-29 closed: the retired single-authority claim is owned by a widened census observed RED on both docs, the dead page counter is gone, the spy's parked update is decided
-last_updated: "2026-08-06T02:17:39.519Z"
+status: verifying
+stopped_at: Round 16 verification complete at HEAD 3961698c — all 49 plans executed; G-15-26..G-15-29 verified CLOSED in source; four new gaps G-15-30..G-15-33 recorded (G-15-30 blocker). Phase held at gaps_found; next is /gsd-plan-phase 15 --gaps
+last_updated: "2026-08-06T12:10:00.000Z"
 last_activity: 2026-08-06
 last_activity_desc: "Executed 15-49 (round-15 wave 49, the last): G-15-29's three-item hygiene group CLOSED. The retired single-authority claim is now OWNED by a build rather than corrected a third time: `DownloadSourceInventoryTests`' walk was widened to `AppPackage/Tests/DownloadsFeatureTests` with a known member per directory (the test target's is deliberately `DownloadContinuedSessionBasisTests.swift`, the file that carried the claim, so the walk's reach is asserted not assumed), and a fragment-assembled prose assertion (`\"one\" + \" authority\"`, `\"sole\" + \" authority\"`, `\"only\" + \" authority\"`) now scans whole files rather than executable lines. The guard was FALSIFIED BEFORE IT WAS TRUSTED, in the order the plan required: run against the still-retired docs it FAILED naming BOTH offending paths in one reading (`[\"...DownloadContinuedSessionBasisTests.swift\", \"...DownloadPendingWorkTests.swift\"] == []`), which is the only evidence that falsifies both silent-pass modes at once — a mis-assembled token and a scan that never reaches the basis suite. Widening was treated as the hazard it is: all five pre-existing censuses were explicitly re-scoped to the client module through `clientModuleFiles(in:)` and re-derived at HEAD, and one WOULD have silently re-based — the pending-page-list census 1 -> 4, on three legitimate evaluations in `DownloadZeroPagePayloadTests` — so an unscoped widening would have traded one unowned claim for a censused one that had quietly stopped meaning its doc. Both docs were then rewritten from a FRESH caller enumeration at this head (declaration + 3 calls: `hasPendingWork()`, `schedulableSnapshot()`, `pauseAllSchedulable(expiring:)`; the scheduler reads `queueStore.gids` then `indexedDownloads(...)` for itself and shares only the `isSchedulableDownload` predicate), confirming 15-44's landed sentence still true. The dead page counter was removed at its root after a repository-wide derivation over App, both package trees and ShareExtension found no reader (4 word-boundary matches, all in `+PageDownload.swift`), with the guard restated on `progress.results.isEmpty == false` — exactly what the counter tested one line after being assigned `progress.results.count`. The spy's unread `inFlightProgressUpdate` was DECIDED as DELETE (the plan's default): neither arming case would assert on the parked arguments, and both already pin the parked push AFTER release through a stronger observation, so `armProgressGate`'s doc now promises only what the gate delivers. The four-check residue sweep is clean: both deleted names are 0 repository-wide, every remaining member of both structs has a reader, no doc anywhere still states the retired claim, and the widened scan covers both edited files. Full FeatureTests green in one invocation: 874 passed + 6 expected failures = 880, 0 failures, 99 s, +1 from 15-48's 879 (the new prose assertion; the delete remedy adds no case)."
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 220
-  completed_plans: 219
-  percent: 81
+  completed_plans: 220
+  percent: 88
 ---
 
 # Project State
