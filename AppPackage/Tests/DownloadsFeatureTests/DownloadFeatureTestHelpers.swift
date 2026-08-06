@@ -356,20 +356,27 @@ extension DownloadFeatureTestCase {
     /// scheduling without performing a download inject a task runner. The default file manager
     /// preserves every existing caller; removal-failure cases inject one instead of relying on
     /// temporary-directory permissions that vary across machines and sandboxes.
+    ///
+    /// The default session preserves every existing caller too. A case that drives a real
+    /// `processDownload` to a real exit injects a stubbed one instead, because the run's first step
+    /// is a live detail request: left on the shared session that request reaches the network, which
+    /// is neither offline-safe nor deterministic. This is the same seam
+    /// `makeStubbedDownloadCoordinator` already opens for the process suites.
     func makeQueuedCoordinator(
         galleries: [SessionGallery],
         queuedGIDs: [String]? = nil,
         client: BackgroundProcessingClient,
         now: @escaping @Sendable () -> Date = { Date() },
         taskRunner: DownloadTaskRunner = DownloadTaskRunner(),
-        fileManager: sending FileManager = FileManager.default
+        fileManager: sending FileManager = FileManager.default,
+        urlSession: URLSession = .shared
     ) async throws -> SessionFixture {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
         let manager = DownloadCoordinator(
             storage: storage,
-            urlSession: .shared,
+            urlSession: urlSession,
             backgroundProcessingClient: client,
             taskRunner: taskRunner,
             now: now

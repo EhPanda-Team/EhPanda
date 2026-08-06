@@ -230,19 +230,34 @@ final class BackgroundProcessingClientSpy: Sendable {
         state.withLock({ $0.refusesNextStart = true })
     }
 
-    /// Delivers one event to whoever is consuming the live stream, leaving the stream open.
+    /// Delivers one event, honoring the live store's own terminal contract per case.
+    ///
+    /// `.granted` leaves the session live: the store yields it from its launch handler and goes on
+    /// holding the task, so the stream stays open and the identity stays held.
+    ///
+    /// `.expired` and `.unavailable` are BOTH terminal, and the double must not treat them
+    /// differently. In the live store every yield of either reaches the stream through
+    /// `endSession(yielding:success:)`, which clears the held task, the continuation and the session
+    /// identity and finishes the stream in the same step — which is exactly why the client seam's own
+    /// doc says the stream finishes itself "after `expired`, after `unavailable`, or after `finish`".
+    /// A double that yielded `.unavailable` while still holding its identity would refuse the next
+    /// `start` at its single-session guard, so a suite staging a teardown-then-successor ordering
+    /// could not reach the successor at all — the double, not production, deciding the outcome.
     func emit(_ event: BackgroundProcessingEvent) {
-        let continuation = state.withLock({ $0.continuation })
-        continuation?.yield(event)
+        switch event {
+        case .granted:
+            state.withLock({ $0.continuation })?.yield(event)
+        case .expired, .unavailable:
+            let continuation = takeContinuation()
+            continuation?.yield(event)
+            continuation?.finish()
+        }
     }
 
-    /// Delivers an expiration and then finishes the stream, mirroring the real client's
-    /// self-finishing contract: the held session identity is released with the continuation and a
-    /// consumer's `for await` loop falls out on its own.
+    /// Delivers an expiration through the terminal path above, where the held session identity is
+    /// released with the continuation and a consumer's `for await` loop falls out on its own.
     func expire() {
-        let continuation = takeContinuation()
-        continuation?.yield(.expired)
-        continuation?.finish()
+        emit(.expired)
     }
 
     /// Hands back the live continuation and clears the held identity in the same critical section,
