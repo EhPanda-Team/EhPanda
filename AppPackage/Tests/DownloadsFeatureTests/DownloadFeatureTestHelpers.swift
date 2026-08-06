@@ -522,7 +522,10 @@ extension DownloadFeatureTestCase {
         )
     }
 
-    /// The `.repair` payload, spelled at every existing call site exactly as before.
+    /// The `.repair` payload for a case whose route stores NO page selection — a repair reached
+    /// through the fixture's own queue or through `ensureContinuedSession`, never through
+    /// `retryPages`. Its nil selection is the faithful value for exactly those routes; a case that
+    /// drives `retryPages` uses `makeRetriedPagesPayload` instead.
     func makeRepairPayload(for gallery: SessionGallery) -> DownloadRequestPayload {
         makeStartPayload(for: gallery, mode: .repair)
     }

@@ -61,6 +61,15 @@ extension DownloadContinuedSessionLedgerTests {
     /// case pins is the pinned-ZERO run, not the ceiling — and the ceiling itself is pinned by the
     /// queued-window assertion above and by `testACompleteGalleryQueuedForUpdateOpensTheCardAtZero`
     /// in the sibling file.
+    ///
+    /// **The payload is production-shaped (G-15-28).** The `retryPages` call below stores this
+    /// case's six indices in the coordinator's `queuedPageSelections` entry, and a production run
+    /// reads that entry back into BOTH payload steps, so the payload handed to the preparation
+    /// carries the selection its own route stored. Nothing asserted here moves as a result: the
+    /// announcement gate compares the seed's existing-page count against the working manifest's
+    /// page count and does not read `payload.pageSelection` at all — which is G-15-27, still open
+    /// at this file's HEAD. The faithful payload is the precondition that lets the regression
+    /// closing it discriminate, not the fix.
     @Test
     func testAnAllPagesGoneRepairOfACompleteReadingRecordReportsItsWorkAndDrainsFull() async throws {
         let vanished = SessionGallery(
@@ -100,8 +109,16 @@ extension DownloadContinuedSessionLedgerTests {
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(vanished.gid)_token] \(vanished.title)"
         )
+        // The indices are this case's own `retryPages` set, so the payload carries what the route
+        // stored rather than a selection typed independently of it.
+        let payload = await makeRetriedPagesPayload(
+            for: vanished,
+            mode: .repair,
+            retriedPageIndices: [1, 2, 3, 4, 5, 6],
+            coordinator: manager
+        )
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
-            payload: makeRepairPayload(for: vanished),
+            payload: payload,
             existingDownload: staged,
             folderURL: folderURL
         )
@@ -151,6 +168,12 @@ extension DownloadContinuedSessionLedgerTests {
     /// genuinely missing, which is what grounds `resumeMode` at `.repair` through the same
     /// missing-files branch; the mode is resolved BEFORE the read bit is cleared, so the drop
     /// isolates the enumeration and nothing else.
+    ///
+    /// **The payload is production-shaped (G-15-28)**, on the same terms as the residual case
+    /// above: the single index this case retries is what its route stored, so the payload the
+    /// preparation receives carries it. The announcement gate still never reads
+    /// `payload.pageSelection` (G-15-27), so every assertion below is unmoved by the change — which
+    /// is precisely what makes this the precondition rather than the fix.
     @Test
     func testAFailedEnumerationRepairOfACompleteReadingRecordStillEarnsSessionTrust() async throws {
         let unlisted = SessionGallery(
@@ -200,8 +223,16 @@ extension DownloadContinuedSessionLedgerTests {
             ofItemAtPath: folderURL.path
         )
 
+        // The index is this case's own `retryPages` set, so the payload carries what the route
+        // stored rather than a selection typed independently of it.
+        let payload = await makeRetriedPagesPayload(
+            for: unlisted,
+            mode: .repair,
+            retriedPageIndices: [3],
+            coordinator: manager
+        )
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
-            payload: makeRepairPayload(for: unlisted),
+            payload: payload,
             existingDownload: staged,
             folderURL: folderURL
         )
