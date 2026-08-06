@@ -11,6 +11,11 @@ extension DownloadCoordinator {
         generation: Int? = nil
     ) async {
         defer {
+            // Ahead of the ownership clear on purpose: `retireProvenPageWork` asks whether a
+            // DIFFERENT live run owns this gallery's slot, and `finishActiveTaskIfOwned` nils both
+            // halves of that ownership, so reading it afterwards would make every owning run look
+            // superseded and retire nothing.
+            retireProvenPageWork(gid: gid, generation: generation)
             finishActiveTaskIfOwned(
                 gid: gid,
                 generation: generation,
@@ -268,6 +273,44 @@ extension DownloadCoordinator {
             }
             await self.scheduleNextIfNeeded()
         }
+    }
+
+    /// Ends this run's claim that it had pages of its own to fetch.
+    ///
+    /// **Why it lives in `processDownload`'s `defer` and nowhere else.** The run has five exits — the
+    /// pre-fetch early return, the mid-run cancellation guard, the `CancellationError` catch, the
+    /// success path and the general failure catch — and the `defer` is the only point all five pass
+    /// through. Neither settle covers them: `settleCompletedDownload` is on the success path alone,
+    /// and `settleDownloadFailure` is reached from only some arms of the failure catch, since
+    /// `handleProcessDownloadAppError`, `handleProcessDownloadPartialError` and
+    /// `handleProcessDownloadGenericError` each return early for a cancellation-like error and for
+    /// suppressed persistence, while `handleProcessDownloadIncompleteError` reaches no settle at all.
+    /// `finishActiveTaskIfOwned` is not a candidate either: the `defer` reaches it on every exit, but
+    /// its own body is gated behind `isActiveTaskOwner`, so a non-owning exit would retire nothing.
+    ///
+    /// **A run that exits before ever preparing its seed retires nothing of its own**, because it
+    /// recorded nothing and removing an absent member is a no-op. What it can still clear is a
+    /// PREVIOUS run's entry for the same gallery, which is correct: that run is over too.
+    ///
+    /// **The overlapping-run disposition.** `scheduleNextIfNeededCore` will not start a second run
+    /// while `activeTask` is live, but `pause`, `delete` and the folder operations each null
+    /// `activeTask` while the run they interrupt is still executing, so a following resume can
+    /// legitimately schedule a successor for the same gallery at a new `activeTaskGeneration`. An
+    /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's proof, which
+    /// is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose gallery's active
+    /// slot is held by a live run at a different generation retires nothing and leaves the entry to
+    /// its owner, which retires it at its own exit.
+    private func retireProvenPageWork(gid: String, generation: Int?) {
+        guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return }
+        provenPageWorkRunGIDs.remove(gid)
+    }
+
+    private func isSupersededByALiveRun(
+        gid: String,
+        generation: Int?
+    ) -> Bool {
+        guard activeTask != nil, activeGalleryID == gid else { return false }
+        return generation != activeTaskGeneration
     }
 
     private func isActiveTaskOwner(

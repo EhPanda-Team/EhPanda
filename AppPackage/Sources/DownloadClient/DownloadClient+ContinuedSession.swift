@@ -120,14 +120,22 @@ extension DownloadCoordinator {
     /// Honesty is necessary but not sufficient, because the record alone never speaks for a session.
     /// The run therefore announces its post-preparation basis before any page work
     /// (`prepareWorkingSeedAnnouncingProgress`) and, when its own pending page list is non-empty,
-    /// admits the gallery to the trust set in the same breath. That list — the one the run's page
-    /// loop is fed, honoring the payload's page selection — rather than the folder's shortfall
-    /// against its manifest, which credits a selected-page retry that will fetch nothing
-    /// (G-15-27). That makes the observation independent of flush cadence — deterministically so
-    /// where one flush batch would otherwise carry every missing page and restore completeness
-    /// before its own push — and independent of whether the reconciliation blanked anything at all.
-    /// `ensureContinuedSession`'s merged seed is what keeps that observation when it lands inside
-    /// the client start's main-actor hop.
+    /// records the proof in the same breath. That list — the one the run's page loop is fed, honoring
+    /// the payload's page selection — rather than the folder's shortfall against its manifest, which
+    /// credits a selected-page retry that will fetch nothing (G-15-27). That makes the observation
+    /// independent of flush cadence — deterministically so where one flush batch would otherwise
+    /// carry every missing page and restore completeness before its own push — and independent of
+    /// whether the reconciliation blanked anything at all.
+    ///
+    /// **The proof is owned by the run, and this set is seeded from it (G-15-26).** The recording
+    /// goes to `provenPageWorkRunGIDs`, which no session boundary touches, and every session start
+    /// seeds this set from it inside its synchronous reset; a run that starts inside a live session
+    /// is additionally admitted here immediately, so the same fact reaches the session by two routes
+    /// and neither depends on the other. Owning it in this set alone lost it whenever the session
+    /// lifecycle did not bracket the run — an `.unavailable` teardown mid-run, and a queue resumed at
+    /// launch, where D-07 forbids a session entirely. `ensureContinuedSession`'s merged post-start
+    /// seed is separately what keeps an observation that lands inside the client start's main-actor
+    /// hop.
     ///
     /// Each half of the predicate earns its place:
     /// - The record's own incompleteness is the common case, and it is what stops mid-run progress
@@ -135,9 +143,9 @@ extension DownloadCoordinator {
     ///   incomplete, its finished pages count raw, with no dependence on trust having caught up.
     /// - The trust set covers the completion flush, where a gallery the session watched doing real
     ///   work reports its full count while its record already reads complete again and it is still
-    ///   inside its own schedulable set — and, through the announcement's own admission, the refusal
-    ///   family, where the record reads complete for the entire run and there is no incompleteness
-    ///   for the push-side writer to observe.
+    ///   inside its own schedulable set — and, through the run's own proof, the refusal family, where
+    ///   the record reads complete for the entire run and there is no incompleteness for the
+    ///   push-side writer to observe.
     ///
     /// Keying on the record rather than on `queuedModes` is deliberate and was the design's one
     /// hardening. A mode-keyed basis stays set for a whole active run, so it would mask the redo's
@@ -227,7 +235,15 @@ extension DownloadCoordinator {
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
-        observedIncompleteSessionGIDs = []
+        // SEEDED here rather than emptied, and here rather than beside the merges below, because the
+        // card's OPENING subtitle is computed from the snapshot taken on the next line — after this
+        // synchronous reset and before the client start. A run that proved its page work while no
+        // session was live, or while a predecessor session was being torn down, is credited by this
+        // session from its very first push; a seed folded in with the post-start merges would arrive
+        // after that subtitle was already fixed, passing a mid-session assertion while leaving the
+        // card's opening reading at zero (G-15-26). The proof belongs to the run, not to any session,
+        // so reading it here is not inheriting a predecessor's state.
+        observedIncompleteSessionGIDs = provenPageWorkRunGIDs
 
         let snapshot = await schedulableSnapshot()
         let clientSession = await backgroundProcessingClient.start(
@@ -279,9 +295,21 @@ extension DownloadCoordinator {
         //
         // The seeding's position still carries the superseded-start rule, and merging cannot weaken
         // it: "a superseded start seeds nothing" is enforced by the ownership guard above, which a
-        // superseded start never passes, and both collections were cleared by this session's own
-        // synchronous reset — so anything present at seed time is this session's own identity-gated
-        // observation, never a predecessor's.
+        // superseded start never passes.
+        //
+        // What each collection can already hold at this point differs, and the difference is
+        // deliberate (G-15-26). `observedSchedulablePages` was emptied by this session's own
+        // synchronous reset, so anything in it is this session's own identity-gated observation.
+        // `observedIncompleteSessionGIDs` was SEEDED there from `provenPageWorkRunGIDs`, so it can
+        // additionally hold proofs recorded by runs that are still in flight — including runs that
+        // prepared under a predecessor session, or under no session at all. That is not a
+        // predecessor's session state leaking in: a run's proof of its own page work is a fact about
+        // the run, which is why it outlives the session boundary and not the run boundary.
+        //
+        // The merge below is still a merge for its original reason, and that reason is orthogonal:
+        // it folds in observations made INSIDE the client start's main-actor hop, which the pre-hop
+        // snapshot could not have seen. Assigning the snapshot over them discarded exactly the trust
+        // a run-start announcement landing in that window had just earned.
         observedSchedulablePages.merge(
             snapshot.finishedPages,
             uniquingKeysWith: { observed, _ in observed }
@@ -340,6 +368,14 @@ extension DownloadCoordinator {
     }
 
     /// Clears every trace of *this* session, and of no other.
+    ///
+    /// **Session state only. A session boundary is not a run boundary (G-15-26).** Every collection
+    /// cleared below describes what THIS session observed; none of them describes a run. In
+    /// particular `provenPageWorkRunGIDs` is deliberately not cleared here, and adding it would
+    /// re-open the exact defect this teardown caused: the `.unavailable` arm calls this and nothing
+    /// else, leaving the queue running foreground-only, so clearing the run's proof here stripped an
+    /// in-flight repair of the trust it had already earned and left it contributing zero for the rest
+    /// of its re-download. The run's own exit retires that proof, at `processDownload`'s `defer`.
     ///
     /// Safe to call more than once for the same session, and routinely called twice: the event
     /// handler ends the session before acting on an expiration, and the consuming task ends it
