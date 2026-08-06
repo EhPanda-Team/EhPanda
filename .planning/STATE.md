@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: executing
-stopped_at: Completed 15-51-PLAN.md
-last_updated: "2026-08-06T16:41:09.238Z"
+stopped_at: Completed 15-52-PLAN.md
+last_updated: "2026-08-06T17:09:26.242Z"
 last_activity: 2026-08-07
-last_activity_desc: 15-51 executed — G-15-31 closed
+last_activity_desc: 15-52 executed — G-15-32 closed
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 224
-  completed_plans: 222
-  percent: 99
+  completed_plans: 223
+  percent: 100
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 15 (continued-background-downloads) — EXECUTING
-Plan: 52 of 53
+Plan: 53 of 53
 Status: Ready to execute
-Last activity: 2026-08-07 — 15-51 executed, warning G-15-31 closed
-Next: /gsd-execute-phase 15 — waves 50 and 51 are DONE (G-15-30 closed at fc48fe82; G-15-31 closed at eb0f8b1e, full suite 884/0); run the remaining waves 52 and 53 in order. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
+Last activity: 2026-08-07 — 15-52 executed, warning G-15-32 closed
+Next: /gsd-execute-phase 15 — waves 50, 51 and 52 are DONE (G-15-30 closed at fc48fe82; G-15-31 closed at eb0f8b1e; G-15-32 closed at 99e8ea74, full suite 886/0 — 884 plus the two census cases 15-52 added); run the remaining wave 53. AFTERWARDS, /gsd-verify-phase 15. A finding for that verification is already on the record and should not be lost: the plan-checker rejected 15-53 twice for the SAME defect, and both times the false premise arrived by inheritance from 15-REVIEW.md into 15-VERIFICATION.md's gap record and then into the plan — the claim that a sibling DOCUMENTS something it merely DOES. The WR-04 instance is the serious one: 15-REVIEW.md:443-445 presents as a block QUOTATION a rationale sentence ("a second line of defence behind the assembled tokens...") that appears nowhere in DownloadLogPrivacyInvariantTests.swift; a whole-file grep for its distinctive words returns nothing, and scannedFiles() at :256 has no doc comment at all. G-15-33's gap record in 15-VERIFICATION.md repeats it. 15-53 corrects the premise and requires the executor to state the finding rather than propagate it, but the two upstream artifacts still carry it and neither was edited by this planning round. This is the phase's own subject — an invariant reached by omission — occurring in the review tooling itself. Two independent items also remain open and neither is discharged by any plan of round 17. (1) 15-UAT.md test 2 STILL needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue — and it is now worth running, since a zero-progress observation on a torn-down or launch-resumed repair would be NEW information rather than a known G-15-26 ordering. (2) The overlapping-run gating recorded in 15-48-SUMMARY is restated in a doc and not owned by a test, because no current fixture can both hold a runner open mid-run and reach the working-seed preparation; a later round wanting to own it needs a fixture that can do both. One xcodebuild test invocation at a time on this machine
 
-Progress: [██████████] 99% (14/16 phases)
+Progress: [██████████] 100% (14/16 phases)
 
 ## Performance Metrics
 
@@ -278,6 +278,7 @@ Progress: [██████████] 99% (14/16 phases)
 | Phase 15 P49 | 14min | 2 tasks | 5 files |
 | Phase 15 P50 | 41min | 3 tasks | 9 files |
 | Phase 15 P51 | 32min | 2 tasks | 3 files |
+| Phase 15 P52 | 38min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -716,6 +717,9 @@ Recent decisions affecting current work:
 - [Phase 15]: A refused identifier is never re-attempted — the conservative reading of the store's own recorded constraint, taken because departing from it needs device evidence this plan does not have.
 - [Phase 15]: The awaiting-window loss of launch discrimination is dispositioned in writing rather than mitigated, because the SDK supplies nothing that could separate a leftover launch from a live one under one identifier.
 - [Phase 15]: Both dissolved-subject cases are rebuilt by staging the stale delivery behind adoption, which reaches the surviving property without two identifiers.
+- [Phase 15]: 15-52: The client-double census token is the seam's endpoint LABEL, not its type name — a type-name token misses the `Self(` spelling the offending double uses, so its blind spot would sit exactly where the violation lived.
+- [Phase 15]: 15-52: The timing census has two halves that fail on different events — a property half (a double stops suspending) and a population half (a new double appears in a file no table knows) — and each was falsified separately before it was trusted.
+- [Phase 15]: 15-52: The macro-synthesized unimplemented value and the module's public `live`/`noop` values are classified OUT of the timing obligation; a test census must not demand yields from generated or production code.
 
 ### Pending Todos
 
@@ -764,6 +768,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-06T16:40:58.714Z
-Stopped at: Completed 15-51-PLAN.md
+Last session: 2026-08-06T17:09:26.232Z
+Stopped at: Completed 15-52-PLAN.md
 Resume file: None
