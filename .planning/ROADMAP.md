@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 47/49 | In Progress|  |
+| 15. Continued Background Downloads | 48/49 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 47/49 plans executed
+**Plans**: 48/49 plans executed
 
 Plans:
 **Wave 1**
@@ -1005,7 +1005,7 @@ Plans:
 
 **Wave 48** *(gap closure round 15, verification blocker G-15-26 — blocked on 15-47 by file overlap on DownloadClient+ExecutionSupport.swift: the proof this plan re-owns must record 15-47's single derived predicate, not the shortfall binding it replaced)*
 
-- [ ] 15-48-PLAN.md — Give the proof of real page work the lifetime of the RUN it describes (SC2, SC1 through D-11): it is recorded only under a live session and into a session-scoped set both session start and teardown clear, so an unavailable teardown mid-run (three of the session type's four unavailable arms fire inside its own start) and any launch-resumed run (D-07 forbids a session there) both leave a complete-reading repair contributing zero for a whole N-page re-download; the proof moves to run-scoped state written unconditionally, seeded into the session trust set inside ensureContinuedSession's SYNCHRONOUS reset (derived: the opening subtitle is computed from the snapshot taken after it and before the client start), and retired at a point derived over EVERY enumerated exit path with the overlapping-run case dispositioned — three regressions: both orderings RED-first plus a lifetime pin green on both sides that stops the remedy re-crediting a later redo
+- [x] 15-48-PLAN.md — Give the proof of real page work the lifetime of the RUN it describes (SC2, SC1 through D-11): it is recorded only under a live session and into a session-scoped set both session start and teardown clear, so an unavailable teardown mid-run (three of the session type's four unavailable arms fire inside its own start) and any launch-resumed run (D-07 forbids a session there) both leave a complete-reading repair contributing zero for a whole N-page re-download; the proof moves to run-scoped state written unconditionally, seeded into the session trust set inside ensureContinuedSession's SYNCHRONOUS reset (derived: the opening subtitle is computed from the snapshot taken after it and before the client start), and retired at a point derived over EVERY enumerated exit path with the overlapping-run case dispositioned — three regressions: both orderings RED-first plus a lifetime pin green on both sides that stops the remedy re-crediting a later redo
 
 **Wave 49** *(gap closure round 15, verification warning G-15-29 — blocked on 15-48 by file overlap on DownloadSourceInventoryTests.swift, whose scan scope this plan widens, which changes what every census in that file counts)*
 
