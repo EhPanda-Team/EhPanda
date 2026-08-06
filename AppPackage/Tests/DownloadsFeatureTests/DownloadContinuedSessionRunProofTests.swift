@@ -17,10 +17,10 @@ import Testing
 /// neither readable.
 ///
 /// **The invariant the trio pins (G-15-26).** The proof a run records at its own preparation — this
-/// run has pages of its own to fetch — is a fact about the RUN, and the session's trust set is a
-/// SESSION-scoped collection that both `ensureContinuedSession` and `markContinuedSessionEnded`
-/// reset. Recording the proof only into that collection loses it on two orderings production
-/// actually produces:
+/// run has pages of its own to fetch — is a fact about the RUN, while the session's trust set is
+/// SESSION-scoped: `markContinuedSessionEnded` clears it, and `ensureContinuedSession` re-derives it
+/// from scratch. Recording the proof only into that collection therefore lost it on two orderings
+/// production actually produces:
 ///
 /// 1. **An `.unavailable` teardown with the queue still running.** That event arm ends the session
 ///    and does nothing else — its own log line says the queue then runs foreground-only — so the
