@@ -187,7 +187,10 @@ extension DownloadContinuedSessionLedgerTests {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        // One gallery, not none: all six pages of the denominator are this gallery's retirement, so
+        // D-G2C-01 goes on naming it after it leaves. The drained queue is described by the
+        // fraction, never by the count.
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -309,7 +312,10 @@ extension DownloadContinuedSessionLedgerTests {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        // Six retired pages are the whole denominator, so the gallery that finished them stays
+        // counted (D-G2C-01) — the same reading the page-file refusal above drains to, reached
+        // through the directory-level exit.
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -525,7 +531,10 @@ extension DownloadContinuedSessionLedgerTests {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 2)
         #expect(terminalPair.totalUnitCount == 2)
-        #expect(terminalPair.subtitle == "2 / 2 pages · 0 galleries")
+        // The pause retired the two pages that landed and took the other four out of the
+        // denominator with it, so those two pages are all of Y — and the gallery they came from is
+        // the one gallery Y represents (D-G2C-01).
+        #expect(terminalPair.subtitle == "2 / 2 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)

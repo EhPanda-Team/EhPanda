@@ -6,13 +6,32 @@ import OSLogExt
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 /// Everything one continued-processing session reports about the work it covers: one summed page
-/// fraction, plus how many galleries are still schedulable.
+/// fraction, plus how many galleries that fraction's denominator is made of.
 ///
 /// The fraction is not summed over the live schedulable set alone. A gallery leaving that set
 /// retires the pages it finished into the session's ledger, and `pushContinuedSessionProgress`
 /// adds that ledger to both sides of the pushed pair, so the pair keeps describing the whole queue
 /// the session covers rather than whatever happens to remain schedulable (D-G2-01, extending
-/// D-10). The gallery count is the remaining schedulable galleries and only those.
+/// D-10).
+///
+/// **D-G2C-01: the gallery count of every PUSHED value is that denominator's coverage** — the live
+/// schedulable galleries plus every departed gallery whose retirement contributed pages to the
+/// denominator. Both numbers therefore answer for the same set of galleries. A two-gallery run
+/// reads two galleries on every frame, including its last, because both galleries' pages are in the
+/// denominator on every frame.
+///
+/// **This value carries two different roles, and the type cannot tell them apart — read the
+/// producer (DEC-B).** `SchedulableSnapshot.sessionProgress` is an intermediate: its `galleryCount`
+/// is `schedulableDownloads().count`, the live schedulable count, which is what the
+/// summed-from-one-read identity needs and what the coverage sum uses as its live half. Every value
+/// handed to a subtitle writer — the pushed pair and `ensureContinuedSession`'s start submission —
+/// carries the coverage instead, computed by the single shared `coverageGalleryCount` helper.
+///
+/// The pushed pair consequently no longer mixes bases. It previously reported a session-cumulative
+/// fraction beside a live-only count; that mismatch was accepted when the terminal push was expected
+/// to supply the card's last correct word, and the acceptance is obsolete — the device proved the
+/// system does not repaint a push issued immediately before completion, so a basis that is only
+/// truthful on the final frame is a basis that is never reliably truthful at all.
 ///
 /// A small named value rather than a pair of numbers, for two reasons. An unlabeled tuple type is
 /// banned at error severity here, and `DownloadProgress` already owns the clamping that stops a
@@ -85,8 +104,11 @@ extension DownloadCoordinator {
     /// **D-G4-01, restated over the measured basis: a schedulable gallery's credited count is its
     /// run's own measurement while a run is in flight; its record's count when the record reads
     /// incomplete, or reads complete after this session observed it incomplete; and zero
-    /// otherwise.** The per-gallery `pageCount` denominator and the schedulable `galleryCount` are
-    /// untouched by the rule; only the numerator's basis is. The full derivation lives on
+    /// otherwise.** The per-gallery `pageCount` denominator and this snapshot's own live
+    /// `galleryCount` are untouched by the rule; only the numerator's basis is. (What the card is
+    /// handed is a different number: pushed counts carry the coverage of D-G2C-01, derived from this
+    /// live count plus the ledger. This snapshot is its input, not its contract.) The full
+    /// derivation lives on
     /// `sessionCreditedPages` below, which is the single definition every reader of the credited
     /// count shares.
     ///
@@ -251,6 +273,49 @@ extension DownloadCoordinator {
         observedSchedulablePages[gid] = sessionCreditedPages(gid: gid)
     }
 
+    /// **D-G2C-01: the gallery count every subtitle writer pushes is the denominator's coverage —
+    /// the galleries in the live schedulable snapshot, plus the galleries whose `retiredSessionPages`
+    /// entry is greater than zero.**
+    ///
+    /// The count answers the same question the denominator does: which galleries' pages is Y made
+    /// of? The live set contributes each gallery's whole `pageCount`, and D-G2-01 retirement puts a
+    /// departed gallery's finished pages back on both sides of every later push — so both halves are
+    /// in Y, and both halves are named. Counting only the live half is what put "1 gallery" beside a
+    /// denominator spanning a whole two-gallery session on the device, and it is why the last frame
+    /// of a run was the ONLY frame that could ever have said otherwise.
+    ///
+    /// That last point is the reason this exists rather than a better terminal push. The system-owned
+    /// card does not repaint an update issued immediately before `setTaskCompleted`, which the app can
+    /// neither win nor observe; under the coverage basis every frame of a run carries the same count,
+    /// so the card is truthful whichever frame the OS happens to render last. The race is removed
+    /// rather than raced harder.
+    ///
+    /// **A zero retirement is not counted.** A gallery that departed having finished nothing retires
+    /// zero pages, and its unfinished pages left the denominator with it — so no part of it is
+    /// represented by Y, and the letter of the rule says it is not represented in the count either.
+    /// This is also what keeps a drained card over work nobody touched honestly at zero galleries
+    /// rather than naming galleries whose pages the fraction does not carry.
+    ///
+    /// **It must be read after `reconcileRetiredSessionPages`.** That reconcile drops a rejoining
+    /// gallery's ledger entry before the live sum counts it again, so summing the snapshot's count
+    /// with the positive entries afterwards is double-count-free by the very construction the
+    /// fraction already relies on. Read before it, a rejoining gallery would be counted twice — once
+    /// live and once retired — which is exactly the shape the fraction's own dedupe exists to stop.
+    ///
+    /// **One definition, shared by every writer.** All four production pushes flow through
+    /// `pushContinuedSessionProgress`, and `ensureContinuedSession`'s start submission is the one
+    /// other subtitle writer; both call this. A second writer computing its own count is the defect
+    /// class this closes, so the single definition is the guard rather than a convenience. At the
+    /// start submission the ledger was emptied two lines earlier, so this degenerates to the live
+    /// count there by construction — the same value that writer pushed before.
+    ///
+    /// Note the asymmetry with `SchedulableSnapshot.sessionProgress.galleryCount`, which stays the
+    /// live schedulable count: that value is the summed-from-one-read live half this sum reads, not
+    /// the contract. Only PUSHED counts carry the coverage.
+    func coverageGalleryCount(for snapshot: SchedulableSnapshot) -> Int {
+        snapshot.sessionProgress.galleryCount + retiredSessionPages.values.count(where: { $0 > 0 })
+    }
+
     /// The card's entire content surface: counts in, one localized string out.
     ///
     /// No gallery value is in scope here, and the localized key accepts nothing but integers, so
@@ -318,11 +383,19 @@ extension DownloadCoordinator {
         observedIncompleteSessionGIDs = []
 
         let snapshot = await schedulableSnapshot()
+        // Through the same shared helper the push uses, so no subtitle writer owns a private count
+        // basis (D-G2C-01). `retiredSessionPages` was emptied a few lines above, so the coverage is
+        // the live count here and this opening string is byte-identical to what it always was — the
+        // point is structural: the two writers cannot drift apart later.
+        let openingProgress = ContinuedSessionProgress(
+            progress: snapshot.sessionProgress.progress,
+            galleryCount: coverageGalleryCount(for: snapshot)
+        )
         let clientSession = await backgroundProcessingClient.start(
             String(localized: .continuedSessionTitle),
-            continuedSessionSubtitle(for: snapshot.sessionProgress),
-            Int64(snapshot.sessionProgress.progress.displayCompletedPageCount),
-            Int64(snapshot.sessionProgress.progress.displayPageCount)
+            continuedSessionSubtitle(for: openingProgress),
+            Int64(openingProgress.progress.displayCompletedPageCount),
+            Int64(openingProgress.progress.displayPageCount)
         )
         guard let clientSession else {
             // TERMINAL: refusal ends this coordinator session, and teardown clears its debt.
@@ -523,8 +596,16 @@ extension DownloadCoordinator {
     /// `continuedClientSessionID` deferral and before `markContinuedSessionEnded`.** Completion
     /// carries no subtitle — it reaches `setTaskCompleted` and nothing else — so without that push
     /// the last string the card holds is the final gallery's forced flush, taken while that gallery
-    /// was still downloading and therefore still inside its own schedulable set. That string always
-    /// names one remaining gallery, whatever the queue actually did afterwards.
+    /// was still downloading and therefore still inside its own schedulable set: a fraction one
+    /// landed page short of the truth.
+    ///
+    /// **This push is defence, not the only truthful frame (D-G2C-01).** It was originally the sole
+    /// frame that could report the queue as drained, which made the card's correctness depend on the
+    /// system repainting an update issued microseconds before completion — and the device showed it
+    /// does not. Since the pushed gallery count became the denominator's coverage, this push reports
+    /// the same count as every frame before it, and only the fraction differs; the last word is
+    /// merely more precise here, never the difference between a truthful card and a stale one.
+    /// Nothing downstream may be built on this push rendering.
     ///
     /// The position is the whole fix, because the same call a few lines later compiles, ships and
     /// does nothing. After `markContinuedSessionEnded` it is rejected twice over: that teardown
@@ -534,8 +615,9 @@ extension DownloadCoordinator {
     /// identity guard with nothing left to paint.
     ///
     /// The terminal fraction is honest arithmetic rather than a special case. The retirement ledger
-    /// already holds every page this session finished, so a drained queue sums to N of N with no
-    /// gallery remaining, and no new arithmetic is introduced here.
+    /// already holds every page this session finished, so a drained queue sums to N of N, beside the
+    /// count of the galleries those N pages came from — every gallery that retired a positive count,
+    /// since the live set is now empty. No new arithmetic is introduced here.
     ///
     /// The push's tail crosses the client seam — `updateProgress` hops to the `@MainActor`
     /// `ContinuedProcessingSession` — where this branch's tail was previously suspension-free. The
@@ -709,6 +791,13 @@ extension DownloadCoordinator {
     /// clamp — is what keeps the count rising across a gallery boundary, by putting those pages
     /// back on both sides.
     ///
+    /// The gallery count pushed beside that fraction is read from the same two places, by
+    /// `coverageGalleryCount`: the snapshot's live galleries plus the ledger's positive entries
+    /// (**D-G2C-01**). It is deliberately taken after `reconcileRetiredSessionPages` below, so a
+    /// rejoining gallery has already left the ledger and is counted once — the same construction the
+    /// fraction depends on, reused rather than re-derived. The snapshot's own `galleryCount` is the
+    /// live half of that sum and is never pushed on its own.
+    ///
     /// The monotonic floor survives as residual defence only. Deliberate downward movers of the
     /// accounting basis exist wherever the coordinator rewrites the index record, and enumerating
     /// them is the recorded four-round failure this doc no longer attempts: G-15-7 was created by a
@@ -816,7 +905,9 @@ extension DownloadCoordinator {
                 completedPageCount: completedPageCount,
                 pageCount: max(sessionProgress.displayPageCount, completedPageCount)
             ),
-            galleryCount: snapshot.sessionProgress.galleryCount
+            // The denominator's coverage rather than the snapshot's live count (D-G2C-01), read
+            // after the reconcile above so a rejoining gallery is counted once.
+            galleryCount: coverageGalleryCount(for: snapshot)
         )
         await backgroundProcessingClient.updateProgress(
             clientSessionID,

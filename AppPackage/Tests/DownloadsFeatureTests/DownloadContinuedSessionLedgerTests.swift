@@ -37,10 +37,16 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// fails whichever order introduced it. Comparing one run's last update against the other's
     /// directly would need a second full fixture inside a single case and would discriminate no
     /// better, while pinning the value here also states what the drain is worth.
+    ///
+    /// The gallery count is three at the drain and not zero, because **D-G2C-01** counts the
+    /// denominator's coverage rather than the live schedulable set: all three galleries completed,
+    /// so all three retired their full page counts into the ledger, and those twenty pages are the
+    /// whole of the twenty this pair reports. A count of zero beside a denominator every one of
+    /// them contributed to is the device-reported defect, read from the other end.
     static let drainedPair = PushedPair(
         completedUnitCount: 20,
         totalUnitCount: 20,
-        subtitle: "20 / 20 pages · 0 galleries"
+        subtitle: "20 / 20 pages · 3 galleries"
     )
 
     /// The pair both departure paths owe once a 10-page gallery with 6 finished has left a queue
@@ -51,10 +57,15 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// the paused gallery still has a record to read, while the deleted one has none and is worth
     /// only what the last observation says it finished. D-G2-01 is precisely the claim that those
     /// two routes cannot disagree.
+    ///
+    /// Two galleries, not one: the departed gallery retired six pages into the denominator, so six
+    /// of the ten pages this pair reports are its. **D-G2C-01** counts every gallery whose pages Y
+    /// still carries, and a departure that retires a positive count leaves its pages behind — so
+    /// the gallery it belongs to stays named for as long as they are counted.
     static let departedPair = PushedPair(
         completedUnitCount: 6,
         totalUnitCount: 10,
-        subtitle: "6 / 10 pages · 1 gallery"
+        subtitle: "6 / 10 pages · 2 galleries"
     )
 
     /// The direct regression for the device-reported gap, at full size: three queued galleries, and
@@ -64,6 +75,13 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// full, because a completed gallery's pages left the numerator and the denominator together.
     /// The ledger puts them back on both sides, so the total holds at 20 across every completion
     /// while the count climbs.
+    ///
+    /// The gallery count holds at three for the same reason the denominator holds at twenty. Under
+    /// **D-G2C-01** the two are one statement: a completion retires the gallery's pages into Y, so
+    /// the gallery goes on being represented by Y and goes on being counted. The subtitle series
+    /// below is therefore a constant three beside a constant twenty, with only the numerator
+    /// moving — the shape that makes the card truthful on every frame rather than only on the last
+    /// one the OS may or may not repaint.
     @Test
     func testSequentialCompletionsHoldTheDenominatorAndAdvanceTheCount() async throws {
         let large = SessionGallery(gid: "210200", title: "Large", pageCount: 10)
@@ -96,9 +114,9 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [20, 20, 20, 20])
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "0 / 20 pages · 3 galleries",
-            "10 / 20 pages · 2 galleries",
-            "16 / 20 pages · 1 gallery",
-            "20 / 20 pages · 0 galleries"
+            "10 / 20 pages · 3 galleries",
+            "16 / 20 pages · 3 galleries",
+            "20 / 20 pages · 3 galleries"
         ])
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         let finalPair = try lastPushedPair(spy.progressUpdates)
@@ -236,7 +254,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let pausedPair = try lastPushedPair(spy.progressUpdates)
         #expect(pausedPair.completedUnitCount == 6)
         #expect(pausedPair.totalUnitCount == 10)
-        #expect(pausedPair.subtitle == "6 / 10 pages · 1 gallery")
+        #expect(pausedPair.subtitle == "6 / 10 pages · 2 galleries")
         #expect(pausedPair == Self.departedPair)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         // A pause must never be able to report the session finished.
@@ -282,7 +300,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let deletedPair = try lastPushedPair(spy.progressUpdates)
         #expect(deletedPair.completedUnitCount == 6)
         #expect(deletedPair.totalUnitCount == 10)
-        #expect(deletedPair.subtitle == "6 / 10 pages · 1 gallery")
+        #expect(deletedPair.subtitle == "6 / 10 pages · 2 galleries")
         #expect(deletedPair == Self.departedPair)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(deletedPair.completedUnitCount < deletedPair.totalUnitCount)
@@ -296,6 +314,12 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// the ledger's no-record fallback at that drain: nothing survives the delete, so the six
     /// finished pages are known only from the last observation, and they are what makes the
     /// terminal fraction read six of six rather than rewinding to zero.
+    ///
+    /// Those same six pages are why the terminal subtitle still names one gallery under
+    /// **D-G2C-01**: they are the whole of Y, and the gallery that finished them is therefore the
+    /// one gallery Y represents. Only the denominator moves across this departure, which is the
+    /// point — the count was already truthful on the pre-delete frame, so nothing here rests on the
+    /// system repainting the terminal push.
     @Test
     func testDeletingTheLastGalleryEndsTheSessionWithNoStaleSubtitle() async throws {
         let only = SessionGallery(
@@ -326,7 +350,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
@@ -342,6 +366,13 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// the queue contains, and a denominator inflated by a gallery that is present exactly once.
     /// That is the shape a ledger accumulated into a scalar takes: with no per-gallery key there is
     /// nothing to correct when a gallery returns.
+    ///
+    /// The gallery count says the same thing about **D-G2C-01**'s own dedupe. It reads two on all
+    /// three frames: the departing gallery had six finished pages, so it is counted as a positive
+    /// retirement while away, and on its return the reconcile drops that ledger entry before the
+    /// live set counts it again. Counted once either way — a middle frame reading one would mean a
+    /// gallery whose pages are still in Y went unnamed, and a rejoined frame reading three would be
+    /// the ledger and the live set both claiming it.
     ///
     /// The departure and the rejoin are staged through the queue-set test seam rather than through
     /// `pause` and `resume`, and deliberately so: this case is about a single arithmetic hazard, and
@@ -378,7 +409,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 10, 14])
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "6 / 14 pages · 2 galleries",
-            "6 / 10 pages · 1 gallery",
+            "6 / 10 pages · 2 galleries",
             "6 / 14 pages · 2 galleries"
         ])
         // Stated as an equality as well as as literals: what the rejoin owes is *the first pair
@@ -537,6 +568,11 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// full count even though the record reads complete again by then. That second half is what
     /// keeps the cadence suite's pinned series intact, and it is what makes the drain here read six
     /// of six rather than rewinding to the zero this gallery opened at.
+    ///
+    /// The terminal count follows the same retirement: six pages retired is a positive retirement,
+    /// so **D-G2C-01** keeps the redo named at the drain. The zero-retirement sibling —
+    /// `testCancellingANeverStartedUpdateRetiresNothing`, the same gallery shape cancelled before it
+    /// ran — drains to zero galleries instead, and the two together are the boundary.
     @Test
     func testARedoObservedRunningEarnsItsRecordBackAtTheDrain() async throws {
         let redo = SessionGallery(gid: "210300", title: "Redo", pageCount: 6, completedPageCount: 6)
@@ -565,7 +601,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.finishSuccesses == [true])
@@ -687,7 +723,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -781,7 +817,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
