@@ -268,14 +268,18 @@ struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
             spy.progressUpdates.map(\.subtitle),
             [
                 // The mobilized gallery joins: its four pages plus the drained gallery's one
-                // retired page.
-                "1 / 5 pages · 1 gallery",
-                "1 / 5 pages · 1 gallery",
+                // retired page. Two galleries, because the count names whatever the denominator is
+                // made of (D-G2C-01) — one live, one departed with a page still in Y.
+                "1 / 5 pages · 2 galleries",
+                "1 / 5 pages · 2 galleries",
                 // The released parked push, whose arguments were computed at the drain — the
                 // terminal-shaped transient D-G3-01 accepts rather than removes.
-                "1 / 1 page · 0 galleries",
+                "1 / 1 page · 1 gallery",
                 // The genuine drain, which retires the mobilized gallery at zero finished pages.
-                "1 / 1 page · 0 galleries"
+                // That zero retirement is why the count falls back to one rather than two: the
+                // draining gallery's page is the whole of Y, and the mobilized gallery put nothing
+                // into it. Both sides of the boundary, in one series.
+                "1 / 1 page · 1 gallery"
             ]
         )
     }

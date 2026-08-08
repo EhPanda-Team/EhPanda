@@ -118,7 +118,11 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let departedPair = try lastPushedPair(spy.progressUpdates)
         #expect(departedPair.completedUnitCount == 5)
         #expect(departedPair.totalUnitCount == 10)
-        #expect(departedPair.subtitle == "5 / 10 pages · 1 gallery")
+        // Still two galleries: the pause retired the corrected gallery at its honest lowered count
+        // of two, and those two pages stay in the denominator, so D-G2C-01 goes on naming it beside
+        // the survivor. The count therefore holds at two for the rest of the case — through both
+        // survivor pushes and the drain — while only the fraction moves.
+        #expect(departedPair.subtitle == "5 / 10 pages · 2 galleries")
 
         let survivorFolderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(survivor.gid)_token] \(survivor.title)"
@@ -129,13 +133,13 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         try await manager.flushManifestPageProgress(folderURL: survivorFolderURL, pages: pageFour)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let firstSurvivorPair = try lastPushedPair(spy.progressUpdates)
-        #expect(firstSurvivorPair.subtitle == "6 / 10 pages · 1 gallery")
+        #expect(firstSurvivorPair.subtitle == "6 / 10 pages · 2 galleries")
 
         let pageFive = try landPageFiles([5], of: survivor, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: survivorFolderURL, pages: pageFive)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let secondSurvivorPair = try lastPushedPair(spy.progressUpdates)
-        #expect(secondSurvivorPair.subtitle == "7 / 10 pages · 1 gallery")
+        #expect(secondSurvivorPair.subtitle == "7 / 10 pages · 2 galleries")
 
         let remainingPages = try landPageFiles([6, 7, 8], of: survivor, in: fixture)
         try await manager.flushManifestPageProgress(
@@ -148,7 +152,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 10)
         #expect(terminalPair.totalUnitCount == 10)
-        #expect(terminalPair.subtitle == "10 / 10 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "10 / 10 pages · 2 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         // The dip sits between the START pair and the first push, never between two pushes, so the
@@ -245,7 +249,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -502,7 +506,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         // The dip sits between the START pair and the first push, never between two pushes, so the
@@ -585,7 +589,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 5)
         #expect(terminalPair.totalUnitCount == 5)
-        #expect(terminalPair.subtitle == "5 / 5 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "5 / 5 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
@@ -673,7 +677,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 8)
         #expect(terminalPair.totalUnitCount == 8)
-        #expect(terminalPair.subtitle == "8 / 8 pages · 0 galleries")
+        #expect(terminalPair.subtitle == "8 / 8 pages · 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
