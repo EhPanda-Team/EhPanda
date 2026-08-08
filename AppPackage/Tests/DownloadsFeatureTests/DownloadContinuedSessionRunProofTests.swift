@@ -602,7 +602,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.fetchDownload(gid: climbing.gid)?.completedPageCount == 6)
 
         let numerators = spy.progressUpdates.map(\.completedUnitCount)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(Set(numerators).count >= 3)
         #expect(numerators.last == 6)
         #expect(spy.rejectedProgressUpdates.isEmpty)
@@ -630,6 +630,22 @@ extension DownloadContinuedSessionLedgerTests {
     /// expected string, because a frozen numerator is exactly what a single-constant assertion
     /// cannot refuse — it fails against a freeze at the claim, at zero, and at the floor's
     /// unwithdrawn four alike.
+    ///
+    /// **This case CROSSES the announcement's discontinuity rather than starting past it, and the
+    /// assertions are split on it.** Production reaches a run through the scheduling tail and every
+    /// convergence on that tail pushes, so the card really does hold the record's claim of four
+    /// before the announcement corrects it to the evidence's zero. Driving the preparation with no
+    /// convergence ahead of it observed the second regime alone, and the strict never-rewinds
+    /// assertion this case used to carry was therefore true by STAGING rather than by production:
+    /// any convergence landing in that window — which scheduling alone decides — makes the excused
+    /// correction read as a rewind, and a spurious one was once recorded that way. The claim regime
+    /// is staged here through `scheduleNextIfNeeded`, the very call the run-exit convergence makes,
+    /// and quiesced before the announcement so no push is in flight across it.
+    ///
+    /// The series is then asserted PER REGIME, which is what the coordinator actually guarantees:
+    /// the claim regime holds the record's four, the announcement is the one downward step the
+    /// D-G7-01 bracket excuses, and the climb out of it may never lose ground. A blanket assertion
+    /// over both regimes asserts a monotonicity the accounting basis deliberately breaks.
     @Test
     func testAnIncompleteRefusalRepairsPushesClimbFromTheEvidence() async throws {
         let vanished = SessionGallery(
@@ -660,6 +676,18 @@ extension DownloadContinuedSessionLedgerTests {
         // the session has.
         #expect(spy.startSubtitles == ["4 / 6 pages · 1 gallery"])
 
+        // The claim regime, reached through the production convergence tail rather than asserted
+        // from the start's own subtitle. Two pushes land: this call's own reconcile, and the
+        // reconcile the inert run's completion tail issues from `finishActiveTaskIfOwned`. Waiting
+        // for both is what leaves nothing in flight across the announcement below, so the regime
+        // boundary the assertions split on is a position this case fixed rather than one the
+        // scheduler happened to hand it.
+        await manager.scheduleNextIfNeeded()
+        try await waitUntil {
+            spy.progressUpdates.count == 2
+        }
+        #expect(spy.progressUpdates.map(\.completedUnitCount) == [4, 4])
+
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(vanished.gid)_token] \(vanished.title)"
         )
@@ -678,6 +706,10 @@ extension DownloadContinuedSessionLedgerTests {
         let announcedPair = try lastPushedPair(spy.progressUpdates)
         #expect(announcedPair.completedUnitCount == 0)
         #expect(announcedPair.subtitle == "0 / 6 pages · 1 gallery")
+        // Where the regimes meet. Read from the quiesced series above rather than assumed, so a
+        // convergence path that pushes a different number of times before the announcement moves
+        // this index instead of breaking the case.
+        let announcedIndex = spy.progressUpdates.count - 1
 
         var lastFlushDate = Date.distantPast
         for batch in [[1, 2], [3, 4], [5, 6]] {
@@ -696,8 +728,15 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.fetchDownload(gid: vanished.gid)?.completedPageCount == 6)
 
         let numerators = spy.progressUpdates.map(\.completedUnitCount)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
-        #expect(Set(numerators).count >= 3)
+        // Everything ahead of the announcement reads the record's claim: nothing has landed yet,
+        // and the claim is all the session can know until the run measures its own work.
+        #expect(numerators.prefix(announcedIndex).allSatisfy({ $0 == 4 }))
+        // The climb, which is this case's subject, taken from the announcement onward. The step
+        // INTO it is the correction the D-G7-01 bracket excuses and is deliberately outside the
+        // assertion; every step after it may never lose ground.
+        let announcedSeries = Array(spy.progressUpdates.dropFirst(announcedIndex))
+        expectTheCompletedSeriesNeverLosesGround(announcedSeries)
+        #expect(Set(announcedSeries.map(\.completedUnitCount)).count >= 3)
         #expect(numerators.last == 6)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }

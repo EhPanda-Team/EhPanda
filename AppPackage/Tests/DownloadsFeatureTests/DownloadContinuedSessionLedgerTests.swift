@@ -238,7 +238,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(pausedPair.totalUnitCount == 10)
         #expect(pausedPair.subtitle == "6 / 10 pages · 1 gallery")
         #expect(pausedPair == Self.departedPair)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         // A pause must never be able to report the session finished.
         #expect(pausedPair.completedUnitCount < pausedPair.totalUnitCount)
     }
@@ -284,7 +284,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(deletedPair.totalUnitCount == 10)
         #expect(deletedPair.subtitle == "6 / 10 pages · 1 gallery")
         #expect(deletedPair == Self.departedPair)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(deletedPair.completedUnitCount < deletedPair.totalUnitCount)
     }
 
@@ -327,7 +327,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
@@ -525,7 +525,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         // defect, and a series that merely ends correctly could still have shown it on the way.
         #expect(spy.startCompletedUnitCounts == [3])
         #expect(spy.progressUpdates.allSatisfy({ $0.completedUnitCount == 3 }))
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -567,7 +567,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(terminalPair.totalUnitCount == 6)
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
@@ -690,7 +690,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
     }
 
@@ -784,7 +784,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 }
 
