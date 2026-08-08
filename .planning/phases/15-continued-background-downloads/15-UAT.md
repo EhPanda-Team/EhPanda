@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-08T09:55:33Z
+updated: 2026-08-08T10:15:34Z
 ---
 
 ## Current Test
@@ -258,8 +258,55 @@ blocked: 0
   severity: major
   test: 2
   user_hypothesis: "The subtitle count uses live queue membership while totalUnitCount uses a cumulative session basis; both should use the same gallery coverage basis."
-  artifacts: []
-  missing: []
+  root_cause: |
+    Two coupled causes behind one observable defect. (1) Basis, the design cause: the pushed pair
+    mixes bases by documented contract — the fraction is session-cumulative (live sum +
+    retiredSessionPages on both sides, DownloadClient+ContinuedSession.swift:804-808) while
+    galleryCount is the live schedulable count only (:819 via :138; doc :10-15, D-G2-01). A
+    downloading gallery is always .active (DownloadClient+Persistence.swift:97-99) hence always
+    schedulable (DownloadClient+Scheduling.swift:125-127), so every frame computable while the
+    last gallery downloads — including the final forced flush
+    (DownloadClient+PageDownload.swift:56-64 → DownloadClient+Persistence.swift:224) —
+    necessarily reads "· 1 gallery" beside a denominator spanning the whole session. The user's
+    truth is violated by this contract on every mid-run frame, independent of anything at drain.
+    (2) Render, the mechanism exposing it at drain: the only frame that can say otherwise is the
+    15-22 terminal push (:573), and static analysis proves it fires on EVERY production drain
+    route, computes the correct "N / N pages · 0 galleries", and is strictly ordered before
+    setTaskCompleted (both awaited across the MainActor; updateProgress unthrottled,
+    ContinuedProcessingSession.swift:227-242; completion :364). The device still renders the
+    forced flush's "1 gallery" — the system-owned card does not repaint an update issued
+    immediately before task completion. That is exactly the empirical risk G-15-2B's missing[]
+    flagged, now confirmed on device. The 15-54 numerator redesign is not implicated
+    (numerator-only by its own contract, :88).
+  diagnosis_evidence: |
+    Terminal push verified present, correctly positioned (after the client-id deferral :568,
+    before markContinuedSessionEnded :585), correctly valued (empty schedulable set → count 0,
+    ledger → N/N), on every drain-shaped exit — completion, last-item cancel and pause-drain all
+    converge on scheduleNextIfNeeded's reconciling tail; expiration/unavailable dismiss or never
+    show the card — eliminating the missed-push hypothesis. The client seam has no throttle/drop
+    and each updateProgress is awaited to completion, so out-of-order delivery cannot explain the
+    stale string, leaving the OS render race as the only mechanism consistent with the device
+    observation. All four production pushes (:573, :589, Persistence:224, ExecutionSupport:494)
+    share line 819's live-only count; task.updateTitle has exactly one call site — no second
+    writer with a different basis exists. The coverage count is directly derivable from state the
+    push already reads: live snapshot galleries + retiredSessionPages entries;
+    reconcileRetiredSessionPages already deduplicates rejoins (:652-654).
+  artifacts:
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift"
+      issue: ":819 live-only galleryCount (the defect under the user's truth); :10-15 and :88 the documented mixed-basis contract to rewrite; :573 terminal push (correct but unrenderable at drain)"
+    - path: "AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift"
+      issue: ":227-242 and :364 prove app-side choreography is correct — the failure to display the terminal frame is OS-side"
+    - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift"
+      issue: "subtitle expectations at :237, :286, :315, :344-345, :402-403, :439, :490-491, :525-526 pin the live-only basis — must be rewritten, not supplemented"
+    - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift"
+      issue: "subtitle expectations at :43, :57, :98-101, :186-187, :227, :239, :278, :285, :322, :329, :380-382, :428, :436, :461, :472, :509 pin the live-only basis — same rewrite"
+  missing:
+    - "Change galleryCount's basis to the denominator's coverage — live schedulable galleries plus departed galleries whose retiredSessionPages entries contribute pages to Y — computed inside pushContinuedSessionProgress from state it already reads. Under the new basis every frame of a two-gallery run reads \"2 galleries\", so the card is truthful whether or not the OS renders the final frame — the render-race dependency disappears rather than being raced harder."
+    - "Rewrite the documented contract (D-G2-01 note at :10-15 and the count doc at :88) to the coverage basis; the mixed-basis secondary_note from G-15-2B becomes obsolete."
+    - "Rewrite the pinned subtitle expectations in DownloadContinuedSessionTests and DownloadContinuedSessionLedgerTests to the coverage basis — rewrite, not supplement."
+    - "Decide during planning whether a zero-page retirement counts as represented by Y — the letter of the user's truth says no."
+    - "Keep the 15-22 terminal push as harmless defence."
+  debug_session: ".planning/debug/continued-session-gallery-count-basis.md"
 
 - gap_id: G-15-5
   truth: "After validation marks missing image files as pending, the user can immediately start a repair download, and the missing-page indicator, displayed page count, and persisted pending-page state remain consistent across relaunch."
@@ -267,8 +314,72 @@ blocked: 0
   reason: "User reported: after Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were disabled and no Resume or other repair-start action was available. After relaunch, the yellow missing state disappeared and the UI displayed 36 / 36 while 10 pages were still pending."
   severity: major
   test: 5
-  artifacts: []
-  missing: []
+  root_cause: |
+    One root state produces all three observed defects. validateImageData records its
+    missingFiles verdict ONLY in the coordinator's in-memory validationErrors dictionary
+    (DownloadClient+Manager.swift:430; the doc at DownloadClient+PersistenceNormalize.swift:89
+    says so explicitly: "session-scoped status, not persisted") and never reconciles the
+    persisted manifest, whose page hashes still claim all 36 pages (manifest.completedPageCount
+    counts non-empty hashes — untouched by external file deletion). The resulting shape —
+    displayStatus == .error (transient) over a complete-claiming record — is a hole between
+    every gate. (1) No start affordance: Pause needs .active/.inactive/.queued (canTogglePause,
+    DownloadedGallery+SupportTypes.swift:66-72) — false at .error, and togglePause hard-fails
+    .error anyway (DownloadClient+PublicAPI.swift:196-198); "Retry Failed Pages" needs .failed
+    pages (canRetryFailedPages), but externally-deleted pages derive .pending in
+    buildInspectionPages (file absent, no recorded page failure —
+    DownloadClient+PublicAPIHelpers.swift:18-51); the "pending" the user saw is derived at
+    inspection time from live file presence, not something validation wrote. The only enabled
+    inspector action is Validate itself — a circular dead end. The Downloads row/context menu
+    have no retry (canRetry has zero consumers — dead code), and Detail's .error button offers
+    only destructive .redownload because downloadNeedsRepair demands completedPageCount == 0
+    (DetailReducer.swift:93-97), a condition that only holds AFTER a repair run's blanking loop
+    already ran, never at the validate-discovers-missing moment. (2) Relaunch loses the yellow
+    state: validationErrors dies with the process; displayStatus
+    (DownloadClient+Persistence.swift:90-114) re-derives .completed from the intact hash claims
+    (the yellow is the .error badge color, DownloadedGallery+Extensions.swift:11). (3) "36 / 36"
+    vs "10 pending": two independent bases — the badge counts persisted non-empty manifest
+    hashes (DownloadedGallery+Manifest.swift:67-73) while the inspector page groups scan live
+    file presence. Hash-blanking exists only inside prepareWorkingSeed (D-G5-01,
+    reconcileWorkingManifestAgainstPageFiles) — reachable only after a repair STARTS, which this
+    state cannot.
+  diagnosis_evidence: |
+    storage.validate is pure read-only (DownloadStore+Operations.swift:209-311); validation's
+    sole mutation is the transient dictionary write — no auto-enqueue was ever designed at this
+    seam. The design intent (validation error → repair) exists in mode resolution — queuedMode's
+    ".error where fileOperationFailed → .repair" branch
+    (DownloadClient+SchedulingHelpers.swift:16-20) — but it is a fallback only consulted for
+    already-enqueued galleries; every UI enqueue path pins an explicit mode first. The needed
+    repair-starter already exists: retryPages(gid:pageIndices:)
+    (DownloadClient+RetryHelpers.swift:45-95) clears validationErrors, pins .repair with a page
+    selection, enqueues and schedules — the inspector just hardcodes failedPageIndices into it.
+    Shape sweep: the all-pages-missing shape hits the identical dead end; the paused-gallery
+    shape is unreachable (validate gated off .inactive); a genuinely-incomplete inactive record
+    already resumes to .repair correctly — the hole is exactly the complete-claiming-record
+    shape. Hazard for the fix: validationErrors outranks queueStore in displayStatus, so an
+    enqueue without clearing it would read .error, never .queued, and stay unschedulable — every
+    existing enqueue path clears it first; any new affordance must too. Naming note: the "It
+    closes G-15-5" doc on the blanking loop (DownloadClient+ExecutionSupport.swift:540) refers
+    to an earlier, same-numbered gap (record reading complete DURING a repair run); the current
+    G-15-5 is the validate-time hole beside it.
+  artifacts:
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift"
+      issue: ":90-110 — validate writes only the transient dictionary; never reconciles the manifest"
+    - path: "AppPackage/Sources/DownloadClient/DownloadClient+Persistence.swift"
+      issue: ":90-114 — displayStatus derivation: the transient .error / relaunch .completed flip"
+    - path: "AppPackage/Sources/AppModels/Download/DownloadedGallery+SupportTypes.swift"
+      issue: ":57-115 — all gating predicates exclude the complete-claiming .error shape; canRetry is dead code"
+    - path: "AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift"
+      issue: "inspector's 3-action set; retry hardcoded to .failed pages (with DownloadsView+Subviews.swift:59-96)"
+    - path: "AppPackage/Sources/DetailFeature/DetailReducer.swift"
+      issue: ":93-97 — downloadNeedsRepair's completedPageCount == 0 basis can never hold at validate time"
+    - path: "AppPackage/Sources/AppModels/Download/DownloadedGallery+Manifest.swift"
+      issue: ":67-73 — persisted-hash count basis, diverging from live file-presence scans in DownloadClient+PublicAPIHelpers.swift:18-51"
+  missing:
+    - "Preferred root fix: on a missingFiles verdict, durably reconcile the manifest — blank the missing pages' hashes under the same positive-signal guards D-G5-01 already implements — so the record honestly reads incomplete → .inactive → Resume enables → resumeMode resolves .repair; state survives relaunch and both count bases converge at 26/36."
+    - "Additive affordance fix: route pending+failed indices into the existing retryPages(gid:pageIndices:) from the inspector for the .error/fileOperationFailed shape."
+    - "Either way, clear validationErrors at/before enqueue — it outranks queueStore in displayStatus, so an enqueue without clearing reads .error and stays unschedulable."
+    - "Sweep downloadNeedsRepair's completedPageCount == 0 basis and the dead canRetry predicate."
+  debug_session: ".planning/debug/repair-unstartable-after-validate.md"
 
 ## Deferred Follow-Ups
 
