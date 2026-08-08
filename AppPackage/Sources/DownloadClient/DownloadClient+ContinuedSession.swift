@@ -557,6 +557,8 @@ extension DownloadCoordinator {
     /// terminal-shaped pair before the next live push corrects it. Re-checking ahead of the push
     /// cannot exist, because the push *is* the suspension; the numerator floor holds throughout and
     /// the very next convergence repaints, so this is a transient string rather than a state defect.
+    /// The same acceptance for pushes in general — including why the deliveries are not serialized
+    /// into their computation order — lives on `pushContinuedSessionProgress`.
     func reconcileContinuedSession() async {
         guard hasLiveContinuedSession, let sessionID = continuedSessionID else { return }
         guard await hasPendingWork() else {
@@ -738,6 +740,40 @@ extension DownloadCoordinator {
     /// following guard closes and needs its own re-validation, and the ownership re-checks after
     /// them stand as defence under that single justification. This push's ONE real suspension is
     /// its tail, where `updateProgress` crosses the client seam's main-actor hop.
+    ///
+    /// **Two pushes can be in flight across that hop at once, and the order they LAND in is not the
+    /// order they were computed in.** What this actor guarantees is the COMPUTED series: the pair
+    /// and the floor latch in one synchronous same-actor stretch, so inside a single
+    /// accounting-basis regime a later push can only compute a numerator at or above an earlier
+    /// one's. Delivery carries no such guarantee, so the card can hold one displaced observation
+    /// until the next push repaints it — the acceptance the drain branch records for its terminal
+    /// push, stated here for every push.
+    ///
+    /// **Serializing issuance — chaining each delivery behind the previous one on this actor — was
+    /// considered and REJECTED, for three reasons.**
+    ///
+    /// 1. It does not buy the property it looks like it buys. The recorded inversion that prompted
+    ///    the question is a numerator falling because a D-G7-01 withdrawal landed BETWEEN two
+    ///    pushes: a deliberate downward correction of the basis, already in computation order,
+    ///    which a chain reproduces exactly. What a chain removes is the displaced observation,
+    ///    which the next push already repaints.
+    /// 2. Concurrency at this seam is load-bearing rather than incidental, and two cases pin it:
+    ///    `testWorkMobilizedInsideTheTerminalPushSurvivesTheDrain` mobilizes work inside the drain's
+    ///    parked terminal push, and `testAHeldProgressPushCannotRepaintASuccessorSessionsCard` lets
+    ///    a successor take the card while a predecessor's push is parked. Both need a second
+    ///    crossing while the first is still parked, and what resolves the late arrival is the
+    ///    client's own identity guard, not an ordering queue. A chain would deadlock both — each
+    ///    releases the parked push only after a later one lands — which is the staging telling the
+    ///    truth about production: a push that lost ownership across its own hop is REJECTED at the
+    ///    client, and queueing it behind its predecessor would only delay that rejection.
+    /// 3. Liveness points the other way. This push exists because the scheduler force-expires the
+    ///    tasks reporting the least progress, so chaining would couple every report to the slowest
+    ///    preceding main-actor hop. A transient out-of-order frame is the cheaper failure.
+    ///
+    /// The suite holds the matching contract rather than a stricter one:
+    /// `expectTheCompletedSeriesNeverLosesGround` accepts one displaced observation that the next
+    /// push repaints and fails everything else, and a case that stages a withdrawal asserts its
+    /// series per regime.
     ///
     /// The reconcile deliberately runs before the client-identity guard — a departure during the
     /// start window must still be recorded even when there is no card to paint yet — so whichever
