@@ -146,36 +146,6 @@ extension DownloadStore {
     }
 
     @discardableResult
-    public func refreshManifestPageFileHash(
-        folderURL: URL,
-        pageIndex: Int,
-        relativePath: String? = nil
-    ) throws -> DownloadManifest {
-        let resolvedRelativePath: String?
-        if let relativePath {
-            resolvedRelativePath = relativePath
-        } else {
-            let manifest = try readManifest(folderURL: folderURL)
-            resolvedRelativePath = manifest.pages[pageIndex].flatMap { _ in
-                existingPageFileURL(
-                    folderURL: folderURL,
-                    gid: manifest.gid,
-                    token: manifest.token,
-                    index: pageIndex
-                )?
-                .lastPathComponent
-            }
-        }
-        guard let resolvedRelativePath else {
-            return try readManifest(folderURL: folderURL)
-        }
-        return try refreshManifestPageFileHashes(
-            folderURL: folderURL,
-            pageRelativePaths: [pageIndex: resolvedRelativePath]
-        )
-    }
-
-    @discardableResult
     public func refreshManifestPageFileHashes(
         folderURL: URL,
         pageRelativePaths: [Int: String]
