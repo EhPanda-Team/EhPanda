@@ -379,7 +379,7 @@ private extension DownloadCoordinatorRepairSeedTests {
 
     func setupZeroBytePageFiles(
         rootURL: URL, gid: String, storage: DownloadStore
-    ) throws -> (sourceFolderURL: URL, destinationFolderURL: URL) {
+    ) throws -> (emptyPageURL: URL, goodPageURL: URL) {
         let completedFolderURL = rootURL.appendingPathComponent(
             "Folder/\(gid) - Pause Race", isDirectory: true
         )
