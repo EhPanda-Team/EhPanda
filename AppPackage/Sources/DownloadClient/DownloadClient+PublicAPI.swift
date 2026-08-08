@@ -338,12 +338,15 @@ extension DownloadCoordinator {
                     captureTarget.preferredRelativePath ?? existingPages[page],
                 overwriteExistingFile: true
             ) else { return }
-            let manifest = try storage.refreshManifestPageFileHash(
+            // Landed through the single point every landed page passes (G-15-35): the shared
+            // flush records the hash, re-indexes, and advances the owning run's measurement, so a
+            // capture during a live run is counted exactly as a page-loop landing is. A separate
+            // single-page refresh here recorded the page while advancing nothing, which falsified
+            // the flush's single-point premise for one route.
+            try flushManifestPageProgress(
                 folderURL: captureTarget.folderURL,
-                pageIndex: page,
-                relativePath: pageResult.relativePath
+                pages: [pageResult]
             )
-            updateDownloadIndex(folderURL: captureTarget.folderURL, manifest: manifest)
             _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
         } catch {
             logger.error("\(error, privacy: .private)")
