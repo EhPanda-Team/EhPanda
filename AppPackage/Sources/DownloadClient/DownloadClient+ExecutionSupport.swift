@@ -212,42 +212,38 @@ extension DownloadCoordinator {
     /// it the numerator was holding.
     ///
     /// **D-G7-01: every deliberate downward movement of the session accounting basis withdraws its
-    /// counted portion from the monotonic floor, keyed on the pre/post `downloadIndex[gid]` delta —
-    /// never on a named mechanism.**
+    /// counted portion from the monotonic floor, measured on the credited-pages definition around
+    /// the movement — never on a named mechanism.**
     ///
-    /// It closes G-15-7, and the key is the whole of the fix. D-G6-01 attached the withdrawal to the
-    /// blanking loop in `reconcileWorkingManifestAgainstPageFiles` and wrote down that the blanking
-    /// was the basis's sole deliberate downward mover. Source held at least four, three of them
-    /// inside the very function that withdrawal ran in: `setupWorkingFolder`'s folder deletion on
-    /// `.redownload` / `.update`, `ensureWorkingManifest`'s fresh all-empty manifest and re-index,
-    /// the blanking itself, and `writeInitialManifest`'s fresh branch on the enqueue route. A
-    /// `.redownload` of a counted record therefore dropped it from C of N to 0 of N and withdrew
-    /// nothing — the blanking loop finds nothing to blank in an all-empty manifest and returns
-    /// before the withdrawal — so the floor kept holding C while C pages of real work downloaded
-    /// invisibly. Enumerating movers is what failed, four rounds running, so nothing here names one:
-    /// the bracket reads the record before and after and withdraws the difference, which makes
-    /// "whoever lowers the basis withdraws" true by construction for movers nobody has enumerated
-    /// yet.
+    /// It closes G-15-7, and the measurement is the whole of the fix. D-G6-01 attached the
+    /// withdrawal to the blanking loop in `reconcileWorkingManifestAgainstPageFiles` and wrote down
+    /// that the blanking was the basis's sole deliberate downward mover. Source held at least four,
+    /// three of them inside the very function that withdrawal ran in: `setupWorkingFolder`'s folder
+    /// deletion on `.redownload` / `.update`, `ensureWorkingManifest`'s fresh all-empty manifest
+    /// and re-index, the blanking itself, and `writeInitialManifest`'s fresh branch on the enqueue
+    /// route. A `.redownload` of a counted record therefore dropped it from C of N to 0 of N and
+    /// withdrew nothing, so the floor kept holding C while C pages of real work downloaded
+    /// invisibly. Enumerating movers is what failed, four rounds running, so nothing here names
+    /// one: the bracket reads the credited count before and after and withdraws the difference,
+    /// which makes "whoever lowers the counted basis withdraws" true by construction for movers
+    /// nobody has enumerated yet.
     ///
-    /// Both readings are of the INDEX record, the value the numerator is actually summed from
-    /// (`schedulableSnapshot` → `schedulableDownloads()` → `indexedDownloads(gids:)`). That subsumes
-    /// WR-05: the working manifest and the index record no longer have to agree — the
-    /// re-slot-after-title-change path included — because the amount withdrawn is measured on
-    /// exactly what the basis was counting.
+    /// Both readings are of `sessionCreditedPages(gid:)` — the very definition the numerator is
+    /// summed from — rather than of the raw index record. That closes the gate the record-delta
+    /// form needed and could only approximate: a record movement withdraws only in the regimes
+    /// where the record is what the numerator reads (an uncounted record credits zero before and
+    /// after, so its movement withdraws zero with no trust predicate), and a movement of the
+    /// MEASUREMENT itself — a successor run announcing over a superseded predecessor's basis —
+    /// withdraws exactly the credited gap, which no record reading could see at all. It also still
+    /// subsumes WR-05: the working manifest and the index record need not agree, because the
+    /// amount withdrawn is measured on exactly what the numerator was counting.
     ///
-    /// The counted-basis test is evaluated on the BEFORE reading, and that is D-G4-01's ceiling
-    /// guarantee rather than a refinement of it. Only a record the basis was actually counting
-    /// withdraws: one that read incomplete before the movement, or whose gid this session has
-    /// already observed incomplete. An untrusted complete-reading record contributed zero to the
-    /// numerator and to the floor, so it withdraws zero — withdrawing there would push the floor
-    /// below other galleries' legitimately pushed work and weaken the mask for all of them.
-    ///
-    /// Deletions never withdraw. A record that vanished between the two readings is a DEPARTURE,
-    /// which `reconcileRetiredSessionPages` already values from the honest record on the next push;
-    /// withdrawing on top of that would count the same correction twice. So an absent after-reading
-    /// is read as the before-count rather than as zero, leaving a delta of zero. Neither call site
-    /// deletes a record at all — the exclusion is stated here because it is the invariant every
-    /// other `downloadIndex[gid]` writer is dispositioned against.
+    /// Deletions never withdraw. A gallery whose basis AND record are both gone after the movement
+    /// is a DEPARTURE, which `reconcileRetiredSessionPages` already values on the next push;
+    /// withdrawing on top of that would count the same correction twice. So a vanished reading is
+    /// read as the before-count rather than as zero, leaving a delta of zero. Neither call site
+    /// deletes — the exclusion is stated here because it is the invariant every other writer is
+    /// dispositioned against.
     ///
     /// The delta is clamped at zero so an upward movement withdraws nothing, while the floor
     /// subtraction itself is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
@@ -257,26 +253,30 @@ extension DownloadCoordinator {
     /// is inert, because the push's `max()` compares it against a `displayCompletedPageCount` that
     /// is never negative.
     ///
-    /// The whole stretch is synchronous — this function does not suspend, and neither of the two
-    /// bodies it wraps does — so no interleaved push can observe a lowered basis under an un-lowered
+    /// The whole stretch is synchronous — this function does not suspend, and none of the bodies
+    /// it wraps does — so no interleaved push can observe a lowered basis under an un-lowered
     /// floor or the reverse. Two withdrawals in one session compose in either order, because each
-    /// computes its own local delta and subtracts it.
+    /// computes its own local delta and subtracts it. **They compose as SIBLINGS only: never nest
+    /// one bracket inside another.** The inner movement's delta would be measured twice — once by
+    /// its own bracket and again inside the outer one's span — and withdrawn twice, which is why
+    /// the preparation bracket and the announce bracket in
+    /// `prepareWorkingSeedAnnouncingProgress` run one after the other rather than one inside the
+    /// other.
     ///
-    /// Module-internal rather than file-private because the second call site lives in
+    /// Module-internal rather than file-private because one call site lives in
     /// `DownloadClient+PublicAPI.swift`. One implementation is what stops the withdrawal rule from
     /// forking between the run route and the enqueue route.
     func withdrawingCountedBasisMovement<T>(
         gid: String,
         _ movement: () throws -> T
     ) rethrows -> T {
-        let beforeManifest = downloadIndex[gid]?.manifest
-        let beforeCount = beforeManifest?.completedPageCount ?? 0
-        let wasCountedBasis = beforeCount < (beforeManifest?.pageCount ?? 0)
-            || observedIncompleteSessionGIDs.contains(gid)
+        let creditedBefore = sessionCreditedPages(gid: gid)
         let result = try movement()
-        let afterCount = downloadIndex[gid]?.manifest.completedPageCount ?? beforeCount
-        if continuedSessionID != nil, wasCountedBasis {
-            lastPushedCompletedPageCount -= max(beforeCount - afterCount, 0)
+        let creditedAfter = hasSessionCreditReading(gid: gid)
+            ? sessionCreditedPages(gid: gid)
+            : creditedBefore
+        if continuedSessionID != nil {
+            lastPushedCompletedPageCount -= max(creditedBefore - creditedAfter, 0)
         }
         return result
     }
@@ -347,13 +347,19 @@ extension DownloadCoordinator {
                 folderURL: folderURL,
                 manifest: reconciledManifest,
                 existingPages: existingPages,
-                coverRelativePath: coverRelativePath
+                coverRelativePath: coverRelativePath,
+                // The announcement's evidence, carried out of the one scan this preparation took:
+                // the same classification the destructive consumer above just read, so the credit
+                // rule and the blanking rule can never answer from different probes.
+                unprobedPages: reconciliationScan.unprobedPages,
+                scanSucceeded: destinationScan.scanSucceeded
             )
         }
     }
 
-    /// Prepares the working seed, tells the live session what basis the run starts from, and admits
-    /// the gallery to that session's trust set when this run really does have pages to fetch.
+    /// Prepares the working seed and announces the run's own progress measurement — the
+    /// `RunProgressBasis` the session numerator reads for this gallery from here to the run's
+    /// exit — when this run really does have pages to fetch.
     ///
     /// Record honesty alone does not reach the card, and no pre-existing push is guaranteed to run
     /// while a repaired record reads incomplete. The tap-time convergence push takes its snapshot
@@ -364,38 +370,21 @@ extension DownloadCoordinator {
     /// completeness is restored before that push's snapshot is taken. The incomplete window would
     /// then exist on disk and be observed by nobody, and the gallery would finish a terminal
     /// `0 / N` card: the maximally stalled reading D-11's expiration policy punishes by pausing
-    /// every schedulable download (G-15-5).
+    /// every schedulable download (G-15-5). The announcement is what makes the run's progress
+    /// independent of flush cadence and of record honesty alike — including the refusal family,
+    /// whose record reads complete for the entire run (G-15-23) — because the measurement never
+    /// consults the record at all.
     ///
-    /// **Trust is admitted where the session can OBSERVE incompleteness or PROVE page work.** Those
-    /// are the push-side `formUnion` over a snapshot's incomplete galleries — inside
-    /// `reconcileRetiredSessionPages`, and in the start seed built from the same snapshot shape —
-    /// and the recording below, over a run that still has pages of its own to fetch. Written as that
-    /// rule rather than as a count of sites, because a count is a number that goes stale the moment
-    /// a writer is added.
+    /// **The measurement is a fact about the RUN, so it is recorded in the run-scoped collection
+    /// and nowhere else (G-15-26).** A session boundary does not touch it: a session already live
+    /// credits it from this announcement's own push below, and every later session start credits
+    /// it through the same basis-first definition, so the two orderings where the session
+    /// lifecycle does not bracket the run — an `.unavailable` teardown while the queue keeps
+    /// running, and a queue resumed at launch, where D-07 forbids a session at all — need no
+    /// second route. The collection is retired at `processDownload`'s `defer`, so the measurement
+    /// does not outlive the run either.
     ///
-    /// **The proof is written to the RUN's collection, unconditionally, and to the live session's
-    /// trust set as well when there is one (G-15-26).** They are the same fact reaching the session by
-    /// two routes: `provenPageWorkRunPageDebts` is what every LATER session start seeds its trust set
-    /// from, and the session insert is what credits a run that started inside a session already
-    /// live, immediately rather than only at the next start. Recording only into the session set made
-    /// the proof die with the session, which lost it on the two orderings where the session lifecycle
-    /// does not bracket the run — an `.unavailable` teardown while the queue keeps running, and a
-    /// queue resumed at launch, where D-07 forbids a session at all. The run's collection is retired
-    /// at `processDownload`'s `defer`, so the proof does not outlive the run either.
-    ///
-    /// The session insert is explicit because an announcement alone provably admits nothing on one whole
-    /// family. The push-side admission is sourced from `incompleteGalleryIDs`, which
-    /// `schedulableSnapshot` builds from `isIncomplete`, so it cannot by construction contain a
-    /// record that reads complete — and `reconcileWorkingManifestAgainstPageFiles` has three refusal
-    /// exits that all return the manifest verbatim, blanking nothing and republishing nothing. A
-    /// repair of a complete-reading record therefore stays complete-reading for the whole run, and
-    /// the flush path only ever moves a record upward, so it never becomes honest mid-run either.
-    /// Without this insert the gallery contributes zero to the numerator from its first push to its
-    /// untrusted departure and retires zero — G-15-5's terminal card, reached again inside the very
-    /// branches the positive-signal defence built (G-15-23).
-    ///
-    /// **The gate is the work THIS RUN will actually do**, because that is what the two admissions
-    /// have in common and what D-G4-01 actually rations trust on. It is the run's own pending page
+    /// **The gate is the work THIS RUN will actually do.** It is the run's own pending page
     /// list — the list `performDownload` feeds straight to the page loop — being non-empty.
     ///
     /// It used to be the working folder's shortfall against its manifest — the seed's existing-page
@@ -436,55 +425,44 @@ extension DownloadCoordinator {
     /// there is the direction D-G4-01 and the retirement ledger both choose on purpose;
     /// over-reporting is the defect.
     ///
-    /// **Which side of D-G7-01's bracket the insert lands on, and why the composition holds.** It
-    /// lands AFTER the bracket has closed: `prepareWorkingSeed` opens and closes
-    /// `withdrawingCountedBasisMovement` around its own movements and has already returned by the
-    /// time this line runs. So the preparation's OWN movement is measured against the
-    /// pre-announcement trust state — an untrusted complete-reading record read `wasCountedBasis`
-    /// false, contributed nothing to the floor and withdraws nothing from it, which is what keeps
-    /// D-G4-01's ceiling guarantee intact. Every LATER movement of the same gid in the same session
-    /// finds `wasCountedBasis` true through the trust set and withdraws its counted portion, which
-    /// is correct because from the announcement on the gallery's pages really are in the numerator.
-    /// Granting trust inside the bracket would invert both halves: it would withdraw for a basis the
-    /// floor had not yet counted.
+    /// **The announcement is its own D-G7-01 bracket, a SIBLING of the preparation's, and the
+    /// order is load-bearing.** `prepareWorkingSeed` opens and closes
+    /// `withdrawingCountedBasisMovement` around its own record movements and has already returned
+    /// by the time the announcement runs, so those movements are measured in the record regimes
+    /// they occur in. The announcement then moves the counted basis itself — from the record's
+    /// reading to the run's measurement — and its bracket withdraws whatever counted portion that
+    /// handoff loses. For an honest record the handoff is level or upward, because the inherited
+    /// set is valued by the same evidence the record just reconciled against; the one downward
+    /// case is a COMPLETE-reading record forfeiting the owed claims its own route refuted. And
+    /// when a superseded predecessor's basis still lingers — the overlapping-run disposition
+    /// `retireRunProgressBasis` records — the replacement's credited gap is withdrawn exactly,
+    /// which no record-delta reading could see at all. Nesting the announcement inside the
+    /// preparation's bracket instead would measure the preparation's movements twice; the
+    /// non-nesting rule lives on the bracket itself.
     ///
-    /// The run-scoped recording changes nothing about that composition, because the withdrawal reads
-    /// the SESSION's trust set and not the run's. With no session live it withdraws nothing at all —
-    /// its own guard is `continuedSessionID != nil` — and by the time a later session start has
-    /// seeded the trust set from the run's proof, that session's floor has been seeded from a
-    /// snapshot that already counted the gallery, so the two sides still move together.
+    /// Announced at the RUN's own preparation and nowhere earlier is what keeps the queued window
+    /// at zero. Nothing here runs at queue time, so a complete gallery queued for an update still
+    /// opens the card at zero and a redo that never ran still retires nothing.
     ///
-    /// Trust granted at the RUN's own preparation and nowhere earlier is also what keeps the queued
-    /// window at zero. Nothing here runs at queue time, so a complete gallery queued for an update
-    /// still opens the card at zero and a redo that never ran still retires nothing.
-    ///
-    /// The push's reconcile records the observation even when the client start is still in flight,
-    /// because that reconcile deliberately runs ahead of the nil-client guard;
-    /// `ensureContinuedSession`'s seed merges rather than overwrites, so the recording survives the
-    /// start's main-actor hop.
-    ///
-    /// **What is recorded is the list itself, not the fact that it was non-empty (G-15-30).** The
-    /// gate is unchanged — this run's own pending page list being non-empty — but membership alone
-    /// unlocked the record's WHOLE finished-page count, which for the refusal family is exactly the
-    /// work the run has not done. So the same evaluation that opens the gate also supplies the
-    /// quantity behind it: the pages this run owes, which `sessionCreditedPages` subtracts from the
-    /// record and every manifest page flush shrinks by what it actually wrote. No second evaluation
-    /// appears, and nothing is derived here that the page loop is not also handed.
-    ///
-    /// The pending list is evaluated here and handed onward rather than recomputed by the caller,
-    /// and that is the whole of T-15-47-03's mitigation: one evaluation per run means the trust
-    /// granted and the work performed cannot come apart. It lands on the same side of D-G7-01's
-    /// bracket as the insert, which costs nothing — it is a read-only scan of a folder the
-    /// preparation has finished with, and it moves no index record for the bracket to measure.
+    /// **The measurement carries the quantity, not merely the fact of membership (G-15-30).** The
+    /// gate is the pending list being non-empty, and the same single evaluation that opens the
+    /// gate supplies everything behind it: the outstanding pages every manifest page flush shrinks
+    /// by what it actually wrote, and the inherited count summed from the very seed the page loop
+    /// is handed. No second evaluation appears, and nothing is derived here that the page loop is
+    /// not also given — which is the whole of T-15-47-03's mitigation: one evaluation per run
+    /// means the progress announced and the work performed cannot come apart.
     ///
     /// The suspension this adds is named: the `updateProgress` main-actor hop to
     /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
     /// body, which is already reentrant at its payload fetch, cover download and source resolution
     /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
-    /// inside that push. The pending-list evaluation and BOTH recordings — the run's and the
-    /// session's — are synchronous same-actor work taken before that hop, so no push can observe the
-    /// announcement without the trust it announces on, and no page the loop is about to fetch can
-    /// have been decided after it. `prepareWorkingSeed` itself therefore stays synchronous.
+    /// inside that push. The pending-list evaluation and the recording are synchronous same-actor
+    /// work taken before that hop, so no push can observe the announcement without the measurement
+    /// it announces, and no page the loop is about to fetch can have been decided after it.
+    /// `prepareWorkingSeed` itself therefore stays synchronous. The push's reconcile records the
+    /// observation even when the client start is still in flight, because that reconcile
+    /// deliberately runs ahead of the nil-client guard; `ensureContinuedSession`'s seed merges
+    /// rather than overwrites, so the recording survives the start's main-actor hop.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
@@ -501,9 +479,18 @@ extension DownloadCoordinator {
             existingPageRelativePaths: workingSeed.existingPages
         )
         if !pendingPages.isEmpty {
-            provenPageWorkRunPageDebts[payload.gallery.gid] = Set(pendingPages)
+            let outstandingPages = Set(pendingPages)
+            withdrawingCountedBasisMovement(gid: payload.gallery.gid) {
+                runProgressBases[payload.gallery.gid] = RunProgressBasis(
+                    inheritedPages: inheritedPages(
+                        workingSeed: workingSeed,
+                        pendingPages: outstandingPages
+                    ),
+                    initialPendingPages: outstandingPages,
+                    outstandingPages: outstandingPages
+                )
+            }
             if let continuedSessionID {
-                observedIncompleteSessionGIDs.insert(payload.gallery.gid)
                 await pushContinuedSessionProgress(sessionID: continuedSessionID)
             }
         }
@@ -511,6 +498,38 @@ extension DownloadCoordinator {
             workingSeed: workingSeed,
             pendingPageIndices: pendingPages
         )
+    }
+
+    /// The pages a run inherits rather than performs — `RunProgressBasis.inheritedPages`'s one
+    /// derivation, read from the very scan the preparation's destructive consumer read, so the
+    /// credit rule and the blanking rule can never answer from different probes.
+    ///
+    /// Evidence, in order of authority. A successful listing is authoritative both ways: it yields
+    /// the probed files, plus the claimed pages the per-file probe could not answer for — the same
+    /// population the blanking loop refuses to blank, presumed done here for the same
+    /// positive-signal reason it is preserved there. A failed listing is a non-answer, so the
+    /// record's claims stand whole; only a POSITIVE absence — a successful listing that simply did
+    /// not yield a claimed page's file — zeroes a claim. A COMPLETE-reading record then forfeits
+    /// the claims the run was asked to fetch, because a repair or retry of a "finished" gallery is
+    /// itself the route's assertion that those claimed pages are bad; an incomplete record's
+    /// claims carry no such refutation — its to-do overlap comes only from the scan's own failure
+    /// — so they stand, and the credited count's union is what keeps the overlap from ever
+    /// counting twice.
+    private func inheritedPages(
+        workingSeed: WorkingSeed,
+        pendingPages: Set<Int>
+    ) -> Set<Int> {
+        let manifest = workingSeed.manifest
+        let claimedPages = Set(manifest.pages.filter({ $0.value.isEmpty == false }).keys)
+        let presumedDonePages: Set<Int>
+        if workingSeed.scanSucceeded {
+            presumedDonePages = Set(workingSeed.existingPages.keys)
+                .union(claimedPages.intersection(workingSeed.unprobedPages))
+        } else {
+            presumedDonePages = Set(workingSeed.existingPages.keys).union(claimedPages)
+        }
+        guard manifest.completedPageCount >= manifest.pageCount else { return presumedDonePages }
+        return presumedDonePages.subtracting(pendingPages)
     }
 
     /// Blanks the recorded hash of every page the working manifest claims but whose file is not in
@@ -628,12 +647,12 @@ extension DownloadCoordinator {
     /// the flush restores the record, and for the refusal family that claim is refuted: the flush
     /// path is monotone upward — `refreshManifestPageFileHashes` only ever assigns non-empty
     /// hashes — so a record that reads COMPLETE when a refusal hands the manifest back never becomes
-    /// incomplete during the run, and the session's push-side trust writer, sourced from
-    /// `isIncomplete`, can never admit it. What covers that family is the explicit admission in
-    /// `prepareWorkingSeedAnnouncingProgress`, taken on the run's own proof of page work rather than
-    /// on the record (G-15-23). A record already reading incomplete when a refusal fires is the
-    /// other case, and for it the flush really is enough — which is what the sibling refusal cases
-    /// in `DownloadContinuedSessionReconciliationTests` stage.
+    /// incomplete during the run, and the session's observation set, sourced from `isIncomplete`,
+    /// can never admit it. What covers that family is the run's own measured basis, announced in
+    /// `prepareWorkingSeedAnnouncingProgress` without consulting the record at all (G-15-23). A
+    /// record already reading incomplete when a refusal fires is the other case, and for it the
+    /// flush really is enough — which is what the sibling refusal cases in
+    /// `DownloadContinuedSessionReconciliationTests` stage.
     private func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,

@@ -608,6 +608,100 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
+    /// The other half of the series property above: the record reads INCOMPLETE, its claims are
+    /// positively refuted, and the numerator must climb from the evidence rather than freeze at
+    /// the claim (G-15-34).
+    ///
+    /// This is the family the round-18 verification derived as the blocker's production route: a
+    /// PARTIALLY downloaded gallery whose claimed page files are deleted through the Files app.
+    /// The reconciliation's all-or-nothing guard refuses — blanking every claimed page of a
+    /// nominally successful listing is more likely a shape the per-page signals missed — so the
+    /// record goes on claiming four pages that are not there. The record-inference basis counted
+    /// those claims raw for as long as the record read incomplete, then subtracted the run's debt
+    /// only once it read complete: a piecewise credit whose two branches disagree at the
+    /// crossover, which is exactly where the numerator dropped and the floor froze it
+    /// (4, 5, 5, 5, 5, 6 in the round's worked example).
+    ///
+    /// The announced basis reads the evidence instead: a SUCCESSFUL listing that yields no claimed
+    /// file is a positive absence, so nothing is inherited, and the correction from the record's
+    /// claim of four to the evidence's zero is excused from the floor by the announcement's own
+    /// D-G7-01 bracket. The series is then the run's own landings and nothing else. Like its
+    /// sibling this is a SERIES property over three production flush batches rather than one
+    /// expected string, because a frozen numerator is exactly what a single-constant assertion
+    /// cannot refuse — it fails against a freeze at the claim, at zero, and at the floor's
+    /// unwithdrawn four alike.
+    @Test
+    func testAnIncompleteRefusalRepairsPushesClimbFromTheEvidence() async throws {
+        let vanished = SessionGallery(
+            gid: "210409",
+            title: "Vanished",
+            pageCount: 6,
+            completedPageCount: 4
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [vanished],
+            queuedGIDs: [vanished.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+        let manager = fixture.manager
+        // No page file is ever written: the four claimed pages are exactly the Files-app deletion
+        // shape, positively absent under a listing that succeeds.
+        await manager.reloadDownloadIndex()
+
+        let staged = try #require(await manager.fetchDownload(gid: vanished.gid))
+        #expect(staged.completedPageCount == 4)
+        #expect(await manager.resumeMode(for: staged) == .repair)
+
+        await manager.testingEnsureContinuedSession()
+        // The card opens on the record's claim — no scan has run yet, so four is the best reading
+        // the session has.
+        #expect(spy.startSubtitles == ["4 / 6 pages · 1 gallery"])
+
+        let folderURL = fixture.storage.folderURL(
+            relativePath: "Folder/[\(vanished.gid)_token] \(vanished.title)"
+        )
+        let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: vanished),
+            existingDownload: staged,
+            folderURL: folderURL
+        )
+        // The all-or-nothing guard refused: the record still claims four, verbatim.
+        #expect(await manager.fetchDownload(gid: vanished.gid)?.completedPageCount == 4)
+        // Non-vacuity: the folder supplies nothing, so all six pages are this run's own work.
+        #expect(preparedRun.workingSeed.existingPages.isEmpty)
+        #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])
+        // The claims left the numerator with the bracket's excuse, not past the floor's mask: the
+        // announcement's own push already reads the evidence.
+        let announcedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(announcedPair.completedUnitCount == 0)
+        #expect(announcedPair.subtitle == "0 / 6 pages · 1 gallery")
+
+        var lastFlushDate = Date.distantPast
+        for batch in [[1, 2], [3, 4], [5, 6]] {
+            try writePageFiles(for: vanished, in: fixture, indices: batch)
+            var pendingResolvedPages = pageResults(for: vanished, in: fixture, indices: batch)
+            try await manager.flushDownloadProgress(
+                context: .init(gid: vanished.gid, folderURL: folderURL),
+                pendingResolvedPages: &pendingResolvedPages,
+                lastFlushDate: &lastFlushDate,
+                force: true
+            )
+        }
+
+        // Unlike the complete-reading sibling, the flushes DO move this record: every landing is
+        // recorded, so the claims end the run true again.
+        #expect(await manager.fetchDownload(gid: vanished.gid)?.completedPageCount == 6)
+
+        let numerators = spy.progressUpdates.map(\.completedUnitCount)
+        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        #expect(Set(numerators).count >= 3)
+        #expect(numerators.last == 6)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
+
     /// The outliving-trust arm: once a run is over, the gallery it proved page work for contributes
     /// NOTHING further while it merely waits in the queue.
     ///
@@ -622,7 +716,7 @@ extension DownloadContinuedSessionLedgerTests {
     /// persistence removes the gallery from the queue store, and the departure is only detected by
     /// the reconcile inside the push that `finishActiveTaskIfOwned`'s detached convergence issues
     /// afterwards. The opposite ordering, where an outside pause departs a gallery whose run is
-    /// still holding its page debt, is covered by
+    /// still holding its measurement, is covered by
     /// `testARefusalRepairPausedPartWayDrainsAtTheWorkItActuallyDid` in the refusal file.
     ///
     /// **The second gallery is load-bearing rather than scenery.** Without it the failure empties
@@ -637,13 +731,14 @@ extension DownloadContinuedSessionLedgerTests {
     /// sixteen across two galleries is the session's real work beside the whole queue it still
     /// covers, while the record's untouched six is credited nowhere.
     ///
-    /// **This case pins the TRUST withdrawal specifically, and that was observed rather than
-    /// argued.** With `retireProvenPageWork`'s `observedIncompleteSessionGIDs.remove(gid)` deleted
-    /// and everything else left standing, it fails on a terminal `6 / 16 pages · 2 galleries`
-    /// against the expected `2 / 16`. The mechanism is worth stating because it is not obvious: the
-    /// run's exit drops the page debt as well, so a gallery left inside the trust set is credited
-    /// its record MINUS nothing — the debt that used to hold the correction has no owner any more.
-    /// Withdrawing the trust with the debt is what keeps the two from separating.
+    /// **This case pins the basis retirement's whole point.** A run's measurement dies with the
+    /// run, at `retireRunProgressBasis`, and nothing re-admits the gallery afterwards: the
+    /// observation set records only records seen reading incomplete, which this record — complete
+    /// for the entire run, the reconciliation having refused — never once did. With the basis
+    /// retired and no observation, the credited-pages definition answers zero for a
+    /// complete-reading record, so a failed refusal repair sitting in the queue contributes
+    /// nothing. A retirement left out would instead leave the finished run's arithmetic standing
+    /// for a gallery doing nothing at all, and this terminal pair is where that would surface.
     @Test
     func testAFailedRefusalRepairsGalleryContributesNothingWhileMerelyQueued() async throws {
         let abandoned = SessionGallery(

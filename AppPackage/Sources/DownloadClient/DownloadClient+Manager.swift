@@ -106,6 +106,55 @@ public actor DownloadCoordinator {
         case cancelled
     }
 
+    /// One run's own measurement of the page progress it covers for its gallery — the quantity the
+    /// session numerator reads for as long as the run is in flight.
+    ///
+    /// This value exists so the numerator can be MEASURED where it used to be inferred. The index
+    /// record reads the gallery's cumulative on-disk state, which is a different quantity from the
+    /// current run's progress whenever the two disagree — most sharply for the refusal family,
+    /// where `reconcileWorkingManifestAgainstPageFiles` hands a lying complete manifest back
+    /// verbatim and the record reads N-of-N for an entire re-download. Every earlier basis rule
+    /// reconstructed run progress FROM that record and corrected the inference — a trust set, a
+    /// subtracted page debt, a guarded subtraction — and each correction's boundary became the
+    /// next defect's home: the pinned-zero family (G-15-5, G-15-23, G-15-26), the pinned-ceiling
+    /// family (G-15-30), and the non-monotonic crossover of the guarded form (G-15-34). Measuring
+    /// removes the reconstruction instead of correcting it again: while a run is live, its
+    /// gallery's credit never consults the record.
+    ///
+    /// `creditedPageCount` is monotone by construction — `inheritedPages` is fixed at the
+    /// announcement and `outstandingPages` only ever shrinks, at the single point every landed
+    /// page passes — and continuous across the record completing, because no part of it reads the
+    /// record. Those are the two properties whose absence G-15-34 named, held structurally rather
+    /// than argued branch by branch.
+    ///
+    /// **`inheritedPages` is valued by the best evidence the preparation's one scan produced, and
+    /// only positive absence zeroes a page** — the same positive-signal rule the blanking loop
+    /// follows, applied to credit. A page outside the run's own to-do list is inherited when the
+    /// scan yielded its file, when the scan could not answer for it (an unprobeable file, or a
+    /// listing that failed outright) while the record claims it, and never when a successful
+    /// listing positively did not yield it. One asymmetry is deliberate: a COMPLETE-reading record
+    /// undergoing a run additionally forfeits the claims the run was asked to fetch, because a
+    /// repair or retry of a "finished" gallery is itself the assertion that those claimed pages
+    /// are bad — which is the verifier-prescribed intersection, subtract only the owed pages the
+    /// record still claims. An incomplete record's claims carry no such refutation: its to-do
+    /// overlap comes only from the scan's own failure, so the claims stand.
+    struct RunProgressBasis: Equatable, Sendable {
+        /// Pages the run inherits rather than performs, per the evidence rule above. May overlap
+        /// the to-do list when a claim stood on a failed scan; the credited count unions rather
+        /// than adds, so the overlap can never count twice.
+        let inheritedPages: Set<Int>
+        /// The run's own to-do list at preparation, before any page landed.
+        let initialPendingPages: Set<Int>
+        /// The subset of the to-do list that has not landed yet. It shrinks at every manifest page
+        /// flush by exactly the pages that flush recorded, and never grows.
+        var outstandingPages: Set<Int>
+
+        /// What the run has covered so far: inherited work plus its own landed pages, as one set.
+        var creditedPageCount: Int {
+            inheritedPages.union(initialPendingPages.subtracting(outstandingPages)).count
+        }
+    }
+
     public struct RepairSeed: Sendable {
         public let folderURL: URL
         public let manifest: DownloadManifest
@@ -123,16 +172,29 @@ public actor DownloadCoordinator {
         public let manifest: DownloadManifest
         public let existingPages: [Int: String]
         public let coverRelativePath: String?
+        /// The claimed pages the preparation's one scan could not answer for — the destination's
+        /// own unprobeable files plus the classifications a repair-seed copy carried (G-15-19).
+        /// Surfaced so the announcement's inherited-work rule reads the same probe the blanking
+        /// rule read, instead of re-deriving evidence from a second scan.
+        public let unprobedPages: Set<Int>
+        /// Whether the preparation's directory listing itself succeeded. False means the whole
+        /// scan is a non-answer, which the announcement treats exactly as the reconciliation
+        /// does: no positive signal, so recorded claims stand.
+        public let scanSucceeded: Bool
         public init(
             folderURL: URL,
             manifest: DownloadManifest,
             existingPages: [Int: String],
-            coverRelativePath: String? = nil
+            coverRelativePath: String? = nil,
+            unprobedPages: Set<Int> = [],
+            scanSucceeded: Bool = true
         ) {
             self.folderURL = folderURL
             self.manifest = manifest
             self.existingPages = existingPages
             self.coverRelativePath = coverRelativePath
+            self.unprobedPages = unprobedPages
+            self.scanSucceeded = scanSucceeded
         }
     }
 
@@ -481,8 +543,9 @@ public actor DownloadCoordinator {
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
     ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
-    ///    That bracket has two call sites — `prepareWorkingSeed`'s whole preparation in
-    ///    `DownloadClient+ExecutionSupport.swift` and `writeInitialManifest`'s body in
+    ///    That bracket has three call sites — `prepareWorkingSeed`'s whole preparation and the
+    ///    basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
+    ///    `DownloadClient+ExecutionSupport.swift`, and `writeInitialManifest`'s body in
     ///    `DownloadClient+PublicAPI.swift` — but one implementation, so this writer is one rule
     ///    rather than a list of mechanisms.
     ///
@@ -529,106 +592,61 @@ public actor DownloadCoordinator {
     /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
     /// pause-all — rather than only the paths someone remembered to instrument.
     var observedSchedulablePages = [String: Int]()
-    /// The galleries this session has ever observed incomplete, or proven page work for, while they
-    /// were schedulable.
+    /// The galleries whose RECORD this session has observed reading incomplete while they were
+    /// schedulable.
     ///
-    /// For a gallery in here the record is authoritative twice over: its finished pages count even
-    /// once the record reads complete again — which is exactly the completion flush, where the
-    /// forced push reports a full count while the gallery is still inside its own schedulable set —
-    /// and its departure retires that same quantity (D-G2-01). Authoritative about the COUNT, not
-    /// about how much of it this session earned: what a complete-reading record contributes is its
-    /// count minus the pages its run still owes, which `sessionCreditedPages` decides for both
-    /// halves at once (G-15-30).
+    /// A pure observation set: its only writers are this session's own snapshot merges, which read
+    /// `isIncomplete`, and its only meaning is "the record honestly told this session it was
+    /// mid-work". It decides exactly one question — what a COMPLETE-reading record with no run in
+    /// flight contributes (`sessionCreditedPages`). A gallery watched incomplete that now reads
+    /// complete earned that movement through landed pages this session covered, so its count is
+    /// real covered work and it counts and retires whole. One never watched incomplete is a redo
+    /// target whose pages predate the session, so it counts zero — D-G4-01's queued window.
     ///
-    /// A gallery never seen incomplete counts zero and retires zero, because its record's finished
-    /// pages predate the session. `shouldSchedule` returns true for any queued work item before it
-    /// consults `isIncomplete`, so a complete gallery queued for an update, a redownload, a repair
-    /// or a bare re-enqueue is schedulable — correctly, the redo must run — but those pages are the
-    /// redo's target rather than this session's progress. The rule itself (D-G4-01) is written down
-    /// on `schedulableSnapshot()` and on `reconcileRetiredSessionPages(snapshot:)`, where the two
-    /// halves are implemented.
+    /// It used to be more than that. The pre-basis design seeded it from the run debts and
+    /// withdrew members at run exits, because the credited-pages rule needed a trust grant to
+    /// reach the refusal family at all — and that pollution is what made G-15-30 reachable: a
+    /// granted membership unlocked a count the session never earned. `runProgressBases` is
+    /// consulted ahead of this set now, so a live run's gallery never reaches the branch this set
+    /// decides, and the refusal family — whose record never reads incomplete — structurally
+    /// cannot enter it. Within one session a record moves from incomplete to complete only
+    /// through landed pages, which is precisely the work the count describes, so the branch this
+    /// set opens has no route to an unearned number.
     ///
-    /// Membership is granted where the session can OBSERVE incompleteness or PROVE page work, never
-    /// at queue time. The observed half is the snapshot-sourced merges, which read `isIncomplete`.
-    /// The proven half is `provenPageWorkRunPageDebts` below, which the run's own working-seed
-    /// announcement (`prepareWorkingSeedAnnouncingProgress`) records and whose KEYS this set is
-    /// SEEDED FROM at every session start — this set is no longer the owner of that proof, only a
-    /// reader of it, and G-15-26 is what that distinction cost. Membership here is what SELECTS the
-    /// credited basis; the size of that basis is decided by the debt the same entry carries, which
-    /// is G-15-30. The proven rule exists because the observed one
-    /// structurally cannot reach one family: a reconciliation that REFUSES its destructive half hands
-    /// the manifest back verbatim, so a repair of a complete-reading record has no incompleteness for
-    /// a snapshot to see, and the flush path only ever moves a record upward (G-15-23).
-    ///
-    /// Session-scoped like the two above, in the sense that no membership of this set survives into
-    /// the next session on its own: it is cleared when a session ends and re-derived when one starts.
-    /// What it is re-derived FROM is the run-scoped owner below plus that start's own snapshot, and
-    /// it then accumulates every snapshot a push reconciles. So a session boundary re-reads the
-    /// proofs of runs that are still in flight rather than discarding them, which is exactly the
-    /// difference between this and the pre-G-15-26 shape.
-    ///
-    /// One membership is also withdrawn WITHIN a session, at a RUN boundary: `retireProvenPageWork`
-    /// removes the gid when its run ends. That is not the session-scoping above reached by another
-    /// name — it is the other half of the same distinction. The proven grant is a fact about a run
-    /// and stops being true when the run stops, and the observed grant is re-added by the very next
-    /// push for as long as the record honestly reads incomplete, so the removal can only strip a
-    /// credit no observation was willing to make. Leaving it standing is what let a failed repair go
-    /// on crediting its record's full count while the gallery merely sat in the queue.
+    /// Session-scoped: emptied when a session starts and cleared when one ends. Nothing seeds it —
+    /// a run in flight across a session start is credited through its basis, not through this set.
     var observedIncompleteSessionGIDs = Set<String>()
-    /// The pages each gallery's CURRENT RUN proved, at its own working-seed preparation, that it
-    /// still has to fetch — and has not fetched yet.
+    /// Each gallery's CURRENT RUN's own progress measurement, keyed by gallery identifier. The
+    /// derivation for why a measurement rather than a corrected record inference lives on
+    /// `RunProgressBasis` itself.
     ///
-    /// **Why a QUANTITY rather than a membership, which is the whole of G-15-30.** Membership alone
-    /// unlocked the record's FULL finished-page count as this session's credited work, and for the
-    /// refusal family that count IS the run's remaining work: `reconcileWorkingManifestAgainstPageFiles`
-    /// returns the manifest verbatim on all three of its refusal exits, and the flush path only ever
-    /// moves a record upward, so the record reads N-of-N from the announcement to the run's end.
-    /// Crediting N there opened the card at its ceiling before a byte was fetched, held the numerator
-    /// at that constant for the whole re-download — the stall reading D-11's expiration policy
-    /// punishes — and retired the ceiling into BOTH sides of the fraction at any mid-run departure,
-    /// which is the over-retirement D-G2-01 forbids in its own words. A paused or expiration-swept
-    /// repair then terminated through the drain branch as a fully successful N-page completion. The
-    /// credited basis is now the record MINUS what this entry still holds, so it opens at the run's
-    /// real basis and climbs page by page.
+    /// **The lifetime rule.** An entry is recorded at the run's own preparation
+    /// (`prepareWorkingSeedAnnouncingProgress`) when that run's pending page list is non-empty;
+    /// its `outstandingPages` shrink at every manifest page flush (`flushManifestPageProgress`,
+    /// the one point every landed page passes) by exactly the pages that flush recorded; it is
+    /// read through the credited-pages definition the snapshot, the departure retirement, the
+    /// run-exit freeze and the D-G7-01 withdrawal all share; and it is retired when the run ends,
+    /// at `processDownload`'s `defer`, the one point every exit of a run passes through.
     ///
-    /// **Why the PAGE NUMBERS rather than a count.** The decrement has to be exact in both
-    /// directions, and a count cannot be. A page can reach a flush twice — a retry re-records a hash
-    /// the previous flush already wrote — and a flush can carry pages this run never owed, because
-    /// `initializePageDownloadState` flushes the pages the working folder RESTORED, which are by
-    /// construction the complement of the pending list. Subtracting a set is idempotent on the first
-    /// and a no-op on the second; subtracting a count over-credits on both.
-    ///
-    /// **The lifetime rule, stated as a rule rather than as a site count.** An entry is recorded at
-    /// the run's own preparation when that run's pending page list is non-empty; it shrinks at every
-    /// manifest page flush by exactly the pages that flush recorded; it is read by every session
-    /// start, which seeds `observedIncompleteSessionGIDs` from its keys, and by the credited-pages
-    /// definition both the snapshot and the departure retirement read; and it is retired when that
-    /// run ends, at `processDownload`'s `defer`, which is the one point every exit of a run passes
-    /// through.
-    ///
-    /// **Why a session boundary is not a run boundary.** The proof is a fact about the RUN — this
-    /// gallery's files cannot supply the pages this run was asked for — and nothing about a session
-    /// starting or ending makes it less true. Storing it in the session-scoped set alone lost it on
-    /// two orderings production reaches (G-15-26): an `.unavailable` teardown, whose arm ends the
-    /// session and leaves the queue running foreground-only, so an in-flight repair kept running with
-    /// its trust erased; and a run that started before any session existed at all, because the live
-    /// client resumes the persisted queue at launch and D-07 forbids that path from starting one. In
-    /// both, a complete-reading repair contributed zero for an entire N-page re-download — G-15-23's
-    /// card, reached through the orderings its own fix did not cover, and the maximally stalled
-    /// reading D-11's expiration policy punishes by pausing every schedulable download.
+    /// **Why a session boundary is not a run boundary (G-15-26).** The measurement is a fact about
+    /// the RUN, and nothing about a session starting or ending makes it less true. Session-scoping
+    /// its predecessor lost it on two orderings production reaches: an `.unavailable` teardown,
+    /// whose arm ends the session and leaves the queue running foreground-only, and a run started
+    /// before any session existed, because the live client resumes the persisted queue at launch
+    /// and D-07 forbids that path from starting one. In both, an in-flight repair went uncredited
+    /// for an entire re-download — the maximally stalled reading D-11's expiration policy punishes
+    /// by pausing every schedulable download.
     ///
     /// **Why the retirement is not optional.** Keyed by gallery id and never retired, an entry
-    /// re-credits the NEXT redo of the same gallery, whose pages are that redo's target rather than
-    /// any session's progress — D-G4-01's ceiling defect reached from the other side. The retirement
-    /// is gated on this run still owning the gallery's active slot, so a superseded predecessor
-    /// cannot drop a live successor's proof. It also withdraws the SESSION trust this proof granted,
-    /// and freezes the run's final credited basis first; both are derived on `retireProvenPageWork`.
+    /// would credit the NEXT redo of the same gallery with a finished predecessor's arithmetic.
+    /// The retirement is gated on the run still owning the gallery's active slot, so a superseded
+    /// predecessor cannot drop a live successor's measurement, and it freezes the run's final
+    /// credited count first; both are derived on `retireRunProgressBasis`.
     ///
-    /// Not session-scoped, deliberately, and the two clears that make the set above session-scoped
-    /// must never be extended to this one. `DownloadSourceInventoryTests` owns that: it counts every
-    /// site naming this property and fails the build when one is added, which is what a comment
-    /// asking to be believed could not do.
-    var provenPageWorkRunPageDebts = [String: Set<Int>]()
+    /// Not session-scoped, deliberately, and the clears that scope the set above must never be
+    /// extended to this map. `DownloadSourceInventoryTests` owns the site census that keeps this
+    /// lifetime honest, which is what a comment asking to be believed could not do.
+    var runProgressBases = [String: RunProgressBasis]()
 
     public init(
         storage: DownloadStore,
