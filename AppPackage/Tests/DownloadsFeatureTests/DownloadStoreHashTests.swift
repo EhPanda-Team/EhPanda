@@ -28,7 +28,7 @@ struct DownloadStoreHashTests {
     }
 
     @Test
-    func testRefreshManifestPageFileHashUpdatesSinglePageHash() throws {
+    func testRefreshManifestPageFileHashesUpdatesOnlyTheHandedPages() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -42,9 +42,9 @@ struct DownloadStoreHashTests {
         try storage.writeManifest(manifest, folderURL: folderURL)
         try Data([0x03]).write(to: pageTwoURL, options: .atomic)
 
-        let refreshedManifest = try storage.refreshManifestPageFileHash(
+        let refreshedManifest = try storage.refreshManifestPageFileHashes(
             folderURL: folderURL,
-            pageIndex: 2
+            pageRelativePaths: [2: "123_token_2.jpg"]
         )
 
         #expect(refreshedManifest.pages[1] == manifest.pages[1])
