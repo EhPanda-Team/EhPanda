@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 53/53 plans executed
+**Plans**: 57 plans — 54 executed, 3 pending (gap closure round 19: 15-55 G-15-2C, 15-56/15-57 G-15-5)
 
 Plans:
 
@@ -1016,6 +1016,18 @@ Plans:
 **Wave 49** *(gap closure round 15, verification warning G-15-29 — blocked on 15-48 by file overlap on DownloadSourceInventoryTests.swift, whose scan scope this plan widens, which changes what every census in that file counts)*
 
 - [x] 15-49-PLAN.md — Close the round-14 hygiene group and own the claim that has now been wrong six rounds running: the retired single-authority sentence survives in TWO test docs where 15-44's Sources-scoped census structurally cannot see it, so both are rewritten from a fresh caller enumeration and the census scan is widened to the downloads test target with a fragment-assembled prose assertion — every pre-existing per-file table and joined total re-derived under the new scoping and asserted unchanged, so the widening cannot silently re-baseline three claims while owning one; plus the page-progress counter 15-45's own prefix removal left dead (deleted at its root after a repository-wide reader derivation, its guard restated on the results collection) and the spy's unreadable parked-update field decided expose-or-delete with the criterion recorded
+
+**Wave 55** *(gap closure round 19, UAT gap G-15-2C — blocked on 15-54 by round continuity from the round-18 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
+
+- [ ] 15-55-PLAN.md — Change the pushed gallery count's basis to the denominator's coverage (D-G2C-01): live schedulable galleries plus departed galleries whose positive retirement contributed pages to Y, computed by one shared helper after the ledger reconcile and used by both subtitle writers — the diagnosis proved the 15-22 terminal push fires correctly on every drain route and the system card still renders the prior frame, so the render-race dependency is removed rather than raced harder; the D-G2-01 count contract rewritten, every coordinator-computed subtitle pin across ten suites recomputed from the rule (rewritten, never supplemented) with the zero-retirement boundary pinned from both sides, and client pass-through fixtures classified rather than edited
+
+**Wave 56** *(gap closure round 19, UAT gap G-15-5 root fix — blocked on 15-55 by xcodebuild serialization)*
+
+- [ ] 15-56-PLAN.md — Make a missingFiles validation verdict durable (D-G5B-01): validateImageData runs the same D-G5-01 positive-signal blanking loop a repair's seed preparation runs, inside the same counted-basis bracket, so the record honestly reads incomplete, validationErrors clears on the durable arm (it outranks everything in displayStatus — the diagnosis's hazard), Resume enables through the existing gates, resumeMode resolves .repair, and the state survives relaunch with both count bases converged; the refusal family (failed scan / wholesale-blank guard) keeps the transient error surface deliberately with its residuals dispositioned, and the piecewise suite crosses the durable/refusal boundary with relaunch and the validate-to-queued-repair arc pinned on production entry points
+
+**Wave 57** *(gap closure round 19, UAT gap G-15-5 affordance + predicate sweep — blocked on 15-56: the widened retry exists FOR the refusal family 15-56 leaves on the .error surface, and xcodebuild serialization)*
+
+- [ ] 15-57-PLAN.md — Give the refusal family its start and sweep the predicates the diagnosis named: the inspector retry basis widens to failed-plus-pending exactly for the .error/fileOperationFailed shape (D-G5C-01, one computed basis feeding both gate and send, routed into the existing retryPages whose enqueue clears the transient error — asserted .queued on the production path), Detail's downloadNeedsRepair reads record honesty (completedPageCount < pageCount, D-G5D-01) so a mid-run file failure with landed pages offers the non-destructive repair while complete-claiming records deliberately keep redownload, and the consumerless row-retry predicate is deleted with the stale basis-suite comment re-derived
 
 ### Phase 16: Dynamic Type Accessibility
 
