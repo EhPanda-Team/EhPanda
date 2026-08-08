@@ -153,7 +153,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         // The dip sits between the START pair and the first push, never between two pushes, so the
         // series property the scheduler reads is intact across the whole correction.
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
     }
 
@@ -248,7 +248,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 
     /// WR-01: the gallery that is actually downloading must stay in the card's numerator, its
@@ -507,7 +507,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         // The dip sits between the START pair and the first push, never between two pushes, so the
         // series property the scheduler reads is intact across the whole movement.
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 
     /// The same movement on the `.update` arm, over a gallery this session has already observed.
@@ -676,7 +676,7 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(terminalPair.subtitle == "8 / 8 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 }
 

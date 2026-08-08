@@ -76,7 +76,7 @@ extension DownloadContinuedSessionLedgerTests {
     /// the retirement folds those pages into both sides at the drain, so the LAST push before it
     /// already reads six of six over one gallery. That is a fact about where this staging puts its
     /// final flush, not a property of the family, and pinning it would pin the staging.
-    /// `expectTheCompletedSeriesNeverRewinds` is asserted instead, and the climb it guards is
+    /// `expectTheCompletedSeriesNeverLosesGround` is asserted instead, and the climb it guards is
     /// asserted directly by the intermediate reading below.
     ///
     /// The departure half of the family — the ceiling being retired for a repair that did NOT
@@ -190,7 +190,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 
     /// The same starvation reached through the DIRECTORY-level refusal, which is the exit no amount
@@ -312,7 +312,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(terminalPair.subtitle == "6 / 6 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 
     /// G-15-27: a selected-page retry whose selected page is already present fetches NOTHING, and
@@ -528,7 +528,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(terminalPair.subtitle == "2 / 2 pages · 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
-        expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
+        expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
 
     /// The binding between what `makeRetriedPagesPayload` feeds a payload and what the route

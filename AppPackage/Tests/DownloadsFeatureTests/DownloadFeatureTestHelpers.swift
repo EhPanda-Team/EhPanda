@@ -619,17 +619,72 @@ extension DownloadFeatureTestCase {
         #expect(drain.completedUnitCount == drain.totalUnitCount)
     }
 
-    /// The numerator never goes backwards, whatever else moved.
+    /// The numerator never loses ground: it climbs, except for at most one dip that the very next
+    /// push repaints.
     ///
-    /// Written over adjacent pairs rather than as a comparison of the first and last update: a
-    /// rewind that is later recovered is still a rewind, and it is exactly what the scheduler reads
-    /// as a task losing ground.
-    func expectTheCompletedSeriesNeverRewinds(
+    /// **Why this is not the strict never-rewinds assertion it used to be.** The coordinator
+    /// computes a push's pair and latches the monotonic floor in one synchronous same-actor
+    /// stretch, so the COMPUTED series only climbs inside a single accounting-basis regime. What no
+    /// coordinator state can order is DELIVERY: the push's one suspension is the client seam's
+    /// main-actor hop, two pushes can be in flight across it at once, and the seam resolves
+    /// OWNERSHIP there — its identity guard — rather than order. So the recorded series can hold one
+    /// displaced observation, which is the drain doc's accepted "one stale-shaped push"
+    /// (`pushContinuedSessionProgress`, `DownloadClient+ContinuedSession.swift`, whose seam-ordering
+    /// paragraph also records why serializing the seam was rejected rather than adopted). An
+    /// assertion stricter than the production guarantee does not guard the guarantee; it generates
+    /// flakes, which is how a 5-to-0 inversion was once recorded here under scheduling perturbation
+    /// with nothing wrong in source.
+    ///
+    /// **What still fails, which is everything the scheduler actually punishes.** A dip no later
+    /// push repaints, a second dip anywhere in the series, and a dip in the final position all read
+    /// as a task losing ground — and the scheduler force-expires the tasks reporting the least
+    /// progress. Only a single dip whose next observation restores at least the pre-dip value is
+    /// accepted, because that is precisely the shape a displaced push has and the shape the next
+    /// convergence repaints.
+    ///
+    /// **This tolerance is NOT the excused correction, and must never be used as one.** A D-G7-01
+    /// withdrawal moves the accounting basis down on purpose, so the series crosses into a new
+    /// regime and does not climb back — that dip is never repainted and this helper rejects it, by
+    /// design. A case that stages one asserts per regime instead, which
+    /// `testAnIncompleteRefusalRepairsPushesClimbFromTheEvidence` carries the derivation for.
+    func expectTheCompletedSeriesNeverLosesGround(
         _ updates: [BackgroundProcessingClientSpy.ProgressUpdate]
     ) {
-        for (earlier, later) in zip(updates, updates.dropFirst()) {
-            #expect(earlier.completedUnitCount <= later.completedUnitCount)
+        let numerators = updates.map(\.completedUnitCount)
+        var previousNumerator: Int64?
+        var unrepaintedDip: Int64?
+        var dipCount = 0
+        for numerator in numerators {
+            if let pending = unrepaintedDip {
+                #expect(
+                    numerator >= pending,
+                    """
+                    A dip the next push did not repaint is lost ground rather than a displaced \
+                    push: \(numerators).
+                    """
+                )
+            }
+            unrepaintedDip = nil
+            if let previousNumerator, numerator < previousNumerator {
+                dipCount += 1
+                unrepaintedDip = previousNumerator
+            }
+            previousNumerator = numerator
         }
+        #expect(
+            dipCount <= 1,
+            """
+            One displaced push is the seam's accepted transient; a second is a numerator that \
+            keeps losing ground: \(numerators).
+            """
+        )
+        #expect(
+            unrepaintedDip == nil,
+            """
+            The series ends on a dip, so nothing repaints it and the card keeps the stale \
+            numerator: \(numerators).
+            """
+        )
     }
 
     func firstPushedPair(
