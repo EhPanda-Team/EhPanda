@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 15-continued-background-downloads
-source: [15-VERIFICATION.md]
+source: [15-VERIFICATION.md, 15-54-SUMMARY.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-04T08:35:00Z
+updated: 2026-08-08T09:55:33Z
 ---
 
 ## Current Test
@@ -24,36 +24,59 @@ result: pass
 
 ### 2. System progress card renders real progress and its cancel matches the in-app pause baseline
 
-test: Observe the system progress card during that run, then cancel from the card, foreground, and
-compare queue state against pausing each gallery by hand.
-expected: One neutral card with real, monotonically advancing counts; card-cancel state matches the
-in-app per-gallery pause baseline.
+test: Observe the system progress card across a multi-gallery queue — including a `.repair`
+re-download — then cancel from the card, foreground, and compare queue state against pausing each
+gallery by hand.
+expected: One neutral card whose counts advance with real work and never fall back within a
+reporting regime; the subtitle names the galleries that actually remain, reaching zero when the
+queue drains; a repair of a gallery whose files were deleted outside the app climbs from its
+announce rather than freezing at the record's stale claim; card-cancel state matches the in-app
+per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
 result: issue
-reported: "it now doesn't complete the background task when one of the tasks finished, but still the notification description updated to \"1 gallery\" when both completed"
+reported: "After both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
 severity: major
-retest_outcome: |
-  Retest confirms the session-liveness half of G-15-2 is fixed on device: the continued-processing
-  session no longer finishes when the first gallery of the queue completes. The subtitle half is
-  NOT fixed — with two galleries queued, the card's description still reads "1 gallery" once both
-  have completed, instead of describing zero remaining schedulable galleries (or the card ending).
-  Recorded as a new, narrowed gap G-15-2B; G-15-2 is closed as partially resolved.
+retest_round_3_result: issue
+retest_round_3_reported: "After both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
+retest_round_3_severity: major
+user_hypothesis: |
+  The gallery count is derived from the current active queue membership rather than the same
+  cumulative session basis as totalUnitCount. If totalUnitCount Y represents pages from Z
+  galleries, the subtitle should display Z galleries, including galleries that already completed.
+retest_round: 3
 retest_reason: |
-  G-15-2's fix landed in plans 15-20 and 15-21 (commits 425b5a8b, 925669bf, b76c310c, 00bfd9ad).
-  The accounting basis was replaced with a session-scoped retirement ledger, so this item needs a
-  fresh device run. Deterministic in tests; the card itself is system-rendered and has already
-  surprised this phase once, so 15-VERIFICATION.md holds SC2 at present-behavior-unverified until
-  a device confirms it.
+  Both gaps this test produced are now closed in code. G-15-2's liveness clause was confirmed on
+  device at the round-2 retest; G-15-2B (the stale "1 gallery" subtitle at drain) was closed by
+  plan 15-22's terminal push and is reconciled resolved above. Since that retest the phase ran
+  rounds 9-18 of gap closure over the same surface, ending in plan 15-54's numerator REDESIGN
+  (commits a6105b0b, d155236a, 5df56a8e, d4d568c6): the fraction the card shows is no longer
+  inferred from the on-disk index record and corrected, it is measured by a run-owned
+  `RunProgressBasis`. That changes what this run should observe (see expected), so the previous
+  device observation does not carry forward. Deterministic in tests — 888/0 green, 374 in the
+  downloads target — but the card is system-rendered and has surprised this phase twice, and
+  15-VERIFICATION.md holds SC2 at failed until a device says otherwise.
 retest_steps: |
-  Queue several galleries, background the app, and watch the card across the first gallery's
-  completion (counts must keep advancing, subtitle must keep naming the remaining galleries),
-  then pause one gallery mid-queue and confirm the card can still reach completion. Finally
-  cancel from the card and compare against the in-app per-gallery pause baseline.
-prior_result: issue
-prior_reported: "pass but please note the following issue: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
-prior_severity: major
-note: "Card rendering (one neutral card, monotonically advancing counts) and card-cancel parity with the in-app pause baseline were observed to match on the first run; the defect was the session ending early on first-gallery completion."
+  1. Queue at least two galleries, start in the foreground, then background the app.
+  2. Watch the card across the FIRST gallery's completion: counts keep advancing, subtitle keeps
+     naming the galleries that actually remain.
+  3. Watch the card as the LAST gallery completes: the final subtitle must describe zero remaining
+     galleries (e.g. "N / N pages · 0 galleries"), not a leftover "1 gallery".
+  4. Exercise a re-download of a gallery whose files were deleted outside the app (Files.app) while
+     its record still claims pages — the `.repair` route. The progress series must CLIMB from the
+     announce; it must not sit frozen at the record's old claim.
+  5. Pause one gallery mid-queue and confirm the card can still reach completion.
+  6. Cancel from the card, foreground, and compare queue state against pausing each gallery by hand.
+prior_round_2_result: issue
+prior_round_2_reported: "it now doesn't complete the background task when one of the tasks finished, but still the notification description updated to \"1 gallery\" when both completed"
+prior_round_2_severity: major
+prior_round_2_outcome: |
+  Liveness half of G-15-2 confirmed fixed on device: the session no longer finishes when the first
+  gallery of the queue completes. Subtitle half still failing — narrowed to G-15-2B.
+prior_round_1_result: issue
+prior_round_1_reported: "pass but please note the following issue: when there are multiple galleries and one of them finished earlier than others, the background task report completion and the description become \"1 gallery\" only. leaving other tasks in active status but probably not continuing in background."
+prior_round_1_severity: major
+note: "Card rendering (one neutral card) and card-cancel parity with the in-app pause baseline matched on the round-1 run; every defect since has been in the numbers and the subtitle, not the affordance."
 
 ### 3. Refusal, indefinite queuing, expiration and process death lose no work and show no error
 
@@ -76,11 +99,34 @@ what the system actually persists.
 covers: Privacy gate (gap C closure)
 result: pass
 
+### 5. Repair progress climbs from the current run's measured work
+
+test: Delete files outside the app while a completed gallery's persisted record still claims
+those pages, trigger its `.repair` re-download, background the app, and observe the system card.
+expected: The progress series climbs from the current run's measured starting point instead of
+freezing at the persisted record's stale completed-page claim.
+why_human: The continued-processing card is system-owned and does not render in the simulator.
+covers: SC2 repair progress
+result: issue
+reported: "After Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were both disabled, and no Resume or other action was available to start the repair download. After relaunching the app, the yellow missing-page state disappeared and the page count displayed 36 / 36 even though 10 pages remained pending, leaving the persisted and displayed state inconsistent."
+severity: major
+
+### 6. Pause and system-card cancellation converge on the in-app baseline
+
+test: During a multi-gallery queue, pause one gallery in the app and confirm the remaining work
+can finish. Start another queue, cancel from the system card, foreground the app, and compare its
+queue state with pausing every gallery individually in the app.
+expected: Pausing one gallery does not strand the remaining session; cancelling from the system
+card leaves the same queue state as the in-app per-gallery pause baseline.
+why_human: The system-owned cancel affordance does not fire in the simulator.
+covers: SC2 pause and cancel parity
+result: pass
+
 ## Summary
 
-total: 4
-passed: 3
-issues: 1
+total: 6
+passed: 4
+issues: 2
 pending: 0
 skipped: 0
 blocked: 0
@@ -130,7 +176,16 @@ blocked: 0
 
 - gap_id: G-15-2B
   truth: "When the queue drains, the card's subtitle describes the galleries that actually remain schedulable — it must not report a leftover gallery once every queued gallery has completed."
-  status: failed
+  status: resolved
+  resolved_by: 15-22-PLAN.md
+  resolved_at: 2026-08-08
+  resolution_note: |
+    Plan 15-22 (`gap_ids: [G-15-2B]`) added the terminal push to the drain branch of
+    `reconcileContinuedSession` and executed to a matching 15-22-SUMMARY.md. Reconciled here on
+    resume per the gap-closure protocol. NOT independently re-observed on a device — test 2 below
+    is the confirming run, and its expectation has since been widened by the round-18 redesign.
+    The push itself was subsequently hardened across rounds 9-18 (15-23 made the drain re-check
+    drain-ness rather than session identity; 15-54 replaced the numerator basis the push reports).
   reason: "User reported: it now doesn't complete the background task when one of the tasks finished, but still the notification description updated to \"1 gallery\" when both completed"
   severity: major
   test: 2
@@ -195,3 +250,39 @@ blocked: 0
     fraction is session-cumulative while the count is live-only — so a mid-run read is e.g.
     "16 / 20 pages · 1 gallery" where the 20 spans three galleries. Documented as deliberate.
   debug_session: ".planning/debug/continued-session-subtitle-stuck-at-one-gallery.md"
+
+- gap_id: G-15-2C
+  truth: "The gallery count displayed beside X / Y pages equals the number of galleries whose pages are represented by denominator Y, including galleries that already completed during the session."
+  status: failed
+  reason: "User reported: after both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
+  severity: major
+  test: 2
+  user_hypothesis: "The subtitle count uses live queue membership while totalUnitCount uses a cumulative session basis; both should use the same gallery coverage basis."
+  artifacts: []
+  missing: []
+
+- gap_id: G-15-5
+  truth: "After validation marks missing image files as pending, the user can immediately start a repair download, and the missing-page indicator, displayed page count, and persisted pending-page state remain consistent across relaunch."
+  status: failed
+  reason: "User reported: after Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were disabled and no Resume or other repair-start action was available. After relaunch, the yellow missing state disappeared and the UI displayed 36 / 36 while 10 pages were still pending."
+  severity: major
+  test: 5
+  artifacts: []
+  missing: []
+
+## Deferred Follow-Ups
+
+- test: 6
+  idea: "Rename the logs folder so its displayed name begins with an uppercase letter."
+  scope: out_of_scope
+  deferred_at: 2026-08-08
+
+- test: 6
+  idea: |
+    Keep a DownloadsView gallery row's swipe-action offset in place while its deletion alert is
+    presented. Cancelling should return the row to its resting position; confirming deletion
+    should continue the row in the swipe direction and remove it. Eliminate the current
+    disappear-reappear-disappear sequence in which the row vanishes when the alert appears,
+    returns while awaiting confirmation, and vanishes again only after Delete is confirmed.
+  scope: out_of_scope
+  deferred_at: 2026-08-08
