@@ -261,7 +261,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
 
         #expect(spy.finishCount == 1)
         #expect(spy.finishSuccesses == [true])
-        #expect(spy.progressUpdates.last?.subtitle == "1 / 1 page · 0 galleries")
+        #expect(spy.progressUpdates.last?.subtitle == "1 / 1 page · 1 gallery")
         #expect(!(await fixture.manager.testingHasContinuedSession()))
 
         // D-07: the next queue-mobilizing moment starts a fresh session rather than folding into
@@ -275,9 +275,14 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         #expect(spy.finishSuccesses == [true, true])
         // One terminal string per drained session, and the same one both times: the single page
         // this gallery finished retires, and its four unfinished pages leave with the departure.
+        // That retirement is what the gallery count reports too — a retirement above zero keeps the
+        // gallery represented by the denominator it contributed to, so each drained session names
+        // the one gallery its single page belongs to (D-G2C-01). Both sessions read the same
+        // because the second is a fresh one whose ledger opens empty and whose entire Y is that one
+        // persisted-complete page, retired again by its own pause-drain.
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "1 / 1 page · 0 galleries",
-            "1 / 1 page · 0 galleries"
+            "1 / 1 page · 1 gallery",
+            "1 / 1 page · 1 gallery"
         ])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await fixture.manager.testingHasContinuedSession()))

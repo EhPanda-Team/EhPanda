@@ -233,6 +233,11 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(spy.finishSuccesses == [true])
         // The card's last word. Its denominator is `displayPageCount`'s one-page floor rather than
         // a page count: the gallery finished nothing before the pause, so it retired nothing.
+        //
+        // Zero galleries for the same reason, and this is the zero side of D-G2C-01's boundary: a
+        // retirement of zero pages puts nothing of that gallery into Y, so nothing of it is
+        // counted. The positive side is `testCancellingTheLastQueuedWorkItemCompletesTheSession`
+        // in the expiration suite, where the one page the gallery did finish keeps it named.
         #expect(spy.progressUpdates.count == 1)
         #expect(spy.progressUpdates.last?.subtitle == "0 / 1 page · 0 galleries")
         #expect(spy.rejectedProgressUpdates.isEmpty)
@@ -356,6 +361,12 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// left the numerator and the denominator at once, the floor held the numerator up, and the
     /// total clamp lifted the denominator to meet it — an exact 100% card with four pages still to
     /// fetch.
+    ///
+    /// The gallery count survives the boundary too, and this is the exact frame the device
+    /// complaint was made about: a two-gallery run must go on reading two galleries after the first
+    /// one finishes, because its ten pages are still ten of the fourteen the denominator reports.
+    /// **D-G2C-01** counts the denominator's coverage, so a completion moves the numerator and
+    /// nothing else — a count dropping to one here would describe a queue the fraction does not.
     @Test
     func testACompletedGalleryHoldsTheTotalAndAdvancesTheCount() async throws {
         let leavingGID = "210030"
@@ -400,7 +411,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(secondUpdate.completedUnitCount < secondUpdate.totalUnitCount)
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "6 / 14 pages · 2 galleries",
-            "10 / 14 pages · 1 gallery"
+            "10 / 14 pages · 2 galleries"
         ])
     }
 
@@ -449,6 +460,12 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// pushed `2 / 2 pages`, a full card with two thirds of the work never done, so the case now
     /// fails on the pre-fix code instead of passing verbatim on it.
     ///
+    /// Those six retired pages are also the whole of Y, so the drained card names one gallery
+    /// rather than none (**D-G2C-01**). It is the positive-retirement side of the boundary read on
+    /// a completion; the zero-retirement side is
+    /// `testDrainingTheQueueCompletesTheSessionWithSuccess` above, where the gallery finished
+    /// nothing and drains to `0 galleries`.
+    ///
     /// A genuinely zero denominator — a session outliving work nobody finished at all — is reached
     /// under the ledger only when the departing gallery finished no pages, so that guard is not
     /// lost but moved: `DownloadContinuedSessionLedgerTests` supplies it.
@@ -488,7 +505,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(update.totalUnitCount == 6)
         #expect(spy.progressUpdates.map(\.subtitle) == [
             "2 / 6 pages · 1 gallery",
-            "6 / 6 pages · 0 galleries"
+            "6 / 6 pages · 1 gallery"
         ])
         #expect(spy.finishSuccesses == [true])
     }

@@ -836,18 +836,29 @@ extension DownloadContinuedSessionLedgerTests {
         // The run's own exit, taken through production.
         await manager.processDownload(gid: abandoned.gid)
         #expect(await manager.fetchDownload(gid: abandoned.gid)?.lastError != nil)
-        // Waited on a MONOTONE production observation rather than on active-task quiescence: the
-        // exit's own convergence reschedules the surviving gallery, so the active slot legitimately
-        // flickers here and a quiescence poll can read it true and false in the same breath. The
-        // gallery count crossing to one is the departure this case needs, and it only crosses once.
+        // Waited on a production observation rather than on active-task quiescence: the exit's own
+        // convergence reschedules the surviving gallery, so the active slot legitimately flickers
+        // here and a quiescence poll can read it true and false in the same breath.
+        //
+        // The awaited event is the first `pushContinuedSessionProgress` issued after the failed run
+        // exits — the push whose membership sweep retires this gallery's frozen two-page credit and
+        // drops the four observed pages it never fetched. The DENOMINATOR is what that crossing
+        // moves: 16 becomes 2 retired plus the keeper's 10, so 12, and no earlier push can read 12.
+        // The gallery COUNT is deliberately not waited on: under D-G2C-01 a departure that retires
+        // a positive count keeps its gallery named, so the count holds at two straight through this
+        // departure and would satisfy a count-keyed barrier on entry without observing anything.
         try await waitUntil {
-            spy.progressUpdates.last?.subtitle.hasSuffix("· 1 gallery") == true
+            spy.progressUpdates.last?.subtitle.contains("/ 12 pages") == true
         }
 
         // Back in the queue, through the product's own tap, inside the SAME session.
         try await manager.retry(gid: abandoned.gid, mode: .repair).get()
+        // The mirror crossing, and a barrier rather than a subject: the enqueue-side reconcile drops
+        // the ledger entry and resumes counting the gallery live, restoring Y to 16. Fresh because
+        // the last update reads 12 when this wait begins. Without it the final pair below could be
+        // read off the departure frame.
         try await waitUntil {
-            spy.progressUpdates.last?.subtitle.hasSuffix("· 2 galleries") == true
+            spy.progressUpdates.last?.subtitle.contains("/ 16 pages") == true
         }
         #expect(spy.startCount == 1)
         #expect(await manager.fetchDownload(gid: abandoned.gid)?.completedPageCount == 6)
