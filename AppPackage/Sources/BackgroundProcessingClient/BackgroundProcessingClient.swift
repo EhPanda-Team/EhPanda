@@ -90,9 +90,28 @@ extension BackgroundProcessingClient {
 
 // MARK: Test
 extension BackgroundProcessingClient {
+    /// Answers every start with a refusal and every later call with nothing — the client a
+    /// coordinator without a real background surface runs against.
+    ///
+    /// **Why all three closures suspend before they do anything.** The live value forwards onto
+    /// `ContinuedProcessingSession`, a `@MainActor` type, so every endpoint hops off the calling
+    /// actor — and while a call is over there the coordinator's actor is reentrant. A double that
+    /// answers synchronously does not merely run faster; it certifies that window as impossible,
+    /// and this value is the DEFAULT client of `DownloadCoordinator.init`, so an atomic form here
+    /// silently certified it across most of the downloads suite (G-15-36). The suspensions mirror
+    /// the hand-built doubles in the test target rather than inventing a second convention, and
+    /// `DownloadSourceInventoryTests` counts them alongside those doubles' — a closure that stops
+    /// yielding fails a build.
     public static let noop = Self(
-        start: { _, _, _, _ in nil },
-        updateProgress: { _, _, _, _ in },
-        finish: { _, _ in }
+        start: { _, _, _, _ in
+            await Task.yield()
+            return nil
+        },
+        updateProgress: { _, _, _, _ in
+            await Task.yield()
+        },
+        finish: { _, _ in
+            await Task.yield()
+        }
     )
 }
