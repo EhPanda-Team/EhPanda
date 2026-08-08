@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 53/53 | In Progress|  |
+| 15. Continued Background Downloads | 55/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 60 plans — 54 executed, 6 pending (gap closure round 19: 15-55 G-15-2C, 15-56/15-57 G-15-5; round 19b owner-decided SSOT design extension: 15-58/15-59/15-60 G-15-SSOT)
+**Plans**: 60 plans — 55 executed, 5 pending (gap closure round 19: 15-56/15-57 G-15-5; round 19b owner-decided SSOT design extension: 15-58/15-59/15-60 G-15-SSOT)
 
 Plans:
 
@@ -820,6 +820,8 @@ Plans:
 - [x] 15-51-PLAN.md
 - [x] 15-52-PLAN.md
 - [x] 15-53-PLAN.md
+- [x] 15-54-PLAN.md
+- [x] 15-55-PLAN.md
 
 **Wave 1**
 
@@ -1019,7 +1021,7 @@ Plans:
 
 **Wave 55** *(gap closure round 19, UAT gap G-15-2C — blocked on 15-54 by round continuity from the round-18 HEAD and xcodebuild serialization; invocations must never overlap on this machine)*
 
-- [ ] 15-55-PLAN.md — Change the pushed gallery count's basis to the denominator's coverage (D-G2C-01): live schedulable galleries plus departed galleries whose positive retirement contributed pages to Y, computed by one shared helper after the ledger reconcile and used by both subtitle writers — the diagnosis proved the 15-22 terminal push fires correctly on every drain route and the system card still renders the prior frame, so the render-race dependency is removed rather than raced harder; the D-G2-01 count contract rewritten, every coordinator-computed subtitle pin across ten suites recomputed from the rule (rewritten, never supplemented) with the zero-retirement boundary pinned from both sides, and client pass-through fixtures classified rather than edited
+- [x] 15-55-PLAN.md — Change the pushed gallery count's basis to the denominator's coverage (D-G2C-01): live schedulable galleries plus departed galleries whose positive retirement contributed pages to Y, computed by one shared helper after the ledger reconcile and used by both subtitle writers — the diagnosis proved the 15-22 terminal push fires correctly on every drain route and the system card still renders the prior frame, so the render-race dependency is removed rather than raced harder; the D-G2-01 count contract rewritten, every coordinator-computed subtitle pin across ten suites recomputed from the rule (rewritten, never supplemented) with the zero-retirement boundary pinned from both sides, and client pass-through fixtures classified rather than edited
 
 **Wave 56** *(gap closure round 19, UAT gap G-15-5 root fix — blocked on 15-55 by xcodebuild serialization)*
 
