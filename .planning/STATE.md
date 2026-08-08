@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 15
 current_phase_name: continued-background-downloads
 status: verifying
-stopped_at: Completed 15-53-PLAN.md
-last_updated: "2026-08-06T17:48:18.763Z"
-last_activity: 2026-08-07
-last_activity_desc: 15-53 executed — G-15-33 closed, phase 15 plans complete
+stopped_at: Completed 15-54-PLAN.md (round-18 numerator redesign executed)
+last_updated: "2026-08-08T05:23:58.000Z"
+last_activity: 2026-08-08
+last_activity_desc: 15-54 redesign executed — G-15-34..38 fixes landed, verification pending
 progress:
   total_phases: 16
   completed_phases: 14
-  total_plans: 224
-  completed_plans: 224
+  total_plans: 225
+  completed_plans: 225
   percent: 88
 ---
 
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — GAPS FOUND (round 17 executed and verified)
-Plan: 53 of 53
-Status: NOT complete — verification scored 3/4 must-haves; 5 gaps open (1 blocker, 4 warnings)
-Last activity: 2026-08-07 — round 17 (15-50..53) executed, code review + verification run
-Next: /gsd-plan-phase 15 --gaps — round 17 closed all four of its own gaps (G-15-30 at fc48fe82; G-15-31 at eb0f8b1e; G-15-32 at 99e8ea74; G-15-33 at 4902ce48 + 87167590) and the full suite is 887/0, but the post-round review and verification opened FIVE new gaps, all recorded OPEN in 15-VERIFICATION.md's `gaps:` frontmatter. (1) **G-15-34 (BLOCKER), introduced by 15-50 itself** — `sessionCreditedPages` (DownloadClient+ContinuedSession.swift:232-236) subtracts the run's page debt only on the complete-reading branch, so the guard makes the function piecewise and non-monotonic: for a debt of 2 or more, f(N-1)=N-1 exceeds f(N)=N-d, the credited count DROPS at the moment the record completes, and the monotonic floor then absorbs every later push. The doc at :220-226 argues monotonicity from `max(x - owed, 0)`, which holds for that expression alone but not for the guarded function actually written. Verification scored it against SC2, not SC1: the freeze sits HIGH (N-1 of N) and the scheduler expires the LEAST-progressing tasks, so unlike the pinned-zero family it does not reach SC1. Production route is the third refusal exit (+ExecutionSupport.swift:663) — deleting a PARTIALLY downloaded gallery's files via the Files app. The suite misses it because every refusal ledger/run-proof case uses a complete-reading record, so no crossover occurs. (2) G-15-35 — `performCacheCapture` (+PublicAPI.swift:341-345) writes a page hash and re-indexes without lowering the debt, falsifying flushManifestPageProgress's "single point every landed page passes" premise. (3) G-15-36 — `BackgroundProcessingClient.noop` is atomic at all three endpoints and is the default client of DownloadCoordinator.init and makeBlockingCoordinator, yet 15-52's timing census excludes it. (4) G-15-37 — 15-SECURITY.md T-15-09 (severity high) still records the per-session-UUID mitigation that 15-51 deleted. (5) G-15-38 — `landPageFiles` duplicates 15-50's shared `pageResults` helper verbatim. STILL OPEN independently of the above: 15-UAT.md test 2 needs its physical-device iOS 26 re-run covering the `.redownload` route and a `.repair` gallery in a multi-gallery queue; 15-48's overlapping-run gating is restated in a doc and owned by no test; no device run has exercised a reused task identifier's second submission (15-51). Doc-hygiene residue: the round-16 false-premise quotation is gone from the rewritten 15-REVIEW.md, but G-15-33's historical gap record in 15-VERIFICATION.md still carries it. One xcodebuild test invocation at a time on this machine
+Phase: 15 (continued-background-downloads) — ROUND-18 FIXES LANDED (verification pending)
+Plan: 54 of 54
+Status: NOT complete — round-18's five gaps (G-15-34 blocker..G-15-38) all have landed fixes; 15-VERIFICATION.md's `gaps:` frontmatter still records them OPEN until the next verification round scores the redesign
+Last activity: 2026-08-08 — 15-54 executed: the numerator REDESIGN that closes the gap-closure loop at its generator
+Next: verification round 18 (code review + /gsd-verify-phase 15) over the redesign. Root cause of the rounds-8..17 loop, per the owner-commissioned investigation: the session numerator was INFERRED from the index record (a reading of cumulative disk state, not of session progress) and then patched with a correction tower — trust set (G-15-23), run-owned proof (G-15-26), page-debt subtraction (G-15-30), completeness guard (G-15-34) — and every correction's on/off boundary was a discontinuity that housed the next round's defect. 15-54 (design doc 15-54-PLAN.md, summary 15-54-SUMMARY.md) replaces the inference with a MEASURED run-owned numerator: `RunProgressBasis` (inheritedPages ∪ (initialPendingPages ∖ outstandingPages)), announced at preparation inside its own sibling D-G7-01 bracket, decremented only at the single flush landing point, retired at the run's exit behind the freeze; `inheritedPages` values the record's claims by the blanking loop's positive-signal evidence rule carried on WorkingSeed (scan succeeded → existing ∪ (claimed ∩ unprobed); scan failed → existing ∪ claimed; complete-reading record forfeits the run's own pending pages); `observedIncompleteSessionGIDs` purified to a true observation set; `provenPageWorkRunPageDebts` and the guarded subtraction deleted. Monotone + continuous by construction — the two properties G-15-34 demanded. Closures: G-15-34 at a6105b0b (+ new series pin testAnIncompleteRefusalRepairsPushesClimbFromTheEvidence, announce 0/6 climbing to 6/6, no rewind); G-15-35 at d155236a (performCacheCapture routes through flushManifestPageProgress, orphan store overload deleted); G-15-36 at 5df56a8e (noop suspends at all three endpoints, census walks its module); G-15-37 at d4d568c6 (T-15-09/T-15-03/trust-boundary rewritten to the per-process registeredIdentifier); G-15-38 at a6105b0b (landPageFiles delegates to pageResults). Full suite 888/0 (374 downloads target), two consecutive green runs, lint clean. STILL OPEN independently: 15-UAT.md test 2 physical-device iOS 26 re-run (.redownload + .repair in a multi-gallery queue — NOTE the expected observation changed: an incomplete-repair series now CLIMBS from the announce instead of freezing at the record's claim); 15-48's overlapping-run gating owned by no test; reused-identifier second submission (15-51) has no device observation; G-15-33's historical record still carries the round-16 false-premise quotation (historical, left). Known accepted transient: overlapping pushes can record out of order at the client seam (drain doc's "one stale-shaped push"); the series tests assert stricter than that, so an extreme-contention flake there is not a production defect (follow-up task spawned). One xcodebuild test invocation at a time on this machine
 
 Progress: [█████████░] 88% (14/16 phases)
 
@@ -280,6 +280,7 @@ Progress: [█████████░] 88% (14/16 phases)
 | Phase 15 P51 | 32min | 2 tasks | 3 files |
 | Phase 15 P52 | 38min | 2 tasks | 3 files |
 | Phase 15 P53 | 45min | 2 tasks | 3 files |
+| Phase 15 P54 | ~5h | 5 tasks | 14 files |
 
 ## Accumulated Context
 
