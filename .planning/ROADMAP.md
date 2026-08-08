@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 57 plans — 54 executed, 3 pending (gap closure round 19: 15-55 G-15-2C, 15-56/15-57 G-15-5)
+**Plans**: 60 plans — 54 executed, 6 pending (gap closure round 19: 15-55 G-15-2C, 15-56/15-57 G-15-5; round 19b owner-decided SSOT design extension: 15-58/15-59/15-60 G-15-SSOT)
 
 Plans:
 
@@ -1028,6 +1028,18 @@ Plans:
 **Wave 57** *(gap closure round 19, UAT gap G-15-5 affordance + predicate sweep — blocked on 15-56: the widened retry exists FOR the refusal family 15-56 leaves on the .error surface, and xcodebuild serialization)*
 
 - [ ] 15-57-PLAN.md — Give the refusal family its start and sweep the predicates the diagnosis named: the inspector retry basis widens to failed-plus-pending exactly for the .error/fileOperationFailed shape (D-G5C-01, one computed basis feeding both gate and send, routed into the existing retryPages whose enqueue clears the transient error — asserted .queued on the production path), Detail's downloadNeedsRepair reads record honesty (completedPageCount < pageCount, D-G5D-01) so a mid-run file failure with landed pages offers the non-destructive repair while complete-claiming records deliberately keep redownload, and the consumerless row-retry predicate is deleted with the stale basis-suite comment re-derived
+
+**Wave 58** *(gap closure round 19b, owner-decided SSOT design extension G-15-SSOT — blocked on 15-57: this plan rewrites 15-56's corrupt-in-place refusal pins and 15-57's rationale comments, and xcodebuild serialization)*
+
+- [ ] 15-58-PLAN.md — Extend the durable reconciliation with the content-evidence arm (D-SSOT-01..06): a readable file whose fresh hash mismatches its recorded hash blanks durably with the file removed under guards — removal is mandatory because the repair fetch skips pending pages whose file exists and finalize re-hashes blank-hash pages from current bytes, which would launder corruption — the wholesale irreversibility guard evaluates the combined absent∪mismatched set before any destructive step, a read failure stays a per-page hold, validationErrors becomes an exclusively operation-level contract, and the AGENTS.md invariant's stale presence-scan refusal example is revised to the new license
+
+**Wave 59** *(gap closure round 19b — blocked on 15-58: recomposes 15-57's retry basis over the shrunken refusal surface, and xcodebuild serialization)*
+
+- [ ] 15-59-PLAN.md — Derive inspector page states from the manifest instead of a live file scan (D-SSOT-07: non-empty hash → downloaded, recorded failure → failed, blank → pending; the listing survives only to resolve thumbnail fileURLs), so badge and inspector share one persisted basis by construction and pre-validate divergence shows the record's claim until Validate senses it; the operation-level-error retry basis becomes the full page set (D-SSOT-08 — manifest-derived pending is empty for the wholesale-refusal family, so the failed∪pending union would silently re-open the G-15-5 dead end), with the divergence window and the non-leak boundary pinned from both sides and every presence-state consumer swept
+
+**Wave 60** *(gap closure round 19b — blocked on 15-59: asserts properties of the state 15-55..15-59 leave behind, and xcodebuild serialization)*
+
+- [ ] 15-60-PLAN.md — The SSOT property suite (D-SSOT-09): over a reproducible generated family crossing every regime boundary, assert count-basis agreement (every displayed record-completeness quantity is the same manifest-derived function, in-session and across relaunch), derivation totality via the external-mutation probe (deleting or corrupting files outside the app moves no displayed quantity or predicate until Validate senses it), and no-dead-end (every non-terminal incomplete state reaches .queued through a driven production affordance — the property whose absence let G-15-5 ship green through 888 tests), with the run-measured session card explicitly out of scope so the round-18 redesign is not undone
 
 ### Phase 16: Dynamic Type Accessibility
 
