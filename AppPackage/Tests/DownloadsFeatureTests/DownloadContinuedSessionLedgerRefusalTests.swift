@@ -42,17 +42,14 @@ extension DownloadContinuedSessionLedgerTests {
     /// folder is more likely a shape the positive signals missed than proof that six files vanished
     /// at once. That refusal is the round-11/12/13 defence and must not move. What it costs is this
     /// case's subject: nothing blanked means nothing republished, so the record goes on reading
-    /// 6-of-6 and `isIncomplete` stays false — so every SNAPSHOT-sourced writer of the session's
-    /// trust set is closed to this gallery at once, both of them being `formUnion`s over
-    /// `snapshot.incompleteGalleryIDs`, which by construction cannot contain a complete-reading
-    /// record. The remaining writers all trace back to the run's own proof of page work: the insert
-    /// at the preparation when a session is live, and the seed each session start takes from
-    /// `provenPageWorkRunPageDebts` (G-15-26). Without that proof the gallery contributes zero to
-    /// the numerator for the entire six-page re-download and retires zero when it leaves. With it,
-    /// what the gallery contributes is the record's count MINUS the pages the run still owes
-    /// (G-15-30) — zero at the announcement, when all six are owed, and six once all six have
-    /// landed — so the proof buys a numerator that tracks the work rather than one pinned at either
-    /// end of it.
+    /// 6-of-6 and `isIncomplete` stays false — so the session's observation set, sourced from
+    /// `snapshot.incompleteGalleryIDs`, can by construction never admit this gallery, and the
+    /// record's ceiling can never enter the numerator through it. What carries the family instead
+    /// is the run's own announced measurement (G-15-26, G-15-30): all six pages are the run's
+    /// to-do list and none is inherited — the listing succeeded and yielded nothing claimed, a
+    /// positive absence — so the basis opens at zero and climbs by exactly the pages that land,
+    /// reaching six once all six have. A numerator that tracks the work rather than one pinned at
+    /// either end of it.
     ///
     /// The staging is the K=1 case with exactly one difference: no page file is written at all. The
     /// route is grounded rather than asserted about — `resumeMode` resolves `.repair` through its
@@ -71,8 +68,9 @@ extension DownloadContinuedSessionLedgerTests {
     /// same retirement through the same line, and for those the ceiling is not honest at all.
     ///
     /// The rule that holds for the whole family is narrower: a refusal-family gallery is credited
-    /// with its record's count MINUS the pages its run still owes, so the fraction reaches one when
-    /// the run has actually fetched them and not before. Under that rule this case does reach one
+    /// with its run's own measurement — inherited evidence plus landed pages — so the fraction
+    /// reaches one when the run has actually fetched its pages and not before. Under that rule
+    /// this case does reach one
     /// only at the drain, because its last two pages land immediately before the settle — but the
     /// helper is still not asserted, and now for a stated reason rather than an argued exemption:
     /// the retirement folds those pages into both sides at the drain, so the LAST push before it

@@ -510,15 +510,14 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         expectTheCompletedSeriesNeverRewinds(spy.progressUpdates)
     }
 
-    /// The same movement on the `.update` arm, over a gallery this session has already trusted.
+    /// The same movement on the `.update` arm, over a gallery this session has already observed.
     ///
     /// `shouldReuseWorkingFolder` returns false for `.update` exactly as it does for `.redownload`,
-    /// so the mover is the same one. What this case adds is the second disjunct of the
-    /// counted-basis predicate: `observedIncompleteSessionGIDs` admits this gid through
-    /// `ensureContinuedSession`'s start-snapshot `formUnion` and again through the retirement
-    /// reconcile inside the pre-wipe push, both production admissions rather than asserted state.
-    /// At bracket time both disjuncts therefore hold — the record still reads incomplete AND the
-    /// session has watched it — which is the shape a trusted gallery presents.
+    /// so the mover is the same one. What this case adds is the observation: the session watched
+    /// this record reading incomplete — through `ensureContinuedSession`'s start snapshot and again
+    /// through the retirement reconcile inside the pre-wipe push, both production admissions
+    /// rather than asserted state — so at bracket time the credited-pages definition is reading
+    /// the record raw, and the wipe's counted portion is exactly what the bracket must withdraw.
     ///
     /// The pre-wipe push also moves the floor by the push's own re-latch rather than by the start
     /// seed alone, so the withdrawal is measured against a latched floor here. Its cost is that the
@@ -591,8 +590,8 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
-    /// The same basis movement with NO deletion and NO blanking anywhere near it: a `.repair` whose
-    /// payload reports a different upstream page count.
+    /// The same record movement with NO deletion and NO blanking anywhere near it: a `.repair`
+    /// whose payload reports a different upstream page count.
     ///
     /// `shouldReuseWorkingFolder` returns true unconditionally for `.repair`, so the working folder
     /// and every page file in it survive this run. `ensureWorkingManifest` replaces the record all
@@ -602,10 +601,16 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// all-empty manifest at the new page count is written and re-indexed, so the record falls from
     /// 4 of 6 to 0 of 8 with nothing deleted and nothing blanked.
     ///
-    /// This is the case that falsifies any mechanism-keyed fix: there is no folder wipe to key on
-    /// and no blanking loop to key on, only the index-record delta.
+    /// **What the card must and must not follow.** The record-inference design dipped the card to
+    /// 0 of 8 here and re-earned the survivors one flush at a time — an artifact, because the four
+    /// page files never left the folder. The run's announced basis values exactly what the
+    /// preparation's scan probed: the four surviving files are inherited work the run will not
+    /// re-fetch, so the pair moves 4-of-6 to 4-of-8 with no dip, and only pages five through eight
+    /// are earned by landing. The record's own 4-to-0 movement still runs inside the preparation's
+    /// D-G7-01 bracket — a floor left low re-latches at the very next push, which is the safe
+    /// direction — while the numerator itself never leaves the evidence.
     @Test
-    func testAPageCountMismatchFreshManifestWithdrawsTheCountedBasis() async throws {
+    func testAPageCountMismatchFreshManifestKeepsProbedPagesCredited() async throws {
         let regrown = SessionGallery(
             gid: "210362",
             title: "Regrown",
@@ -643,17 +648,22 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(wiped.completedPageCount == 0)
         #expect(wiped.pageCount == 8)
         #expect(spy.progressUpdates.count == 1)
-        let dipPair = try lastPushedPair(spy.progressUpdates)
-        #expect(dipPair.completedUnitCount == 0)
-        #expect(dipPair.totalUnitCount == 8)
-        #expect(dipPair.subtitle == "0 / 8 pages · 1 gallery")
+        // The record just fell to 0 of 8, and the pair deliberately does not follow it: the four
+        // page files survived the manifest replacement, the preparation's scan probed them, and
+        // the announced basis carries them as inherited work the run will not re-fetch.
+        let carriedPair = try lastPushedPair(spy.progressUpdates)
+        #expect(carriedPair.completedUnitCount == 4)
+        #expect(carriedPair.totalUnitCount == 8)
+        #expect(carriedPair.subtitle == "4 / 8 pages · 1 gallery")
 
         let sessionID = try #require(await manager.testingContinuedSessionID())
+        // Page 1 is inherited, not owed, so re-landing it moves nothing: the flush's subtraction
+        // is inert outside the run's own to-do list and the union cannot count the page twice.
         let pageOne = try landPageFiles([1], of: regrown, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageOne)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
         let firstPair = try lastPushedPair(spy.progressUpdates)
-        #expect(firstPair.subtitle == "1 / 8 pages · 1 gallery")
+        #expect(firstPair.subtitle == "4 / 8 pages · 1 gallery")
 
         let remainingPages = try landPageFiles([2, 3, 4, 5, 6, 7, 8], of: regrown, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: folderURL, pages: remainingPages)
@@ -678,24 +688,15 @@ private extension DownloadContinuedSessionBasisTests {
     ///
     /// The two halves are deliberately not fused: every case keeps `flushManifestPageProgress` in
     /// its own body, because which writes are production-issued is the property this suite family
-    /// exists to keep honest.
+    /// exists to keep honest. The payload itself comes from the shared `pageResults`, which is
+    /// what makes its "a naming change moves both together" guarantee actually hold here — a
+    /// private duplicate of that construction is exactly the drift G-15-38 recorded.
     func landPageFiles(
         _ indices: [Int],
         of gallery: SessionGallery,
         in fixture: SessionFixture
     ) throws -> [DownloadCoordinator.PageResult] {
         try writePageFiles(for: gallery, in: fixture, indices: indices)
-        return indices.map { index in
-            DownloadCoordinator.PageResult(
-                index: index,
-                relativePath: fixture.storage.makePageRelativePath(
-                    gid: gallery.gid,
-                    token: "token",
-                    index: index,
-                    fileExtension: "jpg"
-                ),
-                imageURL: nil
-            )
-        }
+        return pageResults(for: gallery, in: fixture, indices: indices)
     }
 }

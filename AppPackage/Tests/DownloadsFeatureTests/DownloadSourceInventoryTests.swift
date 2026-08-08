@@ -20,15 +20,20 @@ import Testing
 /// per-file table asserted alongside a separately-counted joined total, which no two same-named
 /// files can collapse.
 ///
-/// One claim here is a SENTENCE rather than an inventory, and it is why the walk covers the
-/// downloads test target as well as the client module. A doc claim is load-bearing wherever it is
+/// One claim here is a SENTENCE rather than an inventory, and it is the original reason the walk
+/// grew past the client module to the downloads test target. A doc claim is load-bearing wherever it is
 /// written, and a Sources-scoped guard cannot see a retired claim that survives in a test — which is
 /// not hypothetical either: it is G-15-29. Every census names the tree it counts over EXPLICITLY —
-/// through `clientModuleFiles(in:)` or through `downloadsTestFiles(in:)` — because a census counts
-/// over the files the scan returns, so a table that never said which tree it meant re-bases itself
-/// the moment the walk widens. Five censuses count the client module alone; the two
-/// double-fidelity censuses count the downloads test target alone, because a hand-built test double
-/// is only ever written there and demanding a yield from production would be a category error.
+/// through `clientModuleFiles(in:)`, `downloadsTestFiles(in:)` or `clientDoubleFiles(in:)` —
+/// because a census counts over the files the scan returns, so a table that never said which tree
+/// it meant re-bases itself the moment the walk widens. Five censuses count the client module
+/// alone; the two double-fidelity censuses count the downloads test target PLUS the processing
+/// client's own module. That second tree used to be excluded on the classification that its two
+/// public values are "production surfaces", and G-15-36 is what that classification hid: `noop` is
+/// a hand-built double under a Test mark, it is the DEFAULT client of `DownloadCoordinator.init`,
+/// and its atomic endpoints certified the seam's reentrancy windows as impossible across most of
+/// the suite. `live` alone carries no yield obligation — its main-actor hop is the genuine article
+/// the convention simulates.
 ///
 /// A failure here is not a defect by itself. It means source moved and a doc that cites it must be
 /// re-read and re-derived before the table is updated — which is the whole point.
@@ -45,6 +50,7 @@ struct DownloadSourceInventoryTests {
 
     private static let clientModuleDirectory = "AppPackage/Sources/DownloadClient"
     private static let downloadsTestDirectory = "AppPackage/Tests/DownloadsFeatureTests"
+    private static let processingClientModuleDirectory = "AppPackage/Sources/BackgroundProcessingClient"
 
     /// Both trees this suite walks, and the reason the walk is wider than the censuses are.
     ///
@@ -64,7 +70,11 @@ struct DownloadSourceInventoryTests {
     /// list three times, so an unscoped pending-list census would have silently re-baselined itself
     /// from one to four the moment this directory joined — trading one unowned claim for a censused
     /// one that had quietly stopped meaning what its doc says.
-    private static let scannedDirectories = [clientModuleDirectory, downloadsTestDirectory]
+    private static let scannedDirectories = [
+        clientModuleDirectory,
+        downloadsTestDirectory,
+        processingClientModuleDirectory
+    ]
 
     /// One file per scanned directory, so an enumerator that silently walked nothing cannot let a
     /// test pass vacuously.
@@ -74,7 +84,8 @@ struct DownloadSourceInventoryTests {
     /// it prove the walk reaches where the claim actually lived.
     private static let knownMembers = [
         clientModuleDirectory + "/DownloadClient+Manager.swift",
-        downloadsTestDirectory + "/DownloadContinuedSessionBasisTests.swift"
+        downloadsTestDirectory + "/DownloadContinuedSessionBasisTests.swift",
+        processingClientModuleDirectory + "/BackgroundProcessingClient.swift"
     ]
     private static let repositoryRootMarkers = ["App", "AppPackage"]
 
@@ -84,7 +95,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
-    private static var runProofPropertyName: String { "provenPageWork" + "RunPageDebts" }
+    private static var runProofPropertyName: String { "runProgress" + "Bases" }
     /// The hand-built client double's construction token, and it is the seam's own endpoint LABEL
     /// rather than the type name on purpose.
     ///
@@ -194,36 +205,35 @@ struct DownloadSourceInventoryTests {
     /// The pending-list table's sum, asserted the same way and for the same reason.
     private static let expectedPendingPageIndicesCallTotal = 1
 
-    /// Every site naming the run-scoped proof of page work, named per file.
+    /// Every site naming the run-scoped progress measurement, named per file.
     ///
     /// This is the census the property's own declaration reasons from, and the claim it owns is a
-    /// LIFETIME. That lifetime gained a step when the proof stopped being a membership and became
-    /// the PAGES the run still owes (G-15-30), so the number here moved from four to six, and each
-    /// of the six is exactly one role: the declaration in `+Manager.swift`; the recording at the
-    /// run's own preparation in `+ExecutionSupport.swift`; the decrement at the manifest page flush
-    /// in `+Persistence.swift`, which is the one point every landed page passes; the session-start
-    /// seed and the credited-pages definition in `+ContinuedSession.swift`; and the retirement at
-    /// the run's end in `+Execution.swift`.
+    /// LIFETIME. Each of the seven is exactly one role: the declaration in `+Manager.swift`; the
+    /// announcement at the run's own preparation in `+ExecutionSupport.swift`; the landing at the
+    /// manifest page flush in `+Persistence.swift`, which is the one point every landed page
+    /// passes; the basis-first read of the credited-pages definition, the has-a-reading predicate
+    /// the D-G7-01 bracket and the run-exit freeze share, and the departure reconcile's live-run
+    /// branch selector, all in `+ContinuedSession.swift`; and the retirement at the run's end in
+    /// `+Execution.swift`.
     ///
-    /// **What the new number pins that the old one could not.** Four sites pinned a lifetime alone —
-    /// recorded, read, retired. Six pin the lifetime AND the arithmetic: a seventh site is either a
-    /// second reader of the credited basis, which is how the opening rule and the departure rule
-    /// come to disagree about one gallery, or a second writer of the debt, which is how the trust
-    /// granted and the work performed come apart. The `+Persistence.swift` entry in particular is
-    /// load-bearing as a count of ONE: a second decrement point means a page can be credited twice.
+    /// **What the count pins.** Seven sites pin the lifetime AND the arithmetic: an eighth site is
+    /// almost always a second reader of the credited basis outside the single definition, which is
+    /// how the opening rule and the departure rule come to disagree about one gallery, or a second
+    /// landing point, which is how a page comes to be credited twice or not at all — G-15-35 was
+    /// exactly a landing route (`performCacheCapture`) that recorded a page while advancing no
+    /// measurement. The `+Persistence.swift` entry is therefore load-bearing as a count of ONE.
     ///
     /// It is a whole-name count rather than a mutation count on purpose, because the way this
-    /// invariant rots is a READ or a CLEAR appearing rather than an assignment. The specific rot this
-    /// pins against is a clear being added to `markContinuedSessionEnded` or to
-    /// `ensureContinuedSession`'s reset — conflating a session boundary with a run boundary, which is
-    /// precisely the defect G-15-26 recorded — and either would take `+ContinuedSession.swift` from
-    /// two to three. Nothing counted the equivalent claim about the session-scoped set, and it was
-    /// stated in a doc for five rounds while source disagreed.
+    /// invariant rots is a READ or a CLEAR appearing rather than an assignment. The specific rot
+    /// this pins against is a clear being added to `markContinuedSessionEnded` or to
+    /// `ensureContinuedSession`'s reset — conflating a session boundary with a run boundary, which
+    /// is precisely the defect G-15-26 recorded — and either would take `+ContinuedSession.swift`
+    /// from three to four.
     ///
     /// Derived from source rather than copied. Doc-comment mentions are excluded, as everywhere else
     /// here — this property has more of those than uses.
     private static let expectedRunProofSites = [
-        "DownloadClient+ContinuedSession.swift": 2,
+        "DownloadClient+ContinuedSession.swift": 3,
         "DownloadClient+Execution.swift": 1,
         "DownloadClient+ExecutionSupport.swift": 1,
         "DownloadClient+Manager.swift": 1,
@@ -231,19 +241,25 @@ struct DownloadSourceInventoryTests {
     ]
 
     /// The run-proof table's sum, asserted the same way and for the same reason.
-    private static let expectedRunProofSiteTotal = 6
+    private static let expectedRunProofSiteTotal = 7
 
-    /// Every suspension point inside the target's hand-built client doubles, named per file.
+    /// Every suspension point inside the scanned hand-built client doubles, named per file.
     ///
     /// **What this number means.** `BackgroundProcessingClient.live` forwards onto a `@MainActor`
     /// store, so each of its three endpoints hops off the calling actor. A double that answers
     /// synchronously is therefore not a faster stand-in but a DIFFERENT seam: it certifies as
     /// impossible every reentrancy the live one admits, and a suite green against it is green about
-    /// a world that does not exist. Three closures apiece across two doubles is the six below.
+    /// a world that does not exist. Three closures apiece across three doubles is the nine below.
     ///
     /// The full argument for the rule lives on `BackgroundProcessingClientSpy`'s header, where it
     /// was written and — until this census — honoured alone; a reader who wants the reasoning
     /// rather than the count should start there.
+    ///
+    /// The module's own row counts `noop`'s three yields and nothing of `live`'s: `live` needs no
+    /// simulated suspension because its main-actor hop is the genuine article the convention
+    /// simulates, while `noop` is a hand-built double that happens to ship in the module as the
+    /// coordinator's default client, which is exactly why its atomicity was the census's blind
+    /// spot for a round (G-15-36).
     ///
     /// **What would move it.** A closure that stops yielding, an endpoint added to the seam, or a
     /// new hand-built double in a file this table has never heard of. The last of those is
@@ -254,43 +270,49 @@ struct DownloadSourceInventoryTests {
     /// the named double's closures against the spy's three; the table is rewritten from that
     /// derivation and never adjusted to whatever the tree currently holds.
     ///
-    /// The population is DERIVED rather than listed — the files below are whichever scanned test
-    /// files build a value of the type. Zero counts are kept rather than dropped, unlike every
-    /// census above, because a double that stops suspending ENTIRELY is the exact failure this half
-    /// exists to name and a dropped key would let it vanish from the observed table instead.
+    /// The population is DERIVED rather than listed — the files below are whichever scanned files
+    /// in the two double-bearing trees build a value of the type. Zero counts are kept rather than
+    /// dropped, unlike every census above, because a double that stops suspending ENTIRELY is the
+    /// exact failure this half exists to name and a dropped key would let it vanish from the
+    /// observed table instead.
     private static let expectedClientDoubleSuspensionSites = [
+        "BackgroundProcessingClient.swift": 3,
         "DownloadContinuedSessionExpirationTests.swift": 3,
         "DownloadFeatureTestSupportTypes.swift": 3
     ]
 
     /// The suspension table's sum, asserted separately for the reason every joined total here is.
-    private static let expectedClientDoubleSuspensionTotal = 6
+    private static let expectedClientDoubleSuspensionTotal = 9
 
-    /// Every hand-built client double in the downloads test target, named per file.
+    /// Every construction-shaped naming of the seam's endpoints in the double-bearing trees,
+    /// named per file.
     ///
-    /// **What this number means.** A POPULATION rather than a property. Two hand-built doubles
-    /// exist — the recording spy and the `.unavailable` refusal value — and the timing obligation
-    /// above covers exactly those two. Three further values of the type are reachable from this
-    /// target and none is counted, because none is a hand-built double: the macro-synthesized
-    /// no-argument value, whose endpoints nobody writes and whose whole purpose is to report an
-    /// issue when called, and the module's public `live` and `noop` values, which are production
-    /// surfaces a test census must not demand yields from.
+    /// **What this number means.** A POPULATION rather than a property. Three hand-built doubles
+    /// exist — the recording spy, the `.unavailable` refusal value and the module's `noop`
+    /// default — and the timing obligation above covers exactly those three. The module file's
+    /// count of three is one declaration plus two constructions: the endpoint-label token
+    /// necessarily matches the `updateProgress` property declaration and the `live` value there,
+    /// and both rows are deliberately counted rather than filtered, so a fourth match in that file
+    /// means a new value appeared and must be classified. `live` is the one construction with no
+    /// yield obligation — its hop is real — and the macro-synthesized no-argument value supplies
+    /// no endpoints and falls out by construction.
     ///
-    /// **What would move it.** A new hand-built double anywhere under the test target, including in
-    /// a file the suspension table has never heard of — the case that table structurally cannot
-    /// catch.
+    /// **What would move it.** A new hand-built double anywhere under either scanned tree,
+    /// including in a file the suspension table has never heard of — the case that table
+    /// structurally cannot catch.
     ///
     /// **What a failure obliges.** Re-derive the population FIRST: classify the new value as
-    /// hand-built, generated or production, and only if it is hand-built add it here AND to the
-    /// suspension table with a yield opening each of its closures. Neither number is adjusted until
-    /// the double itself passes.
+    /// hand-built, generated or the genuine live surface, and only if it is hand-built add it here
+    /// AND to the suspension table with a yield opening each of its closures. Neither number is
+    /// adjusted until the double itself passes.
     private static let expectedClientDoubleConstructionSites = [
+        "BackgroundProcessingClient.swift": 3,
         "DownloadContinuedSessionExpirationTests.swift": 1,
         "DownloadFeatureTestSupportTypes.swift": 1
     ]
 
     /// The population table's sum, asserted the same way and for the same reason.
-    private static let expectedClientDoubleConstructionTotal = 2
+    private static let expectedClientDoubleConstructionTotal = 5
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -429,16 +451,17 @@ struct DownloadSourceInventoryTests {
         #expect(
             sites == Self.expectedRunProofSites,
             """
-            The run-scoped page-work proof census moved. That proof has exactly six roles — its \
-            declaration, the recording at the run's own preparation, the decrement at the manifest \
-            page flush, the seed every session start takes from its keys, the credited-pages \
-            definition both the snapshot and the departure retirement read, and the retirement at \
-            the run's end. A seventh site is almost always one of three known defects: a clear added \
-            at a SESSION boundary (G-15-26 — a session ending is not the run ending, and erasing the \
-            proof there leaves an in-flight repair contributing zero for the rest of its \
-            re-download), a second reader of the credited basis (the opening rule and the departure \
-            rule then disagree about one gallery), or a second decrement point (a landed page \
-            credited twice). Re-derive the lifetime against the property's own declaration before \
+            The run-scoped progress measurement census moved. The measurement has exactly seven \
+            roles — its declaration, the announcement at the run's own preparation, the landing at \
+            the manifest page flush, the credited-pages definition's basis-first read, the \
+            has-a-reading predicate, the departure reconcile's live-run branch selector, and the \
+            retirement at the run's end. An eighth site is almost always one of three known \
+            defects: a clear added at a SESSION boundary (G-15-26 — a session ending is not the \
+            run ending, and erasing the measurement there leaves an in-flight repair contributing \
+            zero for the rest of its re-download), a second reader of the credited basis outside \
+            the single definition (the opening rule and the departure rule then disagree about one \
+            gallery), or a second landing point (a page credited twice or not at all, which is \
+            G-15-35). Re-derive the lifetime against the property's own declaration before \
             updating this table.
             """
         )
@@ -473,9 +496,9 @@ struct DownloadSourceInventoryTests {
             value forwards onto a main-actor store, so all three of its endpoints hop off the \
             calling actor; a double that answers synchronously certifies as impossible every \
             reentrancy production admits, and the coordinator's post-start ownership re-check, its \
-            additive floor seed and its merged trust seed are then exercised in a world where the \
-            window they exist to survive cannot open. Re-read the named double's closures against \
-            the spy's three and make them suspend before touching this table.
+            additive floor seed and its merged observation seed are then exercised in a world \
+            where the window they exist to survive cannot open. Re-read the named double's \
+            closures against the spy's three and make them suspend before touching this table.
             """
         )
 
@@ -492,10 +515,10 @@ struct DownloadSourceInventoryTests {
         try #require(files.isEmpty == false)
         try Self.requireKnownMembers(in: files)
 
-        let testFiles = Self.downloadsTestFiles(in: files)
+        let treeFiles = Self.clientDoubleTreeFiles(in: files)
 
         var constructionSites = [String: Int]()
-        for file in testFiles {
+        for file in treeFiles {
             let count = Self.callSiteCount(of: Self.clientDoubleEndpointToken, in: file.contents)
             guard count > 0 else { continue }
             constructionSites[file.fileName, default: 0] += count
@@ -504,14 +527,15 @@ struct DownloadSourceInventoryTests {
             constructionSites == Self.expectedClientDoubleConstructionSites,
             """
             The hand-built client double population moved. Classify the new value before touching \
-            this table: a macro-synthesized unimplemented value and the module's public inert \
-            value are not doubles and carry no timing obligation, while a hand-built stand-in for \
-            this main-actor-confined seam does. Only a hand-built one belongs here — and it belongs \
-            in the suspension table beside it, with a suspension opening each of its closures.
+            this table: a macro-synthesized unimplemented value carries no timing obligation and \
+            the live value's main-actor hop is the genuine article, while a hand-built stand-in \
+            for this seam — wherever it ships, the module's noop default included (G-15-36) — \
+            does. Only a hand-built one belongs here, and it belongs in the suspension table \
+            beside it, with a suspension opening each of its closures.
             """
         )
 
-        let joined = testFiles.map(\.contents).joined(separator: "\n")
+        let joined = treeFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.callSiteCount(of: Self.clientDoubleEndpointToken, in: joined)
                 == Self.expectedClientDoubleConstructionTotal
@@ -668,22 +692,33 @@ private extension DownloadSourceInventoryTests {
         files.filter({ $0.relativePath.hasPrefix(clientModuleDirectory + "/") })
     }
 
-    /// The downloads test target's own files, which is what both double censuses count over.
+    /// The downloads test target's own files.
     ///
     /// The same seam `clientModuleFiles(in:)` is, pointed the other way, and load-bearing for the
-    /// same reason: a hand-built double is only ever written in a test, so a double census left
-    /// unscoped would reach the client module and start demanding suspensions from production code.
+    /// same reason: an unscoped census counts over whatever the walk returns, so every table has
+    /// to say which tree it means.
     private static func downloadsTestFiles(in files: [ScannedFile]) -> [ScannedFile] {
         files.filter({ $0.relativePath.hasPrefix(downloadsTestDirectory + "/") })
     }
 
-    /// The test files that build a value of the client type.
+    /// Both trees a hand-built client double can ship in: the downloads test target, and the
+    /// processing client's own module — whose `noop` value is a hand-built double under a Test
+    /// mark and the coordinator's default client (G-15-36). Scoping the double censuses to the
+    /// test target alone is the classification that hid it.
+    private static func clientDoubleTreeFiles(in files: [ScannedFile]) -> [ScannedFile] {
+        files.filter({ file in
+            file.relativePath.hasPrefix(downloadsTestDirectory + "/")
+                || file.relativePath.hasPrefix(processingClientModuleDirectory + "/")
+        })
+    }
+
+    /// The scanned files that build a value of the client type.
     ///
     /// The suspension census's population is derived through this rather than listed, so a new
     /// double's file joins it by existing rather than by being remembered — while the population
     /// census beside it is what makes that new file's arrival fail a build in the first place.
     private static func clientDoubleFiles(in files: [ScannedFile]) -> [ScannedFile] {
-        downloadsTestFiles(in: files).filter({ file in
+        clientDoubleTreeFiles(in: files).filter({ file in
             callSiteCount(of: clientDoubleEndpointToken, in: file.contents) > 0
         })
     }

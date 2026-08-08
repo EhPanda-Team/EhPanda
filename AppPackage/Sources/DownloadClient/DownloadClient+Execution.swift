@@ -11,11 +11,11 @@ extension DownloadCoordinator {
         generation: Int? = nil
     ) async {
         defer {
-            // Ahead of the ownership clear on purpose: `retireProvenPageWork` asks whether a
+            // Ahead of the ownership clear on purpose: `retireRunProgressBasis` asks whether a
             // DIFFERENT live run owns this gallery's slot, and `finishActiveTaskIfOwned` nils both
             // halves of that ownership, so reading it afterwards would make every owning run look
             // superseded and retire nothing.
-            retireProvenPageWork(gid: gid, generation: generation)
+            retireRunProgressBasis(gid: gid, generation: generation)
             finishActiveTaskIfOwned(
                 gid: gid,
                 generation: generation,
@@ -275,7 +275,7 @@ extension DownloadCoordinator {
         }
     }
 
-    /// Ends this run's claim that it had pages of its own to fetch.
+    /// Ends this run's own progress measurement.
     ///
     /// **Why it lives in `processDownload`'s `defer` and nowhere else.** The run has five exits — the
     /// pre-fetch early return, the mid-run cancellation guard, the `CancellationError` catch, the
@@ -288,49 +288,38 @@ extension DownloadCoordinator {
     /// `finishActiveTaskIfOwned` is not a candidate either: the `defer` reaches it on every exit, but
     /// its own body is gated behind `isActiveTaskOwner`, so a non-owning exit would retire nothing.
     ///
-    /// **A run that exits before ever preparing its seed retires nothing of its own**, because it
-    /// recorded nothing and removing an absent member is a no-op. What it can still clear is a
-    /// PREVIOUS run's entry for the same gallery, which is correct: that run is over too.
+    /// **A run that exits before ever announcing retires nothing of its own**, because it recorded
+    /// nothing and removing an absent member is a no-op. What it can still clear is a PREVIOUS
+    /// run's entry for the same gallery, which is correct: that run is over too.
     ///
     /// **The overlapping-run disposition.** `scheduleNextIfNeededCore` will not start a second run
     /// while `activeTask` is live, but `pause`, `delete` and the folder operations each null
     /// `activeTask` while the run they interrupt is still executing, so a following resume can
     /// legitimately schedule a successor for the same gallery at a new `activeTaskGeneration`. An
-    /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's proof, which
-    /// is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose gallery's active
-    /// slot is held by a live run at a different generation retires nothing and leaves the entry to
-    /// its owner, which retires it at its own exit. The generation-LESS case is a separate
-    /// disposition and `isSupersededByALiveRun` states it; it is not repeated here.
+    /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's measurement,
+    /// which is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose
+    /// gallery's active slot is held by a live run at a different generation retires nothing and
+    /// leaves the entry to its owner, which retires it at its own exit. The generation-LESS case is
+    /// a separate disposition and `isSupersededByALiveRun` states it; it is not repeated here. The
+    /// stale entry this tolerates is bounded — the successor's own announcement replaces it inside
+    /// a D-G7-01 bracket, which withdraws the credited gap exactly.
     ///
-    /// **Three steps, in an order that is itself load-bearing (G-15-30).**
+    /// **The freeze runs FIRST, while the measurement is still standing, because what it publishes
+    /// is the value the measurement produces.** `freezeSessionCreditForRetiringRun` carries the
+    /// derivation; the short version is that a departure can be detected on either side of this
+    /// `defer` and the frozen value is what makes both sides retire the same number.
     ///
-    /// The freeze runs FIRST, while the debt and the trust it is measured through are both still
-    /// standing, because what it publishes is the value they produce. `freezeSessionCreditForRetiringRun`
-    /// carries the derivation; the short version is that a departure can be detected on either side
-    /// of this `defer` and the frozen value is what makes both sides retire the same number.
-    ///
-    /// The debt goes next, for the lifetime reason the property's own declaration records: an entry
-    /// keyed by gallery id and never retired credits the NEXT redo of that gallery against work this
-    /// run did, which is D-G4-01's ceiling reached from the other side.
-    ///
-    /// The SESSION trust this run's proof granted goes with it, and that is the arm G-15-30's
-    /// closure had to disposition rather than inherit. Nothing else withdraws it —
-    /// `observedIncompleteSessionGIDs`' only other clears are a session start's re-seed and
-    /// `markContinuedSessionEnded` — so a failed refusal repair went on selecting the trusted branch
-    /// for the rest of the session, crediting its record's untouched count for a gallery that was
-    /// merely sitting in the queue. Withdrawing here is the safe direction and costs nothing the
-    /// session can still justify: the set's other grantor is the snapshot's `formUnion` over
-    /// `incompleteGalleryIDs`, which re-adds the gid at the very next push for as long as the record
-    /// honestly reads incomplete, and which by construction can never re-add a record that reads
-    /// COMPLETE — which is precisely the reading whose credit no observation supports once the run
-    /// that owed those pages is over. What it costs is that a run's landed pages stop being credited
-    /// through the gallery while it waits for its next run; the monotonic floor still holds them, so
-    /// the effect is a numerator that does not rise rather than one that falls.
-    private func retireProvenPageWork(gid: String, generation: Int?) {
+    /// **The removal is deliberately NOT a D-G7-01 bracket.** For an honest record the handoff is
+    /// level — every landed page was flushed, so the record's raw count equals the final
+    /// measurement — and for the refusal family the credited count falls back to the queued-window
+    /// zero while the gallery merely sits in the queue. Withdrawing that drop from the floor would
+    /// hand the card a visible regression over work the run really did; leaving the floor holding
+    /// it is the chosen direction, a numerator that does not rise rather than one that falls, and
+    /// the gallery's own departure retires the frozen value regardless.
+    private func retireRunProgressBasis(gid: String, generation: Int?) {
         guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return }
         freezeSessionCreditForRetiringRun(gid: gid)
-        provenPageWorkRunPageDebts[gid] = nil
-        observedIncompleteSessionGIDs.remove(gid)
+        runProgressBases[gid] = nil
     }
 
     /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must
@@ -353,7 +342,7 @@ extension DownloadCoordinator {
     /// The comparison below would already answer `true` for `nil` through optional promotion; the
     /// branch changes no disposition. It is written so a reader can tell the case was decided rather
     /// than inherited from the types, which is why the sibling predicate directly below spells its
-    /// own optional out too. `retireProvenPageWork`'s doc owns the overlapping-run argument this
+    /// own optional out too. `retireRunProgressBasis`'s doc owns the overlapping-run argument this
     /// direction stays consistent with, and it is not restated here.
     private func isSupersededByALiveRun(
         gid: String,

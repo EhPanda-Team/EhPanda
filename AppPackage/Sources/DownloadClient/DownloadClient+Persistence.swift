@@ -225,25 +225,28 @@ extension DownloadCoordinator {
         }
     }
 
-    /// Records the hashes of pages that have landed on disk, and lowers the run's outstanding page
-    /// debt by exactly the pages this write recorded.
+    /// Records the hashes of pages that have landed on disk, and shrinks the owning run's
+    /// outstanding pages by exactly the pages this write recorded.
     ///
-    /// **Why the decrement lives HERE rather than in `flushDownloadProgress` (G-15-30).** The
+    /// **Why the landing lives HERE rather than in `flushDownloadProgress` (G-15-30).** The
     /// numerator climbing page by page is the liveness the push exists to report — the scheduler
-    /// force-expires the tasks reporting the least progress — so the debt has to fall wherever a page
-    /// the run owed becomes recorded, not merely on the route the page loop happens to take. This is
-    /// the single point every such recording passes: the cadence and forced flushes reach it through
-    /// `flushDownloadProgress`, the restored pages of `initializePageDownloadState` reach it
-    /// directly, and so does a background page landing, which completes out of process and never
-    /// touches the page loop's throttle at all. Attaching the decrement to `flushDownloadProgress`
-    /// would have left the last of those crediting nothing.
+    /// force-expires the tasks reporting the least progress — so the measurement has to advance
+    /// wherever a page the run owed becomes recorded, not merely on the route the page loop happens
+    /// to take. This is the single point every landed page passes: the cadence and forced flushes
+    /// reach it through `flushDownloadProgress`, the restored pages of
+    /// `initializePageDownloadState` reach it directly, a background page landing — which completes
+    /// out of process and never touches the page loop's throttle — reaches it directly too, and
+    /// `performCacheCapture` lands its restored page through it as well. That last route used to
+    /// write its hash through a separate single-page refresh, recording the page while advancing no
+    /// measurement — exactly the drift a "single point" claim exists to forbid (G-15-35).
     ///
     /// **Why it credits nothing when nothing was written.** Both early returns above it decline to
     /// write — an empty page list, and a folder whose manifest file is gone — and neither reaches
     /// this line. A throw from the hash refresh does not reach it either, which is the same
     /// condition that keeps `flushDownloadProgress` from clearing its pending resolved pages: the
     /// two cannot drift, because the write they both depend on is one call and this whole body is
-    /// synchronous, so nothing can interleave between the record moving and the debt following it.
+    /// synchronous, so nothing can interleave between the record moving and the measurement
+    /// following it.
     ///
     /// **Why a set subtraction rather than a count.** A page can arrive twice — a retry re-records a
     /// hash an earlier flush already wrote — and a flush can carry pages this run never owed, since
@@ -270,7 +273,7 @@ extension DownloadCoordinator {
             pageRelativePaths: pageRelativePaths
         )
         updateDownloadIndex(folderURL: folderURL, manifest: manifest)
-        provenPageWorkRunPageDebts[manifest.gid]?.subtract(pageRelativePaths.keys)
+        runProgressBases[manifest.gid]?.outstandingPages.subtract(pageRelativePaths.keys)
     }
 
     public func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {
