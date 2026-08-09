@@ -6,6 +6,27 @@ import Resources
 
 private let logger = Logger(category: .init(describing: DownloadStore.self))
 
+/// What a fresh content pass was able to determine about each CLAIMED page whose file a presence
+/// scan yielded — a partition, not a flag.
+///
+/// The three sets are disjoint and together cover exactly the claimed pages the presence scan
+/// accounted for, which is what lets a caller ask "did this pass classify everything it had to?"
+/// without re-deriving a remainder. They are kept apart rather than collapsed into a
+/// mismatch/no-mismatch answer for the same reason `PageFileScan` keeps its two signals apart: they
+/// answer different questions and license different actions. `mismatched` is positive evidence and
+/// licenses destroying a recorded hash; `held` is the absence of an answer and licenses nothing;
+/// `verified` is positive evidence that nothing is wrong.
+struct ContentMismatchScan: Equatable, Sendable {
+    /// The recorded hash and the file's fresh hash agree.
+    let verified: Set<Int>
+    /// The file was read and its fresh hash disagrees with the record — a positive, page-scoped
+    /// determination that the recorded hash is wrong (D-SSOT-01).
+    let mismatched: Set<Int>
+    /// The bytes could not be probed or could not be read, so nothing was established. Never
+    /// authority to destroy a recorded hash or its file (D-SSOT-03).
+    let held: Set<Int>
+}
+
 extension DownloadStore {
     public func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
@@ -188,6 +209,124 @@ extension DownloadStore {
             try writeManifest(hashedManifest, folderURL: folderURL)
         }
         return hashedManifest
+    }
+
+    /// Classifies every CLAIMED page whose file `pageFileScan` yielded by re-hashing its bytes here
+    /// and now, into three disjoint sets.
+    ///
+    /// **D-SSOT-01: a readable file whose fresh hash mismatches its recorded hash is POSITIVE,
+    /// page-scoped evidence — the same evidence class as a positive absence — so `mismatched`
+    /// licenses durable blanking.** That is what shrinks the validation refusal surface to
+    /// operation-level signals: a scan that could not run, a page that could not be read, and the
+    /// wholesale-shape guard. `verified` licenses nothing and is returned because a caller deciding
+    /// whether the pass covered every claimed page needs to see the whole partition, not a remainder
+    /// it has to re-derive.
+    ///
+    /// **D-SSOT-03: `held` is a NON-ANSWER, and a non-answer is never authority to destroy state.**
+    /// A page lands there when its bytes could not be probed or could not be read at all — the same
+    /// per-file class D-G13-01 protects one level up, where an unprobeable file's recorded hash
+    /// survives. Nothing about such a page was established, so its hash stands and its file stays.
+    /// `validate(download:verifiesContentHashes:)` deliberately REPORTS an unreadable page as
+    /// corrupted, because for a reader they are equally unusable; that equivalence is a message, and
+    /// a message is not a licence to blank.
+    ///
+    /// The classification is taken fresh and never from a validation verdict.
+    /// `validate(download:verifiesContentHashes:)` returns at its FIRST failing page, so its message
+    /// names one page while a partially-mismatched gallery has a SET — and reconciling from the
+    /// verdict would correct whichever page the short-circuit happened to reach and silently leave
+    /// its siblings claiming bytes that are no longer there.
+    ///
+    /// Pages the scan did not yield are skipped entirely: absence is the presence scan's question,
+    /// answered under its own discipline, and answering it a second time here would fork the rule.
+    func contentMismatchScan(
+        folderURL: URL,
+        manifest: DownloadManifest,
+        pageFileScan: PageFileScan
+    ) -> ContentMismatchScan {
+        var verified = Set<Int>()
+        var mismatched = Set<Int>()
+        var held = Set<Int>()
+        for page in manifest.pages.keys.sorted() {
+            guard let expectedHash = manifest.pages[page],
+                  !expectedHash.isEmpty,
+                  let relativePath = pageFileScan.pages[page]
+            else {
+                continue
+            }
+            guard let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
+                  sanitizeAssetFileIfNeeded(at: pageURL)
+            else {
+                held.insert(page)
+                continue
+            }
+            do {
+                let actualHash = try fileHash(at: pageURL)
+                if actualHash == expectedHash {
+                    verified.insert(page)
+                } else {
+                    mismatched.insert(page)
+                }
+            } catch {
+                // The read itself failed, so nothing at all was established about these bytes. The
+                // error is not logged: this is the ordinary negative answer of a probe, and the
+                // caller's kept operation-level signal is what surfaces it.
+                held.insert(page)
+            }
+        }
+        return ContentMismatchScan(verified: verified, mismatched: mismatched, held: held)
+    }
+
+    /// Removes the page files a fresh content pass positively established as mismatched, and returns
+    /// the subset that could NOT be removed.
+    ///
+    /// **D-SSOT-04: blanking a corrupt page's hash while leaving its file in place would LAUNDER the
+    /// corruption, so the removal is part of the correction rather than housekeeping beside it.**
+    /// The chain is two production mechanisms, both verified rather than assumed.
+    /// `resolveSourceIfNeeded` (`DownloadClient+ExecutionPerform.swift`) filters a run's pending
+    /// pages down to those whose file is MISSING before it resolves any fetch, so a repair would skip
+    /// a blanked page whose file survived. `finalizeDownload`'s `addingCurrentFileHashes` merge then
+    /// hashes exactly the blank-hash pages from the files currently on disk, so the stale bytes would
+    /// be re-recorded as truth and every later validation would pass over them. Both behaviors are
+    /// correct for the missing-file family — an existing file there really is reusable — and only
+    /// this family makes them wrong, which is why the fix is to remove the file rather than to add a
+    /// branch to either of them.
+    ///
+    /// Removing destroys nothing recoverable: the page must be re-fetched either way, and what it
+    /// converts is the SHAPE — a corrupt-in-place page becomes the positively-absent one that the
+    /// blanking loop, the working-seed preparation, the fetch filter and finalize already handle
+    /// with no new branches.
+    ///
+    /// Containment mirrors `removeFolder(at:)`'s posture: the path is resolved through
+    /// `validatedChildURL`, so a relative path that escapes the gallery folder removes nothing and is
+    /// reported back instead, and an already-absent file is a no-op success because the goal state is
+    /// simply that no file remains. Everything returned demotes to a hold at the caller — a page
+    /// whose file could not be removed must keep its recorded hash, or the record would claim nothing
+    /// while the disk still holds bytes the fetch would reuse.
+    func removeMismatchedPageFiles(
+        folderURL: URL,
+        pageRelativePaths: [Int: String],
+        mismatchedPages: Set<Int>
+    ) -> Set<Int> {
+        var unremovedPages = Set<Int>()
+        for page in mismatchedPages.sorted() {
+            guard let relativePath = pageRelativePaths[page],
+                  let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath)
+            else {
+                unremovedPages.insert(page)
+                continue
+            }
+            do {
+                try fileManager.operate {
+                    guard $0.fileExists(atPath: pageURL.path) else { return }
+                    try $0.removeItem(at: pageURL)
+                }
+            } catch {
+                // A removal failure is not logged for the same reason the hold above is not: it
+                // costs the page its blanking, and the kept operation-level signal is the surface.
+                unremovedPages.insert(page)
+            }
+        }
+        return unremovedPages
     }
 
     public func removeFolder(relativePath: String) throws {
