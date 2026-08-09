@@ -378,6 +378,187 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
     }
 
+    /// The recover-once path (CR-02), on the exit that can heal: a TRANSIENT post-removal rescan
+    /// failure is retried, and the durable blank lands.
+    ///
+    /// Every destructive step in this reconciliation precedes the write, deliberately — reversing
+    /// the order would leave a failed removal as a blank hash beside a surviving file, which is the
+    /// D-SSOT-04 laundering shape and one tap from permanent corruption. The price of that ordering
+    /// is a window: three exits fire after `removeMismatchedPageFiles` and each used to return with
+    /// the files gone and the hashes still claimed. This case pins the answer to the window rather
+    /// than the window itself — the pass re-attempts once, and the removed page's positive absence
+    /// is blanked under the loop's ordinary evidence rules with no new blanking path.
+    ///
+    /// The failure is injected at the real seam and COUNTED. `PostRemovalListingFailureFileManager`
+    /// fails the first gallery-folder enumeration after the refuted file's removal — the store
+    /// reaches it through `DownloadFileManager.operate`, so the whole production chain runs — and
+    /// `consumedFailureCount` is asserted to be exactly one. Without that count the case would pass
+    /// identically if a future reordering meant the injection was never consumed, which is a
+    /// standing green over a path nothing entered.
+    @Test
+    func testATransientPostRemovalRescanFailureRecoversSoTheDurableBlankStillLands() async throws {
+        let gallery = SessionGallery(
+            gid: "215610",
+            title: "Recovering",
+            pageCount: 3,
+            completedPageCount: 3
+        )
+        let control = PostRemovalListingFailureControl()
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation }),
+            fileManager: PostRemovalListingFailureFileManager(
+                // Derived through the production naming API rather than spelled out, so a naming
+                // change moves the injection with the file it is about.
+                removedPathFragment: DownloadStore().makePageRelativePath(
+                    gid: gallery.gid,
+                    token: "token",
+                    index: 2,
+                    fileExtension: "jpg"
+                ),
+                listedPathFragment: "[\(gallery.gid)_token]",
+                error: CocoaError(.fileReadNoPermission),
+                control: control
+            )
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        try writePageFiles(for: gallery, in: fixture, indices: [1, 2, 3])
+        try recordRealPageHashes(for: gallery, in: fixture, indices: [1, 2, 3])
+        try corruptPageFile(for: gallery, in: fixture, index: 2)
+        await fixture.manager.reloadDownloadIndex()
+
+        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+
+        // Anti-vacuity first: the case really entered the post-removal exit the recovery exists for.
+        #expect(
+            control.consumedFailureCount == 1,
+            "the injected post-removal rescan failure was not consumed exactly once"
+        )
+        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        #expect(download.displayStatus == .inactive)
+        #expect(download.lastError == nil)
+        #expect(download.completedPageCount == 2)
+
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
+        let diskManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(diskManifest.pages[2] == "")
+        #expect(diskManifest.pages[1]?.isEmpty == false)
+        #expect(diskManifest.pages[3]?.isEmpty == false)
+        #expect(diskManifest.completedPageCount == 2)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+            ) == false
+        )
+        try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
+
+        let relaunched = DownloadCoordinator(
+            storage: DownloadStore(rootURL: fixture.rootURL, fileManager: .default),
+            urlSession: .shared
+        )
+        await relaunched.reloadDownloadIndex()
+        let reread = try #require(await relaunched.fetchDownload(gid: gallery.gid))
+        #expect(reread.displayStatus == .inactive)
+        #expect(reread.completedPageCount == 2)
+    }
+
+    /// The recovery's own failure (CR-02): when the retry cannot write either, the entry survives
+    /// and the NEXT validate converges the record by itself.
+    ///
+    /// The write is staged to throw for real rather than through a double: the store's `writeJSON`
+    /// bottoms out in `Data.write(to:options:.atomic)`, which takes no injected collaborator, so the
+    /// faithful staging is an immutable `manifest.json` inside a still-writable folder — the
+    /// `rename` the atomic write performs fails with `EPERM` while the refuted page file is removed
+    /// normally. Both the first write and the recovery's write therefore throw, which is the exit
+    /// that leaves files destroyed against a record that still claims them, and the one the `error`
+    /// log exists for. The emission itself is pinned structurally by
+    /// `DownloadLogPrivacyInvariantTests`' masked-inventory equality; what is pinned here is the
+    /// branch's runtime observables — the record left over-claiming, the kept entry, and the
+    /// convergence below.
+    ///
+    /// That convergence is the property that makes the residual acceptable. The removed file is
+    /// positively absent, so a later pass with a writable manifest blanks it under the ordinary
+    /// guards with nothing special-cased: the divergence is self-healing at the next tap, which is
+    /// exactly why the removal-first ordering stays and the reversal was rejected.
+    @Test
+    func testAnUnwritableManifestKeepsTheEntryAndTheNextValidateConvergesTheRecord() async throws {
+        let gallery = SessionGallery(
+            gid: "215611",
+            title: "Unwritable",
+            pageCount: 3,
+            completedPageCount: 3
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        try writePageFiles(for: gallery, in: fixture, indices: [1, 2, 3])
+        try recordRealPageHashes(for: gallery, in: fixture, indices: [1, 2, 3])
+        try corruptPageFile(for: gallery, in: fixture, index: 2)
+        await fixture.manager.reloadDownloadIndex()
+
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
+        let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
+        let staged = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        let manifestURL = staged.manifestURL
+        try setImmutableFlag(true, at: manifestURL)
+        defer {
+            // Declared after the tree removal so it runs BEFORE it: a leftover immutable flag would
+            // defeat the temporary tree's own removal and leak the fixture.
+            clearImmutableFlag(at: manifestURL)
+        }
+
+        let heldValidation = await fixture.manager.validateImageData(gid: gallery.gid)
+
+        // THE STAGING PREMISE, asserted first and named: if an atomic write over an immutable target
+        // does not throw on this filesystem, nothing below is about the recovery at all, and this
+        // case must fail here rather than somewhere confusing.
+        let unwrittenManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(
+            unwrittenManifest.pages[2] == claimedHashes[2],
+            "staging premise: the atomic manifest write must throw over an immutable target"
+        )
+
+        #expect(heldValidation == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2)))
+        let held = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        #expect(held.displayStatus == .error)
+        #expect(held.lastError?.code == .fileOperationFailed)
+        #expect(held.completedPageCount == 3)
+        // The divergence the forensic line reports, stated rather than implied: the refuted file is
+        // gone and the record still claims it. Nothing durable marks that, which is why it is logged.
+        #expect(
+            FileManager.default.fileExists(
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+            ) == false
+        )
+
+        clearImmutableFlag(at: manifestURL)
+
+        let convergingValidation = await fixture.manager.validateImageData(gid: gallery.gid)
+
+        // The removed page reads as the positive absence it now is, so the ordinary presence arm
+        // reconciles it — no branch anywhere knows this record was ever mid-recovery.
+        #expect(convergingValidation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        let converged = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        #expect(converged.displayStatus == .inactive)
+        #expect(converged.lastError == nil)
+        #expect(converged.completedPageCount == 2)
+        let convergedManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(convergedManifest.pages[2] == "")
+        #expect(convergedManifest.completedPageCount == 2)
+        try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
+    }
+
     /// The UNCLASSIFIED hold: a claimed page whose PRESENCE probe could not answer keeps the
     /// operation-level entry, even though a sibling page blanks durably in the same pass.
     ///

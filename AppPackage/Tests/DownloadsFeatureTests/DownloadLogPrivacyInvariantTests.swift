@@ -87,10 +87,18 @@ struct DownloadLogPrivacyInvariantTests {
     /// assertion kept passing. An equality against this table makes every such change a deliberate,
     /// visible edit here — including the working-manifest reconciliation notice, whose whole purpose
     /// is to leave a blanking trail a device archive can show.
+    /// The `+PersistenceNormalize.swift` entry is the validate-time recovery's forensic line, added
+    /// deliberately rather than inherited: where a reconciliation removed refuted page files and then
+    /// could not make the matching blank durable — twice, counting its single retry — the record
+    /// describes files this app deleted, and that divergence outlives the session while the transient
+    /// entry marking it does not. The removed page indices are operational scalars and go out
+    /// `public`; the gid follows the module's masked identity pattern, so cross-line correlation
+    /// survives without disclosure.
     private static let expectedHashMaskedCounts = [
         "DownloadClient+Execution.swift": 3,
         "DownloadClient+ExecutionSupport.swift": 1,
         "DownloadClient+Manager.swift": 1,
+        "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 2,
         "DownloadClient+Scheduling.swift": 3
     ]
@@ -99,7 +107,7 @@ struct DownloadLogPrivacyInvariantTests {
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
-    private static let expectedHashMaskedTotal = 10
+    private static let expectedHashMaskedTotal = 11
 
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {
