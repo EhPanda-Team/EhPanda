@@ -169,6 +169,68 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
             #expect(sensed.pagesWithFile == after.pagesWithFile, "\(testCase.name): a refusal removed a file.")
         }
     }
+
+    /// Family 3 — no dead end, enforced by DRIVING rather than by reading predicates.
+    ///
+    /// A state is non-terminal incomplete when its persisted record reads incomplete, or an
+    /// operation-level `validationErrors` entry stands over it, and it is not already moving
+    /// (`.active`/`.queued` are in motion; a clean complete record is terminal, because it is not
+    /// asking for work). For every such state at least one forward affordance must SUCCEED when
+    /// actually called: `togglePause`, `retryPages` over `retryablePageIndices`, or
+    /// `validateImageData` followed by one of those on the state it produces.
+    ///
+    /// Predicates alone are not enough, and that is the whole lesson of G-15-5: its dead end had
+    /// predicates that each looked reasonable in isolation — the button was on the screen with an
+    /// empty selection behind it — so nothing short of reaching `.queued` proves the way out exists.
+    /// The outranking hazard (`validationErrors` outranks both `activeGalleryID` and queue
+    /// membership in `displayStatus`) is covered the same way: only a drive that actually lands
+    /// `.queued` proves the entry was cleared at enqueue.
+    ///
+    /// The negative boundary is pinned from the other side in the same run: a terminal state must
+    /// offer no resume-shaped start at all, and `togglePause` must refuse it at the production entry
+    /// point rather than merely reading as disabled.
+    @Test(arguments: SSOTStateCase.all)
+    func testEveryNonTerminalIncompleteStateKeepsAForwardAffordanceThatSucceeds(
+        _ testCase: SSOTStateCase
+    ) async throws {
+        let staged = try await stage(testCase)
+        defer { staged.tearDown() }
+        let manager = staged.fixture.manager
+
+        let download = try #require(await manager.fetchDownload(gid: testCase.gid))
+        let inspection = try await manager.loadInspection(gid: testCase.gid).get()
+        #expect(
+            classify(download) == testCase.expectedRegime.kind,
+            "\(testCase.name): the staged state is not the regime the table claims it is."
+        )
+
+        switch testCase.expectedRegime {
+        case .inMotion:
+            #expect(
+                [.active, .queued].contains(download.displayStatus),
+                "\(testCase.name): an in-motion regime that is not moving."
+            )
+
+        case .terminalComplete:
+            #expect(download.canTogglePause == false, "\(testCase.name): a terminal record offers a resume.")
+            #expect(inspection.canRetryPages == false, "\(testCase.name): a terminal record offers a retry.")
+            #expect(inspection.retryablePageIndices.isEmpty, "\(testCase.name): a terminal retry basis.")
+            guard case .failure = await manager.togglePause(gid: testCase.gid) else {
+                Issue.record("\(testCase.name): togglePause started a record that claims every page.")
+                return
+            }
+            // What keeps a complete-CLAIMING record off the dead-end list even when its files are
+            // gone: the single sensor is reachable from the screen that reports the problem, and
+            // family 2 pins that running it moves the record into the startable regime.
+            #expect(
+                inspection.canValidateImageData,
+                "\(testCase.name): the sensor is unreachable from a complete-claiming record."
+            )
+
+        case .nonTerminalIncomplete(let queuedMode):
+            try await driveForward(testCase, in: staged, expecting: queuedMode)
+        }
+    }
 }
 
 // MARK: - The Generated State Family
@@ -185,6 +247,15 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
 /// themselves derived would be comparing a derivation with itself; the piecewise table is what makes
 /// each regime's own value a stated claim rather than a computed echo.
 struct SSOTStateCase: Sendable, CustomTestStringConvertible {
+    /// The classification family 3 derives from a live record, kept separate from `ForwardRegime` so
+    /// the table's claim about a case and the derivation from the staged state are two statements
+    /// that have to agree rather than one restated.
+    enum RegimeKind: Sendable, Equatable {
+        case terminalComplete
+        case inMotion
+        case nonTerminalIncomplete
+    }
+
     /// What a state offers as a way forward, which is the classification family 3 is about.
     enum ForwardRegime: Sendable, Equatable {
         /// The record claims every page it needs and carries no operation-level signal. Terminal for
@@ -195,6 +266,14 @@ struct SSOTStateCase: Sendable, CustomTestStringConvertible {
         /// The record reads incomplete, or an operation-level entry stands over it. Must have a
         /// forward affordance that SUCCEEDS when driven, landing `.queued` under `queuedMode`.
         case nonTerminalIncomplete(queuedMode: DownloadStartMode)
+
+        var kind: RegimeKind {
+            switch self {
+            case .terminalComplete: .terminalComplete
+            case .inMotion: .inMotion
+            case .nonTerminalIncomplete: .nonTerminalIncomplete
+            }
+        }
     }
 
     enum ExternalMutation: Sendable, Equatable {
@@ -605,6 +684,126 @@ extension DownloadManifestSSOTInvariantTests {
         #expect(
             download.isIncomplete == (recorded < download.pageCount),
             "\(regime): the resume-mode basis disagrees with the record."
+        )
+    }
+
+    /// The live classification, derived from what a production reader can see: queue membership and
+    /// the active slot say "in motion", the record's own honesty and the operation-level entry say
+    /// "still owed work", and everything else is terminal.
+    func classify(_ download: DownloadedGallery) -> SSOTStateCase.RegimeKind {
+        if [.active, .queued].contains(download.displayStatus) {
+            return .inMotion
+        }
+        let hasOperationLevelEntry = download.displayStatus == .error
+            && download.lastError?.code == .fileOperationFailed
+        if download.isIncomplete || hasOperationLevelEntry {
+            return .nonTerminalIncomplete
+        }
+        return .terminalComplete
+    }
+
+    /// Drives the affordances in production order and requires the state to reach `.queued` — which
+    /// is what "forward" means here, since a start that does not become schedulable is the dead end
+    /// under another name.
+    ///
+    /// The validate-then-start arm is deliberately kept even though no case in the current table
+    /// needs it: the property is about the state space, not about this table, and a future case that
+    /// can only sense its way out must find the arm already here rather than be quietly reclassified
+    /// as a dead end.
+    func driveForward(
+        _ testCase: SSOTStateCase,
+        in staged: StagedSSOTState,
+        expecting queuedMode: DownloadStartMode
+    ) async throws {
+        let manager = staged.fixture.manager
+        let download = try #require(await manager.fetchDownload(gid: testCase.gid))
+        let inspection = try await manager.loadInspection(gid: testCase.gid).get()
+
+        if try await driveStart(testCase, in: staged, download: download, inspection: inspection) {
+            // Started directly.
+        } else if inspection.canValidateImageData {
+            _ = await manager.validateImageData(gid: testCase.gid)
+            let sensed = try #require(await manager.fetchDownload(gid: testCase.gid))
+            let sensedInspection = try await manager.loadInspection(gid: testCase.gid).get()
+            guard try await driveStart(
+                testCase,
+                in: staged,
+                download: sensed,
+                inspection: sensedInspection
+            ) else {
+                recordDeadEnd(testCase, download: sensed, inspection: sensedInspection, sensed: true)
+                return
+            }
+        } else {
+            recordDeadEnd(testCase, download: download, inspection: inspection, sensed: false)
+            return
+        }
+
+        let started = try #require(await manager.fetchDownload(gid: testCase.gid))
+        #expect(
+            started.displayStatus == .queued,
+            "\(testCase.name): the affordance succeeded without making the gallery schedulable."
+        )
+        #expect(started.lastError == nil, "\(testCase.name): a started record still carries a failure.")
+        #expect(
+            await manager.queuedMode(for: started) == queuedMode,
+            "\(testCase.name): the start resolved a mode the record's shape does not predict."
+        )
+    }
+
+    /// Calls the first start affordance whose gate is open, in the order the inspector presents
+    /// them, and reports whether one was called.
+    func driveStart(
+        _ testCase: SSOTStateCase,
+        in staged: StagedSSOTState,
+        download: DownloadedGallery,
+        inspection: DownloadInspection
+    ) async throws -> Bool {
+        let manager = staged.fixture.manager
+        if download.canTogglePause {
+            try await manager.togglePause(gid: testCase.gid).get()
+            return true
+        }
+        if inspection.canRetryPages {
+            // Asserted BEFORE driving: a basis that silently collapses leaves the control present
+            // and every downstream assertion passing except the one that matters.
+            #expect(
+                !inspection.retryablePageIndices.isEmpty,
+                "\(testCase.name): canRetryPages is open over an empty selection."
+            )
+            let retried = await manager.retryPages(
+                gid: testCase.gid,
+                pageIndices: inspection.retryablePageIndices
+            )
+            try retried.get()
+            #expect(
+                await manager.queuedPageSelections[testCase.gid] == inspection.retryablePageIndices,
+                "\(testCase.name): the retry carried a different selection than the basis offered."
+            )
+            return true
+        }
+        return false
+    }
+
+    /// Names the state's full shape, so a future failure diagnoses itself instead of reporting only
+    /// that some generated case had no way out.
+    func recordDeadEnd(
+        _ testCase: SSOTStateCase,
+        download: DownloadedGallery,
+        inspection: DownloadInspection,
+        sensed: Bool
+    ) {
+        Issue.record(
+            """
+            \(testCase.name) is a dead end\(sensed ? " even after Validate" : ""): \
+            displayStatus \(download.displayStatus), \
+            completedPageCount \(download.completedPageCount) of \(download.pageCount), \
+            lastError \(String(describing: download.lastError?.code)), \
+            canTogglePause \(download.canTogglePause), \
+            canRetryPages \(inspection.canRetryPages), \
+            retryablePageIndices \(inspection.retryablePageIndices), \
+            canValidateImageData \(inspection.canValidateImageData).
+            """
         )
     }
 
