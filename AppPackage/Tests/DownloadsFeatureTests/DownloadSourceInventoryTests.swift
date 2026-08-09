@@ -95,6 +95,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
     private static var queueEnqueueToken: String { "queueStore" + ".enqueue(" }
+    private static var bracketCallToken: String { "withdrawingCounted" + "BasisMovement(" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
     private static var runProofPropertyName: String { "runProgress" + "Bases" }
     /// The hand-built client double's construction token, and it is the seam's own endpoint LABEL
@@ -152,8 +153,14 @@ struct DownloadSourceInventoryTests {
     /// close by asking the reader to re-run the grep it was derived from. It now names this table
     /// instead. The four in `+ContinuedSession.swift` are the session-start reset, the seed merge
     /// after the client start returns, the teardown zero and the per-push re-latch; the one in
-    /// `+ExecutionSupport.swift` is D-G7-01's withdrawal, whose single implementation serves both of
+    /// `+ExecutionSupport.swift` is D-G7-01's withdrawal, whose single implementation serves ALL of
     /// its call sites — which is why one rule counts once here.
+    ///
+    /// That last clause is also this table's blind spot, stated rather than left to be discovered:
+    /// counting assignments means the number stays 5 however many callers the bracket grows, so a
+    /// new call site is structurally invisible here. `expectedBracketCallSites` below is what owns
+    /// the caller count, and it exists because a round added a fourth caller while three
+    /// load-bearing sentences went on saying three and two.
     private static let expectedFloorWriters = [
         "DownloadClient+ContinuedSession.swift": 4,
         "DownloadClient+ExecutionSupport.swift": 1
@@ -161,6 +168,37 @@ struct DownloadSourceInventoryTests {
 
     /// The floor table's sum, asserted the same way and for the same reason.
     private static let expectedFloorWriterTotal = 5
+
+    /// Every call of the D-G7-01 counted-basis bracket, named per file.
+    ///
+    /// This is the caller inventory `lastPushedCompletedPageCount`'s writer 5 states and the
+    /// bracket's own no-deletion disposition reasons about, and neither claim is derivable from the
+    /// function a reader is looking at. It is a CALLER count on purpose, because the floor census
+    /// above provably cannot be one: it counts assignments to the floor, and one shared
+    /// implementation keeps that number constant no matter how many sites open the bracket. A round
+    /// added the validate-time caller and left three sentences — in `+Manager.swift`,
+    /// `+ExecutionSupport.swift` and this file — describing three call sites and two, with every
+    /// census still green.
+    ///
+    /// Derived from source rather than copied: `prepareWorkingSeed` and
+    /// `prepareWorkingSeedAnnouncingProgress` (`+ExecutionSupport.swift`), `writeInitialManifest`
+    /// (`+PublicAPI.swift`) and the validate-time `blankingPass`
+    /// (`+PersistenceNormalize.swift`). The generic declaration carries `<T>` between the name and
+    /// its parenthesis, so it does not match this token at all and needs no exclusion; doc-comment
+    /// mentions are dropped with every other census here, because the count is of calls.
+    ///
+    /// **What a failure obliges.** Re-derive the callers, then decide the disposition each one owes
+    /// before touching this number: whether it deletes inside the bracket (the exclusion the
+    /// bracket's doc states), and whether it nests one bracket inside another (which the bracket's
+    /// doc forbids outright — they compose as siblings only).
+    private static let expectedBracketCallSites = [
+        "DownloadClient+ExecutionSupport.swift": 2,
+        "DownloadClient+PersistenceNormalize.swift": 1,
+        "DownloadClient+PublicAPI.swift": 1
+    ]
+
+    /// The bracket table's sum, asserted the same way and for the same reason.
+    private static let expectedBracketCallTotal = 4
 
     /// Every entrance to the queue store, named per file.
     ///
@@ -395,6 +433,37 @@ struct DownloadSourceInventoryTests {
         let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.mutationCount(of: Self.floorPropertyName, in: joined) == Self.expectedFloorWriterTotal
+        )
+    }
+
+    @Test
+    func testCountedBasisBracketCallSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
+        var callSites = [String: Int]()
+        for file in moduleFiles {
+            let count = Self.callSiteCount(of: Self.bracketCallToken, in: file.contents)
+            guard count > 0 else { continue }
+            callSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            callSites == Self.expectedBracketCallSites,
+            """
+            The counted-basis bracket's caller census moved. Re-derive the callers, re-read writer 5 \
+            in +Manager.swift and the bracket's own no-deletion and no-nesting dispositions against \
+            them, and only then update this table. The floor census cannot catch this: it counts \
+            assignments, and one shared implementation keeps that number constant.
+            """
+        )
+
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.bracketCallToken, in: joined)
+                == Self.expectedBracketCallTotal
         )
     }
 

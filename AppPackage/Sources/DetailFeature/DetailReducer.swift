@@ -109,8 +109,9 @@ public struct DetailReducer: Sendable {
         /// evidence for every claimed page and left its session-scoped signal standing over an
         /// otherwise complete record. A presence-based repair finds nothing absent to fetch and
         /// fixes neither, so the surgical route for both is the downloads inspector's widened retry
-        /// (D-G5C-01), which carries its page selection explicitly and therefore does not depend on
-        /// the record's claims; the wipe stays as the whole-gallery answer.
+        /// (D-SSOT-08, which superseded D-G5C-01's union basis with the full page set), which
+        /// carries its page selection explicitly and therefore does not depend on the record's
+        /// claims; the wipe stays as the whole-gallery answer.
         ///
         /// Present-but-mismatched bytes used to be a third member of that family and are not one
         /// any more: they are now reconciled durably at validate time (D-SSOT-01), so such a gallery
