@@ -134,8 +134,24 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         #expect(workingSeed.existingPages.keys.sorted() == [1, 2, 3])
     }
 
+    /// A zero-byte page is EXCLUDED from the resolved URLs, and the read that excludes it leaves the
+    /// file alone.
+    ///
+    /// The exclusion is the property this route owes and it is unchanged: the asset probe positively
+    /// rejects an empty file, so it never becomes a page URL a reader could open. What changed is the
+    /// second half, and the change is deliberate. `loadLocalPageURLs` serves the index record built
+    /// by `reloadDownloadIndex` — the pull-to-refresh and foreground-return route — and after
+    /// D-SSOT-07 that record's completeness comes from the manifest while its page URLs are rendering
+    /// resources only. A probe that deleted the file here would let a routine refresh destroy a page
+    /// the manifest still claims, leaving the page reading `.downloaded` over nothing, licensed by no
+    /// reconciliation and invisible until the user runs Validate.
+    ///
+    /// The housekeeping was not lost, only moved behind the paths entitled to act: `validate`, the
+    /// repair seed, the finalize merge, the capture target and the explicit `sanitizeLocalFilesIfNeeded`
+    /// sweep all keep the discarding probe. So this case pins the file's SURVIVAL from the other side
+    /// rather than dropping the assertion — a display path that starts deleting again fails here.
     @Test
-    func testDownloadCoordinatorLoadLocalPageURLsRemovesZeroBytePage() async throws {
+    func testDownloadCoordinatorLoadLocalPageURLsExcludesAZeroBytePageWithoutDeletingIt() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -153,7 +169,34 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
 
         #expect(pageURLs[1] == nil)
         #expect(pageURLs[2] == goodPageURL)
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+    }
+
+    /// The other side of the same boundary: a path that IS entitled to act still discards.
+    ///
+    /// `sanitizeLocalFilesIfNeeded`'s folder scan exists for this housekeeping and nothing else — it
+    /// discards both of its probe results — so the discarding default has to survive there or the
+    /// sweep would become a no-op with no reader noticing. Pinning both sides in the same file is
+    /// what keeps "reads classify, acts act" a boundary rather than a blanket.
+    @Test
+    func testSanitizingLocalFilesStillDiscardsAZeroBytePage() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 17)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
+
+        let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
+            rootURL: rootURL, gid: gid, storage: storage
+        )
+        await manager.reloadDownloadIndex()
+
+        _ = await manager.sanitizeLocalFilesIfNeeded(gid: gid)
+
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: goodPageURL.path))
     }
 
     @Test

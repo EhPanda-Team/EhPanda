@@ -258,6 +258,36 @@ struct DownloadStoreTests {
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
     }
 
+    /// The same probe under `discardingRejected: false`: the CLASSIFICATION is identical and only the
+    /// deletion is withheld.
+    ///
+    /// Pinned at the store rather than only at its callers, because that equality is the whole
+    /// premise of the flag — a display path opts out of the housekeeping without opting out of the
+    /// answer. If the two ever diverged, a read would start reporting a different set of pages than
+    /// the acting paths see, which is a second basis by another name.
+    @Test
+    func testExistingPageRelativePathsKeepsZeroByteFilesWhenNotDiscarding() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(
+            storage.existingPageRelativePaths(
+                folderURL: folderURL,
+                manifest: manifest,
+                discardingRejected: false
+            ) == [2: "123_token_2.png"]
+        )
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+    }
+
     @Test
     func testExistingPageRelativePathsIgnoresZeroByteLegacyFiles() throws {
         let (storage, rootURL) = makeStorage()
