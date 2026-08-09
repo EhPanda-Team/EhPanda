@@ -115,7 +115,7 @@ failure having actually fired. The control object is `Mutex`-backed and separate
 
 **Pin (b) — `.immutable` staging, with the empirical confirmation the ruling asked to record.**
 `testAnUnwritableManifestKeepsTheEntryAndTheNextValidateConvergesTheRecord` stages an unwritable
-manifest with the BSD `.immutable` flag. **Empirically confirmed on this machine:** an atomic write
+manifest with the BSD `.immutable` flag. **Empirically confirmed on the simulator (this host's APFS):** an atomic write
 over an immutable file throws `NSCocoaErrorDomain` code **513** (backed by `EPERM`), while the
 enclosing folder stays writable and page-file removal still succeeds — which is exactly the regime
 the pin needs (removal lands, write does not). The flag is cleared in a `defer` declared *after* the
@@ -210,7 +210,9 @@ specific to that suite.
 **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`,
 `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift`,
 `AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTStateCases.swift`
+`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTStateCases.swift`,
+`AppPackage/Tests/DownloadsFeatureTests/DownloadCoordinatorRepairSeedTests.swift`,
+`AppPackage/Tests/DownloadsFeatureTests/DownloadStoreTests.swift`
 **Commits:** `803e6d52`, then `8b4bfdbf` (consumer re-derivation)
 
 **Applied fix:** a `discardingRejected: Bool = true` parameter was threaded through the probe stack —

@@ -1,14 +1,20 @@
 ---
-status: diagnosed
+status: testing
 phase: 15-continued-background-downloads
-source: [15-VERIFICATION.md, 15-54-SUMMARY.md]
+source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-08T10:15:34Z
+updated: 2026-08-09T09:35:21Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 2
+name: System progress card renders real progress under the coverage basis (retest round 4)
+expected: |
+  Every frame of a two-gallery run — including the final one at drain — reads "· 2 galleries"
+  beside the session-cumulative fraction (final: "N / N pages · 2 galleries"). The card is
+  truthful whether or not the system repaints the terminal push.
+awaiting: user response
 
 ## Tests
 
@@ -34,9 +40,28 @@ announce rather than freezing at the record's stale claim; card-cancel state mat
 per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: issue
-reported: "After both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
-severity: major
+result: [pending]
+retest_round: 4
+retest_reason: |
+  G-15-2C closed by plan 15-55 (D-G2C-01): the subtitle gallery count's basis changed from the
+  live schedulable set to the denominator's coverage — live schedulable galleries plus every
+  departed gallery whose retirement contributed pages to Y, zero-page retirements excluded. The
+  15-22 terminal push survives as defence, but nothing depends on the OS rendering it anymore:
+  every frame is truthful. Fidelity-audited 2026-08-09 (four auditors, zero deviations), full
+  FeatureTests green (TEST SUCCEEDED, orchestrator-run). The card is system-rendered and has
+  surprised this phase three times, so SC2 stays failed until a device says otherwise.
+retest_steps_round_4: |
+  1. Queue at least two galleries, start in the foreground, then background the app.
+  2. EVERY frame of the card should read "· 2 galleries" — during the first gallery, across the
+     first gallery's completion, and while only the second remains. The count must never drop
+     to "1 gallery".
+  3. At drain, the final subtitle reads "N / N pages · 2 galleries" (no longer "0 galleries" —
+     the expected observation changed with the basis redesign).
+  4. Exercise the `.repair` re-download of a gallery whose files were deleted outside the app:
+     progress must CLIMB from the announce, never freeze at the record's stale claim.
+  5. Pause one gallery mid-queue; the card still reaches completion for the rest.
+  6. Cancel from the card, foreground, and compare queue state against the in-app per-gallery
+     pause baseline.
 retest_round_3_result: issue
 retest_round_3_reported: "After both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
 retest_round_3_severity: major
@@ -107,9 +132,31 @@ expected: The progress series climbs from the current run's measured starting po
 freezing at the persisted record's stale completed-page claim.
 why_human: The continued-processing card is system-owned and does not render in the simulator.
 covers: SC2 repair progress
-result: issue
-reported: "After Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were both disabled, and no Resume or other action was available to start the repair download. After relaunching the app, the yellow missing-page state disappeared and the page count displayed 36 / 36 even though 10 pages remained pending, leaving the persisted and displayed state inconsistent."
-severity: major
+result: [pending]
+retest_round: 2
+retest_reason: |
+  G-15-5 closed by plans 15-56/15-57 and hardened by the SSOT collapse (15-58/59/60) plus the
+  review-fix pass (10/10). Validate now durably reconciles the manifest (missing files AND
+  readable-but-corrupt files blank under guards; the corrupt file is removed so repair re-fetches
+  it), validationErrors is operation-level only and cleared at every enqueue, the inspector
+  derives page states from the manifest, and Resume starts the repair through the existing
+  machinery. Fidelity-audited 2026-08-09, suite green. Device must confirm the end-to-end flow.
+retest_steps: |
+  1. Complete a gallery download; delete some of its image files outside the app (Files.app).
+  2. BEFORE running Validate: the inspector now mirrors the manifest's claim (still shows the
+     pages as downloaded) — this is the SSOT-consistent expected behavior, not a bug; badge and
+     inspector must AGREE.
+  3. Run Validate Image Data: the record durably drops the missing pages (e.g. 26/36), the
+     yellow state appears, and Resume is ENABLED.
+  4. Force-quit and relaunch BEFORE resuming: the 26/36 count and the incomplete state must
+     survive relaunch (no silent snap back to 36/36).
+  5. Tap Resume: a `.repair` download starts immediately and re-fetches exactly the missing
+     pages; on completion both the badge and the inspector read 36/36.
+  6. Optional (corrupt-in-place): corrupt a page file's bytes outside the app, run Validate —
+     the page is durably dropped and the corrupt file removed; Resume repairs it.
+prior_round_1_result: issue
+prior_round_1_reported: "After Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were both disabled, and no Resume or other action was available to start the repair download. After relaunching the app, the yellow missing-page state disappeared and the page count displayed 36 / 36 even though 10 pages remained pending, leaving the persisted and displayed state inconsistent."
+prior_round_1_severity: major
 
 ### 6. Pause and system-card cancellation converge on the in-app baseline
 
@@ -126,8 +173,8 @@ result: pass
 
 total: 6
 passed: 4
-issues: 2
-pending: 0
+issues: 0
+pending: 2
 skipped: 0
 blocked: 0
 
@@ -253,7 +300,15 @@ blocked: 0
 
 - gap_id: G-15-2C
   truth: "The gallery count displayed beside X / Y pages equals the number of galleries whose pages are represented by denominator Y, including galleries that already completed during the session."
-  status: failed
+  status: resolved
+  resolved_by: 15-55-PLAN.md
+  resolved_at: 2026-08-09
+  resolution_note: |
+    D-G2C-01 coverage basis landed (coverageGalleryCount: live schedulable + positive
+    retirements), contract docs and every pinned subtitle rewritten, terminal push kept as
+    defence. Fidelity-audited zero-deviation 2026-08-09; full suite green. NOT yet re-observed
+    on a device — test 2 round 4 above is the confirming run, with the expected observation
+    changed to "· 2 galleries" on every frame.
   reason: "User reported: after both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages."
   severity: major
   test: 2
@@ -310,7 +365,17 @@ blocked: 0
 
 - gap_id: G-15-5
   truth: "After validation marks missing image files as pending, the user can immediately start a repair download, and the missing-page indicator, displayed page count, and persisted pending-page state remain consistent across relaunch."
-  status: failed
+  status: resolved
+  resolved_by: [15-56-PLAN.md, 15-57-PLAN.md]
+  resolved_at: 2026-08-09
+  resolution_note: |
+    Root fix (D-G5B-01): validate durably reconciles the manifest under the D-G5-01 guards;
+    validationErrors reduced to operation-level and cleared at every enqueue (WR-03 closed the
+    fifth entrance); affordances swept (retry basis, downloadNeedsRepair, dead canRetry).
+    Hardened by the owner-directed SSOT collapse (15-58/59/60: content-evidence arm with
+    removal-under-guards, manifest-derived inspector, invariant property suite) and the 10/10
+    review-fix pass. Fidelity-audited zero-deviation 2026-08-09; full suite green. NOT yet
+    re-observed on a device — test 5 round 2 above is the confirming run.
   reason: "User reported: after Validate Image Data marked 10 missing pages as pending, Pause and Retry Failed Pages were disabled and no Resume or other repair-start action was available. After relaunch, the yellow missing state disappeared and the UI displayed 36 / 36 while 10 pages were still pending."
   severity: major
   test: 5
