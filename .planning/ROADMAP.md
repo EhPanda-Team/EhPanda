@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 58/60 | In Progress|  |
+| 15. Continued Background Downloads | 59/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 58/60 plans executed
+**Plans**: 59/60 plans executed
 
 Plans:
 
@@ -1037,7 +1037,7 @@ Plans:
 
 **Wave 59** *(gap closure round 19b — blocked on 15-58: recomposes 15-57's retry basis over the shrunken refusal surface, and xcodebuild serialization)*
 
-- [ ] 15-59-PLAN.md — Derive inspector page states from the manifest instead of a live file scan (D-SSOT-07: non-empty hash → downloaded, recorded failure → failed, blank → pending; the listing survives only to resolve thumbnail fileURLs), so badge and inspector share one persisted basis by construction and pre-validate divergence shows the record's claim until Validate senses it; the operation-level-error retry basis becomes the full page set (D-SSOT-08 — manifest-derived pending is empty for the wholesale-refusal family, so the failed∪pending union would silently re-open the G-15-5 dead end), with the divergence window and the non-leak boundary pinned from both sides and every presence-state consumer swept
+- [x] 15-59-PLAN.md — Derive inspector page states from the manifest instead of a live file scan (D-SSOT-07: non-empty hash → downloaded, recorded failure → failed, blank → pending; the listing survives only to resolve thumbnail fileURLs), so badge and inspector share one persisted basis by construction and pre-validate divergence shows the record's claim until Validate senses it; the operation-level-error retry basis becomes the full page set (D-SSOT-08 — manifest-derived pending is empty for the wholesale-refusal family, so the failed∪pending union would silently re-open the G-15-5 dead end), with the divergence window and the non-leak boundary pinned from both sides and every presence-state consumer swept
 
 **Wave 60** *(gap closure round 19b — blocked on 15-59: asserts properties of the state 15-55..15-59 leave behind, and xcodebuild serialization)*
 
