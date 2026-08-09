@@ -54,10 +54,6 @@ extension DownloadedGallery {
         )
     }
 
-    public var canRetry: Bool {
-        displayStatus == .error
-    }
-
     public var canValidateImageData: Bool {
         [.completed, .updateAvailable].contains(displayStatus)
             || lastError?.code == .fileOperationFailed

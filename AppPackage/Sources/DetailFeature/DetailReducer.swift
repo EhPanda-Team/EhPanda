@@ -90,9 +90,28 @@ public struct DetailReducer: Sendable {
             gid.isEmpty ? gallery.id : gid
         }
 
+        /// D-G5D-01: whether the header's error button offers the non-destructive `.repair` instead
+        /// of the destructive `.redownload`, decided on the record's own HONESTY.
+        ///
+        /// A record that says it is incomplete beside a file-shaped failure has landed pages worth
+        /// keeping, and a repair fetches exactly the absent ones — destroying that work to start over
+        /// was never an acceptable default. The conjunct used to demand a ZERO completed count, which
+        /// could only hold after a repair run's blanking loop had already emptied the record: never at
+        /// the moment a user faces this button, so a mid-run file failure with 26 of 36 pages on disk
+        /// was routed to the wipe as its only option. Zero-completed records satisfy the widened
+        /// conjunct trivially, so nothing that used to offer the repair stopped offering it.
+        ///
+        /// A COMPLETE-claiming record keeps `.redownload` deliberately, and this is the boundary
+        /// between Detail's two affordances rather than an omission. Such a record is either one
+        /// whose claims nothing could verify — the refusal family, where the validate-time
+        /// reconciliation declined to blank anything and the manifest still claims every page — or
+        /// one whose files exist and are wrong. A presence-based repair finds nothing absent to fetch
+        /// and fixes neither. For the first of those the surgical route is the downloads inspector's
+        /// widened retry (D-G5C-01), which carries its page selection explicitly and therefore does
+        /// not depend on the record's claims; for the second, refetching the bytes is the medicine.
         var downloadNeedsRepair: Bool {
             guard let badge = downloadBadge, badge.status == .error else { return false }
-            return badge.progress.completedPageCount == 0
+            return badge.progress.completedPageCount < badge.progress.pageCount
                 && downloadFailureCode == .fileOperationFailed
         }
         public var didRunLaunchAutomation = false
