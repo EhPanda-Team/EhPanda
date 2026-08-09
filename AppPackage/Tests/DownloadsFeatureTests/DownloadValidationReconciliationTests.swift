@@ -773,44 +773,6 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
 }
 
 private extension DownloadValidationReconciliationTests {
-    func galleryFolderURL(for gallery: SessionGallery, in fixture: SessionFixture) -> URL {
-        fixture.storage.folderURL(
-            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
-        )
-    }
-
-    func pageFileURL(
-        for gallery: SessionGallery,
-        in fixture: SessionFixture,
-        index: Int
-    ) -> URL {
-        galleryFolderURL(for: gallery, in: fixture)
-            .appendingPathComponent(
-                fixture.storage.makePageRelativePath(
-                    gid: gallery.gid,
-                    token: "token",
-                    index: index,
-                    fileExtension: "jpg"
-                )
-            )
-    }
-
-    /// Overwrites a page file's bytes with different content of nonzero length.
-    ///
-    /// The file stays present and stays probe-usable — a regular file with a positive size — so the
-    /// presence scan keeps yielding it. Only the CONTENT question changes its answer, which is what
-    /// makes this the mismatch family rather than the absence family.
-    func corruptPageFile(
-        for gallery: SessionGallery,
-        in fixture: SessionFixture,
-        index: Int
-    ) throws {
-        try Data("corrupted-page-\(index)".utf8).write(
-            to: pageFileURL(for: gallery, in: fixture, index: index),
-            options: .atomic
-        )
-    }
-
     /// D-SSOT-04's structural pin: after a reconciliation, no page may carry a blank hash while its
     /// file is still on disk.
     ///
@@ -821,6 +783,11 @@ private extension DownloadValidationReconciliationTests {
     /// `addingCurrentFileHashes` merge then hashes exactly the blank-hash pages from the files
     /// currently on disk, re-recording the stale bytes as truth. The removal is what keeps the two
     /// mechanisms honest.
+    ///
+    /// Suite-local because it is an ASSERTION about this suite's contract, not a fixture-staging
+    /// step; the folder, page-file, hashing and corruption helpers it reads through are the shared
+    /// ones on `DownloadFeatureTestCase`, which is what stops this file from carrying a second
+    /// answer to where the fixture's files live.
     func expectNoBlankHashedPageKeptItsFile(
         for gallery: SessionGallery,
         in fixture: SessionFixture
@@ -832,31 +799,5 @@ private extension DownloadValidationReconciliationTests {
             let fileURL = pageFileURL(for: gallery, in: fixture, index: page)
             #expect(FileManager.default.fileExists(atPath: fileURL.path) == false)
         }
-    }
-
-    /// Replaces the fixture's placeholder hashes for `indices` with the real hashes of the page
-    /// files `writePageFiles` just landed.
-    ///
-    /// Content validation compares recorded hashes against the bytes on disk, so a surviving page
-    /// carrying a placeholder hash would be reported corrupted and short-circuit the verdict before
-    /// it ever reached the genuinely missing page. Aligning the surviving pages is what makes the
-    /// missing one the thing under test.
-    func recordRealPageHashes(
-        for gallery: SessionGallery,
-        in fixture: SessionFixture,
-        indices: [Int]
-    ) throws {
-        let pageRelativePaths = indices.reduce(into: [Int: String]()) { paths, index in
-            paths[index] = fixture.storage.makePageRelativePath(
-                gid: gallery.gid,
-                token: "token",
-                index: index,
-                fileExtension: "jpg"
-            )
-        }
-        try fixture.storage.refreshManifestPageFileHashes(
-            folderURL: galleryFolderURL(for: gallery, in: fixture),
-            pageRelativePaths: pageRelativePaths
-        )
     }
 }
