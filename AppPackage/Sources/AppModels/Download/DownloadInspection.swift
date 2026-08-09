@@ -47,34 +47,40 @@ public struct DownloadInspection: Equatable, Sendable {
         pages.filter({ $0.status == .failed }).map(\.index)
     }
 
-    public var pendingPageIndices: [Int] {
-        pages.filter({ $0.status == .pending }).map(\.index)
-    }
-
-    /// D-G5C-01: the pages the inspector's retry action may send, which is the failed set everywhere
-    /// EXCEPT over a file-shaped failure on the error surface, where the pending pages join it.
+    /// D-SSOT-08: the pages the inspector's retry action may send — the failed set everywhere EXCEPT
+    /// over a file-shaped failure on the error surface, where it is the WHOLE page set.
     ///
-    /// A page whose file was deleted outside the app derives `.pending`, not `.failed` — no download
-    /// attempt ever failed for it — so a failed-only basis reports nothing for a gallery whose files
-    /// are simply gone. Where the record can be corrected that costs nothing, because the corrected
-    /// record is `.inactive` and Resume takes it from there. Where the correction is REFUSED (a
-    /// failed page-file scan, unprobed pages, or a blanking that would empty every claimed hash at
-    /// once) the record keeps claiming its pages under a transient `.error`, and `.error` hard-closes
-    /// the Resume path by design — so the failed-only basis left that family with no start at all.
+    /// That surface carries an OPERATION-level signal and nothing else: it says the last validation
+    /// could not produce trustworthy evidence for every claimed page — a directory listing that
+    /// failed, a page whose bytes could not be read, a wholesale reconciliation the irreversibility
+    /// guard refused. It says nothing about any individual page, so no per-page subset is derivable
+    /// from it, and the record offers none either. A wholesale-refusal record keeps every hash it
+    /// claimed, and under D-SSOT-07 that makes every one of its pages read `.downloaded` — so a
+    /// basis drawn as `failed ∪ pending` would be EMPTY for exactly the family with no other way to
+    /// start, leaving the button present with nothing in it. The honest selection for "retry the
+    /// record whose evidence failed" is therefore every page.
     ///
-    /// The widening stops exactly there, and the conjunction is what stops it. Outside this shape
-    /// pending pages are precisely what Resume exists for, and admitting them here would grow a
-    /// second, page-selection-shaped resume beside it. Because the union is empty of pending pages
-    /// whenever the shape does not hold, and a failed page is never also pending, the plain
-    /// failed-pages case keeps its previous value unchanged.
+    /// Naming more pages than are broken costs nothing, because the selection is a REQUEST rather
+    /// than a verdict: `retryPages` carries it explicitly into a `.repair` run, whose working seed
+    /// keeps every usable file it finds and whose fetch filter re-downloads only the pages actually
+    /// missing. The run's own evidence decides what happens; the selection only says which record to
+    /// work on. That is also what keeps the affordance independent of the record's honesty, which is
+    /// the property 15-57 established and this basis preserves.
     ///
-    /// The selection travels explicitly into `retryPages`, so a start built from this basis never
-    /// consults the record's own claims — which is what makes it work for the refusal family, whose
-    /// defining property is a record that cannot speak for itself.
+    /// The widening stops exactly at the conjunction. Outside it, undone pages are precisely what
+    /// Resume exists for, and admitting them here would grow a second, page-selection-shaped resume
+    /// beside it — a blunter one under this basis than under the previous union. A failed page is
+    /// itself one of `pages`, so the widened arm is a superset of the plain one and the excluded
+    /// regimes keep their previous value unchanged.
+    ///
+    /// The set is read off `pages` rather than built as `1...download.pageCount`: the two are equal
+    /// by construction (`buildInspectionPages` enumerates exactly that range), and the range form
+    /// would trap on a zero-page record — the G-15-14 hazard every other page-count site in this
+    /// module already guards.
     public var retryablePageIndices: [Int] {
         guard download.displayStatus == .error,
               download.lastError?.code == .fileOperationFailed
         else { return failedPageIndices }
-        return Array(Set(failedPageIndices).union(pendingPageIndices)).sorted()
+        return pages.map(\.index).sorted()
     }
 }

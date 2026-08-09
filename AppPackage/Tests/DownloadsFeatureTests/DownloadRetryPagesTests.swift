@@ -51,17 +51,23 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 
     }
 
-    /// D-G5C-01 on the production path: the REFUSAL family gets a start, and the start does not
-    /// depend on the record's claims.
+    /// D-SSOT-08 on the production path: the REFUSAL family keeps its start after the display basis
+    /// moved, and the start does not depend on the record's claims.
     ///
     /// The fixture is the shape 15-56 deliberately left on the `.error` surface — a complete-claiming
     /// record whose page files are all gone. Validation reports `.missingFiles`, the blanking loop's
     /// all-or-nothing guard refuses to empty every claimed hash at once, so the manifest stands and
     /// the transient `validationErrors` entry pins `.error`. From there `togglePause` is hard-closed
     /// and Validate only re-reports itself; the one route out is `retryPages`, whose page selection
-    /// travels EXPLICITLY and therefore never consults the manifest's claims. Every page derives
-    /// `.pending` rather than `.failed` — no download attempt ever failed — which is exactly the fact
-    /// the widened basis exists to absorb.
+    /// travels EXPLICITLY and therefore never consults the manifest's claims.
+    ///
+    /// **The composition hazard this case exists to name.** Under D-SSOT-07 the page states are
+    /// manifest-derived, and this record claims every page — so it has NO pending page and NO failed
+    /// page. 15-57's `failed ∪ pending` basis would therefore be EMPTY here, silently re-creating
+    /// the G-15-5 dead end for precisely the family the affordance was built for, and doing it
+    /// invisibly: the button would still exist, with nothing to send. The basis is asserted
+    /// non-empty and equal to the whole page set BEFORE `retryPages` is driven, so a regression to
+    /// any subset-shaped basis fails here rather than in a device session.
     ///
     /// The `.queued` assertion is the load-bearing one: `validationErrors` outranks both
     /// `activeGalleryID` and queue membership in `displayStatus`, so `.queued` is reachable only
@@ -77,7 +83,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     /// `activeTask == nil` guard then refuses every promotion, making the target's `.queued` stable
     /// indefinitely rather than momentarily true.
     @Test
-    func testRetryingThePendingPagesOfARefusedRecordQueuesARepair() async throws {
+    func testRetryingAWholesaleRefusedRecordQueuesARepairOverEveryPage() async throws {
         let target = SessionGallery(
             gid: "215701",
             title: "Refused",
@@ -119,19 +125,23 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(refused.completedPageCount == 2)
 
         let inspection = try await fixture.manager.loadInspection(gid: target.gid).get()
-        // Externally-deleted pages derive `.pending`, never `.failed`, so the failed-only basis the
-        // inspector used to send would have been empty here — the dead end this plan removes.
+        // The manifest-derived reading of a refusal record: it claims every page, so every page
+        // reads `.downloaded` and neither of the sets a subset-shaped basis could draw from exists.
+        #expect(inspection.pages.map(\.status) == [.downloaded, .downloaded])
         #expect(inspection.failedPageIndices.isEmpty)
-        let pendingIndices = inspection.pages
-            .filter({ $0.status == .pending })
-            .map(\.index)
-        #expect(pendingIndices == [1, 2])
-        // The widened basis is what the inspector's button now sends, so the indices routed below
-        // are the production ones rather than a set only this test knows how to derive.
-        #expect(inspection.retryablePageIndices == pendingIndices)
+        #expect(inspection.pages.filter({ $0.status == .pending }).isEmpty)
+        // D-SSOT-08: the operation-level error is a record-wide signal, so the honest selection is
+        // every page. Asserted non-empty explicitly — that is the property the superseded
+        // `failed ∪ pending` union would have lost here without failing anything else.
+        #expect(inspection.retryablePageIndices.isEmpty == false)
+        #expect(inspection.retryablePageIndices == [1, 2])
         #expect(inspection.canRetryPages)
 
-        try await fixture.manager.retryPages(gid: target.gid, pageIndices: pendingIndices).get()
+        // Routed through the very array the button sends, so the selection under test is the
+        // production one rather than a set only this test knows how to derive.
+        try await fixture.manager
+            .retryPages(gid: target.gid, pageIndices: inspection.retryablePageIndices)
+            .get()
 
         let queued = try #require(await fixture.manager.fetchDownload(gid: target.gid))
         #expect(queued.displayStatus == .queued)
@@ -179,23 +189,29 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         )
     }
 
-    // MARK: The widened retry basis (D-G5C-01)
+    // MARK: The operation-level retry basis (D-SSOT-08)
 
-    /// The union regime, and the only one: at `.error` over a file-shaped failure the pending pages
-    /// join the failed ones, because that is the shape where nothing else can start them.
+    /// The widened regime, and the only one: at `.error` over a file-shaped failure the basis is the
+    /// WHOLE page set, whatever the individual pages happen to read.
+    ///
+    /// The failure is operation-level — it says the last validation could not produce trustworthy
+    /// evidence for every claimed page — so no per-page subset is derivable from it, and drawing one
+    /// anyway is a category error. Every index goes, and the repair run's own evidence (the working
+    /// seed's scan, the missing-file fetch filter) decides what is actually re-fetched.
     @Test
-    func testTheRetryBasisUnionsPendingPagesForTheFileFailureErrorShape() {
+    func testTheRetryBasisIsTheWholePageSetForTheFileFailureErrorShape() {
         let inspection = basisInspection(
             status: .missingFiles,
             pageStatuses: [.downloaded, .failed, .pending]
         )
 
-        #expect(inspection.retryablePageIndices == [2, 3])
+        #expect(inspection.retryablePageIndices == [1, 2, 3])
         #expect(inspection.canRetryPages)
     }
 
     /// The boundary from the inside: `.error` alone does not widen anything. A networking-shaped
-    /// failure is not the refusal family, so its pending pages are still ordinary undone work.
+    /// failure is an ordinary interruption rather than a statement about the whole record, so its
+    /// per-page evidence is intact and the basis stays the failed set alone.
     @Test
     func testTheRetryBasisStaysFailedOnlyForAnErrorWithADifferentFailureCode() {
         let inspection = basisInspection(
@@ -207,9 +223,10 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(inspection.canRetryPages)
     }
 
-    /// The boundary from the outside: a paused gallery's pending pages stay Resume's business, so
-    /// the basis is the failed set alone and the gate closes when that set is empty. Without this
-    /// pin the widening would silently become a second, page-selection-shaped resume.
+    /// The boundary from the outside: a healthy-incomplete `.inactive` record's undone pages stay
+    /// Resume's business, so the basis is the failed set alone and the gate closes when that set is
+    /// empty. Without this pin the widening would silently become a second, page-selection-shaped
+    /// resume — and under the full-set basis it would be an even blunter one.
     @Test
     func testTheRetryBasisStaysFailedOnlyForANonErrorDownloadWithPendingPages() {
         let withFailure = basisInspection(
@@ -229,17 +246,23 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(withoutFailure.canRetryPages == false)
     }
 
-    /// The all-missing shape, which the arc case above drives end to end: every page derives
-    /// `.pending`, so the whole page set becomes retryable and the gate opens on a record that
-    /// reports zero failed pages.
+    /// The composition hazard, stated at the unit level beside the arc that drives it end to end.
+    ///
+    /// This is the manifest-derived reading of a wholesale-refusal record: it claims every page, so
+    /// under D-SSOT-07 no page reads `.pending` and none reads `.failed`. Any basis drawn as a
+    /// subset of those two sets — 15-57's `failed ∪ pending` in particular — is EMPTY here, which
+    /// would close the gate on exactly the family the affordance exists for while leaving the button
+    /// visibly present. The full-set basis is what keeps the gate open, so a nonzero-page record on
+    /// the error surface is always retryable.
     @Test
-    func testTheAllMissingShapeMakesTheWholePageSetRetryable() {
+    func testTheWholesaleRefusalShapeIsFullyRetryableThoughNoPageReadsPendingOrFailed() {
         let inspection = basisInspection(
             status: .missingFiles,
-            pageStatuses: [.pending, .pending]
+            pageStatuses: [.downloaded, .downloaded]
         )
 
         #expect(inspection.failedPageIndices.isEmpty)
+        #expect(inspection.pages.filter({ $0.status == .pending }).isEmpty)
         #expect(inspection.retryablePageIndices == [1, 2])
         #expect(inspection.canRetryPages)
     }
