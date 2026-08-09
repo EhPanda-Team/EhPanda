@@ -426,10 +426,11 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// drops its basis to zero, and the card must dip once and then advance with the work.
     ///
     /// The staging is the one the prior rounds never performed. `DetailView` sends
-    /// `.retryDownloadButtonTapped(store.downloadNeedsRepair ? .repair : .redownload)`, and
-    /// `DetailReducer.downloadNeedsRepair` requires `badge.progress.completedPageCount == 0`, so an
-    /// errored gallery with ANY downloaded page fails that guard and the button resolves
-    /// `.redownload`. A record with 0 < C < N satisfies `isIncomplete`, so D-G4-01's first half
+    /// `.retryDownloadButtonTapped(store.downloadNeedsRepair ? .repair : .redownload)`, and under
+    /// D-G5D-01 that predicate is a conjunction: an incomplete record AND a file-shaped failure
+    /// code. So an errored gallery whose failure is networking-shaped — the ordinary interruption —
+    /// resolves `.redownload` however many pages it has already landed, which is the route this
+    /// case stages. A record with 0 < C < N satisfies `isIncomplete`, so D-G4-01's first half
     /// counts it RAW and the floor opens at C. The two existing `.redownload` cases in the ledger
     /// suite stage a 6-of-6 record instead: complete, therefore untrusted, therefore contributing
     /// zero to the floor, so their wipe moves a basis that was already zero. That vacuity is why a
