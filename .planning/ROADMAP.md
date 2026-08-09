@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 59/60 | In Progress|  |
+| 15. Continued Background Downloads | 60/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 59/60 plans executed
+**Plans**: 60/60 plans executed
 
 Plans:
 
@@ -1041,7 +1041,7 @@ Plans:
 
 **Wave 60** *(gap closure round 19b — blocked on 15-59: asserts properties of the state 15-55..15-59 leave behind, and xcodebuild serialization)*
 
-- [ ] 15-60-PLAN.md — The SSOT property suite (D-SSOT-09): over a reproducible generated family crossing every regime boundary, assert count-basis agreement (every displayed record-completeness quantity is the same manifest-derived function, in-session and across relaunch), derivation totality via the external-mutation probe (deleting or corrupting files outside the app moves no displayed quantity or predicate until Validate senses it), and no-dead-end (every non-terminal incomplete state reaches .queued through a driven production affordance — the property whose absence let G-15-5 ship green through 888 tests), with the run-measured session card explicitly out of scope so the round-18 redesign is not undone
+- [x] 15-60-PLAN.md — The SSOT property suite (D-SSOT-09): over a reproducible generated family crossing every regime boundary, assert count-basis agreement (every displayed record-completeness quantity is the same manifest-derived function, in-session and across relaunch), derivation totality via the external-mutation probe (deleting or corrupting files outside the app moves no displayed quantity or predicate until Validate senses it), and no-dead-end (every non-terminal incomplete state reaches .queued through a driven production affordance — the property whose absence let G-15-5 ship green through 888 tests), with the run-measured session card explicitly out of scope so the round-18 redesign is not undone
 
 ### Phase 16: Dynamic Type Accessibility
 
