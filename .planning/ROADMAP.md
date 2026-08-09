@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 56/60 | In Progress|  |
+| 15. Continued Background Downloads | 57/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 56/60 plans executed
+**Plans**: 57/60 plans executed
 
 Plans:
 
@@ -1029,7 +1029,7 @@ Plans:
 
 **Wave 57** *(gap closure round 19, UAT gap G-15-5 affordance + predicate sweep — blocked on 15-56: the widened retry exists FOR the refusal family 15-56 leaves on the .error surface, and xcodebuild serialization)*
 
-- [ ] 15-57-PLAN.md — Give the refusal family its start and sweep the predicates the diagnosis named: the inspector retry basis widens to failed-plus-pending exactly for the .error/fileOperationFailed shape (D-G5C-01, one computed basis feeding both gate and send, routed into the existing retryPages whose enqueue clears the transient error — asserted .queued on the production path), Detail's downloadNeedsRepair reads record honesty (completedPageCount < pageCount, D-G5D-01) so a mid-run file failure with landed pages offers the non-destructive repair while complete-claiming records deliberately keep redownload, and the consumerless row-retry predicate is deleted with the stale basis-suite comment re-derived
+- [x] 15-57-PLAN.md — Give the refusal family its start and sweep the predicates the diagnosis named: the inspector retry basis widens to failed-plus-pending exactly for the .error/fileOperationFailed shape (D-G5C-01, one computed basis feeding both gate and send, routed into the existing retryPages whose enqueue clears the transient error — asserted .queued on the production path), Detail's downloadNeedsRepair reads record honesty (completedPageCount < pageCount, D-G5D-01) so a mid-run file failure with landed pages offers the non-destructive repair while complete-claiming records deliberately keep redownload, and the consumerless row-retry predicate is deleted with the stale basis-suite comment re-derived
 
 **Wave 58** *(gap closure round 19b, owner-decided SSOT design extension G-15-SSOT — blocked on 15-57: this plan rewrites 15-56's corrupt-in-place refusal pins and 15-57's rationale comments, and xcodebuild serialization)*
 
