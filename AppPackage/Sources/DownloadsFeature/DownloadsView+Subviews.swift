@@ -75,8 +75,13 @@ struct DownloadInspectorView: View {
                             Button {
                                 store.send(.retryPages(inspection.retryablePageIndices))
                             } label: {
+                                // Neutral on purpose, and it is the accessibility reading too. Under
+                                // D-SSOT-08 this action sends the WHOLE page set wherever the record
+                                // carries an operation-level failure, so most of what it sends never
+                                // failed — "Retry Failed Pages" described neither that behavior nor
+                                // the failed-only selection outside that shape.
                                 Label(
-                                    .retryFailedPages,
+                                    .retryPages,
                                     systemSymbol: .arrowClockwise
                                 )
                                 .disabledActionForegroundStyle(isRetryPagesDisabled)

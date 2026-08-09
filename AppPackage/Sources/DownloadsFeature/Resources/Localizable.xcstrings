@@ -986,43 +986,43 @@
         }
       }
     },
-    "retry_failed_pages" : {
+    "retry_pages" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fehlgeschlagene Seiten erneut versuchen"
+            "value" : "Seiten erneut versuchen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Retry Failed Pages"
+            "value" : "Retry Pages"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "失敗したページを再試行"
+            "value" : "ページを再試行"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실패한 페이지 다시 시도"
+            "value" : "페이지 다시 시도"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重试失败页面"
+            "value" : "重试页面"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "重試失敗頁面"
+            "value" : "重試頁面"
           }
         }
       }
