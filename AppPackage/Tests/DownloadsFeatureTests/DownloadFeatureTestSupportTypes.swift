@@ -457,6 +457,97 @@ final class PartialProbeFailureFileManager: FileManager {
     }
 }
 
+/// The observable half of `PostRemovalListingFailureFileManager`, held by the case while the double
+/// itself is `sending` into the store.
+///
+/// It exists so the injected failure can be COUNTED. An injection that is never consumed leaves
+/// every assertion about the recovery passing over a path the case never entered, which is the exact
+/// shape of a barrier that stops observing when the thing it guards moves — so the count is asserted
+/// rather than the outcome alone.
+final class PostRemovalListingFailureControl: Sendable {
+    private struct State {
+        var isArmed = false
+        var consumedFailureCount = 0
+    }
+
+    private let state = Mutex(State())
+
+    /// Arms the single failure. Called when the double observes the removal it keys on.
+    func arm() {
+        state.withLock({ $0.isArmed = true })
+    }
+
+    /// Answers whether this listing is the armed one, consuming the arming if so.
+    func shouldFailListing() -> Bool {
+        state.withLock { state in
+            guard state.isArmed else { return false }
+            state.isArmed = false
+            state.consumedFailureCount += 1
+            return true
+        }
+    }
+
+    var consumedFailureCount: Int {
+        state.withLock({ $0.consumedFailureCount })
+    }
+}
+
+/// Fails the FIRST directory listing that follows a refuted page file's removal, then forwards every
+/// filesystem operation to `FileManager` unchanged.
+///
+/// **The listing-call choreography this keys on**, because keying on an ordinal would silently
+/// re-target itself the moment a call is added. Inside one `validateImageData` over a mismatched
+/// page, the gallery folder is enumerated by `storage.validate`'s own page check, then by the
+/// reconciliation's presence scan, then — after `removeMismatchedPageFiles` has deleted the refuted
+/// file — by the blanking pass's rescan, and then once more by the recovery's rescan. Only the third
+/// of those follows a removal, so "the first listing after the removal" names the post-removal
+/// rescan positionally-independently: exit 1 of the three post-removal exits, and the one the
+/// recover-once path exists for. The arming is consumed by that listing, so the recovery's rescan
+/// sees the real filesystem and the durable blank can land.
+///
+/// The removal itself is performed for real before arming — the page file really is gone, which is
+/// what makes the recovery's fresh scan see it as the positive absence it now is.
+final class PostRemovalListingFailureFileManager: FileManager {
+    private let removedPathFragment: String
+    private let listedPathFragment: String
+    private let error: any Error & Sendable
+    private let control: PostRemovalListingFailureControl
+
+    init(
+        removedPathFragment: String,
+        listedPathFragment: String,
+        error: any Error & Sendable,
+        control: PostRemovalListingFailureControl
+    ) {
+        self.removedPathFragment = removedPathFragment
+        self.listedPathFragment = listedPathFragment
+        self.error = error
+        self.control = control
+        super.init()
+    }
+
+    override func removeItem(at url: URL) throws {
+        try super.removeItem(at: url)
+        guard url.path.contains(removedPathFragment) else { return }
+        control.arm()
+    }
+
+    override func contentsOfDirectory(
+        at url: URL,
+        includingPropertiesForKeys keys: [URLResourceKey]?,
+        options mask: FileManager.DirectoryEnumerationOptions = []
+    ) throws -> [URL] {
+        guard url.path.contains(listedPathFragment), control.shouldFailListing() else {
+            return try super.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: keys,
+                options: mask
+            )
+        }
+        throw error
+    }
+}
+
 /// Replaces whatever sits at `fileURL` with a DANGLING symbolic link, so a directory listing still
 /// yields the entry while the per-file probe cannot classify it.
 ///
@@ -479,6 +570,35 @@ func makeAssetFileUnprobeable(at fileURL: URL) throws {
         atPath: fileURL.path,
         withDestinationPath: fileURL.path + ".unresolvable"
     )
+}
+
+/// Marks a file immutable, so a `rename`-backed atomic write over it fails with `EPERM` while the
+/// enclosing directory stays fully writable.
+///
+/// This is how a case stages a THROWING manifest write without a double anywhere: the store's
+/// `writeJSON` bottoms out in `Data.write(to:options:.atomic)`, which is free Foundation and takes
+/// no injected collaborator, so the only faithful staging is a real filesystem condition. Keeping
+/// the directory writable is what separates this from a directory-permission change, which would
+/// also block the page-file removal that has to succeed first.
+func setImmutableFlag(_ isImmutable: Bool, at url: URL) throws {
+    try FileManager.default.setAttributes(
+        [.immutable: NSNumber(value: isImmutable)],
+        ofItemAtPath: url.path
+    )
+}
+
+/// Clears the immutable flag, absorbing the failure — the teardown counterpart of
+/// `setImmutableFlag(_:at:)`.
+///
+/// Absorbing, because a teardown must not fail the case that asked for it, and because the flag may
+/// already be clear when a case clears it explicitly mid-test. It must still RUN, or the leftover
+/// flag would defeat the temporary tree's own removal.
+func clearImmutableFlag(at url: URL) {
+    do {
+        try setImmutableFlag(false, at: url)
+    } catch {
+        // Teardown housekeeping: the file may already be clear, or already gone with its folder.
+    }
 }
 
 /// Removes a temporary file or directory a case created, absorbing the failure.
