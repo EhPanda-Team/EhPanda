@@ -421,9 +421,7 @@ extension DownloadFeatureTestCase {
         in fixture: SessionFixture,
         indices: [Int]
     ) throws {
-        let folderURL = fixture.storage.folderURL(
-            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
-        )
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
         for index in indices {
             let relativePath = fixture.storage.makePageRelativePath(
                 gid: gallery.gid,
@@ -436,6 +434,88 @@ extension DownloadFeatureTestCase {
                 options: .atomic
             )
         }
+    }
+
+    /// The fixture folder `makeQueuedCoordinator` staged for `gallery`.
+    ///
+    /// Shared rather than file-private on this surface's own rule — a third suite now stages
+    /// record-versus-disk divergence over this layout, and the string is the one place the fixture's
+    /// folder naming is decided. Three private copies could drift in two of them while every suite
+    /// stayed green, because each would simply be looking at a folder that is not there.
+    func galleryFolderURL(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture
+    ) -> URL {
+        fixture.storage.folderURL(
+            relativePath: "Folder/[\(gallery.gid)_token] \(gallery.title)"
+        )
+    }
+
+    /// The on-disk URL of one page file inside `gallery`'s fixture folder.
+    ///
+    /// The relative path comes from the same production API `writePageFiles` writes through, so a
+    /// naming change moves the writer and every reader together rather than leaving an assertion
+    /// pointed at a file that was never created.
+    func pageFileURL(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture,
+        index: Int
+    ) -> URL {
+        galleryFolderURL(for: gallery, in: fixture)
+            .appendingPathComponent(
+                fixture.storage.makePageRelativePath(
+                    gid: gallery.gid,
+                    token: "token",
+                    index: index,
+                    fileExtension: "jpg"
+                )
+            )
+    }
+
+    /// Replaces the fixture's placeholder hashes for `indices` with the real hashes of the page
+    /// files `writePageFiles` just landed.
+    ///
+    /// Content validation compares recorded hashes against the bytes on disk, so a surviving page
+    /// carrying a placeholder hash would be reported corrupted and short-circuit the verdict before
+    /// it ever reached the page a case actually staged as broken. Aligning the intact pages is what
+    /// makes the staged one the thing under test.
+    ///
+    /// Only pages the manifest already CLAIMS may be passed: this writes a hash for whatever index
+    /// it is given, so handing it a blank-hash page would silently promote that page to claimed and
+    /// change the regime the caller thought it staged.
+    func recordRealPageHashes(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture,
+        indices: [Int]
+    ) throws {
+        let pageRelativePaths = indices.reduce(into: [Int: String]()) { paths, page in
+            paths[page] = fixture.storage.makePageRelativePath(
+                gid: gallery.gid,
+                token: "token",
+                index: page,
+                fileExtension: "jpg"
+            )
+        }
+        try fixture.storage.refreshManifestPageFileHashes(
+            folderURL: galleryFolderURL(for: gallery, in: fixture),
+            pageRelativePaths: pageRelativePaths
+        )
+    }
+
+    /// Overwrites a page file's bytes with different content of nonzero length.
+    ///
+    /// The file stays present and stays probe-usable — a regular file with a positive size — so the
+    /// presence scan keeps yielding it. Only the CONTENT question changes its answer, which is what
+    /// makes this the mismatch family rather than the absence family.
+    func corruptPageFile(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture,
+        index: Int
+    ) throws {
+        try Data("corrupted-page-\(index)".utf8).write(
+            to: pageFileURL(for: gallery, in: fixture, index: index),
+            options: .atomic
+        )
     }
 
     /// The results a production flush is handed for pages `writePageFiles` has just landed.
