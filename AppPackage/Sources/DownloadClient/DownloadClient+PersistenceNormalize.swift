@@ -1,5 +1,8 @@
 import AppModels
 import Foundation
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Manifest, Folder & Normalize
 extension DownloadCoordinator {
@@ -166,6 +169,31 @@ extension DownloadCoordinator {
     /// this function declined to write would already have destroyed the files it declined to write
     /// about.
     ///
+    /// **Removal precedes the write DELIBERATELY, and reversing it is the more dangerous order —
+    /// the opposite of how it reads.** The obvious correction to "files are gone while the record
+    /// still claims them" is to blank and write first and remove afterwards. Do not make it. A
+    /// FAILED removal would then leave a page durably blank beside a surviving file, which is
+    /// exactly the D-SSOT-04 laundering shape, and that state is one user tap from permanent silent
+    /// corruption: `retryPages` clears the transient entry at enqueue and queues a `.repair`; the
+    /// run's `pendingPageIndices` fetches only pages whose file is MISSING, so the surviving corrupt
+    /// file is never re-fetched; and `finalizeDownload`'s `addingCurrentFileHashes` merge then
+    /// re-hashes exactly the blank-hash pages from the bytes on disk, recording the corruption as
+    /// truth with a matching hash no later validation can refute. The current order's own failure
+    /// state — files gone, hashes still claimed — is strictly more recoverable, because the removed
+    /// files are positively absent, so the next validate blanks them under the ordinary guards. That
+    /// asymmetry is why the destructive step stays first and the recovery below exists instead.
+    ///
+    /// **Recover once, never return verbatim, and never silently (CR-02).** Three exits fire AFTER
+    /// the removal — a rescan that could not enumerate, the loop's own refusal lines applied to the
+    /// post-removal scan, and a thrown manifest write — and each would otherwise leave the record
+    /// claiming pages this pass deleted. So every one of them re-attempts the same pass ONCE: a
+    /// fresh scan through the same loop, with zero new blanking paths and every refusal guard
+    /// intact. The pages this pass removed are positively absent by construction, so a retry that
+    /// gets an answer blanks them under the loop's ordinary evidence rules. When the retry fails too
+    /// the removed page indices are logged at `error` beside the masked gid, so a device archive can
+    /// show which files were destroyed against a record that still claims them, and the entry is
+    /// kept.
+    ///
     /// **D-SSOT-04: the mismatched files are removed, and the blanking still flows through the ONE
     /// loop.** Nothing here blanks a hash. Removal converts a corrupt-in-place page into the
     /// positively-absent shape, the rescan sees it as such, and
@@ -219,6 +247,10 @@ extension DownloadCoordinator {
             pageRelativePaths: presenceScan.pages,
             mismatchedPages: contentScan.mismatched
         )
+        // The pages whose files this pass actually destroyed, which is exactly the set the record
+        // now owes a blank hash for. `unremovedPages` is its complement and keeps its recorded hash,
+        // because a page whose file survived must not end up claiming nothing.
+        let removedPages = contentScan.mismatched.subtracting(unremovedPages)
         let heldPages = contentScan.held
             .union(unremovedPages)
             .union(
@@ -228,28 +260,109 @@ extension DownloadCoordinator {
                     prospectiveBlankPages: prospectiveBlankPages
                 )
             )
-        // Taken after the removals, so the pages they emptied reach the loop as the positive
-        // absences they now are. Reusing the pre-removal scan would hide them from the very
-        // reconciliation the removal was performed for.
-        let reconciliationScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
         do {
-            let reconciledManifest = try withdrawingCountedBasisMovement(gid: download.gid) {
-                try reconcileWorkingManifestAgainstPageFiles(
-                    manifest: manifest,
-                    pageFileScan: reconciliationScan,
-                    folderURL: folderURL
-                )
+            let reconciledManifest = try blankingPass(
+                gid: download.gid,
+                manifest: manifest,
+                folderURL: folderURL
+            )
+            guard reconciledManifest.claimsAnyPage(in: removedPages) else {
+                return heldPages.isEmpty && reconciledManifest.pages != manifest.pages
             }
-            return heldPages.isEmpty && reconciledManifest.pages != manifest.pages
+            // Post-removal exits 1 and 2: the loop handed the manifest back verbatim — the rescan
+            // could not enumerate, or its own refusal lines fired on the post-removal scan — so the
+            // record still claims pages whose files are gone.
+            return recoveredBlanking(
+                gid: download.gid,
+                manifest: manifest,
+                removedPages: removedPages,
+                folderURL: folderURL
+            ) && heldPages.isEmpty
         } catch {
-            // Silence is correct here, and is not a swallowed failure. A throw can only come from
-            // the loop's manifest write, which leaves the record claiming exactly what it claimed
-            // before — so nothing was destroyed, the verdict simply has nowhere durable to live, and
-            // the caller records the transient entry that is the honest surface for that. The loop
-            // logs the writes it DOES perform, so the observable inventory stays what it was: no new
-            // log content is introduced by this second caller.
-            return false
+            // Post-removal exit 3: the throw can only come from the loop's manifest write. Where
+            // this pass destroyed nothing, the record still claims exactly what it claimed before,
+            // so the verdict simply has nowhere durable to live and the caller's transient entry is
+            // the honest surface for that — the silence is deliberate rather than swallowed, and the
+            // loop logs the writes it does perform.
+            guard !removedPages.isEmpty else { return false }
+            // Where this pass DID destroy files, the old premise is false: returning here would
+            // leave the record claiming pages that no longer exist, marked only by session state.
+            return recoveredBlanking(
+                gid: download.gid,
+                manifest: manifest,
+                removedPages: removedPages,
+                folderURL: folderURL
+            ) && heldPages.isEmpty
         }
+    }
+
+    /// One bracketed run of the D-G5-01 blanking loop over a page-file scan taken fresh at the call.
+    ///
+    /// The scan is taken here rather than passed in, so the pages a removal emptied reach the loop as
+    /// the positive absences they now are, and so the recovery attempt cannot accidentally re-use the
+    /// stale scan its predecessor already failed against. Reusing a pre-removal scan would hide the
+    /// removed pages from the very reconciliation the removal was performed for.
+    ///
+    /// Both attempts route through this one function, which is also what keeps
+    /// `withdrawingCountedBasisMovement` at a single call site in this file: the bracket is the same
+    /// sibling bracket the repair-seed preparation wraps this loop in, the two attempts compose as
+    /// SIBLINGS rather than nesting, and its delta-keying means an attempt that blanks nothing
+    /// withdraws exactly zero by construction.
+    private func blankingPass(
+        gid: String,
+        manifest: DownloadManifest,
+        folderURL: URL
+    ) throws -> DownloadManifest {
+        let pageFileScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        return try withdrawingCountedBasisMovement(gid: gid) {
+            try reconcileWorkingManifestAgainstPageFiles(
+                manifest: manifest,
+                pageFileScan: pageFileScan,
+                folderURL: folderURL
+            )
+        }
+    }
+
+    /// Re-attempts the blanking write ONCE for the pages this pass already removed, and reports
+    /// whether the record and the disk agree when it returns.
+    ///
+    /// Called from every post-removal exit, because all three leave the same state: files destroyed,
+    /// hashes still claimed. The retry adds no blanking path — it is the identical pass over a fresh
+    /// scan — so the loop's three refusal lines and the wholesale guard still decide. What it buys is
+    /// the transient case: an enumeration that failed once, a write that failed once, a folder busy
+    /// for an instant. The removed pages are positively absent by construction, so an attempt that
+    /// gets an answer blanks exactly them.
+    ///
+    /// A second failure is NOT silent. Recorded hashes now describe files this app deleted, and that
+    /// divergence outlives the session while the `validationErrors` entry marking it does not, so the
+    /// removed page indices go to the log at `error` with the gid hash-masked — the module's identity
+    /// pattern, and the only trail a device archive could show. Returning false keeps the entry.
+    private func recoveredBlanking(
+        gid: String,
+        manifest: DownloadManifest,
+        removedPages: Set<Int>,
+        folderURL: URL
+    ) -> Bool {
+        do {
+            let recoveredManifest = try blankingPass(
+                gid: gid,
+                manifest: manifest,
+                folderURL: folderURL
+            )
+            if !recoveredManifest.claimsAnyPage(in: removedPages) { return true }
+        } catch {
+            // The retry's own write threw. The error itself adds nothing the log line below does not
+            // already say, and that line is what the removals oblige.
+        }
+        let removedPageList = removedPages.sorted().map(String.init).joined(separator: ", ")
+        logger.error(
+            """
+            Validation removed refuted page files the record still claims, pages: \
+            \(removedPageList, privacy: .public), \
+            gid: \(gid, privacy: .private(mask: .hash)).
+            """
+        )
+        return false
     }
 
     /// The pages this reconciliation would end up blanking if nothing refused — the set D-SSOT-02's
@@ -306,5 +419,17 @@ extension DownloadCoordinator {
         return claimedPages
             .subtracting(classifiedPages)
             .subtracting(prospectiveBlankPages)
+    }
+}
+
+private extension DownloadManifest {
+    /// Whether this manifest still records a non-empty hash for any of `pageIndices`.
+    ///
+    /// The recovery's whole question, asked of the record rather than of a return code: a blanking
+    /// attempt that refused and one that threw are indistinguishable from their outcome alone, and
+    /// what matters to the caller is neither — it is whether the record still claims a page whose
+    /// file is gone.
+    func claimsAnyPage(in pageIndices: Set<Int>) -> Bool {
+        pageIndices.contains(where: { pages[$0]?.isEmpty == false })
     }
 }
