@@ -427,6 +427,18 @@ public actor DownloadCoordinator {
     /// live in the manifest. The accepted cost is that after relaunch a failed download
     /// surfaces as inactive ("Paused") until its error re-surfaces on the next manual retry.
     public var downloadErrors = [String: DownloadFailure]()
+    /// The REFUSAL surface of validation, and nothing more (D-G5B-01).
+    ///
+    /// A `.missingFiles` verdict is not status about a download when the manifest can be corrected
+    /// to say the same thing: `validateImageData(gid:)` reconciles the record through the D-G5-01
+    /// blanking loop, and on success the finding lives in the manifest — durable, relaunch-stable,
+    /// and the single basis the count, the status and the start gates all read — while this
+    /// dictionary is cleared. An entry survives here only where the loop REFUSED to blank (a failed
+    /// page-file scan, an unprobed page, or a shape that would empty every claimed hash at once) and
+    /// where the record therefore cannot state the finding at all. Clearing on the durable arm is
+    /// load-bearing rather than tidy: this dictionary outranks the queue and the manifest in
+    /// `displayStatus`, so a leftover entry would pin `.error` over an honest record and leave it
+    /// unstartable.
     public var validationErrors = [String: DownloadFailure]()
     public var failedPageErrors = [String: [Int: PageFailure]]()
     public var updatedGalleryIDs = Set<String>()
