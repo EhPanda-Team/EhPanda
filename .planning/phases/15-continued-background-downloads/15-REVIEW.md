@@ -441,6 +441,56 @@ All eight are actionable under this project's review bar (nitpicks are blocking;
 surface as the criticals and go through the same fix pass; WR-02, WR-04 (absorbed by CR-01's
 ruling), WR-05 and WR-06 follow with them.
 
+### Fix-pass amendments (ruled 2026-08-09, after CR-01+WR-04 landed in 8c453708)
+
+The executor proved CR-02 pin (a) unimplementable at the write seam (`writeManifest` bottoms out
+in free-Foundation `Data.write` with no injected collaborator, and the synchronous function
+leaves no window for a real condition to heal between attempts). Amended rulings:
+
+1. **CR-02 pin (a) RETARGETED to the failed-rescan exit (exit 1).** The pin's essence is "a
+   transient post-removal failure heals via the single retry and the durable blank lands"; the
+   recovery machinery is shared across all three exits, and exit 3's throw path stays covered by
+   pin (b). A count-keyed `DownloadFileManager` double failing the post-removal rescan once is
+   acceptable, on two conditions: the double documents the listing-call choreography it keys on
+   (which invocation is the post-removal rescan), and the test asserts the injected failure was
+   consumed exactly once — so a future reordering turns the test red, never vacuously green.
+   Adding a production write seam for observability alone is REJECTED (this module treats every
+   seam as load-bearing).
+2. **CR-02 pin (b) staging ACCEPTED as proposed** — `.immutable` on `manifest.json` with the
+   folder writable, cleared between the two `validateImageData` drives. A real throwing write is
+   MORE contract-faithful than any double. Conditions: clear the flag in a `defer`; the first
+   assertion after staging names the staging premise (so a filesystem surprise reads as a staging
+   failure, not a mystery); the fix report records that rename-over-immutable was empirically
+   confirmed on the simulator.
+3. **CR-02 pin (b) log assertion: structural pin ACCEPTED.** The privacy census
+   (`expectedHashMaskedCounts` gains `DownloadClient+PersistenceNormalize.swift: 1`, 10 → 11)
+   pins the masked emission's existence; the branch's execution is proven by its runtime
+   observables in the same case (entry survives, `false` return, second-drive convergence). No
+   runtime log capture is required; the fix report notes this rationale.
+4. **WR-08: all three of the finding's remedies are REJECTED for this pass.** R1 rewrites the
+   missing-only fetch filter — the exact premise of CR-02's binding laundering rejection — and a
+   premise of a binding ruling is not re-derived mid-pass. R2 violates the enqueue-clears SSOT
+   rule (the G-15-5 dead-end mechanism, the rule WR-03 enforces). R3 is untargetable: the held
+   and wholesale-refusal families are identical at the record, D-SSOT-07 forbids consulting the
+   disk, session state may not carry per-page verdicts, and narrowing would both un-claim the
+   pinned wholesale-refusal family and strand the held family with no affordance.
+5. **WR-08 resolution: option C ACCEPTED.** Add the held family to `SSOTStateCase.all` and pin
+   CURRENT behavior as a dispositioned residual: the widened retry cannot address
+   present-but-unreadable bytes — it queues a `.repair` that finds nothing missing, the transient
+   entry clears, the record settles `.completed`, and the next Validate re-raises the entry; the
+   effective affordances for the family are re-Validate and the destructive route. Record the
+   residual in BOTH the fix report and `DownloadInspection`'s D-SSOT-08 doc. Named follow-up (a
+   design round, not a fix-pass edit): the sanctioned distinguishing signal, if the family is
+   ever to be denied the widened retry, is an operation-level FAMILY TAG on the
+   `validationErrors` entry — not a per-page verdict, dies with the session, and relaunch
+   equalizes the families anyway; alternatively a from-scratch re-derivation of the fetch-filter
+   question (R1) with the laundering analysis redone.
+6. **WR-05 shape CONFIRMED:** factor the recovery into one bracketed-attempt helper so
+   `withdrawingCountedBasisMovement(` keeps exactly four call sites and WR-05's corrected
+   inventory sentences stay true.
+7. **`15-REVIEW-FIX.md` at pass completion** (not incrementally) — accepted; the round-18 report
+   stays preserved at `c94c085c` until the full record replaces it.
+
 ---
 
 ## Disposition of Items Flagged as Known
