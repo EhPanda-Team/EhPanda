@@ -537,7 +537,13 @@ extension DownloadCoordinator {
     ///
     /// **D-G5-01: a working manifest never claims a page whose file is not in the working folder.**
     ///
-    /// It closes G-15-5. A `.repair` exists precisely because files are missing, yet nothing lowered
+    /// It closes the RUN-TIME half of G-15-5: a record that goes on reading complete while a repair
+    /// run is fetching the very pages it claims. That is a distinct hole from the VALIDATE-TIME one
+    /// D-G5B-01 closes in `validateImageData` — a record that goes on reading complete after the
+    /// user's own integrity check has proved files missing, with no run in sight — and this
+    /// paragraph is not to be read as covering it. The two share this loop deliberately: the second
+    /// caller reuses these refusal lines rather than growing a laxer blanking rule of its own.
+    /// A `.repair` exists precisely because files are missing, yet nothing lowered
     /// the record's finished-page count for them: `shouldReuseWorkingFolder` returns `true`
     /// unconditionally for `.repair`, so the folder survives, and `ensureWorkingManifest` finds a
     /// valid manifest and returns it verbatim. The record went on reading complete for the whole
@@ -653,7 +659,18 @@ extension DownloadCoordinator {
     /// record already reading incomplete when a refusal fires is the other case, and for it the
     /// flush really is enough — which is what the sibling refusal cases in
     /// `DownloadContinuedSessionReconciliationTests` stage.
-    private func reconcileWorkingManifestAgainstPageFiles(
+    ///
+    /// **Second caller: `validateImageData(gid:)` (D-G5B-01).** The name still holds there, because
+    /// a repair's working folder IS the gallery's own folder — `shouldReuseWorkingFolder` returns
+    /// true unconditionally for `.repair` — so validate-time reconciliation runs this identical loop
+    /// over the identical folder shape, against a manifest read out of that same folder. What the
+    /// second caller must supply is what `prepareWorkingSeed` supplies: a scan of that folder taken
+    /// fresh (never a verdict — `storage.validate` returns at its FIRST failing page, so its message
+    /// names one page rather than the missing set), and an enclosing `withdrawingCountedBasisMovement`
+    /// bracket, since this function still does no basis accounting of its own. Module-internal rather
+    /// than file-private for exactly that caller: one implementation is what stops the blanking
+    /// evidence rule from forking between repair-preparation time and validate time.
+    func reconcileWorkingManifestAgainstPageFiles(
         manifest: DownloadManifest,
         pageFileScan: PageFileScan,
         folderURL: URL
