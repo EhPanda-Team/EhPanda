@@ -106,8 +106,10 @@ extension DownloadInspection {
         pages.contains(where: { $0.status == .downloaded })
     }
 
-    public var canRetryFailedPages: Bool {
-        !failedPageIndices.isEmpty
+    /// Reads the same basis the retry action sends, so the gate can never enable a button whose
+    /// selection would be empty.
+    public var canRetryPages: Bool {
+        !retryablePageIndices.isEmpty
     }
 
     public var canValidateImageData: Bool {
