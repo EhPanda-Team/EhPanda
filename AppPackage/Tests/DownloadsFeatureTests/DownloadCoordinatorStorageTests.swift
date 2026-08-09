@@ -376,38 +376,9 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         #expect(sanitizedDownload?.lastError == nil)
     }
 
-    @Test
-    func testDownloadCoordinatorValidateIndexedMissingFileUsesSessionError() async throws {
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { removeTemporaryItem(at: rootURL) }
-
-        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadCoordinator(
-            storage: storage,
-            urlSession: .shared
-        )
-
-        try storage.ensureRootDirectory()
-        try writeIndexedManifest(
-            storage: storage,
-            relativePath: "Folder/[440_token] Missing",
-            manifest: indexedManifest(
-                gid: "440",
-                title: "Missing",
-                pageHashes: ["sha256:missing"]
-            )
-        )
-        await manager.reloadDownloadIndex()
-
-        let validation = await manager.validateImageData(gid: "440")
-
-        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
-        let download = try #require(await manager.fetchDownload(gid: "440"))
-        #expect(download.displayStatus == .error)
-        #expect(download.displayStatus == .error)
-        #expect(download.lastError?.code == .fileOperationFailed)
-    }
+    // The validation cases moved to `DownloadValidationReconciliationTests.swift`, which owns the
+    // durable/refusal boundary D-G5B-01 draws. A relocation for headroom: this file sits against a
+    // `file_length` limit of 1000 at error severity, and the boundary needs both arms.
 
     @Test
     func testDownloadCoordinatorRetryIndexedDownloadUsesQueueIntent() async throws {
