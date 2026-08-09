@@ -438,10 +438,16 @@ extension DownloadFeatureTestCase {
 
     /// The fixture folder `makeQueuedCoordinator` staged for `gallery`.
     ///
-    /// Shared rather than file-private on this surface's own rule — a third suite now stages
+    /// Shared rather than file-private on this surface's own rule — several suites stage
     /// record-versus-disk divergence over this layout, and the string is the one place the fixture's
-    /// folder naming is decided. Three private copies could drift in two of them while every suite
-    /// stayed green, because each would simply be looking at a folder that is not there.
+    /// folder naming is decided. Private copies could drift in some of them while every suite stayed
+    /// green, because each would simply be looking at a folder that is not there.
+    ///
+    /// That is a recorded outcome rather than a prediction: this member was extracted while two
+    /// suites kept private copies of it beside the extraction, and because a concrete-type extension
+    /// SHADOWS a protocol-extension default, both went on binding to their own. The extraction
+    /// bought nothing until the copies were deleted, which is the shape to watch for — an extraction
+    /// is not done until the callers it was made for actually reach it.
     func galleryFolderURL(
         for gallery: SessionGallery,
         in fixture: SessionFixture
