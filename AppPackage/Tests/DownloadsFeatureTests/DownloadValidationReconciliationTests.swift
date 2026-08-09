@@ -378,6 +378,86 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
     }
 
+    /// The UNCLASSIFIED hold: a claimed page whose PRESENCE probe could not answer keeps the
+    /// operation-level entry, even though a sibling page blanks durably in the same pass.
+    ///
+    /// This is the second per-file non-answer, one level above the read failure. Page 2's directory
+    /// entry is listed by the enumeration and followed to a target that is not there, so it lands in
+    /// `PageFileScan.unprobedPages`: neither a file the scan yielded nor a claimed page a successful
+    /// listing positively failed to yield. The blanking loop already refuses to touch such a page and
+    /// the wholesale guard already excludes it — the coverage answer was the one reader that never
+    /// saw the population, so the pass reported that it had classified everything and the caller
+    /// dropped the only signal saying otherwise.
+    ///
+    /// What that cost is pinned here from the far side rather than left implicit.
+    /// `canValidateImageData` is `[.completed, .updateAvailable].contains(displayStatus) ||
+    /// lastError?.code == .fileOperationFailed`, so a record left `.inactive` with no entry
+    /// satisfies neither disjunct: the single sensor would be unreachable for the very page nobody
+    /// could answer for. Keeping the entry is what keeps it reachable, and the assertion on
+    /// `canValidateImageData` is the proof rather than the status assertion above it.
+    ///
+    /// The durable half is asserted in the same gallery deliberately: a hold that also blocked its
+    /// sibling's correction would satisfy every status assertion here while doing nothing.
+    @Test
+    func testAnUnprobeablePageHoldsWhileAMissingSiblingStillReconciles() async throws {
+        let gallery = SessionGallery(
+            gid: "215609",
+            title: "Unprobeable",
+            pageCount: 3,
+            completedPageCount: 3
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            queuedGIDs: [],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation })
+        )
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        // Page 1 is never written, so it is the positively-absent family; page 2's file becomes a
+        // dangling symlink, so the listing yields its entry while the probe classifies nothing.
+        try writePageFiles(for: gallery, in: fixture, indices: [2, 3])
+        try recordRealPageHashes(for: gallery, in: fixture, indices: [2, 3])
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
+        let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
+        try makeAssetFileUnprobeable(at: pageFileURL(for: gallery, in: fixture, index: 2))
+        await fixture.manager.reloadDownloadIndex()
+
+        let validation = await fixture.manager.validateImageData(gid: gallery.gid)
+
+        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 1)))
+        let download = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        #expect(download.displayStatus == .error)
+        #expect(download.lastError?.code == .fileOperationFailed)
+        #expect(download.completedPageCount == 2)
+        // The reason the entry has to survive: it is the only disjunct left that keeps the sensor
+        // reachable for the page this pass could not answer for.
+        #expect(download.canValidateImageData)
+
+        let diskManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        // The positive-evidence half proceeded anyway: a non-answer on one page never blocks
+        // another page's own determination.
+        #expect(diskManifest.pages[1] == "")
+        // The hold's own half: page 2 keeps the hash nothing refuted.
+        #expect(diskManifest.pages[2] == claimedHashes[2])
+        #expect(diskManifest.pages[2]?.isEmpty == false)
+        #expect(diskManifest.pages[3]?.isEmpty == false)
+        #expect(diskManifest.completedPageCount == 2)
+        try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
+
+        // The relaunch pin says both halves at once: the correction was carried by the record, and
+        // the entry that kept the sensor reachable was session-scoped exactly as designed.
+        let relaunched = DownloadCoordinator(
+            storage: DownloadStore(rootURL: fixture.rootURL, fileManager: .default),
+            urlSession: .shared
+        )
+        await relaunched.reloadDownloadIndex()
+        let reread = try #require(await relaunched.fetchDownload(gid: gallery.gid))
+        #expect(reread.displayStatus == .inactive)
+        #expect(reread.completedPageCount == 2)
+    }
+
     /// The refusal arm: blanking that would empty every claimed hash at once is refused, so the
     /// verdict stays the transient `validationErrors` entry it has always been.
     ///

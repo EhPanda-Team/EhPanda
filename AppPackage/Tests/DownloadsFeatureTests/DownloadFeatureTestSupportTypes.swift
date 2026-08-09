@@ -457,6 +457,30 @@ final class PartialProbeFailureFileManager: FileManager {
     }
 }
 
+/// Replaces whatever sits at `fileURL` with a DANGLING symbolic link, so a directory listing still
+/// yields the entry while the per-file probe cannot classify it.
+///
+/// This is the reachable staging of `PageFileScan.unprobedPages` — the per-file non-answer G-15-13
+/// established — through the production probe rather than around it. `contentsOfDirectory` lists a
+/// symlink whether or not its target exists, and `probeAssetFile`'s first line is a
+/// `fileExists(atPath:)` that FOLLOWS the link, so the page is neither yielded by the scan nor
+/// positively absent from it. Nothing else about the folder is touched, and no double stands in for
+/// any production call.
+///
+/// A `0o000` mode cannot stage this and stages the other hold instead: `attributesOfItem` still
+/// answers for an unreadable regular file, so such a page is YIELDED by the presence scan and only
+/// the content read fails, which is `ContentMismatchScan.held`.
+func makeAssetFileUnprobeable(at fileURL: URL) throws {
+    let fileManager = FileManager.default
+    if fileManager.fileExists(atPath: fileURL.path) {
+        try fileManager.removeItem(at: fileURL)
+    }
+    try fileManager.createSymbolicLink(
+        atPath: fileURL.path,
+        withDestinationPath: fileURL.path + ".unresolvable"
+    )
+}
+
 /// Removes a temporary file or directory a case created, absorbing the failure.
 func removeTemporaryItem(at url: URL) {
     do {

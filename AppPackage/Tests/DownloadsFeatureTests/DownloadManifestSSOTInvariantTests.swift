@@ -160,9 +160,11 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
 
         case .refused:
             #expect(validation != nil, "\(testCase.name): the Validate gate should be open here.")
-            // The irreversibility defence, re-pinned over a state the probe itself produced: a
-            // refusal moves nothing at all, and the guard precedes the first destructive act, so the
-            // file the reconciliation would have removed is still on disk.
+            // A pass that established nothing it could write, re-pinned over a state the probe
+            // itself produced. Two shapes reach here — the irreversibility guard refusing a
+            // wholesale blanking, and a pass whose positive evidence set is simply empty — and both
+            // owe the same thing: nothing displayed moves, the operation-level entry stands, and no
+            // file was destroyed, because every destructive step sits behind the guard.
             #expect(sensed.displayed == before.displayed, "\(testCase.name): a refusal moved state.")
             #expect(sensed.displayed.displayStatus == .error, "\(testCase.name)")
             #expect(sensed.displayed.lastErrorCode == .fileOperationFailed, "\(testCase.name)")
@@ -285,8 +287,13 @@ struct SSOTStateCase: Sendable, CustomTestStringConvertible {
     }
 
     enum PostMutationSensing: Sendable, Equatable {
+        /// The record already states what a pass would find, so Validate is not offered at all.
         case gateClosed
+        /// The pass classified every claimed page and wrote the correction they licensed, so the
+        /// record states the finding by itself and the operation-level entry is dropped.
         case reconciled(completedPageCount: Int)
+        /// The pass wrote nothing durable and kept its entry — the wholesale guard refusing, or a
+        /// pass whose positive evidence set is empty. Nothing displayed moves either way.
         case refused
     }
 
@@ -304,6 +311,11 @@ struct SSOTStateCase: Sendable, CustomTestStringConvertible {
     /// Corrupted after the intact pages are hashed, so the file is present and probe-usable while
     /// only its CONTENT answer changes.
     let corruptedPageFiles: [Int]
+    /// Replaced by a dangling symlink after the intact pages are hashed, so the listing yields the
+    /// entry while the per-file probe classifies nothing at all — `PageFileScan.unprobedPages`,
+    /// which is a different non-answer from `corruptedPageFiles`' readable-but-refuted bytes and
+    /// from a content read that throws.
+    let unprobeablePageFiles: [Int]
     let runsValidation: Bool
     let resumesThroughTogglePause: Bool
     let expectedDisplayStatus: DownloadDisplayStatus
@@ -329,6 +341,7 @@ extension SSOTStateCase {
             claimedPageCount: 3,
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .completed,
@@ -350,6 +363,7 @@ extension SSOTStateCase {
             claimedPageCount: 3,
             stagedPageFiles: [1, 3],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .completed,
@@ -370,6 +384,7 @@ extension SSOTStateCase {
             claimedPageCount: 3,
             stagedPageFiles: [1, 3],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -389,6 +404,7 @@ extension SSOTStateCase {
             claimedPageCount: 3,
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [2],
+            unprobeablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -408,6 +424,7 @@ extension SSOTStateCase {
             claimedPageCount: 2,
             stagedPageFiles: [],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .error,
@@ -429,6 +446,7 @@ extension SSOTStateCase {
             claimedPageCount: 1,
             stagedPageFiles: [1],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -448,6 +466,7 @@ extension SSOTStateCase {
             claimedPageCount: 0,
             stagedPageFiles: [],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -467,6 +486,7 @@ extension SSOTStateCase {
             claimedPageCount: 2,
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -486,6 +506,7 @@ extension SSOTStateCase {
             claimedPageCount: 1,
             stagedPageFiles: [1],
             corruptedPageFiles: [],
+            unprobeablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: true,
             expectedDisplayStatus: .queued,
@@ -498,6 +519,33 @@ extension SSOTStateCase {
             relaunchReading: nil,
             externalMutations: [.deleteFile(page: 1), .plantFile(page: 2)],
             expectedSensing: .gateClosed
+        ),
+        // The coverage-gap regime: one claimed page blanks durably while another claimed page's
+        // presence probe cannot answer at all. The pass therefore corrected what it established AND
+        // kept the operation-level entry, which is what leaves the single sensor reachable for the
+        // page nobody could answer for — `canValidateImageData`'s error disjunct is the only one a
+        // record reading `.inactive` at 2 of 3 would satisfy.
+        .init(
+            name: "unprobeablePageHeldBesideAReconciledOne",
+            gid: "216010",
+            pageCount: 3,
+            claimedPageCount: 3,
+            stagedPageFiles: [2, 3],
+            corruptedPageFiles: [],
+            unprobeablePageFiles: [2],
+            runsValidation: true,
+            resumesThroughTogglePause: false,
+            expectedDisplayStatus: .error,
+            expectedCompletedPageCount: 2,
+            expectedPageStatuses: [.pending, .downloaded, .downloaded],
+            expectedRegime: .nonTerminalIncomplete(queuedMode: .repair),
+            // The entry is session-scoped, and the correction was written: a fresh process reads the
+            // honest record with nothing over it.
+            relaunchReading: .init(displayStatus: .inactive, completedPageCount: 2),
+            externalMutations: [.plantFile(page: 1)],
+            // A file landing at the blanked page's path is not evidence about any CLAIMED page, so
+            // the pass positively establishes nothing, blanks nothing and keeps the entry.
+            expectedSensing: .refused
         )
     ]
 }
@@ -589,6 +637,11 @@ extension DownloadManifestSSOTInvariantTests {
         }
         for page in testCase.corruptedPageFiles {
             try corruptPageFile(for: gallery, in: fixture, index: page)
+        }
+        // After the hashing, for the same reason the corruption is: the recorded hash must be the
+        // one the intact file produced, or the regime under test would be a placeholder mismatch.
+        for page in testCase.unprobeablePageFiles {
+            try makeAssetFileUnprobeable(at: pageFileURL(for: gallery, in: fixture, index: page))
         }
         await fixture.manager.reloadDownloadIndex()
 
