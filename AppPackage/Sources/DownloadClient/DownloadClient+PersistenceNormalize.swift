@@ -185,9 +185,11 @@ extension DownloadCoordinator {
     ///
     /// **D-SSOT-05: the return value is about the OPERATION, not about the record.** True means this
     /// pass classified every claimed page and wrote the correction they licensed, so the record can
-    /// state the finding by itself and the caller drops its entry. Any hold, any refusal and any
-    /// thrown write answers false, because there the pass has something the manifest legitimately
-    /// cannot record.
+    /// state the finding by itself and the caller drops its entry. Any hold, any refusal, any page
+    /// the pass could not classify at all and any thrown write answers false, because there the pass
+    /// has something the manifest legitimately cannot record. "Every claimed page" is answered off
+    /// the content pass's own partition rather than re-derived — see `unclassifiedPages` — so a
+    /// population that is invisible to one of the two sets cannot be invisible to only one of them.
     private func reconcileValidatedRecordAgainstPageFiles(
         download: DownloadedGallery
     ) -> Bool {
@@ -200,8 +202,13 @@ extension DownloadCoordinator {
             manifest: manifest,
             pageFileScan: presenceScan
         )
+        // Derived once, here, and handed to both readers below. The guard's population and the
+        // coverage answer are two questions about the SAME set, and deriving each from its own
+        // expression is precisely how the unprobed pages came to be excluded from the blanking set
+        // while still counting as covered by the answer that clears the operation-level signal.
+        let claimedPages = Set(manifest.pages.filter({ !$0.value.isEmpty }).keys)
         let prospectiveBlankPages = prospectiveBlankPages(
-            manifest: manifest,
+            claimedPages: claimedPages,
             presenceScan: presenceScan,
             mismatchedPages: contentScan.mismatched
         )
@@ -212,7 +219,15 @@ extension DownloadCoordinator {
             pageRelativePaths: presenceScan.pages,
             mismatchedPages: contentScan.mismatched
         )
-        let heldPages = contentScan.held.union(unremovedPages)
+        let heldPages = contentScan.held
+            .union(unremovedPages)
+            .union(
+                unclassifiedPages(
+                    claimedPages: claimedPages,
+                    contentScan: contentScan,
+                    prospectiveBlankPages: prospectiveBlankPages
+                )
+            )
         // Taken after the removals, so the pages they emptied reach the loop as the positive
         // absences they now are. Reusing the pre-removal scan would hide them from the very
         // reconciliation the removal was performed for.
@@ -248,15 +263,48 @@ extension DownloadCoordinator {
     /// Computing it BEFORE any removal is what makes the guard meaningful. After a removal the two
     /// halves are no longer distinguishable — a removed file is simply absent — so a guard measured
     /// then would be measuring the consequence of the act it is supposed to authorize.
+    ///
+    /// `claimedPages` arrives from the caller rather than being derived here, so this set and the
+    /// coverage answer beside it are read off one expression.
     private func prospectiveBlankPages(
-        manifest: DownloadManifest,
+        claimedPages: Set<Int>,
         presenceScan: PageFileScan,
         mismatchedPages: Set<Int>
     ) -> Set<Int> {
-        let claimedPages = Set(manifest.pages.filter({ !$0.value.isEmpty }).keys)
         let positivelyAbsentPages = claimedPages
             .subtracting(presenceScan.pages.keys)
             .subtracting(presenceScan.unprobedPages)
         return positivelyAbsentPages.union(mismatchedPages)
+    }
+
+    /// The claimed pages this pass could not classify AT ALL — the coverage gap D-SSOT-05's return
+    /// value has to see, expressed through `ContentMismatchScan`'s partition rather than re-derived.
+    ///
+    /// The partition identity is the whole mechanism. `verified ∪ mismatched ∪ held` covers exactly
+    /// the claimed pages the presence scan YIELDED, and `prospectiveBlankPages` covers exactly the
+    /// claimed pages a successful listing positively did NOT yield. Anything left over is therefore
+    /// a claimed page whose file the listing did list and whose probe could not classify it — the
+    /// per-file non-answer `PageFileScan.unprobedPages` carries (G-15-13). Nothing at all was
+    /// established about such a page, so the pass cannot claim to have covered every claimed page,
+    /// and it joins the held set: the blanking loop already refuses to touch it and
+    /// `prospectiveBlankPages` already excludes it, so the coverage answer was the one reader that
+    /// never saw the population — which cleared the operation-level signal over an unanswered page
+    /// and, with it, disabled the only sensor that could ask again (`canValidateImageData`).
+    ///
+    /// `verified` is load-bearing here rather than decorative: dropping it from the union would
+    /// report every intact page as unclassified. That is why the content pass returns a whole
+    /// partition instead of a remainder each caller re-derives — a re-derived remainder is exactly
+    /// what silently lost this population.
+    private func unclassifiedPages(
+        claimedPages: Set<Int>,
+        contentScan: ContentMismatchScan,
+        prospectiveBlankPages: Set<Int>
+    ) -> Set<Int> {
+        let classifiedPages = contentScan.verified
+            .union(contentScan.mismatched)
+            .union(contentScan.held)
+        return claimedPages
+            .subtracting(classifiedPages)
+            .subtracting(prospectiveBlankPages)
     }
 }
