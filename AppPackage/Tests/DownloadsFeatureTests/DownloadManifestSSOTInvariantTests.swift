@@ -233,6 +233,49 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
             try await driveForward(testCase, in: staged, expecting: queuedMode)
         }
     }
+
+    /// Family 3's FIFTH entrance, driven separately because the table's regimes reach the queue
+    /// through `togglePause` and `retryPages` only.
+    ///
+    /// `validationErrors` outranks queue membership in `displayStatus`, so the rule on its
+    /// declaration — anything that enqueues must clear it at or before the enqueue — is what stops a
+    /// queued gallery from deriving `.error` and failing both arms of `shouldSchedule` forever.
+    /// `enqueue(payload:)` is the one entrance that never called `clearDownloadFailureState`, and it
+    /// is reachable with an entry standing: it explicitly supports an already-known gallery, and
+    /// Detail presents its download menu on `downloadBadge == nil` rather than on
+    /// `hasLoadedDownloadBadge`, so the menu is up before the badge lands for an existing record.
+    ///
+    /// The entry is installed by running the sensor rather than by a seam, so what this drives is
+    /// the state production actually produces: the wholesale-refusal regime the table already
+    /// stages. Reaching `.queued` is the assertion — a predicate reading clear would pass over a
+    /// gallery that never becomes schedulable, which is the dead end under another name.
+    @Test
+    func testEnqueueingARecordUnderAnOperationLevelEntryStillReachesTheQueue() async throws {
+        let testCase = try #require(
+            SSOTStateCase.all.first(where: { $0.name == "refusedWholesaleAfterValidating" })
+        )
+        let staged = try await stage(testCase)
+        defer { staged.tearDown() }
+        let manager = staged.fixture.manager
+
+        // The premise, asserted rather than assumed: the operation-level entry really is standing,
+        // and it got there through the sensor.
+        let refused = try #require(await manager.fetchDownload(gid: testCase.gid))
+        #expect(refused.displayStatus == .error, "\(testCase.name): no entry to enqueue under.")
+        #expect(refused.lastError?.code == .fileOperationFailed, "\(testCase.name)")
+
+        let enqueueResult = await manager.enqueue(
+            payload: makeStartPayload(for: staged.gallery, mode: .initial)
+        )
+        try enqueueResult.get()
+
+        let enqueued = try #require(await manager.fetchDownload(gid: testCase.gid))
+        #expect(
+            enqueued.displayStatus == .queued,
+            "enqueue left an operation-level entry standing, so the gallery is queued and can never run."
+        )
+        #expect(enqueued.lastError == nil)
+    }
 }
 
 // MARK: - The Generated State Family

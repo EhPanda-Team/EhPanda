@@ -94,6 +94,7 @@ struct DownloadSourceInventoryTests {
     private static var schedulingBlockCallToken: String { "block" + "Scheduling(" }
     private static var schedulableReadToken: String { "schedulable" + "Downloads()" }
     private static var floorPropertyName: String { "lastPushed" + "CompletedPageCount" }
+    private static var queueEnqueueToken: String { "queueStore" + ".enqueue(" }
     private static var pendingPageListToken: String { "pendingPage" + "Indices(" }
     private static var runProofPropertyName: String { "runProgress" + "Bases" }
     /// The hand-built client double's construction token, and it is the seam's own endpoint LABEL
@@ -160,6 +161,31 @@ struct DownloadSourceInventoryTests {
 
     /// The floor table's sum, asserted the same way and for the same reason.
     private static let expectedFloorWriterTotal = 5
+
+    /// Every entrance to the queue store, named per file.
+    ///
+    /// This is the census `validationErrors`' own declaration reasons from: "anything that enqueues
+    /// must clear it at or before the enqueue". That rule is not derivable from any one of these
+    /// sites, and its failure mode is silent — the map outranks queue membership in `displayStatus`,
+    /// so a gallery enqueued with an entry standing derives `.error`, fails both arms of
+    /// `shouldSchedule`, and sits in the queue store forever without running. That is the G-15-5 dead
+    /// end, and it is exactly what `enqueue(payload:)` did: four of the five entrances cleared, the
+    /// fifth never called `clearDownloadFailureState` at all, and nothing counted them.
+    ///
+    /// Derived from source rather than copied: `resume` (`+Scheduling.swift`), `performRetry` and
+    /// `performRetryPages` (`+RetryHelpers.swift`), `enqueue` (`+PublicAPI.swift`), and the testing
+    /// forwarder (`+Testing.swift`). A failure means an entrance was added or removed; re-read each
+    /// one against the clearing rule BEFORE updating this number, because a new entrance that does
+    /// not clear is precisely the defect this stands for.
+    private static let expectedQueueEnqueueCallSites = [
+        "DownloadClient+PublicAPI.swift": 1,
+        "DownloadClient+RetryHelpers.swift": 2,
+        "DownloadClient+Scheduling.swift": 1,
+        "DownloadClient+Testing.swift": 1
+    ]
+
+    /// The enqueue table's sum, asserted the same way and for the same reason.
+    private static let expectedQueueEnqueueCallTotal = 5
 
     /// Every call of the shared schedulable-work read, named per file.
     ///
@@ -369,6 +395,37 @@ struct DownloadSourceInventoryTests {
         let joined = moduleFiles.map(\.contents).joined(separator: "\n")
         #expect(
             Self.mutationCount(of: Self.floorPropertyName, in: joined) == Self.expectedFloorWriterTotal
+        )
+    }
+
+    @Test
+    func testQueueEnqueueCallSitesMatchTheRecordedCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
+        var callSites = [String: Int]()
+        for file in moduleFiles {
+            let count = Self.callSiteCount(of: Self.queueEnqueueToken, in: file.contents)
+            guard count > 0 else { continue }
+            callSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            callSites == Self.expectedQueueEnqueueCallSites,
+            """
+            The queue-entrance census moved. Re-read EVERY entrance against the rule on \
+            validationErrors' declaration — anything that enqueues must clear the failure state at \
+            or before the enqueue — and only then update this table. An entrance that does not \
+            clear leaves a gallery queued and permanently unschedulable.
+            """
+        )
+
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.queueEnqueueToken, in: joined)
+                == Self.expectedQueueEnqueueCallTotal
         )
     }
 
