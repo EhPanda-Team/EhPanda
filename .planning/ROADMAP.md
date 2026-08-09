@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 57/60 | In Progress|  |
+| 15. Continued Background Downloads | 58/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 57/60 plans executed
+**Plans**: 58/60 plans executed
 
 Plans:
 
@@ -1033,7 +1033,7 @@ Plans:
 
 **Wave 58** *(gap closure round 19b, owner-decided SSOT design extension G-15-SSOT — blocked on 15-57: this plan rewrites 15-56's corrupt-in-place refusal pins and 15-57's rationale comments, and xcodebuild serialization)*
 
-- [ ] 15-58-PLAN.md — Extend the durable reconciliation with the content-evidence arm (D-SSOT-01..06): a readable file whose fresh hash mismatches its recorded hash blanks durably with the file removed under guards — removal is mandatory because the repair fetch skips pending pages whose file exists and finalize re-hashes blank-hash pages from current bytes, which would launder corruption — the wholesale irreversibility guard evaluates the combined absent∪mismatched set before any destructive step, a read failure stays a per-page hold, validationErrors becomes an exclusively operation-level contract, and the AGENTS.md invariant's stale presence-scan refusal example is revised to the new license
+- [x] 15-58-PLAN.md — Extend the durable reconciliation with the content-evidence arm (D-SSOT-01..06): a readable file whose fresh hash mismatches its recorded hash blanks durably with the file removed under guards — removal is mandatory because the repair fetch skips pending pages whose file exists and finalize re-hashes blank-hash pages from current bytes, which would launder corruption — the wholesale irreversibility guard evaluates the combined absent∪mismatched set before any destructive step, a read failure stays a per-page hold, validationErrors becomes an exclusively operation-level contract, and the AGENTS.md invariant's stale presence-scan refusal example is revised to the new license
 
 **Wave 59** *(gap closure round 19b — blocked on 15-58: recomposes 15-57's retry basis over the shrunken refusal surface, and xcodebuild serialization)*
 
