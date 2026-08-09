@@ -57,7 +57,7 @@ struct DownloadInspectorView: View {
                         }
 
                         let isPauseResumeDisabled = !inspection.download.canTogglePause
-                        let isRetryFailedPagesDisabled = !inspection.canRetryFailedPages
+                        let isRetryPagesDisabled = !inspection.canRetryPages
                         let isValidateImageDataDisabled =
                             !inspection.canValidateImageData || store.isValidatingImageData
                         Section(.actions) {
@@ -73,15 +73,15 @@ struct DownloadInspectorView: View {
                             .disabled(isPauseResumeDisabled)
 
                             Button {
-                                store.send(.retryPages(inspection.failedPageIndices))
+                                store.send(.retryPages(inspection.retryablePageIndices))
                             } label: {
                                 Label(
                                     .retryFailedPages,
                                     systemSymbol: .arrowClockwise
                                 )
-                                .disabledActionForegroundStyle(isRetryFailedPagesDisabled)
+                                .disabledActionForegroundStyle(isRetryPagesDisabled)
                             }
-                            .disabled(isRetryFailedPagesDisabled)
+                            .disabled(isRetryPagesDisabled)
 
                             Button {
                                 store.send(.validateImageData)
