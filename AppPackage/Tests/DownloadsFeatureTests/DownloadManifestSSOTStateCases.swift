@@ -95,6 +95,11 @@ struct SSOTStateCase: Sendable, CustomTestStringConvertible {
     /// which is a different non-answer from `corruptedPageFiles`' readable-but-refuted bytes and
     /// from a content read that throws.
     let unprobeablePageFiles: [Int]
+    /// Set to `0o000` after the intact pages are hashed, so the metadata probe still ANSWERS — the
+    /// page is yielded by the presence scan, usable and present — while the content read throws for
+    /// real. That is `ContentMismatchScan.held`, D-SSOT-03's per-page hold, and it is the third and
+    /// last non-answer the three staging lists cover between them.
+    let unreadablePageFiles: [Int]
     let runsValidation: Bool
     let resumesThroughTogglePause: Bool
     let expectedDisplayStatus: DownloadDisplayStatus
@@ -121,6 +126,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .completed,
@@ -143,6 +149,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .completed,
@@ -164,6 +171,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -184,6 +192,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [2],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -204,6 +213,7 @@ extension SSOTStateCase {
             stagedPageFiles: [],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .error,
@@ -226,6 +236,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -246,6 +257,7 @@ extension SSOTStateCase {
             stagedPageFiles: [],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -266,6 +278,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .inactive,
@@ -286,6 +299,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: true,
             expectedDisplayStatus: .queued,
@@ -312,6 +326,7 @@ extension SSOTStateCase {
             stagedPageFiles: [2, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [2],
+            unreadablePageFiles: [],
             runsValidation: true,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .error,
@@ -339,6 +354,7 @@ extension SSOTStateCase {
             stagedPageFiles: [1, 2, 3],
             corruptedPageFiles: [],
             unprobeablePageFiles: [],
+            unreadablePageFiles: [],
             runsValidation: false,
             resumesThroughTogglePause: false,
             expectedDisplayStatus: .completed,
@@ -349,6 +365,52 @@ extension SSOTStateCase {
             externalMutations: [.truncateFile(page: 2)],
             // Validate is the one path entitled to act on the rejection: it discards the empty file,
             // reads page 2 as the positive absence that leaves, and blanks exactly it.
+            expectedSensing: .reconciled(completedPageCount: 2)
+        ),
+        // The D-SSOT-03 HELD family, the second of the two complete-claiming shapes `DetailReducer`
+        // names and the one this table used to omit: a record claiming every page under an
+        // operation-level entry because one page's bytes could not be READ. It is the family that
+        // cannot be told apart from `refusedWholesaleAfterValidating` at the record — same status,
+        // same failure code, every page `.downloaded` — which is why the widened retry serves both.
+        //
+        // **Dispositioned residual, pinned as CURRENT behavior rather than fixed here.** The widened
+        // retry cannot address present-but-unreadable bytes: it queues a `.repair` whose
+        // `pendingPageIndices` fetches only pages whose file is MISSING, so the run fetches nothing,
+        // finalize merges nothing, the transient entry is cleared at enqueue, and the record settles
+        // back to `.completed` until the next Validate re-raises it. The effective affordances for
+        // this family are therefore re-Validate and the destructive route; family 3 below pins that
+        // the way out exists and is reached (`.queued` under `.repair`), which is the property the
+        // suite owns, and the residual is recorded on `DownloadInspection.retryablePageIndices`.
+        //
+        // All three of the review's remedies were rejected with reasons: re-fetching present files
+        // rewrites the missing-only filter that the D-SSOT-04 laundering defence rests on; keeping
+        // the entry across an enqueue is the G-15-5 dead end WR-03 exists to prevent; and narrowing
+        // the retry basis cannot target this family without also un-claiming the wholesale-refusal
+        // one, since D-SSOT-07 forbids consulting the disk to tell them apart. The sanctioned
+        // distinguishing signal, if it is ever wanted, is an operation-level FAMILY TAG on the
+        // `validationErrors` entry — a design round, not a fix-pass edit.
+        .init(
+            name: "unreadablePageHeldOverACompleteClaim",
+            gid: "216012",
+            pageCount: 3,
+            claimedPageCount: 3,
+            stagedPageFiles: [1, 2, 3],
+            corruptedPageFiles: [],
+            unprobeablePageFiles: [],
+            unreadablePageFiles: [3],
+            runsValidation: true,
+            resumesThroughTogglePause: false,
+            expectedDisplayStatus: .error,
+            expectedCompletedPageCount: 3,
+            expectedPageStatuses: [.downloaded, .downloaded, .downloaded],
+            expectedRegime: .nonTerminalIncomplete(queuedMode: .repair),
+            // The entry is session-scoped and the pass wrote nothing, so a fresh process reads the
+            // record's own untouched claim — the same residual the wholesale refusal carries.
+            relaunchReading: .init(displayStatus: .completed, completedPageCount: 3),
+            externalMutations: [.deleteFile(page: 3)],
+            // Deleting the file nobody could read turns the non-answer into a positive absence, so
+            // the ordinary presence arm blanks it and the entry is dropped. That is the honest way
+            // out of the hold, and it is why the hold is a residual rather than a trap.
             expectedSensing: .reconciled(completedPageCount: 2)
         )
     ]
