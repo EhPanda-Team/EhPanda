@@ -241,9 +241,13 @@ extension DownloadCoordinator {
     /// Deletions never withdraw. A gallery whose basis AND record are both gone after the movement
     /// is a DEPARTURE, which `reconcileRetiredSessionPages` already values on the next push;
     /// withdrawing on top of that would count the same correction twice. So a vanished reading is
-    /// read as the before-count rather than as zero, leaving a delta of zero. Neither call site
-    /// deletes — the exclusion is stated here because it is the invariant every other writer is
-    /// dispositioned against.
+    /// read as the before-count rather than as zero, leaving a delta of zero. No call site deletes —
+    /// the exclusion is stated here because it is the invariant every other writer is dispositioned
+    /// against. The validate-time caller is the one that needed the disposition restated rather than
+    /// inherited: `reconcileValidatedRecordAgainstPageFiles` DOES delete page files, but every
+    /// removal happens BEFORE the bracket opens, so what the bracket wraps still only lowers a
+    /// record's counted basis and never removes the record or its basis. A future caller that
+    /// deleted INSIDE the bracket would break this rule silently.
     ///
     /// The delta is clamped at zero so an upward movement withdraws nothing, while the floor
     /// subtraction itself is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
