@@ -96,6 +96,14 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderRelativePath: folderRelativePath
             )
+            // The fifth entrance to the queue, and the one that used to skip this. `validationErrors`
+            // and `downloadErrors` outrank queue membership in `displayStatus`, so an entry standing
+            // over a gallery this call enqueues derives `.error`, `shouldSchedule` fails both arms,
+            // and the gallery sits in the queue store forever without ever running — the G-15-5 dead
+            // end, silently. This path explicitly supports an already-known gallery (above), and
+            // Detail presents its download menu on `downloadBadge == nil` rather than on
+            // `hasLoadedDownloadBadge`, so a record carrying an entry really can arrive here.
+            clearDownloadFailureState(gid: payload.gallery.gid)
             advanceQueueIntentGeneration(for: payload.gallery.gid)
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
