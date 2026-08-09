@@ -427,18 +427,28 @@ public actor DownloadCoordinator {
     /// live in the manifest. The accepted cost is that after relaunch a failed download
     /// surfaces as inactive ("Paused") until its error re-surfaces on the next manual retry.
     public var downloadErrors = [String: DownloadFailure]()
-    /// The REFUSAL surface of validation, and nothing more (D-G5B-01).
+    /// An **operation-level** signal about the last validation, and nothing else (D-SSOT-05).
     ///
-    /// A `.missingFiles` verdict is not status about a download when the manifest can be corrected
-    /// to say the same thing: `validateImageData(gid:)` reconciles the record through the D-G5-01
-    /// blanking loop, and on success the finding lives in the manifest — durable, relaunch-stable,
-    /// and the single basis the count, the status and the start gates all read — while this
-    /// dictionary is cleared. An entry survives here only where the loop REFUSED to blank (a failed
-    /// page-file scan, an unprobed page, or a shape that would empty every claimed hash at once) and
-    /// where the record therefore cannot state the finding at all. Clearing on the durable arm is
-    /// load-bearing rather than tidy: this dictionary outranks the queue and the manifest in
-    /// `displayStatus`, so a leftover entry would pin `.error` over an honest record and leave it
-    /// unstartable.
+    /// An entry says one thing: that pass could not produce trustworthy evidence for every page the
+    /// record claims. It never says anything about the record. Wherever the pass did classify every
+    /// claimed page, the correction it licensed is written into the manifest — durable,
+    /// relaunch-stable, and the single basis the count, the status and the start gates all read —
+    /// and this dictionary is cleared, because the record can now state the finding by itself. Both
+    /// kinds of positive per-page evidence go that way: a claimed page whose file a successful
+    /// listing did not yield, and a claimed page whose bytes were read and disagreed with the
+    /// recorded hash (D-SSOT-01).
+    ///
+    /// What keeps an entry is therefore an operation-level property, never one of the gallery's: the
+    /// directory listing failed, a page's bytes could not be probed or read at all, the file a
+    /// refuted page's correction depended on could not be removed, the all-or-nothing guard refused
+    /// the whole reconciliation, or the manifest write itself threw. In each the pass has a question
+    /// it could not answer, and a question the manifest legitimately cannot record is exactly what
+    /// session-scoped state is for.
+    ///
+    /// Clearing is load-bearing rather than tidy: this dictionary outranks the queue and the
+    /// manifest in `displayStatus`, so an entry left behind would pin `.error` over an honest record
+    /// and leave it unstartable — which is why anything that enqueues must clear it at or before the
+    /// enqueue.
     public var validationErrors = [String: DownloadFailure]()
     public var failedPageErrors = [String: [Int: PageFailure]]()
     public var updatedGalleryIDs = Set<String>()

@@ -102,13 +102,22 @@ public struct DetailReducer: Sendable {
         /// conjunct trivially, so nothing that used to offer the repair stopped offering it.
         ///
         /// A COMPLETE-claiming record keeps `.redownload` deliberately, and this is the boundary
-        /// between Detail's two affordances rather than an omission. Such a record is either one
-        /// whose claims nothing could verify — the refusal family, where the validate-time
-        /// reconciliation declined to blank anything and the manifest still claims every page — or
-        /// one whose files exist and are wrong. A presence-based repair finds nothing absent to fetch
-        /// and fixes neither. For the first of those the surgical route is the downloads inspector's
-        /// widened retry (D-G5C-01), which carries its page selection explicitly and therefore does
-        /// not depend on the record's claims; for the second, refetching the bytes is the medicine.
+        /// between Detail's two affordances rather than an omission. What can still arrive here
+        /// claiming every page is exactly two families now: the wholesale-unverifiable one, where
+        /// the validate-time reconciliation refused to blank anything and the manifest still claims
+        /// its pages, and the operation-level one, where a pass could not produce trustworthy
+        /// evidence for every claimed page and left its session-scoped signal standing over an
+        /// otherwise complete record. A presence-based repair finds nothing absent to fetch and
+        /// fixes neither, so the surgical route for both is the downloads inspector's widened retry
+        /// (D-G5C-01), which carries its page selection explicitly and therefore does not depend on
+        /// the record's claims; the wipe stays as the whole-gallery answer.
+        ///
+        /// Present-but-mismatched bytes used to be a third member of that family and are not one
+        /// any more: they are now reconciled durably at validate time (D-SSOT-01), so such a gallery
+        /// reads honestly incomplete, derives `.inactive`, and never faces this button at all. The
+        /// PREDICATE is unchanged by that — the boundary it draws is still the record's own honesty
+        /// — but the reason a complete-claiming record is offered the wipe no longer rests on a
+        /// shape that can no longer reach it.
         var downloadNeedsRepair: Bool {
             guard let badge = downloadBadge, badge.status == .error else { return false }
             return badge.progress.completedPageCount < badge.progress.pageCount
