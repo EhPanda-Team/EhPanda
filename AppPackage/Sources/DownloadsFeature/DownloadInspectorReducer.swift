@@ -151,8 +151,21 @@ public struct DownloadInspectorReducer: Sendable {
                     state.inspection = .init(
                         download: inspection.download,
                         coverURL: inspection.coverURL,
+                        // The `.downloaded` guard is the same one the durable overlay carries, and
+                        // it became load-bearing here when D-SSOT-08 widened the selection: over a
+                        // file-shaped failure on the error surface the retry basis is the WHOLE page
+                        // set, and a wholesale-refusal record claims every one of those pages. An
+                        // unguarded rewrite would therefore flip the list to "N pending, 0
+                        // downloaded" and drop every thumbnail while the badge in the same screen
+                        // still read N of N — two bases disagreeing, in exactly the family this
+                        // round exists to give one basis. `retryPagesDone(.success)` returns `.none`,
+                        // so nothing would correct it until the next observe round trip.
                         pages: inspection.pages.map { page in
-                            guard retryingPageIndices.contains(page.index) else { return page }
+                            guard retryingPageIndices.contains(page.index),
+                                  page.status != .downloaded
+                            else {
+                                return page
+                            }
                             return .init(
                                 index: page.index,
                                 status: .pending,

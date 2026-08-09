@@ -124,6 +124,54 @@ struct DownloadInspectorRetryTests: DownloadFeatureTestCase {
         }
     }
 
+    /// The optimistic overlay may not contradict the badge beside it (D-SSOT-08).
+    ///
+    /// Under the widened retry basis the selection this action receives is the WHOLE page set for a
+    /// record on the error surface with a file-shaped failure, and every page of such a record reads
+    /// `.downloaded`. An overlay that rewrote each selected index unconditionally would therefore
+    /// report "all pending, none downloaded" and drop every thumbnail, in the same List as a badge
+    /// still counting them complete — and `retryPagesDone(.success)` returns `.none`, so nothing
+    /// would correct the screen until the next `observeDownloadsDone` round trip.
+    ///
+    /// The selection here covers both a downloaded page and a failed one deliberately: asserting only
+    /// that the downloaded page survives would also pass for an overlay that had stopped working, so
+    /// the page the overlay IS for has to move in the same assertion.
+    @MainActor
+    @Test
+    func testDownloadInspectorLeavesDownloadedPagesAloneWhenTheRetrySelectionCoversThem() async {
+        let download = sampleDownload(
+            gid: "112239", title: "Widened Retry Gallery",
+            status: .partial, completedPageCount: 1
+        )
+        let inspection = sampleInspection(download: download)
+        var initialState = DownloadInspectorReducer.State(gid: download.gid)
+        initialState.inspection = inspection
+        initialState.stableInspection = inspection
+        initialState.loadingState = .idle
+
+        let store = makeRetryTestStore(
+            initialState: initialState,
+            loadInspection: { _ in inspection }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.retryPages([1, 2])) {
+            $0.retryingPageIndices = [1, 2]
+            $0.inspection = .init(
+                download: download,
+                coverURL: inspection.coverURL,
+                pages: [
+                    // Untouched, thumbnail and all: the record says this page is done.
+                    inspection.pages[0],
+                    .init(
+                        index: 2, status: .pending,
+                        relativePath: "\(download.gid)_\(download.token)_2.jpg",
+                        fileURL: nil, failure: nil
+                    )
+                ]
+            )
+        }
+    }
 }
 
 // MARK: - Store Factory Helpers
