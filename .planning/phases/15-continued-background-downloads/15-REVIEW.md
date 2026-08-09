@@ -384,6 +384,65 @@ route, and `retryablePageIndices` should not claim it.
 
 ---
 
+## Orchestrator Rulings on the Critical Findings (2026-08-09, post-review)
+
+Both criticals were re-verified against `reconcileValidatedRecordAgainstPageFiles` source by the
+orchestrator before ruling. These rulings are binding for the fix pass.
+
+### CR-01 — ACCEPTED as proposed, with two tightenings
+
+1. Implement the coverage answer through the scan partition (WR-04's form): lift `claimedPages` to
+   the caller, pass it to both `prospectiveBlankPages` and the held computation, and express
+   coverage as the partition identity (`verified ∪ mismatched ∪ held` must cover the non-absent
+   claimed set) so `ContentMismatchScan.verified` earns its place — or, if coverage is not
+   expressed through the partition, delete `verified`. No dead field either way.
+2. The new regime (a claimed page whose presence probe cannot answer, beside a page that blanks)
+   goes into BOTH `DownloadValidationReconciliationTests` and `SSOTStateCase.all`, asserting
+   post-pass `displayStatus == .error` and `lastError?.code == .fileOperationFailed` — that
+   assertion is the proof the sensor stays reachable (entry kept ⟹ Validate enabled and the
+   widened retry available; no new dead end).
+
+### CR-02 — primary fix (order reversal) REJECTED; alternative ADOPTED, concretized
+
+Reversing to blank+write-then-remove re-opens the D-SSOT-04 laundering shape: any FAILED removal
+leaves file-present + hash-blank durably, and that state is one user tap from permanent silent
+corruption — `retryPages` clears the entry at enqueue and queues `.repair`; the run's
+`pendingPageIndices` fetches only MISSING files (`DownloadClient+ExecutionSupport.swift:913-922`),
+so the present corrupt file is never re-fetched; finalize's `addingCurrentFileHashes` re-hashes the
+blank-hash page from the corrupt bytes on disk, recording the corruption as truth with a matching
+hash that no future validate can refute. The current order's failure state (files gone, hashes
+claimed) is strictly more recoverable: the removed files are positively absent, so the very next
+validate blanks them durably under the normal guards. D-SSOT-04 stands; removal-first stays.
+
+The adopted alternative, binding shape:
+
+1. **Recover, never return-verbatim:** when any post-removal exit fires (failed rescan, loop
+   refusal on the post-removal scan, thrown manifest write), re-attempt ONCE: fresh rescan → the
+   same blanking loop → write. The pages this pass removed are positively absent by construction,
+   so a successful retry blanks them under the loop's normal evidence rules — zero new blanking
+   paths, all refusal guards intact.
+2. **Forensic trail when recovery also fails:** log at `error` the removed page indices and the
+   masked gid (privacy invariant: no title, no unmasked identifier), stating files were removed
+   while the record still claims them; keep the entry (return `false`). Never silent.
+3. **Rewrite the `catch` comment** — its "nothing was destroyed" premise is false in this caller;
+   exits 1 and 2 currently log nothing, so the recovery-failure log covers all three exits.
+4. **Pins:** (a) write throws once then succeeds (a contract-faithful double throwing at the named
+   write seam) → the durable blank lands; (b) recovery fails entirely → the error log fires, the
+   entry survives, and a SECOND `validateImageData` drive converges the record (the self-healing
+   property, in-test); (c) the concurrent-external-change wholesale exit becomes a dispositioned
+   residual WITH a trail.
+5. **CR-01 interplay:** `unremovedPages` stays in held unchanged; the recovery's blank set is
+   exactly the pages this pass removed.
+
+### Warnings
+
+All eight are actionable under this project's review bar (nitpicks are blocking; no
+"accept with optional polish"). WR-01, WR-03, WR-07 and WR-08 are behavior defects on the same
+surface as the criticals and go through the same fix pass; WR-02, WR-04 (absorbed by CR-01's
+ruling), WR-05 and WR-06 follow with them.
+
+---
+
 ## Disposition of Items Flagged as Known
 
 Reviewed and agreed with the recorded disposition; no action requested:
