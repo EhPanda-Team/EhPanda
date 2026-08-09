@@ -370,10 +370,18 @@ extension DownloadCoordinator {
 
         let activeFolderURL = activeInspectionFolderURL(for: download)
 
+        // A display read may classify, never act (D-SSOT-07). `buildInspectionPages` itself writes
+        // nothing, but the rendering resources it is handed are resolved by a probe that DELETES the
+        // files it rejects, so merely opening the inspector could remove a zero-byte or non-regular
+        // page file. Under the presence basis that deletion was self-consistent — the page read
+        // `.pending` immediately after. Under the manifest basis the page goes on reading
+        // `.downloaded` over a file this read destroyed, which is a record/disk divergence created
+        // by looking, licensed by no reconciliation, and invisible until the user runs Validate.
         let existingRelativePaths = activeFolderURL.map {
             storage.existingPageRelativePaths(
                 folderURL: $0,
-                manifest: download.manifest
+                manifest: download.manifest,
+                discardingRejected: false
             )
         } ?? [:]
         let failedPages = (failedPageErrors[gid] ?? [:])
@@ -387,8 +395,12 @@ extension DownloadCoordinator {
         )
 
         let coverURL = activeFolderURL.flatMap { folderURL in
-            storage.existingCoverRelativePath(folderURL: folderURL, manifest: download.manifest)
-                .map({ folderURL.appendingPathComponent($0) })
+            storage.existingCoverRelativePath(
+                folderURL: folderURL,
+                manifest: download.manifest,
+                discardingRejected: false
+            )
+            .map({ folderURL.appendingPathComponent($0) })
         } ?? download.coverURL
 
         return .success(
