@@ -214,6 +214,10 @@ For the owner's physical-device pass, the expected observation after this plan:
 - `resumeMode`'s `storage.validate` branch is shrunk but still load-bearing for exactly the two states enumerated in its corrected comment; it was deliberately left in place.
 - No blockers.
 
+## Self-Check: PASSED
+
+All six claimed source/test files exist on disk, and all three commits (`45bd2ba9`, `99ec1b19`, `b56feb58`) resolve in `git log`.
+
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-08-09*

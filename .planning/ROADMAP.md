@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 55/60 | In Progress|  |
+| 15. Continued Background Downloads | 56/60 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 60 plans — 55 executed, 5 pending (gap closure round 19: 15-56/15-57 G-15-5; round 19b owner-decided SSOT design extension: 15-58/15-59/15-60 G-15-SSOT)
+**Plans**: 56/60 plans executed
 
 Plans:
 
@@ -1025,7 +1025,7 @@ Plans:
 
 **Wave 56** *(gap closure round 19, UAT gap G-15-5 root fix — blocked on 15-55 by xcodebuild serialization)*
 
-- [ ] 15-56-PLAN.md — Make a missingFiles validation verdict durable (D-G5B-01): validateImageData runs the same D-G5-01 positive-signal blanking loop a repair's seed preparation runs, inside the same counted-basis bracket, so the record honestly reads incomplete, validationErrors clears on the durable arm (it outranks everything in displayStatus — the diagnosis's hazard), Resume enables through the existing gates, resumeMode resolves .repair, and the state survives relaunch with both count bases converged; the refusal family (failed scan / wholesale-blank guard) keeps the transient error surface deliberately with its residuals dispositioned, and the piecewise suite crosses the durable/refusal boundary with relaunch and the validate-to-queued-repair arc pinned on production entry points
+- [x] 15-56-PLAN.md — Make a missingFiles validation verdict durable (D-G5B-01): validateImageData runs the same D-G5-01 positive-signal blanking loop a repair's seed preparation runs, inside the same counted-basis bracket, so the record honestly reads incomplete, validationErrors clears on the durable arm (it outranks everything in displayStatus — the diagnosis's hazard), Resume enables through the existing gates, resumeMode resolves .repair, and the state survives relaunch with both count bases converged; the refusal family (failed scan / wholesale-blank guard) keeps the transient error surface deliberately with its residuals dispositioned, and the piecewise suite crosses the durable/refusal boundary with relaunch and the validate-to-queued-repair arc pinned on production entry points
 
 **Wave 57** *(gap closure round 19, UAT gap G-15-5 affordance + predicate sweep — blocked on 15-56: the widened retry exists FOR the refusal family 15-56 leaves on the .error surface, and xcodebuild serialization)*
 
