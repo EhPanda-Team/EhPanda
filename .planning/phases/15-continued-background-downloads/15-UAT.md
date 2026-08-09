@@ -1,20 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-09T09:35:21Z
+updated: 2026-08-09T16:00:41Z
 ---
 
 ## Current Test
 
-number: 2
-name: System progress card renders real progress under the coverage basis (retest round 4)
-expected: |
-  Every frame of a two-gallery run — including the final one at drain — reads "· 2 galleries"
-  beside the session-cumulative fraction (final: "N / N pages · 2 galleries"). The card is
-  truthful whether or not the system repaints the terminal push.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -40,7 +34,7 @@ announce rather than freezing at the record's stale claim; card-cancel state mat
 per-gallery pause baseline.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: [pending]
+result: pass
 retest_round: 4
 retest_reason: |
   G-15-2C closed by plan 15-55 (D-G2C-01): the subtitle gallery count's basis changed from the
@@ -132,7 +126,7 @@ expected: The progress series climbs from the current run's measured starting po
 freezing at the persisted record's stale completed-page claim.
 why_human: The continued-processing card is system-owned and does not render in the simulator.
 covers: SC2 repair progress
-result: [pending]
+result: pass
 retest_round: 2
 retest_reason: |
   G-15-5 closed by plans 15-56/15-57 and hardened by the SSOT collapse (15-58/59/60) plus the
@@ -172,9 +166,9 @@ result: pass
 ## Summary
 
 total: 6
-passed: 4
+passed: 6
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 blocked: 0
 
