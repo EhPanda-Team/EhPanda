@@ -141,6 +141,80 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
         #expect(reread.displayStatus == .completed)
         #expect(reread.lastError == nil)
     }
+
+    /// The start arc, on production entry points end to end: the durable verdict produces a record
+    /// the EXISTING resume machinery accepts.
+    ///
+    /// This is the whole point of the fix, so it is driven through `togglePause(gid:)` — the very
+    /// call the inspector's Resume button makes — rather than through a synthetic enqueue. The old
+    /// shape could not get here at all: a complete-claiming record under a `validationErrors` entry
+    /// derives `.error`, and `togglePause`'s `.error` arm hard-fails with `.unknown`. Nothing new
+    /// was built to fix that; the record was made honest, and honest records were always startable.
+    ///
+    /// **Determinism.** A single-gallery fixture would RACE here: `togglePause` → `resume` →
+    /// `scheduleNextIfNeeded` assigns `activeGalleryID` before returning, and `displayStatus` checks
+    /// `activeGalleryID` ahead of queue membership, so the status reads `.active` until
+    /// `finishActiveTaskIfOwned` nils it on a later actor turn. Asserting `.queued` against that is
+    /// a pin on a value whose derivation basis is still moving. So a second BLOCKER gallery takes
+    /// the active slot first and never gives it back: the runner double suspends inside
+    /// `BlockingRunnerControl.park()`, at its `withCheckedContinuation`, which resumes only when the
+    /// test calls `release()` in teardown. `control.started()` is awaited before anything is
+    /// asserted, so the blocker's occupancy is a production-issued fact rather than an assumption,
+    /// and `scheduleNextIfNeededCore`'s `activeTask == nil` guard then refuses every promotion —
+    /// making the target's `.queued` stable indefinitely instead of momentarily true.
+    @Test
+    func testAReconciledRecordResumesThroughTogglePauseIntoAQueuedRepair() async throws {
+        let target = SessionGallery(
+            gid: "215603",
+            title: "Repairable",
+            pageCount: 3,
+            completedPageCount: 3
+        )
+        let blocker = SessionGallery(gid: "215604", title: "Blocking", pageCount: 2)
+        let spy = BackgroundProcessingClientSpy()
+        let control = BlockingRunnerControl()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [blocker, target],
+            queuedGIDs: [blocker.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(
+                runScheduledDownload: { _, _ in
+                    await control.park()
+                    return .skippedOperation
+                }
+            )
+        )
+        // Release before removal, so the parked runner is not holding a directory being deleted.
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+
+        try writePageFiles(for: target, in: fixture, indices: [1, 3])
+        try recordRealPageHashes(for: target, in: fixture, indices: [1, 3])
+        await fixture.manager.reloadDownloadIndex()
+
+        await fixture.manager.scheduleNextIfNeeded()
+        await control.started()
+        let blocking = try #require(await fixture.manager.fetchDownload(gid: blocker.gid))
+        #expect(blocking.displayStatus == .active)
+
+        let validation = await fixture.manager.validateImageData(gid: target.gid)
+
+        #expect(validation == .missingFiles(.RLocalizable.downloadStorePageMissing(page: 2)))
+        let validated = try #require(await fixture.manager.fetchDownload(gid: target.gid))
+        // The clearance proof: `validationErrors` outranks everything in the derivation, so
+        // `.inactive` is only reachable once the entry is gone.
+        #expect(validated.displayStatus == .inactive)
+        #expect(validated.canTogglePause)
+
+        try await fixture.manager.togglePause(gid: target.gid).get()
+
+        let queued = try #require(await fixture.manager.fetchDownload(gid: target.gid))
+        #expect(queued.displayStatus == .queued)
+        #expect(queued.lastError == nil)
+        #expect(await fixture.manager.queuedMode(for: queued) == .repair)
+    }
 }
 
 private extension DownloadValidationReconciliationTests {
