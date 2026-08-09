@@ -77,6 +77,26 @@ public struct DownloadInspection: Equatable, Sendable {
     /// by construction (`buildInspectionPages` enumerates exactly that range), and the range form
     /// would trap on a zero-page record — the G-15-14 hazard every other page-count site in this
     /// module already guards.
+    ///
+    /// **Dispositioned residual: the HELD family gets a retry that cannot address it.** Two families
+    /// reach this shape and are indistinguishable at the record — a wholesale reconciliation the
+    /// irreversibility guard refused, whose files really are gone, and a page whose bytes could not
+    /// be READ, whose file is present and intact. For the first the `.repair` re-fetches everything.
+    /// For the second it fetches nothing: the run's `pendingPageIndices` narrows any selection to
+    /// pages whose file is MISSING, so an unreadable-but-present page is skipped, the entry has
+    /// already been cleared at enqueue, and the record settles back to `.completed` until the next
+    /// Validate re-raises it. That family's effective affordances are re-Validate and the
+    /// destructive route; it is pinned as current behavior by
+    /// `SSOTStateCase.unreadablePageHeldOverACompleteClaim`.
+    ///
+    /// It is a residual rather than a defect-in-waiting because every narrower alternative costs
+    /// more. Re-fetching present files rewrites the missing-only filter the D-SSOT-04 laundering
+    /// defence rests on; keeping the entry across an enqueue re-creates the G-15-5 dead end;
+    /// and narrowing this basis cannot target the held family without un-claiming the
+    /// wholesale-refusal one, because D-SSOT-07 forbids consulting the disk to tell them apart. The
+    /// sanctioned way to separate them, if it is ever wanted, is an operation-level FAMILY TAG on
+    /// the `validationErrors` entry — not a per-page verdict, session-scoped like the entry itself,
+    /// and moot after a relaunch, which equalizes the families anyway. That is a design round.
     public var retryablePageIndices: [Int] {
         guard download.displayStatus == .error,
               download.lastError?.code == .fileOperationFailed

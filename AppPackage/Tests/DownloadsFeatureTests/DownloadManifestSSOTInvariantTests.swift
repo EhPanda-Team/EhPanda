@@ -285,10 +285,25 @@ struct StagedSSOTState {
     let fixture: SessionFixture
     let gallery: SessionGallery
     let blockerControl: BlockingRunnerControl
+    /// The original modes of the page files a case lowered to `0o000`, so the teardown can put them
+    /// back rather than leave an unreadable file behind in a temporary tree an inspector may want.
+    let loweredPagePermissions: [URL: NSNumber]
 
-    /// Unblocks the parked runner before removing the directory it may still touch.
+    /// Unblocks the parked runner, restores any mode a case lowered, and only then removes the
+    /// directory both of those live in.
     func tearDown() {
         blockerControl.release()
+        for (fileURL, permissions) in loweredPagePermissions {
+            do {
+                try FileManager.default.setAttributes(
+                    [.posixPermissions: permissions],
+                    ofItemAtPath: fileURL.path
+                )
+            } catch {
+                // Teardown housekeeping, never a result: a case whose external mutation DELETED the
+                // file it lowered leaves nothing to restore, and that is a normal outcome here.
+            }
+        }
         removeTemporaryItem(at: fixture.rootURL)
     }
 }
@@ -371,6 +386,22 @@ extension DownloadManifestSSOTInvariantTests {
         for page in testCase.unprobeablePageFiles {
             try makeAssetFileUnprobeable(at: pageFileURL(for: gallery, in: fixture, index: page))
         }
+        var loweredPagePermissions = [URL: NSNumber]()
+        for page in testCase.unreadablePageFiles {
+            let fileURL = pageFileURL(for: gallery, in: fixture, index: page)
+            loweredPagePermissions[fileURL] = try #require(
+                FileManager.default.attributesOfItem(atPath: fileURL.path)[.posixPermissions]
+                    as? NSNumber
+            )
+            // A REAL denial rather than a double: `attributesOfItem` still answers for a `0o000`
+            // regular file, so the presence scan yields the page as usable and only the content
+            // read throws `EACCES` — which is exactly the per-page hold D-SSOT-03 describes, and
+            // not reachable by any other staging.
+            try FileManager.default.setAttributes(
+                [.posixPermissions: NSNumber(value: 0o000)],
+                ofItemAtPath: fileURL.path
+            )
+        }
         await fixture.manager.reloadDownloadIndex()
 
         await fixture.manager.scheduleNextIfNeeded()
@@ -382,7 +413,12 @@ extension DownloadManifestSSOTInvariantTests {
         if testCase.resumesThroughTogglePause {
             try await fixture.manager.togglePause(gid: gallery.gid).get()
         }
-        return StagedSSOTState(fixture: fixture, gallery: gallery, blockerControl: control)
+        return StagedSSOTState(
+            fixture: fixture,
+            gallery: gallery,
+            blockerControl: control,
+            loweredPagePermissions: loweredPagePermissions
+        )
     }
 
     /// Captures the full displayed state of one record, which is what the invariance family compares
