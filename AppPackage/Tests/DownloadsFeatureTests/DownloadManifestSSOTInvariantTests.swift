@@ -118,12 +118,12 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
         defer { staged.tearDown() }
         let manager = staged.fixture.manager
 
-        let before = try await probe(testCase.gid, in: staged)
+        let before = try await snapshot(testCase.gid, in: staged)
         for mutation in testCase.externalMutations {
             try apply(mutation, to: staged)
         }
         await manager.reloadDownloadIndex()
-        let after = try await probe(testCase.gid, in: staged)
+        let after = try await snapshot(testCase.gid, in: staged)
 
         #expect(
             after.displayed == before.displayed,
@@ -135,7 +135,7 @@ struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
         expectRenderingResourcesFollowedTheDisk(testCase, before: before, after: after)
 
         let validation = await manager.validateImageData(gid: testCase.gid)
-        let sensed = try await probe(testCase.gid, in: staged)
+        let sensed = try await snapshot(testCase.gid, in: staged)
         switch testCase.expectedSensing {
         case .gateClosed:
             // The sensor's own boundary: an honestly-incomplete record is not offered Validate,
@@ -517,8 +517,10 @@ struct StagedSSOTState {
     }
 }
 
-/// Everything one probe reads at the client seam, split by what the invariant says about it.
-struct SSOTStateProbe: Sendable {
+/// One snapshot of everything the client seam displays for a record, split by what the invariant
+/// says about each half. The invariance family takes one before an external mutation and one after,
+/// and the whole `displayed` half has to compare equal.
+struct SSOTStateSnapshot: Sendable {
     /// Must not move when the filesystem does. Note that `lastErrorCode` is carried rather than the
     /// whole `DownloadFailure`: the failure's MESSAGE is the operation's own report of what a pass
     /// found and is allowed to change when a pass is re-run, while the code is what every gate and
@@ -602,10 +604,12 @@ extension DownloadManifestSSOTInvariantTests {
         return StagedSSOTState(fixture: fixture, gallery: gallery, blockerControl: control)
     }
 
-    func probe(_ gid: String, in staged: StagedSSOTState) async throws -> SSOTStateProbe {
+    /// Captures the full displayed state of one record, which is what the invariance family compares
+    /// across an external mutation.
+    func snapshot(_ gid: String, in staged: StagedSSOTState) async throws -> SSOTStateSnapshot {
         let download = try #require(await staged.fixture.manager.fetchDownload(gid: gid))
         let inspection = try await staged.fixture.manager.loadInspection(gid: gid).get()
-        return SSOTStateProbe(
+        return SSOTStateSnapshot(
             displayed: DisplayedRecordState(
                 displayStatus: download.displayStatus,
                 completedPageCount: download.completedPageCount,
@@ -814,8 +818,8 @@ extension DownloadManifestSSOTInvariantTests {
     /// which is the shape of a barrier that stops observing when a fix holds its value constant.
     func expectRenderingResourcesFollowedTheDisk(
         _ testCase: SSOTStateCase,
-        before: SSOTStateProbe,
-        after: SSOTStateProbe
+        before: SSOTStateSnapshot,
+        after: SSOTStateSnapshot
     ) {
         for mutation in testCase.externalMutations {
             switch mutation {
