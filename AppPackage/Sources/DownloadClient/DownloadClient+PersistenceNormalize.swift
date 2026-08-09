@@ -91,7 +91,7 @@ extension DownloadCoordinator {
     /// **D-G5B-01: a `.missingFiles` verdict reconciles the record it judged, wherever the evidence
     /// licenses it.** The manifest is the one basis the whole system trusts, so a finding that
     /// contradicts it is written into it rather than kept beside it: the branch below re-reads the
-    /// folder's manifest, takes one fresh page-file scan, and runs the D-G5-01 blanking loop under
+    /// folder's manifest, gathers fresh per-page evidence, and runs the D-G5-01 blanking loop under
     /// its own refusal discipline. When the loop blanks, the record itself now says the gallery is
     /// incomplete — the badge count, `displayStatus`, the start gates and `resumeMode` all read that
     /// one persisted truth, and it survives relaunch because the loop writes the manifest and
@@ -99,10 +99,20 @@ extension DownloadCoordinator {
     /// `displayStatus`, so an entry left behind would pin `.error` over an honest record and make it
     /// unstartable, which is the whole defect this closes.
     ///
-    /// `validationErrors` remains exactly the REFUSAL family's surface: where the scan failed, or
-    /// where blanking would empty every claimed hash at once, the manifest is left verbatim and the
-    /// transient entry is recorded as before — the record cannot speak for that shape, so the
-    /// session must, and `canValidateImageData`'s error disjunct keeps Validate re-runnable there.
+    /// **D-SSOT-01: both kinds of positive per-page evidence reconcile, because they are the same
+    /// kind.** This is the one path that re-reads page bytes, so it holds a determination a presence
+    /// scan cannot make: a readable file whose fresh hash disagrees with the recorded one. That is
+    /// page-scoped and positive exactly as an absence is, so it blanks exactly as an absence does —
+    /// with the refuted file removed first, so the blanked page is genuinely repairable rather than
+    /// laundered (D-SSOT-04).
+    ///
+    /// **D-SSOT-05: `validationErrors` is an OPERATION-level signal and nothing else.** An entry
+    /// means the pass could not produce trustworthy evidence for every claimed page — the scan
+    /// failed, a page's bytes could not be read, or the wholesale guard refused the whole
+    /// reconciliation — never that the record is suspect. Where the pass classified every claimed
+    /// page and the licensed correction was written, the record states the finding itself and the
+    /// entry is dropped; `canValidateImageData`'s error disjunct keeps Validate re-runnable wherever
+    /// one is kept.
     public func validateImageData(gid: String) async -> DownloadValidationState? {
         guard let download = await fetchDownload(gid: gid),
               download.canValidateImageData
@@ -129,15 +139,39 @@ extension DownloadCoordinator {
         return validation
     }
 
-    /// Makes a `.missingFiles` verdict durable when the blanking loop's own evidence rule licenses
-    /// it, and reports whether it did (D-G5B-01).
+    /// Makes a `.missingFiles` verdict durable for every page this pass positively classified, and
+    /// reports whether the pass covered every claimed page (D-G5B-01, D-SSOT-01).
     ///
-    /// The evidence is a page-file scan taken here and now, never the verdict: `storage.validate`
-    /// short-circuits at the first failing page, so its message names one page while the scan
-    /// classifies every page — and a partially-missing gallery must blank exactly its missing set,
-    /// whichever page validate happened to report. Nothing about the refusal lines is re-decided
-    /// here; the loop is called unmodified, so a failed scan, an unprobed page and the wholesale
-    /// shape all refuse at validate time exactly as they refuse at repair-preparation time.
+    /// The evidence is gathered here and now, never taken from the verdict: `storage.validate`
+    /// short-circuits at the first failing page, so its message names one page while the gallery has
+    /// a SET — and a partially-broken gallery must reconcile exactly that set, whichever page
+    /// validate happened to report. Two passes supply it, in the order their guards demand:
+    ///
+    /// 1. A page-file scan, whose 15-56 refusal line is kept verbatim — a failed enumeration answers
+    ///    nothing at all, so the whole reconciliation refuses (G-15-9).
+    /// 2. A content pass over what that scan yielded, which re-hashes each claimed page's bytes and
+    ///    partitions them into verified, positively mismatched, and held (D-SSOT-01/D-SSOT-03).
+    ///
+    /// **D-SSOT-02: the wholesale guard is evaluated over the COMBINED prospective blank set, before
+    /// any destructive step.** A systematically wrong hash pipeline — a `fileHash` regression, an
+    /// algorithm change — would mismatch every readable page, which is exactly the class the
+    /// irreversibility defence exists for, so the mismatched pages join the positively-absent ones
+    /// under the loop's own comparison shape rather than under a second, laxer one. With an empty
+    /// mismatch set this reduces byte for byte to the presence arm's behavior, so nothing 15-56
+    /// established is weakened. The complementary systematic shape — the read failing for every page
+    /// — produces an empty mismatch set and blanks nothing, which D-SSOT-03 covers.
+    ///
+    /// The ordering is load-bearing rather than stylistic: guard, then removal, then a fresh presence
+    /// scan, then the loop. A refusal has to precede the first destructive act, or a reconciliation
+    /// this function declined to write would already have destroyed the files it declined to write
+    /// about.
+    ///
+    /// **D-SSOT-04: the mismatched files are removed, and the blanking still flows through the ONE
+    /// loop.** Nothing here blanks a hash. Removal converts a corrupt-in-place page into the
+    /// positively-absent shape, the rescan sees it as such, and
+    /// `reconcileWorkingManifestAgainstPageFiles` blanks it through its own three refusal lines,
+    /// unmodified — so there is no second blanking rule to drift from the first. A page whose file
+    /// could not be removed is folded into the held set instead, keeping its hash.
     ///
     /// A nil manifest probe is treated as a refusal rather than a fresh start. Validation just
     /// proved that file readable, so failing now is a race with a concurrent deletion — a
@@ -148,21 +182,50 @@ extension DownloadCoordinator {
     /// continued session may still be counting this gallery — a completed-then-validated gallery
     /// while the queue drains — so the write has to withdraw its counted portion from the monotonic
     /// floor. The bracket is delta-keyed, so a refusal withdraws exactly zero by construction.
+    ///
+    /// **D-SSOT-05: the return value is about the OPERATION, not about the record.** True means this
+    /// pass classified every claimed page and wrote the correction they licensed, so the record can
+    /// state the finding by itself and the caller drops its entry. Any hold, any refusal and any
+    /// thrown write answers false, because there the pass has something the manifest legitimately
+    /// cannot record.
     private func reconcileValidatedRecordAgainstPageFiles(
         download: DownloadedGallery
     ) -> Bool {
         let folderURL = download.folderURL
         guard let manifest = storage.probeManifest(folderURL: folderURL) else { return false }
-        let pageFileScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        let presenceScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        guard presenceScan.scanSucceeded else { return false }
+        let contentScan = storage.contentMismatchScan(
+            folderURL: folderURL,
+            manifest: manifest,
+            pageFileScan: presenceScan
+        )
+        let prospectiveBlankPages = prospectiveBlankPages(
+            manifest: manifest,
+            presenceScan: presenceScan,
+            mismatchedPages: contentScan.mismatched
+        )
+        guard prospectiveBlankPages.count < manifest.completedPageCount else { return false }
+
+        let unremovedPages = storage.removeMismatchedPageFiles(
+            folderURL: folderURL,
+            pageRelativePaths: presenceScan.pages,
+            mismatchedPages: contentScan.mismatched
+        )
+        let heldPages = contentScan.held.union(unremovedPages)
+        // Taken after the removals, so the pages they emptied reach the loop as the positive
+        // absences they now are. Reusing the pre-removal scan would hide them from the very
+        // reconciliation the removal was performed for.
+        let reconciliationScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
         do {
             let reconciledManifest = try withdrawingCountedBasisMovement(gid: download.gid) {
                 try reconcileWorkingManifestAgainstPageFiles(
                     manifest: manifest,
-                    pageFileScan: pageFileScan,
+                    pageFileScan: reconciliationScan,
                     folderURL: folderURL
                 )
             }
-            return reconciledManifest.pages != manifest.pages
+            return heldPages.isEmpty && reconciledManifest.pages != manifest.pages
         } catch {
             // Silence is correct here, and is not a swallowed failure. A throw can only come from
             // the loop's manifest write, which leaves the record claiming exactly what it claimed
@@ -172,5 +235,28 @@ extension DownloadCoordinator {
             // log content is introduced by this second caller.
             return false
         }
+    }
+
+    /// The pages this reconciliation would end up blanking if nothing refused — the set D-SSOT-02's
+    /// wholesale guard is measured over.
+    ///
+    /// Its two halves are the two positive determinations, unioned because they license the same
+    /// act: a claimed page the successful listing did not yield and no per-file signal held (the
+    /// presence arm's own discipline, restated here rather than re-decided — the blanking loop
+    /// applies exactly this predicate), and a claimed page the content pass read and refuted.
+    ///
+    /// Computing it BEFORE any removal is what makes the guard meaningful. After a removal the two
+    /// halves are no longer distinguishable — a removed file is simply absent — so a guard measured
+    /// then would be measuring the consequence of the act it is supposed to authorize.
+    private func prospectiveBlankPages(
+        manifest: DownloadManifest,
+        presenceScan: PageFileScan,
+        mismatchedPages: Set<Int>
+    ) -> Set<Int> {
+        let claimedPages = Set(manifest.pages.filter({ !$0.value.isEmpty }).keys)
+        let positivelyAbsentPages = claimedPages
+            .subtracting(presenceScan.pages.keys)
+            .subtracting(presenceScan.unprobedPages)
+        return positivelyAbsentPages.union(mismatchedPages)
     }
 }
