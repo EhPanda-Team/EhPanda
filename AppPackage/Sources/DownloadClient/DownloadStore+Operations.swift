@@ -18,6 +18,11 @@ private let logger = Logger(category: .init(describing: DownloadStore.self))
 /// `verified` is positive evidence that nothing is wrong.
 struct ContentMismatchScan: Equatable, Sendable {
     /// The recorded hash and the file's fresh hash agree.
+    ///
+    /// Read by `reconcileValidatedRecordAgainstPageFiles`' coverage answer, which subtracts the
+    /// whole partition from the claimed set to name the pages the pass could not classify at all.
+    /// Without this member that subtraction would report every intact page as unclassified, so the
+    /// set is load-bearing rather than informational.
     let verified: Set<Int>
     /// The file was read and its fresh hash disagrees with the record — a positive, page-scoped
     /// determination that the recorded hash is wrong (D-SSOT-01).
@@ -218,9 +223,10 @@ extension DownloadStore {
     /// page-scoped evidence — the same evidence class as a positive absence — so `mismatched`
     /// licenses durable blanking.** That is what shrinks the validation refusal surface to
     /// operation-level signals: a scan that could not run, a page that could not be read, and the
-    /// wholesale-shape guard. `verified` licenses nothing and is returned because a caller deciding
-    /// whether the pass covered every claimed page needs to see the whole partition, not a remainder
-    /// it has to re-derive.
+    /// wholesale-shape guard. `verified` licenses nothing and is returned because the caller
+    /// deciding whether the pass covered every claimed page reads the whole partition rather than a
+    /// remainder it re-derives — `reconcileValidatedRecordAgainstPageFiles`' `unclassifiedPages`,
+    /// where a re-derived remainder is exactly what lost the unprobed population once.
     ///
     /// **D-SSOT-03: `held` is a NON-ANSWER, and a non-answer is never authority to destroy state.**
     /// A page lands there when its bytes could not be probed or could not be read at all — the same
