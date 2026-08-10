@@ -70,3 +70,17 @@ arm. A throw there is reported by TCA as a runtime issue rather than handled, an
 `fetchDownloads` path `state.loadingState` was set to `.loading` immediately before, so a throwing
 fetch leaves the list spinning with no error state and no retry. Gap 4's contract covers actions
 that carry a `Result`; these carry none, which is precisely why the failure has nowhere to go.
+
+## `AppPackage/Package.swift` exceeds the 1000-line `file_length` ERROR limit
+
+Found during plan 15-75, which removed one line from it (1129 -> 1128). SwiftLint invoked directly
+over the file reports `File Length Violation: File should contain 1000 lines or less: currently
+contains 1128 (file_length)`, at ERROR severity, and `.swiftlint.yml` carries no `excluded:` entry
+that would exempt it.
+
+Nothing catches this today: the SwiftLint build plugin runs per target over that target's *sources*,
+and `Package.swift` is the manifest rather than a member of any target, so the warning-free
+app-scheme build gate structurally cannot see it. This is pre-existing and unrelated to 15-75's key
+move, so it was not fixed under the scope boundary — and it is not a branch fix either. Bringing the
+manifest under the limit means splitting the target list across files (`swift-tools-version: 6.3.1`
+allows manifest helper files under `Sources/<Package>/`), which is a package-layout change.
