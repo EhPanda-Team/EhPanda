@@ -266,11 +266,199 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(inspection.retryablePageIndices == [1, 2])
         #expect(inspection.canRetryPages)
     }
+
+    // MARK: The public selection boundary (CR-04)
+
+    /// An entirely out-of-domain request must move nothing at all.
+    ///
+    /// `pageIndices` is public input. A stale inspection, a page count that shrank upstream, or any
+    /// malformed caller can carry numbers this gallery does not have, and the pre-fix boundary
+    /// deduplicated them without ever asking whether they existed. What made that a widening rather
+    /// than a harmless no-op is downstream: `normalizeFetchedPayload` filtered the invalid values
+    /// away and turned the resulting emptiness into `nil`, which `pendingPageIndices` reads as "no
+    /// restriction" and answers with every pending page.
+    ///
+    /// **The blast radius is staged, not assumed.** The fixture claims one of three pages and has
+    /// no page files on disk, so an unrestricted repair over it schedules all three — asserted
+    /// directly below, so this case states the size of the widening it refuses rather than implying
+    /// it. The pure composition of the two steps is pinned in `DownloadZeroPagePayloadTests`.
+    ///
+    /// The refusal is asserted as a whole-state comparison rather than as an error alone: a
+    /// boundary that returned `.notFound` after clearing the recorded failure, advancing the queue
+    /// generation or enqueueing would still be acting on a request the user never made.
+    @Test
+    func testRetryPagesRefusesAnAllInvalidSelectionWithoutMovingAnything() async throws {
+        let boundary = try await makeRetryBoundaryFixture()
+        defer { boundary.tearDown() }
+        let manager = boundary.session.manager
+
+        let staged = try #require(await manager.fetchDownload(gid: boundary.gallery.gid))
+        #expect(staged.pageCount == 3)
+        #expect(await manager.resumeMode(for: staged) != .update)
+        // What an unrestricted repair would schedule here, read through the production filter.
+        let unrestricted = await manager.pendingPageIndices(
+            payload: makeStartPayload(for: boundary.gallery, mode: .repair),
+            folderURL: galleryFolderURL(for: boundary.gallery, in: boundary.session),
+            existingPageRelativePaths: [:]
+        )
+        #expect(unrestricted == [1, 2, 3])
+
+        let before = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        let result = await manager.retryPages(gid: boundary.gallery.gid, pageIndices: [0, 999])
+
+        let after = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        #expect(after == before)
+        guard case .failure(let error) = result else {
+            Issue.record("An all-invalid selection must be refused, got \(result).")
+            return
+        }
+        #expect(error == .notFound)
+    }
+
+    /// An explicitly empty request is a request, and it fails the same way.
+    ///
+    /// The pre-fix boundary answered `.success(())` here, which is the same collapse read from the
+    /// other side: absence of a selection and a selection of nothing were treated as one value. The
+    /// caller asked for no pages and was told the work was accepted, so nothing distinguishes this
+    /// reply from one that queued something. Refusing states the truth and leaves the caller's own
+    /// failure path — `retryPagesDone(.failure)` reloads the inspection — to resettle the screen.
+    @Test
+    func testRetryPagesRefusesAnExplicitlyEmptySelectionWithoutMovingAnything() async throws {
+        let boundary = try await makeRetryBoundaryFixture()
+        defer { boundary.tearDown() }
+        let manager = boundary.session.manager
+
+        let before = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        let result = await manager.retryPages(gid: boundary.gallery.gid, pageIndices: [])
+
+        let after = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        #expect(after == before)
+        guard case .failure(let error) = result else {
+            Issue.record("An explicitly empty selection must be refused, got \(result).")
+            return
+        }
+        #expect(error == .notFound)
+    }
+
+    /// A mixed request keeps exactly its valid part — no wider, and no narrower.
+    ///
+    /// `[0, 2, 2, 999]` has one page this gallery owns. The stored intent must be `[2]`: dropping
+    /// the invalid values is the fix, and dropping page 2 with them would be the fix overshooting
+    /// into a refusal the caller did not earn. The duplicate is in the argument because the entry
+    /// the coordinator stores is its own transform of the request rather than the literal a caller
+    /// typed.
+    @Test
+    func testRetryPagesQueuesExactlyTheValidSubsetOfAMixedSelection() async throws {
+        let boundary = try await makeRetryBoundaryFixture()
+        defer { boundary.tearDown() }
+        let manager = boundary.session.manager
+
+        try await manager
+            .retryPages(gid: boundary.gallery.gid, pageIndices: [0, 2, 2, 999])
+            .get()
+
+        let intent = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        #expect(intent.queuedPageSelection == [2])
+        #expect(intent.queuedMode == .repair)
+        #expect(intent.isQueued)
+        #expect(intent.queueIntentGeneration == 1)
+        // The accepted half of the contract: the clears the refusal cases prove are NOT performed
+        // are performed here, so "nothing moved" above is a property of the refusal rather than of
+        // a fixture with nothing to move.
+        #expect(intent.downloadError == nil)
+        #expect(intent.failedPageIndices.isEmpty)
+        let queued = try #require(await manager.fetchDownload(gid: boundary.gallery.gid))
+        #expect(queued.displayStatus == .queued)
+    }
+}
+
+// MARK: - Retry Boundary Fixture
+
+/// A three-page record with one page claimed, no page files on disk, a recorded download failure
+/// and a recorded page failure — staged so that an unrestricted repair over it would be materially
+/// broader than any single-page request, and so that every clear the retry paths perform has
+/// something to destroy.
+private struct RetryBoundaryFixture {
+    let session: SessionFixture
+    let spy: BackgroundProcessingClientSpy
+    let gallery: SessionGallery
+    let blockerTask: Task<Void, Never>
+
+    func tearDown() {
+        blockerTask.cancel()
+        removeTemporaryItem(at: session.rootURL)
+    }
 }
 
 // MARK: - Setup Helpers
 
 private extension DownloadRetryPagesTests {
+    /// Stages `RetryBoundaryFixture` and occupies the active slot.
+    ///
+    /// The occupant is a plain sleeping task installed through the test seam rather than a parked
+    /// production runner: these cases assert that nothing is scheduled, so a live scheduling round
+    /// would only add a way for the fixture to start work of its own. With `activeTask` non-nil,
+    /// `scheduleNextIfNeededCore` refuses every promotion, and nothing here can reach the network.
+    /// The continued session is left unstarted for the same reason — `ensureContinuedSession`
+    /// short-circuits on a live session, so a pre-started one would silently blunt the start-count
+    /// half of the snapshot.
+    func makeRetryBoundaryFixture() async throws -> RetryBoundaryFixture {
+        let gallery = SessionGallery(
+            gid: "215704",
+            title: "Boundary",
+            pageCount: 3,
+            completedPageCount: 1
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let session = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            queuedGIDs: [],
+            client: spy.client
+        )
+        await session.manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "Recorded before the boundary call."),
+            gid: gallery.gid
+        )
+        await session.manager.testingSetFailedPageErrors(
+            [
+                .init(
+                    index: 2,
+                    relativePath: "215704_token_2.jpg",
+                    error: .networkingFailed
+                )
+            ],
+            gid: gallery.gid
+        )
+        let blockerTask = Task<Void, Never> {
+            await sleepIgnoringCancellation(for: .seconds(60))
+        }
+        await session.manager.testingInstallActiveTask(
+            gid: "retry-boundary-blocker",
+            task: blockerTask
+        )
+        return RetryBoundaryFixture(
+            session: session,
+            spy: spy,
+            gallery: gallery,
+            blockerTask: blockerTask
+        )
+    }
+
     /// A `DownloadInspection` whose download carries `status`'s display status and failure code, and
     /// whose pages are `pageStatuses` in page order starting at 1.
     ///
