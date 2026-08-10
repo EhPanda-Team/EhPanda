@@ -498,7 +498,7 @@ final class PostRemovalListingFailureControl: Sendable {
 /// **The listing-call choreography this keys on**, because keying on an ordinal would silently
 /// re-target itself the moment a call is added. Inside one `validateImageData` over a mismatched
 /// page, the gallery folder is enumerated by `storage.validate`'s own page check, then by the
-/// reconciliation's presence scan, then — after `removeMismatchedPageFiles` has deleted the refuted
+/// reconciliation's presence scan, then — after `removeRefutedPageFiles` has deleted the refuted
 /// file — by the blanking pass's rescan, and then once more by the recovery's rescan. Only the third
 /// of those follows a removal, so "the first listing after the removal" names the post-removal
 /// rescan positionally-independently: exit 1 of the three post-removal exits, and the one the
