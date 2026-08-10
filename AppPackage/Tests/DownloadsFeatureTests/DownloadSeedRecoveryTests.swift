@@ -132,9 +132,12 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
             "the authorized removal did not destroy the refuted page file"
         )
         #expect(
-            control.postRemovalListingCount == 2,
+            control.postRemovalListingCount >= 2,
             "the recovery's own fresh scan never ran after the thrown write"
         )
+        // The precise pin is the RELEASE, not the listing tally: the transient lifts once, at the
+        // second post-removal listing. The tally itself runs past two once the recovery's write
+        // succeeds, because its index rebuild resolves the folder's rendering resources.
         #expect(control.releasedTransientCount == 1)
 
         // THE PROPERTY: record and disk agree over the pages this pass destroyed. Read from the
@@ -391,6 +394,11 @@ final class SeedManifestWriteRecoveryControl: Sendable {
 /// positionally-independently, and it is the only window in which a transient write failure could
 /// plausibly have cleared: the removal, the failing write and the retry are one synchronous stretch
 /// inside a single preparation, so nothing external can land between them.
+///
+/// Listings CONTINUE past the release, and the count is deliberately not pinned to an exact total: a
+/// recovery whose write succeeds re-indexes the folder, and `galleryFolderRecord`'s two rendering
+/// resolutions (`localCoverURL` and `imageURLs`) list it again. Those follow the release rather than
+/// gating it, so they cannot move which listing lifts the transient.
 ///
 /// It MUTATES rather than fails, which is the opposite of its sibling below and is deliberate. Exit
 /// 3's defect is not that a write fails — it is that a pass which destroyed files gives up without
