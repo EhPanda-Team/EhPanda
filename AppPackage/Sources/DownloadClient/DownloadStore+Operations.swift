@@ -414,16 +414,6 @@ extension DownloadStore {
         return unremovedPages
     }
 
-    /// The root-relative spelling of the primitive below, for a caller that holds a record path.
-    ///
-    /// It has no production caller today; `rg -n 'removeFolder' AppPackage/Sources` shows only its
-    /// own delegation. It is kept because it is the vocabulary the record paths speak, and it
-    /// inherits the containment below in full rather than restating any part of it.
-    public func removeFolder(relativePath: String) throws {
-        let targetURL = folderURL(relativePath: relativePath)
-        try removeFolder(at: targetURL)
-    }
-
     /// Removes whatever sits at a path inside the download root, and nothing outside it.
     ///
     /// **This is the RECORD-PATH primitive, and it is deliberately more permissive than the
@@ -435,6 +425,12 @@ extension DownloadStore {
     /// Title"`, which removes a gallery folder the caller never named while the coordinator's
     /// exact `parentFolderName` cleanup key matches nothing. `deleteUserFolder(named:)` owns that
     /// family now, and no user-folder deletion routes through here any more.
+    ///
+    /// **The string-taking spelling of this primitive is deleted rather than kept for vocabulary
+    /// (WR-01).** It joined an arbitrary caller-supplied path to the root and handed the result
+    /// straight here, so it was the one-call rewrite of the defect above — with no caller to weigh
+    /// against that. This entry point takes a URL, so reaching the same place now takes composing
+    /// two functions whose docs both refuse it.
     ///
     /// Both containment questions are asked, for the reason `confinedDirectUserFolderURL` records
     /// about its own pair: standardization answers a path that climbs out lexically, resolution
@@ -461,9 +457,11 @@ extension DownloadStore {
     ///
     /// - **A source is never normalized.** `normalizedUserFolderName` maps separators to spaces and
     ///   trims padding, so normalizing `"  Photos  "` would select the real folder `"Photos"` — one
-    ///   the caller never named. An accepted source must already BE its normalized spelling;
-    ///   anything else is refused rather than repaired. A destination is the opposite case: the
-    ///   caller is asking for a name to be created, so normalizing it is the entire point.
+    ///   the caller never named. A source is admitted or refused as written, never repaired, which
+    ///   is also why an admitted source may be a spelling this app would never mint: the listing
+    ///   produces such names and this boundary must not disown them (CR-01). A destination is the
+    ///   opposite case: the caller is asking for a name to be created, so normalizing it is the
+    ///   entire point. The asymmetry is the design rather than an oversight.
     /// - **Containment is decided against the resolved filesystem, and decided again at the move.**
     ///   Lexical standardization answers `..`, nested components and absolute paths; only symlink
     ///   resolution answers a direct child that points somewhere else entirely. Both run once more
@@ -608,11 +606,40 @@ extension DownloadStore {
 
     /// The URL of `rawName`, but only when it names a direct child of the download root.
     ///
-    /// The single-component requirement is stated here rather than inherited from what the name
-    /// sanitizer happens to rewrite today, so a future change to normalization cannot quietly widen
-    /// this boundary. The two parent comparisons are both required and neither implies the other:
-    /// the standardized one refuses a name that climbs out lexically, the resolved one refuses a
-    /// name whose own last component is a link out.
+    /// **This is an ADMISSION test, and its terms are the LISTING's terms (CR-01).** `scanDownloads`
+    /// promotes every visible non-gallery-shaped directory under the root to a user folder with no
+    /// name filter at all, and the app ships with File Sharing and open-in-place over a root inside
+    /// `Documents/` — so the names it produces describe a disk this app does not own. `Art  Books`,
+    /// ` Photos`, `Manga\Vol1` and `Misc etc.` are all real, listed, usable folders. Requiring a
+    /// source to already equal the spelling this app would MINT for it therefore refused folders the
+    /// app itself displays, leaving them un-deletable and un-renamable from inside the app while the
+    /// error called the displayed name invalid.
+    ///
+    /// Rewriting a source instead would be worse, which is why the answer is to loosen rather than
+    /// to repair: `normalizedUserFolderName` maps separators and padding away, so it SELECTS —
+    /// `"  Photos  "` becomes the real `Photos` — and the mutation would reach an object the caller
+    /// never named. A source is admitted or refused as written, never repaired. The MINTING sites
+    /// keep normalizing (`createFolder`, and the rename's new name), because there the caller is
+    /// asking for a name to be made rather than pointing at one that exists.
+    ///
+    /// What this deliberately does NOT admit, and what each refusal costs against the listing:
+    ///
+    /// - An empty name, `.`, `..`, or more than one path component. `contentsOfDirectory` yields
+    ///   none of these, so no listed folder can be refused by them — and they are what refuses
+    ///   `"MyFolder/[123_abc] Title"`, `"../Outside"` and an absolute path.
+    /// - A name carrying control characters. POSIX permits those in a filename, so this is the one
+    ///   refusal that could in principle name a real listed directory. It is kept deliberately: such
+    ///   a name flows into log lines, error strings and a `Result` the UI renders, and the cost of
+    ///   the refusal is bounded to a shape no ordinary file browser will produce.
+    /// - A gallery-shaped name. The listing never promotes one to a user folder, so this cannot
+    ///   refuse a listed name either, and it keeps a user-folder mutation off a gallery folder that
+    ///   happens to sit directly under the root.
+    /// - A name whose standardized parent is not the root, and one whose SYMLINK-RESOLVED parent is
+    ///   not. Both are required and neither implies the other: the first refuses a name that climbs
+    ///   out lexically, the second a name whose own last component links out. Note that the scan
+    ///   follows symlinks, so a linked directory IS listed; refusing it here is the second
+    ///   deliberate narrowing, for the reason `renameUserFolder`'s type check records — renaming or
+    ///   removing through a link acts on the link, not on the folder the caller is looking at.
     ///
     /// Module-visible rather than private because the coordinator has two questions that are this
     /// same question and no other: whether an absent folder should answer `.notFound` before any
@@ -624,7 +651,8 @@ extension DownloadStore {
               rawName != ".",
               rawName != "..",
               rawName.split(separator: "/", omittingEmptySubsequences: false).count == 1,
-              normalizedUserFolderName(rawName) == rawName
+              !rawName.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains),
+              !DownloadStore.isGalleryFolderLikeName(rawName)
         else {
             return nil
         }
