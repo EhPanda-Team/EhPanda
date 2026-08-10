@@ -172,6 +172,114 @@ struct DownloadInspectorRetryTests: DownloadFeatureTestCase {
             )
         }
     }
+
+    // MARK: The refusal has to reach the user (WR-04)
+
+    /// A refused Retry tap is not a no-op, and the screen has to say so.
+    ///
+    /// The failure arm already cleared `retryingPageIndices` and reloaded the inspection, which
+    /// resettles the list but reports nothing: the rows flash to `.pending` from the optimistic
+    /// rewrite and then silently revert, indistinguishable from a network failure or from a tap
+    /// that never registered. The reducer already owns a toast surface and already uses it to
+    /// report a validation result, so this wires an existing affordance rather than inventing one.
+    ///
+    /// **The caption is the CLIENT's sentence, not one this screen picks.** Only the boundary knows
+    /// which of its refusals happened, and the distinct error exists precisely so the message can
+    /// match the condition. A caption chosen here would be the conflation WR-04 names, moved one
+    /// layer up.
+    @MainActor
+    @Test
+    func testDownloadInspectorSurfacesTheClientsMessageWhenARetryIsRefused() async {
+        let refusalMessage = "The pages you selected are no longer part of this gallery."
+        let download = sampleDownload(
+            gid: "112240", title: "Refused Retry Gallery",
+            status: .partial, completedPageCount: 1
+        )
+        let inspection = sampleInspection(download: download)
+        var initialState = DownloadInspectorReducer.State(gid: download.gid)
+        initialState.inspection = inspection
+        initialState.stableInspection = inspection
+        initialState.retryingPageIndices = [2]
+        initialState.loadingState = .idle
+
+        let store = makeRetryTestStore(
+            initialState: initialState,
+            loadInspection: { _ in inspection }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.retryPagesDone(.failure(.fileOperationFailed(refusalMessage)))) {
+            $0.toast = .error(caption: refusalMessage)
+            $0.retryingPageIndices = []
+        }
+        // The pre-existing half of the branch, re-pinned: surfacing the refusal must not replace the
+        // resettle it already performed.
+        await store.receive(\.loadInspection)
+    }
+
+    /// A failure that carries no message of its own still reports itself.
+    ///
+    /// `.notFound` remains the truthful answer for the two ABSENCE exits — the gallery is gone, or
+    /// its folder is — and those are conditions the user is owed a word about too. The caption falls
+    /// back to the error's own wording rather than to silence, so wiring the toast to one error kind
+    /// alone would fail here.
+    @MainActor
+    @Test
+    func testDownloadInspectorSurfacesAMessageForARetryFailureThatCarriesNoneOfItsOwn() async {
+        let download = sampleDownload(
+            gid: "112242", title: "Absent Retry Gallery",
+            status: .partial, completedPageCount: 1
+        )
+        let inspection = sampleInspection(download: download)
+        var initialState = DownloadInspectorReducer.State(gid: download.gid)
+        initialState.inspection = inspection
+        initialState.stableInspection = inspection
+        initialState.retryingPageIndices = [2]
+        initialState.loadingState = .idle
+
+        let store = makeRetryTestStore(
+            initialState: initialState,
+            loadInspection: { _ in inspection }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.retryPagesDone(.failure(.notFound))) {
+            $0.toast = .error(caption: AppError.notFound.alertText)
+            $0.retryingPageIndices = []
+        }
+        await store.receive(\.loadInspection)
+    }
+
+    /// The boundary from the other side: accepted work is not an occasion for a toast.
+    ///
+    /// Passes pre-fix, deliberately. Its job is to keep the fix from buying visibility by reporting
+    /// every outcome — a success toast on a tap whose only effect is that the queue accepted the
+    /// work would be noise the user has to dismiss, and `retryPagesDone(.success)` returns `.none`
+    /// precisely because the observe stream is what reports the queued work afterwards.
+    @MainActor
+    @Test
+    func testDownloadInspectorSetsNoToastWhenARetryRequestIsAccepted() async {
+        let download = sampleDownload(
+            gid: "112243", title: "Accepted Retry Gallery",
+            status: .partial, completedPageCount: 1
+        )
+        let inspection = sampleInspection(download: download)
+        var initialState = DownloadInspectorReducer.State(gid: download.gid)
+        initialState.inspection = inspection
+        initialState.stableInspection = inspection
+        initialState.retryingPageIndices = [2]
+        initialState.loadingState = .idle
+
+        let store = makeRetryTestStore(
+            initialState: initialState,
+            loadInspection: { _ in inspection }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.retryPagesDone(.success(())))
+        #expect(store.state.toast == nil)
+        #expect(store.state.retryingPageIndices == [2])
+    }
 }
 
 // MARK: - Store Factory Helpers

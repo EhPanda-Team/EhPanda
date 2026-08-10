@@ -138,17 +138,21 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
         let manager = makeTestingDownloadCoordinator()
 
         // `normalizeFetchedPayload` validates a raw page selection against the detail's page count.
-        // The answer is a PRESENT empty set, not nil (CR-04): the caller named pages, and at zero
-        // pages none of them is admissible. Nil is reserved for "no selection was ever made", which
-        // `pendingPageIndices` reads as unrestricted work over the whole gallery — so collapsing
-        // this case to nil would answer a request for two pages with a request for all of them.
-        let normalized = await manager.normalizeFetchedPayload(
-            makeZeroPagePayload(),
-            mode: .initial,
-            rawPageSelection: [1, 2]
-        )
-        #expect(normalized.pageSelection != nil)
-        #expect(normalized.pageSelection == Set<Int>())
+        // At zero pages none of a named selection is admissible, and the request can no longer be
+        // honoured at all — so the boundary THROWS rather than producing a payload (WR-05). The
+        // still-load-bearing half of CR-04 is that it does not answer `nil`: nil means "no selection
+        // was ever made", which `pendingPageIndices` reads as unrestricted work over the whole
+        // gallery, so answering a request for two pages with one for all of them is the widening.
+        // Failing here is the same fail-closed direction stated louder, and it reaches the run's
+        // error path with a reason instead of reaching finalize with none.
+        let collapse = await #expect(throws: AppError.self) {
+            try await manager.normalizeFetchedPayload(
+                makeZeroPagePayload(),
+                mode: .initial,
+                rawPageSelection: [1, 2]
+            )
+        }
+        #expect(collapse != nil)
 
         // `buildInspectionPages` enumerates a record's pages for the inspector.
         let zeroPageDownload = sampleDownload(
@@ -171,51 +175,74 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     /// The three selection states, and the distinction between two of them is the whole finding.
     ///
     /// `rawPageSelection` is the coordinator's queue-intent entry for the run. `nil` means no
-    /// selection was ever made; a non-nil value means the caller named pages. Pre-fix, an explicit
+    /// selection was ever made; a non-nil value means the caller named pages. Pre-CR-04, an explicit
     /// selection that filtered down to nothing came out as `nil` — the same value as "no selection"
     /// — and every downstream reader takes nil as permission to work over the whole gallery.
     ///
-    /// Every assertion here tests OPTIONAL PRESENCE before it tests contents. Comparing only the
-    /// contained set is what makes this collapse invisible: `nil` and `.some([])` both hold no
-    /// pages, and they mean opposite things.
+    /// **This supersedes 15-64's preserve-empty RETURN contract, deliberately, and keeps the
+    /// property that contract protected (WR-05).** Preserving `.some([])` stopped the widening, but
+    /// the run that inherited it was not a no-op: it downloaded the cover and then let
+    /// `finalizeBatchResult` measure the WHOLE manifest, so a repair seed's blanking settled the
+    /// gallery into a persistent error record for work nobody requested — a generic
+    /// incomplete-download error about pages the run was never asked to fetch. The collapse is now
+    /// a named throw at this boundary instead. The no-widening property is unchanged and re-pinned
+    /// below from both sides: no path maps a non-nil raw selection to a nil payload selection,
+    /// because the one input that used to empty it does not produce a payload at all.
+    ///
+    /// Every surviving assertion tests OPTIONAL PRESENCE before it tests contents. Comparing only
+    /// the contained set is what made the original collapse invisible: `nil` and `.some([])` both
+    /// hold no pages, and they mean opposite things.
     @Test
-    func testNormalizationKeepsNilUnrestrictedAndAnExplicitSelectionPresent() async throws {
+    func testNormalizationKeepsNilUnrestrictedPreservesASubsetAndRefusesACollapse() async throws {
         let manager = makeTestingDownloadCoordinator()
         let payload = makePayload(pageCount: 3, mode: .repair)
 
-        let unrestricted = await manager.normalizeFetchedPayload(
+        let unrestricted = try await manager.normalizeFetchedPayload(
             payload,
             mode: .repair,
             rawPageSelection: nil
         )
         #expect(unrestricted.pageSelection == nil)
 
-        let explicitlyEmpty = await manager.normalizeFetchedPayload(
-            payload,
-            mode: .repair,
-            rawPageSelection: []
-        )
-        #expect(explicitlyEmpty.pageSelection != nil)
-        #expect(explicitlyEmpty.pageSelection == Set<Int>())
+        let explicitlyEmpty = await #expect(throws: AppError.self) {
+            try await manager.normalizeFetchedPayload(
+                payload,
+                mode: .repair,
+                rawPageSelection: []
+            )
+        }
+        guard case .fileOperationFailed(let explicitlyEmptyMessage)? = explicitlyEmpty else {
+            Issue.record("An explicitly empty selection must throw a named error, got \(explicitlyEmpty as Any).")
+            return
+        }
+        #expect(!explicitlyEmptyMessage.isEmpty)
 
-        let allInvalid = await manager.normalizeFetchedPayload(
-            payload,
-            mode: .repair,
-            rawPageSelection: [0, 999]
-        )
-        #expect(allInvalid.pageSelection != nil)
-        #expect(allInvalid.pageSelection == Set<Int>())
+        let allInvalid = await #expect(throws: AppError.self) {
+            try await manager.normalizeFetchedPayload(
+                payload,
+                mode: .repair,
+                rawPageSelection: [0, 999]
+            )
+        }
+        // The same condition reached the other way — a selection the fetched count refutes entirely
+        // — so both arms must answer with the same named reason rather than one of them slipping
+        // through as a generic failure.
+        #expect(allInvalid == explicitlyEmpty)
 
-        let mixed = await manager.normalizeFetchedPayload(
+        let mixed = try await manager.normalizeFetchedPayload(
             payload,
             mode: .repair,
             rawPageSelection: [0, 2, 2, 999]
         )
+        // Presence first, contents second, in the arm that survives: a surviving subset stays a
+        // PRESENT set, which is the half of the three-state contract the throw does not replace.
+        #expect(mixed.pageSelection != nil)
         #expect(mixed.pageSelection == Set([2]))
 
         // The one mode that legitimately discards a selection: an update refreshes the gallery as
-        // a unit, against a page count the old selection was never drawn against.
-        let update = await manager.normalizeFetchedPayload(
+        // a unit, against a page count the old selection was never drawn against. It is exempt from
+        // the collapse throw for the same reason — its selection is not a restriction it carries.
+        let update = try await manager.normalizeFetchedPayload(
             makePayload(pageCount: 3, mode: .update),
             mode: .update,
             rawPageSelection: [2]
@@ -256,33 +283,48 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
         #expect(narrow == [2])
     }
 
-    /// CR-04 as one composed expression: the two steps that produce the widening, run together.
+    /// CR-04 as one composed expression: the two steps that produced the widening, run together.
     ///
     /// Neither step is wrong alone. Normalization dropping out-of-domain values is right, and
-    /// `pendingPageIndices` reading nil as unrestricted is right. The defect lives in the seam,
+    /// `pendingPageIndices` reading nil as unrestricted is right. The defect lived in the seam,
     /// where "everything you asked for is invalid" was encoded with the same value as "you asked
     /// for no restriction". Composing them here is what states the size of the consequence: a
     /// two-index request answered with the whole gallery.
+    ///
+    /// The composition is now unreachable from the FIRST step rather than survivable at the second:
+    /// no payload is produced at all, so there is nothing for the scheduler to read (WR-05). The
+    /// surviving-subset arm keeps the composition itself under test — the seam still has to carry a
+    /// real restriction through both steps, or this case would be green over a normalization that
+    /// had stopped selecting anything.
     @Test
     func testAnAllInvalidSelectionNeverNormalizesIntoWholeGalleryWork() async throws {
         let manager = makeTestingDownloadCoordinator()
         let folderURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
 
-        let normalized = await manager.normalizeFetchedPayload(
+        let collapse = await #expect(throws: AppError.self) {
+            try await manager.normalizeFetchedPayload(
+                makePayload(pageCount: 3, mode: .repair),
+                mode: .repair,
+                rawPageSelection: [0, 999]
+            )
+        }
+        #expect(collapse != nil)
+
+        let narrowed = try await manager.normalizeFetchedPayload(
             makePayload(pageCount: 3, mode: .repair),
             mode: .repair,
-            rawPageSelection: [0, 999]
+            rawPageSelection: [0, 2, 999]
         )
         let scheduled = await manager.pendingPageIndices(
-            payload: normalized,
+            payload: narrowed,
             folderURL: folderURL,
             existingPageRelativePaths: [:]
         )
 
         #expect(
-            scheduled.isEmpty,
-            "An all-invalid selection scheduled \(scheduled) instead of nothing."
+            scheduled == [2],
+            "A partly invalid selection scheduled \(scheduled) instead of only its valid page."
         )
     }
 

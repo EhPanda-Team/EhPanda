@@ -284,8 +284,16 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     /// it. The pure composition of the two steps is pinned in `DownloadZeroPagePayloadTests`.
     ///
     /// The refusal is asserted as a whole-state comparison rather than as an error alone: a
-    /// boundary that returned `.notFound` after clearing the recorded failure, advancing the queue
+    /// boundary that returned a refusal after clearing the recorded failure, advancing the queue
     /// generation or enqueueing would still be acting on a request the user never made.
+    ///
+    /// **The error VALUE is part of the contract too (WR-04).** `.notFound` is the answer to two
+    /// other conditions here — the gallery is gone (`RetryHelpers.swift:73`) and its folder is gone
+    /// (line 88) — so answering an inadmissible selection with it leaves the caller unable to tell
+    /// "this download is gone" from "the pages you named are outside this gallery", and the
+    /// localized string for `.notFound` reads as the former. The refusal therefore carries its own
+    /// `.fileOperationFailed` message; the two absence exits are pinned unchanged by
+    /// `testRetryPagesStillAnswersNotFoundWhenTheGalleryOrItsFolderIsAbsent`.
     @Test
     func testRetryPagesRefusesAnAllInvalidSelectionWithoutMovingAnything() async throws {
         let boundary = try await makeRetryBoundaryFixture()
@@ -318,7 +326,29 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             Issue.record("An all-invalid selection must be refused, got \(result).")
             return
         }
-        #expect(error == .notFound)
+        guard case .fileOperationFailed(let message) = error else {
+            Issue.record("An inadmissible selection must not answer with an absence error, got \(error).")
+            return
+        }
+        #expect(!message.isEmpty)
+
+        // The two refusals this round separates must not share a sentence either. This one says the
+        // pages are not this gallery's; the fetch-time collapse says the gallery changed underneath
+        // a selection that WAS admissible when it was made. A fix that reused one key for both
+        // would satisfy every assertion above and still leave the user unable to tell the two
+        // conditions apart, which is the half of WR-04 the error kind alone does not carry.
+        let collapse = await #expect(throws: AppError.self) {
+            try await manager.normalizeFetchedPayload(
+                makeStartPayload(for: boundary.gallery, mode: .repair, pageSelection: [999]),
+                mode: .repair,
+                rawPageSelection: [999]
+            )
+        }
+        guard case .fileOperationFailed(let collapseMessage)? = collapse else {
+            Issue.record("A fetch-time collapse must carry its own named error, got \(collapse as Any).")
+            return
+        }
+        #expect(collapseMessage != message)
     }
 
     /// An explicitly empty request is a request, and it fails the same way.
@@ -349,7 +379,55 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             Issue.record("An explicitly empty selection must be refused, got \(result).")
             return
         }
-        #expect(error == .notFound)
+        guard case .fileOperationFailed(let message) = error else {
+            Issue.record("An explicitly empty selection must not answer with an absence error, got \(error).")
+            return
+        }
+        #expect(!message.isEmpty)
+    }
+
+    /// The two exits that legitimately mean absence keep answering `.notFound`.
+    ///
+    /// This is the other side of the distinction WR-04 asks for: giving the inadmissible-selection
+    /// refusal its own error is only an improvement if these two keep theirs. A fix that renamed
+    /// every refusal at once would pass the two cases above and lose exactly as much information as
+    /// the conflation did.
+    ///
+    /// The absent-folder arm deletes the staged directory AFTER the record is indexed, which is the
+    /// real shape of that exit — `fetchDownload` answers from the in-memory index while the folder
+    /// the record names has gone. The snapshot is compared across both arms because an absence exit
+    /// must move nothing either; the folder check sits ahead of every write for the same reason the
+    /// admission test does.
+    @Test
+    func testRetryPagesStillAnswersNotFoundWhenTheGalleryOrItsFolderIsAbsent() async throws {
+        let boundary = try await makeRetryBoundaryFixture()
+        defer { boundary.tearDown() }
+        let manager = boundary.session.manager
+
+        let before = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        let absentGallery = await manager.retryPages(gid: "no-such-gallery", pageIndices: [1])
+        guard case .failure(let absentGalleryError) = absentGallery else {
+            Issue.record("An unknown gallery must be refused, got \(absentGallery).")
+            return
+        }
+        #expect(absentGalleryError == .notFound)
+
+        removeTemporaryItem(at: galleryFolderURL(for: boundary.gallery, in: boundary.session))
+        let absentFolder = await manager.retryPages(gid: boundary.gallery.gid, pageIndices: [1])
+        guard case .failure(let absentFolderError) = absentFolder else {
+            Issue.record("A gallery whose folder is gone must be refused, got \(absentFolder).")
+            return
+        }
+        #expect(absentFolderError == .notFound)
+
+        let after = await manager.queueIntentSnapshot(
+            gid: boundary.gallery.gid,
+            backgroundSessionStartCount: boundary.spy.startCount
+        )
+        #expect(after == before)
     }
 
     /// A mixed request keeps exactly its valid part — no wider, and no narrower.
