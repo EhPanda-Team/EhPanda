@@ -124,6 +124,10 @@ extension DownloadCoordinator {
         folderURL: URL
     ) throws -> [Int] {
         let manifest = try storage.readManifest(folderURL: folderURL)
+        // A READ (CR-03). This only NAMES the pages finalize is still missing; it writes nothing and
+        // lowers nothing, so a deletion here would remove a claimed page's file and then throw,
+        // leaving the record claiming it. A refused file is outside `pages` either way, so the set
+        // this returns is unchanged.
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderURL,
             manifest: manifest

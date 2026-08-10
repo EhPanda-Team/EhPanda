@@ -239,13 +239,14 @@ public struct DownloadStore: Sendable {
     /// positive absence and had its recorded hash destroyed. It now selects through the full scan
     /// and hands the unanswered pages back to its caller.
     ///
-    /// `discardingRejected: false` is for a caller that may only READ — see
-    /// `probeAssetFile(at:discardingRejected:)`. The classification is identical either way; the
-    /// flag only withholds the housekeeping deletion.
+    /// `discardingRejected` decides only whether the probe's housekeeping DELETION may fire while
+    /// this answer is being formed — see `probeAssetFile(at:discardingRejected:)`. The
+    /// classification is identical either way, which is why the default is the non-mutating value
+    /// (CR-03): forming an answer is a read, and a caller that means to delete has to say so.
     public func existingPageRelativePaths(
         folderURL: URL,
         manifest: DownloadManifest,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> [Int: String] {
         pageFileScan(
             folderURL: folderURL,
@@ -265,7 +266,7 @@ public struct DownloadStore: Sendable {
     public func pageFileScan(
         folderURL: URL,
         manifest: DownloadManifest,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> PageFileScan {
         let pageNumbers = Set(manifest.pages.keys)
         guard !pageNumbers.isEmpty else {
@@ -321,7 +322,7 @@ public struct DownloadStore: Sendable {
     public func imageURLs(
         folderURL: URL,
         manifest: DownloadManifest,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> [Int: URL] {
         existingPageRelativePaths(
             folderURL: folderURL,
@@ -336,7 +337,7 @@ public struct DownloadStore: Sendable {
     public func localCoverURL(
         folderURL: URL,
         manifest: DownloadManifest,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> URL? {
         existingCoverFileURL(
             folderURL: folderURL,
@@ -346,14 +347,15 @@ public struct DownloadStore: Sendable {
         )
     }
 
-    /// The cover half of the same rule the page scan carries: a display read resolves the rendering
-    /// resource without deleting anything, so `loadInspection` passes `discardingRejected: false`
-    /// here too. A cover is not a page and carries no recorded hash, but the read-must-not-mutate
-    /// property is about the READ rather than about what it happens to be looking at.
+    /// The cover half of the same rule the page scan carries: resolving a rendering resource is a
+    /// read, so it takes the non-mutating default like every other read. A cover is not a page and
+    /// carries no recorded hash, but the read-must-not-mutate property is about the READ rather than
+    /// about what it happens to be looking at — which is why a sweep that resolved a cover purely to
+    /// delete a refused one was the same defect as its page half (CR-03).
     public func existingCoverRelativePath(
         folderURL: URL,
         manifest: DownloadManifest,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> String? {
         localCoverURL(
             folderURL: folderURL,
@@ -525,7 +527,7 @@ public struct DownloadStore: Sendable {
         folderURL: URL,
         gid: String,
         token: String,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> URL? {
         existingAssetFileURL(
             folderURL: folderURL,
@@ -560,7 +562,7 @@ public struct DownloadStore: Sendable {
     private func existingAssetFileURL(
         folderURL: URL,
         prefix: String,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> URL? {
         existingAssetFileURL(
             in: existingAssetFileURLs(folderURL: folderURL) ?? [],
@@ -596,7 +598,7 @@ public struct DownloadStore: Sendable {
     private func existingAssetFileURL(
         in fileURLs: [URL],
         prefix: String,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> URL? {
         fileURLs
             .first(where: {
@@ -743,22 +745,15 @@ public struct DownloadStore: Sendable {
         // discarding. `reloadDownloadIndex` is the pull-to-refresh and foreground-return route, so a
         // discarding probe here would let a routine refresh delete a zero-byte or non-regular page
         // file while the manifest goes on claiming that page, with nothing displayed moving to say
-        // so. The paths that are entitled to act — validate, the repair seed, the finalize merge,
-        // the capture target and the explicit sanitize sweep — keep the discarding default.
+        // so. Since CR-03 that is the DEFAULT rather than this site's opt-out, so no argument is
+        // written here at all; the only entitled actor left is the repair seed, whose deletions the
+        // same bracketed preparation blanks the record for.
         return DownloadFolderRecord(
             relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
             folderURL: folderURL,
             manifest: manifest,
-            localCoverURL: localCoverURL(
-                folderURL: folderURL,
-                manifest: manifest,
-                discardingRejected: false
-            ),
-            localPageURLs: imageURLs(
-                folderURL: folderURL,
-                manifest: manifest,
-                discardingRejected: false
-            ),
+            localCoverURL: localCoverURL(folderURL: folderURL, manifest: manifest),
+            localPageURLs: imageURLs(folderURL: folderURL, manifest: manifest),
             modificationDate: modificationDate,
             parentFolderName: parentFolderName
         )
@@ -811,24 +806,26 @@ public struct DownloadStore: Sendable {
         case unprobeable
     }
 
-    /// Whether an asset file is usable, discarding it when the probe positively rejects it.
+    /// Whether an asset file is usable — and, for a caller that opts in, discarding it when the
+    /// probe positively rejects it. The name describes the opt-in half; the answer is identical
+    /// without it, which is why the default withholds the deletion (CR-03).
     ///
     /// The `Bool` forward of `probeAssetFile(at:discardingRejected:)`, kept for the callers that
     /// re-fetch or re-derive on a false answer and are unaffected by WHY it is false. Both
     /// non-usable outcomes were false before the classification landed and are false now, so every
-    /// one of those callers keeps its behavior byte for byte. A caller that acts irreversibly on the
+    /// one of those callers reads the same answer either way. A caller that acts irreversibly on the
     /// answer must take the classification instead, through
     /// `pageFileScan(folderURL:manifest:discardingRejected:)`'s `unprobedPages`.
     @discardableResult
-    public func sanitizeAssetFileIfNeeded(at url: URL, discardingRejected: Bool = true) -> Bool {
+    public func sanitizeAssetFileIfNeeded(at url: URL, discardingRejected: Bool = false) -> Bool {
         probeAssetFile(at: url, discardingRejected: discardingRejected) == .usable
     }
 
     /// Classifies one asset file, discarding it on the rejections that have always carried that
     /// housekeeping deletion — unless the caller is only READING.
     ///
-    /// **`discardingRejected: false` is what a display path must pass, and the reason it became
-    /// necessary is D-SSOT-07.** While a page's status came from presence, discarding a rejected
+    /// **Withholding that deletion is what a display path needs, and the reason it became necessary
+    /// is D-SSOT-07.** While a page's status came from presence, discarding a rejected
     /// file was self-consistent: the page immediately read `.pending`, so the record and the screen
     /// agreed about what had just happened. The status now comes from the manifest hash, so a
     /// display read that deletes a zero-byte or non-regular page file leaves the page reading
@@ -845,10 +842,19 @@ public struct DownloadStore: Sendable {
     /// disk in exactly the case it decided it must not touch the record. Classification and mutation
     /// are separated by this flag; the ordering that keeps them separated is the caller's.
     ///
-    /// The parameter defaults to the historical behavior so every reconciling and run-time caller
-    /// keeps it byte for byte; the reading paths are the ones that opt out, and they do so
-    /// explicitly — both of `loadInspection`'s routes, and every scan `validateImageData` takes
-    /// before its guard has authorized anything.
+    /// **CR-03 turned the default around, because a DEFAULT is an exit path.** While the mutating
+    /// value was the default, every caller nobody had enumerated was a mutator — which is how this
+    /// deletion survived CR-01's fix on the routes it was reported against and reappeared under an
+    /// ordinary reader open, a `resumeMode` resolution and the coordinator's folder sweep. Reading
+    /// is now what a caller gets for saying nothing, so the property holds for callers that do not
+    /// exist yet, and deleting has to be written down.
+    ///
+    /// Exactly one production actor writes it, at four sites: the repair seed's source scan and
+    /// cover resolution (`materializeRepairSeed`), and the working folder's destination scan and
+    /// cover resolution (`prepareWorkingSeed`). The entitlement is the rule rather than the
+    /// position — every page it removes is one the same bracketed preparation then blanks durably,
+    /// so the record and the disk move together. A cover carries no recorded hash at all, so its
+    /// removal has nothing to diverge from and the run re-fetches it.
     private func probeAssetFile(at url: URL, discardingRejected: Bool) -> AssetFileProbeOutcome {
         // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
         // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an

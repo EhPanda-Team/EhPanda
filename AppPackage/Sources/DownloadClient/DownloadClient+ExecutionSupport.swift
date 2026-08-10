@@ -330,9 +330,15 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderURL: folderURL
             )
+            // ENTITLED to discard (CR-03): the one production actor that names the flag. A page this
+            // scan refuses becomes a positive absence, and `reconcileWorkingManifestAgainstPageFiles`
+            // three statements below blanks its hash inside this same D-G7-01 bracket — record and
+            // disk move together, which is what the entitlement means. (15-67 converts this route to
+            // classify-then-authorize ordering; until then the removal precedes its blanking.)
             let destinationScan = storage.pageFileScan(
                 folderURL: folderURL,
-                manifest: manifest
+                manifest: manifest,
+                discardingRejected: true
             )
             // The seed copy's non-answers, folded into the destination's own before the single
             // destructive consumer reads them (G-15-19). No new refusal mechanism: the existing
@@ -356,9 +362,14 @@ extension DownloadCoordinator {
                 pageFileScan: reconciliationScan,
                 folderURL: folderURL
             )
+            // ENTITLED to discard (CR-03), on the cover's own terms: a cover carries no recorded
+            // hash, so removing a refused one has nothing to diverge from, and this run re-fetches
+            // the cover it could not resolve. Withheld here, a refused cover would be re-refused by
+            // every display read — all of which are reads now — with nothing left to clear it.
             let coverRelativePath = storage.existingCoverRelativePath(
                 folderURL: folderURL,
-                manifest: reconciledManifest
+                manifest: reconciledManifest,
+                discardingRejected: true
             )
             return .init(
                 folderURL: folderURL,
