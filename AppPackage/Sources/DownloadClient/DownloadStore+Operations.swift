@@ -16,6 +16,22 @@ private let logger = Logger(category: .init(describing: DownloadStore.self))
 /// answer different questions and license different actions. `mismatched` is positive evidence and
 /// licenses destroying a recorded hash; `held` is the absence of an answer and licenses nothing;
 /// `verified` is positive evidence that nothing is wrong.
+/// What one validation pass is permitted to do while it forms its verdict.
+///
+/// Both members are decided ONCE, at the public boundary, and never vary per page, so they travel as
+/// one value rather than as two flags threaded side by side through every level of the walk. Naming
+/// them together is also the honest description: they are not two unrelated knobs but one answer to
+/// "what may this pass do to the thing it is judging" — `verifiesContentHashes` says how deeply it
+/// may READ, and `discardingRejected` says whether it may WRITE at all.
+///
+/// The second is the one CR-01 added, and it is false wherever the verdict feeds a reconciliation
+/// that may refuse: a pass whose evidence gathering deletes files cannot honour a refusal, because
+/// the refusal arrives after the deletion.
+private struct DownloadValidationPolicy {
+    let verifiesContentHashes: Bool
+    let discardingRejected: Bool
+}
+
 struct ContentMismatchScan: Equatable, Sendable {
     /// The recorded hash and the file's fresh hash agree.
     ///
@@ -28,7 +44,9 @@ struct ContentMismatchScan: Equatable, Sendable {
     /// determination that the recorded hash is wrong (D-SSOT-01).
     let mismatched: Set<Int>
     /// The bytes could not be probed or could not be read, so nothing was established. Never
-    /// authority to destroy a recorded hash or its file (D-SSOT-03).
+    /// authority to destroy a recorded hash or its file (D-SSOT-03). A page whose file the presence
+    /// scan yielded and this pass then found unusable lands here too: the two reads can only
+    /// disagree if the file changed between them, which is a race rather than a determination.
     let held: Set<Int>
 }
 
@@ -259,8 +277,13 @@ extension DownloadStore {
             else {
                 continue
             }
+            // Non-discarding, like every other pass validation takes before its guard has authorized
+            // anything (CR-01). This re-probe can only disagree with the presence scan that just
+            // yielded the file if the file CHANGED between the two reads, and a race is the weakest
+            // evidence in the building — so the page is held, with its hash and its file both
+            // intact, and the next validate classifies it from a settled disk.
             guard let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
-                  sanitizeAssetFileIfNeeded(at: pageURL)
+                  sanitizeAssetFileIfNeeded(at: pageURL, discardingRejected: false)
             else {
                 held.insert(page)
                 continue
@@ -282,8 +305,16 @@ extension DownloadStore {
         return ContentMismatchScan(verified: verified, mismatched: mismatched, held: held)
     }
 
-    /// Removes the page files a fresh content pass positively established as mismatched, and returns
-    /// the subset that could NOT be removed.
+    /// Removes the page files this pass positively REFUTED — the content pass's mismatches and the
+    /// presence scan's rejections alike — and returns the subset that could NOT be removed.
+    ///
+    /// **The two families are one population here, because they are one evidence class (CR-01).** A
+    /// file whose fresh hash disagrees with the record and a file that is zero bytes or not a
+    /// regular file are both positive, page-scoped determinations that the recorded hash describes
+    /// nothing reusable. What made them look different was an accident of WHERE the determination
+    /// was made: the mismatch was decided by a content pass that could not delete, and the rejection
+    /// by a probe that deleted as it went. With the probe's deletion withheld, both arrive here as
+    /// refuted-and-still-present, and both are removed under one authorization.
     ///
     /// **D-SSOT-04: blanking a corrupt page's hash while leaving its file in place would LAUNDER the
     /// corruption, so the removal is part of the correction rather than housekeeping beside it.**
@@ -298,9 +329,14 @@ extension DownloadStore {
     /// branch to either of them.
     ///
     /// Removing destroys nothing recoverable: the page must be re-fetched either way, and what it
-    /// converts is the SHAPE — a corrupt-in-place page becomes the positively-absent one that the
-    /// blanking loop, the working-seed preparation, the fetch filter and finalize already handle
-    /// with no new branches.
+    /// converts is the SHAPE — a corrupt-in-place or structurally refused page becomes the
+    /// positively-absent one that the blanking loop, the working-seed preparation, the fetch filter
+    /// and finalize already handle with no new branches.
+    ///
+    /// `pageRelativePaths` must therefore cover BOTH families: the presence scan's `pages` for the
+    /// mismatched ones and its `rejectedPageRelativePaths` for the refused ones. A page missing from
+    /// the map removes nothing and is reported back, which is the same conservative answer a failed
+    /// removal gets.
     ///
     /// Containment mirrors `removeFolder(at:)`'s posture: the path is resolved through
     /// `validatedChildURL`, so a relative path that escapes the gallery folder removes nothing and is
@@ -308,13 +344,13 @@ extension DownloadStore {
     /// simply that no file remains. Everything returned demotes to a hold at the caller — a page
     /// whose file could not be removed must keep its recorded hash, or the record would claim nothing
     /// while the disk still holds bytes the fetch would reuse.
-    func removeMismatchedPageFiles(
+    func removeRefutedPageFiles(
         folderURL: URL,
         pageRelativePaths: [Int: String],
-        mismatchedPages: Set<Int>
+        refutedPages: Set<Int>
     ) -> Set<Int> {
         var unremovedPages = Set<Int>()
-        for page in mismatchedPages.sorted() {
+        for page in refutedPages.sorted() {
             guard let relativePath = pageRelativePaths[page],
                   let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath)
             else {
@@ -351,9 +387,21 @@ extension DownloadStore {
         }
     }
 
+    /// Reports the first way this download's files contradict its manifest, without ever being
+    /// required to change them.
+    ///
+    /// **`discardingRejected` is the mutation half, and it is a caller's decision (CR-01).** The
+    /// verdict is identical either way — a zero-byte or non-regular page file is missing content
+    /// whether or not it is deleted — so the flag decides only whether the probe's housekeeping
+    /// deletion is allowed to fire while this verdict is being reached. It defaults to the
+    /// historical behavior for the two callers whose answer feeds nothing destructive
+    /// (`loadManifest`'s readability check and `resumeMode`'s repair-versus-redownload question).
+    /// `validateImageData` passes false: its verdict is the input to a reconciliation that may
+    /// refuse, and a refusal must find the disk exactly as it was.
     public func validate(
         download: DownloadedGallery,
-        verifiesContentHashes: Bool
+        verifiesContentHashes: Bool,
+        discardingRejected: Bool = true
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
@@ -376,7 +424,10 @@ extension DownloadStore {
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
             manifest: manifest,
-            verifiesContentHashes: verifiesContentHashes
+            policy: DownloadValidationPolicy(
+                verifiesContentHashes: verifiesContentHashes,
+                discardingRejected: discardingRejected
+            )
         ) {
             return pageValidationFailure
         }
@@ -399,11 +450,12 @@ extension DownloadStore {
     private func validatePages(
         folderURL: URL,
         manifest: DownloadManifest,
-        verifiesContentHashes: Bool
+        policy: DownloadValidationPolicy
     ) -> DownloadValidationState? {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
-            manifest: manifest
+            manifest: manifest,
+            discardingRejected: policy.discardingRejected
         )
         for page in manifest.pages.keys.sorted() {
             if let validationFailure = validatePage(
@@ -411,7 +463,7 @@ extension DownloadStore {
                 page: page,
                 expectedHash: manifest.pages[page] ?? "",
                 existingPageRelativePaths: existingPages,
-                verifiesContentHash: verifiesContentHashes
+                policy: policy
             ) {
                 return validationFailure
             }
@@ -424,20 +476,23 @@ extension DownloadStore {
         page: Int,
         expectedHash: String,
         existingPageRelativePaths: [Int: String],
-        verifiesContentHash: Bool
+        policy: DownloadValidationPolicy
     ) -> DownloadValidationState? {
         guard !expectedHash.isEmpty else {
             return nil
         }
 
+        // The re-probe carries the caller's mutation decision too: the page was classified usable a
+        // moment ago, so a rejection here is a file that CHANGED between the two reads, and a
+        // non-discarding caller must be left to authorize that removal like any other.
         guard let relativePath = existingPageRelativePaths[page],
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
-              sanitizeAssetFileIfNeeded(at: pageURL)
+              sanitizeAssetFileIfNeeded(at: pageURL, discardingRejected: policy.discardingRejected)
         else {
             return .missingFiles(.RLocalizable.downloadStorePageMissing(page: page))
         }
 
-        if verifiesContentHash {
+        if policy.verifiesContentHashes {
             // Validation deliberately treats hash-read failures the same as a content-hash mismatch:
             // a page whose bytes cannot be read is as unusable as one whose bytes changed.
             let actualHash: String?

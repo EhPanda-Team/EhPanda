@@ -331,11 +331,15 @@ extension DownloadCoordinator {
             // `pages` and `scanSucceeded` pass through untouched — an uncopied page is re-fetched,
             // never reused, so the seed still reports only what this folder actually holds. The
             // union is synchronous and lands inside the enclosing D-G7-01 bracket, so it adds no
-            // suspension and no window.
+            // suspension and no window. `rejectedPageRelativePaths` passes through for the same
+            // reason `pages` does: this rebuild exists to ADD the carried non-answers, and dropping
+            // a member the destination scan did report would silently re-license the one act that
+            // member exists to withhold (CR-01).
             let reconciliationScan = PageFileScan(
                 pages: destinationScan.pages,
                 scanSucceeded: destinationScan.scanSucceeded,
-                unprobedPages: destinationScan.unprobedPages.union(carriedUnprobedPages)
+                unprobedPages: destinationScan.unprobedPages.union(carriedUnprobedPages),
+                rejectedPageRelativePaths: destinationScan.rejectedPageRelativePaths
             )
             let existingPages = destinationScan.pages
             let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
@@ -630,6 +634,17 @@ extension DownloadCoordinator {
     ///    reach this population, because the listing succeeded, and line 3 cannot either, because it
     ///    disables itself as soon as one claimed page survives: a gallery with 100 claimed pages and
     ///    99 failed probes passed `99 < 100` and lost 99 recorded hashes irreversibly.
+    /// 2b. **The per-file REFUTATION signal (CR-01).** `rejectedPageRelativePaths` names a claimed
+    ///    page whose file the listing yielded, the probe positively refused, and which is STILL ON
+    ///    DISK. Such a page is not blanked here, and the reason is the mirror image of line 2's: not
+    ///    that nothing was established, but that acting on what was established means removing the
+    ///    file as well, and this loop does not remove files. Blanking it alone would leave the
+    ///    D-SSOT-04 laundering shape — a blank hash beside bytes `finalizeDownload`'s merge would
+    ///    re-record as truth. The caller that removed the file first sees the page as a positive
+    ///    absence on its fresh scan and gets the blanking through line 2's own path; the caller
+    ///    whose removal FAILED, and the discarding scan whose housekeeping deletion failed, both
+    ///    keep the hash instead. Membership is conditional on survival, so a successful discard
+    ///    reports nothing here and every pre-existing caller is byte for byte unchanged.
     /// 3. **The all-or-nothing guard, as the residual second line.** A refusal is still taken when a
     ///    nominally successful listing that answered for every file it did probe would nonetheless
     ///    blank every claimed page. The manifest was just read out of this very folder, so that is
@@ -686,6 +701,7 @@ extension DownloadCoordinator {
         for page in manifest.pages.keys.sorted() {
             guard pages[page]?.isEmpty == false,
                   pageFileScan.pages[page] == nil,
+                  pageFileScan.rejectedPageRelativePaths[page] == nil,
                   !pageFileScan.unprobedPages.contains(page)
             else { continue }
             pages[page] = ""
