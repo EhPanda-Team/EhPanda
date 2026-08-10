@@ -62,8 +62,12 @@ extension DownloadCoordinator {
                 )
             )
         }
-        // Names rather than URLs, which is the same comparison for every source the store accepts:
-        // an accepted source already equals its own normalized form.
+        // Names rather than URLs, and no longer the same string on both sides of the comparison:
+        // `oldName` is a raw on-disk name the listing produced, `normalizedName` is the minted one
+        // (CR-01). Equality still means the requested move would land the folder exactly where it
+        // already is, which is the only thing this exit claims — and for a source the app would
+        // rewrite, the two simply never match, so such a folder is renamed rather than short
+        // circuited.
         guard oldName != normalizedName else {
             return .success(())
         }
@@ -201,8 +205,13 @@ extension DownloadCoordinator {
         gid: String,
         toFolderName folderName: String
     ) async -> Result<Void, AppError> {
-        guard let normalizedName = storage.normalizedUserFolderName(folderName),
-              let destinationParentURL = storage.confinedDirectUserFolderURL(named: normalizedName)
+        // `folderName` is a PICKED destination, not a minted one: the move menu offers only values
+        // `fetchFolders()` produced, so it is admitted as written rather than rewritten (CR-01).
+        // Rewriting it was a near-duplicate hazard in its own right — picking the listed
+        // `"Art  Books"` normalized to `"Art Books"`, which the recreation below would then CREATE
+        // beside it, moving the gallery into a second folder the user never made and leaving two
+        // near-identical rows in the list.
+        guard let destinationParentURL = storage.confinedDirectUserFolderURL(named: folderName)
         else {
             return .failure(
                 .fileOperationFailed(
@@ -248,10 +257,12 @@ extension DownloadCoordinator {
             )
         }
         do {
-            // Recreate the destination folder if it vanished via the Files app — through the
-            // store's confined creation, so the only URL this move can write under is one the
-            // boundary produced. `destinationURL` is a child of that same resolved parent.
-            try storage.ensureUserFolder(named: normalizedName)
+            // Recreate the destination folder if it vanished via the Files app — verbatim, and
+            // through the store's confined creation, so the only URL this move can write under is
+            // one the boundary produced and the folder that reappears is the one the user picked
+            // rather than a rewritten neighbour of it. `destinationURL` is a child of that same
+            // resolved parent.
+            try storage.ensureUserFolder(named: folderName)
             try fileManager.operate {
                 try $0.moveItem(at: download.folderURL, to: destinationURL)
             }
