@@ -96,11 +96,11 @@ struct DownloadLogPrivacyInvariantTests {
     /// survives without disclosure.
     private static let expectedHashMaskedCounts = [
         "DownloadClient+Execution.swift": 3,
-        "DownloadClient+ExecutionSupport.swift": 1,
         "DownloadClient+Manager.swift": 1,
         "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 2,
-        "DownloadClient+Scheduling.swift": 3
+        "DownloadClient+Scheduling.swift": 3,
+        "DownloadClient+WorkingManifestReconciliation.swift": 1
     ]
 
     /// The table's sum, asserted separately against a count taken over the joined scanned text.
