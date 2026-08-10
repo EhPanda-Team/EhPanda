@@ -355,7 +355,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kanna),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
         plugins: swiftLintPlugins
     ),
     .target(
