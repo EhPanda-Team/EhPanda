@@ -134,15 +134,33 @@ private extension DownloadsView {
                             .tint(download.displayStatus == .inactive ? .accentColor : .indigo)
                         }
 
-                        Button(role: .destructive) {
+                        // Deliberately role-less, and tinted instead. `Button(role: .destructive)`
+                        // inside `.swipeActions` makes SwiftUI play an optimistic row-removal the
+                        // instant the button is tapped — before, and regardless of, any data
+                        // mutation. This button mutates nothing: it only presents a confirmation
+                        // alert. So the row vanished on tap, reappeared behind the alert (the next
+                        // diff still contains it), and vanished a third time when the real deletion
+                        // arrived through the observe stream. The tint carries the red the role was
+                        // supplying, which is the only effect Apple documents for it here. The
+                        // alert's Delete and the context-menu Delete below KEEP their roles —
+                        // neither surface has the optimistic-removal behavior. Both sides are
+                        // pinned by `DownloadsSwipeActionSourceTests`.
+                        Button {
                             store.send(.deleteDownloadButtonTapped(download))
                         } label: {
                             Label(.RLocalizable.delete, systemSymbol: .trash)
                         }
+                        .tint(.red)
                     }
                 }
             }
             .refreshable { store.send(.refreshDownloads) }
+            // Scoped to row IDENTITY, never to the snapshot: `observeDownloads` re-emits the whole
+            // list as pages land, so animating on `filteredDownloads` would animate every progress
+            // tick. Keyed on the id list, only membership moves — a confirmed delete, a folder or
+            // keyword filter change — so the deletion reads as the standard List collapse instead
+            // of the snapshot snapping the row out with no transition at all.
+            .animation(.default, value: store.filteredDownloads.map(\.id))
         }
     }
 
