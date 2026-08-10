@@ -1,6 +1,7 @@
 import AppModels
 import AppTools
 import Foundation
+import IssueReporting
 import NetworkingFeature
 import OSLogExt
 
@@ -274,15 +275,44 @@ extension DownloadCoordinator {
     /// its four callers opens a bracket that spans the advance, and on the enqueue route
     /// `writeInitialManifest`'s bracket has already closed before the advance runs.
     ///
+    /// **The sibling rule is a CONVENTION, and the depth counter below is what detects a breach of
+    /// it (WR-04).** Nothing refuses a nest at compile time: this closure is non-escaping and
+    /// non-`Sendable`, so it inherits the enclosing actor isolation, and any synchronous
+    /// actor-isolated method — the self-bracketing advance among them — can be written inside a
+    /// bracket body and compiles. That shape is precisely what a future queue-mobilizing path would
+    /// be written in, so the rule needed a detector rather than a claim. The counter reports an
+    /// issue and never traps: a doubled withdrawal is an accounting defect, not a reason to kill a
+    /// download, and the report costs an unnested movement one increment and one comparison. The
+    /// report carries no gallery identity, exactly as the scheduling-balance one does not.
+    ///
+    /// The freedom from nesting at THIS head is an inspection result rather than a property: every
+    /// caller is either an `async` function whose body opens no other bracket, or the advance, whose
+    /// four callers were each re-derived against this rule. `DownloadSourceInventoryTests`' bracket
+    /// census owns the caller list, and the module's one deliberate nesting call site is the probe
+    /// in `DownloadClient+Testing.swift`, which exists to keep this detector proved.
+    ///
     /// Module-internal rather than file-private because most call sites live outside this file —
     /// `DownloadClient+PublicAPI.swift`, `DownloadClient+PersistenceNormalize.swift` and
     /// `DownloadClient+Manager.swift`. One implementation is what stops the withdrawal rule from
     /// forking between the run route, the enqueue route, the validate route and the queue-intent
-    /// stamp.
+    /// stamp — and it is also what gives the depth counter a single place to live.
     func withdrawingCountedBasisMovement<T>(
         gid: String,
         _ movement: () throws -> T
     ) rethrows -> T {
+        basisMovementDepth += 1
+        // Balanced on every exit, a throwing movement included: an unwound depth would make every
+        // later movement in the process read as nested.
+        defer { basisMovementDepth -= 1 }
+        if basisMovementDepth > 1 {
+            reportIssue(
+                """
+                A counted-basis movement opened inside another. They compose as siblings only: \
+                close the outer bracket before the inner movement runs, or the inner delta is \
+                measured twice and withdrawn twice.
+                """
+            )
+        }
         let creditedBefore = sessionCreditedPages(gid: gid)
         let result = try movement()
         let creditedAfter = hasSessionCreditReading(gid: gid)

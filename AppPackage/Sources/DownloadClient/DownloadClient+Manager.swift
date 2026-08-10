@@ -573,12 +573,13 @@ public actor DownloadCoordinator {
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
     ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
-    ///    That bracket has five call sites — `prepareWorkingSeed`'s whole preparation and the
-    ///    basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
+    ///    That bracket has five production call sites — `prepareWorkingSeed`'s whole preparation
+    ///    and the basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
     ///    `DownloadClient+ExecutionSupport.swift`, `writeInitialManifest`'s body in
     ///    `DownloadClient+PublicAPI.swift`, the validate-time `blankingPass` in
     ///    `DownloadClient+PersistenceNormalize.swift`, and `advanceQueueIntentGeneration`'s own
-    ///    increment in this file — but one implementation, so this writer is
+    ///    increment in this file — plus the deliberately-nesting probe in
+    ///    `DownloadClient+Testing.swift`, but one implementation, so this writer is
     ///    one rule rather than a list of mechanisms. The count is owned by
     ///    `DownloadSourceInventoryTests`' bracket census rather than by this sentence, because the
     ///    floor census below cannot see it: it counts ASSIGNMENTS to this property, and the
@@ -604,6 +605,18 @@ public actor DownloadCoordinator {
     /// floor survives into the next session. The rule and the inventory name the same two writers,
     /// which is what keeps them from drifting apart.
     var lastPushedCompletedPageCount = 0
+    /// How many counted-basis brackets are open on this actor right now — the detector behind the
+    /// withdrawal's SIBLINGS-only rule (WR-04).
+    ///
+    /// Not session-scoped and not keyed by gallery, deliberately, because neither is what it
+    /// measures: the rule forbids one bracket's span from containing another's ANYWHERE, and a
+    /// nest of two different galleries' movements double-withdraws exactly as a nest of one
+    /// gallery's does. It needs no clear at any boundary either — the bracket's `defer` returns it
+    /// to zero on every exit, throwing exits included, so a session start finds it already zero.
+    ///
+    /// A depth rather than a Boolean so the report names the breach at the innermost bracket, which
+    /// is the one written wrongly, and so an unbalanced decrement could not silently re-arm it.
+    var basisMovementDepth = 0
     /// Pages this session finished for galleries that have since left the schedulable set.
     ///
     /// Added to both the numerator and the denominator of every later push, which is what stops a
@@ -851,6 +864,14 @@ extension DownloadCoordinator {
     /// would silently re-open the defect. All four compose as SIBLINGS, never nested: the retry and
     /// resume paths open no bracket at all, and `enqueue`'s advance runs AFTER
     /// `writeInitialManifest`'s bracket has closed.
+    ///
+    /// **That sibling reading is an inspection of these four callers, not a property of the
+    /// language (WR-04).** This method is synchronous and actor-isolated, and the bracket's closure
+    /// is non-escaping and non-`Sendable`, so it inherits the enclosing actor isolation: a fifth
+    /// entrance written inside a bracket body would compile and would withdraw this movement's
+    /// delta twice. What names that breach is the depth counter the bracket keeps — it reports an
+    /// issue rather than trapping — and `DownloadSourceInventoryTests` pins the detection alongside
+    /// the caller census.
     ///
     /// The bracket is delta-keyed, so it costs the other movers nothing: a gallery whose record
     /// reads incomplete, one holding a live `RunProgressBasis`, and one with no reading left all
