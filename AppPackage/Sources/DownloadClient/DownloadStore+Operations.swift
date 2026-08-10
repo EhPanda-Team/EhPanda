@@ -60,7 +60,7 @@ extension DownloadStore {
         // file the caller then reports as UNANSWERED and therefore declines to blank the hash for.
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
-                String(localized: .downloadStoreAssetUnreadable(sourceURL.lastPathComponent))
+                String(localized: .RLocalizable.downloadStoreAssetUnreadable(sourceURL.lastPathComponent))
             )
         }
 
@@ -505,7 +505,7 @@ extension DownloadStore {
             }
             guard itemType(at: destinationURL, using: manager) == nil else {
                 throw AppError.fileOperationFailed(
-                    String(localized: .downloadStoreFolderAlreadyExists)
+                    String(localized: .RLocalizable.downloadStoreFolderAlreadyExists)
                 )
             }
             try manager.moveItem(at: sourceURL, to: destinationURL)
@@ -557,7 +557,7 @@ extension DownloadStore {
         return try mutatingConfinedUserFolder(named: rawName) { folderURL, manager in
             guard itemType(at: folderURL, using: manager) == nil else {
                 throw AppError.fileOperationFailed(
-                    String(localized: .downloadStoreFolderAlreadyExists)
+                    String(localized: .RLocalizable.downloadStoreFolderAlreadyExists)
                 )
             }
             try manager.createDirectory(at: folderURL, withIntermediateDirectories: false)
@@ -715,11 +715,11 @@ extension DownloadStore {
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return .missingFiles(.downloadStoreDownloadFolderMissing)
+            return .missingFiles(.RLocalizable.downloadStoreDownloadFolderMissing)
         }
         let manifestURL = download.manifestURL
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
-            return .missingFiles(.downloadStoreManifestMissing)
+            return .missingFiles(.RLocalizable.downloadStoreManifestMissing)
         }
         // Validation converts any manifest read or decode failure into the existing corrupted-files state.
         // Unlike the discovery probes, the manifest file is known to exist here (checked above),

@@ -31,6 +31,43 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
+        /// The continued-download card's subtitle: three counts, no wording of its own.
+        ///
+        /// The parameter ORDER is load-bearing in a way the compiler cannot check. The catalog
+        /// value is built from three *named* substitutions (`%#@completed@`, `%#@total@`,
+        /// `%#@galleries@`) carrying `argNum` 1, 2 and 3, and a substitution resolves its argument
+        /// positionally. `arguments` below is what supplies those positions, so reordering the three
+        /// interpolations — or these three parameters, since they are passed straight through —
+        /// silently renders pages where galleries belong, in all six locales and with no diagnostic.
+        /// The labels are the only thing that makes the call site readable, which is why this symbol
+        /// is a function with semantic labels rather than the positional shape a `%@` takes.
+        ///
+        /// Like every argument-taking symbol here, `arguments` carries no wording: the catalog owns
+        /// the separators and the plural forms, and this literal exists only to bind the three
+        /// integers to positions 1, 2 and 3.
+        public static func continuedSessionSubtitle(
+            completed: Int,
+            total: Int,
+            galleries: Int
+        ) -> LocalizedStringResource {
+            let arguments: String.LocalizationValue =
+                "\(completed, specifier: "%lld")\(total, specifier: "%lld")\(galleries, specifier: "%lld")"
+            return LocalizedStringResource(
+                "continued_session.subtitle",
+                defaultValue: arguments,
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var continuedSessionTitle: LocalizedStringResource {
+            LocalizedStringResource(
+                "continued_session.title",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
         public static var dateSeek: LocalizedStringResource {
             LocalizedStringResource(
                 "date_seek",
@@ -88,6 +125,47 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
+        public static func downloadStoreAssetUnreadable(_ fileName: String) -> LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.asset_unreadable",
+                defaultValue: "\(fileName)",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStoreDownloadBusy: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.download_busy",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStoreDownloadFolderMissing: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.download_folder_missing",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStoreFolderAlreadyExists: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.folder_already_exists",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStoreFolderBusyDownloading: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.folder_busy_downloading",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
         public static var downloadStoreInvalidFolderName: LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.invalid_folder_name",
@@ -96,9 +174,25 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
+        public static var downloadStoreInvalidPageSelection: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.invalid_page_selection",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
         public static var downloadStoreManifestCorrupted: LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.manifest_corrupted",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStoreManifestMissing: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.manifest_missing",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -117,6 +211,14 @@ public nonisolated extension LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.page_missing",
                 defaultValue: "\(page, specifier: "%lld")",
+                table: "Localizable",
+                bundle: resourceStringSymbolsBundleDescription
+            )
+        }
+
+        public static var downloadStorePageSelectionOutdated: LocalizedStringResource {
+            LocalizedStringResource(
+                "download_store.page_selection_outdated",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
