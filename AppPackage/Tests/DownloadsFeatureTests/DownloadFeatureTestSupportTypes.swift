@@ -1,5 +1,7 @@
 @testable import AppFeature
+import AppModels
 import BackgroundProcessingClient
+import DownloadClient
 import Foundation
 import Synchronization
 
@@ -377,6 +379,56 @@ final class BackgroundProcessingClientSpy: Sendable {
                     }
                 continuation?.finish()
             }
+        )
+    }
+}
+
+// MARK: - Queue Intent Snapshot
+
+/// Everything a REFUSED retry must leave exactly as it found it.
+///
+/// CR-04's contract is negative, and a negative contract is only ever as strong as the inventory it
+/// compares. The members are the complete set of writes the two retry paths perform —
+/// `performRetry`'s session-state clearing, the queue-intent generation advance, the queued mode,
+/// the queued page selection and the enqueue, plus `performRetryPages`' selected page-failure
+/// clearing — together with the continued session both paths ensure on the way out. A fix that
+/// skipped the enqueue while still clearing a recorded error, or still advancing the generation,
+/// therefore fails here rather than passing a narrower assertion.
+struct DownloadQueueIntentSnapshot: Equatable {
+    let queueIntentGeneration: Int
+    let isQueued: Bool
+    let queuedMode: DownloadStartMode?
+    let queuedPageSelection: [Int]?
+    let downloadError: DownloadFailure?
+    let validationError: DownloadFailure?
+    let failedPageIndices: [Int]
+    let hasContinuedSession: Bool
+    let backgroundSessionStartCount: Int
+}
+
+extension DownloadCoordinator {
+    /// Reads the whole queue-intent inventory in ONE actor hop.
+    ///
+    /// Assembling it from separate `await`s would let a run interleave between members and record a
+    /// composite state that never existed as a whole, which is exactly the shape a before/after
+    /// comparison is least able to notice. The background start count comes in as an argument
+    /// because the spy lives outside the actor; it is read at the call site immediately before this
+    /// hop, and every path that can raise it must first reach `ensureContinuedSession` through the
+    /// very call under test.
+    func queueIntentSnapshot(
+        gid: String,
+        backgroundSessionStartCount: Int
+    ) -> DownloadQueueIntentSnapshot {
+        DownloadQueueIntentSnapshot(
+            queueIntentGeneration: queueIntentGeneration(for: gid),
+            isQueued: queueStore.contains(gid),
+            queuedMode: queuedModes[gid],
+            queuedPageSelection: queuedPageSelections[gid],
+            downloadError: downloadErrors[gid],
+            validationError: validationErrors[gid],
+            failedPageIndices: (failedPageErrors[gid] ?? [:]).keys.sorted(),
+            hasContinuedSession: testingHasContinuedSession(),
+            backgroundSessionStartCount: backgroundSessionStartCount
         )
     }
 }

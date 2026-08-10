@@ -31,14 +31,16 @@ import UIKit
 struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     // MARK: - Fixtures
 
-    /// The degenerate payload: a well-formed gallery whose freshly parsed detail carries no pages.
-    private func makeZeroPagePayload(
+    /// A well-formed gallery whose freshly parsed detail reports `pageCount` pages.
+    private func makePayload(
+        pageCount: Int,
+        mode: DownloadStartMode = .initial,
         pageSelection: Set<Int>? = nil
     ) -> DownloadRequestPayload {
         var gallery = sampleGallery()
-        gallery.pageCount = 0
+        gallery.pageCount = pageCount
         var detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        detail.pageCount = 0
+        detail.pageCount = pageCount
         return DownloadRequestPayload(
             gallery: gallery,
             galleryDetail: detail,
@@ -46,9 +48,16 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
             previewConfig: .normal(rows: 4),
             host: .ehentai,
             folderName: "Folder",
-            mode: .initial,
+            mode: mode,
             pageSelection: pageSelection
         )
+    }
+
+    /// The degenerate payload: a well-formed gallery whose freshly parsed detail carries no pages.
+    private func makeZeroPagePayload(
+        pageSelection: Set<Int>? = nil
+    ) -> DownloadRequestPayload {
+        makePayload(pageCount: 0, pageSelection: pageSelection)
     }
 
     // MARK: - Range Sites
@@ -129,12 +138,17 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
         let manager = makeTestingDownloadCoordinator()
 
         // `normalizeFetchedPayload` validates a raw page selection against the detail's page count.
+        // The answer is a PRESENT empty set, not nil (CR-04): the caller named pages, and at zero
+        // pages none of them is admissible. Nil is reserved for "no selection was ever made", which
+        // `pendingPageIndices` reads as unrestricted work over the whole gallery — so collapsing
+        // this case to nil would answer a request for two pages with a request for all of them.
         let normalized = await manager.normalizeFetchedPayload(
             makeZeroPagePayload(),
             mode: .initial,
             rawPageSelection: [1, 2]
         )
-        #expect(normalized.pageSelection == nil)
+        #expect(normalized.pageSelection != nil)
+        #expect(normalized.pageSelection == Set<Int>())
 
         // `buildInspectionPages` enumerates a record's pages for the inspector.
         let zeroPageDownload = sampleDownload(
@@ -150,6 +164,126 @@ struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
             failedPages: [:]
         )
         #expect(inspectionPages.isEmpty)
+    }
+
+    // MARK: - Selection Presence (CR-04)
+
+    /// The three selection states, and the distinction between two of them is the whole finding.
+    ///
+    /// `rawPageSelection` is the coordinator's queue-intent entry for the run. `nil` means no
+    /// selection was ever made; a non-nil value means the caller named pages. Pre-fix, an explicit
+    /// selection that filtered down to nothing came out as `nil` — the same value as "no selection"
+    /// — and every downstream reader takes nil as permission to work over the whole gallery.
+    ///
+    /// Every assertion here tests OPTIONAL PRESENCE before it tests contents. Comparing only the
+    /// contained set is what makes this collapse invisible: `nil` and `.some([])` both hold no
+    /// pages, and they mean opposite things.
+    @Test
+    func testNormalizationKeepsNilUnrestrictedAndAnExplicitSelectionPresent() async throws {
+        let manager = makeTestingDownloadCoordinator()
+        let payload = makePayload(pageCount: 3, mode: .repair)
+
+        let unrestricted = await manager.normalizeFetchedPayload(
+            payload,
+            mode: .repair,
+            rawPageSelection: nil
+        )
+        #expect(unrestricted.pageSelection == nil)
+
+        let explicitlyEmpty = await manager.normalizeFetchedPayload(
+            payload,
+            mode: .repair,
+            rawPageSelection: []
+        )
+        #expect(explicitlyEmpty.pageSelection != nil)
+        #expect(explicitlyEmpty.pageSelection == Set<Int>())
+
+        let allInvalid = await manager.normalizeFetchedPayload(
+            payload,
+            mode: .repair,
+            rawPageSelection: [0, 999]
+        )
+        #expect(allInvalid.pageSelection != nil)
+        #expect(allInvalid.pageSelection == Set<Int>())
+
+        let mixed = await manager.normalizeFetchedPayload(
+            payload,
+            mode: .repair,
+            rawPageSelection: [0, 2, 2, 999]
+        )
+        #expect(mixed.pageSelection == Set([2]))
+
+        // The one mode that legitimately discards a selection: an update refreshes the gallery as
+        // a unit, against a page count the old selection was never drawn against.
+        let update = await manager.normalizeFetchedPayload(
+            makePayload(pageCount: 3, mode: .update),
+            mode: .update,
+            rawPageSelection: [2]
+        )
+        #expect(update.pageSelection == nil)
+    }
+
+    /// The downstream half of the same contract, read at the filter that decides real work.
+    ///
+    /// This is the reason presence matters: `pendingPageIndices` treats nil as "no restriction" and
+    /// answers with every page the record still owes. A present empty set answers with nothing.
+    /// Both readings are correct — they are simply readings of different requests.
+    @Test
+    func testPendingPagesReadNilAsUnrestrictedAndAPresentEmptySetAsNoPages() async throws {
+        let manager = makeTestingDownloadCoordinator()
+        let folderURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+
+        let unrestricted = await manager.pendingPageIndices(
+            payload: makePayload(pageCount: 3, mode: .repair),
+            folderURL: folderURL,
+            existingPageRelativePaths: [:]
+        )
+        #expect(unrestricted == [1, 2, 3])
+
+        let none = await manager.pendingPageIndices(
+            payload: makePayload(pageCount: 3, mode: .repair, pageSelection: []),
+            folderURL: folderURL,
+            existingPageRelativePaths: [:]
+        )
+        #expect(none.isEmpty)
+
+        let narrow = await manager.pendingPageIndices(
+            payload: makePayload(pageCount: 3, mode: .repair, pageSelection: [2]),
+            folderURL: folderURL,
+            existingPageRelativePaths: [:]
+        )
+        #expect(narrow == [2])
+    }
+
+    /// CR-04 as one composed expression: the two steps that produce the widening, run together.
+    ///
+    /// Neither step is wrong alone. Normalization dropping out-of-domain values is right, and
+    /// `pendingPageIndices` reading nil as unrestricted is right. The defect lives in the seam,
+    /// where "everything you asked for is invalid" was encoded with the same value as "you asked
+    /// for no restriction". Composing them here is what states the size of the consequence: a
+    /// two-index request answered with the whole gallery.
+    @Test
+    func testAnAllInvalidSelectionNeverNormalizesIntoWholeGalleryWork() async throws {
+        let manager = makeTestingDownloadCoordinator()
+        let folderURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+
+        let normalized = await manager.normalizeFetchedPayload(
+            makePayload(pageCount: 3, mode: .repair),
+            mode: .repair,
+            rawPageSelection: [0, 999]
+        )
+        let scheduled = await manager.pendingPageIndices(
+            payload: normalized,
+            folderURL: folderURL,
+            existingPageRelativePaths: [:]
+        )
+
+        #expect(
+            scheduled.isEmpty,
+            "An all-invalid selection scheduled \(scheduled) instead of nothing."
+        )
     }
 
     // MARK: - Bounded Sites
