@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 60/64 | In Progress|  |
+| 15. Continued Background Downloads | 61/64 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 64 plans (60 executed, 4 gap-closure pending)
+**Plans**: 61/64 plans executed
 
 Plans:
 
@@ -1045,7 +1045,7 @@ Plans:
 
 **Wave 61** *(gap closure round 20, verification blocker CR-02 — blocked on 15-60 and serialized xcodebuild)*
 
-- [ ] 15-61-PLAN.md — Scope incomplete-record observation to queue-intent generation so a gallery re-queued while the same continued session remains alive receives zero predecessor credit until its successor run establishes a measured basis; RED-first two-gallery regression keeps the session identity unchanged.
+- [x] 15-61-PLAN.md — Scope incomplete-record observation to queue-intent generation so a gallery re-queued while the same continued session remains alive receives zero predecessor credit until its successor run establishes a measured basis; RED-first two-gallery regression keeps the session identity unchanged.
 
 **Wave 62** *(gap closure round 20, verification blocker CR-01 — blocked on 15-61 and serialized xcodebuild)*
 
