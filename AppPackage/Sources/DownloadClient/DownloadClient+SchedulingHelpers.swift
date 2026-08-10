@@ -65,6 +65,13 @@ extension DownloadCoordinator {
         // In both, this branch is what still routes the record to `.repair`. Without it they would
         // fall through to `.redownload`, which deletes the working folder and re-fetches every page,
         // discarding the ones already on disk.
+        //
+        // Neither clause argues from the probe's housekeeping, and both were re-checked against the
+        // non-mutating validate CR-03 leaves here: (a) and (b) are statements about what the ONE
+        // blanking loop has or has not written, so they are unaffected by whether the question below
+        // deletes. What is no longer true is that ASKING can lower the record's basis — this call
+        // used to destroy the very files whose absence it reports, on a route that writes no
+        // manifest, so the record kept claiming them unless the user then started the download.
         if case .missingFiles = storage.validate(
             download: download,
             verifiesContentHashes: false

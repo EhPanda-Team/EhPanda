@@ -146,10 +146,14 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     /// the manifest still claims, leaving the page reading `.downloaded` over nothing, licensed by no
     /// reconciliation and invisible until the user runs Validate.
     ///
-    /// The housekeeping was not lost, only moved behind the paths entitled to act: `validate`, the
-    /// repair seed, the finalize merge, the capture target and the explicit `sanitizeLocalFilesIfNeeded`
-    /// sweep all keep the discarding probe. So this case pins the file's SURVIVAL from the other side
-    /// rather than dropping the assertion — a display path that starts deleting again fails here.
+    /// The housekeeping was not lost, only moved behind the one path entitled to act. CR-03 then
+    /// narrowed that set to what the entitlement actually licenses: the repair seed alone names the
+    /// discarding flag, because every page it removes is one the same bracketed preparation blanks
+    /// the record for. `validate`, the finalize merge, the capture target and the coordinator's
+    /// former folder sweep were never in that position — they delete and reconcile nothing — so they
+    /// are reads now, and the sweep, which existed for the deletion and nothing else, is gone.
+    /// This case pins the file's SURVIVAL rather than dropping the assertion: a display path that
+    /// starts deleting again fails here.
     @Test
     func testDownloadCoordinatorLoadLocalPageURLsExcludesAZeroBytePageWithoutDeletingIt() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
@@ -172,14 +176,19 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
     }
 
-    /// The other side of the same boundary: a path that IS entitled to act still discards.
+    /// The other side of the same boundary: the one path that IS entitled to act still discards.
     ///
-    /// `sanitizeLocalFilesIfNeeded`'s folder scan exists for this housekeeping and nothing else — it
-    /// discards both of its probe results — so the discarding default has to survive there or the
-    /// sweep would become a no-op with no reader noticing. Pinning both sides in the same file is
-    /// what keeps "reads classify, acts act" a boundary rather than a blanket.
+    /// The repair seed's entitlement is not its position but the pairing — the destination scan's
+    /// refusals become positive absences that `reconcileWorkingManifestAgainstPageFiles` blanks
+    /// inside the same D-G7-01 bracket, so the record and the disk move together. Pinning both sides
+    /// in the same file is what keeps "reads classify, acts act" a boundary rather than a blanket:
+    /// without this case, a fix that simply stopped deleting everywhere would look correct.
+    ///
+    /// This replaces the coordinator-sweep case that used to stand here. That sweep discarded both
+    /// of its probe results and existed for the deletion alone, which is exactly the read-path
+    /// mutation CR-03 removed, so the case pinned the defect rather than a contract.
     @Test
-    func testSanitizingLocalFilesStillDiscardsAZeroBytePage() async throws {
+    func testTheRepairSeedStillDiscardsAZeroBytePageAndBlanksIt() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 17)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -191,12 +200,31 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
             rootURL: rootURL, gid: gid, storage: storage
         )
+        // Both pages are CLAIMED, so the refusal has a recorded hash to be paired against — the
+        // fixture's own manifest records neither, which would make the pairing vacuous. Two claimed
+        // pages also keep the blank set below the all-or-nothing threshold, so the guard authorizes.
+        let folderURL = emptyPageURL.deletingLastPathComponent()
+        var claimed = try storage.readManifest(folderURL: folderURL)
+        claimed.pages = [1: "sha256:stale-one", 2: "sha256:stale-two"]
+        try storage.writeManifest(claimed, folderURL: folderURL)
         await manager.reloadDownloadIndex()
+        let download = try #require(await manager.fetchDownload(gid: gid))
 
-        _ = await manager.sanitizeLocalFilesIfNeeded(gid: gid)
+        let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairSeedPayload(gid: gid),
+            existingDownload: download,
+            folderURL: folderURL
+        ).workingSeed
 
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
         #expect(FileManager.default.fileExists(atPath: goodPageURL.path))
+        // The pairing, not just the deletion: the removed page's recorded hash went with it, and it
+        // went DURABLY — the record on disk is what a relaunch would read.
+        #expect(workingSeed.manifest.pages[1] == "")
+        #expect(workingSeed.manifest.pages[2] == "sha256:stale-two")
+        let diskManifest = try storage.readManifest(folderURL: folderURL)
+        #expect(diskManifest.pages[1] == "")
+        #expect(diskManifest.pages[2] == "sha256:stale-two")
     }
 
     @Test

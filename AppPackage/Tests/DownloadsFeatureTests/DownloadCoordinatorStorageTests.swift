@@ -337,7 +337,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadCoordinatorSanitizeClearsIndexedError() async throws {
+    func testDownloadCoordinatorClearsStaleIndexedError() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { removeTemporaryItem(at: rootURL) }
@@ -365,14 +365,10 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         await manager.testingSetDownloadError(failure, gid: "430")
 
-        let sanitizedDownload = await manager.sanitizeLocalFilesIfNeeded(
-            gid: "430",
-            clearingLastError: true
-        )
+        let clearedDownload = await manager.clearStaleDownloadErrorIfNeeded(gid: "430")
 
-        #expect(sanitizedDownload?.displayStatus == .inactive)
-        #expect(sanitizedDownload?.displayStatus == .inactive)
-        #expect(sanitizedDownload?.lastError == nil)
+        #expect(clearedDownload?.displayStatus == .inactive)
+        #expect(clearedDownload?.lastError == nil)
     }
 
     // The validation cases moved to `DownloadValidationReconciliationTests.swift`, which owns the

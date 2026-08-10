@@ -136,8 +136,16 @@ struct DownloadStoreTests {
         )
     }
 
+    /// A zero-byte page is reported as missing content, and the report leaves it where it is.
+    ///
+    /// This case used to assert the opposite half — that `validate` DELETED the file — which is the
+    /// read-path mutation CR-03 removed, so the assertion is inverted rather than dropped. Keeping
+    /// the verdict assertion beside it is the load-bearing part: it shows the deletion was never
+    /// what produced the answer, so withholding it costs the caller nothing. Nothing on this route
+    /// writes the manifest, so a deletion here left the record claiming a page the report itself had
+    /// destroyed — the divergence AGENTS.md forbids, created by asking a question.
     @Test
-    func testValidateRemovesZeroBytePageFilesAndRequiresRepair() throws {
+    func testValidateReportsAZeroBytePageWithoutRemovingIt() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -173,8 +181,11 @@ struct DownloadStoreTests {
         #expect(
             FileManager.default.fileExists(
                 atPath: folderURL.appendingPathComponent("123_token_1.jpg").path
-            ) == false
+            )
         )
+        // The record side of the same claim: nothing was written, so a relaunch reads what it read
+        // before — the report is a report.
+        #expect(try storage.readManifest(folderURL: folderURL).pages[1] == "sha256:missing")
     }
 
     @Test
@@ -237,36 +248,14 @@ struct DownloadStoreTests {
         #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path))
     }
 
-    @Test
-    func testExistingPageRelativePathsRemovesZeroByteFinalAssetFiles() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { removeTemporaryItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
-        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
-        try Data().write(to: emptyPageURL, options: .atomic)
-        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
-        let manifest = sampleManifest(pageCount: 2)
-
-        #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
-                2: "123_token_2.png"
-            ]
-        )
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
-    }
-
-    /// The same probe under `discardingRejected: false`: the CLASSIFICATION is identical and only the
-    /// deletion is withheld.
+    /// The probe's housekeeping deletion, under the flag a caller now has to write (CR-03).
     ///
-    /// Pinned at the store rather than only at its callers, because that equality is the whole
-    /// premise of the flag — a display path opts out of the housekeeping without opting out of the
-    /// answer. If the two ever diverged, a read would start reporting a different set of pages than
-    /// the acting paths see, which is a second basis by another name.
+    /// The argument is spelled out here because it is the thing under test. Since the default became
+    /// the non-mutating value, an unqualified call cannot reach this branch at all — which is the
+    /// point of the flip, and which makes this case the store-level pin that the OPT-IN still works
+    /// rather than the pin that the default does.
     @Test
-    func testExistingPageRelativePathsKeepsZeroByteFilesWhenNotDiscarding() throws {
+    func testExistingPageRelativePathsRemovesZeroByteFinalAssetFilesWhenDiscarding() throws {
         let (storage, rootURL) = makeStorage()
         defer { removeTemporaryItem(at: rootURL) }
 
@@ -282,7 +271,37 @@ struct DownloadStoreTests {
             storage.existingPageRelativePaths(
                 folderURL: folderURL,
                 manifest: manifest,
-                discardingRejected: false
+                discardingRejected: true
+            ) == [2: "123_token_2.png"]
+        )
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+    }
+
+    /// The same probe on the DEFAULT: the CLASSIFICATION is identical and only the deletion is
+    /// withheld.
+    ///
+    /// Pinned at the store rather than only at its callers, because that equality is the whole
+    /// premise of the flag — a caller that only reads forgoes the housekeeping without forgoing the
+    /// answer. If the two ever diverged, a read would start reporting a different set of pages than
+    /// the acting paths see, which is a second basis by another name. Written without an argument
+    /// since CR-03, so the case fails if the destructive value is ever made the default again.
+    @Test
+    func testExistingPageRelativePathsKeepsZeroByteFilesByDefault() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { removeTemporaryItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
+
+        #expect(
+            storage.existingPageRelativePaths(
+                folderURL: folderURL,
+                manifest: manifest
             ) == [2: "123_token_2.png"]
         )
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))

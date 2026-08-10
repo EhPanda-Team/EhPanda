@@ -336,7 +336,7 @@ extension DownloadContinuedSessionLedgerTests {
     /// **The production route that reaches a present-file retry.** `performCacheCapture` restores a
     /// page from the image cache into the working folder, refreshes exactly that page's manifest
     /// hash and re-indexes, then clears only the gallery-level last error through
-    /// `sanitizeLocalFilesIfNeeded(gid:clearingLastError:)`. The PER-PAGE record the inspector
+    /// `clearStaleDownloadErrorIfNeeded(gid:)`. The PER-PAGE record the inspector
     /// lists — `failedPageErrors[gid]`, read by `loadInspection` — is untouched by that route and
     /// is cleared only by `clearSelectedFailedPages` inside `retryPages` itself. So a page can
     /// still be offered to the user as failed while its file is already on disk, and tapping retry

@@ -109,12 +109,14 @@ extension DownloadCoordinator {
     /// with the refuted file removed first, so the blanked page is genuinely repairable rather than
     /// laundered (D-SSOT-04).
     ///
-    /// **CR-01: this path reads with `discardingRejected: false`, at every scan it takes.** The same
-    /// separation the display path needed for a different reason: a probe that deletes what it
-    /// refuses is a mutation performed by an ACT OF LOOKING, and this function's whole contract is
-    /// that it may refuse — which it cannot honour if gathering the evidence already destroyed the
-    /// files the refusal was about. Rejected pages are classified, carried into the combined guard,
-    /// and their files removed only once that guard authorizes the whole set.
+    /// **CR-01: every scan this path takes is non-mutating.** The same separation the display path
+    /// needed for a different reason: a probe that deletes what it refuses is a mutation performed
+    /// by an ACT OF LOOKING, and this function's whole contract is that it may refuse — which it
+    /// cannot honour if gathering the evidence already destroyed the files the refusal was about.
+    /// Rejected pages are classified, carried into the combined guard, and their files removed only
+    /// once that guard authorizes the whole set. Since CR-03 that is what a scan does by DEFAULT, so
+    /// this route writes no argument: the property now holds for a scan a later round adds here
+    /// without anyone remembering to opt it out.
     ///
     /// **D-SSOT-05: `validationErrors` is an OPERATION-level signal and nothing else.** An entry
     /// means the pass could not produce trustworthy evidence for every claimed page — the scan
@@ -129,8 +131,7 @@ extension DownloadCoordinator {
         else { return nil }
         let validation = storage.validate(
             download: download,
-            verifiesContentHashes: true,
-            discardingRejected: false
+            verifiesContentHashes: true
         )
         switch validation {
         case .valid:
@@ -179,9 +180,9 @@ extension DownloadCoordinator {
     /// deleted BY the classification. On a one-page gallery the guard then refused — the prospective
     /// set was the whole record — and the pass ended having destroyed the file it had just declined
     /// to blank the hash for, leaving a divergence marked only by a session-scoped entry a relaunch
-    /// drops. Every scan above the guard therefore passes `discardingRejected: false`, and the
-    /// rejected pages carry their file identity forward so the authorized step can remove exactly
-    /// them.
+    /// drops. Every scan above the guard is therefore non-mutating — since CR-03 by taking the
+    /// default rather than by naming it — and the rejected pages carry their file identity forward
+    /// so the authorized step can remove exactly them.
     ///
     /// The ordering is load-bearing rather than stylistic: classify, guard, remove, take a fresh
     /// non-mutating scan, then the loop. A refusal has to precede the first destructive act, or a
@@ -243,11 +244,11 @@ extension DownloadCoordinator {
         let folderURL = download.folderURL
         guard let manifest = storage.probeManifest(folderURL: folderURL) else { return false }
         // Non-mutating, like the verdict scan above it: until the guard below accepts, this function
-        // is gathering evidence and nothing more (CR-01).
+        // is gathering evidence and nothing more (CR-01). Since CR-03 that is the default, so the
+        // absence of an argument here is the statement rather than the omission of one.
         let presenceScan = storage.pageFileScan(
             folderURL: folderURL,
-            manifest: manifest,
-            discardingRejected: false
+            manifest: manifest
         )
         guard presenceScan.scanSucceeded else { return false }
         let contentScan = storage.contentMismatchScan(
@@ -363,8 +364,7 @@ extension DownloadCoordinator {
     ) throws -> DownloadManifest {
         let pageFileScan = storage.pageFileScan(
             folderURL: folderURL,
-            manifest: manifest,
-            discardingRejected: false
+            manifest: manifest
         )
         return try withdrawingCountedBasisMovement(gid: gid) {
             try reconcileWorkingManifestAgainstPageFiles(
