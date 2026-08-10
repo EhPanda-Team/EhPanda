@@ -267,9 +267,18 @@ extension DownloadCoordinator {
     /// `prepareWorkingSeedAnnouncingProgress` run one after the other rather than one inside the
     /// other.
     ///
-    /// Module-internal rather than file-private because one call site lives in
-    /// `DownloadClient+PublicAPI.swift`. One implementation is what stops the withdrawal rule from
-    /// forking between the run route and the enqueue route.
+    /// A caller may also be a MOVEMENT that brackets itself rather than a stretch of work that
+    /// wraps movers — `advanceQueueIntentGeneration` (`DownloadClient+Manager.swift`) is the one
+    /// such caller, and it is what makes the queue-intent drop enclosed at every entrance instead of
+    /// at the entrances someone enumerated (CR-01). The sibling rule governs it unchanged: none of
+    /// its four callers opens a bracket that spans the advance, and on the enqueue route
+    /// `writeInitialManifest`'s bracket has already closed before the advance runs.
+    ///
+    /// Module-internal rather than file-private because most call sites live outside this file —
+    /// `DownloadClient+PublicAPI.swift`, `DownloadClient+PersistenceNormalize.swift` and
+    /// `DownloadClient+Manager.swift`. One implementation is what stops the withdrawal rule from
+    /// forking between the run route, the enqueue route, the validate route and the queue-intent
+    /// stamp.
     func withdrawingCountedBasisMovement<T>(
         gid: String,
         _ movement: () throws -> T

@@ -637,13 +637,15 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// assertions, which is what makes the recorded series a fact about the accounting rather than
     /// about scheduling.
     ///
-    /// **Why the discriminating frame is the one after the keeper's pages land.** The monotonic floor
-    /// holds the numerator at the four pages A really did finish, so the re-queue's own push reads
-    /// the same pair on both sides of the fix and discriminates nothing. Landing six of the keeper's
-    /// pages lifts the honest numerator clear of that floor: with A contributing zero the card reads
-    /// the keeper's own six, and with A's stale observation still standing it reads ten. A's record
-    /// is asserted still claiming four pages at that frame, so the difference is the credit rule
-    /// rather than anything the record did.
+    /// **Why the discriminating frame is the one after the keeper's pages land.** It is where A's
+    /// credit is unambiguously separable: the keeper's six pages are the only honest contribution,
+    /// so a card reading ten can only be A's stale observation. The re-queue's own push is the
+    /// weaker pin — since CR-01 the advance withdraws A's four credited pages from the monotonic
+    /// floor, so that frame reads 0 / 24 rather than the 4 / 24 the stale floor used to hold, but
+    /// zero is also what a fix crediting a re-queued gallery nothing FOREVER would push. A's record
+    /// is asserted still claiming four pages at the discriminating frame, so the difference there is
+    /// the credit rule rather than anything the record did. The one-at-a-time sibling case below
+    /// owns the other half of the property: no frame in between is frozen.
     ///
     /// **Both sides of the boundary are pinned.** Zero while A merely waits in the queue, then the
     /// successor's own measurement once `prepareWorkingSeedAnnouncingProgress` announces a basis —

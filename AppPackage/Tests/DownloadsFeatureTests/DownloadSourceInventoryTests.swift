@@ -182,10 +182,17 @@ struct DownloadSourceInventoryTests {
     ///
     /// Derived from source rather than copied: `prepareWorkingSeed` and
     /// `prepareWorkingSeedAnnouncingProgress` (`+ExecutionSupport.swift`), `writeInitialManifest`
-    /// (`+PublicAPI.swift`) and the validate-time `blankingPass`
-    /// (`+PersistenceNormalize.swift`). The generic declaration carries `<T>` between the name and
-    /// its parenthesis, so it does not match this token at all and needs no exclusion; doc-comment
-    /// mentions are dropped with every other census here, because the count is of calls.
+    /// (`+PublicAPI.swift`), the validate-time `blankingPass` (`+PersistenceNormalize.swift`) and
+    /// `advanceQueueIntentGeneration` (`+Manager.swift`). The generic declaration carries `<T>`
+    /// between the name and its parenthesis, so it does not match this token at all and needs no
+    /// exclusion; doc-comment mentions are dropped with every other census here, because the count
+    /// is of calls.
+    ///
+    /// The last of those is a caller of a different shape, and the difference is the point: the
+    /// other four wrap a stretch of work that MIGHT move the basis, while the queue-intent advance
+    /// wraps the movement itself, so its four entrances are enclosed without appearing here at all
+    /// (CR-01). A round that adds a fifth queue-mobilizing entrance therefore moves the queue
+    /// entrance census below, not this one — which is the property that fix was chosen for.
     ///
     /// **What a failure obliges.** Re-derive the callers, then decide the disposition each one owes
     /// before touching this number: whether it deletes inside the bracket (the exclusion the
@@ -193,12 +200,13 @@ struct DownloadSourceInventoryTests {
     /// doc forbids outright — they compose as siblings only).
     private static let expectedBracketCallSites = [
         "DownloadClient+ExecutionSupport.swift": 2,
+        "DownloadClient+Manager.swift": 1,
         "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 1
     ]
 
     /// The bracket table's sum, asserted the same way and for the same reason.
-    private static let expectedBracketCallTotal = 4
+    private static let expectedBracketCallTotal = 5
 
     /// Every entrance to the queue store, named per file.
     ///
