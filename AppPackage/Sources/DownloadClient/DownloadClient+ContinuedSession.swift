@@ -57,28 +57,35 @@ public struct ContinuedSessionProgress: Equatable, Sendable {
 /// against the very read whose sums it corrects. Reconciling against a second read would let a
 /// gallery be retired while the sums still counted it, or counted twice.
 ///
-/// The incompleteness membership rides along for the same reason the sums do. D-G4-01's session
+/// The incompleteness observation rides along for the same reason the sums do. D-G4-01's session
 /// basis is decided from a gallery's record *and* from what this session has already seen it doing,
 /// so the trust that grants the second half has to be accumulated from the same read the basis was
 /// computed from. Taken from a second read, the numerator's opening rule and the retirement's
 /// departure rule could disagree about the same gallery.
+///
+/// The queue-intent generation rides along for the same reason again, one level down. An
+/// observation is evidence about one queue intent rather than about a gallery identifier (CR-02),
+/// so the generation has to be stamped in the very read that decided the gallery was incomplete;
+/// read later, a queue intent advancing in between would stamp the observation with a generation
+/// that never saw the record it describes.
 public struct SchedulableSnapshot: Equatable, Sendable {
     /// What the live schedulable set alone reports, before any retired pages are added to it.
     public let sessionProgress: ContinuedSessionProgress
     /// Session-completed pages per schedulable gallery, keyed by gallery identifier — the D-G4-01
     /// basis the numerator above is summed from, not the raw record counts.
     public let finishedPages: [String: Int]
-    /// The galleries in this read whose records still report unfinished pages.
-    public let incompleteGalleryIDs: Set<String>
+    /// The galleries in this read whose records still report unfinished pages, each paired with
+    /// the queue-intent generation that was current when this read saw it.
+    public let incompleteGalleryGenerations: [String: Int]
 
     public init(
         sessionProgress: ContinuedSessionProgress,
         finishedPages: [String: Int],
-        incompleteGalleryIDs: Set<String>
+        incompleteGalleryGenerations: [String: Int]
     ) {
         self.sessionProgress = sessionProgress
         self.finishedPages = finishedPages
-        self.incompleteGalleryIDs = incompleteGalleryIDs
+        self.incompleteGalleryGenerations = incompleteGalleryGenerations
     }
 }
 
@@ -160,7 +167,15 @@ extension DownloadCoordinator {
                 galleryCount: downloads.count
             ),
             finishedPages: sessionCompletedPages,
-            incompleteGalleryIDs: Set(downloads.filter(\.isIncomplete).map(\.gid))
+            // Stamped from the same actor-isolated read that computed the sums above, so an
+            // observation can never carry a generation that did not see the record it describes
+            // (CR-02). `reduce(into:)` for the sibling's reason: a duplicated gallery folder must
+            // not trap the card's progress path.
+            incompleteGalleryGenerations: downloads
+                .filter(\.isIncomplete)
+                .reduce(into: [String: Int]()) { generations, download in
+                    generations[download.gid] = queueIntentGeneration(for: download.gid)
+                }
         )
     }
 
@@ -189,14 +204,24 @@ extension DownloadCoordinator {
     ///    INCOMPLETE counts raw: pre-session foreground progress, an exited run's flushed pages
     ///    and a cache capture's landings are all covered work, and counting them the instant the
     ///    record shows them is what keeps progress unmaskable. A record that reads COMPLETE
-    ///    counts raw only when this session OBSERVED it incomplete: within one session a record
-    ///    moves from incomplete to complete only through landed pages, so that count is work the
-    ///    session watched happen. The refusal family cannot reach this branch — its record never
-    ///    reads incomplete, so it is never observed — which closes G-15-30's hazard structurally
-    ///    rather than by a subtraction.
+    ///    counts raw only when this session OBSERVED it incomplete UNDER THE CURRENT QUEUE INTENT:
+    ///    within one session and one generation a record moves from incomplete to complete only
+    ///    through landed pages, so that count is work the session watched happen. The refusal
+    ///    family cannot reach this branch — its record never reads incomplete, so it is never
+    ///    observed — which closes G-15-30's hazard structurally rather than by a subtraction.
     /// 3. **Anything else counts zero**, which is D-G4-01's queued window: a complete-reading
     ///    gallery schedulable for a redo that has not announced contributes nothing, because
     ///    those pages are the redo's target rather than this session's progress.
+    ///
+    /// **The generation equality in regime 2 is what makes the observation evidence about a RUN
+    /// rather than about a gallery id (CR-02).** A gallery can complete, retire and be re-queued
+    /// without the queue-wide session ever ending — a second gallery keeps it alive, and D-06
+    /// forbids minting a successor session — so the predecessor's observation would otherwise
+    /// still be standing when the successor's complete pre-redo manifest is read. It would take
+    /// the raw branch and open the card at the redo's own target, which is precisely the ceiling
+    /// regime 3 exists to hold at zero. Every queue-mobilizing entry point advances the generation
+    /// before its snapshot is taken, so the mismatch retires the stale observation by construction
+    /// rather than by a clear each of those paths would have to remember.
     ///
     /// **The regimes hand off continuously, which is the property G-15-34 was the absence of.**
     /// At the announce, an honest record's raw count equals the inherited set's size — both are
@@ -217,7 +242,9 @@ extension DownloadCoordinator {
         if let basis = runProgressBases[gid] { return basis.creditedPageCount }
         let recorded = min(max(completedPageCount, 0), max(pageCount, 0))
         guard recorded >= pageCount else { return recorded }
-        return observedIncompleteSessionGIDs.contains(gid) ? recorded : 0
+        return observedIncompleteSessionGenerations[gid] == queueIntentGeneration(for: gid)
+            ? recorded
+            : 0
     }
 
     /// The same definition read against the CURRENT index record, for callers that hold no
@@ -375,12 +402,12 @@ extension DownloadCoordinator {
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
-        // Emptied rather than seeded: this set records only what THIS session observes. A run in
+        // Emptied rather than seeded: this map records only what THIS session observes. A run in
         // flight across the session boundary needs no seed here, because the credited-pages
-        // definition reads its basis — which no session boundary touches — ahead of this set, so
+        // definition reads its basis — which no session boundary touches — ahead of this map, so
         // the card's OPENING subtitle, computed from the snapshot on the next line, credits it
         // from the very first push (G-15-26).
-        observedIncompleteSessionGIDs = []
+        observedIncompleteSessionGenerations = [:]
 
         let snapshot = await schedulableSnapshot()
         // Through the same shared helper the push uses, so no subtitle writer owns a private count
@@ -449,7 +476,15 @@ extension DownloadCoordinator {
             snapshot.finishedPages,
             uniquingKeysWith: { observed, _ in observed }
         )
-        observedIncompleteSessionGIDs.formUnion(snapshot.incompleteGalleryIDs)
+        // The GREATER generation wins, which is the same "an in-hop observation outranks the
+        // pre-hop snapshot" rule the merge above states, expressed over a value that orders. A
+        // queue intent advancing inside the client start's main-actor hop is a real user action
+        // this session must answer to, and taking the snapshot's older stamp would resurrect the
+        // predecessor observation the advance had just invalidated (CR-02).
+        observedIncompleteSessionGenerations.merge(
+            snapshot.incompleteGalleryGenerations,
+            uniquingKeysWith: { observed, snapshotted in max(observed, snapshotted) }
+        )
         continuedSessionTask = Task { [weak self] in
             for await event in clientSession.events {
                 await self?.handleContinuedSessionEvent(event, sessionID: sessionID)
@@ -534,7 +569,7 @@ extension DownloadCoordinator {
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
-        observedIncompleteSessionGIDs = []
+        observedIncompleteSessionGenerations = [:]
     }
 
     /// Pauses every gallery the scheduler would run, one at a time, through the same primitive an
@@ -752,10 +787,12 @@ extension DownloadCoordinator {
                     retiredSessionPages[gid] = sessionCreditedPages(gid: gid)
                     continue
                 }
-                guard observedIncompleteSessionGIDs.contains(gid) else {
-                    // Never watched doing honest work: retire what was observed, which the
-                    // definition made zero while the gallery was present — or which the run-exit
-                    // freeze published as the run's final measurement.
+                guard observedIncompleteSessionGenerations[gid] == queueIntentGeneration(for: gid) else {
+                    // Never watched doing honest work UNDER THE CURRENT QUEUE INTENT: retire what
+                    // was observed, which the definition made zero while the gallery was present —
+                    // or which the run-exit freeze published as the run's final measurement. The
+                    // equality is the credited-pages definition's own, so the departure rule and
+                    // the numerator's rule cannot disagree about a re-queued gallery either.
                     retiredSessionPages[gid] = observedSchedulablePages[gid] ?? 0
                     continue
                 }
@@ -776,8 +813,14 @@ extension DownloadCoordinator {
         // then frozen until that gallery rejoins the schedulable set.
         observedSchedulablePages = finishedPages
         // Accumulated from the same read the basis was computed from, so the numerator's opening
-        // rule and the departure rule can never disagree about a gallery.
-        observedIncompleteSessionGIDs.formUnion(snapshot.incompleteGalleryIDs)
+        // rule and the departure rule can never disagree about a gallery. The greater generation
+        // wins for the reason the session seed's merge records: a newer observation is a later
+        // fact about the same gallery, and an older stamp overwriting it would resurrect an
+        // observation a queue intent had already invalidated (CR-02).
+        observedIncompleteSessionGenerations.merge(
+            snapshot.incompleteGalleryGenerations,
+            uniquingKeysWith: { observed, snapshotted in max(observed, snapshotted) }
+        )
     }
 
     /// Pushes one snapshot's counts, and the subtitle built from it, to the card.

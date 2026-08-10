@@ -42,8 +42,8 @@ extension DownloadContinuedSessionLedgerTests {
     /// folder is more likely a shape the positive signals missed than proof that six files vanished
     /// at once. That refusal is the round-11/12/13 defence and must not move. What it costs is this
     /// case's subject: nothing blanked means nothing republished, so the record goes on reading
-    /// 6-of-6 and `isIncomplete` stays false — so the session's observation set, sourced from
-    /// `snapshot.incompleteGalleryIDs`, can by construction never admit this gallery, and the
+    /// 6-of-6 and `isIncomplete` stays false — so the session's observation map, sourced from
+    /// `snapshot.incompleteGalleryGenerations`, can by construction never admit this gallery, and the
     /// record's ceiling can never enter the numerator through it. What carries the family instead
     /// is the run's own announced measurement (G-15-26, G-15-30): all six pages are the run's
     /// to-do list and none is inherited — the listing succeeded and yielded nothing claimed, a
