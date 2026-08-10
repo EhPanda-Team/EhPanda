@@ -89,9 +89,14 @@ public struct DownloadStore: Sendable {
         rootURL.appendingPathComponent(relativePath, isDirectory: true)
     }
 
-    public func userFolderURL(name: String) -> URL {
-        rootURL.appendingPathComponent(name, isDirectory: true)
-    }
+    // `userFolderURL(name:)` used to live here, appending a caller-supplied user-folder NAME to
+    // the root with no confinement guarantee, and it is deliberately gone (CR-02). Four production
+    // sites fed its result into a create, a move or a remove, and one of them — `deleteFolder` —
+    // reached a gallery folder below a user folder from a name like `"MyFolder/[123_abc] Title"`.
+    // Deleting the function is what makes that unwritable rather than merely discouraged: every
+    // user-folder mutation now goes through `DownloadStore+Operations`' confined boundary, and the
+    // one surviving read-model construction builds its URL from the same relative path it stores,
+    // through `folderURL(relativePath:)` above.
 
     public func rootRelativePath(forFolderURL url: URL) -> String? {
         let rootPath = rootURL.standardizedFileURL.path + "/"

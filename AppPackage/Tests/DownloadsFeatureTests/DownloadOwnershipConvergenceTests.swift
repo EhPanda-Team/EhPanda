@@ -280,7 +280,7 @@ private enum MoveConvergenceGallery {
         in fixture: SessionFixture
     ) -> URL {
         fixture.storage
-            .userFolderURL(name: destinationFolderName)
+            .folderURL(relativePath: destinationFolderName)
             .appendingPathComponent(
                 "[\(gallery.gid)_token] \(gallery.title)",
                 isDirectory: true

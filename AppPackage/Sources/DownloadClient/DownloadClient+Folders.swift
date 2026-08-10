@@ -11,6 +11,14 @@ extension DownloadCoordinator {
         return userFolders
     }
 
+    /// Orchestration only; the filesystem boundary belongs to `DownloadStore` (CR-02).
+    ///
+    /// The coordinator normalizes, because creating a folder is the one case where the caller is
+    /// asking for a name to be MADE and rewriting it is the whole point. Everything after that —
+    /// confinement, the already-exists refusal and the creation itself — belongs to the store,
+    /// which decides all three inside the lock that creates. The URL construction this used to do
+    /// here is the same one that let `deleteFolder` reach a gallery folder, so no coordinator site
+    /// keeps it.
     public func createFolder(name: String) async -> Result<Void, AppError> {
         guard let normalizedName = storage.normalizedUserFolderName(name) else {
             return .failure(
@@ -19,17 +27,10 @@ extension DownloadCoordinator {
                 )
             )
         }
-        let folderURL = storage.userFolderURL(name: normalizedName)
-        guard !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return .failure(
-                .fileOperationFailed(
-                    String(localized: .downloadStoreFolderAlreadyExists)
-                )
-            )
-        }
         do {
-            try storage.ensureRootDirectory()
-            try createDirectory(at: folderURL)
+            try storage.createUserFolder(named: normalizedName)
+        } catch let error as AppError {
+            return .failure(error)
         } catch {
             logger.error("\(error, privacy: .private)")
             return .failure(.fileOperationFailed(error.localizedDescription))
@@ -93,8 +94,34 @@ extension DownloadCoordinator {
         return .success(())
     }
 
+    /// Orchestration only; the filesystem boundary belongs to `DownloadStore` (CR-02).
+    ///
+    /// `name` is public client input, so it is resolved through the store's confined direct-child
+    /// boundary before anything happens and removed through the store operation that decides the
+    /// same question again inside the lock that removes. What this used to do — append the raw
+    /// name to the root and hand the result to `removeFolder(at:)`, whose containment is a lexical
+    /// prefix — admitted every nested path, so `"MyFolder/[123_abc] Some Title"` recursively
+    /// erased a gallery folder nobody named.
+    ///
+    /// **The existence pre-check is kept AHEAD of the store deliberately.** An absent folder has
+    /// always answered `.notFound` without first blocking scheduling or cancelling an active task,
+    /// and that stays true; it is a question about a name the boundary has already accepted, so it
+    /// can no longer be answered about a path the caller did not name. The store answers
+    /// `.notFound` too, for the folder that vanishes between here and the removal.
+    ///
+    /// **The cleanup key below is exact by construction now, not by luck.** Only a single confined
+    /// component can be deleted, so the galleries this call removes are precisely those whose
+    /// `parentFolderName` equals `name` — the set the loop clears. The nested name that used to
+    /// erase a gallery folder while matching no record at all, leaving `downloadIndex`, the queue
+    /// store and the background-task store claiming it, never reaches the removal.
     public func deleteFolder(name: String) async -> Result<Void, AppError> {
-        let folderURL = storage.userFolderURL(name: name)
+        guard let folderURL = storage.confinedDirectUserFolderURL(named: name) else {
+            return .failure(
+                .fileOperationFailed(
+                    String(localized: .RLocalizable.downloadStoreInvalidFolderName)
+                )
+            )
+        }
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(.notFound)
         }
@@ -113,7 +140,7 @@ extension DownloadCoordinator {
             await taskToCancel?.value
         }
         do {
-            try storage.removeFolder(at: folderURL)
+            try storage.deleteUserFolder(named: name)
         } catch let error as AppError {
             await reloadDownloadRecords(containedRecords)
             // ACTIVE-OWNERSHIP CONVERGENCE: release every contained gallery before converging or
@@ -167,12 +194,16 @@ extension DownloadCoordinator {
     ///   unrelated mutation happened to converge. D-03 removed the fallback tier, so no tap short
     ///   of a fresh qualifying one could restart it.
     ///
-    /// The invalid-name guard precedes the block and therefore needs neither.
+    /// The invalid-name guard precedes the block and therefore needs neither. It now also resolves
+    /// the destination parent, because that resolution answers the same question and refuses on
+    /// the same terms (CR-02): the guard stays one exit, ahead of every side effect.
     public func moveDownload(
         gid: String,
         toFolderName folderName: String
     ) async -> Result<Void, AppError> {
-        guard let normalizedName = storage.normalizedUserFolderName(folderName) else {
+        guard let normalizedName = storage.normalizedUserFolderName(folderName),
+              let destinationParentURL = storage.confinedDirectUserFolderURL(named: normalizedName)
+        else {
             return .failure(
                 .fileOperationFailed(
                     String(localized: .RLocalizable.downloadStoreInvalidFolderName)
@@ -196,7 +227,6 @@ extension DownloadCoordinator {
                 )
             )
         }
-        let destinationParentURL = storage.userFolderURL(name: normalizedName)
         let destinationURL = destinationParentURL.appendingPathComponent(
             download.folderURL.lastPathComponent,
             isDirectory: true
@@ -218,8 +248,10 @@ extension DownloadCoordinator {
             )
         }
         do {
-            // Recreate the destination folder if it vanished via the Files app.
-            try createDirectory(at: destinationParentURL)
+            // Recreate the destination folder if it vanished via the Files app — through the
+            // store's confined creation, so the only URL this move can write under is one the
+            // boundary produced. `destinationURL` is a child of that same resolved parent.
+            try storage.ensureUserFolder(named: normalizedName)
             try fileManager.operate {
                 try $0.moveItem(at: download.folderURL, to: destinationURL)
             }
@@ -250,15 +282,20 @@ extension DownloadCoordinator {
     ///
     /// Named apart from `storage.renameUserFolder` on purpose: that one owns the filesystem, this
     /// one owns the index, and the two sit on consecutive lines at the single call site.
+    ///
+    /// It is also the ONE surviving name-to-URL construction outside the store's confined boundary
+    /// (CR-02), and it is not a mutation: it describes where the store has already put a folder.
+    /// The record's path and its URL are derived from one `relativePath` value so they cannot
+    /// describe two different places, which is what building them separately risked.
     private func repointRenamedUserFolder(oldName: String, newName: String) {
         userFolders.removeAll { $0 == oldName }
         insertUserFolder(newName)
         let movedRecords = downloadIndex.values.filter({ $0.parentFolderName == oldName })
         for record in movedRecords {
-            let destinationFolderURL = storage.userFolderURL(name: newName)
-                .appendingPathComponent(record.folderURL.lastPathComponent, isDirectory: true)
+            let relativePath = "\(newName)/\(record.folderURL.lastPathComponent)"
+            let destinationFolderURL = storage.folderURL(relativePath: relativePath)
             downloadIndex[record.manifest.gid] = DownloadFolderRecord(
-                relativePath: "\(newName)/\(record.folderURL.lastPathComponent)",
+                relativePath: relativePath,
                 folderURL: destinationFolderURL,
                 manifest: record.manifest,
                 localCoverURL: record.localCoverURL.map {
