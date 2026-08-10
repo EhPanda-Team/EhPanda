@@ -181,13 +181,20 @@ public actor DownloadCoordinator {
         /// scan is a non-answer, which the announcement treats exactly as the reconciliation
         /// does: no positive signal, so recorded claims stand.
         public let scanSucceeded: Bool
+        /// The claimed pages whose files THIS preparation destroyed under its wholesale guard
+        /// (WR-03). Carried because it is knowledge no later probe can recover honestly: this
+        /// pass's own act, and therefore a positive absence whatever the rescan's health. The
+        /// announcement subtracts it, so a rescan that failed after a removal can never presume a
+        /// deleted page done. Empty on every route that removed nothing.
+        public let removedPages: Set<Int>
         public init(
             folderURL: URL,
             manifest: DownloadManifest,
             existingPages: [Int: String],
             coverRelativePath: String? = nil,
             unprobedPages: Set<Int> = [],
-            scanSucceeded: Bool = true
+            scanSucceeded: Bool = true,
+            removedPages: Set<Int> = []
         ) {
             self.folderURL = folderURL
             self.manifest = manifest
@@ -195,6 +202,7 @@ public actor DownloadCoordinator {
             self.coverRelativePath = coverRelativePath
             self.unprobedPages = unprobedPages
             self.scanSucceeded = scanSucceeded
+            self.removedPages = removedPages
         }
     }
 
