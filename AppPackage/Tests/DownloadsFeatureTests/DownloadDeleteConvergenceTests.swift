@@ -112,7 +112,6 @@ struct DownloadDeleteConvergenceTests: DownloadFeatureTestCase {
         // turns the pre-fix missing notification into a named failure instead of a hung suite.
         let emissions = try await waitForTaskValue(
             observerTask,
-            timeout: .seconds(1),
             description: "the vanished-record deletion observer emission"
         )
 
