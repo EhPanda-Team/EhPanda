@@ -330,15 +330,18 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderURL: folderURL
             )
-            // ENTITLED to discard (CR-03): the one production actor that names the flag. A page this
-            // scan refuses becomes a positive absence, and `reconcileWorkingManifestAgainstPageFiles`
-            // three statements below blanks its hash inside this same D-G7-01 bracket — record and
-            // disk move together, which is what the entitlement means. (15-67 converts this route to
-            // classify-then-authorize ordering; until then the removal precedes its blanking.)
+            // CLASSIFY. Non-mutating, because until the guard below authorizes, this preparation is
+            // gathering evidence and nothing more — the ordering `reconcileValidatedRecordAgainstPage
+            // Files` has had since CR-01, adopted here by WR-02. It used to name
+            // `discardingRejected: true`, which deleted a refused page file WHILE the classification
+            // was being formed: the wholesale guard could then refuse to blank a hash whose file the
+            // asking had already destroyed, and the refutations the probe declines to delete at all
+            // (its content-read exit) kept their claimed hashes forever, since nothing on this route
+            // removed them. Since CR-03 the non-mutating behaviour is the DEFAULT, so what states it
+            // here is the absence of an argument rather than one.
             let destinationScan = storage.pageFileScan(
                 folderURL: folderURL,
-                manifest: manifest,
-                discardingRejected: true
+                manifest: manifest
             )
             // The seed copy's non-answers, folded into the destination's own before the single
             // destructive consumer reads them (G-15-19). No new refusal mechanism: the existing
@@ -350,13 +353,22 @@ extension DownloadCoordinator {
             // reason `pages` does: this rebuild exists to ADD the carried non-answers, and dropping
             // a member the destination scan did report would silently re-license the one act that
             // member exists to withhold (CR-01).
-            let reconciliationScan = PageFileScan(
+            let classifiedScan = PageFileScan(
                 pages: destinationScan.pages,
                 scanSucceeded: destinationScan.scanSucceeded,
                 unprobedPages: destinationScan.unprobedPages.union(carriedUnprobedPages),
                 rejectedPageRelativePaths: destinationScan.rejectedPageRelativePaths
             )
-            let existingPages = destinationScan.pages
+            // AUTHORIZE, then act: removes the survivors the guard licenses and answers with a scan
+            // taken after the removals, so the blanking loop below sees them as the positive
+            // absences they now are.
+            let reconciliationScan = authorizedReconciliationScan(
+                manifest: manifest,
+                classifiedScan: classifiedScan,
+                folderURL: folderURL,
+                carriedUnprobedPages: carriedUnprobedPages
+            )
+            let existingPages = reconciliationScan.pages
             let reconciledManifest = try reconcileWorkingManifestAgainstPageFiles(
                 manifest: manifest,
                 pageFileScan: reconciliationScan,
@@ -376,13 +388,102 @@ extension DownloadCoordinator {
                 manifest: reconciledManifest,
                 existingPages: existingPages,
                 coverRelativePath: coverRelativePath,
-                // The announcement's evidence, carried out of the one scan this preparation took:
-                // the same classification the destructive consumer above just read, so the credit
-                // rule and the blanking rule can never answer from different probes.
+                // The announcement's evidence, carried out of the scan the blanking loop itself
+                // consumed — every one of these three members, so the credit rule and the blanking
+                // rule can never answer from different probes. That is why they follow the
+                // reconciliation scan across an authorized removal rather than staying pinned to
+                // the pre-removal classification: a page whose refuted file this preparation just
+                // deleted is not a page the run may treat as already present.
                 unprobedPages: reconciliationScan.unprobedPages,
-                scanSucceeded: destinationScan.scanSucceeded
+                scanSucceeded: reconciliationScan.scanSucceeded
             )
         }
+    }
+
+    /// Removes the page files this preparation positively refuted, once — and only once — the
+    /// combined wholesale guard authorizes the whole set, and answers with a scan taken afterwards.
+    ///
+    /// **WR-02: the automatic route gets the ordering the validated-record route already had.** The
+    /// shape being closed is not "a file was deleted too early" but "a file was never deleted at
+    /// all". `probeAssetFileContent` — the exit `probeAssetFile` falls back to when the metadata
+    /// read throws — reports an empty file as `.rejected(fileRemains: true)` unconditionally and
+    /// deliberately, so a discarding scan does not clear it either. `removeRefutedPageFiles` was
+    /// reachable from `reconcileValidatedRecordAgainstPageFiles` alone, which only a user-initiated
+    /// Validate reaches. Between the two, a repair-seed preparation could meet a claimed page whose
+    /// bytes had been positively refuted and leave it exactly as found, run after run: a record
+    /// claiming a complete page over unusable bytes, with the loop's line 2b correctly declining to
+    /// blank it because nothing had removed the file. Removing it here is what converts the page
+    /// into the positively-absent shape the blanking loop, the fetch filter and finalize all already
+    /// handle.
+    ///
+    /// It mirrors `reconcileValidatedRecordAgainstPageFiles`' ordering — classify, guard, remove,
+    /// rescan, blank — rather than inventing a second one, with one evidence class fewer: there is
+    /// no content pass on this route, so the refutations are the presence scan's own rejections and
+    /// nothing else. The claimed-page derivation, the `unprobedPages` subtraction and the
+    /// prospective union are the same expressions that pass reads.
+    ///
+    /// **The guard runs BEFORE the removal, and it is the same predicate the loop applies after.**
+    /// Measuring `absences ∪ refutations` against `completedPageCount` here is exactly what the loop
+    /// measures over the post-removal scan, because a removal moves a page from the refutation term
+    /// to the absence term and leaves the sum where it was. So the two cannot disagree, and the
+    /// removal cannot be the thing that talks the loop into blanking: a wholesale shape refuses at
+    /// this guard with the disk untouched, and refuses again below for the same arithmetic.
+    ///
+    /// Ordering it this way round is also what keeps a FAILED removal honest. `removeRefutedPageFiles`
+    /// reports the pages it could not remove; those files are still on disk, the rescan still reports
+    /// them as refuted survivors, and the loop still holds their hashes — hash and file kept
+    /// together, which is what a hold has to mean. Nothing here writes the manifest, so the durable
+    /// blanking of everything this function did remove happens in the one loop, under the one rule.
+    ///
+    /// Runs inside `prepareWorkingSeed`'s existing D-G7-01 bracket rather than opening one of its
+    /// own: the bracket rule is that movements compose as SIBLINGS and never nest, and every record
+    /// movement this ordering produces is the loop's single write, which that bracket already spans.
+    private func authorizedReconciliationScan(
+        manifest: DownloadManifest,
+        classifiedScan: PageFileScan,
+        folderURL: URL,
+        carriedUnprobedPages: Set<Int>
+    ) -> PageFileScan {
+        guard classifiedScan.scanSucceeded else { return classifiedScan }
+        let claimedPages = Set(manifest.pages.filter({ !$0.value.isEmpty }).keys)
+        // A page whose OTHER candidate file went unprobed is subtracted: the pass holds a non-answer
+        // about that page as well, and a non-answer standing beside a determination still forbids
+        // destroying anything.
+        let refutedPages = claimedPages
+            .intersection(classifiedScan.rejectedPageRelativePaths.keys)
+            .subtracting(classifiedScan.unprobedPages)
+        guard !refutedPages.isEmpty else { return classifiedScan }
+        let positivelyAbsentPages = claimedPages
+            .subtracting(classifiedScan.pages.keys)
+            .subtracting(classifiedScan.rejectedPageRelativePaths.keys)
+            .subtracting(classifiedScan.unprobedPages)
+        guard positivelyAbsentPages.union(refutedPages).count < manifest.completedPageCount else {
+            // Refused. The classification is handed on untouched, so the loop reaches the identical
+            // arithmetic and returns the manifest verbatim over a disk this function did not move.
+            return classifiedScan
+        }
+
+        // AUTHORIZED. Everything above reads; everything below acts. The unremoved complement is
+        // deliberately discarded rather than carried: the rescan below re-derives it from the disk,
+        // which is the stronger evidence and cannot drift from what the loop is about to read.
+        _ = storage.removeRefutedPageFiles(
+            folderURL: folderURL,
+            pageRelativePaths: classifiedScan.rejectedPageRelativePaths,
+            refutedPages: refutedPages
+        )
+        // Taken fresh rather than derived, so a removal that failed is reported as the surviving
+        // refutation it still is instead of being assumed away. The carried source-side non-answers
+        // are re-unioned because this folder's listing can no more see them now than before.
+        let rescan = storage.pageFileScan(
+            folderURL: folderURL,
+            manifest: manifest
+        )
+        return PageFileScan(
+            pages: rescan.pages,
+            scanSucceeded: rescan.scanSucceeded,
+            unprobedPages: rescan.unprobedPages.union(carriedUnprobedPages),
+            rejectedPageRelativePaths: rescan.rejectedPageRelativePaths
+        )
     }
 
     /// Prepares the working seed and announces the run's own progress measurement — the
@@ -558,201 +659,6 @@ extension DownloadCoordinator {
         }
         guard manifest.completedPageCount >= manifest.pageCount else { return presumedDonePages }
         return presumedDonePages.subtracting(pendingPages)
-    }
-
-    /// Blanks the recorded hash of every page the working manifest claims but whose file is not in
-    /// the working folder, persisting and re-indexing the manifest only when something changed.
-    ///
-    /// **D-G5-01: a working manifest never claims a page whose file is not in the working folder.**
-    ///
-    /// It closes the RUN-TIME half of G-15-5: a record that goes on reading complete while a repair
-    /// run is fetching the very pages it claims. That is a distinct hole from the VALIDATE-TIME one
-    /// D-G5B-01 closes in `validateImageData` — a record that goes on reading complete after the
-    /// user's own integrity check has proved files missing, with no run in sight — and this
-    /// paragraph is not to be read as covering it. The two share this loop deliberately: the second
-    /// caller reuses these refusal lines rather than growing a laxer blanking rule of its own.
-    /// A `.repair` exists precisely because files are missing, yet nothing lowered
-    /// the record's finished-page count for them: `shouldReuseWorkingFolder` returns `true`
-    /// unconditionally for `.repair`, so the folder survives, and `ensureWorkingManifest` finds a
-    /// valid manifest and returns it verbatim. The record went on reading complete for the whole
-    /// run, `isIncomplete` stayed false, so D-G4-01's basis counted zero session pages for the
-    /// gallery from its first push to its untrusted departure, and the session finished a terminal
-    /// `0 / N pages · 0 galleries` card over real repair work. That is the maximally stalled reading
-    /// the scheduler force-expires first, and D-11 turns that expiration into a pause of every
-    /// schedulable download — so the lie costs liveness, not just honesty.
-    ///
-    /// This is the single point every start mode's run converges on, which is why one reconciliation
-    /// covers them all rather than patching the branch a report named. `.redownload` and `.update`
-    /// delete the working folder and arrive with a fresh all-empty manifest, and a fresh `.initial`
-    /// does too, so this is a no-op for them. The modes it does work for are the ones that reuse a
-    /// manifest they did not write: `.repair`, the `.initial` reuse of a matching complete manifest,
-    /// and the repair-seed materialization, which copies the manifest whole while copying the pages
-    /// selectively — and therefore hands back the claimed pages its SOURCE-side probe could not
-    /// answer for, which `prepareWorkingSeed` unions into the scan below so this reconciliation
-    /// sees them as unprobed rather than absent (G-15-19). That route needs the carry because
-    /// nothing here can derive it: the destination listing is entirely honest about a page the copy
-    /// never landed, `scanSucceeded` is true and `unprobedPages` is empty, so a source-side
-    /// non-answer and a source-side positive absence arrive indistinguishable. This paragraph used
-    /// to classify that route as safe on the grounds that it copied every page whose source file
-    /// had been sanitized — which is precisely where `.unprobeable` and `.rejected` collapse back
-    /// together, one layer below the defence, and is the written premise the gap hid behind.
-    ///
-    /// Deliberate consequence, recorded because it looks like a regression and is not: an
-    /// interrupted repair's record now honestly reads incomplete, so its `displayStatus` is
-    /// `.inactive` rather than `.completed`. `resumeMode`'s incomplete-inactive branch resolves
-    /// `.repair` for it exactly as its missingFiles branch did before, so no route is lost — the
-    /// files really are missing, and the record finally says so.
-    ///
-    /// The same movement reaches `storage.validate`, and that consequence was considered rather
-    /// than missed. `validatePage` (`DownloadStore+Operations.swift`) returns nil for an empty
-    /// expected hash — nothing claimed, nothing to check — so a blanked page that previously
-    /// produced `.missingFiles` now leaves the record reporting `.valid`. Two consumers see it:
-    /// `validateImageData(gid:)`, the inspector's user-initiated integrity check, and
-    /// `loadManifest(gid:)`, whose missingFiles gate decides whether the offline reader opens the
-    /// gallery or falls back to remote. Both answer differently for an interrupted repair, and
-    /// that is correct rather than lost coverage: the manifest genuinely no longer claims those
-    /// pages, which is the exact state an interrupted `.initial` download has always presented,
-    /// and mode resolution still reaches `.repair` through `isIncomplete` so the missing pages are
-    /// still fetched. Validation reports what the record claims; it is not a second source of
-    /// truth about what the gallery ought to contain.
-    ///
-    /// This function does no basis accounting of its own, deliberately. Its index write is one of
-    /// several deliberate downward movers inside `prepareWorkingSeed`, and all of them are enclosed
-    /// by that function's D-G7-01 bracket, which withdraws each movement's counted portion from the
-    /// monotonic floor keyed on the pre/post index-record delta. Attaching the withdrawal to this
-    /// blanking loop instead is what produced G-15-7: an all-empty manifest blanks nothing, so the
-    /// early return above fires and a `.redownload` that had just wiped the same record from C of N
-    /// to 0 of N withdrew nothing. The rule belongs to the movement, not to the mechanism.
-    ///
-    /// No suspension is introduced: `pageFileScan` is the scan `prepareWorkingSeed` already took, so
-    /// no second disk scan happens here, and `writeManifest` / `updateDownloadIndex` are same-actor
-    /// synchronous calls.
-    ///
-    /// **Positive-signal rule: a best-effort probe's non-answer is never authority for destroying
-    /// recorded hashes.** The scan swallows failure at three levels — `existingAssetFileURLs` on any
-    /// `contentsOfDirectory` failure, the per-file probe's metadata read, and that probe's
-    /// content-read fallback on any open or read failure. Every one of them fails for transient
-    /// reasons, and while an empty answer only caused a re-fetch it was harmless; D-G5-01 made it
-    /// destructive. So this consumer is defended in three lines, in this order:
-    ///
-    /// 1. **The directory-level positive signal (G-15-9).** `scanSucceeded` false means the
-    ///    enumeration itself failed, so the whole answer is a non-answer and nothing is blanked. One
-    ///    failed enumeration used to blank every claimed page of the gallery in a single pass,
-    ///    rewrite the manifest, publish a 0-of-N record and — through the enclosing D-G7-01
-    ///    bracket — withdraw the full count from the floor, all unlogged.
-    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01; extended across the copy by
-    ///    G-15-19).** `unprobedPages` carries TWO populations by the time it reaches here, and no
-    ///    page in either is blanked: the pages whose file THIS folder's successful listing did
-    ///    yield but whose probe could not classify, and the pages the repair-seed materialization
-    ///    reported unanswerable in the SOURCE folder it copied from, unioned in by
-    ///    `prepareWorkingSeed`. The second exists because this folder's listing cannot see it — a
-    ///    page the copy never landed is honestly absent here — so the classification has to travel
-    ///    with the copy rather than be re-derived. The trigger is narrow and real: the metadata
-    ///    read itself throwing for many-but-not-all files — an I/O error, a permission change, a
-    ///    volume going away mid-scan. It is not descriptor exhaustion and not a locked device, since
-    ///    a metadata read needs no descriptor and still answers under data protection. Line 1 cannot
-    ///    reach this population, because the listing succeeded, and line 3 cannot either, because it
-    ///    disables itself as soon as one claimed page survives: a gallery with 100 claimed pages and
-    ///    99 failed probes passed `99 < 100` and lost 99 recorded hashes irreversibly.
-    /// 2b. **The per-file REFUTATION signal (CR-01).** `rejectedPageRelativePaths` names a claimed
-    ///    page whose file the listing yielded, the probe positively refused, and which is STILL ON
-    ///    DISK. Such a page is not blanked here, and the reason is the mirror image of line 2's: not
-    ///    that nothing was established, but that acting on what was established means removing the
-    ///    file as well, and this loop does not remove files. Blanking it alone would leave the
-    ///    D-SSOT-04 laundering shape — a blank hash beside bytes `finalizeDownload`'s merge would
-    ///    re-record as truth. The caller that removed the file first sees the page as a positive
-    ///    absence on its fresh scan and gets the blanking through line 2's own path; the caller
-    ///    whose removal FAILED, and the discarding scan whose housekeeping deletion failed, both
-    ///    keep the hash instead. Membership is conditional on survival, so a successful discard
-    ///    reports nothing here and every pre-existing caller is byte for byte unchanged.
-    /// 3. **The all-or-nothing guard, as the residual second line.** A refusal is still taken when a
-    ///    nominally successful listing that answered for every file it did probe would nonetheless
-    ///    blank every claimed page. The manifest was just read out of this very folder, so that is
-    ///    more likely a shape neither signal above caught than proof that every page vanished at
-    ///    once. Its reach is narrow ON PURPOSE, and narrower since line 2 grew: one claimed page
-    ///    held as unprobed already puts the gallery outside this guard, because the guard exists to
-    ///    catch a shape the per-page signals explained NOTHING about, and a page they did explain is
-    ///    evidence they were answering. The mixed shape is line 2's, one page at a time, not this
-    ///    line's wholesale.
-    ///
-    /// A refusal at any of the three moves no index record, so D-G7-01's delta-keyed bracket
-    /// withdraws exactly zero from the floor by construction, without coordination here.
-    ///
-    /// **What the defence deliberately costs.** A genuinely all-pages-vanished repair is no longer
-    /// reconciled: it falls back to the pre-D-G5-01 arc, where the seed's empty `existingPages`
-    /// makes the run re-fetch every page, and `resumeMode`'s `storage.validate` branch remains the
-    /// route that resolves `.repair` for such a record — re-verified, and its (a)/(b) doc still
-    /// reads true, since a refusal is exactly its case (a). An unprobed page pays the same way, one
-    /// page at a time. That is accepted against the alternative — letting a transient failure
-    /// destroy recorded hashes. Genuine absence is untouched and stays fully blankable: a claimed
-    /// page whose file a SUCCESSFUL listing simply did not yield is a positive absence, and a scan
-    /// that finds K of them blanks exactly those K.
-    ///
-    /// What the cost is NOT is a merely delayed honesty. This paragraph used to close by claiming
-    /// the flush restores the record, and for the refusal family that claim is refuted: the flush
-    /// path is monotone upward — `refreshManifestPageFileHashes` only ever assigns non-empty
-    /// hashes — so a record that reads COMPLETE when a refusal hands the manifest back never becomes
-    /// incomplete during the run, and the session's observation set, sourced from `isIncomplete`,
-    /// can never admit it. What covers that family is the run's own measured basis, announced in
-    /// `prepareWorkingSeedAnnouncingProgress` without consulting the record at all (G-15-23). A
-    /// record already reading incomplete when a refusal fires is the other case, and for it the
-    /// flush really is enough — which is what the sibling refusal cases in
-    /// `DownloadContinuedSessionReconciliationTests` stage.
-    ///
-    /// **Second caller: `validateImageData(gid:)` (D-G5B-01).** The name still holds there, because
-    /// a repair's working folder IS the gallery's own folder — `shouldReuseWorkingFolder` returns
-    /// true unconditionally for `.repair` — so validate-time reconciliation runs this identical loop
-    /// over the identical folder shape, against a manifest read out of that same folder. What the
-    /// second caller must supply is what `prepareWorkingSeed` supplies: a scan of that folder taken
-    /// fresh (never a verdict — `storage.validate` returns at its FIRST failing page, so its message
-    /// names one page rather than the missing set), and an enclosing `withdrawingCountedBasisMovement`
-    /// bracket, since this function still does no basis accounting of its own. Module-internal rather
-    /// than file-private for exactly that caller: one implementation is what stops the blanking
-    /// evidence rule from forking between repair-preparation time and validate time.
-    func reconcileWorkingManifestAgainstPageFiles(
-        manifest: DownloadManifest,
-        pageFileScan: PageFileScan,
-        folderURL: URL
-    ) throws -> DownloadManifest {
-        guard pageFileScan.scanSucceeded else { return manifest }
-
-        var pages = manifest.pages
-        var blankedPageCount = 0
-        for page in manifest.pages.keys.sorted() {
-            guard pages[page]?.isEmpty == false,
-                  pageFileScan.pages[page] == nil,
-                  pageFileScan.rejectedPageRelativePaths[page] == nil,
-                  !pageFileScan.unprobedPages.contains(page)
-            else { continue }
-            pages[page] = ""
-            blankedPageCount += 1
-        }
-        guard blankedPageCount > 0 else { return manifest }
-        // The loop skips every claimed page the scan ACCOUNTED for — one the listing yielded, or one
-        // line 2 holds as unprobed — so this equality is reachable only where it accounted for none
-        // of them: the residual fires on the shape where a nominally successful listing explains no
-        // claimed page at all. On a MIXED shape it deliberately does not fire, and that is not a
-        // gap: line 2 has already refused the unprobed portion one page at a time, and the rest is
-        // the positive absence this reconciliation exists to record. Widening the comparison to the
-        // blankable population would refuse those genuine absences because some OTHER page went
-        // unanswered, which is the opposite of the per-page rule line 2 states.
-        guard blankedPageCount < manifest.completedPageCount else { return manifest }
-
-        var reconciledManifest = manifest
-        reconciledManifest.pages = pages
-        try storage.writeManifest(reconciledManifest, folderURL: folderURL)
-        updateDownloadIndex(folderURL: folderURL, manifest: reconciledManifest)
-        // Destroying recorded hashes is irreversible, so it leaves a trail a device archive can show:
-        // a real blanking and a refused one are otherwise indistinguishable after the fact. The count
-        // is an operational scalar; the gid follows the module's hash-masked identity pattern.
-        logger.notice(
-            """
-            Working manifest reconciled, blanked page count: \
-            \(blankedPageCount, privacy: .public), \
-            gid: \(manifest.gid, privacy: .private(mask: .hash)).
-            """
-        )
-        return reconciledManifest
     }
 
     // The disk index drops manifest-less folders and progress flushes skip

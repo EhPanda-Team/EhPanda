@@ -51,75 +51,6 @@ public struct DownloadScanResult: Equatable, Sendable {
     }
 }
 
-/// The page files a working folder was found to hold, together with the two things `pages` alone
-/// cannot say: whether the folder could be listed at all, and which of the files it did list the
-/// per-file probe could not answer for.
-///
-/// All three members exist for one consumer. `pages` alone cannot tell "this folder holds none of
-/// the manifest's pages" apart from "this folder could not be read", nor "this page's file is gone"
-/// apart from "this page's file is there and unprobeable". Every non-destructive caller is entitled
-/// to collapse both pairs — a probe that finds nothing re-fetches, which is harmless either way —
-/// but the working-seed reconciliation destroys recorded content hashes on that answer, and
-/// destroying state on a non-answer is what G-15-9 and then G-15-13 reported.
-///
-/// **"Non-destructive" is a property of the ROUTE, not of the call (G-15-19).** A caller may
-/// collapse the pairs only if its output can never become the input of a destructive decision — in
-/// this folder or in any other, one step later or ten. `materializeRepairSeed` read as such a
-/// caller and was not one: it collapsed the pairs while scanning a SOURCE folder, and the pages it
-/// therefore did not copy became positive absences in the DESTINATION folder's own entirely honest
-/// scan, where nothing downstream could recover the distinction. A caller whose answer crosses a
-/// folder boundary must carry the classification with it, not the collapse.
-///
-/// - `scanSucceeded` answers at the DIRECTORY level: false means the enumeration itself failed, so
-///   the whole answer is a non-answer (G-15-9).
-/// - `unprobedPages` answers one level down, PER FILE: a claimed page whose file the enumeration
-///   did list but whose probe could not classify (G-15-13). A page here is neither usable nor
-///   positively absent, so it may be re-fetched but never blanked.
-/// - `rejectedPageRelativePaths` answers at the same per-file level, on the opposite side: a claimed
-///   page whose file the enumeration listed and the probe POSITIVELY refused — zero bytes, or not a
-///   regular file — and which is still on disk when the scan returns (CR-01).
-///
-/// They are kept apart rather than collapsed deliberately: they are answers to different questions
-/// at different granularities, the reconciliation consumes them independently, and merging them
-/// would re-conflate exactly the levels those gaps separated.
-///
-/// **Why the rejected pages need an identity of their own, and why the identity is conditional on
-/// the file SURVIVING.** A rejection used to be indistinguishable from an absence here, and that was
-/// self-consistent only because the probe deleted the file it rejected: the page really had no file
-/// by the time anyone read the answer. A caller that may not mutate — validation, before its own
-/// guard has authorized anything — gets the same classification with the file left in place, and for
-/// that caller "not in `pages`" would silently mean two different things: a page with nothing on
-/// disk, and a page with a refuted file still on disk. The first is blankable on its own; the second
-/// must have its file removed in the same authorized act, or the record ends up blank beside bytes
-/// that `finalizeDownload`'s hash merge would re-record as truth (D-SSOT-04).
-///
-/// So membership means "refuted AND still there". A discarding caller whose housekeeping deletion
-/// succeeded reports nothing here, because the page genuinely is a positive absence afterwards —
-/// which keeps every pre-existing caller byte for byte. A discarding caller whose deletion FAILED
-/// reports the page here, which is the same protection the non-discarding caller gets, arrived at
-/// from the other direction.
-public struct PageFileScan: Equatable, Sendable {
-    public let pages: [Int: String]
-    public let scanSucceeded: Bool
-    public let unprobedPages: Set<Int>
-    public let rejectedPageRelativePaths: [Int: String]
-
-    /// - Parameter rejectedPageRelativePaths: defaulted, so the one place that rebuilds a scan from
-    ///   another scan's parts stays source-compatible; that site threads the real value through
-    ///   rather than taking the default.
-    public init(
-        pages: [Int: String],
-        scanSucceeded: Bool,
-        unprobedPages: Set<Int>,
-        rejectedPageRelativePaths: [Int: String] = [:]
-    ) {
-        self.pages = pages
-        self.scanSucceeded = scanSucceeded
-        self.unprobedPages = unprobedPages
-        self.rejectedPageRelativePaths = rejectedPageRelativePaths
-    }
-}
-
 /// Pure filesystem / manifest / hash I/O for downloads. The filesystem is the source of
 /// truth (per-folder `manifest.json` + page files), so this type holds no cross-call
 /// in-memory state and is race-free by construction: every method reads or writes disk and
@@ -746,8 +677,9 @@ public struct DownloadStore: Sendable {
         // discarding probe here would let a routine refresh delete a zero-byte or non-regular page
         // file while the manifest goes on claiming that page, with nothing displayed moving to say
         // so. Since CR-03 that is the DEFAULT rather than this site's opt-out, so no argument is
-        // written here at all; the only entitled actor left is the repair seed, whose deletions the
-        // same bracketed preparation blanks the record for.
+        // written here at all; the only entitled actor left is the repair seed, and after WR-02 what
+        // it still discards is a cover, which carries no recorded hash, and a SOURCE folder scan
+        // whose refusals reach the destination as absences the destination then blanks.
         return DownloadFolderRecord(
             relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
             folderURL: folderURL,
@@ -849,12 +781,20 @@ public struct DownloadStore: Sendable {
     /// is now what a caller gets for saying nothing, so the property holds for callers that do not
     /// exist yet, and deleting has to be written down.
     ///
-    /// Exactly one production actor writes it, at four sites: the repair seed's source scan and
-    /// cover resolution (`materializeRepairSeed`), and the working folder's destination scan and
-    /// cover resolution (`prepareWorkingSeed`). The entitlement is the rule rather than the
-    /// position — every page it removes is one the same bracketed preparation then blanks durably,
-    /// so the record and the disk move together. A cover carries no recorded hash at all, so its
-    /// removal has nothing to diverge from and the run re-fetches it.
+    /// Exactly one production actor writes it, at three sites: the repair seed's source scan and
+    /// cover resolution (`materializeRepairSeed`), and the working folder's cover resolution
+    /// (`prepareWorkingSeed`). The entitlement is the rule rather than the position. A cover carries
+    /// no recorded hash at all, so its removal has nothing to diverge from and the run re-fetches
+    /// it; the source scan's refusals are pages the copy then skips, so they reach the DESTINATION
+    /// folder as positive absences that the destination's own reconciliation blanks durably.
+    ///
+    /// The fourth site — `prepareWorkingSeed`'s destination page scan — left this set in WR-02. It
+    /// was the one place where the deletion and the blanking were about the same folder, and there
+    /// discarding during classification is precisely wrong: the wholesale guard may still refuse,
+    /// and a refusal that had already destroyed the file leaves the record claiming a page whose
+    /// bytes the asking removed. It now classifies without discarding and removes what the guard
+    /// authorizes through `removeRefutedPageFiles`, which also covers the refutations this probe
+    /// never deletes for anyone — see `probeAssetFileContent`.
     private func probeAssetFile(at url: URL, discardingRejected: Bool) -> AssetFileProbeOutcome {
         // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
         // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an
@@ -952,6 +892,14 @@ public struct DownloadStore: Sendable {
     /// never confirmed a zero-byte regular file here, so the housekeeping deletion the metadata
     /// path performs is not warranted. A throw from the open or the read establishes nothing at
     /// all, which is the exit the whole classification exists for.
+    ///
+    /// **The behaviour stays; what changed is who is responsible for the file (WR-02).** Because
+    /// this exit reports `fileRemains: true` for every caller alike, `discardingRejected` does not
+    /// make `PageFileScan.rejectedPageRelativePaths` empty, and a consumer that reasoned "a
+    /// discarding caller sees no rejections" was wrong for exactly this population — which is how a
+    /// page refused here kept its claimed hash beside its refuted bytes on the automatic route.
+    /// Removing such a file is a reconciliation's act, taken under its own guard, never this
+    /// probe's.
     private func probeAssetFileContent(at url: URL) -> AssetFileProbeOutcome {
         do {
             let handle = try FileHandle(forReadingFrom: url)
