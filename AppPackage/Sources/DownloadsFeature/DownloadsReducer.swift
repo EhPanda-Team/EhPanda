@@ -10,6 +10,31 @@ import Foundation
 import ReadingFeature
 import Resources
 
+/// The downloads list.
+///
+/// **Failure-reporting policy: the observed record is this screen's feedback, so its mutation
+/// failures are silent — deliberately, and enumerated (DES-3).** Unlike the inspector, which owns a
+/// toast surface and reports every refusal (see ``DownloadInspectorReducer``), the list's only
+/// presentation surface is `alert`, which is a confirmation prompt rather than an outcome channel:
+/// a refused mutation leaves the row exactly as the record still describes it, and the write-through
+/// index re-renders that row through `observeDownloads`. The enumeration below is the complete set
+/// of result-carrying actions and is meant to be checked against `Action` when one is added — a new
+/// result-carrying action with no stated disposition contradicts this doc:
+///
+/// - `moveDownloadDone` — **deliberately silent** on failure: the row keeps its current folder, so
+///   the screen already says the move did not happen.
+/// - `updateDownloadDone` — **deliberately silent** on failure: the update badge stays put, which
+///   is the same statement.
+/// - `deleteDownloadDone` — **deliberately silent** on failure: the row is still there.
+/// - `openReadingDone` — **reports by behaviour**: a failed local load falls back to the remote
+///   reader, and bails without presenting only when the record itself vanished mid-flight, since
+///   there is then nothing to seed a reader with.
+/// - `toggleDownloadPauseDone` — **silent, and it is the weakest of these**: it is the same refusal
+///   the inspector now reports (WR-05), seen from this screen, and the record-says-so argument is
+///   thinner here because a refused toggle moves nothing at all. It stays silent in this round
+///   because reporting it needs a toast surface this reducer does not have — a presentation
+///   addition, not a branch fix. Recorded so it reads as an open item rather than a considered
+///   no-report.
 @Reducer
 public struct DownloadsReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
@@ -291,7 +316,8 @@ public struct DownloadsReducer: Sendable {
                         .send(.fetchFolders)
                     )
                 }
-                // Failure arms stay silent here and in the delete case: a failed move is not a move.
+                // Disposition (list-level policy on `DownloadsReducer`): deliberately silent. A
+                // failed move is not a move, and the row still shows the folder it never left.
                 return .none
 
             case .openReading(let gid):
@@ -317,9 +343,11 @@ public struct DownloadsReducer: Sendable {
                         gallery: download.gallery, contentSource: .local(download: download, manifest: manifest)
                     )
                 } else {
+                    // Disposition (list-level policy on `DownloadsReducer`): reports by behaviour.
                     // Local load failed; fall back to remote — but only if the download record is still
                     // around to seed the reader. If it vanished mid-flight there's nothing to open, so
-                    // bail rather than push a blank (`.empty`) reader.
+                    // bail rather than push a blank (`.empty`) reader. The fallback IS the report: the
+                    // user asked to read and gets a reader, from the only source left.
                     guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
                     readingState = .init(gallery: download.gallery, contentSource: .remote)
                     // A downloaded gallery has no persisted detail, so fall back to a language-agnostic
@@ -351,6 +379,11 @@ public struct DownloadsReducer: Sendable {
                 }
 
             case .toggleDownloadPauseDone:
+                // Disposition (list-level policy on `DownloadsReducer`): silent, and flagged there
+                // as the weakest of the five — this is the inspector's WR-05 refusal seen from the
+                // list, and reporting it needs a toast surface this reducer does not own. The
+                // success arm is silent for the same reason the inspector's is: `observeDownloads`
+                // re-renders the row with its new status.
                 return .none
 
             case .updateDownload(let gid):
@@ -361,13 +394,14 @@ public struct DownloadsReducer: Sendable {
                     await send(.updateDownloadDone(.failure(AppError(error))))
                 }
 
-            // List-level mutations don't surface a per-op toast: the `observeDownloads` stream is the
-            // user-facing feedback from the DES-3 write-through index. Failures leave the current
-            // observed state in place; the download client performs any targeted surprise repair.
+            // The DES-3 write-through index is what keeps the silence honest: failures leave the
+            // current observed state in place, and the download client performs any targeted
+            // surprise repair. The policy this serves is stated once, on `DownloadsReducer`.
             case .updateDownloadDone(let result):
                 // `.updated`, not `.retried` or `.completed`: an update is its own queue-time
-                // outcome (D-21), and the detail screen's update path reports the same name. The
-                // failure arm stays silent — a failed update is not an update.
+                // outcome (D-21), and the detail screen's update path reports the same name.
+                // Disposition: deliberately silent on failure — a failed update is not an update,
+                // and the update badge the user tapped is still there to say so.
                 guard case .success = result else { return .none }
                 return .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.updated)) })
 
@@ -382,6 +416,8 @@ public struct DownloadsReducer: Sendable {
             case .deleteDownloadDone(let result):
                 // A delete from the detail screen is a different user path in another module and
                 // emits on its own completion action, so neither site double-counts the other.
+                // Disposition: deliberately silent on failure — the row the user tried to delete is
+                // still on screen, which is the outcome.
                 guard case .success = result else { return .none }
                 return .run(operation: { _ in analyticsClient.send(.downloadStateChanged(.deleted)) })
 
