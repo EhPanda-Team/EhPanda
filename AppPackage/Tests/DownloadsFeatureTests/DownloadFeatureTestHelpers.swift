@@ -674,7 +674,10 @@ extension DownloadFeatureTestCase {
     /// type. The two sides are different types by design: the coordinator stores `[Int]` and the
     /// payload holds `Set<Int>?`. An argument this filter empties has no faithful payload at all,
     /// because the route would have REFUSED it before storing anything; such a case belongs on
-    /// `retryPages` itself rather than here.
+    /// `retryPages` itself rather than here. It THROWS rather than returning one, because the
+    /// normalizer it forwards to throws on exactly that input (WR-05) — a double that swallowed it
+    /// would hand a case a payload production cannot produce, which is the un-faithfulness this
+    /// helper exists to prevent.
     ///
     /// This shape exists to prevent G-15-28: a double that drives the selection-storing route and
     /// then hands the preparation a selection-free payload cannot reach a state the production
@@ -685,11 +688,11 @@ extension DownloadFeatureTestCase {
         mode: DownloadStartMode,
         retriedPageIndices: [Int],
         coordinator: DownloadCoordinator
-    ) async -> DownloadRequestPayload {
+    ) async throws -> DownloadRequestPayload {
         let rawPageSelection = Set(retriedPageIndices)
             .filter({ $0 >= 1 && $0 <= gallery.pageCount })
             .sorted()
-        return await coordinator.normalizeFetchedPayload(
+        return try await coordinator.normalizeFetchedPayload(
             makeStartPayload(
                 for: gallery,
                 mode: mode,

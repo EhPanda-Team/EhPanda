@@ -678,7 +678,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         // The index is this case's own `retryPages` set, so the payload carries what the route
         // stored rather than a selection typed independently of it.
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: repair,
             mode: .repair,
             retriedPageIndices: [3],

@@ -107,6 +107,13 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
     /// selection and ensures a continued session. That is the widest work the module can schedule
     /// for one gallery, reached from a request naming zero admissible pages. The delegation itself
     /// is correct; only its position was wrong.
+    ///
+    /// **The refusal's VALUE moved with the guard, and that is the point (WR-04).** Because the
+    /// admission test sits ahead of mode resolution, an update record and a repair record are
+    /// refused by the very same exit — so the distinct inadmissible-selection error reaches this
+    /// case too, and pinning `.notFound` here would have re-conflated "the pages you named are not
+    /// this gallery's" with "this gallery is gone" for exactly one of the two record kinds. The two
+    /// absence exits keep `.notFound`; they are pinned in `DownloadRetryPagesTests`.
     @Test(arguments: [[Int](), [0, 999]])
     func testAnInadmissibleUpdateRequestIsRefusedBeforeDelegation(
         pageIndices: [Int]
@@ -137,7 +144,11 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             Issue.record("An inadmissible update request must be refused, got \(result).")
             return
         }
-        #expect(error == .notFound)
+        guard case .fileOperationFailed(let message) = error else {
+            Issue.record("An inadmissible selection must not answer with an absence error, got \(error).")
+            return
+        }
+        #expect(!message.isEmpty)
     }
 
     /// The documented exception, pinned so it stays deliberate.
