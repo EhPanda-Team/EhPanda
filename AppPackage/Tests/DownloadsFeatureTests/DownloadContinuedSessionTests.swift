@@ -811,4 +811,181 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(await manager.testingContinuedSessionID() == sessionID)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
+
+    /// CR-01's regression: after a same-session re-queue the FIRST page of genuine work moves the
+    /// card.
+    ///
+    /// **The defect this refuses.** `advanceQueueIntentGeneration(for:)` is a deliberate DOWNWARD
+    /// mover of the very quantity `sessionCreditedPages` is summed from: a gallery whose complete
+    /// record was observed under the PREVIOUS generation steps from `recorded` to zero the instant
+    /// the generation increments. Left outside a D-G7-01 bracket the movement lowers the honest sum
+    /// while `lastPushedCompletedPageCount` keeps its pre-movement value, so the monotonic floor
+    /// sits exactly `recorded` pages above truth and absorbs the next `recorded` pages of real work.
+    /// That is the G-15-6/G-15-7 masking the floor's own doc forbids, and it is the signal
+    /// `ContinuedTaskScheduling`'s most-stalled expiration policy reads to decide which task stopped
+    /// progressing.
+    ///
+    /// **Why this case exists beside the sibling above rather than inside it.** That case lands SIX
+    /// keeper pages in a SINGLE flush, which clears a four-page floor in one jump — only the value
+    /// after the jump is ever pushed, so a frozen frame inside it is unobservable by construction.
+    /// The defect lives strictly BELOW the floor, and the only shape that can observe a below-floor
+    /// quantity is one landing at a time: one page, one production push, one observed frame.
+    ///
+    /// **The discriminator, and what it is measured against.** The baseline is the re-queue's own
+    /// convergence push. Post-fix the bracket has already withdrawn A's four credited pages, so that
+    /// frame reads the honest `0 / 24`; pre-fix the floor holds it at `4 / 24`. The first keeper page
+    /// landed afterwards must then MOVE the numerator — `1 > 0` post-fix, `4 > 4` pre-fix. Measuring
+    /// against the PRE-requeue frame instead would be wrong in the other direction: withdrawing a
+    /// deliberate movement is meant to lower the card, so `4 -> 0` there is the fix working rather
+    /// than a rewind. The whole four-page absorption window is landed, so the series crosses the
+    /// frames the floor would have swallowed instead of stopping short of them.
+    ///
+    /// **Every landing and every push is production-issued.** Each page is written to disk and
+    /// merged by `flushDownloadProgress(force: true)`, whose own tail issues the push observed after
+    /// it; the re-queue frame is issued by the `scheduleNextIfNeeded` convergence at the end of
+    /// `performRetry`. The record moving by exactly one page per iteration is what proves no flush
+    /// landed two. Nothing here writes `queueIntentGenerations`, `retiredSessionPages`,
+    /// `runProgressBases`, `observedIncompleteSessionGenerations` or `lastPushedCompletedPageCount`
+    /// through any accessor.
+    ///
+    /// **The keeper is the blocker for the two reasons the sibling case records** — it holds the
+    /// queue non-empty so the session survives A's completion (D-06 forbids a successor session),
+    /// and its parked run keeps `activeTask` non-nil so every push lands synchronously inside the
+    /// call that issued it. Session identity and the client's start count are banked across the
+    /// re-queue, so the fix cannot pass by minting a second session.
+    @Test
+    func testKeeperPagesLandingOneAtATimeMoveTheCardAfterARequeue() async throws {
+        let requeued = SessionGallery(
+            gid: "210412",
+            title: "Requeued",
+            pageCount: 4,
+            completedPageCount: 3
+        )
+        let keeper = SessionGallery(gid: "210413", title: "Keeper", pageCount: 20)
+        let spy = BackgroundProcessingClientSpy()
+        let control = BlockingRunnerControl()
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [keeper, requeued],
+            queuedGIDs: [keeper.gid, requeued.gid],
+            client: spy.client,
+            taskRunner: DownloadTaskRunner(
+                runScheduledDownload: { _, _ in
+                    await control.park()
+                    return .skippedOperation
+                }
+            )
+        )
+        // Release before removal, so the parked runner is not holding a directory being deleted.
+        defer {
+            control.release()
+            removeTemporaryItem(at: fixture.rootURL)
+        }
+        let manager = fixture.manager
+
+        // The blocker takes the active slot first, and its occupancy is production-issued.
+        await manager.scheduleNextIfNeeded()
+        await control.started()
+        #expect(await manager.testingActiveGalleryID() == keeper.gid)
+
+        await manager.testingEnsureContinuedSession()
+        let sessionID = try #require(await manager.testingContinuedSessionID())
+
+        // A's last page lands through the production flush, so this session WATCHED its record move
+        // from incomplete to complete — the observation the generation advance later invalidates.
+        let requeuedFolderURL = galleryFolderURL(for: requeued, in: fixture)
+        var lastRequeuedFlushDate = Date.distantPast
+        try writePageFiles(for: requeued, in: fixture, indices: [4])
+        var landedFinalPage = pageResults(for: requeued, in: fixture, indices: [4])
+        try await manager.flushDownloadProgress(
+            context: .init(gid: requeued.gid, folderURL: requeuedFolderURL),
+            pendingResolvedPages: &landedFinalPage,
+            lastFlushDate: &lastRequeuedFlushDate,
+            force: true
+        )
+
+        // A departs while the keeper holds the session open, and its four pages retire into both
+        // sides of the fraction (D-G2-01). This is the frame that latches the floor at four.
+        await manager.settleCompletedDownload(gid: requeued.gid)
+        await manager.scheduleNextIfNeeded()
+        let latchedPair = try lastPushedPair(spy.progressUpdates)
+        expectNoDifference(
+            latchedPair,
+            PushedPair(
+                completedUnitCount: 4,
+                totalUnitCount: 24,
+                subtitle: "4 / 24 pages · 2 galleries"
+            )
+        )
+
+        // Banked before the re-queue: the fix may not pass by replacing the session (D-06).
+        let startCountBeforeRequeue = spy.startCount
+        #expect(await manager.queueIntentGeneration(for: requeued.gid) == 0)
+
+        // The re-queue, through a real queue-mobilizing entry point. `performRetry` advances the
+        // generation and then converges through `scheduleNextIfNeeded`, whose push is read here.
+        try await manager.retry(gid: requeued.gid, mode: .repair).get()
+        #expect(await manager.queueIntentGeneration(for: requeued.gid) == 1)
+        let requeueFramePair = try lastPushedPair(spy.progressUpdates)
+        expectNoDifference(
+            requeueFramePair,
+            PushedPair(
+                completedUnitCount: 0,
+                totalUnitCount: 24,
+                subtitle: "0 / 24 pages · 2 galleries"
+            )
+        )
+
+        // THE DISCRIMINATOR. The keeper's pages land ONE AT A TIME across the window the stale floor
+        // would have absorbed — four pages, four flushes, four observed frames.
+        let keeperFolderURL = galleryFolderURL(for: keeper, in: fixture)
+        var lastKeeperFlushDate = Date.distantPast
+        var oneAtATimePushes = [PushedPair]()
+        for index in 1...4 {
+            try writePageFiles(for: keeper, in: fixture, indices: [index])
+            var landedKeeperPage = pageResults(for: keeper, in: fixture, indices: [index])
+            try await manager.flushDownloadProgress(
+                context: .init(gid: keeper.gid, folderURL: keeperFolderURL),
+                pendingResolvedPages: &landedKeeperPage,
+                lastFlushDate: &lastKeeperFlushDate,
+                force: true
+            )
+            // Exactly one page per flush, read from the record the credit rule reads.
+            #expect(await manager.fetchDownload(gid: keeper.gid)?.completedPageCount == index)
+            oneAtATimePushes.append(try lastPushedPair(spy.progressUpdates))
+        }
+        // A still claims all four of its pages, so the series below is the credit rule's answer
+        // rather than anything a manifest did.
+        #expect(await manager.fetchDownload(gid: requeued.gid)?.completedPageCount == 4)
+
+        let firstPostRequeuePair = try #require(oneAtATimePushes.first)
+        #expect(firstPostRequeuePair.completedUnitCount > requeueFramePair.completedUnitCount)
+        expectNoDifference(
+            oneAtATimePushes,
+            [
+                PushedPair(
+                    completedUnitCount: 1,
+                    totalUnitCount: 24,
+                    subtitle: "1 / 24 pages · 2 galleries"
+                ),
+                PushedPair(
+                    completedUnitCount: 2,
+                    totalUnitCount: 24,
+                    subtitle: "2 / 24 pages · 2 galleries"
+                ),
+                PushedPair(
+                    completedUnitCount: 3,
+                    totalUnitCount: 24,
+                    subtitle: "3 / 24 pages · 2 galleries"
+                ),
+                PushedPair(
+                    completedUnitCount: 4,
+                    totalUnitCount: 24,
+                    subtitle: "4 / 24 pages · 2 galleries"
+                )
+            ]
+        )
+        #expect(spy.startCount == startCountBeforeRequeue)
+        #expect(await manager.testingContinuedSessionID() == sessionID)
+        #expect(spy.rejectedProgressUpdates.isEmpty)
+    }
 }
