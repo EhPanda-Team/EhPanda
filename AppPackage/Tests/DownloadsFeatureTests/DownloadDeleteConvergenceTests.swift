@@ -110,6 +110,20 @@ struct DownloadDeleteConvergenceTests: DownloadFeatureTestCase {
         let result = await fixture.manager.delete(gid: firstGallery.gid)
         // This awaits the collector's value rather than polling a predicate. The deadline only
         // turns the pre-fix missing notification into a named failure instead of a hung suite.
+        //
+        // IN-01 asks for a one-second budget here, on the reading that a detector's bound is its
+        // failure budget rather than scheduling headroom. The bound is declined, and this is the
+        // one place that argument lives — the sibling detector in `DownloadOwnershipConvergence
+        // Tests` refers here rather than restating it, so the decision has a single owner exactly
+        // as the number does. What the wait actually measures is wall time, and wall time cannot
+        // tell a notification that never arrives from a collector the parallel suite has not
+        // scheduled. The short bound was not hypothetical: it stood at this very call site, and
+        // 15-21 recorded THIS case timing out with 13.2 seconds of wall time under contention
+        // (`deferred-items.md`), after which 15-64 removed the one-second argument from five sites
+        // because three sibling observer cases failed the same way. A bound below the observed
+        // scheduling delay therefore buys nine seconds on a red run by making every green run a
+        // coin flip — and a flaky detector is how a real regression gets re-run until it passes.
+        // The shared ten-second default stands, deliberately rather than by inheritance.
         let emissions = try await waitForTaskValue(
             observerTask,
             description: "the vanished-record deletion observer emission"

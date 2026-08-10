@@ -17,9 +17,15 @@ and should end at 16.
 Both are documentation staleness in a file outside this phase's edit scope (the plan scopes
 Task 2 to the Phase 15 detail section). Neither affects any code or gate.
 
-## `testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` has a one-second deadline
+## `testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` had a one-second deadline — RESOLVED
 
-`DownloadDeleteConvergenceTests.testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` waits on
+**Resolved by 15-64 and owned since 15-74.** 15-64 removed the explicit one-second arguments from
+five call sites and raised `waitForTaskValue`'s default to ten seconds; 15-74 declined IN-01's
+request to restore a one-second bound at this case and its sibling detector, and wrote the
+derivation — this record included — into the call site itself, so the ten-second bound is now a
+decision with an owner rather than an inherited default. The historical report follows.
+
+`DownloadDeleteConvergenceTests.testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` waited on
 its observer emission with `timeout: .seconds(1)`. It failed once during plan 15-21 — on the run
 that immediately followed a full `DownloadClient` recompile, with that single case reporting 13.2
 seconds of wall time under contention — and passed on the run before it and the run after it (three
