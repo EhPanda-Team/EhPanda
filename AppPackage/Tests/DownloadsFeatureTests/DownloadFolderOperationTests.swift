@@ -95,28 +95,41 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
         let oldName: String
         let preservedURL: URL
+        let expectedRefusal: FolderNameRefusal
         switch escapeSource {
         case .parentDirectory:
             oldName = ".."
             preservedURL = environment.containerURL
+            expectedRefusal = .invalidName
         case .traversalToSibling:
             oldName = "../Outside"
             preservedURL = environment.outsideFolderURL
+            expectedRefusal = .invalidName
         case .absolutePath:
             oldName = environment.outsideFolderURL.path
             preservedURL = environment.outsideFolderURL
+            expectedRefusal = .invalidName
         case .nestedComponents:
             oldName = "Alias Target/Nested"
             preservedURL = nestedURL
+            expectedRefusal = .invalidName
         case .whitespacePaddedAlias:
-            // Normalization would trim this into "Alias Target" — a REAL direct child the caller
-            // never named. Refusing is the only answer that cannot rename the wrong folder.
+            // The property this argument protects is unchanged and unweakened: normalization would
+            // trim this onto "Alias Target", a REAL direct child the caller never named, and the
+            // boundary must never rename that folder. What changed is which true thing the refusal
+            // says. A source is admitted as written and never rewritten, so this string can only
+            // ever mean a directory literally called `"  Alias Target  "` — and there is none, so
+            // the honest answer is `.notFound` rather than a claim about the name (CR-01).
             oldName = "  Alias Target  "
             preservedURL = aliasTargetURL
+            expectedRefusal = .absentSource
         case .separatorSanitizedAlias:
-            // Normalization maps ":" to a space, so this too resolves onto "Alias Target".
+            // The same re-derivation: normalization maps ":" to a space, so a REWRITING boundary
+            // would land on "Alias Target". Nothing on disk is called `"Alias:Target"`, so the
+            // admitted-but-absent answer is the one that reports the request truthfully.
             oldName = "Alias:Target"
             preservedURL = aliasTargetURL
+            expectedRefusal = .absentSource
         }
         let destinationURL = environment.rootURL
             .appendingPathComponent("Captured", isDirectory: true)
@@ -135,10 +148,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             "A refused rename must not create the destination it was asked for"
         )
         #expect(FileManager.default.fileExists(atPath: environment.rootURL.path))
-        guard case .failure(.fileOperationFailed) = result else {
-            Issue.record("Expected \(escapeSource) to be refused as an invalid folder name, got \(result)")
-            return
-        }
+        expectRefusal(expectedRefusal, from: result, source: "\(escapeSource)")
     }
 
     /// CR-03: a direct child that is a SYMBOLIC LINK passes every lexical check and still resolves
@@ -268,10 +278,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
                 "The link must still point where it did"
             )
         }
-        guard case .failure(.fileOperationFailed) = result else {
-            Issue.record("Expected \(escapeSource) to be refused as an invalid folder name, got \(result)")
-            return
-        }
+        expectRefusal(target.refusal, from: result, source: "\(escapeSource)")
     }
 
     @Test
@@ -433,6 +440,19 @@ enum RenameEscapeSource: String, Sendable {
 /// that the caller did not name, which is the half a lexical prefix check cannot answer: a gallery
 /// folder BELOW a user folder, a spelling normalization would resolve onto a different real folder,
 /// and a direct child that is a link to one.
+/// Which of the two true things the boundary says about an unacceptable name an argument is pinned
+/// to.
+///
+/// They are not interchangeable, and collapsing them to "some failure" is what let three arguments
+/// pass over the defect before the boundary existed. `.invalidName` is a claim about the REQUEST —
+/// this string is not a usable direct-child name. `.absentSource` is a claim about the DISK — the
+/// boundary accepted the name as written and found nothing at it, which is the only thing left to
+/// say once a source is never rewritten onto some other real folder.
+enum FolderNameRefusal: String, Sendable {
+    case invalidName
+    case absentSource
+}
+
 enum DeleteEscapeSource: String, Sendable {
     case parentDirectory
     case traversalToSibling
@@ -491,6 +511,7 @@ private struct DownloadDeleteEscapeTarget {
     let preservedURL: URL
     let sentinelURL: URL
     let sentinelData: Data
+    let refusal: FolderNameRefusal
 }
 
 private extension DownloadFolderOperationTests {
@@ -573,21 +594,24 @@ private extension DownloadFolderOperationTests {
                 name: "..",
                 preservedURL: environment.containerURL,
                 sentinelURL: environment.outsideSentinelURL,
-                sentinelData: Self.outsideSentinelData
+                sentinelData: Self.outsideSentinelData,
+                refusal: .invalidName
             )
         case .traversalToSibling:
             return .init(
                 name: "../Outside",
                 preservedURL: environment.outsideFolderURL,
                 sentinelURL: environment.outsideSentinelURL,
-                sentinelData: Self.outsideSentinelData
+                sentinelData: Self.outsideSentinelData,
+                refusal: .invalidName
             )
         case .absolutePath:
             return .init(
                 name: environment.outsideFolderURL.path,
                 preservedURL: environment.outsideFolderURL,
                 sentinelURL: environment.outsideSentinelURL,
-                sentinelData: Self.outsideSentinelData
+                sentinelData: Self.outsideSentinelData,
+                refusal: .invalidName
             )
         case .nestedGalleryFolder:
             // Lexical prefix containment admits this, so the gallery folder is removed outright
@@ -596,24 +620,51 @@ private extension DownloadFolderOperationTests {
                 name: "\(Self.keeperFolderName)/\(staging.galleryFolderURL.lastPathComponent)",
                 preservedURL: staging.galleryFolderURL,
                 sentinelURL: staging.pageFileURL,
-                sentinelData: Self.keeperPageData
+                sentinelData: Self.keeperPageData,
+                refusal: .invalidName
             )
         case .whitespacePaddedAlias:
-            // Normalization would trim this onto the REAL folder "Keeper" — a different directory
-            // than the caller named, which is why the answer is a refusal rather than a repair.
+            // The property is unchanged and unweakened: normalization would trim this onto the REAL
+            // folder "Keeper", a different directory than the caller named, and no delete may reach
+            // it. What changed is which true thing the refusal says. A source is admitted as
+            // written and never rewritten, so this string can only ever mean a directory literally
+            // called `"  Keeper  "` — and there is none, so `.notFound` is the honest answer and a
+            // claim about the NAME would be the misleading one (CR-01).
             return .init(
                 name: "  \(Self.keeperFolderName)  ",
                 preservedURL: staging.keeperFolderURL,
                 sentinelURL: staging.pageFileURL,
-                sentinelData: Self.keeperPageData
+                sentinelData: Self.keeperPageData,
+                refusal: .absentSource
             )
         case .symlinkedDirectChild:
             return .init(
                 name: Self.linkedFolderName,
                 preservedURL: staging.keeperFolderURL,
                 sentinelURL: staging.pageFileURL,
-                sentinelData: Self.keeperPageData
+                sentinelData: Self.keeperPageData,
+                refusal: .invalidName
             )
+        }
+    }
+
+    /// Asserts a refusal is the SPECIFIC one its argument is pinned to, never merely "some failure".
+    ///
+    /// Both catalogs assert through here so neither can drift into accepting the other's answer:
+    /// an argument pinned to `.invalidName` that starts reporting `.notFound` has had its name
+    /// admitted, and an argument pinned to `.absentSource` that starts reporting `.invalidName` has
+    /// had the boundary tightened back onto a name the listing can produce.
+    func expectRefusal(
+        _ refusal: FolderNameRefusal,
+        from result: Result<Void, AppError>,
+        source: String
+    ) {
+        switch (refusal, result) {
+        case (.invalidName, .failure(.fileOperationFailed)),
+             (.absentSource, .failure(.notFound)):
+            return
+        default:
+            Issue.record("Expected \(source) to be refused as \(refusal.rawValue), got \(result)")
         }
     }
 
