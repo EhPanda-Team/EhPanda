@@ -181,6 +181,12 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         )
     }
 
+    /// CR-02, the legitimate side of the same boundary: a delete that IS performed must take every
+    /// persisted trace of the galleries it erased with it.
+    ///
+    /// The three record stores are asserted together because they are the three places a gallery
+    /// whose folder is gone can go on being claimed. This case pins the convergence from the side
+    /// where deletion happens; the escape suite below pins it from the side where it must not.
     @Test
     func testDeleteFolderRemovesContainedDownloadsAndQueueIntents() async throws {
         let environment = makeManager()
@@ -189,6 +195,8 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Doomed", gid: gid)
         await environment.manager.reconcileDownloads()
         await environment.manager.testingSetQueuedGalleryIDs([gid])
+        let taskStore = await environment.manager.backgroundTaskStore
+        await taskStore.record(taskIdentifier: 3130, gid: gid, pageIndex: 0)
 
         let result = await environment.manager.deleteFolder(name: "Doomed")
         guard case .success = result else {
@@ -199,6 +207,71 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         #expect(await environment.manager.fetchFolders().isEmpty)
         #expect(await environment.manager.fetchDownload(gid: gid) == nil)
         #expect(!FileManager.default.fileExists(atPath: folderURL.path))
+        let queueStore = await environment.manager.queueStore
+        #expect(!queueStore.contains(gid), "A performed delete must drop the queue intent")
+        #expect(
+            await taskStore.records(for: gid).isEmpty,
+            "A performed delete must drop the background-task records"
+        )
+    }
+
+    /// CR-02: `name` is public client input too, so the destructive sibling of `renameFolder` has to
+    /// refuse every spelling that is not a direct child of the download root — before anything is
+    /// removed, and without stranding the records of a gallery it would otherwise have erased.
+    ///
+    /// Each argument asserts three things in this order: the would-be victim's BYTES are still on
+    /// disk, the three persisted record stores still hold the staged gallery, and only then the
+    /// returned error. Reading the disk before the verdict is what makes a call that removed
+    /// something and then reported a failure impossible to pass. Asserting the records is what
+    /// catches the divergence the nested argument produces, where the gallery folder is erased while
+    /// the coordinator's exact `parentFolderName == name` cleanup key matches nothing, so every
+    /// store goes on claiming a gallery that no longer exists.
+    @Test(arguments: DeleteEscapeSource.all)
+    func testDeleteFolderRefusesANameThatIsNotADirectChild(
+        escapeSource: DeleteEscapeSource
+    ) async throws {
+        let environment = try makeEscapeEnvironment()
+        defer { removeTemporaryItem(at: environment.containerURL) }
+        let schedulerHold = Task<Void, Never> { await sleepIgnoringCancellation(for: .seconds(60)) }
+        defer { schedulerHold.cancel() }
+        let staging = try await stageDeleteEscapeVictims(
+            environment: environment,
+            schedulerHold: schedulerHold
+        )
+        let target = deleteEscapeTarget(escapeSource: escapeSource, environment: environment, staging: staging)
+
+        let result = await environment.manager.deleteFolder(name: target.name)
+
+        // Disk first, records second, verdict last, for the reason recorded on this case.
+        #expect(
+            FileManager.default.fileExists(atPath: target.preservedURL.path),
+            "A refused delete must leave the object it would have reached exactly where it was"
+        )
+        #expect(
+            FileManager.default.contents(atPath: target.sentinelURL.path) == target.sentinelData,
+            "The refused target's bytes must be untouched"
+        )
+        #expect(FileManager.default.fileExists(atPath: staging.keeperFolderURL.path))
+        #expect(
+            FileManager.default.fileExists(atPath: staging.galleryFolderURL.path),
+            "No refused name may reach a gallery folder below a user folder"
+        )
+        await expectStagedRecordsSurvive(environment: environment, staging: staging)
+        if case .symlinkedDirectChild = escapeSource {
+            #expect(
+                FileManager.default.fileExists(atPath: staging.linkURL.path),
+                "The link itself must survive rather than be removed as if it were the folder"
+            )
+            #expect(
+                staging.linkURL.resolvingSymlinksInPath().standardizedFileURL.path
+                    == staging.keeperFolderURL.resolvingSymlinksInPath().standardizedFileURL.path,
+                "The link must still point where it did"
+            )
+        }
+        guard case .failure(.fileOperationFailed) = result else {
+            Issue.record("Expected \(escapeSource) to be refused as an invalid folder name, got \(result)")
+            return
+        }
     }
 
     @Test
@@ -354,6 +427,30 @@ enum RenameEscapeSource: String, Sendable {
     ]
 }
 
+/// One argument per way a caller can name something `deleteFolder` must not remove.
+///
+/// The first three reach outside the download root. The last three reach a real object inside it
+/// that the caller did not name, which is the half a lexical prefix check cannot answer: a gallery
+/// folder BELOW a user folder, a spelling normalization would resolve onto a different real folder,
+/// and a direct child that is a link to one.
+enum DeleteEscapeSource: String, Sendable {
+    case parentDirectory
+    case traversalToSibling
+    case absolutePath
+    case nestedGalleryFolder
+    case whitespacePaddedAlias
+    case symlinkedDirectChild
+
+    static let all: [DeleteEscapeSource] = [
+        .parentDirectory,
+        .traversalToSibling,
+        .absolutePath,
+        .nestedGalleryFolder,
+        .whitespacePaddedAlias,
+        .symlinkedDirectChild
+    ]
+}
+
 // MARK: - Setup Helpers
 
 private struct DownloadFolderOperationTestEnvironment {
@@ -376,9 +473,178 @@ private struct DownloadFolderEscapeEnvironment {
     let outsideSentinelURL: URL
 }
 
+/// The objects a delete escape would reach, staged as real bytes inside a real indexed gallery.
+///
+/// A gallery folder rather than an empty directory, because the harm the nested argument does is
+/// unbounded data loss INSIDE the root together with three record stores that go on claiming it.
+private struct DownloadDeleteEscapeStaging {
+    let gid: String
+    let keeperFolderURL: URL
+    let galleryFolderURL: URL
+    let pageFileURL: URL
+    let linkURL: URL
+}
+
+/// What one `DeleteEscapeSource` argument names and what must survive it, byte for byte.
+private struct DownloadDeleteEscapeTarget {
+    let name: String
+    let preservedURL: URL
+    let sentinelURL: URL
+    let sentinelData: Data
+}
+
 private extension DownloadFolderOperationTests {
     static var outsideSentinelData: Data {
         Data("outside".utf8)
+    }
+
+    static var keeperPageData: Data {
+        Data("keeper page".utf8)
+    }
+
+    static var keeperFolderName: String {
+        "Keeper"
+    }
+
+    static var linkedFolderName: String {
+        "Linked"
+    }
+
+    /// Stages what a delete escape would reach: a real direct child holding a real gallery folder
+    /// with real page bytes, indexed and present in all three persisted record stores.
+    ///
+    /// The symbolic link is created AFTER the reconcile deliberately, so the scan indexes the
+    /// gallery exactly once — through `Keeper` — and the link is a filesystem-only direct child,
+    /// which is precisely what a caller naming it would be reaching through.
+    ///
+    /// `schedulerHold` is installed as a FOREIGN active task before the queue intent exists.
+    /// Without it the staged intent makes `scheduleNextIfNeeded` start a real run for this gallery,
+    /// and that run's own failure path removes the gid from the queue store — an independent
+    /// actor mutating the very records these cases assert `deleteFolder` left alone, which would
+    /// decide the outcome by timing. The hold names a gid no argument's folder contains, so it
+    /// changes nothing else: `deleteFolder` cancels the active task only for a contained gallery.
+    func stageDeleteEscapeVictims(
+        environment: DownloadFolderEscapeEnvironment,
+        schedulerHold: Task<Void, Never>
+    ) async throws -> DownloadDeleteEscapeStaging {
+        let gid = "318"
+        let keeperFolderURL = environment.rootURL
+            .appendingPathComponent(Self.keeperFolderName, isDirectory: true)
+        let galleryFolderURL = keeperFolderURL
+            .appendingPathComponent("[\(gid)_token] Sample", isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: galleryFolderURL,
+            withIntermediateDirectories: true
+        )
+        try environment.storage.writeManifest(
+            sampleManifest(gid: gid, title: "Sample", pageCount: 2),
+            folderURL: galleryFolderURL
+        )
+        let pageFileURL = galleryFolderURL.appendingPathComponent("page-1.bin")
+        try Self.keeperPageData.write(to: pageFileURL)
+        await environment.manager.testingInstallActiveTask(
+            gid: "escape-suite-scheduler-hold",
+            task: schedulerHold
+        )
+        await environment.manager.reconcileDownloads()
+        await environment.manager.testingSetQueuedGalleryIDs([gid])
+        let taskStore = await environment.manager.backgroundTaskStore
+        await taskStore.record(taskIdentifier: 3180, gid: gid, pageIndex: 0)
+        let linkURL = environment.rootURL
+            .appendingPathComponent(Self.linkedFolderName, isDirectory: true)
+        try FileManager.default.createSymbolicLink(at: linkURL, withDestinationURL: keeperFolderURL)
+        return .init(
+            gid: gid,
+            keeperFolderURL: keeperFolderURL,
+            galleryFolderURL: galleryFolderURL,
+            pageFileURL: pageFileURL,
+            linkURL: linkURL
+        )
+    }
+
+    func deleteEscapeTarget(
+        escapeSource: DeleteEscapeSource,
+        environment: DownloadFolderEscapeEnvironment,
+        staging: DownloadDeleteEscapeStaging
+    ) -> DownloadDeleteEscapeTarget {
+        switch escapeSource {
+        case .parentDirectory:
+            return .init(
+                name: "..",
+                preservedURL: environment.containerURL,
+                sentinelURL: environment.outsideSentinelURL,
+                sentinelData: Self.outsideSentinelData
+            )
+        case .traversalToSibling:
+            return .init(
+                name: "../Outside",
+                preservedURL: environment.outsideFolderURL,
+                sentinelURL: environment.outsideSentinelURL,
+                sentinelData: Self.outsideSentinelData
+            )
+        case .absolutePath:
+            return .init(
+                name: environment.outsideFolderURL.path,
+                preservedURL: environment.outsideFolderURL,
+                sentinelURL: environment.outsideSentinelURL,
+                sentinelData: Self.outsideSentinelData
+            )
+        case .nestedGalleryFolder:
+            // Lexical prefix containment admits this, so the gallery folder is removed outright
+            // while the exact `parentFolderName == name` cleanup key never matches it.
+            return .init(
+                name: "\(Self.keeperFolderName)/\(staging.galleryFolderURL.lastPathComponent)",
+                preservedURL: staging.galleryFolderURL,
+                sentinelURL: staging.pageFileURL,
+                sentinelData: Self.keeperPageData
+            )
+        case .whitespacePaddedAlias:
+            // Normalization would trim this onto the REAL folder "Keeper" — a different directory
+            // than the caller named, which is why the answer is a refusal rather than a repair.
+            return .init(
+                name: "  \(Self.keeperFolderName)  ",
+                preservedURL: staging.keeperFolderURL,
+                sentinelURL: staging.pageFileURL,
+                sentinelData: Self.keeperPageData
+            )
+        case .symlinkedDirectChild:
+            return .init(
+                name: Self.linkedFolderName,
+                preservedURL: staging.keeperFolderURL,
+                sentinelURL: staging.pageFileURL,
+                sentinelData: Self.keeperPageData
+            )
+        }
+    }
+
+    /// Every persisted trace of the staged gallery, asserted unchanged after a refusal.
+    ///
+    /// `downloadIndex`, the queue store and the background-task store are the three places a
+    /// gallery whose folder was erased can go on being claimed, so a refusal has to leave all three
+    /// exactly as it found them — and a nested name that DID erase the folder leaves all three
+    /// standing, which is the divergence half of this gap.
+    func expectStagedRecordsSurvive(
+        environment: DownloadFolderEscapeEnvironment,
+        staging: DownloadDeleteEscapeStaging
+    ) async {
+        #expect(
+            await environment.manager.fetchDownload(gid: staging.gid) != nil,
+            "A refused delete must leave the gallery indexed"
+        )
+        let queueStore = await environment.manager.queueStore
+        #expect(
+            queueStore.contains(staging.gid),
+            "A refused delete must leave the queue intent in place"
+        )
+        let taskStore = await environment.manager.backgroundTaskStore
+        #expect(
+            await !taskStore.records(for: staging.gid).isEmpty,
+            "A refused delete must leave the background-task records in place"
+        )
+        #expect(
+            await environment.manager.fetchFolders().contains(Self.keeperFolderName),
+            "A folder nothing was deleted from must still be listed"
+        )
     }
 
     func makeEscapeEnvironment() throws -> DownloadFolderEscapeEnvironment {
