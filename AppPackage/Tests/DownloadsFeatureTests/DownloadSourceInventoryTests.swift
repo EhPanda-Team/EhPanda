@@ -24,12 +24,13 @@ import Testing
 /// grew past the client module to the downloads test target. A doc claim is load-bearing wherever it is
 /// written, and a Sources-scoped guard cannot see a retired claim that survives in a test — which is
 /// not hypothetical either: it is G-15-29. Every census names the tree it counts over EXPLICITLY —
-/// through `clientModuleFiles(in:)`, `downloadsTestFiles(in:)` or `clientDoubleFiles(in:)` —
+/// through `clientModuleFiles(in:)`, `clientDoubleTreeFiles(in:)` or `clientDoubleFiles(in:)` —
 /// because a census counts over the files the scan returns, so a table that never said which tree
 /// it meant re-bases itself the moment the walk widens. Eight censuses count the client module
-/// alone; the two double-fidelity censuses count the downloads test target PLUS the processing
-/// client's own module. That second tree used to be excluded on the classification that its two
-/// public values are "production surfaces", and G-15-36 is what that classification hid: `noop` is
+/// alone; the two double-fidelity censuses count the two trees a hand-built double can ship in, the
+/// downloads test target PLUS the processing client's own module. That second tree used to be
+/// excluded on the classification that its two public values are "production surfaces", and
+/// G-15-36 is what that classification hid: `noop` is
 /// a hand-built double under a Test mark, it is the DEFAULT client of `DownloadCoordinator.init`,
 /// and its atomic endpoints certified the seam's reentrancy windows as impossible across most of
 /// the suite. `live` alone carries no yield obligation — its main-actor hop is the genuine article
@@ -62,14 +63,19 @@ struct DownloadSourceInventoryTests {
     /// The walk excludes this file itself, so the prose assertion cannot read this suite's own
     /// description of the rule back as a violation of it; `scannedFiles()` carries that argument.
     ///
-    /// Only the prose assertion reads this whole set. Every census re-scopes it first — the five
-    /// production censuses to the client module through `clientModuleFiles(in:)`, the two
-    /// double-fidelity censuses to this directory through `downloadsTestFiles(in:)` — so widening
-    /// the walk moved no table then and adding a test-scoped table moves none now. That scoping is
-    /// load-bearing rather than tidy: `DownloadZeroPagePayloadTests` evaluates the run's pending page
-    /// list three times, so an unscoped pending-list census would have silently re-baselined itself
-    /// from one to four the moment this directory joined — trading one unowned claim for a censused
-    /// one that had quietly stopped meaning what its doc says.
+    /// Only the prose assertion reads this whole set. Every census re-scopes it first, and the
+    /// scoping below is read off the census bodies rather than remembered (WR-06): eight censuses
+    /// take the client module through `clientModuleFiles(in:)`; the double-fidelity population
+    /// census takes the two trees through `clientDoubleTreeFiles(in:)`; and the suspension census
+    /// takes `clientDoubleFiles(in:)`, which narrows those same two trees to the files that build a
+    /// client value. No fourth scoping exists, which is the correction — a declaration named here
+    /// and called by nothing was the suite contradicting the rule it enforces.
+    ///
+    /// So widening the walk moved no table then and adding a test-scoped table moves none now. That
+    /// scoping is load-bearing rather than tidy: `DownloadZeroPagePayloadTests` evaluates the run's
+    /// pending page list three times, so an unscoped pending-list census would have silently
+    /// re-baselined itself from one to four the moment this directory joined — trading one unowned
+    /// claim for a censused one that had quietly stopped meaning what its doc says.
     private static let scannedDirectories = [
         clientModuleDirectory,
         downloadsTestDirectory,
@@ -899,7 +905,7 @@ private extension DownloadSourceInventoryTests {
         return files
     }
 
-    /// The client module's own files, which is what every census counts over.
+    /// The client module's own files, which is what the eight production censuses count over.
     ///
     /// The walk is wider than the censuses on purpose, and this is the seam that keeps the two
     /// apart. A census counts over the files the scan returns, so a widened scan silently re-bases
@@ -908,15 +914,6 @@ private extension DownloadSourceInventoryTests {
     /// code, not the production duplication that census exists to forbid.
     private static func clientModuleFiles(in files: [ScannedFile]) -> [ScannedFile] {
         files.filter({ $0.relativePath.hasPrefix(clientModuleDirectory + "/") })
-    }
-
-    /// The downloads test target's own files.
-    ///
-    /// The same seam `clientModuleFiles(in:)` is, pointed the other way, and load-bearing for the
-    /// same reason: an unscoped census counts over whatever the walk returns, so every table has
-    /// to say which tree it means.
-    private static func downloadsTestFiles(in files: [ScannedFile]) -> [ScannedFile] {
-        files.filter({ $0.relativePath.hasPrefix(downloadsTestDirectory + "/") })
     }
 
     /// Both trees a hand-built client double can ship in: the downloads test target, and the
