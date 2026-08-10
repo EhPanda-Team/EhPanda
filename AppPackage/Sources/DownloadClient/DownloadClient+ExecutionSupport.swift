@@ -924,6 +924,14 @@ extension DownloadCoordinator {
         // sits ahead of the selection branch because a selected page cannot rescue a range that
         // never formed.
         guard payload.galleryDetail.pageCount > 0 else { return [] }
+        // CR-04. The optional's PRESENCE is the restriction, and its contents only say which pages
+        // survive it. `nil` alone means unrestricted — no selection was ever made — while a present
+        // set admits exactly its members, INCLUDING the empty set, which admits nothing. That last
+        // state is reachable and intentional: `normalizeFetchedPayload` keeps an explicit selection
+        // present even when the freshly fetched page count leaves none of it standing, so narrow
+        // intent that has become inadmissible schedules no work rather than all of it. A guard
+        // written as "non-empty selection restricts, everything else does not" would re-open
+        // exactly that widening.
         let selectedIndices = payload.pageSelection
         return (1...payload.galleryDetail.pageCount).filter { page in
             if let selectedIndices,

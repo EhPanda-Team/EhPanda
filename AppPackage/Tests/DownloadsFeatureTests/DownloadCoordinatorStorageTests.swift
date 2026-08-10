@@ -209,7 +209,6 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
 
         let snapshot = try await waitForTaskValue(
             initialSnapshotTask,
-            timeout: .seconds(1),
             description: "initial download observer snapshot"
         )
         let downloads = try #require(snapshot)

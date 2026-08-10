@@ -93,9 +93,17 @@ extension DownloadFeatureTestCase {
         }
     }
 
+    /// Awaits `task`'s value, failing with a named error rather than hanging the suite.
+    ///
+    /// The deadline bounds a genuine hang and nothing else: every caller awaits work that finishes
+    /// the moment its notification lands, so a longer bound costs a healthy run nothing. It is ten
+    /// seconds for the reason `waitUntil` records beside its own — the whole target's suites run in
+    /// parallel, and a task can sit unscheduled far longer than the work itself takes. A
+    /// one-second bound did not survive that, intermittently failing three observer cases that
+    /// pass in isolation in milliseconds, so it measured the scheduler rather than the code.
     func waitForTaskValue<T>(
         _ task: Task<T, Never>,
-        timeout: Duration = .seconds(1),
+        timeout: Duration = .seconds(10),
         description: String
     ) async throws -> T {
         try await withThrowingTaskGroup(of: T.self) { group in
@@ -661,9 +669,12 @@ extension DownloadFeatureTestCase {
     /// remaining unfaithful.
     ///
     /// The indices are transformed as `retryPages` transforms a caller's indices before storing
-    /// them — deduplicated and ordered — so the payload carries what the coordinator's entry
-    /// carries rather than what the case happened to type. The two sides are different types by
-    /// design: the coordinator stores `[Int]` and the payload holds `Set<Int>?`.
+    /// them — deduplicated, filtered against the gallery's page domain (CR-04) and ordered — so the
+    /// payload carries what the coordinator's entry carries rather than what the case happened to
+    /// type. The two sides are different types by design: the coordinator stores `[Int]` and the
+    /// payload holds `Set<Int>?`. An argument this filter empties has no faithful payload at all,
+    /// because the route would have REFUSED it before storing anything; such a case belongs on
+    /// `retryPages` itself rather than here.
     ///
     /// This shape exists to prevent G-15-28: a double that drives the selection-storing route and
     /// then hands the preparation a selection-free payload cannot reach a state the production
@@ -675,7 +686,9 @@ extension DownloadFeatureTestCase {
         retriedPageIndices: [Int],
         coordinator: DownloadCoordinator
     ) async -> DownloadRequestPayload {
-        let rawPageSelection = Array(Set(retriedPageIndices)).sorted()
+        let rawPageSelection = Set(retriedPageIndices)
+            .filter({ $0 >= 1 && $0 <= gallery.pageCount })
+            .sorted()
         return await coordinator.normalizeFetchedPayload(
             makeStartPayload(
                 for: gallery,
