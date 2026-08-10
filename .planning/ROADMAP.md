@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 71/77 | In Progress|  |
+| 15. Continued Background Downloads | 72/77 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 71/77 plans executed
+**Plans**: 72/77 plans executed
 
 Plans:
 
@@ -1071,7 +1071,7 @@ Gap closure round 21 (verification 2026-08-10, gaps 1-5, plus the two 15-UAT.md 
 
 - [x] 15-70-PLAN.md — Make the delete/rename confinement predicate agree with the listing that produces its names: an admission test that cannot refuse a listed folder (structural refusals all kept, destinations still normalizing), the positive half of the escape catalog (own-on-disk non-normalized names delete and rename with record convergence), and the dead removeFolder(relativePath:) reconstruction deleted.
 - [x] 15-71-PLAN.md — Convert materializeRepairSeed's source page scan to the non-mutating default so no app act deletes a page file without reconciling the record that claims it; per-site entitlement verdicts at every surviving discardingRejected true site, an entitlement census, and an interrupted repair-with-rename regression pinning source record/disk agreement and index-winner truthfulness.
-- [ ] 15-72-PLAN.md — Share the validate route's recover-once-and-log compensation with the seed route through one lifted implementation (bracket law preserved), sweep all three post-removal exits with dispositions, and make the announced basis structurally unable to over-report by never presuming this pass's removed pages done; regressions on the failed-write and failed-rescan exits.
+- [x] 15-72-PLAN.md — Share the validate route's recover-once-and-log compensation with the seed route through one lifted implementation (bracket law preserved), sweep all three post-removal exits with dispositions, and make the announced basis structurally unable to over-report by never presuming this pass's removed pages done; regressions on the failed-write and failed-rescan exits.
 - [ ] 15-73-PLAN.md — Surface toggleDownloadPauseDone(.failure) through the inspector's toast, rename the mapping to actionFailureToast, and sweep every result-carrying Done action in both reducers with stated reports-or-deliberately-silent dispositions so no future branch lands silently.
 - [ ] 15-74-PLAN.md — Own the unowned invariants: honest bracket-nesting docs plus a withdrawal-depth reportIssue detector (and a corrected 15-65-SUMMARY claim), a self-consistent source-inventory suite with the unused scanner deleted, and explicit one-second bounds at the two missing-notification detectors.
 - [ ] 15-75-PLAN.md — One RLocalizable key spelling across all 19 DownloadClient call sites (IN-02, split from 15-74): move the module-local keys into the shared Resources catalog byte-verbatim with hand-written labeled symbols, rewrite the nine bare call sites, and retire the module-local catalog with zero translation drift.
