@@ -565,11 +565,12 @@ public actor DownloadCoordinator {
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
     ///    exactly the portion of a deliberate basis movement the numerator was actually counting.
-    ///    That bracket has four call sites — `prepareWorkingSeed`'s whole preparation and the
+    ///    That bracket has five call sites — `prepareWorkingSeed`'s whole preparation and the
     ///    basis announcement in `prepareWorkingSeedAnnouncingProgress`, both in
     ///    `DownloadClient+ExecutionSupport.swift`, `writeInitialManifest`'s body in
-    ///    `DownloadClient+PublicAPI.swift`, and the validate-time `blankingPass` in
-    ///    `DownloadClient+PersistenceNormalize.swift` — but one implementation, so this writer is
+    ///    `DownloadClient+PublicAPI.swift`, the validate-time `blankingPass` in
+    ///    `DownloadClient+PersistenceNormalize.swift`, and `advanceQueueIntentGeneration`'s own
+    ///    increment in this file — but one implementation, so this writer is
     ///    one rule rather than a list of mechanisms. The count is owned by
     ///    `DownloadSourceInventoryTests`' bracket census rather than by this sentence, because the
     ///    floor census below cannot see it: it counts ASSIGNMENTS to this property, and the
@@ -820,8 +821,38 @@ extension DownloadCoordinator {
         queueIntentGenerations[gid, default: 0]
     }
 
+    /// Stamps a fresh queue intent on `gid`, giving back the session credit that stamp retires.
+    ///
+    /// **The increment is a deliberate DOWNWARD mover of the quantity `sessionCreditedPages` is
+    /// summed from, which is why it carries its own D-G7-01 bracket (CR-01).** Regime 2 of the
+    /// credited-pages definition counts a COMPLETE record raw only while this session's
+    /// incomplete-observation for the gallery was stamped under the CURRENT generation, so for a
+    /// gallery whose record this session watched complete, the credited value steps from `recorded`
+    /// to zero the instant this line runs. Unwithdrawn, `lastPushedCompletedPageCount` keeps the
+    /// pre-movement value and the monotonic floor then sits `recorded` pages above the honest sum:
+    /// the next `recorded` pages of genuine work — the re-queued gallery's or another gallery's —
+    /// move the card not at all, which is the G-15-6/G-15-7 masking the floor's own doc forbids and
+    /// the stalled-task signal `ContinuedTaskScheduling`'s expiration policy reads.
+    ///
+    /// **The bracket lives on the MOVEMENT rather than on its callers, so every present and future
+    /// queue-mobilizing entrance is enclosed by construction.** The four callers today —
+    /// `performRetry` and `performRetryPages` (`+RetryHelpers.swift`), `resume`
+    /// (`+Scheduling.swift`) and `enqueue` (`+PublicAPI.swift`) — are exactly the inventory
+    /// `DownloadSourceInventoryTests`' queue-entrance census owns, and instrumenting them one at a
+    /// time is the shape that already lost this phase a round: the fifth entrance nobody remembered
+    /// would silently re-open the defect. All four compose as SIBLINGS, never nested: the retry and
+    /// resume paths open no bracket at all, and `enqueue`'s advance runs AFTER
+    /// `writeInitialManifest`'s bracket has closed.
+    ///
+    /// The bracket is delta-keyed, so it costs the other movers nothing: a gallery whose record
+    /// reads incomplete, one holding a live `RunProgressBasis`, and one with no reading left all
+    /// measure the same value on both sides and withdraw exactly zero. `prepareWorkingSeed`'s
+    /// bracket cannot stand in for this one — by the time the redo runs, both of its endpoints read
+    /// zero and it withdraws nothing.
     public func advanceQueueIntentGeneration(for gid: String) {
-        queueIntentGenerations[gid, default: 0] += 1
+        withdrawingCountedBasisMovement(gid: gid) {
+            queueIntentGenerations[gid, default: 0] += 1
+        }
     }
 
     public func clearDownloadFailureState(

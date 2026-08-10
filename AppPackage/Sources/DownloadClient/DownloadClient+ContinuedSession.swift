@@ -231,9 +231,16 @@ extension DownloadCoordinator {
     /// positively-absent claims, a complete record's owed claims) are excused from the floor by
     /// the announce's own D-G7-01 bracket. At a run exit, an honest record's raw count equals the
     /// final measurement — every landed page was flushed — and a refusal-family departure retires
-    /// the value `freezeSessionCreditForRetiringRun` published while the basis still stood. No
-    /// regime boundary can therefore drop the credited count on its own; deliberate movers are
-    /// bracketed, and everything else only climbs.
+    /// the value `freezeSessionCreditForRetiringRun` published while the basis still stood. At a
+    /// fresh QUEUE INTENT the generation equality above stops holding and a complete record steps
+    /// from its raw count to regime 3's zero — a boundary the other two cannot cover, because no
+    /// record moved and no run exited, and the one this enumeration was missing (CR-01). It is a
+    /// deliberate downward mover like the rest, excused by the bracket
+    /// `advanceQueueIntentGeneration` wraps around its OWN increment rather than by any caller's,
+    /// so a queue-mobilizing path added later inherits the exemption instead of having to be
+    /// instrumented for it. No regime boundary can therefore drop the credited count unbracketed;
+    /// every deliberate mover — including the one that moves no record at all — carries a D-G7-01
+    /// bracket, and everything else only climbs.
     func sessionCreditedPages(
         gid: String,
         completedPageCount: Int,
