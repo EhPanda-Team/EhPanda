@@ -683,6 +683,43 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
     }
+
+    /// WR-04: the bracket's SIBLINGS-only rule is a CONVENTION, and this is what detects a breach.
+    ///
+    /// It was recorded as proved by construction — the bracket's closure is not `async` while every
+    /// caller of the self-bracketing advance is — and that reading is wrong. The closure is
+    /// non-escaping and non-`Sendable`, so it inherits the enclosing actor isolation, and
+    /// `advanceQueueIntentGeneration(for:)` is a SYNCHRONOUS actor-isolated method: written inside a
+    /// bracket body it compiles today, and the inner movement's delta is then measured twice — once
+    /// by its own bracket and again inside the outer one's span — and withdrawn twice, which drops
+    /// the monotonic floor below the honest sum. Nothing named that breach until the depth counter.
+    ///
+    /// It belongs to this suite rather than to a scanning one because the bracket is the mechanism
+    /// every case here depends on: the arithmetic these pushes assert is only honest while each
+    /// deliberate movement withdraws its own delta exactly once.
+    ///
+    /// `withKnownIssue` is the pin rather than decoration: it fails when its body records *no*
+    /// issue, so this case falls over the moment the counter or its report is dropped — which is how
+    /// it was first run, against the undetected nesting.
+    ///
+    /// The advance AFTER the probe is the balance half, and it needs no seam of its own. It opens
+    /// exactly one bracket, so it must record nothing; a depth that failed to unwind would make it —
+    /// and every later movement in the process — read as nested, and an unexpected issue fails this
+    /// case. Both generations are asserted because the report must stay purely additive: detection
+    /// may not consume or skip the movement it reports on.
+    @Test
+    func testANestedCountedBasisMovementIsDetectedWhileASiblingIsNot() async throws {
+        let gid = "210500"
+        let manager = makeTestingDownloadCoordinator()
+
+        await withKnownIssue {
+            await manager.testingProbeNestedBasisMovement(gid: gid)
+        }
+        #expect(await manager.queueIntentGeneration(for: gid) == 1)
+
+        await manager.advanceQueueIntentGeneration(for: gid)
+        #expect(await manager.queueIntentGeneration(for: gid) == 2)
+    }
 }
 
 // MARK: - Helpers

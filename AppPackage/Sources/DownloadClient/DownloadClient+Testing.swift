@@ -136,6 +136,24 @@ extension DownloadCoordinator {
         releaseScheduling(gid: gid)
     }
 
+    /// Deliberately writes the one shape the counted-basis bracket's SIBLINGS-only rule forbids: a
+    /// synchronous actor-isolated movement called from inside another bracket's body.
+    ///
+    /// The inner movement is `advanceQueueIntentGeneration(for:)`, a real production mover that
+    /// brackets itself, rather than a contrived empty closure — so the probe reproduces the exact
+    /// shape a future queue-mobilizing path would be written in.
+    ///
+    /// It exists because the rule has no compile-time enforcement to point at. The bracket's closure
+    /// is non-escaping and non-`Sendable`, so it inherits the enclosing actor isolation and this
+    /// nesting compiles; what refuses it is the depth counter, and a detector nobody has watched fire
+    /// is a convention wearing a test's clothes. This is the module's ONE deliberate nesting call
+    /// site, and `DownloadSourceInventoryTests`' bracket census names it as such.
+    public func testingProbeNestedBasisMovement(gid: String) {
+        withdrawingCountedBasisMovement(gid: gid) {
+            advanceQueueIntentGeneration(for: gid)
+        }
+    }
+
     /// Forwards to `prepareWorkingSeedAnnouncingProgress(payload:existingDownload:folderURL:)`, the
     /// redo path's pre-page-work preparation and basis announcement.
     ///
