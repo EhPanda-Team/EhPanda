@@ -366,8 +366,11 @@ final class LogsDirectoryMigrationTests {
         try Data(contents.utf8).write(to: url, options: .atomic)
     }
 
+    /// Decodes failably rather than through `String(decoding:as:)`, so a file that came back as
+    /// something other than the UTF-8 that was written fails the case instead of quietly decoding
+    /// to replacement characters and comparing unequal for an unexplained reason.
     private func contents(of url: URL) throws -> String {
-        String(decoding: try Data(contentsOf: url), as: UTF8.self)
+        try #require(String(bytes: try Data(contentsOf: url), encoding: .utf8))
     }
 
     /// The LITERAL stored names in `url`, sorted. Never `fileExists`, which on a case-insensitive
