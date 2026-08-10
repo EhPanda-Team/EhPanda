@@ -86,7 +86,11 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
             gid: firstGallery.gid
         )
         // This awaits the collector rather than polling. The deadline only turns a missing
-        // notification into a named failure instead of a hung suite.
+        // notification into a named failure instead of a hung suite. It keeps the shared
+        // ten-second default deliberately rather than by inheritance, and IN-01's one-second
+        // budget is declined for the reason written at the sibling detector,
+        // `testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` — kept in one place so the
+        // decision has a single owner, as the number itself does.
         let emissions = try await waitForTaskValue(
             observerTask,
             description: "\(failureCase) post-failure observer emission"
