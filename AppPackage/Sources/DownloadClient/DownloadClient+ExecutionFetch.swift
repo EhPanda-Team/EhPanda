@@ -1,6 +1,7 @@
 import AppModels
 import Foundation
 import NetworkingFeature
+import Resources
 
 // MARK: - Fetch & Normalize Payload
 extension DownloadCoordinator {
@@ -207,7 +208,7 @@ extension DownloadCoordinator {
         // second: `nil` here is the unrestricted request, which has nothing to collapse.
         if let pageSelection, pageSelection.isEmpty {
             throw .fileOperationFailed(
-                String(localized: .downloadStorePageSelectionOutdated)
+                String(localized: .RLocalizable.downloadStorePageSelectionOutdated)
             )
         }
 

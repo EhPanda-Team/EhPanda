@@ -77,7 +77,7 @@ extension DownloadCoordinator {
            downloadIndex[activeGalleryID]?.parentFolderName == oldName {
             return .failure(
                 .fileOperationFailed(
-                    String(localized: .downloadStoreFolderBusyDownloading)
+                    String(localized: .RLocalizable.downloadStoreFolderBusyDownloading)
                 )
             )
         }
@@ -232,7 +232,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .failure(
                 .fileOperationFailed(
-                    String(localized: .downloadStoreDownloadBusy)
+                    String(localized: .RLocalizable.downloadStoreDownloadBusy)
                 )
             )
         }
@@ -252,7 +252,7 @@ extension DownloadCoordinator {
             await scheduleNextIfNeeded()
             return .failure(
                 .fileOperationFailed(
-                    String(localized: .downloadStoreFolderAlreadyExists)
+                    String(localized: .RLocalizable.downloadStoreFolderAlreadyExists)
                 )
             )
         }

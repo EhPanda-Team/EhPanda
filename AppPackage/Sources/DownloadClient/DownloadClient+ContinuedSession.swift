@@ -2,6 +2,7 @@ import AppModels
 import BackgroundProcessingClient
 import Foundation
 import OSLogExt
+import Resources
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
@@ -361,7 +362,7 @@ extension DownloadCoordinator {
         for progress: ContinuedSessionProgress
     ) -> String {
         String(
-            localized: .continuedSessionSubtitle(
+            localized: .RLocalizable.continuedSessionSubtitle(
                 completed: progress.progress.displayCompletedPageCount,
                 total: progress.progress.displayPageCount,
                 galleries: progress.galleryCount
@@ -426,7 +427,7 @@ extension DownloadCoordinator {
             galleryCount: coverageGalleryCount(for: snapshot)
         )
         let clientSession = await backgroundProcessingClient.start(
-            String(localized: .continuedSessionTitle),
+            String(localized: .RLocalizable.continuedSessionTitle),
             continuedSessionSubtitle(for: openingProgress),
             Int64(openingProgress.progress.displayCompletedPageCount),
             Int64(openingProgress.progress.displayPageCount)

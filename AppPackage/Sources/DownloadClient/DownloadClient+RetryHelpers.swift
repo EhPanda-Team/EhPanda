@@ -1,6 +1,7 @@
 import AppModels
 import Foundation
 import OSLogExt
+import Resources
 
 private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
@@ -91,7 +92,7 @@ extension DownloadCoordinator {
             .sorted()
         guard !selectedPageIndices.isEmpty else {
             return .failure(
-                .fileOperationFailed(String(localized: .downloadStoreInvalidPageSelection))
+                .fileOperationFailed(String(localized: .RLocalizable.downloadStoreInvalidPageSelection))
             )
         }
 
