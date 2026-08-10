@@ -109,6 +109,13 @@ extension DownloadCoordinator {
     /// with the refuted file removed first, so the blanked page is genuinely repairable rather than
     /// laundered (D-SSOT-04).
     ///
+    /// **CR-01: this path reads with `discardingRejected: false`, at every scan it takes.** The same
+    /// separation the display path needed for a different reason: a probe that deletes what it
+    /// refuses is a mutation performed by an ACT OF LOOKING, and this function's whole contract is
+    /// that it may refuse — which it cannot honour if gathering the evidence already destroyed the
+    /// files the refusal was about. Rejected pages are classified, carried into the combined guard,
+    /// and their files removed only once that guard authorizes the whole set.
+    ///
     /// **D-SSOT-05: `validationErrors` is an OPERATION-level signal and nothing else.** An entry
     /// means the pass could not produce trustworthy evidence for every claimed page — the scan
     /// failed, a page's bytes could not be read, or the wholesale guard refused the whole
@@ -122,7 +129,8 @@ extension DownloadCoordinator {
         else { return nil }
         let validation = storage.validate(
             download: download,
-            verifiesContentHashes: true
+            verifiesContentHashes: true,
+            discardingRejected: false
         )
         switch validation {
         case .valid:
@@ -158,16 +166,27 @@ extension DownloadCoordinator {
     /// **D-SSOT-02: the wholesale guard is evaluated over the COMBINED prospective blank set, before
     /// any destructive step.** A systematically wrong hash pipeline — a `fileHash` regression, an
     /// algorithm change — would mismatch every readable page, which is exactly the class the
-    /// irreversibility defence exists for, so the mismatched pages join the positively-absent ones
+    /// irreversibility defence exists for, so the refuted pages join the positively-absent ones
     /// under the loop's own comparison shape rather than under a second, laxer one. With an empty
-    /// mismatch set this reduces byte for byte to the presence arm's behavior, so nothing 15-56
+    /// refutation set this reduces byte for byte to the presence arm's behavior, so nothing 15-56
     /// established is weakened. The complementary systematic shape — the read failing for every page
     /// — produces an empty mismatch set and blanks nothing, which D-SSOT-03 covers.
     ///
-    /// The ordering is load-bearing rather than stylistic: guard, then removal, then a fresh presence
-    /// scan, then the loop. A refusal has to precede the first destructive act, or a reconciliation
-    /// this function declined to write would already have destroyed the files it declined to write
-    /// about.
+    /// **CR-01: "before any destructive step" now includes the evidence gathering itself, and that
+    /// is what makes the sentence true rather than aspirational.** The probe's housekeeping deletion
+    /// used to fire while the pass was still deciding: `storage.validate` and this function's own
+    /// presence scan both took the discarding default, so a zero-byte or non-regular page file was
+    /// deleted BY the classification. On a one-page gallery the guard then refused — the prospective
+    /// set was the whole record — and the pass ended having destroyed the file it had just declined
+    /// to blank the hash for, leaving a divergence marked only by a session-scoped entry a relaunch
+    /// drops. Every scan above the guard therefore passes `discardingRejected: false`, and the
+    /// rejected pages carry their file identity forward so the authorized step can remove exactly
+    /// them.
+    ///
+    /// The ordering is load-bearing rather than stylistic: classify, guard, remove, take a fresh
+    /// non-mutating scan, then the loop. A refusal has to precede the first destructive act, or a
+    /// reconciliation this function declined to write would already have destroyed the files it
+    /// declined to write about.
     ///
     /// **Removal precedes the write DELIBERATELY, and reversing it is the more dangerous order —
     /// the opposite of how it reads.** The obvious correction to "files are gone while the record
@@ -194,9 +213,9 @@ extension DownloadCoordinator {
     /// show which files were destroyed against a record that still claims them, and the entry is
     /// kept.
     ///
-    /// **D-SSOT-04: the mismatched files are removed, and the blanking still flows through the ONE
-    /// loop.** Nothing here blanks a hash. Removal converts a corrupt-in-place page into the
-    /// positively-absent shape, the rescan sees it as such, and
+    /// **D-SSOT-04: the refuted files are removed, and the blanking still flows through the ONE
+    /// loop.** Nothing here blanks a hash. Removal converts a corrupt-in-place or structurally
+    /// refused page into the positively-absent shape, the rescan sees it as such, and
     /// `reconcileWorkingManifestAgainstPageFiles` blanks it through its own three refusal lines,
     /// unmodified — so there is no second blanking rule to drift from the first. A page whose file
     /// could not be removed is folded into the held set instead, keeping its hash.
@@ -223,7 +242,13 @@ extension DownloadCoordinator {
     ) -> Bool {
         let folderURL = download.folderURL
         guard let manifest = storage.probeManifest(folderURL: folderURL) else { return false }
-        let presenceScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        // Non-mutating, like the verdict scan above it: until the guard below accepts, this function
+        // is gathering evidence and nothing more (CR-01).
+        let presenceScan = storage.pageFileScan(
+            folderURL: folderURL,
+            manifest: manifest,
+            discardingRejected: false
+        )
         guard presenceScan.scanSucceeded else { return false }
         let contentScan = storage.contentMismatchScan(
             folderURL: folderURL,
@@ -235,22 +260,37 @@ extension DownloadCoordinator {
         // expression is precisely how the unprobed pages came to be excluded from the blanking set
         // while still counting as covered by the answer that clears the operation-level signal.
         let claimedPages = Set(manifest.pages.filter({ !$0.value.isEmpty }).keys)
+        // The claimed pages this pass positively REFUTED: a file the listing yielded whose fresh
+        // hash disagrees with the record, or a file the probe refused outright and left in place.
+        // One set because one evidence class and one authorized act — it decides which files are
+        // removed and, with the positive absences, what the guard is measured over. A page whose
+        // OTHER candidate went unprobed is subtracted: the pass has a non-answer about that page as
+        // well, and a non-answer standing beside a determination still forbids destroying anything.
+        let refutedPages = claimedPages
+            .intersection(
+                contentScan.mismatched.union(presenceScan.rejectedPageRelativePaths.keys)
+            )
+            .subtracting(presenceScan.unprobedPages)
         let prospectiveBlankPages = prospectiveBlankPages(
             claimedPages: claimedPages,
             presenceScan: presenceScan,
-            mismatchedPages: contentScan.mismatched
+            refutedPages: refutedPages
         )
         guard prospectiveBlankPages.count < manifest.completedPageCount else { return false }
 
-        let unremovedPages = storage.removeMismatchedPageFiles(
+        // AUTHORIZED. Everything above reads; everything below acts.
+        let unremovedPages = storage.removeRefutedPageFiles(
             folderURL: folderURL,
-            pageRelativePaths: presenceScan.pages,
-            mismatchedPages: contentScan.mismatched
+            pageRelativePaths: presenceScan.pages.merging(
+                presenceScan.rejectedPageRelativePaths,
+                uniquingKeysWith: { yielded, _ in yielded }
+            ),
+            refutedPages: refutedPages
         )
         // The pages whose files this pass actually destroyed, which is exactly the set the record
         // now owes a blank hash for. `unremovedPages` is its complement and keeps its recorded hash,
         // because a page whose file survived must not end up claiming nothing.
-        let removedPages = contentScan.mismatched.subtracting(unremovedPages)
+        let removedPages = refutedPages.subtracting(unremovedPages)
         let heldPages = contentScan.held
             .union(unremovedPages)
             .union(
@@ -308,12 +348,24 @@ extension DownloadCoordinator {
     /// sibling bracket the repair-seed preparation wraps this loop in, the two attempts compose as
     /// SIBLINGS rather than nesting, and its delta-keying means an attempt that blanks nothing
     /// withdraws exactly zero by construction.
+    ///
+    /// **The scan is non-mutating here too, which is what keeps the removal's own failures honest
+    /// (CR-01).** A discarding scan at this point would quietly finish the job for a page whose
+    /// removal had just failed: the file would be deleted after all, outside the accounting that
+    /// decided the page was a hold, and the loop would blank a hash on the strength of a deletion
+    /// nobody recorded. Withheld, the surviving refuted file is still reported as such, the loop
+    /// skips the page, and its hash stands — which is exactly what "a failed removal demotes to a
+    /// hold" has to mean on disk.
     private func blankingPass(
         gid: String,
         manifest: DownloadManifest,
         folderURL: URL
     ) throws -> DownloadManifest {
-        let pageFileScan = storage.pageFileScan(folderURL: folderURL, manifest: manifest)
+        let pageFileScan = storage.pageFileScan(
+            folderURL: folderURL,
+            manifest: manifest,
+            discardingRejected: false
+        )
         return try withdrawingCountedBasisMovement(gid: gid) {
             try reconcileWorkingManifestAgainstPageFiles(
                 manifest: manifest,
@@ -368,26 +420,36 @@ extension DownloadCoordinator {
     /// The pages this reconciliation would end up blanking if nothing refused — the set D-SSOT-02's
     /// wholesale guard is measured over.
     ///
-    /// Its two halves are the two positive determinations, unioned because they license the same
-    /// act: a claimed page the successful listing did not yield and no per-file signal held (the
-    /// presence arm's own discipline, restated here rather than re-decided — the blanking loop
-    /// applies exactly this predicate), and a claimed page the content pass read and refuted.
+    /// Its two halves are the positive determinations, unioned because they license the same act:
+    /// the ABSENCES, a claimed page a successful listing did not yield at all and no per-file signal
+    /// held (the presence arm's own discipline, restated here rather than re-decided — the blanking
+    /// loop applies exactly this predicate), and the REFUTATIONS the caller derived, a claimed page
+    /// whose file is there and was proven unusable by content or by structure.
     ///
-    /// Computing it BEFORE any removal is what makes the guard meaningful. After a removal the two
+    /// The absent half now subtracts the rejected pages explicitly, and that subtraction is not
+    /// cosmetic: while the probe deleted what it refused, a rejected page WAS absent by the time
+    /// anyone read this, so the two halves overlapped harmlessly. With the deletion withheld until
+    /// the guard authorizes it, a rejected page's file is still on disk here, and calling it absent
+    /// would be the same conflation one level up — it would count toward the guard as a page nothing
+    /// needs to be done to, when in fact it owes a removal.
+    ///
+    /// Computing it BEFORE any removal is what makes the guard meaningful. After a removal the
     /// halves are no longer distinguishable — a removed file is simply absent — so a guard measured
     /// then would be measuring the consequence of the act it is supposed to authorize.
     ///
-    /// `claimedPages` arrives from the caller rather than being derived here, so this set and the
-    /// coverage answer beside it are read off one expression.
+    /// `claimedPages` and `refutedPages` arrive from the caller rather than being derived here, so
+    /// this set, the removal's population and the coverage answer beside it are read off one
+    /// expression each.
     private func prospectiveBlankPages(
         claimedPages: Set<Int>,
         presenceScan: PageFileScan,
-        mismatchedPages: Set<Int>
+        refutedPages: Set<Int>
     ) -> Set<Int> {
         let positivelyAbsentPages = claimedPages
             .subtracting(presenceScan.pages.keys)
+            .subtracting(presenceScan.rejectedPageRelativePaths.keys)
             .subtracting(presenceScan.unprobedPages)
-        return positivelyAbsentPages.union(mismatchedPages)
+        return positivelyAbsentPages.union(refutedPages)
     }
 
     /// The claimed pages this pass could not classify AT ALL — the coverage gap D-SSOT-05's return

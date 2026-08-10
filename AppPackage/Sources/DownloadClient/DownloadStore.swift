@@ -75,19 +75,48 @@ public struct DownloadScanResult: Equatable, Sendable {
 /// - `unprobedPages` answers one level down, PER FILE: a claimed page whose file the enumeration
 ///   did list but whose probe could not classify (G-15-13). A page here is neither usable nor
 ///   positively absent, so it may be re-fetched but never blanked.
+/// - `rejectedPageRelativePaths` answers at the same per-file level, on the opposite side: a claimed
+///   page whose file the enumeration listed and the probe POSITIVELY refused — zero bytes, or not a
+///   regular file — and which is still on disk when the scan returns (CR-01).
 ///
-/// The two are kept apart rather than collapsed into one flag deliberately: they are answers to
-/// different questions at different granularities, the reconciliation consumes them independently,
-/// and merging them would re-conflate exactly the levels those two gaps separated.
+/// They are kept apart rather than collapsed deliberately: they are answers to different questions
+/// at different granularities, the reconciliation consumes them independently, and merging them
+/// would re-conflate exactly the levels those gaps separated.
+///
+/// **Why the rejected pages need an identity of their own, and why the identity is conditional on
+/// the file SURVIVING.** A rejection used to be indistinguishable from an absence here, and that was
+/// self-consistent only because the probe deleted the file it rejected: the page really had no file
+/// by the time anyone read the answer. A caller that may not mutate — validation, before its own
+/// guard has authorized anything — gets the same classification with the file left in place, and for
+/// that caller "not in `pages`" would silently mean two different things: a page with nothing on
+/// disk, and a page with a refuted file still on disk. The first is blankable on its own; the second
+/// must have its file removed in the same authorized act, or the record ends up blank beside bytes
+/// that `finalizeDownload`'s hash merge would re-record as truth (D-SSOT-04).
+///
+/// So membership means "refuted AND still there". A discarding caller whose housekeeping deletion
+/// succeeded reports nothing here, because the page genuinely is a positive absence afterwards —
+/// which keeps every pre-existing caller byte for byte. A discarding caller whose deletion FAILED
+/// reports the page here, which is the same protection the non-discarding caller gets, arrived at
+/// from the other direction.
 public struct PageFileScan: Equatable, Sendable {
     public let pages: [Int: String]
     public let scanSucceeded: Bool
     public let unprobedPages: Set<Int>
+    public let rejectedPageRelativePaths: [Int: String]
 
-    public init(pages: [Int: String], scanSucceeded: Bool, unprobedPages: Set<Int>) {
+    /// - Parameter rejectedPageRelativePaths: defaulted, so the one place that rebuilds a scan from
+    ///   another scan's parts stays source-compatible; that site threads the real value through
+    ///   rather than taking the default.
+    public init(
+        pages: [Int: String],
+        scanSucceeded: Bool,
+        unprobedPages: Set<Int>,
+        rejectedPageRelativePaths: [Int: String] = [:]
+    ) {
         self.pages = pages
         self.scanSucceeded = scanSucceeded
         self.unprobedPages = unprobedPages
+        self.rejectedPageRelativePaths = rejectedPageRelativePaths
     }
 }
 
@@ -225,12 +254,14 @@ public struct DownloadStore: Sendable {
         ).pages
     }
 
-    /// The same scan, with the enumeration's success surfaced alongside its result (G-15-9) and the
-    /// pages whose listed file the probe could not classify surfaced beside both (G-15-13).
+    /// The same scan, with the enumeration's success surfaced alongside its result (G-15-9), the
+    /// pages whose listed file the probe could not classify surfaced beside both (G-15-13), and the
+    /// pages whose listed file the probe positively refused and left on disk surfaced beside all
+    /// three (CR-01).
     ///
-    /// A failed enumeration answers nothing at all, so it reports no unprobed pages either: there is
-    /// no listing to have listed them, and the directory-level refusal already covers that whole
-    /// answer.
+    /// A failed enumeration answers nothing at all, so it reports no unprobed and no rejected pages
+    /// either: there is no listing to have listed them, and the directory-level refusal already
+    /// covers that whole answer.
     public func pageFileScan(
         folderURL: URL,
         manifest: DownloadManifest,
@@ -248,6 +279,7 @@ public struct DownloadStore: Sendable {
 
         var pages = [Int: String]()
         var unprobedPages = Set<Int>()
+        var rejectedPageRelativePaths = [Int: String]()
         for fileURL in fileURLs {
             let fileName = fileURL.lastPathComponent
             guard fileName.hasPrefix(prefix) else { continue }
@@ -264,15 +296,26 @@ public struct DownloadStore: Sendable {
             case .usable:
                 pages[page] = fileName
                 // A usable file settles the page outright, even if an earlier candidate for the
-                // same page was the one that could not be probed.
+                // same page was the one that could not be probed or was refused.
                 unprobedPages.remove(page)
-            case .rejected:
-                continue
+                rejectedPageRelativePaths[page] = nil
+            case .rejected(let fileRemains):
+                // Only a file that is STILL THERE has an identity worth carrying: a rejection whose
+                // housekeeping deletion succeeded leaves a page that is positively absent, which is
+                // what every pre-existing caller already reads it as. The first surviving candidate
+                // wins, matching `pages`' own first-writer rule over the sorted listing.
+                guard fileRemains, rejectedPageRelativePaths[page] == nil else { continue }
+                rejectedPageRelativePaths[page] = fileName
             case .unprobeable:
                 unprobedPages.insert(page)
             }
         }
-        return .init(pages: pages, scanSucceeded: true, unprobedPages: unprobedPages)
+        return .init(
+            pages: pages,
+            scanSucceeded: true,
+            unprobedPages: unprobedPages,
+            rejectedPageRelativePaths: rejectedPageRelativePaths
+        )
     }
 
     public func imageURLs(
@@ -750,12 +793,19 @@ public struct DownloadStore: Sendable {
     /// regression staged left a sibling branch open — here the sibling is any probe exit nobody has
     /// enumerated yet. Classifying the whole function instead means a new exit cannot default into
     /// "positively absent": it has to be named, and every reader switches over the full set.
-    private enum AssetFileProbeOutcome {
+    private enum AssetFileProbeOutcome: Equatable {
         /// The file is there and fit to be reused as this page's content.
         case usable
         /// A positive determination that the file is there and NOT fit: a non-regular item, a
         /// zero-byte file, or a file whose content read reaches end-of-file immediately.
-        case rejected
+        ///
+        /// `fileRemains` is whether the refused file is still on disk when the probe returns — false
+        /// exactly when a discarding caller's housekeeping deletion succeeded. It rides on the
+        /// outcome rather than being re-derived by the caller because only the probe knows which of
+        /// the rejection exits carries a deletion at all (the content-read exit never has) and
+        /// whether that deletion worked; a caller re-asking `fileExists` afterwards would be racing
+        /// the same filesystem it is trying to describe.
+        case rejected(fileRemains: Bool)
         /// The probe could not answer. Nothing about the file was established, so it may be
         /// re-fetched but its recorded hash may not be destroyed.
         case unprobeable
@@ -786,9 +836,19 @@ public struct DownloadStore: Sendable {
     /// licensed by no reconciliation, and invisible until the user runs Validate. A read may
     /// classify; only a reconciliation may act.
     ///
+    /// **CR-01 is the same rule one step further in, and it is why VALIDATION opts out too.** A
+    /// display read had no business acting; validation does have business acting, but not yet — its
+    /// scan is evidence GATHERING, and the authority to destroy anything belongs to the combined
+    /// wholesale guard that runs after all the evidence is in. While validation scanned with the
+    /// default, a one-page gallery whose only page file was zero bytes had that file deleted by the
+    /// probe, and the guard then refused to blank the hash it was deleted for: the pass mutated the
+    /// disk in exactly the case it decided it must not touch the record. Classification and mutation
+    /// are separated by this flag; the ordering that keeps them separated is the caller's.
+    ///
     /// The parameter defaults to the historical behavior so every reconciling and run-time caller
-    /// keeps it byte for byte; the display path is the one that opts out, and it opts out
-    /// explicitly at both of its routes in `loadInspection`.
+    /// keeps it byte for byte; the reading paths are the ones that opt out, and they do so
+    /// explicitly — both of `loadInspection`'s routes, and every scan `validateImageData` takes
+    /// before its guard has authorized anything.
     private func probeAssetFile(at url: URL, discardingRejected: Bool) -> AssetFileProbeOutcome {
         // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
         // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an
@@ -821,15 +881,17 @@ public struct DownloadStore: Sendable {
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map({ $0 == .typeRegular }) ?? true
         guard isRegularFile else {
-            discardRejectedAssetIfPermitted(at: url, discardingRejected: discardingRejected)
-            return .rejected
+            return .rejected(
+                fileRemains: discardRejectedAssetIfPermitted(at: url, discardingRejected: discardingRejected)
+            )
         }
         // Metadata that answered, but not the size question. That is not a zero-byte determination,
         // so it authorizes neither the discard below nor blanking the page.
         guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return .unprobeable }
         guard fileSize > 0 else {
-            discardRejectedAssetIfPermitted(at: url, discardingRejected: discardingRejected)
-            return .rejected
+            return .rejected(
+                fileRemains: discardRejectedAssetIfPermitted(at: url, discardingRejected: discardingRejected)
+            )
         }
 
         return .usable
@@ -841,19 +903,28 @@ public struct DownloadStore: Sendable {
     /// or not it is deleted — so a non-discarding caller gets the identical classification and only
     /// forgoes the housekeeping. That separation is the whole point: the answer is a read, the
     /// deletion is an act, and only a reconciliation is entitled to the second one.
-    private func discardRejectedAssetIfPermitted(at url: URL, discardingRejected: Bool) {
-        guard discardingRejected else { return }
-        discardRejectedAsset(at: url)
+    ///
+    /// - Returns: whether the refused file is still on disk. That is the one thing the rejection
+    ///   verdict alone cannot say and the scan above must know, since a page whose refuted file
+    ///   survived may not be blanked without removing it in the same authorized act.
+    private func discardRejectedAssetIfPermitted(at url: URL, discardingRejected: Bool) -> Bool {
+        guard discardingRejected else { return true }
+        return !discardRejectedAsset(at: url)
     }
 
     /// Deletes an asset the probe has already rejected. Housekeeping only: the rejection
     /// stands whether or not the file could actually be removed, so a failure is logged rather
     /// than propagated to the caller's answer.
-    private func discardRejectedAsset(at url: URL) {
+    ///
+    /// - Returns: whether the file is gone. A failure keeps the page's refuted identity visible to
+    ///   the scan instead of laundering it into a positive absence the record would then blank.
+    private func discardRejectedAsset(at url: URL) -> Bool {
         do {
             try fileManager.operate { try $0.removeItem(at: url) }
+            return true
         } catch {
             logger.error("Rejected download asset removal failed: \(error, privacy: .private)")
+            return false
         }
     }
 
@@ -879,7 +950,7 @@ public struct DownloadStore: Sendable {
         do {
             let handle = try FileHandle(forReadingFrom: url)
             defer { closeReadHandle(handle) }
-            return try handle.read(upToCount: 1)?.isEmpty == false ? .usable : .rejected
+            return try handle.read(upToCount: 1)?.isEmpty == false ? .usable : .rejected(fileRemains: true)
         } catch {
             return .unprobeable
         }

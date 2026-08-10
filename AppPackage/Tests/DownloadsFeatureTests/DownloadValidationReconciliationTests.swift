@@ -384,7 +384,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     /// Every destructive step in this reconciliation precedes the write, deliberately — reversing
     /// the order would leave a failed removal as a blank hash beside a surviving file, which is the
     /// D-SSOT-04 laundering shape and one tap from permanent corruption. The price of that ordering
-    /// is a window: three exits fire after `removeMismatchedPageFiles` and each used to return with
+    /// is a window: three exits fire after `removeRefutedPageFiles` and each used to return with
     /// the files gone and the hashes still claimed. This case pins the answer to the window rather
     /// than the window itself — the pass re-attempts once, and the removed page's positive absence
     /// is blanked under the loop's ordinary evidence rules with no new blanking path.
