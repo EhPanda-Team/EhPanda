@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 60/60 | In Progress|  |
+| 15. Continued Background Downloads | 60/64 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 60/60 plans executed
+**Plans**: 64 plans (60 executed, 4 gap-closure pending)
 
 Plans:
 
@@ -1042,6 +1042,22 @@ Plans:
 **Wave 60** *(gap closure round 19b — blocked on 15-59: asserts properties of the state 15-55..15-59 leave behind, and xcodebuild serialization)*
 
 - [x] 15-60-PLAN.md — The SSOT property suite (D-SSOT-09): over a reproducible generated family crossing every regime boundary, assert count-basis agreement (every displayed record-completeness quantity is the same manifest-derived function, in-session and across relaunch), derivation totality via the external-mutation probe (deleting or corrupting files outside the app moves no displayed quantity or predicate until Validate senses it), and no-dead-end (every non-terminal incomplete state reaches .queued through a driven production affordance — the property whose absence let G-15-5 ship green through 888 tests), with the run-measured session card explicitly out of scope so the round-18 redesign is not undone
+
+**Wave 61** *(gap closure round 20, verification blocker CR-02 — blocked on 15-60 and serialized xcodebuild)*
+
+- [ ] 15-61-PLAN.md — Scope incomplete-record observation to queue-intent generation so a gallery re-queued while the same continued session remains alive receives zero predecessor credit until its successor run establishes a measured basis; RED-first two-gallery regression keeps the session identity unchanged.
+
+**Wave 62** *(gap closure round 20, verification blocker CR-01 — blocked on 15-61 and serialized xcodebuild)*
+
+- [ ] 15-62-PLAN.md — Make validation classification non-mutating until the combined absent/rejected/mismatched wholesale guard authorizes correction; retain rejected page identity, remove only after authorization, and pin one-page refusal with both disk and manifest unchanged.
+
+**Wave 63** *(gap closure round 20, security blocker CR-03 — blocked on 15-62 by DownloadStore+Operations.swift overlap and serialized xcodebuild)*
+
+- [ ] 15-63-PLAN.md — Move folder rename behind a store-owned direct-child boundary that rejects traversal, absolute/nested sources, normalization-changing aliases, and symlink escapes, with containment re-checked immediately before move.
+
+**Wave 64** *(gap closure round 20, verification blocker CR-04 — blocked on 15-63 and serialized xcodebuild)*
+
+- [ ] 15-64-PLAN.md — Preserve retry selection as three states end to end: nil alone is unrestricted, explicit empty/all-invalid fails before queue mutation, mixed input carries only its valid subset, and payload normalization cannot widen explicit emptiness to whole-gallery repair.
 
 ### Phase 16: Dynamic Type Accessibility
 
