@@ -48,15 +48,26 @@ extension DownloadCoordinator {
     /// public input: a stale inspection, a page count that shrank upstream, or any malformed caller
     /// can name numbers this gallery does not have. They are filtered against the CURRENT record's
     /// page domain immediately after the fetch, and a request left with nothing valid — including
-    /// an explicitly empty one — returns `.failure(.notFound)` right there. Nothing has moved at
-    /// that point: no failure cleared, no queue-intent generation advanced, no queued mode or
-    /// selection written, no enqueue, no schedule, and no continued session. The ordering is the
-    /// substance of the guard rather than tidiness, because acting on an inadmissible request is
-    /// acting on a request the user never made.
+    /// an explicitly empty one — is refused right there. Nothing has moved at that point: no
+    /// failure cleared, no queue-intent generation advanced, no queued mode or selection written,
+    /// no enqueue, no schedule, and no continued session. The ordering is the substance of the
+    /// guard rather than tidiness, because acting on an inadmissible request is acting on a request
+    /// the user never made.
     ///
     /// An explicitly empty selection is refused rather than answered `.success(())`. Reporting
     /// success for work nobody asked for is the same collapse read from the other side: the caller
     /// cannot tell that reply apart from one that queued something.
+    ///
+    /// **The refusal carries its OWN error, and the two absence exits keep theirs (WR-04).** This
+    /// function has three ways to say no, and until now they all said `.notFound`: the gallery is
+    /// not in the index, its folder is not on disk, and the pages you named are not this gallery's.
+    /// The first two are absences and `.notFound` describes them exactly; the third is not, and a
+    /// caller rendering `.notFound`'s localized string over it tells the user their download is
+    /// gone when it is sitting right there. The inadmissible selection therefore answers
+    /// `.fileOperationFailed` with a message that names what happened, which the inspector's
+    /// failure branch surfaces verbatim. Distinguishing the CONDITION is the point: an error kind
+    /// alone would still leave the two remaining exits sharing a sentence with each other, which is
+    /// correct, because absence is what both of them mean.
     ///
     /// **An update record refreshes as a WHOLE, deliberately.** Once at least one requested page is
     /// admissible, a record with a pending update delegates to `retry(gid:mode:)`, which queues the
@@ -78,7 +89,11 @@ extension DownloadCoordinator {
         let selectedPageIndices = Set(pageIndices)
             .filter({ $0 >= 1 && $0 <= download.pageCount })
             .sorted()
-        guard !selectedPageIndices.isEmpty else { return .failure(.notFound) }
+        guard !selectedPageIndices.isEmpty else {
+            return .failure(
+                .fileOperationFailed(String(localized: .downloadStoreInvalidPageSelection))
+            )
+        }
 
         let mode = resumeMode(for: download)
         if mode == .update { return await retry(gid: gid, mode: .update) }

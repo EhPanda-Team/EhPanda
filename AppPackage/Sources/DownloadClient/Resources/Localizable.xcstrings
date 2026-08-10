@@ -576,6 +576,47 @@
         }
       }
     },
+    "download_store.invalid_page_selection": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The selected pages are no longer part of this gallery."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die ausgewählten Seiten gehören nicht mehr zu dieser Galerie."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択したページはこのギャラリーに存在しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 페이지는 이 갤러리에 존재하지 않습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所选页面已不属于该图库。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所選頁面已不屬於該圖庫。"
+          }
+        }
+      }
+    },
     "download_store.manifest_missing": {
       "extractionState": "manual",
       "localizations": {
@@ -613,6 +654,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Manifest 檔案缺失。"
+          }
+        }
+      }
+    },
+    "download_store.page_selection_outdated": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery changed, so the selected pages can no longer be downloaded."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Galerie hat sich geändert, daher können die ausgewählten Seiten nicht mehr geladen werden."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このギャラリーが変更されたため、選択したページはダウンロードできません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 갤러리가 변경되어 선택한 페이지를 더 이상 다운로드할 수 없습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该图库已变更，所选页面无法再下载。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "該圖庫已變更，所選頁面無法再下載。"
           }
         }
       }
