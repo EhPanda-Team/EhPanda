@@ -38,6 +38,18 @@ extension DownloadCoordinator {
         return .success(())
     }
 
+    /// Orchestration only; the filesystem boundary belongs to `DownloadStore` (CR-03).
+    ///
+    /// The coordinator keeps what it alone knows — the busy-download guard, the post-failure
+    /// reload, the index repoint and the observer notification — and hands the move itself to
+    /// `storage.renameUserFolder`, which is the one place that decides whether `oldName` names a
+    /// direct child of the download root at all. Constructing the source URL here, as this used to,
+    /// put a caller-controlled name straight into `moveItem` with no confinement check between.
+    ///
+    /// One ordering changed with the move: existence and collision are now discovered at the
+    /// mutation, so the busy guard runs ahead of them. Nothing observable turns on it — the guard
+    /// keys on an indexed record's `parentFolderName`, which is always a real direct child, so it
+    /// cannot fire for a name the store would have refused.
     public func renameFolder(
         oldName: String,
         newName: String
@@ -49,20 +61,10 @@ extension DownloadCoordinator {
                 )
             )
         }
-        let sourceURL = storage.userFolderURL(name: oldName)
-        let destinationURL = storage.userFolderURL(name: normalizedName)
-        guard sourceURL.standardizedFileURL != destinationURL.standardizedFileURL else {
+        // Names rather than URLs, which is the same comparison for every source the store accepts:
+        // an accepted source already equals its own normalized form.
+        guard oldName != normalizedName else {
             return .success(())
-        }
-        guard fileManager.operate({ $0.fileExists(atPath: sourceURL.path) }) else {
-            return .failure(.notFound)
-        }
-        guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
-            return .failure(
-                .fileOperationFailed(
-                    String(localized: .downloadStoreFolderAlreadyExists)
-                )
-            )
         }
         // The active task holds absolute paths inside the folder; renaming
         // underneath it would resurrect the old directory on the next write.
@@ -75,15 +77,18 @@ extension DownloadCoordinator {
             )
         }
         do {
-            try fileManager.operate {
-                try $0.moveItem(at: sourceURL, to: destinationURL)
-            }
+            try storage.renameUserFolder(oldName: oldName, newName: normalizedName)
+        } catch let error as AppError {
+            // A refusal moved nothing, so this reload re-reads records that never changed; it is
+            // kept on every failing exit because only the store knows which of them mutated first.
+            await reloadDownloadRecordIfPossible(gidInFolder: oldName)
+            return .failure(error)
         } catch {
             logger.error("\(error, privacy: .private)")
             await reloadDownloadRecordIfPossible(gidInFolder: oldName)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
-        renameUserFolder(oldName: oldName, newName: normalizedName)
+        repointRenamedUserFolder(oldName: oldName, newName: normalizedName)
         await notifyObservers()
         return .success(())
     }
@@ -241,7 +246,11 @@ extension DownloadCoordinator {
         }
     }
 
-    private func renameUserFolder(oldName: String, newName: String) {
+    /// Repoints the in-memory read model after the store has already moved the directory.
+    ///
+    /// Named apart from `storage.renameUserFolder` on purpose: that one owns the filesystem, this
+    /// one owns the index, and the two sit on consecutive lines at the single call site.
+    private func repointRenamedUserFolder(oldName: String, newName: String) {
         userFolders.removeAll { $0 == oldName }
         insertUserFolder(newName)
         let movedRecords = downloadIndex.values.filter({ $0.parentFolderName == oldName })
