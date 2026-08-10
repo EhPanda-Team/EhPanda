@@ -387,6 +387,104 @@ extension DownloadStore {
         }
     }
 
+    /// Renames a user folder, owning the whole filesystem boundary of that move (CR-03).
+    ///
+    /// `oldName` arrives from a public client API, so it is untrusted input rather than a name the
+    /// UI is assumed to have read out of a listing. Two refusals carry the boundary:
+    ///
+    /// - **A source is never normalized.** `normalizedUserFolderName` maps separators to spaces and
+    ///   trims padding, so normalizing `"  Photos  "` would select the real folder `"Photos"` — one
+    ///   the caller never named. An accepted source must already BE its normalized spelling;
+    ///   anything else is refused rather than repaired. A destination is the opposite case: the
+    ///   caller is asking for a name to be created, so normalizing it is the entire point.
+    /// - **Containment is decided against the resolved filesystem, and decided again at the move.**
+    ///   Lexical standardization answers `..`, nested components and absolute paths; only symlink
+    ///   resolution answers a direct child that points somewhere else entirely. Both run once more
+    ///   inside the same `operate` closure that performs the move, so no decision taken against a
+    ///   stale view of the disk is what authorizes the mutation.
+    ///
+    /// - Throws: `.fileOperationFailed` for a name that is not an acceptable direct child, for a
+    ///   source that is not a plain directory, and for a destination that already exists;
+    ///   `.notFound` for an acceptable source that is simply absent — the one case where the caller
+    ///   learns something true about a name it was allowed to use.
+    public func renameUserFolder(oldName: String, newName: String) throws {
+        guard let normalizedNewName = normalizedUserFolderName(newName),
+              let sourceURL = confinedDirectUserFolderURL(named: oldName),
+              let destinationURL = confinedDirectUserFolderURL(named: normalizedNewName)
+        else {
+            throw invalidUserFolderNameError()
+        }
+        guard sourceURL != destinationURL else { return }
+        try fileManager.operate { manager in
+            guard confinedDirectUserFolderURL(named: oldName) == sourceURL,
+                  confinedDirectUserFolderURL(named: normalizedNewName) == destinationURL
+            else {
+                throw invalidUserFolderNameError()
+            }
+            guard let sourceType = itemType(at: sourceURL, using: manager) else {
+                throw AppError.notFound
+            }
+            // `attributesOfItem` describes the item itself rather than what it points at, so a
+            // symbolic link reports `.typeSymbolicLink` and fails this equality. That is the
+            // rejection the resolved-parent check cannot make on its own: a link whose target is
+            // another direct child of the same root resolves inside the boundary, and renaming
+            // through it would still move the link instead of the folder the caller named.
+            guard sourceType == .typeDirectory else {
+                throw invalidUserFolderNameError()
+            }
+            guard itemType(at: destinationURL, using: manager) == nil else {
+                throw AppError.fileOperationFailed(
+                    String(localized: .downloadStoreFolderAlreadyExists)
+                )
+            }
+            try manager.moveItem(at: sourceURL, to: destinationURL)
+        }
+    }
+
+    /// The URL of `rawName`, but only when it names a direct child of the download root.
+    ///
+    /// The single-component requirement is stated here rather than inherited from what the name
+    /// sanitizer happens to rewrite today, so a future change to normalization cannot quietly widen
+    /// this boundary. The two parent comparisons are both required and neither implies the other:
+    /// the standardized one refuses a name that climbs out lexically, the resolved one refuses a
+    /// name whose own last component is a link out.
+    private func confinedDirectUserFolderURL(named rawName: String) -> URL? {
+        guard !rawName.isEmpty,
+              rawName != ".",
+              rawName != "..",
+              rawName.split(separator: "/", omittingEmptySubsequences: false).count == 1,
+              normalizedUserFolderName(rawName) == rawName
+        else {
+            return nil
+        }
+        let candidateURL = rootURL.appendingPathComponent(rawName, isDirectory: true)
+        guard candidateURL.standardizedFileURL.deletingLastPathComponent().path
+                == rootURL.standardizedFileURL.path,
+              candidateURL.resolvingSymlinksInPath().deletingLastPathComponent().path
+                == rootURL.resolvingSymlinksInPath().path
+        else {
+            return nil
+        }
+        return candidateURL
+    }
+
+    /// The type of whatever sits at `url`, or nil when nothing readable does.
+    ///
+    /// A throw here reports only that the path has no reachable item, which is precisely the answer
+    /// both call sites need; there is no second outcome for a caller to distinguish.
+    private func itemType(at url: URL, using manager: FileManager) -> FileAttributeType? {
+        do {
+            let attributes = try manager.attributesOfItem(atPath: url.path)
+            return attributes[.type] as? FileAttributeType
+        } catch {
+            return nil
+        }
+    }
+
+    private func invalidUserFolderNameError() -> AppError {
+        .fileOperationFailed(String(localized: .RLocalizable.downloadStoreInvalidFolderName))
+    }
+
     /// Reports the first way this download's files contradict its manifest, without ever being
     /// required to change them.
     ///
