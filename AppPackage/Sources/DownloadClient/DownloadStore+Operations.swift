@@ -414,14 +414,38 @@ extension DownloadStore {
         return unremovedPages
     }
 
+    /// The root-relative spelling of the primitive below, for a caller that holds a record path.
+    ///
+    /// It has no production caller today; `rg -n 'removeFolder' AppPackage/Sources` shows only its
+    /// own delegation. It is kept because it is the vocabulary the record paths speak, and it
+    /// inherits the containment below in full rather than restating any part of it.
     public func removeFolder(relativePath: String) throws {
         let targetURL = folderURL(relativePath: relativePath)
         try removeFolder(at: targetURL)
     }
 
+    /// Removes whatever sits at a path inside the download root, and nothing outside it.
+    ///
+    /// **This is the RECORD-PATH primitive, and it is deliberately more permissive than the
+    /// user-folder boundary (CR-02).** Its containment is prefix-based because its caller
+    /// legitimately names a gallery folder NESTED under a user folder — `removeGalleryFolders`
+    /// passes URLs the scan produced — and no direct-child boundary would admit those. That
+    /// permissiveness is exactly why a caller-supplied user-folder NAME must never arrive here:
+    /// prefix containment refuses `..` and an absolute path and ADMITS `"MyFolder/[123_abc] Some
+    /// Title"`, which removes a gallery folder the caller never named while the coordinator's
+    /// exact `parentFolderName` cleanup key matches nothing. `deleteUserFolder(named:)` owns that
+    /// family now, and no user-folder deletion routes through here any more.
+    ///
+    /// Both containment questions are asked, for the reason `confinedDirectUserFolderURL` records
+    /// about its own pair: standardization answers a path that climbs out lexically, resolution
+    /// answers a path whose own last component links out, and neither implies the other. Without
+    /// the second, a symbolic link staged inside the root is a removal of whatever it points at.
     public func removeFolder(at folderURL: URL) throws {
         let targetURL = folderURL.standardizedFileURL
-        guard targetURL.path.hasPrefix(rootURL.standardizedFileURL.path + "/") else {
+        guard targetURL.path.hasPrefix(rootURL.standardizedFileURL.path + "/"),
+              targetURL.resolvingSymlinksInPath().path
+                .hasPrefix(rootURL.resolvingSymlinksInPath().path + "/")
+        else {
             throw AppError.fileOperationFailed(targetURL.path)
         }
         try fileManager.operate {
@@ -484,6 +508,104 @@ extension DownloadStore {
         }
     }
 
+    /// Deletes a user folder, owning the whole filesystem boundary of that removal (CR-02).
+    ///
+    /// The un-swept sibling of `renameUserFolder`. `rawName` reaches this from a public client API
+    /// exactly as `oldName` does, and until this existed the coordinator appended it to the root
+    /// and handed the result to `removeFolder(at:)`, whose prefix containment admits any nested
+    /// path — so a name joining a user folder to a gallery folder inside it removed that gallery
+    /// recursively. The record half followed from the same construction: the coordinator's cleanup
+    /// keys on an exact `parentFolderName == rawName` match, which a nested name never satisfies,
+    /// so `downloadIndex`, the queue store and the background-task store went on claiming a
+    /// gallery whose folder had just been erased. Admitting only a direct child closes both at
+    /// once — the removal cannot reach a gallery folder, and the cleanup key becomes exact by
+    /// construction rather than by luck.
+    ///
+    /// - Throws: `.fileOperationFailed` for a name that is not an acceptable direct child and for
+    ///   an acceptable name whose item is not a plain directory — a symbolic link included, since
+    ///   `attributesOfItem` describes the link rather than its target, and removing it would
+    ///   destroy the caller's own view of a folder that is still there; `.notFound` for an
+    ///   acceptable name with nothing at it.
+    public func deleteUserFolder(named rawName: String) throws {
+        try mutatingConfinedUserFolder(named: rawName) { folderURL, manager in
+            guard let folderType = itemType(at: folderURL, using: manager) else {
+                throw AppError.notFound
+            }
+            guard folderType == .typeDirectory else {
+                throw invalidUserFolderNameError()
+            }
+            try manager.removeItem(at: folderURL)
+        }
+    }
+
+    /// Creates a user folder that must not already be there (CR-02).
+    ///
+    /// The already-exists refusal is taken inside the lock that creates, rather than by a caller
+    /// that then creates separately, so the answer the caller acts on is the state the creation
+    /// meets. `withIntermediateDirectories: false` is the honest spelling for a direct child whose
+    /// only ancestor is the root this call has just ensured.
+    ///
+    /// - Throws: `.fileOperationFailed` for a name that is not an acceptable direct child and for
+    ///   an acceptable name that is already occupied.
+    @discardableResult
+    public func createUserFolder(named rawName: String) throws -> URL {
+        try ensureRootDirectory()
+        return try mutatingConfinedUserFolder(named: rawName) { folderURL, manager in
+            guard itemType(at: folderURL, using: manager) == nil else {
+                throw AppError.fileOperationFailed(
+                    String(localized: .downloadStoreFolderAlreadyExists)
+                )
+            }
+            try manager.createDirectory(at: folderURL, withIntermediateDirectories: false)
+        }
+    }
+
+    /// Creates a user folder if it is not already there, and answers where it is (CR-02).
+    ///
+    /// The idempotent half of the pair, for the caller that needs the folder to exist rather than
+    /// to be new — a destination whose directory the user may have removed through the Files app.
+    /// It ensures the root first so a root recreated underneath us regains its backup exclusion,
+    /// which creating the intermediate directories alone would silently skip.
+    ///
+    /// - Throws: `.fileOperationFailed` for a name that is not an acceptable direct child.
+    @discardableResult
+    public func ensureUserFolder(named rawName: String) throws -> URL {
+        try ensureRootDirectory()
+        return try mutatingConfinedUserFolder(named: rawName) { folderURL, manager in
+            try manager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        }
+    }
+
+    /// Runs `body` against the confined URL for `rawName`, and only ever against that one.
+    ///
+    /// **This is the SHAPE of the boundary rather than a convenience (CR-02).** Every user-folder
+    /// mutation is written as a closure handed to this function, so there is no spelling of
+    /// "create, move or remove a user folder" that can skip the confined resolution: a later
+    /// sibling cannot regress by forgetting a check, because it has nowhere else to put its
+    /// mutation. That is the property 15-63 left to discipline and this round makes structural —
+    /// `deleteFolder` was the sibling discipline missed.
+    ///
+    /// The resolution is taken once outside the lock and decided AGAIN inside it, immediately
+    /// before `body` runs, for the reason `renameUserFolder` records: the leaf's symlink status
+    /// and the root's own resolution are disk state, so a decision taken before the lock is a
+    /// decision about a disk that may since have changed.
+    @discardableResult
+    private func mutatingConfinedUserFolder(
+        named rawName: String,
+        perform body: (URL, FileManager) throws -> Void
+    ) throws -> URL {
+        guard let folderURL = confinedDirectUserFolderURL(named: rawName) else {
+            throw invalidUserFolderNameError()
+        }
+        try fileManager.operate { manager in
+            guard confinedDirectUserFolderURL(named: rawName) == folderURL else {
+                throw invalidUserFolderNameError()
+            }
+            try body(folderURL, manager)
+        }
+        return folderURL
+    }
+
     /// The URL of `rawName`, but only when it names a direct child of the download root.
     ///
     /// The single-component requirement is stated here rather than inherited from what the name
@@ -491,7 +613,13 @@ extension DownloadStore {
     /// this boundary. The two parent comparisons are both required and neither implies the other:
     /// the standardized one refuses a name that climbs out lexically, the resolved one refuses a
     /// name whose own last component is a link out.
-    private func confinedDirectUserFolderURL(named rawName: String) -> URL? {
+    ///
+    /// Module-visible rather than private because the coordinator has two questions that are this
+    /// same question and no other: whether an absent folder should answer `.notFound` before any
+    /// scheduling state moves, and where a move's destination parent is. Both are RESOLUTIONS —
+    /// every mutation still goes through `mutatingConfinedUserFolder`, and handing out a URL this
+    /// function has already confined widens nothing.
+    func confinedDirectUserFolderURL(named rawName: String) -> URL? {
         guard !rawName.isEmpty,
               rawName != ".",
               rawName != "..",

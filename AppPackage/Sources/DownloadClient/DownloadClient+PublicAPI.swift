@@ -87,7 +87,15 @@ extension DownloadCoordinator {
                     )
                 )
             }
-            try createDirectory(at: storage.userFolderURL(name: parentFolderName))
+            // No separate user-folder creation here (CR-02). `writeInitialManifest` creates
+            // `<root>/<parentFolderName>/<galleryFolder>` with intermediate directories a few
+            // lines below, so the parent was already being created by the call that creates the
+            // gallery folder; the extra one existed only to make it eagerly, and it made it by
+            // appending a name to the root with no confinement — the construction that let
+            // `deleteFolder` reach a gallery folder. Two consequences, both wanted: no user-folder
+            // mutation takes a name on this route at all, and a manifest write that fails no
+            // longer leaves an empty user folder behind. `ensureRootDirectory` above still owns
+            // the root itself, including its backup exclusion.
             let folderRelativePath = folderRelativePath(
                 for: payload,
                 parentFolderName: parentFolderName

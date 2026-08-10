@@ -452,7 +452,7 @@ struct DownloadStoreTests {
         let brokenGalleryURL = storage.folderURL(relativePath: "[456_token] Broken")
         try FileManager.default.createDirectory(at: brokenGalleryURL, withIntermediateDirectories: true)
         // User folders are listed even when empty.
-        let emptyFolderURL = storage.userFolderURL(name: "Empty Folder")
+        let emptyFolderURL = storage.folderURL(relativePath: "Empty Folder")
         try FileManager.default.createDirectory(at: emptyFolderURL, withIntermediateDirectories: true)
         // A populated user folder yields records carrying its name.
         let galleryFolderURL = storage.folderURL(relativePath: "Library/[789_token] Inside")
@@ -501,7 +501,7 @@ struct DownloadStoreTests {
         )
         #expect(cjkName.utf8.count <= 255)
         try FileManager.default.createDirectory(
-            at: storage.userFolderURL(name: cjkName),
+            at: storage.folderURL(relativePath: cjkName),
             withIntermediateDirectories: true
         )
     }
