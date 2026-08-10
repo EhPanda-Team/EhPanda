@@ -215,6 +215,120 @@ extension DownloadValidationReconciliationTests {
         #expect(reread.canTogglePause)
         #expect(await relaunched.resumeMode(for: reread) == .repair)
     }
+
+    /// WR-01's refusal side, and the first half of the crossing pair: a MIXED shape — one claimed
+    /// page positively refuted with its file still on disk, one claimed page positively absent —
+    /// whose combined prospective set is the whole record must blank nothing and remove nothing.
+    ///
+    /// The wholesale guard is a comparison against `manifest.completedPageCount`, so whatever
+    /// quantity is put on its left-hand side decides what "all of them" means. 15-62 added a
+    /// per-page hold for surviving rejections and reported it as a strengthening that "can only
+    /// blank less"; the hold also removes the held page from the count the guard reads, and this
+    /// shape is where that matters. Two claimed pages, one refuted and one absent: counting only
+    /// the absence puts `1 < 2` and licenses blanking page 2, while the pass has in fact explained
+    /// away every page the record claims — precisely the systematic shape the all-or-nothing
+    /// defence exists for. A per-page protection must not be able to authorize an act the guard
+    /// previously refused.
+    ///
+    /// Its sibling below stages the same folder with one extra usable page, so the two cases sit on
+    /// opposite sides of the same discontinuity and the boundary between them is crossed by
+    /// construction rather than assumed.
+    @Test
+    func testAMixedRejectedAndAbsentShapeRefusesTheWholesaleBlanking() async throws {
+        let gallery = SessionGallery(
+            gid: "215615",
+            title: "MixedRefusal",
+            pageCount: 2,
+            completedPageCount: 2
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await stageAMixedRejectedAndAbsentShape(for: gallery, client: spy.client)
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
+        let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
+        let refutedPageURL = pageFileURL(for: gallery, in: fixture, index: 1)
+
+        let seedManifest = try await prepareTheRepairSeedManifest(for: gallery, in: fixture)
+
+        // Handed back verbatim, in memory and on disk alike: a refusal that only declined to
+        // persist would still have moved the record every later consumer reads.
+        #expect(seedManifest.pages == claimedHashes)
+        let diskManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(diskManifest.pages == claimedHashes)
+        #expect(diskManifest.completedPageCount == 2)
+        // The refusal's other half: an act the guard declined to authorize must not have happened
+        // anyway. Pre-fix the removal was never reached for this file at all, which is what leaves
+        // the record claiming a page over positively refuted bytes.
+        #expect(
+            FileManager.default.fileExists(atPath: refutedPageURL.path),
+            "a refused wholesale reconciliation must leave the rejected page file on disk"
+        )
+        let attributes = try FileManager.default.attributesOfItem(atPath: refutedPageURL.path)
+        #expect((attributes[.size] as? NSNumber)?.intValue == 0)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: pageFileURL(for: gallery, in: fixture, index: 2).path
+            ) == false
+        )
+        try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
+
+        let reread = try await relaunchedDownload(for: gallery, in: fixture)
+        #expect(reread.completedPageCount == 2)
+        #expect(reread.displayStatus == .completed)
+    }
+
+    /// WR-02's laundering mirror, and the second half of the crossing pair: the same folder with a
+    /// third, usable claimed page puts the combined set BELOW the threshold, so the authorized act
+    /// must run forward — remove the refuted file, blank its hash and the absence's, and leave the
+    /// usable page's hash and file alone.
+    ///
+    /// This is the side that proves the fix is not a blanket refusal. It also pins the ordering the
+    /// automatic route was missing: `probeAssetFileContent` returns a surviving rejection
+    /// unconditionally — it never deletes, deliberately, because metadata never confirmed anything
+    /// about the file — and the removal primitive was reachable only from the user-initiated
+    /// Validate pass. So on the repair-seed route a page whose bytes were positively refuted kept
+    /// its claimed hash indefinitely: the record went on describing a complete page over unusable
+    /// bytes, which is the D-SSOT-04 shape from the other direction, and no automatic pass could
+    /// ever clear it.
+    @Test
+    func testAMixedShapeBelowTheThresholdRemovesTheRefutedPageAndBlanksBoth() async throws {
+        let gallery = SessionGallery(
+            gid: "215616",
+            title: "MixedAuthorized",
+            pageCount: 3,
+            completedPageCount: 3
+        )
+        let spy = BackgroundProcessingClientSpy()
+        let fixture = try await stageAMixedRejectedAndAbsentShape(for: gallery, client: spy.client)
+        defer { removeTemporaryItem(at: fixture.rootURL) }
+
+        let folderURL = galleryFolderURL(for: gallery, in: fixture)
+        let claimedHashes = try fixture.storage.readManifest(folderURL: folderURL).pages
+        let refutedPageURL = pageFileURL(for: gallery, in: fixture, index: 1)
+        let usablePageURL = pageFileURL(for: gallery, in: fixture, index: 3)
+
+        let seedManifest = try await prepareTheRepairSeedManifest(for: gallery, in: fixture)
+
+        #expect(seedManifest.pages[1] == "")
+        #expect(seedManifest.pages[2] == "")
+        #expect(seedManifest.pages[3] == claimedHashes[3])
+        let diskManifest = try fixture.storage.readManifest(folderURL: folderURL)
+        #expect(diskManifest.pages == seedManifest.pages)
+        #expect(diskManifest.completedPageCount == 1)
+        // The blanking and the removal are one act: a blank hash beside surviving bytes is the
+        // laundering shape, and a removal beside a standing hash is the divergence.
+        #expect(
+            FileManager.default.fileExists(atPath: refutedPageURL.path) == false,
+            "an authorized reconciliation must remove the file whose hash it blanked"
+        )
+        #expect(FileManager.default.fileExists(atPath: usablePageURL.path))
+        try expectNoBlankHashedPageKeptItsFile(for: gallery, in: fixture)
+
+        let reread = try await relaunchedDownload(for: gallery, in: fixture)
+        #expect(reread.completedPageCount == 1)
+        #expect(reread.displayStatus == .inactive)
+    }
 }
 
 private extension DownloadValidationReconciliationTests {
@@ -243,5 +357,89 @@ private extension DownloadValidationReconciliationTests {
         )
         #expect(diskManifest.pages == claimedHashes)
         #expect(diskManifest.completedPageCount == 1)
+    }
+
+    /// The crossing fixture the two mixed-shape cases share, differing only in `gallery.pageCount`.
+    ///
+    /// Page 1 is a claimed page whose file is a readable zero-byte regular file and whose METADATA
+    /// read throws. That is not a convenience: it is the one production exit that yields a
+    /// SURVIVING rejection for a caller that asked the probe to discard. `probeAssetFile` falls
+    /// back to `probeAssetFileContent` when `attributesOfItem` throws, and that fallback answers an
+    /// immediate end-of-file with `.rejected(fileRemains: true)` unconditionally — metadata never
+    /// confirmed a zero-byte regular file, so the housekeeping deletion the metadata path performs
+    /// is deliberately not warranted there. Staging the refusal any other way would let the
+    /// discarding scan delete the file and collapse the page back into an ordinary absence, which
+    /// is a different family and pins nothing about the guard's basis.
+    ///
+    /// Everything else stays real: the directory listing, the existence check and the `FileHandle`
+    /// read all run against the filesystem, and the double throws from `attributesOfItem` for page
+    /// 1's path fragment and from nothing else. Page 2 is claimed with no file at all — the
+    /// positive absence — and every page from 3 up is claimed with a usable file, so the caller
+    /// chooses which side of the wholesale threshold it lands on purely by how many pages the
+    /// record claims.
+    func stageAMixedRejectedAndAbsentShape(
+        for gallery: SessionGallery,
+        client: BackgroundProcessingClient
+    ) async throws -> SessionFixture {
+        let fixture = try await makeQueuedCoordinator(
+            galleries: [gallery],
+            queuedGIDs: [],
+            client: client,
+            taskRunner: DownloadTaskRunner(runScheduledDownload: { _, _ in .skippedOperation }),
+            fileManager: PartialProbeFailureFileManager(
+                // `makePageRelativePath`'s shape for page 1 — the identity prefix, the page number,
+                // a dot — which no other file in the fixture folder carries.
+                pathFragments: ["\(gallery.gid)_token_1."],
+                error: NSError(domain: NSCocoaErrorDomain, code: NSFileReadUnknownError)
+            )
+        )
+        let usablePages = (1...gallery.pageCount).filter({ $0 >= 3 })
+        try writePageFiles(for: gallery, in: fixture, indices: [1] + usablePages)
+        // Written through the production namer and then truncated, so the listing really yields the
+        // entry and only the content question refuses it.
+        try Data().write(
+            to: pageFileURL(for: gallery, in: fixture, index: 1),
+            options: .atomic
+        )
+        await fixture.manager.reloadDownloadIndex()
+        return fixture
+    }
+
+    /// Drives the production repair-seed preparation over the fixture's own folder and returns the
+    /// manifest it hands back.
+    ///
+    /// `.repair` reuses its working folder unconditionally, so the gallery folder IS the working
+    /// folder and the preparation reaches `reconcileWorkingManifestAgainstPageFiles` over exactly
+    /// the shape the staging wrote. Going through the announcing entry point rather than the silent
+    /// one is what keeps the case on the route production takes.
+    func prepareTheRepairSeedManifest(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture
+    ) async throws -> DownloadManifest {
+        let existingDownload = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        let prepared = try await fixture.manager.testingPrepareWorkingSeedAnnouncingProgress(
+            payload: makeRepairPayload(for: gallery),
+            existingDownload: existingDownload,
+            folderURL: galleryFolderURL(for: gallery, in: fixture)
+        )
+        return prepared.workingSeed.manifest
+    }
+
+    /// The record a relaunch would read: a second coordinator over the same storage root, holding
+    /// none of this session's in-memory state, so whatever it reports was carried by the record.
+    ///
+    /// Its store takes the real file manager rather than the staging double — a relaunch has no
+    /// probe failure — which is also what makes the surviving-file readings above durable claims
+    /// about the disk rather than about the injection.
+    func relaunchedDownload(
+        for gallery: SessionGallery,
+        in fixture: SessionFixture
+    ) async throws -> DownloadedGallery {
+        let relaunched = DownloadCoordinator(
+            storage: DownloadStore(rootURL: fixture.rootURL, fileManager: .default),
+            urlSession: .shared
+        )
+        await relaunched.reloadDownloadIndex()
+        return try #require(await relaunched.fetchDownload(gid: gallery.gid))
     }
 }
