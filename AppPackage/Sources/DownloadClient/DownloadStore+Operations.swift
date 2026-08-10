@@ -151,8 +151,20 @@ extension DownloadStore {
         // ENTITLED to discard (CR-03). A page this scan refuses is one the copy below skips, so the
         // destination's own scan reads it as a positive absence and `prepareWorkingSeed`'s
         // reconciliation blanks its hash inside the same D-G7-01 bracket — record and disk move
-        // together, which is the entitlement. (15-67 converts this route's classify-then-authorize
-        // ordering; until then the removal precedes the blanking it is paired with.)
+        // together, which is the entitlement.
+        //
+        // NOT converted to the classify-authorize-remove ordering the DESTINATION scan took in
+        // WR-02, and the asymmetry is deliberate rather than an omission. There the removal and the
+        // blanking are about one folder, so deleting while the wholesale guard might still refuse
+        // left the record claiming a page whose file the asking had already destroyed, and a
+        // refutation the probe declines to delete at all kept its claimed hash indefinitely. Here
+        // the two are about DIFFERENT folders: what this deletes is a file in the source, while what
+        // gets blanked is the copy's manifest, for a page the copy never landed. The destination
+        // therefore meets a positive absence rather than a surviving refutation, so neither of the
+        // two shapes the conversion closes — a per-page hold shrinking the wholesale basis (WR-01),
+        // and a claimed hash standing over refuted bytes (WR-02) — is reachable through it. What the
+        // SOURCE folder's own record owes for the file removed here is a separate question, and this
+        // round did not answer it.
         let sourceScan = pageFileScan(
             folderURL: sourceFolderURL,
             manifest: manifest,
