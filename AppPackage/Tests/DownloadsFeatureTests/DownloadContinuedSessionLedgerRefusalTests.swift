@@ -134,7 +134,7 @@ extension DownloadContinuedSessionLedgerTests {
         )
         // The indices are this case's own `retryPages` set, so the payload carries what the route
         // stored rather than a selection typed independently of it.
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: vanished,
             mode: .repair,
             retriedPageIndices: [1, 2, 3, 4, 5, 6],
@@ -274,7 +274,7 @@ extension DownloadContinuedSessionLedgerTests {
 
         // The index is this case's own `retryPages` set, so the payload carries what the route
         // stored rather than a selection typed independently of it.
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: unlisted,
             mode: .repair,
             retriedPageIndices: [3],
@@ -399,7 +399,7 @@ extension DownloadContinuedSessionLedgerTests {
         )
         // The index is this case's own `retryPages` set, so the payload carries what the route
         // stored rather than a selection typed independently of it.
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: selective,
             mode: .repair,
             retriedPageIndices: [3],
@@ -492,7 +492,7 @@ extension DownloadContinuedSessionLedgerTests {
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(halted.gid)_token] \(halted.title)"
         )
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: halted,
             mode: .repair,
             retriedPageIndices: [1, 2, 3, 4, 5, 6],
@@ -595,7 +595,7 @@ extension DownloadContinuedSessionLedgerTests {
         let stored = try #require(await manager.queuedPageSelections[selective.gid])
         #expect(stored == [2, 4])
 
-        let payload = await makeRetriedPagesPayload(
+        let payload = try await makeRetriedPagesPayload(
             for: selective,
             mode: .repair,
             retriedPageIndices: requestedPageIndices,

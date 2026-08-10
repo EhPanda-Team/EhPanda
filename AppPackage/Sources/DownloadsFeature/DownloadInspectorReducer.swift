@@ -187,7 +187,11 @@ public struct DownloadInspectorReducer: Sendable {
                 )
 
             case .retryPagesDone(let result):
-                if case .failure = result {
+                if case .failure(let error) = result {
+                    // WR-04: without this the tap is a visible no-op — the rows flash to `.pending`
+                    // from the optimistic rewrite above and silently revert, with nothing telling
+                    // the user why. The reload below resettles the list; it does not report.
+                    state.toast = error.retryFailureToast
                     state.retryingPageIndices = .init()
                     return .send(.loadInspection)
                 }
@@ -237,6 +241,29 @@ public struct DownloadInspectorReducer: Sendable {
             }
         }
         .ifLet(\.$toast, action: \.toast)
+    }
+}
+
+private extension AppError {
+    /// The toast a refused or failed page retry renders (WR-04).
+    ///
+    /// **`.fileOperationFailed` is rendered by its payload alone, deliberately.** That is the kind
+    /// `retryPages` uses to carry a sentence naming which of its refusals happened — the pages you
+    /// selected are not this gallery's — and `alertText` would prefix its own generic "local file
+    /// operation failed" line ahead of that specific one, burying the part that answers the user's
+    /// question. Every other kind keeps `alertText`, which is the app's own wording for it: an
+    /// absent gallery is genuinely `.notFound`, and saying so is the whole reason the inadmissible
+    /// selection stopped being `.notFound` too.
+    ///
+    /// `alertText` is empty for two kinds that carry no user-facing sentence (`.noUpdates`,
+    /// `.webImageFailed`); neither is reachable from this route, but a toast whose message is blank
+    /// reports nothing, which is the defect this mapping exists to close. `localizedDescription`
+    /// has a case for every kind and is never empty, so the fallback cannot degenerate.
+    var retryFailureToast: AppAlertState<Never> {
+        if case .fileOperationFailed(let message) = self, !message.isEmpty {
+            return .error(caption: message)
+        }
+        return .error(caption: alertText.isEmpty ? localizedDescription : alertText)
     }
 }
 

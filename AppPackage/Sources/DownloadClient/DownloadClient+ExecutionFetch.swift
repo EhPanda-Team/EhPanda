@@ -159,28 +159,42 @@ extension DownloadCoordinator {
     ///
     /// - `nil` means no selection was ever made. It stays nil, and `pendingPageIndices` reads that
     ///   as no restriction — every page the record still owes.
-    /// - A non-nil selection means the caller named pages, and it stays PRESENT: a `Set` that may
-    ///   be empty once this second, defensive filter removes what the newly fetched count cannot
-    ///   support. Collapsing that empty case to nil is what let an inadmissible narrow request
-    ///   become a whole-gallery repair, because the two states then shared one value while meaning
-    ///   opposite things.
+    /// - A non-nil selection whose members the fetched count still supports means the caller named
+    ///   pages that can be honoured, and it stays PRESENT: exactly that surviving `Set`.
+    /// - A non-nil selection this filter empties is a request that can no longer be honoured at
+    ///   all, and it THROWS. It never becomes nil: collapsing it to nil is what let an inadmissible
+    ///   narrow request become a whole-gallery repair, because the two states then shared one value
+    ///   while meaning opposite things.
     /// - `.update` discards the selection entirely, matching `retryPages`' documented whole-update
     ///   delegation: an update refreshes the gallery against a page count no earlier subset was
-    ///   drawn against.
+    ///   drawn against. It is exempt from the collapse throw for the same reason — its selection is
+    ///   not a restriction it carries.
     ///
-    /// The filter is defensive rather than load-bearing — the public boundary already refused an
-    /// inadmissible request — but the page count it validates against is the FETCHED one, which
-    /// can differ from the record's. Failing closed here is the honest answer to that drift.
+    /// The filter is not the boundary that stops an inadmissible caller — `retryPages` already
+    /// refused one against the RECORD's page count — but the count validated here is the FETCHED
+    /// one, which can differ. Failing closed on that drift was already the rule; what changed is
+    /// that it now fails LOUDLY (WR-05).
+    ///
+    /// **Why a throw rather than the empty-but-present payload 15-64 returned.** The empty payload
+    /// stopped the widening, but the run that inherited it was not a no-op: `pendingPageIndices`
+    /// answered nothing, the announcement gate declined, `downloadCoverImage` still ran, and
+    /// `finalizeBatchResult` then measured the WHOLE manifest through `missingFinalizedPageIndices`
+    /// — so any page a `.repair` seed's reconciliation had just blanked raised the generic
+    /// incomplete-download error and settled the gallery into a persistent `.error` record for work
+    /// nobody requested. Throwing here reaches `processDownload`'s catch through
+    /// `fetchNormalizeAndDownload` and settles the SAME failure path with a truthful reason, before
+    /// `performDownload` — and therefore before the working seed, the announcement, the cover and
+    /// finalize — has run at all. Nothing has been blanked when it fires.
     ///
     /// G-15-14, same class as the two range sites: validating a page number by comparison rather
     /// than by building `1...pageCount` means no range exists here to be invalid. The predicate is
     /// identical for every positive count; at zero it simply admits nothing, where the range form
-    /// trapped the process.
+    /// trapped the process — and admitting nothing is now the throw rather than an empty set.
     public func normalizeFetchedPayload(
         _ payload: DownloadRequestPayload,
         mode: DownloadStartMode,
         rawPageSelection: [Int]?
-    ) -> DownloadRequestPayload {
+    ) throws(AppError) -> DownloadRequestPayload {
         let pageCount = payload.galleryDetail.pageCount
         let pageSelection: Set<Int>? = if mode == .update {
             nil
@@ -188,6 +202,13 @@ extension DownloadCoordinator {
             rawPageSelection.map({ selection in
                 Set(selection.filter({ $0 >= 1 && $0 <= pageCount }))
             })
+        }
+        // Presence carries the restriction, so this tests the presence first and the emptiness
+        // second: `nil` here is the unrestricted request, which has nothing to collapse.
+        if let pageSelection, pageSelection.isEmpty {
+            throw .fileOperationFailed(
+                String(localized: .downloadStorePageSelectionOutdated)
+            )
         }
 
         // Compared against the payload's own selection rather than the raw array: the two are

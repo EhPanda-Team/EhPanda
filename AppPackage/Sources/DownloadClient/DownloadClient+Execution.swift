@@ -146,7 +146,11 @@ extension DownloadCoordinator {
             options: options,
             pageSelection: rawPageSelection
         )
-        let payload = normalizeFetchedPayload(
+        // Throws when the fetched page count has emptied a selection that was admissible against
+        // the record's (WR-05). It propagates through this function's own `throws` to
+        // `processDownload`'s catch and settles as an ordinary AppError failure, carrying the
+        // reason — no new machinery, and no run work has happened yet.
+        let payload = try normalizeFetchedPayload(
             fetchedPayload,
             mode: mode,
             rawPageSelection: rawPageSelection
