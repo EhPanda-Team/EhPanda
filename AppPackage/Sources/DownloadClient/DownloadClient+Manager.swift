@@ -618,30 +618,43 @@ public actor DownloadCoordinator {
     /// incomplete-error dequeue, pause, delete, the queued-work-item cancel and the expiration
     /// pause-all — rather than only the paths someone remembered to instrument.
     var observedSchedulablePages = [String: Int]()
-    /// The galleries whose RECORD this session has observed reading incomplete while they were
-    /// schedulable.
+    /// For each gallery whose RECORD this session has observed reading incomplete while it was
+    /// schedulable, the QUEUE-INTENT GENERATION that observation belongs to.
     ///
-    /// A pure observation set: its only writers are this session's own snapshot merges, which read
-    /// `isIncomplete`, and its only meaning is "the record honestly told this session it was
-    /// mid-work". It decides exactly one question — what a COMPLETE-reading record with no run in
-    /// flight contributes (`sessionCreditedPages`). A gallery watched incomplete that now reads
+    /// A pure observation map: its only writers are this session's own snapshot merges, which read
+    /// `isIncomplete` and stamp `queueIntentGeneration(for:)` in the same actor-isolated read, and
+    /// its only meaning is "the record honestly told this session it was mid-work, under THAT
+    /// queue intent". It decides exactly one question — what a COMPLETE-reading record with no run
+    /// in flight contributes (`sessionCreditedPages`). A gallery watched incomplete that now reads
     /// complete earned that movement through landed pages this session covered, so its count is
     /// real covered work and it counts and retires whole. One never watched incomplete is a redo
     /// target whose pages predate the session, so it counts zero — D-G4-01's queued window.
     ///
-    /// It used to be more than that. The pre-basis design seeded it from the run debts and
-    /// withdrew members at run exits, because the credited-pages rule needed a trust grant to
+    /// **The generation is the whole of the key, and a bare gallery id was CR-02.** Observation is
+    /// evidence about one queue intent, not a durable property of a gallery identifier. A gallery
+    /// can complete, retire and be re-queued inside a single session — the queue-wide session is
+    /// one session per D-06, and a keeper gallery holds it open — and every fresh queue intent
+    /// (`performRetry`, `performRetryPages`, `resume`, `enqueue`) advances the generation before
+    /// its snapshot is taken. Keyed by id alone, the predecessor's observation then credited the
+    /// successor's untouched complete manifest at its full recorded count, so the card opened at
+    /// the redo's own target before the run had announced a single page. Generation equality is
+    /// the single invalidation mechanism: the mismatch is atomic from the actor's perspective, it
+    /// touches no other gallery and no retirement ledger entry, and it needs no clear on any retry
+    /// path — a per-path clear would be one more incomplete census to keep exhaustive.
+    ///
+    /// It used to be more than an observation. The pre-basis design seeded it from the run debts
+    /// and withdrew members at run exits, because the credited-pages rule needed a trust grant to
     /// reach the refusal family at all — and that pollution is what made G-15-30 reachable: a
     /// granted membership unlocked a count the session never earned. `runProgressBases` is
-    /// consulted ahead of this set now, so a live run's gallery never reaches the branch this set
+    /// consulted ahead of this map now, so a live run's gallery never reaches the branch this map
     /// decides, and the refusal family — whose record never reads incomplete — structurally
-    /// cannot enter it. Within one session a record moves from incomplete to complete only
-    /// through landed pages, which is precisely the work the count describes, so the branch this
-    /// set opens has no route to an unearned number.
+    /// cannot enter it. Within one session and one generation a record moves from incomplete to
+    /// complete only through landed pages, which is precisely the work the count describes, so the
+    /// branch this map opens has no route to an unearned number.
     ///
     /// Session-scoped: emptied when a session starts and cleared when one ends. Nothing seeds it —
-    /// a run in flight across a session start is credited through its basis, not through this set.
-    var observedIncompleteSessionGIDs = Set<String>()
+    /// a run in flight across a session start is credited through its basis, not through this map.
+    var observedIncompleteSessionGenerations = [String: Int]()
     /// Each gallery's CURRENT RUN's own progress measurement, keyed by gallery identifier. The
     /// derivation for why a measurement rather than a corrected record inference lives on
     /// `RunProgressBasis` itself.
