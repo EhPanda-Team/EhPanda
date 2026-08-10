@@ -214,6 +214,12 @@ extension DownloadCoordinator {
     /// show which files were destroyed against a record that still claims them, and the entry is
     /// kept.
     ///
+    /// **The rule has ONE implementation, and since WR-03 both destructive routes reach it.**
+    /// `recoveredBlanking` is module-internal, and `prepareWorkingSeed` — which copied this
+    /// function's classify-guard-remove-rescan-blank ORDERING and dropped its compensation — now
+    /// calls the same helper from its own three post-removal exits. A second copy of a recovery is
+    /// what a second copy of an ordering produces, which is the whole of WR-03.
+    ///
     /// **D-SSOT-04: the refuted files are removed, and the blanking still flows through the ONE
     /// loop.** Nothing here blanks a hash. Removal converts a corrupt-in-place or structurally
     /// refused page into the positively-absent shape, the rescan sees it as such, and
@@ -229,7 +235,13 @@ extension DownloadCoordinator {
     /// preparation wraps this loop in. Blanking lowers the record's counted basis, and a live
     /// continued session may still be counting this gallery — a completed-then-validated gallery
     /// while the queue drains — so the write has to withdraw its counted portion from the monotonic
-    /// floor. The bracket is delta-keyed, so a refusal withdraws exactly zero by construction.
+    /// floor. The bracket is delta-keyed, so a refusal withdraws exactly zero by construction. It
+    /// opens BELOW the removal, because D-G7-01's own exclusion forbids a deletion inside it, and
+    /// spans BOTH attempts rather than one each: the credited reading does not move between them,
+    /// and both deltas are downward, so one span withdraws exactly what two siblings would. What one
+    /// span buys is that this file supplies exactly ONE bracket wrapper — the same shape the seed
+    /// route has, where `prepareWorkingSeed`'s already-open bracket is the one the shared recovery
+    /// runs inside.
     ///
     /// **D-SSOT-05: the return value is about the OPERATION, not about the record.** True means this
     /// pass classified every claimed page and wrote the correction they licensed, so the record can
@@ -301,54 +313,61 @@ extension DownloadCoordinator {
                     prospectiveBlankPages: prospectiveBlankPages
                 )
             )
-        do {
-            let reconciledManifest = try blankingPass(
-                gid: download.gid,
-                manifest: manifest,
-                folderURL: folderURL
-            )
-            guard reconciledManifest.claimsAnyPage(in: removedPages) else {
-                return heldPages.isEmpty && reconciledManifest.pages != manifest.pages
+        return withdrawingCountedBasisMovement(gid: download.gid) {
+            do {
+                let reconciledManifest = try blankingPass(
+                    manifest: manifest,
+                    folderURL: folderURL
+                )
+                guard reconciledManifest.claimsAnyPage(in: removedPages) else {
+                    return heldPages.isEmpty && reconciledManifest.pages != manifest.pages
+                }
+                // Post-removal exits 1 and 2: the loop handed the manifest back verbatim — the
+                // rescan could not enumerate, or its own refusal lines fired on the post-removal
+                // scan — so the record still claims pages whose files are gone.
+                return recoveredBlanking(
+                    gid: download.gid,
+                    manifest: manifest,
+                    removedPages: removedPages,
+                    folderURL: folderURL
+                ) != nil && heldPages.isEmpty
+            } catch {
+                // Post-removal exit 3: the throw can only come from the loop's manifest write. Where
+                // this pass destroyed nothing, the record still claims exactly what it claimed
+                // before, so the verdict simply has nowhere durable to live and the caller's
+                // transient entry is the honest surface for that — the silence is deliberate rather
+                // than swallowed, and the loop logs the writes it does perform.
+                guard !removedPages.isEmpty else { return false }
+                // Where this pass DID destroy files, the old premise is false: returning here would
+                // leave the record claiming pages that no longer exist, marked only by session
+                // state.
+                return recoveredBlanking(
+                    gid: download.gid,
+                    manifest: manifest,
+                    removedPages: removedPages,
+                    folderURL: folderURL
+                ) != nil && heldPages.isEmpty
             }
-            // Post-removal exits 1 and 2: the loop handed the manifest back verbatim — the rescan
-            // could not enumerate, or its own refusal lines fired on the post-removal scan — so the
-            // record still claims pages whose files are gone.
-            return recoveredBlanking(
-                gid: download.gid,
-                manifest: manifest,
-                removedPages: removedPages,
-                folderURL: folderURL
-            ) && heldPages.isEmpty
-        } catch {
-            // Post-removal exit 3: the throw can only come from the loop's manifest write. Where
-            // this pass destroyed nothing, the record still claims exactly what it claimed before,
-            // so the verdict simply has nowhere durable to live and the caller's transient entry is
-            // the honest surface for that — the silence is deliberate rather than swallowed, and the
-            // loop logs the writes it does perform.
-            guard !removedPages.isEmpty else { return false }
-            // Where this pass DID destroy files, the old premise is false: returning here would
-            // leave the record claiming pages that no longer exist, marked only by session state.
-            return recoveredBlanking(
-                gid: download.gid,
-                manifest: manifest,
-                removedPages: removedPages,
-                folderURL: folderURL
-            ) && heldPages.isEmpty
         }
     }
 
-    /// One bracketed run of the D-G5-01 blanking loop over a page-file scan taken fresh at the call.
+    /// One run of the D-G5-01 blanking loop over a page-file scan taken fresh at the call.
     ///
     /// The scan is taken here rather than passed in, so the pages a removal emptied reach the loop as
     /// the positive absences they now are, and so the recovery attempt cannot accidentally re-use the
     /// stale scan its predecessor already failed against. Reusing a pre-removal scan would hide the
     /// removed pages from the very reconciliation the removal was performed for.
     ///
-    /// Both attempts route through this one function, which is also what keeps
-    /// `withdrawingCountedBasisMovement` at a single call site in this file: the bracket is the same
-    /// sibling bracket the repair-seed preparation wraps this loop in, the two attempts compose as
-    /// SIBLINGS rather than nesting, and its delta-keying means an attempt that blanks nothing
-    /// withdraws exactly zero by construction.
+    /// **It opens NO bracket of its own, and that is what lets the recovery above it be shared
+    /// (WR-03).** `withdrawingCountedBasisMovement` composes as SIBLINGS only, so a helper that
+    /// bracketed itself could not be called from `prepareWorkingSeed`, whose own bracket is already
+    /// open around everything it does — the inner delta would be measured twice and withdrawn twice.
+    /// The bracket therefore belongs to the CALLER: this file's validate route supplies one span
+    /// around both of its attempts, and the seed route supplies `prepareWorkingSeed`'s. Nesting is
+    /// prevented by that discipline rather than by the type system: the closure is non-escaping and
+    /// non-`Sendable`, so it inherits the enclosing actor isolation and a synchronous actor method
+    /// called inside it compiles (WR-04's correction to the refuted "impossible at the type level"
+    /// claim).
     ///
     /// **The scan is non-mutating here too, which is what keeps the removal's own failures honest
     /// (CR-01).** A discarding scan at this point would quietly finish the job for a page whose
@@ -358,7 +377,6 @@ extension DownloadCoordinator {
     /// skips the page, and its hash stands — which is exactly what "a failed removal demotes to a
     /// hold" has to mean on disk.
     private func blankingPass(
-        gid: String,
         manifest: DownloadManifest,
         folderURL: URL
     ) throws -> DownloadManifest {
@@ -366,42 +384,53 @@ extension DownloadCoordinator {
             folderURL: folderURL,
             manifest: manifest
         )
-        return try withdrawingCountedBasisMovement(gid: gid) {
-            try reconcileWorkingManifestAgainstPageFiles(
-                manifest: manifest,
-                pageFileScan: pageFileScan,
-                folderURL: folderURL
-            )
-        }
+        return try reconcileWorkingManifestAgainstPageFiles(
+            manifest: manifest,
+            pageFileScan: pageFileScan,
+            folderURL: folderURL
+        )
     }
 
-    /// Re-attempts the blanking write ONCE for the pages this pass already removed, and reports
-    /// whether the record and the disk agree when it returns.
+    /// Re-attempts the blanking write ONCE for the pages a pass already removed, and answers with the
+    /// record the caller should carry — or `nil` when the record and the disk still disagree.
     ///
-    /// Called from every post-removal exit, because all three leave the same state: files destroyed,
-    /// hashes still claimed. The retry adds no blanking path — it is the identical pass over a fresh
-    /// scan — so the loop's three refusal lines and the wholesale guard still decide. What it buys is
-    /// the transient case: an enumeration that failed once, a write that failed once, a folder busy
-    /// for an instant. The removed pages are positively absent by construction, so an attempt that
-    /// gets an answer blanks exactly them.
+    /// **The ONE implementation of the recover-once-and-log rule, reached from every post-removal
+    /// exit of BOTH destructive routes (CR-02, shared by WR-03).** All of them leave the same state:
+    /// files destroyed, hashes still claimed. The retry adds no blanking path — it is the identical
+    /// pass over a fresh scan — so the loop's three refusal lines and the wholesale guard still
+    /// decide. What it buys is the transient case: an enumeration that failed once, a write that
+    /// failed once, a folder busy for an instant. The removed pages are positively absent by
+    /// construction, so an attempt that gets an answer blanks exactly them.
+    ///
+    /// **The caller supplies the bracket; this opens none.** `withdrawingCountedBasisMovement`
+    /// composes as SIBLINGS only, so the validate route runs this inside the one span it opens after
+    /// its removal and `prepareWorkingSeed` runs it inside the bracket that is already open around
+    /// its whole preparation. Opening one here would nest inside the second caller and withdraw its
+    /// delta twice.
+    ///
+    /// It answers with the MANIFEST rather than a flag because the two callers need different halves
+    /// of the same answer and neither may re-derive it: the validate route reports success or failure
+    /// to its own `validationErrors` bookkeeping, while the seed route has to carry the corrected
+    /// record forward into the working seed — a stale copy there would announce and fetch against
+    /// claims the recovery had just retracted.
     ///
     /// A second failure is NOT silent. Recorded hashes now describe files this app deleted, and that
     /// divergence outlives the session while the `validationErrors` entry marking it does not, so the
     /// removed page indices go to the log at `error` with the gid hash-masked — the module's identity
-    /// pattern, and the only trail a device archive could show. Returning false keeps the entry.
-    private func recoveredBlanking(
+    /// pattern, and the only trail a device archive could show. This is the single call site for that
+    /// message family; a second one would be a second rule.
+    func recoveredBlanking(
         gid: String,
         manifest: DownloadManifest,
         removedPages: Set<Int>,
         folderURL: URL
-    ) -> Bool {
+    ) -> DownloadManifest? {
         do {
             let recoveredManifest = try blankingPass(
-                gid: gid,
                 manifest: manifest,
                 folderURL: folderURL
             )
-            if !recoveredManifest.claimsAnyPage(in: removedPages) { return true }
+            if !recoveredManifest.claimsAnyPage(in: removedPages) { return recoveredManifest }
         } catch {
             // The retry's own write threw. The error itself adds nothing the log line below does not
             // already say, and that line is what the removals oblige.
@@ -414,7 +443,7 @@ extension DownloadCoordinator {
             gid: \(gid, privacy: .private(mask: .hash)).
             """
         )
-        return false
+        return nil
     }
 
     /// The pages this reconciliation would end up blanking if nothing refused — the set D-SSOT-02's
@@ -484,13 +513,17 @@ extension DownloadCoordinator {
     }
 }
 
-private extension DownloadManifest {
+extension DownloadManifest {
     /// Whether this manifest still records a non-empty hash for any of `pageIndices`.
     ///
     /// The recovery's whole question, asked of the record rather than of a return code: a blanking
     /// attempt that refused and one that threw are indistinguishable from their outcome alone, and
     /// what matters to the caller is neither — it is whether the record still claims a page whose
     /// file is gone.
+    ///
+    /// Module-internal rather than file-private so both destructive routes ask it with one
+    /// expression: `prepareWorkingSeed` decides its exits 1 and 2 on exactly this predicate over the
+    /// manifest its own blanking loop returned (WR-03).
     func claimsAnyPage(in pageIndices: Set<Int>) -> Bool {
         pageIndices.contains(where: { pages[$0]?.isEmpty == false })
     }
