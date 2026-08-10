@@ -234,3 +234,11 @@ Two files remain near the `file_length` limit and will need the same treatment b
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-08-10*
+
+## Self-Check: PASSED
+
+- `AppPackage/Sources/DownloadClient/DownloadClient+SeedReconciliation.swift` — FOUND
+- `.planning/phases/15-continued-background-downloads/15-74-SUMMARY.md` — FOUND
+- Commits `31764623`, `8bafe435`, `88e12a88`, `435a014a`, `02f4ffd8` — all FOUND
+- `basisMovementDepth` increment, `defer` decrement, depth guard and `reportIssue` present in `+ExecutionSupport.swift`; property declared in `+Manager.swift`
+- `15-65-SUMMARY.md` carries 3 `[Corrected by 15-74]` markers
