@@ -772,7 +772,7 @@ struct DownloadValidationReconciliationTests: DownloadFeatureTestCase {
     }
 }
 
-private extension DownloadValidationReconciliationTests {
+extension DownloadValidationReconciliationTests {
     /// D-SSOT-04's structural pin: after a reconciliation, no page may carry a blank hash while its
     /// file is still on disk.
     ///
@@ -788,6 +788,11 @@ private extension DownloadValidationReconciliationTests {
     /// step; the folder, page-file, hashing and corruption helpers it reads through are the shared
     /// ones on `DownloadFeatureTestCase`, which is what stops this file from carrying a second
     /// answer to where the fixture's files live.
+    ///
+    /// Suite-scoped rather than file-private, because the suite now spans two files: the rejection
+    /// arm lives in `DownloadValidationRejectionArmTests.swift` as an extension of this same suite,
+    /// and it asserts the identical no-laundering shape. A file-private copy there would be a second
+    /// answer to the question this member exists to answer once.
     func expectNoBlankHashedPageKeptItsFile(
         for gallery: SessionGallery,
         in fixture: SessionFixture
