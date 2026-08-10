@@ -690,7 +690,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Cloudflare Login Restoration | 6/6 | Complete    | 2026-07-23 |
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
-| 15. Continued Background Downloads | 64/64 | In Progress|  |
+| 15. Continued Background Downloads | 65/69 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -812,7 +812,7 @@ Plans:
 
 **Resolved in discuss-phase**: the continued-processing task *fully replaces* both the discretionary processing-task path and the execution assertion; neither survives as a secondary tier. The seam stays domain-general in shape, but downloads are its only call site this milestone. `Info.plist` keeps its background-modes declaration and swaps its permitted-identifier entry to the bundle-scoped continued-processing wildcard, so the entitlement surface remained an edit rather than a new capability.
 
-**Plans**: 69 plans (64 executed, 5 gap-closure round 19 pending)
+**Plans**: 65/69 plans executed
 
 Plans:
 
@@ -1061,7 +1061,7 @@ Plans:
 
 Gap closure round 19 (verification 2026-08-10, gaps 1-4):
 
-- [ ] 15-65-PLAN.md — Wrap the queue-intent generation advance in its own D-G7-01 withdrawal bracket so the credited-basis drop is withdrawn at every present and future call site by construction; one-at-a-time keeper regression asserts the pushed numerator moves on the first post-requeue page.
+- [x] 15-65-PLAN.md — Wrap the queue-intent generation advance in its own D-G7-01 withdrawal bracket so the credited-basis drop is withdrawn at every present and future call site by construction; one-at-a-time keeper regression asserts the pushed numerator moves on the first post-requeue page.
 - [ ] 15-66-PLAN.md — Flip every discardingRejected default to non-mutating so reads never delete: sweep the whole validate/scan/probe family with per-caller dispositions, delete the side-effect-only scanCompletedFolder sweep, and pin zero-byte loadManifest/resumeMode non-mutation from both sides.
 - [ ] 15-67-PLAN.md — Measure the wholesale blanking guard over the combined positively-refuted set and give the repair-seed route the validated-record pass's classify-authorize-remove ordering, so a per-page hold cannot relax the threshold and no record claims a page over refuted surviving bytes.
 - [ ] 15-68-PLAN.md — Route every user-folder mutation (delete, create, move destination, enqueue parent) through the store-owned confined boundary with a deleteUserFolder that re-checks inside the operate closure; symlink-harden removeFolder and pin the six-argument delete escape suite plus three-store record convergence.
