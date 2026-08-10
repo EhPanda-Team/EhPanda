@@ -54,8 +54,8 @@ extension DownloadContinuedSessionLedgerTests {
     /// guard `blankedPageCount < manifest.completedPageCount` refuses. Nothing is blanked and nothing
     /// is republished, so `isIncomplete` stays false for the whole run and the snapshot-sourced half
     /// of D-G4-01's predicate can never admit this gallery — by construction, since
-    /// `incompleteGalleryIDs` is built from `isIncomplete`. The run's own proof is the only admission
-    /// this family can reach.
+    /// `incompleteGalleryGenerations` is built from `isIncomplete`. The run's own proof is the only
+    /// admission this family can reach.
     ///
     /// **The suspension the ordering hinges on**, derived from `ensureContinuedSession` rather than
     /// assumed: the card's OPENING subtitle is built from `schedulableSnapshot()`, taken after the
