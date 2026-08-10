@@ -689,9 +689,8 @@ public struct DownloadStore: Sendable {
         // discarding probe here would let a routine refresh delete a zero-byte or non-regular page
         // file while the manifest goes on claiming that page, with nothing displayed moving to say
         // so. Since CR-03 that is the DEFAULT rather than this site's opt-out, so no argument is
-        // written here at all; the only entitled actor left is the repair seed, and after WR-02 what
-        // it still discards is a cover, which carries no recorded hash, and a SOURCE folder scan
-        // whose refusals reach the destination as absences the destination then blanks.
+        // written here at all; the only sites still discarding are the two COVER resolutions, and a
+        // cover carries no recorded hash to diverge from.
         return DownloadFolderRecord(
             relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
             folderURL: folderURL,
@@ -793,20 +792,26 @@ public struct DownloadStore: Sendable {
     /// is now what a caller gets for saying nothing, so the property holds for callers that do not
     /// exist yet, and deleting has to be written down.
     ///
-    /// Exactly one production actor writes it, at three sites: the repair seed's source scan and
-    /// cover resolution (`materializeRepairSeed`), and the working folder's cover resolution
-    /// (`prepareWorkingSeed`). The entitlement is the rule rather than the position. A cover carries
-    /// no recorded hash at all, so its removal has nothing to diverge from and the run re-fetches
-    /// it; the source scan's refusals are pages the copy then skips, so they reach the DESTINATION
-    /// folder as positive absences that the destination's own reconciliation blanks durably.
+    /// Exactly two production sites write it, and both are COVERS: the repair seed's cover
+    /// resolution (`materializeRepairSeed`) and the working folder's (`prepareWorkingSeed`). The
+    /// entitlement is the rule rather than the position, and the rule is that an act may delete only
+    /// if the same act durably blanks the record for the page it destroyed. A cover carries no
+    /// recorded hash at all, so its removal has nothing to diverge from and the run re-fetches it.
+    /// That population is CENSUSED rather than described:
+    /// `DownloadSourceInventoryTests.testDiscardingRejectedSitesMatchTheEntitlementCensus` counts it
+    /// over this module, so a third site cannot ship without a recorded per-site verdict.
     ///
-    /// The fourth site — `prepareWorkingSeed`'s destination page scan — left this set in WR-02. It
-    /// was the one place where the deletion and the blanking were about the same folder, and there
-    /// discarding during classification is precisely wrong: the wholesale guard may still refuse,
-    /// and a refusal that had already destroyed the file leaves the record claiming a page whose
-    /// bytes the asking removed. It now classifies without discarding and removes what the guard
-    /// authorizes through `removeRefutedPageFiles`, which also covers the refutations this probe
-    /// never deletes for anyone — see `probeAssetFileContent`.
+    /// Two sites left this set, each failing the rule from a different side. `prepareWorkingSeed`'s
+    /// destination page scan left it in WR-02: the deletion and the blanking were about the same
+    /// folder, and discarding during classification is precisely wrong there, because the wholesale
+    /// guard may still refuse and a refusal that had already destroyed the file leaves the record
+    /// claiming a page whose bytes the asking removed. It now classifies without discarding and
+    /// removes what the guard authorizes through `removeRefutedPageFiles`, which also covers the
+    /// refutations this probe never deletes for anyone — see `probeAssetFileContent`.
+    /// `materializeRepairSeed`'s SOURCE page scan left it for the opposite reason: the folder it
+    /// deleted in was the gallery's currently indexed one and the record the route blanks belongs to
+    /// the copy, so no act on that route was ever going to reconcile what it destroyed. It reads
+    /// without discarding now, and the destination's own reconciliation records the absence.
     private func probeAssetFile(at url: URL, discardingRejected: Bool) -> AssetFileProbeOutcome {
         // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
         // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an

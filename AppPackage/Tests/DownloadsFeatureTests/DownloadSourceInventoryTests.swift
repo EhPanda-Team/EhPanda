@@ -26,7 +26,7 @@ import Testing
 /// not hypothetical either: it is G-15-29. Every census names the tree it counts over EXPLICITLY —
 /// through `clientModuleFiles(in:)`, `downloadsTestFiles(in:)` or `clientDoubleFiles(in:)` —
 /// because a census counts over the files the scan returns, so a table that never said which tree
-/// it meant re-bases itself the moment the walk widens. Five censuses count the client module
+/// it meant re-bases itself the moment the walk widens. Eight censuses count the client module
 /// alone; the two double-fidelity censuses count the downloads test target PLUS the processing
 /// client's own module. That second tree used to be excluded on the classification that its two
 /// public values are "production surfaces", and G-15-36 is what that classification hid: `noop` is
@@ -112,6 +112,12 @@ struct DownloadSourceInventoryTests {
     /// for the reason every token here is: this file sits inside the tree the double censuses count
     /// over, so a token written whole would count itself.
     private static var clientDoubleSuspensionToken: String { "Task" + ".yield()" }
+    /// The opt-in that lets a probe delete what it refuses, assembled from fragments for the reason
+    /// every token here is: a repository grep counting the entitled sites must not match the check
+    /// that pins them. What keeps the prose ABOUT the flag out of the count is the comment filter
+    /// rather than the fragments, and it carries more weight here than anywhere else in this suite —
+    /// the flag is argued about in several times more lines than it is passed in.
+    private static var discardingRejectedOptInToken: String { "discardingRejected" + ": true" }
     /// The retired claim's recorded phrasings, assembled from fragments for exactly the reason the
     /// census tokens are: a repository grep counting the claim must not match the check that forbids
     /// it, or the check becomes part of the inventory it polices.
@@ -385,6 +391,41 @@ struct DownloadSourceInventoryTests {
 
     /// The population table's sum, asserted the same way and for the same reason.
     private static let expectedClientDoubleConstructionTotal = 5
+
+    /// Every production site that opts a probe into DELETING what it refuses, named per file.
+    ///
+    /// **What this number means.** The entitled population, under the rule the round adopted: an act
+    /// may delete only if the same act durably blanks the record for the page it destroyed. Both
+    /// surviving sites are COVER resolutions — `materializeRepairSeed`'s and `prepareWorkingSeed`'s —
+    /// and both pass the rule for the same reason, which is not their position but the cover's: a
+    /// cover carries no recorded hash, so removing a refused one has nothing to diverge from and the
+    /// run re-fetches it. No page-file site passes, and none remains.
+    ///
+    /// **Why a census rather than a comment.** The rule was stated per site and applied per site, and
+    /// one site recorded in its own comment that it had not been answered — `materializeRepairSeed`'s
+    /// SOURCE page scan, which deleted inside the gallery's currently indexed folder while the
+    /// route's only manifest writer reconciled the destination's copy (WR-02). A rule that lives in
+    /// comments is re-derived by whoever writes the next site, and the count of entitled sites had
+    /// already been reported as four, then re-derived as three, in one round.
+    ///
+    /// **What a failure obliges.** Apply the rule to the new site FIRST and write the verdict down:
+    /// name the record that claims the page it would destroy, and name the act that durably blanks
+    /// that record. If those are the same act, add the site here; if they are different folders, or
+    /// different passes, or a guard that may still refuse stands between them, the site is not
+    /// entitled and the argument does not belong in this table.
+    ///
+    /// Scoped to the client module, like every production census here, because the flag is a
+    /// parameter of `DownloadStore`'s own scan family and every production caller lives beside it —
+    /// a claim this table cannot itself enforce, and the reason a caller in a new module would need a
+    /// census of its own. The test target's one use is deliberately out of scope: it exists to
+    /// exercise the discarding behaviour rather than to rely on it.
+    private static let expectedDiscardingRejectedSites = [
+        "DownloadClient+ExecutionSupport.swift": 1,
+        "DownloadStore+Operations.swift": 1
+    ]
+
+    /// The entitlement table's sum, asserted separately for the reason every joined total here is.
+    private static let expectedDiscardingRejectedTotal = 2
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {
@@ -673,6 +714,41 @@ struct DownloadSourceInventoryTests {
         #expect(
             Self.callSiteCount(of: Self.clientDoubleEndpointToken, in: joined)
                 == Self.expectedClientDoubleConstructionTotal
+        )
+    }
+
+    @Test
+    func testDiscardingRejectedSitesMatchTheEntitlementCensus() throws {
+        let files = try Self.scannedFiles()
+        try #require(files.isEmpty == false)
+        try Self.requireKnownMembers(in: files)
+
+        let moduleFiles = Self.clientModuleFiles(in: files)
+
+        var optInSites = [String: Int]()
+        for file in moduleFiles {
+            let count = Self.callSiteCount(of: Self.discardingRejectedOptInToken, in: file.contents)
+            guard count > 0 else { continue }
+            optInSites[file.fileName, default: 0] += count
+        }
+        #expect(
+            optInSites == Self.expectedDiscardingRejectedSites,
+            """
+            The destructive-read entitlement census moved. An act may delete only if the same act \
+            durably blanks the record for the page it destroyed. Apply that test to the site that \
+            moved this table BEFORE updating it: name the record claiming the page the site would \
+            destroy, and name the act that durably blanks that record. Both surviving sites are \
+            cover resolutions, entitled because a cover carries no recorded hash to diverge from; \
+            a page-file site whose blanking happens in another folder, in another pass, or behind a \
+            guard that may still refuse is NOT entitled and must take the non-mutating default \
+            (WR-02).
+            """
+        )
+
+        let joined = moduleFiles.map(\.contents).joined(separator: "\n")
+        #expect(
+            Self.callSiteCount(of: Self.discardingRejectedOptInToken, in: joined)
+                == Self.expectedDiscardingRejectedTotal
         )
     }
 

@@ -148,27 +148,33 @@ extension DownloadStore {
             }
         }
 
-        // ENTITLED to discard (CR-03). A page this scan refuses is one the copy below skips, so the
-        // destination's own scan reads it as a positive absence and `prepareWorkingSeed`'s
-        // reconciliation blanks its hash inside the same D-G7-01 bracket — record and disk move
-        // together, which is the entitlement.
+        // A READ (CR-03), and NOT ENTITLED to be anything else — the verdict this site owes, rather
+        // than the open question it used to record. The entitlement test the round adopted is: an
+        // act may delete only if the same act durably blanks the record for the page it destroyed.
+        // This site fails it. The source folder is not an anonymous staging area — `repairSeed` hands
+        // this function `download.folderURL`, the gallery's CURRENTLY INDEXED folder — and nothing on
+        // this route writes that folder's manifest. What the reconciliation blanks is the
+        // DESTINATION's copy, a different record from the one whose files a discard here removes, so
+        // the source was left claiming pages the app itself had destroyed: the record/disk divergence
+        // the manifest-SSOT rule forbids, created by the app and marked by nothing.
         //
-        // NOT converted to the classify-authorize-remove ordering the DESTINATION scan took in
-        // WR-02, and the asymmetry is deliberate rather than an omission. There the removal and the
-        // blanking are about one folder, so deleting while the wholesale guard might still refuse
-        // left the record claiming a page whose file the asking had already destroyed, and a
-        // refutation the probe declines to delete at all kept its claimed hash indefinitely. Here
-        // the two are about DIFFERENT folders: what this deletes is a file in the source, while what
-        // gets blanked is the copy's manifest, for a page the copy never landed. The destination
-        // therefore meets a positive absence rather than a surviving refutation, so neither of the
-        // two shapes the conversion closes — a per-page hold shrinking the wholesale basis (WR-01),
-        // and a claimed hash standing over refuted bytes (WR-02) — is reachable through it. What the
-        // SOURCE folder's own record owes for the file removed here is a separate question, and this
-        // round did not answer it.
+        // That divergence was not merely theoretical after `removeSupersededFolders` swept it,
+        // because that sweep runs only from the completion handler: a failed, cancelled or terminated
+        // run leaves the stale folder standing, `deduplicatedDownloadIndex` arbitrates duplicates by
+        // `displayDate`, and a child `removeItem` bumps the parent's mtime — so on the all-refused
+        // shape, where the destination's mtime is set by the manifest copy alone, the lying source
+        // won the index (WR-02).
+        //
+        // Reading is the whole remedy, because the DESTINATION already records what this scan
+        // refuses: a page not selected below is a page the copy never lands, which reaches the
+        // destination's own scan as the positive absence its reconciliation blanks under the usual
+        // guards. The cost is the refused file surviving in a superseded folder when the run does not
+        // complete — IN-03's already-recorded unswept population, accepted here rather than closed.
+        // The cover scan above keeps its discard on its own separate entitlement: a cover carries no
+        // recorded hash, so removing a refused one has nothing to diverge from.
         let sourceScan = pageFileScan(
             folderURL: sourceFolderURL,
-            manifest: manifest,
-            discardingRejected: true
+            manifest: manifest
         )
         var unansweredPages = sourceScan.unprobedPages
         for page in manifest.pages.keys.sorted() {
