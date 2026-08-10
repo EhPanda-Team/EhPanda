@@ -38,3 +38,29 @@ Building the targeted package tests with Xcode 26.6 reports two Swift concurrenc
 `EhPandaUITests/DeepLinkPadUITests.swift:9`: the nonisolated assertion autoclosure reads
 `UIDevice.current.userInterfaceIdiom`. The file is outside Plan 15-10's session-identity scope,
 and the warnings predate its changes.
+
+## `DownloadsReducer.toggleDownloadPauseDone(.failure)` is silent with no report surface
+
+Found during plan 15-73's two-reducer sweep. The downloads list offers Pause/Resume from a swipe
+action and a context menu (`DownloadsView.swift:121-135`, `194-207`), both gated by the rendered
+snapshot's `canTogglePause`, so the boundary refuses exactly as it does in the inspector —
+`.notFound` for a vanished record, `.unknown` for a status that left the toggleable set. The list's
+`toggleDownloadPauseDone` returns `.none` on both arms, so a refused toggle moves nothing and says
+nothing: the same shape WR-05 names, seen from the list.
+
+Not fixed here: plan 15-73 states "DownloadsReducer: no behavior change", and closing it is not a
+branch fix — `DownloadsReducer.State` owns no toast surface (`alert` is `AppAlertState<Alert>`,
+presented through `.appAlert`, which renders the `.alert` style; the toast factories are constrained
+to `Action == Never` and render through a different modifier). It needs a new `@Presents` toast
+value, an action case, an `.ifLet`, and a view modifier in `DownloadsView` — a presentation
+addition, outside this plan's files. The disposition is stated in the reducer's type doc so it reads
+as an open item rather than a considered no-report.
+
+## `fetchDownloads` / `fetchFolders` throw into an effect with no `catch:`
+
+Also found during the same sweep, and outside its scope (neither action is result-carrying).
+`DownloadsReducer.swift:251-255` and `288-292` both `try await` inside `.run { }` with no `catch:`
+arm. A throw there is reported by TCA as a runtime issue rather than handled, and on the
+`fetchDownloads` path `state.loadingState` was set to `.loading` immediately before, so a throwing
+fetch leaves the list spinning with no error state and no retry. Gap 4's contract covers actions
+that carry a `Result`; these carry none, which is precisely why the failure has nowhere to go.

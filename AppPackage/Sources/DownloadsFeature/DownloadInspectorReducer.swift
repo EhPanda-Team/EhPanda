@@ -6,6 +6,26 @@ import DownloadClient
 import Foundation
 import Resources
 
+/// The per-gallery page inspector.
+///
+/// **Failure-reporting policy: every action this screen can fail at reports why (WR-04, WR-05).**
+/// The inspector is one gallery's whole screen and owns a toast surface, so a refused tap is
+/// reported here rather than left to the user to infer from a screen that did not move. The
+/// enumeration below is the complete set of outcome-carrying actions and is meant to be checked
+/// against `Action` when one is added — a new outcome-carrying action with no disposition
+/// contradicts this doc:
+///
+/// - `loadInspectionDone` — **reports**: the failure arm sets `loadingState = .failed(error)`,
+///   which the view renders as its error state.
+/// - `retryPagesDone` — **reports**: failure sets `toast` through the shared action-failure
+///   mapping; success is silent because the observe stream renders the queued work.
+/// - `toggleDownloadPauseDone` — **reports**: failure sets `toast` through the same mapping;
+///   success is silent for the same reason as retry.
+/// - `validateImageDataDone` — **reports both outcomes**: validation is a question the user asked,
+///   so its answer is a toast whether or not the pages turned out valid.
+///
+/// `observeDownloadsDone` carries no outcome — it is a stream of records, with no failure channel
+/// to report — so it is outside this policy rather than an exception to it.
 @Reducer
 public struct DownloadInspectorReducer: Sendable {
     private enum CancelID {
@@ -191,7 +211,7 @@ public struct DownloadInspectorReducer: Sendable {
                     // WR-04: without this the tap is a visible no-op — the rows flash to `.pending`
                     // from the optimistic rewrite above and silently revert, with nothing telling
                     // the user why. The reload below resettles the list; it does not report.
-                    state.toast = error.retryFailureToast
+                    state.toast = error.actionFailureToast
                     state.retryingPageIndices = .init()
                     return .send(.loadInspection)
                 }
@@ -219,9 +239,19 @@ public struct DownloadInspectorReducer: Sendable {
                 }
 
             case .toggleDownloadPauseDone(let result):
-                if case .failure = result {
+                if case .failure(let error) = result {
+                    // WR-05: the sibling of the retry defect above, and silent for the same reason
+                    // it was. `canTogglePause` is evaluated against the snapshot the control was
+                    // drawn from, so the boundary still refuses two ways — `.notFound` for a record
+                    // deleted underneath the inspector, `.unknown` for a status that left the
+                    // toggleable set between the render and the tap. Neither moves anything on
+                    // screen, so without this the tap is indistinguishable from one that never
+                    // registered. The reload below resettles the screen; it does not report.
+                    state.toast = error.actionFailureToast
                     return .send(.loadInspection)
                 }
+                // The accepted side stays quiet deliberately: the queue took the change and the
+                // observe stream renders it, so a success toast would be noise to dismiss.
                 return .none
 
             case .validateImageData:
@@ -245,7 +275,13 @@ public struct DownloadInspectorReducer: Sendable {
 }
 
 private extension AppError {
-    /// The toast a refused or failed page retry renders (WR-04).
+    /// The toast a refused or failed inspector action renders (WR-04, WR-05).
+    ///
+    /// **Two action families share it, which is why it is not named for either.** `retryPagesDone`
+    /// and `toggleDownloadPauseDone` both answer a tap the download client refused, and the user's
+    /// question is the same one on both: the screen did not move, why. The mapping is therefore
+    /// stated over `AppError` as a whole rather than over the kinds one caller happens to raise, so
+    /// a third family can adopt it without re-deriving anything.
     ///
     /// **`.fileOperationFailed` is rendered by its payload alone, deliberately.** That is the kind
     /// `retryPages` uses to carry a sentence naming which of its refusals happened — the pages you
@@ -253,13 +289,16 @@ private extension AppError {
     /// operation failed" line ahead of that specific one, burying the part that answers the user's
     /// question. Every other kind keeps `alertText`, which is the app's own wording for it: an
     /// absent gallery is genuinely `.notFound`, and saying so is the whole reason the inadmissible
-    /// selection stopped being `.notFound` too.
+    /// selection stopped being `.notFound` too. `togglePause` raises no file-shaped refusal today —
+    /// its only exits are `.notFound` and `.unknown`, so it reaches the fallback on both — but the
+    /// payload arm is the contract it inherits, and a pause case pins it against this rename.
     ///
     /// `alertText` is empty for two kinds that carry no user-facing sentence (`.noUpdates`,
-    /// `.webImageFailed`); neither is reachable from this route, but a toast whose message is blank
-    /// reports nothing, which is the defect this mapping exists to close. `localizedDescription`
-    /// has a case for every kind and is never empty, so the fallback cannot degenerate.
-    var retryFailureToast: AppAlertState<Never> {
+    /// `.webImageFailed`); neither is reachable from either route, but a toast whose message is
+    /// blank reports nothing, which is the defect this mapping exists to close.
+    /// `localizedDescription` has a case for every kind and is never empty, so the fallback cannot
+    /// degenerate.
+    var actionFailureToast: AppAlertState<Never> {
         if case .fileOperationFailed(let message) = self, !message.isEmpty {
             return .error(caption: message)
         }
