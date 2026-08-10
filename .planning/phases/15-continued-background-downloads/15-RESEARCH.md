@@ -1241,3 +1241,260 @@ time — overlapping or `pkill`-ing a launching test run wedges `testmanagerd`. 
 **Valid until:** 2026-08-27 (30 days). `BGContinuedProcessingTask` is a first-year API under
 active bug-fixing (card contrast fixed in 26.1; FB21890081 open) — re-check the forums and
 the SDK headers if this phase slips past a point release.
+
+---
+
+## Deferred Follow-Up Research: Swipe-Action Deletion Choreography (2026-08-10)
+
+**Scope:** the 15-UAT.md test 6 deferral — keep a DownloadsView gallery row's swipe-action
+offset in place while its deletion alert is presented; cancel returns the row to rest;
+confirm continues the row in the swipe direction and removes it; eliminate the current
+disappear–reappear–disappear sequence. Owner-flagged as deep-research-now, spike-at-execution.
+
+**Confidence:** HIGH on the code-level root-cause decomposition (read from this repo);
+MEDIUM on the destructive-role optimistic-removal mechanism (community-corroborated,
+undocumented by Apple); HIGH on the API-absence claims (swept Apple's SwiftUI docs index
+directly, including beta symbols).
+
+### Root Cause
+
+The current flow (all sites read in this session):
+
+1. `AppPackage/Sources/DownloadsFeature/DownloadsView.swift:137-141` — the trailing swipe
+   delete is `Button(role: .destructive)` sending `.deleteDownloadButtonTapped(download)`,
+   inside `.swipeActions(edge: .trailing, allowsFullSwipe: false)`.
+2. `AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift:167-184` —
+   `.deleteDownloadButtonTapped` only sets `state.alert` (an `AppAlertState`). The data
+   source (`state.downloads` → `filteredDownloads`) is untouched.
+3. Deletion happens later and asynchronously: `.alert(.presented(.confirmDelete))` →
+   `.deleteDownload` → `downloadClient.delete(gid)` → the `observeDownloads` stream emits a
+   snapshot without the item → `state.downloads` is reassigned (`DownloadsReducer.swift:239`)
+   with no `withAnimation`.
+
+The three visual beats decompose as:
+
+| Beat | Mechanism | Attributable to |
+|------|-----------|-----------------|
+| 1st vanish (on tapping Delete) | SwiftUI plays an **optimistic row-removal animation** the moment a `Button(role: .destructive)` inside `.swipeActions` is tapped — it assumes the action deletes the row's backing element, before/regardless of any data mutation. `[ASSUMED — community-corroborated, see sources; confirmed absent from Apple's `swipeActions` and `ButtonRole.destructive` doc pages, both read this session]` | The `.destructive` **role**, specifically |
+| Reappear (while alert is up) | The next render diff still contains the item (only `state.alert` changed), so SwiftUI re-inserts the row it just animated out. | The role's optimistic removal + unchanged data |
+| 2nd vanish (after Confirm) | The real deletion lands via the async observe-stream snapshot; applied without animation, so the row snaps out. | Genuine data change (correct, but unchoreographed) |
+| Row snapping closed on any swipe-button tap | Tapping **any** swipe-action button dismisses the swipe presentation. Universal teardown, independent of role; no API suppresses it (see Native Surface). | Swipe-state teardown, not the role |
+
+The first two beats — the reported bug — are entirely the role's doing. The teardown beat is
+what stands between the platform and requirement (a) below.
+
+### Native Surface (iOS 26)
+
+Deployment target is iOS 26.0 (`AppPackage/Package.swift` `platforms: [.iOS(.v26)]`,
+`IPHONEOS_DEPLOYMENT_TARGET = 26.0`) with the iOS 26.x SDK.
+
+- **The entire iOS 26 API is `swipeActions(edge:allowsFullSwipe:content:)`.**
+  `[VERIFIED: Apple docs JSON, developer.apple.com/documentation/swiftui/view/swipeactions(edge:allowsfullswipe:content:)]`
+  The discussion covers action ordering, full-swipe opt-out, and role styling ("the delete
+  action appears in red because it has the destructive role" — styling is the only documented
+  role effect). It documents **no** presentation-state parameter, no hold-open, no dismissal
+  suppression, and no removal-animation direction control.
+- **iOS 26 rendering change:** swipe buttons now render title **and** symbol (stacked or
+  side-by-side); `.labelStyle(.iconOnly)` reverts. Cosmetic; a custom implementation must
+  match it. `[CITED: nilcoalescing.com/blog/ShowIconsOnlyInSwiftUISwipeActionsOnIOS26/]`
+- **iOS 27 beta (WWDC26) — checked so we don't under-claim, but NOT shippable at target 26:**
+  a sweep of every `*swipe*` symbol in Apple's SwiftUI docs index (including beta) found
+  exactly two additions, both introduced at iOS 27.0 beta
+  `[VERIFIED: Apple docs index JSON + per-symbol platforms fields]`:
+  - `swipeActions(edge:allowsFullSwipe:content:onPresentationChanged:)` — a `(Bool) -> Void`
+    called when the row's actions are revealed/dismissed. **Observation only** ("to dim the
+    row or update surrounding chrome"); no control.
+  - `swipeActionsContainer()` — enables `.swipeActions` inside `ScrollView`/`LazyVStack`
+    with List-style coordination (one row open at a time, scroll dismisses, tap-outside
+    dismisses). Explicitly a no-op on `List`.
+- **Conclusion: programmatic hold-open / suppression of the tap-teardown is confirmed absent
+  from the documented SwiftUI surface through the iOS 27 beta** — this is a docs-index sweep
+  result, not merely "not found".
+- **UIKit benchmark (not a candidate):** `UIContextualAction`'s deferred `completionHandler`
+  keeps the swiped row open while an alert is up — the exact desired choreography exists at
+  the UIKit layer `[ASSUMED — community pattern; useyourloaf.com/blog/table-swipe-actions/,
+  forums thread 129420]`. SwiftUI's `List` exposes no injection point for it; reaching the
+  backing `UICollectionView` would be introspection hackery. Rejected.
+- **Design context:** an Apple Frameworks Engineer states that from an HIG perspective,
+  swipe-open-then-tap *is* the confirmation for a destructive action once full swipe is
+  disabled `[CITED: developer.apple.com/forums/thread/685697]`. This row already uses
+  `allowsFullSwipe: false`, so the alert is a second confirmation layer. It is the owner's
+  deliberate choice (deleting downloaded files is irreversible) — recorded as context only,
+  not a recommendation to drop the alert.
+
+### Choreography Feasibility Matrix
+
+The UAT ask decomposes into three parts:
+
+| Part | Native `.swipeActions` | Custom swipe | Evidence |
+|------|------------------------|--------------|----------|
+| (a) Row stays offset while the alert is up | **IMPOSSIBLE.** Tap-teardown is automatic and unsuppressable; no hold-open API through iOS 27 beta (docs-index sweep above). | **Achievable** — offset is view-local state; an alert doesn't touch it, and the alert's modality prevents the user disturbing it. | Docs sweep `[VERIFIED]`; third-party libs exist precisely to add programmatic state (aheze/SwipeActions `context.state`) |
+| (b) Cancel → animate back to rest | **Approximation only:** with the role dropped (see Candidate 0) the row settles closed *when the alert appears*, so by cancel-time there is nothing to return — platform-conventional, but not the asked choreography. | **Achievable** — on cancel, animate offset → 0. | Behavior decomposition above |
+| (c) Confirm → continue off-screen in the swipe direction, then remove | **Approximation only:** wrap the snapshot application (or the List diff) in an animation to get the standard delete collapse. Direction is system-chosen; `.transition(.move(edge:))` does not control List row removal. | **Achievable** — animate offset past the container edge (leading edge under RTL), then let the data change collapse the gap. | `swipeActions` + List docs expose no removal-direction control `[VERIFIED: absent from docs]` |
+
+**Bottom line:** the full three-part choreography is custom-only. Native gets a clean,
+platform-conventional *fix for the reported bug* (no vanish–reappear–vanish) but cannot hold
+the row open.
+
+### Custom-Swipe Fallback Shape & Costs
+
+Minimal shape (if the spike goes there): a swipe container **local to DownloadsFeature**
+wrapping `DownloadListRow` (`DownloadsView+Subviews.swift:391`):
+
+- Horizontal `DragGesture(minimumDistance: ~20)` on the row content; `offset(x:)` state;
+  revealed action buttons in a clipped underlay (`.background`/`.overlay`); snap points at
+  action-stack width; velocity-based settle; haptic on open.
+- **Both edges must be reimplemented.** The row has leading (inspect / move) and trailing
+  (update / pause / delete) stacks; native `.swipeActions` cannot coexist with a custom drag
+  on the same row, so a partial conversion is not available.
+- Alert choreography: on Delete tap, present the alert *without* touching the offset; on
+  cancel, animate offset → 0; on confirm, animate offset to −containerWidth (mirrored in
+  RTL), then the snapshot's arrival collapses the row height.
+- **Failure containment:** if `downloadClient.delete` fails after the row flew off, the
+  observe stream still contains the item and the row must reappear — display always derives
+  from the persisted record (manifest-SSOT rule), so the custom layer must reset offset when
+  an item it animated out re-lands in a snapshot.
+
+Costs, in rough descending order of risk:
+
+1. **Scroll-gesture disambiguation** — a horizontal drag must never hijack List's vertical
+   scroll and vice versa. This is the classic failure mode of custom swipes inside `List`;
+   prior art mitigates with `minimumDistance > 0` and axis-locking, and may still force
+   migrating the downloads list to `ScrollView` + `LazyVStack` (losing List row chrome;
+   `.refreshable` survives). Biggest kill-criterion candidate.
+2. **VoiceOver parity** — native swipe actions are exposed automatically as VoiceOver custom
+   actions on the row; a custom swipe loses that and must add `.accessibilityAction(named:)`
+   for all five actions (plus a destructive announcement for Delete). Neither prior-art
+   library documents VoiceOver support `[VERIFIED: absent from both READMEs]` — this cost is
+   real and must be paid explicitly.
+3. **Visual parity with iOS 26** — title+symbol button rendering, tint colors, row
+   background/separator behavior, Dynamic Type at accessibility sizes.
+4. **RTL** — "trailing" and the confirm-continue direction flip with `layoutDirection`;
+   native handles this for free.
+5. **Coordination** — one row open at a time; scroll and tap-outside dismiss (what
+   `swipeActionsContainer()` provides in iOS 27 — must be hand-built here).
+6. **Live snapshot ticks** — `observeDownloads` re-emits full snapshots while downloads
+   progress; an open row's offset must survive re-renders (key state by stable `gid`).
+7. **Context menu coexistence** — the row's `.contextMenu` long-press must still work.
+
+Prior art (reference-only; **no new dependency** — this milestone is dep-reduction):
+`aheze/SwipeActions` (MIT, single-file, programmatic `context.state`, `swipeMinimumDistance`)
+and `c-villain/SwipeActions` (MIT, explicit RTL support). Both prove pure-SwiftUI
+feasibility; both are what the in-house component would be measured against.
+
+### Alert-Placement Interaction
+
+- The delete confirmation is an **alert**, not a confirmation dialog: `.appAlert` wraps
+  native `.alert` (`AppPackage/Sources/AppComponents/AppAlertState.swift:227-234`). Alerts
+  are centered app-modal on every device class, **including iPad — they are not anchored
+  popovers**, so the AGENTS.md anchoring concern (arrow pointing at the trigger) does not
+  apply to this flow. Only the *stability* half of the rule matters, and the current
+  root/List-level attachment (`DownloadsView.swift:54`) satisfies it unconditionally.
+- **No candidate requires moving the modifier.** Candidate 0 changes only the button; the
+  custom candidate holds the row in the hierarchy while the alert is up, and the alert's
+  modality means the row cannot scroll out mid-confirmation — the rule's rationale for
+  container-level attachment (row can scroll away) is not violated either way. Keep the
+  attachment where it is.
+- The move-to-folder `confirmationDialog` (a real popover on iPad) is untouched by this work.
+  If the delete alert were ever converted to a confirmation dialog, iPad anchoring would need
+  re-evaluation — flagged for the planner, not for this deferral.
+
+### Spike Definition
+
+Standard-components-first, cheapest-first, spike-to-keep, device-UAT-gated (Phase 3
+precedent, STATE.md). Candidates in order:
+
+**Candidate 0 — native minimal (try first; ~2-line product change + one animation):**
+1. Drop `role: .destructive` from the swipe delete button; add `.tint(.red)`
+   (`DownloadsView.swift:137`). This removes the optimistic row-removal → no vanish, no
+   reappear. Keep the role on the alert's Delete `ButtonState` and on the context-menu
+   delete (context menus have no optimistic-removal behavior — verify on device).
+2. Animate the confirmed removal: apply the delete-bearing snapshot with animation (e.g.
+   `withAnimation` around the state application for the delete path, or
+   `.animation(.default, value:)` scoped to the row identity list) so the second vanish is
+   the standard List delete collapse instead of a snap.
+   
+   Gate criteria (device, iPhone + iPad):
+   - Tapping swipe-Delete: the row settles closed (no vanish, no reappear) and the alert is up.
+   - Cancel: row is at rest; no motion artifacts.
+   - Confirm: row animates out once, with no intermediate states.
+   - VoiceOver announcement/traits of the swipe Delete are acceptable without the role.
+   - Other swipe actions and the context menu are unchanged.
+   
+   Kill criterion → Candidate 1: the owner, seeing it on device, still requires the
+   held-open-row choreography (Candidate 0 is deliberately the platform-conventional
+   approximation, not the full UAT ask).
+
+**Candidate 1 — in-house custom swipe container (full fidelity):**
+   Implement the shape above, DownloadsFeature-local. Gate criteria (copy into the plan):
+   1. Row holds its swipe offset through alert presentation *and* dismissal on device.
+   2. Cancel animates the row back to rest within one gesture-settle, no flicker.
+   3. Confirm continues the row off the trailing edge (leading under RTL) with no
+      intermediate reappearance; the gap then collapses.
+   4. VoiceOver exposes all five row actions as custom actions; Delete reads as destructive.
+   5. Inspect / move / update / pause retain full function; context menu still works.
+   6. Vertical scroll feel is indistinguishable from native List; horizontal drag never
+      fires during a scroll and never blocks one.
+   7. Observe-stream snapshot ticks during an active download do not reset an open row.
+   8. Dynamic Type at accessibility sizes and RTL are correct.
+   9. A failed delete after the fly-off animation reappears the row (SSOT: display derives
+      from the persisted record).
+   
+   Kill criteria → NO-GO (keep Candidate 0's behavior, close the deferral as
+   resolved-with-approximation):
+   - Criterion 6 is unachievable inside `List`, or requires migrating the downloads list off
+     `List` (scope explosion beyond this deferral).
+   - Criterion 4 parity cannot be reached.
+   - The component's complexity outgrows a single reusable view + modifier (Mail-grade feel
+     demands more tuning than the win justifies).
+
+**Explicit non-candidates:** third-party swipe library (milestone is dependency-reduction);
+introspection into List's backing `UICollectionView` to reach `UIContextualAction`;
+iOS 27 beta APIs (target is iOS 26, and they add observation only — they would not solve
+hold-open even if shippable).
+
+### Open Questions (spike-only)
+
+1. Does dropping `.destructive` change the swipe button's VoiceOver trait/announcement, and
+   does the context-menu delete (which keeps the role) behave identically? Device check.
+2. Does the async delete latency make Candidate 0's confirmed removal feel detached (row
+   closed → beat → collapse)? If so, does animating the snapshot application suffice, or is
+   an optimistic local removal needed (and how does that reconcile with SSOT on failure)?
+3. Candidate 1's existential question: can a horizontal `DragGesture` coexist with List
+   scrolling at Mail-grade feel, or is `ScrollView`+`LazyVStack` migration forced? (Decides
+   GO/NO-GO early — test this first inside the spike.)
+4. Does presenting the alert disturb List scroll position in this view tree? (Forums thread
+   805352 reports a jump-to-top when alert-triggering state lives outside the row subview —
+   not yet observed here, but cheap to check while on device.)
+
+### Sources (this section)
+
+**Primary (docs read directly this session):**
+- `developer.apple.com/documentation/swiftui/view/swipeactions(edge:allowsfullswipe:content:)`
+  (via docs JSON — full discussion text)
+- `developer.apple.com/documentation/swiftui/view/swipeactionscontainer()` (platforms:
+  iOS 27.0 beta; discussion text)
+- `developer.apple.com/documentation/swiftui/view/swipeactions(edge:allowsfullswipe:content:onpresentationchanged:)`
+  (platforms: iOS 27.0 beta; discussion text)
+- Apple SwiftUI docs index sweep for all `*swipe*` symbols (beta included)
+- Codebase: `DownloadsView.swift`, `DownloadsView+Subviews.swift`, `DownloadsReducer.swift`,
+  `AppAlertState.swift`, `AppPackage/Package.swift`, `EhPanda.xcodeproj/project.pbxproj`
+
+**Secondary (community, MEDIUM/LOW confidence):**
+- `developer.apple.com/forums/thread/685697` — Frameworks Engineer HIG statement on
+  swipe-tap-as-confirmation; UIKit alert-in-handler pattern
+- `developer.apple.com/forums/thread/805352` — alert presentation perturbing List state
+- `developer.apple.com/forums/thread/717601` — historical swipeActions+confirmationDialog crash
+- `github.com/Berhtulf/SwiftUI-CoreData-crash` — destructive-role removal animation +
+  drop-role/tint workaround corroboration
+- `useyourloaf.com/blog/table-swipe-actions/`, `developer.apple.com/forums/thread/129420` —
+  UIContextualAction deferred-completionHandler behavior
+- `github.com/aheze/SwipeActions`, `github.com/c-villain/SwipeActions` — custom-swipe prior art
+- `nilcoalescing.com/blog/ShowIconsOnlyInSwiftUISwipeActionsOnIOS26/` — iOS 26 swipe button
+  rendering change
+- `swiftwithmajid.com/2026/06/08/what-is-new-in-swiftui-after-wwdc26/` — WWDC26 swipe
+  containers overview
+
+**Research date:** 2026-08-10
+**Valid until:** 2026-09-09 (30 days) — re-sweep the docs index if iOS 27 betas add swipe
+presentation control before the spike executes.
