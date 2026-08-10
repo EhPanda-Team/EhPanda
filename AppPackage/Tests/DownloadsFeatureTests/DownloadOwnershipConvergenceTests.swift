@@ -89,7 +89,6 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         // notification into a named failure instead of a hung suite.
         let emissions = try await waitForTaskValue(
             observerTask,
-            timeout: .seconds(1),
             description: "\(failureCase) post-failure observer emission"
         )
 

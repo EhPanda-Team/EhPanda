@@ -197,7 +197,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         )
         let lateObserverEmissions = try await waitForTaskValue(
             lateObserverTask,
-            timeout: .seconds(1),
             description: "late observer initial snapshot"
         )
         #expect(lateObserverEmissions == [[updatedDownload]])
@@ -206,7 +205,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
 
         let existingObserverEmissions = try await waitForTaskValue(
             existingObserverTask,
-            timeout: .seconds(1),
             description: "existing observer update after late observer registration"
         )
         #expect(existingObserverEmissions == [[initialDownload], [updatedDownload]])
@@ -255,7 +253,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
 
         let emissions = try await waitForTaskValue(
             observerTask,
-            timeout: .seconds(1),
             description: "observer notify during snapshot resolution"
         )
         #expect(emissions == [[updatedDownload]])

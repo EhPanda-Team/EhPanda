@@ -152,23 +152,48 @@ extension DownloadCoordinator {
         }
     }
 
+    /// Refines a fetched payload's page selection against the freshly fetched page count.
+    ///
+    /// **Three states, and the difference between two of them is the whole contract (CR-04).**
+    /// `rawPageSelection` is the coordinator's queue-intent entry for this run:
+    ///
+    /// - `nil` means no selection was ever made. It stays nil, and `pendingPageIndices` reads that
+    ///   as no restriction — every page the record still owes.
+    /// - A non-nil selection means the caller named pages, and it stays PRESENT: a `Set` that may
+    ///   be empty once this second, defensive filter removes what the newly fetched count cannot
+    ///   support. Collapsing that empty case to nil is what let an inadmissible narrow request
+    ///   become a whole-gallery repair, because the two states then shared one value while meaning
+    ///   opposite things.
+    /// - `.update` discards the selection entirely, matching `retryPages`' documented whole-update
+    ///   delegation: an update refreshes the gallery against a page count no earlier subset was
+    ///   drawn against.
+    ///
+    /// The filter is defensive rather than load-bearing — the public boundary already refused an
+    /// inadmissible request — but the page count it validates against is the FETCHED one, which
+    /// can differ from the record's. Failing closed here is the honest answer to that drift.
+    ///
+    /// G-15-14, same class as the two range sites: validating a page number by comparison rather
+    /// than by building `1...pageCount` means no range exists here to be invalid. The predicate is
+    /// identical for every positive count; at zero it simply admits nothing, where the range form
+    /// trapped the process.
     public func normalizeFetchedPayload(
         _ payload: DownloadRequestPayload,
         mode: DownloadStartMode,
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {
-        // G-15-14, same class as the two range sites: validating a page number by comparison
-        // rather than by building `1...pageCount` means no range exists here to be invalid. The
-        // predicate is identical for every positive count; at zero it simply admits nothing,
-        // where the range form trapped the process.
         let pageCount = payload.galleryDetail.pageCount
-        let validPageSelection = rawPageSelection?
-            .filter({ $0 >= 1 && $0 <= pageCount })
-        let pageSelection = validPageSelection?.isEmpty == false && mode != .update
-            ? validPageSelection
-            : nil
+        let pageSelection: Set<Int>? = if mode == .update {
+            nil
+        } else {
+            rawPageSelection.map({ selection in
+                Set(selection.filter({ $0 >= 1 && $0 <= pageCount }))
+            })
+        }
 
-        guard pageSelection != rawPageSelection else {
+        // Compared against the payload's own selection rather than the raw array: the two are
+        // different types, and this is the only comparison that answers whether a rebuild would
+        // change anything.
+        guard pageSelection != payload.pageSelection else {
             return payload
         }
 
@@ -181,7 +206,7 @@ extension DownloadCoordinator {
             folderName: payload.folderName,
             versionMetadata: payload.versionMetadata,
             mode: payload.mode,
-            pageSelection: pageSelection.map(Set.init)
+            pageSelection: pageSelection
         )
     }
 }
