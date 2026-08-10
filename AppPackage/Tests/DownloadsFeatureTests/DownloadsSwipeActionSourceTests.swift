@@ -114,7 +114,7 @@ extension DownloadsSwipeActionSourceTests {
     /// its own delete action and to hold neither of the other two anchors.
     @Test
     func testTheExtractedRegionsAreTheSpansTheirNamesClaim() throws {
-        let contents = try Self.viewContents()
+        let contents = try Self.executableText(in: Self.viewContents())
         let trailingSwipe = try Self.trailingSwipeRegion()
         let contextMenu = try Self.contextMenuRegion()
 
@@ -131,20 +131,37 @@ extension DownloadsSwipeActionSourceTests {
     }
 
     private static func trailingSwipeRegion() throws -> String {
-        try bracedRegion(openingAfter: trailingSwipeAnchor, in: try viewContents())
+        try executableText(in: bracedRegion(openingAfter: trailingSwipeAnchor, in: try viewContents()))
     }
 
     private static func contextMenuRegion() throws -> String {
-        try bracedRegion(openingAfter: contextMenuAnchor, in: try viewContents())
+        try executableText(in: bracedRegion(openingAfter: contextMenuAnchor, in: try viewContents()))
+    }
+
+    /// `text` with its comment lines dropped, which is not tidiness but the whole reason this
+    /// suite can coexist with the comment it protects.
+    ///
+    /// The absence being pinned is deliberate and unobvious, so the call site has to say so — and
+    /// saying so means naming the role that must not be there. Counted raw, the explanation IS the
+    /// violation: the first run after the fix failed on the comment alone, with the button already
+    /// role-less. A check that forbids its own documentation is a check nobody can maintain, so the
+    /// filter comes from `DownloadSourceInventoryTests.executableLines(in:)`, which drops comment
+    /// lines for exactly this reason.
+    private static func executableText(in text: String) -> String {
+        text
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .filter({ $0.trimmingCharacters(in: .whitespaces).hasPrefix("//") == false })
+            .joined(separator: "\n")
     }
 
     /// The block that opens at the first brace after `anchor`, delimited by brace counting.
     ///
-    /// Brace counting is naive — it does not know about braces inside string literals or comments —
-    /// and that is a deliberate limit rather than an oversight: both spans it is pointed at are
-    /// view-builder bodies of tints, symbols and localized-key references, none of which can carry
-    /// a brace. If either span ever does, this function is the thing to fix, and the region guard
-    /// above is what will notice.
+    /// Brace counting is naive — it does not know about braces inside string literals or comments,
+    /// and it runs BEFORE `executableText(in:)` strips them, so a comment carrying a lone brace
+    /// would mis-close the span. That is a deliberate limit rather than an oversight: both spans it
+    /// is pointed at are view-builder bodies of tints, symbols and localized-key references, and
+    /// the one comment inside either of them carries no brace. If that stops being true, this
+    /// function is the thing to fix, and the region guard above is what will notice.
     private static func bracedRegion(openingAfter anchor: String, in contents: String) throws -> String {
         let anchorRange = try #require(
             contents.range(of: anchor),
