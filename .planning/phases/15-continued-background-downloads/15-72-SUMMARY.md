@@ -207,6 +207,13 @@ None — no external service configuration required.
 
 Gap 3 / review WR-03 is closed at its root: the compensation has one implementation reachable from both routes, every post-removal exit on the seed route is swept with a written disposition, and the announced basis is structurally unable to exceed the honest one. Gaps 1, 4 and 5 remain with their own plans (15-73 onward), and 15-74's forthcoming withdrawal-depth detector is what will enforce the non-nesting discipline this plan relied on by argument.
 
+## Self-Check: PASSED
+
+- Created files verified on disk: `DownloadSeedRecoveryTests.swift`, `15-72-SUMMARY.md`.
+- Modified files verified on disk: `DownloadClient+ExecutionSupport.swift`, `DownloadClient+PersistenceNormalize.swift`, `DownloadClient+Manager.swift`.
+- Commits verified in `git log`: `1c15cc6f` (RED), `8e263e8d` (GREEN), `414dca25` (docs).
+- Plan-level verification re-run and recorded above: gated suites green, full FeatureTests 957/0 across 22 targets, clean build 0 warnings, SwiftLint 0 violations over all 4 touched files.
+
 ---
 *Phase: 15-continued-background-downloads*
 *Completed: 2026-08-10*
