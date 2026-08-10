@@ -208,6 +208,9 @@ extension DownloadCoordinator {
         response: URLResponse,
         folderRecord: DownloadFolderRecord
     ) throws -> String {
+        // A READ (CR-03). This asks which name ONE landed page may reuse, while the scan probes every
+        // claimed page and this landing records a hash only for its own. A refused file is outside
+        // `pages` either way, so the fresh name below is chosen identically.
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderRecord.folderURL,
             manifest: folderRecord.manifest

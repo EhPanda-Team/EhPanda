@@ -265,7 +265,13 @@ extension DownloadCoordinator {
     public func loadManifest(
         gid: String
     ) async -> Result<(download: DownloadedGallery, manifest: DownloadManifest), AppError> {
-        guard let download = await sanitizeLocalFilesIfNeeded(gid: gid) else {
+        // Opening a gallery is a READ end to end (CR-03). This used to route through the coordinator
+        // sweep, whose only effect was the probe's housekeeping deletion, and then validate on the
+        // discarding default — so a reader open destroyed a zero-byte or non-regular page or cover
+        // file, reported the page missing, and wrote nothing to the manifest. The record kept its
+        // non-empty hash, the gallery kept deriving `.completed` under D-SSOT-07, and the divergence
+        // survived relaunch. Both halves are reads now, and the verdict below is unchanged.
+        guard let download = await fetchDownload(gid: gid) else {
             return .failure(.notFound)
         }
         switch storage.validate(
@@ -325,6 +331,10 @@ extension DownloadCoordinator {
         captureTarget: CaptureTargetResult,
         download: DownloadedGallery
     ) async {
+        // A READ (CR-03), for the same reason `captureTarget` is: this names the file ONE page may
+        // reuse, while the scan probes every claimed page and this capture lowers no hash but its
+        // own. A refused file is outside `pages` whether or not it is deleted, so the fallback below
+        // resolves identically.
         let existingPages = storage.existingPageRelativePaths(
             folderURL: captureTarget.folderURL,
             manifest: download.manifest
@@ -355,7 +365,7 @@ extension DownloadCoordinator {
                 folderURL: captureTarget.folderURL,
                 pages: [pageResult]
             )
-            _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
+            await clearStaleDownloadErrorIfNeeded(gid: gid)
         } catch {
             logger.error("\(error, privacy: .private)")
         }
@@ -371,17 +381,18 @@ extension DownloadCoordinator {
         let activeFolderURL = activeInspectionFolderURL(for: download)
 
         // A display read may classify, never act (D-SSOT-07). `buildInspectionPages` itself writes
-        // nothing, but the rendering resources it is handed are resolved by a probe that DELETES the
-        // files it rejects, so merely opening the inspector could remove a zero-byte or non-regular
-        // page file. Under the presence basis that deletion was self-consistent — the page read
-        // `.pending` immediately after. Under the manifest basis the page goes on reading
+        // nothing, but the rendering resources it is handed used to be resolved by a probe that
+        // DELETED the files it rejected, so merely opening the inspector could remove a zero-byte or
+        // non-regular page file. Under the presence basis that deletion was self-consistent — the
+        // page read `.pending` immediately after. Under the manifest basis the page goes on reading
         // `.downloaded` over a file this read destroyed, which is a record/disk divergence created
         // by looking, licensed by no reconciliation, and invisible until the user runs Validate.
+        // Since CR-03 that is the default for every caller rather than this route's opt-out, so both
+        // resolutions below read as written.
         let existingRelativePaths = activeFolderURL.map {
             storage.existingPageRelativePaths(
                 folderURL: $0,
-                manifest: download.manifest,
-                discardingRejected: false
+                manifest: download.manifest
             )
         } ?? [:]
         let failedPages = (failedPageErrors[gid] ?? [:])
@@ -397,8 +408,7 @@ extension DownloadCoordinator {
         let coverURL = activeFolderURL.flatMap { folderURL in
             storage.existingCoverRelativePath(
                 folderURL: folderURL,
-                manifest: download.manifest,
-                discardingRejected: false
+                manifest: download.manifest
             )
             .map({ folderURL.appendingPathComponent($0) })
         } ?? download.coverURL

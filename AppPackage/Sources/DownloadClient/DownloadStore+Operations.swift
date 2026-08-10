@@ -6,6 +6,23 @@ import Resources
 
 private let logger = Logger(category: .init(describing: DownloadStore.self))
 
+/// What one validation pass is permitted to do while it forms its verdict.
+///
+/// Both members are decided ONCE, at the public boundary, and never vary per page, so they travel as
+/// one value rather than as two flags threaded side by side through every level of the walk. Naming
+/// them together is also the honest description: they are not two unrelated knobs but one answer to
+/// "what may this pass do to the thing it is judging" — `verifiesContentHashes` says how deeply it
+/// may READ, and `discardingRejected` says whether it may WRITE at all.
+///
+/// The second is the one CR-01 added, and no validation route sets it: a pass whose evidence
+/// gathering deletes files cannot honour a refusal, because the refusal arrives after the deletion.
+/// Since CR-03 that is what the parameter's default already says, so the member exists to carry the
+/// public boundary's decision inward rather than to record an opt-out at each level.
+private struct DownloadValidationPolicy {
+    let verifiesContentHashes: Bool
+    let discardingRejected: Bool
+}
+
 /// What a fresh content pass was able to determine about each CLAIMED page whose file a presence
 /// scan yielded — a partition, not a flag.
 ///
@@ -16,22 +33,6 @@ private let logger = Logger(category: .init(describing: DownloadStore.self))
 /// answer different questions and license different actions. `mismatched` is positive evidence and
 /// licenses destroying a recorded hash; `held` is the absence of an answer and licenses nothing;
 /// `verified` is positive evidence that nothing is wrong.
-/// What one validation pass is permitted to do while it forms its verdict.
-///
-/// Both members are decided ONCE, at the public boundary, and never vary per page, so they travel as
-/// one value rather than as two flags threaded side by side through every level of the walk. Naming
-/// them together is also the honest description: they are not two unrelated knobs but one answer to
-/// "what may this pass do to the thing it is judging" — `verifiesContentHashes` says how deeply it
-/// may READ, and `discardingRejected` says whether it may WRITE at all.
-///
-/// The second is the one CR-01 added, and it is false wherever the verdict feeds a reconciliation
-/// that may refuse: a pass whose evidence gathering deletes files cannot honour a refusal, because
-/// the refusal arrives after the deletion.
-private struct DownloadValidationPolicy {
-    let verifiesContentHashes: Bool
-    let discardingRejected: Bool
-}
-
 struct ContentMismatchScan: Equatable, Sendable {
     /// The recorded hash and the file's fresh hash agree.
     ///
@@ -52,6 +53,11 @@ struct ContentMismatchScan: Equatable, Sendable {
 
 extension DownloadStore {
     public func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
+        // A READ (CR-03). Every caller has already classified this file — or, for the manifest copy,
+        // is about to fail the whole preparation over it — so a rejection here is a file that
+        // CHANGED between the two reads, and the throw below is the answer either way. Deleting it
+        // would destroy the record's own file on the manifest route and, on the page route, remove a
+        // file the caller then reports as UNANSWERED and therefore declines to blank the hash for.
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
                 String(localized: .downloadStoreAssetUnreadable(sourceURL.lastPathComponent))
@@ -126,9 +132,14 @@ extension DownloadStore {
             to: destinationFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         )
 
+        // ENTITLED to discard (CR-03). A cover carries no recorded hash, so removing a refused one
+        // has nothing to diverge from, and this run re-fetches the cover it did not copy. Withheld
+        // here, a refused cover would be re-refused by every later display read — all of which are
+        // now reads — with nothing left in the app entitled to clear it.
         if let coverRelativePath = existingCoverRelativePath(
             folderURL: sourceFolderURL,
-            manifest: manifest
+            manifest: manifest,
+            discardingRejected: true
         ),
            let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
            let destCoverURL = validatedChildURL(root: destinationFolderURL, relativePath: coverRelativePath) {
@@ -137,13 +148,27 @@ extension DownloadStore {
             }
         }
 
-        let sourceScan = pageFileScan(folderURL: sourceFolderURL, manifest: manifest)
+        // ENTITLED to discard (CR-03). A page this scan refuses is one the copy below skips, so the
+        // destination's own scan reads it as a positive absence and `prepareWorkingSeed`'s
+        // reconciliation blanks its hash inside the same D-G7-01 bracket — record and disk move
+        // together, which is the entitlement. (15-67 converts this route's classify-then-authorize
+        // ordering; until then the removal precedes the blanking it is paired with.)
+        let sourceScan = pageFileScan(
+            folderURL: sourceFolderURL,
+            manifest: manifest,
+            discardingRejected: true
+        )
         var unansweredPages = sourceScan.unprobedPages
         for page in manifest.pages.keys.sorted() {
             // Not selected by the scan: the listing either never yielded a file for this page or
             // positively rejected the one it did. Both are determinations, so the destination's
             // own scan may treat the page as absent.
             guard let relativePath = sourceScan.pages[page] else { continue }
+            // A READ (CR-03), unlike the scan above it. The scan classified this page `.usable` a
+            // moment ago, so a refusal here means the file changed between the two reads — a race,
+            // which this function records as an UNANSWERED page. Discarding would delete a file
+            // whose hash the reconciliation is then instructed not to blank: the exact record/disk
+            // divergence the entitlement above is entitled by not creating.
             guard let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: relativePath),
                   let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: relativePath),
                   sanitizeAssetFileIfNeeded(at: sourcePageURL)
@@ -165,6 +190,11 @@ extension DownloadStore {
         to manifest: DownloadManifest,
         folderURL: URL
     ) throws -> DownloadManifest {
+        // A READ (CR-03). The merge writes hashes for the EMPTY-hash pages only, while the scan
+        // probes every claimed page — so a discarding scan here would delete the file of a page
+        // whose hash this merge then leaves standing, and finalize would succeed over a record
+        // claiming bytes it had itself removed. For the pages the merge does write, the verdict is
+        // unchanged: a refused file is outside `pages` either way, and the throw below fires.
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
             manifest: manifest
@@ -278,12 +308,13 @@ extension DownloadStore {
                 continue
             }
             // Non-discarding, like every other pass validation takes before its guard has authorized
-            // anything (CR-01). This re-probe can only disagree with the presence scan that just
-            // yielded the file if the file CHANGED between the two reads, and a race is the weakest
-            // evidence in the building — so the page is held, with its hash and its file both
-            // intact, and the next validate classifies it from a settled disk.
+            // anything (CR-01) — and since CR-03 that is simply the default, so nothing is written
+            // here. This re-probe can only disagree with the presence scan that just yielded the
+            // file if the file CHANGED between the two reads, and a race is the weakest evidence in
+            // the building — so the page is held, with its hash and its file both intact, and the
+            // next validate classifies it from a settled disk.
             guard let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
-                  sanitizeAssetFileIfNeeded(at: pageURL, discardingRejected: false)
+                  sanitizeAssetFileIfNeeded(at: pageURL)
             else {
                 held.insert(page)
                 continue
@@ -491,15 +522,22 @@ extension DownloadStore {
     /// **`discardingRejected` is the mutation half, and it is a caller's decision (CR-01).** The
     /// verdict is identical either way — a zero-byte or non-regular page file is missing content
     /// whether or not it is deleted — so the flag decides only whether the probe's housekeeping
-    /// deletion is allowed to fire while this verdict is being reached. It defaults to the
-    /// historical behavior for the two callers whose answer feeds nothing destructive
-    /// (`loadManifest`'s readability check and `resumeMode`'s repair-versus-redownload question).
-    /// `validateImageData` passes false: its verdict is the input to a reconciliation that may
-    /// refuse, and a refusal must find the disk exactly as it was.
+    /// deletion is allowed to fire while this verdict is being reached.
+    ///
+    /// **It defaults to withholding that deletion, and the earlier justification for the opposite
+    /// applied the wrong test (CR-03).** That test was whether a caller's ANSWER feeds something
+    /// destructive; the hazard is that FORMING the answer destroys files. It is the same hazard
+    /// however harmless the verdict's use: `loadManifest`'s readability check and `resumeMode`'s
+    /// repair-versus-redownload question decide nothing irreversible, and both of them nevertheless
+    /// deleted a claimed page's file on an ordinary read while nothing on either route wrote the
+    /// manifest — so the record went on claiming a page the app itself had removed, across relaunch.
+    /// A report is a read. `validateImageData` needs the same value for a further reason: its
+    /// verdict is the input to a reconciliation that may refuse, and a refusal must find the disk
+    /// exactly as it was.
     public func validate(
         download: DownloadedGallery,
         verifiesContentHashes: Bool,
-        discardingRejected: Bool = true
+        discardingRejected: Bool = false
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
@@ -537,6 +575,9 @@ extension DownloadStore {
         relativePath: String,
         missingMessage: String
     ) throws -> String {
+        // A READ (CR-03). Both callers throw on a refusal and neither lowers the record for the page
+        // it threw over, so a deletion here would leave `refreshManifestPageFileHashes`' claimed
+        // page with its previous non-empty hash beside no file at all.
         guard let fileURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: fileURL)
         else {
