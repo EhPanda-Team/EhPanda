@@ -93,10 +93,17 @@ public struct DownloadStore: Sendable {
     // the root with no confinement guarantee, and it is deliberately gone (CR-02). Four production
     // sites fed its result into a create, a move or a remove, and one of them — `deleteFolder` —
     // reached a gallery folder below a user folder from a name like `"MyFolder/[123_abc] Title"`.
-    // Deleting the function is what makes that unwritable rather than merely discouraged: every
-    // user-folder mutation now goes through `DownloadStore+Operations`' confined boundary, and the
-    // one surviving read-model construction builds its URL from the same relative path it stores,
-    // through `folderURL(relativePath:)` above.
+    // Every user-folder mutation now goes through `DownloadStore+Operations`' confined boundary,
+    // and the one surviving read-model construction builds its URL from the same relative path it
+    // stores, through `folderURL(relativePath:)` above.
+    //
+    // What the deletion buys is precise, and it is worth stating precisely rather than as
+    // "unwritable" (WR-01). `folderURL(relativePath:)` is still public and still joins an arbitrary
+    // string to the root — it has to, because the record paths are strings. No SINGLE call turns a
+    // caller's name into a mutation any more: this one only resolves, the removal primitive takes a
+    // URL, and the string-taking spelling that used to close that gap in one call is deleted. What
+    // remains is a two-function composition that both docs refuse — a convention review enforces,
+    // not a property the type system does.
 
     public func rootRelativePath(forFolderURL url: URL) -> String? {
         let rootPath = rootURL.standardizedFileURL.path + "/"
