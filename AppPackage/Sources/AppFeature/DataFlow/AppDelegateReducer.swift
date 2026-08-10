@@ -5,8 +5,11 @@ import ComposableArchitecture
 import CookieClient
 import DownloadClient
 import LibraryClient
+import OSLogExt
 import Sharing
 import SwiftUI
+
+private let logger = Logger(category: .init(describing: AppDelegateReducer.self))
 
 @Reducer
 struct AppDelegateReducer {
@@ -32,6 +35,26 @@ struct AppDelegateReducer {
                     .run { _ in
                         @Shared(.galleryHistory) var galleryHistory
                         $galleryHistory.withLock({ $0.pruneToHistoryCap() })
+                    },
+                    // Move a pre-rename install's logs directory onto the capitalized name it is
+                    // now read under. Synchronous file work, so it rides a background effect and
+                    // never blocks `didFinishLaunching`; it is not ordered against this launch's
+                    // own log writes and does not need to be (see LogsDirectoryMigration).
+                    .run { _ in
+                        switch LogsDirectoryMigration.run(documentsURL: .documentsDirectory) {
+                        case .nothingToMigrate:
+                            break
+                        case .renamed:
+                            logger.notice("Renamed the legacy logs directory.")
+                        case let .merged(movedCount, skippedCount):
+                            logger.notice("""
+                                Merged the legacy logs directory. \
+                                Moved \(movedCount, privacy: .public), \
+                                skipped \(skippedCount, privacy: .public).
+                                """)
+                        case let .failed(reason):
+                            logger.error("Failed to migrate the legacy logs directory: \(reason)")
+                        }
                     },
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
                     .run(operation: { _ in cookieClient.removeYay() }),

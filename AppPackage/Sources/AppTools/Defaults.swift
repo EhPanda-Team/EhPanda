@@ -39,7 +39,10 @@ public struct Defaults: Sendable {
         public static let github = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     }
     public struct FilePath: Sendable {
-        public static let logs = "logs"
+        // User-visible in the Files app (`UIFileSharingEnabled` over `Documents`), hence the
+        // capitalized spelling. Installs created before the rename are moved onto it once, at
+        // launch, by `LogsDirectoryMigration`.
+        public static let logs = "Logs"
         public static let activityLogPrefix = "ehpanda"
         public static let activityLogExtension = "jsonl"
         public static let downloads = "Downloads"
