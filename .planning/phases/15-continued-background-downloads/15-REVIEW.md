@@ -1,8 +1,8 @@
 ---
 phase: 15-continued-background-downloads
-reviewed: 2026-08-10T10:22:01Z
+reviewed: 2026-08-11T00:00:00Z
 depth: standard
-files_reviewed: 76
+files_reviewed: 85
 files_reviewed_list:
   - App/Info.plist
   - AppPackage/Package.swift
@@ -10,6 +10,8 @@ files_reviewed_list:
   - AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift
   - AppPackage/Sources/AppModels/Download/DownloadInspection.swift
   - AppPackage/Sources/AppModels/Download/DownloadedGallery+SupportTypes.swift
+  - AppPackage/Sources/AppTools/Defaults.swift
+  - AppPackage/Sources/AppTools/LogsDirectoryMigration.swift
   - AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift
   - AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift
   - AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift
@@ -34,15 +36,19 @@ files_reviewed_list:
   - AppPackage/Sources/DownloadClient/DownloadClient+RetryHelpers.swift
   - AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift
   - AppPackage/Sources/DownloadClient/DownloadClient+SchedulingHelpers.swift
+  - AppPackage/Sources/DownloadClient/DownloadClient+SeedReconciliation.swift
   - AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift
   - AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift
   - AppPackage/Sources/DownloadClient/DownloadClient.swift
   - AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift
   - AppPackage/Sources/DownloadClient/DownloadStore.swift
   - AppPackage/Sources/DownloadClient/PageFileScan.swift
-  - AppPackage/Sources/DownloadClient/Resources/Localizable.xcstrings
   - AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift
+  - AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift
   - AppPackage/Sources/DownloadsFeature/DownloadsView+Subviews.swift
+  - AppPackage/Sources/Resources/ResourceStringSymbols.swift
+  - AppPackage/Sources/Resources/Resources/Localizable.xcstrings
+  - AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift
   - AppPackage/Tests/DetailFeatureTests/DetailDownloadRepairPredicateTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/BackgroundExecutionInvariantTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift
@@ -61,8 +67,10 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadDeleteConvergenceTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadFolderAdmissionTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadInspectionBasisTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorPauseFailureTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorRetryTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadInterruptedResumeTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift
@@ -73,6 +81,7 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadRepairSeedSignalPropagationTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadRetryPagesTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadRetryUpdateFallbackTests.swift
+  - AppPackage/Tests/DownloadsFeatureTests/DownloadSeedRecoveryTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadStoreHashTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadStoreRepairTests.swift
@@ -81,383 +90,398 @@ files_reviewed_list:
   - AppPackage/Tests/DownloadsFeatureTests/DownloadValidationRejectionArmTests.swift
   - AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift
 findings:
-  critical: 1
-  warning: 6
-  info: 3
+  critical: 0
+  warning: 5
+  info: 5
   total: 10
 status: issues_found
 ---
 
-# Phase 15: Code Review Report (third review, after gap-closure plans 15-65 … 15-69)
+# Phase 15: Code Review Report (fourth review, after gap-closure plans 15-70 … 15-77)
 
-**Reviewed:** 2026-08-10T10:22:01Z
+**Reviewed:** 2026-08-11T00:00:00Z
 **Depth:** standard
-**Files Reviewed:** 76
+**Files Reviewed:** 85
 **Status:** issues_found
 
 ## Summary
 
-Effort was concentrated on `git diff a4e51de7..HEAD` (17 commits, five gap-closure plans), with a
-normal standard-depth pass over the untouched remainder.
+Effort was concentrated on `git diff 3c84d648..HEAD` — the delta since the previous review report was
+committed (plans 15-70 … 15-77 plus three follow-up commits), which touches 34 files — with a
+standard-depth pass over the rest of the 85-file scope and a root-level re-derivation of all ten
+prior findings.
+
+Every prior finding is closed at its root, and I verified each one by reading the code rather than
+the fix report. The new work is of the same quality as the rest of the phase. What it introduces is
+one genuinely new module — `LogsDirectoryMigration` — that has not been through a review round yet,
+and that is where four of the five warnings sit. The fifth is a deliberate, documented departure
+from a binding project convention in the swipe-delete work.
 
 ### Verdict on the previous round's ten findings
 
-| Prior ID | Verdict | Notes |
+| Prior ID | Verdict | Evidence I re-derived |
 | --- | --- | --- |
-| CR-01 (unbracketed generation advance) | **Closed at its root** | `advanceQueueIntentGeneration` now wraps its own increment (`+Manager.swift:852-856`). I re-derived the arithmetic: at the advance `hasSessionCreditReading` is still true (the index record survives a re-queue), so `creditedAfter` really is computed as regime 3's zero rather than falling back to `creditedBefore` — the withdrawal fires. All four callers are top-level statements in `async` functions, none inside a bracket, and on the enqueue route `writeInitialManifest`'s bracket (`+PublicAPI.swift:151-165`) closes at line 103 before the advance at line 115. The new one-page-at-a-time test discriminates: pre-fix the re-queue frame reads `4 / 24` and the first keeper page cannot exceed it. **But the "nesting is impossible at the type level" claim is false — see WR-04.** |
-| CR-02 (`deleteFolder` unconfined name) | **Closed at its root for the escape; the closure introduced a new user-facing defect** | `userFolderURL(name:)` is gone, every user-folder mutation is a `mutatingConfinedUserFolder` body, and the six-argument escape catalog asserts disk-then-records-then-verdict. Two residuals: the confinement predicate now refuses folders the app itself lists (**CR-01** below), and `removeFolder(relativePath:)` still offers the deleted construction verbatim (**WR-01**). `writeInitialManifest`'s `createDirectory(at:)` does pass `withIntermediateDirectories: true` (`+Networking.swift:235-241`), so dropping enqueue's eager parent creation is safe. |
-| CR-03 (reads still delete) | **Closed at its root** | Re-derived the family myself: ten declarations carry `discardingRejected` and all ten now default to `false` (`DownloadStore.swift:185, 205, 261, 276, 294, 466, 501, 537, 757` and `DownloadStore+Operations.swift:680`). Exactly **three** production sites still pass `true` — not four — and the store's own doc (`DownloadStore.swift:788-793`) agrees. Two are entitled on the stated test (covers carry no recorded hash). The third is not (**WR-02**). `sanitizeLocalFilesIfNeeded` is deleted rather than defanged, and the new `DownloadReadPathNonMutationTests` asserts from both sides (file bytes + a relaunched coordinator's persisted reading), which is a genuine discriminator. |
-| WR-01 (per-page hold could blank MORE) | **Closed at its root** | The loop's guard is now `blankedPageCount + refutedSurvivingPageCount < completedPageCount` (`+WorkingManifestReconciliation.swift:235`). I verified the algebra against the code: the caller's `positivelyAbsentPages ∪ refutedPages` (`+ExecutionSupport.swift:452-460`) is *set-identical* to the loop's two counters computed over the same scan, and an authorized removal moves a page from one term to the other, so the sum is invariant and the two guards cannot disagree. The paired 2-page/3-page cases genuinely cross the discontinuity. |
-| WR-02 (refuted files never deleted on automatic routes) | **Closed at its root, with a recovery gap at the new seam** | `authorizedReconciliationScan` gives `prepareWorkingSeed` the classify → guard → remove → rescan → blank ordering. But the durable write happens *after* the destruction and, unlike the validate route, this copy has **no** post-removal recovery and no error log — see **WR-03**. |
-| WR-03 (orphaned `ContentMismatchScan` doc) | **Fixed** | The doc block was moved back onto `struct ContentMismatchScan` (`DownloadStore+Operations.swift:19-35`); `DownloadValidationPolicy` keeps only its own. Confirmed by reading the file, not by trusting the summary. |
-| WR-04 (silent retry refusal) | **Closed at its root, one sibling unswept** | `retryPagesDone(.failure)` sets a toast, the inadmissible selection carries its own `.fileOperationFailed`, and `AppError(error)` round-trips the payload (`AppError.swift:7-9`), so the message survives the client seam. `toggleDownloadPauseDone(.failure)` 25 lines away is still silent — **WR-05**. |
-| WR-05 (fetch-time-emptied selection settles as a failure) | **Closed at its root** | `normalizeFetchedPayload` is `throws(AppError)` and is called at `+Execution.swift:153`, nine lines before `performDownload` at 162 — so nothing has been blanked, announced or fetched when it fires. `settleDownloadFailure` clears the queue intent and removes the gid, so the stale selection cannot re-throw forever. The no-widening property holds: `nil` stays `nil`, a surviving subset stays a present `Set`, and the only input that used to empty it now produces no payload. |
-| IN-01 (`waitForTaskValue` 10s default) | **Not fixed** — re-raised as IN-01. |
-| IN-02 (two localized-key spellings) | **Not fixed, and widened** — re-raised as IN-02. |
+| CR-01 (delete confinement refused listed folders) | **Closed at its root** | `confinedDirectUserFolderURL` (`DownloadStore+Operations.swift:655-674`) dropped the `normalizedUserFolderName(rawName) == rawName` clause and replaced it with an admission test whose terms are the listing's: empty / `.` / `..` / multi-component / control characters / gallery-shaped, plus the two parent comparisons. All four shapes the finding named (`Art  Books`, ` Photos`, `Manga\Vol1`, `Misc etc.`) now resolve. `DownloadFolderAdmissionTests` stages each one under its *own* on-disk name — the shape the refusal catalog structurally could not reach — and asserts disk, page bytes and all three record stores converge on delete, and that rename still MINTS its destination. The asymmetry (source admitted as written, destination normalized) is asserted inside the fixture, so a case that stopped discriminating fails. |
+| WR-01 (`removeFolder(relativePath:)` dead public) | **Closed at its root** | The function is deleted, not demoted (`DownloadStore+Operations.swift:423-457` now goes straight from the doc to the URL-taking primitive). `grep` over `AppPackage/Sources` finds no `removeFolder(relativePath` anywhere. The replacement doc states what the deletion buys *precisely* — `folderURL(relativePath:)` is still public, so what remains is a two-function composition both docs refuse — which is the honest version of the "unwritable" claim the finding challenged. |
+| WR-02 (`materializeRepairSeed` source scan deleted without reconciling) | **Closed at its root, by the simpler of the two options** | `DownloadStore+Operations.swift:174-177` now scans the source folder with the non-mutating default. The old comment's "this round did not answer it" is replaced by a verdict that names the record (`repairSeed` hands the gallery's currently-indexed folder), the entitlement test it fails, and the `displayDate`/mtime route by which the lying source could win `deduplicatedDownloadIndex`. The `discardingRejected: true` census is now 2 (both covers) and is owned by `testDiscardingRejectedSitesMatchTheEntitlementCensus`. |
+| WR-03 (`prepareWorkingSeed` had the ordering without the compensation) | **Closed at its root** | `recoveredBlanking` was lifted to module-internal and returns `DownloadManifest?` instead of `Bool`, and both routes call the one implementation. `prepareWorkingSeed` now enumerates its three post-removal exits and handles all three (`+ExecutionSupport.swift:340-373, 431-500`): exit 3 returns a `Result` rather than throwing, so the bracket's second reading still runs — I checked that reasoning and it holds, a throw would unwind past the withdrawal and strand the monotonic floor. `WorkingSeed.removedPages` carries this-pass's own destructions, and `inheritedPages` subtracts them in **both** branches, which closes the over-report the finding named. `DownloadSeedRecoveryTests` pins the rescan-failure and thrown-write exits separately. |
+| WR-04 (the "impossible at the type level" claim was false) | **Closed at its root, and made detectable** | Both docs now state the sibling rule as a convention (`+ExecutionSupport.swift:278-292`, `+Manager.swift:868-874`). `basisMovementDepth` is incremented/`defer`-decremented around every bracket and `reportIssue`s (never traps) above depth 1. `DownloadClient+Testing.swift:139-155` ships a `#if DEBUG` probe that writes the forbidden shape with a *real* production mover inside it, and `testANestedCountedBasisMovementIsDetectedWhileASiblingIsNot` wraps it in `withKnownIssue` — which fails if no issue is recorded — then asserts the following unnested advance records nothing and still advances the generation. That is a falsifiable detector, not a claim. |
+| WR-05 (`toggleDownloadPauseDone(.failure)` silent) | **Closed at its root** | `DownloadInspectorReducer.swift:241-255` sets `state.toast = error.actionFailureToast` and reloads. The helper was renamed off `retryFailureToast` and its doc now states the mapping over `AppError` as a whole. `DownloadInspectorPauseFailureTests` pins both reachable kinds (`.notFound`, `.unknown`) plus the payload arm as a rename guard, with the exits enumerated from source in the suite header. The list screen's sibling stays silent and is recorded as an open item on `DownloadsReducer` (see IN-03). |
+| WR-06 (unused private scanner + self-contradicting doc) | **Closed at its root** | `downloadsTestFiles(in:)` is gone; lines 27 and 65-72 of `DownloadSourceInventoryTests.swift` now name `clientModuleFiles(in:)`, `clientDoubleTreeFiles(in:)` and `clientDoubleFiles(in:)` and say "the two trees". |
+| IN-01 (`waitForTaskValue` 10s default) | **Dispositioned, declined, and I agree** | `DownloadDeleteConvergenceTests.swift:111-126` writes out the argument in full — a wall-clock bound cannot separate a missing notification from an unscheduled collector, and 15-21 recorded this exact call site taking 13.2s under contention. The sibling detector points at that one owner instead of restating it. Not re-raised. |
+| IN-02 (two localized-key spellings) | **Closed at its root** | All 22 `String(localized:)` sites in `DownloadClient` use `.RLocalizable.`; the module-local catalog is deleted, its `resources:` entry removed from `Package.swift`, and I diffed the 10 moved keys against the shared catalog — none missing, no value drift. |
+| IN-03 (unswept refused page files) | **Not closed, and 15-71 widened it** — re-raised as IN-03. |
 
-### Localization (independently verified)
+### Localization (independently verified, not trusted)
 
-Parsed `AppPackage/Sources/DownloadClient/Resources/Localizable.xcstrings` as JSON: 10 keys, all
-sorted, and **every** key carries all six locales (`de`, `en`, `ja`, `ko`, `zh-Hans`, `zh-Hant`) —
-including the two new ones. Neither new key takes an argument, so no numeric specifier and no
-substitution question arises. The one key with substitutions (`continued_session.subtitle`) is
-compliant: three named `%#@…@` variables, no bare `%lld` in any outer value, `en` and `de` category
-sets equal (`{other}`, `{one, other}`, `{one, other}`), and `ja`/`ko`/`zh-Hans`/`zh-Hant` are
-`other`-only. No `shouldTranslate: false` entries exist. The key-*spelling* consistency angle is
-still broken — IN-02.
+Parsed both catalogs as JSON.
+
+- **Shared catalog** (`Sources/Resources/Resources/Localizable.xcstrings`): 43 keys, sorted, and every
+  key carries all six locales (`de`, `en`, `ja`, `ko`, `zh-Hans`, `zh-Hant`) — 43/43 for each. No
+  `shouldTranslate: false` entry exists, so that rule has nothing to violate. `continued_session.subtitle`
+  is compliant: three named `%#@…@` substitutions with `argNum` 1/2/3, no bare numeric specifier in any
+  outer value, `en` and `de` category sets equal per variable (`{other}`, `{one,other}`, `{one,other}`),
+  and `ja`/`ko`/`zh-Hans`/`zh-Hant` `other`-only. The bare `%lld` values that remain (`download_store.page_missing`,
+  `download_store.page_image_corrupted`, `pages`, `stars`, `days`/`hours`/`minutes`/`seconds`) are all in
+  the **shared** catalog, where the rule is satisfied by hand-written labelled symbols — and each one has
+  its labelled symbol in `ResourceStringSymbols.swift`.
+- **`DownloadsFeature` catalog**: 20 keys, sorted, 20/20 per locale, and the three count-taking keys
+  (`downloaded`, `pending`, `failed`) each use a named `count` substitution with no bare numeric anywhere —
+  the module-local rule, satisfied.
+- `continuedSessionSubtitle`'s inline `defaultValue` (the fix in `3abd49f8`) does stop the stray
+  `%lld%lld%lld` extraction; I confirmed no such key exists in either catalog.
 
 ## Narrative Findings (AI reviewer)
 
-## Critical Issues
-
-### CR-01 [BLOCKER]: The new delete confinement refuses user folders the app itself lists, so a folder visible in Downloads can no longer be deleted from inside the app
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift:104-110`
-
-**Related:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:622-640`,
-`AppPackage/Sources/DownloadClient/DownloadStore.swift:601-638`,
-`AppPackage/Sources/DownloadClient/DownloadStore.swift:363-376`,
-`AppPackage/Sources/DownloadClient/DownloadStore.swift:394-431`,
-`AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:477-483`,
-`App/Info.plist:145-146`, `App/Info.plist:170-171`
-
-**Issue:** `confinedDirectUserFolderURL(named:)` requires `normalizedUserFolderName(rawName) ==
-rawName` (line 627). The folder *listing* applies no such filter: `scanDownloads` (line 608-617)
-promotes **every** visible directory under the root to a user folder, rejecting only gallery-shaped
-names and directories that hold a manifest. The two predicates disagree, and the app is shipped
-with `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` both true over a root inside
-`Documents/`, so the user really can create the disagreeing names.
-
-`normalizedFolderName` (line 394-431) *rewrites* rather than rejects: it maps `/`, `\`, `:` and
-control characters to a space, collapses runs of whitespace to one, trims leading/trailing
-whitespace and trailing dots. So a folder the user creates in the Files app named
-
-- `Manga\Vol1` → normalizes to `Manga Vol1`
-- `Art  Books` (two spaces) → `Art Books`
-- `Misc etc.` → `Misc etc`
-- ` Photos` → `Photos`
-
-is listed by `fetchFolders()`, is a usable download destination, and now fails
-`confinedDirectUserFolderURL`, so `deleteFolder` returns `.fileOperationFailed(invalid folder name)`
-before it ever looks at the disk. **This is a regression introduced by this delta**: before 15-68,
-`deleteFolder` built `root/<name>` and `removeFolder(at:)` accepted it, so these folders deleted
-correctly. `renameUserFolder` has had the same predicate since the previous round, so both mutating
-actions on such a folder are now dead ends and the user must leave the app to remove it. The error
-message compounds it — the app calls the name invalid while displaying it.
-
-The escape suite does not catch this because its `whitespacePaddedAlias` argument stages a padded
-name whose trimmed form is a **different, real** folder (`"  Keeper  "` vs `Keeper`), which must be
-refused. It never stages a folder whose *own on-disk name* is the padded one, so the case that
-matters is outside the catalog.
-
-**Fix:** Key the boundary on the listing that produced the name rather than on normalization
-identity. Keep every structural check (non-empty, not `.`/`..`, single path component, standardized
-parent == root, resolved parent == root, and the leaf's `.typeDirectory` re-check inside the lock),
-and replace the `normalizedUserFolderName(rawName) == rawName` clause for *source* names with an
-exact-membership test against the scanned listing:
-
-```swift
-// DownloadStore+Operations.swift
-func confinedDirectUserFolderURL(named rawName: String) -> URL? {
-    guard !rawName.isEmpty,
-          rawName != ".", rawName != "..",
-          rawName.split(separator: "/", omittingEmptySubsequences: false).count == 1,
-          !rawName.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains)
-    else { return nil }
-    ...
-}
-```
-
-The single-component + resolved-parent pair is what refused `"MyFolder/[123_abc] Title"`, `..`,
-`../Outside` and the absolute path; none of those refusals depends on the normalization clause.
-Destinations (`createUserFolder`, `ensureUserFolder`, the rename's new name) must keep normalizing,
-which they already do at their callers. Add an argument to `DeleteEscapeSource`'s sibling — a
-folder whose real on-disk name is `Art  Books` — asserting it deletes, and the same for
-`renameFolder`.
-
 ## Warnings
 
-### WR-01: `removeFolder(relativePath:)` is still public, still unused, and reproduces verbatim the unconfined construction CR-02 deleted
+### WR-01: A staged case-only rename can strand the user's activity logs in `Logs-migrating-<UUID>` permanently — no regime recovers it, and the code's own contract says the next launch will
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:417-425`
+**File:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:242-279`
 
-**Related:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:443-455`,
-`AppPackage/Sources/DownloadClient/DownloadStore.swift:92-98`
+**Related:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:63-66`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:109-117`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:170-178`,
+`AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
 
-**Issue:** The stated mechanism of the CR-02 fix is structural: "Deleting the function is what makes
-that unwritable rather than merely discouraged" (`DownloadStore.swift:96`). It is not unwritable.
-`removeFolder(relativePath:)` is `public`, takes an arbitrary caller-supplied relative path, joins
-it to the root with `folderURL(relativePath:)` and hands it to the prefix-contained primitive — so
-`storage.removeFolder(relativePath: name)` is a one-line rewrite of the exact defect, admitting
-`"MyFolder/[123_abc] Some Title"` again while the coordinator's exact `parentFolderName == name`
-cleanup key matches nothing.
+**Issue:** `renameThroughStaging` moves the legacy directory to `Logs-migrating-<UUID>` and then tries
+to move it onto `Logs`. Two of that function's three outcomes leave the staged directory standing,
+and **nothing ever looks at it again**:
 
-Its own doc concedes it "has no production caller today", which makes it dead public API kept for
-vocabulary. Nothing owns it: no test exercises it, and `DownloadSourceInventoryTests` has no census
-over it, so the next round that needs "remove a folder by name" will find it by autocomplete.
+1. The second move fails, `mergeContents(of: staging, into: destination)` runs, and it returns
+   `.merged(movedCount:skippedCount:)` with `skippedCount > 0`. `renameThroughStaging`'s
+   `guard case let .failed(reason) = merged else { return merged }` (line 260) returns that value
+   **without restoring**, so the staging directory survives holding the skipped files.
+2. `restore` itself fails (line 276-278), which is dispositioned in the reason string only.
 
-**Fix:** Delete it. `removeGalleryFolders` (the only real user of the primitive) passes URLs the
-scan produced and calls `removeFolder(at:)` directly. If a record-path spelling is genuinely wanted
-later, it can be reintroduced with the record's own `relativePath` as its only source. If it must
-stay now, make it `internal` and add it to the delete-escape argument catalog.
+In both cases the next launch classifies from `regime(storedNames:currentSpellingResolves:)`, which
+keys exclusively on the literal name `"logs"` (line 114). `Logs-migrating-<UUID>` is not that name, so
+the regime is `.nothingToMigrate` and the migration returns at line 154 forever. The logs are neither
+read (`FileUtil.logsDirectoryURL` resolves `Defaults.FilePath.logs`) nor merged nor removed — and the
+directory is directly under `Documents`, which the app publishes through `UIFileSharingEnabled`, so
+the user sees a permanent `Logs-migrating-B3F1…` folder in the Files app.
 
-### WR-02: `materializeRepairSeed`'s source page scan still deletes, and the act does not reconcile the record it destroys files for — the one surviving `discardingRejected: true` that fails the round's own entitlement test
+This contradicts the module's own stated contract twice. `Outcome.failed`'s doc says "the next launch
+retries from the state left behind" (line 64-66); it does not, for any state `renameThroughStaging`
+leaves. And `renameThroughStaging`'s doc argues only about a **crash** between the two moves — the two
+non-crash exits above are not considered at all.
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:151-172`
+Reachability is narrow but real on device, not only in the simulator: `run`'s `.rename` arm falls back
+to staging whenever the atomic move throws (line 177), which is exactly what a log write racing the
+classification produces. `LogsDirectoryMigrationTests` covers `regime`, `mergeDecision`, `mergeContents`
+and the two rename regimes, but **no case drives `renameThroughStaging`'s failure exits at all**, so
+neither residual is pinned from either side.
 
-**Related:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:820-839`,
-`AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:718-746`,
-`AppPackage/Sources/DownloadClient/DownloadClient+Persistence.swift:59-71`,
-`AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift:87-103`
-
-**Issue:** The entitlement rule this round adopted is "may this act delete only if the same act
-durably blanks the record for the page it destroyed?". This site does not satisfy it, and the code
-says so in its own comment: *"What the SOURCE folder's own record owes for the file removed here is a
-separate question, and this round did not answer it"* (line 166-167).
-
-The source folder is not an anonymous staging area. `repairSeed(for:payload:)` returns
-`download.folderURL` — the gallery's **currently indexed folder**, carrying the manifest that was
-just copied whole into the destination. `materializeRepairSeed` then deletes refused page files
-inside it while writing nothing to its manifest. The destination's reconciliation blanks the
-*copy*; the source keeps claiming the pages whose files this call removed.
-
-That divergence is normally invisible because the source folder is superseded garbage that
-`removeSupersededFolders` deletes at `completeDownload`. It becomes visible on two conditions that
-are both reachable:
-
-1. The run does not complete (failure, cancellation, app termination), so the stale folder survives
-   with a lying manifest.
-2. `deduplicatedDownloadIndex` picks it. Dedup is by `displayDate` (`+Persistence.swift:68`), and a
-   `removeItem` on a child bumps the *parent directory's* mtime. The destination's mtime is set by
-   the manifest copy; the source's is bumped afterwards by these deletions. If no page is copied —
-   precisely the all-refused shape — the source ends up the newer folder and wins the index.
-
-The reachability window is narrow (repair mode, plus a destination path that differs from the
-source, i.e. an upstream title change), but the shape is exactly the record/disk divergence the
-manifest-SSOT rule calls out, created by the app, marked by nothing.
-
-**Fix:** Either drop the entitlement here — take the non-mutating default and let the destination's
-own reconciliation record the absence, which is what actually blanks anything on this route — or
-give the source folder the same classify → guard → remove → **blank** treatment the destination now
-gets, reconciling `sourceFolderURL`'s manifest under the same guards before returning. The first is
-strictly simpler and costs only the orphan zero-byte file, which IN-03 already flags as an
-unswept population. Add a case staging an interrupted repair-with-rename and asserting the source
-folder's manifest and its page files agree afterwards.
-
-### WR-03: `prepareWorkingSeed`'s copy of the classify-guard-remove-rescan-blank ordering omits the post-removal recovery and the error log the validate route treats as mandatory
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:441-487`
-
-**Related:** `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift:206-215`,
-`AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift:304-337`,
-`AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift:210-241`
-
-**Issue:** The doc claims this "mirrors `reconcileValidatedRecordAgainstPageFiles`' ordering …
-rather than inventing a second one" (line 419-421). It mirrors the ordering and drops the
-compensation. That function states the requirement explicitly: *"Three exits fire AFTER the removal
-— a rescan that could not enumerate, the loop's own refusal lines applied to the post-removal scan,
-and a thrown manifest write — and each would otherwise leave the record claiming pages this pass
-deleted. So every one of them re-attempts the same pass ONCE"*, and logs the removed indices at
-`error` when the retry also fails.
-
-`authorizedReconciliationScan` has all three exits and handles none of them:
-
-- The rescan (line 477) can report `scanSucceeded == false`, in which case
-  `reconcileWorkingManifestAgainstPageFiles` returns the manifest verbatim at line 210 over pages
-  this function just deleted.
-- The post-removal loop can still refuse if the rescan's terms grew (a page whose file vanished
-  concurrently), leaving the same state.
-- `storage.writeManifest` can throw, which propagates out of `prepareWorkingSeed` and aborts the
-  run with the deletion already performed and the record unchanged.
-
-The run route makes the first two self-healing by accident — `existingPages` is empty or short, so
-`pendingPageIndices` re-fetches the removed pages — but the third leaves a durable divergence, and
-none of the three is logged, so a device archive cannot show which files were destroyed against a
-record that still claims them. The `scanSucceeded` source also moved (line 399, now
-`reconciliationScan.scanSucceeded` instead of `destinationScan.scanSucceeded`), so a failed rescan
-now flips `inheritedPages` to its pessimistic branch and can over-report the announced basis for an
-incomplete record — the direction the announcement's own doc calls "the defect".
-
-**Fix:** Reuse the compensation rather than the ordering alone. Have `authorizedReconciliationScan`
-return the removed page set alongside the scan, and in `prepareWorkingSeed` apply the same
-"recover once, then log at `error` with the masked gid and the removed indices" step
-`recoveredBlanking` already implements — ideally by lifting that helper so both routes share one
-implementation, which is the argument the blanking loop itself makes for being shared. Add a case
-that fails the manifest write after an authorized removal and asserts the log/recovery, mirroring
-the validate-route case.
-
-### WR-04: The "nesting is impossible at the type level" claim behind the self-bracketing advance is false, and nothing detects a nested advance
-
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:270-295`
-
-**Related:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift:837-856`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:191-209`
-
-**Issue:** The plan's structural claim — that `withdrawingCountedBasisMovement` taking a non-async,
-non-escaping closure while all four callers are `async` makes nesting impossible — does not hold.
-`advanceQueueIntentGeneration(for:)` is a **synchronous, actor-isolated** method
-(`+Manager.swift:852`). The bracket's closure is non-escaping and non-`Sendable`, so it inherits the
-enclosing function's actor isolation, and any synchronous actor method is callable inside it. A
-future queue-mobilizing path written as
+**Fix:** Make the staged name recoverable rather than terminal, and pin it. The classification already
+has the documents listing in hand, so add a fourth regime keyed on the staging prefix:
 
 ```swift
-try withdrawingCountedBasisMovement(gid: gid) {
-    advanceQueueIntentGeneration(for: gid)   // compiles today
+// LogsDirectoryMigration
+private static let stagingPrefix = "\(Defaults.FilePath.logs)-migrating-"
+
+public static func regime(storedNames: [String], currentSpellingResolves: Bool) -> Regime {
+    guard Defaults.FilePath.logs != legacyDirectoryName else { return .nothingToMigrate }
+    if let staged = storedNames.first(where: { $0.hasPrefix(stagingPrefix) }) {
+        return .recoverStaging(named: staged)   // merge into `Logs`, or rename onto it when free
+    }
+    guard storedNames.contains(legacyDirectoryName) else { return .nothingToMigrate }
     ...
 }
 ```
 
-nests two brackets, which the bracket's own doc forbids outright ("They compose as SIBLINGS only")
-because the inner delta is then withdrawn twice — silently over-withdrawing the monotonic floor.
+Route it through the existing `mergeContents` so nothing new can overwrite, and have the merge-with-skips
+exit at line 260 fall through to `restore` as well (a partially merged staging directory is exactly the
+"leave it for the next launch" state the doc promises). Add three cases: the merge-with-skips exit, the
+`restore`-fails exit, and a second `run` over the directory each leaves behind asserting it converges.
 
-The claim's factual half is true today: I checked all four call sites (`+RetryHelpers.swift:37` and
-`:132`, `+Scheduling.swift:360`, `+PublicAPI.swift:115`) and each is a top-level statement outside
-any bracket. But the safety is discipline, not construction, and the censuses do not cover it —
-`expectedBracketCallSites` counts *calls*, and a nested call adds one to a file's count, which the
-next round would simply update the table for. The doc at `DownloadSourceInventoryTests.swift:197-200`
-asks the reader to check nesting by hand, which is the same unowned-invariant shape that suite exists
-to abolish.
+### WR-02: `mergeContents` is `public`, recursively deletes its source on a stale-listing premise, and its own doc promises "Nothing is ever overwritten or deleted"
 
-**Fix:** State the property honestly in both docs (`+ExecutionSupport.swift:270-275` and
-`+Manager.swift:843-845`): sibling composition is a convention enforced by review, not by the type
-system. Then make it detectable — either add a `withdrawalDepth` counter incremented/decremented
-around `movement()` with a `reportIssue` (not a crash) when it exceeds one, which costs nothing in
-release and fails a debug test run, or add a source census counting bracket tokens that appear
-inside another bracket's brace span.
+**File:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:188-232`
 
-### WR-05: `toggleDownloadPauseDone(.failure)` is still the silent visible no-op WR-04 fixed 25 lines above it
+**Related:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:184-187`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:221-230`
 
-**File:** `AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift:221-225`
+**Issue:** The emptiness the removal rests on is decided from `sourceNames`, listed at line 196 — before
+the move loop runs. The guard at line 223 (`decision.skips.isEmpty`) therefore asserts that the
+directory was empty *as of that listing*, and line 225 then issues an unconditional
+`try fileManager.removeItem(at: source)`, which on a directory is **recursive**. Anything that appeared
+in `source` between the listing and the removal is destroyed without being counted, reported or logged.
+The comment above it — "Only an emptied directory is removed, so a skipped file is never deleted along
+with the directory that holds it" — states a property the code does not check.
 
-**Related:** `AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift:189-198`
+Today no in-app path can reach that window: in the `.merge` regime `source` is `Documents/logs`, and
+nothing writes there any more now that `Defaults.FilePath.logs` is `"Logs"`; in the staging path
+`source` is a UUID-named directory nothing else knows about. But **`mergeContents` is `public`** and its
+signature takes two arbitrary `URL`s with no stated caller constraint, while its doc line 187 says
+"Nothing is ever overwritten or deleted." That sentence is the thing a future caller will trust, and it
+is false about the one operation in the function that is irreversible.
 
-**Issue:** The retry branch now reports its refusal through the toast surface the reducer already
-owns. The pause/resume branch immediately below still does `if case .failure = result { return
-.send(.loadInspection) }` — reload and say nothing. The failure is reachable: `togglePause` answers
-`.failure(.unknown)` for a gallery whose status moved out of the toggleable set between the render
-and the tap, and `.failure(.notFound)` for a gallery that has been deleted underneath the inspector,
-which is exactly the "the row reverts and nothing tells the user why" shape WR-04 named. The
-`retryFailureToast` mapping added one screen away is directly reusable.
-
-**Fix:**
+**Fix:** Decide the removal from the disk at the moment of removal, and correct the doc.
 
 ```swift
-case .toggleDownloadPauseDone(let result):
-    if case .failure(let error) = result {
-        state.toast = error.retryFailureToast   // rename to `actionFailureToast`
-        return .send(.loadInspection)
-    }
-    return .none
+guard decision.skips.isEmpty else { return .merged(movedCount: movedCount, skippedCount: decision.skips.count) }
+// Re-listed rather than inferred: `sourceNames` describes the directory before the moves, and only
+// an emptiness observed now licenses a recursive removal.
+let remaining = (try? fileManager.contentsOfDirectory(atPath: source.path)) ?? ["<unlistable>"]
+guard remaining.isEmpty else {
+    return .merged(movedCount: movedCount, skippedCount: remaining.count)
+}
+do { try fileManager.removeItem(at: source) } catch { ... }
 ```
 
-Rename the private `AppError` helper to something not retry-specific and add a reducer case for the
-pause branch alongside the three new retry cases.
+Then rewrite line 187 to say what is true: nothing is overwritten, no *file* is deleted, and the source
+*directory* is removed only when a fresh listing shows it empty.
 
-### WR-06: `DownloadSourceInventoryTests` carries an unused private scanner and two load-bearing doc sentences that describe a scoping the censuses do not use
+### WR-03: The migration's only failure diagnostic is redacted in the unified log, and the per-file errors behind it are discarded outright
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:834-836`
+**File:** `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift:56`
 
-**Related:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:27`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:65-72`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift:611-677`
+**Related:** `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift:48-54`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:204-219`
 
-**Issue:** `downloadsTestFiles(in:)` has no caller. Both double-fidelity censuses scope through
-`clientDoubleFiles` / `clientDoubleTreeFiles`, which count over the downloads test target **plus**
-the processing client's module. The suite's own header nevertheless says every census names its tree
-"through `clientModuleFiles(in:)`, `downloadsTestFiles(in:)` or `clientDoubleFiles(in:)`" (line 27)
-and that the walk is scoped "to this directory through `downloadsTestFiles(in:)`" (line 67) — while
-line 29-31 of the same doc states the correct two-tree scoping. The file contradicts itself, and
-`clientDoubleTreeFiles` — the function that actually decides the population — is named in neither
-sentence.
+**Issue:** `logger.error("Failed to migrate the legacy logs directory: \(reason)")` interpolates a
+dynamic `String` with no privacy specifier. `Logger` defaults non-literal interpolations to `.private`,
+so on a device this line renders as `Failed to migrate the legacy logs directory: <private>` — the
+message survives and the only part that carries information does not. The two `.notice` branches three
+lines above mark their counts `privacy: .public` explicitly, so the omission reads as an oversight
+rather than a decision, and this is the one branch where a field report matters.
 
-This is precisely the defect class the suite was built to abolish ("a comment silently becomes a
-false premise, and a later fix reasoning from it lands wrong"), living inside the suite. Swift emits
-no warning for an unused private method, so nothing failed.
+It compounds with the producer. `mergeContents`' per-file `catch` (line 211-213) swallows the underlying
+`error` entirely and the aggregate `reason` reports only `"N of M log files could not be moved"` — no
+name, no errno. So even un-redacted the diagnostic could not identify which file or why. Between the
+two, a migration failure in the field is undiagnosable, while `LogsDirectoryMigration`'s own header
+claims "every failure becomes an `Outcome` the caller logs" (line 29-31).
 
-**Fix:** Delete `downloadsTestFiles(in:)` and rewrite lines 27 and 65-72 from source: name
-`clientModuleFiles(in:)`, `clientDoubleTreeFiles(in:)` and `clientDoubleFiles(in:)`, and say "the
-two trees" rather than "this directory". If the function is wanted for a future test-target-only
-census, add that census in the same change so the declaration has an owner.
+This is not caught by `DownloadLogPrivacyInvariantTests`, and correctly so — that census scans
+`DownloadClient` and `BackgroundProcessingClient` only, and its scoping rationale is sound. The gap here
+is the opposite of the one it guards: too private, not too public.
+
+**Fix:** Classify the reason deliberately. `Outcome.failed`'s payload is app-authored prose plus an
+`error.localizedDescription`; none of it is gallery-derived, and the paths it can name are the app's own
+container. Either mark it public —
+
+```swift
+case let .failed(reason):
+    logger.error("Failed to migrate the legacy logs directory: \(reason, privacy: .public)")
+```
+
+— or, if the `localizedDescription` embedding is the concern, split the outcome into a public summary
+and a private detail. Separately, have `mergeContents` accumulate `(name, error)` pairs and put the first
+few into the reason so the summary names something actionable.
+
+### WR-04: `moveDownload` dropped destination normalization but kept the call that CREATES the folder, so the public client API can now mint a name the app's own minting rules refuse
+
+**File:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift:204-268`
+
+**Related:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:576-581`,
+`AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:655-674`,
+`AppPackage/Sources/DownloadClient/DownloadStore.swift:648-656`,
+`AppPackage/Sources/DownloadClient/DownloadClient.swift:36`
+
+**Issue:** 15-70 replaced `normalizedUserFolderName(folderName)` + `confinedDirectUserFolderURL` with
+`confinedDirectUserFolderURL(named: folderName)` alone, and the reasoning it gives is correct for the
+**resolution** — a picked destination must not be rewritten into a neighbour of itself. But line 265 still
+calls `try storage.ensureUserFolder(named: folderName)`, which **creates** the directory. So the one
+site that was converted from minting to admitting is also the one site that mints, and the admission
+test is deliberately looser than the minting test:
+
+| name | `normalizedUserFolderName` (minting) | `confinedDirectUserFolderURL` (admission) |
+| --- | --- | --- |
+| `".hidden"` | rewritten to `"hidden"` (`trimsLeadingDots: true`) | admitted verbatim |
+| `"  "` | rejected (empties) | admitted verbatim |
+| `"Misc etc."` | rewritten to `"Misc etc"` | admitted verbatim |
+| 400-byte name | truncated to `maxFolderComponentByteCount` | admitted verbatim |
+
+`.hidden` is the sharp one: `directoryURLs(in:)` enumerates with `[.skipsHiddenFiles]`
+(`DownloadStore.swift:654`), so `scanDownloads` will never list a dot-prefixed directory as a user
+folder. A gallery moved into one is **not** in `fetchFolders()`, not in any folder filter, and its
+record is dropped by the next index rebuild — the gallery disappears from the app while its files sit on
+disk.
+
+No in-app route reaches it: the move menu and the list dialog both offer values `fetchFolders()`
+produced, and `scanDownloads` cannot produce a hidden or whitespace-only name. So this is a contract
+defect rather than a live one — but `moveDownload` is a `public` endpoint on `DownloadClient`
+(`DownloadClient.swift:36`) whose only guard is now a comment asserting what its callers happen to pass,
+and the previous line of defence was removed in the same change that made the comment the guard.
+
+**Fix:** Keep the picked-destination admission for the *resolution*, and refuse to create a name the
+app would not mint. The two questions are different and both belong here:
+
+```swift
+guard let destinationParentURL = storage.confinedDirectUserFolderURL(named: folderName)
+else { return .failure(.fileOperationFailed(String(localized: .RLocalizable.downloadStoreInvalidFolderName))) }
+...
+do {
+    // Admitted as written for resolution, but a folder is only CREATED under a name this app would
+    // mint: `ensureUserFolder` is a minting site, and a picked destination that does not exist is
+    // not a destination the listing produced.
+    if !fileManager.operate({ $0.fileExists(atPath: destinationParentURL.path) }) {
+        guard storage.normalizedUserFolderName(folderName) == folderName else {
+            return .failure(.fileOperationFailed(String(localized: .RLocalizable.downloadStoreInvalidFolderName)))
+        }
+    }
+    try storage.ensureUserFolder(named: folderName)
+```
+
+(Equivalently: keep `ensureUserFolder` for the recreate-a-listed-folder case only, by checking existence
+before rather than inside it.) Add the four rows of the table above to `DownloadFolderOperationTests`'
+refusal catalog, asserted against `moveDownload` rather than only against `createFolder`.
+
+### WR-05: The per-row delete confirmation is attached to the row, against the project convention that names this exact case — and the same file attaches its other dialog to the list
+
+**File:** `AppPackage/Sources/DownloadsFeature/DownloadsView.swift:227-229`
+
+**Related:** `AppPackage/Sources/DownloadsFeature/DownloadsView.swift:54-58`,
+`AppPackage/Sources/DownloadsFeature/DownloadsView.swift:173-177`,
+`AppPackage/Sources/DownloadsFeature/DownloadsReducer.swift:73-101`,
+`AppPackage/Sources/DownloadsFeature/DownloadRowFeature.swift:62-77`
+
+**Issue:** `CLAUDE.md`'s placement rule ends with an explicit exception: *"for a per-row destructive
+action whose row can scroll out of view, the stable action-source is the enclosing list container, so
+attach it there."* The swipe Delete is precisely a per-row destructive action in a scrolling `List`, and
+the dialog is attached to `DownloadRow`. The doc at lines 173-177 acknowledges the conflict —
+*"That is in tension with the project's placement rule"* — and overrides it on the grounds that per-row
+state buys per-row popover anchoring. That is a real trade-off, but it is an override of a binding
+convention recorded only in a source comment, with no decision entry behind it and no test on the side
+it gives up.
+
+Two things make it worth fixing rather than accepting:
+
+1. **The file is now internally inconsistent.** The list-level move dialog *is* attached to the container
+   (line 56), and its comment points at the row for the delete one. A future contributor reading the
+   convention and then this file gets two different answers about the same screen.
+2. **The property it trades away is untested.** `DownloadsReducer.State.downloads`' setter matches by id
+   so a presented dialog survives an `observeDownloads` tick (lines 89-101, and that is well argued and
+   correct), but nothing pins the *other* half — a row leaving `visibleRows` while its dialog is up.
+   That is reachable: `visibleRows` is derived from `filteredDownloads`, so a background repoint of the
+   gallery's `folderName` under an active folder filter, or the gallery leaving the snapshot entirely,
+   removes the row and takes its dialog with it mid-decision. `DownloadRowConfirmationTests` and
+   `DownloadsSwipeActionSourceTests` cover the dialog's content and the button roles; neither covers the
+   teardown the convention exists to prevent.
+
+**Fix:** Either honour the rule or record the override where a rule can see it. To honour it, keep the
+per-row *state* (which the `binding_initializer` argument in `DownloadRowFeature`'s header genuinely
+requires) and hoist only the *modifier*: `DownloadsReducer` can project the single presented row's
+dialog and attach it to the `List`, which is the shape the exception describes —
+
+```swift
+List { ForEach(visibleRows, id: \.state.id) { DownloadRow(store: store, rowStore: $0) } }
+    .confirmationDialog($store.scope(\.presentedRowDialog, action: \.presentedRowDialog))
+```
+
+To keep the current placement, get an owner decision on record rather than a comment, and add a reducer
+test asserting what happens when a row with a presented dialog leaves `rows` (today: the dialog vanishes
+silently and the deletion never fires).
 
 ## Info
 
-### IN-01: `waitForTaskValue`'s 10s default still lengthens three deliberate hang-detectors tenfold
+### IN-01: `LogsDirectoryMigration` exposes three members publicly for the test target alone, without the `#if DEBUG` discipline this same phase established for `DownloadClient`
 
-**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift:104-106`
+**File:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:109`
 
-**Related:** `AppPackage/Tests/DownloadsFeatureTests/DownloadDeleteConvergenceTests.swift:113`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift:90`
+**Related:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:126`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:188`,
+`AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift:4-10`
 
-**Issue:** Unchanged since the previous review and not covered by any of the five plans. The two
-convergence suites document their bound as the thing that "turns the pre-fix missing notification
-into a named failure instead of a hung suite"; under the 10s default each of those regressions costs
-ten seconds of wall clock instead of one.
+**Issue:** `regime(storedNames:currentSpellingResolves:)`, `mergeDecision(sourceNames:destinationNames:)`
+and `mergeContents(of:into:)` are `public` with exactly one caller each — `run`, inside the same type —
+plus the test suite, which imports `AppTools` non-`@testable`. `DownloadClient+Testing.swift` states the
+opposite discipline in this same phase: *"an unconsumed forwarder is attack surface rather than a seam"*,
+and gates the whole seam behind `#if DEBUG`. `mergeContents` is also the member WR-02 shows carries an
+irreversible operation, so the widened visibility is not free.
 
-**Fix:** Keep the 10s default for the scheduling-sensitive observer cases and pass an explicit short
-bound at the two sites whose purpose is to detect a *missing* notification.
+**Fix:** Make them `internal` and reach them with `@testable import AppTools`, or keep them public behind
+`#if DEBUG` with the seam doc `DownloadClient` uses. `regime` and `mergeDecision` are pure and cheap to
+keep public if that is preferred; `mergeContents` is the one that should not be.
 
-### IN-02: The localized-key spelling split is unresolved and 15-69 widened it
+### IN-02: `run` reports `.nothingToMigrate` for a legacy name that is a regular file, which is not what that outcome means
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+RetryHelpers.swift:93`
+**File:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift:156-160`
 
-**Related:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionFetch.swift:207`,
-`AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:504`,
-`AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:656`
+**Issue:** `Outcome.nothingToMigrate`'s doc says "Nothing was found to migrate, and nothing was created."
+The `isDirectory` guard returns it for a case where something *was* found and deliberately skipped — a
+user-dropped regular file named `logs`. The `AppDelegateReducer` then `break`s and logs nothing, so the
+state is invisible. The skip itself is right (moving that file onto `Logs` would break logging outright,
+as the comment says); only the reporting collapses two different facts.
 
-**Issue:** The module now carries ten `String(localized: .RLocalizable.…)` call sites and eight bare
-`String(localized: .…)` ones for the same kind of key. Both new keys added this round
-(`.downloadStoreInvalidPageSelection`, `.downloadStorePageSelectionOutdated`) took the bare
-spelling, and `DownloadStore+Operations.swift` now uses both forms eight lines apart
-(`.downloadStoreFolderAlreadyExists` at 504 and 556, `.RLocalizable.downloadStoreInvalidFolderName`
-at 656).
+**Fix:** Add a case — `case legacyNameIsNotADirectory` — and log it at `.notice`. `LogsDirectoryMigrationTests`'
+`aRegularFileNamedLikeTheLegacyDirectoryIsLeftAlone` would then assert the specific outcome rather than
+the generic one.
 
-**Fix:** Pick one spelling for the module — the `RLocalizable.` prefix is the majority — and apply
-it in a single mechanical pass.
+### IN-03: The unswept refused-page-file population from the previous round widened in 15-71
 
-### IN-03: With the folder sweep deleted, nothing removes refuted files for pages the manifest does not claim
+**File:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift:151-177`
 
-**File:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift:448-455`
+**Related:** `AppPackage/Sources/DownloadClient/DownloadClient+SeedReconciliation.swift:91-101`,
+`AppPackage/Sources/DownloadClient/DownloadStore.swift:792-812`
 
-**Related:** `AppPackage/Sources/DownloadClient/DownloadStore.swift:803-870`,
-`AppPackage/Sources/DownloadClient/DownloadClient+PersistenceHelpers.swift:1-38`
-
-**Issue:** A consequence of CR-03 worth recording rather than a defect. Every read now leaves a
-refused (zero-byte / non-regular) page file in place, and the only remover,
-`removeRefutedPageFiles`, is driven from `refutedPages`, which is derived from
-`claimedPages` — pages with a **non-empty** hash. A page whose hash is empty (an interrupted
-download, a page just blanked by a reconciliation) whose file is a zero-byte remnant is therefore
-removed by nothing: the fetch picks a fresh unique name and the remnant stays. The probe's
-first-writer rule (`DownloadStore.swift:233-238`) means a usable file still settles the page, so
-correctness is unaffected — but repeated failed retries accumulate orphan files with no sweeper,
-where the deleted `sanitizeLocalFilesIfNeeded` used to clear them on every reader open.
+**Issue:** Carried forward, and recorded rather than re-argued. WR-02's fix took the source scan's
+`discardingRejected: true` away, and its own comment names the cost: *"the refused file surviving in a
+superseded folder when the run does not complete — IN-03's already-recorded unswept population, accepted
+here rather than closed."* So the population that no sweeper clears now includes source-folder refusals
+as well as unclaimed-page remnants. Correctness is unaffected — the probe's first-writer rule still
+settles a page from a usable file, and `removeSupersededFolders` clears the folder on the completion
+path — but repeated failed repairs accumulate orphan files with nothing to remove them.
 
 **Fix:** No action required for correctness. If the accumulation matters, extend
-`authorizedReconciliationScan`'s removal set to include refuted files for unclaimed pages — those
-have no hash to diverge from, so they are entitled under the round's own test — rather than
+`authorizedReconciliationScan`'s removal set to refuted files for pages the manifest does not claim —
+those have no hash to diverge from, so they pass the round's own entitlement test — rather than
 reintroducing a read-time sweep.
+
+### IN-04: Four production files and four test files changed in this phase are absent from the review scope, including the newest production code
+
+**File:** `.planning/phases/15-continued-background-downloads/15-REVIEW.md`
+
+**Issue:** `git diff --name-only 5d9be716..HEAD` minus the 85-file scope leaves, among the source tree:
+`AppPackage/Sources/DownloadsFeature/DownloadsView.swift`,
+`AppPackage/Sources/DownloadsFeature/DownloadRowFeature.swift`,
+`AppPackage/Sources/DownloadsFeature/Resources/Localizable.xcstrings`, `Config/Signing.xcconfig`,
+plus `DownloadRowConfirmationTests.swift`, `DownloadsSwipeActionSourceTests.swift`,
+`DownloadManifestSSOTStateCases.swift` and `DownloadProgressSeriesGuardTests.swift`. `DownloadsView.swift`
+and `DownloadRowFeature.swift` are the *newest* production code in the phase (commits `0ea0699a`,
+`9400680b`) and carry the whole swipe-delete confirmation design. I reviewed them anyway — WR-05 and the
+localization verification above come from them — but a scope list that omits the last three commits'
+production files is a gap in the harness, not in the code.
+
+**Fix:** Derive the scope from `git diff --name-only <base>..HEAD` at review time rather than from a list
+carried forward from the previous round.
+
+### IN-05: `ListedFolderName` is a file-scope, module-internal enum in the test target with an unused `String` raw value
+
+**File:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderAdmissionTests.swift:121`
+
+**Issue:** The catalog enum is declared outside the suite type and without `private`, so it is visible to
+every file in `DownloadsFeatureTests` and can collide with a future name there. Its `String` raw value is
+never read — nothing calls `rawValue` or `init(rawValue:)`, and Swift Testing takes case descriptions from
+`CustomTestStringConvertible`/`description`, not from `RawRepresentable`. The rest of the suite's helpers
+are correctly `private`.
+
+**Fix:** `private enum ListedFolderName: Sendable, CaseIterable`. If the argument labels in test output
+matter, add `CustomTestStringConvertible` returning `onDiskName`, which is more useful than the case name
+anyway.
 
 ---
 
-_Reviewed: 2026-08-10T10:22:01Z_
+_Reviewed: 2026-08-11T00:00:00Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
