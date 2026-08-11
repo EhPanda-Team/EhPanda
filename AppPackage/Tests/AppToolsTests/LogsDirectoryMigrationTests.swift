@@ -137,6 +137,52 @@ final class LogsDirectoryMigrationTests {
         )
     }
 
+    @Test
+    func aStoredStagingNameIsRecovered() {
+        // The state a staged rename leaves behind when neither of its two moves completed: the
+        // legacy name is gone, so no other regime can see the directory holding the logs.
+        let staged = stagingName()
+        #expect(
+            LogsDirectoryMigration.regime(
+                storedNames: [staged],
+                currentSpellingResolves: false
+            ) == .recoverStaging(named: staged)
+        )
+    }
+
+    @Test
+    func aStoredStagingNameOutranksEveryOtherRegime() {
+        // The residue holds logs already in flight; a legacy directory standing next to it is
+        // migrated by the next run, which this run leaves free to classify.
+        let staged = stagingName()
+        #expect(
+            LogsDirectoryMigration.regime(
+                storedNames: ["logs", staged],
+                currentSpellingResolves: false
+            ) == .recoverStaging(named: staged)
+        )
+        #expect(
+            LogsDirectoryMigration.regime(
+                storedNames: ["logs", "Logs", staged],
+                currentSpellingResolves: true
+            ) == .recoverStaging(named: staged)
+        )
+    }
+
+    @Test
+    func whichResidueIsPickedDoesNotDependOnTheListingOrder() {
+        // Two residues can only come from two interrupted attempts. The one recovered is a function
+        // of the names, not of the order the filesystem reported them in.
+        let first = "\(Defaults.FilePath.logs)-migrating-00000000"
+        let second = "\(Defaults.FilePath.logs)-migrating-ffffffff"
+        #expect(
+            LogsDirectoryMigration.regime(
+                storedNames: [second, first],
+                currentSpellingResolves: false
+            ) == .recoverStaging(named: first)
+        )
+    }
+
     // MARK: - Whole-migration regimes
 
     @Test
@@ -216,6 +262,70 @@ final class LogsDirectoryMigrationTests {
         let documentsNames = try storedNames(in: documents)
         #expect(documentsNames == ["logs"])
         #expect(try contents(of: documents.appending(component: "logs")) == "not a logs directory")
+    }
+
+    // MARK: - Staged residue (filesystem, host-independent)
+
+    @Test
+    func aStagedResidueIsRecoveredOntoAFreeDestination() throws {
+        // The terminal state of an interrupted staged rename, staged directly rather than by
+        // driving the two-move sequence: neither move completed, so the logs sit under a name the
+        // Files app shows and nothing used to read.
+        let documents = try makeDocuments()
+        let staged = stagingName()
+        let residue = try makeDirectory(named: staged, in: documents)
+        let runFile = runLogFileName(day: "20260101", time: "090000", runCount: 1)
+        try write("staged-run", to: residue.appending(component: runFile))
+
+        #expect(LogsDirectoryMigration.run(documentsURL: documents) == .renamed)
+
+        let documentsNames = try storedNames(in: documents)
+        #expect(documentsNames == [Defaults.FilePath.logs])
+        let recovered = documents.appending(component: Defaults.FilePath.logs, directoryHint: .isDirectory)
+        #expect(try contents(of: recovered.appending(component: runFile)) == "staged-run")
+    }
+
+    @Test
+    func aStagedResidueIsFoldedIntoAnOccupiedDestinationAndConverges() throws {
+        // The residue the merge-with-skips exit leaves: the destination exists and shares a name,
+        // so the fold-in keeps the destination copy and the residue survives holding the collision.
+        let documents = try makeDocuments()
+        let staged = stagingName()
+        let residue = try makeDirectory(named: staged, in: documents)
+        let current = try makeDirectory(named: Defaults.FilePath.logs, in: documents)
+        let movedRun = runLogFileName(day: "20260101", time: "090000", runCount: 1)
+        let collidingRun = runLogFileName(day: "20260101", time: "101500", runCount: 2)
+        try write("staged-only", to: residue.appending(component: movedRun))
+        try write("staged-copy", to: residue.appending(component: collidingRun))
+        try write("destination-copy", to: current.appending(component: collidingRun))
+
+        #expect(LogsDirectoryMigration.run(documentsURL: documents) == .merged(movedCount: 1, skippedCount: 1))
+        #expect(try contents(of: current.appending(component: movedRun)) == "staged-only")
+        #expect(try contents(of: current.appending(component: collidingRun)) == "destination-copy")
+        #expect(try contents(of: residue.appending(component: collidingRun)) == "staged-copy")
+
+        // A second run over exactly the state the first left behind: the residue is still seen —
+        // which is the whole point of classifying the staging name — and nothing further moves.
+        #expect(LogsDirectoryMigration.run(documentsURL: documents) == .merged(movedCount: 0, skippedCount: 1))
+        let documentsNames = try storedNames(in: documents)
+        #expect(documentsNames == [Defaults.FilePath.logs, staged].sorted())
+        #expect(try contents(of: residue.appending(component: collidingRun)) == "staged-copy")
+        #expect(try contents(of: current.appending(component: collidingRun)) == "destination-copy")
+    }
+
+    @Test
+    func aRegularFileWithTheStagingPrefixIsLeftAlone() throws {
+        // The staging name is user-visible, so File Sharing can put a regular file under it. The
+        // recovery route is for directories this type minted, and it owns nothing else.
+        let documents = try makeDocuments()
+        let staged = stagingName()
+        try write("not a staged directory", to: documents.appending(component: staged))
+
+        #expect(LogsDirectoryMigration.run(documentsURL: documents) == .nothingToMigrate)
+
+        let documentsNames = try storedNames(in: documents)
+        #expect(documentsNames == [staged])
+        #expect(try contents(of: documents.appending(component: staged)) == "not a staged directory")
     }
 
     @Test
@@ -360,6 +470,13 @@ final class LogsDirectoryMigrationTests {
         let base = [Defaults.FilePath.activityLogPrefix, day, time, String(runCount)]
             .joined(separator: "-")
         return [base, Defaults.FilePath.activityLogExtension].joined(separator: ".")
+    }
+
+    /// A name of the shape `renameThroughStaging` mints, composed from the same current constant it
+    /// uses. Built here rather than read from the type, whose staging prefix is private on purpose:
+    /// a test that asked the production code for the prefix would agree with it by construction.
+    private func stagingName() -> String {
+        "\(Defaults.FilePath.logs)-migrating-\(UUID().uuidString)"
     }
 
     private func write(_ contents: String, to url: URL) throws {
