@@ -5,17 +5,20 @@ import Testing
 ///
 /// The trailing swipe Delete deliberately carries no destructive role. The role makes SwiftUI play
 /// an optimistic row-removal the instant the button is tapped — before, and regardless of, any data
-/// mutation — and this button mutates nothing: it only sets `state.alert`. So the row vanished on
-/// tap, reappeared behind the alert (the next render diff still contains it, since only the alert
-/// changed), and vanished a third time when the real deletion arrived through the observe stream.
+/// mutation — and this button mutates nothing: it only sets the row's `confirmationDialog`. So the
+/// row vanished on tap, reappeared behind the dialog (the next render diff still contains it, since
+/// only the dialog changed), and vanished a third time when the real deletion arrived through the
+/// observe stream.
 /// Dropping the role removes the first two beats; `.tint(.red)` carries the styling the role was
 /// providing, which is the only effect Apple documents for it on this surface.
 ///
-/// An unmarked delete button reads as an oversight in source, so a comment alone would not survive
-/// the first contributor who "fixes" it back. That is what this suite is for.
+/// Both surfaces now share one `deleteButton(role:)`, so the difference is a `nil` passed at one
+/// call site and `.destructive` at the other. That reads as an oversight to anyone who has not
+/// followed the reasoning above, and a comment alone would not survive the first contributor who
+/// "fixes" it back. That is what this suite is for.
 ///
 /// **Why every check is region-scoped, and why that is not fussiness.** The role is correct
-/// everywhere else it appears — the alert's Delete `ButtonState` and the context-menu Delete both
+/// everywhere else it appears — the dialog's Delete `ButtonState` and the context-menu Delete both
 /// keep it, because neither surface has the optimistic-removal behavior. A file-wide "no
 /// destructive role" sweep would therefore be self-invalidating: deleting the context menu's role
 /// would satisfy it, which is the opposite of the intent. Each check extracts its own span by
@@ -47,7 +50,10 @@ struct DownloadsSwipeActionSourceTests {
     /// forbids it, and the file stays safe if this scan is ever widened to a directory.
     private static var destructiveRoleToken: String { "role: ." + "destructive" }
     private static var redTintToken: String { ".tint(" + ".red)" }
-    private static var deleteActionToken: String { "deleteDownload" + "ButtonTapped(" }
+    /// The shared delete button's call site, which is where the two surfaces differ — one passes
+    /// `nil`, the other `.destructive`. The button body itself lives outside both spans now, so
+    /// the send it performs is no longer what marks a region.
+    private static var deleteActionToken: String { "delete" + "Button(role:" }
 }
 
 // MARK: - Roles
