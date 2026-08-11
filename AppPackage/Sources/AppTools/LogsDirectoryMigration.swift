@@ -253,6 +253,7 @@ public enum LogsDirectoryMigration {
 
         let decision = mergeDecision(sourceNames: sourceNames, destinationNames: destinationNames)
         var movedCount = 0
+        var failures: [(name: String, error: any Error)] = []
         for name in decision.moves {
             do {
                 try fileManager.moveItem(
@@ -261,13 +262,15 @@ public enum LogsDirectoryMigration {
                 )
                 movedCount += 1
             } catch {
-                // Leave it where it is; the next launch sees the same regime and retries.
+                // Leave the file where it is; the next launch sees the same regime and retries. The
+                // error is KEPT rather than dropped here: this catch is the only place it exists,
+                // and a reason carrying just a count can identify neither the file nor the cause,
+                // which is the whole of what a field report has to go on.
+                failures.append((name: name, error: error))
             }
         }
-        guard movedCount == decision.moves.count else {
-            return .failed(
-                reason: "\(decision.moves.count - movedCount) of \(decision.moves.count) log files could not be moved"
-            )
+        guard failures.isEmpty else {
+            return .failed(reason: failureReason(failures, outOf: decision.moves.count))
         }
 
         // Only an emptied directory is removed, so a skipped file is never deleted along with the
@@ -372,6 +375,30 @@ public enum LogsDirectoryMigration {
             }
             return .failed(reason: "\(summary). The logs are in \(staging.lastPathComponent)")
         }
+    }
+
+    /// How many failed moves a reason names individually before it starts counting the rest.
+    ///
+    /// Capped rather than exhaustive: a directory whose every move fails would otherwise produce a
+    /// log line as long as the directory, and such failures share one cause far more often than not.
+    private static let namedFailureCount = 3
+
+    /// The prose behind a partial merge — how much failed, then the first few failures by name and
+    /// by reason, then a count of whatever the cap left out so the list never reads as the whole.
+    ///
+    /// Every part is app-authored or a log file name of this app's own making, which is what lets
+    /// `AppDelegateReducer` log the enclosing `failed` reason as `.public`.
+    private static func failureReason(
+        _ failures: [(name: String, error: any Error)],
+        outOf attemptedCount: Int
+    ) -> String {
+        let named = failures
+            .prefix(namedFailureCount)
+            .map({ "\($0.name): \($0.error.localizedDescription)" })
+            .joined(separator: "; ")
+        let unnamedCount = failures.count - min(failures.count, namedFailureCount)
+        let remainder = unnamedCount > 0 ? " (and \(unnamedCount) more)" : ""
+        return "\(failures.count) of \(attemptedCount) log files could not be moved. \(named)\(remainder)"
     }
 
     private static func isDirectory(_ url: URL, fileManager: FileManager) -> Bool {
