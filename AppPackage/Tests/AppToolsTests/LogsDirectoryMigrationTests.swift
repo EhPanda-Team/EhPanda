@@ -68,6 +68,33 @@ private final class LateWriteFileManager: FileManager {
     }
 }
 
+/// A `FileManager` that refuses to move one named file and moves everything else for real.
+///
+/// The per-file `catch` inside `mergeContents` is the only place a move error exists at all, so a
+/// double is the only way to assert that the error reaches the reported reason instead of being
+/// discarded into a bare count.
+private final class RefusingMoveFileManager: FileManager {
+    let refusedName: String
+    let refusal: any Error
+
+    init(refusedName: String, refusal: any Error) {
+        self.refusedName = refusedName
+        self.refusal = refusal
+        super.init()
+    }
+
+    override func moveItem(at srcURL: URL, to dstURL: URL) throws {
+        guard srcURL.lastPathComponent != refusedName else { throw refusal }
+        try super.moveItem(at: srcURL, to: dstURL)
+    }
+}
+
+/// An error whose description is a sentinel, so the assertion is that THIS error's text survived
+/// rather than that some text did.
+private struct RefusedMove: LocalizedError {
+    var errorDescription: String? { "the volume refused this move" }
+}
+
 /// Exercises `LogsDirectoryMigration` against per-case temporary documents directories.
 ///
 /// The suite is deliberately piecewise over the host volume, because the migration's regimes are not
@@ -463,6 +490,33 @@ final class LogsDirectoryMigrationTests {
     }
 
     @Test
+    func aFailedMoveIsReportedByNameAndByCause() throws {
+        let documents = try makeDocuments()
+        let source = try makeDirectory(named: "source", in: documents)
+        let destination = try makeDirectory(named: "destination", in: documents)
+        let movedName = runLogFileName(day: "20260101", time: "090000", runCount: 1)
+        let refusedName = runLogFileName(day: "20260101", time: "101500", runCount: 2)
+        try write("moved", to: source.appending(component: movedName))
+        try write("stuck", to: source.appending(component: refusedName))
+
+        let outcome = LogsDirectoryMigration.mergeContents(
+            of: source,
+            into: destination,
+            fileManager: RefusingMoveFileManager(refusedName: refusedName, refusal: RefusedMove())
+        )
+
+        // All three parts are asserted, because the count on its own is what this used to carry and
+        // a report that identifies neither the file nor the cause is not actionable in the field.
+        let reason = try #require(failureReason(outcome))
+        #expect(reason.contains("1 of 2"))
+        #expect(reason.contains(refusedName))
+        #expect(reason.contains("the volume refused this move"))
+        // Nothing is lost either way: the refused file stays where the next launch will retry it.
+        #expect(try contents(of: source.appending(component: refusedName)) == "stuck")
+        #expect(try contents(of: destination.appending(component: movedName)) == "moved")
+    }
+
+    @Test
     func aFileAppearingWhileTheMergeRunsIsNeitherDeletedNorMiscounted() throws {
         let documents = try makeDocuments()
         let source = try makeDirectory(named: "source", in: documents)
@@ -556,5 +610,11 @@ final class LogsDirectoryMigrationTests {
     /// description, so only the case is asserted.
     private func isFailure(_ outcome: LogsDirectoryMigration.Outcome) -> Bool {
         if case .failed = outcome { true } else { false }
+    }
+
+    /// The reason behind a `failed` outcome, or `nil` for any other case — so a case asserting the
+    /// reason's CONTENT fails on the wrong outcome rather than silently matching nothing.
+    private func failureReason(_ outcome: LogsDirectoryMigration.Outcome) -> String? {
+        if case let .failed(reason) = outcome { reason } else { nil }
     }
 }
