@@ -38,6 +38,36 @@ private let hostCanStoreBothSpellings: Bool = {
     }
 }()
 
+/// A `FileManager` that drops one file into the directory it has just moved a file OUT of.
+///
+/// It stages the single window `mergeContents` cannot otherwise be shown to survive: a log write
+/// landing in the source between the listing the merge was planned from and the removal that
+/// listing used to license. `removeItem` on a directory is recursive, so the late file's fate is
+/// decided entirely by WHICH listing licenses the removal — which makes this double the only way to
+/// tell the two readings apart from the outside.
+///
+/// It writes once, so the count it produces is exact rather than a function of how many files the
+/// merge happened to move.
+private final class LateWriteFileManager: FileManager {
+    let lateName: String
+    private var hasWritten = false
+
+    init(lateName: String) {
+        self.lateName = lateName
+        super.init()
+    }
+
+    override func moveItem(at srcURL: URL, to dstURL: URL) throws {
+        try super.moveItem(at: srcURL, to: dstURL)
+        guard !hasWritten else { return }
+        hasWritten = true
+        try Data("late-write".utf8).write(
+            to: srcURL.deletingLastPathComponent().appending(component: lateName),
+            options: .atomic
+        )
+    }
+}
+
 /// Exercises `LogsDirectoryMigration` against per-case temporary documents directories.
 ///
 /// The suite is deliberately piecewise over the host volume, because the migration's regimes are not
@@ -430,6 +460,31 @@ final class LogsDirectoryMigrationTests {
         let sourceNames = try storedNames(in: source)
         #expect(sourceNames == ["b.jsonl"])
         #expect(try contents(of: source.appending(component: "b.jsonl")) == "source-copy")
+    }
+
+    @Test
+    func aFileAppearingWhileTheMergeRunsIsNeitherDeletedNorMiscounted() throws {
+        let documents = try makeDocuments()
+        let source = try makeDirectory(named: "source", in: documents)
+        let destination = try makeDirectory(named: "destination", in: documents)
+        try write("moved", to: source.appending(component: "a.jsonl"))
+        let lateName = runLogFileName(day: "20260102", time: "120000", runCount: 3)
+
+        let outcome = LogsDirectoryMigration.mergeContents(
+            of: source,
+            into: destination,
+            fileManager: LateWriteFileManager(lateName: lateName)
+        )
+
+        // The planned decision skipped nothing, so the pre-move listing would have licensed a
+        // recursive removal of `source` — silently taking the late file with it and reporting
+        // `skippedCount: 0`. The count is the second half of the assertion: a fix that merely
+        // stopped removing would leave the file uncounted, which is the failure that hid it.
+        #expect(outcome == .merged(movedCount: 1, skippedCount: 1))
+        #expect(try contents(of: source.appending(component: lateName)) == "late-write")
+        #expect(try contents(of: destination.appending(component: "a.jsonl")) == "moved")
+        let sourceNames = try storedNames(in: source)
+        #expect(sourceNames == [lateName])
     }
 
     @Test
