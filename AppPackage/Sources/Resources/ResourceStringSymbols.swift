@@ -50,11 +50,15 @@ public nonisolated extension LocalizedStringResource {
             total: Int,
             galleries: Int
         ) -> LocalizedStringResource {
-            let arguments: String.LocalizationValue =
-                "\(completed, specifier: "%lld")\(total, specifier: "%lld")\(galleries, specifier: "%lld")"
+            // Written inline rather than bound to a local. A standalone
+            // `String.LocalizationValue` literal is itself an extractable string with no key
+            // context, so Xcode harvested it into the catalog as a key named after its own format
+            // — a stray `%lld%lld%lld` entry that reappeared on every build. Inline, the extractor
+            // sees the key it belongs to and emits nothing extra.
             return LocalizedStringResource(
                 "continued_session.subtitle",
-                defaultValue: arguments,
+                defaultValue:
+                    "\(completed, specifier: "%lld")\(total, specifier: "%lld")\(galleries, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
