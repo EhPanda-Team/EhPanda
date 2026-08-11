@@ -1,294 +1,228 @@
 ---
 phase: 15-continued-background-downloads
-fixed_at: 2026-08-09T09:06:33Z
+fixed_at: 2026-08-11T21:30:00Z
 review_path: .planning/phases/15-continued-background-downloads/15-REVIEW.md
-iteration: 2
-findings_in_scope: 10
-fixed: 10
-skipped: 0
-status: all_fixed
+iteration: 1
+findings_in_scope: 5
+fixed: 4
+skipped: 1
+status: partial
 ---
 
 # Phase 15: Code Review Fix Report
 
-**Fixed at:** 2026-08-09T09:06:33Z
-**Source review:** `.planning/phases/15-continued-background-downloads/15-REVIEW.md`
-**Iteration:** 2
-
-The iteration-1 report (a single-finding pass against the previous review) is preserved in history
-at `c94c085c`; this file replaces it with the report for the current review's ten findings.
+**Fixed at:** 2026-08-11T21:30:00Z
+**Source review:** `.planning/phases/15-continued-background-downloads/15-REVIEW.md` (fourth review)
+**Iteration:** 1
 
 **Summary:**
-- Findings in scope: 10 (2 critical, 8 warning; scope = `critical_warning`)
-- Fixed: 10
-- Skipped: 0
+- Findings in scope: 5 (WR-01 … WR-05; 0 Critical, `fix_scope: critical_warning` so the 5 Info
+  findings are out of scope)
+- Fixed: 4
+- Skipped: 1
 
-Two findings were fused by the review's own amendments: **CR-01 absorbs WR-04** (the coverage
-identity CR-01 needs is exactly what gives `ContentMismatchScan.verified` a reader), and **WR-07 was
-committed in two parts** (the production change, then the consumer re-derivation its changed basis
-forced). Every other finding is one atomic commit.
-
-## Rulings applied
-
-This pass ran under the amendments recorded at `15-REVIEW.md` line 444 (committed `4e70160b`). Two
-of them changed what "as instructed" means, and both were raised as decision checkpoints *before*
-any code was written rather than deviated from silently:
-
-- **CR-02, pin (a) retargeted to exit 1 (Q1, Option A).** The pin as originally written named a
-  production write seam that does not exist in the shape the review assumed; the ruling retargeted
-  it to the first post-removal exit and sanctioned a count-keyed test double on two conditions —
-  document the listing choreography inside the double, and assert the armed failure was consumed
-  **exactly once**. Both are honoured; the consumption assertion is the *first* assertion in the
-  test, so a double that never fired cannot let the test pass vacuously.
-- **WR-08 resolved as a dispositioned residual (Q5, Option C).** All three proposed remedies
-  collided with binding invariants (re-fetching present files rewrites the missing-only filter the
-  D-SSOT-04 laundering defence rests on; keeping the entry across an enqueue re-creates the G-15-5
-  dead end; narrowing the basis cannot separate the two families without consulting the disk, which
-  D-SSOT-07 forbids). Current behaviour is therefore pinned as a known residual and recorded in
-  both this report and the `D-SSOT-08` doc, with the sanctioned follow-up named.
-
-**D-SSOT-04 was not weakened by any route.** The rejected order reversal is not present; CR-02's fix
-keeps removal first and makes the *write* recoverable instead. No `swiftlint:disable` was added, and
-no rule was relaxed.
+Every fix was verified by a full package test run (`AppPackage-Package` on the pinned iPhone Air
+simulator) before its commit: `** TEST SUCCEEDED **`, zero `✘`, and zero compiler or SwiftLint
+diagnostics attributable to the change. Work was done in an isolated git worktree and
+fast-forwarded onto `feature/gsd-phase-15`.
 
 ## Fixed Issues
 
-### CR-01 (+ WR-04): Unclassified pages are not counted as a hold, so `validationErrors` clears over unanswered evidence
+### WR-01: A staged case-only rename could strand the user's logs in `Logs-migrating-<UUID>` permanently
 
-**Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift`,
-`AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadValidationReconciliationTests.swift`
-**Commit:** `8c453708`
+**Files modified:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
+`AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
+**Commit:** `32132857`
 
-**Applied fix:** `claimedPages` was lifted to the caller so the pass can state a *partition identity*
-rather than an ad-hoc union. `prospectiveBlankPages(claimedPages:presenceScan:mismatchedPages:)` and
-a new `unclassifiedPages(claimedPages:contentScan:prospectiveBlankPages:)` together make the claimed
-set exhaustive: every claimed page is verified, mismatched, held, prospectively blanked, or
-unclassified. The residual joins the hold set —
-`heldPages = contentScan.held ∪ unremovedPages ∪ unclassifiedPages(…)` — so a page the scan could
-not answer for keeps the operation-level entry alive instead of being silently dropped, which is
-what made Validate unreachable.
+**Applied fix:** Both halves of the reviewer's remedy.
 
-**WR-04 absorbed:** `ContentMismatchScan.verified` is no longer dead because the partition identity
-subtracts it; its doc comment now names `unclassifiedPages` as the reader, so the next reviewer can
-see why the field exists without re-deriving it.
+1. A fourth regime, `Regime.recoverStaging(named:)`, keyed on a new private `stagingPrefix`
+   (`"\(Defaults.FilePath.logs)-migrating-"`, derived from the *current* constant since a residue is
+   this type's own making, unlike the frozen `legacyDirectoryName`). It is classified **ahead of**
+   the legacy-name guard, because a residue is precisely the state in which the legacy name is
+   already gone — which is why no prior regime could see it. The listing is `sorted()` first so
+   which residue is picked is a function of the names, not of filesystem ordering. `run` routes it
+   through a new `recoverStaging(_:to:fileManager:)`: move onto `Logs` when free, fold in through
+   `mergeContents` when occupied, and it carries the same `isDirectory` guard the legacy name has,
+   since the staging name is user-visible under File Sharing too.
+2. `renameThroughStaging`'s merge-with-skips exit now falls through to `restore` as well. The
+   discriminator is exact rather than approximate: `mergeContents` removes the directory it merged
+   *from* only when it emptied it, which is exactly `.merged(_, skippedCount: 0)`, so every other
+   outcome leaves the staged directory standing and is restored. `restore` was regeneralized from
+   `after reason: String` to `reporting outcome: Outcome`, returning the fold-in's own outcome on a
+   successful restore and only downgrading to `.failed` when the restore itself fails.
 
-**Falsifiability banked:** three independent mutations were confirmed to fail the new tests
-(including flipping `canValidateImageData` to `false`), so the coverage is not vacuous.
+`Outcome.failed`'s doc claim that "the next launch retries from the state left behind" is now true
+for every state this type can leave, and the module header records why the staging name is a
+first-class regime rather than an internal detail.
 
-### CR-02: Mismatched page files are destroyed before anything durable is written
+**Tests added (6, all passing):** `aStoredStagingNameIsRecovered`,
+`aStoredStagingNameOutranksEveryOtherRegime`, `whichResidueIsPickedDoesNotDependOnTheListingOrder`,
+`aStagedResidueIsRecoveredOntoAFreeDestination`,
+`aStagedResidueIsFoldedIntoAnOccupiedDestinationAndConverges` (this is the reviewer's third case —
+a second `run` over exactly the state the first left behind, asserting convergence), and
+`aRegularFileWithTheStagingPrefixIsLeftAlone`.
 
-**Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadValidationReconciliationTests.swift`
-**Commit:** `f2f7ab60`
+**Residual, stated rather than hidden:** `renameThroughStaging`'s own two exits still cannot be
+driven directly — they need a `Logs` directory to appear *between* the function's two moves, which
+no fixture can stage without a `FileManager` seam this module deliberately does not have. What the
+new cases pin instead is the state those exits leave behind and its recovery, which is what makes
+the exits non-terminal. That is the property the finding was about.
 
-**Applied fix:** the primary remedy in the review (reverse the order — write first, remove after) was
-**REJECTED** by the amendments and is *not* implemented, because that ordering launders a refuted
-file into the record: `retryPages` clears the entry, `pendingPageIndices` then fetches only pages
-whose file is **missing**, so a surviving corrupt file is skipped and `addingCurrentFileHashes`
-re-records the corruption as truth. Removal therefore stays first, and the *write* is made
-recoverable instead:
+### WR-02: `mergeContents` recursively deleted its source on a stale-listing premise
 
-- `let removedPages = contentScan.mismatched.subtracting(unremovedPages)` names precisely the pages
-  whose files this pass destroyed.
-- `blankingPass(gid:manifest:folderURL:)` performs one bracketed attempt — it is the sole
-  `withdrawingCountedBasisMovement(` call site in this file and takes its own **fresh** scan, so the
-  D-G7-01 bracket is never nested.
-- `recoveredBlanking(gid:manifest:removedPages:folderURL:)` retries the pass exactly once when the
-  record still claims a page this pass deleted (`DownloadManifest.claimsAnyPage(in:)`), and on a
-  second failure logs an error naming the page list publicly and the gid hash-masked.
+**Files modified:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
+`AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
+**Commit:** `06bff82b`
 
-The counter-intuitive ordering is documented **in the source**, at the function, with the laundering
-chain spelled out and the recover-once contract stated — the design reads as a bug without it.
+**Applied fix:** The removal is now licensed by a listing taken at the moment of removal instead of
+by `decision.skips`, which describes the directory as it was *before* the moves. A file that
+appeared in `source` in that window is counted into `skippedCount` and left alone rather than being
+destroyed by the recursive `removeItem`.
 
-**Pin (a) — retargeted to exit 1 per the ruling.**
-`testATransientPostRemovalRescanFailureRecoversSoTheDurableBlankStillLands` drives a
-`PostRemovalListingFailureFileManager`: removing an item **arms** a one-shot failure, and the next
-directory listing fails once. The double's listing choreography is documented at the type, and the
-test's **first** assertion is `control.consumedFailureCount == 1`, so it cannot pass without the
-failure having actually fired. The control object is `Mutex`-backed and separate from the
-`sending FileManager`, because the manager's ownership is transferred and cannot be observed after.
+**Deviation from the suggested patch, deliberate:** the review's snippet uses
+`(try? fileManager.contentsOfDirectory(...)) ?? ["<unlistable>"]`. `try?` is banned as an *error* by
+this project's `optional_try` custom lint rule, so the re-listing is a `do`/`catch` that reports
+`.failed` with the underlying description when the directory cannot be listed. This also keeps the
+invariant WR-01's fix depends on intact — the source directory was removed **iff** the outcome is
+`.merged(_, skippedCount: 0)`.
 
-**Pin (b) — `.immutable` staging, with the empirical confirmation the ruling asked to record.**
-`testAnUnwritableManifestKeepsTheEntryAndTheNextValidateConvergesTheRecord` stages an unwritable
-manifest with the BSD `.immutable` flag. **Empirically confirmed on the simulator (this host's APFS):** an atomic write
-over an immutable file throws `NSCocoaErrorDomain` code **513** (backed by `EPERM`), while the
-enclosing folder stays writable and page-file removal still succeeds — which is exactly the regime
-the pin needs (removal lands, write does not). The flag is cleared in a `defer` declared *after* the
-tree-removal `defer` so it runs first, and the test's first post-staging assertion names the staging
-premise. Noted honestly: this is a **characterization/regression** pin, not a falsifier, since the
-recovery-fails outcome equals the pre-fix outcome.
+The doc was corrected as asked: the false "Nothing is ever overwritten or deleted" is replaced with
+what is true — nothing at the destination is overwritten, no *file* is deleted, and the source
+*directory* is removed only on a fresh listing showing it empty — plus the reason the guarantee
+cannot rest on caller behaviour (`public`, two arbitrary URLs). `Outcome.merged`'s doc now says
+`skippedCount` counts everything left behind, not only destination collisions.
 
-**Log-privacy census 10 → 11 (Q3, accepted as a structural pin).** `recoveredBlanking`'s error log is
-the first hash-masked identity log in `DownloadClient+PersistenceNormalize.swift`, so
-`expectedHashMaskedCounts` gains that file with count `1` and the total moves from 10 to 11. The
-census is an **owned inventory**, not a mirror of observed output: the entry is justified in prose
-next to it, so a future unexplained log cannot be absorbed by bumping a number.
+**Test added:** `aFileAppearingWhileTheMergeRunsIsNeitherDeletedNorMiscounted`, which stages the
+race deterministically with a `LateWriteFileManager` double that drops one file into the directory
+it has just moved a file out of. It discriminates: pre-fix the run reports `.merged(1, 0)` with the
+late file destroyed; post-fix it reports `.merged(1, 1)` with the bytes intact. Both halves are
+asserted, since a fix that merely stopped removing would still leave the file uncounted.
 
-**Falsifiability banked:** seven mutations were confirmed to fail, including the post-relaunch case
-where the record reads `.completed` over files this pass deleted.
+### WR-03: The migration's only failure diagnostic was redacted, and the per-file errors behind it were discarded
 
-### WR-01: The widened retry selection blanks every page it sends
+**Files modified:** `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift`,
+`AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
+`AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
+**Commit:** `da5a0675`
 
-**Files modified:** `AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorRetryTests.swift`
-**Commit:** `741d0c68`
+**Applied fix:** Both the consumer and the producer.
 
-**Applied fix:** the `.retryPages` optimistic overlay now skips pages that are already `.downloaded`,
-so the page list stops contradicting the badge beside it. A page is rewritten to `.pending` only
-when it is both in the retry selection **and** not already downloaded; every other page is returned
-unchanged. `testDownloadInspectorLeavesDownloadedPagesAloneWhenTheRetrySelectionCoversThem` pins it.
+- The `.failed` branch now logs `\(reason, privacy: .public)`, matching the two `.notice` branches
+  three lines above. The comment records why the payload is safe to publish: `Outcome.failed`'s
+  reason is app-authored prose over the app's own container and its own log file names, with
+  nothing gallery-derived or user-authored in it.
+- `mergeContents`' per-file `catch` accumulates `(name: String, error: any Error)` instead of
+  swallowing the error, and a new `failureReason(_:outOf:)` builds a reason that names the first
+  `namedFailureCount` (3) failures by file and by cause, then counts the remainder so the list never
+  reads as exhaustive. The cap is deliberate — a directory whose every move fails would otherwise
+  produce a log line as long as the directory, and such failures share one cause far more often than
+  not.
 
-### WR-02: The button says "Retry Failed Pages" while sending pages that never failed
+**Test added:** `aFailedMoveIsReportedByNameAndByCause`, driven by a `RefusingMoveFileManager`
+double and a sentinel `RefusedMove` error. All three parts are asserted — the count, the file name,
+and the cause's text — because the count alone is what this used to carry.
 
-**Files modified:** `AppPackage/Sources/DownloadsFeature/DownloadsView+Subviews.swift`,
-`AppPackage/Sources/DownloadsFeature/Resources/Localizable.xcstrings`
-**Commit:** `455694ef`
+### WR-04: `moveDownload` could mint a folder name the app's own minting rules refuse
 
-**Applied fix:** key `retry_failed_pages` → `retry_pages`, label `.retryFailedPages` → `.retryPages`.
-All six locales the catalog supports were updated together — "Retry Pages" / "Seiten erneut
-versuchen" / "ページを再試行" / "페이지 다시 시도" / "重试页面" / "重試頁面". The label's doc notes it is
-also the accessibility reading, so it is not silently changed to a shorter string later.
+**Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift`,
+`AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift`
+**Commit:** `a5b9e3f5`
 
-### WR-03: `enqueue` is the one enqueue site that does not clear `validationErrors`
+**Applied fix:** A minting guard sits between the admission guard and `blockScheduling`, so it
+precedes every side effect and needs neither a release nor a convergence — the same placement
+property the existing invalid-name guard documents. `ensureUserFolder` is left in place; what
+changed is that reaching it is now licensed.
 
-**Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
-**Commit:** `e70392cf`
+**Deviation from the suggested patch, and why it matters:** the review's snippet licenses creation
+solely by `normalizedUserFolderName(folderName) == folderName` whenever the destination parent does
+not exist. Applied literally that **regresses CR-01**: `"Art  Books"` is a real listed folder the
+app would spell `"Art Books"`, so a user who removed it through the Files app could no longer be
+moved back into it. The guard shipped here licenses creation by either of the two things that make
+a folder this app's to make:
 
-**Applied fix:** `clearDownloadFailureState(gid:)` now runs immediately before
-`advanceQueueIntentGeneration(for:)` in `enqueue`, with a doc naming the **G-15-5** dead end it
-closes: session-scoped state that outranks queue membership in status derivation must be cleared at
-or before enqueue, or the gallery can never reach a schedulable status.
-`testEnqueueingARecordUnderAnOperationLevelEntryStillReachesTheQueue` pins the behaviour, and a new
-`testQueueEnqueueCallSitesMatchTheRecordedCensus` (PublicAPI 1, RetryHelpers 2, Scheduling 1,
-Testing 1 = 5) makes a *future* enqueue site that forgets the clear visible instead of silent.
+```swift
+guard fileManager.operate({ $0.fileExists(atPath: destinationParentURL.path) })
+        || userFolders.contains(folderName)
+        || storage.normalizedUserFolderName(folderName) == folderName
+else { ... }
+```
 
-**Falsifiability banked:** two mutations confirmed to fail.
+A folder that is already there mints nothing; a name the listing carries is recreated verbatim
+(CR-01's property); a name the app would mint is minted. All four rows of the review's table fail
+all three clauses and are refused.
 
-### WR-04: `ContentMismatchScan.verified` is dead
-
-Fused into **CR-01** (commit `8c453708`) by the review's own amendment — see that entry. The field is
-now read by `unclassifiedPages`, and its doc names that reader.
-
-### WR-05: The `withdrawingCountedBasisMovement` call-site inventory is stale in three places
-
-**Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift`,
-`AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift`,
-`AppPackage/Sources/DetailFeature/DetailReducer.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
-**Commit:** `f9948572`
-
-**Applied fix:** "three call sites" → "four", naming the validate-time one; "Neither call site
-deletes" → "No call site deletes", with the validate-time caller's disposition stated explicitly
-(its removals happen **before** the bracket opens, which is why the sentence stays true); and a stale
-`D-G5C-01` reference corrected to `D-SSOT-08`. The count is then **owned** rather than narrated:
-`testCountedBasisBracketCallSitesMatchTheRecordedCensus` records ExecutionSupport 2,
-PersistenceNormalize 1, PublicAPI 1 = 4, so the next change to the bracket population fails a test
-instead of quietly re-staling the prose. CR-02 was deliberately shaped as a *single* bracketed-attempt
-helper so this count stays at four.
-
-### WR-06: The shared test helpers shipped alongside two private shadow copies
-
-**Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadValidationReconciliationTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadInspectionBasisTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`
-**Commit:** `5eed5dc8`
-
-**Applied fix:** both private shadow copies deleted; the call sites now use the extracted shared
-helpers, and the shared helpers' doc was strengthened so the next extraction does not re-fork them.
-Only `expectNoBlankHashedPageKeptItsFile` remains local, because it asserts a file-level invariant
-specific to that suite.
-
-### WR-07: The inspector's display path still performs a destructive filesystem probe
-
-**Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`,
-`AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTStateCases.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadCoordinatorRepairSeedTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadStoreTests.swift`
-**Commits:** `803e6d52`, then `8b4bfdbf` (consumer re-derivation)
-
-**Applied fix:** a `discardingRejected: Bool = true` parameter was threaded through the probe stack —
-`probeAssetFile(at:discardingRejected:)` (now explicit), `sanitizeAssetFileIfNeeded`, `pageFileScan`,
-`existingPageRelativePaths`, `imageURLs`, `localCoverURL`, `existingCoverRelativePath`,
-`existingCoverFileURL`, and both `existingAssetFileURL` overloads — with the deletion isolated in
-`discardRejectedAssetIfPermitted(at:discardingRejected:)`. The **display and index-scan** paths
-(`loadInspection`, and `makeRecord` on the `reloadDownloadIndex` path) now pass
-`discardingRejected: false`. The default is unchanged, so every acting path keeps its housekeeping.
-This is what "live file-presence scans are reconciliation **inputs**, never a competing display
-basis" requires now that status no longer derives from presence: a read must not mutate the disk.
-
-**Consumer re-derivation (`8b4bfdbf`).** One existing test keyed on the retired deletion:
-`testDownloadCoordinatorLoadLocalPageURLsRemovesZeroBytePage`. Rather than patch the assertion to
-whatever the new run printed, the expectation was **re-derived from the rule** — the read must still
-*exclude* the zero-byte page, it must merely stop deleting it — and the test renamed to
-`…ExcludesAZeroBytePageWithoutDeletingIt`. Two companions pin the rest of the boundary:
-`testSanitizingLocalFilesStillDiscardsAZeroBytePage` (the acting path still discards) and
-`testExistingPageRelativePathsKeepsZeroByteFilesWhenNotDiscarding` (the store's **classification** is
-identical under both flag values — only the deletion is withheld, which is the whole premise of the
-flag; if the two ever diverged, a read would report a different page set than the acting paths see,
-which is a second basis by another name).
-
-**Falsifiability banked:** the mutation where the display read deletes the file was confirmed to
-fail the new pins.
-
-### WR-08: The D-SSOT-03 held family has no invariant case, and its widened retry fetches nothing
-
-**Files modified:** `AppPackage/Sources/AppModels/Download/DownloadInspection.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTInvariantTests.swift`,
-`AppPackage/Tests/DownloadsFeatureTests/DownloadManifestSSOTStateCases.swift`
-**Commit:** `704b8dea`
-
-**Applied fix (Option C — pin the current behaviour as a dispositioned residual).** The generated
-invariant table gained the missing case, `unreadablePageHeldOverACompleteClaim`, plus two siblings
-that arrived with the other findings (`unprobeablePageHeldBesideAReconciledOne`,
-`truncatedClaimedPageSurvivesEveryDisplayRead`), taking `SSOTStateCase.all` from 9 to 12 regimes.
-`D-SSOT-08`'s doc now records the residual in full:
-
-> Two families reach this shape and are indistinguishable **at the record** — a wholesale
-> reconciliation the irreversibility guard refused (files really gone) and a page whose bytes could
-> not be **read** (file present and intact). For the first the `.repair` re-fetches everything; for
-> the second it fetches nothing, because `pendingPageIndices` narrows any selection to pages whose
-> file is **missing**. That family's effective affordances are re-Validate and the destructive route.
-
-It is a residual rather than a defect-in-waiting because each narrower alternative costs more than it
-buys, as recorded under "Rulings applied" above. **Named follow-up (Q6, sanctioned signal):** an
-**operation-level FAMILY TAG** on the `validationErrors` entry — not a per-page verdict,
-session-scoped like the entry itself, and moot after a relaunch (which equalizes the families
-anyway). That is a **design round**, not a fix to smuggle into this pass.
+**Tests added:** `testMoveDownloadRefusesToMintANameTheAppWouldNotMake`, parameterized over a new
+`UnmintableMoveDestination` catalog carrying exactly the review's four rows (`".hidden"`, `"  "`,
+`"Misc etc."`, a 400-byte name), asserted against `moveDownload` through the suite's existing
+`expectRefusal` so each is pinned to `.invalidName` rather than to "some failure". Both halves are
+checked — the refusal *and* the absence of the folder on disk — because the pre-fix failure was
+silent: the folder was created and the move reported success. Plus
+`testMoveDownloadRecreatesAListedFolderTheAppWouldNotMint`, the counterpart that fails if the guard
+is ever tightened into "normalize the destination", which is the rewrite CR-01 removed.
 
 ## Skipped Issues
 
-None. All ten findings were fixed.
+### WR-05: The per-row delete confirmation is attached to the row, against the project convention that names this exact case
 
-## Verification
+**File:** `AppPackage/Sources/DownloadsFeature/DownloadsView.swift:227-229`
+**Reason:** Correct finding, but the remedy is an owner decision that an automated fixer must not
+make, and the option the review leads with would regress `9421b7bb` / `15afbde4` into a defect the
+owner's own research has already identified.
 
-All gates were run on the final tree, one `xcodebuild` invocation at a time (never overlapping).
+**Reconciliation against the project's own rule, as required.** The finding is **not** wrong: the
+convention's exception says *"for a per-row destructive action whose row can scroll out of view, the
+stable action-source is the enclosing list container, so attach it there,"* and the swipe Delete is
+exactly a per-row destructive action in a scrolling `List` with its dialog attached to `DownloadRow`.
+The review's two supporting observations are also both accurate — the file is internally
+inconsistent (the list-level move dialog *is* on the container at line 56), and the given-up
+property is untested (a row leaving `visibleRows` while its dialog is up is reachable through a
+background `folderName` repoint under an active folder filter, not only through scrolling).
 
-| Gate | Result |
-| --- | --- |
-| Full `FeatureTests` plan | `** TEST SUCCEEDED **` — 925 tests across 22 test runs, 0 failures |
-| Clean app-scheme build | `** BUILD SUCCEEDED **`, 1794 compile tasks, **0 warnings, 0 errors** |
-| SwiftLint `--strict`, all 21 touched Swift files | **0 violations, 0 serious** |
-| `DownloadLogPrivacyInvariantTests` | `✔ Suite … passed` with the deliberate 10 → 11 inventory change |
+**Why it is nonetheless not fixable here.** The review itself frames the remedy as a choice — *"Either
+honour the rule or record the override"* — and both branches are owner-owned:
 
-The `file_length` limit (1000, error severity) was respected without suppression: when
-`DownloadManifestSSOTInvariantTests.swift` reached 1002 lines, the generated-state table was **split
-out** into `DownloadManifestSSOTStateCases.swift` with a doc note explaining the split. No regime was
-dropped and no case's reasoning was thinned to fit — trimming coverage to satisfy a length rule would
-have traded a real invariant for a formatting one.
+1. **Honouring the rule** means hoisting the modifier to the `List`. On iOS 26,
+   `.confirmationDialog` anchors to its attachment view **on iPhone too**, not only on iPad
+   (WWDC25 sessions 284/323). The phase's own choreography research records the consequence in
+   terms: *"container attachment ⇒ arrow at list top, wrong-looking for a row action"*, and closes
+   with *"re-evaluate the dialog-placement rule for iOS 26 anchoring first."* So this option trades
+   a rare, fail-safe teardown (the dialog vanishes; no deletion fires) for a permanently
+   wrong-looking anchor on every delete on every device. It also makes `DownloadRowFeature`'s per-row
+   state vestigial, undoing the architecture `9421b7bb` deliberately introduced.
+2. **Recording the override** is by definition an owner decision, not a code change — the review's
+   own words are *"get an owner decision on record rather than a comment."*
 
-The "known issues" reported by some suites are pre-existing `withKnownIssue` blocks, not new
-failures.
+The convention's exception predates the iOS 26 anchoring change that its own research flags for
+re-evaluation, so the honest resolution may well be to amend the rule rather than the code. Applying
+either branch unilaterally would be a guess dressed as a fix, so this is left open.
+
+**Suggested next step for the owner:** decide between (a) amending the
+`Confirmation dialog / alert placement` rule in `CLAUDE.md` to carve out per-row destructive actions
+whose anchoring is user-visible under iOS 26, keeping the current placement and the reasoning at
+`DownloadsView.swift:173-177` as the rule's citation; or (b) hoisting the modifier to the `List` and
+accepting the list-top anchor. Either way the untested half is worth closing — a `DownloadsReducer`
+test asserting what happens when a row with a presented dialog leaves `rows` (today: the dialog
+vanishes silently and the deletion never fires). That test was not added here because it would pin
+behaviour that option (b) changes.
+
+## Out of Scope
+
+IN-01 … IN-05 were not attempted (`fix_scope: critical_warning`). Two of them touch code this run
+changed and are worth carrying forward:
+
+- **IN-01** (`LogsDirectoryMigration`'s three `public` members exist for the test target alone) is
+  now slightly *sharper*: `mergeContents` gained the guard in WR-02 and the failure accumulation in
+  WR-03, so the member the finding singles out as the one that should not stay public is the one
+  that grew. Nothing in this run widened the surface — `stagingPrefix`, `recoverStaging`, `restore`
+  and `failureReason` are all `private`.
+- **IN-02** (`run` reports `.nothingToMigrate` for a regular file named `logs`) now has a second
+  instance: the `recoverStaging` route reports the same outcome for a regular file carrying the
+  staging prefix, pinned by `aRegularFileWithTheStagingPrefixIsLeftAlone`. If the suggested
+  `legacyNameIsNotADirectory` case is added, both sites should take it.
 
 ---
 
-_Fixed: 2026-08-09T09:06:33Z_
-_Iteration: 2_
+_Fixed: 2026-08-11_
+_Fixer: the agent (gsd-code-fixer)_
+_Iteration: 1_
