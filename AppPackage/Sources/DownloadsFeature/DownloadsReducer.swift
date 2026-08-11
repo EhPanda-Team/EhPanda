@@ -15,11 +15,15 @@ import Resources
 /// **Failure-reporting policy: the observed record is this screen's feedback, so its mutation
 /// failures are silent — deliberately, and enumerated (DES-3).** Unlike the inspector, which owns a
 /// toast surface and reports every refusal (see ``DownloadInspectorReducer``), the list's only
-/// presentation surface is `alert`, which is a confirmation prompt rather than an outcome channel:
+/// presentation surfaces are confirmation prompts rather than outcome channels:
 /// a refused mutation leaves the row exactly as the record still describes it, and the write-through
 /// index re-renders that row through `observeDownloads`. The enumeration below is the complete set
 /// of result-carrying actions and is meant to be checked against `Action` when one is added — a new
-/// result-carrying action with no stated disposition contradicts this doc:
+/// result-carrying action with no stated disposition contradicts this doc.
+///
+/// The confirmation surface named above is the per-row dialog owned by ``DownloadRowFeature``,
+/// plus this reducer's own move-to-folder dialog. Neither is an outcome channel, so the argument
+/// is unchanged by where the confirmation lives:
 ///
 /// - `moveDownloadDone` — **deliberately silent** on failure: the row keeps its current folder, so
 ///   the screen already says the move did not happen.
@@ -48,10 +52,6 @@ public struct DownloadsReducer: Sendable {
         case folderManager(FolderManagerReducer)
     }
 
-    public enum Alert: Equatable, Sendable {
-        case confirmDelete(String)
-    }
-
     public enum Dialog: Equatable, Sendable {
         case move(gid: String, folderName: String)
     }
@@ -66,14 +66,39 @@ public struct DownloadsReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
-        @Presents public var alert: AppAlertState<Alert>?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
-        public var downloads = [DownloadedGallery]()
+        public var rows = IdentifiedArrayOf<DownloadRowFeature.State>()
         public var loadingState: LoadingState = .loading
         public var hasLoadedInitialDownloads = false
+
+        /// The observed snapshot, stored one row at a time.
+        ///
+        /// The rows are the storage because each carries its own delete confirmation
+        /// (see ``DownloadRowFeature``); this projection keeps the snapshot the shape the rest of
+        /// the reducer reads and writes it in. The setter matches incoming galleries onto existing
+        /// rows by id rather than rebuilding the array, which is what lets a presented dialog
+        /// survive an `observeDownloads` tick — and those tick constantly while a download runs, so
+        /// rebuilding would tear the dialog down mid-decision.
+        ///
+        /// Ids are uniqued rather than assumed unique: a duplicate gid in a snapshot is not
+        /// expected, and every lookup here already treats the first match as the row, but
+        /// `uniqueElements:` would trap on one instead of resolving it the same way.
+        public var downloads: [DownloadedGallery] {
+            get { rows.map(\.download) }
+            set {
+                rows = IdentifiedArrayOf<DownloadRowFeature.State>(
+                    newValue.map({ download in
+                        guard var row = rows[id: download.id] else { return .init(download: download) }
+                        row.download = download
+                        return row
+                    }),
+                    uniquingIDsWith: { first, _ in first }
+                )
+            }
+        }
 
         public var readingRequestID = UUID()
 
@@ -99,9 +124,8 @@ public struct DownloadsReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case inspectorButtonTapped(String)
         case folderManagerButtonTapped
-        case alert(PresentationAction<Alert>)
         case confirmationDialog(PresentationAction<Dialog>)
-        case deleteDownloadButtonTapped(DownloadedGallery)
+        case rows(IdentifiedActionOf<DownloadRowFeature>)
         case moveButtonTapped(DownloadedGallery)
 
         case onPresented
@@ -189,25 +213,6 @@ public struct DownloadsReducer: Sendable {
                 // `onAppear` (the view is shared with DetailFeature, which does the same).
                 return .send(.destination(.presented(.folderManager(.fetchFolders))))
 
-            case .deleteDownloadButtonTapped(let download):
-                state.alert = AppAlertState {
-                    TextState(localized: .RLocalizable.deleteDownload)
-                } actions: {
-                    ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {
-                        TextState(localized: .RLocalizable.delete)
-                    }
-                    ButtonState(role: .cancel) {
-                        TextState(localized: .RLocalizable.cancel)
-                    }
-                } message: {
-                    TextState(
-                        localized: download.canTogglePause
-                            ? .deleteActiveDownload
-                            : .RLocalizable.deleteDownloadedGallery
-                    )
-                }
-                return .none
-
             case .moveButtonTapped(let download):
                 let destinations = state.folders.filter({ $0 != download.folderName })
                 state.confirmationDialog = ConfirmationDialogState {
@@ -224,10 +229,11 @@ public struct DownloadsReducer: Sendable {
                 }
                 return .none
 
-            case .alert(.presented(.confirmDelete(let gid))):
+            // The row confirmed its own dialog; the deletion itself is a list-level effect.
+            case .rows(.element(id: let gid, action: .delegate(.confirmDelete))):
                 return .send(.deleteDownload(gid))
 
-            case .alert:
+            case .rows:
                 return .none
 
             case .confirmationDialog(.presented(.move(let gid, let folder))):
@@ -457,8 +463,8 @@ public struct DownloadsReducer: Sendable {
             }
         }
         .ifLet(\.$destination, action: \.destination)
-        .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .forEach(\.rows, action: \.rows, element: DownloadRowFeature.init)
         .forEach(\.path, action: \.path)
     }
 }
