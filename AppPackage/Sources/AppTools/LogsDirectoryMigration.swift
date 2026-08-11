@@ -76,8 +76,9 @@ public enum LogsDirectoryMigration {
         /// The legacy directory now carries the current name, with all of its contents.
         case renamed
         /// The legacy directory's files were folded into the current one. `skippedCount` counts
-        /// names the destination already had; those files stay in the legacy directory, which
-        /// therefore survives (it is only removed once empty).
+        /// what stayed behind — names the destination already had, plus anything that appeared in
+        /// the legacy directory while the merge ran. Those files keep it non-empty, so it survives
+        /// (it is only removed once a listing taken at the removal shows it empty).
         case merged(movedCount: Int, skippedCount: Int)
         /// The migration could not complete. Logs are wherever they were, minus any files a
         /// partial merge already moved into the destination — never deleted, and the next launch
@@ -228,7 +229,14 @@ public enum LogsDirectoryMigration {
     ///
     /// Best effort in the moves and honest in the outcome: a move that fails leaves its file in
     /// `source` for the next launch to retry, and the returned outcome is `failed` so the failure is
-    /// logged rather than hidden behind a count. Nothing is ever overwritten or deleted.
+    /// logged rather than hidden behind a count.
+    ///
+    /// Nothing at `destination` is overwritten and no FILE is deleted. The one irreversible
+    /// operation here is the removal of the source DIRECTORY, and `removeItem` performs that
+    /// recursively — so it is licensed by a listing taken at the moment of removal rather than by
+    /// the one the merge was planned from, which describes a directory that may since have been
+    /// written to. This function is `public` and takes two arbitrary URLs, so it cannot rest that
+    /// removal on what its in-app callers happen to pass.
     public static func mergeContents(
         of source: URL,
         into destination: URL,
@@ -263,8 +271,21 @@ public enum LogsDirectoryMigration {
         }
 
         // Only an emptied directory is removed, so a skipped file is never deleted along with the
-        // directory that holds it.
-        guard decision.skips.isEmpty else { return .merged(movedCount: movedCount, skippedCount: decision.skips.count) }
+        // directory that holds it. Re-listed rather than inferred from `decision.skips`, which
+        // describes `sourceNames` — the directory as it was BEFORE the moves. A log write landing in
+        // `source` between that listing and here is invisible to the decision, and the removal below
+        // is recursive, so resting it on the decision destroyed such a file uncounted and unlogged.
+        let remaining: [String]
+        do {
+            remaining = try fileManager.contentsOfDirectory(atPath: source.path)
+        } catch {
+            return .failed(
+                reason: "The legacy logs directory could not be re-listed before removal: \(error.localizedDescription)"
+            )
+        }
+        guard remaining.isEmpty else {
+            return .merged(movedCount: movedCount, skippedCount: remaining.count)
+        }
         do {
             try fileManager.removeItem(at: source)
         } catch {
