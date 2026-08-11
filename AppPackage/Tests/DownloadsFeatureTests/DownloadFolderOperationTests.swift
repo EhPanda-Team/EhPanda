@@ -349,6 +349,67 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         #expect(FileManager.default.fileExists(atPath: folderURL.path))
     }
 
+    /// A move may RESOLVE a destination it would not MINT, but it may not create one.
+    ///
+    /// Both halves are asserted, because the failure this pins is silent: `ensureUserFolder` would
+    /// have made the folder and the move would have reported success, so a case that only checked
+    /// the `Result` would pass over the name actually reaching the disk.
+    @Test(arguments: UnmintableMoveDestination.all)
+    func testMoveDownloadRefusesToMintANameTheAppWouldNotMake(
+        _ destination: UnmintableMoveDestination
+    ) async throws {
+        let environment = makeManager()
+        defer { removeTemporaryItem(at: environment.rootURL) }
+        let gid = "319"
+        let sourceURL = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
+        await environment.manager.reconcileDownloads()
+
+        let result = await environment.manager.moveDownload(gid: gid, toFolderName: destination.name)
+
+        expectRefusal(.invalidName, from: result, source: destination.rawValue)
+        let mintedURL = environment.rootURL.appendingPathComponent(destination.name, isDirectory: true)
+        #expect(!FileManager.default.fileExists(atPath: mintedURL.path))
+        #expect(FileManager.default.fileExists(atPath: sourceURL.path))
+        let download = await environment.manager.fetchDownload(gid: gid)
+        #expect(download?.folderName == "Source")
+        #expect(await environment.manager.fetchFolders() == ["Source"])
+    }
+
+    /// The other side of that refusal, and the reason it is not simply "normalize the destination".
+    ///
+    /// A LISTED folder the app would spell differently is a valid destination, and when the user
+    /// removed it through the Files app the move recreates it VERBATIM. Normalizing instead would
+    /// mint `Art Books` beside `Art  Books` and leave two near-identical rows in the list, which is
+    /// the rewrite CR-01 removed — so this case fails if the minting guard is ever tightened into
+    /// one that asks the destination to be spelled the way the app would spell it.
+    @Test
+    func testMoveDownloadRecreatesAListedFolderTheAppWouldNotMint() async throws {
+        let environment = makeManager()
+        defer { removeTemporaryItem(at: environment.rootURL) }
+        let gid = "320"
+        let listedName = "Art  Books"
+        let listedURL = environment.rootURL.appendingPathComponent(listedName, isDirectory: true)
+        try FileManager.default.createDirectory(at: listedURL, withIntermediateDirectories: true)
+        _ = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
+        await environment.manager.reconcileDownloads()
+        #expect(await environment.manager.fetchFolders() == [listedName, "Source"])
+
+        // Removed the way the Files app removes it: the listing still carries the name, the disk no
+        // longer does, so the move has to mint it back — under the name the user picked.
+        try FileManager.default.removeItem(at: listedURL)
+        let result = await environment.manager.moveDownload(gid: gid, toFolderName: listedName)
+
+        guard case .success = result else {
+            Issue.record("Expected a move into a listed folder to succeed, got \(result)")
+            return
+        }
+        let download = await environment.manager.fetchDownload(gid: gid)
+        #expect(download?.folderName == listedName)
+        #expect(FileManager.default.fileExists(atPath: listedURL.path))
+        let neighbourURL = environment.rootURL.appendingPathComponent("Art Books", isDirectory: true)
+        #expect(!FileManager.default.fileExists(atPath: neighbourURL.path))
+    }
+
     @Test
     func testMoveDownloadRejectsActivelyDownloadingGallery() async throws {
         let environment = makeManager()
@@ -469,6 +530,42 @@ enum DeleteEscapeSource: String, Sendable {
         .whitespacePaddedAlias,
         .symlinkedDirectChild
     ]
+}
+
+/// A destination name `confinedDirectUserFolderURL` ADMITS and `normalizedUserFolderName` refuses.
+///
+/// The gap between the two tests is deliberate — a picked destination resolves to itself rather
+/// than to a neighbour the move would then create beside it (CR-01) — and `moveDownload` is the one
+/// site that sits across the gap, because it both resolves a destination and creates one. Each case
+/// is therefore a name that is a legitimate thing to POINT AT and not a legitimate thing to MAKE.
+enum UnmintableMoveDestination: String, Sendable {
+    /// `trimsLeadingDots` rewrites it to `hidden`. The sharpest argument by some distance: the scan
+    /// enumerates with `.skipsHiddenFiles`, so a gallery moved under a dot-prefixed name leaves
+    /// `fetchFolders()`, leaves every folder filter, and has its record dropped by the next index
+    /// rebuild while its files sit on disk unreachable from inside the app.
+    case leadingDot
+    /// Normalizes to empty, so there is no name to mint.
+    case whitespaceOnly
+    /// Trailing dots are trimmed, so the app would mint `Misc etc`.
+    case trailingDot
+    /// Truncated to `maxFolderComponentByteCount`, so the app would mint a different, shorter name.
+    case overlong
+
+    static let all: [UnmintableMoveDestination] = [
+        .leadingDot,
+        .whitespaceOnly,
+        .trailingDot,
+        .overlong
+    ]
+
+    var name: String {
+        switch self {
+        case .leadingDot: ".hidden"
+        case .whitespaceOnly: "  "
+        case .trailingDot: "Misc etc."
+        case .overlong: String(repeating: "z", count: 400)
+        }
+    }
 }
 
 // MARK: - Setup Helpers

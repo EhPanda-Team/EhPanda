@@ -219,6 +219,34 @@ extension DownloadCoordinator {
                 )
             )
         }
+        // `ensureUserFolder` below MINTS, which is not the question the admission above answered,
+        // and admission is deliberately the looser of the two: `".hidden"`, `"  "`, `"Misc etc."`
+        // and a 400-byte name are all admitted verbatim and none of them is a name this app would
+        // make. `.hidden` is the sharp one — `directoryURLs(in:)` enumerates with
+        // `.skipsHiddenFiles`, so a gallery moved into one leaves `fetchFolders()`, leaves every
+        // folder filter, and has its record dropped by the next index rebuild while its files stay
+        // on disk. Before CR-01 the normalization that ran here happened to refuse all four; taking
+        // it away left this site both the one that admits and the one that mints.
+        //
+        // So creation is licensed on its own terms, by either of the two things that make a folder
+        // this app's to make: the listing already carries the name — which is what lets a
+        // destination the user removed through the Files app be recreated VERBATIM, the property
+        // CR-01 exists to protect — or the app would mint the name itself. A folder that is simply
+        // already there mints nothing and needs neither.
+        //
+        // No in-app route reaches this exit: the move menu and the list dialog both offer values
+        // `fetchFolders()` produced. But `moveDownload` is a public endpoint on `DownloadClient`,
+        // and a comment asserting what its callers happen to pass is not a guard.
+        guard fileManager.operate({ $0.fileExists(atPath: destinationParentURL.path) })
+                || userFolders.contains(folderName)
+                || storage.normalizedUserFolderName(folderName) == folderName
+        else {
+            return .failure(
+                .fileOperationFailed(
+                    String(localized: .RLocalizable.downloadStoreInvalidFolderName)
+                )
+            )
+        }
         blockScheduling(gid: gid)
         guard let download = await fetchDownload(gid: gid) else {
             releaseScheduling(gid: gid)
@@ -261,7 +289,8 @@ extension DownloadCoordinator {
             // through the store's confined creation, so the only URL this move can write under is
             // one the boundary produced and the folder that reappears is the one the user picked
             // rather than a rewritten neighbour of it. `destinationURL` is a child of that same
-            // resolved parent.
+            // resolved parent. That this call is allowed to MINT at all is decided by the minting
+            // guard above, not here.
             try storage.ensureUserFolder(named: folderName)
             try fileManager.operate {
                 try $0.moveItem(at: download.folderURL, to: destinationURL)
