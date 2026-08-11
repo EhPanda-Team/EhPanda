@@ -25,10 +25,10 @@ import Foundation
 /// ## What it will not do
 ///
 /// It never creates the logs directory: that stays with `LogsClient.appendToRunFile`, which creates
-/// it lazily on first write. It never deletes a file, and the only directory it removes is a legacy
-/// directory it has just emptied. Nothing here throws — every failure becomes an `Outcome` the
-/// caller logs, so a migration that cannot run degrades to the previous behavior instead of
-/// blocking launch or losing logs.
+/// it lazily on first write. It never deletes a file, and the only directories it removes are ones
+/// it has just emptied — a legacy directory, or a staging directory of its own making. Nothing here
+/// throws — every failure becomes an `Outcome` the caller logs, so a migration that cannot run
+/// degrades to the previous behavior instead of blocking launch or losing logs.
 ///
 /// ## Ordering against a concurrent log write
 ///
@@ -40,6 +40,16 @@ import Foundation
 /// rename carries it along. The one window it cannot absorb in place is a write arriving between
 /// the two halves of a staged rename; `renameThroughStaging` handles that by folding the staged
 /// contents into whatever now stands at the destination.
+///
+/// ## Why the staging name is classified rather than assumed transient
+///
+/// Not every exit of a staged rename can put the directory back: the second move can fail, its
+/// fold-in can leave a collision behind, and the restoring move can fail in turn. Any of those
+/// leaves a `Logs-migrating-…` directory standing under `Documents`, which the Files app publishes.
+/// So the staging name is a first-class regime rather than an internal detail — see
+/// `Regime.recoverStaging(named:)` — and `Outcome.failed`'s promise that "the next launch retries
+/// from the state left behind" holds for every state this type can leave.
+
 public enum LogsDirectoryMigration {
     /// The directory name that shipped before the rename.
     ///
@@ -48,6 +58,15 @@ public enum LogsDirectoryMigration {
     /// the current constant again silently redefines which directory this migration reads *from*,
     /// and the previously migrated directory would become the thing left stranded.
     private static let legacyDirectoryName = "logs"
+
+    /// The prefix of the transient name a case-only rename moves through, and the signature by which
+    /// a residue left by an interrupted attempt is recognised at the next launch.
+    ///
+    /// Derived from the CURRENT constant, unlike `legacyDirectoryName`: what this names is not a
+    /// historical fact about installs in the field but a residue this type mints itself, always
+    /// under the spelling in force when it minted it. Renaming the constant again would need its own
+    /// migration pass regardless, exactly as this rename did.
+    private static let stagingPrefix = "\(Defaults.FilePath.logs)-migrating-"
 
     /// What a migration attempt actually did.
     public enum Outcome: Equatable, Sendable {
@@ -83,6 +102,15 @@ public enum LogsDirectoryMigration {
         /// destination is genuinely free: one atomic `rename(2)`, with no window in which a crash
         /// could strand the logs under a name nothing reads. This is the device regime.
         case rename
+        /// A directory this type staged during an earlier attempt is still stored, holding logs
+        /// under a name nothing reads.
+        ///
+        /// It outranks every other regime because it is the only one whose subject is data already
+        /// in flight: the legacy directory it was moved out of no longer exists, so no other
+        /// classification can see it. A legacy directory standing alongside it is left to the next
+        /// run, which this one leaves free to classify — the migration is idempotent by design and
+        /// runs at every launch.
+        case recoverStaging(named: String)
     }
 
     /// The file-by-file disposition of a merge, decided from names alone so that the decision is
@@ -111,6 +139,12 @@ public enum LogsDirectoryMigration {
         // migrate — and, critically, the merge branch must never see one directory as both its
         // source and its destination.
         guard Defaults.FilePath.logs != legacyDirectoryName else { return .nothingToMigrate }
+        // Ahead of the legacy-name guard, because a residue is precisely the state in which the
+        // legacy name is already gone. Sorted first so that which residue is picked is a function of
+        // the listing's contents rather than of the order the filesystem happened to report them in.
+        if let staged = storedNames.sorted().first(where: { $0.hasPrefix(stagingPrefix) }) {
+            return .recoverStaging(named: staged)
+        }
         guard storedNames.contains(legacyDirectoryName) else { return .nothingToMigrate }
         guard !storedNames.contains(Defaults.FilePath.logs) else { return .merge }
         return currentSpellingResolves ? .renameThroughStaging : .rename
@@ -151,6 +185,16 @@ public enum LogsDirectoryMigration {
             storedNames: storedNames,
             currentSpellingResolves: fileManager.fileExists(atPath: currentURL.path)
         )
+        // A residue is its own subject and is handled ahead of the guard below, which speaks only
+        // for the legacy name: by the time a residue exists, the legacy directory it came from has
+        // already been moved out from under that name.
+        if case let .recoverStaging(stagedName) = resolvedRegime {
+            let staging = documentsURL.appending(component: stagedName, directoryHint: .isDirectory)
+            // Same reason as the legacy name below: File Sharing lets the user drop a regular file
+            // onto any name in Documents, including one this type would otherwise claim.
+            guard isDirectory(staging, fileManager: fileManager) else { return .nothingToMigrate }
+            return recoverStaging(staging, to: currentURL, fileManager: fileManager)
+        }
         guard resolvedRegime != .nothingToMigrate else { return .nothingToMigrate }
 
         // The legacy name is stored, but only a DIRECTORY is ours to migrate. File Sharing lets the
@@ -160,7 +204,7 @@ public enum LogsDirectoryMigration {
         guard isDirectory(legacyURL, fileManager: fileManager) else { return .nothingToMigrate }
 
         switch resolvedRegime {
-        case .nothingToMigrate:
+        case .nothingToMigrate, .recoverStaging:
             return .nothingToMigrate
         case .merge:
             return mergeContents(of: legacyURL, into: currentURL, fileManager: fileManager)
@@ -241,7 +285,7 @@ public enum LogsDirectoryMigration {
     /// in the atomic device regime.
     private static func renameThroughStaging(_ source: URL, to destination: URL, fileManager: FileManager) -> Outcome {
         let staging = source.deletingLastPathComponent().appending(
-            component: "\(Defaults.FilePath.logs)-migrating-\(UUID().uuidString)",
+            component: "\(stagingPrefix)\(UUID().uuidString)",
             directoryHint: .isDirectory
         )
         do {
@@ -257,24 +301,55 @@ public enum LogsDirectoryMigration {
             // Something stands at the destination now — on this volume that means a log write
             // created it while the directory was staged. Fold the staged contents into it.
             let merged = mergeContents(of: staging, into: destination, fileManager: fileManager)
-            guard case let .failed(reason) = merged else { return merged }
-            return restore(staging, to: source, fileManager: fileManager, after: reason)
+            // `mergeContents` removes the directory it merged FROM only when it emptied it, which is
+            // exactly `.merged(_, skippedCount: 0)`. Every other outcome — a collision it skipped, a
+            // move that failed, a listing it could not take — leaves the staged directory standing,
+            // so it goes back under the legacy name rather than being reported away. This arm used
+            // to return `.merged` here, leaving the skipped files staged.
+            if case .merged(_, 0) = merged { return merged }
+            return restore(staging, to: source, fileManager: fileManager, reporting: merged)
         }
     }
 
-    /// Puts a staged directory back under its original name after a failed rename, so that a failure
-    /// never leaves the logs under an internal name nobody would look for.
+    /// Folds a residue from an interrupted staged rename onto the current name.
+    ///
+    /// Reached only from the `recoverStaging` regime, so the directory it moves is one this type
+    /// minted and abandoned rather than anything the user put there. The move is tried first because
+    /// it is the case where the destination is free; the fold-in runs only when something stands
+    /// there, and it overwrites nothing.
+    private static func recoverStaging(_ staging: URL, to destination: URL, fileManager: FileManager) -> Outcome {
+        do {
+            try fileManager.moveItem(at: staging, to: destination)
+            return .renamed
+        } catch {
+            return mergeContents(of: staging, into: destination, fileManager: fileManager)
+        }
+    }
+
+    /// Puts a staged directory back under its original name, so that neither a failed rename nor a
+    /// partial fold-in leaves the logs under an internal name nobody would look for.
+    ///
+    /// `outcome` is what the fold-in reported. A restore that succeeds returns it unchanged, because
+    /// putting the directory back changes nothing about what the fold-in did; only a restore that
+    /// itself fails downgrades the report, and it names the directory the user can see in the Files
+    /// app. Either way the residue is now classifiable — see `Regime.recoverStaging(named:)`.
     private static func restore(
         _ staging: URL,
         to source: URL,
         fileManager: FileManager,
-        after reason: String
+        reporting outcome: Outcome
     ) -> Outcome {
         do {
             try fileManager.moveItem(at: staging, to: source)
-            return .failed(reason: reason)
+            return outcome
         } catch {
-            return .failed(reason: "\(reason). The logs are in \(staging.lastPathComponent)")
+            let summary = switch outcome {
+            case let .failed(reason): reason
+            case let .merged(movedCount, skippedCount):
+                "Moved \(movedCount) log files and left \(skippedCount) behind"
+            case .nothingToMigrate, .renamed: "The staged logs directory could not be put back"
+            }
+            return .failed(reason: "\(summary). The logs are in \(staging.lastPathComponent)")
         }
     }
 
