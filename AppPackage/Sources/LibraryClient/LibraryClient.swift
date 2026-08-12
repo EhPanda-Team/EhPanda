@@ -47,6 +47,7 @@ extension LibraryClient {
             let config = KingfisherManager.shared.downloader.sessionConfiguration
             config.httpCookieStorage = HTTPCookieStorage.shared
             KingfisherManager.shared.downloader.sessionConfiguration = config
+            KingfisherManager.shared.cache.diskStorage.config.sizeLimit = 1024 * 1024 * 1024
 
             let sdConfig = URLSessionConfiguration.default
             sdConfig.httpCookieStorage = HTTPCookieStorage.shared
@@ -56,6 +57,7 @@ extension LibraryClient {
                 forHTTPHeaderField: "Accept"
             )
             SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
+
             DataCache.installSystemPurgeObservers()
         },
         removeAllCachedImages: {
