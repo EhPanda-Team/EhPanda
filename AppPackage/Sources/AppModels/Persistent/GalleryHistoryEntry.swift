@@ -19,12 +19,18 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, S
         gid: String,
         token: String,
         lastOpenDate: Date,
-        readingProgress: Int = 0
+        readingProgress: Int = 0,
+        hasRated: Bool = false,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil
     ) {
         self.gid = gid
         self.token = token
         self.lastOpenDate = lastOpenDate
         self.readingProgress = readingProgress
+        self.hasRated = hasRated
+        self.favoriteTagIndex = favoriteTagIndex
+        self.favoriteTagName = favoriteTagName
     }
     public var id: String { gid }
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
@@ -44,6 +50,9 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, S
     public var token: String
     public var lastOpenDate: Date
     public var readingProgress: Int
+    public var hasRated: Bool = false
+    public var favoriteTagIndex: Int?
+    public var favoriteTagName: String?
 }
 
 // MARK: Manually decode
@@ -55,6 +64,9 @@ extension GalleryHistoryEntry {
         token = try container.decode(String.self, forKey: .token)
         lastOpenDate = try container.decode(Date.self, forKey: .lastOpenDate)
         readingProgress = try container.decode(Int.self, forKey: .readingProgress)
+        hasRated = try container.decodeIfPresent(Bool.self, forKey: .hasRated) ?? false
+        favoriteTagIndex = try container.decodeIfPresent(Int.self, forKey: .favoriteTagIndex)
+        favoriteTagName = try container.decodeIfPresent(String.self, forKey: .favoriteTagName)
         guard !gid.isEmpty, !token.isEmpty else {
             throw DecodingError.dataCorrupted(.init(
                 codingPath: container.codingPath,

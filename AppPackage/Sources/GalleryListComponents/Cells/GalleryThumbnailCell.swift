@@ -31,6 +31,9 @@ public struct GalleryThumbnailCell: View {
     private var tagColor: Color {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
+    private var displayTitle: String {
+        setting.displaysJapaneseTitle ? gallery.titleJpn ?? gallery.title : gallery.title
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -52,7 +55,7 @@ public struct GalleryThumbnailCell: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
             VStack(alignment: .leading, spacing: 5) {
-                Text(gallery.title)
+                Text(displayTitle)
                     .font(.callout.bold())
                     .lineLimit(downloadBadge == nil ? 3 : 2)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
@@ -70,6 +73,11 @@ public struct GalleryThumbnailCell: View {
                     }
                 }
                 HStack(spacing: 10) {
+                    if gallery.isFavorite, let index = gallery.favoriteTagIndex {
+                        Image(systemSymbol: .heartFill)
+                            .foregroundStyle(Defaults.FavoriteColor.colors[index])
+                    }
+
                     if let downloadBadge {
                         DownloadBadgeLabel(badge: downloadBadge)
                     } else {
@@ -87,7 +95,8 @@ public struct GalleryThumbnailCell: View {
                 }
                 .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
 
-                RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
+                let ratingColor: Color = gallery.hasRated ? .green : .yellow
+                RatingView(rating: gallery.rating).foregroundColor(ratingColor).font(.caption)
             }
             .padding()
         }

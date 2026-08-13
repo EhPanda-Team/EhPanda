@@ -79,13 +79,17 @@ private struct GalleryDetailCellContent: View {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
 
+    private var displayTitle: String {
+        setting.displaysJapaneseTitle ? gallery.titleJpn ?? gallery.title : gallery.title
+    }
+
     var body: some View {
         HStack(spacing: 10) {
             KFImage(resolvedCoverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .defaultModifier().scaledToFit().frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
             VStack(alignment: .leading, spacing: 5) {
-                Text(gallery.title)
+                Text(displayTitle)
                     .lineLimit(downloadBadge == nil ? 3 : 2)
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -119,9 +123,15 @@ private struct GalleryDetailCellContent: View {
                     }
                 }
                 HStack {
-                    RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
+                    let ratingColor: Color = gallery.hasRated ? .green : .yellow
+                    RatingView(rating: gallery.rating).font(.caption).foregroundStyle(ratingColor)
 
                     Spacer(minLength: 8)
+
+                    if gallery.isFavorite, let index = gallery.favoriteTagIndex {
+                        Image(systemSymbol: .heartFill)
+                            .foregroundStyle(Defaults.FavoriteColor.colors[index])
+                    }
 
                     if let downloadBadge {
                         DownloadBadgeLabel(badge: downloadBadge)
@@ -138,6 +148,7 @@ private struct GalleryDetailCellContent: View {
                     Spacer()
                     Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary).minimumScaleFactor(0.75)
+                        .strikethrough(gallery.isExpunged)
                 }
                 .padding(.top, 1)
             }

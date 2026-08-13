@@ -3,14 +3,20 @@ import SwiftUI
 import AppModels
 import AppComponents
 import Kingfisher
+import Sharing
 
 public struct GalleryRankingCell: View {
+    @SharedReader(.setting) private var setting: Setting
     private let gallery: Gallery
     private let ranking: Int
 
     public init(gallery: Gallery, ranking: Int) {
         self.gallery = gallery
         self.ranking = ranking
+    }
+
+    private var displayTitle: String {
+        setting.displaysJapaneseTitle ? gallery.titleJpn ?? gallery.trimmedTitle : gallery.trimmedTitle
     }
 
     public var body: some View {
@@ -21,7 +27,7 @@ public struct GalleryRankingCell: View {
                 .cornerRadius(2)
             Text(String(ranking)).fontWeight(.medium).font(.title2).padding(.horizontal)
             VStack(alignment: .leading) {
-                Text(gallery.trimmedTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                Text(displayTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 if let uploader = gallery.uploader {
                     Text(uploader).foregroundColor(.secondary).lineLimit(1)
                 }

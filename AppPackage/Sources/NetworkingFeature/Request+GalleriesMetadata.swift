@@ -19,6 +19,7 @@ private struct GalleryMetadata: Decodable {
     let token: String?
     let error: String?
     let title: String?
+    let titleJpn: String?
     let category: String?
     let thumb: String?
     let uploader: String?
@@ -26,10 +27,25 @@ private struct GalleryMetadata: Decodable {
     let filecount: String?
     let rating: String?
     let tags: [String]?
+    let expunged: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case gid
+        case token
+        case error
+        case title
+        case titleJpn = "title_jpn"
+        case category
+        case thumb
+        case uploader
+        case posted
+        case filecount
+        case rating
+        case tags
+        case expunged
+    }
 
     var gallery: Gallery? {
-        // Match the HTML list parser: a resolved row needs its full display set, or it is dropped.
-        // Only `tags` and `uploader` stay tolerant.
         guard error == nil,
               let token,
               let title,
@@ -43,6 +59,7 @@ private struct GalleryMetadata: Decodable {
             gid: String(gid),
             token: token,
             title: title.htmlEntitiesDecoded,
+            titleJpn: titleJpn?.htmlEntitiesDecoded,
             rating: rating,
             tags: Self.parseTags(tags ?? []),
             category: category,
@@ -53,7 +70,8 @@ private struct GalleryMetadata: Decodable {
             galleryURL: Defaults.URL.host
                 .appendingPathComponent("g")
                 .appendingPathComponent(String(gid))
-                .appendingPathComponent(token)
+                .appendingPathComponent(token),
+            isExpunged: expunged ?? false
         )
     }
 

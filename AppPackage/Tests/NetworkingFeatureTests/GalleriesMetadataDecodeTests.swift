@@ -16,6 +16,7 @@ struct GalleriesMetadataDecodeTests {
           "gmetadata": [
             {
               "gid": 100, "token": "aaa", "title": "First &amp; Title",
+              "title_jpn": "最初のタイトル", "expunged": false,
               "category": "Doujinshi", "thumb": "https://example.com/1.jpg",
               "uploader": "u1", "posted": "1600000000", "filecount": "20",
               "rating": "4.5", "tags": ["language:japanese", "artist:someone"]
@@ -37,6 +38,55 @@ struct GalleriesMetadataDecodeTests {
         #expect(galleries.map(\.id) == ["100", "200"])
         #expect(galleries.first?.token == "aaa")
         #expect(galleries.first?.title == "First & Title")
+        #expect(galleries.first?.titleJpn == "最初のタイトル")
+        #expect(galleries.first?.isExpunged == false)
+    }
+
+    @Test
+    func titleJpnAndExpungedAreParsed() throws {
+        let json = """
+        {
+          "gmetadata": [
+            {
+              "gid": 100, "token": "aaa", "title": "First Title",
+              "title_jpn": "最初のタイトル",
+              "category": "Doujinshi", "thumb": "https://example.com/1.jpg",
+              "uploader": "u1", "posted": "1600000000", "filecount": "20",
+              "rating": "4.5", "tags": ["language:japanese"], "expunged": true
+            }
+          ]
+        }
+        """
+
+        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+
+        #expect(galleries.count == 1)
+        #expect(galleries.first?.titleJpn == "最初のタイトル")
+        #expect(galleries.first?.isExpunged == true)
+    }
+
+    // REV-16: when `title_jpn` is present but empty, it must collapse to `nil` so that
+    // `titleJpn ?? title` falls back to the regular title instead of rendering a blank.
+    @Test
+    func emptyTitleJpnCollapsesToNil() throws {
+        let json = """
+        {
+          "gmetadata": [
+            {
+              "gid": 100, "token": "aaa", "title": "Fallback Title",
+              "title_jpn": "",
+              "category": "Doujinshi", "thumb": "https://example.com/1.jpg",
+              "uploader": "u1", "posted": "1600000000", "filecount": "20",
+              "rating": "4.5", "tags": ["language:japanese"]
+            }
+          ]
+        }
+        """
+        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+
+        #expect(galleries.count == 1)
+        #expect(galleries.first?.title == "Fallback Title")
+        #expect(galleries.first?.titleJpn == nil)
     }
 
     // REV-15: entities in the title decode in a single left-to-right pass. `&#38;lt;` is an escaped

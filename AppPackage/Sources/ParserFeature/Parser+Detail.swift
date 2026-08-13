@@ -43,6 +43,11 @@ extension Parser {
             let isFavorited = gdfNode
                 .at_xpath("//a [@id='favoritelink']")?
                 .text?.contains("Add to Favorites") == false
+            var favoriteTagIndex: Int?
+            var favoriteTagName: String?
+            if let favoritelink = gdfNode.at_xpath(".//a[@id='favoritelink']") {
+                favoriteTagName = favoritelink.text
+            }
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
             let parentURLString = infoPanel[1].isValidURL ? infoPanel[1] : ""
@@ -67,7 +72,9 @@ extension Parser {
                 pageCount: pageCount,
                 sizeCount: sizeCount,
                 sizeType: infoPanel[5],
-                torrentCount: arcAndTor.1
+                torrentCount: arcAndTor.1,
+                favoriteTagIndex: favoriteTagIndex,
+                favoriteTagName: favoriteTagName
             )
             tmpGalleryState = GalleryState(
                 gid: gid,

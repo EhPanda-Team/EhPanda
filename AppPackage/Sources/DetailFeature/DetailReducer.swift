@@ -84,6 +84,7 @@ public struct DetailReducer: Sendable {
         public var downloadFolders = [String]()
         public var isPreparingDownload = false
         public var hasLoadedDownloadBadge = false
+        public var readingProgress = 0
 
         var cancellationGalleryID: String {
             gid.isEmpty ? gallery.id : gid
@@ -169,8 +170,11 @@ public struct DetailReducer: Sendable {
         case fetchVersionMetadataIfNeeded
         case fetchVersionMetadataDone(Result<DownloadVersionMetadata?, AppError>)
         case rateGallery
+        case rateGalleryDone(Result<Void, AppError>)
         case favorGallery(Int)
+        case favorGalleryDone(Result<Void, AppError>, favIndex: Int)
         case unfavorGallery
+        case unfavorGalleryDone(Result<Void, AppError>)
         case postComment(URL)
         case voteTag(String, Int)
         case anyGalleryOpsDone(Result<Void, AppError>)

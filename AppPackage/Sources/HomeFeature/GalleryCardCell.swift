@@ -5,9 +5,11 @@ import Colorful
 import Kingfisher
 import UIImageColors
 import AppTools
+import Sharing
 
 public struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @SharedReader(.setting) private var setting: Setting
 
     private let currentID: String
     private let colors: [Color]
@@ -33,11 +35,16 @@ public struct GalleryCardCell: View {
         return gallery.gid == currentID
     }
     private var title: String {
-        let trimmedTitle = gallery.trimmedTitle
-        guard !DeviceUtil.isPad, trimmedTitle.count > 20 else {
-            return gallery.title
+        let rawTitle = setting.displaysJapaneseTitle ? gallery.titleJpn ?? gallery.title : gallery.title
+        var trimmed = rawTitle
+        if let range = trimmed.range(of: "|") {
+            trimmed = String(trimmed[..<range.lowerBound])
         }
-        return trimmedTitle
+        trimmed = trimmed.barcesAndSpacesRemoved
+        guard !DeviceUtil.isPad, trimmed.count > 20 else {
+            return rawTitle
+        }
+        return trimmed
     }
 
     public var body: some View {

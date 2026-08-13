@@ -16,14 +16,28 @@ extension Array where Element == GalleryHistoryEntry {
     /// fills in a previously-missing token, and preserves any saved reading progress. Inserts a
     /// fresh entry when the gallery is new to the history. A non-numeric gid, or a new gallery with
     /// no token, is rejected so the persisted list never accumulates unresolvable junk.
-    public mutating func recordGalleryOpen(gid: String, token: String, date: Date) {
+    public mutating func recordGalleryOpen(
+        gid: String,
+        token: String,
+        date: Date,
+        hasRated: Bool = false,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil
+    ) {
         guard Int(gid) != nil else { return }
         let existing = first { $0.gid == gid }
         guard existing != nil || !token.isEmpty else { return }
-        var entry = existing ?? GalleryHistoryEntry(gid: gid, token: token, lastOpenDate: date)
+        var entry = existing ?? GalleryHistoryEntry(
+            gid: gid, token: token, lastOpenDate: date,
+            hasRated: hasRated, favoriteTagIndex: favoriteTagIndex,
+            favoriteTagName: favoriteTagName
+        )
         removeAll { $0.gid == gid }
         entry.lastOpenDate = date
         if entry.token.isEmpty { entry.token = token }
+        entry.hasRated = hasRated
+        entry.favoriteTagIndex = favoriteTagIndex
+        entry.favoriteTagName = favoriteTagName
         insert(entry, at: 0)
     }
 

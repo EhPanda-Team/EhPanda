@@ -60,6 +60,7 @@ private extension Parser {
                   let panelInfo = try? parseThumbnailPanel(node: gl2mNode),
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3mNode)
             else { continue }
+            let isExpunged = parseIsExpunged(for: link)
             galleries.append(
                 .init(
                     gid: galleryURL.pathComponents[2],
@@ -72,7 +73,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: galleryURL,
+                    isExpunged: isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -87,6 +92,7 @@ private extension Parser {
                   let panelInfo = try? parseThumbnailPanel(node: gl2cNode),
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3cNode)
             else { continue }
+            let isExpunged = parseIsExpunged(for: link)
             galleries.append(
                 .init(
                     gid: galleryURL.pathComponents[2],
@@ -99,7 +105,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: galleryURL,
+                    isExpunged: isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -114,6 +124,7 @@ private extension Parser {
                   let panelInfo = try? parseThumbnailPanel(node: link),
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3eSiblingNode)
             else { continue }
+            let isExpunged = parseIsExpunged(for: link)
             galleries.append(
                 .init(
                     gid: galleryURL.pathComponents[2],
@@ -126,7 +137,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: galleryURL,
+                    isExpunged: isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -140,6 +155,7 @@ private extension Parser {
             guard let panelInfo = try? parseThumbnailPanel(node: link),
                   let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: link)
             else { continue }
+            let isExpunged = parseIsExpunged(for: link)
             galleries.append(
                 .init(
                     gid: galleryURL.pathComponents[2],
@@ -151,7 +167,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: galleryURL
+                    galleryURL: galleryURL,
+                    isExpunged: isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -167,6 +187,9 @@ private extension Parser {
         var tmpPublishedDate: Date?
         var tmpPageCount: Int?
         var uploader: String?
+        var tmpHasRated = false
+        var tmpFavoriteTagIndex: Int?
+        var tmpFavoriteTagName: String?
 
         for div in node.xpath("//div") {
             if let imgNode = div.at_css("img"),
@@ -186,7 +209,6 @@ private extension Parser {
                ["page", "pages"].contains(components[1]), let pageCount = Int(components[0]) {
                 tmpPageCount = pageCount
             }
-            // Extended display mode uses this
             if let aLink = div.at_xpath("//a"), aLink["href"]?.contains("uploader") == true {
                 uploader = aLink.text
             } else if div.text == "(Disowned)" {
@@ -200,13 +222,24 @@ private extension Parser {
               let publishedDate = tmpPublishedDate,
               let pageCount = tmpPageCount
         else { throw AppError.parseFailed }
+
+        let hasRated = node.xpath(".//div[contains(@class, 'ir')]").contains {
+            guard let classes = $0.className?.split(separator: " ") else { return false }
+            return classes.contains("irb")
+        }
+
+        let (favoriteTagIndex, favoriteTagName) = parseFavoriteInfo(for: node)
+
         return ThumbnailPanelInfo(
             coverURL: coverURL,
             category: category,
             rating: ratingResult.imgRating,
             publishedDate: publishedDate,
             pageCount: pageCount,
-            uploader: uploader
+            uploader: uploader,
+            hasRated: hasRated,
+            favoriteTagIndex: favoriteTagIndex,
+            favoriteTagName: favoriteTagName
         )
     }
 
@@ -301,4 +334,32 @@ private extension Parser {
         guard let uploader = tmpUploader else { throw AppError.parseFailed }
         return uploader
     }
+
+    static func parseIsExpunged(for node: XMLElement) -> Bool {
+        node.xpath(".//s").count > 0
+    }
+
+    static func parseFavoriteInfo(for node: XMLElement) -> (tagIndex: Int?, tagName: String?) {
+        guard let postedDiv = node.at_xpath(
+            ".//div[@id][@style][@title][contains(@onclick, 'popUp')]"
+        ) else { return (nil, nil) }
+        let title = postedDiv["title"]
+        let style = postedDiv["style"] ?? ""
+        let color = extractBorderColor(from: style)
+        let tagIndex = color.flatMap { favoriteTagIndexMap[$0] }
+        return (tagIndex, title)
+    }
+
+    static func extractBorderColor(from style: String) -> String? {
+        guard let rangeA = style.range(of: "border-color:#"),
+              let rangeB = style.range(of: ";") else { return nil }
+        let color = String(style[rangeA.upperBound..<rangeB.lowerBound])
+        return color.count == 3 ? color : nil
+    }
+
+    private static let favoriteTagIndexMap: [String: Int] = [
+        "000": 0, "f00": 1, "fa0": 2, "dd0": 3,
+        "080": 4, "9f4": 5, "4bf": 6, "00f": 7,
+        "508": 8, "e8e": 9
+    ]
 }
