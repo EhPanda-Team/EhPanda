@@ -164,6 +164,16 @@ extension Color {
             blue: Double(blue) / 255.0, opacity: Double(alpha) / 255.0
         )
     }
+
+    public var isLightColor: Bool {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard UIColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return true }
+        let luminance = 0.299 * Double(red) + 0.587 * Double(green) + 0.114 * Double(blue)
+        return luminance > 0.55
+    }
 }
 
 // MARK: Array

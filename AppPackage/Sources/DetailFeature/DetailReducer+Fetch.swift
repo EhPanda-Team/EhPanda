@@ -1,6 +1,9 @@
 import Foundation
+import SwiftUI
 import ComposableArchitecture
 import NetworkingFeature
+import AppModels
+import AppTools
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {
@@ -30,7 +33,7 @@ extension DetailReducer {
                     ]
                     state.apiKey = response.apiKey
                     state.galleryDetail = response.galleryDetail
-                    state.galleryTags = response.galleryState.tags
+                    state.galleryTags = WatchedTagsSetting.applyWatchedTagColors(to: response.galleryState.tags)
                     state.galleryPreviewURLs = response.galleryState.previewURLs
                     state.galleryComments = response.galleryState.comments
                     if let config = response.galleryState.previewConfig {

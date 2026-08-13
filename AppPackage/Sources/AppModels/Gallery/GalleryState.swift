@@ -96,8 +96,8 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
         public let text: String
         public let isVotedUp: Bool
         public let isVotedDown: Bool
-        public let textColor: Color?
-        public let backgroundColor: Color?
+        public var textColor: Color?
+        public var backgroundColor: Color?
     }
 
     public var id: String { rawNamespace }
@@ -106,7 +106,7 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
     }
 
     public let rawNamespace: String
-    public let contents: [Content]
+    public var contents: [Content]
 }
 
 public enum PreviewConfig: Codable, Equatable, Sendable {

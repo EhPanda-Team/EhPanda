@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import AppModels
 import Sharing
 import Resources
@@ -93,6 +94,16 @@ public struct HistoryReducer: Sendable {
         }
     }
 
+    private func applyWatchedTagColors(to galleries: [Gallery]) -> [Gallery] {
+        var recolored = galleries
+        for galleryIndex in recolored.indices {
+            var gallery = recolored[galleryIndex]
+            gallery.tags = WatchedTagsSetting.applyWatchedTagColors(to: gallery.tags)
+            recolored[galleryIndex] = gallery
+        }
+        return recolored
+    }
+
     public var body: some Reducer<State, Action> {
         BindingReducer()
 
@@ -160,9 +171,11 @@ public struct HistoryReducer: Sendable {
             case let .fetchGalleriesDone(result, endIndex):
                 state.loadingState = .idle
                 switch result {
-                case .success(let galleries):
+                case .success(var galleries):
                     state.fetchedCount = endIndex
-                    state.galleries = mergeHistoryMetadata(galleries, entries: state.galleryHistory)
+                    galleries = mergeHistoryMetadata(galleries, entries: state.galleryHistory)
+                    galleries = applyWatchedTagColors(to: galleries)
+                    state.galleries = galleries
                     if galleries.isEmpty {
                         if state.hasMoreHistory {
                             return .send(.fetchMoreGalleries)
@@ -192,10 +205,11 @@ public struct HistoryReducer: Sendable {
             case let .fetchMoreGalleriesDone(result, endIndex):
                 state.footerLoadingState = .idle
                 switch result {
-                case .success(let galleries):
+                case .success(var galleries):
                     state.fetchedCount = endIndex
-                    state.galleries.append(contentsOf: mergeHistoryMetadata(galleries, entries: state.galleryHistory))
-                    // This page was entirely unresolved; continue so paging doesn't stall mid-list.
+                    galleries = mergeHistoryMetadata(galleries, entries: state.galleryHistory)
+                    galleries = applyWatchedTagColors(to: galleries)
+                    state.galleries.append(contentsOf: galleries)
                     if galleries.isEmpty && state.hasMoreHistory {
                         return .send(.fetchMoreGalleries)
                     }

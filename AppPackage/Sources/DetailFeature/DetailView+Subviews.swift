@@ -241,8 +241,9 @@ extension TagsSection {
                     text: translation?.displayValue ?? content.text,
                     imageURL: translation?.valueImageURL,
                     showsImages: showsImages,
-                    font: .subheadline, padding: padding, textColor: .primary,
-                    backgroundColor: backgroundColor
+                    font: .subheadline, padding: padding,
+                    textColor: content.textColor ?? (content.backgroundColor != nil ? .primary : .primary),
+                    backgroundColor: content.backgroundColor ?? backgroundColor
                 )
             }
             .contextMenu {
