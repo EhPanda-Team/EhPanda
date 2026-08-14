@@ -218,7 +218,12 @@ public struct ReadingView: View {
                 }
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
-                if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
+                if !newValue {
+                    setPageIndex(sliderValue: pageHandler.sliderValue)
+                } else {
+                    let currentIndex = Int(pageHandler.sliderValue)
+                    store.send(.fetchPreviewURLs(currentIndex))
+                }
                 setAutoPlayPolocy(.off)
             }
             // AutoPlay

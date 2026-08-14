@@ -341,6 +341,22 @@ private struct SliderPreivew: View {
                 .opacity(checkIndex(index) ? 1 : 0)
             }
         }
+        .onChange(of: showsSliderPreview) { _, newValue in
+            if newValue {
+                for index in previewsIndices {
+                    if previewURLs[index] == nil && checkIndex(index) {
+                        fetchPreviewURLsAction(index)
+                    }
+                }
+            }
+        }
+        .onChange(of: sliderValue) { _, _ in
+            for index in previewsIndices {
+                if previewURLs[index] == nil && checkIndex(index) {
+                    fetchPreviewURLsAction(index)
+                }
+            }
+        }
         .opacity(showsSliderPreview ? 1 : 0)
         .padding(.vertical, verticalPadding)
         .padding(.horizontal, horizontalPadding)
@@ -357,12 +373,10 @@ private extension SliderPreivew {
         DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
-        guard !previewURLs.isEmpty else { return [] }
         let currentIndex = Int(sliderValue)
         let distance = (previewsCount - 1) / 2
-        let lowerBound = currentIndex - distance
-        let upperBound = currentIndex + distance
-
+        let lowerBound = max(Int(range.lowerBound), currentIndex - distance)
+        let upperBound = min(Int(range.upperBound), currentIndex + distance)
         let indices = Array(lowerBound...upperBound)
         return isReversed ? indices.reversed() : indices
     }

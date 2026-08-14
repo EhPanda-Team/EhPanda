@@ -24,19 +24,24 @@ public struct PreviewImageView: View {
             }
         } else {
             let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: originalURL)
-            KFImage.url(
-                url,
-                cacheKey: url?.stableImageCacheKey
-                    ?? originalURL?.stableImageCacheKey
-                    ?? originalURL?.absoluteString
-            )
-            .placeholder {
+            if let url {
+                KFImage.url(
+                    url,
+                    cacheKey: url.stableImageCacheKey
+                        ?? originalURL?.stableImageCacheKey
+                        ?? originalURL?.absoluteString
+                )
+                .placeholder {
+                    Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect))
+                }
+                .imageModifier(modifier)
+                .fade(duration: 0.25)
+                .resizable()
+                .scaledToFit()
+            } else {
                 Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .imageModifier(modifier)
-            .fade(duration: 0.25)
-            .resizable()
-            .scaledToFit()
         }
     }
 }
