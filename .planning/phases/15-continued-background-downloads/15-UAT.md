@@ -1,14 +1,21 @@
 ---
-status: complete
+status: testing
 phase: 15-continued-background-downloads
-source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-REVIEW-FIX.md]
+source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-09T16:00:41Z
+updated: 2026-08-15T12:26:41Z
+round: 5
 ---
 
 ## Current Test
 
-[testing complete]
+number: 11
+name: Both stored spellings merge into one
+expected: |
+  On the case-sensitive physical device, arrange for both `logs` and `Logs` to contain different
+  files, then launch. Verify they merge into `Logs` without losing either file; if a name collides,
+  the destination copy wins.
+awaiting: final Files inspection after the collision-case cold launch on the test iPhone
 
 ## Tests
 
@@ -27,16 +34,56 @@ result: pass
 test: Observe the system progress card across a multi-gallery queue — including a `.repair`
 re-download — then cancel from the card, foreground, and compare queue state against pausing each
 gallery by hand.
-expected: One neutral card whose counts advance with real work and never fall back within a
-reporting regime; the subtitle names the galleries that actually remain, reaching zero when the
-queue drains; a repair of a gallery whose files were deleted outside the app climbs from its
-announce rather than freezing at the record's stale claim; card-cancel state matches the in-app
-per-gallery pause baseline.
+expected: One neutral card whose counts advance with real work, never fall back within a reporting
+regime, and never read a numerator above the work actually done; the subtitle names every gallery
+the denominator covers and holds that count steady across a gallery's completion (with two queued
+it reads "· 2 galleries" on every frame, including the last); a repair of a gallery whose files
+were deleted outside the app climbs from its announce rather than freezing at the record's stale
+claim; card-cancel state matches the in-app per-gallery pause baseline.
+expected_note: |
+  The drain-time expectation CHANGED at round 4 with the 15-55 basis redesign: the final subtitle
+  reads "N / N pages · 2 galleries", NOT "0 galleries". Rounds 1-3 were judged against the older
+  basis; do not carry their wording forward.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: pass
-retest_round: 4
+result: issue
+retest_round_5_reported: |
+  On the test iPhone (physical iPhone 11, iOS 26.6), two paused galleries were resumed from
+  27/51 and 6/53 and EhPanda was backgrounded. The system Background Activities surface rendered
+  "Downloading galleries — Task failed" instead of any progress fraction or "· 2 galleries".
+  Expanding Background Activities showed two EhPanda cards with the same failure. Foregrounding
+  the app showed that both galleries had nevertheless drained to 51/51 and 53/53.
+retest_round_5_severity: major
+retest_round_5_outcome: |
+  Failed before the fraction, stable-gallery-count, repair, pause-liveness, and card-cancel clauses
+  could be judged. The system-owned surface reports failure for completed work and never exposes
+  the required progress representation.
+retest_round: 5
 retest_reason: |
+  15-72 changed how the announced basis is computed, which is the quantity this card renders.
+  `authorizedReconciliationScan` now answers with the pages it destroyed, `WorkingSeed` carries
+  them, and `inheritedPages` subtracts them in BOTH branches — so a failed post-removal rescan can
+  no longer promote a deleted page to presumed-done and inflate the announce. `scanSucceeded`
+  deliberately stays sourced from the post-removal rescan (15-67 DEC-F stands). 15-VERIFICATION.md
+  asked for a physical-device iOS 26 re-run of this test once that gap closed (15-72 coverage D5).
+  The round-4 observation does not carry forward: it was taken against the basis this plan changed.
+retest_steps_round_5: |
+  1. Queue at least two galleries, start in the foreground, then background the app.
+  2. EVERY frame reads "· 2 galleries" — during the first gallery, across its completion, and while
+     only the second remains. The count must never drop to "1 gallery".
+  3. At drain the final subtitle reads "N / N pages · 2 galleries".
+  4. The fraction must never fall back within a reporting regime, and must never read a numerator
+     ABOVE the work actually done — the over-reporting direction is what 15-72 closed.
+  5. `.repair` a gallery whose files were deleted outside the app: progress CLIMBS from the
+     announce, never freezes at the record's stale claim.
+  6. Pause one gallery mid-queue; the card still reaches completion for the rest.
+  7. Cancel from the card, foreground, and compare queue state against the in-app per-gallery
+     pause baseline.
+prior_round_4_result: pass
+prior_round_4_reason: |
+  Passed on device 2026-08-09 against the 15-55 subtitle basis. Superseded by the 15-72 announced-
+  basis change, not by any defect found in round 4.
+retest_round_4_reason: |
   G-15-2C closed by plan 15-55 (D-G2C-01): the subtitle gallery count's basis changed from the
   live schedulable set to the denominator's coverage — live schedulable galleries plus every
   departed gallery whose retirement contributed pages to Y, zero-page retirements excluded. The
@@ -163,16 +210,247 @@ why_human: The system-owned cancel affordance does not fire in the simulator.
 covers: SC2 pause and cancel parity
 result: pass
 
+### 7. Swipe-delete choreography settles instead of flickering
+
+test: On device, swipe a downloads row to reveal Delete and tap it. Watch the row while the
+confirmation is up. Cancel. Repeat and confirm the deletion. Also open the row's context menu and
+look at its Delete.
+expected: Tapping the swipe Delete settles the row closed — no vanish, no reappear — and the
+confirmation comes up over a row that is still there. Cancelling leaves the row at rest.
+Confirming animates the row out ONCE as the standard List delete collapse, with no snap and no
+intermediate state. The confirmation's own Delete button and the context-menu Delete both still
+read as destructive (red).
+why_human: This is an animation sequence. Plan 15-77 built Candidate 0 (drop `role: .destructive`
+from the swipe button, tint red, animate the removal) and gated it on an owner device evaluation —
+and that verdict was never recorded: no 15-77-SUMMARY.md exists, though its commits (8277ded7,
+15afbde4) are on the branch.
+covers: UAT-FU-2 (Deferred Follow-Ups, test 6)
+note: |
+  15-RESEARCH established (docs-index sweep, VERIFIED) that the full three-part hold-open
+  choreography is IMPOSSIBLE with native `.swipeActions` through the iOS 27 beta, so Candidate 0 is
+  deliberately an approximation of the original ask, and that gap is exactly the kill criterion.
+  A kill verdict routes Candidate 1 (in-house custom swipe container) to a follow-up planning
+  round; it must not be half-built here.
+result: pass
+device_result: |
+  Passed on the test iPhone (physical iPhone 11, iOS 26.6). Tapping the swipe action's Delete
+  settled the row closed while the row remained present under the confirmation. Cancel left the
+  row at rest. Confirming produced one standard List collapse with no vanish/reappear flicker.
+  The confirmation Delete and the context-menu Delete were both red.
+
+### 8. The delete confirmation anchors where the owner wants it
+
+test: On iPhone and on iPad, swipe-delete a downloads row and look at where the confirmation is
+anchored — on iPad, note where the popover arrow points. Compare against the list-level Move
+dialog, which is attached to the container.
+expected: Owner-decidable, not pass/fail. Today the dialog is attached to the ROW
+(DownloadsView.swift:227-229), so it anchors at the row. The project's own placement rule carries
+an exception saying a per-row destructive action in a scrolling List should attach to the enclosing
+List instead — which would anchor it at the list top on every delete.
+why_human: WR-05 was deliberately left unfixed. Both branches are owner decisions: (a) amend the
+`Confirmation dialog / alert placement` rule in CLAUDE.md to carve out per-row destructive actions
+whose anchoring is user-visible under iOS 26, keeping today's placement; or (b) hoist the modifier
+to the List and accept the list-top anchor, which also makes DownloadRowFeature's per-row state
+vestigial.
+covers: WR-05 (15-REVIEW-FIX.md, skipped issue)
+note: |
+  The exception predates the iOS 26 change where `.confirmationDialog` anchors to its attachment
+  view on iPhone too (WWDC25 284/323), which the phase's own choreography research flags for
+  re-evaluation. Whichever branch is chosen, the untested half is worth closing: no test asserts
+  what happens when a row with a presented dialog leaves `rows` (today the dialog vanishes silently
+  and the deletion never fires).
+result: [pending]
+device_progress: |
+  The different-file merge passed on the test iPhone (physical iPhone 11, iOS 26.6): lowercase
+  `logs` held two 177-byte files while populated `Logs` held 19 items; after a true cold launch,
+  only `Logs` remained with 22 items (both source files plus the new launch log).
+
+  The collision fixture was then staged with populated `Logs` containing
+  `ehpanda-20260804-115144-1.jsonl` at 54 KB and lowercase `logs` containing a different 177-byte
+  file renamed to that exact filename. EhPanda was terminated and cold-launched successfully.
+  Final Files inspection was blocked when the device-control usage limit was reached. On resume,
+  verify lowercase `logs` is absent and the destination file in `Logs` is still 54 KB; then remove
+  the verification-created `ehpanda-20260714-231033-1.jsonl 2` file and mark this test passed.
+device_observation: |
+  On the test iPhone, the confirmation was attached to the triggering row and its popover arrow
+  pointed at that row. The iPad half and the owner choice between row anchoring and list anchoring
+  remain pending.
+
+### 9. The logs directory reads `Logs` and its Files-app link opens it
+
+test: Launch a build over a pre-rename install — one whose container already holds a lowercase
+`logs` folder with files in it — then open the logs directory from the app's Files-app link.
+expected: The existing log files survive the rename, the folder displays as `Logs`, and the deep
+link opens THAT folder — not a missing path and not the old spelling.
+why_human: 15-76 D9 — `ApplicationClient.openFileApp` builds `shareddocuments://` from
+`FileUtil.logsDirectoryURL.path`, so the path derives from the constant by argument, but no test
+and no device run has observed the link actually opening.
+covers: 15-76 D9
+result: pass
+device_result: |
+  Passed on the test iPhone (physical iPhone 11, iOS 26.6). In Files, the existing `Logs`
+  folder containing 12 items was renamed to lowercase `logs`. After terminating and cold-launching
+  EhPanda, Files showed `Logs` with 14 items (the original contents plus new run logs). From App
+  Activity Logs, "Open in Files" opened the `Logs` folder directly and displayed its log files.
+
+### 10. A stranded migration staging directory is recovered on the next launch
+
+test: With the app not running, put a `Logs-migrating-<uuid>` directory holding a log file into the
+app's Documents container, and launch. Do it twice: once with no `Logs` folder present, once with a
+populated `Logs` alongside it.
+expected: Launch folds the residue into `Logs` (or moves it there when `Logs` is absent). The
+container ends with no `Logs-migrating-*` directory left, and no log file is lost in either shape.
+A second launch over the same state changes nothing further.
+why_human: The recovery is unit-covered (six new cases in WR-01), but a residue is produced only by
+a real interrupted rename, and no run has staged one in a device container.
+covers: WR-01 (15-REVIEW-FIX.md)
+result: pass
+device_result: |
+  Passed on the test iPhone (physical iPhone 11, iOS 26.6). With no destination present, a
+  stranded staging directory containing the existing logs was recovered as `Logs`, with the
+  original files retained and no staging directory left. With a populated `Logs` alongside a
+  UUID-style staging directory holding one uniquely named 177-byte log copy, a true process
+  termination and cold launch removed the staging directory and increased `Logs` from 17 to 19
+  items (the staged copy plus the new launch log). A second true cold launch left no staging
+  residue and retained all files; only the verification-created duplicate was then removed.
+
+### 11. Both stored spellings merge into one
+
+test: On a case-sensitive volume — a real device container — arrange for both `logs` and `Logs` to
+exist with different files in each, then launch.
+expected: The two are merged into `Logs` with no file lost; a name that collides in both keeps the
+destination copy.
+why_human: 15-76 D8. The classification half (`twoStoredSpellingsAreAMerge`) and the application
+half (the two `mergeContents` cases) are each pinned on this host, but the case that joins them
+(`bothStoredSpellingsRouteToAMerge`) is SKIPPED here — this Mac's APFS volume is case-insensitive
+and cannot stage the fixture. Nothing has observed the composition.
+covers: 15-76 D8
+note: "Answer 'blocked' if the device's Files app will not let you create the second spelling — that is a legitimate staging limit, not a defect."
+result: [pending]
+
+### 12. A refused Pause or Resume says why instead of doing nothing
+
+test: In the download inspector, drive a Pause or Resume tap into a refusal and watch the bottom of
+the screen.
+expected: A toast appears whose message matches the refusal — not silence, and not a generic
+failure string — and the inspector reloads behind it.
+why_human: 15-73 D7. The rendered toast (Liquid Glass bottom toast, auto-hide) is a visual outcome
+the TestStore cases cannot observe; they pin only the state that drives it.
+covers: 15-73 D7
+note: |
+  Scope is the INSPECTOR only. The downloads LIST offers the same Pause/Resume from a swipe action
+  and a context menu and is knowingly still silent on both arms — closing that needs a toast
+  surface DownloadsReducer does not own. It is recorded in the reducer's type doc and in
+  deferred-items.md rather than fixed, so it is out of scope here by decision, not by oversight.
+result: [pending]
+
+### 13. Ratify the hang-detector wait bound
+
+test: Nothing to run. Read 15-74-SUMMARY DEC-E and say whether the refusal stands.
+expected: Plan 15-74 asked for `timeout: .seconds(1)` on the two missing-notification detectors;
+the executor declined it on recorded evidence and kept the inherited 10-second `waitForTaskValue`
+default. This is IN-01, carried unaddressed through three review rounds. The bound trades
+test-harness fragility against how quickly a real regression is caught.
+why_human: 15-74 D5 — an owner judgment the executor deliberately refused to auto-pass rather than
+ratify on its own authority.
+covers: 15-74 D5
+result: [pending]
+
+### 14. Decide whether error-message text gets pinned
+
+test: Nothing to run. Decide whether the eight download error-message keys should have their
+rendered text asserted by test.
+expected: After 15-75's key-spelling consolidation, all ten keys resolve correctly against the
+shipped bundle at this HEAD, but only the two continued-session keys have their rendered VALUE
+asserted by a test. The other eight are "verified at this HEAD", not pinned — which was equally
+true before 15-75; the move neither created nor closed the gap.
+why_human: 15-75 D7 — whether error text is worth a test is a cost call the owner owns.
+covers: 15-75 D7
+result: [pending]
+
+### 15. A folder made outside the app is fully manageable inside it
+
+test: In the Files app, create folders under the app's Downloads directory named `Art  Books` (two
+spaces), ` Photos` (leading space) and `Misc etc.` (trailing dot). In the app: list them, rename
+one, delete another, and move a gallery into the third.
+expected: All three are listed verbatim. Delete and rename both succeed on the name as shown — no
+"The folder name is invalid." Moving a gallery into `Art  Books` puts it in THAT folder, not a
+newly created near-duplicate `Art Books`.
+why_human: This regression shipped green twice — through a code review and a verification cycle —
+because the escape catalog only ever staged refusals. 15-70 added the positive half, but its
+fixtures stage folders with `FileManager.createDirectory` under the test's own name. Only the Files
+app proves the real producing surface can make these names and that the app's listing round-trips
+them.
+covers: CR-01 / 15-VERIFICATION.md gap 1
+note: "A folder whose name contains a control character, or a symlink to a directory, is still refused by design (15-70 DEC-C) — those are not this test."
+result: [pending]
+
 ## Summary
 
-total: 6
-passed: 6
-issues: 0
-pending: 0
+total: 15
+passed: 8
+issues: 1
+pending: 6
 skipped: 0
 blocked: 0
 
+round_5_scope: |
+  Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
+  the fourth code review's fixes (WR-01 … WR-04, with WR-05 skipped as an owner decision).
+  Tests 1 and 3-6 keep their round-4 pass results; test 2 returns to pending because 15-72 changed
+  the announced basis it renders.
+
+## Automated Coverage (round 5)
+
+Deliverables from summaries 15-61 … 15-76 whose `coverage:` blocks classify as auto-covered by
+passing tests are recorded here rather than as checkpoints, matching this file's convention across
+rounds 1-4 (human checkpoints only in `## Tests`). 85 coverage entries across 16 summaries; 79
+auto-passed, 6 routed to human judgment and carried above as tests 7 and 11-14.
+
+| Summary | Entries | Auto-passed | Human |
+|---|---|---|---|
+| 15-61 | 3 | 3 | — |
+| 15-62 | 4 | 4 | — |
+| 15-63 | 4 | 4 | — |
+| 15-64 | 8 | 8 | — |
+| 15-65 | 3 | 3 | — |
+| 15-66 | 5 | 5 | — |
+| 15-67 | 4 | 4 | — |
+| 15-68 | 4 | 4 | — |
+| 15-69 | 10 | 10 | — |
+| 15-70 | 4 | 4 | — |
+| 15-71 | 3 | 3 | — |
+| 15-72 | 5 | 4 | D5 → test 2 (round 5) |
+| 15-73 | 7 | 6 | D7 → test 12 |
+| 15-74 | 5 | 4 | D5 → test 13 |
+| 15-75 | 7 | 6 | D7 → test 14 |
+| 15-76 | 9 | 7 | D8 → test 11, D9 → test 9 |
+
+15-76's D8 and D9 additionally carry a `classify-coverage` error (`invalid_status`: their
+`verification[0].status` reads `partial`, which is not one of pass/fail/unknown). Both are treated
+as human checkpoints regardless — the fail-safe path — so nothing is dropped, but the two status
+values are worth correcting in 15-76-SUMMARY.md.
+
+Plan 15-77 has NO SUMMARY.md, so it has no coverage block at all. Its deliverable is carried as
+test 7 via the plan's own `must_haves` and its commits on the branch.
+
 ## Gaps
+
+- gap_id: G-15-2D
+  truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
+  status: open
+  reason: |
+    Physical-device round-5 retest: the Background Activities surface showed "Downloading
+    galleries — Task failed" for a two-gallery session that nevertheless completed both galleries
+    to 51/51 and 53/53. No fraction or gallery count rendered, so none of Test 2's progress clauses
+    could be observed.
+  severity: major
+  test: 2
+  observed_on: "the test iPhone, physical iPhone 11, iOS 26.6"
+  evidence: |
+    The compact card showed one failed EhPanda background activity. Expanding Background Activities
+    showed two EhPanda cards with the same "Task failed" subtitle. Foreground state then showed both
+    galleries complete.
 
 - gap_id: G-15-2
   truth: "One queue-wide continued-processing session stays alive until the whole queue drains; its subtitle keeps describing the remaining galleries, not just one."
