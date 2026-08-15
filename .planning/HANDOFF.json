@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-08-15T12:26:41.433Z",
+  "phase": "15",
+  "phase_name": "continued-background-downloads",
+  "phase_dir": ".planning/phases/15-continued-background-downloads",
+  "plan": null,
+  "task": 11,
+  "total_tasks": 15,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Backgrounded queue outlasts the old grace window", "status": "done"},
+    {"id": 2, "name": "System progress card renders real progress", "status": "issue", "progress": "Physical card reported Task failed although both galleries completed; G-15-2D is open."},
+    {"id": 3, "name": "Scheduler refusal, expiration and process death preserve work", "status": "done"},
+    {"id": 4, "name": "Collected diagnostics preserve privacy", "status": "done"},
+    {"id": 5, "name": "Repair progress climbs from measured work", "status": "done"},
+    {"id": 6, "name": "Pause and system-card cancellation converge", "status": "done"},
+    {"id": 7, "name": "Swipe-delete choreography settles", "status": "done"},
+    {"id": 9, "name": "Logs directory spelling and Files deep link", "status": "done"},
+    {"id": 10, "name": "Stranded migration staging recovery", "status": "done"},
+    {"id": 11, "name": "Both stored spellings merge into one", "status": "in_progress", "progress": "Different-file merge passed. Collision fixture was cold-launched; final Files inspection remains."}
+  ],
+  "remaining_tasks": [
+    {"id": 8, "name": "Owner decision on delete-confirmation anchoring, including iPad", "status": "not_started"},
+    {"id": 11, "name": "Inspect collision merge and clean the test duplicate", "status": "in_progress"},
+    {"id": 12, "name": "Inspector refusal toast", "status": "not_started"},
+    {"id": 13, "name": "Owner decision on hang-detector wait bound", "status": "not_started"},
+    {"id": 14, "name": "Owner decision on error-message value assertions", "status": "not_started"},
+    {"id": 15, "name": "Files-created folder names are manageable in-app", "status": "not_started"}
+  ],
+  "blockers": [
+    {"description": "Device-control usage limit was reached immediately after Test 11's final cold launch.", "type": "external", "workaround": "Do not bypass it. Resume device inspection after the limit resets, or have the owner report the two visible Files checks."}
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {"action": "Complete Test 8's iPad observation and choose row or list anchoring.", "context": "The iPhone row-anchor observation is already recorded; this is an owner decision.", "blocking": false},
+    {"action": "Decide Tests 13 and 14.", "context": "Both are owner cost and policy judgments, not runnable device tests.", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "Use only the USB-connected physical iPhone for device UAT.", "rationale": "The owner explicitly prohibited the iOS simulator.", "phase": "15"},
+    {"decision": "Use true process termination through CoreDevice before cold launches.", "rationale": "Closing the automation session does not prove the app process stopped.", "phase": "15"},
+    {"decision": "Do not copy or export the whole Documents container.", "rationale": "It risks exposing unrelated user data; fixtures are staged narrowly in Files.", "phase": "15"}
+  ],
+  "uncommitted_files": [
+    ".planning/phases/15-continued-background-downloads/15-UAT.md",
+    ".planning/HANDOFF.json",
+    ".planning/phases/15-continued-background-downloads/.continue-here.md"
+  ],
+  "next_action": "On the physical iPhone, inspect the EhPanda container root in Files. Verify lowercase logs is absent, then enter Logs and confirm ehpanda-20260804-115144-1.jsonl remains 54 KB. Remove only ehpanda-20260714-231033-1.jsonl 2, mark Test 11 passed, and advance to Test 12.",
+  "context_notes": "EhPanda completed the collision-case cold launch. Files was opened afterward, but the first snapshot was rejected due to the device-control usage limit. The physical device remains connected, unlocked, and configured with Auto-Lock set to Never. No simulator was used."
+}
