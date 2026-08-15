@@ -3,21 +3,19 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-15T12:47:00Z
+updated: 2026-08-15T13:32:00Z
 round: 5
 ---
 
 ## Current Test
 
-number: 15
-name: A folder made outside the app is fully manageable inside it
+number: —
+name: all runnable tests resolved
 expected: |
-  In Files, create folders under the app's Downloads directory named `Art  Books` (two spaces),
-  ` Photos` (leading space) and `Misc etc.` (trailing dot). In the app: list them, rename one,
-  delete another, and move a gallery into the third. All three list verbatim, rename and delete
-  succeed on the name as shown, and the move lands in `Art  Books` itself rather than a newly
-  created near-duplicate `Art Books`.
-awaiting: device run on the test iPhone
+  Every test that can be executed has been. What remains is not runnable work: tests 13 and 14 are
+  owner decisions with nothing to execute, and tests 8 and 12 are blocked — 8 on an iPad that is
+  not connected, 12 on a refusal that cannot be induced from the device UI.
+awaiting: owner decisions on tests 13 and 14; tests 8 and 12 blocked
 
 ## Tests
 
@@ -261,7 +259,14 @@ note: |
   re-evaluation. Whichever branch is chosen, the untested half is worth closing: no test asserts
   what happens when a row with a presented dialog leaves `rows` (today the dialog vanishes silently
   and the deletion never fires).
-result: [pending]
+result: blocked
+blocked_by: physical-device
+reason: |
+  The iPhone half is observed and recorded below. The iPad half cannot be run: the test iPad
+  reports `unavailable` to CoreDevice (not connected), and the only other iPads visible to the host
+  are simulators, which this UAT's blocking constraint forbids. The remaining branch — amend the
+  CLAUDE.md placement rule to keep row anchoring, versus hoist the modifier to the List — is an
+  owner decision regardless of the iPad observation.
 device_observation: |
   On the test iPhone, the confirmation was attached to the triggering row and its popover arrow
   pointed at that row. The iPad half and the owner choice between row anchoring and list anchoring
@@ -364,7 +369,43 @@ note: |
   and a context menu and is knowingly still silent on both arms — closing that needs a toast
   surface DownloadsReducer does not own. It is recorded in the reducer's type doc and in
   deferred-items.md rather than fixed, so it is out of scope here by decision, not by oversight.
-result: [pending]
+result: blocked
+blocked_by: other
+reason: |
+  The refusal could not be induced from the device UI. Both documented arms of the refusal are
+  race-only, and the app closes the race before a tap can land.
+device_attempts: |
+  Attempted on the test iPhone (physical iPhone 11, iOS 26.6) 2026-08-15 with agent-device.
+  `togglePause` has exactly two refusal exits (DownloadClient+PublicAPI.swift:189-214): `.notFound`
+  when `fetchDownload` misses, and `.unknown` when `displayStatus` is `.completed`/`.error`/
+  `.updateAvailable`. `canTogglePause` already excludes all three of those statuses, so the control
+  is only tappable while the RENDERED snapshot disagrees with the client — i.e. a genuine race.
+
+  Arm 1 (`.notFound`) — drove a gallery to `.inactive` via Validate (17/17 → Paused 14/17, Resume
+  enabled), then deleted its whole gallery folder in Files and returned. The inspector reloaded on
+  foreground and withdrew the Resume control entirely, so there was nothing left to tap.
+
+  Arm 2 (`.unknown`) — drove FAR_SIDE to Paused 34/42 (8 pages deleted externally), tapped Resume,
+  backgrounded immediately so the UI froze on `.active`, and let the repair drain in the
+  background. It completed to 42/42 while backgrounded. On foreground the inspector had already
+  reloaded to `.completed` and disabled the control before a tap landed, even tapping with no
+  intervening delay.
+partial_evidence: |
+  The toast SURFACE is confirmed to render on device and is accessibility-visible: running
+  Validate Image Data and snapshotting with zero delay captured the bottom toast reading
+  "Success" / "Image data is valid" (DownloadInspectorReducer's `validateImageDataDone` →
+  `toastConfig`, the same `AppAlertState` surface `actionFailureToast` feeds).
+
+  What remains unobserved is only the refusal-specific mapping — that a refused Pause/Resume
+  renders `.notFound` → "There seems to be nothing here." or `.unknown` → "An unknown error
+  occurred. / Please try again later." The rendering machinery beneath it is now device-proven.
+note_on_reachability: |
+  Worth recording as a finding in its own right: WR-04/WR-05 are defensive handlers for a window
+  the UI makes very hard to open. That is not evidence they are wrong — a race handler that is
+  hard to trigger by hand is still correct — but it does mean this checkpoint cannot be closed by
+  manual device testing. Closing it would need either a debug affordance that forces the refusal
+  or acceptance that the TestStore cases (which already pin the state that drives the toast) plus
+  the now-proven toast surface are together sufficient.
 
 ### 13. Ratify the hang-detector wait bound
 
@@ -377,6 +418,17 @@ why_human: 15-74 D5 — an owner judgment the executor deliberately refused to a
 ratify on its own authority.
 covers: 15-74 D5
 result: [pending]
+awaiting: owner ratification
+agent_recommendation: |
+  RECOMMEND: the refusal stands — keep the inherited 10-second `waitForTaskValue` default.
+  The evidence is decisive in one direction: the repo records this exact case timing out at 13.2s
+  wall under contention, so a 1-second bound would fail against work the harness has actually
+  observed. That makes it a flake generator, and a detector that cries wolf gets muted or deleted,
+  which costs more than slow detection. The only thing given up is that a genuine regression takes
+  up to 10s to surface in a failing test — paid once per real regression, against a false failure
+  paid on every contended run.
+  NOT self-ratified: this checkpoint exists precisely because the executor declined to decide it on
+  its own authority, and an agent ratifying it reproduces the problem the checkpoint prevents.
 
 ### 14. Decide whether error-message text gets pinned
 
@@ -389,6 +441,17 @@ true before 15-75; the move neither created nor closed the gap.
 why_human: 15-75 D7 — whether error text is worth a test is a cost call the owner owns.
 covers: 15-75 D7
 result: [pending]
+awaiting: owner ratification
+agent_recommendation: |
+  RECOMMEND: do not pin the eight rendered values; if anything is added, pin RESOLUTION only.
+  Value-pinned copy tests re-break on every wording edit and every translation pass, and what they
+  actually catch — a key that stopped resolving and renders its raw identifier — is catchable
+  without freezing the sentence. A resolution assertion (each key resolves to something other than
+  its own key name) buys the regression coverage at a fraction of the maintenance.
+  Weighing against: the two continued-session keys ARE value-pinned today, so leaving the other
+  eight unpinned keeps an inconsistency in the suite. That inconsistency is the real argument for
+  acting, and it resolves either way — pin all ten, or relax the two to resolution checks.
+  NOT self-ratified: 15-75 D7 assigns this cost call to the owner.
 
 ### 15. A folder made outside the app is fully manageable inside it
 
@@ -432,9 +495,14 @@ device_result: |
 total: 15
 passed: 9
 issues: 2
-pending: 4
+pending: 2
 skipped: 0
-blocked: 0
+blocked: 2
+
+pending_note: |
+  Both remaining pending items (tests 13 and 14) have nothing to run — they are owner decisions
+  that the phase deliberately routed to human judgment. Each carries an `agent_recommendation`
+  block with the reasoning, but neither is self-ratified.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
