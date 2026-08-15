@@ -3,19 +3,21 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-15T12:26:41Z
+updated: 2026-08-15T12:47:00Z
 round: 5
 ---
 
 ## Current Test
 
-number: 11
-name: Both stored spellings merge into one
+number: 15
+name: A folder made outside the app is fully manageable inside it
 expected: |
-  On the case-sensitive physical device, arrange for both `logs` and `Logs` to contain different
-  files, then launch. Verify they merge into `Logs` without losing either file; if a name collides,
-  the destination copy wins.
-awaiting: final Files inspection after the collision-case cold launch on the test iPhone
+  In Files, create folders under the app's Downloads directory named `Art  Books` (two spaces),
+  ` Photos` (leading space) and `Misc etc.` (trailing dot). In the app: list them, rename one,
+  delete another, and move a gallery into the third. All three list verbatim, rename and delete
+  succeed on the name as shown, and the move lands in `Art  Books` itself rather than a newly
+  created near-duplicate `Art Books`.
+awaiting: device run on the test iPhone
 
 ## Tests
 
@@ -260,17 +262,6 @@ note: |
   what happens when a row with a presented dialog leaves `rows` (today the dialog vanishes silently
   and the deletion never fires).
 result: [pending]
-device_progress: |
-  The different-file merge passed on the test iPhone (physical iPhone 11, iOS 26.6): lowercase
-  `logs` held two 177-byte files while populated `Logs` held 19 items; after a true cold launch,
-  only `Logs` remained with 22 items (both source files plus the new launch log).
-
-  The collision fixture was then staged with populated `Logs` containing
-  `ehpanda-20260804-115144-1.jsonl` at 54 KB and lowercase `logs` containing a different 177-byte
-  file renamed to that exact filename. EhPanda was terminated and cold-launched successfully.
-  Final Files inspection was blocked when the device-control usage limit was reached. On resume,
-  verify lowercase `logs` is absent and the destination file in `Logs` is still 54 KB; then remove
-  the verification-created `ehpanda-20260714-231033-1.jsonl 2` file and mark this test passed.
 device_observation: |
   On the test iPhone, the confirmation was attached to the triggering row and its popover arrow
   pointed at that row. The iPad half and the owner choice between row anchoring and list anchoring
@@ -326,7 +317,38 @@ half (the two `mergeContents` cases) are each pinned on this host, but the case 
 and cannot stage the fixture. Nothing has observed the composition.
 covers: 15-76 D8
 note: "Answer 'blocked' if the device's Files app will not let you create the second spelling — that is a legitimate staging limit, not a defect."
-result: [pending]
+result: issue
+reported: |
+  The different-file half passes; the COLLIDING-NAME half does not merge. With populated `Logs`
+  holding `ehpanda-20260804-115144-1.jsonl` at 54 KB and lowercase `logs` holding a different
+  177-byte file renamed to that exact name, two consecutive true cold launches each wrote a new
+  log into `Logs` (22 → 23 → 24 items) while lowercase `logs` survived untouched at 21:25 with its
+  1 colliding item. The destination copy was correctly preserved (still 54 KB, never overwritten),
+  but the two spellings were never merged into one and the source directory was never removed.
+severity: major
+device_result: |
+  Observed on the test iPhone (physical iPhone 11, iOS 26.6) 2026-08-15, driven with
+  agent-device against Files plus CoreDevice process control.
+
+  PASSING half — different files: lowercase `logs` held two 177-byte files while populated `Logs`
+  held 19 items; after a true cold launch only `Logs` remained, with 22 items (both source files
+  plus the new launch log).
+
+  FAILING half — colliding name. Pre-launch state verified in Files:
+    - `Logs/ehpanda-20260804-115144-1.jsonl` = 54 KB (destination)
+    - `logs/ehpanda-20260804-115144-1.jsonl` = 177 bytes (source)
+  EhPanda PID 1788 terminated via CoreDevice, process absence confirmed (0 matches), then
+  cold-launched as PID 1850. Result: `Logs` 22 → 23 items, destination file still 54 KB, and
+  lowercase `logs` STILL PRESENT holding its 177-byte file. A second terminate/launch cycle
+  reproduced it exactly: `Logs` 23 → 24 items, `logs` unchanged at 21:25 / 1 item.
+
+  The listing is provably fresh, not a cached Files view: the same refresh that still showed
+  `logs` also showed `Logs` growing by the newly written launch log on each cycle.
+note_on_handoff: |
+  The paused handoff recorded this cold launch as already performed. The filesystem contradicted
+  that — `logs` had survived and `Logs` was untouched since 20:56, while the running process was
+  PID 1788 rather than the recorded 1736. The launch had happened BEFORE the 21:25 rename was
+  committed, so the fixture was never actually exercised until this run.
 
 ### 12. A refused Pause or Resume says why instead of doing nothing
 
@@ -383,14 +405,34 @@ app proves the real producing surface can make these names and that the app's li
 them.
 covers: CR-01 / 15-VERIFICATION.md gap 1
 note: "A folder whose name contains a control character, or a symlink to a directory, is still refused by design (15-70 DEC-C) — those are not this test."
-result: [pending]
+result: pass
+device_result: |
+  Passed on the test iPhone (physical iPhone 11, iOS 26.6) 2026-08-15, driven with
+  agent-device. All three fixtures were created through the real Files app, which accepted every
+  name: `Art  Books` (two spaces), ` Photos` (leading space) and `Misc etc.` (trailing dot).
+
+  1. LIST — EhPanda's folder menu showed all three alongside `Default`, with the interior double
+     space and the trailing dot intact. The leading-space folder renders as "Photos" in the
+     accessibility label, but Files sorted it ahead of `Art  Books` under an ascending name sort,
+     which only holds if the leading space is really on disk; the same trimming appears in Files
+     itself, so it is an AX display artifact, not app behavior.
+  2. DELETE — a full swipe on `Misc etc.` (trailing dot) raised the standard confirmation
+     ("This will delete the folder and all downloaded galleries inside it.") and Delete removed it.
+     No "The folder name is invalid."
+  3. RENAME — a partial swipe on the leading-space folder revealed Rename Folder; renaming it to
+     `Photos Renamed` succeeded and the row re-sorted. The app therefore acted on the true on-disk
+     name rather than the trimmed display name.
+  4. MOVE — long-press on a gallery in `Default` → Move to Folder listed `Art  Books` and
+     `Photos Renamed`; choosing `Art  Books` completed with no error. Verified in Files:
+     `Art  Books` 0 → 1 item, `Default` 6 → 5 items, and the Downloads directory still held
+     exactly 3 items — no near-duplicate `Art Books` was created.
 
 ## Summary
 
 total: 15
-passed: 8
-issues: 1
-pending: 6
+passed: 9
+issues: 2
+pending: 4
 skipped: 0
 blocked: 0
 
@@ -435,6 +477,34 @@ Plan 15-77 has NO SUMMARY.md, so it has no coverage block at all. Its deliverabl
 test 7 via the plan's own `must_haves` and its commits on the branch.
 
 ## Gaps
+
+- gap_id: G-15-11
+  truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
+  status: failed
+  reason: |
+    User-observed on device: with a colliding filename present in both spellings, two consecutive
+    true cold launches left lowercase `logs` in place holding its colliding file. The destination
+    copy was correctly preserved at 54 KB, but the merge never completed and the source directory
+    was never removed, so the stale spelling persists indefinitely across launches.
+  severity: major
+  test: 11
+  observed_on: "the test iPhone, physical iPhone 11, iOS 26.6"
+  evidence: |
+    Pre-launch: `Logs/ehpanda-20260804-115144-1.jsonl` 54 KB; `logs/ehpanda-20260804-115144-1.jsonl`
+    177 bytes. Launch 1 (PID 1788 terminated, absence confirmed, relaunched 1850): `Logs` 22 → 23
+    items, destination still 54 KB, `logs` still present with 1 item. Launch 2: `Logs` 23 → 24
+    items, `logs` unchanged. The freshness of the read is established by `Logs` growing on each
+    cycle in the same listing that still showed `logs`.
+  contrast: |
+    The different-file merge on the same device PASSES and removes the source spelling, so the
+    failure is specific to the collision path — not to merging in general.
+  hypothesis: |
+    Not yet diagnosed. The shape is consistent with the per-item move failing on the colliding
+    name and that failure either aborting the merge or being skipped without resolution, leaving
+    the source directory non-empty so its removal cannot succeed. Worth checking whether the
+    destination-wins branch deletes the source item after choosing the destination copy.
+  artifacts: []
+  missing: []
 
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
