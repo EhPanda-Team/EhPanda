@@ -64,6 +64,11 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         title = title.barcesAndSpacesRemoved
         return title
     }
+    public var hasWebtoonTag: Bool {
+        tags.contains { tag in
+            tag.contents.contains { $0.text.lowercased() == "webtoon" }
+        }
+    }
     public var language: Language? {
         let rawValue = tags
             .first(where: { $0.namespace == .language })?.contents
