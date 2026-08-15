@@ -112,7 +112,9 @@ public struct QuickSearchView: View {
             submitAction: onTextFieldSubmitted,
             confirmAction: {
                 store.send(kind == .new ? .appendWord : .editWord)
-            }
+            },
+            tagTranslator: store.tagTranslator,
+            setting: store.setting
         )
     }
 }
@@ -125,17 +127,22 @@ extension QuickSearchView {
         private let focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding
         private let submitAction: () -> Void
         private let confirmAction: () -> Void
+        private let tagTranslator: TagTranslator
+        private let setting: Setting
 
         init(
             title: LocalizedStringResource, word: Binding<QuickSearchWord>,
             focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding,
-            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void
+            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void,
+            tagTranslator: TagTranslator, setting: Setting
         ) {
             self.title = title
             _word = word
             self.focusedField = focusedField
             self.submitAction = submitAction
             self.confirmAction = confirmAction
+            self.tagTranslator = tagTranslator
+            self.setting = setting
         }
 
         var body: some View {
@@ -149,6 +156,12 @@ extension QuickSearchView {
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
                         .focused(focusedField, equals: .content)
+                    TagSuggestionView(
+                        keyword: $word.content,
+                        translations: tagTranslator.translations,
+                        showsImages: setting.showsImagesInTags,
+                        isEnabled: setting.showsTagsSearchSuggestion
+                    )
                 }
             }
             .toolbar(content: toolbar)
