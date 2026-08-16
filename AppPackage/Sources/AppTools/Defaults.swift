@@ -40,8 +40,13 @@ public struct Defaults: Sendable {
     }
     public struct FilePath: Sendable {
         // User-visible in the Files app (`UIFileSharingEnabled` over `Documents`), hence the
-        // capitalized spelling. Installs created before the rename are moved onto it once, at
-        // launch, by `LogsDirectoryMigration`.
+        // capitalized spelling.
+        //
+        // Deliberately NOT migrated. v2.8.1 shipped a lowercase `logs` directory here, so an install
+        // upgrading from it keeps that directory beside this one on the case-sensitive device
+        // volume, holding its old `EhPanda.log` files. That is an accepted outcome (owner decision,
+        // 2026-08-17): the two eras use different file names, nothing is lost, and the stale
+        // directory is inert. Do not reintroduce a rename migration without revisiting that call.
         public static let logs = "Logs"
         public static let activityLogPrefix = "ehpanda"
         public static let activityLogExtension = "jsonl"
