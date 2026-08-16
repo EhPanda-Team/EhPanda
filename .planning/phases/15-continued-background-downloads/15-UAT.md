@@ -330,6 +330,13 @@ why_human: 15-76 D9 — `ApplicationClient.openFileApp` builds `shareddocuments:
 and no device run has observed the link actually opening.
 covers: 15-76 D9
 result: pass
+partially_obsoleted_2026_08_17: |
+  `LogsDirectoryMigration` was deleted by owner decision, so the RENAME half of this test (launching
+  a build over a pre-rename install and watching the existing files survive onto `Logs`) no longer
+  has a subject. The half that still stands, and is what 15-76 D9 actually asked for, is the DEEP
+  LINK: `ApplicationClient.openFileApp` builds `shareddocuments://` from
+  `FileUtil.logsDirectoryURL.path`, and the device run confirmed "Open in Files" opens the `Logs`
+  folder and shows its log files. That half is unaffected by the removal, so the pass stands on it.
 device_result: |
   Passed on the test iPhone (physical iPhone 11, iOS 26.6). In Files, the existing `Logs`
   folder containing 12 items was renamed to lowercase `logs`. After terminating and cold-launching
@@ -347,7 +354,16 @@ A second launch over the same state changes nothing further.
 why_human: The recovery is unit-covered (six new cases in WR-01), but a residue is produced only by
 a real interrupted rename, and no run has staged one in a device container.
 covers: WR-01 (15-REVIEW-FIX.md)
-result: pass
+result: obsolete
+obsoleted_by: |
+  OWNER DECISION 2026-08-17: `LogsDirectoryMigration` was deleted, and a `Logs-migrating-<uuid>`
+  staging directory is a residue only that type could mint. With the type gone nothing can produce
+  the fixture, so this checkpoint has no subject. The WR-01 recovery code it exercised was removed
+  along with the rest of the file.
+superseded_result: pass
+superseded_note: |
+  The device run below genuinely passed on 2026-08-16 against the code as it then stood. It is kept
+  because it is the evidence that WR-01's recovery worked, not because the behaviour still exists.
 device_result: |
   Passed on the test iPhone (physical iPhone 11, iOS 26.6). With no destination present, a
   stranded staging directory containing the existing logs was recovered as `Logs`, with the
@@ -369,7 +385,15 @@ half (the two `mergeContents` cases) are each pinned on this host, but the case 
 and cannot stage the fixture. Nothing has observed the composition.
 covers: 15-76 D8
 note: "Answer 'blocked' if the device's Files app will not let you create the second spelling — that is a legitimate staging limit, not a defect."
-result: issue
+result: obsolete
+obsoleted_by: |
+  OWNER DECISION 2026-08-17: `LogsDirectoryMigration` was DELETED outright, so this test's subject
+  no longer exists. See the `G-15-11` gap entry for the full decision record and the correction to
+  the defect claim that preceded it.
+superseded_result: issue
+superseded_note: |
+  The result below was recorded before the removal decision, and before tracing established that
+  the observed behaviour was deliberate and test-pinned rather than defective. Kept for history.
 reported: |
   The different-file half passes; the COLLIDING-NAME half does not merge. With populated `Logs`
   holding `ehpanda-20260804-115144-1.jsonl` at 54 KB and lowercase `logs` holding a different
@@ -618,15 +642,24 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 13
-issues: 2
+passed: 12
+issues: 1
 pending: 0
 skipped: 0
 blocked: 0
+obsolete: 2
 
 completion_note: |
-  Every checkpoint in this UAT now carries a definitive result. The two remaining issues (G-15-2D,
-  G-15-11) are open gaps awaiting diagnosis, not unfinished testing.
+  Every checkpoint carries a definitive result. ONE issue remains open: G-15-2D, the system
+  Background Activities surface reporting "Task failed" for a two-gallery session that completed.
+  It is the only thing between this phase and a clean UAT, and it is still undiagnosed.
+obsolescence_note: |
+  Tests 10 and 11 are `obsolete` rather than pass/issue because the owner deleted
+  `LogsDirectoryMigration` on 2026-08-17, removing their subject. Test 9 keeps its pass on the
+  half that survives (the Files deep link); its rename half went with the migration. Counting them
+  as passes would overstate what this UAT verified about the shipped code, and counting test 11 as
+  an open issue would keep a defect claim alive against code that no longer exists — the count
+  above deliberately does neither.
 open_issues_note: |
   The two issues are G-15-2D (test 2, the system Background Activities surface reporting
   "Task failed" for work that completed) and G-15-11 (test 11, the colliding-name merge leaving the
@@ -676,7 +709,43 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-11
   truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
-  status: failed
+  status: closed_by_removal
+  closure: |
+    TWO corrections, in order.
+
+    1. NOT A DEFECT. Tracing `LogsDirectoryMigration.run` against the observed fixture showed the
+       behaviour was deliberate, documented and test-pinned. On a name collision `mergeDecision`
+       skips the file, the pre-removal re-listing therefore finds the source non-empty, and the
+       guard at `mergeContents` returns `.merged(movedCount: 0, skippedCount: 1)` WITHOUT removing
+       the directory — because the type's invariant is that no FILE is ever deleted and only an
+       emptied directory is removed. `LogsDirectoryMigrationTests.swift:348-366` pins exactly this,
+       including that a second run changes nothing further. The device observation reproduced the
+       specification. The real conflict was between that invariant and this test's expectation
+       ("merged into one, no file lost"), which cannot both hold when a name collides.
+    2. MOOT. The owner then removed the migration entirely, so neither side of that conflict has a
+       subject any more.
+  removal_decision: |
+    OWNER DECISION 2026-08-17: delete `LogsDirectoryMigration` outright rather than keep or fix it.
+    Removed: `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
+    `AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`, and the launch effect in
+    `AppDelegateReducer.swift`. `Defaults.FilePath.logs` stays `"Logs"`.
+  correction_on_record: |
+    The decision was first given on the premise that the rename happened within an unreleased line,
+    so no install in the field could hold a lowercase `logs`. That premise is FALSE and the owner
+    reaffirmed the decision after being shown it, which is why the fact is recorded here rather
+    than left implicit:
+      - `v2.8.1` is a released tag and ships `Defaults.swift:62: static let logs = "logs"`
+      - `v2.8.1:FileUtil.swift:16` builds the logs directory URL from that constant
+      - field-shaped evidence on the test device: `EhPanda.log` / `EhPanda.1.log` (the v2-era
+        `ehpandaLog = "EhPanda.log"` naming), dated 2026-06-21/22
+    So an install upgrading from v2.8.1 DOES keep a lowercase `logs` directory beside `Logs` on the
+    case-sensitive device volume. Accepted consequence, not an oversight: nothing is lost (the two
+    eras use different file names, `EhPanda.log` versus `ehpanda-*.jsonl`, so they cannot even
+    collide), the stale directory is inert, and it is the same coexistence the owner judged
+    uninteresting. The rationale is mirrored in a comment on `Defaults.FilePath.logs` so it is
+    visible at the constant rather than only in planning docs.
+  resolved_at: 2026-08-17
+  superseded_status: failed
   reason: |
     User-observed on device: with a colliding filename present in both spellings, two consecutive
     true cold launches left lowercase `logs` in place holding its colliding file. The destination
@@ -705,6 +774,51 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
   status: open
+  diagnosis_2026_08_17: |
+    STATIC ANALYSIS ONLY - not yet confirmed against device logs. Recorded so the next session does
+    not redo it.
+
+    Exactly TWO code paths can paint a user-visible "Task failed" card, because only they reach
+    `setTaskCompleted(success: false)` on an ADOPTED task:
+      1. `ContinuedProcessingSession.adopt(_:expecting:)` :301-304 - a task arriving when the guard
+         `pendingIdentifier == identifier, self.task == nil` fails is turned away and completed
+         unsuccessfully. This is deliberate ("a dropped stray is a leaked system task, a second
+         progress card"), but the disposal is what the system renders as a failure.
+      2. Expiration - :314 `endSession(yielding: .expired, success: false)` reaching :364.
+
+    Ruled OUT by reading:
+      - The `.unavailable` arms (:152, :175, :210, :287) also pass `success: false`, but they run
+        with no adopted task, so `endingTask` is nil at :364 and `setTaskCompleted` never fires.
+        They cannot paint a card.
+      - Both drain paths pass success TRUE (`DownloadClient+ContinuedSession.swift:449, :711`), so a
+        clean drain does not report failure.
+      - Overlapping sessions are refused by the single-session guard (:118-121), so two cards cannot
+        come from two concurrent sessions.
+      - `endSession` does take back a request the session never adopted (:360-362), so this is not
+        simply a missing cancel.
+
+    LEADING HYPOTHESIS - a cancel/launch race producing a stray. The type's own doc states the
+    enabling condition at :330-333: "Under the chosen queue submission strategy a submission
+    routinely outlives a short session - the queue drains and the caller finishes in seconds while
+    the request is still waiting its turn." `endSession` cancels the outstanding request, but that
+    cancel is not atomic with a launch the system has already dispatched. Such a launch reaches
+    `handleLaunch` after `pendingIdentifier` was cleared, fails `adopt`'s identity gate, and is
+    completed with `success: false` - a "Task failed" card for a session whose work actually
+    succeeded. That matches the report exactly: both galleries drained to 51/51 and 53/53 while the
+    surface showed failure. Two cards would then be two such strays, or one stray plus one
+    expiration.
+
+    If this holds, the defect is NOT in the download logic and NOT in the progress basis that
+    rounds 9-18 reworked - it is that the app's only disposal for an unwanted task is one the system
+    presents to the user as a failed activity. The fix question becomes whether a stray can be
+    disposed of without painting a failure, which is a question about the API surface rather than
+    about this app's accounting.
+  next_evidence_step: |
+    Confirm or kill the hypothesis from the device's own activity logs rather than more reading.
+    The app logs "Submitted continued-processing request." at :180 and distinct error lines on the
+    refusal paths, so the submit/adopt/finish sequence around the 2026-08-15 observation should show
+    whether a stray launch arrived after its session ended. Those logs are in `Logs/ehpanda-*.jsonl`
+    on the test iPhone, which is still connected.
   reason: |
     Physical-device round-5 retest: the Background Activities surface showed "Downloading
     galleries — Task failed" for a two-gallery session that nevertheless completed both galleries
