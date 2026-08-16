@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-17T16:45:00Z
+updated: 2026-08-17T17:10:00Z
 round: 5
 ---
 
@@ -12,10 +12,10 @@ round: 5
 number: —
 name: all runnable tests resolved
 expected: |
-  Every runnable observation in this UAT is now complete. Test 8's iPad half was observed
-  2026-08-17 on the test iPad, leaving only the owner's anchoring choice. The two open issues
-  (G-15-2D, G-15-11) await diagnosis.
-awaiting: owner anchoring choice for test 8; diagnosis of G-15-2D and G-15-11
+  All fifteen checkpoints are resolved: 13 pass, 2 issues. Test 8 closed 2026-08-17 with the owner
+  choosing row anchoring and directing the AGENTS.md rule amendment. What remains is diagnosis of
+  the two open gaps, which is fix work rather than testing.
+awaiting: diagnosis of G-15-2D and G-15-11
 
 ## Tests
 
@@ -259,9 +259,27 @@ note: |
   re-evaluation. Whichever branch is chosen, the untested half is worth closing: no test asserts
   what happens when a row with a presented dialog leaves `rows` (today the dialog vanishes silently
   and the deletion never fires).
-result: [pending]
-awaiting: owner choice between (a) keep row anchoring and amend the CLAUDE.md rule, and (b) hoist to List
-observation_status: BOTH HALVES OBSERVED - only the owner branch remains
+result: pass
+owner_decision: |
+  DECIDED 2026-08-17: branch (a). Keep the modifier on the ROW; today's placement stands and
+  `AGENTS.md` (which `CLAUDE.md` symlinks to) was amended rather than the code.
+
+  The owner directed the amendment's REASONING, not just its verdict: a confirmation dialog should
+  still be attached to a structurally stable position in principle - what changed is the test for
+  "stable". Stability is judged against changes UNRELATED to the dialog's own action. A row that
+  disappears because the dialog's own confirmed deletion removed it is the intended terminal state,
+  not instability, and the dialog going away with it is correct. What the rule guards against is the
+  row leaving for a reason the dialog knows nothing about - a background refresh or observation
+  stream reordering or dropping the item, a conditional gate flipping, an ancestor rebuilding -
+  because then the dialog is dismissed silently and the action never fires. An anchor must never be
+  relocated to defend against a removal the implementation itself intends.
+rule_change: |
+  `AGENTS.md` "Confirmation dialog / alert placement": the old trailing sentence
+  ("Exception: for a per-row destructive action whose row can scroll out of view, the stable
+  action-source is the enclosing list container, so attach it there.") is REMOVED, and the inline
+  parenthetical defining "stable" is replaced by two paragraphs - one defining stability against
+  unrelated change, one recording the per-row conclusion with its device evidence.
+observation_status: BOTH HALVES OBSERVED
 device_observation_iphone: |
   On the test iPhone (physical iPhone 11, iOS 26.6), the confirmation was attached to the
   triggering row and its popover arrow pointed at that row.
@@ -600,17 +618,15 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 12
+passed: 13
 issues: 2
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
-pending_note: |
-  Test 8 is the only pending item and has NOTHING left to run: both the iPhone and iPad halves are
-  now observed on physical hardware. What remains is purely the owner's branch choice between
-  keeping row anchoring (amending the CLAUDE.md placement rule) and hoisting the modifier to the
-  List.
+completion_note: |
+  Every checkpoint in this UAT now carries a definitive result. The two remaining issues (G-15-2D,
+  G-15-11) are open gaps awaiting diagnosis, not unfinished testing.
 open_issues_note: |
   The two issues are G-15-2D (test 2, the system Background Activities surface reporting
   "Task failed" for work that completed) and G-15-11 (test 11, the colliding-name merge leaving the
