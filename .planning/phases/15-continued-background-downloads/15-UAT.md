@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-17T15:20:00Z
+updated: 2026-08-17T16:45:00Z
 round: 5
 ---
 
@@ -12,10 +12,10 @@ round: 5
 number: —
 name: all runnable tests resolved
 expected: |
-  Twelve of fifteen pass. Tests 13 and 14 were ratified by the owner 2026-08-17, and test 12 was
-  closed by composition once both toast styles were observed on device. Only test 8's iPad half
-  remains runnable, pending the device being connected.
-awaiting: iPad mini connection for test 8; diagnosis of G-15-2D and G-15-11
+  Every runnable observation in this UAT is now complete. Test 8's iPad half was observed
+  2026-08-17 on the test iPad, leaving only the owner's anchoring choice. The two open issues
+  (G-15-2D, G-15-11) await diagnosis.
+awaiting: owner anchoring choice for test 8; diagnosis of G-15-2D and G-15-11
 
 ## Tests
 
@@ -259,18 +259,47 @@ note: |
   re-evaluation. Whichever branch is chosen, the untested half is worth closing: no test asserts
   what happens when a row with a presented dialog leaves `rows` (today the dialog vanishes silently
   and the deletion never fires).
-result: blocked
-blocked_by: physical-device
-reason: |
-  The iPhone half is observed and recorded below. The iPad half cannot be run: the test iPad
-  reports `unavailable` to CoreDevice (not connected), and the only other iPads visible to the host
-  are simulators, which this UAT's blocking constraint forbids. The remaining branch — amend the
-  CLAUDE.md placement rule to keep row anchoring, versus hoist the modifier to the List — is an
-  owner decision regardless of the iPad observation.
-device_observation: |
-  On the test iPhone, the confirmation was attached to the triggering row and its popover arrow
-  pointed at that row. The iPad half and the owner choice between row anchoring and list anchoring
-  remain pending.
+result: [pending]
+awaiting: owner choice between (a) keep row anchoring and amend the CLAUDE.md rule, and (b) hoist to List
+observation_status: BOTH HALVES OBSERVED - only the owner branch remains
+device_observation_iphone: |
+  On the test iPhone (physical iPhone 11, iOS 26.6), the confirmation was attached to the
+  triggering row and its popover arrow pointed at that row.
+device_observation_ipad: |
+  Observed 2026-08-17 on the test iPad (iPad mini 6th generation, physical, connected over USB),
+  driven with agent-device. The branch build was installed fresh, one gallery was downloaded to
+  create a row (33/33 pages), and the row was swiped to reveal Delete.
+
+  Tapping the swipe Delete raised a POPOVER anchored to the row:
+    - the arrow points UP, directly at the bottom edge of the triggering row
+    - the popover body hangs below that row, horizontally centred on it
+    - the row remains fully present and intact above the popover, matching test 7's iPhone finding
+      that the row settles rather than vanishing
+    - contents: title "Delete Download?", body "This will remove the downloaded gallery from this
+      device.", and a single red destructive "Delete"
+  Confirming removed the row and the list returned to its empty state.
+
+  So today's row attachment produces exactly the behaviour the placement rule's exception would
+  give up: the arrow identifies WHICH row is about to be deleted. Under branch (b) the same popover
+  would anchor at the list top and point at nothing meaningful.
+code_contrast_confirmed: |
+  Both attachment sites were read to confirm the contrast the test asks for, and they are already
+  deliberately split, with a comment saying so:
+    - `DownloadsView.swift:56-58` - the list-level MOVE-TO-FOLDER dialog, scoped to `store` and
+      attached to the container. Its preceding comment already states "The delete confirmation is
+      per-row and lives on the row (see `DownloadRow`); this one is the list-level move-to-folder
+      dialog."
+    - `DownloadsView.swift:227-229` - the per-row DELETE confirmation, scoped to `rowStore` and
+      attached to the row.
+owner_decision_input: |
+  The iPad evidence favours branch (a) on anchoring correctness: a popover that points at the row
+  being destroyed is the affordance's whole value on iPad, and the list-top anchor discards it.
+  What the evidence does NOT settle is the reason the exception exists in the first place - a row
+  that scrolls out of view while its dialog is up tears the dialog down with it. That hazard is
+  real under either branch and is still untested (see `note`): no test asserts what happens when a
+  row with a presented dialog leaves `rows`, where today the dialog vanishes silently and the
+  deletion never fires. Choosing (a) should therefore carry that test as its condition, rather than
+  treating the anchoring observation as closing the whole question.
 
 ### 9. The logs directory reads `Logs` and its Files-app link opens it
 
@@ -573,14 +602,15 @@ device_result: |
 total: 15
 passed: 12
 issues: 2
-pending: 0
+pending: 1
 skipped: 0
-blocked: 1
+blocked: 0
 
-blocked_note: |
-  The one blocked item is test 8's iPad half: the test iPad reports `unavailable` to
-  CoreDevice. The owner will connect it; the run is a few minutes once it is up. The iPhone half is
-  already observed.
+pending_note: |
+  Test 8 is the only pending item and has NOTHING left to run: both the iPhone and iPad halves are
+  now observed on physical hardware. What remains is purely the owner's branch choice between
+  keeping row anchoring (amending the CLAUDE.md placement rule) and hoisting the modifier to the
+  List.
 open_issues_note: |
   The two issues are G-15-2D (test 2, the system Background Activities surface reporting
   "Task failed" for work that completed) and G-15-11 (test 11, the colliding-name merge leaving the
