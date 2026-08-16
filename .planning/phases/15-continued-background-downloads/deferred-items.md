@@ -162,3 +162,28 @@ this phase, touching all 43 accessors across every module's strings, and folding
 phase's close-out would spread review scope well outside downloads. Keep the two
 `continued_session` value pins regardless — they take arguments, so the rendered string is what
 proves plural categories and argument positions.
+
+## No test covers a row leaving `rows` while its confirmation dialog is presented
+
+Surfaced closing UAT test 8. The owner chose to keep the delete confirmation attached to the ROW
+(`DownloadsView.swift:227-229`) and amended the `AGENTS.md` placement rule accordingly, on the
+reasoning that stability must be judged against changes UNRELATED to the dialog's own action: a row
+removed by its own confirmed deletion is the intended terminal state, not instability.
+
+That decision leaves exactly one hazard live, and it is the one the amended rule now names as the
+real concern. If a row leaves `rows` for a reason the dialog knows nothing about - the observe
+stream delivering a refresh that reorders or drops the item, a filter or gate flipping, an ancestor
+rebuilding - the dialog is torn down with the row, silently, and the deletion never fires. The user
+sees the confirmation vanish and nothing happen.
+
+Nothing asserts this today. `DownloadsSwipeActionSourceTests` pins the swipe button's role and tint
+and the context-menu Delete's role, but no case drives a presented `$confirmationDialog` and then
+removes its row from `rows` out from under it. Worth a reducer-level case that presents the row's
+dialog, delivers a `downloadsResponse` (or equivalent observation update) whose list no longer
+contains that gid, and pins what should happen - at minimum that the state does not silently strand
+a dialog whose action can never fire.
+
+Not done in phase 15: the anchoring decision closed the checkpoint, and this is a distinct
+behavioural gap that predates it. The amended rule explicitly prefers "eliminating that instability,
+or covering it with a test, over giving up the correct anchor", so this is the follow-through that
+sentence points at.
