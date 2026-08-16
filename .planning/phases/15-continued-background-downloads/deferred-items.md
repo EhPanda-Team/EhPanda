@@ -84,3 +84,81 @@ app-scheme build gate structurally cannot see it. This is pre-existing and unrel
 move, so it was not fixed under the scope boundary — and it is not a branch fix either. Bringing the
 manifest under the limit means splitting the target list across files (`swift-tools-version: 6.3.1`
 allows manifest helper files under `Sources/<Package>/`), which is a package-layout change.
+
+## Force the inspector's Pause/Resume refusal through the existing UI-test seam
+
+Surfaced closing UAT test 12. Both refusal arms of `togglePause`
+(`DownloadClient+PublicAPI.swift:189-214`, `.notFound` and `.unknown`) are unreachable by hand on a
+device: `canTogglePause` already excludes every status that triggers them, so the control is only
+tappable during a render-versus-tap race, and the inspector's reload closes that race before a tap
+can land. Two device attacks were tried and both failed (deleting the record underneath an open
+inspector; letting a background repair complete while the UI was frozen on `.active`).
+
+The seam to do it deterministically already exists and is already sanctioned in this repo:
+`AppPackage/Sources/AppFeature/UITestSupport/UITestAutomation.swift` reads `EHPANDA_UITEST_*`
+environment keys under `#if DEBUG` and installs overrides via `prepareDependencies`, and
+`DownloadClient` is a struct of closures. One override would force either arm:
+
+```swift
+if let arm = trimmedValue(environment: environment, key: "EHPANDA_UITEST_FORCE_PAUSE_REFUSAL") {
+    prepareDependencies { $0.downloadClient.togglePause = { _ in throw arm == "unknown" ? AppError.unknown : .notFound } }
+}
+```
+
+Not done in phase 15: UAT test 12 closed by composition instead (both refusal arms pin their exact
+caption in `DownloadInspectorPauseFailureTests.swift`, and BOTH toast styles are now device-observed
+— `.success` "Image data is valid" and `.error` "Page 1 is missing." with its Warning icon), so the
+only unobserved link is SwiftUI presenting a value type it already presents. Adding production code
+during a phase close-out re-opens review for a residual risk that is a presentation identity. Worth
+doing if a permanent device-visible regression guard is ever wanted.
+
+## Replace the convergence detectors' wall-clock wait with a fence
+
+Surfaced ratifying UAT test 13. The two missing-notification detectors
+(`DownloadDeleteConvergenceTests.swift:127`, `DownloadOwnershipConvergenceTests.swift:94`) use
+`waitForTaskValue(timeout:)`. The 10-second bound was ratified and stands: 1 second is refuted by
+plan 15-21's recorded 13.2s wall time at this exact call site, and no middle value has a basis
+because scheduler delay under a parallel suite is unbounded.
+
+But the instrument is still wrong, for the reason the source comment itself states: wall time cannot
+distinguish "the notification will never arrive" from "the parallel suite has not scheduled the
+collector". Two structural facts make a clock unnecessary. `DownloadObserverHub.observe` builds the
+stream with `AsyncStream.makeStream(of:)` — unbounded buffer — and registers the continuation before
+returning (`DownloadClient+Manager.swift:760-786`); and `delete(gid:)` awaits `notifyObservers()` on
+every exit path (`DownloadClient+PublicAPI.swift:236, 249, 256, 267`). So when `delete` returns, the
+notification is either already buffered or will never come. That is a positive fact about state, and
+it admits a fence rather than a deadline.
+
+Preferred shape, which needs NO production change: `observerHub` is `public let` and `notify` is
+public, so after `delete` returns the test pushes a distinct sentinel snapshot, and the collector
+reads until it sees the sentinel and breaks. The assertion becomes about sequence, not time, and the
+pre-fix bug fails immediately with a name. Do not rely on cancellation draining the buffer —
+`AsyncStream`'s post-cancellation delivery is an implementation detail, not a documented contract.
+
+## Delete the hand-typed localization key literals by forwarding to Xcode's generated symbols
+
+Surfaced closing UAT test 14, which asked a narrower question (should eight download error-message
+strings be value-pinned?). The reframing: `ResourceStringSymbols.swift` hand-types the key literal in
+all 43 accessors, the compiler never checks those literals against the `.xcstrings` catalogs, and a
+renamed, mistyped, or deleted key still compiles and renders the raw key name into user-facing UI.
+Behavioural tests cannot catch it — state and logic stay correct, only rendering degrades. The eight
+download keys are a quarter of the exposure, and are only the part phase 15 happened to touch.
+
+`STRING_CATALOG_GENERATE_SYMBOLS = YES` is already set (`EhPanda.xcodeproj/project.pbxproj:563, 624`)
+and Xcode already generates internal symbols for the Resources module's catalogs, names matching the
+hand-written ones 1:1, with semantic labels already generated for `%#@name@` substitution keys. The
+hand-written layer cannot simply be deleted because the generated symbols are `internal` and
+`Resources` must export them — access level is the reason the layer exists, with labels only a
+secondary reason. So keep every public signature and replace each body with a forwarder:
+
+```swift
+public static var cancel: LocalizedStringResource { .cancel }
+public static func downloadStorePageMissing(page: Int) -> LocalizedStringResource { .downloadStorePageMissing(page) }
+```
+
+The key literals vanish and a bad key becomes a compile error, which makes any runtime
+"does it resolve" test redundant. Not done in phase 15: it is a Resources-module concern predating
+this phase, touching all 43 accessors across every module's strings, and folding it into a 77-plan
+phase's close-out would spread review scope well outside downloads. Keep the two
+`continued_session` value pins regardless — they take arguments, so the rendered string is what
+proves plural categories and argument positions.

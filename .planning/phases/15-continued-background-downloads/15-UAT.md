@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-15T13:32:00Z
+updated: 2026-08-17T15:20:00Z
 round: 5
 ---
 
@@ -12,10 +12,10 @@ round: 5
 number: —
 name: all runnable tests resolved
 expected: |
-  Every test that can be executed has been. What remains is not runnable work: tests 13 and 14 are
-  owner decisions with nothing to execute, and tests 8 and 12 are blocked — 8 on an iPad that is
-  not connected, 12 on a refusal that cannot be induced from the device UI.
-awaiting: owner decisions on tests 13 and 14; tests 8 and 12 blocked
+  Twelve of fifteen pass. Tests 13 and 14 were ratified by the owner 2026-08-17, and test 12 was
+  closed by composition once both toast styles were observed on device. Only test 8's iPad half
+  remains runnable, pending the device being connected.
+awaiting: iPad mini connection for test 8; diagnosis of G-15-2D and G-15-11
 
 ## Tests
 
@@ -369,11 +369,35 @@ note: |
   and a context menu and is knowingly still silent on both arms — closing that needs a toast
   surface DownloadsReducer does not own. It is recorded in the reducer's type doc and in
   deferred-items.md rather than fixed, so it is out of scope here by decision, not by oversight.
-result: blocked
-blocked_by: other
-reason: |
-  The refusal could not be induced from the device UI. Both documented arms of the refusal are
-  race-only, and the app closes the race before a tap can land.
+result: pass
+closure: composition
+closure_rationale: |
+  Closed by composition rather than by direct observation of a refused tap, because every link in
+  the chain is now independently established and nothing in the unobserved segment is arm-specific.
+
+  1. STATE — both refusal arms pin their exact caption in
+     `AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorPauseFailureTests.swift`
+     (`.error(caption: AppError.notFound.alertText)` and the `.unknown` equivalent), so the toast
+     the reducer sets for a refusal is deterministically covered.
+  2. PRESENTATION — BOTH styles of the same `AppAlertState` surface were observed rendering on
+     the test iPhone (physical iPhone 11, iOS 26.6), captured via zero-delay snapshots:
+       - `.success` — "Success" / "Image data is valid"
+       - `.error(caption:)` — Warning icon / "Error" / "Page 1 is missing."
+     Both arrive through `state.toast` and `.ifLet(\.$toast, action: \.toast)`, the identical path
+     a refusal uses.
+  3. RESIDUAL — what remains unobserved is SwiftUI presenting a value type it already presents for
+     another action, differing only in a caption string constant that step 1 pins.
+
+  The `.error` observation is what makes this airtight: an earlier draft of this closure rested on
+  the `.success` style alone, which left the error styling itself unwitnessed.
+device_evidence_bonus: |
+  "Page 1 is missing." is `download_store.page_missing` rendering correctly with its `%lld`
+  argument on device — an incidental but real data point for test 14's reframing, since it shows
+  one of the eight keys resolving through the shared bundle at runtime.
+why_not_observed_directly: |
+  The refusal could not be induced from the device UI. Both arms are race-only: `canTogglePause`
+  already excludes every status that triggers a refusal, so the control is tappable only while the
+  rendered snapshot disagrees with the client, and the inspector's reload closes that window first.
 device_attempts: |
   Attempted on the test iPhone (physical iPhone 11, iOS 26.6) 2026-08-15 with agent-device.
   `togglePause` has exactly two refusal exits (DownloadClient+PublicAPI.swift:189-214): `.notFound`
@@ -407,6 +431,13 @@ note_on_reachability: |
   or acceptance that the TestStore cases (which already pin the state that drives the toast) plus
   the now-proven toast surface are together sufficient.
 
+  RESOLVED: the second option was taken (see `closure_rationale`). The first option turned out to be
+  cheaper than this note assumed - `UITestAutomation.swift` already installs `EHPANDA_UITEST_*`
+  dependency overrides under `#if DEBUG` and `DownloadClient` is a struct of closures, so forcing
+  either arm is one override at an existing sanctioned seam. Routed to `deferred-items.md` rather
+  than done here: adding production code during close-out re-opens review for a residual risk that
+  is a SwiftUI presentation identity.
+
 ### 13. Ratify the hang-detector wait bound
 
 test: Nothing to run. Read 15-74-SUMMARY DEC-E and say whether the refusal stands.
@@ -417,8 +448,23 @@ test-harness fragility against how quickly a real regression is caught.
 why_human: 15-74 D5 — an owner judgment the executor deliberately refused to auto-pass rather than
 ratify on its own authority.
 covers: 15-74 D5
-result: [pending]
-awaiting: owner ratification
+result: pass
+owner_decision: |
+  RATIFIED 2026-08-17: the refusal stands. The inherited ten-second `waitForTaskValue` default is
+  kept at both detectors. One second is refuted by plan 15-21's recorded 13.2s wall time at this
+  exact call site, and no middle value has a basis, because scheduler delay under a parallel suite
+  is unbounded rather than merely large.
+follow_up: |
+  Ratifying the NUMBER does not vindicate the INSTRUMENT, and that distinction is recorded rather
+  than glossed. The source comment's own crux - wall time cannot distinguish "never arrives" from
+  "not yet scheduled" - remains true at ten seconds. Two structural facts make the clock avoidable
+  altogether: `DownloadObserverHub.observe` builds the stream with `AsyncStream.makeStream(of:)`
+  (unbounded buffer) and registers the continuation before returning
+  (`DownloadClient+Manager.swift:760-786`), and `delete(gid:)` awaits `notifyObservers()` on every
+  exit path (`DownloadClient+PublicAPI.swift:236, 249, 256, 267`). So when `delete` returns the
+  notification is either already buffered or will never come, which admits a sentinel FENCE and an
+  assertion about sequence instead of time. The preferred shape needs no production change.
+  Routed to `deferred-items.md`; keeping ten seconds is a settlement, not a resolution.
 agent_recommendation: |
   RECOMMEND: the refusal stands — keep the inherited 10-second `waitForTaskValue` default.
   The evidence is decisive in one direction: the repo records this exact case timing out at 13.2s
@@ -440,8 +486,40 @@ asserted by a test. The other eight are "verified at this HEAD", not pinned — 
 true before 15-75; the move neither created nor closed the gap.
 why_human: 15-75 D7 — whether error text is worth a test is a cost call the owner owns.
 covers: 15-75 D7
-result: [pending]
-awaiting: owner ratification
+result: pass
+owner_decision: |
+  CLOSED 2026-08-17 with the question reframed. Do NOT value-pin the eight rendered strings: a test
+  asserting a catalog value against itself is near-tautological, cannot judge whether the wording is
+  right, and re-breaks on every copy and translation edit.
+reframing: |
+  The property actually at risk is not copy coverage, it is BRIDGE INTEGRITY.
+  `ResourceStringSymbols.swift` hand-types the key literal in all 43 accessors (34 `var` + 9 `func`
+  - an earlier count of 34 in this file was wrong, it omitted the parameterised accessors). The
+  compiler never checks those literals against the `.xcstrings` catalogs, so a renamed, mistyped or
+  deleted key still compiles and renders the raw key name into user-facing UI. Behavioural tests
+  cannot catch it: state and logic stay correct, only rendering degrades. The eight download keys
+  are roughly a quarter of that exposure and are merely the part this phase happened to touch, so
+  scoping any fix to them would have been arbitrary.
+resolution_path: |
+  The right fix is build-time, not a runtime test. `STRING_CATALOG_GENERATE_SYMBOLS = YES` is already
+  set and Xcode already generates internal symbols for the Resources module whose names match the
+  hand-written ones 1:1, with semantic labels already generated for `%#@name@` substitution keys.
+  The hand-written layer survives only because those generated symbols are `internal` while
+  `Resources` must export them - access level is the reason it exists, labels only secondary. Keep
+  every public signature and forward each body to the generated symbol; the key literals vanish and
+  a bad key becomes a compile error, which makes any runtime resolution test redundant.
+  Routed to `deferred-items.md` as a Resources-module change: it predates this phase, spans all 43
+  accessors across every module's strings, and folding it into close-out would spread review scope
+  well outside downloads.
+device_note: |
+  Incidental supporting observation from test 12's toast capture on the test iPhone: the error
+  toast rendered "Page 1 is missing.", i.e. `download_store.page_missing` resolving correctly
+  through the shared bundle with its `%lld` argument at runtime on a real device.
+consistency_note: |
+  The two `continued_session` keys stay value-pinned, and that is NOT an inconsistency to resolve.
+  They take arguments, so the full rendered string is what proves plural categories and argument
+  positions are correct - a different property from resolution, legitimately needing a stronger
+  assertion.
 agent_recommendation: |
   RECOMMEND: do not pin the eight rendered values; if anything is added, pin RESOLUTION only.
   Value-pinned copy tests re-break on every wording edit and every translation pass, and what they
@@ -493,16 +571,20 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 9
+passed: 12
 issues: 2
-pending: 2
+pending: 0
 skipped: 0
-blocked: 2
+blocked: 1
 
-pending_note: |
-  Both remaining pending items (tests 13 and 14) have nothing to run — they are owner decisions
-  that the phase deliberately routed to human judgment. Each carries an `agent_recommendation`
-  block with the reasoning, but neither is self-ratified.
+blocked_note: |
+  The one blocked item is test 8's iPad half: the test iPad reports `unavailable` to
+  CoreDevice. The owner will connect it; the run is a few minutes once it is up. The iPhone half is
+  already observed.
+open_issues_note: |
+  The two issues are G-15-2D (test 2, the system Background Activities surface reporting
+  "Task failed" for work that completed) and G-15-11 (test 11, the colliding-name merge leaving the
+  source spelling stranded). Neither is diagnosed yet.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
