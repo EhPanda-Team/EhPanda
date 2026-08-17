@@ -771,6 +771,27 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
   artifacts: []
   missing: []
 
+- gap_id: G-15-2E
+  truth: "A single continued-processing expiration is handled once: one pause sweep, one log line."
+  status: open
+  severity: minor
+  reason: |
+    Found in device logs 2026-08-17 while diagnosing G-15-2D. At the second expiration of
+    `ehpanda-20260815-194921-3.jsonl` the expiry handling ran three times at one identical timestamp
+    (1368.2s): three "Continued-processing session expired, pausing schedulable downloads" lines and
+    three pause sweeps over each of the two galleries. The first expiration in the same run logged
+    exactly once, so this is not a constant multiplier and the once-then-thrice shape is unexplained.
+  why_it_matters: |
+    Pausing is presumably idempotent, so this is unlikely to corrupt state — hence minor. But it
+    means an `.expired` event reached the consumer more than once, and duplicate delivery on that
+    stream is the kind of thing that stops being harmless the moment a non-idempotent handler is
+    added to it.
+  investigation_hint: |
+    `endSession` is `at most once` by construction and clears `task`/`continuation` first, so start
+    downstream: how many consumers are live on the session's `AsyncStream`, and whether a session
+    that expires while a previous consumer task is still finishing can leave a second one attached.
+  test: 2
+
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
   status: open
@@ -813,12 +834,49 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     presents to the user as a failed activity. The fix question becomes whether a stray can be
     disposed of without painting a failure, which is a question about the API surface rather than
     about this app's accounting.
-  next_evidence_step: |
-    Confirm or kill the hypothesis from the device's own activity logs rather than more reading.
-    The app logs "Submitted continued-processing request." at :180 and distinct error lines on the
-    refusal paths, so the submit/adopt/finish sequence around the 2026-08-15 observation should show
-    whether a stray launch arrived after its session ended. Those logs are in `Logs/ehpanda-*.jsonl`
-    on the test iPhone, which is still connected.
+  device_log_verdict_2026_08_17: |
+    CONFIRMED FROM DEVICE LOGS, and the leading hypothesis above is REFUTED. There was no stray
+    launch and no cancel/launch race. Evidence: `Logs/ehpanda-20260815-194921-3.jsonl` pulled from
+    the test iPhone (that file scoped by `--subdirectory Documents/Logs`; no container export).
+    It is the only log of that evening carrying DownloadCoordinator / DownloadClient /
+    ContinuedProcessingSession activity, and it covers exactly two galleries — two masked gids,
+    matching the two-gallery report.
+
+    Seven sessions, relative to the first submission:
+      t=   0.0s  submitted -> granted -> drained  21.8s
+      t= 163.3s  submitted -> granted -> drained 233.5s
+      t= 737.0s  submitted -> granted -> drained 747.9s
+      t= 906.6s  submitted -> granted -> drained 916.0s
+      t= 995.6s  submitted -> granted -> EXPIRED 1111.0s  (115s), both galleries paused
+      t=1315.4s  submitted -> granted -> EXPIRED 1368.2s  (53s),  logged 3x, both paused 3x
+      t=2561.4s  submitted -> granted -> drained 2704.2s
+
+    TWO expirations, and the user saw exactly two failed cards. `.expired` routes to
+    `endSession(yielding: .expired, success: false)` and thence to `setTaskCompleted(success: false)`
+    at `ContinuedProcessingSession.swift:364`, which is what the system renders as "Task failed".
+    The queue nonetheless finished because the LAST session drained successfully, which is why
+    foregrounding showed 51/51 and 53/53.
+
+    So the app's accounting was never wrong here. Each card is an honest report of the session it
+    belongs to, and the system expiring a continued-processing task is normal rather than a defect.
+    What is wrong is at the level of what the USER can conclude: the surface presents per-session
+    outcomes, two of which failed, with no way to see that a later session completed the work. SC2's
+    truth is stated over the queue ("finishes as success when its galleries drain successfully"),
+    and no single session's report can satisfy a queue-level claim when the queue outlives sessions.
+    That is a design question about the reporting unit, not a bug to patch in the progress basis —
+    and notably NOT what rounds 9-18 were reworking.
+  new_defect_found: |
+    Separately, the log shows a REAL defect at the second expiration: the
+    "Continued-processing session expired, pausing schedulable downloads" line fires THREE TIMES at
+    one identical timestamp (1368.2s), and each gallery is then paused three times. The first
+    expiration logged once. `endSession` is documented "Ends the session, at most once" and clears
+    `task`/`continuation` before anything terminal, so the duplication is downstream of it: the line
+    is emitted by DownloadCoordinator reacting to the `.expired` event, which means the event was
+    delivered three times, or three consumers were live on the stream. Not explained by the
+    once-then-thrice shape, so it needs its own investigation rather than a guess. Filed as G-15-2E.
+  scope_note: |
+    Recorded as diagnosis only. No fix attempted, and none should be until the owner decides what
+    the reporting unit should be — see `device_log_verdict_2026_08_17`.
   reason: |
     Physical-device round-5 retest: the Background Activities surface showed "Downloading
     galleries — Task failed" for a two-gallery session that nevertheless completed both galleries
