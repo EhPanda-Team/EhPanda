@@ -773,7 +773,48 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2E
   truth: "A single continued-processing expiration is handled once: one pause sweep, one log line."
-  status: open
+  status: resolved_as_misdiagnosis
+  correction_2026_08_17: |
+    MY ORIGINAL FRAMING WAS WRONG. I filed this as duplicate `.expired` EVENT delivery or multiple
+    live stream consumers. It is neither. The expiration handler ran ONCE, the pause sweep ran ONCE,
+    `endSession`'s at-most-once contract held, and the AsyncStream had one consumer. What duplicated
+    was the WRITING of the same OSLog entries into the jsonl file, which is why every duplicate
+    carries a byte-identical timestamp — a real clock would have moved. The same artifact duplicates
+    the app-lifecycle lines ("App entered foreground" x3 at 2564.5), which is what should have told
+    me the cause was not expiry-specific.
+  actual_mechanism: |
+    Verified by reading `AppPackage/Sources/SettingFeature/AppActivityLogs/AppActivityLogsPumpReducer.swift`:
+      - `:46` `.startPump` and `:97` `.pausePump` each SNAPSHOT `state.lastCursorDate` when the
+        effect starts.
+      - `:79` / `:107` `await send(.didReceiveNewEntries(...))` is the only thing that advances the
+        cursor (`:124`).
+      - `:81` / `:109` `appendToRunFile` writes to disk AFTER that send, and is NOT guarded by
+        `Task.isCancelled`.
+      - `:93` the pump is `.cancellable(id: CancelID.pump, cancelInFlight: true)`.
+    TCA's `Send.callAsFunction` is a no-op once the task is cancelled, so a cancelled effect writes
+    its batch to disk while the cursor never advances. The next effect re-fetches from the same
+    stale cursor and writes the same entries again.
+    `AppReducer.swift` starts the pump on EVERY `.active` (`:105`, plus launch `:169`) and pauses it
+    on `.background` (`:135`), so a burst of lifecycle flips spawns overlapping effects. At
+    2564.5 / 2567.0 / 2567.3 — three flips in 2.8s right after the 19-minute suspension — three
+    effects all held the pre-suspension cursor. Expiry 1 was followed by a single clean foreground
+    22s clear of the next flip, hence once-then-thrice.
+  independent_corroboration: |
+    Same race visible in Run 4 (`ehpanda-20260815-205412-4.jsonl`): "App activity logging started"
+    appears twice with DIFFERENT timestamps (0.041 / 0.055) — two startPump effects (launch and
+    `.active`) both taking the no-current-run branch.
+  still_a_real_bug: |
+    Reclassified, not dismissed. Duplicate entries are written to the run file AND to
+    `currentRunLogs`, so the in-app Logs screen shows them too, and any future device-log forensics
+    over these files inherits the artifact. Fix direction: make fetch + append + cursor-advance one
+    atomic step under a single owner (an actor in `LogsClient` holding the cursor and serialising
+    writes), or at minimum guard the append on `Task.isCancelled` and advance the cursor in the
+    effect that actually wrote; and stop restarting the pump on every `.active` bounce.
+  relevance_to_this_feature: |
+    The pump is PAUSED while backgrounded, so lines emitted during background work (including an
+    expiry and its pause sweep) live only in OSLog until the next `.active`. Had the app been killed
+    after an expiry, that evidence would never have reached disk. Worth keeping the pump alive while
+    a continued-processing session is live.
   severity: minor
   reason: |
     Found in device logs 2026-08-17 while diagnosing G-15-2D. At the second expiration of
@@ -874,9 +915,92 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     is emitted by DownloadCoordinator reacting to the `.expired` event, which means the event was
     delivered three times, or three consumers were live on the stream. Not explained by the
     once-then-thrice shape, so it needs its own investigation rather than a guess. Filed as G-15-2E.
+  owner_ruling_2026_08_17: |
+    A session ending while downloads are incomplete is UNACCEPTABLE, except when caused by airplane
+    mode, network loss or a similar external network fault. This supersedes the "reporting unit"
+    framing I offered above: the question is no longer how to present the outcome, it is why the
+    sessions ended at all.
+  root_cause_2026_08_17: |
+    Both expiries fall on the unacceptable side of the ruling — the log carries NO network-fault
+    signal. There are zero `networkingFailed(3)` entries, zero retry warnings (`Networking.swift`
+    would log them), and zero page-failure lines during any session. The 359 `Parser`
+    authenticationRequired(7) errors are all in the first 30s (home-page parsing at launch); the 11
+    `notFound(14)` are `loadLocalPageURLs` against a not-yet-downloaded gallery; the 2
+    `authenticationRequired(7)` are the optional version-metadata fetch at enqueue. All benign.
+
+    PROXIMATE CAUSE: the system's stall detector. `BGTask.h` (iPhoneOS26.5 SDK) states a
+    `BGContinuedProcessingTask` "_must_ report progress via the NSProgressReporting protocol
+    conformance during runtime and [is] subject to expiration based on changing system conditions...
+    Tasks that appear stalled may be forcibly expired by the scheduler." Apple DTS (forums thread
+    805554) quotes the system log for exactly this — "Task has not reported progress within expected
+    cadence, marking stalled" — and puts the window at roughly 30 seconds.
+
+    THE SESSIONS WERE GENUINELY STALLED, by arithmetic rather than assumption. The queue runs one
+    gallery at a time and the default thread limit is 1. Healthy observed rate is ~0.77 pages/s
+    (17 pages/21.7s, 53 pages/70s). Gallery D6DIqI (51 pages) had 9 + 115 + 53 = 177s of session
+    coverage across S4/S5/S6 and still needed 65s of S7 to finish — 65s at the healthy rate is
+    ~50 pages, so S5 and S6 landed almost nothing. Timing agrees: expiry 1 at background+80.7s
+    implies the last progress change was ~50s into background; expiry 2 at background+11.8s implies
+    the stall began ~18s BEFORE backgrounding, in the foreground — so backgrounding was not itself
+    the trigger.
+
+    WHY THE APP IS EXPOSED, three compounding facts:
+      (a) Progress is pushed only when a PAGE outcome arrives (`+PageDownload.swift:177-222` →
+          `flushDownloadProgress`, `+Persistence.swift:201-226`), plus the run-start announce and
+          convergence. With a thread limit of 1, a single slow or held page means the numerator does
+          not move at all. Nothing intra-page is reported.
+      (b) Page images always go through a BACKGROUND URLSession in production
+          (`DownloadClient.swift:54-71` → `DownloadPageDownloader.swift:281`
+          `URLSessionConfiguration.background`). Apple documents that for transfers started while
+          the app is in the background "the system always starts transfers at its discretion... and
+          ignores any value you specified" for `isDiscretionary`. Under a continued-processing
+          session the process is alive but the app IS backgrounded, so every new page task created
+          after backgrounding is discretionary and may be deferred. Consistent with the
+          non-determinism observed (S7 ran 123s backgrounded without trouble; S5 died at +80s).
+          NOT proven by the log — see `discriminating_experiment`.
+      (c) After any expiry the D-11 policy pauses the whole queue
+          (`+ContinuedSession.swift:511-546`) and nothing resumes it without a tap. Apple further
+          states (thread 806668) that user-cancel and system-reclaim are indistinguishable to the
+          app, so this cannot be softened by detecting the difference.
+  recommended_fixes_ranked: |
+    1. DECOUPLE LIVENESS FROM PAGE LANDINGS — report intra-page progress. Wire
+       `URLSessionDownloadDelegate.didWriteData` bytes through to the coordinator and push a finer
+       numerator (e.g. units = pages x 1000, the in-flight page credited by byte fraction, throttled
+       to ~1 push/s, monotone per page). This is DTS's own recommendation and is the real fix. The
+       existing monotonic-floor / D-G7-01 machinery would need the sub-page term folded in
+       deliberately rather than incidentally.
+    2. SESSION HEARTBEAT — re-push the current pair every <=10s while a session is live and has
+       pending work. Cheap and truthful, but treat as belt rather than braces: it is unverified
+       whether the detector counts an UNCHANGED completedUnitCount as "reported progress".
+    3. KEEP PAGE TRANSFERS OFF THE BACKGROUND SESSION while a continued-processing session covers
+       the process (`DownloadPageDownloader.foreground(urlSession:)` already exists). Owner design
+       decision; the log is consistent with it but does not prove it.
+    4. Revisit "expiry => pause everything" only if the owner wants; per Apple the app cannot tell
+       reclaim from cancel, so levers 1-3 are the substantive ones.
+  discriminating_experiment: |
+    Same two galleries, background the app immediately after resume, run once with the current
+    background page session and once with `DownloadPageDownloader.foreground(urlSession:)`. If the
+    foreground path never stalls while backgrounded under a live session, cause (b) is confirmed.
+  system_log_step_needs_owner: |
+    The system's own reason lives in the device's unified log (dasd / BackgroundTaskManagement,
+    "marking stalled", identifier `app.ehpanda.personal.continued.<uuid>`). Collecting it from a
+    physically attached device requires ROOT, which I cannot and will not escalate to:
+      sudo /usr/bin/log collect --device-udid <udid> --start "2026-08-15 19:45:00" --output <dir>
+    then filter with `/usr/bin/log show ... --predicate 'process == "dasd"'`. Note zsh has a `log`
+    builtin, so call `/usr/bin/log` explicitly. Two-day-old entries may already have aged out.
+  instrumentation_for_next_uat: |
+    Log at `updateProgress` whenever the numerator changes, plus a 10s heartbeat line carrying
+    completed/total and pushes-since-last; and record NWPath (wifi/cellular), lowPowerMode and
+    thermalState at session start and again in the expiry arm. That turns the next expiry from an
+    inference into an attribution.
+  clock_note: |
+    The jsonl `date` field is CFAbsoluteTime (seconds since 2001-01-01), so wall clock is
+    recoverable: Run 3 begins 2026-08-15 19:49:21 JST, expiry 1 = 20:08:53.2, expiry 2 = 20:13:10.5.
+    Timings quoted in `device_log_verdict_2026_08_17` are relative to the first SUBMISSION line;
+    those in `root_cause_2026_08_17` are relative to the first line of the file (offset 60.8s).
   scope_note: |
-    Recorded as diagnosis only. No fix attempted, and none should be until the owner decides what
-    the reporting unit should be — see `device_log_verdict_2026_08_17`.
+    Diagnosis only. No fix attempted — every ranked item above is a design change needing the
+    owner's go-ahead.
   reason: |
     Physical-device round-5 retest: the Background Activities surface showed "Downloading
     galleries — Task failed" for a two-gallery session that nevertheless completed both galleries
