@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-18T05:00:00Z
+updated: 2026-08-18T08:45:00Z
 round: 6
 ---
 
@@ -17,7 +17,8 @@ expected: |
   2026-08-18: the G-15-2D fixes (e68ca491, 1f9c3f34) were verified on the test iPhone across four
   independent backgrounded sessions, every one of which drained with a terminal push and none of
   which expired.
-awaiting: nothing — no checkpoint is waiting on a device
+awaiting: device re-run of the G-15-2H repair (folder name unchanged) and of the G-15-2F sheet
+  during a wholesale-refusal repair, on the 260818-mjs build
 
 ## Tests
 
@@ -791,8 +792,10 @@ completion_note: |
   question of whether validation must durably blank hashes — was settled on device the same day and
   closed as no-defect: a partial deletion of 6 of 26 pages blanked exactly those 6 hashes durably
   and survived relaunch, so the earlier all-missing case was the wholesale guard refusing, as
-  designed. G-15-2F (the in-app Download Status sheet reads stale during a repair) stays open as a
-  minor display defect.
+  designed. G-15-2F (the in-app Download Status sheet reads stale during a repair) and G-15-2H (a
+  repair renaming the user-visible folder) both have fixes landed on 2026-08-18 — commits 764c5958
+  and 13cad7d9 — and both stay open awaiting device verification, on the G-15-2D precedent that a
+  fix is not closed until a device shows it.
 obsolescence_note: |
   Tests 10 and 11 are `obsolete` rather than pass/issue because the owner deleted
   `LogsDirectoryMigration` on 2026-08-17, removing their subject. Test 9 keeps its pass on the
@@ -808,7 +811,11 @@ open_issues_note: |
   working as designed. TWO gaps now carry `status: open`, both incidental to round 6 and neither a
   checkpoint failure: G-15-2F, a minor in-app display defect where the Download Status sheet reads
   stale during a repair; and G-15-2H, a repair re-creating a gallery's user-visible folder under a
-  different name than the original download used.
+  different name than the original download used. Both now carry a LANDED FIX pending device
+  confirmation — G-15-2F in commit 764c5958 (the live run's measurement published on the row, badge
+  and page states read from it while it stands) and G-15-2H in commit 13cad7d9 (the folder's
+  readable leaf frozen at first creation). Each entry's `fix_landed_2026_08_18` block states what
+  the next device round must show; neither is closed on code alone.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
@@ -1023,7 +1030,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2H
   truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
   status: open
-  severity: confirmed-defect (diagnosed; owner decision taken; ready to implement)
+  severity: confirmed-defect (fixed in code; awaiting device verification)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   diagnosed: "2026-08-18, root cause confirmed in code"
   observed: |
@@ -1121,6 +1128,60 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
          but the parent is not frozen.
       Note the project's `Feature` reducer-naming convention and the SwiftLint rules in the root
       `.swiftlint.yml` before writing code.
+  fix_landed_2026_08_18: |
+    STATUS STAYS OPEN: nothing here is device-confirmed. Landed in commit 13cad7d9 on
+    feature/gsd-phase-15 (quick task 260818-mjs), implementing the locked fix_spec above verbatim.
+
+    MECHANISM
+      The freeze lives inside `folderRelativePath(for:parentFolderName:)` and nowhere else, so both
+      callers are covered by construction: when the gallery already has an INDEX record the leaf is
+      that record's `folderURL.lastPathComponent`, and a fresh `trimmedTitle` leaf is derived only
+      when it has none. The index rather than a disk walk, because the index is this actor's
+      documented read authority between sync points and both callers already run against a loaded
+      one; `galleryFolderURLs` stays the reconcile-time tool. A consequence stated on the
+      declaration: a folder the user renamed in Files.app keeps the user's name, since the leaf is
+      whatever the record says it is.
+
+      The PARENT is untouched, so an in-app move still relocates the gallery. `moveDownload` is
+      cited on the declaration as the sibling idiom that already keeps the leaf verbatim.
+
+      No migration was written, and the "Stale working folder removal failed ... Code=4" line was
+      not touched — it falls out, as the spec says.
+
+    DOCS CORRECTED
+      `removeSupersededFolders`' comment (a completed run's folder no longer differs through a title
+      change; the sweep now stands for pre-fix history and for a differing-PARENT destination) and
+      `DownloadManifest`'s header (the readable half is chosen once at creation and a later upstream
+      title change does not rename the directory).
+
+    TESTS
+      New suite `DownloadFolderLeafFreezeTests` with the spec's three plus a regression pin:
+        - testTwoRunsWithDifferingTitlesKeepOneFolderUnderTheFirstLeaf
+        - testARepairOverAnExistingFolderReusesItInPlace
+        - testTheLeafIsFrozenButTheParentIsNot
+        - testAGalleryWithNoRecordStillDerivesAFreshLeaf
+      Three of the four were observed RED pre-fix (5 issues); the fourth pins the unchanged branch
+      and passed pre-fix, as intended. The three existing suites that used to stage a differing
+      destination through a TITLE change were restaged through a PARENT change and now also assert
+      the leaf is equal — `DownloadCoordinatorRepairSeedTests` and both cases in
+      `DownloadRepairSeedSignalPropagationTests`.
+
+      One pre-existing pin encoded the rename as expected behaviour and was restaged:
+      `DownloadProcessTests.verifyCompletedProcess` asserted the staged folder was DELETED after a
+      full `processDownload`. It now asserts the run finished IN that folder and that exactly one
+      folder exists for the gid — the whole-arc version of the unit pins above.
+
+    FOLLOW-UP QUESTION FOR THE OWNER (not acted on)
+      Post-fix, `repairSeed` / `materializeRepairSeed` / `RepairSeedContext` are unreachable from
+      `processDownload`: the destination now equals the record's folder, so `shouldReuseWorkingFolder`'s
+      existence guard and `repairSeed`'s existence guard cannot both fail. WR-02 / G-15-13 / G-15-19
+      pins still own that branch's contract, and the locked spec did not ask for removal, so nothing
+      was deleted. Retire the seed materialization in a design round?
+
+    WHAT THE NEXT DEVICE RUN MUST SHOW
+      Repair a gallery whose stored title differs from the site's (the pipe case is the reported
+      one): the folder name in Files is UNCHANGED afterwards, exactly one folder exists for that gid,
+      and the jsonl carries no "Stale working folder removal failed ... Code=4" line.
   resolved_question_stale_working_folder: |
     The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
     not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
@@ -1153,6 +1214,75 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     i.e. it showed the work as already finished while it was in fact being redone from zero. The
     system card's basis was correct at the same moment, so this is the in-app sheet's derivation,
     not the run progress basis that 15-54/15-72 rebuilt.
+  root_cause: |
+    TWO compounding parts, both in the in-app display path.
+
+      1. WRONG BASIS. The badge's numerator and `buildInspectionPages` both derived from the RECORD
+         (D-SSOT-07), and for the wholesale-refusal family the record reads N-of-N for the ENTIRE
+         repair BY DESIGN: the irreversibility guard refuses to blank a manifest's whole claim on
+         one scan, so nothing lowers it while the re-download runs. The run's own measurement
+         (`runProgressBases[gid]`, the round-18 redesign) existed and was correct — it is what the
+         system card sums — but it reached only that card. The sheet had no access to it.
+      2. NO RELOAD EVEN IF IT HAD. The re-download re-records hashes that are byte-identical to the
+         ones already in the manifest, so every published `DownloadedGallery` was `==` its
+         predecessor and `DownloadInspectorReducer.observeDownloadsDone`'s equality gate returned
+         `.none` at every flush. Even a corrected derivation would have been recomputed only when
+         something else happened to differ.
+  fix_landed_2026_08_18: |
+    STATUS STAYS OPEN: nothing here is device-confirmed. Landed in commit 764c5958 on
+    feature/gsd-phase-15 (quick task 260818-mjs).
+
+    MECHANISM (D-SSOT-10)
+      `DownloadedGallery.runProgress` — a new `DownloadRunProgress` carrying the run's credited page
+      SET — rides on the published row while that run's measurement stands, and is nil otherwise. It
+      is populated from the single accessor `liveRunProgressBasis(gid:)`, which is also what the
+      credited-pages definition's basis-first regime reads, so the card's fraction and the sheet
+      cannot describe different work.
+
+      While it stands, the badge numerator is that set's SIZE and `buildInspectionPages` reads its
+      MEMBERSHIP — `.downloaded` iff credited, else `.failed` iff a page failure is recorded, else
+      `.pending`. Header and page groups therefore come from ONE value and cannot disagree. Out of a
+      run both read the record exactly as before.
+
+      Record-completeness is untouched: `completedPageCount`, `isIncomplete`, `canValidateImageData`,
+      `retryablePageIndices`, `displayStatus`, resume-mode resolution and scheduling all still derive
+      from the manifest. The overlay writes nothing, consults no disk, never outranks queue
+      membership, and is retired with the run — AGENTS.md's operation-level clause is what licenses
+      it, and the model's doc carries that argument.
+
+      Publish points: at the ANNOUNCE (so the sheet flips to the run's reading immediately rather
+      than at the first flush), at EVERY manifest page flush (the row now differs each time, so part
+      2 of the root cause is closed by the row genuinely changing rather than by weakening the gate),
+      and at EVERY run exit — including an exit that no longer owns the active slot, which
+      `finishActiveTaskIfOwned` does not publish from.
+
+      The measurement's whole-name census stays at SEVEN: `+ContinuedSession.swift` moves 3 -> 2 and
+      the new `+RunProgress.swift` accessor takes the freed slot.
+
+    ONE SITE OUTSIDE THE PLANNED SCOPE
+      `DetailReducer.downloadNeedsRepair` used to read the incompleteness conjunct off
+      `badge.progress`, which is now a DISPLAY quantity. It reads the record's own `isIncomplete`
+      instead (carried on Detail's state beside the failure code it is always read with), so the
+      predicate is independent of the display basis by construction rather than by a coexistence
+      argument.
+
+    TESTS
+      - `DownloadRunProgressOverlayTests` (4 cases): the refusal repair reading the run at announce /
+        flush / exit; the honest family reading identically under both bases; a failed outstanding
+        page reading `.failed` and credit beating a stale failure entry; and a non-owning run exit
+        still publishing the record's reading.
+      - `DownloadInspectorRunProgressReloadTests` (2 cases): a row differing ONLY in `runProgress`
+        re-sends `.loadInspection`, with an exhaustive control that an identical row still reloads
+        nothing.
+      Sensitivity banked: with the non-owning exit publication removed, exactly one case fails
+      (`testANonOwningRunExitStillPublishesTheRecordRead`, timing out on the awaited publication) and
+      nothing else moves.
+
+    WHAT THE NEXT DEVICE RUN MUST SHOW
+      The same wholesale-refusal repair with the Download Status sheet OPEN: it reads
+      "Downloading 0/27 · Pending (27)" at the announce, the numerator and the Downloaded group climb
+      together with the system card, and the record's own reading (27/27) is restored the moment the
+      run ends.
   why_it_matters: |
     The sheet is the surface a user consults to find out what a repair is doing. Reporting
     "Downloaded (27) / Pending (0)" during a 27-page refetch tells them the opposite of the truth,
