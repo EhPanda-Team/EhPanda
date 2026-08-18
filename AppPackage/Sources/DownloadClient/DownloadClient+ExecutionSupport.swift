@@ -32,17 +32,54 @@ extension DownloadCoordinator {
         )
     }
 
+    /// Where a run's working folder lives: the caller's parent folder, and the gallery's own
+    /// readable leaf.
+    ///
+    /// **The leaf is chosen ONCE, when the folder is first created, and is never recomputed
+    /// (G-15-2H, owner decision 2026-08-18: NEVER RENAME).** The downloads directory is
+    /// user-visible and user-managed through the Files app, so re-deriving `[gid_token] Title`
+    /// from live network data on every run means a gallery whose upstream title merely changed is
+    /// re-addressed at a name that does not exist yet: `shouldReuseWorkingFolder` fails its
+    /// existence guard, the preparation materializes a repair seed at the new name, and the
+    /// completion sweep deletes the old folder. The user's data moves out from under their
+    /// bookmarks, their Files-app organisation and any external tool pointing at it — for a repair
+    /// whose entire purpose was to restore that gallery in place. The title need not even have been
+    /// edited upstream: `trimmedTitle` truncates at the first `|`, so the same gallery reported
+    /// with and without a pipe derives two different leaves.
+    ///
+    /// **The leaf's source is the INDEX record**, `downloadIndex[gid]?.folderURL.lastPathComponent`.
+    /// The index is this actor's read authority between explicit sync points and hot lookups must
+    /// not walk download folders (see `reloadDownloadIndex`), so `storage.galleryFolderURLs` — which
+    /// enumerates every user folder — is the reconcile-time tool rather than a per-run resolver.
+    /// Both callers already run against a loaded index: `processDownload`'s `download` came out of
+    /// it, and `enqueue` reads the same entry for the parent a few lines earlier. So the freeze
+    /// inside this one function covers every mode, `.repair` included, by construction.
+    /// A consequence, and a wanted one: a folder the user renamed in the Files app is still matched
+    /// by manifest identity, so its record carries the user's name and this keeps it.
+    ///
+    /// **Only the leaf is frozen. The parent is deliberately the caller's**, so an in-app move
+    /// still relocates the gallery — `moveDownload` is the sibling idiom, keeping
+    /// `download.folderURL.lastPathComponent` verbatim while resolving a new parent.
+    ///
+    /// No migration exists for folders a pre-fix run already renamed: record and disk agree there,
+    /// and `galleryFolderURLs` matches on the manifest's gid/token regardless of the readable half.
     public func folderRelativePath(
         for payload: DownloadRequestPayload,
         parentFolderName: String
     ) -> String {
-        let galleryFolderName = storage.makeFolderRelativePath(
-            gid: payload.gallery.gid,
-            token: payload.gallery.token,
-            title: payload.galleryDetail.trimmedTitle.isEmpty
-                ? payload.gallery.title
-                : payload.galleryDetail.trimmedTitle
-        )
+        let galleryFolderName: String
+        if let recordedFolderName = downloadIndex[payload.gallery.gid]?
+            .folderURL.lastPathComponent {
+            galleryFolderName = recordedFolderName
+        } else {
+            galleryFolderName = storage.makeFolderRelativePath(
+                gid: payload.gallery.gid,
+                token: payload.gallery.token,
+                title: payload.galleryDetail.trimmedTitle.isEmpty
+                    ? payload.gallery.title
+                    : payload.galleryDetail.trimmedTitle
+            )
+        }
         return "\(parentFolderName)/\(galleryFolderName)"
     }
 

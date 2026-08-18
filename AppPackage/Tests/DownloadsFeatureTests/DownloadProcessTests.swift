@@ -366,7 +366,23 @@ private extension DownloadProcessTests {
             ) == false
         )
 
-        #expect(FileManager.default.fileExists(atPath: context.staleFolderURL.path) == false)
+        // The run finishes IN the folder the record already pointed at, under that folder's own
+        // name, and leaves exactly one folder for the gallery (G-15-2H).
+        //
+        // This assertion used to read the other way — the staged folder GONE — which was the
+        // rename the freeze removed: the stale folder is named `<gid> - Pause Race`, so a leaf
+        // recomputed from the fetched payload addressed a `[gid_token] Title` folder that did not
+        // exist, the run built its result there, and the completion sweep deleted the folder the
+        // user could see. The frozen leaf is the whole production arc's version of the unit pins in
+        // `DownloadFolderLeafFreezeTests`: a folder the user (or an older naming scheme) gave a name
+        // keeps it across a full `processDownload`, and the sweep finds nothing to remove.
+        #expect(
+            completedFolderURL.standardizedFileURL == context.staleFolderURL.standardizedFileURL
+        )
         #expect(FileManager.default.fileExists(atPath: completedFolderURL.path))
+        #expect(
+            storage.galleryFolderURLs(gid: context.gid, token: "token")
+                .map(\.standardizedFileURL) == [completedFolderURL.standardizedFileURL]
+        )
     }
 }

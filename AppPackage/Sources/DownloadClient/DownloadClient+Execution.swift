@@ -80,10 +80,12 @@ extension DownloadCoordinator {
         )
     }
 
-    // A download can finish in a different folder than it started in
-    // (re-slot after a title change), and an interrupted session can leave
-    // both behind; only the completed folder may survive, or the stale
-    // duplicate resurfaces once the surviving record is deleted.
+    // A completed run's folder no longer differs from the record's through a title change: the
+    // readable leaf is frozen at first creation (G-15-2H, `folderRelativePath`). The sweep stands
+    // for the two shapes that remain — pre-fix history, where a rename interrupted between the
+    // seed materialization and completion left both folders behind, and any differing-PARENT
+    // destination handed to the preparation directly. Only the completed folder may survive, or
+    // the stale duplicate resurfaces once the surviving record is deleted.
     public func removeSupersededFolders(gid: String, token: String, keeping folderURL: URL) {
         do {
             try removeGalleryFolders(gid: gid, token: token, keeping: folderURL)
