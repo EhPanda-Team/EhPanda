@@ -142,7 +142,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 
@@ -282,7 +281,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 
@@ -407,7 +405,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 
@@ -500,7 +497,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         )
 

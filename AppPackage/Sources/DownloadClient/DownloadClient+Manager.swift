@@ -176,27 +176,15 @@ public actor DownloadCoordinator {
         }
     }
 
-    public struct RepairSeed: Sendable {
-        public let folderURL: URL
-        public let manifest: DownloadManifest
-        public init(
-            folderURL: URL,
-            manifest: DownloadManifest
-        ) {
-            self.folderURL = folderURL
-            self.manifest = manifest
-        }
-    }
-
     public struct WorkingSeed: Sendable {
         public let folderURL: URL
         public let manifest: DownloadManifest
         public let existingPages: [Int: String]
         public let coverRelativePath: String?
-        /// The claimed pages the preparation's one scan could not answer for — the destination's
-        /// own unprobeable files plus the classifications a repair-seed copy carried (G-15-19).
-        /// Surfaced so the announcement's inherited-work rule reads the same probe the blanking
-        /// rule read, instead of re-deriving evidence from a second scan.
+        /// The claimed pages the preparation's one scan could not answer for: this working folder's
+        /// own files that the listing yielded and the per-file probe could not classify. Surfaced
+        /// so the announcement's inherited-work rule reads the same probe the blanking rule read,
+        /// instead of re-deriving evidence from a second scan.
         public let unprobedPages: Set<Int>
         /// Whether the preparation's directory listing itself succeeded. False means the whole
         /// scan is a non-answer, which the announcement treats exactly as the reconciliation

@@ -774,10 +774,9 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
 
         // The other side of the boundary: the successor run announces its own basis through the
         // production preparation, and from here A is credited that basis and nothing else.
-        let staged = try #require(await manager.fetchDownload(gid: requeued.gid))
+        _ = try #require(await manager.fetchDownload(gid: requeued.gid))
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: requeued),
-            existingDownload: staged,
             folderURL: requeuedFolderURL
         )
         // Non-vacuity: the successor really has three pages of its own work, and inherits the one

@@ -51,15 +51,9 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         )
         await manager.reloadDownloadIndex()
         let stalePageURL = folderURL.appendingPathComponent("\(gid)_token_1.jpg")
-        let download = sampleDownload(
-            gid: gid, title: "Redownload",
-            status: .queued, pageCount: 2, completedPageCount: 1,
-            folderURL: folderURL
-        )
 
         let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makePayload(gid: gid, title: "Redownload", mode: .redownload),
-            existingDownload: download,
             folderURL: folderURL
         ).workingSeed
 
@@ -89,15 +83,9 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done", ""]
         )
         await manager.reloadDownloadIndex()
-        let download = sampleDownload(
-            gid: gid, title: "Pause Survives",
-            status: .queued, pageCount: 2, completedPageCount: 1,
-            folderURL: folderURL
-        )
 
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makePayload(gid: gid, title: "Pause Survives", mode: .redownload),
-            existingDownload: download,
             folderURL: folderURL
         )
         await manager.testingSetQueuedGalleryIDs([gid])
@@ -125,8 +113,16 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         #expect(FileManager.default.fileExists(atPath: folderURL.path))
     }
 
+    /// The delete route's primitive removes EVERY folder of the gallery it is given, and only that
+    /// gallery's.
+    ///
+    /// The fixture is the two-folders-for-one-gid shape, which used to be staged here for the
+    /// completion sweep's keep-one contract. That sweep is retired — no run removes a folder it did
+    /// not create (G-15-2H, resolution 2026-08-19) — so the same staging now pins the one caller
+    /// that remains, the user's own `delete(gid:)`: both of the gid's folders go, however the user
+    /// named them, and the unrelated gallery is untouched.
     @Test
-    func testRemoveSupersededFoldersKeepsOnlyCompletedFolder() async throws {
+    func testRemoveGalleryFoldersRemovesEveryFolderOfTheGalleryAndNoOther() async throws {
         let gid = "913000007"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -139,7 +135,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             storage: storage, gid: gid, title: "Old Title",
             pageHashes: ["sha256:done", "sha256:done"]
         )
-        let completedFolderURL = try writeManifestFolder(
+        let newFolderURL = try writeManifestFolder(
             storage: storage, gid: gid, title: "New Title",
             pageHashes: ["sha256:done", "sha256:done"]
         )
@@ -148,14 +144,10 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done"]
         )
 
-        await manager.removeSupersededFolders(
-            gid: gid,
-            token: "token",
-            keeping: completedFolderURL
-        )
+        try await manager.removeGalleryFolders(gid: gid, token: "token")
 
         #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path))
-        #expect(FileManager.default.fileExists(atPath: completedFolderURL.path))
+        #expect(!FileManager.default.fileExists(atPath: newFolderURL.path))
         #expect(FileManager.default.fileExists(atPath: unrelatedFolderURL.path))
     }
 }

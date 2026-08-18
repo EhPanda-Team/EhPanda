@@ -176,11 +176,12 @@ public struct DownloadStore: Sendable {
     /// must use `pageFileScan(folderURL:manifest:)` instead and carry both its `scanSucceeded` flag
     /// and its `unprobedPages` set.
     ///
-    /// The second half of that rule is not hypothetical (G-15-19): `materializeRepairSeed` called
-    /// this function, and its selection decided which pages a different folder would afterwards be
-    /// found to hold — so a page this collapse dropped for want of an answer arrived there as a
-    /// positive absence and had its recorded hash destroyed. It now selects through the full scan
-    /// and hands the unanswered pages back to its caller.
+    /// The second half of that rule is not hypothetical (G-15-19): the retired repair-seed
+    /// materialization called this function, and its selection decided which pages a different
+    /// folder would afterwards be found to hold — so a page this collapse dropped for want of an
+    /// answer arrived there as a positive absence and had its recorded hash destroyed. That caller
+    /// has since been retired outright, so no answer of this function's crosses a folder boundary
+    /// today; the rule stands for the next one that would.
     ///
     /// `discardingRejected` decides only whether the probe's housekeeping DELETION may fire while
     /// this answer is being formed — see `probeAssetFile(at:discardingRejected:)`. The
@@ -792,11 +793,11 @@ public struct DownloadStore: Sendable {
     /// is now what a caller gets for saying nothing, so the property holds for callers that do not
     /// exist yet, and deleting has to be written down.
     ///
-    /// Exactly two production sites write it, and both are COVERS: the repair seed's cover
-    /// resolution (`materializeRepairSeed`) and the working folder's (`prepareWorkingSeed`). The
-    /// entitlement is the rule rather than the position, and the rule is that an act may delete only
-    /// if the same act durably blanks the record for the page it destroyed. A cover carries no
-    /// recorded hash at all, so its removal has nothing to diverge from and the run re-fetches it.
+    /// Exactly one production site writes it, and it is a COVER: the working folder's cover
+    /// resolution in `prepareWorkingSeed`. The entitlement is the rule rather than the position, and
+    /// the rule is that an act may delete only if the same act durably blanks the record for the
+    /// page it destroyed. A cover carries no recorded hash at all, so its removal has nothing to
+    /// diverge from and the run re-fetches it.
     /// That population is CENSUSED rather than described:
     /// `DownloadSourceInventoryTests.testDiscardingRejectedSitesMatchTheEntitlementCensus` counts it
     /// over this module, so a third site cannot ship without a recorded per-site verdict.
@@ -807,11 +808,11 @@ public struct DownloadStore: Sendable {
     /// guard may still refuse and a refusal that had already destroyed the file leaves the record
     /// claiming a page whose bytes the asking removed. It now classifies without discarding and
     /// removes what the guard authorizes through `removeRefutedPageFiles`, which also covers the
-    /// refutations this probe never deletes for anyone — see `probeAssetFileContent`.
-    /// `materializeRepairSeed`'s SOURCE page scan left it for the opposite reason: the folder it
-    /// deleted in was the gallery's currently indexed one and the record the route blanks belongs to
-    /// the copy, so no act on that route was ever going to reconcile what it destroyed. It reads
-    /// without discarding now, and the destination's own reconciliation records the absence.
+    /// refutations this probe never deletes for anyone — see `probeAssetFileContent`. The retired
+    /// repair-seed materialization's SOURCE page scan left it for the opposite reason: the folder it
+    /// deleted in was the gallery's currently indexed one and the record the route blanked belonged
+    /// to the copy, so no act on that route was ever going to reconcile what it destroyed. It was
+    /// made a read, and the whole route has since been retired with the completion sweep.
     private func probeAssetFile(at url: URL, discardingRejected: Bool) -> AssetFileProbeOutcome {
         // Not a positive absence — for the LISTING-DERIVED callers, which is what this outcome is
         // stated for. `pageFileScan` and `existingAssetFileURL(in:prefix:)` hand this a file an
@@ -819,13 +820,13 @@ public struct DownloadStore: Sendable {
         // question left unanswered; for them a positive absence is a claimed page whose file the
         // successful listing never yielded, and that page never reaches this function at all.
         //
-        // Two routes construct their path instead of reading it off a listing: the manifest copy in
-        // `materializeRepairSeed`, through `linkOrCopyReadableAsset`, and a just-written page file's
-        // own relative path, through `hashReadableAsset` from `refreshManifestPageFileHashes`. For
-        // those a missing file IS a positive absence, and this function still answers `unprobeable`.
+        // One route constructs its path instead of reading it off a listing: a just-written page
+        // file's own relative path, through `hashReadableAsset` from `refreshManifestPageFileHashes`
+        // (the retired repair-seed materialization's manifest copy was the other). For it a missing
+        // file IS a positive absence, and this function still answers `unprobeable`.
         // The licensing condition is therefore on the consumer rather than on the path: a caller
         // holding a constructed path may keep reading the collapsed `Bool` only while its answer can
-        // never reach a decision that destroys recorded state. Both of these throw instead — a
+        // never reach a decision that destroys recorded state. It throws instead — a
         // recoverable failed operation — and after G-15-19 no caller of the collapsed forward feeds
         // an absence into a destructive decision at all. One that needed to would have to take a
         // classification of its own, through `pageFileScan(folderURL:manifest:)`, rather than read a

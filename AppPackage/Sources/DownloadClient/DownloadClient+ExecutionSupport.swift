@@ -39,13 +39,18 @@ extension DownloadCoordinator {
     /// (G-15-2H, owner decision 2026-08-18: NEVER RENAME).** The downloads directory is
     /// user-visible and user-managed through the Files app, so re-deriving `[gid_token] Title`
     /// from live network data on every run means a gallery whose upstream title merely changed is
-    /// re-addressed at a name that does not exist yet: `shouldReuseWorkingFolder` fails its
-    /// existence guard, the preparation materializes a repair seed at the new name, and the
-    /// completion sweep deletes the old folder. The user's data moves out from under their
+    /// re-addressed at a name that does not exist yet: `shouldReuseWorkingFolder` failed its
+    /// existence guard, the preparation copied the old folder's files to the new name, and the
+    /// completion sweep then deleted the old folder. The user's data moved out from under their
     /// bookmarks, their Files-app organisation and any external tool pointing at it — for a repair
     /// whose entire purpose was to restore that gallery in place. The title need not even have been
     /// edited upstream: `trimmedTitle` truncates at the first `|`, so the same gallery reported
     /// with and without a pipe derives two different leaves.
+    ///
+    /// Since 2026-08-19 no run removes another folder at all (the sweep and the copy it fed are
+    /// both retired), so a re-addressed destination would leave the original standing beside the
+    /// new one rather than destroying it. The freeze stays regardless: two folders where the user
+    /// keeps one is still not what a repair is for.
     ///
     /// **The leaf's source is the INDEX record**, `downloadIndex[gid]?.folderURL.lastPathComponent`.
     /// The index is this actor's read authority between explicit sync points and hot lookups must
@@ -411,7 +416,6 @@ extension DownloadCoordinator {
     /// because nothing they can fail after has moved the record.
     private func prepareWorkingSeed(
         payload: DownloadRequestPayload,
-        existingDownload: DownloadedGallery,
         folderURL: URL
     ) throws -> WorkingSeed {
         let outcome: Result<WorkingSeed, any Error> = try withdrawingCountedBasisMovement(
@@ -421,14 +425,9 @@ extension DownloadCoordinator {
                 payload: payload,
                 folderURL: folderURL
             )
-            let seedContext = RepairSeedContext(
-                existingDownload: existingDownload,
-                payload: payload
-            )
-            let carriedUnprobedPages = try setupWorkingFolder(
+            try setupWorkingFolder(
                 folderURL: folderURL,
-                shouldReuse: shouldReuseFolder,
-                seedContext: seedContext
+                shouldReuse: shouldReuseFolder
             )
 
             let manifest = try ensureWorkingManifest(
@@ -448,30 +447,16 @@ extension DownloadCoordinator {
                 folderURL: folderURL,
                 manifest: manifest
             )
-            // The seed copy's non-answers, folded into the destination's own before the single
-            // destructive consumer reads them (G-15-19). No new refusal mechanism: the existing
-            // per-file line covers the carried population exactly as it covers the destination's.
-            // `pages` and `scanSucceeded` pass through untouched — an uncopied page is re-fetched,
-            // never reused, so the seed still reports only what this folder actually holds. The
-            // union is synchronous and lands inside the enclosing D-G7-01 bracket, so it adds no
-            // suspension and no window. `rejectedPageRelativePaths` passes through for the same
-            // reason `pages` does: this rebuild exists to ADD the carried non-answers, and dropping
-            // a member the destination scan did report would silently re-license the one act that
-            // member exists to withhold (CR-01).
-            let classifiedScan = PageFileScan(
-                pages: destinationScan.pages,
-                scanSucceeded: destinationScan.scanSucceeded,
-                unprobedPages: destinationScan.unprobedPages.union(carriedUnprobedPages),
-                rejectedPageRelativePaths: destinationScan.rejectedPageRelativePaths
-            )
             // AUTHORIZE, then act: removes the survivors the guard licenses and answers with a scan
             // taken after the removals — so the blanking loop below sees them as the positive
-            // absences they now are — together with the pages it destroyed to get there.
+            // absences they now are — together with the pages it destroyed to get there. The
+            // destination's own classification is what it is handed, whole: since the retired
+            // repair-seed materialization no classification crosses a folder boundary any more, so
+            // there is nothing to fold in and no rebuilt scan between the probe and its consumer.
             let reconciliation = authorizedReconciliationScan(
                 manifest: manifest,
-                classifiedScan: classifiedScan,
-                folderURL: folderURL,
-                carriedUnprobedPages: carriedUnprobedPages
+                classifiedScan: destinationScan,
+                folderURL: folderURL
             )
             let reconciliationScan = reconciliation.scan
             let removedPages = reconciliation.removedPages
@@ -656,12 +641,10 @@ extension DownloadCoordinator {
     /// rather than overwrites, so the recording survives the start's main-actor hop.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
-        existingDownload: DownloadedGallery,
         folderURL: URL
     ) async throws -> PreparedWorkingRun {
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
-            existingDownload: existingDownload,
             folderURL: folderURL
         )
         let pendingPages = pendingPageIndices(
@@ -736,23 +719,22 @@ extension DownloadCoordinator {
         }
     }
 
-    private struct RepairSeedContext {
-        let existingDownload: DownloadedGallery
-        let payload: DownloadRequestPayload
-    }
-
-    /// Prepares the working folder, and hands back the claimed pages whose SOURCE-side
-    /// classification was a non-answer (G-15-19).
+    /// Makes the run's own working folder ready to be filled, and touches nothing else.
     ///
-    /// Empty on every path but the materialization, by construction rather than by omission: a
-    /// reused folder, an already-existing one and a freshly created empty one are all judged by a
-    /// scan of the very folder `reconcileWorkingManifestAgainstPageFiles` will scan, so no
-    /// classification crossed a folder boundary and there is nothing to carry.
-    private func setupWorkingFolder(
-        folderURL: URL,
-        shouldReuse: Bool,
-        seedContext: RepairSeedContext
-    ) throws -> Set<Int> {
+    /// **A run prepares and works only in its own working folder; it never reads from another
+    /// gallery folder and never removes one** — the invariant `removeGalleryFolders(gid:token:)`
+    /// carries the other half of. The wipe below is not an exception to it: the folder being wiped
+    /// is the one this run is about to fill, and whether to wipe it is the caller's
+    /// `shouldReuseWorkingFolder` verdict, which is the user's own start mode — `.redownload` and
+    /// `.update` ask for the folder's contents to be replaced.
+    ///
+    /// A source-to-destination copy used to run here, carrying an existing folder's files to a
+    /// differently addressed destination and handing back the claimed pages that folder's own probe
+    /// could not answer for. It was retired with the completion sweep (G-15-2H, resolution
+    /// 2026-08-19): the copy existed so the sweep could delete the folder it copied FROM, and
+    /// without the sweep it only ever left two folders where the user had one. So no classification
+    /// crosses a folder boundary any more, and this function has nothing to report.
+    private func setupWorkingFolder(folderURL: URL, shouldReuse: Bool) throws {
         if !shouldReuse {
             // Removing a stale working folder is best-effort preparation; the
             // existence check below preserves the established reuse fallback.
@@ -765,19 +747,8 @@ extension DownloadCoordinator {
             }
         }
         if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
-            if let seed = repairSeed(
-                for: seedContext.existingDownload,
-                payload: seedContext.payload
-            ) {
-                return try storage.materializeRepairSeed(
-                    from: seed.folderURL,
-                    manifest: seed.manifest,
-                    to: folderURL
-                )
-            }
             try createDirectory(at: folderURL)
         }
-        return []
     }
 
     /// - Parameter page: the 1-based page number, which is also the key space of the
@@ -846,27 +817,6 @@ extension DownloadCoordinator {
                 mpvSkipServerIdentifier: response.skipServerIdentifier
             )
         }
-    }
-
-    public func repairSeed(
-        for download: DownloadedGallery,
-        payload: DownloadRequestPayload
-    ) -> RepairSeed? {
-        let folderURL = download.folderURL
-        guard payload.mode == .repair,
-              fileManager.operate({
-                  $0.fileExists(atPath: folderURL.path)
-              }),
-              // Repair seeding is optional; an unreadable manifest leaves the current
-              // working folder for ensureWorkingManifest to refresh instead.
-              let manifest = storage.probeManifest(folderURL: folderURL),
-              manifest.gid == download.gid,
-              manifest.pageCount ==
-                payload.galleryDetail.pageCount
-        else {
-            return nil
-        }
-        return .init(folderURL: folderURL, manifest: manifest)
     }
 
     public func pendingPageIndices(

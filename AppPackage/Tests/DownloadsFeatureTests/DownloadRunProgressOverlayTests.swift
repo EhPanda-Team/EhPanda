@@ -76,7 +76,6 @@ struct DownloadRunProgressOverlayTests: DownloadFeatureTestCase {
         let folderURL = galleryFolderURL(for: vanished, in: fixture)
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -157,7 +156,6 @@ struct DownloadRunProgressOverlayTests: DownloadFeatureTestCase {
 
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: honest),
-            existingDownload: staged,
             folderURL: galleryFolderURL(for: honest, in: fixture)
         )
         // Non-vacuity: an overlay really is standing, so the agreement below is the two bases
@@ -187,10 +185,9 @@ struct DownloadRunProgressOverlayTests: DownloadFeatureTestCase {
         let manager = fixture.manager
         await manager.reloadDownloadIndex()
 
-        let staged = try #require(await manager.fetchDownload(gid: vanished.gid))
+        _ = try #require(await manager.fetchDownload(gid: vanished.gid))
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: vanished),
-            existingDownload: staged,
             folderURL: galleryFolderURL(for: vanished, in: fixture)
         )
         await manager.testingSetFailedPageErrors(
@@ -244,10 +241,9 @@ struct DownloadRunProgressOverlayTests: DownloadFeatureTestCase {
         let manager = fixture.manager
         await manager.reloadDownloadIndex()
 
-        let staged = try #require(await manager.fetchDownload(gid: vanished.gid))
+        _ = try #require(await manager.fetchDownload(gid: vanished.gid))
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: vanished),
-            existingDownload: staged,
             folderURL: galleryFolderURL(for: vanished, in: fixture)
         )
 

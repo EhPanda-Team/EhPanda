@@ -31,17 +31,11 @@ extension DownloadCoordinator {
     /// covers them all rather than patching the branch a report named. `.redownload` and `.update`
     /// delete the working folder and arrive with a fresh all-empty manifest, and a fresh `.initial`
     /// does too, so this is a no-op for them. The modes it does work for are the ones that reuse a
-    /// manifest they did not write: `.repair`, the `.initial` reuse of a matching complete manifest,
-    /// and the repair-seed materialization, which copies the manifest whole while copying the pages
-    /// selectively — and therefore hands back the claimed pages its SOURCE-side probe could not
-    /// answer for, which `prepareWorkingSeed` unions into the scan below so this reconciliation
-    /// sees them as unprobed rather than absent (G-15-19). That route needs the carry because
-    /// nothing here can derive it: the destination listing is entirely honest about a page the copy
-    /// never landed, `scanSucceeded` is true and `unprobedPages` is empty, so a source-side
-    /// non-answer and a source-side positive absence arrive indistinguishable. This paragraph used
-    /// to classify that route as safe on the grounds that it copied every page whose source file
-    /// had been sanitized — which is precisely where `.unprobeable` and `.rejected` collapse back
-    /// together, one layer below the defence, and is the written premise the gap hid behind.
+    /// manifest they did not write: `.repair`, and the `.initial` reuse of a matching complete
+    /// manifest. A third one used to reach here — the repair-seed materialization, which copied a
+    /// manifest whole while copying the pages selectively and therefore had to hand its SOURCE-side
+    /// non-answers across for `prepareWorkingSeed` to union in (G-15-19) — and it is retired, so
+    /// every classification this loop reads is now about the very folder it is reconciling.
     ///
     /// Deliberate consequence, recorded because it looks like a regression and is not: an
     /// interrupted repair's record now honestly reads incomplete, so its `displayStatus` is
@@ -86,20 +80,21 @@ extension DownloadCoordinator {
     ///    failed enumeration used to blank every claimed page of the gallery in a single pass,
     ///    rewrite the manifest, publish a 0-of-N record and — through the enclosing D-G7-01
     ///    bracket — withdraw the full count from the floor, all unlogged.
-    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01; extended across the copy by
-    ///    G-15-19).** `unprobedPages` carries TWO populations by the time it reaches here, and no
-    ///    page in either is blanked: the pages whose file THIS folder's successful listing did
-    ///    yield but whose probe could not classify, and the pages the repair-seed materialization
-    ///    reported unanswerable in the SOURCE folder it copied from, unioned in by
-    ///    `prepareWorkingSeed`. The second exists because this folder's listing cannot see it — a
-    ///    page the copy never landed is honestly absent here — so the classification has to travel
-    ///    with the copy rather than be re-derived. The trigger is narrow and real: the metadata
-    ///    read itself throwing for many-but-not-all files — an I/O error, a permission change, a
-    ///    volume going away mid-scan. It is not descriptor exhaustion and not a locked device, since
-    ///    a metadata read needs no descriptor and still answers under data protection. Line 1 cannot
-    ///    reach this population, because the listing succeeded, and line 3 cannot either, because it
-    ///    disables itself as soon as one claimed page survives: a gallery with 100 claimed pages and
-    ///    99 failed probes passed `99 < 100` and lost 99 recorded hashes irreversibly.
+    /// 2. **The per-file positive signal (G-15-13, fixed as D-G13-01).** `unprobedPages` carries one
+    ///    population, and no page in it is blanked: the pages whose file THIS folder's successful
+    ///    listing did yield but whose probe could not classify. It carried a second until the
+    ///    repair-seed materialization was retired — the pages that route reported unanswerable in
+    ///    the SOURCE folder it copied from, unioned in by `prepareWorkingSeed`, because this
+    ///    folder's listing could not see them: a page the copy never landed is honestly absent here,
+    ///    so the classification had to travel with the copy rather than be re-derived. With no
+    ///    caller crossing a folder boundary there is nothing left to carry. The trigger is narrow
+    ///    and real: the metadata read itself throwing for many-but-not-all files — an I/O error, a
+    ///    permission change, a volume going away mid-scan. It is not descriptor exhaustion and not
+    ///    a locked device, since a metadata read needs no descriptor and still answers under data
+    ///    protection. Line 1 cannot reach this population, because the listing succeeded, and line
+    ///    3 cannot either, because it disables itself as soon as one claimed page survives: a
+    ///    gallery with 100 claimed pages and 99 failed probes passed `99 < 100` and lost 99
+    ///    recorded hashes irreversibly.
     /// 2b. **The per-file REFUTATION signal (CR-01).** `rejectedPageRelativePaths` names a claimed
     ///    page whose file the listing yielded, the probe positively refused, and which is STILL ON
     ///    DISK. Such a page is not blanked here, and the reason is the mirror image of line 2's: not
