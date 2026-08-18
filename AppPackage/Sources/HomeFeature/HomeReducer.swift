@@ -35,7 +35,8 @@ public struct HomeReducer: Sendable {
         public init() {}
 
         mutating func setPopularGalleries(_ galleries: [Gallery]) {
-            let sortedGalleries = galleries.sorted { lhs, rhs in
+            let filteredGalleries = galleries.filter { $0.rating >= 3 }
+            let sortedGalleries = filteredGalleries.sorted { lhs, rhs in
                 lhs.title.count > rhs.title.count
             }
             var trimmedGalleries = Array(sortedGalleries.prefix(min(sortedGalleries.count, 10)))

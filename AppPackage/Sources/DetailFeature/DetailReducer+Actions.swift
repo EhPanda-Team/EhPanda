@@ -16,6 +16,8 @@ extension DetailReducer {
                 return .none
 
             case .destination(.presented(.reading(.onPerformDismiss))):
+                @Shared(.galleryHistory) var galleryHistory
+                state.readingProgress = galleryHistory.readingProgress(gid: state.gallery.id)
                 return .send(.destination(.dismiss))
 
             case .destination:
@@ -85,6 +87,8 @@ extension DetailReducer {
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
         state.localPreviewURLs = .init()
+        @Shared(.galleryHistory) var galleryHistory
+        state.readingProgress = galleryHistory.readingProgress(gid: state.gallery.id)
         // The gallery is already seeded from the pushing context, so we record the visit and fetch
         // the (always network-sourced) detail directly.
         return .merge(
@@ -151,7 +155,14 @@ extension DetailReducer {
             case .saveGalleryHistory:
                 @Shared(.galleryHistory) var galleryHistory
                 $galleryHistory.withLock {
-                    $0.recordGalleryOpen(gid: state.gallery.id, token: state.gallery.token, date: date.now)
+                    $0.recordGalleryOpen(
+                        gid: state.gallery.id,
+                        token: state.gallery.token,
+                        date: date.now,
+                        hasRated: state.gallery.hasRated,
+                        favoriteTagIndex: state.gallery.favoriteTagIndex,
+                        favoriteTagName: state.gallery.favoriteTagName
+                    )
                 }
                 return .none
 

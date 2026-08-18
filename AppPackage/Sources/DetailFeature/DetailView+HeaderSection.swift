@@ -27,6 +27,7 @@ struct HeaderSection: View {
     let createDefaultFolderAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
+    let readingProgress: Int
     let navigateReadingAction: () -> Void
     let navigateUploaderAction: () -> Void
 
@@ -62,6 +63,33 @@ struct HeaderSection: View {
         )
         .lineLimit(1)
         .minimumScaleFactor(0.72)
+    }
+    private var favoriteColor: Color {
+        let colors = Defaults.FavoriteColor.colors
+
+        func color(for index: Int?) -> Color? {
+            guard let index,
+                  index >= 0,
+                  index < colors.count
+            else {
+                return nil
+            }
+            return colors[index]
+        }
+
+        if let color = color(for: galleryDetail.favoriteTagIndex ?? gallery.favoriteTagIndex) {
+            return color
+        }
+
+        if let favoriteTagName = galleryDetail.favoriteTagName,
+           let favoriteCategories = user.favoriteCategories,
+           let index = favoriteCategories.first(where: { $0.value == favoriteTagName })?.key,
+           let color = color(for: index)
+        {
+            return color
+        }
+
+        return Color.accentColor
     }
     private var downloadButton: some View {
         Group {
@@ -158,6 +186,12 @@ struct HeaderSection: View {
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
             .opacity(galleryDetail.isFavorited ? 1 : 0)
+            .foregroundStyle(favoriteColor)
+            .contextMenu {
+                ForEach(0..<10) { index in
+                    Button(user.getFavoriteCategory(index: index)) { favorAction(index) }
+                }
+            }
             Menu {
                 ForEach(0..<10) { index in
                     Button(user.getFavoriteCategory(index: index)) { favorAction(index) }
@@ -168,21 +202,32 @@ struct HeaderSection: View {
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
             .opacity(galleryDetail.isFavorited ? 0 : 1)
+            .foregroundStyle(.tint)
         }
-        .foregroundStyle(.tint)
         .buttonStyle(.glass(.regular.interactive()))
         .buttonBorderShape(.circle)
         .disabled(!CookieUtil.didLogin)
     }
     private var readButton: some View {
         Button(action: navigateReadingAction) {
-            Image(systemSymbol: .bookFill)
-                .font(actionIconFont)
-                .foregroundStyle(.white)
-                .frame(width: actionIconButtonSize, height: actionIconButtonSize)
+            Group {
+                if readingProgress > 0 {
+                    Text("P\(readingProgress)")
+                        .bold().textCase(.uppercase).font(.headline)
+                        .foregroundColor(.white).padding(.vertical, -2)
+                        .padding(.horizontal, 2).lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .frame(minWidth: 50)
+                } else {
+                    Image(systemSymbol: .bookFill)
+                        .font(actionIconFont)
+                        .foregroundStyle(.white)
+                        .frame(width: actionIconButtonSize, height: actionIconButtonSize)
+                }
+            }
         }
         .buttonStyle(.glassProminent)
-        .buttonBorderShape(.circle)
+        .buttonBorderShape(readingProgress > 0 ? .capsule : .circle)
         .accessibilityLabel(.read)
     }
     private func progressIndicator(

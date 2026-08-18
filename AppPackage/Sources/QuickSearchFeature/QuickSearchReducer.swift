@@ -39,6 +39,8 @@ public struct QuickSearchReducer: Sendable {
         }
 
         @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
 
         public init() {}
 

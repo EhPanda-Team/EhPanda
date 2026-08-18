@@ -18,9 +18,9 @@ public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
-    // Write handle backing the reader's own controls (e.g. the ControlPanel slider). The reading-setting
-    // sheet owns its own `@Shared(.setting)`; other reads go through `store.setting`. Same underlying
-    // storage — the model clamps keep every write safe.
+    // Write handle for ControlPanel setting edits. The reading-setting sheet owns its own
+    // `@Shared(.setting)`; this view derives an `effectiveSetting` that forces vertical mode
+    // for webtoon galleries without mutating the global setting.
     @Shared(.setting) private var setting: Setting
     let gid: String
     let blurRadius: Double
@@ -69,6 +69,27 @@ public struct ReadingView: View {
         return store.localPageURLs.merging(store.originalImageURLs, uniquingKeysWith: { local, _ in local })
     }
 
+    private var effectiveSetting: Setting {
+        var copy = store.setting
+        if store.gallery.hasWebtoonTag {
+            copy.readingDirection = .vertical
+        }
+        return copy
+    }
+
+    private var effectiveSettingBinding: Binding<Setting> {
+        Binding(
+            get: { effectiveSetting },
+            set: { newValue in
+                var adjusted = newValue
+                if store.gallery.hasWebtoonTag {
+                    adjusted.readingDirection = store.setting.readingDirection
+                }
+                setting = adjusted
+            }
+        )
+    }
+
     public var body: some View {
         @Bindable var bindableLiveTextHandler = liveTextHandler
         @Bindable var bindablePageHandler = pageHandler
@@ -91,13 +112,13 @@ public struct ReadingView: View {
                         }
                     }
                 }
-                .accentColor(store.setting.accentColor)
-                .tint(store.setting.accentColor)
+                .accentColor(effectiveSetting.accentColor)
+                .tint(effectiveSetting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
-                    .accentColor(store.setting.accentColor)
+                    .accentColor(effectiveSetting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
             .toast($store.scope(state: \.toast, action: \.toast))
@@ -109,13 +130,12 @@ public struct ReadingView: View {
             .animation(.default, value: store.showsPanel)
             .statusBar(hidden: !store.showsPanel)
             .onDisappear {
-                // Progress is flushed in the reducer on `.onPerformDismiss` (before the presentation is
-                // torn down); an `onDisappear` send would arrive after the destination is nil'd and be
-                // dropped. So only non-persistence teardown happens here.
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
             }
-            .onAppear { store.send(.onAppear(gid)) }
+            .onAppear {
+                store.send(.onAppear(gid))
+            }
     }
 
     var content: some View {
@@ -126,15 +146,15 @@ public struct ReadingView: View {
             backgroundColor.ignoresSafeArea()
 
             ZStack {
-                if store.setting.readingDirection == .vertical {
+                if effectiveSetting.readingDirection == .vertical {
                     AdvancedList(
                         page: page,
                         data: store.state.containerDataSource(
-                            setting: store.setting,
+                            setting: effectiveSetting,
                             isLandscape: DeviceUtil.isLandscape
                         ),
                         id: \.self,
-                        spacing: store.setting.contentDividerHeight,
+                        spacing: effectiveSetting.contentDividerHeight,
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
                     )
@@ -143,13 +163,13 @@ public struct ReadingView: View {
                     Pager(
                         page: page,
                         data: store.state.containerDataSource(
-                            setting: store.setting,
+                            setting: effectiveSetting,
                             isLandscape: DeviceUtil.isLandscape
                         ),
                         id: \.self,
                         content: imageStack
                     )
-                    .horizontal(store.setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
+                    .horizontal(effectiveSetting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
                     .swipeInteractionArea(.allAvailable)
                     .allowsDragging(gestureHandler.scale == 1)
                 }
@@ -168,7 +188,7 @@ public struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $bindablePageHandler.sliderValue, setting: Binding($setting),
+                sliderValue: $bindablePageHandler.sliderValue, setting: effectiveSettingBinding,
                 enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(store.gallery.pageCount),
@@ -196,7 +216,7 @@ public struct ReadingView: View {
                 }
             }
             // Orientation
-            .onChange(of: store.setting.enablesLandscape) { _, newValue in
+            .onChange(of: effectiveSetting.enablesLandscape) { _, newValue in
                 store.send(.setOrientationPortrait(!newValue))
             }
     }
@@ -207,7 +227,7 @@ public struct ReadingView: View {
             // Page
             .onChange(of: page.index) { _, newValue in
                 let newValue = pageHandler.mapFromPager(
-                    index: newValue, pageCount: store.gallery.pageCount, setting: store.setting
+                    index: newValue, pageCount: store.gallery.pageCount, setting: effectiveSetting
                 )
                 pageHandler.sliderValue = .init(newValue)
                 store.send(.syncReadingProgress(.init(newValue)))
@@ -218,7 +238,12 @@ public struct ReadingView: View {
                 }
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
-                if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
+                if !newValue {
+                    setPageIndex(sliderValue: pageHandler.sliderValue)
+                } else {
+                    let currentIndex = Int(pageHandler.sliderValue)
+                    store.send(.fetchPreviewURLs(currentIndex))
+                }
                 setAutoPlayPolocy(.off)
             }
             // AutoPlay
@@ -230,7 +255,7 @@ public struct ReadingView: View {
     }
 
     @ViewBuilder private func imageStack(index: Int) -> some View {
-        let setting = store.setting
+        let setting = effectiveSetting
         let imageStackConfig = store.state.imageContainerConfigs(
             index: index,
             setting: setting,
@@ -255,7 +280,7 @@ public struct ReadingView: View {
             liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { store.send(.fetchImageURLs($0)) },
             refetchAction: { store.send(.refetchImageURLs($0)) },
-            prefetchAction: { store.send(.prefetchImages($0, store.setting.prefetchLimit)) },
+            prefetchAction: { store.send(.prefetchImages($0, effectiveSetting.prefetchLimit)) },
             loadRetryAction: { store.send(.onWebImageRetry($0)) },
             loadSucceededAction: { store.send(.onWebImageSucceeded($0)) },
             loadFailedAction: { store.send(.onWebImageFailed($0)) },
@@ -270,7 +295,7 @@ public struct ReadingView: View {
 extension ReadingView {
     func setPageIndex(sliderValue: Float) {
         let newValue = pageHandler.mapToPager(
-            index: .init(sliderValue), setting: store.setting
+            index: .init(sliderValue), setting: effectiveSetting
         )
         if page.index != newValue {
             page.update(.new(index: newValue))

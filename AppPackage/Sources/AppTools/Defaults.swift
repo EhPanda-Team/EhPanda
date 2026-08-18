@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import SwiftUI
 
 public struct Defaults: Sendable {
     public struct App: Sendable {
@@ -52,6 +53,20 @@ public struct Defaults: Sendable {
         public static let tagSuggestion: NSRegularExpression? = try? .init(
             pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)"
         )
+    }
+    public struct FavoriteColor: Sendable {
+        public static let colors: [Color] = [
+            Color(hex: "9e9e9e"),
+            Color(hex: "fc4e4e"),
+            Color(hex: "fcb417"),
+            Color(hex: "dde500"),
+            Color(hex: "17b91b"),
+            Color(hex: "36b940"),
+            Color(hex: "68c9de"),
+            Color(hex: "5050d7"),
+            Color(hex: "9755f5"),
+            Color(hex: "fe93ff"),
+        ]
     }
     public struct URL: Sendable {
         public static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped

@@ -196,6 +196,7 @@ extension SettingReducer {
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
                     .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
+                    .run { _ in await WatchedTagsSetting.shared.clearOnlineTagSets() },
                     .send(.fetchIgneous),
                     .send(.fetchUserInfo),
                     .send(.fetchFavoriteCategories),
@@ -206,6 +207,7 @@ extension SettingReducer {
                 state.$user.withLock { $0 = User() }
                 return .merge(
                     .run(operation: { _ in cookieClient.clearAll() }),
+                    .run { _ in await WatchedTagsSetting.shared.clearOnlineTagSets() },
                     .run(operation: { _ in await libraryClient.removeAllCachedImages() }),
                     .run { _ in logger.notice("Logged out.") }
                 )

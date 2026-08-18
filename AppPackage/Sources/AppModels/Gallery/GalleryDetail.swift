@@ -23,7 +23,9 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
         pageCount: Int,
         sizeCount: Float,
         sizeType: String,
-        torrentCount: Int
+        torrentCount: Int,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil
     ) {
         self.gid = gid
         self.title = title
@@ -45,6 +47,8 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
         self.sizeCount = sizeCount
         self.sizeType = sizeType
         self.torrentCount = torrentCount
+        self.favoriteTagIndex = favoriteTagIndex
+        self.favoriteTagName = favoriteTagName
     }
     public static let empty: Self = .init(
         gid: "", title: "", isFavorited: false,
@@ -110,6 +114,8 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
     public var sizeCount: Float
     public var sizeType: String
     public var torrentCount: Int
+    public var favoriteTagIndex: Int?
+    public var favoriteTagName: String?
 }
 
 extension GalleryDetail: DateFormattable {

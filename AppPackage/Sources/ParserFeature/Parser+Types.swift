@@ -9,6 +9,9 @@ extension Parser {
         public let publishedDate: Date
         public let pageCount: Int
         public let uploader: String?
+        public let hasRated: Bool
+        public let favoriteTagIndex: Int?
+        public let favoriteTagName: String?
     }
 
     public struct GalleryNormalImageInfo {

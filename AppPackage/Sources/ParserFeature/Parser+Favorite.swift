@@ -3,16 +3,15 @@ import AppModels
 
 extension Parser {
     public static func parseFavoritesSortOrder(doc: HTMLDocument) -> FavoritesSortOrder? {
-        guard let idoNode = doc.at_xpath("//div [@class='ido']") else { return nil }
-        for link in idoNode.xpath("//div") where link.className == nil {
-            guard let aText = link.at_xpath("//div")?.at_xpath("//a")?.text else { continue }
-            if aText == "Use Posted" {
-                return .favoritedTime
-            } else if aText == "Use Favorited" {
-                return .lastUpdateTime
-            }
+        guard let select = doc.at_xpath("//div [@class='searchnav']//select[contains(@onchange, 'inline_set=fs_')]"),
+              let selectedValue = select.at_xpath(".//option[@selected]")?["value"]
+        else { return nil }
+
+        switch selectedValue {
+        case "p": return .lastUpdateTime
+        case "f": return .favoritedTime
+        default: return nil
         }
-        return nil
     }
 
     public static func parseFavoriteCategories(doc: HTMLDocument) throws -> [Int: String] {

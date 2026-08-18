@@ -77,6 +77,7 @@ private extension DetailView {
                             createDefaultFolderAction: { store.send(.createDefaultFolder) },
                             favorAction: { store.send(.favorGallery($0)) },
                             unfavorAction: { store.send(.unfavorGallery) },
+                            readingProgress: store.readingProgress,
                             navigateReadingAction: { store.send(.openReading) },
                             navigateUploaderAction: {
                                 if let uploader = store.galleryDetail?.uploader {

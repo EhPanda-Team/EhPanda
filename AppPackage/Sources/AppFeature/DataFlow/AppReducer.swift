@@ -13,6 +13,8 @@ import FavoritesFeature
 import DownloadsFeature
 import SettingFeature
 import OSLogExt
+import NetworkingFeature
+import AppModels
 
 private let logger = Logger(category: .init(describing: AppReducer.self))
 
@@ -40,6 +42,8 @@ struct AppReducer {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
         case runLaunchAutomation
+        case fetchWatchedTags
+        case fetchWatchedTagsDone(Result<MyTagsResponse, AppError>, apiuid: String)
 
         case appDelegate(AppDelegateReducer.Action)
         case appRoute(AppRouteReducer.Action)
@@ -92,6 +96,15 @@ struct AppReducer {
                         .send(.appLogsPump(.startPump)),
                         .run { _ in logger.notice("App entered foreground.") }
                     ]
+                    if !cookieClient.apiuid.isEmpty {
+                        effects.append(
+                            .run { send in
+                                if await WatchedTagsSetting.shared.needsRefresh(apiuid: cookieClient.apiuid) {
+                                    await send(.fetchWatchedTags)
+                                }
+                            }
+                        )
+                    }
                     // iOS interposes .inactive on a foreground return
                     // (.background -> .inactive -> .active), so the previous
                     // phase is never .background here. Latch the background
@@ -149,6 +162,27 @@ struct AppReducer {
                         await send(.tabBar(.setTabBarItemType(initialTab)))
                     }
                 }
+
+            case .fetchWatchedTags:
+                return .run { send in
+                    let apiuid = cookieClient.apiuid
+                    let result = await MyTagsRequest().response()
+                    await send(.fetchWatchedTagsDone(result, apiuid: apiuid))
+                }
+
+            case .fetchWatchedTagsDone(.success(let response), apiuid: let apiuid):
+                let tagSet = TagSetInfo(
+                    number: 1,
+                    name: "",
+                    enable: true,
+                    backgroundColor: response.tagSetBackgroundColor,
+                    tags: response.tags
+                )
+                return .run { _ in
+                    await WatchedTagsSetting.shared.updateTagSet(tagSet, apiuid: apiuid)
+                }
+            case .fetchWatchedTagsDone(.failure(let error), apiuid: _):
+                return .none
 
             case .appDelegate(.onLaunchFinish):
                 // Import any launch-automation cookies and load the persisted settings straight away.

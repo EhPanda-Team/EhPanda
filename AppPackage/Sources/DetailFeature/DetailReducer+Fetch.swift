@@ -1,6 +1,9 @@
 import Foundation
+import SwiftUI
 import ComposableArchitecture
 import NetworkingFeature
+import AppModels
+import AppTools
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {
@@ -30,7 +33,7 @@ extension DetailReducer {
                     ]
                     state.apiKey = response.apiKey
                     state.galleryDetail = response.galleryDetail
-                    state.galleryTags = response.galleryState.tags
+                    state.galleryTags = WatchedTagsSetting.applyWatchedTagColors(to: response.galleryState.tags)
                     state.galleryPreviewURLs = response.galleryState.previewURLs
                     state.galleryComments = response.galleryState.comments
                     if let config = response.galleryState.previewConfig {
@@ -110,25 +113,54 @@ extension DetailReducer {
                         apiuid: apiuid, apikey: apiKey,
                         gid: gid, token: token, rating: rating
                     ).response()
-                    await send(.anyGalleryOpsDone(response))
+                    await send(.rateGalleryDone(response))
                 }
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
+
+            case .rateGalleryDone(let result):
+                if case .success = result {
+                    state.gallery.hasRated = true
+                }
+                return .send(.anyGalleryOpsDone(result))
 
             case .favorGallery(let favIndex):
                 return .run { [gid = state.gallery.id, token = state.gallery.token] send in
                     let response = await FavorGalleryRequest(
                         gid: gid, token: token, favIndex: favIndex
                     ).response()
-                    await send(.anyGalleryOpsDone(response))
+                    await send(.favorGalleryDone(response, favIndex: favIndex))
                 }
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
+
+            case .favorGalleryDone(let result, let favIndex):
+                if case .success = result {
+                    state.gallery.favoriteTagIndex = favIndex
+                    if var detail = state.galleryDetail {
+                        detail.favoriteTagIndex = favIndex
+                        detail.favoriteTagName = state.user.getFavoriteCategory(index: favIndex)
+                        state.galleryDetail = detail
+                    }
+                }
+                return .send(.anyGalleryOpsDone(result))
 
             case .unfavorGallery:
                 return .run { [galleryID = state.gallery.id] send in
                     let response = await UnfavorGalleryRequest(gid: galleryID).response()
-                    await send(.anyGalleryOpsDone(response))
+                    await send(.unfavorGalleryDone(response))
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
+
+            case .unfavorGalleryDone(let result):
+                if case .success = result {
+                    state.gallery.favoriteTagIndex = nil
+                    state.gallery.favoriteTagName = nil
+                    if var detail = state.galleryDetail {
+                        detail.favoriteTagIndex = nil
+                        detail.favoriteTagName = nil
+                        state.galleryDetail = detail
+                    }
+                }
+                return .send(.anyGalleryOpsDone(result))
 
             case .postComment(let galleryURL):
                 guard !state.commentContent.isEmpty else { return .none }

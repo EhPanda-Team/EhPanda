@@ -27,7 +27,7 @@ public actor DataCache {
                 .appendingPathComponent("DataCache.reading", isDirectory: true),
             memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
             maxDiskAge: TimeInterval = 7 * 24 * 60 * 60,
-            diskSizeLimit: UInt64 = 0
+            diskSizeLimit: UInt64 = 2 * 1024 * 1024 * 1024
         ) {
             self.rootURL = rootURL
             self.memoryCostLimit = memoryCostLimit

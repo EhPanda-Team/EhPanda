@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import AppModels
 import Sharing
 import Resources
@@ -42,7 +43,10 @@ public struct HistoryReducer: Sendable {
 
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
-            return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
+            return galleries.filter { gallery in
+                gallery.title.caseInsensitiveContains(keyword)
+                || (gallery.titleJpn?.caseInsensitiveContains(keyword) ?? false)
+            }
         }
         public var galleries = [Gallery]()
         public var loadingState: LoadingState = .idle
@@ -77,6 +81,28 @@ public struct HistoryReducer: Sendable {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
+
+    private func mergeHistoryMetadata(_ galleries: [Gallery], entries: [GalleryHistoryEntry]) -> [Gallery] {
+        let byGID = Dictionary(grouping: entries, by: \.gid)
+        return galleries.map { gallery in
+            guard let entry = byGID[gallery.gid]?.first else { return gallery }
+            var merged = gallery
+            merged.hasRated = entry.hasRated
+            merged.favoriteTagIndex = entry.favoriteTagIndex
+            merged.favoriteTagName = entry.favoriteTagName
+            return merged
+        }
+    }
+
+    private func applyWatchedTagColors(to galleries: [Gallery]) -> [Gallery] {
+        var recolored = galleries
+        for galleryIndex in recolored.indices {
+            var gallery = recolored[galleryIndex]
+            gallery.tags = WatchedTagsSetting.applyWatchedTagColors(to: gallery.tags)
+            recolored[galleryIndex] = gallery
+        }
+        return recolored
+    }
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -145,11 +171,11 @@ public struct HistoryReducer: Sendable {
             case let .fetchGalleriesDone(result, endIndex):
                 state.loadingState = .idle
                 switch result {
-                case .success(let galleries):
+                case .success(var galleries):
                     state.fetchedCount = endIndex
+                    galleries = mergeHistoryMetadata(galleries, entries: state.galleryHistory)
+                    galleries = applyWatchedTagColors(to: galleries)
                     state.galleries = galleries
-                    // Whole first page unresolved but more history remains: page on so the list isn't
-                    // stuck empty with no cell to trigger the footer.
                     if galleries.isEmpty {
                         if state.hasMoreHistory {
                             return .send(.fetchMoreGalleries)
@@ -179,10 +205,11 @@ public struct HistoryReducer: Sendable {
             case let .fetchMoreGalleriesDone(result, endIndex):
                 state.footerLoadingState = .idle
                 switch result {
-                case .success(let galleries):
+                case .success(var galleries):
                     state.fetchedCount = endIndex
+                    galleries = mergeHistoryMetadata(galleries, entries: state.galleryHistory)
+                    galleries = applyWatchedTagColors(to: galleries)
                     state.galleries.append(contentsOf: galleries)
-                    // This page was entirely unresolved; continue so paging doesn't stall mid-list.
                     if galleries.isEmpty && state.hasMoreHistory {
                         return .send(.fetchMoreGalleries)
                     }

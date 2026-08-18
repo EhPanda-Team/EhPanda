@@ -47,7 +47,11 @@ struct DescriptionSection: View {
                 ForEach(infos) { info in
                     Group {
                         if info.isRating {
-                            DescScrollRatingItem(title: info.title, rating: info.rating)
+                            DescScrollRatingItem(
+                                title: info.title,
+                                rating: info.rating,
+                                userRating: galleryDetail.userRating
+                            )
                         } else {
                             DescScrollItem(title: info.title, value: info.value, description: info.description)
                         }
@@ -94,12 +98,23 @@ extension DescriptionSection {
     struct DescScrollRatingItem: View {
         let title: LocalizedStringResource
         let rating: Float
+        let userRating: Float
+
+        private var ratingColor: Color {
+            guard userRating > 0 else { return .primary }
+            switch userRating {
+            case 1..<2.5: return .red
+            case 2.5..<4.5: return .green
+            case 4.5...5: return .blue
+            default: return .primary
+            }
+        }
 
         var body: some View {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption).lineLimit(1)
                 Text(String(format: "%.2f", rating)).fontWeight(.medium).font(.title3)
-                RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(.primary)
+                RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(ratingColor)
             }
         }
     }
@@ -114,6 +129,15 @@ struct ActionSection: View {
     let updateRatingAction: (DragGesture.Value) -> Void
     let confirmRatingAction: (DragGesture.Value) -> Void
     let navigateSimilarGalleryAction: () -> Void
+
+    private func ratingColor(for rating: Float) -> Color {
+        switch rating {
+        case 1..<2.5: return .red
+        case 2.5..<4.5: return .green
+        case 4.5...5: return .blue
+        default: return .yellow
+        }
+    }
 
     var body: some View {
         VStack {
@@ -139,7 +163,7 @@ struct ActionSection: View {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: 24))
-                        .foregroundStyle(.yellow)
+                        .foregroundStyle(userRating > 0 ? ratingColor(for: Float(userRating) / 2) : .yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)
@@ -217,8 +241,9 @@ extension TagsSection {
                     text: translation?.displayValue ?? content.text,
                     imageURL: translation?.valueImageURL,
                     showsImages: showsImages,
-                    font: .subheadline, padding: padding, textColor: .primary,
-                    backgroundColor: backgroundColor
+                    font: .subheadline, padding: padding,
+                    textColor: content.textColor ?? (content.backgroundColor != nil ? .primary : .primary),
+                    backgroundColor: content.backgroundColor ?? backgroundColor
                 )
             }
             .contextMenu {

@@ -22,7 +22,11 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
                 pageCount: 1,
                 postedDate: .now,
                 coverURL: nil,
-                galleryURL: nil
+                galleryURL: nil,
+                isExpunged: false,
+                hasRated: false,
+                favoriteTagIndex: nil,
+                favoriteTagName: nil
             )
         }
         guard randomID, count > 0 else {
@@ -45,7 +49,11 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
                 + "EhPanda-Team/Imageset/blob/"
                 + "main/JPGs/2.jpg?raw=true"
         ),
-        galleryURL: nil
+        galleryURL: nil,
+        isExpunged: false,
+        hasRated: false,
+        favoriteTagIndex: nil,
+        favoriteTagName: nil
     )
 
     public var trimmedTitle: String {
@@ -55,6 +63,11 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         }
         title = title.barcesAndSpacesRemoved
         return title
+    }
+    public var hasWebtoonTag: Bool {
+        tags.contains { tag in
+            tag.contents.contains { $0.text.lowercased() == "webtoon" }
+        }
     }
     public var language: Language? {
         let rawValue = tags
@@ -74,6 +87,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public let token: String
 
     public var title: String
+    public var titleJpn: String?
     public var rating: Float
     public var tags: [GalleryTag]
     public let category: Category
@@ -83,11 +97,19 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public let coverURL: URL?
     public let galleryURL: URL?
     public var lastOpenDate: Date?
+    public var isExpunged: Bool = false
+    public var hasRated: Bool = false
+    public var favoriteTagIndex: Int?
+    public var favoriteTagName: String?
+    public var isFavorite: Bool {
+        favoriteTagIndex != nil || favoriteTagName != nil
+    }
 
     public init(
         gid: String,
         token: String,
         title: String,
+        titleJpn: String? = nil,
         rating: Float,
         tags: [GalleryTag],
         category: Category,
@@ -96,11 +118,16 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         postedDate: Date,
         coverURL: URL?,
         galleryURL: URL?,
-        lastOpenDate: Date? = nil
+        lastOpenDate: Date? = nil,
+        isExpunged: Bool = false,
+        hasRated: Bool = false,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil
     ) {
         self.gid = gid
         self.token = token
         self.title = title
+        self.titleJpn = titleJpn.flatMap(\.nonEmpty)
         self.rating = rating
         self.tags = tags
         self.category = category
@@ -110,6 +137,10 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.coverURL = coverURL
         self.galleryURL = galleryURL
         self.lastOpenDate = lastOpenDate
+        self.isExpunged = isExpunged
+        self.hasRated = hasRated
+        self.favoriteTagIndex = favoriteTagIndex
+        self.favoriteTagName = favoriteTagName
     }
 }
 

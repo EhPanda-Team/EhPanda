@@ -144,8 +144,14 @@ final class TagTranslationHandler {
         for index in (lastCompletedTagIndex ?? 0)..<keywords.count {
             let keywordList = keywords[index...]
             if !keywordList.isEmpty {
-                let keyword = keywordList.joined(separator: " ")
-                getSuggestions(translations: translations, keyword: keyword).forEach {
+                let originalKeyword = keywordList.joined(separator: " ")
+                let prefixCount = originalKeyword.prefix(while: { $0 == "~" || $0 == "-" }).count
+                let startIndex = originalKeyword.index(originalKeyword.startIndex, offsetBy: prefixCount)
+                let matchingKeyword = String(originalKeyword[startIndex...])
+                getSuggestions(
+                    translations: translations, keyword: matchingKeyword,
+                    originalKeyword: originalKeyword
+                ).forEach {
                     if !existingWords.contains($0.tag.searchKeyword) {
                         existingWords.insert($0.tag.searchKeyword)
                         result.append($0)
@@ -156,11 +162,15 @@ final class TagTranslationHandler {
         suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
+        let prefix = suggestion.originalKeyword.prefix(while: { $0 == "~" || $0 == "-" })
         let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.originalKeyword.count)
-        keyword = .init(keyword[keyword.startIndex..<endIndex]) + suggestion.tag.searchKeyword + " "
+        keyword = .init(keyword[keyword.startIndex..<endIndex]) + prefix + suggestion.tag.searchKeyword + " "
     }
-    private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
-        let originalKeyword = keyword
+    private func getSuggestions(
+        translations: [String: TagTranslation],
+        keyword: String,
+        originalKeyword: String
+    ) -> [TagSuggestion] {
         var keyword = keyword
         var namespace: String?
         let namespaceAbbreviations = TagNamespace.abbreviations

@@ -30,18 +30,18 @@ struct FavoritesSection: View {
     @Binding var ehSetting: EhSetting
     @FocusState private var isFocused
 
-    private var tuples: [(AppModels.Category, Binding<String>)] {
-        AppModels.Category.allFavoritesCases.enumerated().map { index, category in
-            (category, $ehSetting.favoriteCategories[index])
+    private var tuples: [(Int, Binding<String>)] {
+        AppModels.Category.allFavoritesCases.enumerated().map { index, _ in
+            (index, $ehSetting.favoriteCategories[index])
         }
     }
 
     var body: some View {
         Section {
-            ForEach(tuples, id: \.0) { category, nameBinding in
+            ForEach(tuples, id: \.0) { index, nameBinding in
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundColor(category.color(host: AppUtil.galleryHost))
+                        .foregroundColor(Defaults.FavoriteColor.colors[index])
                         .frame(width: 10)
 
                     SettingTextField(
