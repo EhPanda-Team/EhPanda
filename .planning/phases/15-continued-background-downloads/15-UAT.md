@@ -805,8 +805,10 @@ open_issues_note: |
   by removal when the owner deleted LogsDirectoryMigration on 2026-08-17. Two items were opened
   incidentally during round 6, neither of them a checkpoint result; G-15-2G was settled the same day
   by the partial-deletion check it called for and closed as no-defect, the wholesale guard being
-  working as designed. EXACTLY ONE gap now carries `status: open`: G-15-2F, a minor in-app display
-  defect where the Download Status sheet reads stale during a repair.
+  working as designed. TWO gaps now carry `status: open`, both incidental to round 6 and neither a
+  checkpoint failure: G-15-2F, a minor in-app display defect where the Download Status sheet reads
+  stale during a repair; and G-15-2H, a repair re-creating a gallery's user-visible folder under a
+  different name than the original download used.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
@@ -1017,6 +1019,47 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     downstream: how many consumers are live on the session's `AsyncStream`, and whether a session
     that expires while a previous consumer task is still finishing can leave a second one attached.
   test: 2
+
+- gap_id: G-15-2H
+  truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
+  status: open
+  severity: needs-investigation
+  found: "2026-08-18, round 6, incidental to test 2 clause 5"
+  observed: |
+    The gallery whose files were deleted outside the app and then repaired came back in a folder
+    with a DIFFERENT name than the one the original download created.
+
+      before repair   Documents/Downloads/Default/[4108805_3186cf251f] Onna no Battle Woman's Battle
+      after repair    Documents/Downloads/Default/[4108805_3186cf251f] Onna no Battle
+
+    Corroborated three ways: the Files.app listing showed the long name (dated 2026/08/10, 29 items)
+    before and the short name (12:47) after; a `devicectl` listing of the OLD path failed with "the
+    system failed to get a list of files" once the repair had run, while the NEW path listed 28
+    images plus manifest.json; and only one folder for that gid exists now, so this is a rename, not
+    a second folder left beside the first.
+
+    The gallery's stored title is
+      "[Heian Xiaocangku (Shiben c16e4)] Onna no Battle   Woman's Battle (Honkai_ Star Rail) [Chinese] [蒙面好汉化]"
+    — note the RUN OF SPACES between "Battle" and "Woman's". The original folder name had that run
+    collapsed to a single space and kept the "Woman's Battle" segment; the repaired folder name stops
+    at the run instead. That points at two different name-derivation paths, one used on first
+    download and one used when a repair re-creates the directory, but the cause was NOT diagnosed —
+    this entry records the observation, not a root cause.
+  possibly_related: |
+    The same repair logged, once, at the moment the session started:
+      "Stale working folder removal failed: Error Domain=NSCocoaErrorDomain Code=4"
+    Code 4 is NSFileNoSuchFileError — it tried to remove a working folder that was not there and
+    reported the miss as a failure. Whether that is the same code path that then chose a different
+    destination name, or unrelated noise, is unknown. Worth reading together.
+  why_it_matters: |
+    The downloads directory is user-visible and user-manageable through Files — that is the whole
+    subject of tests 9 and 15. A repair quietly renaming a user's folder moves their data out from
+    under any bookmark, shortcut, or external tool pointing at it, and it makes two galleries that
+    were downloaded the same way disagree about how they are named on disk.
+  note: |
+    Not a test 2 clause failure. Clause 5 asks whether the repair's progress climbs from the
+    announce, and it did; the files all landed and the record ended truthful. This is a separate
+    on-disk naming question that surfaced while exercising that clause.
 
 - gap_id: G-15-2F
   truth: "The in-app Download Status sheet describes the work a repair is actually doing."
