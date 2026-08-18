@@ -3,8 +3,8 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-18T02:51:25Z
-round: 5
+updated: 2026-08-18T05:00:00Z
+round: 6
 ---
 
 ## Current Test
@@ -12,10 +12,12 @@ round: 5
 number: —
 name: all runnable tests resolved
 expected: |
-  All fifteen checkpoints are resolved: 13 pass, 2 issues. Test 8 closed 2026-08-17 with the owner
-  choosing row anchoring and directing the AGENTS.md rule amendment. What remains is diagnosis of
-  the two open gaps, which is fix work rather than testing.
-awaiting: device UAT re-run of test 2 on the 260818-ek3 build (G-15-2D), and G-15-11
+  All fifteen checkpoints are resolved: 13 pass, 0 issues. Test 8 closed 2026-08-17 with the owner
+  choosing row anchoring and directing the AGENTS.md rule amendment. Test 2 closed at round 6 on
+  2026-08-18: the G-15-2D fixes (e68ca491, 1f9c3f34) were verified on the test iPhone across four
+  independent backgrounded sessions, every one of which drained with a terminal push and none of
+  which expired.
+awaiting: nothing — no checkpoint is waiting on a device
 
 ## Tests
 
@@ -46,7 +48,76 @@ expected_note: |
   basis; do not carry their wording forward.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: issue
+result: pass
+retest_round_6_result: pass
+retest_round_6_date: 2026-08-18
+retest_round_6_build: 260818-ek3 (e68ca491 pump serialization, 1f9c3f34 in-flight page-byte credit)
+retest_round_6_reported: |
+  Run on the test iPhone (physical iPhone 11, iOS 26.6) with airplane mode OFF and Wi-Fi connected —
+  the environment probe recorded "network wifi" from the second session on, so the owner's
+  "no airplane mode, no network fault" precondition held for the whole round.
+
+  FOUR independent backgrounded continued-processing sessions ran during this round. EVERY one
+  reached "Continued-processing session drained, terminal progress pushed." NONE expired, and the
+  card never once read "Task failed" — the round-5 failure mode did not recur. Heartbeats arrived
+  every ~10s throughout, with no gap approaching the ~30s stall window.
+
+  Two-gallery run A (82 + 112 = 194 pages), backgrounded mid-download. Card frames observed on the
+  system Background Activities surface:
+      79 / 194 pages · 2 galleries
+     111 / 194 pages · 2 galleries
+     127 / 194 pages · 2 galleries
+     143 / 194 pages · 2 galleries
+     159 / 194 pages · 2 galleries
+     176 / 194 pages · 2 galleries
+  Gallery 1 (82 pages) completed between the 79 and 111 frames; the subtitle never dropped to
+  "1 gallery". Log heartbeats ran to "192 / 194 pages ... 2 galleries" and then drained. Both
+  galleries were confirmed complete in-app afterwards at 82/82 and 112/112 — exactly the 194
+  denominator, so the numerator never ran above the work actually done.
+
+  Two-gallery run B (78 + 26 = 104 pages). The second gallery joined mid-session and the log shows
+  the basis widening correctly as it did: "71 / 78 pages ... 1 galleries" then
+  "77 / 104 pages ... 2 galleries". Card frames observed: 90, 92, 95, 96, 97, 99, 99, 102 — all
+  "/ 104 pages · 2 galleries", i.e. the count still read 2 well after the 26-page gallery had
+  finished.
+
+  The in-flight credit from 1f9c3f34 was observed doing its job. In run A the completed-page count
+  sat flat at 62 for three consecutive heartbeats while in-flight subunits climbed 181 -> 490 -> 781;
+  that page-granular plateau under thread limit 1 is the shape that previously let the system stall
+  detector fire, and the session rode straight through it.
+retest_round_6_clause_status: |
+  1 (queue two, start foreground, background)            PASS - observed, both runs.
+  2 ("· 2 galleries" on every frame incl. a completion)  PASS - 6 frames run A, 8 frames run B.
+  3 (final subtitle "N / N pages · 2 galleries")         NOT CAPTURED - see caveat below.
+  4 (never falls back, never above real work)            PASS - every series monotonic; run A ended
+                                                         at exactly 194 = 82+82 confirmed in-app.
+  5 (.repair climbs from the announce)                   PASS - see repair evidence below.
+  6 (pause one mid-queue, card completes the rest)       NOT EXERCISED this round.
+  7 (card-cancel parity vs in-app pause baseline)        NOT EXERCISED this round.
+retest_round_6_clause_3_caveat: |
+  The literal terminal frame could not be photographed in three attempts (polling at 20s, 15s and
+  ~3s). The system tears the card down at task completion faster than the poll interval: run B went
+  from "102 / 104 pages · 2 galleries" to no card at all, and the log puts the drain 6s after the
+  last heartbeat. What IS established is everything the clause is protecting: the fraction climbs
+  truthfully to the very last heartbeat (192/194, 101/104), the gallery count still reads 2 at that
+  point, the app does push a terminal progress update ("terminal progress pushed" on all four
+  sessions), and the final in-app totals match the denominator exactly. Round 4 observed the
+  "N / N pages · 2 galleries" wording directly under the 15-55 basis; 15-72 changed the announce
+  input, not the subtitle's gallery-count basis, and rounds 4 and 6 agree on every frame either one
+  could see. Treated as covered by composition rather than re-run a fourth time.
+retest_round_6_repair_evidence: |
+  Clause 5 was exercised for real, not inferred. A completed 27-page gallery had every image file
+  deleted from OUTSIDE the app through Files.app, with manifest.json deliberately left in place so
+  the record still claimed 27/27. "Validate Image Data" then flipped the row badge to amber and
+  enabled "Retry Pages"; the retry re-fetched all 27 pages, and the session heartbeats read
+      3 / 27 -> 8 / 27 -> 14 / 27 -> 20 / 27 -> 22 / 27 -> 25 / 27
+  so the announced basis CLIMBED FROM ZERO and did not freeze at the record's stale 27. All 27
+  pages plus the cover landed on disk and the sheet then read a truthful 27/27.
+retest_round_6_incidental: |
+  Two things seen in passing that are NOT clause failures and are filed separately below:
+  the in-app Download Status sheet stayed stale during the repair (see G-15-2F), and validation
+  did not durably blank the refuted page hashes (see G-15-2G).
+prior_round_5_result: issue
 retest_round_5_reported: |
   On the test iPhone (physical iPhone 11, iOS 26.6), two paused galleries were resumed from
   27/51 and 6/53 and EhPanda was backgrounded. The system Background Activities surface rendered
@@ -642,17 +713,31 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 12
-issues: 1
+passed: 13
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
 obsolete: 2
 
 completion_note: |
-  Every checkpoint carries a definitive result. ONE issue remains open: G-15-2D, the system
-  Background Activities surface reporting "Task failed" for a two-gallery session that completed.
-  It is the only thing between this phase and a clean UAT, and it is still undiagnosed.
+  Every checkpoint carries a definitive result and NO checkpoint is failing. G-15-2D — the system
+  Background Activities surface reporting "Task failed" for a two-gallery session that completed —
+  was diagnosed to Apple's stall detector and closed on device at round 6 (2026-08-18) against
+  build 260818-ek3: four independent backgrounded sessions, all four drained with a terminal push,
+  none expired, on healthy Wi-Fi with no airplane mode.
+
+  Two clauses of test 2 were not exercised at round 6 and carry their round-4 device passes
+  forward: clause 6 (pause one gallery mid-queue) and clause 7 (card-cancel parity with the in-app
+  pause baseline). Both are affordance-parity clauses that 15-72 did not touch — it changed the
+  announced basis, i.e. the numbers — and both passed on device at rounds 1 and 4. Clause 3's
+  literal terminal frame remains uncaptured because the system tears the card down at completion
+  faster than it can be polled; see the clause-3 caveat on test 2 for what stands in its place.
+
+  Two incidental findings were opened during round 6 and are NOT checkpoint failures: G-15-2F (the
+  in-app Download Status sheet reads stale during a repair) and G-15-2G (an undecided question about
+  whether validation must durably blank hashes when the whole gallery is missing, or whether the
+  wholesale guard legitimately refuses).
 obsolescence_note: |
   Tests 10 and 11 are `obsolete` rather than pass/issue because the owner deleted
   `LogsDirectoryMigration` on 2026-08-17, removing their subject. Test 9 keeps its pass on the
@@ -661,9 +746,11 @@ obsolescence_note: |
   an open issue would keep a defect claim alive against code that no longer exists — the count
   above deliberately does neither.
 open_issues_note: |
-  The two issues are G-15-2D (test 2, the system Background Activities surface reporting
-  "Task failed" for work that completed) and G-15-11 (test 11, the colliding-name merge leaving the
-  source spelling stranded). Neither is diagnosed yet.
+  No checkpoint is failing. G-15-2D is resolved on device (round 6, 2026-08-18). G-15-11 was closed
+  by removal when the owner deleted LogsDirectoryMigration on 2026-08-17. The two items still
+  carrying `status: open` are G-15-2F and G-15-2G, both opened incidentally during round 6 and
+  neither of them a checkpoint result: G-15-2F is a minor in-app display defect, and G-15-2G is a
+  question that needs one partial-deletion check before it can be called a defect at all.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
@@ -875,9 +962,83 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     that expires while a previous consumer task is still finishing can leave a second one attached.
   test: 2
 
+- gap_id: G-15-2F
+  truth: "The in-app Download Status sheet describes the work a repair is actually doing."
+  status: open
+  severity: minor
+  found: "2026-08-18, round 6, incidental to test 2 clause 5"
+  observed: |
+    With a completed 27-page gallery whose image files had been deleted outside the app (manifest
+    left in place, so the record still claimed 27/27), "Retry Pages" started a real re-download of
+    all 27 pages — the session heartbeats climbed 3/27 -> 25/27 and every file landed on disk.
+    Throughout that re-download the in-app Download Status sheet read:
+        Downloading 27/27
+        Downloaded (27)  1-27
+        Pending (0)      No Pages
+        Failed (0)       No Pages
+    i.e. it showed the work as already finished while it was in fact being redone from zero. The
+    system card's basis was correct at the same moment, so this is the in-app sheet's derivation,
+    not the run progress basis that 15-54/15-72 rebuilt.
+  why_it_matters: |
+    The sheet is the surface a user consults to find out what a repair is doing. Reporting
+    "Downloaded (27) / Pending (0)" during a 27-page refetch tells them the opposite of the truth,
+    and it is the same stale-record read that clause 5 exists to forbid on the system card.
+  note: |
+    Not a test 2 clause failure — test 2 judges the system-owned card, and that card was correct.
+    Filed separately so it is not lost inside a passing checkpoint.
+
+- gap_id: G-15-2G
+  truth: "A validation that observes a page's file is gone reconciles the manifest durably, so the persisted record alone reads truthfully."
+  status: open
+  severity: needs-decision
+  found: "2026-08-18, round 6, incidental to test 2 clause 5"
+  observed: |
+    All 27 image files of a completed gallery were deleted outside the app via Files.app, with
+    manifest.json left in place. After relaunch the Downloads row still showed a grey check and
+    27/27 — the persisted record claiming complete with zero files on disk. Running
+    "Validate Image Data" flipped the badge to amber and enabled "Retry Pages", but manifest.json
+    pulled off the device immediately afterwards still carried 27 of 27 non-blank page hashes:
+    nothing was blanked.
+  the_question: |
+    AGENTS.md's download-manifest-SSOT rule names this exact scenario ("image files were deleted
+    outside the app while their hashes still read complete") and requires the manifest be reconciled
+    durably at that moment. But the SAME rule permits session-scoped state as an operation-level
+    signal for, among other things, "the all-or-nothing wholesale guard refusing an entire
+    reconciliation" — and this case was wholesale, every page in the gallery.
+    So the amber badge is either a rule violation or the wholesale guard behaving exactly as
+    designed, and the observation as taken cannot tell the two apart.
+  how_to_settle: |
+    Delete only SOME of a gallery's pages (e.g. 6 of 27) outside the app and run Validate. If the
+    partial case durably blanks those 6 hashes, the wholesale guard is working as designed and this
+    gap closes as no-defect. If the partial case also leaves every hash intact, reconciliation is
+    not happening at all and the rule is being violated. Not run this round.
+  note: |
+    Recorded rather than asserted as a defect, because the SSOT rule genuinely licenses this shape
+    when the guard refuses wholesale. Do not act on it before the partial-deletion check.
+
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
-  status: open
+  status: resolved
+  resolved_by: "e68ca491 (serialize the activity-log pump), 1f9c3f34 (credit in-flight page bytes and heartbeat)"
+  device_verdict_2026_08_18: |
+    RESOLVED ON DEVICE, round 6, test iPhone (iPhone 11, iOS 26.6), build 260818-ek3, airplane mode
+    OFF and the environment probe reporting "network wifi".
+
+    FOUR independent backgrounded sessions, every one ending in "Continued-processing session
+    drained, terminal progress pushed." Zero expirations, zero "Task failed" cards, and heartbeats
+    every ~10s with no gap approaching the ~30s stall window. Two of the four were multi-gallery
+    (194 pages and 104 pages); both rendered a correct live fraction and "· 2 galleries" on every
+    observed frame.
+
+    The mechanism behind the fix was observed directly. In the 194-page run the completed-page count
+    stayed flat at 62 across three consecutive heartbeats while in-flight subunits climbed
+    181 -> 490 -> 781. That is precisely the page-granular plateau, under a download thread limit of
+    1, that let Apple's stall detector force-expire the task in round 5; with 1f9c3f34 crediting
+    in-flight page bytes the reported progress kept advancing and the session rode through it.
+
+    This closes the owner's 2026-08-17 ruling that "在沒有飛航模式、網路異常等情況時 session 在下載未完成
+    的情況下結束是不能接受的" — under exactly those conditions (no airplane mode, healthy Wi-Fi) no
+    session ended early in four attempts.
   diagnosis_2026_08_17: |
     STATIC ANALYSIS ONLY - not yet confirmed against device logs. Recorded so the next session does
     not redo it.
@@ -1398,3 +1559,10 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     returns while awaiting confirmation, and vanishes again only after Delete is confirmed.
   scope: out_of_scope
   deferred_at: 2026-08-08
+
+round_6_scope: |
+  Round 6 is narrow by design: it re-ran test 2 only, on the test iPhone, to confirm the two
+  G-15-2D fixes that another session landed (e68ca491 serialize the activity-log pump,
+  1f9c3f34 credit in-flight page bytes and heartbeat). The regression gate was run first from
+  AppPackage/ and was clean — BUILD SUCCEEDED with 0 errors and 0 warnings, TEST SUCCEEDED.
+  All other checkpoints keep their round-4/round-5 results unchanged.
