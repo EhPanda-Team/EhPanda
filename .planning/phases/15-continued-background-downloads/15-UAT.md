@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-17T17:10:00Z
+updated: 2026-08-18T02:51:25Z
 round: 5
 ---
 
@@ -15,7 +15,7 @@ expected: |
   All fifteen checkpoints are resolved: 13 pass, 2 issues. Test 8 closed 2026-08-17 with the owner
   choosing row anchoring and directing the AGENTS.md rule amendment. What remains is diagnosis of
   the two open gaps, which is fix work rather than testing.
-awaiting: diagnosis of G-15-2D and G-15-11
+awaiting: device UAT re-run of test 2 on the 260818-ek3 build (G-15-2D), and G-15-11
 
 ## Tests
 
@@ -773,7 +773,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2E
   truth: "A single continued-processing expiration is handled once: one pause sweep, one log line."
-  status: resolved_as_misdiagnosis
+  status: closed
   correction_2026_08_17: |
     MY ORIGINAL FRAMING WAS WRONG. I filed this as duplicate `.expired` EVENT delivery or multiple
     live stream consumers. It is neither. The expiration handler ran ONCE, the pause sweep ran ONCE,
@@ -810,6 +810,48 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     atomic step under a single owner (an actor in `LogsClient` holding the cursor and serialising
     writes), or at minimum guard the append on `Task.isCancelled` and advance the cursor in the
     effect that actually wrote; and stop restarting the pump on every `.active` bounce.
+  fix_2026_08_18: |
+    CLOSED by quick task 260818-ek3, commit e68ca491 on `feature/gsd-phase-15`.
+
+    THE CURSOR NOW BELONGS TO THE WRITE. `RunLogDrain` (new, `AppPackage/Sources/LogsClient/`) is a
+    `public actor` whose `drain(into:)` fetches, appends and advances the cursor with NO suspension
+    point between them — an actor method with no `await` runs to completion before any other call
+    can enter, so two overlapping callers cannot read one stale cursor and cannot write one batch
+    twice. Its contract: nothing is returned that was not written, and nothing is written whose
+    cursor did not advance. A failed append leaves the cursor where it was, so the same entries are
+    re-offered on the next tick instead of being silently skipped; a failed fetch is a silent empty
+    tick. Both stay silent for the reason the old append did: this pump reads back the app's own
+    OSLog, so logging a persistence failure feeds itself.
+
+    THE SPLIT ENDPOINTS ARE GONE. `LogsClient.fetchNewEntries` + `appendToRunFile` are replaced by
+    one `drainNewEntries(url)`, whose live value forwards onto ONE process-wide `RunLogDrain`. A
+    caller holding both halves could interleave them, which is exactly what happened.
+
+    THE RUN IS DERIVED ONCE, BY CONSTRUCTION. `nextRunCount` became synchronous, so `.startPump`
+    establishes the run inside the reduce step rather than through an async `send`; and a
+    `.startPump` on an already-running pump is now a no-op (`isPumpRunning` replaces
+    `cancelInFlight: true`). That is the Run 4 double-header's cause, closed structurally: the
+    header is emitted only on the first start of the process.
+
+    THE LIVE VIEW IS PUBLISHED WITHOUT `send`. The pump effect appends the drained batch to the
+    shared `currentRunLogs` directly via `withLock`, because TCA's `Send` is a no-op after
+    cancellation — so a cancelled tick can now neither lose nor duplicate a batch the file already
+    holds.
+
+    THE PUMP SURVIVES BACKGROUNDING UNDER A LIVE SESSION, which is what the
+    `relevance_to_this_feature` note below asked for. `DownloadClient.observeContinuedSessionLiveness`
+    (new `AsyncStream<Bool>`, yielded `true` when `continuedClientSessionID` lands and `false` in
+    `markContinuedSessionEnded`) is consumed by `AppReducer` at launch; `.background` pauses the pump
+    only when no session is live, and the live-to-ended transition while backgrounded pauses it then
+    — a final drain before the process can be killed. `SettingFeature` still knows nothing about
+    downloads.
+
+    PINNED BY: `RunLogDrainTests` (overlapping drains append each entry once and the in-flight fetch
+    depth never exceeds one; a failed append re-offers; a failed fetch moves nothing),
+    `AppActivityLogsReducerTests.overlappingStartPauseStartAppendsEachEntryOnce` (RED against the old
+    reducer) and `.startPumpTwiceDerivesTheRunOnce`,
+    `AppReducerScenePhaseTests.backgroundKeepsThePumpAliveWhileASessionIsLive` and
+    `.backgroundPausesThePumpWhenNoSessionIsLive`, and `DownloadContinuedSessionLivenessTests`.
   relevance_to_this_feature: |
     The pump is PAUSED while backgrounded, so lines emitted during background work (including an
     expiry and its pause sweep) live only in OSLog until the next `.active`. Had the app been killed
@@ -1001,6 +1043,66 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
   scope_note: |
     Diagnosis only. No fix attempted — every ranked item above is a design change needing the
     owner's go-ahead.
+  fix_landed_2026_08_18: |
+    Ranked fixes 1 and 2 LANDED, plus the instrumentation, by quick task 260818-ek3 —
+    commit 1f9c3f34 on `feature/gsd-phase-15` (the log-pump half it depends on is e68ca491).
+    STATUS STAYS OPEN: nothing here is device-confirmed, and closing it is the next UAT's job.
+
+    (1) INTRA-PAGE CREDIT (ranked fix 1). `URLSessionDownloadDelegate.didWriteData` is now wired
+    through: `BackgroundPageDownloadDelegate` forwards a transfer's running byte totals at most
+    every 250 ms per task (one lock covers the lookup, the throttle decision and its stamp; the
+    handler runs outside it), and the coordinator credits the page. The seam gained a fifth
+    argument, `inFlightSubunitCount`, and `ContinuedProcessingSession` — the owner of the system
+    `Progress` — does the scaling: `totalUnitCount = total * 1000`,
+    `completedUnitCount = min(completed * 1000 + inFlight, total * 1000)`. The COORDINATOR'S PUSHED
+    PAIR IS STILL WHOLE PAGES, deliberately: the sub-page term travels beside it rather than inside
+    it, so `lastPushedCompletedPageCount` gains no writer and D-G2-01 / D-G2C-01 / D-G7-01 keep
+    their documented meaning. Per-page credit is monotone by `max` (a retry restarts the bytes at
+    zero, and two forwarded reports can land out of order — the `max` answers both); it is retired
+    inside `flushManifestPageProgress`, in the same synchronous stretch as the run measurement's own
+    subtraction, so whole-page and sub-page credit trade places atomically; it is withdrawn by name
+    at a page's `.failure` outcome — a drop of less than one page, the one deliberate downward mover
+    — and dropped with the rest of the gallery's entries at the run's exit. Pushes from bytes are
+    throttled to at most one per second (`intraPageProgressPushMinimumInterval`, stated as being at
+    or above the existing 0.4 s flush interval). An unknown expected size credits nothing intra-page.
+    The subtitle still reads whole pages.
+
+    (2) SESSION HEARTBEAT (ranked fix 2). One coordinator-owned repeating task per live session,
+    started when the client session id lands and cancelled in `markContinuedSessionEnded`, period
+    10 s, gated on `hasPendingWork()`, re-pushing through the SAME
+    `pushContinuedSessionProgress(sessionID:)` — no second push path. It drives the injected clock,
+    so its tests advance a `TestClock` rather than sleeping.
+
+    (3) INSTRUMENTATION — the exact message prefixes to grep in the next jsonl:
+      - `Page transfer first bytes` — fields: page index, `created foreground|background`, ms to
+        first byte, expected bytes. The `created` field plus the TTFB is the discriminator for
+        cause (b).
+      - `Page transfer starved` — page index, `created …`, ms without bytes, and
+        `still transferring | ended`. Emitted for any transfer with zero bytes for >= 10 s, from ONE
+        helper shared by both detectors (the heartbeat's sweep, and the transfer's own exit — so a
+        transfer the expiry's pause sweep cancelled still says how long it starved).
+      - `Continued-session heartbeat` — completed / total pages, in-flight subunits, galleries,
+        transfers in flight. Logged only when the numerator changed or 30 s passed, so the file
+        stays small.
+      - `Continued-session environment at start` and `Continued-session environment at expiry` —
+        network kind, low power, thermal state.
+    Gallery identity stays `<mask.hash>`; every other field is an integer or a closed symbol name
+    and goes out `public`. `DownloadLogPrivacyInvariantTests` was edited deliberately and only
+    there: one new file entry worth two masked sites, total 11 to 13.
+
+    (4) DEFERRED, decision after the next UAT: ranked fix 3, routing page transfers through the
+    foreground `URLSession` while a session is live. Apple's `isDiscretionary` documentation
+    (quoted under `root_cause_2026_08_17`) makes it a documented mechanism, not a confirmed one; the
+    discriminator is now in the log — the `created background` field on the first-bytes and starved
+    lines, and their TTFB / starvation durations across a background stretch.
+
+    (5) UNCHANGED: ranked fix 4. The D-11 "expiry => pause all schedulable" policy is untouched.
+
+    WHAT THE NEXT DEVICE RUN MUST SHOW TO CLOSE THIS: no expiry while pages are landing; heartbeat
+    lines every ~10 s through each backgrounded stretch and first-bytes lines for the pages
+    transferred in it; and, at any expiry that does occur, the environment lines from both moments
+    plus whatever starved lines preceded it — so the next verdict is an attribution rather than an
+    inference.
   reason: |
     Physical-device round-5 retest: the Background Activities surface showed "Downloading
     galleries — Task failed" for a two-gallery session that nevertheless completed both galleries
