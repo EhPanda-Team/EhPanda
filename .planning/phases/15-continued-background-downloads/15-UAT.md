@@ -1287,6 +1287,31 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
     CLEANUP: the folder was renamed back to "[4127415_3869b04dde] canaria" afterwards, which the
     same frozen-leaf path honoured; the library is back to its pre-test names.
+  resolution_2026_08_19: |
+    OWNER DECISION — guard ONE invariant end to end: the download client never deletes a gallery
+    folder it did not itself create in the same run. The completion sweep (`removeSupersededFolders`,
+    the one production violator) and the repair-seed materialization are RETIRED per the deletion
+    inventory above, whose line numbers were re-verified against the tree; this supersedes the
+    CORRECTION's KEEP-WITH-A-CHANGED-CONTRACT recommendation. No rename resolution was added:
+    `folderRelativePath`, `shouldReuseWorkingFolder` and `delete(gid:)` are unchanged in behaviour,
+    `removeGalleryFolders` keeps its breadth but loses its keep-one parameter (no production caller
+    remained), and no migration was written.
+
+    WHY — the iPad-multitasking shape reported on 2026-08-19: a Files.app rename plus a stale index
+    plus Repair/Resume recreated the folder at the OLD name, refetched everything, and the sweep then
+    deleted the user's renamed folder. ACCEPTED CONSEQUENCE: that shape now leaves TWO folders (the
+    user's, untouched, beside the app's fresh one) and `deduplicatedDownloadIndex` picks the newest
+    by modification date. The user removes the spare through the app when they want it gone.
+
+    The "Stale working folder removal failed ... Code=4" line remains a legitimate fingerprint of a
+    stale-index destination and was not touched.
+
+    PINNED BY — `DownloadProcessTests.testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched`: a
+    full `processDownload` over a gid with a SECOND, manifest-only-matching folder in another user
+    folder completes in the record's folder and leaves the other one with identical entries and an
+    identical manifest, `galleryFolderURLs` still returning both. The interrupted-resume sweep pin
+    was restaged onto `removeGalleryFolders` (removes every folder of the gallery, and no other), and
+    the discarding-rejected census fell 2 -> 1. Commits f7e65497 (fix) and b0d2d57e (pin).
   resolved_question_stale_working_folder: |
     The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
     not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
