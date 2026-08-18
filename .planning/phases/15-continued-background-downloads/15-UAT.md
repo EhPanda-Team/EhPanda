@@ -1182,11 +1182,72 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       folder exists for the gid — the whole-arc version of the unit pins above.
 
     FOLLOW-UP QUESTION FOR THE OWNER (not acted on)
-      Post-fix, `repairSeed` / `materializeRepairSeed` / `RepairSeedContext` are unreachable from
-      `processDownload`: the destination now equals the record's folder, so `shouldReuseWorkingFolder`'s
-      existence guard and `repairSeed`'s existence guard cannot both fail. WR-02 / G-15-13 / G-15-19
-      pins still own that branch's contract, and the locked spec did not ask for removal, so nothing
-      was deleted. Retire the seed materialization in a design round?
+      AS FILED, AND CORRECTED BELOW: "post-fix, `repairSeed` / `materializeRepairSeed` /
+      `RepairSeedContext` are unreachable from `processDownload`: the destination now equals the
+      record's folder, so `shouldReuseWorkingFolder`'s existence guard and `repairSeed`'s existence
+      guard cannot both fail. WR-02 / G-15-13 / G-15-19 pins still own that branch's contract, and
+      the locked spec did not ask for removal, so nothing was deleted. Retire the seed
+      materialization in a design round?"
+
+    CORRECTION 2026-08-18 — THE UNREACHABILITY CLAIM IS NOT AN INVARIANT
+      Investigated in a design round on 2026-08-18. Verdict: TRUE-WITH-EXCEPTIONS, not true. The
+      geometry above holds only under an assumption it does not state — that `downloadIndex[gid]` at
+      the moment `folderRelativePath` is evaluated still names the folder the run captured at its
+      start. Two interleavings break it and re-open the seed branch.
+
+      What DOES hold, unconditionally:
+        - `.initial` / `.redownload` / `.update` can never reach the machinery in any folder state,
+          because `repairSeed`'s first guard is `payload.mode == .repair`
+          (`DownloadClient+ExecutionSupport.swift:856`).
+        - The `enqueue` route never touches it: `folderRelativePath` -> `writeInitialManifest`, with
+          no `prepareWorkingSeed` in between.
+        - For a steady-state `.repair`, destination == the record's own path, so the two existence
+          guards probe one path and cannot disagree; and there is no suspension between the
+          derivation and the guards, so they read one consistent moment.
+
+      The two windows that DO reach it — both are index divergence DURING a run:
+        E1  `download` is captured at `DownloadClient+Execution.swift:36` but `folderRelativePath`
+            is evaluated at `:170`, after real suspensions (`downloadOptionsProvider()`,
+            `notifyObservers()`, the network `fetchLatestPayload`). `syncDownloadsState` has no
+            active-run gate, and its `reloadDownloadIndex` failure path sets `downloadIndex = [:]`
+            while every folder is still on disk. The derivation then takes the deliberately-kept
+            fresh-leaf branch and re-derives from `trimmedTitle` — the exact pipe/title-drift hazard
+            G-15-2H froze out. Destination (new leaf) is absent, the captured folder (old leaf) is
+            present with a matching manifest, every `repairSeed` guard passes: the pre-fix rename arc
+            runs, through a transient scan failure.
+        E2  Same shape across parents: duplicate folders for one gid in different parents (a
+            Files.app copy) let a mid-run reload re-point the index from the captured A/L1 to B/L2,
+            so the destination becomes A + L2, which exists nowhere, while A/L1 still stands.
+            `moveDownload` CANNOT cause this — it refuses while the gid is active
+            (`DownloadClient+Folders.swift:266-276`) — so only externally-created duplicates plus a
+            mid-run reload produce it.
+
+      Cases checked and found NOT to reach it: a gallery with no index record (`processDownload`
+      returns at `Execution.swift:36-38` before anything); a completed `moveDownload` parent change;
+      a folder renamed or deleted in Files.app with a stale index (both guards probe the same stale
+      path and fail together); pre-fix legacy duplicates on their next repair.
+
+      Consequently the pins are NOT pinning dead code. WR-02 / G-15-13 / G-15-19 pin the
+      differing-destination-over-standing-source shape, which is exactly what E1/E2 produce, and
+      13cad7d9 already restaged those suites to reach it through the production `folderRelativePath`.
+
+      RECOMMENDATION: KEEP, WITH A CHANGED CONTRACT — the change documentary, not behavioural.
+      Demote the branch from "the expected title-re-slot path" (its pre-fix role) to "the salvage net
+      for a run whose destination was re-addressed away from a still-standing source", and name the
+      residual reachability on `setupWorkingFolder` / `repairSeed`. Retirement is not
+      behaviour-neutral even on the original analysis: with the seed gone the run falls to
+      `createDirectory`, `ensureWorkingManifest` writes a fresh all-empty manifest at the empty
+      destination and re-indexes it (republishing the record at 0-of-N with a full D-G7-01
+      withdrawal), and the completion sweep then deletes the old folder with all its files.
+
+      Deletion inventory, if the owner overrides: `RepairSeedContext`
+      (`+ExecutionSupport.swift:739-742`), `setupWorkingFolder`'s seed branch (:766-776) and its
+      `carriedUnprobedPages` channel (:428-433, union :461-466), `repairSeed` (:843-870),
+      `RepairSeed` (`+Manager.swift:179-190`), `materializeRepairSeed`
+      (`DownloadStore+Operations.swift:90-200`) and the then-stranded `linkOrCopyReadableAsset`
+      (:55); tests: all three `DownloadStoreRepairTests` cases, `DownloadCoordinatorRepairSeedTests`
+      :10 and :259, both `DownloadRepairSeedSignalPropagationTests` cases, and a census restage in
+      `DownloadSourceInventoryTests.swift:443-449` (2 -> 1).
 
     WHAT THE NEXT DEVICE RUN MUST SHOW
       Repair a gallery whose stored title differs from the site's (the pipe case is the reported
