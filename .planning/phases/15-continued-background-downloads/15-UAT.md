@@ -1023,7 +1023,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2H
   truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
   status: open
-  severity: confirmed-defect (fix gated on one owner decision)
+  severity: confirmed-defect (diagnosed; owner decision taken; ready to implement)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   diagnosed: "2026-08-18, root cause confirmed in code"
   observed: |
@@ -1073,19 +1073,54 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     So the rename is not stray machinery misfiring — steps 4 and 5 are behaving as designed. The
     defect is upstream of them, at step 1: a stable, already-existing folder is re-addressed by a
     name recomputed from live network data.
-  suggested_fix: |
-    Resolve the destination from the gallery's EXISTING folder when it has one — `download.folderURL`
-    / `storage.galleryFolderURLs(gid:token:)` — and derive a fresh name only when no folder exists
-    yet. That makes the on-disk name stable across runs, removes the spurious "Stale working folder
-    removal failed" log, and matches the store's own stated intent that folder membership follows
-    filesystem location rather than a recomputed string.
+  owner_decision_2026_08_18: |
+    NEVER RENAME. An upstream title change must not rename a gallery folder that already exists on
+    disk. Decided by the owner on 2026-08-18, in answer to the question this entry raised. The fix
+    is no longer gated; the spec below is the one to implement.
+  fix_spec: |
+    GOAL: the LEAF component of a gallery's folder — the `[gid_token] Title` part — is chosen ONCE,
+    when the folder is first created, and never recomputed afterwards.
 
-    OWNER DECISION NEEDED before implementing: should a genuine upstream title change EVER rename an
-    existing gallery folder? Renaming moves the user's data out from under bookmarks and external
-    tools; never renaming can leave a folder whose title text is stale. The recommendation is never
-    rename — the `[gid_token]` prefix already carries identity, and `galleryFolderURLs` already
-    matches on manifest gid/token regardless of the readable part. Do not implement until this is
-    settled, since the two answers produce different fixes.
+    WHAT CHANGES
+      `folderRelativePath(for:parentFolderName:)` in
+      `DownloadClient+ExecutionSupport.swift:35-47` currently always builds the leaf from
+      `storage.makeFolderRelativePath(gid:token:title:)`. It must instead:
+        - reuse the EXISTING folder's `lastPathComponent` when the gallery already has a folder
+          (resolve via `download.folderURL` / `storage.galleryFolderURLs(gid:token:)`), and
+        - derive a fresh leaf from the payload ONLY when no folder exists yet.
+      Centralize it there rather than at the call sites, so both callers are covered:
+        - `DownloadClient+Execution.swift:158`  (processDownload — every mode, incl. repair)
+        - `DownloadClient+PublicAPI.swift:99`   (enqueue; its own comment notes this route
+                                                 "explicitly supports an already-known gallery",
+                                                 so it can meet an existing folder too)
+
+    KEEP WORKING — do not over-apply the rule
+      Only the LEAF is frozen. The PARENT component must keep its current behaviour, because moving
+      a gallery to a different download folder in-app is a deliberate user action and still has to
+      relocate it. `folderRelativePath` already returns "\(parentFolderName)/\(galleryFolderName)";
+      the fix replaces only the second half.
+
+    FALLS OUT FOR FREE
+      The spurious "Stale working folder removal failed ... Code=4" disappears: it only fired because
+      the recomputed path did not exist, which tripped `shouldReuseWorkingFolder`'s `fileExists`
+      guard before its `case .repair: return true`. Do not "fix" that log line separately.
+
+    NO MIGRATION
+      Galleries already renamed by this bug stay where they are; the record and disk agree, and
+      `galleryFolderURLs` matches on manifest gid/token regardless of the readable half. The fix
+      only stops FUTURE renames. Do not write a migration.
+
+    TESTS TO ADD
+      1. Same gid/token, two runs whose payload titles differ in a way that changes the derived name
+         (e.g. one title containing `|` and one not, since `trimmedTitle` truncates at the first
+         pipe) — assert the on-disk folder name is IDENTICAL after both runs, and that no second
+         folder was created.
+      2. A repair run over an existing folder — assert the folder is reused in place and
+         `materializeRepairSeed` / `removeSupersededFolders` are not exercised to relocate it.
+      3. A deliberate parent-folder change — assert the gallery DOES move, i.e. the leaf is stable
+         but the parent is not frozen.
+      Note the project's `Feature` reducer-naming convention and the SwiftLint rules in the root
+      `.swiftlint.yml` before writing code.
   resolved_question_stale_working_folder: |
     The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
     not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
