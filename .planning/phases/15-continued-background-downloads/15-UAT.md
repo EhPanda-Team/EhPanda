@@ -1023,8 +1023,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2H
   truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
   status: open
-  severity: needs-investigation
+  severity: confirmed-defect (fix gated on one owner decision)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
+  diagnosed: "2026-08-18, root cause confirmed in code"
   observed: |
     The gallery whose files were deleted outside the app and then repaired came back in a folder
     with a DIFFERENT name than the one the original download created.
@@ -1040,17 +1041,56 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
     The gallery's stored title is
       "[Heian Xiaocangku (Shiben c16e4)] Onna no Battle   Woman's Battle (Honkai_ Star Rail) [Chinese] [蒙面好汉化]"
-    — note the RUN OF SPACES between "Battle" and "Woman's". The original folder name had that run
-    collapsed to a single space and kept the "Woman's Battle" segment; the repaired folder name stops
-    at the run instead. That points at two different name-derivation paths, one used on first
-    download and one used when a repair re-creates the directory, but the cause was NOT diagnosed —
-    this entry records the observation, not a root cause.
-  possibly_related: |
-    The same repair logged, once, at the moment the session started:
-      "Stale working folder removal failed: Error Domain=NSCocoaErrorDomain Code=4"
-    Code 4 is NSFileNoSuchFileError — it tried to remove a working folder that was not there and
-    reported the miss as a failure. Whether that is the same code path that then chose a different
-    destination name, or unrelated noise, is unknown. Worth reading together.
+    — note the RUN OF SPACES between "Battle" and "Woman's", where the site's own title almost
+    certainly carries a `|`. DIAGNOSED 2026-08-18; see root_cause below.
+  root_cause: |
+    CONFIRMED IN CODE. The destination folder path is RECOMPUTED FROM THE FRESHLY FETCHED PAYLOAD ON
+    EVERY RUN, and is never resolved from the folder the gallery already occupies.
+
+      1. `DownloadClient+Execution.swift:158` — `processDownload` fetches a fresh payload and then
+         calls `folderRelativePath(for: payload, parentFolderName: download.folderName)`. This runs
+         for EVERY mode, repair included. Nothing consults the existing folder, even though
+         `DownloadStore.galleryFolderURLs(gid:token:)` exists precisely to find it and is documented
+         as finding "a folder the user moved in the Files app".
+      2. `DownloadClient+ExecutionSupport.swift:41-45` — the name's title is
+         `payload.galleryDetail.trimmedTitle`, falling back to `payload.gallery.title` when empty.
+      3. `GalleryDetail.swift:84` / `Gallery.swift:72` — `trimmedTitle` TRUNCATES AT THE FIRST `|`
+         and then strips bracket/paren groups. So a title whose pipe is present yields
+         "Onna no Battle", and one whose pipe is absent yields "Onna no Battle Woman's Battle".
+         The manifest's stored `title` for this gallery contains NO pipe (verified by reading the
+         file off the device), which is why the record cannot reproduce the on-disk name: the value
+         the name derives from is never persisted.
+      4. Because the recomputed path did not exist, `shouldReuseWorkingFolder`
+         (`+ExecutionSupport.swift:669-671`) hit its `fileExists` guard and returned false BEFORE
+         reaching its `case .repair: return true`. That is why `setupWorkingFolder` then tried to
+         remove a folder that was not there and logged
+         "Stale working folder removal failed ... Code=4" — that line is NOT unrelated noise, it is
+         this bug's fingerprint, and it answers the possibly_related question this entry opened.
+      5. `repairSeed` + `DownloadStore+Operations.swift:121 materializeRepairSeed` then carried the
+         gallery to the new path, and `removeSupersededFolders` (`+Execution.swift:87`) deleted the
+         old one from the completion handler. Net effect: a rename.
+
+    So the rename is not stray machinery misfiring — steps 4 and 5 are behaving as designed. The
+    defect is upstream of them, at step 1: a stable, already-existing folder is re-addressed by a
+    name recomputed from live network data.
+  suggested_fix: |
+    Resolve the destination from the gallery's EXISTING folder when it has one — `download.folderURL`
+    / `storage.galleryFolderURLs(gid:token:)` — and derive a fresh name only when no folder exists
+    yet. That makes the on-disk name stable across runs, removes the spurious "Stale working folder
+    removal failed" log, and matches the store's own stated intent that folder membership follows
+    filesystem location rather than a recomputed string.
+
+    OWNER DECISION NEEDED before implementing: should a genuine upstream title change EVER rename an
+    existing gallery folder? Renaming moves the user's data out from under bookmarks and external
+    tools; never renaming can leave a folder whose title text is stale. The recommendation is never
+    rename — the `[gid_token]` prefix already carries identity, and `galleryFolderURLs` already
+    matches on manifest gid/token regardless of the readable part. Do not implement until this is
+    settled, since the two answers produce different fixes.
+  resolved_question_stale_working_folder: |
+    The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
+    not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
+    guard short-circuited to false and `setupWorkingFolder` tried to remove a folder that was never
+    there. It disappears on its own once the destination stops being recomputed.
   why_it_matters: |
     The downloads directory is user-visible and user-manageable through Files — that is the whole
     subject of tests 9 and 15. A repair quietly renaming a user's folder moves their data out from
