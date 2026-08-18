@@ -189,9 +189,9 @@ extension DownloadCoordinator {
                 }
                 applyPageTaskOutcome(
                     outcome,
+                    gid: payload.gallery.gid,
                     progress: &progress,
-                    wasCancelled: &control.wasCancelled,
-                    didAbortForFatalError: &control.didAbortForFatalError,
+                    control: &control,
                     group: &group
                 )
                 guard !control.wasCancelled, !control.didAbortForFatalError else { continue }
@@ -242,11 +242,17 @@ extension DownloadCoordinator {
         }
     }
 
+    /// Applies one page's outcome to the run's accumulated progress and control flags.
+    ///
+    /// The two flags travel as the `PageDownloadControl` value they already live in at the call
+    /// site, rather than as two `inout Bool`s: the pair is one decision — how this batch should
+    /// end — and passing them separately is what pushed this signature past the module's parameter
+    /// limit when the gallery identifier joined it.
     private func applyPageTaskOutcome(
         _ outcome: PageTaskOutcome,
+        gid: String,
         progress: inout PageDownloadProgress,
-        wasCancelled: inout Bool,
-        didAbortForFatalError: inout Bool,
+        control: inout PageDownloadControl,
         group: inout TaskGroup<PageTaskOutcome>
     ) {
         switch outcome {
@@ -257,19 +263,23 @@ extension DownloadCoordinator {
 
         case .failure(let failure):
             if isCancellationLikeAppError(failure.error) {
-                wasCancelled = true
+                control.wasCancelled = true
                 group.cancelAll()
                 return
             }
+            // The deliberate mover: a page that will not land in this run gives back its sub-page
+            // credit. Deliberately after the cancellation-like return — a cancelled page is not a
+            // failed one, and its credit is retired with the run instead.
+            withdrawInFlightPageCredit(gid: gid, pageIndex: failure.index)
             progress.failedPages[failure.index] = failure
             if isFatalAccountAppError(failure.error) {
-                didAbortForFatalError = true
+                control.didAbortForFatalError = true
                 group.cancelAll()
             }
 
         case .cancelled:
-            guard !didAbortForFatalError else { return }
-            wasCancelled = true
+            guard !control.didAbortForFatalError else { return }
+            control.wasCancelled = true
             group.cancelAll()
         }
     }

@@ -100,6 +100,9 @@ final class BackgroundProcessingClientSpy: Sendable {
         let sessionID: UUID
         let completedUnitCount: Int64
         let totalUnitCount: Int64
+        /// The sub-page credit that rode beside the pair. Recorded rather than dropped because the
+        /// pair alone can no longer say what the card shows: the store folds this beneath it.
+        let inFlightSubunitCount: Int64
         let subtitle: String
     }
 
@@ -334,13 +337,14 @@ final class BackgroundProcessingClientSpy: Sendable {
                 }
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
-            updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+            updateProgress: { sessionID, completedUnitCount, totalUnitCount, inFlightSubunitCount, subtitle in
                 await Task.yield()
                 // The live store accepts progress only for the identity it still owns.
                 let update = ProgressUpdate(
                     sessionID: sessionID,
                     completedUnitCount: completedUnitCount,
                     totalUnitCount: totalUnitCount,
+                    inFlightSubunitCount: inFlightSubunitCount,
                     subtitle: subtitle
                 )
                 let gate = self.state.withLock {

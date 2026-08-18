@@ -132,8 +132,23 @@ extension DownloadCoordinator {
         for request: URLRequest,
         context: DownloadPageTaskContext
     ) async throws -> DownloadPageTransfer {
+        // The in-flight entry brackets the transfer itself rather than the retry loop above it, so
+        // each attempt measures its own time to first byte while the page's earned credit carries
+        // across attempts. The `defer` covers the throwing exits too, which is what lets a transfer
+        // cancelled by the expiry's pause sweep still report how long it starved.
+        beginPageTransfer(gid: context.gid, pageIndex: context.pageIndex)
+        defer { endPageTransfer(gid: context.gid, pageIndex: context.pageIndex) }
         do {
-            return try await pageDownloader.download(request, context)
+            return try await pageDownloader.download(request, context) { [weak self] written, expected in
+                Task {
+                    await self?.recordPageTransferBytes(
+                        gid: context.gid,
+                        pageIndex: context.pageIndex,
+                        bytesWritten: written,
+                        bytesExpected: expected
+                    )
+                }
+            }
         } catch let error as AppError {
             throw error
         } catch is CancellationError {

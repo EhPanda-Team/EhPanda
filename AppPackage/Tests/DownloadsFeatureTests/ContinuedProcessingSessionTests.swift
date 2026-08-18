@@ -170,8 +170,8 @@ struct ContinuedProcessingSessionTests {
         let task = ContinuedTaskSpy()
         spy.launch(identifier, with: task)
 
-        #expect(task.progress.completedUnitCount == 6)
-        #expect(task.progress.totalUnitCount == 20)
+        #expect(task.progress.completedUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
+        #expect(task.progress.totalUnitCount == 20 * ContinuedProcessingSession.subunitsPerUnit)
         expectNoDifference(task.titleUpdates, [])
 
         store.finish(sessionID: session.id, success: true)
@@ -217,8 +217,8 @@ struct ContinuedProcessingSessionTests {
             totalUnitCount: 100,
             subtitle: "99 / 100 pages · 9 galleries"
         )
-        #expect(task.progress.completedUnitCount == 4)
-        #expect(task.progress.totalUnitCount == 10)
+        #expect(task.progress.completedUnitCount == 4 * ContinuedProcessingSession.subunitsPerUnit)
+        #expect(task.progress.totalUnitCount == 10 * ContinuedProcessingSession.subunitsPerUnit)
         expectNoDifference(
             task.titleUpdates,
             [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
@@ -298,8 +298,8 @@ struct ContinuedProcessingSessionTests {
         let adoptedTask = ContinuedTaskSpy()
         spy.launch(awaitedIdentifier, with: adoptedTask)
         #expect(adoptedTask.completionSuccesses.isEmpty)
-        #expect(adoptedTask.progress.totalUnitCount == 4)
-        #expect(adoptedTask.progress.completedUnitCount == 2)
+        #expect(adoptedTask.progress.totalUnitCount == 4 * ContinuedProcessingSession.subunitsPerUnit)
+        #expect(adoptedTask.progress.completedUnitCount == 2 * ContinuedProcessingSession.subunitsPerUnit)
 
         store.finish(sessionID: secondSession.id, success: true)
         #expect(adoptedTask.completionSuccesses == [true])
@@ -417,7 +417,7 @@ struct ContinuedProcessingSessionTests {
         let liveTask = ContinuedTaskSpy()
         spy.launch(identifier, with: liveTask)
         #expect(liveTask.completionSuccesses.isEmpty)
-        #expect(liveTask.progress.totalUnitCount == 6)
+        #expect(liveTask.progress.totalUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
 
         // The retired session's request, launched after the store already adopted its own task.
         let staleTask = ContinuedTaskSpy()
@@ -425,7 +425,7 @@ struct ContinuedProcessingSessionTests {
         #expect(staleTask.completionSuccesses == [false])
         // Not displaced: the held task is untouched and still carries the live session's counts.
         #expect(liveTask.completionSuccesses.isEmpty)
-        #expect(liveTask.progress.totalUnitCount == 6)
+        #expect(liveTask.progress.totalUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
 
         store.finish(sessionID: secondSession.id, success: true)
         // The store still holds the task it adopted, so the caller's word completes THAT one — an
@@ -461,8 +461,8 @@ struct ContinuedProcessingSessionTests {
 
         let task = ContinuedTaskSpy()
         spy.launch(identifier, with: task)
-        #expect(task.progress.totalUnitCount == 10)
-        #expect(task.progress.completedUnitCount == 3)
+        #expect(task.progress.totalUnitCount == 10 * ContinuedProcessingSession.subunitsPerUnit)
+        #expect(task.progress.completedUnitCount == 3 * ContinuedProcessingSession.subunitsPerUnit)
 
         store.updateProgress(
             sessionID: session.id,
@@ -470,7 +470,7 @@ struct ContinuedProcessingSessionTests {
             totalUnitCount: 10,
             subtitle: "6 / 10 pages · 1 gallery"
         )
-        #expect(task.progress.completedUnitCount == 6)
+        #expect(task.progress.completedUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(
             task.titleUpdates == [
                 .init(title: "Downloading galleries", subtitle: "6 / 10 pages · 1 gallery")
@@ -515,8 +515,8 @@ struct ContinuedProcessingSessionTests {
             totalUnitCount: 10,
             subtitle: "4 / 10 pages · 1 gallery"
         )
-        #expect(task.progress.totalUnitCount == 10)
-        #expect(task.progress.completedUnitCount == 4)
+        #expect(task.progress.totalUnitCount == 10 * ContinuedProcessingSession.subunitsPerUnit)
+        #expect(task.progress.completedUnitCount == 4 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(
             task.titleUpdates == [
                 .init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")
@@ -892,7 +892,7 @@ struct ContinuedProcessingSessionTests {
         let liveTask = ContinuedTaskSpy()
         spy.launch(identifier, with: liveTask)
         #expect(liveTask.completionSuccesses.isEmpty)
-        #expect(liveTask.progress.totalUnitCount == 6)
+        #expect(liveTask.progress.totalUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
 
         // The retired session's handler, firing with a launch the seam could not read as a
         // continued-processing task, once the store already holds its own.

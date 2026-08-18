@@ -85,9 +85,14 @@ struct AppReducer {
             case .onScenePhaseChange(let scenePhase):
                 state.scenePhase = scenePhase
 
+                // Collected before the settings guard, because reporting the scene phase to the
+                // download client is not a setting-dependent behavior: a transfer created while
+                // backgrounded must be stamped as such however far the launch has got.
+                var effects = [Effect<Action>]()
                 switch scenePhase {
                 case .active:
                     state.$privacyMaskBlur.withLock({ $0 = 0 })
+                    effects.append(.run(operation: { _ in await downloadClient.setIsInBackground(false) }))
 
                 case .inactive:
                     let intensity = state.settingState.setting.privacyMaskIntensity
@@ -95,20 +100,23 @@ struct AppReducer {
 
                 case .background:
                     state.hasEnteredBackground = true
+                    effects.append(.run(operation: { _ in await downloadClient.setIsInBackground(true) }))
 
                 default:
                     break
                 }
 
-                guard state.settingState.hasLoadedInitialSetting else { return .none }
+                guard state.settingState.hasLoadedInitialSetting else {
+                    return effects.isEmpty ? .none : .merge(effects)
+                }
 
                 switch scenePhase {
                 case .active:
-                    var effects: [Effect<Action>] = [
+                    effects.append(contentsOf: [
                         .send(.setting(.fetchGreeting)),
                         .send(.appLogsPump(.startPump)),
                         .run { _ in logger.notice("App entered foreground.") }
-                    ]
+                    ])
                     if state.settingState.setting.detectLinksFromClipboard
                         || UITestAutomation.shouldDetectClipboardURL {
                         effects.append(.send(.presentation(.detectClipboardURL)))
@@ -129,7 +137,7 @@ struct AppReducer {
                     return .merge(effects)
 
                 case .inactive:
-                    return .none
+                    return effects.isEmpty ? .none : .merge(effects)
 
                 case .background:
                     // Backgrounding no longer requests any background window: a
@@ -141,14 +149,14 @@ struct AppReducer {
                     // lines — an expiry, its pause sweep — reach disk. The pause is sequenced behind
                     // the log line inside one `.run`, so the background line is emitted before the
                     // final drain runs; best effort only, since OSLog visibility is not synchronous.
-                    var effects: [Effect<Action>] = [
+                    effects.append(
                         state.isContinuedSessionLive
                             ? .run { _ in logger.notice("App entered background.") }
                             : .run { send in
                                 logger.notice("App entered background.")
                                 await send(.appLogsPump(.pausePump))
                             }
-                    ]
+                    )
                     // Backgrounding fires no reader `onDisappear`/dismiss, so flush the active reading
                     // session's last debounced page here — otherwise a force-quit from the background
                     // drops it. The reader is located from navigation state (see `readingFlushEffects`).
@@ -156,7 +164,7 @@ struct AppReducer {
                     return .merge(effects)
 
                 default:
-                    return .none
+                    return effects.isEmpty ? .none : .merge(effects)
                 }
 
             case .continuedSessionLivenessChanged(let isLive):

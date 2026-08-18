@@ -34,6 +34,21 @@ public enum BackgroundProcessingEvent: Equatable, Sendable {
 public final class ContinuedProcessingSession {
     public static let shared = ContinuedProcessingSession()
 
+    /// How many sub-units one caller-supplied whole unit is scaled into on the system `Progress`.
+    ///
+    /// **Why a fixed scale, and why the fold lives here.** This store owns the system `Progress`,
+    /// and it is the only place that can express a value the caller's vocabulary cannot: work
+    /// inside a unit that has not landed. Scaling in the caller instead would fold the sub-unit
+    /// term into the very pair the caller clamps and holds monotone, so its whole-unit invariants —
+    /// and the tests pinning them — would be stated over a quantity that is no longer whole units.
+    /// Keeping the caller in units and the scale here means the seam gains one more already-clamped
+    /// count and nothing else changes hands.
+    ///
+    /// One thousand rather than a finer scale because it is the resolution the system card can
+    /// possibly render, and it keeps `completed * subunitsPerUnit` far inside `Int64` for any queue
+    /// a download client can hold.
+    nonisolated public static let subunitsPerUnit: Int64 = 1000
+
     /// Every scheduler touch this store makes. Injected so the lifecycle below is testable; the
     /// live value is the only place the system scheduler is named.
     private let scheduling: ContinuedTaskScheduling
@@ -90,6 +105,9 @@ public final class ContinuedProcessingSession {
     /// pushes, so a task adopted at any point reports real numbers.
     private var lastCompletedUnitCount: Int64 = 0
     private var lastTotalUnitCount: Int64 = 0
+    /// The sub-unit credit of the units still in flight at the last accepted push, so a task
+    /// adopted mid-transfer reports the same folded value a live task would.
+    private var lastInFlightSubunitCount: Int64 = 0
 
     /// Internal rather than private only so lifecycle tests can build an isolated store over spy
     /// scheduling. Production code must keep resolving this store through ``shared``: a second
@@ -130,6 +148,7 @@ public final class ContinuedProcessingSession {
         // recorded instead: zeroing here traded a stale number for a false one.
         lastCompletedUnitCount = completedUnitCount
         lastTotalUnitCount = totalUnitCount
+        lastInFlightSubunitCount = 0
 
         if !didCancelStaleRequests {
             didCancelStaleRequests = true
@@ -224,21 +243,48 @@ public final class ContinuedProcessingSession {
     /// Calling this steadily is a liveness requirement, not decoration. The scheduler forcibly
     /// expires tasks that appear stalled, and prioritises terminating the ones reporting the
     /// least progress.
+    ///
+    /// **The sub-unit fold is what lets a single long transfer keep the reported count moving
+    /// (G-15-2D).** With a whole-unit pair alone, a queue running one unit at a time reports the
+    /// same numerator for as long as that unit takes — which is exactly the stalled reading the
+    /// scheduler punishes, however healthy the transfer underneath it is. `inFlightSubunitCount` is
+    /// folded beneath the pair rather than added to it: the numerator stays at or above
+    /// `completed * subunitsPerUnit` and never reaches the next whole unit's boundary early,
+    /// because the fold is clamped by the scaled total.
     public func updateProgress(
         sessionID: UUID,
         completedUnitCount: Int64,
         totalUnitCount: Int64,
+        inFlightSubunitCount: Int64 = 0,
         subtitle: String
     ) {
         guard self.sessionID == sessionID else { return }
         lastCompletedUnitCount = completedUnitCount
         lastTotalUnitCount = totalUnitCount
+        lastInFlightSubunitCount = inFlightSubunitCount
         guard let task else { return }
         // Total first, so the fraction never transiently exceeds one while a growing queue is
         // being reported.
-        task.progress.totalUnitCount = totalUnitCount
-        task.progress.completedUnitCount = completedUnitCount
+        task.progress.totalUnitCount = totalUnitCount * Self.subunitsPerUnit
+        task.progress.completedUnitCount = foldedCompletedUnitCount(
+            completedUnitCount: completedUnitCount,
+            totalUnitCount: totalUnitCount,
+            inFlightSubunitCount: inFlightSubunitCount
+        )
         task.updateTitle(task.title, subtitle: subtitle)
+    }
+
+    /// The scaled numerator: whole units at full scale plus the in-flight sub-units, never above
+    /// the scaled total.
+    private func foldedCompletedUnitCount(
+        completedUnitCount: Int64,
+        totalUnitCount: Int64,
+        inFlightSubunitCount: Int64
+    ) -> Int64 {
+        min(
+            completedUnitCount * Self.subunitsPerUnit + inFlightSubunitCount,
+            totalUnitCount * Self.subunitsPerUnit
+        )
     }
 
     /// Completes the named session successfully or otherwise, with no event.
@@ -305,9 +351,15 @@ public final class ContinuedProcessingSession {
         }
         pendingIdentifier = nil
         self.task = task
-        // These counts come from the snapshot captured by start, or a newer accepted push.
-        task.progress.totalUnitCount = lastTotalUnitCount
-        task.progress.completedUnitCount = lastCompletedUnitCount
+        // These counts come from the snapshot captured by start, or a newer accepted push, and are
+        // seeded through the same fold a live push writes — so adoption mid-transfer reports what
+        // the next push would report rather than dropping back to the last whole unit.
+        task.progress.totalUnitCount = lastTotalUnitCount * Self.subunitsPerUnit
+        task.progress.completedUnitCount = foldedCompletedUnitCount(
+            completedUnitCount: lastCompletedUnitCount,
+            totalUnitCount: lastTotalUnitCount,
+            inFlightSubunitCount: lastInFlightSubunitCount
+        )
         task.setExpirationHandler { [weak self] in
             // There is no documented budget after expiration, so this does nothing but perform
             // the terminal transition — no I/O, no awaits.
@@ -357,6 +409,7 @@ public final class ContinuedProcessingSession {
         isAwaitingTask = false
         lastCompletedUnitCount = 0
         lastTotalUnitCount = 0
+        lastInFlightSubunitCount = 0
 
         if let abandonedIdentifier {
             scheduling.cancel(abandonedIdentifier)

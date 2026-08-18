@@ -324,6 +324,9 @@ extension DownloadCoordinator {
         guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return }
         freezeSessionCreditForRetiringRun(gid: gid)
         runProgressBases[gid] = nil
+        // The run's in-flight sub-page entries go with it, under this same supersession gate: a
+        // transfer of a superseded predecessor must not keep crediting the live successor's pages.
+        retireInFlightPageTransfers(gid: gid)
     }
 
     /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must

@@ -55,6 +55,18 @@ public actor DownloadCoordinator {
     public static let retryLimit = 3
     public static let progressFlushPageInterval = 8
     public static let progressFlushMinimumInterval: TimeInterval = 0.4
+    /// The shortest gap between two pushes issued by in-flight page BYTES rather than by a landed
+    /// page. Deliberately at or above `progressFlushMinimumInterval`: the sub-page term is the
+    /// cheaper signal of the two, so it must never be the reason a push cadence tightens.
+    public static let intraPageProgressPushMinimumInterval: TimeInterval = 1
+    /// How often a live session re-pushes its current pair while it still has pending work — well
+    /// inside the ~30 s the scheduler treats as stalled.
+    public static let continuedSessionHeartbeatInterval: Duration = .seconds(10)
+    /// How long a transfer may report zero bytes before it is logged as starved.
+    public static let pageTransferStallThreshold: TimeInterval = 10
+    /// How long an unchanged heartbeat numerator may go unlogged, so the jsonl stays small without
+    /// losing the "still alive, still stuck" evidence.
+    public static let heartbeatSummaryMinimumInterval: TimeInterval = 30
     public static let responseInspectionPrefixLength = 4096
     public static let kokomadeImageURLSuffixes = [
         "exhentai.org/img/kokomade.jpg"
@@ -419,6 +431,12 @@ public actor DownloadCoordinator {
     /// elapsed-time branch is provably dead, leaving the page-count branch as the only
     /// trigger, which is what makes a coalescing assertion independent of machine load.
     public let now: @Sendable () -> Date
+    /// Drives every repeating wait this coordinator owns — today the continued-session heartbeat.
+    /// Injectable so a suite can advance it deterministically instead of sleeping.
+    public let clock: any Clock<Duration>
+    /// Reads the device conditions logged at a session's start and at its expiry. Injectable so a
+    /// suite gets a constant rather than the host's real network and thermal state.
+    public let environmentProbe: DownloadEnvironmentProbe
     public let observerHub = DownloadObserverHub()
     /// Write-through cache of the on-disk download tree and the read authority between the
     /// explicit scan boundaries (see `indexedDownload(gid:)`). The filesystem stays the
@@ -568,6 +586,22 @@ public actor DownloadCoordinator {
     /// `markContinuedSessionEnded`. Not session-scoped: an observer outlives every session it
     /// watches, which is the whole point of the stream.
     var continuedSessionLivenessContinuations = [UUID: AsyncStream<Bool>.Continuation]()
+    /// Stamped onto each page transfer at start, so a log line can say whether the transfer was
+    /// CREATED in the background. Written by `setIsSceneInBackground`, driven from AppReducer's
+    /// scene phase (PD-4); the client itself stays UIKit-free.
+    var isSceneInBackground = false
+    /// gid → page → the transfer currently in flight for it: sub-page credit plus the first-byte
+    /// and starved telemetry. The lifetime rule lives on `InFlightPageTransfer` itself.
+    ///
+    /// A RUN fact rather than a session one, exactly like the run measurement it sits beside: a
+    /// session boundary makes no in-flight transfer less in flight.
+    var inFlightPageTransfers = [String: [Int: InFlightPageTransfer]]()
+    /// When the last accepted push was issued. Read only by the intra-page site, which pushes only
+    /// once `intraPageProgressPushMinimumInterval` has passed. Session-scoped: nil at start and end.
+    var lastProgressPushDate: Date?
+    /// The repeating task re-pushing a live session's pair. Session-scoped: started when the client
+    /// id lands, cancelled in `markContinuedSessionEnded`.
+    var continuedSessionHeartbeatTask: Task<Void, Never>?
     /// The monotonic floor under the numerator this session pushes to the card.
     ///
     /// Five writers, verified exhaustive at this HEAD by grepping every assignment to this property
@@ -730,7 +764,9 @@ public actor DownloadCoordinator {
         },
         queueStore: DownloadQueueStore? = nil,
         taskRunner: DownloadTaskRunner = .init(),
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        clock: any Clock<Duration> = ContinuousClock(),
+        environmentProbe: DownloadEnvironmentProbe = .live
     ) {
         self.storage = storage
         self.urlSession = urlSession
@@ -745,6 +781,8 @@ public actor DownloadCoordinator {
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
         self.taskRunner = taskRunner
         self.now = now
+        self.clock = clock
+        self.environmentProbe = environmentProbe
     }
 
     public var fileManager: DownloadFileManager {

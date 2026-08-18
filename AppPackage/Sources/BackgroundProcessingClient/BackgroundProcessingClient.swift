@@ -51,10 +51,17 @@ public struct BackgroundProcessingClient: Sendable {
     /// clamping and monotonicity. A push is applied only when `sessionID` names the session the
     /// store currently holds, so a caller that lost ownership across its own suspension cannot
     /// repaint a successor's card.
+    ///
+    /// `inFlightSubunitCount` is sub-unit credit for units still IN FLIGHT, expressed in
+    /// `ContinuedProcessingSession.subunitsPerUnit` per unit. The store folds it beneath the
+    /// whole-unit pair, so a long unit's transfer moves the reported progress before the unit
+    /// lands. The division of labour is unchanged by it: the caller keeps clamping the pair, and
+    /// the store clamps the fold.
     public var updateProgress: @Sendable (
         _ sessionID: UUID,
         _ completedUnitCount: Int64,
         _ totalUnitCount: Int64,
+        _ inFlightSubunitCount: Int64,
         _ subtitle: String
     ) async -> Void
     /// Completes `sessionID` only when it is the session the store currently holds.
@@ -74,11 +81,12 @@ extension BackgroundProcessingClient {
                 totalUnitCount: totalUnitCount
             )
         },
-        updateProgress: { sessionID, completedUnitCount, totalUnitCount, subtitle in
+        updateProgress: { sessionID, completedUnitCount, totalUnitCount, inFlightSubunitCount, subtitle in
             await ContinuedProcessingSession.shared.updateProgress(
                 sessionID: sessionID,
                 completedUnitCount: completedUnitCount,
                 totalUnitCount: totalUnitCount,
+                inFlightSubunitCount: inFlightSubunitCount,
                 subtitle: subtitle
             )
         },
@@ -107,7 +115,7 @@ extension BackgroundProcessingClient {
             await Task.yield()
             return nil
         },
-        updateProgress: { _, _, _, _ in
+        updateProgress: { _, _, _, _, _ in
             await Task.yield()
         },
         finish: { _, _ in

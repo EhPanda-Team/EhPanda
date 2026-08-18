@@ -408,6 +408,7 @@ extension DownloadCoordinator {
         hasLiveContinuedSession = true
         continuedSessionID = sessionID
         lastPushedCompletedPageCount = 0
+        lastProgressPushDate = nil
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
         // Emptied rather than seeded: this map records only what THIS session observes. A run in
@@ -451,6 +452,8 @@ extension DownloadCoordinator {
         }
         continuedClientSessionID = clientSession.id
         publishContinuedSessionLiveness(true)
+        logContinuedSessionEnvironment(moment: "start")
+        startContinuedSessionHeartbeat(sessionID: sessionID)
         // Merged rather than assigned, for the reason the two collections below give, reaching the
         // scalar through a different writer. A D-G7-01 withdrawal landing inside the client start's
         // main-actor hop is a real correction made by THIS session's own scheduled run, and it
@@ -536,6 +539,7 @@ extension DownloadCoordinator {
             logger.notice("Continued-processing session granted.")
         case .expired:
             logger.notice("Continued-processing session expired, pausing schedulable downloads.")
+            logContinuedSessionEnvironment(moment: "expiry")
             markContinuedSessionEnded(sessionID: sessionID)
             await pauseAllSchedulable(expiring: sessionID)
         case .unavailable:
@@ -576,6 +580,9 @@ extension DownloadCoordinator {
         continuedSessionNeedsReconciliation = false
         hasLiveContinuedSession = false
         continuedSessionTask = nil
+        continuedSessionHeartbeatTask?.cancel()
+        continuedSessionHeartbeatTask = nil
+        lastProgressPushDate = nil
         lastPushedCompletedPageCount = 0
         retiredSessionPages = [:]
         observedSchedulablePages = [:]
@@ -920,12 +927,16 @@ extension DownloadCoordinator {
     /// The reconcile deliberately runs before the client-identity guard — a departure during the
     /// start window must still be recorded even when there is no card to paint yet — so whichever
     /// push next reaches the card already accounts for it.
-    func pushContinuedSessionProgress(sessionID: UUID) async {
-        guard continuedSessionID == sessionID else { return }
+    ///
+    /// The pushed pair stays whole pages; the sub-page term travels beside it and is folded by the
+    /// client (PD-1, `DownloadClient+PageTransferProgress.swift`).
+    @discardableResult
+    func pushContinuedSessionProgress(sessionID: UUID) async -> ContinuedSessionPushRecord? {
+        guard continuedSessionID == sessionID else { return nil }
         let snapshot = await schedulableSnapshot()
-        guard continuedSessionID == sessionID else { return }
+        guard continuedSessionID == sessionID else { return nil }
         await reconcileRetiredSessionPages(snapshot: snapshot)
-        guard continuedSessionID == sessionID else { return }
+        guard continuedSessionID == sessionID else { return nil }
         // Read the client identity only after the ownership re-check, so the ordering survives an
         // `await` introduced into the reads above: a capture taken ahead of them could present a
         // predecessor's id after a successor took over.
@@ -941,7 +952,7 @@ extension DownloadCoordinator {
         // forward. Setting the debt flag here instead would discharge a deferred reconcile for
         // every start-window push, running repair work for windows that need none and changing
         // production choreography for no observable defect.
-        guard let clientSessionID = continuedClientSessionID else { return }
+        guard let clientSessionID = continuedClientSessionID else { return nil }
         let liveProgress = snapshot.sessionProgress.progress
         let retiredPageCount = retiredSessionPages.values.reduce(0, +)
         let sessionProgress = DownloadProgress(
@@ -962,11 +973,25 @@ extension DownloadCoordinator {
             // after the reconcile above so a rejoining gallery is counted once.
             galleryCount: coverageGalleryCount(for: snapshot)
         )
+        let inFlightSubunits = inFlightSubunitCount(for: snapshot)
+        let inFlightTransfers = inFlightPageTransferCount(for: snapshot)
+        // Stamped here, in the same synchronous stretch as the floor latch and before the seam's
+        // main-actor hop, so the intra-page throttle measures issuance rather than delivery, and
+        // the record below describes the values this push computed rather than post-hop state.
+        lastProgressPushDate = now()
         await backgroundProcessingClient.updateProgress(
             clientSessionID,
             Int64(pushed.progress.displayCompletedPageCount),
             Int64(pushed.progress.displayPageCount),
+            inFlightSubunits,
             continuedSessionSubtitle(for: pushed)
+        )
+        return ContinuedSessionPushRecord(
+            completedPageCount: pushed.progress.displayCompletedPageCount,
+            pageCount: pushed.progress.displayPageCount,
+            inFlightSubunitCount: inFlightSubunits,
+            galleryCount: pushed.galleryCount,
+            inFlightTransferCount: inFlightTransfers
         )
     }
 }
