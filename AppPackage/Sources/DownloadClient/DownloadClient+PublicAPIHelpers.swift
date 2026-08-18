@@ -3,8 +3,29 @@ import Foundation
 
 // MARK: - Private helpers for public API
 extension DownloadCoordinator {
-    /// D-SSOT-07: a page's displayed state is a function of the RECORD — its manifest hash and its
-    /// recorded page failure — and of nothing else.
+    /// A page's displayed state is a function of ONE completeness basis and its recorded page
+    /// failure, and of nothing else. Which basis is the two regimes below.
+    ///
+    /// **D-SSOT-10 — while a run's own measurement stands for this gallery, that measurement is the
+    /// basis (G-15-2F).** `download.runProgress` carries the run's credited page set, and a page
+    /// reads `.downloaded` exactly when it is credited. The record cannot serve here: for the
+    /// wholesale-refusal family it claims every page for the ENTIRE re-download, because the
+    /// irreversibility guard refuses to blank a whole manifest on one scan — so a user who opened
+    /// the Download Status sheet during a 27-page repair read "Downloading 27/27 · Downloaded (27) ·
+    /// Pending (0)" while the continued-processing card, fed by this same measurement, correctly
+    /// counted up from zero. Per AGENTS.md's SSOT clause this is an operation-level, run-scoped
+    /// signal for what the record legitimately cannot record; it writes nothing, consults no disk,
+    /// never outranks queue membership, and is retired with the run. The badge's numerator is the
+    /// SIZE of the very set this reads membership from (`RunProgressBasis.creditedPageIndices`), so
+    /// the header and the page groups cannot disagree. Consequences, all deliberate: a page the run
+    /// owes that failed still reads `.failed`; a page the run owes that has not landed reads
+    /// `.pending` even while the manifest claims it; a page the run neither inherited nor owes reads
+    /// `.pending` for the run's duration and returns to its record reading at the exit; and a
+    /// credited page with a stale failure entry reads `.downloaded`, exactly as a recorded hash does
+    /// below. For the honest family the two regimes agree at every flush, so nothing visibly moves.
+    ///
+    /// **D-SSOT-07 — out of a run the basis is the RECORD**, its manifest hash and its recorded page
+    /// failure, unchanged.
     ///
     /// The badge counts a gallery's finished pages by the manifest's non-empty hashes
     /// (`completedPageCount`). Deriving these page states from a live file-presence probe made the
@@ -47,8 +68,11 @@ extension DownloadCoordinator {
                 } else {
                     nil
                 }
+            let isDownloaded = download.runProgress
+                .map({ $0.creditedPageIndices.contains(page) })
+                ?? (download.manifest.pages[page]?.isEmpty == false)
 
-            if download.manifest.pages[page]?.isEmpty == false {
+            if isDownloaded {
                 return .init(
                     index: page,
                     status: .downloaded,

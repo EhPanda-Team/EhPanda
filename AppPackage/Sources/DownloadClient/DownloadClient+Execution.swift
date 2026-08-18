@@ -15,12 +15,22 @@ extension DownloadCoordinator {
             // DIFFERENT live run owns this gallery's slot, and `finishActiveTaskIfOwned` nils both
             // halves of that ownership, so reading it afterwards would make every owning run look
             // superseded and retire nothing.
-            retireRunProgressBasis(gid: gid, generation: generation)
-            finishActiveTaskIfOwned(
+            let withdrewMeasurement = retireRunProgressBasis(gid: gid, generation: generation)
+            let publishedOnExit = finishActiveTaskIfOwned(
                 gid: gid,
                 generation: generation,
                 schedulesNext: true
             )
+            // The row's overlay is retired with the run (D-SSOT-10), so the record's own reading has
+            // to be published once it is gone. An OWNING exit already publishes, inside
+            // `finishActiveTaskIfOwned`'s task. A non-owning one does not — `pause`, `delete` and
+            // D-11's expiration sweep each null the active slot while the run they interrupt is
+            // still executing — so without this the paused row would keep the run's reading until
+            // some unrelated publish came along, which for the refusal family means a row showing
+            // k-of-N over a record that reads N-of-N.
+            if withdrewMeasurement && !publishedOnExit {
+                Task { await self.notifyObservers() }
+            }
         }
 
         guard let download = await fetchDownload(gid: gid) else {
@@ -252,13 +262,21 @@ extension DownloadCoordinator {
         await backgroundTaskStore.removeAll(for: gid)
     }
 
+    /// Clears the gallery's active slot when this exit owns it, and reports whether it did.
+    ///
+    /// The Bool is the contract already written below in prose — an owning exit publishes here — made
+    /// readable by the caller, so `processDownload`'s `defer` can tell whether the row still needs a
+    /// publication after retiring the run's measurement (D-SSOT-10) without duplicating one on the
+    /// owning path. It is discardable because the scheduler's collision-cleanup caller has no such
+    /// question to ask.
+    @discardableResult
     public func finishActiveTaskIfOwned(
         gid: String,
         generation: Int?,
         schedulesNext: Bool
-    ) {
+    ) -> Bool {
         guard isActiveTaskOwner(gid: gid, generation: generation) else {
-            return
+            return false
         }
         activeTask = nil
         activeGalleryID = nil
@@ -279,6 +297,7 @@ extension DownloadCoordinator {
             }
             await self.scheduleNextIfNeeded()
         }
+        return true
     }
 
     /// Ends this run's own progress measurement.
@@ -322,13 +341,21 @@ extension DownloadCoordinator {
     /// hand the card a visible regression over work the run really did; leaving the floor holding
     /// it is the chosen direction, a numerator that does not rise rather than one that falls, and
     /// the gallery's own departure retires the frozen value regardless.
-    private func retireRunProgressBasis(gid: String, generation: Int?) {
-        guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return }
+    ///
+    /// **The Bool says whether a STANDING measurement was withdrawn**, which is what the published
+    /// row's overlay rides on (D-SSOT-10): the moment the measurement goes, the badge and the
+    /// inspector must go back to reading the record, and someone has to publish that. The owning
+    /// exit's own publication covers it; a non-owning exit has none, so the caller uses this to
+    /// issue one. A run that exits having announced nothing withdraws nothing and needs no publish,
+    /// which is the `false` this returns for the removal of an absent member.
+    private func retireRunProgressBasis(gid: String, generation: Int?) -> Bool {
+        guard !isSupersededByALiveRun(gid: gid, generation: generation) else { return false }
         freezeSessionCreditForRetiringRun(gid: gid)
-        runProgressBases[gid] = nil
+        let withdrewMeasurement = runProgressBases.removeValue(forKey: gid) != nil
         // The run's in-flight sub-page entries go with it, under this same supersession gate: a
         // transfer of a superseded predecessor must not keep crediting the live successor's pages.
         retireInFlightPageTransfers(gid: gid)
+        return withdrewMeasurement
     }
 
     /// Whether a DIFFERENT live run holds this gallery's active slot, so this run's exit must

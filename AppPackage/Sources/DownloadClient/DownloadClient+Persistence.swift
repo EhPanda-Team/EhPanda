@@ -83,7 +83,8 @@ extension DownloadCoordinator {
             localPageURLs: record.localPageURLs,
             modificationDate: record.modificationDate,
             displayStatus: displayStatus(for: record),
-            lastError: validationErrors[gid] ?? downloadErrors[gid]
+            lastError: validationErrors[gid] ?? downloadErrors[gid],
+            runProgress: publishedRunProgress(gid: gid)
         )
     }
 
