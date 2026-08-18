@@ -1,24 +1,27 @@
 ---
-status: testing
+status: complete
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-18T08:45:00Z
+updated: 2026-08-18T12:30:00Z
 round: 6
 ---
 
 ## Current Test
 
 number: —
-name: all runnable tests resolved
+name: all tests and all gaps resolved
 expected: |
   All fifteen checkpoints are resolved: 13 pass, 0 issues. Test 8 closed 2026-08-17 with the owner
   choosing row anchoring and directing the AGENTS.md rule amendment. Test 2 closed at round 6 on
   2026-08-18: the G-15-2D fixes (e68ca491, 1f9c3f34) were verified on the test iPhone across four
   independent backgrounded sessions, every one of which drained with a terminal push and none of
   which expired.
-awaiting: device re-run of the G-15-2H repair (folder name unchanged) and of the G-15-2F sheet
-  during a wholesale-refusal repair, on the 260818-mjs build
+
+  The last two open gaps closed the same day on the 260818-mjs build (3433cbeb), both on the test
+  iPhone: G-15-2H (13cad7d9) against a folder renamed in Files.app, and G-15-2F (764c5958) against a
+  rebuilt wholesale-refusal fixture. Nothing is awaiting a device.
+awaiting: nothing
 
 ## Tests
 
@@ -788,14 +791,20 @@ completion_note: |
   tears the card down at completion faster than a screenshot round-trip, across five attempts. See
   the clause-3 caveat on test 2 for the evidence that stands in its place.
 
-  Two incidental findings were opened during round 6 and are NOT checkpoint failures. G-15-2G — the
-  question of whether validation must durably blank hashes — was settled on device the same day and
-  closed as no-defect: a partial deletion of 6 of 26 pages blanked exactly those 6 hashes durably
-  and survived relaunch, so the earlier all-missing case was the wholesale guard refusing, as
-  designed. G-15-2F (the in-app Download Status sheet reads stale during a repair) and G-15-2H (a
-  repair renaming the user-visible folder) both have fixes landed on 2026-08-18 — commits 764c5958
-  and 13cad7d9 — and both stay open awaiting device verification, on the G-15-2D precedent that a
-  fix is not closed until a device shows it.
+  Three incidental findings were opened during round 6 and none is a checkpoint failure; all three
+  are now closed. G-15-2G — the question of whether validation must durably blank hashes — was
+  settled on device the same day and closed as no-defect: a partial deletion of 6 of 26 pages
+  blanked exactly those 6 hashes durably and survived relaunch, so the earlier all-missing case was
+  the wholesale guard refusing, as designed.
+
+  G-15-2F (the Download Status sheet reading stale during a repair) and G-15-2H (a repair renaming
+  the user-visible folder) were fixed on 2026-08-18 in commits 764c5958 and 13cad7d9 and both were
+  then VERIFIED ON THE TEST IPHONE the same day against build 3433cbeb, honouring the G-15-2D
+  precedent that a fix is not closed until a device shows it. G-15-2H was staged by renaming a
+  gallery folder in Files.app and repairing it: the name survived, one folder per gid, no Code=4
+  line. G-15-2F was staged by restoring only a manifest into an emptied folder: with the record
+  claiming 27/27 the sheet announced 0/27 with 27 pending and climbed to 21/27 while the manifest on
+  disk still read 27/27, then returned to the record's reading at the run's exit.
 obsolescence_note: |
   Tests 10 and 11 are `obsolete` rather than pass/issue because the owner deleted
   `LogsDirectoryMigration` on 2026-08-17, removing their subject. Test 9 keeps its pass on the
@@ -1029,8 +1038,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2H
   truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
-  status: open
-  severity: confirmed-defect (fixed in code; awaiting device verification)
+  status: resolved
+  resolved_date: "2026-08-18"
+  severity: confirmed-defect (fixed in 13cad7d9; verified on device 2026-08-18)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   diagnosed: "2026-08-18, root cause confirmed in code"
   observed: |
@@ -1129,7 +1139,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       Note the project's `Feature` reducer-naming convention and the SwiftLint rules in the root
       `.swiftlint.yml` before writing code.
   fix_landed_2026_08_18: |
-    STATUS STAYS OPEN: nothing here is device-confirmed. Landed in commit 13cad7d9 on
+    Landed in commit 13cad7d9 on
     feature/gsd-phase-15 (quick task 260818-mjs), implementing the locked fix_spec above verbatim.
 
     MECHANISM
@@ -1182,6 +1192,40 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       Repair a gallery whose stored title differs from the site's (the pipe case is the reported
       one): the folder name in Files is UNCHANGED afterwards, exactly one folder exists for that gid,
       and the jsonl carries no "Stale working folder removal failed ... Code=4" line.
+  device_verified_2026_08_18: |
+    VERIFIED ON DEVICE. Physical iPhone 11, iOS 26.6, build of 3433cbeb (13cad7d9 in tree),
+    installed fresh over the existing container so every download folder was preserved.
+
+    FIXTURE — the discriminating case the fix_spec asked for, staged rather than waited for.
+    No gallery on the device still carried a recorded-vs-derived leaf mismatch (the reported one,
+    gid 4108805, had already converged when the pre-fix run renamed it), so the mismatch was
+    created the way a real user creates it: the folder for gid 4127415 was RENAMED IN FILES.APP
+    from "[4127415_3869b04dde] canaria" to "[4127415_3869b04dde] canaria RENAMED", keeping the
+    identity prefix. That is the case the fix's own declaration calls out as a wanted consequence.
+    EhPanda was relaunched and resolved the renamed folder by manifest identity, its row reading
+    20/26 — the six pages left pending by the G-15-2G partial-deletion check.
+
+    ACTION: "Resume" on that row, i.e. the full `processDownload` arc for an incomplete gallery.
+
+    RESULT — all three assertions hold.
+      1. FOLDER NAME UNCHANGED. Before and after the run the `devicectl` listing reads
+         "[4127415_3869b04dde] canaria RENAMED". The user's name survived the repair.
+      2. EXACTLY ONE FOLDER FOR THE GID. Eleven gallery folders before, eleven after; no second
+         folder under a derived leaf, and no deletion of the renamed one.
+      3. NO Code=4 LINE. The run's jsonl (ehpanda-20260818-205106-10.jsonl) carries
+         ZERO "Stale working folder removal failed" occurrences. Pre-fix this exact shape produced
+         one; it is the bug's fingerprint and it is gone.
+      Plus the work actually happened IN PLACE: pages 1-6 landed into the renamed folder (26 images
+      + cover + manifest.json = 28 entries), the log reads "Download completed ... pages: 26" and
+      "Continued-processing session drained, terminal progress pushed", and the row settled at 26/26.
+
+    DISCRIMINATING POWER: under the pre-fix code the derived leaf would have been "canaria", which
+    does not exist, so `shouldReuseWorkingFolder`'s `fileExists` guard would have failed exactly as
+    diagnosed and the run would have re-slotted the gallery to "[4127415_3869b04dde] canaria",
+    clobbering the rename. The observed run did none of that.
+
+    CLEANUP: the folder was renamed back to "[4127415_3869b04dde] canaria" afterwards, which the
+    same frozen-leaf path honoured; the library is back to its pre-test names.
   resolved_question_stale_working_folder: |
     The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
     not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
@@ -1199,8 +1243,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2F
   truth: "The in-app Download Status sheet describes the work a repair is actually doing."
-  status: open
-  severity: minor
+  status: resolved
+  resolved_date: "2026-08-18"
+  severity: minor (fixed in 764c5958; verified on device 2026-08-18)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   observed: |
     With a completed 27-page gallery whose image files had been deleted outside the app (manifest
@@ -1229,8 +1274,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
          `.none` at every flush. Even a corrected derivation would have been recomputed only when
          something else happened to differ.
   fix_landed_2026_08_18: |
-    STATUS STAYS OPEN: nothing here is device-confirmed. Landed in commit 764c5958 on
-    feature/gsd-phase-15 (quick task 260818-mjs).
+    Landed in commit 764c5958 on feature/gsd-phase-15 (quick task 260818-mjs).
 
     MECHANISM (D-SSOT-10)
       `DownloadedGallery.runProgress` — a new `DownloadRunProgress` carrying the run's credited page
@@ -1283,6 +1327,47 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       "Downloading 0/27 · Pending (27)" at the announce, the numerator and the Downloaded group climb
       together with the system card, and the record's own reading (27/27) is restored the moment the
       run ends.
+  device_verified_2026_08_18: |
+    VERIFIED ON DEVICE. Same iPhone 11 / iOS 26.6 / build of 3433cbeb (764c5958 in tree).
+
+    FIXTURE — a true wholesale-refusal state, rebuilt deliberately: the folder for gid 4108805
+    ("Onna no Battle", 27 pages, complete) was deleted in Files.app and ONLY its manifest.json was
+    restored, so the record claimed 27 of 27 non-blank hashes with ZERO image files on disk. After
+    relaunch the row read 27/27 and its context menu offered no resume action at all — the record
+    calls the gallery complete — which is precisely why the sheet's reading is the only surface a
+    user has here.
+
+    SEQUENCE, sheet open throughout.
+      Before          Downloaded 27/27 | Downloaded (27) 1-27 | Pending (0) | Failed (0)
+      Validate        "Needs Attention 27/27", groups UNCHANGED — the all-or-nothing guard refusing
+                      to blank an entire claim on one scan, as G-15-2G established
+      Retry Pages     Downloading  0/27 | Downloaded (0)  No Pages | Pending (27) 1-27   <= ANNOUNCE
+                      Downloading  1/27 | Downloaded (1)  1       | Pending (26) 2-27
+                      Downloading  4/27 | Downloaded (4)  1-4     | Pending (23) 5-27
+                      Downloading  7/27 | Downloaded (7)  1-7     | Pending (20) 8-27
+                      Downloading  9/27 | Downloaded (9)  1-9     | Pending (18) 10-27
+                      Downloading 21/27 | Downloaded (21) 1-21    | Pending (6) 22-27
+      At exit         Downloaded 27/27 | Downloaded (27) 1-27 | Pending (0) | Failed (0), stable
+                      across six consecutive samples
+
+    THE DECISIVE FRAME: at "Downloading 21/27" the manifest was pulled off the device and read
+    27 of 27 NON-BLANK hashes. So at that instant the RECORD said 27/27 while the SHEET said 21/27
+    and named pages 22-27 pending — the sheet was reading the run, not the record, and the two
+    differed by six pages. Pre-fix the sheet read "Downloaded (27) / Pending (0)" for the whole
+    re-download; there is no way to produce the observed frame from the record.
+
+    CLIMBING IN STEP WITH THE CARD: the same run's continued-session heartbeats read
+    3 / 10 / 14 / 20 / 23 of 27, interleaving with the sheet's samples on the same monotone climb —
+    one measurement feeding both surfaces, which is the D-SSOT-10 claim.
+
+    RECORD READ RESTORED AT EXIT: the header returns to "Downloaded 27/27" — the record-derived
+    display status, not the run's "Downloading" — and holds there, so the overlay was retired at the
+    run's exit rather than left standing. The log confirms the clean exit
+    ("Download completed ... pages: 27", "Continued-processing session drained, terminal progress
+    pushed") and carries no "Stale working folder removal failed" line either.
+
+    COMPLETENESS QUANTITIES UNCHANGED: 27 images + cover + manifest back on disk, one folder for the
+    gid, eleven gallery folders total — the fix moved what is DISPLAYED and nothing the record owns.
   why_it_matters: |
     The sheet is the surface a user consults to find out what a repair is doing. Reporting
     "Downloaded (27) / Pending (0)" during a 27-page refetch tells them the opposite of the truth,
