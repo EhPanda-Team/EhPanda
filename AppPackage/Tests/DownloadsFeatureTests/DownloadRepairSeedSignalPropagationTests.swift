@@ -44,10 +44,12 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
     /// narrowed to: `PartialProbeFailureFileManager` throws `attributesOfItem` for three of the
     /// four claimed pages, and real `0o000` modes on those same three files make the probe's
     /// `FileHandle` fallback throw `EACCES` for real, so the classification is reached the way
-    /// production reaches it. The re-slot is the upstream title change: the payload is built from a
-    /// second gallery with the SAME gid and a DIFFERENT title, its destination is computed through
-    /// the production `folderRelativePath(for:parentFolderName:)`, and that folder does not exist —
-    /// which is exactly the conjunction `setupWorkingFolder` answers with the repair seed.
+    /// production reaches it. The re-slot is a PARENT change, which since G-15-2H froze the readable
+    /// leaf is the only differing-destination shape left: the destination is computed through the
+    /// production `folderRelativePath(for:parentFolderName:)` under a relocated parent, and that
+    /// folder does not exist — exactly the conjunction `setupWorkingFolder` answers with the repair
+    /// seed. The payload keeps a DIFFERENT title as well, now inert for the path, and the leaf
+    /// equality asserted below is what pins that.
     ///
     /// What must hold afterwards: the three unanswered pages keep their recorded hashes at the
     /// destination, the record is not republished at the laundered count, and the D-G7-01 bracket
@@ -110,9 +112,9 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
 
-        // The cross: same gid, new title. The computed destination is a folder that does not exist,
-        // which is what routes `setupWorkingFolder` into the repair-seed materialization instead of
-        // the folder reuse every existing per-file case takes.
+        // The cross: same gid, new title, relocated parent. The computed destination is a folder
+        // that does not exist, which is what routes `setupWorkingFolder` into the repair-seed
+        // materialization instead of the folder reuse every existing per-file case takes.
         let reslotted = SessionGallery(
             gid: laundered.gid,
             title: "Laundered Elsewhere",
@@ -123,10 +125,11 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
         let destinationFolderURL = fixture.storage.folderURL(
             relativePath: await manager.folderRelativePath(
                 for: payload,
-                parentFolderName: stagedDownload.folderName
+                parentFolderName: "Relocated"
             )
         )
         #expect(destinationFolderURL != sourceFolderURL)
+        #expect(destinationFolderURL.lastPathComponent == sourceFolderURL.lastPathComponent)
         #expect(FileManager.default.fileExists(atPath: destinationFolderURL.path) == false)
 
         let originalPermissions = try unprobedFileURLs.map { fileURL in
@@ -183,7 +186,8 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
     /// The companion that stops the carried set from being bought by disabling blanking after a
     /// seed.
     ///
-    /// Same re-slot, same materialization branch, over the REAL file manager, with two of the four
+    /// Same re-slot — a relocated PARENT, the leaf frozen (G-15-2H) — same materialization branch,
+    /// over the REAL file manager, with two of the four
     /// claimed page files deleted outright from the SOURCE folder — the route a user emptying the
     /// folder in the Files app takes. The source listing succeeds and simply does not yield them,
     /// which is a POSITIVE absence rather than an unanswered question, so those two pages must
@@ -243,10 +247,11 @@ struct DownloadRepairSeedSignalPropagationTests: DownloadFeatureTestCase {
         let destinationFolderURL = fixture.storage.folderURL(
             relativePath: await manager.folderRelativePath(
                 for: payload,
-                parentFolderName: stagedDownload.folderName
+                parentFolderName: "Relocated"
             )
         )
         #expect(destinationFolderURL != sourceFolderURL)
+        #expect(destinationFolderURL.lastPathComponent == sourceFolderURL.lastPathComponent)
         #expect(FileManager.default.fileExists(atPath: destinationFolderURL.path) == false)
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
