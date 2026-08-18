@@ -253,6 +253,10 @@ extension DownloadCoordinator {
     /// the restored pages are by construction the complement of the run's pending list. Subtracting
     /// the page numbers is idempotent on the first and inert on the second; subtracting a count
     /// over-credits on both, and over-crediting is the direction D-G2-01 names as the defect.
+    ///
+    /// The in-flight sub-page entries of the recorded pages are removed in this same synchronous
+    /// stretch, so whole-page and sub-page credit trade places atomically and no push can land
+    /// between a page landing and its flush at a lower value.
     public func flushManifestPageProgress(
         folderURL: URL,
         pages: [PageResult]
@@ -274,6 +278,7 @@ extension DownloadCoordinator {
         )
         updateDownloadIndex(folderURL: folderURL, manifest: manifest)
         runProgressBases[manifest.gid]?.outstandingPages.subtract(pageRelativePaths.keys)
+        retireInFlightPageCredits(gid: manifest.gid, pages: pageRelativePaths.keys)
     }
 
     public func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {

@@ -1,5 +1,6 @@
 import AppModels
 import Foundation
+import Synchronization
 
 public struct DownloadPageTaskContext: Equatable, Sendable {
     public let gid: String
@@ -28,16 +29,36 @@ public struct DownloadPageTransfer: Sendable {
     }
 }
 
+/// Reports one transfer's byte progress while it is still in flight.
+///
+/// Called on the delegate's own queue, already throttled by the delegate, so a handler is free to
+/// hop onto an actor without fanning out a task per received chunk.
+public typealias DownloadPageTransferProgressHandler = @Sendable (
+    _ totalBytesWritten: Int64,
+    _ totalBytesExpected: Int64
+) -> Void
+
 public struct DownloadPageDownloader: Sendable {
-    public var download: @Sendable (URLRequest, DownloadPageTaskContext) async throws -> DownloadPageTransfer
+    public var download: @Sendable (
+        URLRequest,
+        DownloadPageTaskContext,
+        @escaping DownloadPageTransferProgressHandler
+    ) async throws -> DownloadPageTransfer
     public init(
-        download: @escaping @Sendable (URLRequest, DownloadPageTaskContext) async throws -> DownloadPageTransfer
+        download: @escaping @Sendable (
+            URLRequest,
+            DownloadPageTaskContext,
+            @escaping DownloadPageTransferProgressHandler
+        ) async throws -> DownloadPageTransfer
     ) {
         self.download = download
     }
 
+    /// The handler is deliberately ignored: `URLSession.download(for:)` reports no intermediate
+    /// bytes at all, so a foreground transfer credits whole pages only. The live client uses
+    /// `.background`, and the session heartbeat covers this path regardless.
     public static func foreground(urlSession: URLSession) -> Self {
-        .init { request, _ in
+        .init { request, _, _ in
             let (fileURL, response) = try await urlSession.download(for: request)
             return .init(
                 fileURL: fileURL,
@@ -63,8 +84,12 @@ public struct DownloadPageDownloader: Sendable {
             orphanedCompletionHandler: orphanedCompletionHandler,
             orphanedFailureHandler: orphanedFailureHandler
         )
-        return .init { request, context in
-            try await session.download(for: request, context: context)
+        return .init { request, context, onBytesWritten in
+            try await session.download(
+                for: request,
+                context: context,
+                onBytesWritten: onBytesWritten
+            )
         }
     }
 }
@@ -291,7 +316,8 @@ private actor BackgroundPageDownloadSession {
 
     func download(
         for request: URLRequest,
-        context: DownloadPageTaskContext
+        context: DownloadPageTaskContext,
+        onBytesWritten: @escaping DownloadPageTransferProgressHandler
     ) async throws -> DownloadPageTransfer {
         let task = session.downloadTask(with: request)
         await taskStore.record(
@@ -299,6 +325,11 @@ private actor BackgroundPageDownloadSession {
             gid: context.gid,
             pageIndex: context.pageIndex
         )
+        // Registered BEFORE `hub.wait` resumes the task, so no byte callback can arrive with no
+        // forwarder to reach; removed on every exit, so a recycled task identifier cannot inherit
+        // a departed transfer's handler.
+        delegate.registerProgressForwarder(onBytesWritten, taskIdentifier: task.taskIdentifier)
+        defer { delegate.removeProgressForwarder(taskIdentifier: task.taskIdentifier) }
         do {
             return try await hub.wait(
                 taskIdentifier: task.taskIdentifier,
@@ -313,12 +344,29 @@ private actor BackgroundPageDownloadSession {
 }
 
 private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownloadDelegate {
+    /// One in-flight transfer's byte handler, plus when it last forwarded.
+    ///
+    /// A named value rather than a pair, on the module's own rule; and the date lives beside the
+    /// handler so the throttle decision and the stamp that records it happen under one lock.
+    private struct ProgressForwarder: Sendable {
+        let handler: DownloadPageTransferProgressHandler
+        var lastForwardDate: Date?
+    }
+
+    /// The shortest gap between two forwarded byte reports for one transfer.
+    ///
+    /// Chunks arrive tens of times a second per transfer and each forward costs a hop onto the
+    /// coordinator's actor, so this delegate-side throttle — not the coordinator's push throttle —
+    /// is what keeps the fan-out bounded at the source.
+    private static let progressForwardingMinimumInterval: TimeInterval = 0.25
+
     private let hub: BackgroundDownloadTaskHub
     private let taskStore: DownloadBackgroundTaskStore
     private let holdingDirectory: URL
     private let fileManager: DownloadFileManager
     private let orphanedCompletionHandler: @Sendable (Int, URL, URLResponse) async -> Void
     private let orphanedFailureHandler: @Sendable (Int, AppError?) async -> Void
+    private let progressForwarders = Mutex([Int: ProgressForwarder]())
 
     init(
         hub: BackgroundDownloadTaskHub,
@@ -335,6 +383,49 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
         self.orphanedCompletionHandler = orphanedCompletionHandler
         self.orphanedFailureHandler = orphanedFailureHandler
         super.init()
+    }
+
+    func registerProgressForwarder(
+        _ handler: @escaping DownloadPageTransferProgressHandler,
+        taskIdentifier: Int
+    ) {
+        progressForwarders.withLock({ $0[taskIdentifier] = ProgressForwarder(handler: handler) })
+    }
+
+    func removeProgressForwarder(taskIdentifier: Int) {
+        progressForwarders.withLock({ $0[taskIdentifier] = nil })
+    }
+
+    /// Forwards a transfer's running byte totals, on the first callback and then at most once per
+    /// `progressForwardingMinimumInterval`.
+    ///
+    /// The lookup, the throttle decision and the stamp that records it all happen inside one
+    /// critical section, so two callbacks for the same task cannot both read a stale stamp and both
+    /// forward. The handler is called OUTSIDE the lock: it hops onto an actor, and holding a mutex
+    /// across that hand-off would serialize the delegate queue behind it.
+    ///
+    /// An unknown expected size (`NSURLSessionTransferSizeUnknown`) passes through unchanged; what
+    /// to make of it is the receiver's decision, not this forwarder's.
+    func urlSession(
+        _: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData _: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        let taskIdentifier = downloadTask.taskIdentifier
+        let handler = progressForwarders.withLock { forwarders -> DownloadPageTransferProgressHandler? in
+            guard var forwarder = forwarders[taskIdentifier] else { return nil }
+            let forwardDate = Date()
+            if let lastForwardDate = forwarder.lastForwardDate,
+               forwardDate.timeIntervalSince(lastForwardDate) < Self.progressForwardingMinimumInterval {
+                return nil
+            }
+            forwarder.lastForwardDate = forwardDate
+            forwarders[taskIdentifier] = forwarder
+            return forwarder.handler
+        }
+        handler?(totalBytesWritten, totalBytesExpectedToWrite)
     }
 
     func urlSession(

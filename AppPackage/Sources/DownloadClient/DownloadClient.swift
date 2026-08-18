@@ -15,6 +15,9 @@ public struct DownloadClient: Sendable {
     /// then every transition. Consumed by `AppReducer` to decide whether backgrounding may pause
     /// the activity-log pump.
     public var observeContinuedSessionLiveness: @Sendable () -> AsyncStream<Bool> = { AsyncStream { $0.finish() } }
+    /// Records whether the app is backgrounded, so each page transfer can be stamped with where it
+    /// was created. The client stays UIKit-free; the scene phase is AppReducer's to report.
+    public var setIsInBackground: @Sendable (_ isInBackground: Bool) async -> Void
     public var fetchDownloads: @Sendable () async throws -> [DownloadedGallery]
     public var fetchDownload: @Sendable (String) async -> DownloadedGallery?
     public var reconcileDownloads: @Sendable () async -> Void
@@ -126,6 +129,9 @@ extension DownloadClient {
             observeContinuedSessionLiveness: {
                 makeForwardedStream(source: { await manager.observeContinuedSessionLiveness() })
             },
+            setIsInBackground: { isInBackground in
+                await manager.setIsSceneInBackground(isInBackground)
+            },
             fetchDownloads: { await manager.fetchDownloads() },
             fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
             reconcileDownloads: { await manager.reconcileDownloads() },
@@ -208,6 +214,7 @@ extension DownloadClient {
     public static let noop = Self(
         observeDownloads: { AsyncStream { $0.finish() } },
         observeContinuedSessionLiveness: { AsyncStream { $0.finish() } },
+        setIsInBackground: { _ in },
         fetchDownloads: { [] },
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
