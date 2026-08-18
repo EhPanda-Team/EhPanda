@@ -11,6 +11,20 @@ private let logger = Logger(category: .init(describing: AppActivityLogsPumpReduc
 // navigation, it derives the current run once per app run, appends new OS log entries to that run's
 // jsonl file every few seconds, and publishes the live current run + its logs via in-memory shared
 // state to the (navigation-scoped, read-only) `AppActivityLogsReducer` screen.
+//
+// **The cursor lives in `RunLogDrain`, not here.** This reducer owns WHEN to tick; the drain owns
+// what one tick means — fetch, append and cursor-advance as one serialized step. That split is the
+// fix for the ×3-duplicated jsonl lines: a cursor snapshotted into effect state, advanced through
+// an action `send` and followed by an unguarded disk append could both lose the advance (a
+// cancelled `Send` is a no-op) and start two effects from the same stale value.
+//
+// **A start on a running pump is a no-op**, and the run is derived synchronously inside the reduce
+// step that first starts it — so the run, and the "App activity logging started" header that names
+// it, exist exactly once per process by construction rather than by whichever effect wins a race.
+//
+// **This pump knows nothing about downloads.** AppReducer decides when to pause it: on `.background`
+// only when no continued-processing session is live, and on the live→ended transition while
+// backgrounded, so background-side lines reach disk before the process can be killed.
 @Reducer
 public struct AppActivityLogsPumpReducer: Sendable {
     private enum CancelID {
@@ -21,7 +35,9 @@ public struct AppActivityLogsPumpReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Shared(.appActivityLogsCurrentRun) public var currentRun: RunLogFile?
         @Shared(.appActivityLogsCurrentRunLogs) public var currentRunLogs: [AppActivityLog]
-        public var lastCursorDate: Date?
+        /// Whether a pump effect is in flight. This is the idempotence guard: it replaces
+        /// `cancelInFlight`, which restarted the loop on every `.active` bounce.
+        public var isPumpRunning = false
 
         public init() {}
     }
@@ -29,8 +45,6 @@ public struct AppActivityLogsPumpReducer: Sendable {
     public enum Action: Equatable, Sendable {
         case startPump
         case pausePump
-        case setCurrentRun(RunLogFile)
-        case didReceiveNewEntries([AppActivityLog])
     }
 
     @Dependency(\.logsClient) private var logsClient
@@ -43,16 +57,28 @@ public struct AppActivityLogsPumpReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .startPump:
-                return .run { [existingURL = state.currentRun?.url, cursor0 = state.lastCursorDate] send in
-                    let fileURL: URL
-                    if let existingURL {
-                        fileURL = existingURL
-                    } else {
-                        let now = date.now
-                        let runCount = await logsClient.nextRunCount(now)
-                        let resolvedURL = logsClient.currentRunFileURL(runCount, now)
-                        await send(.setCurrentRun(RunLogFile(url: resolvedURL, date: now, runCount: runCount)))
-                        fileURL = resolvedURL
+                guard !state.isPumpRunning else { return .none }
+                let isFirstStart = state.currentRun == nil
+                let run: RunLogFile
+                if let currentRun = state.currentRun {
+                    run = currentRun
+                } else {
+                    // Derived in the reduce step rather than in the effect: `nextRunCount` is a
+                    // directory listing, and establishing the run here is what makes it a fact of
+                    // the state transition instead of a race between two effects.
+                    let now = date.now
+                    let runCount = logsClient.nextRunCount(now)
+                    run = RunLogFile(
+                        url: logsClient.currentRunFileURL(runCount, now),
+                        date: now,
+                        runCount: runCount
+                    )
+                    state.$currentRun.withLock({ $0 = run })
+                }
+                state.isPumpRunning = true
+
+                return .run { [logs = state.$currentRunLogs, fileURL = run.url, runCount = run.runCount] _ in
+                    if isFirstStart {
                         let appVersion = Bundle.main
                             .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
                         logger.log(
@@ -65,64 +91,32 @@ public struct AppActivityLogsPumpReducer: Sendable {
                         )
                     }
 
-                    var cursor = cursor0
                     while !Task.isCancelled {
-                        let newEntries: [AppActivityLog]
-                        do {
-                            newEntries = try await logsClient.fetchNewEntries(cursor)
-                        } catch {
-                            // A transient OS-log read failure intentionally yields no entries this tick.
-                            newEntries = []
+                        let batch = await logsClient.drainNewEntries(fileURL)
+                        if !batch.isEmpty {
+                            // Published by mutating the captured shared value directly rather than
+                            // through `send`: `Send` is a no-op once this effect is cancelled, and
+                            // the whole point is that a cancelled tick can never lose a batch the
+                            // file already holds. The drain has already written it.
+                            logs.withLock({ $0.append(contentsOf: batch) })
                         }
-                        if let lastDate = newEntries.last?.date {
-                            cursor = lastDate
-                            await send(.didReceiveNewEntries(newEntries))
-                            do {
-                                try await logsClient.appendToRunFile(newEntries, fileURL)
-                            } catch {
-                                // Persisting diagnostic logs is best-effort and never interrupts the
-                                // live pump. Deliberately silent: this pump reads back the app's own
-                                // OSLog, so logging a failure here would emit an entry that the next
-                                // tick fetches and re-attempts to persist — a self-feeding loop for
-                                // as long as the persistent condition (e.g. a full disk) lasts.
-                            }
-                        }
+                        // A cancelled sleep throws `CancellationError`, which `.run` swallows.
                         try await clock.sleep(for: .seconds(5))
                     }
                 }
-                .cancellable(id: CancelID.pump, cancelInFlight: true)
+                .cancellable(id: CancelID.pump)
 
             case .pausePump:
+                state.isPumpRunning = false
+                guard let fileURL = state.currentRun?.url else { return .cancel(id: CancelID.pump) }
                 return .merge(
-                    .run { [cursor = state.lastCursorDate, fileURL = state.currentRun?.url] send in
-                        guard let fileURL else { return }
-                        let newEntries: [AppActivityLog]
-                        do {
-                            newEntries = try await logsClient.fetchNewEntries(cursor)
-                        } catch {
-                            // A transient OS-log read failure intentionally yields no final entries.
-                            newEntries = []
-                        }
-                        guard !newEntries.isEmpty else { return }
-                        await send(.didReceiveNewEntries(newEntries))
-                        do {
-                            try await logsClient.appendToRunFile(newEntries, fileURL)
-                        } catch {
-                            // Best-effort, and silent for the same reason as the pump's own append:
-                            // logging here would emit an entry a resumed pump immediately re-fetches.
-                        }
-                    },
-                    .cancel(id: CancelID.pump)
+                    .cancel(id: CancelID.pump),
+                    .run { [logs = state.$currentRunLogs] _ in
+                        let batch = await logsClient.drainNewEntries(fileURL)
+                        guard !batch.isEmpty else { return }
+                        logs.withLock({ $0.append(contentsOf: batch) })
+                    }
                 )
-
-            case let .setCurrentRun(run):
-                state.$currentRun.withLock({ $0 = run })
-                return .none
-
-            case .didReceiveNewEntries(let entries):
-                state.$currentRunLogs.withLock({ $0.append(contentsOf: entries) })
-                state.lastCursorDate = entries.last?.date ?? state.lastCursorDate
-                return .none
             }
         }
     }

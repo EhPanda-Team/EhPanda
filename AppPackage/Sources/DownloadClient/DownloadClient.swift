@@ -11,6 +11,10 @@ private let logger = Logger(category: .init(describing: DownloadClient.self))
 @DependencyClient
 public struct DownloadClient: Sendable {
     public var observeDownloads: @Sendable () -> AsyncStream<[DownloadedGallery]> = { AsyncStream { $0.finish() } }
+    /// Whether a continued-processing session is currently held — the current value on subscribe,
+    /// then every transition. Consumed by `AppReducer` to decide whether backgrounding may pause
+    /// the activity-log pump.
+    public var observeContinuedSessionLiveness: @Sendable () -> AsyncStream<Bool> = { AsyncStream { $0.finish() } }
     public var fetchDownloads: @Sendable () async throws -> [DownloadedGallery]
     public var fetchDownload: @Sendable (String) async -> DownloadedGallery?
     public var reconcileDownloads: @Sendable () async -> Void
@@ -88,14 +92,21 @@ extension DownloadClient {
         return makeDownloadClient(manager: manager)
     }
 
-    private static func makeObserveDownloadsStream(
-        manager: DownloadCoordinator
-    ) -> AsyncStream<[DownloadedGallery]> {
+    /// Bridges an actor-owned stream onto a synchronous client endpoint: the endpoint hands back a
+    /// stream immediately while a task hops to the coordinator, subscribes, and forwards.
+    ///
+    /// Generic over the element rather than duplicated per endpoint, because the bridging IS the
+    /// contract — subscribe on a task, forward, finish when the source finishes, cancel the task
+    /// when the consumer drops the stream — and two copies of it would be two places for that
+    /// contract to drift.
+    private static func makeForwardedStream<Element: Sendable>(
+        source: @escaping @Sendable () async -> AsyncStream<Element>
+    ) -> AsyncStream<Element> {
         AsyncStream { continuation in
             let task = Task {
-                let stream = await manager.observeDownloads()
-                for await downloads in stream {
-                    continuation.yield(downloads)
+                let stream = await source()
+                for await element in stream {
+                    continuation.yield(element)
                 }
                 continuation.finish()
             }
@@ -109,7 +120,12 @@ extension DownloadClient {
         manager: DownloadCoordinator
     ) -> Self {
         .init(
-            observeDownloads: { makeObserveDownloadsStream(manager: manager) },
+            observeDownloads: {
+                makeForwardedStream(source: { await manager.observeDownloads() })
+            },
+            observeContinuedSessionLiveness: {
+                makeForwardedStream(source: { await manager.observeContinuedSessionLiveness() })
+            },
             fetchDownloads: { await manager.fetchDownloads() },
             fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
             reconcileDownloads: { await manager.reconcileDownloads() },
@@ -191,6 +207,7 @@ extension DependencyValues {
 extension DownloadClient {
     public static let noop = Self(
         observeDownloads: { AsyncStream { $0.finish() } },
+        observeContinuedSessionLiveness: { AsyncStream { $0.finish() } },
         fetchDownloads: { [] },
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
