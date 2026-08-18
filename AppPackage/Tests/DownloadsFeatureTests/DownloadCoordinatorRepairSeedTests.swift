@@ -6,70 +6,6 @@ import Foundation
 import Testing
 
 struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
-    @Test
-    func testRepairSeedReusesCompletedFilesWhenPageCountMatches() async throws {
-        let gid = "repair-seed-\(UUID().uuidString)"
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { removeTemporaryItem(at: rootURL) }
-
-        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
-        try storage.ensureRootDirectory()
-
-        let sourceFolderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Existing")
-        let existingDownload = sampleDownload(
-            gid: gid, title: "Mixed Version", status: .missingFiles,
-            pageCount: 2, completedPageCount: 2,
-            folderURL: sourceFolderURL
-        )
-        try setupRepairSeedFiles(
-            storage: storage,
-            sourceFolderURL: sourceFolderURL,
-            gid: gid
-        )
-
-        let payload = makeRepairSeedPayload(gid: gid)
-        let folderRelativePath = await manager.folderRelativePath(
-            for: payload,
-            parentFolderName: existingDownload.folderName
-        )
-        let folderURL = storage.folderURL(relativePath: folderRelativePath)
-        removeTemporaryItem(at: folderURL)
-        let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
-            payload: payload,
-            existingDownload: existingDownload,
-            folderURL: folderURL
-        ).workingSeed
-
-        let pageOneRelativePath = storage.makePageRelativePath(
-            gid: gid, token: "token", index: 1, fileExtension: "jpg"
-        )
-        let pageTwoRelativePath = storage.makePageRelativePath(
-            gid: gid, token: "token", index: 2, fileExtension: "jpg"
-        )
-        let coverRelativePath = storage.makeCoverRelativePath(
-            gid: gid, token: "token", fileExtension: "jpg"
-        )
-        let manifest = workingSeed.manifest
-        #expect(manifest.gid == gid)
-        #expect(workingSeed.existingPages == [
-            1: pageOneRelativePath,
-            2: pageTwoRelativePath
-        ])
-        #expect(workingSeed.coverRelativePath == coverRelativePath)
-        #expect(
-            FileManager.default.fileExists(
-                atPath: workingSeed.folderURL.appendingPathComponent(pageOneRelativePath).path
-            )
-        )
-        #expect(
-            FileManager.default.fileExists(
-                atPath: workingSeed.folderURL.appendingPathComponent(pageTwoRelativePath).path
-            )
-        )
-    }
-
     /// D-G5-01 on the route G-15-5 names: a `.repair` whose working folder lost one page file must
     /// come out of `prepareWorkingSeedAnnouncingProgress` with a record that reads incomplete.
     ///
@@ -120,11 +56,10 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         )
         let stagedManifest = try storage.readManifest(folderURL: folderURL)
         await manager.reloadDownloadIndex()
-        let existingDownload = try #require(await manager.fetchDownload(gid: gid))
+        _ = try #require(await manager.fetchDownload(gid: gid))
 
         let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: .repair),
-            existingDownload: existingDownload,
             folderURL: folderURL
         ).workingSeed
 
@@ -208,11 +143,10 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         claimed.pages = [1: "sha256:stale-one", 2: "sha256:stale-two"]
         try storage.writeManifest(claimed, folderURL: folderURL)
         await manager.reloadDownloadIndex()
-        let download = try #require(await manager.fetchDownload(gid: gid))
+        _ = try #require(await manager.fetchDownload(gid: gid))
 
         let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairSeedPayload(gid: gid),
-            existingDownload: download,
             folderURL: folderURL
         ).workingSeed
 
@@ -225,101 +159,6 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         let diskManifest = try storage.readManifest(folderURL: folderURL)
         #expect(diskManifest.pages[1] == "")
         #expect(diskManifest.pages[2] == "sha256:stale-two")
-    }
-
-    /// The SOURCE folder is the gallery's own indexed record, so nothing on the seed route is
-    /// entitled to delete inside it (WR-02).
-    ///
-    /// `repairSeed` hands `materializeRepairSeed` `download.folderURL` — the CURRENTLY INDEXED
-    /// folder — and the source page scan used to name the discarding flag, removing refused page
-    /// files there while writing nothing to that folder's manifest. What the route blanks is the
-    /// destination's COPY, a different record, so the source went on claiming pages the app itself
-    /// had destroyed.
-    ///
-    /// Three conditions are jointly required to observe that, and this case stages all three.
-    /// (1) The run must NOT complete: `removeSupersededFolders` runs only from the completion
-    /// handler (`DownloadClient+Execution.swift`), so a failed, cancelled or terminated run is what
-    /// leaves the stale folder standing with its claim — and stopping after the preparation IS that
-    /// interruption, since the seed materializes inside it and nothing past it sweeps.
-    /// (2) The destination path must DIFFER from the source, which since G-15-2H froze the readable
-    /// leaf only a different PARENT folder produces — so this case stages that shape explicitly,
-    /// deriving the destination through the production `folderRelativePath(for:parentFolderName:)`
-    /// under a relocated parent. (3) The source must be ALL-REFUSED, so no page is copied and the
-    /// destination's directory mtime is set by the manifest copy alone, while the source's is bumped
-    /// afterwards by the deletions — how the lying folder came to win `deduplicatedDownloadIndex`'s
-    /// `displayDate` arbitration.
-    ///
-    /// Pre-fix all three zero-byte page files vanish while the source manifest still claims all
-    /// three. The index-winner assertion is the first one's CONSEQUENCE rather than an independent
-    /// property — what makes the winner honest is that nothing was deleted — and it is written as a
-    /// conjunction deliberately, because the gap is about the arbitration exposing the lie and not
-    /// only about the lie existing. It discriminates exactly when the source wins, which is the
-    /// pre-fix mtime ordering; it is vacuous once the deleted set is empty, which is the point.
-    @Test
-    func testAnInterruptedRepairWithRenameKeepsTheSourceRecordAndItsFilesInAgreement() async throws {
-        let gid = "repair-source-\(UUID().uuidString)"
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { removeTemporaryItem(at: rootURL) }
-
-        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
-        try storage.ensureRootDirectory()
-
-        let sourceFolderURL = try stageAllRefusedSourceFolder(storage: storage, gid: gid)
-        let stagedPageURLs = stagedSourcePageURLs(
-            storage: storage, gid: gid, folderURL: sourceFolderURL
-        )
-        await manager.reloadDownloadIndex()
-        let existingDownload = try #require(await manager.fetchDownload(gid: gid))
-
-        // The relocation shape, derived the way production derives it rather than assumed: the
-        // working folder is `folderRelativePath(for:parentFolderName:)`'s answer under a DIFFERENT
-        // parent, and the arguments the seed receives are then exactly the ones `repairSeed` returns
-        // for this record. The payload's title differs from the staged folder's too, and post-G-15-2H
-        // that difference is inert — the leaf equality below is what says so.
-        let payload = makeReconcilePayload(gid: gid, mode: .repair)
-        let folderURL = storage.folderURL(
-            relativePath: await manager.folderRelativePath(
-                for: payload,
-                parentFolderName: "Relocated"
-            )
-        )
-        #expect(folderURL.standardizedFileURL != sourceFolderURL.standardizedFileURL)
-        #expect(folderURL.lastPathComponent == sourceFolderURL.lastPathComponent)
-
-        _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
-            payload: payload,
-            existingDownload: existingDownload,
-            folderURL: folderURL
-        )
-
-        // Record/disk agreement at the SOURCE, taken from the manifest as it stands AFTER the act
-        // rather than from the staging, so the other admissible fix — reconciling the source folder
-        // under its own guards — would pass here on its own terms instead of being ruled out.
-        let sourceManifest = try storage.readManifest(folderURL: sourceFolderURL)
-        let sourceClaimedPages = Set(sourceManifest.pages.filter({ !$0.value.isEmpty }).keys)
-        let deletedSourcePages = Set(
-            stagedPageURLs
-                .filter({ !FileManager.default.fileExists(atPath: $0.value.path) })
-                .keys
-        )
-        #expect(deletedSourcePages.sorted() == [])
-        #expect(sourceClaimedPages.intersection(deletedSourcePages) == [])
-
-        // The index winner, read back through a REBUILT coordinator so the basis is the persisted
-        // one a relaunch meets rather than this manager's in-memory index.
-        let relaunched = DownloadCoordinator(
-            storage: DownloadStore(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
-        )
-        await relaunched.reloadDownloadIndex()
-        let indexedWinner = try #require(await relaunched.fetchDownload(gid: gid))
-        let winnerManifest = try storage.readManifest(folderURL: indexedWinner.folderURL)
-        let winnerClaimedPages = Set(winnerManifest.pages.filter({ !$0.value.isEmpty }).keys)
-        let deletedPagesInWinner: Set<Int> = indexedWinner.folderURL.standardizedFileURL
-            == sourceFolderURL.standardizedFileURL ? deletedSourcePages : []
-        #expect(winnerClaimedPages.intersection(deletedPagesInWinner) == [])
     }
 
     @Test
@@ -392,7 +231,6 @@ private extension DownloadCoordinatorRepairSeedTests {
 
         let workingSeed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeReconcilePayload(gid: gid, mode: mode),
-            existingDownload: existingDownload,
             folderURL: folderURL
         ).workingSeed
 
@@ -455,62 +293,6 @@ private extension DownloadCoordinatorRepairSeedTests {
         return folderURL
     }
 
-    /// A three-page record claiming every page while every page file is zero bytes — the all-refused
-    /// shape. Its title differs from `makeReconcilePayload`'s, which no longer moves the working
-    /// folder at all (G-15-2H froze the leaf); the caller stages the differing destination by naming
-    /// a different PARENT.
-    ///
-    /// The cover is staged USABLE on purpose. The cover scan is the site that keeps its entitlement,
-    /// so a refused cover would be legitimately deleted here and this case's page inventory would
-    /// need an exception that says nothing about the rule under test.
-    func stageAllRefusedSourceFolder(storage: DownloadStore, gid: String) throws -> URL {
-        let folderURL = storage.folderURL(
-            relativePath: "Folder/\(storage.makeFolderRelativePath(gid: gid, token: "token", title: "Original"))"
-        )
-        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        var manifest = try sampleManifest(gid: gid, title: "Original", pageCount: 3)
-        manifest.pages = Dictionary(
-            uniqueKeysWithValues: (1...3).map { ($0, "sha256:page-\($0)") }
-        )
-        try storage.writeManifest(manifest, folderURL: folderURL)
-        try Data([0x00]).write(
-            to: folderURL.appendingPathComponent(
-                storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
-            ),
-            options: .atomic
-        )
-        for index in 1...3 {
-            try Data().write(
-                to: folderURL.appendingPathComponent(
-                    storage.makePageRelativePath(gid: gid, token: "token", index: index, fileExtension: "jpg")
-                ),
-                options: .atomic
-            )
-        }
-        return folderURL
-    }
-
-    /// The staged page files' URLs, so "which files did the act remove" is answered against the
-    /// inventory that was written rather than against whatever the folder happens to hold.
-    func stagedSourcePageURLs(
-        storage: DownloadStore,
-        gid: String,
-        folderURL: URL
-    ) -> [Int: URL] {
-        Dictionary(
-            uniqueKeysWithValues: (1...3).map { index in
-                (
-                    index,
-                    folderURL.appendingPathComponent(
-                        storage.makePageRelativePath(
-                            gid: gid, token: "token", index: index, fileExtension: "jpg"
-                        )
-                    )
-                )
-            }
-        )
-    }
-
     func makeReconcilePayload(
         gid: String,
         mode: DownloadStartMode
@@ -535,43 +317,6 @@ private extension DownloadCoordinatorRepairSeedTests {
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
             host: .ehentai, folderName: "Folder", mode: mode
-        )
-    }
-
-    func setupRepairSeedFiles(
-        storage: DownloadStore,
-        sourceFolderURL: URL,
-        gid: String
-    ) throws {
-        try FileManager.default.createDirectory(
-            at: sourceFolderURL,
-            withIntermediateDirectories: true
-        )
-        let oldManifest = try sampleManifest(
-            gid: gid, title: "Mixed Version",
-            pageCount: 2
-        )
-        try JSONEncoder().encode(oldManifest).write(
-            to: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
-            options: .atomic
-        )
-        try Data([0x00]).write(
-            to: sourceFolderURL.appendingPathComponent(
-                storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
-            ),
-            options: .atomic
-        )
-        try Data([0x01]).write(
-            to: sourceFolderURL.appendingPathComponent(
-                storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
-            ),
-            options: .atomic
-        )
-        try Data([0x02]).write(
-            to: sourceFolderURL.appendingPathComponent(
-                storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
-            ),
-            options: .atomic
         )
     }
 

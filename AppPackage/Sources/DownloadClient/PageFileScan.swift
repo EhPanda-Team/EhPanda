@@ -11,11 +11,12 @@
 ///
 /// **"Non-destructive" is a property of the ROUTE, not of the call (G-15-19).** A caller may
 /// collapse the pairs only if its output can never become the input of a destructive decision — in
-/// this folder or in any other, one step later or ten. `materializeRepairSeed` read as such a
-/// caller and was not one: it collapsed the pairs while scanning a SOURCE folder, and the pages it
-/// therefore did not copy became positive absences in the DESTINATION folder's own entirely honest
-/// scan, where nothing downstream could recover the distinction. A caller whose answer crosses a
-/// folder boundary must carry the classification with it, not the collapse.
+/// this folder or in any other, one step later or ten. The since-retired repair-seed
+/// materialization read as such a caller and was not one: it collapsed the pairs while scanning a
+/// SOURCE folder, and the pages it therefore did not copy became positive absences in the
+/// DESTINATION folder's own entirely honest scan, where nothing downstream could recover the
+/// distinction. A caller whose answer crosses a folder boundary must carry the classification with
+/// it, not the collapse.
 ///
 /// - `scanSucceeded` answers at the DIRECTORY level: false means the enumeration itself failed, so
 ///   the whole answer is a non-answer (G-15-9).
@@ -63,9 +64,11 @@ public struct PageFileScan: Equatable, Sendable {
     public let unprobedPages: Set<Int>
     public let rejectedPageRelativePaths: [Int: String]
 
-    /// - Parameter rejectedPageRelativePaths: defaulted, so the one place that rebuilds a scan from
-    ///   another scan's parts stays source-compatible; that site threads the real value through
-    ///   rather than taking the default.
+    /// - Parameter rejectedPageRelativePaths: defaulted for the scan's own early answers, which
+    ///   report nothing at this level because they reached no per-file probe at all — an empty
+    ///   manifest, and a listing that failed. Every answer that DID probe threads the real value
+    ///   through. Nothing rebuilds a scan from another scan's parts any more, that rebuild having
+    ///   gone with the repair-seed materialization's carried classification.
     public init(
         pages: [Int: String],
         scanSucceeded: Bool,

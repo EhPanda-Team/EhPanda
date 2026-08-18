@@ -686,7 +686,6 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -777,7 +776,6 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: repair),
-            existingDownload: staged,
             folderURL: folderURL
         )
 

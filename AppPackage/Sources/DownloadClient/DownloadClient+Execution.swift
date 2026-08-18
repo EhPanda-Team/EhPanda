@@ -42,7 +42,7 @@ extension DownloadCoordinator {
         do {
             clearDownloadFailureState(gid: gid, includePageFailures: false)
             await notifyObservers()
-            let result = try await fetchNormalizeAndDownload(
+            try await fetchNormalizeAndDownload(
                 gid: gid,
                 download: download,
                 mode: mode,
@@ -51,8 +51,7 @@ extension DownloadCoordinator {
             guard !Task.isCancelled else { return }
             await completeDownload(
                 gid: gid,
-                download: download,
-                result: result
+                download: download
             )
         } catch is CancellationError {
             return
@@ -68,8 +67,7 @@ extension DownloadCoordinator {
 
     private func completeDownload(
         gid: String,
-        download: DownloadedGallery,
-        result: ProcessDownloadResult
+        download: DownloadedGallery
     ) async {
         // Gallery identifiers stay correlatable without disclosure by using hash masking. Errors
         // are private because gallery-folder paths embed titles; titles provide no operational value.
@@ -80,36 +78,32 @@ extension DownloadCoordinator {
             """
         )
         await settleCompletedDownload(gid: gid)
-        let completedFolderURL = storage.folderURL(
-            relativePath: result.folderRelativePath
-        )
-        removeSupersededFolders(
-            gid: gid,
-            token: download.token,
-            keeping: completedFolderURL
-        )
     }
 
-    // A completed run's folder no longer differs from the record's through a title change: the
-    // readable leaf is frozen at first creation (G-15-2H, `folderRelativePath`). The sweep stands
-    // for the two shapes that remain — pre-fix history, where a rename interrupted between the
-    // seed materialization and completion left both folders behind, and any differing-PARENT
-    // destination handed to the preparation directly. Only the completed folder may survive, or
-    // the stale duplicate resurfaces once the surviving record is deleted.
-    public func removeSupersededFolders(gid: String, token: String, keeping folderURL: URL) {
-        do {
-            try removeGalleryFolders(gid: gid, token: token, keeping: folderURL)
-        } catch {
-            logger.error("\(error, privacy: .private)")
-        }
-    }
-
-    public func removeGalleryFolders(gid: String, token: String, keeping folderURL: URL? = nil) throws {
-        let keptPath = folderURL?.standardizedFileURL.path
+    /// Removes EVERY folder of one gallery, and is therefore reserved for the user's own
+    /// `delete(gid:)`.
+    ///
+    /// **The invariant this primitive is fenced by: the download client never deletes a gallery
+    /// folder it did not itself create in the same run.** The downloads directory is user-visible
+    /// and user-managed through the Files app, so a folder the app did not make in the run at hand
+    /// is the user's — renamed, copied or moved by them — and nothing the app does on its own may
+    /// remove one. A run's completion therefore removes nothing at all; the only folder a run may
+    /// wipe is the working folder it is about to fill, and only when the user's own start mode asks
+    /// for it (`setupWorkingFolder`).
+    ///
+    /// What "every folder" means here is `storage.galleryFolderURLs(gid:token:)`'s answer: a match
+    /// by the `[gid_token]` leaf prefix OR by the manifest's own gid/token, in any user folder. That
+    /// breadth is right for a delete — the user asked for the gallery to be gone — and wrong for
+    /// anything else, which is why there is no keep-one variant and no second caller.
+    ///
+    /// A completion sweep used to call it with one folder held back. On a stale-index rename it
+    /// deleted the user's renamed folder: Files-app rename, an index that still pointed at the old
+    /// name, then Repair/Resume recreating the folder at that old name and refetching, after which
+    /// the sweep removed the renamed original (G-15-2H, resolution 2026-08-19). The accepted
+    /// consequence of retiring it is that such a shape now leaves TWO folders standing and
+    /// `deduplicatedDownloadIndex` picks the newest by modification date.
+    public func removeGalleryFolders(gid: String, token: String) throws {
         for galleryFolderURL in storage.galleryFolderURLs(gid: gid, token: token) {
-            guard galleryFolderURL.standardizedFileURL.path != keptPath else {
-                continue
-            }
             try storage.removeFolder(at: galleryFolderURL)
         }
     }
@@ -141,16 +135,12 @@ extension DownloadCoordinator {
         }
     }
 
-    private struct ProcessDownloadResult {
-        let folderRelativePath: String
-    }
-
     private func fetchNormalizeAndDownload(
         gid: String,
         download: DownloadedGallery,
         mode: DownloadStartMode,
         options: DownloadRequestOptions
-    ) async throws -> ProcessDownloadResult {
+    ) async throws {
         let rawPageSelection = queuedPageSelections[gid]
         let fetchedPayload = try await fetchLatestPayload(
             for: download,
@@ -176,9 +166,6 @@ extension DownloadCoordinator {
             options: options,
             folderRelativePath: folderRelativePath,
             existingDownload: download
-        )
-        return ProcessDownloadResult(
-            folderRelativePath: folderRelativePath
         )
     }
 

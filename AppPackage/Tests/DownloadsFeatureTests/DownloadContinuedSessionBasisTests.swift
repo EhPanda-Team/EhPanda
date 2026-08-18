@@ -94,7 +94,6 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: corrected),
-            existingDownload: staged,
             folderURL: correctedFolderURL
         )
 
@@ -210,7 +209,6 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: seeded),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -437,8 +435,8 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// green suite was never evidence about this freeze.
     ///
     /// Nothing here is a blanking. `shouldReuseWorkingFolder` returns false for `.redownload`,
-    /// `setupWorkingFolder` deletes the folder, `repairSeed` declines a non-`.repair` payload, and
-    /// `ensureWorkingManifest` writes a fresh all-empty manifest and re-indexes it. The
+    /// `setupWorkingFolder` deletes the folder, and `ensureWorkingManifest` writes a fresh
+    /// all-empty manifest and re-indexes it. The
     /// reconciliation is then handed that all-empty manifest, blanks nothing, and returns at its
     /// `blankedPageCount == 0` guard — which is exactly why a withdrawal attached to the blanking
     /// loop never fires on this route.
@@ -473,7 +471,6 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeStartPayload(for: errored, mode: .redownload),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -566,7 +563,6 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeStartPayload(for: trusted, mode: .update),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -645,7 +641,6 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeStartPayload(for: regrown, mode: .repair, pageCountOverride: 8),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
