@@ -241,10 +241,12 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     /// handler (`DownloadClient+Execution.swift`), so a failed, cancelled or terminated run is what
     /// leaves the stale folder standing with its claim — and stopping after the preparation IS that
     /// interruption, since the seed materializes inside it and nothing past it sweeps.
-    /// (2) The destination path must DIFFER from the source, which an upstream title change
-    /// produces. (3) The source must be ALL-REFUSED, so no page is copied and the destination's
-    /// directory mtime is set by the manifest copy alone, while the source's is bumped afterwards by
-    /// the deletions — which is how the lying folder came to win `deduplicatedDownloadIndex`'s
+    /// (2) The destination path must DIFFER from the source, which since G-15-2H froze the readable
+    /// leaf only a different PARENT folder produces — so this case stages that shape explicitly,
+    /// deriving the destination through the production `folderRelativePath(for:parentFolderName:)`
+    /// under a relocated parent. (3) The source must be ALL-REFUSED, so no page is copied and the
+    /// destination's directory mtime is set by the manifest copy alone, while the source's is bumped
+    /// afterwards by the deletions — how the lying folder came to win `deduplicatedDownloadIndex`'s
     /// `displayDate` arbitration.
     ///
     /// Pre-fix all three zero-byte page files vanish while the source manifest still claims all
@@ -271,18 +273,20 @@ struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         let existingDownload = try #require(await manager.fetchDownload(gid: gid))
 
-        // The rename shape, derived the way production derives it rather than assumed: the working
-        // folder is `folderRelativePath(for:parentFolderName:)`'s answer for a payload whose title
-        // differs from the staged folder's, and the arguments the seed receives are then exactly the
-        // ones `repairSeed` returns for this record.
+        // The relocation shape, derived the way production derives it rather than assumed: the
+        // working folder is `folderRelativePath(for:parentFolderName:)`'s answer under a DIFFERENT
+        // parent, and the arguments the seed receives are then exactly the ones `repairSeed` returns
+        // for this record. The payload's title differs from the staged folder's too, and post-G-15-2H
+        // that difference is inert — the leaf equality below is what says so.
         let payload = makeReconcilePayload(gid: gid, mode: .repair)
         let folderURL = storage.folderURL(
             relativePath: await manager.folderRelativePath(
                 for: payload,
-                parentFolderName: existingDownload.folderName
+                parentFolderName: "Relocated"
             )
         )
         #expect(folderURL.standardizedFileURL != sourceFolderURL.standardizedFileURL)
+        #expect(folderURL.lastPathComponent == sourceFolderURL.lastPathComponent)
 
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
@@ -452,8 +456,9 @@ private extension DownloadCoordinatorRepairSeedTests {
     }
 
     /// A three-page record claiming every page while every page file is zero bytes — the all-refused
-    /// shape, staged under a title that differs from `makeReconcilePayload`'s so the working folder
-    /// the repair resolves is a different path.
+    /// shape. Its title differs from `makeReconcilePayload`'s, which no longer moves the working
+    /// folder at all (G-15-2H froze the leaf); the caller stages the differing destination by naming
+    /// a different PARENT.
     ///
     /// The cover is staged USABLE on purpose. The cover scan is the site that keeps its entitlement,
     /// so a refused cover would be legitimately deleted here and this case's page inventory would

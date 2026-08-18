@@ -2,10 +2,10 @@ import Foundation
 
 /// The identity record for a downloaded gallery, written to `manifest.json` in its folder.
 /// Identity lives *here* (`gid` / `token`), not in the folder path: the human-readable
-/// `[gid_token] Title` folder name is presentation, and the title in it can change and
-/// re-slot the directory without affecting identity. Folder membership follows the file's
-/// location on disk, so this manifest is what re-establishes identity after the gallery is
-/// moved or renamed via the Files app.
+/// `[gid_token] Title` folder name is presentation, chosen once when the folder is created and
+/// left alone afterwards — a later upstream title change does not rename the directory (G-15-2H).
+/// Folder membership follows the file's location on disk, so this manifest is what re-establishes
+/// identity after the gallery is moved or renamed via the Files app.
 public struct DownloadManifest: Codable, Equatable, Sendable {
     public let gid: String
     public let host: GalleryHost
