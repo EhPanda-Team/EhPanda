@@ -247,7 +247,7 @@ extension DownloadCoordinator {
         completedPageCount: Int,
         pageCount: Int
     ) -> Int {
-        if let basis = runProgressBases[gid] { return basis.creditedPageCount }
+        if let basis = liveRunProgressBasis(gid: gid) { return basis.creditedPageCount }
         let recorded = min(max(completedPageCount, 0), max(pageCount, 0))
         guard recorded >= pageCount else { return recorded }
         return observedIncompleteSessionGenerations[gid] == queueIntentGeneration(for: gid)

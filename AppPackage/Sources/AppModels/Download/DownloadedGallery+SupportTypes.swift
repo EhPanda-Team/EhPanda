@@ -28,11 +28,17 @@ extension DownloadedGallery {
         localCoverURL ?? onlineCoverURL
     }
 
+    /// The DISPLAY pair: while a run's measurement stands the numerator is that run's credited page
+    /// count, and it is the record's own count otherwise (D-SSOT-10). The denominator is the
+    /// record's page count either way — the run's target is the whole gallery.
+    ///
+    /// `completedPageCount`, `isIncomplete`, `canValidateImageData` and every gate below stay on the
+    /// RECORD. Only what a user is shown moves.
     public var badge: DownloadBadge {
         DownloadBadge(
             status: displayStatus,
             progress: DownloadProgress(
-                completedPageCount: completedPageCount,
+                completedPageCount: runProgress?.creditedPageCount ?? completedPageCount,
                 pageCount: pageCount
             )
         )

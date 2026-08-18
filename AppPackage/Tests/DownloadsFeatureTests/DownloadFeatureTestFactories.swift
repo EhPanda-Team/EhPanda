@@ -303,6 +303,22 @@ extension DownloadFeatureTestCase {
         return (storage, manager)
     }
 
+    /// A session whose transport is the shared stub protocol, keyed to one case's own identifier.
+    ///
+    /// Shared by the run-exit cases: it is the seam that lets a case drive a REAL `processDownload`
+    /// to a real exit without reaching the network. The shape is `makeStubbedDownloadCoordinator`'s,
+    /// kept identical so both reach the stub the same way — an ephemeral configuration carrying the
+    /// protocol class and the per-case header — rather than registering the protocol process-wide,
+    /// which would leak across the target's parallel suites.
+    func makeStubbedURLSession(stubSessionID: String) -> URLSession {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [
+            SharedSessionStubURLProtocol.headerKey: stubSessionID
+        ]
+        return URLSession(configuration: configuration)
+    }
+
     func makeMetadataResponseData(
         gid: String,
         token: String = "token"
