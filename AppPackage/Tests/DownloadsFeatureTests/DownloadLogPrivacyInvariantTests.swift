@@ -94,9 +94,17 @@ struct DownloadLogPrivacyInvariantTests {
     /// entry marking it does not. The removed page indices are operational scalars and go out
     /// `public`; the gid follows the module's masked identity pattern, so cross-line correlation
     /// survives without disclosure.
+    /// The `+PageTransferProgress.swift` entry is the byte-progress telemetry added for G-15-2D,
+    /// and it is exactly two sites by construction: one helper reports a transfer's first bytes and
+    /// one reports a starved transfer, each carrying a single masked gid. The starved helper is
+    /// shared by BOTH of its detectors — the heartbeat's sweep and the transfer's own exit — so
+    /// adding the second detector added no masked site, which is what the count of two records.
+    /// The heartbeat summary and the environment lines carry no gallery value at all and appear
+    /// here not at all.
     private static let expectedHashMaskedCounts = [
         "DownloadClient+Execution.swift": 3,
         "DownloadClient+Manager.swift": 1,
+        "DownloadClient+PageTransferProgress.swift": 2,
         "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 2,
         "DownloadClient+Scheduling.swift": 3,
@@ -107,7 +115,7 @@ struct DownloadLogPrivacyInvariantTests {
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
-    private static let expectedHashMaskedTotal = 11
+    private static let expectedHashMaskedTotal = 13
 
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {

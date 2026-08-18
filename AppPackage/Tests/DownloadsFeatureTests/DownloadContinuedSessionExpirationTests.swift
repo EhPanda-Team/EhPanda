@@ -437,7 +437,7 @@ private extension BackgroundProcessingClient {
             }
             return BackgroundProcessingSession(id: UUID(), events: events)
         },
-        updateProgress: { _, _, _, _ in
+        updateProgress: { _, _, _, _, _ in
             await Task.yield()
         },
         finish: { _, _ in

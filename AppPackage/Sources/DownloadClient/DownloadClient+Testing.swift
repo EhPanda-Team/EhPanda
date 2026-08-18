@@ -154,6 +154,41 @@ extension DownloadCoordinator {
         }
     }
 
+    /// Forwards to `beginPageTransfer(gid:pageIndex:)`, the in-flight entry's creation point.
+    public func testingBeginPageTransfer(gid: String, pageIndex: Int) {
+        beginPageTransfer(gid: gid, pageIndex: pageIndex)
+    }
+
+    /// Forwards to `recordPageTransferBytes(...)`, the delegate-side byte report's landing point.
+    public func testingRecordPageTransferBytes(
+        gid: String,
+        pageIndex: Int,
+        bytesWritten: Int64,
+        bytesExpected: Int64
+    ) async {
+        await recordPageTransferBytes(
+            gid: gid,
+            pageIndex: pageIndex,
+            bytesWritten: bytesWritten,
+            bytesExpected: bytesExpected
+        )
+    }
+
+    /// Forwards to `endPageTransfer(gid:pageIndex:)`, the attempt's close.
+    public func testingEndPageTransfer(gid: String, pageIndex: Int) {
+        endPageTransfer(gid: gid, pageIndex: pageIndex)
+    }
+
+    /// Forwards to `withdrawInFlightPageCredit(gid:pageIndex:)`, the failed page's deliberate mover.
+    public func testingWithdrawInFlightPageCredit(gid: String, pageIndex: Int) {
+        withdrawInFlightPageCredit(gid: gid, pageIndex: pageIndex)
+    }
+
+    /// The sub-page credit currently held for one gallery, summed over its in-flight pages.
+    public func testingInFlightSubunitCount(gid: String) -> Int64 {
+        inFlightPageTransfers[gid]?.values.reduce(Int64(0), { $0 + $1.creditedSubunits }) ?? 0
+    }
+
     /// Forwards to `prepareWorkingSeedAnnouncingProgress(payload:existingDownload:folderURL:)`, the
     /// redo path's pre-page-work preparation and basis announcement.
     ///

@@ -47,6 +47,9 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                     reconcileCount.value += 1
                 }
                 $0.downloadClient.refreshDownloads = {}
+                // Every scene-phase change reports where a page transfer would be created, and
+                // this case drives four of them.
+                $0.downloadClient.setIsInBackground = { _ in }
                 $0.downloadClient.enqueue = { _ in }
                 $0.downloadClient.togglePause = { _ in }
                 $0.downloadClient.retry = { _, _ in }
