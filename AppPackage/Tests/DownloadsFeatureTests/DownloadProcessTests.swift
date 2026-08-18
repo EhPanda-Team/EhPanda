@@ -160,6 +160,89 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         )
     }
 
+    /// D-1 end to end: a full `processDownload` leaves every OTHER folder of the same gallery
+    /// exactly as it found it.
+    ///
+    /// **The invariant: the download client never deletes a gallery folder it did not itself create
+    /// in the same run.** The second folder staged here lives in a DIFFERENT user folder and carries
+    /// no `[gid_token]` leaf prefix, so `galleryFolderURLs` can only find it by MANIFEST IDENTITY —
+    /// which is exactly the shape a Files-app copy or rename produces, and exactly the shape the
+    /// retired completion sweep destroyed: it walked `galleryFolderURLs` and removed every folder
+    /// but the one the run had just finished in.
+    ///
+    /// The case is written to be discriminating against that sweep rather than merely to pass. Run
+    /// against the pre-retirement completion handler the folder the run did not work in is gone by
+    /// the time the assertions read it, so the survival assertions fail; and they are survival of
+    /// the CONTENTS, not just of the directory entry, since a sweep that merely emptied a folder
+    /// would be no better.
+    ///
+    /// Which of the two folders the record points at is READ rather than presumed.
+    /// `deduplicatedDownloadIndex` arbitrates duplicates by modification date, and the property is
+    /// symmetric: whichever folder loses that arbitration is the one that must survive untouched.
+    @Test
+    func testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 405)
+        let pageIndex = 42
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { removeTemporaryItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadCoordinator(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let updatedPageCount = try await fetchAndInstallStub(
+            manager: manager, sessionID: sessionID, gid: gid,
+            pageIndex: pageIndex
+        )
+        let staleFolderURL = try prepareStaleExistingFolder(
+            storage: storage, gid: gid, pageIndex: pageIndex,
+            oldPageCount: updatedPageCount - 5
+        )
+        let duplicateFolderURL = try copyGalleryFolder(
+            at: staleFolderURL,
+            to: storage.folderURL(relativePath: "Copies/\(gid) - Pause Race")
+        )
+
+        await manager.reloadDownloadIndex()
+        let stagedFolders = Set(
+            [staleFolderURL, duplicateFolderURL].map(\.standardizedFileURL)
+        )
+        let recordFolder = try #require(await manager.fetchDownload(gid: gid))
+            .folderURL
+            .standardizedFileURL
+        #expect(stagedFolders.contains(recordFolder))
+        let otherFolder = try #require(stagedFolders.subtracting([recordFolder]).first)
+        let otherContents = try FileManager.default
+            .contentsOfDirectory(atPath: otherFolder.path)
+            .sorted()
+        let otherManifest = try storage.readManifest(folderURL: otherFolder)
+
+        await manager.processDownload(gid: gid)
+
+        // The run completed, and it completed IN the record's own folder.
+        let completed = try #require(await manager.fetchDownload(gid: gid))
+        #expect(completed.displayStatus == .completed)
+        #expect(completed.folderURL.standardizedFileURL == recordFolder)
+
+        // The folder the run never addressed is still there, with the same entries and the same
+        // record it was staged with.
+        #expect(FileManager.default.fileExists(atPath: otherFolder.path))
+        #expect(
+            try FileManager.default
+                .contentsOfDirectory(atPath: otherFolder.path)
+                .sorted() == otherContents
+        )
+        #expect(try storage.readManifest(folderURL: otherFolder) == otherManifest)
+        // Both folders are still discoverable as this gallery's: exactly two, neither removed.
+        #expect(
+            Set(storage.galleryFolderURLs(gid: gid, token: "token").map(\.standardizedFileURL))
+                == stagedFolders
+        )
+    }
+
     @Test
     func testProcessDownloadUsesLiveOptionsWhenQueuedDownloadStarts() async throws {
         let sessionID = UUID().uuidString
@@ -340,6 +423,20 @@ private extension DownloadProcessTests {
         return folderURL
     }
 
+    /// Copies a staged gallery folder whole, so the duplicate carries the SAME manifest — the only
+    /// thing that can make it discoverable once its leaf lacks the `[gid_token]` prefix.
+    ///
+    /// The destination's parent user folder is created first: a copy the user made in the Files app
+    /// lands under some user folder, and `galleryFolderURLs` only walks one level below the root.
+    func copyGalleryFolder(at sourceURL: URL, to destinationURL: URL) throws -> URL {
+        try FileManager.default.createDirectory(
+            at: destinationURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+        return destinationURL
+    }
+
     func verifyCompletedProcess(
         manager: DownloadCoordinator,
         storage: DownloadStore,
@@ -367,7 +464,11 @@ private extension DownloadProcessTests {
         )
 
         // The run finishes IN the folder the record already pointed at, under that folder's own
-        // name, and leaves exactly one folder for the gallery (G-15-2H).
+        // name, and this staging has only ever held one folder for the gallery, so one is what is
+        // left (G-15-2H). It is a statement about the freeze, not about any removal: the run removes
+        // no gallery folder at all, which
+        // `testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched` pins over a staging that has
+        // a second one.
         //
         // This assertion used to read the other way — the staged folder GONE — which was the
         // rename the freeze removed: the stale folder is named `<gid> - Pause Race`, so a leaf
@@ -375,7 +476,7 @@ private extension DownloadProcessTests {
         // exist, the run built its result there, and the completion sweep deleted the folder the
         // user could see. The frozen leaf is the whole production arc's version of the unit pins in
         // `DownloadFolderLeafFreezeTests`: a folder the user (or an older naming scheme) gave a name
-        // keeps it across a full `processDownload`, and the sweep finds nothing to remove.
+        // keeps it across a full `processDownload`.
         #expect(
             completedFolderURL.standardizedFileURL == context.staleFolderURL.standardizedFileURL
         )
