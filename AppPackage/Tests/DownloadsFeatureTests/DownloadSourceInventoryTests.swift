@@ -302,34 +302,38 @@ struct DownloadSourceInventoryTests {
     /// This is the census the property's own declaration reasons from, and the claim it owns is a
     /// LIFETIME. Each of the seven is exactly one role: the declaration in `+Manager.swift`; the
     /// announcement at the run's own preparation in `+ExecutionSupport.swift`; the landing at the
-    /// manifest page flush in `+Persistence.swift`, which is the one point every landed page
-    /// passes; the basis-first read of the credited-pages definition, the has-a-reading predicate
-    /// the D-G7-01 bracket and the run-exit freeze share, and the departure reconcile's live-run
-    /// branch selector, all in `+ContinuedSession.swift`; and the retirement at the run's end in
-    /// `+Execution.swift`.
+    /// manifest page flush in `+Persistence.swift`, the one point every landed page passes; the
+    /// SINGLE ACCESSOR in `+RunProgress.swift`, the only READ of the measurement, which both the
+    /// credited-pages definition's basis-first regime and the published row go through so the
+    /// card's fraction and the sheet's page states cannot drift (D-SSOT-10, G-15-2F); the
+    /// has-a-reading predicate the D-G7-01 bracket and the run-exit freeze share, and the departure
+    /// reconcile's live-run branch selector, both in `+ContinuedSession.swift`; and the retirement
+    /// at the run's end in `+Execution.swift`.
     ///
     /// **What the count pins.** Seven sites pin the lifetime AND the arithmetic: an eighth site is
     /// almost always a second reader of the credited basis outside the single definition, which is
     /// how the opening rule and the departure rule come to disagree about one gallery, or a second
     /// landing point, which is how a page comes to be credited twice or not at all — G-15-35 was
     /// exactly a landing route (`performCacheCapture`) that recorded a page while advancing no
-    /// measurement. The `+Persistence.swift` entry is therefore load-bearing as a count of ONE.
+    /// measurement. The `+Persistence.swift` and `+RunProgress.swift` entries are therefore both
+    /// load-bearing as counts of ONE.
     ///
     /// It is a whole-name count rather than a mutation count on purpose, because the way this
     /// invariant rots is a READ or a CLEAR appearing rather than an assignment. The specific rot
     /// this pins against is a clear being added to `markContinuedSessionEnded` or to
     /// `ensureContinuedSession`'s reset — conflating a session boundary with a run boundary, which
     /// is precisely the defect G-15-26 recorded — and either would take `+ContinuedSession.swift`
-    /// from three to four.
+    /// from two to three.
     ///
     /// Derived from source rather than copied. Doc-comment mentions are excluded, as everywhere else
     /// here — this property has more of those than uses.
     private static let expectedRunProofSites = [
-        "DownloadClient+ContinuedSession.swift": 3,
+        "DownloadClient+ContinuedSession.swift": 2,
         "DownloadClient+Execution.swift": 1,
         "DownloadClient+ExecutionSupport.swift": 1,
         "DownloadClient+Manager.swift": 1,
-        "DownloadClient+Persistence.swift": 1
+        "DownloadClient+Persistence.swift": 1,
+        "DownloadClient+RunProgress.swift": 1
     ]
 
     /// The run-proof table's sum, asserted the same way and for the same reason.
@@ -642,16 +646,16 @@ struct DownloadSourceInventoryTests {
             """
             The run-scoped progress measurement census moved. The measurement has exactly seven \
             roles — its declaration, the announcement at the run's own preparation, the landing at \
-            the manifest page flush, the credited-pages definition's basis-first read, the \
-            has-a-reading predicate, the departure reconcile's live-run branch selector, and the \
-            retirement at the run's end. An eighth site is almost always one of three known \
-            defects: a clear added at a SESSION boundary (G-15-26 — a session ending is not the \
-            run ending, and erasing the measurement there leaves an in-flight repair contributing \
-            zero for the rest of its re-download), a second reader of the credited basis outside \
-            the single definition (the opening rule and the departure rule then disagree about one \
-            gallery), or a second landing point (a page credited twice or not at all, which is \
-            G-15-35). Re-derive the lifetime against the property's own declaration before \
-            updating this table.
+            the manifest page flush, the single accessor both the credited-pages definition and \
+            the published row read it through, the has-a-reading predicate, the departure \
+            reconcile's live-run branch selector, and the retirement at the run's end. An eighth \
+            site is almost always one of three known defects: a clear added at a SESSION boundary \
+            (G-15-26 — a session ending is not the run ending, and erasing the measurement there \
+            leaves an in-flight repair contributing zero for the rest of its re-download), a \
+            second reader outside the single accessor (the card's fraction and the sheet's page \
+            states then describe different work, which is G-15-2F), or a second landing point (a \
+            page credited twice or not at all, which is G-15-35). Re-derive the lifetime against \
+            the property's own declaration before updating this table.
             """
         )
 

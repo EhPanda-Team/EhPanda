@@ -634,13 +634,22 @@ extension DownloadCoordinator {
     /// not also given — which is the whole of T-15-47-03's mitigation: one evaluation per run
     /// means the progress announced and the work performed cannot come apart.
     ///
-    /// The suspension this adds is named: the `updateProgress` main-actor hop to
-    /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`. It is issued from the run
-    /// body, which is already reentrant at its payload fetch, cover download and source resolution
-    /// and holds no coordinator invariant across the call, and every guard-sensitive re-check lives
-    /// inside that push. The pending-list evaluation and the recording are synchronous same-actor
-    /// work taken before that hop, so no push can observe the announcement without the measurement
-    /// it announces, and no page the loop is about to fetch can have been decided after it.
+    /// **The published ROW is announced here too (D-SSOT-10).** The badge and the inspector read the
+    /// run's measurement while it stands, so publishing at the announcement is what flips the sheet
+    /// to the run's reading immediately rather than at the first flush — which for a repair of a
+    /// wholesale-refusal record is the difference between "0 / N, N pending" and the record's stale
+    /// "N / N, 0 pending" for however long the first batch takes (G-15-2F).
+    ///
+    /// The suspensions this adds are named: the `updateProgress` main-actor hop to
+    /// `ContinuedProcessingSession` inside `pushContinuedSessionProgress`, and the observer
+    /// publication after it. Both are issued from the run body, which is already reentrant at its
+    /// payload fetch, cover download and source resolution and holds no coordinator invariant across
+    /// the call, and every guard-sensitive re-check lives inside that push. The pending-list
+    /// evaluation and the recording are synchronous same-actor work taken before BOTH hops, so no
+    /// push and no observer can see the announcement without the measurement it announces, and no
+    /// page the loop is about to fetch can have been decided after it. The row publication follows
+    /// the session push rather than preceding it, so nothing this doc says about the push's ordering
+    /// changes.
     /// `prepareWorkingSeed` itself therefore stays synchronous. The push's reconcile records the
     /// observation even when the client start is still in flight, because that reconcile
     /// deliberately runs ahead of the nil-client guard; `ensureContinuedSession`'s seed merges
@@ -675,6 +684,7 @@ extension DownloadCoordinator {
             if let continuedSessionID {
                 await pushContinuedSessionProgress(sessionID: continuedSessionID)
             }
+            await notifyObservers()
         }
         return PreparedWorkingRun(
             workingSeed: workingSeed,

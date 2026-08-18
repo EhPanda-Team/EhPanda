@@ -162,8 +162,17 @@ public actor DownloadCoordinator {
         var outstandingPages: Set<Int>
 
         /// What the run has covered so far: inherited work plus its own landed pages, as one set.
+        ///
+        /// The SET is the one definition and every reader takes it from here — the session
+        /// numerator its size, the published row its membership (D-SSOT-10) — so the card's
+        /// fraction and the sheet's page states are the same arithmetic by construction rather
+        /// than by two expressions kept in step.
+        var creditedPageIndices: Set<Int> {
+            inheritedPages.union(initialPendingPages.subtracting(outstandingPages))
+        }
+
         var creditedPageCount: Int {
-            inheritedPages.union(initialPendingPages.subtracting(outstandingPages)).count
+            creditedPageIndices.count
         }
     }
 

@@ -38,6 +38,13 @@ import Testing
 /// built with `BackgroundProcessingClient.noop`, so no push is observable from this suite at all and
 /// no future edit can quietly start asserting on one.
 ///
+/// **D-SSOT-10 (G-15-2F) narrows what "the record" means for the DISPLAY families above, and these
+/// suites keep the record regime.** While a run is LIVE the badge's numerator and the inspector's
+/// page states read that run's own measurement rather than the manifest; every target staged here
+/// has no live run — the blocker gallery parks the slot and no target ever announces one — so what
+/// these families pin is the out-of-run regime, unchanged. The live regime is pinned by
+/// `DownloadRunProgressOverlayTests`, which also pins that the overlay writes nothing.
+///
 /// **Contract-faithful choreography, everywhere.** No state is installed through a non-production
 /// seam: an operation-level `validationErrors` entry arrives only by running `validateImageData`,
 /// the target's queue membership only through `togglePause` or `retryPages`, the process boundary

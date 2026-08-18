@@ -82,6 +82,16 @@ public struct DetailReducer: Sendable {
         public var previewConfig: PreviewConfig = .normal(rows: 4)
         public var downloadBadge: DownloadBadge?
         public var downloadFailureCode: DownloadFailureCode?
+        /// The RECORD's own honesty — `DownloadedGallery.isIncomplete` — carried beside the failure
+        /// code it is always read with.
+        ///
+        /// Kept apart from `downloadBadge` because since D-SSOT-10 the badge's numerator is a
+        /// DISPLAY quantity: while a run's measurement stands it counts that run's credited pages,
+        /// not the record's. `downloadNeedsRepair` asks whether the record still claims every page,
+        /// which is a question only the record can answer, so it reads this instead of subtracting
+        /// two badge numbers. Written by `applyDownload` alongside `downloadFailureCode`, so the two
+        /// conjuncts always describe the same observation.
+        public var downloadIsIncomplete = false
         public var downloadFolders = [String]()
         public var isPreparingDownload = false
         public var hasLoadedDownloadBadge = false
@@ -119,10 +129,19 @@ public struct DetailReducer: Sendable {
         /// PREDICATE is unchanged by that — the boundary it draws is still the record's own honesty
         /// — but the reason a complete-claiming record is offered the wipe no longer rests on a
         /// shape that can no longer reach it.
+        ///
+        /// **Why the incompleteness conjunct is not read off the badge (D-SSOT-10).** It used to be
+        /// `badge.progress.completedPageCount < badge.progress.pageCount`. Since the badge's
+        /// numerator became a DISPLAY quantity — the live run's credited page count while one stands
+        /// — that expression asks "has this run finished its work", which is a different question
+        /// from "does the record still claim every page" and answers it differently for exactly the
+        /// wholesale-refusal family this boundary exists to route. The two readings coexist only in
+        /// narrow interleavings, so the button would have flipped intermittently rather than
+        /// reliably; reading `downloadIsIncomplete`, which is the record's own `isIncomplete`, makes
+        /// the predicate independent of the display basis by construction instead.
         var downloadNeedsRepair: Bool {
             guard let badge = downloadBadge, badge.status == .error else { return false }
-            return badge.progress.completedPageCount < badge.progress.pageCount
-                && downloadFailureCode == .fileOperationFailed
+            return downloadIsIncomplete && downloadFailureCode == .fileOperationFailed
         }
         public var didRunLaunchAutomation = false
         public var shouldCheckForRemoteUpdates = false
@@ -245,6 +264,7 @@ extension DetailReducer {
         let didChangeBadge = badge != state.downloadBadge || !state.hasLoadedDownloadBadge
         state.downloadBadge = badge
         state.downloadFailureCode = download?.lastError?.code
+        state.downloadIsIncomplete = download?.isIncomplete ?? false
         if badge != nil { state.isPreparingDownload = false }
         state.hasLoadedDownloadBadge = true
         state.shouldCheckForRemoteUpdates = badge != nil

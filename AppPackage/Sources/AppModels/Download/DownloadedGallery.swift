@@ -11,6 +11,10 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
     public let displayStatus: DownloadDisplayStatus
     public let lastDownloadedDate: Date?
     public let lastError: DownloadFailure?
+    /// The live run's own measurement of this gallery, while one stands (D-SSOT-10). Non-nil only
+    /// between a run's announcement and its exit; it drives what is DISPLAYED and nothing else. See
+    /// `DownloadRunProgress` for why the record cannot carry this itself.
+    public let runProgress: DownloadRunProgress?
 
     public var gid: String { manifest.gid }
     public var host: GalleryHost { manifest.host }
@@ -34,7 +38,8 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
         localPageURLs: [Int: URL],
         modificationDate: Date?,
         displayStatus: DownloadDisplayStatus,
-        lastError: DownloadFailure? = nil
+        lastError: DownloadFailure? = nil,
+        runProgress: DownloadRunProgress? = nil
     ) {
         self.manifest = manifest
         self.folderURL = folderURL
@@ -44,5 +49,6 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
         self.displayStatus = displayStatus
         self.lastDownloadedDate = modificationDate
         self.lastError = lastError
+        self.runProgress = runProgress
     }
 }

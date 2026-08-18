@@ -95,8 +95,13 @@ private extension DetailDownloadRepairPredicateTests {
     /// A Detail state carrying only the three facts the predicate reads.
     ///
     /// Built directly rather than driven through a store: `downloadNeedsRepair` is a pure function
-    /// of `downloadBadge` and `downloadFailureCode`, so a round trip would only add ways for the
-    /// staging to disagree with the thing under test.
+    /// of the badge's STATUS, `downloadIsIncomplete` and `downloadFailureCode`, so a round trip
+    /// would only add ways for the staging to disagree with the thing under test.
+    ///
+    /// The incompleteness fact is derived from `completedPageCount` here exactly as `applyDownload`
+    /// derives it from the record, and it is a field of its own rather than a badge subtraction
+    /// because the badge's numerator is the live run's measurement while one stands (D-SSOT-10).
+    /// The badge is still built at the same counts, so every row below reads as it always did.
     func makeState(
         status: DownloadDisplayStatus,
         completedPageCount: Int,
@@ -118,6 +123,7 @@ private extension DetailDownloadRepairPredicateTests {
                 pageCount: pageCount
             )
         )
+        state.downloadIsIncomplete = completedPageCount < pageCount
         state.downloadFailureCode = failureCode
         return state
     }
