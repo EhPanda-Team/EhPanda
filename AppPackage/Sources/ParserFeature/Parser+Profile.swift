@@ -40,12 +40,11 @@ extension Parser {
                 return EhProfile(value: value, name: option.name, isSelected: option.isSelected)
             }
 
+        isCapableOfCreatingNewProfile = false
         for button in profileOuter.xpath("//input [@type='button']") {
             if button["value"] == "Create New" {
                 isCapableOfCreatingNewProfile = true
                 break
-            } else {
-                isCapableOfCreatingNewProfile = false
             }
         }
 
@@ -63,11 +62,7 @@ extension Parser {
                 if value == "" { value = "-" }
                 browsingCountry = EhSetting.BrowsingCountry(rawValue: value ?? "")
 
-                if let pText = optouter.at_xpath("//p")?.text,
-                   let rangeA = pText.range(of: "You appear to be browsing the site from "),
-                   let rangeB = pText.range(of: " or use a VPN or proxy in this country") {
-                    literalBrowsingCountry = String(pText[rangeA.upperBound..<rangeB.lowerBound])
-                }
+                literalBrowsingCountry = optouter.at_xpath(".//p/strong")?.text ?? ""
             }
             if optouter.at_xpath("//input [@name='xr']") != nil {
                 imageResolution = parseEnum(node: optouter, name: "xr")
@@ -97,13 +92,19 @@ extension Parser {
                 enableGalleryThumbnailSelector = parseCheckBoxBool(node: optouter, name: "xn_0")
             }
             if optouter.at_xpath("//div [@id='catsel']") != nil {
-                disabledCategories = Array(0...9)
-                    .map { "ct_\(EhSetting.categoryNames[$0])" }
-                    .compactMap { parseBool(node: optouter, name: $0) }
+                disabledCategories = EhSetting.categoryNames.map { name in
+                    parseBool(node: optouter, name: "ct_\(name)") ?? false
+                }
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
-                favoriteCategories = Array(0...9).map { "favorite_\($0)" }
-                    .compactMap { parseString(node: optouter, name: $0) }
+                var index = 0
+                while let value = parseString(node: optouter, name: "favorite_\(index)") {
+                    favoriteCategories.append(value)
+                    index += 1
+                }
+                while favoriteCategories.count < EhSetting.favoriteCategoryCount {
+                    favoriteCategories.append("")
+                }
             }
             if optouter.at_xpath("//input [@name='fs']") != nil {
                 favoritesSortOrder = parseEnum(node: optouter, name: "fs")
@@ -123,9 +124,13 @@ extension Parser {
                 showFilteredRemovalCount = parseInt(node: optouter, name: "tf") == 0
             }
             if optouter.at_xpath("//div [@id='xlasel']") != nil {
-                excludedLanguages = Array(0...49)
-                    .map { "xl_\(EhSetting.languageValues[$0])" }
-                    .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
+                for langId in EhSetting.languageValues {
+                    if let checked = parseCheckBoxBool(node: optouter, name: "xl_\(langId)") {
+                        excludedLanguages.append(checked)
+                    } else {
+                        excludedLanguages.append(false)
+                    }
+                }
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
                 excludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""
@@ -208,7 +213,7 @@ extension Parser {
         }
 
         // swiftlint:disable line_length
-        guard !ehProfiles.filter(\.isSelected).isEmpty, let isCapableOfCreatingNewProfile, let capableLoadThroughHathSetting, let capableImageResolution, let capableSearchResultCount, !capableThumbnailConfigSizes.isEmpty, let capableThumbnailConfigRowCount, let loadThroughHathSetting, let browsingCountry, let literalBrowsingCountry, let imageResolution, let imageSizeWidth, let imageSizeHeight, let galleryName, let archiverBehavior, let displayMode, let showSearchRangeIndicator, let enableGalleryThumbnailSelector, disabledCategories.count == 10, favoriteCategories.count == 10, let favoritesSortOrder, let ratingsColor, let tagFilteringThreshold, let tagWatchingThreshold, let showFilteredRemovalCount, excludedLanguages.count == 50, let excludedUploaders, let searchResultCount, let thumbnailLoadTiming, let thumbnailConfigSize, let thumbnailConfigRows, let coverScaleFactor, let viewportVirtualWidth, let commentsSortOrder, let commentVotesShowTiming, let tagsSortOrder, let galleryPageNumbers
+        guard !ehProfiles.filter(\.isSelected).isEmpty, let isCapableOfCreatingNewProfile, let capableLoadThroughHathSetting, let capableImageResolution, let capableSearchResultCount, !capableThumbnailConfigSizes.isEmpty, let capableThumbnailConfigRowCount, let loadThroughHathSetting, let browsingCountry, let literalBrowsingCountry, let imageResolution, let imageSizeWidth, let imageSizeHeight, let galleryName, let archiverBehavior, let displayMode, let showSearchRangeIndicator, let enableGalleryThumbnailSelector, let favoritesSortOrder, let ratingsColor, let tagFilteringThreshold, let tagWatchingThreshold, let showFilteredRemovalCount, let excludedUploaders, let searchResultCount, let thumbnailLoadTiming, let thumbnailConfigSize, let thumbnailConfigRows, let coverScaleFactor, let viewportVirtualWidth, let commentsSortOrder, let commentVotesShowTiming, let tagsSortOrder, let galleryPageNumbers
         else { throw AppError.parseFailed }
 
         return EhSetting(ehProfiles: ehProfiles.sorted(), isCapableOfCreatingNewProfile: isCapableOfCreatingNewProfile, capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigRowCount: capableThumbnailConfigRowCount, capableThumbnailConfigSizes: capableThumbnailConfigSizes, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, showSearchRangeIndicator: showSearchRangeIndicator, enableGalleryThumbnailSelector: enableGalleryThumbnailSelector, disabledCategories: disabledCategories, favoriteCategories: favoriteCategories, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, showFilteredRemovalCount: showFilteredRemovalCount, excludedLanguages: excludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, coverScaleFactor: coverScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryPageNumbering: galleryPageNumbers, useOriginalImages: useOriginalImages, useMultiplePageViewer: useMultiplePageViewer, multiplePageViewerStyle: multiplePageViewerStyle, multiplePageViewerShowThumbnailPane: multiplePageViewerShowThumbnailPane

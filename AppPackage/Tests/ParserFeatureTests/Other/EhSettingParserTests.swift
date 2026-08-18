@@ -36,7 +36,7 @@ struct EhSettingParserTests: TestHelper {
         #expect(ehSetting.capableLoadThroughHathSetting == .legacyNo)
         #expect(ehSetting.capableLoadThroughHathSettings == EhSetting.LoadThroughHathSetting.allCases)
 
-        #expect(ehSetting.capableImageResolution == .x2400)
+        #expect(ehSetting.capableImageResolution == .x2560)
         #expect(ehSetting.capableImageResolutions == EhSetting.ImageResolution.allCases)
 
         #expect(ehSetting.capableSearchResultCount == .oneHundred)
@@ -69,7 +69,7 @@ struct EhSettingParserTests: TestHelper {
         #expect(ehSetting.tagFilteringThreshold == 0)
         #expect(ehSetting.tagWatchingThreshold == 0)
         #expect(ehSetting.showFilteredRemovalCount == true)
-        #expect(ehSetting.excludedLanguages == .init(repeating: false, count: 50))
+        #expect(ehSetting.excludedLanguages == EhSetting.empty.excludedLanguages)
         #expect(ehSetting.excludedUploaders == "")
         #expect(ehSetting.searchResultCount == .oneHundred)
         #expect(ehSetting.thumbnailLoadTiming == .onMouseOver)

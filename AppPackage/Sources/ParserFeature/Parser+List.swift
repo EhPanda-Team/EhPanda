@@ -205,8 +205,13 @@ private extension Parser {
                let date = try? parseDate(time: dateString, format: Defaults.DateFormat.publish) {
                 tmpPublishedDate = date
             }
-            if let components = div.text?.split(separator: " "), components.count == 2,
-               ["page", "pages"].contains(components[1]), let pageCount = Int(components[0]) {
+            if let text = div.text,
+               text.localizedCaseInsensitiveContains("page") {
+                let nsRange = NSRange(text.startIndex..., in: text)
+                guard let match = try? NSRegularExpression(pattern: #"\d+"#).firstMatch(in: text, range: nsRange),
+                      let range = Range(match.range, in: text),
+                      let pageCount = Int(text[range])
+                else { continue }
                 tmpPageCount = pageCount
             }
             if let aLink = div.at_xpath("//a"), aLink["href"]?.contains("uploader") == true {

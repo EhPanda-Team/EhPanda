@@ -27,22 +27,21 @@ extension Parser {
                   let previewURLs = try? parsePreviewURLs(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
-                  let visibility = try? parseVisibility(value: infoPanel[2]),
-                  let sizeCount = Float(infoPanel[4]),
-                  let pageCount = Int(infoPanel[6]),
-                  let favoritedCount = Int(infoPanel[7]),
-                  let language = Language(rawValue: infoPanel[3]),
+                  let visibility = try? parseVisibility(value: infoPanel["visible"] ?? ""),
+                  let sizeCount = Float(infoPanel["size"] ?? ""),
+                  let pageCount = Int(infoPanel["length"] ?? ""),
+                  let favoritedCount = Int(infoPanel["favorited"] ?? ""),
+                  let language = Language(rawValue: infoPanel["language"] ?? ""),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = try? parseUploader(node: gd3Node),
                   let ratingResult = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = AppModels.Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
-                  let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
+                  let postedDate = try? parseDate(time: infoPanel["posted"] ?? "", format: Defaults.DateFormat.publish)
             else { continue }
 
             let isFavorited = gdfNode
-                .at_xpath("//a [@id='favoritelink']")?
-                .text?.contains("Add to Favorites") == false
+                .at_xpath(".//div[@id='fav']//div[@class='i']") != nil
             var favoriteTagIndex: Int?
             var favoriteTagName: String?
             if let favoritelink = gdfNode.at_xpath(".//a[@id='favoritelink']") {
@@ -50,7 +49,7 @@ extension Parser {
             }
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
-            let parentURLString = infoPanel[1].isValidURL ? infoPanel[1] : ""
+            let parentURLString = (infoPanel["parent"] ?? "").isValidURL ? infoPanel["parent"] ?? "" : ""
 
             tmpGalleryDetail = GalleryDetail(
                 gid: gid,
@@ -71,7 +70,7 @@ extension Parser {
                 favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
-                sizeType: infoPanel[5],
+                sizeType: infoPanel["sizeUnit"] ?? "",
                 torrentCount: arcAndTor.1,
                 favoriteTagIndex: favoriteTagIndex,
                 favoriteTagName: favoriteTagName
@@ -209,59 +208,53 @@ private extension Parser {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    static func parseInfoPanel(node: XMLElement?) throws -> [String] {
+    static func parseInfoPanel(node: XMLElement?) throws -> [String: String] {
         guard let object = node?.xpath("//tr")
         else { throw AppError.parseFailed }
 
-        var infoPanel = Array(
-            repeating: "",
-            count: 8
-        )
+        var infoPanel = [String: String]()
         for gddLink in object {
             guard let gdt1Text = gddLink.at_xpath("//td [@class='gdt1']")?.text,
                   let gdt2Text = gddLink.at_xpath("//td [@class='gdt2']")?.text
             else { continue }
             let aHref = gddLink.at_xpath("//td [@class='gdt2']")?.at_xpath("//a")?["href"]
 
-            if gdt1Text.contains("Posted") {
-                infoPanel[0] = gdt2Text
+            let key = gdt1Text.trimmingCharacters(in: .whitespaces)
+            if key.contains("Posted") {
+                infoPanel["posted"] = gdt2Text
             }
-            if gdt1Text.contains("Parent") {
-                infoPanel[1] = aHref ?? "None"
+            if key.contains("Parent") {
+                infoPanel["parent"] = aHref ?? "None"
             }
-            if gdt1Text.contains("Visible") {
-                infoPanel[2] = gdt2Text
+            if key.contains("Visible") {
+                infoPanel["visible"] = gdt2Text
             }
-            if gdt1Text.contains("Language") {
+            if key.contains("Language") {
                 let words = gdt2Text.split(separator: " ")
                 if !words.isEmpty {
-                    infoPanel[3] = words[0]
-                        .trimmingCharacters(in: .whitespaces)
+                    infoPanel["language"] = String(words[0]).trimmingCharacters(in: .whitespaces)
                 }
             }
-            if gdt1Text.contains("File Size") {
-                infoPanel[4] = gdt2Text
+            if key.contains("File Size") {
+                infoPanel["size"] = gdt2Text
                     .replacingOccurrences(of: " KiB", with: "")
                     .replacingOccurrences(of: " MiB", with: "")
                     .replacingOccurrences(of: " GiB", with: "")
 
-                if gdt2Text.contains("KiB") { infoPanel[5] = "KiB" }
-                if gdt2Text.contains("MiB") { infoPanel[5] = "MiB" }
-                if gdt2Text.contains("GiB") { infoPanel[5] = "GiB" }
+                if gdt2Text.contains("KiB") { infoPanel["sizeUnit"] = "KiB" }
+                if gdt2Text.contains("MiB") { infoPanel["sizeUnit"] = "MiB" }
+                if gdt2Text.contains("GiB") { infoPanel["sizeUnit"] = "GiB" }
             }
-            if gdt1Text.contains("Length") {
-                infoPanel[6] = gdt2Text.replacingOccurrences(of: " pages", with: "")
+            if key.contains("Length") {
+                infoPanel["length"] = gdt2Text.replacingOccurrences(of: " pages", with: "")
             }
-            if gdt1Text.contains("Favorited") {
-                infoPanel[7] = gdt2Text
+            if key.contains("Favorited") {
+                infoPanel["favorited"] = gdt2Text
                     .replacingOccurrences(of: " times", with: "")
                     .replacingOccurrences(of: "Never", with: "0")
                     .replacingOccurrences(of: "Once", with: "1")
             }
         }
-
-        guard infoPanel.filter({ !$0.isEmpty }).count == 8
-        else { throw AppError.parseFailed }
 
         return infoPanel
     }
