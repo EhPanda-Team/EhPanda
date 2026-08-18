@@ -129,15 +129,6 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func downloadStoreAssetUnreadable(_ fileName: String) -> LocalizedStringResource {
-            LocalizedStringResource(
-                "download_store.asset_unreadable",
-                defaultValue: "\(fileName)",
-                table: "Localizable",
-                bundle: resourceStringSymbolsBundleDescription
-            )
-        }
-
         public static var downloadStoreDownloadBusy: LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.download_busy",

@@ -61,8 +61,7 @@ extension DownloadCoordinator {
     func authorizedReconciliationScan(
         manifest: DownloadManifest,
         classifiedScan: PageFileScan,
-        folderURL: URL,
-        carriedUnprobedPages: Set<Int>
+        folderURL: URL
     ) -> AuthorizedReconciliation {
         // Every refusal below answers with the classification untouched and an EMPTY removal set,
         // which is a statement rather than a placeholder: a refusing pass destroyed nothing, so it
@@ -100,21 +99,14 @@ extension DownloadCoordinator {
         // answer afterwards — which files this pass is responsible for having destroyed.
         let removedPages = refutedPages.subtracting(unremovedPages)
         // Taken fresh rather than derived, so a removal that failed is reported as the surviving
-        // refutation it still is instead of being assumed away. The carried source-side non-answers
-        // are re-unioned because this folder's listing can no more see them now than before.
+        // refutation it still is instead of being assumed away. It is answered with verbatim: every
+        // classification this pass holds is about THIS folder, so there is nothing to re-union into
+        // the disk's own account of it.
         let rescan = storage.pageFileScan(
             folderURL: folderURL,
             manifest: manifest
         )
-        return AuthorizedReconciliation(
-            scan: PageFileScan(
-                pages: rescan.pages,
-                scanSucceeded: rescan.scanSucceeded,
-                unprobedPages: rescan.unprobedPages.union(carriedUnprobedPages),
-                rejectedPageRelativePaths: rescan.rejectedPageRelativePaths
-            ),
-            removedPages: removedPages
-        )
+        return AuthorizedReconciliation(scan: rescan, removedPages: removedPages)
     }
 
     /// What an authorized reconciliation answers with: the post-removal scan, and the claimed pages

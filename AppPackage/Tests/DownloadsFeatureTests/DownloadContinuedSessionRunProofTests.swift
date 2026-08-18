@@ -119,7 +119,6 @@ extension DownloadContinuedSessionLedgerTests {
         // `retryPages`, and nil is the faithful stored value for exactly that route.
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: resumed),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -237,7 +236,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         _ = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: interrupted),
-            existingDownload: staged,
             folderURL: folderURL
         )
 
@@ -364,7 +362,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: redone),
-            existingDownload: staged,
             folderURL: folderURL
         )
         // Non-vacuity: this run really did prove page work, so there is a proof for the redo to
@@ -481,7 +478,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: contested),
-            existingDownload: staged,
             folderURL: folderURL
         )
         // Non-vacuity: the entry really exists before the exit, so there is a proof for the gate to
@@ -579,7 +575,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: climbing),
-            existingDownload: staged,
             folderURL: folderURL
         )
         // Non-vacuity: the folder can supply nothing, so all six pages are this run's own work.
@@ -693,7 +688,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: vanished),
-            existingDownload: staged,
             folderURL: folderURL
         )
         // The all-or-nothing guard refused: the record still claims four, verbatim.
@@ -815,7 +809,6 @@ extension DownloadContinuedSessionLedgerTests {
         )
         let preparedRun = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: abandoned),
-            existingDownload: staged,
             folderURL: folderURL
         )
         #expect(preparedRun.pendingPageIndices == [1, 2, 3, 4, 5, 6])

@@ -124,7 +124,6 @@ struct DownloadFolderLeafFreezeTests: DownloadFeatureTestCase {
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 

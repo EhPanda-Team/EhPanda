@@ -119,7 +119,6 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
         ) {
             _ = try await fixture.manager.testingPrepareWorkingSeedAnnouncingProgress(
                 payload: makeRepairPayload(for: gallery),
-                existingDownload: staged,
                 folderURL: folderURL
             )
         }
@@ -316,7 +315,6 @@ private extension DownloadSeedRecoveryTests {
         let baselinePushCount = spy.progressUpdates.count
         let prepared = try await fixture.manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: gallery),
-            existingDownload: staged,
             folderURL: galleryFolderURL(for: gallery, in: fixture)
         )
         try inspect(prepared, pageTwoURL)

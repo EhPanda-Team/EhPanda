@@ -413,18 +413,21 @@ struct DownloadSourceInventoryTests {
     /// Every production site that opts a probe into DELETING what it refuses, named per file.
     ///
     /// **What this number means.** The entitled population, under the rule the round adopted: an act
-    /// may delete only if the same act durably blanks the record for the page it destroyed. Both
-    /// surviving sites are COVER resolutions — `materializeRepairSeed`'s and `prepareWorkingSeed`'s —
-    /// and both pass the rule for the same reason, which is not their position but the cover's: a
-    /// cover carries no recorded hash, so removing a refused one has nothing to diverge from and the
-    /// run re-fetches it. No page-file site passes, and none remains.
+    /// may delete only if the same act durably blanks the record for the page it destroyed. The one
+    /// surviving site is a COVER resolution — `prepareWorkingSeed`'s — and it passes the rule for a
+    /// reason that is not its position but the cover's: a cover carries no recorded hash, so
+    /// removing a refused one has nothing to diverge from and the run re-fetches it. No page-file
+    /// site passes, and none remains.
     ///
     /// **Why a census rather than a comment.** The rule was stated per site and applied per site, and
-    /// one site recorded in its own comment that it had not been answered — `materializeRepairSeed`'s
-    /// SOURCE page scan, which deleted inside the gallery's currently indexed folder while the
-    /// route's only manifest writer reconciled the destination's copy (WR-02). A rule that lives in
-    /// comments is re-derived by whoever writes the next site, and the count of entitled sites had
-    /// already been reported as four, then re-derived as three, in one round.
+    /// one site recorded in its own comment that it had not been answered — the repair-seed
+    /// materialization's SOURCE page scan, which deleted inside the gallery's currently indexed
+    /// folder while the route's only manifest writer reconciled the destination's copy (WR-02). That
+    /// whole route has since been retired with the completion sweep, which is why the population is
+    /// one rather than two; the history is what motivated the census, and the census is what keeps a
+    /// third site from arriving unexamined. A rule that lives in comments is re-derived by whoever
+    /// writes the next site, and the count of entitled sites had already been reported as four, then
+    /// re-derived as three, in one round.
     ///
     /// **What a failure obliges.** Apply the rule to the new site FIRST and write the verdict down:
     /// name the record that claims the page it would destroy, and name the act that durably blanks
@@ -438,12 +441,11 @@ struct DownloadSourceInventoryTests {
     /// census of its own. The test target's one use is deliberately out of scope: it exists to
     /// exercise the discarding behaviour rather than to rely on it.
     private static let expectedDiscardingRejectedSites = [
-        "DownloadClient+ExecutionSupport.swift": 1,
-        "DownloadStore+Operations.swift": 1
+        "DownloadClient+ExecutionSupport.swift": 1
     ]
 
     /// The entitlement table's sum, asserted separately for the reason every joined total here is.
-    private static let expectedDiscardingRejectedTotal = 2
+    private static let expectedDiscardingRejectedTotal = 1
 
     @Test
     func testSchedulingBlockCallSitesMatchTheRecordedCensus() throws {

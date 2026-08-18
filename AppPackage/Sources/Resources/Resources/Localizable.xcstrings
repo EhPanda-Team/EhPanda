@@ -829,47 +829,6 @@
         }
       }
     },
-    "download_store.asset_unreadable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Asset-Datei ist nicht lesbar: %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Asset file is unreadable: %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アセットファイルを読み取れません: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "에셋 파일을 읽을 수 없습니다: %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "资源文件无法读取：%@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "資源檔案無法讀取：%@"
-          }
-        }
-      }
-    },
     "download_store.download_busy" : {
       "extractionState" : "manual",
       "localizations" : {

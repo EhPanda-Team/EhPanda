@@ -416,10 +416,9 @@ private extension DownloadValidationReconciliationTests {
         for gallery: SessionGallery,
         in fixture: SessionFixture
     ) async throws -> DownloadManifest {
-        let existingDownload = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
+        _ = try #require(await fixture.manager.fetchDownload(gid: gallery.gid))
         let prepared = try await fixture.manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: gallery),
-            existingDownload: existingDownload,
             folderURL: galleryFolderURL(for: gallery, in: fixture)
         )
         return prepared.workingSeed.manifest

@@ -92,7 +92,6 @@ extension DownloadContinuedSessionBasisTests {
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: unlisted),
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 
@@ -220,7 +219,6 @@ extension DownloadContinuedSessionBasisTests {
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: partial),
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 
@@ -297,7 +295,6 @@ extension DownloadContinuedSessionBasisTests {
 
         let seed = try await manager.testingPrepareWorkingSeedAnnouncingProgress(
             payload: makeRepairPayload(for: lossy),
-            existingDownload: staged,
             folderURL: folderURL
         ).workingSeed
 

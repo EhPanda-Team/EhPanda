@@ -32,7 +32,6 @@ extension DownloadCoordinator {
         // is how trust came to be granted for work the loop never did (G-15-27, T-15-47-03).
         let preparedRun = try await prepareWorkingSeedAnnouncingProgress(
             payload: payload,
-            existingDownload: existingDownload,
             folderURL: workingFolderURL
         )
 
