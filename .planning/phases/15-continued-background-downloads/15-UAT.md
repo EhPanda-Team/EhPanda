@@ -92,13 +92,16 @@ retest_round_6_clause_status: |
   4 (never falls back, never above real work)            PASS - every series monotonic; run A ended
                                                          at exactly 194 = 82+82 confirmed in-app.
   5 (.repair climbs from the announce)                   PASS - see repair evidence below.
-  6 (pause one mid-queue, card completes the rest)       NOT EXERCISED this round.
-  7 (card-cancel parity vs in-app pause baseline)        NOT EXERCISED this round.
+  6 (pause one mid-queue, card completes the rest)       PASS - see clause 6 evidence below.
+  7 (card-cancel parity vs in-app pause baseline)        PASS - see clause 7 evidence below.
+  ALL SEVEN clauses now carry a verdict; only clause 3's photograph is missing, and its substance
+  is established by the surrounding evidence.
 retest_round_6_clause_3_caveat: |
-  The literal terminal frame could not be photographed in three attempts (polling at 20s, 15s and
-  ~3s). The system tears the card down at task completion faster than the poll interval: run B went
-  from "102 / 104 pages · 2 galleries" to no card at all, and the log puts the drain 6s after the
-  last heartbeat. What IS established is everything the clause is protecting: the fraction climbs
+  The literal terminal frame could not be photographed in FIVE attempts across the round (polling
+  at 20s, 15s, ~3s, ~2s and back-to-back with no delay at all). The system tears the card down at
+  task completion faster than a screenshot round-trip: run B went from "102 / 104 pages ·
+  2 galleries" to no card, and the clause-6 run from "388 / 402 pages · 2 galleries" to no card in
+  the very next frame. What IS established is everything the clause is protecting: the fraction climbs
   truthfully to the very last heartbeat (192/194, 101/104), the gallery count still reads 2 at that
   point, the app does push a terminal progress update ("terminal progress pushed" on all four
   sessions), and the final in-app totals match the denominator exactly. Round 4 observed the
@@ -113,6 +116,57 @@ retest_round_6_repair_evidence: |
       3 / 27 -> 8 / 27 -> 14 / 27 -> 20 / 27 -> 22 / 27 -> 25 / 27
   so the announced basis CLIMBED FROM ZERO and did not freeze at the record's stale 27. All 27
   pages plus the cover landed on disk and the sheet then read a truthful 27/27.
+retest_round_6_clause_6_evidence: |
+  Set up exactly as the clause specifies: a 564-page gallery downloading and a 78-page gallery
+  queued behind it, then the LARGE one paused mid-queue, then the app backgrounded.
+
+  The card and the log agree on what happened to the basis at the pause:
+      06:13:00  heartbeat: 322 / 642 pages, 2 galleries   <- both live: 564 + 78
+      06:13:11  heartbeat: 327 / 402 pages, 2 galleries   <- paused; basis re-bases to 324 + 78
+      06:14:41  heartbeat: 399 / 402 pages, 2 galleries
+      06:14:46  Continued-processing session drained, terminal progress pushed.
+  402 = the paused gallery's 324 already-downloaded pages plus the 78 still to fetch, which is the
+  15-55 rule working exactly as written: a departed gallery whose retirement contributed pages to Y
+  stays in the coverage, so the subtitle keeps saying "2 galleries" rather than dropping to 1.
+  Card frames photographed across the drain: 367, 370, 371, 372, 374, 376, 377, 379, 381, 383, 384,
+  386, 388 — all "/ 402 pages · 2 galleries".
+
+  The denominator SHRINKS at the pause (642 -> 402). That is a reporting-regime change, not the
+  fall-back clause 4 forbids: the numerator moved FORWARD across it (322 -> 327) and the ratio went
+  50% -> 81%. Clause 4 is scoped "within a reporting regime" and is not violated.
+
+  Outcome afterwards: the 78-page gallery read 78/78 and the paused gallery still read exactly
+  324/564, untouched by the session that completed around it.
+retest_round_6_clause_7_evidence: |
+  Two large galleries resumed together (564 + 951), app backgrounded, then the STOP control pressed
+  on the system card itself.
+
+  The photographed card read "135 / 1,515 pages · 2 galleries" (1515 = 564 + 951), and the log
+  carries the same frame at 06:05:40, which ties the screenshot to the session beyond doubt. After
+  the stop press:
+      06:06:00  heartbeat: 148 / 1515 pages, 2 galleries
+      06:06:05  Continued-processing session expired, pausing schedulable downloads.
+      06:06:05  environment at expiry: network wifi, low power false, thermal nominal.
+      06:06:05  Download paused, gid <masked>.
+      06:06:05  Download paused, gid <masked>.
+  The card disappeared immediately.
+
+  Foregrounding showed the queue in exactly the in-app per-gallery pause state, with no relaunch in
+  between:
+      gallery A  "Paused 143/564"  Downloaded (143) 1-143   Pending (421) 144-564   Failed (0)
+      gallery B  "Paused 10/951"   Downloaded (10)  1-10    Pending (941) 11-951    Failed (0)
+  Both resumable, progress retained, page accounting contiguous, nothing marked failed. Sampled
+  again 12s later and neither number had moved, so the transfers really were stopped rather than
+  merely un-rendered. That is parity with pausing each gallery by hand.
+
+  NOTE ON THE WORD "expired": this is the only expiration in the whole round, and it is the system
+  delivering expiration BECAUSE THE USER CANCELLED from the card — the app's correct response is
+  precisely the "pausing schedulable downloads" it logged. It is not a stall-detector expiry and
+  must not be read as a G-15-2D recurrence.
+retest_round_6_session_tally: |
+  Seven continued-processing sessions were granted across the whole round. SIX ended in
+  "drained, terminal progress pushed". ONE ended in expiration, and that one was the deliberate
+  card-cancel of clause 7. Spontaneous or stall-detector expirations: ZERO.
 retest_round_6_incidental: |
   Two things seen in passing that are NOT clause failures and are filed separately below:
   the in-app Download Status sheet stayed stale during the repair (see G-15-2F), and validation
@@ -727,17 +781,18 @@ completion_note: |
   build 260818-ek3: four independent backgrounded sessions, all four drained with a terminal push,
   none expired, on healthy Wi-Fi with no airplane mode.
 
-  Two clauses of test 2 were not exercised at round 6 and carry their round-4 device passes
-  forward: clause 6 (pause one gallery mid-queue) and clause 7 (card-cancel parity with the in-app
-  pause baseline). Both are affordance-parity clauses that 15-72 did not touch — it changed the
-  announced basis, i.e. the numbers — and both passed on device at rounds 1 and 4. Clause 3's
-  literal terminal frame remains uncaptured because the system tears the card down at completion
-  faster than it can be polled; see the clause-3 caveat on test 2 for what stands in its place.
+  All seven of test 2's clauses were exercised on device at round 6 and six of them pass outright,
+  including clause 6 (pause one gallery mid-queue) and clause 7 (card-cancel parity with the in-app
+  pause baseline). Clause 3's literal terminal frame remains the single uncaptured item: the system
+  tears the card down at completion faster than a screenshot round-trip, across five attempts. See
+  the clause-3 caveat on test 2 for the evidence that stands in its place.
 
-  Two incidental findings were opened during round 6 and are NOT checkpoint failures: G-15-2F (the
-  in-app Download Status sheet reads stale during a repair) and G-15-2G (an undecided question about
-  whether validation must durably blank hashes when the whole gallery is missing, or whether the
-  wholesale guard legitimately refuses).
+  Two incidental findings were opened during round 6 and are NOT checkpoint failures. G-15-2G — the
+  question of whether validation must durably blank hashes — was settled on device the same day and
+  closed as no-defect: a partial deletion of 6 of 26 pages blanked exactly those 6 hashes durably
+  and survived relaunch, so the earlier all-missing case was the wholesale guard refusing, as
+  designed. G-15-2F (the in-app Download Status sheet reads stale during a repair) stays open as a
+  minor display defect.
 obsolescence_note: |
   Tests 10 and 11 are `obsolete` rather than pass/issue because the owner deleted
   `LogsDirectoryMigration` on 2026-08-17, removing their subject. Test 9 keeps its pass on the
@@ -747,10 +802,11 @@ obsolescence_note: |
   above deliberately does neither.
 open_issues_note: |
   No checkpoint is failing. G-15-2D is resolved on device (round 6, 2026-08-18). G-15-11 was closed
-  by removal when the owner deleted LogsDirectoryMigration on 2026-08-17. The two items still
-  carrying `status: open` are G-15-2F and G-15-2G, both opened incidentally during round 6 and
-  neither of them a checkpoint result: G-15-2F is a minor in-app display defect, and G-15-2G is a
-  question that needs one partial-deletion check before it can be called a defect at all.
+  by removal when the owner deleted LogsDirectoryMigration on 2026-08-17. Two items were opened
+  incidentally during round 6, neither of them a checkpoint result; G-15-2G was settled the same day
+  by the partial-deletion check it called for and closed as no-defect, the wholesale guard being
+  working as designed. EXACTLY ONE gap now carries `status: open`: G-15-2F, a minor in-app display
+  defect where the Download Status sheet reads stale during a repair.
 
 round_5_scope: |
   Round 5 covers everything delivered after round 4 closed on 2026-08-09: plans 15-61 … 15-77 and
@@ -989,8 +1045,33 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2G
   truth: "A validation that observes a page's file is gone reconciles the manifest durably, so the persisted record alone reads truthfully."
-  status: open
-  severity: needs-decision
+  status: closed-no-defect
+  severity: none
+  resolution_2026_08_18: |
+    SETTLED ON DEVICE by the partial-deletion check this entry called for. The wholesale guard is
+    working as designed; there is no SSOT violation.
+
+    Subject: a freshly downloaded 26-page gallery, manifest carrying 26 of 26 non-blank hashes and
+    27 image files on disk. Exactly SIX page files (pages 1-6) were deleted from outside the app
+    through Files.app — a partial deletion, not a wholesale one — leaving 21 files and the manifest
+    still claiming all 26 complete.
+
+    Before validation the Download Status sheet read the stale claim: 26/26, Downloaded (26),
+    Pending (0), Failed (0). After "Validate Image Data" it read 20/26, Downloaded (20),
+    Pending (6), Failed (0).
+
+    The manifest pulled off the device immediately afterwards had been durably reconciled:
+      non-blank hashes  26 -> 20
+      blanked pages     exactly ['1','2','3','4','5','6'] — the six that were deleted
+      every other hash  byte-identical to the pre-deletion capture
+    Relaunching the app still showed 20/26, so the persisted record alone reads truthfully with no
+    in-memory complement, which is the property the rule actually demands.
+
+    Therefore the earlier all-27-missing observation was the all-or-nothing wholesale guard refusing
+    an entire reconciliation — a case AGENTS.md explicitly permits session-scoped state to signal —
+    and NOT a failure to reconcile. Both halves of the rule are satisfied: positive per-page evidence
+    licenses a durable blank, and a wholesale refusal is surfaced as an operation-level signal.
+  original_severity_when_filed: needs-decision
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   observed: |
     All 27 image files of a completed gallery were deleted outside the app via Files.app, with
@@ -1008,13 +1089,12 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     So the amber badge is either a rule violation or the wholesale guard behaving exactly as
     designed, and the observation as taken cannot tell the two apart.
   how_to_settle: |
-    Delete only SOME of a gallery's pages (e.g. 6 of 27) outside the app and run Validate. If the
-    partial case durably blanks those 6 hashes, the wholesale guard is working as designed and this
-    gap closes as no-defect. If the partial case also leaves every hash intact, reconciliation is
-    not happening at all and the rule is being violated. Not run this round.
+    RUN AND ANSWERED — see resolution_2026_08_18 above. The prescribed check was: delete only SOME
+    of a gallery's pages outside the app and run Validate; durable blanking of exactly those pages
+    means the wholesale guard is working as designed. That is what happened.
   note: |
-    Recorded rather than asserted as a defect, because the SSOT rule genuinely licenses this shape
-    when the guard refuses wholesale. Do not act on it before the partial-deletion check.
+    Recorded rather than asserted as a defect precisely because the SSOT rule licenses this shape
+    when the guard refuses wholesale. The restraint was warranted: the check cleared it.
 
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
@@ -1024,10 +1104,14 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     RESOLVED ON DEVICE, round 6, test iPhone (iPhone 11, iOS 26.6), build 260818-ek3, airplane mode
     OFF and the environment probe reporting "network wifi".
 
-    FOUR independent backgrounded sessions, every one ending in "Continued-processing session
-    drained, terminal progress pushed." Zero expirations, zero "Task failed" cards, and heartbeats
-    every ~10s with no gap approaching the ~30s stall window. Two of the four were multi-gallery
-    (194 pages and 104 pages); both rendered a correct live fraction and "· 2 galleries" on every
+    SEVEN continued-processing sessions were granted over the course of the round. SIX ended in
+    "Continued-processing session drained, terminal progress pushed." The seventh ended in
+    expiration — and that one was the deliberate card-cancel performed for test 2 clause 7, where
+    expiration is the system's correct delivery path for a user pressing stop and the app answered
+    it by pausing both galleries. SPONTANEOUS OR STALL-DETECTOR EXPIRATIONS: ZERO. No "Task failed"
+    card appeared at any point. Heartbeats arrived every ~10s throughout every session, with no gap
+    approaching the ~30s stall window. Four of the sessions were multi-gallery (denominators 194,
+    104, 402 and 1515 pages); all rendered a correct live fraction and "· 2 galleries" on every
     observed frame.
 
     The mechanism behind the fix was observed directly. In the 194-page run the completed-page count
