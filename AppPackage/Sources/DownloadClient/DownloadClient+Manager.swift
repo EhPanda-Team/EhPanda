@@ -562,6 +562,12 @@ public actor DownloadCoordinator {
     /// rather than as a position in the list — an unchecked count is the shape this file has already
     /// had to correct.
     var continuedSessionTask: Task<Void, Never>?
+    /// Observers of whether a client-side session is currently held.
+    ///
+    /// Yielded `true` when `continuedClientSessionID` lands and `false` in
+    /// `markContinuedSessionEnded`. Not session-scoped: an observer outlives every session it
+    /// watches, which is the whole point of the stream.
+    var continuedSessionLivenessContinuations = [UUID: AsyncStream<Bool>.Continuation]()
     /// The monotonic floor under the numerator this session pushes to the card.
     ///
     /// Five writers, verified exhaustive at this HEAD by grepping every assignment to this property

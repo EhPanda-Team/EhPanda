@@ -228,6 +228,9 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.logsClient = .noop
+                // The launch effect also subscribes to the continued-session liveness stream, whose
+                // no-op value finishes immediately and leaves the pump's background rule inert here.
+                $0.downloadClient = .noop
                 $0.continuousClock = TestClock()
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
             }

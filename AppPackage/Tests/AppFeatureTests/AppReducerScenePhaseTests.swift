@@ -39,9 +39,13 @@ struct AppReducerScenePhaseTests {
             $0.$privacyMaskBlur.withLock({ $0 = 0 })
         }
         await store.receive(\.setting.fetchGreeting)
-        await store.receive(\.appLogsPump.startPump)
+        await store.receive(\.appLogsPump.startPump) {
+            $0.appLogsPumpState.isPumpRunning = true
+        }
         await store.receive(\.presentation.detectClipboardURL)
-        await store.send(.appLogsPump(.pausePump))
+        await store.send(.appLogsPump(.pausePump)) {
+            $0.appLogsPumpState.isPumpRunning = false
+        }
         await store.finish()
         expectNoDifference(clipboardInvocationCount.value, 1)
     }
@@ -58,10 +62,55 @@ struct AppReducerScenePhaseTests {
 
         await store.send(.onScenePhaseChange(.active))
         await store.receive(\.setting.fetchGreeting)
-        await store.receive(\.appLogsPump.startPump)
-        await store.send(.appLogsPump(.pausePump))
+        await store.receive(\.appLogsPump.startPump) {
+            $0.appLogsPumpState.isPumpRunning = true
+        }
+        await store.send(.appLogsPump(.pausePump)) {
+            $0.appLogsPumpState.isPumpRunning = false
+        }
         await store.finish()
         expectNoDifference(clipboardInvocationCount.value, 0)
+    }
+
+    /// The pump keeps ticking through a background transition while a continued-processing session
+    /// is live, and drains exactly when that session ends — which is what puts the background-side
+    /// lines (an expiry, its pause sweep) on disk before the process can be killed.
+    @MainActor
+    @Test
+    func backgroundKeepsThePumpAliveWhileASessionIsLive() async {
+        let store = makeStore(
+            detectLinksFromClipboard: false,
+            privacyMaskIntensity: 40
+        )
+
+        await store.send(.continuedSessionLivenessChanged(true)) {
+            $0.isContinuedSessionLive = true
+        }
+        await store.send(.onScenePhaseChange(.background)) {
+            $0.scenePhase = .background
+            $0.hasEnteredBackground = true
+        }
+        await store.send(.continuedSessionLivenessChanged(false)) {
+            $0.isContinuedSessionLive = false
+        }
+        await store.receive(\.appLogsPump.pausePump)
+        await store.finish()
+    }
+
+    @MainActor
+    @Test
+    func backgroundPausesThePumpWhenNoSessionIsLive() async {
+        let store = makeStore(
+            detectLinksFromClipboard: false,
+            privacyMaskIntensity: 40
+        )
+
+        await store.send(.onScenePhaseChange(.background)) {
+            $0.scenePhase = .background
+            $0.hasEnteredBackground = true
+        }
+        await store.receive(\.appLogsPump.pausePump)
+        await store.finish()
     }
 
     @MainActor
