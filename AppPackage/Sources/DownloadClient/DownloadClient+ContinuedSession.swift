@@ -450,6 +450,7 @@ extension DownloadCoordinator {
             return
         }
         continuedClientSessionID = clientSession.id
+        publishContinuedSessionLiveness(true)
         // Merged rather than assigned, for the reason the two collections below give, reaching the
         // scalar through a different writer. A D-G7-01 withdrawal landing inside the client start's
         // main-actor hop is a real correction made by THIS session's own scheduled run, and it
@@ -569,6 +570,7 @@ extension DownloadCoordinator {
     /// progress and nothing would complete it.
     func markContinuedSessionEnded(sessionID: UUID) {
         guard continuedSessionID == sessionID else { return }
+        publishContinuedSessionLiveness(false)
         continuedSessionID = nil
         continuedClientSessionID = nil
         continuedSessionNeedsReconciliation = false

@@ -7,73 +7,92 @@ import OSLogExt
 private let logger = Logger(category: .init(describing: LogsClient.self))
 
 public struct LogsClient: Sendable {
-    /// Reads activity-log entries emitted by this process since `after`
-    /// (or since boot when `after` is `nil`), sorted oldest-first.
-    public var fetchNewEntries: @Sendable (_ after: Date?) async throws -> [AppActivityLog]
-    /// Appends entries to a per-run jsonl file, creating it (and the logs directory) when needed.
-    public var appendToRunFile: @Sendable (_ logs: [AppActivityLog], _ url: URL) async throws -> Void
+    /// Atomically fetches the entries emitted since the last drain, appends them to the run file at
+    /// `url` and advances the cursor — one step, under the process's single `RunLogDrain`, whose
+    /// contract this endpoint inherits verbatim. Returns exactly what was written.
+    ///
+    /// One endpoint rather than a fetch and an append, deliberately: a caller holding both could
+    /// interleave them, and the cursor cannot be owned by anyone but the write. See `RunLogDrain`.
+    public var drainNewEntries: @Sendable (_ url: URL) async -> [AppActivityLog]
     /// Reads back a previously written per-run jsonl file.
     public var readRunFile: @Sendable (_ url: URL) async throws -> [AppActivityLog]
     /// Lists the persisted per-run log files, newest run first.
     public var listRunFiles: @Sendable () async -> [RunLogFile]
     /// Derives the next run count for the given day from the existing log files
     /// (`max + 1` among that day's files, or `1` — so the count resets each new day).
-    public var nextRunCount: @Sendable (_ date: Date) async -> Int
+    ///
+    /// Synchronous, because it is a directory listing and its caller needs the answer inside a
+    /// reduce step: the pump establishes the run from the reduce that starts it, so the run is
+    /// derived exactly once per process by construction rather than by whichever effect wins.
+    public var nextRunCount: @Sendable (_ date: Date) -> Int
     /// The jsonl file URL for a given run.
     public var currentRunFileURL: @Sendable (_ runCount: Int, _ date: Date) -> URL
 }
 
 extension LogsClient {
-    public static let live: Self = .init(
-        fetchNewEntries: { after in
-            let store = try OSLogStore(scope: .currentProcessIdentifier)
-            let position = after.map(store.position(date:))
-                ?? store.position(timeIntervalSinceLatestBoot: .zero)
-            let predicate = NSPredicate(format: "subsystem BEGINSWITH %@", Defaults.App.identifier)
-            let entries = Array(try store.getEntries(at: position, matching: predicate))
-            let logEntries = entries.compactMap({ $0 as? OSLogEntryLog })
-            if logEntries.count != entries.count {
-                logger.warning("""
-                    Some log entries could not be read as OSLogEntryLog. \
-                    Read \(logEntries.count, privacy: .public) of \(entries.count, privacy: .public).
-                    """)
-            }
-            let logs = logEntries
-                .filter({ $0.subsystem.caseInsensitiveContains(Defaults.App.identifier) })
-                .map(AppActivityLog.init(osLog:))
-                .sorted(by: { $0.date < $1.date })
-            guard let after else { return logs }
-            return logs.filter({ $0.date > after })
-        },
-        appendToRunFile: { logs, url in
-            guard !logs.isEmpty else { return }
-            let directory = url.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    /// The one drain this process owns. One per process, exactly like the pump it serves: two
+    /// drains would be two cursors, which is the split ownership `RunLogDrain` exists to end.
+    private static let liveDrain = RunLogDrain(
+        fetch: readProcessLogEntries(after:),
+        append: appendEntries(_:to:)
+    )
 
-            let encoder = JSONEncoder()
-            var payload = Data()
-            for log in logs {
-                payload.append(try encoder.encode(log))
-                payload.append(0x0A)
-            }
+    /// Reads activity-log entries emitted by this process since `after` (or since boot when `after`
+    /// is `nil`), sorted oldest-first.
+    private static func readProcessLogEntries(after: Date?) throws -> [AppActivityLog] {
+        let store = try OSLogStore(scope: .currentProcessIdentifier)
+        let position = after.map(store.position(date:))
+            ?? store.position(timeIntervalSinceLatestBoot: .zero)
+        let predicate = NSPredicate(format: "subsystem BEGINSWITH %@", Defaults.App.identifier)
+        let entries = Array(try store.getEntries(at: position, matching: predicate))
+        let logEntries = entries.compactMap({ $0 as? OSLogEntryLog })
+        if logEntries.count != entries.count {
+            logger.warning("""
+                Some log entries could not be read as OSLogEntryLog. \
+                Read \(logEntries.count, privacy: .public) of \(entries.count, privacy: .public).
+                """)
+        }
+        let logs = logEntries
+            .filter({ $0.subsystem.caseInsensitiveContains(Defaults.App.identifier) })
+            .map(AppActivityLog.init(osLog:))
+            .sorted(by: { $0.date < $1.date })
+        guard let after else { return logs }
+        return logs.filter({ $0.date > after })
+    }
 
-            if FileManager.default.fileExists(atPath: url.path) {
-                let handle = try FileHandle(forWritingTo: url)
-                // Closing is best-effort after the authoritative append operations finish,
-                // so a failure is logged rather than replacing the append's own outcome.
-                defer {
-                    do {
-                        try handle.close()
-                    } catch {
-                        logger.error("Failed to close the run-file handle: \(error)")
-                    }
+    /// Appends entries to a per-run jsonl file, creating it (and the logs directory) when needed.
+    private static func appendEntries(_ logs: [AppActivityLog], to url: URL) throws {
+        guard !logs.isEmpty else { return }
+        let directory = url.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let encoder = JSONEncoder()
+        var payload = Data()
+        for log in logs {
+            payload.append(try encoder.encode(log))
+            payload.append(0x0A)
+        }
+
+        if FileManager.default.fileExists(atPath: url.path) {
+            let handle = try FileHandle(forWritingTo: url)
+            // Closing is best-effort after the authoritative append operations finish,
+            // so a failure is logged rather than replacing the append's own outcome.
+            defer {
+                do {
+                    try handle.close()
+                } catch {
+                    logger.error("Failed to close the run-file handle: \(error)")
                 }
-                try handle.seekToEnd()
-                try handle.write(contentsOf: payload)
-            } else {
-                try payload.write(to: url, options: .atomic)
             }
-        },
+            try handle.seekToEnd()
+            try handle.write(contentsOf: payload)
+        } else {
+            try payload.write(to: url, options: .atomic)
+        }
+    }
+
+    public static let live: Self = .init(
+        drainNewEntries: { url in await liveDrain.drain(into: url) },
         readRunFile: { url in
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
@@ -140,8 +159,7 @@ extension DependencyValues {
 // MARK: Test
 extension LogsClient {
     public static let noop: Self = .init(
-        fetchNewEntries: { _ in [] },
-        appendToRunFile: { _, _ in },
+        drainNewEntries: { _ in [] },
         readRunFile: { _ in [] },
         listRunFiles: { [] },
         nextRunCount: { _ in 1 },
@@ -151,8 +169,7 @@ extension LogsClient {
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(
-        fetchNewEntries: IssueReporting.unimplemented(placeholder: placeholder()),
-        appendToRunFile: IssueReporting.unimplemented(placeholder: placeholder()),
+        drainNewEntries: IssueReporting.unimplemented(placeholder: placeholder()),
         readRunFile: IssueReporting.unimplemented(placeholder: placeholder()),
         listRunFiles: IssueReporting.unimplemented(placeholder: placeholder()),
         nextRunCount: IssueReporting.unimplemented(placeholder: placeholder()),

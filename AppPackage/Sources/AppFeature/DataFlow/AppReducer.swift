@@ -32,6 +32,9 @@ struct AppReducer {
         @Shared(.privacyMaskBlur) var privacyMaskBlur: Double
         var appLogsPumpState = AppActivityLogsPumpReducer.State()
         var scenePhase = ScenePhase.active
+        /// Whether the download client currently holds a continued-processing session — the fact
+        /// that decides whether backgrounding may pause the activity-log pump.
+        var isContinuedSessionLive = false
         var hasEnteredBackground = false
         var didRunLaunchAutomation = false
         var isAwaitingIgneousForLaunchAutomation = false
@@ -40,6 +43,7 @@ struct AppReducer {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
+        case continuedSessionLivenessChanged(Bool)
         case runLaunchAutomation
 
         case appDelegate(AppDelegateReducer.Action)
@@ -131,11 +135,19 @@ struct AppReducer {
                     // Backgrounding no longer requests any background window: a
                     // continued-processing session, if one exists, was started earlier by the
                     // user action that mobilized the download queue.
+                    // Pause the activity-log pump on background only when NO continued-processing
+                    // session is live. A live session keeps the process alive and the pump's 5 s
+                    // OSLogStore read is cheap, so keeping it ticking is what makes background-side
+                    // lines — an expiry, its pause sweep — reach disk. The pause is sequenced behind
+                    // the log line inside one `.run`, so the background line is emitted before the
+                    // final drain runs; best effort only, since OSLog visibility is not synchronous.
                     var effects: [Effect<Action>] = [
-                        .send(.appLogsPump(.pausePump)),
-                        .run { _ in
-                            logger.notice("App entered background.")
-                        }
+                        state.isContinuedSessionLive
+                            ? .run { _ in logger.notice("App entered background.") }
+                            : .run { send in
+                                logger.notice("App entered background.")
+                                await send(.appLogsPump(.pausePump))
+                            }
                     ]
                     // Backgrounding fires no reader `onDisappear`/dismiss, so flush the active reading
                     // session's last debounced page here — otherwise a force-quit from the background
@@ -146,6 +158,15 @@ struct AppReducer {
                 default:
                     return .none
                 }
+
+            case .continuedSessionLivenessChanged(let isLive):
+                guard state.isContinuedSessionLive != isLive else { return .none }
+                state.isContinuedSessionLive = isLive
+                // The live session ended while the app is backgrounded: nothing keeps the process
+                // alive any more, so drain the pump now — the expiry and its pause sweep were just
+                // logged, and this is the last chance to get them onto disk.
+                guard !isLive, state.scenePhase == .background else { return .none }
+                return .send(.appLogsPump(.pausePump))
 
             case .runLaunchAutomation:
                 guard !state.didRunLaunchAutomation,
@@ -167,6 +188,13 @@ struct AppReducer {
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
                 return .merge(
                     .send(.appLogsPump(.startPump)),
+                    // Long-lived: the coordinator yields the current liveness on subscribe and every
+                    // transition after it, for as long as the app runs.
+                    .run { send in
+                        for await isLive in downloadClient.observeContinuedSessionLiveness() {
+                            await send(.continuedSessionLivenessChanged(isLive))
+                        }
+                    },
                     .run { send in
                         if let loginCookies {
                             cookieClient.importAutomationCookies(
