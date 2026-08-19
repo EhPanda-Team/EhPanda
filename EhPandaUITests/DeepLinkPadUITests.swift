@@ -5,13 +5,17 @@ import XCTest
 final class DeepLinkPadUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
-        try XCTSkipUnless(
-            UIDevice.current.userInterfaceIdiom == .pad,
-            "The tab-modal gallery detail is an iPad-exclusive entry."
-        )
     }
 
     func testPadTabModalReplacedByDeepLink() throws {
+        // The idiom read is main-actor-isolated, so it lives here rather than in `setUpWithError`:
+        // that override matches XCTest's nonisolated declaration, so this class's `@MainActor` does
+        // not reach it and annotating the override is an error. `XCTSkipUnless` is unusable for the
+        // same reason (its condition is a nonisolated autoclosure), so only the skip goes to XCTest.
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            throw XCTSkip("The tab-modal gallery detail is an iPad-exclusive entry.")
+        }
+
         let app = XCUIApplication()
         try app.launchStubbed()
         app.requireForeground()
