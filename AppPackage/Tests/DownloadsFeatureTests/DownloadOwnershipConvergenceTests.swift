@@ -69,32 +69,22 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         )
 
         let downloads = await fixture.manager.observeDownloads()
-        let observerTask = Task { () -> [[DownloadedGallery]] in
-            var emissions = [[DownloadedGallery]]()
-            for await snapshot in downloads {
-                emissions.append(snapshot)
-                if emissions.count == 2 {
-                    return emissions
-                }
-            }
-            return emissions
-        }
-        defer { observerTask.cancel() }
+        let fence = sampleDownload(
+            gid: "fence-\(UUID().uuidString)",
+            title: "Fence",
+            status: .completed
+        )
+        let observerTask = collectSnapshots(from: downloads, untilFence: fence.gid)
 
         let result = await failureCase.invoke(
             manager: fixture.manager,
             gid: firstGallery.gid
         )
-        // This awaits the collector rather than polling. The deadline only turns a missing
-        // notification into a named failure instead of a hung suite. It keeps the shared
-        // ten-second default deliberately rather than by inheritance, and IN-01's one-second
-        // budget is declined for the reason written at the sibling detector,
-        // `testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` — kept in one place so the
-        // decision has a single owner, as the number itself does.
-        let emissions = try await waitForTaskValue(
-            observerTask,
-            description: "\(failureCase) post-failure observer emission"
-        )
+        // The fence, not a clock — the reasoning is at `collectSnapshots(from:untilFence:)`, which
+        // owns it for both detectors. The ten-second bound that stood here is retired at this site
+        // with it.
+        await fixture.manager.observerHub.notify([fence])
+        let emissions = await observerTask.value
 
         guard case .failure = result else {
             Issue.record("Expected \(failureCase) removal to fail.")
@@ -104,7 +94,13 @@ struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
         #expect(retainedDownload != nil)
         #expect(retainedDownload?.isQueuedWorkItem == true)
         #expect(scheduledGalleryRecorder.snapshot().isEmpty == false)
-        #expect(emissions.count == 2)
+        // Sequence pins rather than a count pin, for the reason given at the sibling detector: the
+        // failed removal retains the record, so the converged emission repeats the pair. Membership
+        // rather than intra-snapshot order, for the reason given there too.
+        let emittedGIDs = emissions.map({ Set($0.map(\.gid)) })
+        #expect(emissions.count >= 2)
+        #expect(emittedGIDs.first == [firstGallery.gid, secondGallery.gid])
+        #expect(emittedGIDs.dropFirst().first == [firstGallery.gid, secondGallery.gid])
         #expect(await fixture.manager.testingHasContinuedSession())
         #expect(clientSpy.finishRecords.isEmpty)
     }
