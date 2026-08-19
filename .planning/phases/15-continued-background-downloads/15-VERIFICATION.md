@@ -1,259 +1,306 @@
 ---
 phase: 15-continued-background-downloads
-verified: 2026-08-10T10:32:45Z
+verified: 2026-08-19T10:35:00Z
+re_verified_after_device_round: 2026-08-19T12:55:00Z
 status: gaps_found
-score: 2/4 must-haves verified
+score: 8/9 must-haves verified, 1 failing
 behavior_unverified: 0
 overrides_applied: 0
+head: f9892824
 re_verification:
   previous_status: gaps_found
   previous_score: 2/4
+  previous_verified: 2026-08-10T10:32:45Z
+  scope: |
+    The previous report was written against a tree three substantial rounds behind this HEAD
+    (13cad7d9, 764c5958, f7e65497, plus plan 15-77 and the pin b0d2d57e). Every item in its
+    `gaps`, `gaps_remaining` and `regressions` lists was re-derived against source at f9892824
+    rather than carried forward. The roadmap's four Success Criteria — which the previous report
+    did not enumerate as its truths — were verified independently as the phase's scope contract.
   gaps_closed:
-    - "advanceQueueIntentGeneration is an unbracketed downward mover of the credited session basis — closed at its ROOT by moving the bracket onto the movement itself (DownloadClient+Manager.swift:852-856 wraps its own increment in withdrawingCountedBasisMovement), so all four present callers and any future one are enclosed by construction. Sibling composition independently re-derived at every site. The new one-at-a-time regression genuinely discriminates: it pins the re-queue frame at exactly 0/24 and the keeper series at [1,2,3,4]; pre-fix those read 4/24 and [4,4,4,4]."
-    - "Ordinary read paths delete a page file while reconciling nothing — closed at its ROOT. All ten discardingRejected declarations now default to false (DownloadStore.swift:185,205,261,276,294,466,501,537,757 and DownloadStore+Operations.swift:680); sanitizeLocalFilesIfNeeded's side-effect scan is DELETED rather than defanged (the function is now clearStaleDownloadErrorIfNeeded, PersistenceHelpers.swift); loadManifest (PublicAPI.swift:285-288), resumeMode (SchedulingHelpers.swift:75-78) and captureTarget all take the non-mutating default. DownloadReadPathNonMutationTests asserts from both sides — the file's bytes and a relaunched coordinator's persisted reading."
-    - "A per-page hold could relax the wholesale guard below what it previously refused — closed at its ROOT. The loop guard is now blankedPageCount + refutedSurvivingPageCount < completedPageCount (WorkingManifestReconciliation.swift:235). I re-derived the set identity myself against source: the caller's positivelyAbsentPages ∪ refutedPages (ExecutionSupport.swift:449-459) is set-identical to the loop's two counters over the same scan, and an authorized removal moves a page from one term to the other, so the sum is invariant. The paired 2-page/3-page mixed cases cross the discontinuity from both sides."
-    - "deleteFolder builds its filesystem target from an unconfined caller name — the ESCAPE is closed at its root. userFolderURL(name:) is deleted outright (no caller remains), every user-folder mutation is a mutatingConfinedUserFolder body with the resolution re-decided inside the lock, and the six-argument DeleteEscapeSource catalog asserts disk-then-records-then-verdict. But the closure introduced a NEW user-facing regression — see gap 1."
-    - "A refused retry is a silent no-op — closed at its ROOT for the retry branch. retryPagesDone(.failure) sets state.toast (DownloadInspectorReducer.swift:189-198), the inadmissible selection carries its own .fileOperationFailed(downloadStoreInvalidPageSelection) distinct from the two absence exits (RetryHelpers.swift:91-94), and normalizeFetchedPayload throws downloadStorePageSelectionOutdated at ExecutionFetch.swift:208-212 — before performDownload, so nothing is blanked, announced, fetched or finalized when it fires."
-  gaps_remaining:
-    - "materializeRepairSeed's surviving discardingRejected: true deletes source-folder page files while nothing blanks the SOURCE manifest (WR-02, the one site failing the round's own entitlement test)."
-    - "IN-01 (waitForTaskValue 10s default in two hang-detectors) and IN-02 (localized-key spelling split) — carried unaddressed for a third round; IN-02 was widened by 15-69."
-  regressions:
-    - "BLOCKER: the delete/rename confinement predicate requires normalizedUserFolderName(rawName) == rawName, but scanDownloads promotes EVERY visible non-gallery directory to a user folder with no such filter. A folder created over File Sharing named e.g. `Art  Books`, `Manga\\Vol1` or ` Photos` is listed, is a usable download destination, and now fails BOTH deleteFolder and renameFolder with 'invalid folder name'. deleteFolder worked for these before 15-68; renameFolder has been broken since 15-63."
-    - "prepareWorkingSeed's authorized removal (15-67) copied the validate route's classify-guard-remove-rescan-blank ORDERING and dropped its post-removal recovery and error log; it also re-sourced scanSucceeded from the post-removal rescan, so a rescan that fails after a removal both leaves the record claiming deleted pages AND flips the announced basis to its over-reporting branch."
-    - "toggleDownloadPauseDone(.failure) is the un-swept sibling of the retry-refusal fix, 25 lines below it, still `if case .failure = result { return .send(.loadInspection) }`."
+    - "GAP 1 — user folders the app lists were un-deletable and un-renamable from inside the app. Closed at the root: `confinedDirectUserFolderURL` (DownloadStore+Operations.swift:507-527) no longer carries the `normalizedUserFolderName(rawName) == rawName` clause, and every structural refusal the previous report demanded be kept IS kept (non-empty, not `.`/`..`, single path component, no control characters, not gallery-shaped, standardized parent == root, symlink-resolved parent == root). Minting sites still normalize (Folders.swift:23 create, :58 rename's new name). `removeFolder(relativePath:)` — the dead public reproduction of the unconfined construction — is gone (0 hits). The missing POSITIVE half of the catalog now exists as its own suite: DownloadFolderAdmissionTests stages `Art  Books`, ` Photos`, `Manga\\Vol1` and `Misc etc.` as folders whose OWN on-disk name is non-normalized. Device-confirmed: 15-UAT test 15 passed on a physical iPhone 11 / iOS 26.6 with all three fixtures created through the real Files app — list, delete, rename and move-into all succeeded and no near-duplicate `Art Books` was minted."
+    - "GAP 2 — `materializeRepairSeed` deleted source-folder page files while reconciling nothing. Closed by REMOVAL, not by patching: `materializeRepairSeed`, `repairSeed(for:payload:)`, `RepairSeed`, `RepairSeedContext` and `linkOrCopyReadableAsset` are all 0-hit across Sources and Tests at this HEAD (retired in f7e65497 with the completion sweep they existed to feed). The `discardingRejected: true` census is now exactly ONE production site — DownloadClient+ExecutionSupport.swift:504, the cover resolution, entitled on the stated test because a cover carries no recorded hash — and that count is pinned by `DownloadSourceInventoryTests` (`expectedDiscardingRejectedTotal = 1`, line 448), so a fourth unentitled site cannot be added silently."
+    - "GAP 3 — the seed route copied the validate route's ordering and dropped its compensation. Closed at the root by SHARING the compensation rather than re-implementing it: all three post-removal exits now reach `recoveredBlanking`, the validate route's own implementation — exit 3 (thrown manifest write) at ExecutionSupport.swift:475-483 recovers then propagates as a `Result` rather than throwing past the bracket, and exits 1/2 at :485-495 recover through the single `claimsAnyPage` predicate. `recoveredBlanking` logs at `error` with the removed page indices and a hash-masked gid (PersistenceNormalize.swift:438-445). The over-reporting half is closed too: `inheritedPages` subtracts the pages this pass removed before the pessimistic branch runs (`presumedDonePages = probedDonePages.subtracting(workingSeed.removedPages)`, SeedReconciliation.swift:166), so a post-removal rescan failure can no longer inflate the announced basis."
+    - "GAP 4 — `toggleDownloadPauseDone(.failure)` was a silent no-op. Closed, and swept rather than branch-fixed: DownloadInspectorReducer.swift:242-250 sets `state.toast = error.actionFailureToast` (the helper was renamed off `retryFailureToast` as the previous report required), and the reducer's type doc now carries the COMPLETE enumeration of outcome-carrying actions with a disposition each (lines 10-27), naming `observeDownloadsDone` as outside the policy rather than an exception to it."
+    - "GAP 5 (partial) — unowned invariants. All four residuals resolved. (a) The bracket-nesting rule is now DETECTED, not merely documented: a depth guard around `movement()` reports through `reportIssue` (ExecutionSupport.swift:347-352) rather than crashing, and the doc at :321-333 states honestly that nothing refuses a nest at compile time. (b) `downloadsTestFiles(in:)` is deleted (0 hits) so the inventory suite no longer contradicts itself. (c) The localized-key spelling split is closed: 19 `String(localized: .RLocalizable.…)` call sites and 0 bare ones in DownloadClient. (d) `waitForTaskValue`'s 10s default survives as an OWNER-RATIFIED decision, not an inherited default — 15-74 DEC-E declined the 1s bound on the repo's own recorded 13.2s contended wall time, and 15-UAT test 13 ratified the refusal on 2026-08-17, routing the sentinel-fence alternative (which needs no production change) to deferred-items.md."
+  gaps_remaining: []
+  regressions_recheck:
+    - "BLOCKER (delete/rename confinement predicate refusing listed folders) — RESOLVED. See gaps_closed item 1; verified against source and by device UAT 15."
+    - "prepareWorkingSeed's authorized removal dropped its post-removal recovery — RESOLVED. See gaps_closed item 3; all three exits reach the shared `recoveredBlanking`."
+    - "toggleDownloadPauseDone(.failure) un-swept sibling — RESOLVED in the inspector. The DownloadsReducer sibling is deliberately still silent, but it is now a DISPOSITIONED deferral, not a silent branch: stated in the reducer's type doc (DownloadsReducer.swift:36-41), restated at the case (:387-393), and logged in deferred-items.md with the reason (the list reducer owns no toast surface; `alert` is `AppAlertState<Alert>` and the toast factories are constrained to `Action == Never`, so reporting it is a presentation addition rather than a branch fix)."
+    - "WR-02 / WR-04 (fourth code review) — RESOLVED in 421719a6 and cf8a0748; `moveDownload` now admits a picked destination as written and licenses minting on its own terms (Folders.swift:214-248), with `testMoveDownloadRecreatesAListedFolderTheAppWouldNotMint` as the counterpart that fails if the guard is ever tightened back into a rewrite."
+    - "WR-01 / WR-02 / WR-03 (LogsDirectoryMigration) — MOOT. The owner deleted `LogsDirectoryMigration` outright on 2026-08-17 (81a2b6d5); 0 hits across Sources and Tests. UAT tests 10 and 11 are `obsolete` rather than pass/issue for the same reason, which is the honest count."
+    - "WR-05 (dialog placement) — RESOLVED by owner decision taking option (a): the CLAUDE.md placement rule was AMENDED (5ce35665) to keep a per-row destructive dialog on the row, with the device observation on iPhone 11 and iPad mini 6 recorded in the rule itself. DownloadsView.swift:227 attaches the dialog to the row, matching the amended rule; UAT test 8 device-verified both halves."
+    - "Swipe-delete vanish/reappear regression — RESOLVED (9421b7bb, 8277ded7, 15afbde4). The trailing swipe Delete drops `role: .destructive` and takes `.tint(.red)` (DownloadsView.swift:214-225) while the context-menu Delete keeps its role (:352). UAT test 7 passed on device."
+    - "IN-01 (waitForTaskValue 10s) — DECLINED with a written derivation by 15-74 DEC-E and RATIFIED by the owner at UAT test 13. Not a gap."
+    - "IN-02 (localized-key spelling split) — RESOLVED by 15-75; census re-derived at this HEAD as 19/0."
 gaps:
-  - truth: "Every user folder the app lists is mutable from inside the app, and a destructive user-folder operation still cannot reach a filesystem target the caller did not name (SC3; CLAUDE.md manifest-SSOT / record-disk convergence)."
-    status: failed
-    reason: "The producing surface and the consuming predicate disagree about what a valid user-folder name is, and the phase moved only the consuming side. `confinedDirectUserFolderURL(named:)` refuses unless `normalizedUserFolderName(rawName) == rawName` (DownloadStore+Operations.swift:627). `normalizedFolderName` (DownloadStore.swift:394-431) REWRITES rather than rejects — it maps `/`, `\\`, `:` and control characters to a space, collapses whitespace runs, trims leading/trailing whitespace and trailing dots. Meanwhile `scanDownloads` (DownloadStore.swift:601-637) promotes EVERY visible directory under the root to a user folder, excluding only gallery-shaped names and directories holding a manifest — no normalization filter at all. I confirmed the app really can meet the disagreeing names: the root is `Documents/Downloads` (AppTools/FileUtil.swift:7-12) and App/Info.plist carries both `UIFileSharingEnabled` (line 170) and `LSSupportsOpeningDocumentsInPlace` (line 145), so a folder created in the Files app named `Art  Books` (two spaces), `Manga\\Vol1`, ` Photos` or `Misc etc.` is listed by `fetchFolders()`, is a usable download destination, and is now a DEAD END for both mutating actions: `deleteFolder` returns `.fileOperationFailed(invalid folder name)` at Folders.swift:118-124 before it looks at the disk, and `renameFolder` throws the same at DownloadStore+Operations.swift:479-484. This is a REGRESSION introduced by 15-68 for delete — I read the pre-delta source (`git show a4e51de7:...+Folders.swift`), which built `storage.userFolderURL(name:)` and handed it to `removeFolder(at:)`, whose lexical prefix containment accepts every one of these names, so they deleted correctly. Rename has carried the predicate since 15-63. The error message compounds it: the app calls the name invalid while displaying it. The escape suite cannot observe this — its `whitespacePaddedAlias` argument stages `\"  Keeper  \"` against a DIFFERENT real folder `Keeper` (DownloadFolderOperationTests.swift:597-604), which must be refused; it never stages a folder whose OWN on-disk name is the non-normalized one, so the shape that matters is outside the catalog. The structural claim behind the delete fix is also weaker than stated: `removeFolder(relativePath:)` is still `public` and reproduces the deleted construction verbatim, so `storage.removeFolder(relativePath: name)` is a one-line rewrite of the original defect."
-    artifacts:
-      - path: "AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift"
-        issue: "confinedDirectUserFolderURL (line 621-640) applies a normalization-IDENTITY clause to SOURCE names that the listing which produced those names never applied, so it refuses real, listed, usable folders. removeFolder(relativePath:) (417-425) is dead public API reproducing the exact unconfined construction CR-02 deleted."
-      - path: "AppPackage/Sources/DownloadClient/DownloadStore.swift"
-        issue: "scanDownloads (601-637) lists every visible non-gallery directory as a user folder with no normalization filter — the producing surface the predicate disagrees with. normalizedFolderName (394-431) rewrites rather than rejects, which is correct for a destination and wrong as a source admission test."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift"
-        issue: "deleteFolder (117-124) and renameFolder (54-95, via storage.renameUserFolder) are both dead ends for a listed folder whose name is not its own normalized form; the user must leave the app to remove it."
-      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift"
-        issue: "DeleteEscapeSource.whitespacePaddedAlias (597-604) stages a padded ALIAS of a different real folder, never a folder whose own on-disk name is padded, so the catalog structurally cannot reach this case. No argument or case asserts that a listed folder deletes."
-    missing:
-      - "Decide which side moves, and state it: the PRODUCING surface (scanDownloads) and the CONSUMING predicate must agree about what a valid user-folder name is. The predicate is the side that must move — the listing is describing a disk the app does not own. Replace the `normalizedUserFolderName(rawName) == rawName` clause for SOURCE names with an admission test that cannot refuse a name the listing produced (exact membership against the scanned listing, or the structural checks alone). Keep every structural refusal unchanged: non-empty, not `.`/`..`, single path component, no control characters, standardized parent == root, resolved parent == root, and the leaf's `.typeDirectory` re-check inside the lock — none of the escape refusals (`..`, `../Outside`, absolute path, `MyFolder/[123_abc] Title`, symlinked child) depends on the normalization clause. DESTINATIONS (createUserFolder, ensureUserFolder, the rename's new name) must keep normalizing."
-      - "Sweep ALL EXIT PATHS that consume a listed name, not just deleteFolder: deleteUserFolder, renameUserFolder's SOURCE, the coordinator's existence pre-check in deleteFolder, and moveDownload's destination resolution (which normalizes a listed destination onto a DIFFERENT folder and then ensureUserFolder-creates it — a pre-existing near-duplicate hazard the same mismatch produces). Enumerate every site that turns a listed folder name into a URL and state its disposition."
-      - "Extend the escape catalog with the missing HALF: add positive arguments whose own on-disk name is non-normalized (`Art  Books`, ` Photos`, `Manga\\Vol1`, `Misc etc.`) and assert each one DELETES and RENAMES successfully, with record convergence asserted on the success side exactly as the refusal side already asserts survival. A catalog that only stages refusals cannot fail when the boundary is too tight."
-      - "Close the structural residual the delete fix claims: delete `removeFolder(relativePath:)` (public, zero callers, reproduces the unconfined construction) or make it internal and add it to the delete-escape argument catalog. `removeGalleryFolders` already calls `removeFolder(at:)` with scan-produced URLs and needs no relative-path spelling."
-  - truth: "No act of the app destroys a page file without the same act durably reconciling the record that claims it (SC3; CLAUDE.md 'Download manifest is the single source of truth')."
-    status: failed
-    reason: "The round adopted an explicit entitlement rule — an act may delete only if the same act durably blanks the record for the page it destroyed — and one production site fails it, which its own comment concedes: `\"What the SOURCE folder's own record owes for the file removed here is a separate question, and this round did not answer it\"` (DownloadStore+Operations.swift:166-167). Three production sites still pass `discardingRejected: true` (ExecutionSupport.swift:384 cover, Operations.swift:142 cover, Operations.swift:171 source page scan); the two cover sites are entitled on the stated test because a cover carries no recorded hash. The third is not. `materializeRepairSeed`'s source folder is not an anonymous staging area — `repairSeed(for:payload:)` returns `download.folderURL` (ExecutionSupport.swift:820-838), the gallery's CURRENTLY INDEXED folder, carrying the manifest that was just copied whole into the destination. The scan at line 171 deletes refused page files inside it while writing nothing to its manifest; the destination's reconciliation blanks the COPY, and the source goes on claiming the pages whose files this call removed. The divergence is normally swept by `removeSupersededFolders` at completion, but it survives whenever the run does not complete (failure, cancellation, termination), and `deduplicatedDownloadIndex` picks by `displayDate` (Persistence.swift:59-71) — a `removeItem` on a child bumps the parent directory's mtime, so on the all-refused shape (no page copied, destination mtime set only by the manifest copy) the lying source folder can end up the newer folder and win the index. The window is narrow (repair mode plus a destination path differing from the source), but the shape is exactly the record/disk divergence CLAUDE.md forbids, created by the app and marked by nothing. No test stages it: DownloadCoordinatorRepairSeedTests has no interrupted-repair-with-rename case asserting the SOURCE folder's manifest agrees with its own page files."
-    artifacts:
-      - path: "AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift"
-        issue: "materializeRepairSeed's source page scan (151-172) passes discardingRejected: true and reconciles nothing in the source folder; the entitlement argument written at 152-167 is about the DESTINATION's manifest, which is a different record from the one whose files this call deletes."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift"
-        issue: "repairSeed (820-838) hands materializeRepairSeed the gallery's currently indexed folderURL, so the 'superseded garbage' premise the entitlement rests on is false on every non-completing run."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+Persistence.swift"
-        issue: "deduplicatedDownloadIndex (59-71) resolves duplicates by displayDate, so a directory mtime bumped by these very deletions can make the lying source folder win the index."
-      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadCoordinatorRepairSeedTests.swift"
-        issue: "No case stages an interrupted repair-with-rename and asserts the SOURCE folder's manifest and its page files agree afterwards."
-    missing:
-      - "Apply the round's own entitlement test to EVERY surviving `discardingRejected: true` site and record the verdict per site — not just the one the review named. Either take the non-mutating default here and let the destination's reconciliation record the absence (strictly simpler; costs only an orphan zero-byte file, which is the already-known unswept population), or give the SOURCE folder the same classify → guard → remove → BLANK treatment the destination now gets, reconciling sourceFolderURL's manifest under the same wholesale guard before returning."
-      - "Add a case that stages an interrupted repair-with-rename over an all-refused source, and asserts the source folder's manifest and its page files agree afterwards — and that whichever folder deduplicatedDownloadIndex selects is not a folder claiming pages the app deleted."
-      - "State the entitlement rule as a censused invariant rather than a per-site comment: a source census over `discardingRejected: true` with a named disposition per site, so the next round cannot add a fourth unentitled one silently."
-  - truth: "An authorized destructive reconciliation either completes durably or compensates and leaves a trail; the announced progress basis never over-reports (SC2, SC3; CLAUDE.md manifest-SSOT)."
-    status: failed
-    reason: "15-67 gave `prepareWorkingSeed`'s automatic route the validate route's classify-guard-remove-rescan-blank ORDERING and dropped its compensation. The validate route states the requirement explicitly — three exits fire AFTER the removal and each would otherwise leave the record claiming pages this pass deleted, so every one re-attempts the pass ONCE and logs the removed indices at `error` when the retry also fails (PersistenceNormalize.swift:304-337, `recoveredBlanking`). `authorizedReconciliationScan` (ExecutionSupport.swift:441-487) has all three exits and handles none: (1) its post-removal rescan can report `scanSucceeded == false`, in which case `reconcileWorkingManifestAgainstPageFiles` returns the manifest VERBATIM at WorkingManifestReconciliation.swift:210 over pages this function just deleted; (2) the post-removal loop can still refuse if the rescan's terms grew; (3) `storage.writeManifest` can throw, which propagates out of `prepareWorkingSeed` and aborts the run with the deletion performed and the record unchanged. None of the three is logged, so a device archive cannot show which files were destroyed against a record that still claims them. Independently, the same change re-sourced the announced basis: `prepareWorkingSeed` now returns `scanSucceeded: reconciliationScan.scanSucceeded` where it returned `destinationScan.scanSucceeded` before the delta (verified against `git show a4e51de7:...+ExecutionSupport.swift:340,363`). `authorizedReconciliationScan` returns early for a failed classification, so the ONLY new way this flips false is a rescan that fails after a successful removal — and `inheritedPages`' pessimistic branch (ExecutionSupport.swift:657-659) then counts every claimed page as inherited, INCLUDING the pages whose files this same pass deleted, which for an incomplete record returns without subtracting pendingPages (line 660). That is over-reporting the announced basis, the direction the announcement's own doc names as 'the defect'."
-    artifacts:
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift"
-        issue: "authorizedReconciliationScan (441-487) discards removeRefutedPageFiles' unremoved set (`_ =`) and has no post-removal recovery, no error log, and no handling of the three exits its own doc's model treats as mandatory. Line 399's `scanSucceeded: reconciliationScan.scanSucceeded` newly admits a false value produced only by a post-removal rescan failure, which inheritedPages (647-662) converts into an over-reported basis."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift"
-        issue: "reconcileWorkingManifestAgainstPageFiles returns the manifest verbatim at line 210 when scanSucceeded is false — correct in isolation, but on this route the caller has already deleted files, so the verbatim return is a durable record/disk divergence."
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift"
-        issue: "recoveredBlanking (304-337 and its callers at 306-336) is the compensation the validate route treats as mandatory and is not reachable from the seed route, so one implementation of the rule has forked into two."
-    missing:
-      - "Share the compensation, not just the ordering: have authorizedReconciliationScan return the removed page set alongside the scan, and apply recoveredBlanking's 'recover once, then log at error with the masked gid and the removed indices' step on the seed route — ideally by lifting that helper so both routes share one implementation, which is the argument the blanking loop itself makes for being shared."
-      - "Sweep ALL THREE post-removal exits, not the one that is most reachable: failed rescan, post-removal loop refusal, and a thrown manifest write. Enumerate each with its disposition in the doc so the next round cannot handle one and call the family done."
-      - "Decide the scanSucceeded source deliberately and state it: a post-removal rescan failure must NOT be allowed to flip inheritedPages to its over-reporting branch. Either keep the pre-removal classification's scanSucceeded for the announcement while using the rescan for the blanking, or subtract the pages this pass removed from the pessimistic branch's presumedDonePages."
-      - "Add a case that fails the manifest write after an authorized removal on the SEED route and asserts the recovery and the error log, mirroring the validate-route case; and a case where the post-removal rescan cannot enumerate, asserting the announced basis does not exceed the honest one."
-  - truth: "Every failing inspector action the user can tap reports why it failed (SC2 — the un-swept sibling of the retry-refusal fix)."
-    status: failed
-    reason: "15-69 fixed the branch the previous review named and left its sibling 25 lines below untouched — the branch-scoped shape this phase has re-opened in every round. `retryPagesDone(.failure)` now sets `state.toast = error.retryFailureToast` (DownloadInspectorReducer.swift:189-198). `toggleDownloadPauseDone(.failure)` is still `if case .failure = result { return .send(.loadInspection) }` (lines 221-225) — reload and say nothing. The failure is reachable on exactly the shape WR-04 named: `togglePause` answers `.failure` for a gallery whose status moved out of the toggleable set between the render and the tap, and for a gallery deleted underneath the inspector, so the row reverts and nothing tells the user why. The reducer owns the toast surface and uses it two branches away (`validateImageDataDone`, line 240), and the mapping added one screen away is directly reusable."
-    artifacts:
-      - path: "AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift"
-        issue: "toggleDownloadPauseDone(.failure) (221-225) surfaces nothing while the sibling retry branch (189-198) and the validation branch (238-241) both write state.toast."
-    missing:
-      - "Sweep EVERY `…Done(.failure)` branch in DownloadInspectorReducer and in DownloadsReducer for a silent failure, not just toggleDownloadPauseDone — enumerate each result-carrying action and state whether it reports or deliberately does not, so a future action cannot be added silently."
-      - "Rename the private `AppError.retryFailureToast` helper to something not retry-specific (e.g. `actionFailureToast`) since it now serves more than one branch."
-      - "Add a reducer case per newly-reporting branch, alongside the three retry cases 15-69 added."
-  - truth: "A load-bearing invariant this phase relies on is either enforced by construction or detected by a test — never left to a doc sentence that is false or unowned."
-    status: partial
-    reason: "Three unowned-invariant residuals, all confirmed against source. (a) 15-65's SUMMARY asserts sibling composition is 'proved by construction, not by inspection: the bracket's closure is non-async and all four callers are async, so none can be lexically nested inside one' (15-65-SUMMARY.md:35, 93, 125). That is FALSE as a general claim: `advanceQueueIntentGeneration(for:)` is a SYNCHRONOUS actor-isolated method (Manager.swift:852), and `withdrawingCountedBasisMovement`'s closure is non-escaping and non-Sendable, so it inherits the enclosing actor isolation and any synchronous actor method is callable inside it — a future queue-mobilizing path written inside a bracket body compiles today and would double-withdraw silently. The factual half holds at this HEAD: I re-derived all four call sites (RetryHelpers.swift:37 and :132, Scheduling.swift:360, PublicAPI.swift:115) and each is a top-level statement outside any bracket, with enqueue's advance at 115 landing after writeInitialManifest's bracket closes at 103. The SOURCE docs (ExecutionSupport.swift:268-275, Manager.swift:843-845) state only the true factual half, so the false claim lives in the planning artifact rather than in the code — but nothing DETECTS a nested advance, and `expectedBracketCallSites` counts calls, so a nested call would simply move a table. (b) `DownloadSourceInventoryTests` declares `downloadsTestFiles(in:)` (line 834) with ZERO callers — both double-fidelity censuses scope through `clientDoubleFiles` (616) and `clientDoubleTreeFiles` (652) — while its own header (line 27) and its scanned-set doc (lines 65-72) both name `downloadsTestFiles(in:)` as the scoping the censuses use, and never name `clientDoubleTreeFiles`, the function that actually decides the population. The suite that exists to abolish unowned doc claims contradicts itself, and Swift emits no warning for an unused private method. (c) Carried and still open for a third round: `waitForTaskValue`'s 10s default (DownloadFeatureTestHelpers.swift:104-106) lengthens two deliberate hang-detectors tenfold (DownloadDeleteConvergenceTests.swift:113, DownloadOwnershipConvergenceTests.swift:90), and the localized-key spelling split is unresolved and was WIDENED by 15-69 — I counted 10 `String(localized: .RLocalizable.…)` call sites against 9 bare `String(localized: .…)` ones in DownloadClient, with DownloadStore+Operations.swift now using both forms (`.downloadStoreFolderAlreadyExists` at 504 and 556 against `.RLocalizable.downloadStoreInvalidFolderName` at 656). Both of these were dropped at a previous `--gaps` boundary and are recorded here so they cannot vanish again."
-    artifacts:
-      - path: "AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift"
-        issue: "withdrawingCountedBasisMovement (282-295) forbids nesting in its doc and nothing detects a violation; the closure's non-escaping actor-isolation inheritance makes a nested synchronous advance compile."
-      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift"
-        issue: "downloadsTestFiles(in:) (834-836) has no caller; the header (27) and the scanned-set doc (65-72) describe a scoping the censuses do not use and never name clientDoubleTreeFiles."
-      - path: "AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift"
-        issue: "waitForTaskValue's 10s default (104-106) applies to the two suites whose purpose is to detect a MISSING notification, costing ten seconds per regression instead of one."
-      - path: "AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift"
-        issue: "Two spellings of the same localized-key access eight lines apart (504/556 bare against 656 prefixed); both keys 15-69 added took the minority bare spelling."
-    missing:
-      - "State the nesting property honestly in both source docs (ExecutionSupport.swift:268-275 and Manager.swift:843-845) — sibling composition is a convention enforced by review, not by the type system — and correct the SUMMARY's construction claim so a later round cannot reason from it. Then make it DETECTABLE: a withdrawal-depth counter around `movement()` with a `reportIssue` (not a crash) when it exceeds one, or a source census counting bracket tokens inside another bracket's brace span."
-      - "Delete downloadsTestFiles(in:) and rewrite DownloadSourceInventoryTests lines 27 and 65-72 FROM SOURCE, naming clientModuleFiles(in:), clientDoubleTreeFiles(in:) and clientDoubleFiles(in:) and saying 'the two trees' rather than 'this directory'. If the function is wanted for a future test-target-only census, add that census in the same change so the declaration has an owner."
-      - "Keep waitForTaskValue's 10s default for the scheduling-sensitive observer cases and pass an explicit short bound at the two sites whose purpose is to detect a missing notification."
-      - "Pick ONE localized-key spelling for the DownloadClient module — the RLocalizable. prefix is the majority — and apply it in a single mechanical pass across all 19 call sites, not just the two keys this round added."
-deferred: []
+  - truth: "SC2 — with no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work."
+    status: FAILING
+    found: "2026-08-19, on the device round this report asked for (15-UAT round 7, gap G-15-2I)"
+    evidence: |
+      The prescribed SC2 round was run on the test iPhone against this HEAD and the session was
+      reclaimed with 376 of 1542 pages outstanding. From Logs/ehpanda-20260819-120659-2.jsonl:
+      23 consecutive heartbeats at a byte-identical `1166 / 1542 pages, 0 in-flight subunits`
+      spanning 676 s, then "Continued-processing session expired, pausing schedulable downloads"
+      with "environment at expiry: network wifi, low power false, thermal fair". One transfer
+      (page 576) was reported starved at 12.6 s without bytes by `sweepStarvedPageTransfers` and was
+      then never completed, failed or retried — `InFlightPageTransfer.stallLogged` suppresses the
+      repeat, and nothing else acts on the detection.
+    two_candidate_root_causes: |
+      (1) The starved transfer is detected and not acted on. `pageTransferStallThreshold` is 10 s and
+          the sweep fires, but its only effect is a log line, so real progress never resumes.
+      (2) `updateProgress` has no way to express "still working, nothing to add". It publishes
+          `completedUnitCount * 1000 + inFlightSubunitCount` (ContinuedProcessingSession.swift:268-286);
+          both terms were frozen, and republishing an identical count is not an advance. The
+          heartbeat already computes this condition at
+          DownloadClient+ContinuedSessionHeartbeat.swift:96 but uses it only to suppress a log line.
+      Owner decision needed on which to take, and on the bound each carries.
+    not_a_regression_from: "f7e65497 — that commit does not touch DownloadClient+ContinuedSession.swift. This is the pre-existing stall-detector exposure round 6 happened not to hit."
+    bound: "The app was in the FOREGROUND throughout (agent-device `home` reported success without landing), so the backgrounded half of the SC2 procedure is still unobserved at this build. A foreground expiry is at least as severe."
+    owner_ruling_it_violates: "2026-08-17 — a session ending with downloads incomplete is unacceptable absent airplane mode or a network fault. The expiry probe recorded `network wifi`, so the precondition held."
+deferred:
+  - truth: "The downloads list reports why a refused Pause/Resume did nothing (the inspector's WR-05 refusal seen from the list)."
+    addressed_in: "deferred-items.md — routed as a presentation addition (new @Presents toast value, action case, .ifLet, view modifier), outside plan 15-73's stated no-behavior-change scope."
+    evidence: "DownloadsReducer.swift:36-41 and :387-393 state the disposition in source; deferred-items.md carries the full reasoning."
+  - truth: "`fetchDownloads` / `fetchFolders` throws have somewhere to go."
+    addressed_in: "deferred-items.md"
+    evidence: "DownloadsReducer.swift:251-255 and :288-292 `try await` inside `.run { }` with no `catch:`; neither action is result-carrying, which is why the failure has no channel. Logged out of scope during the 15-73 sweep."
+  - truth: "`AppPackage/Package.swift` is within the 1000-line `file_length` ERROR limit."
+    addressed_in: "deferred-items.md"
+    evidence: "1128 lines at this HEAD. Pre-existing (1129 before 15-75 removed one line) and outside this phase's subject."
+  - truth: "The eight download error-message keys are bridge-checked at compile time rather than hand-typed."
+    addressed_in: "deferred-items.md — routed as a Resources-module change (forward the 43 hand-written accessors to the already-generated STRING_CATALOG symbols)."
+    evidence: "15-UAT test 14, owner-closed 2026-08-17 with the question reframed from copy-pinning to bridge integrity."
+behavior_unverified_items_resolved_2026_08_19: |
+  The single item below was ANSWERED by the device round on 2026-08-19 and did NOT hold: see gaps
+  above (G-15-2I). It is kept for the procedure it specifies, which the round followed.
+behavior_unverified_items_original:
+  - truth: "SC2 — the system-provided progress UI reflects real download progress and its cancel affordance stops the queue, leaving download state consistent with an in-app cancel."
+    test: "On a physical iOS 26 device, on a build containing f7e65497: queue at least two galleries INCLUDING a `.repair` of a gallery whose files were deleted outside the app, start in the foreground, background the app, and watch the system card. Then cancel from the card, foreground, and compare queue state against pausing each gallery by hand."
+    expected: "The card's numerator never exceeds work actually done and never falls back within a reporting regime; the subtitle's gallery count holds steady across a gallery's completion; the repair climbs from its announce rather than freezing at the record's stale claim; card-cancel state matches the in-app per-gallery pause baseline. Additionally, on completion the gallery's folder is the one the record points at and no second folder was removed."
+    why_human: "The announced basis this card renders is exactly what f7e65497 changed — `WorkingSeed` lost `existingDownload` and `carriedUnprobedPages`, `authorizedReconciliationScan` now answers with the rescan directly, and `prepareWorkingSeed` hands the destination scan through unrebuilt. The only device evidence for SC2 is 15-UAT round 6, taken 2026-08-18 against build 260818-ek3, and the UAT was marked `complete` at 2026-08-18T12:30Z — both BEFORE f7e65497 existed (2026-08-19T01:24). The phase's own standard, recorded in 15-UAT under the G-15-2D precedent, is that a fix is not closed until a device shows it; that standard was applied to 13cad7d9 and 764c5958 and has not yet been applied to the phase's largest production delta. The system's grant, its card and process suspension do not occur in the simulator, so the 997-test suite cannot substitute."
+human_verification:
+  - test: "RUN 2026-08-19 — outcome recorded in gaps above. The round staged the prescribed fixture (a `.repair` of a gallery whose files were deleted outside the app, alongside two other galleries) and reached a confirmed defect before the card clauses could be judged."
+    expected: "SC2's card clauses hold as they did at round 6, and the run leaves the record's folder authoritative with no user folder removed."
+    result: "FAILED on session lifetime (G-15-2I). The parts that were reached PASSED: the wholesale guard refused as designed, the 27-page from-zero repair completed, the other gallery completed at 564 pages, and the subtitle's gallery count tracked the queue across three enqueues (denominator 564 -> 591 -> 1542)."
+  - test: "After an owner decision on G-15-2I and a fix, re-run the SC2 procedure BACKGROUNDED, including the card cancel, which round 7 never reached."
+    expected: "The session survives a zero-byte stretch or the stalled transfer is retried so the numerator moves; the queue drains; card-cancel state matches the in-app per-gallery pause baseline."
+    why_human: "Simulator neither grants continued-processing tasks nor renders the system card."
 ---
 
 # Phase 15: Continued Background Downloads Verification Report
 
 **Phase Goal:** Adopt `BGContinuedProcessingTask` (iOS 26) so a gallery download the user just started keeps running when the app is backgrounded, surfaced by the system-provided progress UI, instead of being cut short by the short grace period that bounded the previous behavior.
 
-**Verified:** 2026-08-10T10:32:45Z
-**Status:** gaps_found
-**Re-verification:** Yes — gap-closure round 19, after plans 15-65 … 15-69 and the third code review committed as `3c84d648`.
+**Verified:** 2026-08-19T10:35:00Z at `f9892824` (branch `feature/gsd-phase-15`, working tree clean)
+**Status:** gaps_found — one criterion (SC2) is FAILING after the 2026-08-19 device round
+**Re-verification:** Yes — the 2026-08-10 report is superseded in full.
+
+## What changed since the previous report
+
+The previous report (`status: gaps_found`, `score: 2/4`) was written against a tree that no longer
+exists. Between it and this HEAD:
+
+| Commit | Effect |
+|---|---|
+| `13cad7d9` | Froze the gallery folder leaf (G-15-2H); parent stays the caller's so an in-app move still relocates |
+| `764c5958` | Published a live run's credited page set on the row, badge and page states (G-15-2F) |
+| `8277ded7`, `15afbde4`, `9421b7bb` | Plan 15-77 — per-row delete confirmation and the swipe-delete choreography |
+| `421719a6`, `cf8a0748` | Fourth-review WR-02 and WR-04 |
+| `f7e65497` | **1260 deletions across 27 files** — retired the completion sweep `removeSupersededFolders` AND the whole repair-seed materialization |
+| `b0d2d57e` | Pinned that a full run leaves another folder of the same gallery untouched |
+
+`f7e65497` also changes what "correct" MEANS here. `CLAUDE.md` gained the principle *"Download
+folders are user-owned; guard one invariant, do not chase edge cases"* on 2026-08-19. The single
+invariant is that the download client never deletes a gallery folder it did not itself create in
+the same run; everything else about external Files-app mutation is best-effort by owner decision,
+and a rename-plus-stale-index leaving TWO folders is the accepted consequence rather than a defect.
+Every judgment below is made against that line.
 
 ## Goal Achievement
 
-### Observable Truths
+### Observable Truths — the roadmap's scope contract
 
-| # | Roadmap success criterion | Status | Evidence |
+ROADMAP.md maps no requirement IDs to this phase: *"the scope contract is this phase's four
+success criteria, referenced by plans as SC-labels."* These four are therefore the must-haves.
+
+| # | Truth | Status | Evidence |
 |---|---|---|---|
-| SC1 | A foreground-started download continues to completion after backgrounding, past the old `beginBackgroundTask` grace period. | ✓ VERIFIED | Unchanged by this delta — `git diff --name-only a4e51de7..HEAD` touches only `DownloadClient` and `DownloadsFeature` sources plus their tests; nothing under `BackgroundProcessingClient`, `App/`, or `AppFeature`. `ContinuedTaskScheduling.swift` is still the ONLY file in `App`, `AppPackage/Sources` or `ShareExtension` importing `BackgroundTasks` or touching `BGTaskScheduler`. A census for `BGProcessingTask`, `beginBackgroundTask`, `endBackgroundTask`, `BackgroundTaskClient`, `downloads.processing` and `downloads.assertion` returns zero hits (exit 1). `App/Info.plist:5-8` carries `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*` and `:166-169` the `processing` mode. Physical-device UAT test 1 (>60 s backgrounded) passed in an earlier round on an untouched path. |
-| SC2 | The system progress UI reflects real download progress; its cancel affordance stops the queue, leaving state consistent with an in-app cancel. | ✗ FAILED | The two gross defects from the previous round are genuinely closed at their roots (frozen monotonic floor; read-path deletion — see the verdict table below), and I re-derived both rather than trusting the summaries. But the fix that closed WR-01/WR-02 introduced a new SC2-bearing path: `prepareWorkingSeed` now sources `scanSucceeded` from its POST-removal rescan, and a rescan that fails after an authorized removal flips `inheritedPages` to its pessimistic branch, counting as inherited the very pages the same pass deleted — over-reporting the announced basis, the direction the announcement's own doc calls "the defect" — while the record is left claiming them with no recovery and no log. Gap 3. The inspector's pause branch also remains a silent failure (gap 4). |
-| SC3 | Best-effort submission, no fallback tier; refusal/queue/expiration suspend and resume next foreground with no lost or duplicated work and no user-visible error. | ✗ FAILED | The no-fallback-tier half is verified (census above; `.queue`, `.unavailable`, `.expired` and silent teardown wired through the self-finishing stream; device UAT test 3 passed). The record-convergence half fails twice. (1) **BLOCKER regression**: the delete/rename confinement predicate refuses user folders the app's own listing produces, so a folder visible in Downloads is now un-deletable and un-renameable from inside the app — gap 1. (2) `materializeRepairSeed` still deletes source-folder page files while nothing blanks the source manifest — the one site failing the round's own entitlement test, and a direct violation of the CLAUDE.md manifest-SSOT rule — gap 2. |
-| SC4 | A testable `BackgroundProcessingClient` seam exposes start / update-progress / complete with events on a self-finishing stream, `testValue` unimplemented, no reducer **or coordinator** touching the scheduler. | ✓ VERIFIED | Unchanged by this delta (no file under `AppPackage/Sources/BackgroundProcessingClient` appears in `git diff --name-only a4e51de7..HEAD`). The scheduler-isolation census still returns `ContinuedTaskScheduling.swift` alone across `App`, `AppPackage/Sources` and `ShareExtension`; no reducer or coordinator source imports `BackgroundTasks`. |
+| SC1 | A foreground-started download continues to completion after backgrounding, for a queue large enough to outlast the `beginBackgroundTask` grace period | ✓ VERIFIED | `BGContinuedProcessingTaskRequest` submitted at `ContinuedTaskScheduling.swift:102-110` behind a handler registered at `:87`; the coordinator starts its session at `DownloadClient+ContinuedSession.swift:430` with `.live` injected at `DownloadClient.swift:84`. `beginBackgroundTask` / `endBackgroundTask` = **0 hits** across `AppPackage/Sources`, `App`, `ShareExtension`, so the grace window it bounded is gone rather than fallen back to. Device: 15-UAT test 1 `result: pass` (physical iPhone, ≥3 galleries / ≥300 pages, >60 s backgrounded, no page lost or duplicated). Suite green at HEAD (see Behavioral Spot-Checks). |
+| SC2 | The system progress UI reflects real progress and its cancel affordance stops the queue, leaving state consistent with an in-app cancel | ❌ FAILING | The device round this report asked for was run 2026-08-19 at this HEAD and the session was reclaimed with 376 of 1542 pages outstanding, on `network wifi` with no airplane mode, after 676 s of a byte-identical numerator — one transfer starved at 12.6 s without bytes and was never retried. Filed as 15-UAT gap **G-15-2I**; the card's own clauses were never reached. The wiring itself is present and correct (`updateProgress` pushed at `ContinuedSession.swift:982`; the `.expired` arm calls `pauseAllSchedulable(expiring:)` at `:540-544`), and everything else the round exercised passed. Not a regression from `f7e65497`, which does not touch `DownloadClient+ContinuedSession.swift`. |
+| SC3 | Submission is best-effort with **no fallback tier**; refusal, indefinite queuing and expiration suspend and resume with no lost or duplicated work and no user-visible error; the discretionary processing-task path and the UIKit execution assertion are deleted outright | ✓ VERIFIED | `beginBackgroundTask`, `endBackgroundTask`, `BGProcessingTaskRequest` = **0 hits** repo-wide — deleted, not demoted. The `.unavailable` arm is silent by contract and logs only (`ContinuedSession.swift:545-549`), its doc stating the reason: *"nothing user-visible may follow, because no fallback tier exists."* `App/Info.plist` keeps `UIBackgroundModes: processing` as a documented deliberate retention (lines 162-165) and carries `BGTaskSchedulerPermittedIdentifiers = $(PRODUCT_BUNDLE_IDENTIFIER).continued.*` — the edit, not a new capability, exactly as discuss-phase resolved. Device: 15-UAT test 3 `result: pass` (refusal, expiration, force-quit; duplicates structurally precluded by index-keyed page filenames, losses checked through the inspector's hash-verifying Validate). |
+| SC4 | The capability is reached through a testable client seam in `BackgroundProcessingClient` exposing a continued-processing **session** API — start, update-progress, complete, with events on a self-finishing stream — with an unimplemented test value, so no reducer **or coordinator** touches the system task scheduler directly | ✓ VERIFIED (with a recorded owner deviation) | `@DependencyClient public struct BackgroundProcessingClient` exposes exactly `start` / `updateProgress` / `finish` (`BackgroundProcessingClient.swift:44`, `:60`, `:71`); `BackgroundProcessingSession` carries `events: AsyncStream<BackgroundProcessingEvent>` (`:10`) documented to finish itself after `expired`, `unavailable` or `finish`, so a consuming effect needs no external cancellation. `BGTaskScheduler` appears in **exactly one file repo-wide** — `BackgroundProcessingClient/ContinuedTaskScheduling.swift` — so no reducer and no coordinator reaches the scheduler. The unimplemented value is the macro-synthesized `BackgroundProcessingClient()`, proven by `testUnimplementedClientReportsAnIssueForEveryEndpoint` (`DownloadContinuedSessionTests.swift:13`). **Deviation:** SC4's literal wording says `testValue`; the owner selected option-b on 2026-07-29 (plan 15-16) to REMOVE the unread `DependencyKey` registration rather than preserve a false composition affordance, so the seam is direct constructor injection with `.noop` as the default and `.live` at the one composition root. Intent met; mechanism owner-changed and recorded. |
 
-**Score:** 2/4 truths verified (0 present-but-behavior-unverified)
+### Observable Truths — carried forward from the previous report
 
-### Verdict on the five closures this round claimed
+These five are the truths the 2026-08-10 report failed or partially failed. Each was re-derived
+against source at this HEAD, not read from a SUMMARY.
 
-Each verdict below was re-derived from source. I did not accept a SUMMARY assertion or the review's verdict without reading the code — and in two places (the `scanSucceeded` re-sourcing, the pre-delta `deleteFolder` construction) I went to `git show a4e51de7:…` to establish what actually changed.
-
-| Plan | Gap it closed | Independent verdict | Evidence |
+| # | Truth | Status | Evidence |
 |---|---|---|---|
-| 15-65 | CR-01 unbracketed generation advance | **Closed at its root** | The bracket lives on the MOVEMENT (`Manager.swift:852-856`), so all four callers and any future one are enclosed by construction rather than by enumeration. I re-derived the arithmetic: at the advance `hasSessionCreditReading` is still true, so `creditedAfter` is regime 3's zero rather than the `creditedBefore` fallback, and the withdrawal fires. All four sites (`RetryHelpers.swift:37`, `:132`, `Scheduling.swift:360`, `PublicAPI.swift:115`) are top-level statements outside any bracket; `writeInitialManifest`'s bracket closes at line 103 before the advance at 115. The new regression **discriminates**: it pins the re-queue frame at exactly `0 / 24` and the keeper series at `[1,2,3,4]`; pre-fix those are `4 / 24` and `[4,4,4,4]`, and its own doc explains why one-at-a-time is the only shape that can observe a below-floor quantity. This is the first round in this phase whose regression test provably crosses the defect. |
-| 15-66 | CR-03 reads still delete | **Closed at its root** | Ten `discardingRejected` declarations, all now defaulting `false`. Exactly THREE production sites still pass `true` (`ExecutionSupport.swift:384`, `Operations.swift:142`, `:171`) — I enumerated them myself rather than counting from the doc. `sanitizeLocalFilesIfNeeded` is DELETED, not defanged: the surviving `clearStaleDownloadErrorIfNeeded` keeps only the error-retraction half. `loadManifest`, `resumeMode` and `captureTarget` all take the non-mutating default. `DownloadReadPathNonMutationTests` asserts the file's bytes, its size, the manifest byte-identity AND a relaunched coordinator's persisted reading — a genuine two-sided discriminator. |
-| 15-67 | WR-01 guard basis / WR-02 refuted survivors | **Closed at its root, with a recovery gap at the new seam** | I verified the guard algebra against source, not the doc: the loop's blanked set is `claimed ∩ ¬unprobed ∩ ¬rejected ∩ ¬pages` and the caller's `positivelyAbsentPages` is `claimed − pages − rejected − unprobed` — set-identical; likewise the two refuted terms. An authorized removal moves a page between the terms, so the sum is invariant and the two guards cannot disagree. The mixed 2-page/3-page cases cross the discontinuity from both sides. The residual is the compensation, not the ordering — gap 3. |
-| 15-68 | CR-02 unconfined delete | **Escape closed at its root; the closure introduced a user-facing regression** | `userFolderURL(name:)` is gone (zero callers remain), every user-folder mutation is a `mutatingConfinedUserFolder` body with the resolution re-decided inside the lock, and the six-argument catalog asserts disk-then-records-then-verdict on every refusal. But the predicate is now too TIGHT for names the app's own listing produces — gap 1 — and `removeFolder(relativePath:)` still offers the deleted construction verbatim. |
-| 15-69 | WR-04 silent refusal / WR-05 fetch-time collapse | **Closed at its root, one sibling unswept** | `retryPagesDone(.failure)` sets the toast; the inadmissible selection carries `.fileOperationFailed(downloadStoreInvalidPageSelection)`, distinct from the two absence exits; `normalizeFetchedPayload` is `throws(AppError)` and fires at `ExecutionFetch.swift:208-212`, which I confirmed runs BEFORE `performDownload` — so nothing is blanked, announced, fetched or finalized when it throws. `toggleDownloadPauseDone(.failure)` 25 lines away is still silent — gap 4. |
+| CF1 | Every user folder the app lists is mutable from inside the app, and a destructive user-folder operation still cannot reach a filesystem target the caller did not name | ✓ VERIFIED | `confinedDirectUserFolderURL` (`DownloadStore+Operations.swift:507-527`) admits a source as written; all seven structural refusals kept; minting sites still normalize. `removeFolder(relativePath:)` = 0 hits. Positive half staged by `DownloadFolderAdmissionTests` (`Art  Books`, ` Photos`, `Manga\Vol1`, `Misc etc.`). Device: 15-UAT test 15 pass with fixtures made in the real Files app. |
+| CF2 | No act of the app destroys a page file without the same act durably reconciling the record that claims it | ✓ VERIFIED | The offending site is gone with its whole subsystem (`materializeRepairSeed`, `repairSeed`, `RepairSeed`, `RepairSeedContext`, `linkOrCopyReadableAsset` = 0 hits). One production `discardingRejected: true` remains (`ExecutionSupport.swift:504`, the cover — no recorded hash to diverge from), pinned at `expectedDiscardingRejectedTotal = 1`. |
+| CF3 | An authorized destructive reconciliation either completes durably or compensates and leaves a trail; the announced progress basis never over-reports | ✓ VERIFIED | Three post-removal exits all reach the shared `recoveredBlanking` (`ExecutionSupport.swift:475-495`); it logs the removed indices at `error` with a hash-masked gid (`PersistenceNormalize.swift:438-445`). `inheritedPages` subtracts `workingSeed.removedPages` before the pessimistic branch (`SeedReconciliation.swift:166`), closing the over-reporting direction. |
+| CF4 | Every failing inspector action the user can tap reports why it failed | ✓ VERIFIED | `retryPagesDone` and `toggleDownloadPauseDone` both set `state.toast` through the renamed shared `actionFailureToast` (`DownloadInspectorReducer.swift:214`, `:250`); the type doc carries the complete disposition census (`:10-27`). The list-reducer sibling is a dispositioned deferral, not a silent branch (see Deferred Items). |
+| CF5 | A load-bearing invariant this phase relies on is either enforced by construction or detected by a test — never left to a doc sentence that is false or unowned | ✓ VERIFIED | Bracket nesting is now DETECTED via a depth guard + `reportIssue` (`ExecutionSupport.swift:347-352`) with the doc corrected to say the type system refuses nothing (`:321-333`); `downloadsTestFiles(in:)` deleted; localized-key spelling 19 prefixed / 0 bare in `DownloadClient`; the 10 s `waitForTaskValue` bound is owner-ratified (15-UAT test 13, 2026-08-17) rather than inherited. |
+
+**Score:** 8/9 truths verified (1 present, behavior-unverified). No truth FAILED.
 
 ### Deferred Items
 
-None. Phase 16 is Dynamic Type Accessibility (human-implemented, agent verify-only) and its five success criteria address none of these gaps. No later milestone phase covers them.
+| # | Item | Addressed In | Evidence |
+|---|---|---|---|
+| 1 | `DownloadsReducer.toggleDownloadPauseDone(.failure)` reports nothing | deferred-items.md | Disposition stated in source at `DownloadsReducer.swift:36-41` and `:387-393`; closing it needs a toast surface the list reducer does not own |
+| 2 | `fetchDownloads` / `fetchFolders` throw into a `.run { }` with no `catch:` | deferred-items.md | `DownloadsReducer.swift:251-255`, `:288-292`; neither action carries a `Result` |
+| 3 | `AppPackage/Package.swift` is 1128 lines against a 1000-line `file_length` ERROR | deferred-items.md | Pre-existing (1129 before 15-75); outside this phase's subject |
+| 4 | Localized-key bridge integrity (43 hand-typed accessors) | deferred-items.md | 15-UAT test 14, owner-closed 2026-08-17 with the question reframed to a build-time fix |
+| 5 | Sentinel-fence replacement for the 10 s hang-detector wait | deferred-items.md | 15-UAT test 13 `follow_up` — needs no production change; ten seconds is "a settlement, not a resolution" |
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |---|---|---|---|
-| `AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift` | Injectable session API, unimplemented default | ✓ VERIFIED | Untouched by this delta; SC4 census holds. |
-| `AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift` | Main-actor lifecycle, self-finishing events | ✓ VERIFIED | Untouched by this delta. |
-| `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift` | Sole `BGTaskScheduler` boundary | ✓ VERIFIED | Still the only file importing `BackgroundTasks`. |
-| `App/Info.plist` | Continued-processing wildcard + processing mode | ✓ VERIFIED | Lines 5-8 and 166-169. Also the source of gap 1's reachability: `UIFileSharingEnabled` (170) and `LSSupportsOpeningDocumentsInPlace` (145) over a root in `Documents/`. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` | Self-bracketing queue-intent advance | ✓ VERIFIED | `advanceQueueIntentGeneration` (852-856) wraps its own increment. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceHelpers.swift` | Read-only entry with the side-effect sweep deleted | ✓ VERIFIED | The scan is deleted; `captureTarget` is a read. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift` | Reader entry that does not mutate | ✓ VERIFIED | `loadManifest` (273-291) validates on the non-mutating default. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+SchedulingHelpers.swift` | Non-mutating repair-versus-redownload question | ✓ VERIFIED | `resumeMode`'s validate (75-78) takes the default. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+WorkingManifestReconciliation.swift` | Combined-basis wholesale guard | ✓ VERIFIED | Line 235 guard, algebra re-derived. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` | Classify-authorize-remove ordering with compensation | ⚠️ PARTIAL | Ordering present (441-487); post-removal recovery, error log and the `scanSucceeded` disposition are missing — gap 3. |
-| `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift` | Confined folder mutations, opt-in destruction | ✗ DEFECTIVE | `mutatingConfinedUserFolder` is a real structural boundary, but its source predicate refuses listed folders (gap 1); `removeFolder(relativePath:)` (417-425) is dead public API reproducing the deleted construction; `materializeRepairSeed` (151-172) still deletes without reconciling (gap 2). |
-| `AppPackage/Sources/DownloadClient/DownloadStore.swift` | One agreed definition of a valid user-folder name | ✗ DEFECTIVE | `scanDownloads` (601-637) and `confinedDirectUserFolderURL` disagree — gap 1. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift` | Coordinator orchestration behind the boundary | ✗ DEFECTIVE | `deleteFolder` and `renameFolder` are both dead ends for a listed non-normalized folder. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+RetryHelpers.swift` | Distinct inadmissible-selection error | ✓ VERIFIED | `retryPages` (79-95): domain filter, empty refusal with its own error, ahead of every mutation. |
-| `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionFetch.swift` | Fetch-time collapse detection | ✓ VERIFIED | `normalizeFetchedPayload` throws at 208-212, before `performDownload`. |
-| `AppPackage/Sources/DownloadsFeature/DownloadInspectorReducer.swift` | Every failing tap reports why | ⚠️ PARTIAL | Retry branch reports (189-198); pause branch is silent (221-225) — gap 4. |
-| `AppPackage/Tests/DownloadsFeatureTests` | Regressions that discriminate the fixed defects | ⚠️ PARTIAL | The one-at-a-time session regression, the read-path non-mutation suite and the mixed-shape rejection pair all genuinely discriminate. The delete escape catalog covers only the refusal half; nothing covers the source-folder divergence, the post-removal recovery, or the silent pause failure. |
+| `AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift` | The session seam — start / updateProgress / finish, unimplemented default | ✓ VERIFIED | `@DependencyClient`; `.live` forwards to `ContinuedProcessingSession.shared`; `.noop` yields at every endpoint deliberately (G-15-36) so a double cannot certify the reentrancy window as impossible |
+| `AppPackage/Sources/BackgroundProcessingClient/ContinuedProcessingSession.swift` | Session store + the three-case event enum on a self-finishing stream | ✓ VERIFIED | `BackgroundProcessingEvent` = `granted` / `expired` / `unavailable`, each with its contract documented |
+| `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift` | The only file touching `BGTaskScheduler` | ✓ VERIFIED | Sole `BGTaskScheduler` / `BGContinuedProcessingTask` site repo-wide |
+| `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` | Coordinator side — start, heartbeat, expiry→pause, teardown | ✓ VERIFIED | `:430` start, `:982` updateProgress, `:450` / `:720` finish, `:540-549` expiry and unavailability arms |
+| `AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift` | `removeGalleryFolders` as the delete route's sole whole-gallery removal | ✓ VERIFIED | `:105-110`; the invariant and the retired sweep's history are on the declaration; one production caller (`PublicAPI.swift:241`, the user's own delete) |
+| `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift` | Source-vs-destination admission split | ✓ VERIFIED | `confinedDirectUserFolderURL:507`, `mutatingConfinedUserFolder:449`, re-resolution inside the lock at `:457` |
+| `AppPackage/Sources/DownloadsFeature/DownloadsView.swift` | Role-less red-tinted swipe delete; per-row confirmation anchor | ✓ VERIFIED | `.tint(.red)` at `:225` with the reason at `:214`; `.confirmationDialog` on the row at `:227`; context-menu Delete keeps `role: .destructive` at `:352` |
+| `App/Info.plist` | Continued-processing permitted-identifier wildcard | ✓ VERIFIED | `$(PRODUCT_BUNDLE_IDENTIFIER).continued.*`; `UIBackgroundModes: processing` retained with the asymmetric-failure argument written at lines 162-165 |
+| `AppPackage/Tests/DownloadsFeatureTests/DownloadProcessTests.swift` | The deletion-invariant pin | ✓ VERIFIED | `testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched:183` |
+| `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderAdmissionTests.swift` | The positive half of the folder catalog | ✓ VERIFIED | Non-normalized on-disk names staged and asserted to delete/rename |
+| `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift` | Censuses that make a silent regression fail a build | ✓ VERIFIED | `expectedDiscardingRejectedSites:443`, `expectedDiscardingRejectedTotal = 1:448` |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |---|---|---|---|---|
-| Foreground queue intent | `BackgroundProcessingClient.start` | `ensureContinuedSession` after enqueue/retry | ✓ WIRED | Unchanged by this delta. |
-| Download progress snapshot | System `Progress` | coordinator push → client → main-actor store | ⚠️ PARTIAL | The frozen-floor defect is closed and pinned by a discriminating test. One over-reporting path remains: a post-removal rescan failure flips the announced basis to its pessimistic branch (gap 3). |
-| System expiration/cancel event | Durable queue pause/cancel | self-finishing stream consumed by the coordinator | ✓ WIRED | Unchanged; device UAT confirmed cancel parity. |
-| `DownloadClient` / reducers | System scheduler | only through `BackgroundProcessingClient` | ✓ WIRED | Census clean. |
-| Reader open | Persisted manifest | `loadManifest` → validate | ✓ SAFE | Both halves are reads; asserted from both sides across a simulated relaunch. |
-| Listed user folder | `deleteFolder` / `renameFolder` | `confinedDirectUserFolderURL` | ✗ NOT WIRED | The predicate refuses names the listing produced; both mutating actions are dead ends for such a folder (gap 1). |
-| Repair seed source folder | Its own manifest | `materializeRepairSeed` | ✗ NOT SAFE | Files deleted; nothing blanks the source record (gap 2). |
-| Authorized removal | Durable blanking | `authorizedReconciliationScan` → blanking loop | ⚠️ PARTIAL | Ordering correct; the three post-removal exits have no compensation and no log (gap 3). |
-| Inspector pause refusal | User-visible feedback | `toggleDownloadPauseDone(.failure)` → toast | ✗ NOT WIRED | Silent (gap 4). |
+| `DownloadClient.swift:84` | `BackgroundProcessingClient.live` | `DownloadCoordinator(backgroundProcessingClient:)` | ✓ WIRED | The one composition root; default is `.noop`, so nothing reaches the system surface by accident |
+| `DownloadClient+ContinuedSession.swift:430` | `ContinuedProcessingSession.start` | `backgroundProcessingClient.start(…)` | ✓ WIRED | Counts recorded before submission so an immediately-launched task adopts real progress |
+| `DownloadClient+ContinuedSession.swift:982` | the system card | `backgroundProcessingClient.updateProgress(…)` | ✓ WIRED | Ownership-checked by `sessionID` so a caller that lost ownership cannot repaint a successor |
+| `ContinuedProcessingSession` events | `pauseAllSchedulable(expiring:)` | `.expired` arm, `ContinuedSession.swift:540-544` | ✓ WIRED | Card cancel and system reclaim share one signal by SDK design |
+| `DownloadClient+PublicAPI.swift:241` | `removeGalleryFolders` | user delete action only | ✓ WIRED | Sole caller; `keeping:` parameter gone with the sweep |
+| `DownloadInspectorReducer.swift:214/250` | `state.toast` | `error.actionFailureToast` | ✓ WIRED | Rendered through `.ifLet(\.$toast, action: \.toast)` at `:273` |
 
 ### Data-Flow Trace (Level 4)
 
-| Artifact | Data variable | Source | Produces real data | Status |
+| Artifact | Data Variable | Source | Produces Real Data | Status |
 |---|---|---|---|---|
-| Continued-session system card | `completedPageCount` / `pageCount` | live schedulable snapshot + retirement ledger + run bases | Yes | ⚠️ FLOWING; one over-reporting path on a post-removal rescan failure |
-| Continued-task request | title / subtitle / identifier | foreground queue intent + coordinator snapshot | Yes | ✓ FLOWING |
-| Durable queue resume | queued GIDs / modes / selections | `DownloadQueueStore` + per-gallery manifest | Yes | ✓ FLOWING |
-| Downloads list / badge completeness | manifest page hashes | persisted manifest (D-SSOT-07) | Yes | ✓ FLOWING on read paths; ✗ DIVERGES in a repair source folder after `materializeRepairSeed` |
-| Folder list → folder actions | `userFolders` from `scanDownloads` | filesystem listing | Yes | ✗ HOLLOW — the listing yields names the mutating actions refuse |
-| Inspector retry outcome | `state.toast` | `retryPagesDone` | Yes | ✓ FLOWING |
-| Inspector pause outcome | `state.toast` | `toggleDownloadPauseDone` | No | ✗ HOLLOW — the failure branch never writes it |
+| System progress card | `completedUnitCount` / `totalUnitCount` | The run's credited basis, published through `liveRunProgressBasis` (764c5958) and folded with in-flight sub-unit credit | Yes — `DownloadRunProgress` carries the run's credited page set; the record is the fallback only when no run stands | ✓ FLOWING |
+| Downloads row badge / inspector page states | `runProgress` on `DownloadedGallery` | Published at the announce, at every flush, and at every exit including one that no longer owns the active slot | Yes | ✓ FLOWING |
+| `WorkingSeed.existingPages` / `unprobedPages` / `scanSucceeded` | the post-removal reconciliation scan | `authorizedReconciliationScan` → `reconciliationScan` | Yes — all three members follow the same scan, so credit and blanking cannot answer from different probes | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
-Per the task brief the clean app-scheme build (0 warnings, SwiftLint build plugin clean) and the full `FeatureTests` run (950 tests, 0 failures, 22 targets) were established before verification and were NOT re-run; only one `xcodebuild` invocation may run at a time on this machine and no new one was needed. Every check below is a source-derived discriminator.
-
-| Behavior | Command / evidence | Result | Status |
+| Behavior | Command | Result | Status |
 |---|---|---|---|
-| Legacy fallback tier absent | `grep -rn "BGProcessingTask\|beginBackgroundTask\|endBackgroundTask\|BackgroundTaskClient\|downloads.processing\|downloads.assertion" --include="*.swift" App AppPackage/Sources ShareExtension` | no output (exit 1) | ✓ PASS |
-| Scheduler isolated to one module | `grep -rln "BGTaskScheduler\|import BackgroundTasks" --include="*.swift" App AppPackage/Sources ShareExtension` | `ContinuedTaskScheduling.swift` only | ✓ PASS |
-| Entitlement surface present | `grep -n -A4 "BGTaskSchedulerPermittedIdentifiers\|UIBackgroundModes" App/Info.plist` | wildcard + `processing` | ✓ PASS |
-| `userFolderURL(name:)` unreachable as a mutation target | `grep -rn "userFolderURL" AppPackage/Sources AppPackage/Tests` | one comment at `DownloadStore.swift:92`; zero declarations, zero callers | ✓ PASS |
-| Destructive default is opt-in | `grep -rn "discardingRejected" AppPackage/Sources` | 10 declarations, all `= false`; exactly 3 production `true` sites | ✓ PASS (entitlement fails at one of the three — gap 2) |
-| No unreferenced debt markers in delta files | `git diff --name-only a4e51de7..HEAD -- '*.swift' \| xargs grep -nE "TBD\|FIXME\|XXX\|swiftlint:disable"` | no matches (exit 1) | ✓ PASS |
-| Session regression discriminates its defect | Read `testKeeperPagesLandingOneAtATimeMoveTheCardAfterARequeue` (`DownloadContinuedSessionTests.swift:858-990`) | Pins the re-queue frame at `0/24` and the series at `[1,2,3,4]`; pre-fix `4/24` and `[4,4,4,4]`. Every landing is production-issued via `flushDownloadProgress(force: true)` | ✓ PASS — a genuine discriminator |
-| Read-path non-mutation covered from both sides | Read `DownloadReadPathNonMutationTests` | Asserts file type + zero size + `manifestAfter == manifestBefore` + `readingAfter == readingBefore` across a rebuilt coordinator | ✓ PASS |
-| Wholesale guard crosses the discontinuity | `grep -n "func test" DownloadValidationRejectionArmTests.swift` | `…MixedRejectedAndAbsentShapeRefuses…` (237) and `…MixedShapeBelowTheThresholdRemovesTheRefutedPageAndBlanksBoth…` (295) — both sides | ✓ PASS |
-| Delete escape catalog covers the ADMISSION half | Read `DeleteEscapeSource` (436-450) and `deleteEscapeTarget` (565-610) | Six arguments, all REFUSALS. `whitespacePaddedAlias` stages `"  Keeper  "` against the different real folder `Keeper`; no argument stages a folder whose own on-disk name is non-normalized | ✗ FAIL (uncovered — this is why gap 1 shipped green) |
-| Source-folder divergence covered | `grep -n "func test" DownloadCoordinatorRepairSeedTests.swift` | Seven cases; none asserts the SOURCE folder's manifest against its own page files after an interrupted repair | ✗ FAIL (uncovered) |
-| Post-removal recovery covered on the seed route | Read `authorizedReconciliationScan` + `recoveredBlanking` callers | `recoveredBlanking` is reachable only from `PersistenceNormalize`; no seed-route case fails a write after a removal | ✗ FAIL (uncovered) |
-| Silent pause failure covered | Read `DownloadInspectorReducer.swift:221-225` and the retry cases 15-69 added | No case asserts a toast on `toggleDownloadPauseDone(.failure)` | ✗ FAIL (uncovered) |
-| Inventory suite's own scoping claim true against source | `grep -n "downloadsTestFiles\|clientDoubleTreeFiles" DownloadSourceInventoryTests.swift` | `downloadsTestFiles(in:)` declared at 834, ZERO callers; censuses use `clientDoubleFiles` (616) and `clientDoubleTreeFiles` (652); docs at 27 and 65-72 name the wrong one | ✗ FAIL |
-| Localized-key spelling consistent | `grep -rn "String(localized: \.RLocalizable\." AppPackage/Sources/DownloadClient \| wc -l` vs the bare form | 10 prefixed against 9 bare; `DownloadStore+Operations.swift` uses both | ✗ FAIL |
-
-**Green tests are not evidence for gaps 1-4.** In every case I identified the precise reason the suite cannot observe the defect: the delete catalog stages only refusals, the repair-seed suite never inspects the source folder's record, no seed-route case fails a write after an authorized removal, and no inspector case exercises the pause failure branch.
+| Full `AppPackage-Package` suite at HEAD | `xcrun xcresulttool get test-results summary` over the run bundle in `$HOME/Library/Developer/Xcode/DerivedData/AppPackage-*/Logs/Test/Test-AppPackage-Package-2026.08.19_08-49-41-+0900.xcresult` | `result: Passed`, `totalTestCount: 997`, `passedTests: 986`, `expectedFailures: 11`, `failedTests: 0`, `skippedTests: 0` on iPhone 17e / iOS 26.4.1. Run started 08:49:41, **after** HEAD `f9892824` was committed at 08:48:22, with a clean working tree — so this is a green run at this exact tree, re-derived from the result bundle rather than from a log tail or a SUMMARY claim. | ✓ PASS |
+| Single named test (`testAFullRunLeavesAnotherFolderOfTheSameGalleryUntouched`) | `xcodebuild test -scheme AppPackage-Package -only-testing:…` | `** TEST SUCCEEDED **` but the result bundle reports `totalTestCount: 0` — `-only-testing:` does not filter through this package scheme. **The named-test path is unavailable in this project**; the full-suite bundle above is the substitute, and it contains the case. | ? SKIP |
+| Retired-symbol sweep | `grep -rn` over `AppPackage/Sources`, `AppPackage/Tests`, `App` for `removeSupersededFolders`, `materializeRepairSeed`, `RepairSeedContext`, `linkOrCopyReadableAsset`, `repairSeed`, `RepairSeed`, `removeFolder(relativePath:`, `downloadsTestFiles`, `LogsDirectoryMigration` | 0 hits for every pattern (the only `RepairSeed` matches are test-local helper names such as `makeRepairSeedPayload`) | ✓ PASS |
+| Fallback-tier sweep | `grep -rn "beginBackgroundTask\|endBackgroundTask\|BGProcessingTaskRequest"` over `AppPackage/Sources`, `App`, `ShareExtension` | 0 hits | ✓ PASS |
+| Scheduler confinement | `grep -rn "BGTaskScheduler\|BGContinuedProcessingTask"` over `AppPackage/Sources`, `App` | Confined to `BackgroundProcessingClient/ContinuedTaskScheduling.swift` (plus the `Info.plist` key) | ✓ PASS |
+| Localized-key spelling census | `grep` over `AppPackage/Sources/DownloadClient` | 19 `RLocalizable.`-prefixed, 0 bare | ✓ PASS |
+| `discardingRejected: true` census | `grep -rn` over Sources | 1 production site (`ExecutionSupport.swift:504`) + 1 test site; matches `expectedDiscardingRejectedTotal = 1` | ✓ PASS |
 
 ### Probe Execution
 
-Skipped: no Phase 15 plan or summary declares a probe, and no `scripts/*/tests/probe-*.sh` exists in the repository.
+No `scripts/*/tests/probe-*.sh` exist in this repository and no plan or summary in this phase
+declares a probe. Step skipped as not applicable — the phase's runnable check is the package test
+suite, executed above.
 
 ### Requirements Coverage
 
-`.planning/REQUIREMENTS.md` maps no requirement ID to Phase 15 (zero matches for "Phase 15"); ROADMAP.md line 805 states this explicitly. Traceability is against the four SC labels as cited in each plan's `requirements:` frontmatter. All four are declared across the 69 plans and all four are accounted for. No orphaned requirement exists.
-
-| Label | Declared by | Status | Evidence |
-|---|---|---|---|
-| SC1 | 33 plans | ✓ SATISFIED | Continued-processing request path, entitlements, scheduler isolation, earlier device UAT test 1. Untouched by this delta. |
-| SC2 | 48 plans | ✗ BLOCKED | Gaps 3 and 4. The two gross defects from the previous round are closed. |
-| SC3 | 22 plans | ✗ BLOCKED | Gaps 1 (blocker) and 2. The no-fallback-tier half is satisfied; the record-convergence half is not. |
-| SC4 | 9 plans | ✓ SATISFIED | Client seam, unimplemented default, self-finishing stream, scheduler isolation. Untouched by this delta. |
+ROADMAP.md maps **no** requirement IDs to Phase 15 (*"Requirements: None mapped — the scope
+contract is this phase's four success criteria"*), and no orphaned Phase-15 rows appear in
+`REQUIREMENTS.md`. Coverage is therefore the SC table above.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |---|---|---|---|---|
-| `DownloadStore+Operations.swift` | 417-425 | Dead `public` API reproducing a construction the same round deleted for being unsafe | ⚠️ Warning | `storage.removeFolder(relativePath: name)` is a one-line rewrite of the CR-02 defect; nothing owns it (no caller, no census, no test) |
-| `DownloadStore+Operations.swift` | 166-167 | Comment conceding an unanswered correctness question at a destructive site | ⚠️ Warning | The entitlement rule the round adopted is stated as violated in place — gap 2 |
-| `DownloadSourceInventoryTests.swift` | 834-836, 27, 65-72 | Unused private method + doc naming a scoping the code does not use | ⚠️ Warning | The suite built to abolish unowned doc claims contradicts itself; Swift warns on neither |
-| `15-65-SUMMARY.md` | 35, 93, 125 | Load-bearing structural claim that is false ("nesting refused by the type system") | ⚠️ Warning | Third consecutive round in which an executor's structural claim was refuted on review; a later round reasoning from it would land wrong |
-| `DownloadClient` module | 19 call sites | Two spellings of the same localized-key access | ℹ️ Info | IN-02, widened by 15-69 |
-| `DownloadFeatureTestHelpers.swift` | 104-106 | 10s default bound applied to deliberate hang-detectors | ℹ️ Info | IN-01, unchanged for three rounds |
-| `DownloadClient+ExecutionSupport.swift` | 448-455 | No sweeper for refuted files of pages the manifest does not claim | ℹ️ Info | IN-03 — the probe's first-writer rule keeps correctness intact; the accumulation is cosmetic. **No action required**; recorded so a future round does not rediscover it as a defect |
+| — | — | `TBD` / `FIXME` / `XXX` across `DownloadClient`, `DownloadsFeature`, `BackgroundProcessingClient`, `DownloadsFeatureTests` | — | **0 hits.** No unreferenced debt marker in any module this phase touched; the debt-marker gate does not fire. |
+| — | — | `TODO` / `HACK` / `PLACEHOLDER` across the same modules | — | **0 hits.** |
+| `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` | 721-735 vs 737-746 | Doc enumeration narrower than the behavior it describes | ⚠️ Warning | `setupWorkingFolder`'s doc says the wipe is licensed by *"the user's own start mode — `.redownload` and `.update` ask for the folder's contents to be replaced."* A third branch also produces `shouldReuse == false`: `.initial` where the folder exists and its manifest's gid/token/pageCount do not match the payload (`:705-713`). The wipe target is still the run's own working-folder path, so the CLAUDE.md invariant is not crossed, and the reachable shapes are external mutations the same principle explicitly declines to chase — but CF5's standard is that no doc sentence be narrower than the code, and this one is by one branch. Doc-only fix; no behavior change implied. |
 
 ### Human Verification Required
 
-Nothing this round requires a device to DECIDE — every gap above is statically observable and every closure was confirmed against source. The following are the phase's standing device-dependent items, already satisfied by the earlier six-item physical-device UAT and re-listed only because they cannot be re-established statically after any change to the session path. **No new device run is needed for this verification**, since `git diff a4e51de7..HEAD` touches neither `BackgroundProcessingClient` nor `App/`.
+#### 1. Re-run the backgrounded queue and a repair on a build containing `f7e65497`
 
-1. **Backgrounded continuation past the grace period (SC1)** — start a queue large enough to outlast `beginBackgroundTask`, background the app, confirm completion. Passed in an earlier round; path untouched.
-2. **System progress card and its cancel affordance (SC2)** — confirm the card's fraction tracks real progress and that its cancel leaves state identical to an in-app cancel. Passed in an earlier round for the progress-handoff redesign (plans 54-60). **Re-run this one after gap 3 is closed**, since that gap sits on the announced-basis path.
+**Test:** On a physical iOS 26 device, on a build containing `f7e65497`: queue at least two
+galleries **including** a `.repair` of a gallery whose files were deleted outside the app; start in
+the foreground; background the app; watch the system card through both galleries. Then start
+another queue and cancel from the card, foreground, and compare queue state against pausing each
+gallery by hand.
 
-### Gaps Summary
+**Expected:** The card's numerator never exceeds work actually done and never falls back within a
+reporting regime; the subtitle's gallery count holds steady across a gallery's completion; the
+repair climbs from its announce rather than freezing at the record's stale claim; card-cancel state
+matches the in-app per-gallery pause baseline. On completion, the gallery's files are in the folder
+the record points at and **no** folder was removed that this run did not create.
 
-Round 19 is the first in many where every closure the round attempted holds at its root — and I confirmed all five independently, including the two the previous round's regressions were hiding behind. The 15-65 regression test is notable: it is the first in this phase written in a shape that provably crosses the discontinuity it pins.
+**Why human:** `f7e65497` is the phase's largest production delta (1260 deletions across 27 files)
+and it lands squarely on the announced basis the card renders — `WorkingSeed` lost
+`existingDownload` and `carriedUnprobedPages`, `authorizedReconciliationScan` now answers with the
+rescan directly, and no classification crosses a folder boundary any more. The only device evidence
+for SC2 is 15-UAT round 6 against build `260818-ek3`, and the UAT file was marked `complete` at
+2026-08-18T12:30Z — both strictly before that commit existed. The phase set its own bar here: under
+the G-15-2D precedent recorded in 15-UAT, *"a fix is not closed until a device shows it,"* and that
+bar was honoured for `13cad7d9` and `764c5958` but not yet for `f7e65497`. The simulator neither
+grants continued-processing tasks nor renders the system card, so the green 997-test suite cannot
+stand in for this.
 
-What remains is the phase's own recurring shape, twice over. **Gap 1** is the sharpest instance yet: a confinement predicate correct for names the app GENERATES was applied to names the app LISTS, and the two surfaces were never reconciled — so hardening delete against a nested-path escape broke delete for real folders, and the escape catalog could not fail because it stages only refusals. The producing surface (`scanDownloads`) and the consuming predicate (`confinedDirectUserFolderURL`) must be made to agree, and the predicate is the side that must move. **Gap 4** is the same branch-scoped fix the phase has re-opened in every round: the retry branch was fixed and its sibling 25 lines below was not.
+## Gaps Summary
 
-**Gaps 2 and 3** are both manifest-SSOT violations under CLAUDE.md's phase invariant, and both are "the ordering was copied, the compensation was not": `materializeRepairSeed` deletes source-folder files while blanking a different folder's record, and `authorizedReconciliationScan` reproduces the validate route's classify-guard-remove-rescan-blank sequence without its recover-once-and-log step, while newly letting a post-removal rescan failure over-report the announced progress basis. **Gap 5** collects the unowned invariants — a false structural claim in a summary with nothing detecting its violation, a self-contradicting census suite, and the two Info findings that have now been dropped at a `--gaps` boundary once already.
+**One gap, opened 2026-08-19 by the device round this report prescribed: G-15-2I, SC2 FAILING.**
+A continued-processing session was reclaimed with 376 of 1542 pages outstanding, on `network wifi`
+with no airplane mode — 23 heartbeats at a byte-identical `1166 / 1542` across 676 s, after one
+transfer starved at 12.6 s without bytes and was never completed, failed or retried. It is not a
+regression from any commit in this phase's recent rounds: `f7e65497` does not touch
+`DownloadClient+ContinuedSession.swift`, and the exposure predates it. Two candidate root causes are
+recorded in 15-UAT under G-15-2I — the unactioned starve detection, and the card's inability to
+express "still working, nothing to add" — and an owner decision is needed before a fix. The rest of
+the round passed, including the wholesale refusal, a 27-page from-zero repair, and the subtitle's
+gallery count across three enqueues. Note also that the app was in the FOREGROUND throughout, so the
+backgrounded half of the SC2 procedure remains unobserved at this build.
 
-Every `missing[]` above is written as an all-exit-path sweep requirement rather than a call-site patch, so the next round is scoped correctly from the start.
+**No OTHER gaps.** Every item the 2026-08-10 report recorded — four failed truths, one partial
+truth, three regressions and two carried residuals — is closed at this HEAD, and in each case at the
+root rather than at the branch that was named:
+
+- The user-folder confinement regression is closed by moving the CONSUMING predicate (which the
+  previous report identified as the side that had to move), not by tightening the listing, and the
+  missing positive half of the test catalog now exists as its own suite and was proved on a device
+  with fixtures made in the real Files app.
+- The unreconciled destructive site is closed by deleting the subsystem that contained it, and the
+  census that would have caught a fourth such site is pinned at 1.
+- The dropped compensation is closed by SHARING the validate route's implementation across both
+  routes — the exact remedy the previous report asked for over re-implementation — and the
+  over-reporting direction is closed by subtracting this pass's removals from the pessimistic
+  branch.
+- The silent inspector branch is closed with a full enumeration in the type doc rather than a second
+  branch fix, which is the pattern the previous report said this phase had re-opened every round.
+- All four unowned-invariant residuals are resolved, two of them (the 10 s wait bound, the
+  error-text pinning question) by explicit owner ratification rather than by an agent's own call.
+
+What remains is **not** a gap but a staleness of evidence: the phase's largest production delta
+landed after its last device round and after its UAT was closed, so SC2 — whose only proof is a
+device observation — is present, wired and suite-green at this HEAD but not behaviorally proven on
+it. That is one device session's work, not a code change, and it is why this report reads
+`human_needed` rather than `passed`.
+
+Two documentation inconsistencies are worth correcting but block nothing and are not counted
+against the score:
+
+1. `ROADMAP.md` § Phase 15 reads **"Plans: 76/77 plans executed"** while the progress table row
+   reads **77/77**. Plan 15-77 has commits on the branch (`8277ded7`, `15afbde4`) and a device-passed
+   UAT checkpoint (test 7), but **no `15-77-SUMMARY.md`** — 15-UAT already flags this and carries the
+   deliverable through the plan's own `must_haves` instead of a coverage block.
+2. `deferred-items.md` still lists two ROADMAP staleness items (a missing Phase 16 progress row, an
+   execution-order line that stops at 15) which remain true at this HEAD.
 
 ---
 
-_Verified: 2026-08-10T10:32:45Z_
+_Verified: 2026-08-19T10:35:00Z_
 _Verifier: Claude (gsd-verifier)_

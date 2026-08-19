@@ -1,16 +1,16 @@
 ---
-status: complete
+status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-18T12:30:00Z
-round: 6
+updated: 2026-08-19T03:55:00Z
+round: 7
 ---
 
 ## Current Test
 
-number: —
-name: all tests and all gaps resolved
+number: 2
+name: system progress card — SC2 re-run at build f9892824 (round 7)
 expected: |
   All fifteen checkpoints are resolved: 13 pass, 0 issues. Test 8 closed 2026-08-17 with the owner
   choosing row anchoring and directing the AGENTS.md rule amendment. Test 2 closed at round 6 on
@@ -18,10 +18,19 @@ expected: |
   independent backgrounded sessions, every one of which drained with a terminal push and none of
   which expired.
 
-  The last two open gaps closed the same day on the 260818-mjs build (3433cbeb), both on the test
-  iPhone: G-15-2H (13cad7d9) against a folder renamed in Files.app, and G-15-2F (764c5958) against a
-  rebuilt wholesale-refusal fixture. Nothing is awaiting a device.
-awaiting: nothing
+  The two gaps open at round 6 closed on the 260818-mjs build (3433cbeb), both on the test iPhone:
+  G-15-2H (13cad7d9) against a folder renamed in Files.app, and G-15-2F (764c5958) against a rebuilt
+  wholesale-refusal fixture.
+
+  ROUND 7 REOPENED TEST 2. The SC2 re-run required by 15-VERIFICATION — a multi-gallery queue
+  including a `.repair`, on a build containing f7e65497 — was started on 2026-08-19 and produced a
+  CONFIRMED DEFECT before its card clauses could be judged: a continued-processing session was
+  reclaimed with 376 pages outstanding, on healthy Wi-Fi with no airplane mode, after 676 s of a
+  byte-identical numerator caused by one transfer that starved and was never retried. Filed as
+  G-15-2I. Everything else the round exercised passed (wholesale refusal, the 27-page repair, the
+  subtitle's gallery count across three enqueues).
+awaiting: an owner decision on G-15-2I's two candidate root causes, then a fresh SC2 round —
+  backgrounded this time — on a build carrying the fix
 
 ## Tests
 
@@ -52,7 +61,41 @@ expected_note: |
   basis; do not carry their wording forward.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: pass
+result: issue
+result_note: |
+  PASSED at round 6 against build 260818-ek3. REOPENED at round 7 (2026-08-19) against build
+  f9892824, where the re-run 15-VERIFICATION asked for surfaced G-15-2I — a session reclaimed with
+  the queue undrained, on healthy Wi-Fi with no airplane mode. The card's own clauses were not
+  reached at round 7; the run ended before they could be judged. Round 6's verdict is not withdrawn,
+  it is superseded for this build.
+retest_round_7_result: issue
+retest_round_7_date: 2026-08-19
+retest_round_7_build: f9892824 (13cad7d9 folder-leaf freeze, 764c5958 run-progress overlay, f7e65497 folder-deletion invariant)
+retest_round_7_reported: |
+  Staged on the test iPhone (physical iPhone 11, iOS 26.6) as the verification report prescribed: a
+  multi-gallery queue including a `.repair` of a gallery whose files were deleted outside the app.
+  The repair fixture was rebuilt by deleting `[4108805_3186cf251f] Onna no Battle` in Files.app and
+  restoring ONLY its manifest.json, so the record claimed 27/27 with zero image files.
+
+  WHAT PASSED
+    - Validate on that gallery flipped the header to "Needs Attention 27/27" with the page groups
+      unchanged at Downloaded (27) / Pending (0) / Failed (0) — the all-or-nothing wholesale guard
+      refusing, as G-15-2G established.
+    - Retry Pages queued it ("Queued 27/27" while another gallery held the single download slot),
+      and the repair later completed at 27/27.
+    - The second gallery reached `Download completed ... pages: 564`.
+    - The subtitle's gallery count tracked the queue across three enqueues, with the denominator
+      moving 564 -> 591 -> 1542 as galleries joined.
+
+  WHAT FAILED
+    G-15-2I. With 376 pages still outstanding the continued-processing session was reclaimed:
+    23 consecutive heartbeats at a byte-identical 1166 / 1542 spanning 676 s, then
+    "Continued-processing session expired, pausing schedulable downloads" with the environment probe
+    reading `network wifi, low power false, thermal fair`. One transfer (page 576) reported starved
+    at 12.6 s without bytes and was then never completed, failed or retried. See G-15-2I for the
+    full trace, the two candidate root causes and the bounds on the observation — in particular that
+    the app was in the FOREGROUND throughout, because `agent-device home` did not land, so the
+    backgrounded case the SC2 procedure asks for is still unobserved at this build.
 retest_round_6_result: pass
 retest_round_6_date: 2026-08-18
 retest_round_6_build: 260818-ek3 (e68ca491 pump serialization, 1f9c3f34 in-flight page-byte credit)
@@ -771,15 +814,22 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 13
-issues: 0
+passed: 12
+issues: 1
 pending: 0
 skipped: 0
 blocked: 0
 obsolete: 2
 
 completion_note: |
-  Every checkpoint carries a definitive result and NO checkpoint is failing. G-15-2D — the system
+  ROUND 7 (2026-08-19) REOPENED TEST 2, so one checkpoint is now failing. The SC2 re-run that
+  15-VERIFICATION required — on a build containing f7e65497 — produced G-15-2I: a continued-processing
+  session reclaimed with 376 pages outstanding, on healthy Wi-Fi with no airplane mode, after 676 s
+  of a byte-identical numerator caused by a starved transfer that was detected and then never
+  retried. Test 2's own card clauses were not reached; the run ended first. Round 6's pass stands for
+  build 260818-ek3 and is superseded only for this build. Everything else round 7 exercised passed.
+
+  The paragraphs below describe the state as of round 6 and remain accurate for that build. G-15-2D — the system
   Background Activities surface reporting "Task failed" for a two-gallery session that completed —
   was diagnosed to Apple's stall detector and closed on device at round 6 (2026-08-18) against
   build 260818-ek3: four independent backgrounded sessions, all four drained with a terminal push,
@@ -867,6 +917,84 @@ Plan 15-77 has NO SUMMARY.md, so it has no coverage block at all. Its deliverabl
 test 7 via the plan's own `must_haves` and its commits on the branch.
 
 ## Gaps
+
+- gap_id: G-15-2I
+  truth: "With no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work: a transfer that stops producing bytes is abandoned and retried, and the session is not reclaimed for want of something to report."
+  status: open
+  severity: confirmed-defect
+  found: "2026-08-19, round 7, on the SC2 re-run against build f9892824 (13cad7d9 + 764c5958 + f7e65497)"
+  observed: |
+    A continued-processing session was reclaimed by the system with 376 pages still to download,
+    under exactly the conditions the owner's 2026-08-17 ruling declares unacceptable. From
+    `Logs/ehpanda-20260819-120659-2.jsonl` (times UTC; local is +9):
+
+      03:32:26  heartbeat 1166 / 1542 pages, 0 in-flight subunits, 3 galleries, 1 transfers in flight
+      03:32:36  Page transfer starved, page 576, created foreground,
+                12593 ms without bytes, still transferring
+        ...     23 consecutive heartbeats, numerator BYTE-IDENTICAL at 1166 / 1542 and
+                in-flight subunits 0 throughout, spanning 676 s (11 min 16 s)
+      03:43:42  heartbeat 1166 / 1542            <- last flat beat
+      03:43:50  Continued-processing session expired, pausing schedulable downloads
+      03:43:50  environment at expiry: network wifi, low power false, thermal fair
+      03:43:50  Download paused
+
+    `network wifi`, thermal fair, no airplane mode, low power off. The queue was NOT drained: the
+    session died at 1166 of 1542 pages and the schedulable downloads were paused.
+
+    The `Page transfer starved` line appears exactly ONCE — `InFlightPageTransfer.stallLogged`
+    suppresses repeats — and page 576's transfer thereafter never completed, never failed and was
+    never retried. It hung for the whole 11 minutes until the session was reclaimed.
+
+    NOT OBSERVED, stated as inference only: whether the system painted a "Task failed" card. The
+    card was not captured before teardown. Per the G-15-2D code analysis recorded in this file,
+    expiration is one of exactly two paths reaching `setTaskCompleted(success: false)` on an adopted
+    task, so a failure card is the expected consequence — but this run did not confirm it.
+  two_candidate_root_causes: |
+    (1) A STARVED TRANSFER IS DETECTED AND THEN NOT ACTED ON — the likelier primary cause here.
+        `DownloadCoordinator.pageTransferStallThreshold` is 10 s and `sweepStarvedPageTransfers`
+        does fire, but its only effect is the log line above. Nothing cancels the transfer, fails
+        the page, or schedules a retry, so real progress never resumes. Had the hung transfer been
+        abandoned after some bound, the numerator would have moved and no expiry would have followed.
+
+    (2) THE CARD HAS NO WAY TO SAY "STILL WORKING, NOTHING TO ADD" — the second line of defence.
+        `updateProgress` publishes `completedUnitCount * 1000 + inFlightSubunitCount`
+        (`ContinuedProcessingSession.swift:268-286`). Both terms were frozen here: no page landed and
+        the starved transfer earned no bytes, so republishing the identical count is not an advance
+        and the scheduler treats the task as stalled. The heartbeat already COMPUTES this condition —
+        `DownloadClient+ContinuedSessionHeartbeat.swift:96` compares `completedSubunits` against the
+        previous summary — but uses it only to suppress a duplicate log line.
+
+    The two are not alternatives. (1) alone leaves every other zero-byte-but-legitimate wait exposed
+    (a 509 rate-limit back-off, a discretionary background transfer the system defers). (2) alone
+    would keep a session alive indefinitely on a download that will never progress, which conflicts
+    with this file's own honesty clause on the card's numerator. An owner decision is needed on
+    whether to take one, the other, or both, and on what bound each carries.
+  bounds_on_this_observation: |
+    - THE APP WAS IN THE FOREGROUND for the whole window. `agent-device home` reported success but
+      did not land (on this device ref presses and `home` frequently report success without taking
+      effect; only coordinate presses are reliable), so this is not the backgrounded scenario the
+      SC2 procedure asks for. A foreground expiry is at least as bad, but the backgrounded case
+      remains unobserved at this build.
+    - NOT A REGRESSION FROM f7e65497. That commit does not touch
+      `DownloadClient+ContinuedSession.swift`; this is the pre-existing stall-detector exposure that
+      round 6 happened not to hit. Round 6's seven sessions all had a moving numerator.
+    - The stall is a genuine network-level hang, NOT a progress-accounting shortfall. This is the
+      opposite shape from G-15-2D, which was real byte movement that the page-granular numerator
+      could not express and which 1f9c3f34 fixed by adding resolution. Here there was no movement
+      to find.
+  what_else_this_round_showed: |
+    Everything the round exercised besides the session lifetime behaved correctly at this build:
+      - the wholesale guard refused as designed — Validate on a manifest-only gallery flipped the
+        header to "Needs Attention 27/27" with `Downloaded (27) / Pending (0) / Failed (0)` unchanged
+      - that gallery's 27-page from-zero repair completed and the row settled at 27/27
+      - `Download completed ... pages: 564` for the second gallery
+      - the subtitle's gallery count tracked the queue: 1 gallery, then 2 at the repair's enqueue
+        (denominator 564 -> 591), then 3 when a third was resumed (-> 1542)
+  why_it_matters: |
+    This is the exact class the owner ruled on 2026-08-17: "在沒有飛航模式、網路異常等情況時 session
+    在下載未完成的情況下結束是不能接受的". The environment probe recorded at expiry says the
+    precondition held, so this observation is inside the ruling, not excused by it.
+  blocks: "SC2. The criterion cannot be judged verified while a device run at this build ends a session early with the queue undrained."
 
 - gap_id: G-15-11
   truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
