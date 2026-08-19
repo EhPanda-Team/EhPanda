@@ -3,7 +3,7 @@ status: testing
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-19T03:55:00Z
+updated: 2026-08-19T08:20:00Z
 round: 7
 ---
 
@@ -29,8 +29,9 @@ expected: |
   byte-identical numerator caused by one transfer that starved and was never retried. Filed as
   G-15-2I. Everything else the round exercised passed (wholesale refusal, the 27-page repair, the
   subtitle's gallery count across three enqueues).
-awaiting: an owner decision on G-15-2I's two candidate root causes, then a fresh SC2 round —
-  backgrounded this time — on a build carrying the fix
+awaiting: a fresh SC2 round — backgrounded this time — on a build carrying the G-15-2I fix
+  (2a2c5982 starved-transfer abandonment + d6079878 bounded stall nudge, quick task 260819-lq3;
+  the owner decided both halves on 2026-08-19 and both landed the same day)
 
 ## Tests
 
@@ -945,7 +946,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2I
   truth: "With no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work: a transfer that stops producing bytes is abandoned and retried, and the session is not reclaimed for want of something to report."
   status: open
-  severity: confirmed-defect
+  severity: confirmed-defect (fixed in 2a2c5982 + d6079878; device verification pending)
   found: "2026-08-19, round 7, on the SC2 re-run against build f9892824 (13cad7d9 + 764c5958 + f7e65497)"
   observed: |
     A continued-processing session was reclaimed by the system with 376 pages still to download,
@@ -1166,6 +1167,86 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       record's completeness quantities, `displayStatus`, the retry basis, and every scheduling gate.
       The nudge is progress-of-this-RUN presentation only and must never enter any of them — the same
       boundary `DownloadRunProgress` already documents for the row overlay.
+
+  fix_landed_2026_08_19: |
+    Landed on feature/gsd-phase-15 as quick task 260819-lq3, two commits, one per half, both on the
+    owner's decision above: 2a2c5982 `fix(15): abandon starved page transfers` and d6079878
+    `fix(15): nudge a stalled session's card`. Full AppPackage suite green (1009 tests, +12 over the
+    pre-fix 997), app-scheme build zero warnings, no lint suppression. The plan and its design
+    decisions (PD-1..PD-8) are in `.planning/quick/260819-lq3-fix-g-15-2i-stall-abandon-and-card-nudge/`.
+
+    HALF 1 — MECHANISM (2a2c5982)
+      `DownloadCoordinator.pageTransferAbandonThreshold = 60` sits beside the unchanged 10 s
+      `pageTransferStallThreshold`; two constants on purpose. `InFlightPageTransfer` gained
+      `lastByteDate` (stamped in `recordPageTransferBytes`, the same path that grows
+      `creditedSubunits`), `isAbandoned`, and `attempt` — the attempt's own `Task`, which
+      `rawPageDownloadResponse` now creates, attaches, and awaits under
+      `withTaskCancellationHandler` so the caller's cancellation still reaches the transfer. One
+      idle definition, `idleInterval(at:)` = since the last byte, else since the attempt's start.
+      The heartbeat's existing `sweepStarvedPageTransfers` applies both thresholds to it: >= 60 s
+      abandons (`abandonPageTransfer`: sets `isAbandoned`, logs `outcome: abandoned` through the ONE
+      existing masked helper, cancels the attempt); otherwise >= 10 s logs `still transferring` once
+      as before. No second timer.
+
+      HOW THE RETRY HAPPENS (a SUGGESTED item the planner decided differently from the spec's
+      `retryLimit = 3` wording): page transfers deliberately bypass `withRetry`/`retryLimit`
+      (`retriesRequest: false`), so an abandoned attempt surfaces out of `rawPageDownloadResponse`
+      as the retryable `AppError.networkingFailed` — decided by `pageTransferCancellationError`,
+      which checks `Task.isCancelled` FIRST (a pause or expiry sweep still throws
+      `CancellationError`) and only then the entry's `isAbandoned` — and `downloadPage`'s existing
+      attempts loop (`autoRetryFailedPages ? 2 : 1`, failover re-resolution to a fresh URL / host)
+      is the retry. Consequence, stated plainly: with auto-retry ON (default) a persistently
+      starved page fails after ~120–140 s (two attempts) and the queue moves; with auto-retry OFF it
+      fails after one attempt (~60–70 s), as every other transport failure does under that setting.
+      A system-deferred transfer that goes 60 s without bytes is treated the same (inside the
+      owner's binding 60 s). `withRetry`, `retryLimit`, `AppError`, `endPageTransfer`'s exit check
+      untouched.
+
+    HALF 2 — MECHANISM (d6079878)
+      `ContinuedProgressNudge` (BackgroundProcessingClient, internal): `cap = 30` (BINDING),
+      `headroom = cap + 1 = 31` sub-units held back below the scaled total; `record(measured,
+      nudgesWhenStalled:)` — an unchanged clamped measurement adds ONE sub-unit (1/1000 page) up to
+      the cap; ANY change, either direction, snaps back and clears. It lives in
+      `ContinuedProcessingSession` (the store owning the system `Progress`), replacing
+      `foldedCompletedUnitCount` with `measuredSubunitCount` = `max(0, min(completed*1000 +
+      inFlight, total*1000 - 31))`; `task.progress.completedUnitCount = nudge.reportedSubunits`;
+      `adopt` publishes the same expression. The seam's fourth slot became
+      `ContinuedSubunitReport { inFlightSubunitCount, nudgesWhenStalled }` (arity stays 5). Only
+      `beatContinuedSession` passes `nudgesWhenStalled: true` — UNCONDITIONALLY, no second "is there
+      work" condition (BINDING c; the existing `hasPendingWork()` guard is the one gate) — so the cap
+      keeps its heartbeat meaning while every push still snaps back on a real change. Denominator
+      unchanged (`pages × 1000`). Logged distinctly by the store: `Continued-processing progress
+      stalled, nudge N of 30 above M of T subunits.` (integers only, all `.public`).
+
+      THE CAP RE-DERIVED AGAINST A 509 BACK-OFF (as the spec required): this app makes no in-run
+      quota back-off wait — a 509 arrives as a placeholder image, becomes the fatal
+      `AppError.quotaExceeded`, and the run fails, so the queue moves or drains. The longest
+      legitimate flat stretch is a page starving through its attempts under Half 1 (~140 s); 30
+      nudges at 10 s ≈ 300 s is more than double that. Past the cap the count goes flat ON PURPOSE:
+      the system reclaims the session and the expiry arm pauses schedulable downloads — a wedged
+      queue cannot hold a session forever. Written into `ContinuedProgressNudge`'s doc.
+
+    TESTS (all Swift Testing)
+      Half 1, in `DownloadPageTransferProgressTests`, driving the REAL `rawPageDownloadResponse`
+      against a hanging injected downloader over the file's frozen clock: abandon at 60 s (59 s
+      negative control), the slow-but-moving control (bytes at t=50 and t=100 → sweeps at 70/110
+      do not abandon, 161 does), per-attempt idle measurement with credit kept across the re-open,
+      caller cancellation stays `CancellationError`, the 10 s sweep leaves the transfer running.
+      Half 2: `ContinuedProgressNudgeTests` (one nudge per stalled report; snap back both
+      directions; cap holds at 30 over 40 reports; a non-liveness identical report neither nudges
+      nor dips); `ContinuedProcessingSessionFoldTests` on the REAL `task.progress.completedUnitCount`
+      (a stalled heartbeat report with ZERO in-flight sub-units still nudges — the frame the
+      rejected condition would have dropped; never reaches the scaled total; an honest moving series
+      is bit-identical to before); the heartbeat pin that every beat carries `nudgesWhenStalled ==
+      true` with zero in-flight sub-units. Existing suites, subtitle pins, source-inventory and
+      log-privacy censuses unchanged.
+
+    WHAT THE NEXT ROUND MUST OBSERVE
+      On a build carrying both commits, the SC2 procedure BACKGROUNDED (round 7's run stayed in the
+      foreground): a stalled stretch shows `Continued-processing progress stalled, nudge N of 30`
+      lines and, if a transfer starves, `Page transfer starved ... abandoned` at ~60 s followed by
+      the page's retry; the numerator moves again; no `Continued-processing session expired` while
+      the queue has work on healthy Wi-Fi.
 
 - gap_id: G-15-11
   truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
