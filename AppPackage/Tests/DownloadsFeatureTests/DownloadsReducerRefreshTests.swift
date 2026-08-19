@@ -52,7 +52,12 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
         )
 
         await store.send(.toggleDownloadPause(download.gid))
-        await store.receive(\.toggleDownloadPauseDone)
+        // The refusal is reported now (DEF-15-05); this exhaustive store would fail on the
+        // unasserted state change otherwise. What this case is about is the effect that does NOT
+        // follow it, asserted below.
+        await store.receive(\.toggleDownloadPauseDone) {
+            $0.toast = .error(caption: AppError.networkingFailed.alertText)
+        }
         await store.finish()
 
         #expect(reconcileCount.value == 0)
