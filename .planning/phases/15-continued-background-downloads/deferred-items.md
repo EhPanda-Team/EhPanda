@@ -14,7 +14,7 @@ prose and will drift.
 | DEF-15-04 | resolved 2026-08-19 (97347f5d, quick 260819-ovp) | — |
 | DEF-15-05 | resolved 2026-08-19 (668c57be, quick 260819-n3y) | — |
 | DEF-15-06 | resolved 2026-08-19 (ace21ed5, quick 260819-n3y) | — |
-| DEF-15-07 | open, DEFERRED INDEFINITELY by the owner 2026-08-19 — do not pick up | — |
+| DEF-15-07 | closed 2026-08-19 — not a defect, owner ruling: `Package.swift` will not be split | — |
 | DEF-15-08 | resolved 2026-08-19 (a87bbc10, quick 260819-n3y) | — |
 | DEF-15-09 | resolved 2026-08-19 (f704ece5, quick 260819-n3y) | — |
 | DEF-15-10 | resolved 2026-08-19 (15cf9273, quick 260819-ovp) | — |
@@ -132,7 +132,7 @@ not added for failures that cannot happen. Consequence: `DownloadsView`'s `.fail
 ErrorView(retry)` branch was unreachable and was removed; `DownloadsReducer.State.loadingState`
 carries a doc saying only `.loading`/`.idle` occur.
 
-## DEF-15-07 — `AppPackage/Package.swift` exceeds the 1000-line `file_length` ERROR limit
+## DEF-15-07 — `AppPackage/Package.swift` exceeds the 1000-line `file_length` ERROR limit — CLOSED, NOT A DEFECT
 
 Found during plan 15-75, which removed one line from it (1129 -> 1128). SwiftLint invoked directly
 over the file reports `File Length Violation: File should contain 1000 lines or less: currently
@@ -145,6 +145,18 @@ app-scheme build gate structurally cannot see it. This is pre-existing and unrel
 move, so it was not fixed under the scope boundary — and it is not a branch fix either. Bringing the
 manifest under the limit means splitting the target list across files (`swift-tools-version: 6.3.1`
 allows manifest helper files under `Sources/<Package>/`), which is a package-layout change.
+
+**OWNER RULING 2026-08-19: this is not a problem, and the item is closed rather than deferred.** The
+only route to compliance is splitting the manifest across files, and the owner does not want
+`Package.swift` split — so the violation is accepted as it stands, permanently. Nothing is pending
+here; do not re-file it, and do not "fix" it by splitting the manifest.
+
+Two consequences the ruling accepts, recorded so they are not rediscovered as findings:
+- `AppPackage/Package.swift` will keep reporting `file_length` at ERROR severity to any SwiftLint
+  run pointed directly at it. That is expected output, not a regression.
+- Because the manifest is not a member of any target, the per-target SwiftLint build plugin never
+  reaches it, so no lint violation added to `Package.swift` in future will be caught by the
+  warning-free build gate either. Changes to the manifest are reviewed by eye.
 
 ## DEF-15-08 — Force the inspector's Pause/Resume refusal through the existing UI-test seam — RESOLVED
 
