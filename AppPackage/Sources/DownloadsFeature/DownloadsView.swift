@@ -170,11 +170,16 @@ private extension DownloadsView {
 /// behind them, so they keep going to `store` instead of taking a delegate hop through the child
 /// that would relocate them without simplifying anything.
 ///
-/// The dialog is attached here, to the row, because that is where a per-row store exists. That is
-/// in tension with the project's placement rule, which prefers the enclosing list container for a
-/// per-row destructive action: a row that leaves the hierarchy while its dialog is up takes the
-/// dialog with it. The tension is the price of per-row state, and it buys the popover anchoring to
-/// the row the user actually swiped rather than to the list as a whole.
+/// The dialog is attached here, to the row, and under the project's amended placement rule that is
+/// the CORRECT anchor for a per-row destructive action: the iPad popover's arrow then points at the
+/// row being acted on, rather than at the top of the list pointing at nothing meaningful. Stability
+/// is judged against changes unrelated to the dialog's own action — a row that leaves the hierarchy
+/// because its own confirmed deletion removed it is the intended terminal state, not instability.
+/// The one hazard the rule does name is a snapshot moving the row for a reason the dialog knows
+/// nothing about, and both of its shapes are pinned at reducer level by
+/// `DownloadRowConfirmationTests` (DEF-15-11): a reordering tick keeps the armed row's dialog on
+/// that row and its confirmed action still deletes that gid, and a tick that drops the row takes the
+/// dialog with it while firing no deletion at all.
 private struct DownloadRow: View {
     let store: StoreOf<DownloadsReducer>
     @Bindable var rowStore: StoreOf<DownloadRowFeature>
