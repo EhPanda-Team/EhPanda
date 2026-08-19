@@ -22,8 +22,8 @@ import Testing
 /// `.unknown` when the status moved out of the toggleable set between the render and the tap
 /// (`+PublicAPI.swift:212-213`). Every other exit on those paths returns `.success`. Both render
 /// through the mapping's `alertText` arm, so the payload arm is pinned separately and labelled as
-/// what it is — a rename guard on a mapping this branch now shares with retry, not a claim that
-/// `togglePause` can answer `.fileOperationFailed`.
+/// what it is — a rename guard on a mapping this branch shares with retry and, since DEF-15-05,
+/// with the downloads list, not a claim that `togglePause` can answer `.fileOperationFailed`.
 ///
 /// `@MainActor` here is compiler-required, not stylistic: every case below builds a TCA `TestStore`,
 /// whose `init` and `state` accessor are main-actor-isolated. It is applied per member rather than
@@ -88,12 +88,13 @@ struct DownloadInspectorPauseFailureTests: DownloadFeatureTestCase {
     /// The mapping's payload arm, pinned through THIS branch as a rename guard.
     ///
     /// `.fileOperationFailed` is not a kind `togglePause` answers — the enumeration in this suite's
-    /// header is exhaustive over its exits. The case is here because the pause branch now shares one
-    /// private mapping with the retry branch, and that mapping has two arms: a payload-only
+    /// header is exhaustive over its exits. The case is here because the pause branch shares the
+    /// module's one `actionFailureToast` mapping with the retry branch and with the downloads list
+    /// (`AppError+ActionFailureToast.swift`), and that mapping has two arms: a payload-only
     /// rendering for `.fileOperationFailed` (whose payload already names which refusal happened, and
     /// which `alertText` would bury under its own generic "local file operation failed" line) and an
     /// `alertText` fallback for everything else. Renaming the mapping for its second consumer could
-    /// silently drop either arm, so both are asserted from the pause side too. It also states the
+    /// silently drop either arm, so all three consumers assert both. It also states the
     /// contract for the day `togglePause` grows a file-shaped refusal: the payload is what shows.
     @MainActor
     @Test

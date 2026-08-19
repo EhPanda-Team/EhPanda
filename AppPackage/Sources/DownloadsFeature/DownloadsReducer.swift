@@ -12,18 +12,19 @@ import Resources
 
 /// The downloads list.
 ///
-/// **Failure-reporting policy: the observed record is this screen's feedback, so its mutation
-/// failures are silent — deliberately, and enumerated (DES-3).** Unlike the inspector, which owns a
-/// toast surface and reports every refusal (see ``DownloadInspectorReducer``), the list's only
-/// presentation surfaces are confirmation prompts rather than outcome channels:
-/// a refused mutation leaves the row exactly as the record still describes it, and the write-through
-/// index re-renders that row through `observeDownloads`. The enumeration below is the complete set
-/// of result-carrying actions and is meant to be checked against `Action` when one is added — a new
-/// result-carrying action with no stated disposition contradicts this doc.
+/// **Failure-reporting policy: the observed record is this screen's feedback, so a mutation failure
+/// is silent unless the record cannot state it — deliberately, and enumerated (DES-3).** A refused
+/// mutation leaves the row exactly as the record still describes it, and the write-through index
+/// re-renders that row through `observeDownloads`, so for most of the actions below the screen has
+/// already answered. One cannot be answered that way, so this reducer now owns a `toast` surface
+/// too — added for exactly that action (DEF-15-05), not as a general outcome channel, and rendering
+/// through the same mapping the inspector uses (see ``DownloadInspectorReducer``). The enumeration
+/// below is the complete set of result-carrying actions and is meant to be checked against `Action`
+/// when one is added — a new result-carrying action with no stated disposition contradicts this doc.
 ///
-/// The confirmation surface named above is the per-row dialog owned by ``DownloadRowFeature``,
-/// plus this reducer's own move-to-folder dialog. Neither is an outcome channel, so the argument
-/// is unchanged by where the confirmation lives:
+/// The screen's other presentation surfaces are confirmation prompts rather than outcome channels:
+/// the per-row delete dialog owned by ``DownloadRowFeature``, plus this reducer's own move-to-folder
+/// dialog. Neither reports an outcome, so the argument is unchanged by where the confirmation lives:
 ///
 /// - `moveDownloadDone` — **deliberately silent** on failure: the row keeps its current folder, so
 ///   the screen already says the move did not happen.
@@ -33,12 +34,11 @@ import Resources
 /// - `openReadingDone` — **reports by behaviour**: a failed local load falls back to the remote
 ///   reader, and bails without presenting only when the record itself vanished mid-flight, since
 ///   there is then nothing to seed a reader with.
-/// - `toggleDownloadPauseDone` — **silent, and it is the weakest of these**: it is the same refusal
-///   the inspector now reports (WR-05), seen from this screen, and the record-says-so argument is
-///   thinner here because a refused toggle moves nothing at all. It stays silent in this round
-///   because reporting it needs a toast surface this reducer does not have — a presentation
-///   addition, not a branch fix. Recorded so it reads as an open item rather than a considered
-///   no-report.
+/// - `toggleDownloadPauseDone` — **reports** (DEF-15-05): the record-says-so argument never covered
+///   this one, because a refused toggle moves nothing at all, so silence was indistinguishable from
+///   a dropped tap. It is the same refusal the inspector reports (WR-05), seen from this screen, and
+///   the failure arm now sets `toast` through the shared `actionFailureToast` mapping. The success
+///   arm stays silent: `observeDownloads` re-renders the row with its new status.
 @Reducer
 public struct DownloadsReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
@@ -67,6 +67,7 @@ public struct DownloadsReducer: Sendable {
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        @Presents public var toast: AppAlertState<Never>?
         public var keyword = ""
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
@@ -128,6 +129,7 @@ public struct DownloadsReducer: Sendable {
         case inspectorButtonTapped(String)
         case folderManagerButtonTapped
         case confirmationDialog(PresentationAction<Dialog>)
+        case toast(PresentationAction<Never>)
         case rows(IdentifiedActionOf<DownloadRowFeature>)
         case moveButtonTapped(DownloadedGallery)
 
@@ -243,6 +245,9 @@ public struct DownloadsReducer: Sendable {
                 return .send(.moveDownload(gid: gid, folderName: folder))
 
             case .confirmationDialog:
+                return .none
+
+            case .toast:
                 return .none
 
             // Sent by `AppReducer` when the Downloads tab becomes the visible one — the tab root's
@@ -387,12 +392,18 @@ public struct DownloadsReducer: Sendable {
                     await send(.toggleDownloadPauseDone(.failure(AppError(error))))
                 }
 
-            case .toggleDownloadPauseDone:
-                // Disposition (list-level policy on `DownloadsReducer`): silent, and flagged there
-                // as the weakest of the five — this is the inspector's WR-05 refusal seen from the
-                // list, and reporting it needs a toast surface this reducer does not own. The
-                // success arm is silent for the same reason the inspector's is: `observeDownloads`
-                // re-renders the row with its new status.
+            case .toggleDownloadPauseDone(let result):
+                // Disposition (list-level policy on `DownloadsReducer`): reports on failure
+                // (DEF-15-05). This is the inspector's WR-05 refusal seen from the list —
+                // `.notFound` for a record deleted underneath the row, `.unknown` for a status that
+                // left the toggleable set between the render and the tap — and neither moves
+                // anything on screen, so without a toast the tap is indistinguishable from one that
+                // never registered. No reload accompanies it, unlike the inspector's: the rows ARE
+                // the live `observeDownloads` stream, so both refusal arms are already reflected
+                // there. The success arm is silent for that same reason.
+                if case .failure(let error) = result {
+                    state.toast = error.actionFailureToast
+                }
                 return .none
 
             case .updateDownload(let gid):
@@ -467,6 +478,7 @@ public struct DownloadsReducer: Sendable {
         }
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .ifLet(\.$toast, action: \.toast)
         .forEach(\.rows, action: \.rows, element: DownloadRowFeature.init)
         .forEach(\.path, action: \.path)
     }
