@@ -11,9 +11,9 @@ extension DownloadFeatureTestCase {
     /// whether a convergence exit published its index at all, and the pre-fix answer was a
     /// notification that never came. A clock cannot state that: wall time cannot tell "the
     /// notification will never arrive" from "the parallel suite has not scheduled the collector
-    /// yet", which is why the bound at one of these sites had to be ten seconds after plan 15-21
-    /// recorded 13.2 s of scheduling delay there. So the bound bought nine seconds on a red run by
-    /// making every green run a coin flip.
+    /// yet". The one-second bound that once stood at one of these sites bought nine seconds on a red
+    /// run by making every green run a coin flip — plan 15-21 recorded 13.2 s of scheduling delay
+    /// there — and the ten-second bound that replaced it still measured the scheduler, not the code.
     ///
     /// Two structural facts make the clock unnecessary. `DownloadObserverHub.observe` registers its
     /// continuation BEFORE returning and the stream is built by `AsyncStream.makeStream` — an
