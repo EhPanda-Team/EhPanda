@@ -179,6 +179,18 @@ extension DownloadCoordinator {
         endPageTransfer(gid: gid, pageIndex: pageIndex)
     }
 
+    /// Forwards to `sweepStarvedPageTransfers()`, the heartbeat's starvation sweep — the one place
+    /// a starved attempt is reported or abandoned.
+    public func testingSweepStarvedPageTransfers() {
+        sweepStarvedPageTransfers()
+    }
+
+    /// Whether the named page's attempt is still running, read off the in-flight entry the sweep
+    /// itself consults.
+    public func testingIsPageTransferring(gid: String, pageIndex: Int) -> Bool {
+        inFlightPageTransfers[gid]?[pageIndex]?.isTransferring ?? false
+    }
+
     /// Forwards to `withdrawInFlightPageCredit(gid:pageIndex:)`, the failed page's deliberate mover.
     public func testingWithdrawInFlightPageCredit(gid: String, pageIndex: Int) {
         withdrawInFlightPageCredit(gid: gid, pageIndex: pageIndex)

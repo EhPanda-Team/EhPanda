@@ -136,10 +136,21 @@ extension DownloadCoordinator {
         // each attempt measures its own time to first byte while the page's earned credit carries
         // across attempts. The `defer` covers the throwing exits too, which is what lets a transfer
         // cancelled by the expiry's pause sweep still report how long it starved.
+        //
+        // The attempt runs as its own task because the coordinator otherwise holds NOTHING that can
+        // stop a transfer: the URLSession task lives inside the nonisolated downloader and is
+        // reached only through Swift task cancellation, so the heartbeat's starvation sweep needs a
+        // handle of its own to abandon one (G-15-2I). The cancellation handler around the await is
+        // what keeps the CALLER's cancellation — a pause, the expiry sweep, a group cancel —
+        // reaching the transfer exactly as it did before.
+        //
+        // An abandoned attempt surfaces as the retryable `AppError.networkingFailed`, never as
+        // `CancellationError`, so `downloadPage`'s attempts loop retries the page with a fresh
+        // failover re-resolution rather than propagating a stop the user never asked for.
         beginPageTransfer(gid: context.gid, pageIndex: context.pageIndex)
         defer { endPageTransfer(gid: context.gid, pageIndex: context.pageIndex) }
-        do {
-            return try await pageDownloader.download(request, context) { [weak self] written, expected in
+        let attempt = Task {
+            try await pageDownloader.download(request, context) { [weak self] written, expected in
                 Task {
                     await self?.recordPageTransferBytes(
                         gid: context.gid,
@@ -149,22 +160,62 @@ extension DownloadCoordinator {
                     )
                 }
             }
+        }
+        attachPageTransferAttempt(
+            gid: context.gid,
+            pageIndex: context.pageIndex,
+            attempt
+        )
+        do {
+            return try await withTaskCancellationHandler {
+                try await attempt.value
+            } onCancel: {
+                attempt.cancel()
+            }
         } catch let error as AppError {
             throw error
         } catch is CancellationError {
-            throw CancellationError()
+            throw pageTransferCancellationError(
+                gid: context.gid,
+                pageIndex: context.pageIndex
+            )
         } catch let error as URLError
                     where error.code == .cancelled {
-            throw CancellationError()
+            throw pageTransferCancellationError(
+                gid: context.gid,
+                pageIndex: context.pageIndex
+            )
         } catch {
             if Self.isCancellationLikeError(error) {
-                throw CancellationError()
+                throw pageTransferCancellationError(
+                    gid: context.gid,
+                    pageIndex: context.pageIndex
+                )
             }
             if error is URLError {
                 throw AppError.networkingFailed
             }
             throw AppError.unknown
         }
+    }
+
+    /// What a cancellation-shaped end of one page attempt actually means.
+    ///
+    /// The order is the whole content. `Task.isCancelled` FIRST: the caller cancelled us, and a
+    /// pause or an expiry sweep must keep propagating as `CancellationError` exactly as before —
+    /// abandonment is the only path that may convert a cancelled attempt into a failure. Then the
+    /// entry's `isAbandoned`, set by the sweep in the same synchronous stretch that cancelled the
+    /// task: a network that stopped delivering, reported as the retryable `.networkingFailed` every
+    /// other transport failure of a page already maps to. Anything else is a system-side cancel and
+    /// keeps its old meaning.
+    private func pageTransferCancellationError(gid: String, pageIndex: Int) -> any Error {
+        if Task.isCancelled {
+            return CancellationError()
+        }
+        guard inFlightPageTransfers[gid]?[pageIndex]?.isAbandoned == true else {
+            return CancellationError()
+        }
+        return AppError.networkingFailed
     }
 
     public func withRetry<T>(

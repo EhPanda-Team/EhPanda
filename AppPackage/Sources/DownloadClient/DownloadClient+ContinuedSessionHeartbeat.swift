@@ -50,6 +50,10 @@ extension DownloadCoordinator {
     /// one large page can take. Re-pushing the CURRENT pair every ten seconds says "still working"
     /// without inventing progress.
     ///
+    /// The beat also sweeps the in-flight transfers and ABANDONS one that has produced no bytes for
+    /// `pageTransferAbandonThreshold`, so a silent host cannot hold the queue for the whole life of
+    /// the session (G-15-2I).
+    ///
     /// One task per live session, cancelled at `markContinuedSessionEnded`, so a session boundary
     /// can never leave a beat pointed at a card that is gone.
     func startContinuedSessionHeartbeat(sessionID: UUID) {
@@ -109,26 +113,43 @@ extension DownloadCoordinator {
         return HeartbeatSummary(completedSubunits: completedSubunits, date: beatDate)
     }
 
-    /// Reports every transfer that is still running and has had no bytes for at least
-    /// `pageTransferStallThreshold`, through the same helper `endPageTransfer` uses (PD-5).
-    private func sweepStarvedPageTransfers() {
+    /// Applies both starvation thresholds to every transfer still running, over ONE definition of
+    /// idle time: `InFlightPageTransfer.idleInterval(at:)`, the interval since the last byte
+    /// arrived — or since the attempt started, when none has.
+    ///
+    /// At `pageTransferAbandonThreshold` the attempt is ABANDONED (`abandonPageTransfer`): it is
+    /// cancelled and surfaces to the page's existing retry path as a retryable networking failure,
+    /// so a host that stopped answering can no longer hold the worker, the queue and the session
+    /// (G-15-2I). Below that, at `pageTransferStallThreshold`, it is only reported, once, through
+    /// the same helper `endPageTransfer` uses (PD-5).
+    ///
+    /// Measuring the log from the last byte rather than from the attempt's start widens what that
+    /// ten-second line names: a transfer that delivered bytes and then went quiet is now reported
+    /// too. That is the same starvation the sixty-second rule acts on, and the line's wording — "N
+    /// ms without bytes" — stays true of it.
+    ///
+    /// **The boundary, stated rather than left implicit.** Abandonment is a HEARTBEAT action, so it
+    /// exists exactly while a live session's card is at stake. That is the case the ruling covers
+    /// and the case that was observed; a foreground-only run keeps whatever timeouts the transport
+    /// gives it, and no second timer is introduced here.
+    func sweepStarvedPageTransfers() {
         let sweepDate = now()
         for (gid, transfers) in inFlightPageTransfers {
             for (pageIndex, transfer) in transfers {
-                let elapsed = sweepDate.timeIntervalSince(transfer.startDate)
-                guard transfer.isTransferring,
-                      transfer.firstByteDate == nil,
-                      !transfer.stallLogged,
-                      elapsed >= Self.pageTransferStallThreshold
-                else { continue }
-                inFlightPageTransfers[gid]?[pageIndex]?.stallLogged = true
-                logStarvedPageTransfer(
-                    gid: gid,
-                    pageIndex: pageIndex,
-                    startedInBackground: transfer.startedInBackground,
-                    elapsedMilliseconds: Int((elapsed * 1000).rounded()),
-                    outcome: "still transferring"
-                )
+                guard transfer.isTransferring, !transfer.isAbandoned else { continue }
+                let idle = transfer.idleInterval(at: sweepDate)
+                if idle >= Self.pageTransferAbandonThreshold {
+                    abandonPageTransfer(gid: gid, pageIndex: pageIndex, idle: idle)
+                } else if idle >= Self.pageTransferStallThreshold, !transfer.stallLogged {
+                    inFlightPageTransfers[gid]?[pageIndex]?.stallLogged = true
+                    logStarvedPageTransfer(
+                        gid: gid,
+                        pageIndex: pageIndex,
+                        startedInBackground: transfer.startedInBackground,
+                        elapsedMilliseconds: Int((idle * 1000).rounded()),
+                        outcome: "still transferring"
+                    )
+                }
             }
         }
     }
