@@ -70,7 +70,7 @@ extension DetailReducer {
             case .fetchDownloadFolders:
                 let cancellationID = CancelID.fetchDownloadFolders(state.cancellationGalleryID)
                 return .run { send in
-                    await send(.fetchDownloadFoldersDone(try await downloadClient.fetchFolders()))
+                    await send(.fetchDownloadFoldersDone(await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: cancellationID, cancelInFlight: true)
 

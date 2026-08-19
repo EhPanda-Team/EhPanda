@@ -186,7 +186,7 @@ public struct FolderManagerReducer: Sendable {
             case .fetchFolders:
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.fetchFoldersDone(try await downloadClient.fetchFolders()))
+                    await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: CancelID.fetchFolders, cancelInFlight: true)
 
