@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 15
-current_phase_name: continued-background-downloads
-status: executing
-stopped_at: Phase 15 executed and VERIFIED 9/9; UAT complete at round 8, no gaps open
-last_updated: "2026-08-19T13:20:00.000Z"
+current_phase: 16
+current_phase_name: dynamic-type-accessibility
+status: planning
+stopped_at: Phase 15 closed 2026-08-19 (all 77 plans, UAT round 8, verification passed 9/9)
+last_updated: "2026-08-19T13:18:01.530Z"
 last_activity: 2026-08-19
-last_activity_desc: "15-UAT round 8 on the test iPhone CLOSED test 2 and the last open gap G-15-2I, and 15-VERIFICATION.md now stands at verified, 9/9. This was the first round in which the SC2 procedure actually ran BACKGROUNDED: agent-device home reports success on this physical device but does not land, so the app was backgrounded with xcrun devicectl device process launch on another app and confirmed by screenshot. Subject was deliberately the gallery round 7 died on (Crowns18, resumed at 575/951, 376 pages outstanding). The session was granted 12:14:12 UTC and ran unbroken to drained + terminal push at 12:46:07 - 31m55s, 105 heartbeats, no expiry, no fall-back in the numerator. The abandon rule fired three times and the queue recovered every time: pages 811/860/885 abandoned at 64.7/61.5/63.6 s, each retried within 3 s and the numerator moving again within 15 s. The nudge peaked at 7 of 30, i.e. 7 sub-units against a 1,057,000 sub-unit total. The card-cancel clause, which no earlier round had ever reached, was exercised by the owner and matched the in-app per-gallery pause baseline exactly, both routes leaving every gallery paused with its page count preserved; the terminal frame read 70 / 70 pages and held 2 galleries. Two facts recorded for later readers: use devicectl rather than agent-device home to background on a physical device, and the card cancel shares the expired arm with a scheduler reclaim so that log line alone cannot tell them apart. Before this: review of quick tasks 260819-lq3/n3y/ovp at 17a6e1c0 (1020 tests, UITests build 0 diagnostics, lint 0 over 164 files) plus three review fixes - the milliseconds conversion shared (719bbc25), the nudge return-value doc corrected (57183589), and this file own stale lines corrected (f5b3519f). Only DEF-15-07 remains open, deferred indefinitely by the owner. NEXT: phase 15 closeout - nothing is open against it."
+last_activity_desc: "PHASE 15 CLOSED 2026-08-19. 15-UAT round 8 on the test iPhone closed test 2 and the last open gap G-15-2I; 15-VERIFICATION.md passed 9/9 with no gaps; DEF-15-07 closed by owner ruling (the file_length violation on AppPackage/Package.swift is accepted permanently - the only remedy is splitting the manifest and the owner does not want it split), so no deferred item is open. Round 8 was the first round in which the SC2 procedure actually ran BACKGROUNDED: the session held 31m55s with no expiry across 105 heartbeats, three starved transfers were abandoned at 64.7/61.5/63.6 s and each retried within 3 s with the numerator moving again inside 15 s, the stall nudge peaked at 7 of 30 against a 1,057,000 sub-unit total, and the card-cancel clause - which no earlier round had reached - matched the in-app per-gallery pause baseline exactly. Two facts recorded in 15-UAT.md for later readers: agent-device home does NOT background an app on a physical iPhone although it reports success (use xcrun devicectl device process launch and confirm by screenshot), and the card cancel shares the expired arm with a scheduler reclaim so that log line alone cannot tell them apart. NEXT: phase 16 (Dynamic Type Accessibility) is not started; it is human-implemented, agent verify-only. Branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner standing decision."
 progress:
   total_phases: 16
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 248
   completed_plans: 248
-  percent: 81
+  percent: 88
 ---
 
 # Project State
@@ -28,19 +28,19 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 15 (continued-background-downloads) — EXECUTED AND VERIFIED (9/9), READY FOR CLOSEOUT
-Plan: 77 of 77
-Status: All 77 plans executed. 15-UAT.md is COMPLETE at round 8 (13 pass / 0 issues / 2 obsolete of 15) — test 2 and gap G-15-2I both closed on the test iPhone at build f5b3519f, on the first round that actually ran backgrounded. 15-VERIFICATION.md is verified, 9/9 must-haves, no gaps. Every DEF-15 item is closed except DEF-15-07, deferred indefinitely by the owner.
-Last activity: 2026-08-19 - Completed quick task 260819-ovp: closed DEF-15-04/10 (97347f5d pad idiom read moved into the main-actor test method, UITests build 4 -> 0 warning lines; 15cf9273 ResourceStringSymbols forwards all 43 accessors to Xcode's generated symbols, bad key = compile error; 1020 tests, 0 failures, unchanged; deferred-items.md rows 04/10 marked resolved — only DEF-15-07 (deferred indefinitely by the owner) remains open). Previous: Completed quick task 260819-n3y: closed DEF-15-05/06/08/09/11 (ace21ed5 download reads non-throwing at the interface; 668c57be list reports a refused pause via toast; a87bbc10 EHPANDA_UITEST_FORCE_PAUSE_REFUSAL seam; f704ece5 convergence detectors fenced; 9c8145a1 row dialog pinned across snapshots; 0e9803e1 comment polish; 1009 -> 1020 tests, 0 failures; deferred-items.md rows 05/06/08/09/11 marked resolved — only DEF-15-04/10 (grouped) and DEF-15-07 (deferred indefinitely) remain open). Previous: Completed quick task 260819-lq3: Fix G-15-2I stall abandon and card nudge (2a2c5982 abandon starved page transfers after 60 s idle + retry; d6079878 bounded stall nudge, cap 30, on the continued-processing card; 997 -> 1009 tests, 0 failures; 15-UAT.md G-15-2I carries fix_landed_2026_08_19, device verification pending — next SC2 round must be backgrounded). Previous: quick task 260819-12o: never delete a user's download folder (commits f7e65497 sweep + repair-seed retired, b0d2d57e invariant pin, b208fa25 G-15-2H note; 1003 -> 997 tests, 0 failures; owner decision: guard the deletion invariant only, no rename resolution; AGENTS.md gained the download-folder edge-case principle). Previous: quick task 260818-mjs (13cad7d9, 764c5958; 993 -> 1003 tests; G-15-2F/2H device-verified 2026-08-18).
-Next: phase 15 closeout — nothing is open against it. The branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner's standing decision.
+Phase: 16 — Dynamic Type Accessibility
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-19 — Phase 15 complete, transitioned to Phase 16
+Next: plan phase 16 (Dynamic Type Accessibility) when the owner is ready — it is human-implemented, agent verify-only. Nothing is open against phase 15. The branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner's standing decision.
 
-Progress: [████████░░] 81% (13/16 phases)
+Progress: [█████████░] 88% (14/16 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 141
+- Total plans completed: 218
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -59,6 +59,7 @@ Progress: [████████░░] 81% (13/16 phases)
 | 12 | 6 | - | - |
 | 13 | 10 | - | - |
 | 14 | 18 | - | - |
+| 15 | 77 | - | - |
 
 **Recent Trend:**
 
