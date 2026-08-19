@@ -2,20 +2,24 @@
 
 Out-of-scope discoveries found while executing this phase. Logged, not fixed.
 
-## ROADMAP.md progress table is missing a Phase 16 row
+## ROADMAP.md progress table is missing a Phase 16 row — RESOLVED
 
 The `| Phase | Plans Complete | Status | Completed |` table in `.planning/ROADMAP.md` ends at
 row 15. Phase 16 (Dynamic Type Accessibility) has a phase entry and a checklist bullet but no
 progress row. Row 15 also carried Phase 16's name until plan 15-07 corrected it to
 "Continued Background Downloads" — the row the plan's own tooling had to update.
 
-## ROADMAP.md execution-order line stops at 15
+## ROADMAP.md execution-order line stops at 15 — RESOLVED
 
 `**Execution Order:** Phases execute in numeric order: 1 → … → 15` predates the Phase 16 entry
 and should end at 16.
 
 Both are documentation staleness in a file outside this phase's edit scope (the plan scopes
 Task 2 to the Phase 15 detail section). Neither affects any code or gate.
+
+**Both RESOLVED 2026-08-19 in commit f9892824**, during the state/roadmap sync: the progress table
+gained a `| 16. Dynamic Type Accessibility | 0/0 | Not Started |  |` row and the execution-order line
+now ends at 16. The historical report above is kept for the record.
 
 ## `testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` had a one-second deadline — RESOLVED
 
@@ -163,6 +167,13 @@ phase's close-out would spread review scope well outside downloads. Keep the two
 `continued_session` value pins regardless — they take arguments, so the rendered string is what
 proves plural categories and argument positions.
 
+Raised again by the owner on 2026-08-19, independently of UAT test 14. A second entry filed that day
+was merged back into this one, which already carries the decisive constraint the newer note lacked:
+the generated symbols are `internal`, so the public layer stays and each body becomes a forwarder.
+Note also the AGENTS.md labelled-localized-format rule — shared keys carry hand-written semantic
+labels for NUMERIC arguments, and forwarding must preserve them rather than fall back to positional
+generated signatures.
+
 ## No test covers a row leaving `rows` while its confirmation dialog is presented
 
 Surfaced closing UAT test 8. The owner chose to keep the delete confirmation attached to the ROW
@@ -187,20 +198,3 @@ Not done in phase 15: the anchoring decision closed the checkpoint, and this is 
 behavioural gap that predates it. The amended rule explicitly prefers "eliminating that instability,
 or covering it with a test, over giving up the correct anchor", so this is the follow-through that
 sentence points at.
-
-## `ResourceStringSymbols.swift` should use Xcode's generated symbols, not hand-written `LocalizedStringResource.init`
-
-`AppPackage/Sources/Resources/ResourceStringSymbols.swift` hand-writes 43 `LocalizedStringResource(
-key, table:, bundle:)` calls inside `LocalizedStringResource.RLocalizable`, each repeating the
-literal key, the `"Localizable"` table name and a private `BundleDescription`. Xcode generates
-symbols for an `.xcstrings` catalog on its own; those generated symbols should replace the
-hand-written initializers, which would delete the repeated key literals and the bundle plumbing
-along with them.
-
-Raised by the owner 2026-08-19. Phase 15 touched this file (`f7e65497` removed nine lines of it when
-the repair-seed strings went away), but the conversion is a Resources-module change with its own
-blast radius across every call site, so it is logged rather than done here.
-
-Note the AGENTS.md rule this interacts with: shared keys carry semantic labels hand-written in this
-file for numeric localized-format arguments, so the conversion has to preserve those labels rather
-than fall back to positional generated signatures.
