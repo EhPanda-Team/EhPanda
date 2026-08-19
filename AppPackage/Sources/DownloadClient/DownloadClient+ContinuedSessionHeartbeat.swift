@@ -82,6 +82,14 @@ extension DownloadCoordinator {
     /// Gated on the session still being ours AND on there being pending work. `hasPendingWork()` is
     /// the queue's own predicate; a drained queue needs no heartbeat, and beating over one would
     /// keep a card alive that the drain is about to complete.
+    ///
+    /// **Every beat that pushes is a NUDGING report (G-15-2I).** The flag goes out unconditionally:
+    /// there is deliberately no second "is there work" condition beside it, because the beat is
+    /// already gated by `hasPendingWork()` and that guard is the correct one — a beat with zero
+    /// transfers in flight and zero in-flight sub-units is exactly the shape a stuck queue takes,
+    /// and refusing to nudge it would leave the case the rule exists for uncovered. Whether the
+    /// report actually nudges is the store's decision alone, made by comparing the measurement it
+    /// publishes against the last one.
     fileprivate func beatContinuedSession(
         sessionID: UUID,
         lastSummary: HeartbeatSummary?
@@ -89,7 +97,10 @@ extension DownloadCoordinator {
         guard continuedSessionID == sessionID, await hasPendingWork() else { return lastSummary }
         sweepStarvedPageTransfers()
         guard continuedSessionID == sessionID,
-              let pushed = await pushContinuedSessionProgress(sessionID: sessionID)
+              let pushed = await pushContinuedSessionProgress(
+                sessionID: sessionID,
+                nudgesWhenStalled: true
+              )
         else { return lastSummary }
 
         let completedSubunits = Int64(pushed.completedPageCount)

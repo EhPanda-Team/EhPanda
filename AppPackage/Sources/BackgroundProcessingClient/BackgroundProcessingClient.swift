@@ -15,6 +15,30 @@ public struct BackgroundProcessingSession: Sendable {
     }
 }
 
+/// Everything one progress push says BESIDE its whole-unit pair.
+///
+/// A struct rather than two more positional parameters: the seam's `updateProgress` already carries
+/// five, which is the project's parameter-count limit, and two adjacent `Int64`/`Bool` arguments at
+/// a call site say nothing about which is which.
+public struct ContinuedSubunitReport: Equatable, Sendable {
+    /// Sub-unit credit for units still IN FLIGHT, expressed in
+    /// `ContinuedProcessingSession.subunitsPerUnit` per unit (G-15-2D).
+    public var inFlightSubunitCount: Int64
+    /// Whether an UNCHANGED measurement in this report is a STALLED report the store may nudge.
+    ///
+    /// True only for the caller's periodic liveness re-push, so the nudge's cap keeps the heartbeat
+    /// meaning it was decided with: a caller pushing identical measurements at a faster cadence —
+    /// an intra-unit byte report on a crawling transfer, say — would otherwise spend the whole cap
+    /// in a few seconds. Every other push still SNAPS the count back when its measurement changes;
+    /// what this flag gates is only the increment (G-15-2I).
+    public var nudgesWhenStalled: Bool
+
+    public init(inFlightSubunitCount: Int64 = 0, nudgesWhenStalled: Bool = false) {
+        self.inFlightSubunitCount = inFlightSubunitCount
+        self.nudgesWhenStalled = nudgesWhenStalled
+    }
+}
+
 /// Wraps the system's continued-processing task so a user-started, foreground-initiated job
 /// keeps running after the app is backgrounded, surfaced by the system-provided progress card.
 ///
@@ -52,16 +76,19 @@ public struct BackgroundProcessingClient: Sendable {
     /// store currently holds, so a caller that lost ownership across its own suspension cannot
     /// repaint a successor's card.
     ///
-    /// `inFlightSubunitCount` is sub-unit credit for units still IN FLIGHT, expressed in
+    /// `subunits.inFlightSubunitCount` is sub-unit credit for units still IN FLIGHT, expressed in
     /// `ContinuedProcessingSession.subunitsPerUnit` per unit. The store folds it beneath the
     /// whole-unit pair, so a long unit's transfer moves the reported progress before the unit
     /// lands. The division of labour is unchanged by it: the caller keeps clamping the pair, and
     /// the store clamps the fold.
+    ///
+    /// `subunits.nudgesWhenStalled` marks this report as one of the caller's periodic liveness
+    /// re-pushes, which is the only kind the store's bounded stall nudge may advance (G-15-2I).
     public var updateProgress: @Sendable (
         _ sessionID: UUID,
         _ completedUnitCount: Int64,
         _ totalUnitCount: Int64,
-        _ inFlightSubunitCount: Int64,
+        _ subunits: ContinuedSubunitReport,
         _ subtitle: String
     ) async -> Void
     /// Completes `sessionID` only when it is the session the store currently holds.
@@ -81,12 +108,12 @@ extension BackgroundProcessingClient {
                 totalUnitCount: totalUnitCount
             )
         },
-        updateProgress: { sessionID, completedUnitCount, totalUnitCount, inFlightSubunitCount, subtitle in
+        updateProgress: { sessionID, completedUnitCount, totalUnitCount, subunits, subtitle in
             await ContinuedProcessingSession.shared.updateProgress(
                 sessionID: sessionID,
                 completedUnitCount: completedUnitCount,
                 totalUnitCount: totalUnitCount,
-                inFlightSubunitCount: inFlightSubunitCount,
+                subunits: subunits,
                 subtitle: subtitle
             )
         },

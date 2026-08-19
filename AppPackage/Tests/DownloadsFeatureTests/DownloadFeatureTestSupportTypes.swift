@@ -100,10 +100,15 @@ final class BackgroundProcessingClientSpy: Sendable {
         let sessionID: UUID
         let completedUnitCount: Int64
         let totalUnitCount: Int64
-        /// The sub-page credit that rode beside the pair. Recorded rather than dropped because the
-        /// pair alone can no longer say what the card shows: the store folds this beneath it.
-        let inFlightSubunitCount: Int64
+        /// Everything that rode beside the pair. Recorded whole rather than dropped or split,
+        /// because the pair alone can no longer say what the card shows: the store folds the
+        /// sub-page credit beneath it and may nudge a stalled liveness report on top of it.
+        let subunits: ContinuedSubunitReport
         let subtitle: String
+
+        /// The sub-page credit alone, so the assertions that only care about the fold read exactly
+        /// as they did before the report gained its second field.
+        var inFlightSubunitCount: Int64 { subunits.inFlightSubunitCount }
     }
 
     /// One `finish` call. Naming both fields keeps identity assertions readable and satisfies the
@@ -337,14 +342,14 @@ final class BackgroundProcessingClientSpy: Sendable {
                 }
                 return BackgroundProcessingSession(id: sessionID, events: stream)
             },
-            updateProgress: { sessionID, completedUnitCount, totalUnitCount, inFlightSubunitCount, subtitle in
+            updateProgress: { sessionID, completedUnitCount, totalUnitCount, subunits, subtitle in
                 await Task.yield()
                 // The live store accepts progress only for the identity it still owns.
                 let update = ProgressUpdate(
                     sessionID: sessionID,
                     completedUnitCount: completedUnitCount,
                     totalUnitCount: totalUnitCount,
-                    inFlightSubunitCount: inFlightSubunitCount,
+                    subunits: subunits,
                     subtitle: subtitle
                 )
                 let gate = self.state.withLock {

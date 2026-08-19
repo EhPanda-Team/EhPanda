@@ -47,6 +47,10 @@ public final class ContinuedProcessingSession {
     /// One thousand rather than a finer scale because it is the resolution the system card can
     /// possibly render, and it keeps `completed * subunitsPerUnit` far inside `Int64` for any queue
     /// a download client can hold.
+    ///
+    /// It is also the scale the stall nudge borrows from: one sub-unit is a thousandth of a unit,
+    /// small enough that adding one says "still working" without saying anything about the work
+    /// (`ContinuedProgressNudge`).
     nonisolated public static let subunitsPerUnit: Int64 = 1000
 
     /// Every scheduler touch this store makes. Injected so the lifecycle below is testable; the
@@ -101,13 +105,18 @@ public final class ContinuedProcessingSession {
     /// so its retry reuses this identifier and reaches the register call not at all: that arm is
     /// where the unbounded accumulation actually lived.
     private var registeredIdentifier: String?
-    /// The last counts supplied by the caller, seeded by start and refreshed by later progress
+    /// The last denominator supplied by the caller, seeded by start and refreshed by later progress
     /// pushes, so a task adopted at any point reports real numbers.
-    private var lastCompletedUnitCount: Int64 = 0
     private var lastTotalUnitCount: Int64 = 0
-    /// The sub-unit credit of the units still in flight at the last accepted push, so a task
-    /// adopted mid-transfer reports the same folded value a live task would.
-    private var lastInFlightSubunitCount: Int64 = 0
+    /// The published numerator's whole state: the last measurement this store computed from an
+    /// accepted push, and the bounded stall nudge sitting on top of it.
+    ///
+    /// One value rather than the separate whole-unit and in-flight counts it replaces, because the
+    /// stalled-report predicate is "the CLAMPED measurement did not change" — a comparison that has
+    /// to be made over the very number the card is told, not over the ingredients of it. Adoption
+    /// seeds from `reportedSubunits` for the same reason a live push writes it: the two must be one
+    /// expression.
+    private var nudge = ContinuedProgressNudge()
 
     /// Internal rather than private only so lifecycle tests can build an isolated store over spy
     /// scheduling. Production code must keep resolving this store through ``shared``: a second
@@ -145,10 +154,17 @@ public final class ContinuedProcessingSession {
         self.continuation = continuation
         self.sessionID = sessionID
         // A predecessor's trailing push must not seed this card. The caller's fresh snapshot is
-        // recorded instead: zeroing here traded a stale number for a false one.
-        lastCompletedUnitCount = completedUnitCount
+        // recorded instead: zeroing here traded a stale number for a false one. The nudge opens at
+        // that snapshot's own measurement and at zero nudges — a fresh session has nothing to say
+        // "still working" about yet.
         lastTotalUnitCount = totalUnitCount
-        lastInFlightSubunitCount = 0
+        nudge = ContinuedProgressNudge(
+            measuredSubunits: Self.measuredSubunitCount(
+                completedUnitCount: completedUnitCount,
+                totalUnitCount: totalUnitCount,
+                inFlightSubunitCount: 0
+            )
+        )
 
         if !didCancelStaleRequests {
             didCancelStaleRequests = true
@@ -251,39 +267,85 @@ public final class ContinuedProcessingSession {
     /// folded beneath the pair rather than added to it: the numerator stays at or above
     /// `completed * subunitsPerUnit` and never reaches the next whole unit's boundary early,
     /// because the fold is clamped by the scaled total.
+    ///
+    /// **The bounded stall nudge (G-15-2I).** A queue whose work is stuck on one silent transfer
+    /// reports the same measurement forever, and the scheduler reads an unchanging count as a
+    /// stalled task and reclaims the session — which is exactly what happened with three hundred
+    /// and seventy-six pages still queued. So a report the caller marked as a periodic LIVENESS
+    /// re-push, whose clamped measurement equals the last one, advances the published count by one
+    /// sub-unit: a thousandth of a unit, below the card's resolution, and capped at
+    /// `ContinuedProgressNudge.cap` consecutive nudges, past which the count holds flat by design.
+    /// Any change in the measurement, in either direction, snaps the published value back to it and
+    /// clears the nudge; an unchanged measurement arriving on any OTHER push neither nudges nor
+    /// dips. The measurement itself is clamped `ContinuedProgressNudge.headroom` sub-units below
+    /// the scaled total, so the published count never reaches it and a full-looking measurement is
+    /// still nudgeable. A run with an honest, moving measurement publishes exactly what it always
+    /// did — below the ceiling the expression is bit-identical.
     public func updateProgress(
         sessionID: UUID,
         completedUnitCount: Int64,
         totalUnitCount: Int64,
-        inFlightSubunitCount: Int64 = 0,
+        subunits: ContinuedSubunitReport = .init(),
         subtitle: String
     ) {
         guard self.sessionID == sessionID else { return }
-        lastCompletedUnitCount = completedUnitCount
         lastTotalUnitCount = totalUnitCount
-        lastInFlightSubunitCount = inFlightSubunitCount
+        let measured = Self.measuredSubunitCount(
+            completedUnitCount: completedUnitCount,
+            totalUnitCount: totalUnitCount,
+            inFlightSubunitCount: subunits.inFlightSubunitCount
+        )
+        let stalled = nudge.record(
+            measuredSubunits: measured,
+            nudgesWhenStalled: subunits.nudgesWhenStalled
+        )
+        if stalled {
+            // Read out before the log: the message's interpolations are autoclosures, and a
+            // property of this class read from inside one would have to name `self` explicitly for
+            // capture semantics that a locally read integer does not have at all.
+            let nudgeCount = nudge.count
+            // Logged distinctly so a device archive tells real progress and this workaround apart.
+            // Integers only — no gallery value is in scope in this domain-agnostic store — so every
+            // interpolation goes out public.
+            logger.notice(
+                """
+                Continued-processing progress stalled, \
+                nudge \(nudgeCount, privacy: .public) of \
+                \(ContinuedProgressNudge.cap, privacy: .public) above \
+                \(measured, privacy: .public) of \
+                \(totalUnitCount * Self.subunitsPerUnit, privacy: .public) subunits.
+                """
+            )
+        }
         guard let task else { return }
         // Total first, so the fraction never transiently exceeds one while a growing queue is
         // being reported.
         task.progress.totalUnitCount = totalUnitCount * Self.subunitsPerUnit
-        task.progress.completedUnitCount = foldedCompletedUnitCount(
-            completedUnitCount: completedUnitCount,
-            totalUnitCount: totalUnitCount,
-            inFlightSubunitCount: inFlightSubunitCount
-        )
+        task.progress.completedUnitCount = nudge.reportedSubunits
         task.updateTitle(task.title, subtitle: subtitle)
     }
 
-    /// The scaled numerator: whole units at full scale plus the in-flight sub-units, never above
-    /// the scaled total.
-    private func foldedCompletedUnitCount(
+    /// The scaled numerator the CALLER expressed: whole units at full scale plus the in-flight
+    /// sub-units, held `ContinuedProgressNudge.headroom` below the scaled total and floored at
+    /// zero.
+    ///
+    /// Reserving the headroom rather than clamping at the total is what keeps the nudge expressible
+    /// at the top of the range: a caller reporting a finished-looking measurement is precisely the
+    /// one whose next report has nothing new to say, and a clamp at the total would swallow the one
+    /// sub-unit that says it is still working. The floor matters for the degenerate denominator —
+    /// a single-unit queue scales to a thousand, which is well above the headroom, but a zero-unit
+    /// one would otherwise produce a negative numerator.
+    private static func measuredSubunitCount(
         completedUnitCount: Int64,
         totalUnitCount: Int64,
         inFlightSubunitCount: Int64
     ) -> Int64 {
-        min(
-            completedUnitCount * Self.subunitsPerUnit + inFlightSubunitCount,
-            totalUnitCount * Self.subunitsPerUnit
+        max(
+            0,
+            min(
+                completedUnitCount * subunitsPerUnit + inFlightSubunitCount,
+                totalUnitCount * subunitsPerUnit - ContinuedProgressNudge.headroom
+            )
         )
     }
 
@@ -352,14 +414,11 @@ public final class ContinuedProcessingSession {
         pendingIdentifier = nil
         self.task = task
         // These counts come from the snapshot captured by start, or a newer accepted push, and are
-        // seeded through the same fold a live push writes — so adoption mid-transfer reports what
-        // the next push would report rather than dropping back to the last whole unit.
+        // seeded through the same expression a live push writes — so adoption mid-transfer reports
+        // what the next push would report rather than dropping back to the last whole unit, and it
+        // carries whatever the nudge had already added rather than silently rewinding it.
         task.progress.totalUnitCount = lastTotalUnitCount * Self.subunitsPerUnit
-        task.progress.completedUnitCount = foldedCompletedUnitCount(
-            completedUnitCount: lastCompletedUnitCount,
-            totalUnitCount: lastTotalUnitCount,
-            inFlightSubunitCount: lastInFlightSubunitCount
-        )
+        task.progress.completedUnitCount = nudge.reportedSubunits
         task.setExpirationHandler { [weak self] in
             // There is no documented budget after expiration, so this does nothing but perform
             // the terminal transition — no I/O, no awaits.
@@ -407,9 +466,8 @@ public final class ContinuedProcessingSession {
         sessionID = nil
         pendingIdentifier = nil
         isAwaitingTask = false
-        lastCompletedUnitCount = 0
         lastTotalUnitCount = 0
-        lastInFlightSubunitCount = 0
+        nudge = ContinuedProgressNudge()
 
         if let abandonedIdentifier {
             scheduling.cancel(abandonedIdentifier)
