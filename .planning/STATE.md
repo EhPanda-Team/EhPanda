@@ -6,15 +6,15 @@ current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: planning
 stopped_at: Phase 15 closed 2026-08-19 (all 77 plans, UAT round 8, verification passed 9/9)
-last_updated: "2026-08-19T13:18:01.530Z"
+last_updated: "2026-08-19T16:45:50.795Z"
 last_activity: 2026-08-19
 last_activity_desc: "PHASE 15 CLOSED 2026-08-19. 15-UAT round 8 on the test iPhone closed test 2 and the last open gap G-15-2I; 15-VERIFICATION.md passed 9/9 with no gaps; DEF-15-07 closed by owner ruling (the file_length violation on AppPackage/Package.swift is accepted permanently - the only remedy is splitting the manifest and the owner does not want it split), so no deferred item is open. Round 8 was the first round in which the SC2 procedure actually ran BACKGROUNDED: the session held 31m55s with no expiry across 105 heartbeats, three starved transfers were abandoned at 64.7/61.5/63.6 s and each retried within 3 s with the numerator moving again inside 15 s, the stall nudge peaked at 7 of 30 against a 1,057,000 sub-unit total, and the card-cancel clause - which no earlier round had reached - matched the in-app per-gallery pause baseline exactly. Two facts recorded in 15-UAT.md for later readers: agent-device home does NOT background an app on a physical iPhone although it reports success (use xcrun devicectl device process launch and confirm by screenshot), and the card cancel shares the expired arm with a scheduler reclaim so that log line alone cannot tell them apart. NEXT: phase 16 (Dynamic Type Accessibility) is not started; it is human-implemented, agent verify-only. Branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner standing decision."
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 14
   total_plans: 248
   completed_plans: 248
-  percent: 88
+  percent: 82
 ---
 
 # Project State
@@ -32,9 +32,9 @@ Phase: 16 — Dynamic Type Accessibility
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-08-19 — Phase 15 complete, transitioned to Phase 16
-Next: plan phase 16 (Dynamic Type Accessibility) when the owner is ready — it is human-implemented, agent verify-only. Nothing is open against phase 15. The branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner's standing decision.
+Next: plan phase 16 (Dynamic Type Accessibility) when the owner is ready — it is human-implemented, agent verify-only. Nothing is open against phase 15. The branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner's standing decision. Phase 17 (Localized Screenshot Capture Harness) was added 2026-08-20 and now runs after 16; it is blocked on the owner's personal choice of which real galleries seed the mock data.
 
-Progress: [█████████░] 88% (14/16 phases)
+Progress: [████████░░] 82% (14/17 phases)
 
 ## Performance Metrics
 
@@ -855,6 +855,7 @@ None yet.
 - Phase 13 added: Analytics Instrumentation (TelemetryDeck) - privacy-first opt-in analytics *(historical wording — D-01 then chose on-by-default with no opt-out; the owner reversed D-01 during 14-18, so the phase shipped as Phase 14 on-by-default with a runtime opt-out in General Settings)*
 - Phase 12 added (integer, Cloudflare Login Restoration): restore username/password login broken by the Cloudflare challenge wall (403 + cf-mitigated on forums.e-hentai.org); in-app browser clearance capture, in-memory cf_clearance. Cascaded existing phases: Deep Link Hardening 12→13, Analytics/TelemetryDeck 13→14, Dynamic Type Accessibility 14→15 (owner chose integer over decimal 12.1)
 - Phase 15 inserted after Phase 14: Continued Background Downloads (BGContinuedProcessingTask); Dynamic Type Accessibility renumbered 15 to 16
+- Phase 17 added: Localized Screenshot Capture Harness — all-language / light+dark deterministic marketing screenshots from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 
 ## Deferred Items
 

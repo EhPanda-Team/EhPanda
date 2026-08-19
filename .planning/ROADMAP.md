@@ -37,6 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [ ] **Phase 16: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
+- [ ] **Phase 17: Localized Screenshot Capture Harness** - Deterministic capture of the marketing screenshot set across all 6 app languages and both color schemes, from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 
 ## Phase Details
 
@@ -672,7 +673,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -692,6 +693,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 0/0 | Not Started |  |
+| 17. Localized Screenshot Capture Harness | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1096,3 +1098,33 @@ Gap closure round 21 (verification 2026-08-10, gaps 1-5, plus the two 15-UAT.md 
 **Foundation already in place (Phase 10):** 7 fixed-pixel font sites scaled with text styles + `@ScaledMetric` (10-10); B1–B10 AX5 reflows via constraint-drop / `@ScaledMetric` at default-size parity (10-11). Prohibitions to preserve: no `dynamicTypeSize` cap, no `GeometryReader`, `minimumScaleFactor` only where already present.
 
 **Plans**: TBD (human-implemented — the agent runs verification only)
+
+### Phase 17: Localized Screenshot Capture Harness
+
+**Goal**: A repeatable, deterministic harness that captures the complete marketing screenshot set — every supported app language (`en`, `de`, `ja`, `ko`, `zh-Hans`, `zh-Hant`) × both color schemes (light and dark) — rendered from mock data under a locked clock, so a rerun on the same commit reproduces the same images and no live network traffic, real account state, or wall-clock time can leak into the output. The captured set is the asset source for the EhPanda website and the AltStore listing.
+**Depends on**: Phase 16 — runs last, against the fully-settled, Dynamic-Type-verified UI.
+**Requirements**: TBD — new work, not covered by the v3.0.0 requirement set; assign requirement ID(s) during /gsd-discuss-phase.
+
+**Owner-supplied input (blocking)**: The mock data must carry *real* gallery information, and **the owner personally chooses which galleries**. Those galleries' metadata and cover/preview images are captured into a checked-in fixture during this phase; the harness never fetches them at capture time. The gallery selection is a blocking owner input — the fixture shape can be designed before it lands, but the fixture cannot be finalized without it.
+
+**Success Criteria** (what must be TRUE):
+
+  1. One command produces the full matrix — 6 languages × 2 color schemes × the agreed screen list — with no manual stepping between variants.
+  2. Output is deterministic: two runs on the same commit produce identical images. The clock is locked, so relative timestamps, date labels, and any time-derived text never drift between runs.
+  3. Every captured screen renders from mock data only: no live network request, no real account cookies, no personal library, favorites, or download state.
+  4. The mock data reproduces the owner-chosen galleries' real information from a checked-in fixture, not from a live fetch.
+  5. Each locale's screenshots show genuinely localized text (the app actually runs in that locale), with no clipped or overflowing strings at the capture size.
+  6. Captured files are named and foldered so the website and AltStore consumers can ingest them without hand-renaming.
+  7. The harness is DEBUG/test-only: it cannot alter release behavior, and its fixtures do not ship in the release binary.
+
+**Existing seams to build on**: `AppLaunchAutomationClient` / `AppLaunchAutomation` already resolve a DEBUG-only launch configuration from `EHPANDA_AUTOMATION_*` environment variables (initial tab, auto-download GID, login cookies, gallery URL) — the natural extension point for a capture mode. `PreviewSupport` and `TestingSupport` hold the existing preview/test doubles that the mock data can reuse.
+
+**Open questions for /gsd-discuss-phase**:
+
+  - Device matrix: which simulators, and whether AltStore needs a different set than the website.
+  - Screen list: which screens belong in the marketing set (and whether any require a logged-in appearance, which must then also come from mock data).
+  - Capture mechanism: XCUITest screenshots of a running app vs. `ImageRenderer` snapshots of composed views — this decides how the status bar and the locked clock are controlled.
+  - Whether the status bar is overridden (`simctl status_bar`) to the App Store convention.
+  - Whether device frames and captions are composited here or downstream in the website repo.
+
+**Plans**: TBD (run /gsd-plan-phase 17 to break down)
