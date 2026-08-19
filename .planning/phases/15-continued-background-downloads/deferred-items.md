@@ -12,16 +12,18 @@ prose and will drift.
 | DEF-15-02 | resolved 2026-08-19 (f9892824) | — |
 | DEF-15-03 | resolved by 15-64, owned since 15-74 | — |
 | DEF-15-04 | open | quick task with DEF-15-10 |
-| DEF-15-05 | open | quick task with 06, 08, 09, 11 |
-| DEF-15-06 | open | quick task with 05, 08, 09, 11 |
+| DEF-15-05 | resolved 2026-08-19 (668c57be, quick 260819-n3y) | — |
+| DEF-15-06 | resolved 2026-08-19 (ace21ed5, quick 260819-n3y) | — |
 | DEF-15-07 | open, DEFERRED INDEFINITELY by the owner 2026-08-19 — do not pick up | — |
-| DEF-15-08 | open | quick task with 05, 06, 09, 11 |
-| DEF-15-09 | open | quick task with 05, 06, 08, 11 |
+| DEF-15-08 | resolved 2026-08-19 (a87bbc10, quick 260819-n3y) | — |
+| DEF-15-09 | resolved 2026-08-19 (f704ece5, quick 260819-n3y) | — |
 | DEF-15-10 | open | quick task with DEF-15-04 |
-| DEF-15-11 | open | quick task with 05, 06, 08, 09 |
+| DEF-15-11 | resolved 2026-08-19 (9c8145a1, quick 260819-n3y) | — |
 
 The two groupings are the owner's, decided 2026-08-19. They are groupings only — nothing about
-scope, order or approach inside either group is settled here, and neither group has been planned.
+scope, order or approach inside either group is settled here. The 05/06/08/09/11 group was planned
+and closed the same day as quick task 260819-n3y (`.planning/quick/260819-n3y-*/`); the 04/10 group
+has not been planned.
 
 ## DEF-15-01 — ROADMAP.md progress table is missing a Phase 16 row — RESOLVED
 
@@ -48,7 +50,9 @@ now ends at 16. The historical report above is kept for the record.
 five call sites and raised `waitForTaskValue`'s default to ten seconds; 15-74 declined IN-01's
 request to restore a one-second bound at this case and its sibling detector, and wrote the
 derivation — this record included — into the call site itself, so the ten-second bound is now a
-decision with an owner rather than an inherited default. The historical report follows.
+decision with an owner rather than an inherited default. Superseded at the two detector sites by
+DEF-15-09 (2026-08-19): the bound there was replaced by a sentinel fence; the ten-second default
+stands at every other `waitForTaskValue` caller. The historical report follows.
 
 `DownloadDeleteConvergenceTests.testDeletingAVanishedRecordKeepsTheRestOfTheQueueMoving` waited on
 its observer emission with `timeout: .seconds(1)`. It failed once during plan 15-21 — on the run
@@ -70,7 +74,7 @@ Building the targeted package tests with Xcode 26.6 reports two Swift concurrenc
 `UIDevice.current.userInterfaceIdiom`. The file is outside Plan 15-10's session-identity scope,
 and the warnings predate its changes.
 
-## DEF-15-05 — `DownloadsReducer.toggleDownloadPauseDone(.failure)` is silent with no report surface
+## DEF-15-05 — `DownloadsReducer.toggleDownloadPauseDone(.failure)` is silent with no report surface — RESOLVED
 
 Found during plan 15-73's two-reducer sweep. The downloads list offers Pause/Resume from a swipe
 action and a context menu (`DownloadsView.swift:121-135`, `194-207`), both gated by the rendered
@@ -87,7 +91,16 @@ value, an action case, an `.ifLet`, and a view modifier in `DownloadsView` — a
 addition, outside this plan's files. The disposition is stated in the reducer's type doc so it reads
 as an open item rather than a considered no-report.
 
-## DEF-15-06 — `fetchDownloads` / `fetchFolders` throw into an effect with no `catch:`
+**RESOLVED 2026-08-19 in commit 668c57be (quick 260819-n3y).** `DownloadsReducer.State` gained
+`@Presents var toast: AppAlertState<Never>?`, the failure arm of `toggleDownloadPauseDone` sets it
+through the inspector's `actionFailureToast` mapping — moved out of `DownloadInspectorReducer.swift`
+into the module-shared `AppError+ActionFailureToast.swift` — and `DownloadsView` renders it with
+`.toast(...)`. No reload accompanies the report: the list's rows are the live `observeDownloads`
+stream, so both refusal arms are already reflected on screen. Pinned by `DownloadsPauseFailureTests`
+(five cases mirroring the inspector suite, all fully exhaustive). The reducer's failure-reporting
+policy doc was rewritten accordingly.
+
+## DEF-15-06 — `fetchDownloads` / `fetchFolders` throw into an effect with no `catch:` — RESOLVED
 
 Also found during the same sweep, and outside its scope (neither action is result-carrying).
 `DownloadsReducer.swift:251-255` and `288-292` both `try await` inside `.run { }` with no `catch:`
@@ -95,6 +108,17 @@ arm. A throw there is reported by TCA as a runtime issue rather than handled, an
 `fetchDownloads` path `state.loadingState` was set to `.loading` immediately before, so a throwing
 fetch leaves the list spinning with no error state and no retry. Gap 4's contract covers actions
 that carry a `Result`; these carry none, which is precisely why the failure has nowhere to go.
+
+**RESOLVED 2026-08-19 in commit ace21ed5 (quick 260819-n3y), at the interface rather than at the
+call sites.** Both live implementations (`DownloadCoordinator.fetchDownloads()`, `fetchFolders()`)
+are pure reads of actor state and cannot fail, and no test double anywhere throws from either, so
+the `throws` on the two `DownloadClient` closures was vestigial. They are now `@Sendable () async ->
+…` with the `= { [] }` default `@DependencyClient` requires, and all FOUR `try await` sites dropped
+the `try` — the two this item named plus `DetailReducer+Download.swift` and
+`FolderManagerReducer.swift`. The defect is gone by construction; `catch:` arms were deliberately
+not added for failures that cannot happen. Consequence: `DownloadsView`'s `.failed →
+ErrorView(retry)` branch was unreachable and was removed; `DownloadsReducer.State.loadingState`
+carries a doc saying only `.loading`/`.idle` occur.
 
 ## DEF-15-07 — `AppPackage/Package.swift` exceeds the 1000-line `file_length` ERROR limit
 
@@ -110,7 +134,7 @@ move, so it was not fixed under the scope boundary — and it is not a branch fi
 manifest under the limit means splitting the target list across files (`swift-tools-version: 6.3.1`
 allows manifest helper files under `Sources/<Package>/`), which is a package-layout change.
 
-## DEF-15-08 — Force the inspector's Pause/Resume refusal through the existing UI-test seam
+## DEF-15-08 — Force the inspector's Pause/Resume refusal through the existing UI-test seam — RESOLVED
 
 Surfaced closing UAT test 12. Both refusal arms of `togglePause`
 (`DownloadClient+PublicAPI.swift:189-214`, `.notFound` and `.unknown`) are unreachable by hand on a
@@ -137,7 +161,18 @@ only unobserved link is SwiftUI presenting a value type it already presents. Add
 during a phase close-out re-opens review for a residual risk that is a presentation identity. Worth
 doing if a permanent device-visible regression guard is ever wanted.
 
-## DEF-15-09 — Replace the convergence detectors' wall-clock wait with a fence
+**RESOLVED 2026-08-19 in commit a87bbc10 (quick 260819-n3y).** `EHPANDA_UITEST_FORCE_PAUSE_REFUSAL`
+(exactly `notFound` or `unknown`, whitespace-trimmed; anything else is not an override) resolves to
+`UITestAutomation.PauseRefusal`, opts the configuration in on its own, and `prepare` installs
+`$0.downloadClient.togglePause = { _ in throw refusal.error }` via `prepareDependencies`, all under
+the existing `#if DEBUG`. Because it replaces the endpoint it forces BOTH surfaces — the list's
+swipe and context-menu Pause (which reports since DEF-15-05) and the inspector's. Device recipe:
+launch with only that key set (no stubbed network), open Downloads, tap Pause/Resume on any active
+or paused download, observe the toast. Pinned by five `UITestStubTests` cases (resolution only;
+`prepare` is never called with the key in tests). No XCUITest: a hermetic UI test would need a
+`canTogglePause` row, which the stubbed launch cannot produce.
+
+## DEF-15-09 — Replace the convergence detectors' wall-clock wait with a fence — RESOLVED
 
 Surfaced ratifying UAT test 13. The two missing-notification detectors
 (`DownloadDeleteConvergenceTests.swift:127`, `DownloadOwnershipConvergenceTests.swift:94`) use
@@ -159,6 +194,20 @@ public, so after `delete` returns the test pushes a distinct sentinel snapshot, 
 reads until it sees the sentinel and breaks. The assertion becomes about sequence, not time, and the
 pre-fix bug fails immediately with a name. Do not rely on cancellation draining the buffer —
 `AsyncStream`'s post-cancellation delivery is an implementation detail, not a documented contract.
+
+**RESOLVED 2026-08-19 in commit f704ece5 (quick 260819-n3y), in the preferred shape — no production
+change.** Both detectors now push a fresh-gid sentinel through `fixture.manager.observerHub.notify`
+after the operation returns, collect until it (`collectSnapshots(from:untilFence:)` in the new
+`DownloadFeatureFenceHelpers.swift`, which owns the fence-versus-clock reasoning for both), and pin
+the sequence before it: `count >= 2`, the initial pair first, the converged emission second,
+compared by gid membership (the published index orders by modification date, which neither detector
+is about). No deadline on the await — termination is by construction. `waitForTaskValue` and its
+other callers are untouched. The ten-second bound DEF-15-03 recorded as "a decision with an owner"
+is therefore retired at these two sites only. Falsification was checked: removing the not-found
+exit's whole convergence tail fails the delete detector in 0.05 s by name (`emissions.count → 1`),
+whereas removing only its `notifyObservers()` line does not, because the sibling
+`scheduleNextIfNeeded()` publishes the converged index through its own path — recorded in the quick
+task's SUMMARY.
 
 ## DEF-15-10 — Delete the hand-typed localization key literals by forwarding to Xcode's generated symbols
 
@@ -195,7 +244,7 @@ Note also the AGENTS.md labelled-localized-format rule — shared keys carry han
 labels for NUMERIC arguments, and forwarding must preserve them rather than fall back to positional
 generated signatures.
 
-## DEF-15-11 — No test covers a row leaving `rows` while its confirmation dialog is presented
+## DEF-15-11 — No test covers a row leaving `rows` while its confirmation dialog is presented — RESOLVED
 
 Surfaced closing UAT test 8. The owner chose to keep the delete confirmation attached to the ROW
 (`DownloadsView.swift:227-229`) and amended the `AGENTS.md` placement rule accordingly, on the
@@ -219,3 +268,16 @@ Not done in phase 15: the anchoring decision closed the checkpoint, and this is 
 behavioural gap that predates it. The amended rule explicitly prefers "eliminating that instability,
 or covering it with a test, over giving up the correct anchor", so this is the follow-through that
 sentence points at.
+
+**RESOLVED 2026-08-19 in commit 9c8145a1 (quick 260819-n3y).** Correction to the record first: a
+drop case already existed when this was filed (`DownloadRowConfirmationTests`, 2026-08-11); what was
+missing was the "what should happen" half. The suite now pins both shapes of the hazard at reducer
+level, with no production change: a REORDERING tick keeps the armed row's dialog on that row (gid
+identity) and its confirmed action still deletes that gid; a tick that DROPS the row takes the
+dialog with it structurally (the rows are the storage), fires no deletion (full exhaustivity from
+the removal on, plus a `delete` recorder), and a record returning in a later tick comes back
+disarmed. Filter/gate flips were examined and deliberately not pinned: narrowing a filter while a
+row dialog is up is unreachable (modal on iPhone; the iPad popover dismisses first), and the one
+programmatic filter write widens the visible set. The stale `DownloadRow` doc paragraph in
+`DownloadsView.swift` that still described the anchor as in tension with the placement rule was
+rewritten to the amended rule and points at the suite.
