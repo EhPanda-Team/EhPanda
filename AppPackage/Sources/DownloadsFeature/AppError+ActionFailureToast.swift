@@ -4,7 +4,7 @@ import AppModels
 extension AppError {
     /// The toast a refused or failed download action renders (WR-04, WR-05, DEF-15-05).
     ///
-    /// **Three action families share it, which is why it is not named for either.** The inspector's
+    /// **Three action families share it, which is why it is named for none of them.** The inspector's
     /// `retryPagesDone` and `toggleDownloadPauseDone`, and the list's `toggleDownloadPauseDone`, all
     /// answer a tap the download client refused, and the user's question is the same one on all
     /// three: the screen did not move, why. The mapping is therefore stated over `AppError` as a
