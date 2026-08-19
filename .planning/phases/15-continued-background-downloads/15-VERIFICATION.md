@@ -3,7 +3,7 @@ phase: 15-continued-background-downloads
 verified: 2026-08-19T10:35:00Z
 re_verified_after_device_round: 2026-08-19T12:55:00Z
 re_verified_after_fix_round: 2026-08-19T13:15:00Z
-status: verified
+status: passed
 score: 9/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
