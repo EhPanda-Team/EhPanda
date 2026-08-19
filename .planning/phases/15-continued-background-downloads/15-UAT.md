@@ -1029,8 +1029,23 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
     The two numbers were decided by the owner on 2026-08-19: a 60 s abandon threshold, and a cap of
     30 consecutive nudges. The UAT clause amendment below was delegated to the agent's wording.
-  fix_spec: |
+  binding_and_suggested: |
+    READ THIS FIRST. Everything below is in one of two categories and they are NOT equal.
+
+      BINDING — the owner's decisions, listed under owner_decision_2026_08_19 and restated in
+      "BINDING" blocks below. These are settled; a plan that departs from them is wrong.
+
+      SUGGESTED — everything in the "SUGGESTED" blocks. That is one agent's engineering opinion,
+      written before planning and without a planner's analysis. The planner OWNS these choices and
+      may discard any of them outright. Where a suggestion cites an observation (a log line, a source
+      line, a count), the OBSERVATION stands as evidence; the conclusion drawn from it does not bind.
+
     ============================ HALF 1 — ABANDON AND RETRY A STARVED TRANSFER ============================
+
+    BINDING: a page transfer that has produced no bytes for 60 SECONDS is abandoned and retried.
+    Both the behaviour and the number are the owner's, decided 2026-08-19.
+
+    SUGGESTED, everything from here to the end of Half 1 — the planner may take any, all or none:
 
     GOAL: a page transfer that has produced no bytes for long enough is cancelled and retried, so real
     progress resumes instead of the queue hanging on it.
@@ -1058,6 +1073,15 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
     ============================ HALF 2 — A BOUNDED STALL NUDGE ON THE CARD ============================
 
+    BINDING, all four:
+      (a) the card gains a bounded way to keep its published count advancing while the run is stalled;
+      (b) the cap is 30 CONSECUTIVE NUDGES;
+      (c) there is NO second "is there work" condition — see the rejection note below, which is the
+          owner's, not a suggestion;
+      (d) the design is adapted from a reference project whose name is never recorded — see CHECKPOINT.
+
+    SUGGESTED, everything else in Half 2:
+
     GOAL: while the app legitimately has work pending but has nothing new to report, the published
     count still advances, so the scheduler does not treat the task as stalled.
 
@@ -1065,8 +1089,8 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     name-free; the source project is never to be named in any file here.
 
     SHAPE:
-      - NO SECOND "IS THERE WORK" CONDITION. Nudge on every stalled report; the CAP below is the only
-        bound. An earlier draft of this spec gated the nudge on "at least one in-flight transfer OR a
+      - NO SECOND "IS THERE WORK" CONDITION (BINDING — the owner's rejection, not a suggestion).
+        Nudge on every stalled report; the CAP below is the only bound. An earlier draft of this spec gated the nudge on "at least one in-flight transfer OR a
         scheduled retry" and the owner rejected it on 2026-08-19, correctly: a session with nothing to
         do must not exist in the first place, so guarding against that state implies it is expected.
         `beatContinuedSession` (`DownloadClient+ContinuedSessionHeartbeat.swift:85`) ALREADY opens with
@@ -1077,7 +1101,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
         healthily advancing, so that condition would have been false in a large fraction of ordinary
         frames and would have stopped nudging mid-download — manufacturing the very defect this fixes.
         Do not reintroduce it in any form.
-      - CAP AT 30 CONSECUTIVE NUDGES (~5 min at the 10 s heartbeat), which is now the ONLY bound and
+      - CAP AT 30 CONSECUTIVE NUDGES (BINDING) (~5 min at the 10 s heartbeat), which is now the ONLY bound and
         therefore carries the whole weight. Rationale to record in the source: with Half 1 in place a
         page can be starved at most retryLimit x pageTransferAbandonThreshold = 3 x 60 s = 180 s
         before it fails and the queue moves, so 30 nudges is generous headroom over the worst
@@ -1118,7 +1142,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     or in any commit message. Refer to it only as "a reference project". This repository is
     open-source; other projects on a contributor's machine may not be.
 
-    ============================ TESTS ============================
+    ============================ TESTS — SUGGESTED ONLY ============================
+    Not a required test list. These are the cases one agent thought discriminating; the planner
+    decides what to write and may cover the same properties differently or better.
       Half 1: a transfer whose bytes stop is abandoned at the threshold and retried; a slow-but-moving
         transfer is NOT abandoned (the discriminating control — pin it, since measuring from the wrong
         instant is the likely implementation error); a page starved across retryLimit attempts fails
@@ -1132,7 +1158,10 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       Both: the existing continued-session suites stay green, and the `1 galleries` / `2 galleries`
         subtitle behaviour test 2 pins is unaffected.
 
-    ============================ WHAT MUST NOT CHANGE ============================
+    ============================ WHAT MUST NOT CHANGE — SUGGESTED ============================
+    Offered as a blast-radius note, not a rule. The one genuinely binding boundary is the owner's
+    standing SSOT line, already recorded in AGENTS.md and in DownloadRunProgress: a run-scoped
+    display value must never enter the record's completeness, its gates, or its scheduling.
       `continuedSessionHeartbeatInterval` (10 s), `subunitsPerUnit` (1000), `retryLimit` (3), the
       record's completeness quantities, `displayStatus`, the retry basis, and every scheduling gate.
       The nudge is progress-of-this-RUN presentation only and must never enter any of them — the same
