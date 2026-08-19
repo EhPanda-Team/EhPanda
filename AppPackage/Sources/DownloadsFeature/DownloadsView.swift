@@ -8,6 +8,7 @@ import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
 import SwiftUI
+import SystemNotification
 
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
@@ -56,6 +57,8 @@ public struct DownloadsView: View {
                 .confirmationDialog(
                     $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
                 )
+                // The list-level toast, currently used only by a refused Pause/Resume (DEF-15-05).
+                .toast($store.scope(\.$toast, action: \.toast))
                 .navigationTitle(.RLocalizable.downloads)
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar(content: toolbar)
