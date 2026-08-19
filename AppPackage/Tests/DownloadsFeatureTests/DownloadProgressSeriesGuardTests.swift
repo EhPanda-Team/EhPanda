@@ -77,7 +77,7 @@ private extension DownloadProgressSeriesGuardTests {
                 sessionID: sessionID,
                 completedUnitCount: numerator,
                 totalUnitCount: 6,
-                inFlightSubunitCount: 0,
+                subunits: .init(),
                 subtitle: "\(numerator) / 6 pages · 1 gallery"
             )
         }

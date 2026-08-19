@@ -17,7 +17,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             _ = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
         }
         await withKnownIssue("updateProgress is unimplemented") {
-            await client.updateProgress(UUID(), 3, 10, 0, "3 / 10 pages · 1 gallery")
+            await client.updateProgress(UUID(), 3, 10, .init(), "3 / 10 pages · 1 gallery")
         }
         await withKnownIssue("finish is unimplemented") {
             await client.finish(UUID(), true)
@@ -33,7 +33,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let session = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
         #expect(session == nil)
 
-        await client.updateProgress(UUID(), 3, 10, 0, "3 / 10 pages · 1 gallery")
+        await client.updateProgress(UUID(), 3, 10, .init(), "3 / 10 pages · 1 gallery")
         await client.finish(UUID(), true)
     }
 
@@ -57,7 +57,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let foreignSessionID = UUID()
         await client.finish(foreignSessionID, false)
         spy.emit(.granted)
-        await client.updateProgress(session.id, 3, 10, 250, "3 / 10 pages · 1 gallery")
+        await client.updateProgress(session.id, 3, 10, .init(inFlightSubunitCount: 250), "3 / 10 pages · 1 gallery")
         #expect(spy.progressUpdates == [
             .init(
                 sessionID: session.id,
@@ -65,7 +65,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
                 totalUnitCount: 10,
                 // Recorded alongside the pair rather than dropped: the spy has to hold up the same
                 // contract the live client does, and the sub-page term is now part of it.
-                inFlightSubunitCount: 250,
+                subunits: .init(inFlightSubunitCount: 250),
                 subtitle: "3 / 10 pages · 1 gallery"
             )
         ])

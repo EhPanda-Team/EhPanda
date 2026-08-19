@@ -351,25 +351,6 @@ extension DownloadCoordinator {
         snapshot.sessionProgress.galleryCount + retiredSessionPages.values.count(where: { $0 > 0 })
     }
 
-    /// The card's entire content surface: counts in, one localized string out.
-    ///
-    /// No gallery value is in scope here, and the localized key accepts nothing but integers, so
-    /// no content-identifying text has a path onto the card. That is a requirement rather than an
-    /// accident of the current wording: the card renders in system UI, outside the app's privacy
-    /// mask and outside App Switcher snapshot protection, where a gallery name would be readable
-    /// by anyone glancing at the screen.
-    func continuedSessionSubtitle(
-        for progress: ContinuedSessionProgress
-    ) -> String {
-        String(
-            localized: .RLocalizable.continuedSessionSubtitle(
-                completed: progress.progress.displayCompletedPageCount,
-                total: progress.progress.displayPageCount,
-                galleries: progress.galleryCount
-            )
-        )
-    }
-
     /// Starts the one queue-wide session, if none is live and there is work for it to cover.
     ///
     /// Call this from a queue-mobilizing user action and from nowhere else. The scheduler
@@ -930,8 +911,20 @@ extension DownloadCoordinator {
     ///
     /// The pushed pair stays whole pages; the sub-page term travels beside it and is folded by the
     /// client (PD-1, `DownloadClient+PageTransferProgress.swift`).
+    ///
+    /// **`nudgesWhenStalled` marks this report as a periodic LIVENESS re-push (G-15-2I).** Only
+    /// `beatContinuedSession` passes true; every other push — the flush, the intra-page byte
+    /// report, the run-start announcement, the convergence tail — takes the default. The store owns
+    /// the nudge itself: it holds the last published measurement, so it is the only place that can
+    /// decide whether this report says anything new, and a flag is all that has to cross the seam.
+    /// The restriction is about the CAP's meaning rather than about honesty — an intra-page report
+    /// arrives at up to once a second on a crawling page and would spend thirty nudges in thirty
+    /// seconds, while the cap was decided against the ten-second beat.
     @discardableResult
-    func pushContinuedSessionProgress(sessionID: UUID) async -> ContinuedSessionPushRecord? {
+    func pushContinuedSessionProgress(
+        sessionID: UUID,
+        nudgesWhenStalled: Bool = false
+    ) async -> ContinuedSessionPushRecord? {
         guard continuedSessionID == sessionID else { return nil }
         let snapshot = await schedulableSnapshot()
         guard continuedSessionID == sessionID else { return nil }
@@ -983,7 +976,10 @@ extension DownloadCoordinator {
             clientSessionID,
             Int64(pushed.progress.displayCompletedPageCount),
             Int64(pushed.progress.displayPageCount),
-            inFlightSubunits,
+            ContinuedSubunitReport(
+                inFlightSubunitCount: inFlightSubunits,
+                nudgesWhenStalled: nudgesWhenStalled
+            ),
             continuedSessionSubtitle(for: pushed)
         )
         return ContinuedSessionPushRecord(
