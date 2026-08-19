@@ -64,6 +64,16 @@ public actor DownloadCoordinator {
     public static let continuedSessionHeartbeatInterval: Duration = .seconds(10)
     /// How long a transfer may report zero bytes before it is logged as starved.
     public static let pageTransferStallThreshold: TimeInterval = 10
+    /// How long a transfer may go without bytes — measured from the LAST byte it delivered, or from
+    /// the attempt's start when it has delivered none — before the heartbeat's sweep abandons the
+    /// attempt and lets the page's own retry path take it (G-15-2I, owner decision 2026-08-19).
+    ///
+    /// **Two constants on purpose.** The log stays sensitive at ten seconds, because a device
+    /// archive wants to see a silence long before anyone would act on it; the ACTION stays
+    /// conservative at sixty, because cancelling a transfer that is merely slow to start costs a
+    /// re-resolution and a fresh connection. One constant serving both would have to pick which of
+    /// the two it was bad at.
+    public static let pageTransferAbandonThreshold: TimeInterval = 60
     /// How long an unchanged heartbeat numerator may go unlogged, so the jsonl stays small without
     /// losing the "still alive, still stuck" evidence.
     public static let heartbeatSummaryMinimumInterval: TimeInterval = 30
