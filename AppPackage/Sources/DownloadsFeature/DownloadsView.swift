@@ -70,9 +70,6 @@ private extension DownloadsView {
         case .loading where store.downloads.isEmpty:
             LoadingView()
 
-        case .failed(let error) where store.downloads.isEmpty:
-            ErrorView(error: error, action: { store.send(.fetchDownloads) })
-
         default:
             List {
                 // Scoped per row so each one carries its own delete confirmation. The collection

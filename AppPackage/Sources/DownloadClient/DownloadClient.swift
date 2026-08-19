@@ -18,7 +18,15 @@ public struct DownloadClient: Sendable {
     /// Records whether the app is backgrounded, so each page transfer can be stamped with where it
     /// was created. The client stays UIKit-free; the scene phase is AppReducer's to report.
     public var setIsInBackground: @Sendable (_ isInBackground: Bool) async -> Void
-    public var fetchDownloads: @Sendable () async throws -> [DownloadedGallery]
+    /// A pure read of the coordinator's in-memory download index, which cannot fail.
+    ///
+    /// Together with ``fetchFolders`` this was declared `throws` until DEF-15-06: the interface
+    /// promised a failure no implementation could produce, and the four reducer effects reading the
+    /// pair `try await`ed inside a `.run` with no `catch:` arm, so a throw would have surfaced as a
+    /// TCA runtime issue rather than as anything a screen could report. Non-throwing removes that by
+    /// construction; if a real failure mode ever appears, restoring `throws` makes the compiler
+    /// enumerate every site.
+    public var fetchDownloads: @Sendable () async -> [DownloadedGallery] = { [] }
     public var fetchDownload: @Sendable (String) async -> DownloadedGallery?
     public var reconcileDownloads: @Sendable () async -> Void
     public var refreshDownloads: @Sendable () async -> Void
@@ -36,7 +44,9 @@ public struct DownloadClient: Sendable {
     public var rescanLocalPageURLs: @Sendable (String) async -> [Int: URL]?
     public var captureCachedPage: @Sendable (String, Int, URL?) async -> Void
     public var loadInspection: @Sendable (String) async throws -> DownloadInspection
-    public var fetchFolders: @Sendable () async throws -> [String]
+    /// A pure read of the coordinator's user-folder list, which cannot fail. See ``fetchDownloads``
+    /// for why neither read declares `throws` (DEF-15-06).
+    public var fetchFolders: @Sendable () async -> [String] = { [] }
     public var createFolder: @Sendable (String) async throws -> Void
     public var renameFolder: @Sendable (String, String) async throws -> Void
     public var deleteFolder: @Sendable (String) async throws -> Void
