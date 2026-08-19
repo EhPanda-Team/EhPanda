@@ -2,11 +2,12 @@
 phase: 15-continued-background-downloads
 verified: 2026-08-19T10:35:00Z
 re_verified_after_device_round: 2026-08-19T12:55:00Z
-status: gaps_found
-score: 8/9 must-haves verified, 1 failing
+re_verified_after_fix_round: 2026-08-19T13:15:00Z
+status: verified
+score: 9/9 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-head: f9892824
+head: f5b3519f
 re_verification:
   previous_status: gaps_found
   previous_score: 2/4
@@ -34,9 +35,33 @@ re_verification:
     - "Swipe-delete vanish/reappear regression — RESOLVED (9421b7bb, 8277ded7, 15afbde4). The trailing swipe Delete drops `role: .destructive` and takes `.tint(.red)` (DownloadsView.swift:214-225) while the context-menu Delete keeps its role (:352). UAT test 7 passed on device."
     - "IN-01 (waitForTaskValue 10s) — DECLINED with a written derivation by 15-74 DEC-E and RATIFIED by the owner at UAT test 13. Not a gap."
     - "IN-02 (localized-key spelling split) — RESOLVED by 15-75; census re-derived at this HEAD as 19/0."
-gaps:
+gaps: []
+
+gaps_closed_after_this_report:
   - truth: "SC2 — with no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work."
-    status: FAILING
+    status: CLOSED
+    closed: "2026-08-19, 15-UAT round 8, on the test iPhone at build f5b3519f"
+    closure: |
+      Root cause (1) below was the real one, and the owner took both remedies. Quick task 260819-lq3
+      landed them: `pageTransferAbandonThreshold = 60` makes the heartbeat sweep ABANDON a transfer
+      that has produced no bytes for a minute, cancelling it into the page's existing retry path
+      (2a2c5982); and `ContinuedProgressNudge` gives the card a bounded way to say "still working,
+      nothing to add" — one sub-unit per stalled liveness report, capped at 30 consecutive, cleared
+      by any change in the measurement (d6079878).
+
+      Device-verified at round 8 on the SAME gallery this gap was found on (`[Patreon] Crowns18`,
+      resumed at 575/951 with 376 pages outstanding), with the app genuinely backgrounded for
+      ~23 minutes — the half round 7 could not observe. The session was granted at 12:14:12 and ran
+      unbroken to `Continued-processing session drained, terminal progress pushed` at 12:46:07:
+      31m55s, 105 heartbeats, NO `Continued-processing session expired`, and no fall-back in the
+      numerator. Three transfers starved and each was abandoned at 64.7 s / 61.5 s / 63.6 s and
+      retried within 3 s, the numerator resuming within 15 s every time. The nudge peaked at
+      `nudge 7 of 30` — 7 sub-units against a 1,057,000 sub-unit total.
+
+      The card's cancel was also exercised for the first time in any round and matched the in-app
+      per-gallery pause baseline exactly: both routes left every gallery paused with its page count
+      preserved. Full trace in 15-UAT.md under test 2, `retest_round_8_reported`.
+    superseded_finding_below: "The FAILING record is kept as written, because the two candidate root causes it named are what the owner decided between."
     found: "2026-08-19, on the device round this report asked for (15-UAT round 7, gap G-15-2I)"
     evidence: |
       The prescribed SC2 round was run on the test iPhone against this HEAD and the session was

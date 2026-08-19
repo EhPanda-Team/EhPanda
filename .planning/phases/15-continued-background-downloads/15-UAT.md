@@ -1,37 +1,35 @@
 ---
-status: testing
+status: complete
 phase: 15-continued-background-downloads
 source: [15-VERIFICATION.md, 15-54-SUMMARY.md, 15-55-SUMMARY.md, 15-56-SUMMARY.md, 15-57-SUMMARY.md, 15-58-SUMMARY.md, 15-59-SUMMARY.md, 15-60-SUMMARY.md, 15-61-SUMMARY.md, 15-62-SUMMARY.md, 15-63-SUMMARY.md, 15-64-SUMMARY.md, 15-65-SUMMARY.md, 15-66-SUMMARY.md, 15-67-SUMMARY.md, 15-68-SUMMARY.md, 15-69-SUMMARY.md, 15-70-SUMMARY.md, 15-71-SUMMARY.md, 15-72-SUMMARY.md, 15-73-SUMMARY.md, 15-74-SUMMARY.md, 15-75-SUMMARY.md, 15-76-SUMMARY.md, 15-77-PLAN.md, 15-REVIEW-FIX.md]
 started: 2026-07-29T03:54:41Z
-updated: 2026-08-19T08:20:00Z
-round: 7
+updated: 2026-08-19T13:15:00Z
+round: 8
 ---
 
 ## Current Test
 
-number: 2
-name: system progress card — SC2 re-run at build f9892824 (round 7)
+number: none
+name: all checkpoints resolved — round 8 closed test 2 and G-15-2I
 expected: |
-  All fifteen checkpoints are resolved: 13 pass, 0 issues. Test 8 closed 2026-08-17 with the owner
-  choosing row anchoring and directing the AGENTS.md rule amendment. Test 2 closed at round 6 on
-  2026-08-18: the G-15-2D fixes (e68ca491, 1f9c3f34) were verified on the test iPhone across four
-  independent backgrounded sessions, every one of which drained with a terminal push and none of
-  which expired.
+  All fifteen checkpoints are resolved: 13 pass, 0 issues, 2 obsolete. Test 8 closed 2026-08-17 with
+  the owner choosing row anchoring and directing the AGENTS.md rule amendment. The two gaps open at
+  round 6 closed on the 260818-mjs build (3433cbeb), both on the test iPhone: G-15-2H (13cad7d9)
+  against a folder renamed in Files.app, and G-15-2F (764c5958) against a rebuilt wholesale-refusal
+  fixture.
 
-  The two gaps open at round 6 closed on the 260818-mjs build (3433cbeb), both on the test iPhone:
-  G-15-2H (13cad7d9) against a folder renamed in Files.app, and G-15-2F (764c5958) against a rebuilt
-  wholesale-refusal fixture.
+  ROUND 7 REOPENED TEST 2 and round 8 closed it. Round 7's SC2 re-run produced G-15-2I — a
+  continued-processing session reclaimed with 376 pages outstanding, on healthy Wi-Fi with no
+  airplane mode, after 676 s of a byte-identical numerator caused by one transfer that starved and
+  was never retried — and its card clauses were never reached, because the run ended first and
+  because the app never actually backgrounded.
 
-  ROUND 7 REOPENED TEST 2. The SC2 re-run required by 15-VERIFICATION — a multi-gallery queue
-  including a `.repair`, on a build containing f7e65497 — was started on 2026-08-19 and produced a
-  CONFIRMED DEFECT before its card clauses could be judged: a continued-processing session was
-  reclaimed with 376 pages outstanding, on healthy Wi-Fi with no airplane mode, after 676 s of a
-  byte-identical numerator caused by one transfer that starved and was never retried. Filed as
-  G-15-2I. Everything else the round exercised passed (wholesale refusal, the 27-page repair, the
-  subtitle's gallery count across three enqueues).
-awaiting: a fresh SC2 round — backgrounded this time — on a build carrying the G-15-2I fix
-  (2a2c5982 starved-transfer abandonment + d6079878 bounded stall nudge, quick task 260819-lq3;
-  the owner decided both halves on 2026-08-19 and both landed the same day)
+  ROUND 8 (2026-08-19, build f5b3519f) ran the whole SC2 procedure BACKGROUNDED on the test iPhone
+  and every clause passed. The session held for 31m55s with no expiry; three transfers starved and
+  were each abandoned at ~62 s and retried within 3 s; the stall nudge peaked at 7 of 30; the
+  numerator never fell back across 105 heartbeats; and the card's cancel was exercised by the owner
+  and matched the in-app per-gallery pause baseline exactly. See retest_round_8_reported on test 2.
+awaiting: nothing — UAT complete
 
 ## Tests
 
@@ -86,13 +84,99 @@ expected_note: |
   basis; do not carry their wording forward.
 why_human: The card and its cancel affordance are system-owned and do not render or fire in the simulator.
 covers: SC2
-result: issue
+result: pass
 result_note: |
   PASSED at round 6 against build 260818-ek3. REOPENED at round 7 (2026-08-19) against build
   f9892824, where the re-run 15-VERIFICATION asked for surfaced G-15-2I — a session reclaimed with
   the queue undrained, on healthy Wi-Fi with no airplane mode. The card's own clauses were not
   reached at round 7; the run ended before they could be judged. Round 6's verdict is not withdrawn,
   it is superseded for this build.
+
+  CLOSED at round 8 (2026-08-19) against build f5b3519f, which carries both halves of the G-15-2I
+  fix. This is the first round in which the SC2 procedure actually ran BACKGROUNDED, so it is also
+  the first round at which every clause of this checkpoint has been judged against evidence rather
+  than partly carried forward. All of them passed, including the card-cancel clause, which no round
+  before this one had reached.
+retest_round_8_result: pass
+retest_round_8_date: 2026-08-19
+retest_round_8_build: f5b3519f (2a2c5982 starved-transfer abandonment, d6079878 bounded stall nudge, plus the three review fixes 719bbc25/57183589/f5b3519f)
+retest_round_8_reported: |
+  Run on the test iPhone (physical iPhone 11, iOS 26.6), airplane mode OFF and Wi-Fi connected
+  (photographed in Settings at the moment of backgrounding, and corroborated by every environment
+  probe in the log reading `network wifi`). Times below are the log's UTC clock; local is +9.
+  Evidence: `Logs/ehpanda-20260819-211225-4.jsonl`.
+
+  HOW THE APP WAS ACTUALLY BACKGROUNDED — the thing round 7 failed to do. `agent-device home`
+  reports success on this physical device but does not land; the tool's own `help ios-system-ui`
+  states that physical-iPhone SpringBoard support is unverified, and its edge-gesture guard refuses
+  a swipe from the screen edge, so Notification Center is unreachable too. The app was backgrounded
+  instead by launching another app through `xcrun devicectl device process launch`, and the
+  backgrounding was confirmed by screenshot before the observation window opened. Any future round
+  needing a backgrounded device run should use that route, not `home`.
+
+  THE SESSION HELD. Granted 12:14:12 on a resume of the same gallery round 7 died on
+  (`[Patreon] Crowns18`, 575/951, 376 pages outstanding); a second gallery of 106 pages joined at
+  12:16:13; the app entered background at 12:17:40 and stayed there until 12:41. The session ran
+  continuously to `Continued-processing session drained, terminal progress pushed` at 12:46:07 —
+  31m55s of unbroken session life, of which ~23m20s was backgrounded, with NO
+  `Continued-processing session expired` anywhere in the round. 105 heartbeats, and the numerator
+  never fell back once.
+
+  THE ABANDON RULE FIRED THREE TIMES, AND EACH TIME THE QUEUE RECOVERED. Every episode escalated
+  through both thresholds over one idle definition and then retried:
+
+    page 811   12.9 s "still transferring"  ->  64.7 s "abandoned"  ->  first bytes +3 s (2000 ms)
+               heartbeat 810 -> 812 within 14 s
+    page 860   20.3 s "still transferring"  ->  61.5 s "abandoned"  ->  first bytes +3 s (1959 ms)
+               heartbeat 859 -> 861 within 15 s
+    page 885   12.7 s "still transferring"  ->  63.6 s "abandoned"  ->  first bytes +3 s (2567 ms)
+               heartbeat 884 -> 886 within 14 s
+
+  Round 7's failure was the same shape with the second half missing: page 576 starved at 12.6 s,
+  nothing acted on it, the numerator sat flat for 676 s and the session was reclaimed. The retry
+  reaching first bytes in about two seconds each time is the failover request resolving a different
+  image host, which is what `abandonPageTransfer` claims it buys.
+
+  THE NUDGE STAYED WELL INSIDE ITS BOUND. 66 nudge lines across the round; the peak was
+  `nudge 7 of 30`, and most episodes peaked at 1 because real progress snapped the counter back.
+  The largest excess the card was ever told was 7 sub-units against a 1,057,000 sub-unit total —
+  four orders of magnitude below one page, so below the card's resolution and below any percentage
+  anything rounds to. The count never approached the scaled total and never went flat at the cap.
+  The nudge is logged in its own sentence, so real progress and the workaround are separable in the
+  archive, which is how this round told them apart.
+
+  THE SUBTITLE'S GALLERY COUNT. `1 galleries` until the second enqueue at 12:16:13, then
+  `2 galleries` on every subsequent frame including the terminal push.
+
+  CARD CANCEL vs THE IN-APP PAUSE BASELINE — the clause no earlier round reached. Staged with a
+  fresh two-gallery queue (194 + 144 = 338 pages) so both a downloading and a queued row were in
+  scope. Pre-cancel: Berserk 59/194 downloading, Ix 0/144 queued, card reading
+  `59 / 338 pages · 2 galleries`. The owner backgrounded the app and pressed the card's stop button
+  at 12:56:32; the log answered:
+
+    12:56:32  Continued-processing session expired, pausing schedulable downloads.
+    12:56:32  Continued-session environment at expiry: network wifi, low power false, thermal nominal.
+    12:56:32  Download paused, gid: <Berserk>.
+    12:56:32  Download paused, gid: <Ix>.
+
+  In-app afterwards: Berserk 59/194 PAUSED, Ix 0/144 PAUSED. Both were then resumed (12:59:14 and
+  12:59:39; the card re-announced at `59 / 338 pages · 2 galleries`, the same frame it was cancelled
+  on) and paused one row at a time by hand instead — 13:00:36 and 13:01:03, with
+  `Continued-processing session drained, terminal progress pushed` between them as the last
+  schedulable gallery left the queue. In-app afterwards: Berserk 59/194 PAUSED, Ix 11/144 PAUSED,
+  and the card retired reading `70 / 70 pages · 2 galleries` with a completion check.
+
+  The two routes end in the same place: every gallery paused, every page count preserved, nothing
+  lost. The only numeric difference is the 11 pages Ix downloaded between the two observations. The
+  terminal frame also satisfies the amended drain-time expectation directly — `70 / 70 pages ·
+  2 galleries`, the gallery count still held on the very last frame rather than falling to 0.
+
+  ONE OBSERVATION WORTH CARRYING FORWARD. The card's cancel and a scheduler reclaim share the
+  `expired` arm, so a deliberate user cancel logs `Continued-processing session expired, pausing
+  schedulable downloads` exactly like a forced reclaim does. The behaviour is right — that arm is
+  what pauses everything, which is why the two routes agree — but the line alone cannot tell a user
+  cancel from a system reclaim. Round 7's diagnosis rested on that line, so anyone reading a future
+  archive must pair it with whether a cancel was actually pressed.
 retest_round_7_result: issue
 retest_round_7_date: 2026-08-19
 retest_round_7_build: f9892824 (13cad7d9 folder-leaf freeze, 764c5958 run-progress overlay, f7e65497 folder-deletion invariant)
@@ -839,20 +923,30 @@ device_result: |
 ## Summary
 
 total: 15
-passed: 12
-issues: 1
+passed: 13
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
 obsolete: 2
 
 completion_note: |
-  ROUND 7 (2026-08-19) REOPENED TEST 2, so one checkpoint is now failing. The SC2 re-run that
-  15-VERIFICATION required — on a build containing f7e65497 — produced G-15-2I: a continued-processing
-  session reclaimed with 376 pages outstanding, on healthy Wi-Fi with no airplane mode, after 676 s
-  of a byte-identical numerator caused by a starved transfer that was detected and then never
-  retried. Test 2's own card clauses were not reached; the run ended first. Round 6's pass stands for
-  build 260818-ek3 and is superseded only for this build. Everything else round 7 exercised passed.
+  ROUND 8 (2026-08-19, build f5b3519f) CLOSED TEST 2 and with it the last open gap, G-15-2I. Round 7
+  had reopened test 2 on a session reclaimed with 376 pages outstanding after a starved transfer was
+  detected and never retried; round 8 re-ran the SC2 procedure on the same gallery, with the app
+  genuinely backgrounded for the first time, and the defect did not recur: the session held for
+  31m55s with no expiry, three starved transfers were each abandoned at ~62 s and retried within 3 s,
+  the stall nudge peaked at 7 of 30, and the numerator never fell back across 105 heartbeats. The
+  card-cancel clause — which no earlier round had ever reached — was exercised by the owner and
+  matched the in-app per-gallery pause baseline exactly. Every checkpoint is now resolved.
+
+  Two facts round 8 established that a later reader needs. First, `agent-device home` does NOT
+  background the app on this physical device although it reports success; use
+  `xcrun devicectl device process launch` on another app instead, and confirm by screenshot — round
+  7's whole run was foreground for want of this. Second, the card's cancel and a scheduler reclaim
+  share the `expired` arm, so a user's deliberate cancel logs
+  `Continued-processing session expired, pausing schedulable downloads` exactly like a forced
+  reclaim; that line alone cannot distinguish them.
 
   The paragraphs below describe the state as of round 6 and remain accurate for that build. G-15-2D — the system
   Background Activities surface reporting "Task failed" for a two-gallery session that completed —
@@ -945,8 +1039,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 - gap_id: G-15-2I
   truth: "With no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work: a transfer that stops producing bytes is abandoned and retried, and the session is not reclaimed for want of something to report."
-  status: open
-  severity: confirmed-defect (fixed in 2a2c5982 + d6079878; device verification pending)
+  status: resolved
+  severity: confirmed-defect (fixed in 2a2c5982 + d6079878; device-verified at round 8, 2026-08-19)
+  resolved_at: 2026-08-19
   found: "2026-08-19, round 7, on the SC2 re-run against build f9892824 (13cad7d9 + 764c5958 + f7e65497)"
   observed: |
     A continued-processing session was reclaimed by the system with 376 pages still to download,
@@ -1247,6 +1342,33 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       lines and, if a transfer starves, `Page transfer starved ... abandoned` at ~60 s followed by
       the page's retry; the numerator moves again; no `Continued-processing session expired` while
       the queue has work on healthy Wi-Fi.
+  device_verified_2026_08_19: |
+    ROUND 8 observed every one of those, on the test iPhone (physical iPhone 11, iOS 26.6) at build
+    f5b3519f, with the app genuinely backgrounded for ~23 minutes. Log
+    `Logs/ehpanda-20260819-211225-4.jsonl`, times UTC.
+
+    The subject was deliberately the gallery round 7 died on — `[Patreon] Crowns18`, resumed from
+    575/951 with 376 pages outstanding — so the defect had its own conditions to recur in. It did
+    not. The session was granted at 12:14:12 and ran unbroken to
+    `Continued-processing session drained, terminal progress pushed` at 12:46:07: 31m55s, 105
+    heartbeats, no `Continued-processing session expired` anywhere, and no fall-back in the
+    numerator. Crowns18 finished at 951/951 and the second gallery at 106/106.
+
+    HALF 1 fired three times and the queue recovered every time. Page 811: `still transferring` at
+    12.9 s, `abandoned` at 64.7 s, retry first bytes 3 s later at 2000 ms, heartbeat 810 -> 812
+    within 14 s. Page 860: 20.3 s, `abandoned` at 61.5 s, retry at 1959 ms, 859 -> 861 within 15 s.
+    Page 885: 12.7 s, `abandoned` at 63.6 s, retry at 2567 ms, 884 -> 886 within 14 s. Each
+    abandonment is one line through the single masked helper, `outcome: abandoned`, and each retry
+    reached first bytes in about two seconds — the failover request resolving a different host,
+    which is the remedy the fix's doc claims for a silent one.
+
+    HALF 2 stayed far inside its bound: 66 nudge lines, peak `nudge 7 of 30`, most episodes peaking
+    at 1 because real progress cleared the counter. Maximum excess published: 7 sub-units against a
+    1,057,000 sub-unit total. The count never reached the scaled total and never sat flat at the
+    cap, so the cap's own escape hatch was never needed.
+
+    The distinct log sentence did its job: this round separated real progress from the workaround by
+    reading the two line shapes, without having to infer anything.
 
 - gap_id: G-15-11
   truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
