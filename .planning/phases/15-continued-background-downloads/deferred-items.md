@@ -187,3 +187,20 @@ Not done in phase 15: the anchoring decision closed the checkpoint, and this is 
 behavioural gap that predates it. The amended rule explicitly prefers "eliminating that instability,
 or covering it with a test, over giving up the correct anchor", so this is the follow-through that
 sentence points at.
+
+## `ResourceStringSymbols.swift` should use Xcode's generated symbols, not hand-written `LocalizedStringResource.init`
+
+`AppPackage/Sources/Resources/ResourceStringSymbols.swift` hand-writes 43 `LocalizedStringResource(
+key, table:, bundle:)` calls inside `LocalizedStringResource.RLocalizable`, each repeating the
+literal key, the `"Localizable"` table name and a private `BundleDescription`. Xcode generates
+symbols for an `.xcstrings` catalog on its own; those generated symbols should replace the
+hand-written initializers, which would delete the repeated key literals and the bundle plumbing
+along with them.
+
+Raised by the owner 2026-08-19. Phase 15 touched this file (`f7e65497` removed nine lines of it when
+the repair-seed strings went away), but the conversion is a Resources-module change with its own
+blast radius across every call site, so it is logged rather than done here.
+
+Note the AGENTS.md rule this interacts with: shared keys carry semantic labels hand-written in this
+file for numeric localized-format arguments, so the conversion has to preserve those labels rather
+than fall back to positional generated signatures.
