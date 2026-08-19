@@ -51,13 +51,19 @@ struct ContinuedProgressNudge: Equatable, Sendable {
         measuredSubunits + count
     }
 
-    /// Folds one report in, and says whether it was a stalled report this nudged.
+    /// Folds one report in, and says whether it was a STALLED liveness report — whether the
+    /// published count now stands on the nudge rather than on a fresh measurement.
     ///
     /// A CHANGED measurement — in either direction — snaps the published value back to it and
     /// clears the nudge, so no accumulated fiction survives a real observation. An UNCHANGED
     /// measurement adds one sub-unit, up to the cap, and only when the caller marked the report as
     /// one of its periodic liveness re-pushes; an unchanged measurement from any other push holds
     /// the current value rather than dipping below it.
+    ///
+    /// AT THE CAP it still answers `true` although it added nothing, deliberately: the answer names
+    /// the report, not the increment, and the caller logs on it — a session pinned at the cap is
+    /// exactly what the last lines before the system reclaims it should say. Those lines are bounded
+    /// by the reclaim itself, roughly thirty seconds past the cap at the ten-second cadence.
     @discardableResult
     mutating func record(measuredSubunits: Int64, nudgesWhenStalled: Bool) -> Bool {
         guard measuredSubunits == self.measuredSubunits else {
