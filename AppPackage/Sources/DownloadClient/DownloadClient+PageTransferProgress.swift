@@ -344,7 +344,12 @@ extension DownloadCoordinator {
         startedInBackground ? "background" : "foreground"
     }
 
-    private static func milliseconds(_ interval: TimeInterval) -> Int {
+    /// The ONE conversion behind every `elapsedMilliseconds` argument the transfer logs take.
+    ///
+    /// Internal rather than `private` because the heartbeat's `sweepStarvedPageTransfers` is in
+    /// another file and reports the same quantity: with two spellings of it, the ten-second line
+    /// and the sixty-second one could round a shared interval differently.
+    static func milliseconds(_ interval: TimeInterval) -> Int {
         Int((interval * 1000).rounded())
     }
 }

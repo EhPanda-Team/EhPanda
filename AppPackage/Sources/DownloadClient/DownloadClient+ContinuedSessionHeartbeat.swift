@@ -157,7 +157,7 @@ extension DownloadCoordinator {
                         gid: gid,
                         pageIndex: pageIndex,
                         startedInBackground: transfer.startedInBackground,
-                        elapsedMilliseconds: Int((idle * 1000).rounded()),
+                        elapsedMilliseconds: Self.milliseconds(idle),
                         outcome: "still transferring"
                     )
                 }
