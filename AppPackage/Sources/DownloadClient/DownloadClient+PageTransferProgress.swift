@@ -18,6 +18,11 @@ private let logger = Logger(category: .init(describing: DownloadCoordinator.self
 /// **It is a RUN fact, not a session one**, for the same reason the run measurement is: a session
 /// starting or ending makes no transfer less in flight, and scoping it to a session would strand a
 /// transfer that outlives one.
+///
+/// **Four of its fields belong to the current ATTEMPT rather than to the page** — `startDate`,
+/// `startedInBackground`, `firstByteDate`/`lastByteDate`, `isAbandoned` and the `attempt` handle —
+/// and every one of them is reset by `beginPageTransfer`, so a retry measures its own time to first
+/// byte, its own idle time, and cancels its own task. Only `creditedSubunits` crosses attempts.
 struct InFlightPageTransfer: Sendable {
     /// This page's earned sub-page credit, in `ContinuedProcessingSession.subunitsPerUnit` per
     /// page. Monotone while the entry lives.
@@ -34,10 +39,34 @@ struct InFlightPageTransfer: Sendable {
     /// discriminates the "background-created transfers are discretionary" hypothesis.
     var startedInBackground: Bool
     var firstByteDate: Date?
+    /// When bytes last arrived for the CURRENT attempt, and the basis of the abandon rule: idle
+    /// time is measured from here, so a transfer that is slow but MOVING is never abandoned however
+    /// long it runs. Nil until the first byte, where the attempt's start stands in for it.
+    var lastByteDate: Date?
     var isTransferring: Bool
     /// Whether this attempt has already been reported as starved, so the heartbeat's repeated
     /// sweeps report it once rather than every ten seconds.
     var stallLogged = false
+    /// Whether the heartbeat's sweep gave up on this attempt. Set in the same synchronous stretch
+    /// that cancels it, and read by `rawPageDownloadResponse` to tell an abandonment from the
+    /// caller's own cancellation — the one distinction that decides whether the page retries or the
+    /// pause propagates.
+    var isAbandoned = false
+    /// The attempt's own task: the handle the sweep cancels, nil between attempts.
+    ///
+    /// The coordinator holds nothing else that can stop a transfer — the URLSession task lives
+    /// inside the nonisolated downloader and is reached only through Swift task cancellation — so
+    /// without this handle "abandon" has nothing to act on.
+    var attempt: Task<DownloadPageTransfer, any Error>?
+
+    /// How long this attempt has been silent at `date`: the interval since its last byte, or since
+    /// it started when no byte has arrived at all.
+    ///
+    /// ONE definition, applied by the sweep to both thresholds, so the ten-second log and the
+    /// sixty-second abandonment can never disagree about what "without bytes" means.
+    func idleInterval(at date: Date) -> TimeInterval {
+        date.timeIntervalSince(lastByteDate ?? startDate)
+    }
 }
 
 // MARK: - In-Flight Page Transfers
@@ -57,8 +86,11 @@ extension DownloadCoordinator {
         transfer.startDate = startDate
         transfer.startedInBackground = isSceneInBackground
         transfer.firstByteDate = nil
+        transfer.lastByteDate = nil
         transfer.isTransferring = true
         transfer.stallLogged = false
+        transfer.isAbandoned = false
+        transfer.attempt = nil
         inFlightPageTransfers[gid, default: [:]][pageIndex] = transfer
     }
 
@@ -102,18 +134,25 @@ extension DownloadCoordinator {
         bytesExpected: Int64
     ) async {
         guard var transfer = inFlightPageTransfers[gid]?[pageIndex] else { return }
-        if bytesWritten > 0, transfer.firstByteDate == nil {
-            let firstByteDate = now()
-            transfer.firstByteDate = firstByteDate
-            logFirstPageTransferBytes(
-                gid: gid,
-                pageIndex: pageIndex,
-                startedInBackground: transfer.startedInBackground,
-                elapsedMilliseconds: Self.milliseconds(
-                    firstByteDate.timeIntervalSince(transfer.startDate)
-                ),
-                bytesExpected: bytesExpected
-            )
+        if bytesWritten > 0 {
+            // ONE read of the clock stamps both dates, so "when the first byte arrived" and "when
+            // the last byte arrived" are the same instant for the first report rather than two
+            // instants a scheduling gap apart. Stamped on the same path that grows the credit
+            // below, so nothing can move the credit without also moving the idle basis.
+            let byteDate = now()
+            transfer.lastByteDate = byteDate
+            if transfer.firstByteDate == nil {
+                transfer.firstByteDate = byteDate
+                logFirstPageTransferBytes(
+                    gid: gid,
+                    pageIndex: pageIndex,
+                    startedInBackground: transfer.startedInBackground,
+                    elapsedMilliseconds: Self.milliseconds(
+                        byteDate.timeIntervalSince(transfer.startDate)
+                    ),
+                    bytesExpected: bytesExpected
+                )
+            }
         }
         if bytesExpected > 0 {
             let subunits = ContinuedProcessingSession.subunitsPerUnit * bytesWritten / bytesExpected
@@ -130,6 +169,65 @@ extension DownloadCoordinator {
             return
         }
         await pushContinuedSessionProgress(sessionID: continuedSessionID)
+    }
+
+    /// Hands the entry the task running the CURRENT attempt, so the sweep has something to cancel.
+    ///
+    /// Spelled as its own named step of the entry's lifetime rather than folded into
+    /// `beginPageTransfer`, because the attempt cannot exist before the entry does: the task is
+    /// created after the transfer is opened, and an entry that has since been retired must not be
+    /// resurrected by a handle arriving for it.
+    func attachPageTransferAttempt(
+        gid: String,
+        pageIndex: Int,
+        _ attempt: Task<DownloadPageTransfer, any Error>
+    ) {
+        guard inFlightPageTransfers[gid]?[pageIndex] != nil else { return }
+        inFlightPageTransfers[gid]?[pageIndex]?.attempt = attempt
+    }
+
+    /// Gives up on an attempt that has produced no bytes for `pageTransferAbandonThreshold` and
+    /// cancels it, so the page can be retried instead of waiting on a host that stopped answering.
+    ///
+    /// **Why cancel-and-retry rather than wait (G-15-2I).** One attempt hung for eleven minutes
+    /// with no bytes; the single worker was held, three hundred and seventy-six pages stayed
+    /// queued, and the system reclaimed the continued-processing session. Nothing in the run could
+    /// end that wait, because nothing was watching it.
+    ///
+    /// **What the abandonment means downstream.** It is a NETWORKING failure of the attempt — the
+    /// network stopped delivering — so `rawPageDownloadResponse` surfaces it as the retryable
+    /// `AppError.networkingFailed` and the page rides the retry path it already had:
+    /// `downloadPage`'s attempts loop, which re-resolves the image URL through the failover request
+    /// and so may reach a different image host, which is the right remedy for a silent one. No new
+    /// retry loop is introduced and `withRetry`/`retryLimit` are untouched — page transfers
+    /// deliberately bypass those.
+    ///
+    /// Two consequences, both accepted rather than special-cased:
+    /// - With auto-retry on (the default) a persistently starved page fails after two attempts,
+    ///   roughly two minutes plus resolution latency; with the user's auto-retry off it fails after
+    ///   one, like every other network failure under that setting. The setting governs.
+    /// - A transfer the SYSTEM has merely deferred — a discretionary background transfer waiting
+    ///   its turn — is treated exactly like a hung one. That is inside the sixty-second rule as
+    ///   decided, and the page stays retryable through the record's own retry surface.
+    ///
+    /// Cancelling is the LAST thing it does, after the entry is written back and the line is
+    /// logged, so the attempt's catch cannot observe a half-updated entry and mistake this for the
+    /// caller's cancellation.
+    func abandonPageTransfer(gid: String, pageIndex: Int, idle: TimeInterval) {
+        guard var transfer = inFlightPageTransfers[gid]?[pageIndex],
+              transfer.isTransferring
+        else { return }
+        transfer.isAbandoned = true
+        transfer.stallLogged = true
+        inFlightPageTransfers[gid]?[pageIndex] = transfer
+        logStarvedPageTransfer(
+            gid: gid,
+            pageIndex: pageIndex,
+            startedInBackground: transfer.startedInBackground,
+            elapsedMilliseconds: Self.milliseconds(idle),
+            outcome: "abandoned"
+        )
+        transfer.attempt?.cancel()
     }
 
     /// Drops a FAILED page's sub-page credit — the one deliberate downward mover this bookkeeping
@@ -218,6 +316,11 @@ extension DownloadCoordinator {
     /// The ONE site that reports a starved transfer, shared by both detectors (PD-5): the
     /// heartbeat's sweep of transfers still running, and `endPageTransfer`'s check on the way out —
     /// so a transfer the expiry's pause sweep cancelled still says how long it starved.
+    ///
+    /// `outcome` is a closed three-value vocabulary: `still transferring` (the sweep's ten-second
+    /// report), `abandoned` (the sweep gave up at sixty and cancelled the attempt, G-15-2I) and
+    /// `ended` (the transfer stopped having never received a byte). Adding the abandonment added no
+    /// second masked site, which is the whole reason it routes through here.
     func logStarvedPageTransfer(
         gid: String,
         pageIndex: Int,
