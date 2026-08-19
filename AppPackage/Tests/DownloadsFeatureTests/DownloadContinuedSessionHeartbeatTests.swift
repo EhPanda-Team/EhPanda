@@ -32,10 +32,18 @@ struct DownloadContinuedSessionHeartbeatTests: DownloadFeatureTestCase {
         try await beat(clock, until: { spy.progressUpdates.count > 1 })
 
         let beaten = try #require(spy.progressUpdates.last)
-        // The SAME pair, re-issued: a heartbeat reports liveness, never progress.
+        // The SAME pair, re-issued: the coordinator's heartbeat reports liveness and computes no
+        // progress of its own. What may still move is the store's bounded nudge BENEATH an
+        // unchanged pair, which is the store's own affordance and is pinned in the fold suite.
         #expect(beaten.completedUnitCount == seeded.completedUnitCount)
         #expect(beaten.totalUnitCount == seeded.totalUnitCount)
         #expect(beaten.subtitle == seeded.subtitle)
+        // BINDING (G-15-2I): every heartbeat report is marked as a nudging report, unconditionally
+        // — with zero transfers in flight and no second "is there work" condition — while the seam
+        // push that seeded the card is not.
+        #expect(seeded.subunits.nudgesWhenStalled == false)
+        #expect(beaten.subunits.nudgesWhenStalled == true)
+        #expect(beaten.inFlightSubunitCount == 0)
 
         _ = await fixture.manager.pause(gid: gallery.gid)
     }
