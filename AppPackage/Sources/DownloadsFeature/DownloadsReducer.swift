@@ -71,6 +71,9 @@ public struct DownloadsReducer: Sendable {
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
         public var rows = IdentifiedArrayOf<DownloadRowFeature.State>()
+        /// Only `.loading` (until the first snapshot lands) and `.idle` ever occur: the list reads
+        /// the coordinator's in-memory index, which cannot fail (DEF-15-06), so the view carries no
+        /// error state for it.
         public var loadingState: LoadingState = .loading
         public var hasLoadedInitialDownloads = false
 
@@ -257,7 +260,7 @@ public struct DownloadsReducer: Sendable {
             case .fetchDownloads:
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.fetchDownloadsDone(try await downloadClient.fetchDownloads()))
+                    await send(.fetchDownloadsDone(await downloadClient.fetchDownloads()))
                 }
 
             case .fetchDownloadsDone(let downloads), .observeDownloadsDone(let downloads):
@@ -293,7 +296,7 @@ public struct DownloadsReducer: Sendable {
 
             case .fetchFolders:
                 return .run { send in
-                    await send(.fetchFoldersDone(try await downloadClient.fetchFolders()))
+                    await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: CancelID.fetchFolders, cancelInFlight: true)
 
