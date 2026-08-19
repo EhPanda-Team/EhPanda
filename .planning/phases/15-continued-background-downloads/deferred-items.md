@@ -11,19 +11,20 @@ prose and will drift.
 | DEF-15-01 | resolved 2026-08-19 (f9892824) | — |
 | DEF-15-02 | resolved 2026-08-19 (f9892824) | — |
 | DEF-15-03 | resolved by 15-64, owned since 15-74 | — |
-| DEF-15-04 | open | quick task with DEF-15-10 |
+| DEF-15-04 | resolved 2026-08-19 (97347f5d, quick 260819-ovp) | — |
 | DEF-15-05 | resolved 2026-08-19 (668c57be, quick 260819-n3y) | — |
 | DEF-15-06 | resolved 2026-08-19 (ace21ed5, quick 260819-n3y) | — |
 | DEF-15-07 | open, DEFERRED INDEFINITELY by the owner 2026-08-19 — do not pick up | — |
 | DEF-15-08 | resolved 2026-08-19 (a87bbc10, quick 260819-n3y) | — |
 | DEF-15-09 | resolved 2026-08-19 (f704ece5, quick 260819-n3y) | — |
-| DEF-15-10 | open | quick task with DEF-15-04 |
+| DEF-15-10 | resolved 2026-08-19 (15cf9273, quick 260819-ovp) | — |
 | DEF-15-11 | resolved 2026-08-19 (9c8145a1, quick 260819-n3y) | — |
 
 The two groupings are the owner's, decided 2026-08-19. They are groupings only — nothing about
 scope, order or approach inside either group is settled here. The 05/06/08/09/11 group was planned
 and closed the same day as quick task 260819-n3y (`.planning/quick/260819-n3y-*/`); the 04/10 group
-has not been planned.
+was planned and closed the same day as quick task 260819-ovp (`.planning/quick/260819-ovp-*/`).
+Only DEF-15-07 remains open, by the owner's decision.
 
 ## DEF-15-01 — ROADMAP.md progress table is missing a Phase 16 row — RESOLVED
 
@@ -67,12 +68,23 @@ Not fixed here: the case is outside plan 15-21's scope, which is confined to new
 suite. The deadline is a fragility in the harness rather than in the product — nothing about the
 delete-convergence contract it asserts is in question.
 
-## DEF-15-04 — Existing UI-test actor-isolation warnings
+## DEF-15-04 — Existing UI-test actor-isolation warnings — RESOLVED
 
 Building the targeted package tests with Xcode 26.6 reports two Swift concurrency warnings in
 `EhPandaUITests/DeepLinkPadUITests.swift:9`: the nonisolated assertion autoclosure reads
 `UIDevice.current.userInterfaceIdiom`. The file is outside Plan 15-10's session-identity scope,
 and the warnings predate its changes.
+
+**RESOLVED 2026-08-19 in commit 97347f5d (quick 260819-ovp).** The autoclosure was only the
+innermost nonisolated scope: `setUpWithError()` overrides a nonisolated XCTest declaration, so the
+class-level `@MainActor` never reached it either, and annotating the override is a hard error. The
+idiom read now opens the test method itself (which overrides nothing, so the class's `@MainActor`
+does reach it) as `guard UIDevice.current.userInterfaceIdiom == .pad else { throw XCTSkip(...) }`
+with the original message; `setUpWithError` keeps only `continueAfterFailure = false`. No
+`assumeIsolated`, no `nonisolated(unsafe)`, no suppression. The `UITests` build-for-testing reports
+zero Swift diagnostics (was four lines, two warnings × two architectures) and the test still passes
+on an iPad Pro simulator. A future second test method in this class needs the same guard, since
+shared set-up cannot host the read — the comment at the guard says why.
 
 ## DEF-15-05 — `DownloadsReducer.toggleDownloadPauseDone(.failure)` is silent with no report surface — RESOLVED
 
@@ -209,7 +221,7 @@ whereas removing only its `notifyObservers()` line does not, because the sibling
 `scheduleNextIfNeeded()` publishes the converged index through its own path — recorded in the quick
 task's SUMMARY.
 
-## DEF-15-10 — Delete the hand-typed localization key literals by forwarding to Xcode's generated symbols
+## DEF-15-10 — Delete the hand-typed localization key literals by forwarding to Xcode's generated symbols — RESOLVED
 
 Surfaced closing UAT test 14, which asked a narrower question (should eight download error-message
 strings be value-pinned?). The reframing: `ResourceStringSymbols.swift` hand-types the key literal in
@@ -243,6 +255,21 @@ the generated symbols are `internal`, so the public layer stays and each body be
 Note also the AGENTS.md labelled-localized-format rule — shared keys carry hand-written semantic
 labels for NUMERIC arguments, and forwarding must preserve them rather than fall back to positional
 generated signatures.
+
+**RESOLVED 2026-08-19 in commit 15cf9273 (quick 260819-ovp).** `ResourceStringSymbols.swift` now
+hand-types nothing: every one of the 43 accessors keeps its exact public signature and forwards to
+the internal symbol Xcode generates from the Resources module's two catalogs — `.cancel`,
+`.days(count)` (the generated top-level `%lld` plural symbols are positional, so the `count:`/`page:`
+labels stay on the public signature), `.continuedSessionSubtitle(completed:total:galleries:)` (the
+generator already derives those labels from the three named substitutions), and
+`Constant.responseGalleryUnavailable`. The hand-written bundle description and its `#bundle` macro
+are gone with the literals. The property the item asked for was demonstrated, not asserted: a
+temporary rename of the `cancel` key in `Localizable.xcstrings` failed the `Resources` build at
+`ResourceStringSymbols.swift:24:62: error: type 'LocalizedStringResource' has no member 'cancel'`,
+then was reverted. No catalog, consumer or test file changed; the two `continued_session` value
+pins in `ContinuedProcessingSessionFoldTests` stand; 1020 tests / 0 failures; `AppFeature` build
+warning-free. The file-level doc records the two reasons the public layer still exists (access
+level; hand-written numeric labels) and why no runtime "does it resolve" test exists for these keys.
 
 ## DEF-15-11 — No test covers a row leaving `rows` while its confirmation dialog is presented — RESOLVED
 
