@@ -50,11 +50,34 @@ test: Observe the system progress card across a multi-gallery queue — includin
 re-download — then cancel from the card, foreground, and compare queue state against pausing each
 gallery by hand.
 expected: One neutral card whose counts advance with real work, never fall back within a reporting
-regime, and never read a numerator above the work actually done; the subtitle names every gallery
+regime, and never read a numerator above the work actually done EXCEPT for a bounded stall nudge
+(see expected_note_2026_08_19); the subtitle names every gallery
 the denominator covers and holds that count steady across a gallery's completion (with two queued
 it reads "· 2 galleries" on every frame, including the last); a repair of a gallery whose files
 were deleted outside the app climbs from its announce rather than freezing at the record's stale
 claim; card-cancel state matches the in-app per-gallery pause baseline.
+expected_note_2026_08_19: |
+  THE NUMERATOR CLAUSE WAS AMENDED on 2026-08-19 by owner decision, when G-15-2I established that a
+  card with no way to say "still working, nothing to add" is reclaimed by the scheduler while its
+  queue still has work. The clause now admits a BOUNDED STALL NUDGE, and admits nothing else.
+
+  A nudge is admissible only if ALL of these hold, which is what a round judging this clause must
+  check:
+    - it is below the resolution of the card and of any percentage the app or a test rounds to (one
+      nudge is one subunit, 1/1000 of a page);
+    - it advances only while the run is genuinely stalled — an unchanged measurement — and snaps back
+      to the measurement the instant that changes, in EITHER direction, so a decrease is still
+      published as readily as an increase and nothing is hidden;
+    - it is bounded: it stops when nothing is in flight and no retry is scheduled, and it is capped at
+      30 consecutive nudges regardless;
+    - it never reaches the scaled total, and never enters the record's completeness quantities,
+      `displayStatus`, the retry basis or any scheduling gate.
+
+  Everything else in the clause is unchanged: real work still moves the numerator, the count still
+  never falls back within a reporting regime, and a numerator above real work by anything MORE than
+  the nudge is still a failure. The device log names the nudge distinctly, so a round can tell real
+  progress and the workaround apart rather than having to infer it.
+
 expected_note: |
   The drain-time expectation CHANGED at round 4 with the 15-55 basis redesign: the final subtitle
   reads "N / N pages · 2 galleries", NOT "0 galleries". Rounds 1-3 were judged against the older
@@ -995,6 +1018,115 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     在下載未完成的情況下結束是不能接受的". The environment probe recorded at expiry says the
     precondition held, so this observation is inside the ruling, not excused by it.
   blocks: "SC2. The criterion cannot be judged verified while a device run at this build ends a session early with the queue undrained."
+  owner_decision_2026_08_19: |
+    BOTH HALVES, not one. The starved transfer is abandoned and retried (the root cause of this
+    observation), AND the card gains a bounded way to say "still working, nothing to add" (the safety
+    net for every zero-byte-but-legitimate wait the retry cannot reach — a 509 back-off, a
+    discretionary background transfer the system defers). Neither alone is sufficient: the retry
+    leaves those other waits exposed, and the safety net alone would keep a session alive on a
+    download that will never progress.
+
+    The two numbers were decided by the owner on 2026-08-19: a 60 s abandon threshold, and a cap of
+    30 consecutive nudges. The UAT clause amendment below was delegated to the agent's wording.
+  fix_spec: |
+    ============================ HALF 1 — ABANDON AND RETRY A STARVED TRANSFER ============================
+
+    GOAL: a page transfer that has produced no bytes for long enough is cancelled and retried, so real
+    progress resumes instead of the queue hanging on it.
+
+    NEW CONSTANT, beside the existing one in `DownloadClient+Manager.swift:66`:
+        pageTransferAbandonThreshold: TimeInterval = 60
+    Keep `pageTransferStallThreshold = 10` as the DETECTION/log threshold. Two separate constants on
+    purpose: the log stays sensitive, the action stays conservative. Do not merge them.
+
+    MEASURED FROM THE LAST BYTE RECEIVED, never from the transfer's start. A slow-but-moving transfer
+    must never be abandoned. `InFlightPageTransfer` already carries `startDate`, `firstByteDate` and
+    `creditedSubunits`; whatever field the sweep needs for "when did bytes last arrive" is to be added
+    there and updated on the same path that grows `creditedSubunits`
+    (`DownloadClient+PageTransferProgress.swift:120-121`).
+
+    WHERE: `sweepStarvedPageTransfers` already runs on every heartbeat and already classifies a
+    starved transfer — today its only effect is the log line and the `stallLogged` latch. Extend that
+    same sweep; do not add a second timer.
+
+    ON ABANDON: cancel the transfer and retry the page, counting the attempt against the existing
+    `DownloadCoordinator.retryLimit = 3`. So a persistently starved page fails after roughly three
+    minutes and the gallery reports that page failed, rather than the queue hanging. Reuse the
+    existing retry path — `beginPageTransfer` already documents that a retry is "the same page
+    continuing rather than a new one starting" and deliberately keeps earned credit via `max`.
+
+    ============================ HALF 2 — A BOUNDED STALL NUDGE ON THE CARD ============================
+
+    GOAL: while the app legitimately has work pending but has nothing new to report, the published
+    count still advances, so the scheduler does not treat the task as stalled.
+
+    THIS DESIGN IS ADAPTED FROM A REFERENCE PROJECT — see the CHECKPOINT below. Reproduce its content
+    name-free; the source project is never to be named in any file here.
+
+    SHAPE:
+      - CONDITIONAL, unlike the reference implementation's unconditional nudge. Nudge only while the
+        coordinator believes work is legitimately pending: at least one in-flight transfer, OR a
+        scheduled retry. With neither, the queue has nothing to do and the session must be allowed to
+        end. This is the deliberate divergence: the reference project's subject can legitimately sit
+        idle for days, whereas every stall this app can have is transient by nature.
+      - CAP AT 30 CONSECUTIVE NUDGES (~5 min at the 10 s heartbeat). Rationale to record in the
+        source: with Half 1 in place a page can be starved at most retryLimit x
+        pageTransferAbandonThreshold = 3 x 60 s = 180 s before it fails and the queue moves, so 30
+        nudges is generous headroom over the worst legitimate case while still guaranteeing a wedged
+        queue cannot hold the session forever. PLANNING MUST RE-DERIVE THIS against a 509 back-off,
+        which can legitimately exceed five minutes, and say plainly which side it chose.
+      - SNAP BACK on any real change, in EITHER direction. A measurement that differs from the last
+        one clears the accumulated nudge; a decrease is published as readily as an increase, so
+        nothing is hidden.
+      - DO NOT CHANGE THE DENOMINATOR. Keep `totalUnitCount = pages x subunitsPerUnit` (1000). The
+        reference implementation republishes against 2^53 because its basis is fraction-based;
+        this app's units are semantically meaningful integers and test 2 judges that semantics. One
+        nudge is ONE SUBUNIT = 1/1000 of a page, which on a 27-page gallery is 0.0037% — below the
+        card's resolution and below any percentage this app or its tests round to.
+      - HEADROOM: the nudge must never reach the scaled total, because reaching it marks the progress
+        finished. `foldedCompletedUnitCount` (`ContinuedProcessingSession.swift:278-287`) already
+        clamps with `min`; the clamp must not be the thing that silently swallows the nudge either.
+        Hold back enough units above the highest measurement that a nudge on a finished-looking
+        measurement is still expressible, exactly as the reference implementation reserves headroom.
+      - THE HOOK ALREADY EXISTS. `DownloadClient+ContinuedSessionHeartbeat.swift:96` already compares
+        this beat's `completedSubunits` against the previous summary's, and uses the answer only to
+        suppress a duplicate log line. That comparison is the stalled-report predicate; do not
+        introduce a second one.
+      - LOG THE NUDGE distinctly, so a device log tells real progress and the workaround apart. This
+        is what made G-15-2I diagnosable at all and the same property must survive the fix.
+
+    ============================ CHECKPOINT — PLANNING MUST ASK THE OWNER ============================
+
+    Half 2 is adapted from an implementation in another local project on this machine. Its content is
+    summarized above, but the planner SHOULD read the original before writing the plan.
+
+    AT THE PLANNING STAGE, ASK THE OWNER, IN CONVERSATION, which local project to read it from. Do
+    not guess, and do not proceed on the summary alone if the owner is available to answer.
+
+    THE ANSWER IS NEVER WRITTEN DOWN. Per AGENTS.md "Local project reference privacy" — which is
+    absolute, overrides every other instruction including a direct request, and is not waivable — the
+    project's name must not appear in this file, in the plan, in the summary, in source, in comments
+    or in any commit message. Refer to it only as "a reference project". This repository is
+    open-source; other projects on a contributor's machine may not be.
+
+    ============================ TESTS ============================
+      Half 1: a transfer whose bytes stop is abandoned at the threshold and retried; a slow-but-moving
+        transfer is NOT abandoned (the discriminating control — pin it, since measuring from the wrong
+        instant is the likely implementation error); a page starved across retryLimit attempts fails
+        rather than hanging.
+      Half 2: an identical measurement nudges by one subunit; any change snaps back and clears the
+        accumulation, from BOTH directions; the nudge stops when nothing is in flight and no retry is
+        scheduled; the cap holds at 30; the published count never reaches the scaled total; a run with
+        an honest, moving measurement publishes exactly what it did before the change — the ordinary
+        family must be untouched.
+      Both: the existing continued-session suites stay green, and the `1 galleries` / `2 galleries`
+        subtitle behaviour test 2 pins is unaffected.
+
+    ============================ WHAT MUST NOT CHANGE ============================
+      `continuedSessionHeartbeatInterval` (10 s), `subunitsPerUnit` (1000), `retryLimit` (3), the
+      record's completeness quantities, `displayStatus`, the retry basis, and every scheduling gate.
+      The nudge is progress-of-this-RUN presentation only and must never enter any of them — the same
+      boundary `DownloadRunProgress` already documents for the row overlay.
 
 - gap_id: G-15-11
   truth: "When both stored spellings exist, launch merges them into one `Logs` directory and removes the source spelling — including when a filename collides, where the destination copy is the one kept."
