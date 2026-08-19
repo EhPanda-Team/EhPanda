@@ -71,9 +71,10 @@ public enum UITestAutomation {
             UITestStubURLProtocol.configure(fixtureDirectory: configuration.fixtureDirectory)
             URLProtocol.registerClass(UITestStubURLProtocol.self)
         }
-        // One preparation for every dependency override, so the get-then-set below is accepted:
-        // reading `$0.downloadClient` caches the live client under the current preparation id, and
-        // the setter only admits a key whose cached value carries that id.
+        // Both overrides share one preparation. The get-then-set on `$0.downloadClient` is accepted
+        // because the get and the set happen inside the same preparation: reading it caches the live
+        // client under the current preparation id, and the setter admits a key whose cached value
+        // carries that id.
         if configuration.clipboardClient != nil || configuration.pauseRefusal != nil {
             prepareDependencies {
                 if let clipboardClient = configuration.clipboardClient {
