@@ -68,8 +68,9 @@ expected_note_2026_08_19: |
     - it advances only while the run is genuinely stalled — an unchanged measurement — and snaps back
       to the measurement the instant that changes, in EITHER direction, so a decrease is still
       published as readily as an increase and nothing is hidden;
-    - it is bounded: it stops when nothing is in flight and no retry is scheduled, and it is capped at
-      30 consecutive nudges regardless;
+    - it is bounded: capped at 30 consecutive nudges. That cap is the only bound, deliberately — the
+      heartbeat that carries the nudge already runs only while there is pending work, and no second
+      condition is layered on top of it;
     - it never reaches the scaled total, and never enters the record's completeness quantities,
       `displayStatus`, the retry basis or any scheduling gate.
 
@@ -1064,17 +1065,25 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     name-free; the source project is never to be named in any file here.
 
     SHAPE:
-      - CONDITIONAL, unlike the reference implementation's unconditional nudge. Nudge only while the
-        coordinator believes work is legitimately pending: at least one in-flight transfer, OR a
-        scheduled retry. With neither, the queue has nothing to do and the session must be allowed to
-        end. This is the deliberate divergence: the reference project's subject can legitimately sit
-        idle for days, whereas every stall this app can have is transient by nature.
-      - CAP AT 30 CONSECUTIVE NUDGES (~5 min at the 10 s heartbeat). Rationale to record in the
-        source: with Half 1 in place a page can be starved at most retryLimit x
-        pageTransferAbandonThreshold = 3 x 60 s = 180 s before it fails and the queue moves, so 30
-        nudges is generous headroom over the worst legitimate case while still guaranteeing a wedged
-        queue cannot hold the session forever. PLANNING MUST RE-DERIVE THIS against a 509 back-off,
-        which can legitimately exceed five minutes, and say plainly which side it chose.
+      - NO SECOND "IS THERE WORK" CONDITION. Nudge on every stalled report; the CAP below is the only
+        bound. An earlier draft of this spec gated the nudge on "at least one in-flight transfer OR a
+        scheduled retry" and the owner rejected it on 2026-08-19, correctly: a session with nothing to
+        do must not exist in the first place, so guarding against that state implies it is expected.
+        `beatContinuedSession` (`DownloadClient+ContinuedSessionHeartbeat.swift:85`) ALREADY opens with
+        `guard continuedSessionID == sessionID, await hasPendingWork() else { ... }`, so the nudge —
+        which lives inside that heartbeat — is already covered by the one correct guard.
+        The rejected condition was not merely redundant, it was WRONG at a different granularity: in
+        the G-15-2I log 62 heartbeats read `0 transfers in flight`, many of them while progress was
+        healthily advancing, so that condition would have been false in a large fraction of ordinary
+        frames and would have stopped nudging mid-download — manufacturing the very defect this fixes.
+        Do not reintroduce it in any form.
+      - CAP AT 30 CONSECUTIVE NUDGES (~5 min at the 10 s heartbeat), which is now the ONLY bound and
+        therefore carries the whole weight. Rationale to record in the source: with Half 1 in place a
+        page can be starved at most retryLimit x pageTransferAbandonThreshold = 3 x 60 s = 180 s
+        before it fails and the queue moves, so 30 nudges is generous headroom over the worst
+        legitimate case while still guaranteeing a wedged queue cannot hold the session forever.
+        PLANNING MUST RE-DERIVE THIS against a 509 back-off, which can legitimately exceed five
+        minutes, and say plainly which side it chose.
       - SNAP BACK on any real change, in EITHER direction. A measurement that differs from the last
         one clears the accumulated nudge; a decrease is published as readily as an increase, so
         nothing is hidden.
@@ -1115,8 +1124,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
         instant is the likely implementation error); a page starved across retryLimit attempts fails
         rather than hanging.
       Half 2: an identical measurement nudges by one subunit; any change snaps back and clears the
-        accumulation, from BOTH directions; the nudge stops when nothing is in flight and no retry is
-        scheduled; the cap holds at 30; the published count never reaches the scaled total; a run with
+        accumulation, from BOTH directions; the cap holds at 30 and nothing else stops the nudge — pin
+        that a stalled report with ZERO transfers in flight still nudges, since that is the frame the
+        rejected condition would have dropped; the published count never reaches the scaled total; a run with
         an honest, moving measurement publishes exactly what it did before the change — the ordinary
         family must be untouched.
       Both: the existing continued-session suites stay green, and the `1 galleries` / `2 galleries`
