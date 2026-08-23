@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 1/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 2/26 | In Progress|  |
 | 17. Localized Screenshot Capture Harness | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1125,13 +1125,13 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 1/26 plans executed
+**Plans**: 2/26 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
-- [ ] 16-02-PLAN.md — `16-SWEEP.md` skeleton: 42-surface inventory, 12-cell matrix, D-13 named rows, D-04 checklist, D-25 section
+- [x] 16-02-PLAN.md — `16-SWEEP.md` skeleton: 42-surface inventory, 12-cell matrix, D-13 named rows, D-04 checklist, D-25 section
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
