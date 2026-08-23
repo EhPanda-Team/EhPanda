@@ -516,42 +516,42 @@ written description only — never a screenshot filename (D-32).
 | 7 | Home › Toplists | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
 | 7 | Home › Toplists | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
 | 7 | Home › Toplists | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
-| 8 | Favorites root | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 8 | Favorites root | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 8 | Favorites root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 8 | Favorites root | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 8 | Favorites root | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 8 | Favorites root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 9 | Search root | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 9 | Search root | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 9 | Search root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 9 | Search root | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 9 | Search root | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 9 | Search root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 10 | Search results | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 10 | Search results | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 10 | Search results | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 10 | Search results | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 10 | Search results | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 10 | Search results | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 11 | Downloads root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 12 | Downloads › Inspector sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
+| 8 | Favorites root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | Session present, list shown. Long row titles lose their tail at the third line; index/sort/features glyphs, search field and all row values read in full. |
+| 8 | Favorites root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Titles truncated; page count and date cut at the screen's right edge. The tab-root search field still reads correctly. |
+| 8 | Favorites root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8 | Title cut mid-glyph at the right edge; page-count number lost; cover thumbnail squeezed to a sliver. Screen title and search field survive (tab root). |
+| 8 | Favorites root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row value reads in full in the rows walked. |
+| 8 | Favorites root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values complete. |
+| 8 | Favorites root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values complete. |
+| 9 | Search root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#10 | History keyword row and section headers fine; the Recently Seen cell's title is ellipsised. |
+| 9 | Search root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#10 | Recently Seen cell overflows its slot — the title is cut at both ends and the cover is pushed past the screen's left edge. |
+| 9 | Search root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Recently Seen cells overlap the section header and each other; titles cut at both edges; the section headings collapse to roughly one word per line. |
+| 9 | Search root | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#10 | Recently Seen cell titles ellipsised; keyword row and headers fine. |
+| 9 | Search root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#10 | The search field overlaps the Recently Searched heading; Recently Seen cell titles cut. |
+| 9 | Search root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Recently Seen cells overlap each other and their covers; titles cut at both edges. |
+| 10 | Search results | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Screen title, row titles, uploader, language, page count and date all read in full. |
+| 10 | Search results | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; a long title ellipsised; language, page count and date cut at the right edge. |
+| 10 | Search results | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #6, #7, #8 | Screen title not rendered; filter capsule empty; page count and date cut at the right edge; cover thumbnail squeezed away. |
+| 10 | Search results | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All row values read in full. |
+| 10 | Search results | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
+| 10 | Search results | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | All row values read in full, including a long bracketed title over two lines. |
+| 11 | Downloads root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Empty state, populated row, row context menu and swipe action all read in full, download badge included. Empty-state copy wraps and stays complete. |
+| 11 | Downloads root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Row title ellipsised at the second line (download badge present); the badge's progress text and the date are cut at the screen's right edge. |
+| 11 | Downloads root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8, #11 | Title cut mid-glyph; badge progress reduced to one digit; date cut; cover thumbnail gone; the delete confirmation's message is cut off mid-sentence. Row context menu and empty state remain complete. |
+| 11 | Downloads root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Row title, uploader, badge, category and date all read in full. |
+| 11 | Downloads root | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
+| 11 | Downloads root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title over two lines, badge `14/14` and the full timestamp all read in full. |
+| 12 | Downloads › Inspector sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Header, the three status rows with their page ranges, and all three action rows read in full. |
+| 12 | Downloads › Inspector sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Header title ellipsised; the badge progress and the timestamp's time are cut at the right edge. |
+| 12 | Downloads › Inspector sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8 | Header title ellipsised; badge and date cut at the right edge; cover thumbnail squeezed away. Status and action rows wrap and stay complete. |
+| 12 | Downloads › Inspector sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Header and every status and action row read in full. |
+| 12 | Downloads › Inspector sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Header and every status and action row read in full. |
+| 12 | Downloads › Inspector sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Header title over two lines, badge `14/14` and the full timestamp all read in full. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Reached through the gallery header's download menu (`Manage Folders`) — the Downloads row menu offers Detail / Pages / Delete only. Title, close and add controls and the folder row all read in full. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Folder row, sheet title and both toolbar controls read in full. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Folder row, sheet title and both toolbar controls read in full; nothing clipped. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Folder row, sheet title and both toolbar controls read in full. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Folder row, sheet title and both toolbar controls read in full. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Folder row, sheet title and both toolbar controls read in full; nothing clipped. |
 
 ### iPhone — Group B (#14–#27) — plan 16-05
 
@@ -1025,6 +1025,9 @@ reads as at `.large` — never a filename (D-32). Before/after images are sent t
 | 7 | #3, #4, #5, #6, #7 | iPhone portrait AX3 / AX5 | The pushed screens' navigation large title degrades in portrait. At AX3 a long title is ellipsised. At AX5 the title is not rendered at all on any of these screens — the band where it belongs is blank, and the accessibility tree carries no heading either, so the screen loses its own name while the space it needs is still reserved. Short titles are affected exactly as long ones. Landscape keeps the inline title at every size. | open |
 | 8 | #3, #4, #5, #6, #7 (all list hosts) | iPhone portrait AX5 | At AX5 in portrait the row's cover thumbnail is squeezed to a narrow vertical sliver a few points wide and pushed partly past the screen's left edge, leaving an unrecognisable strip of the artwork instead of the cover. The cover is the row's only visual identifier and it is not reproduced anywhere else in the row. | open |
 | 9 | #5, #6 (all list hosts) | iPhone portrait XXL and above | The uploader name is ellipsised as soon as a language value shares its line: at XXL a seventeen-character uploader already reads with its last third replaced by an ellipsis, while the language value beside it is complete. At the default size both read in full on the same line. This is the D-04 site `GalleryListComponents/Cells/GalleryDetailCell.swift:107`, whose Phase-10 "fine" verdict rested on the secondary-text exemption that D-04 removes. At AX3 and above the same value is additionally cut by finding #6. | open |
+| 10 | #9 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5 | The Search root's "Recently Seen" strip keeps a fixed cell size, so its contents are removed as the type grows rather than the cell growing with them. At XXL the cell's title is already ellipsised where it read in full at the default size. At AX3 the cell overflows its slot: the title is cut at the right edge *and* its opening words are pushed past the screen's left edge together with the cover, so neither end of the title is readable. At AX5 in portrait the cells are drawn on top of the section heading and on top of each other, and the two section headings collapse to roughly one word per line while the rest of their row stays empty; in landscape at AX5 the cells overlap their own covers. Covers the D-04 site `SearchFeature/GalleryHistoryCell.swift:32`. | open |
+| 11 | #11 | iPhone portrait AX5 | The download delete confirmation is presented as a popover of fixed width (about a quarter of the screen) rather than a full-width sheet, so at AX5 its explanatory sentence no longer fits: the message stops mid-sentence and its last word is hidden behind the confirm button, with the popover already running past the bottom of the screen and no way to scroll to the rest. The user is asked to confirm a destructive action from a sentence they cannot finish reading. At the default size and at XXL the same popover shows the sentence complete. The absence of a separate Cancel button is *not* part of this finding — the popover has no Cancel button at any size and is dismissed by tapping outside. | open |
+| 12 | all list hosts, thumbnail layout | iPhone portrait AX5 | With the list's Display Mode set to Thumbnail, the grid cell removes text as the type grows instead of reflowing: the category badge is abbreviated to its first word plus an ellipsis, so two different categories become indistinguishable from their badges; the cell's title is ellipsised after its bracketed prefix; the page-count line is cut; and the grid's right-hand column runs off the screen edge with its star row clipped. All of these read in full at the default size. Covers the D-04 sites `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` and `AppComponents/CategoryView.swift:31`. The sweep set Display Mode to Thumbnail for this one capture and restored it to Detail immediately afterwards. | open |
 
 Status ∈ {`open`, `fixed-by <commit>`, `re-verified`, `accepted`}.
 
@@ -1039,7 +1042,7 @@ Each closes as `fixed` or `accepted (owner reason: …)` — never by omission.
 | Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | _pending — screen #14 is Group B (plan 16-05)_ | pending |  |
 | Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | _pending — screen #14 is Group B (plan 16-05)_ | pending |  |
 | Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | _pending — screen #25 is Group B (plan 16-05)_ | pending |  |
-| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | OBSERVED_FAV | pending |  |
+| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | The toolbar and menu glyphs do **not** clip: the favourites-index, sort-order and features glyphs keep their size and stay fully drawn at AX5 in both orientations, and the row's trailing `photoOnRectangleAngled` symbol is likewise never cut. What is lost is the number beside that symbol — at AX3 the page count loses digits at the screen's right edge and at AX5 only the glyph survives with no number at all (finding #6). So the pre-registered glyph clip does not reproduce; the paired value does. | pending |  |
 | Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | It ellipsises, which is the pre-registered failing case, and it does so well before AX5. At the default size the title reads to its last word over four lines. At AX5 in **portrait** only the first word survives and the ellipsis sits on top of the neighbouring card's artwork (finding #2); at AX5 in **landscape** the title is one line ending in an ellipsis after roughly three words. It does not wrap within `lineLimit(4)` at any accessibility size in either orientation — the card's fixed height, not the line limit, is what removes the text. Recorded as finding #1. | pending |  |
 
 Note on the reader counter: under D-03 a **wrap** is not degradation, so this case may close as
@@ -1066,14 +1069,14 @@ when this table was written. D-04 status ∈ {`pending`, `fine`, `finding:#N`, `
 | `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:224` | log category chip | #32 | fine | pending |  |
 | `ReadingFeature/Support/ControlPanel.swift:176` | page indicator `n / total` | #25 | fine | pending | **D-13: reader total-page counter wrap** |
 | `HomeFeature/GalleryRankingCell.swift:39` | ranking cell subtitle | #2 | fine | finding:#3 |  |
-| `SearchFeature/GalleryHistoryCell.swift:32` | history cell secondary line | #9 | fine | pending |  |
+| `SearchFeature/GalleryHistoryCell.swift:32` | history cell secondary line | #9 | fine | finding:#10 |  |
 | `GalleryListComponents/Cells/GalleryDetailCell.swift:107` | uploader | all list hosts (#3, #4, #5, #8, #10) | fine (secondary exemption) | finding:#9 | **back in scope — the exemption is gone** |
 | `GalleryListComponents/Cells/GalleryDetailCell.swift:152` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | **back in scope + D-14 (paired shrink at :155)** |
 | `GalleryListComponents/Cells/GalleryDetailCell.swift:163` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | **back in scope + D-14 (paired shrink at :166)** |
-| `GalleryListComponents/DownloadBadgeLabel.swift:19` | badge progress text | all list hosts + #11 | fine | pending |  |
-| `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` | thumbnail cell footnote | all list hosts (thumbnail layout) | fine | pending |  |
+| `GalleryListComponents/DownloadBadgeLabel.swift:19` | badge progress text | all list hosts + #11 | fine | finding:#6 |  |
+| `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` | thumbnail cell footnote | all list hosts (thumbnail layout) | fine | finding:#12 |  |
 | `AppComponents/TagCloudView.swift:122` | tag text | #14 | fine | pending | **D-13: long-tag right-edge clip** |
-| `AppComponents/CategoryView.swift:31` (`CategoryLabel`) | category name | #14 + all list cells | fine | pending | D-15 collision via the paired 0.72 shrink at the Detail header |
+| `AppComponents/CategoryView.swift:31` (`CategoryLabel`) | category name | #14 + all list cells | fine | finding:#12 | D-15 collision via the paired 0.72 shrink at the Detail header |
 | `AppComponents/CategoryView.swift:87` (`CategoryCell`) | category name | #39 | fine | pending |  |
 | `AppComponents/TagSuggestionView.swift:111` | suggestion row title | #10, #17 | fine | pending |  |
 | `AppComponents/TagSuggestionView.swift:116` | suggestion row detail | #10, #17 | fine | pending |  |
