@@ -6,9 +6,9 @@ current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
 stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-08-23T15:24:27.380Z"
+last_updated: "2026-08-23T15:26:23.271Z"
 last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — sweep UDIDs, BUNDLE_ID=app.ehpanda.personal, IPHONE_LOGIN=present / IPAD_LOGIN=none, sim-use tooling map, baselines recorded + read back, pre-flight A1/A6 confirmed"
+last_activity_desc: "Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — IPHONE_UDID ADE09605…, IPAD_UDID 8250D97E…, BUNDLE_ID=app.ehpanda.personal (resolved build setting, never chosen), IPHONE_LOGIN=present, IPAD_LOGIN=none (gated iPad rows → blocked, surfaced by 16-10), sim-use tooling map, baselines iPhone medium/dark/disabled + iPad large/light/disabled recorded and read back, pre-flight A1 live re-layout + A6 XXL token confirmed"
 progress:
   total_phases: 17
   completed_phases: 13
@@ -817,6 +817,7 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-03: BUNDLE_ID = app.ehpanda.personal is derived from the project's resolved PRODUCT_BUNDLE_IDENTIFIER on this machine, never chosen; app.ehpanda is never swept
 - [Phase 16]: 16-03: IPAD_LOGIN=none — iPad rows of login-gated screens are blocked: no iPad session and surfaced by 16-10; one-row amendment if the owner logs in before 16-07
 - [Phase 16]: 16-03: sim-use is the primary sweep driver; § Protocol keeps agent-device vocabulary with a ### Tooling mapping table
+- [Phase 16]: D-01 amended by owner in chat: agent extracts a name-free reflow-pattern catalogue and proposes pattern→finding mappings after the sweep; owner still hand-writes every fix; no diffs/patches
 
 ### Pending Todos
 
