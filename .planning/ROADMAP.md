@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
-- [ ] **Phase 16: Dynamic Type Accessibility** - Complete full-range Dynamic Type readability/operability (AX1–AX5) on the Phase 10 font/reflow foundation — human-implemented, agent verify-only
+- [ ] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar
 - [ ] **Phase 17: Localized Screenshot Capture Harness** - Deterministic capture of the marketing screenshot set across all 6 app languages and both color schemes, from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 
 ## Phase Details
@@ -1081,23 +1081,49 @@ Gap closure round 21 (verification 2026-08-10, gaps 1-5, plus the two 15-UAT.md 
 - [x] 15-76-PLAN.md — UAT-FU-1: rename the user-visible logs folder to `Logs` via the single path constant, with a regime-complete one-time launch migration (legacy-only rename, case-only rename on case-insensitive volumes, both-exist merge with a stated collision disposition, race-tolerant against concurrent launch logging, never-throwing failure containment) and piecewise tests per regime.
 - [ ] 15-77-PLAN.md — UAT-FU-2 (spike-gated, owner checkpoint): Candidate 0 of the swipe-deletion choreography — drop the destructive role on the swipe delete (tint red), animate the confirmed removal, region-scoped source regression — then a blocking owner device evaluation carrying the research's gate criteria verbatim; on kill, record it and route Candidate 1 to a follow-up round unbuilt.
 
-### Phase 16: Dynamic Type Accessibility
+### Phase 16: Accessibility (Dynamic Type + Assistive Technology)
 
-**Goal**: Complete comprehensive Dynamic Type support so every user-facing screen stays readable and operable across the full Dynamic Type range (including accessibility sizes AX1–AX5) with no clipped essential text, overlapping content, or unreachable controls — building on the font-scaling and reflow foundation delivered in Phase 10 (plans 10-10/10-11, verified on-device).
+**Goal**: Make EhPanda accessible across six of the nine App Store Accessibility Nutrition Label
+categories, in two sequential rounds. **Round 1 (Dynamic Type)** completes full-range readability and
+operability (AX1–AX5) on the Phase 10 font/reflow foundation. **Round 2 (assistive technology)** adds
+systematic support for VoiceOver, Voice Control, Reduced Motion, Sufficient Contrast, and Differentiate
+Without Color. Round 1 runs first so round 2 lands against settled layout; a targeted re-sweep closes
+the staleness window (D-25).
 **Depends on**: Phase 10 (Dynamic Type foundation) — runs last, against the fully-settled UI.
-**Requirements**: TBD (Dynamic Type accessibility — carried over from Phase 10 criterion 5)
-**Implementation mode**: **Human-implemented; agent verify-only.** The agent audits, drives the simulator at accessibility sizes, and reports findings; it does NOT write the reflow fixes. Do not spawn executor agents for this phase — run verification only.
+**Requirements**: A11Y-01 (round 1), A11Y-02 (round 2)
+**Implementation mode**: **Split by round.**
+  - **Round 1 is human-implemented; agent verify-only.** The owner finds and fixes every Dynamic Type
+    breakage himself; the agent audits, drives the simulator, and reports. Do not spawn executor agents
+    for round-1 reflow work. One carve-out: the agent authors the four error-level SwiftLint rules that
+    lock the foundation in.
+  - **Round 2 is agent-implemented, owner-reviewed.** Label, input-label, motion-gating and contrast work
+    is high-volume and mechanical; the owner reviews and signs off. Sufficient Contrast and Differentiate
+    Without Color are **audit-first** — measure what already exists before building anything.
+**Target bar**: the **App Store Accessibility Nutrition Label** pass/fail criteria, which require every
+common user task to work, not just the main screen. Dark Interface is expected to already pass; Captions
+and Audio Descriptions are not applicable (no video). If a category proves unclaimable, the agent returns
+to the owner with the measurements rather than accepting the gap (D-24).
+
 **Success Criteria** (what must be TRUE):
 
   1. Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes (AX1–AX5), without clipped essential text, overlapping content, or unreachable controls.
   2. Layouts adapt via reflow (wrap / `ViewThatFits` / stacking), never by capping Dynamic Type (`dynamicTypeSize` cap) or clipping.
-  3. Default-size (`.large`) appearance parity is preserved — no visible change at the default size.
+  3. Default-size (`.large`) appearance parity is preserved — no visible change at the default size. This outranks every other rule in round 1, including the `minimumScaleFactor` ban.
   4. The cosmetic AX5 edge cases surfaced during Phase 10 verification are resolved or explicitly accepted: Detail stats-strip abbreviation, long-tag right-edge clip in the tag cloud, reader total-page counter wrap, Favorites trailing-glyph clip, and the hero-carousel title truncation.
-  5. Owner-signed on-device UAT confirms readability/operability at XXL / AX3 / AX5 across every screen, including authenticated content screens (the D-03 gate carried over from Phase 10).
+  5. Owner-signed UAT confirms readability/operability at XXL / AX3 / AX5 across every screen, including authenticated content screens (the D-03 gate carried over from Phase 10).
+  6. `minimumScaleFactor` is gone from the source tree (5 sites → 0), and four error-level SwiftLint custom rules enforce the foundation: `minimumScaleFactor`, `.dynamicTypeSize(` as a view modifier (environment *reads* stay legal), `GeometryReader`, and numeric-literal `.system(size:)`.
+  7. Every interactive element is reachable and correctly announced under VoiceOver — icon-only controls carry labels, decorative images are hidden, state is expressed as traits rather than label text, and reading order and post-navigation focus are correct.
+  8. Every interactive element is actuatable by Voice Control — it appears under "Show numbers" and "Show names", and its input label matches its visible text.
+  9. Meaningful motion is gated on `accessibilityReduceMotion` (replaced with a dissolve or removed); decorative motion is dropped. Subtle crossfades and `.contentTransition(.numericText())` are deliberately out of scope — they are not vestibular triggers.
+  10. All text meets WCAG 4.5:1 and non-text elements 3:1, in light and dark and under Increase Contrast. Gallery **category background colors stay byte-identical** (all 84 variants, both hosts); the badge *text* color becomes adaptive black/white by resolved background luminance, which passes 84/84 with a structural floor of 4.58:1 for any possible color (D-21).
+  11. No information is conveyed by color alone — every color-coded state also carries a shape, glyph, or text.
+  12. A Nutrition Label recommendation is produced, stating which categories are claimable and why.
 
-**Foundation already in place (Phase 10):** 7 fixed-pixel font sites scaled with text styles + `@ScaledMetric` (10-10); B1–B10 AX5 reflows via constraint-drop / `@ScaledMetric` at default-size parity (10-11). Prohibitions to preserve: no `dynamicTypeSize` cap, no `GeometryReader`, `minimumScaleFactor` only where already present.
+**Foundation already in place (Phase 10):** 7 fixed-pixel font sites scaled with text styles + `@ScaledMetric` (10-10); B1–B10 AX5 reflows via constraint-drop / `@ScaledMetric` at default-size parity (10-11). Prohibitions to preserve: no `dynamicTypeSize` cap, no `GeometryReader`, and — as of this phase — no `minimumScaleFactor` at all.
 
-**Plans**: TBD (human-implemented — the agent runs verification only)
+**Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
+
+**Plans**: TBD — round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented.
 
 ### Phase 17: Localized Screenshot Capture Harness
 
