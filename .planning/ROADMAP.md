@@ -1123,7 +1123,34 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: TBD — round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented.
+**Plans**: 25 plans (23 sequential waves; plans 16-01/16-02 and 16-13/16-14 pair up). Round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented, owner-reviewed.
+
+Plans:
+- [ ] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
+- [ ] 16-02-PLAN.md — `16-SWEEP.md` skeleton: 42-surface inventory, 12-cell matrix, D-13 named rows, D-04 checklist, D-25 section
+- [ ] 16-03-PLAN.md — D-09 owner hand-login checkpoint; record sweep infrastructure, baselines and pre-flight
+- [ ] 16-04-PLAN.md — iPhone sweep, group A (rows 1–13) at XXL/AX3/AX5 × portrait/landscape
+- [ ] 16-05-PLAN.md — iPhone sweep, group B (rows 14–27) + `.large` parity baselines for the shrink sites
+- [ ] 16-06-PLAN.md — iPhone sweep, group C (rows 28–42)
+- [ ] 16-07-PLAN.md — iPad sweep, group A (rows 1–13)
+- [ ] 16-08-PLAN.md — iPad sweep, group B (rows 14–27)
+- [ ] 16-09-PLAN.md — iPad sweep, group C (rows 28–42); matrix complete
+- [ ] 16-10-PLAN.md — Round-1 findings report + owner-fixes checkpoint (D-01)
+- [ ] 16-11-PLAN.md — Batched re-verification loop of owner fixes until round 1 is clear (D-15 parity)
+- [ ] 16-12-PLAN.md — `no_minimum_scale_factor` rule after the 5 removals; owner-signed UAT gate (criterion 5)
+- [ ] 16-13-PLAN.md — `16-CONTRAST-AUDIT.md`: category / Increase Contrast / non-category / DWC audit; owner colour decisions checkpoint (D-22)
+- [ ] 16-14-PLAN.md — `Color+Contrast` helper + category colorset invariant test (84/84, two hash pins) (D-26/27)
+- [ ] 16-15-PLAN.md — Adaptive `CategoryLabel` / `CategoryCell` text; Increase Contrast variants per decision
+- [ ] 16-16-PLAN.md — VoiceOver semantics: Detail, Comments, Archives, Torrents, FolderManager
+- [ ] 16-17-PLAN.md — VoiceOver semantics: Setting screens (toggles, rows, values) and DateSeek
+- [ ] 16-18-PLAN.md — VoiceOver semantics: Reader control panel, slider, named page/zoom actions, focus
+- [ ] 16-19-PLAN.md — VoiceOver semantics: toolbar menus, RatingView, tag cloud, list cells, Downloads
+- [ ] 16-20-PLAN.md — Reduce Motion gating: Detail and Reader (D-29)
+- [ ] 16-21-PLAN.md — Reduce Motion gating: lists, sheets, settings + source-scan pin test
+- [ ] 16-22-PLAN.md — Contrast and Differentiate-Without-Color remediation per audit decisions (D-28)
+- [ ] 16-23-PLAN.md — `AccessibilityAuditUITests` on the `UITests` plan over fixture-reachable surfaces (D-31)
+- [ ] 16-24-PLAN.md — Manual VoiceOver / Voice Control / display-settings walkthrough on the physical device (D-31)
+- [ ] 16-25-PLAN.md — D-25 targeted re-sweep, `16-NUTRITION-LABEL.md` recommendation, phase-close gates, owner sign-off (D-21)
 
 ### Phase 17: Localized Screenshot Capture Harness
 
