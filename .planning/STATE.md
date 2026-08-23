@@ -6,9 +6,9 @@ current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: planning
 stopped_at: Phase 16 context gathered
-last_updated: "2026-08-23T07:17:45.912Z"
-last_activity: 2026-08-19
-last_activity_desc: Phase 15 complete, transitioned to Phase 16
+last_updated: "2026-08-23T07:18:19.526Z"
+last_activity: 2026-08-23
+last_activity_desc: Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
 progress:
   total_phases: 17
   completed_phases: 13
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 15 — continued-background-downloads
+**Current focus:** Phase 16 — dynamic-type-accessibility
 
 ## Current Position
 
 Phase: 16 — Dynamic Type Accessibility
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-19 — Phase 15 complete, transitioned to Phase 16
-Next: plan phase 16 (Dynamic Type Accessibility) when the owner is ready — it is human-implemented, agent verify-only. Nothing is open against phase 15. The branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner's standing decision. Phase 17 (Localized Screenshot Capture Harness) was added 2026-08-20 and now runs after 16; it is blocked on the owner's personal choice of which real galleries seed the mock data.
+Status: Context gathered — ready to plan
+Last activity: 2026-08-23 — Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
+Next: run /gsd-plan-phase 16. Context is locked in 16-CONTEXT.md: owner implements the reflow fixes, agent verifies only (one carve-out — the agent writes 4 error-level SwiftLint rules). Sweep = simulator, owner hand-logged-in, iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. Verdict rule = less information at a larger size. minimumScaleFactor banned (5 sites -> 0); default .large parity outranks the ban. Requirement A11Y-01 to be added to REQUIREMENTS.md. Phase 17 runs after 16 and is blocked on the owner's gallery choice.
 
 Progress: [████████░░] 82% (14/17 phases)
 
