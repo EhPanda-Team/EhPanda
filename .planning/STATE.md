@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: planning
-stopped_at: Phase 15 closed 2026-08-19 (all 77 plans, UAT round 8, verification passed 9/9)
-last_updated: "2026-08-19T16:45:50.795Z"
+stopped_at: Phase 16 context gathered
+last_updated: "2026-08-23T07:17:45.912Z"
 last_activity: 2026-08-19
-last_activity_desc: "PHASE 15 CLOSED 2026-08-19. 15-UAT round 8 on the test iPhone closed test 2 and the last open gap G-15-2I; 15-VERIFICATION.md passed 9/9 with no gaps; DEF-15-07 closed by owner ruling (the file_length violation on AppPackage/Package.swift is accepted permanently - the only remedy is splitting the manifest and the owner does not want it split), so no deferred item is open. Round 8 was the first round in which the SC2 procedure actually ran BACKGROUNDED: the session held 31m55s with no expiry across 105 heartbeats, three starved transfers were abandoned at 64.7/61.5/63.6 s and each retried within 3 s with the numerator moving again inside 15 s, the stall nudge peaked at 7 of 30 against a 1,057,000 sub-unit total, and the card-cancel clause - which no earlier round had reached - matched the in-app per-gallery pause baseline exactly. Two facts recorded in 15-UAT.md for later readers: agent-device home does NOT background an app on a physical iPhone although it reports success (use xcrun devicectl device process launch and confirm by screenshot), and the card cancel shares the expired arm with a scheduler reclaim so that log line alone cannot tell them apart. NEXT: phase 16 (Dynamic Type Accessibility) is not started; it is human-implemented, agent verify-only. Branch feature/gsd-phase-15 is unpushed, as are phases 1/2/3, which is the owner standing decision."
+last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
   total_phases: 17
-  completed_phases: 14
+  completed_phases: 13
   total_plans: 248
-  completed_plans: 248
-  percent: 82
+  completed_plans: 247
+  percent: 76
 ---
 
 # Project State
@@ -867,6 +867,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-10T15:21:46.419Z
-Stopped at: Completed 15-76-PLAN.md
-Resume file: None
+Last session: 2026-08-23T07:17:45.900Z
+Stopped at: Phase 16 context gathered
+Resume file: .planning/phases/16-dynamic-type-accessibility/16-CONTEXT.md
