@@ -82,6 +82,14 @@
 - [x] **ANALYTICS-01**: Instrument the four flow families — lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption — through a type-closed, privacy-redacted signal vocabulary carried by the TelemetryDeck SDK.
   - The public signal API accepts no bare `String` apart from one audited exception — `SearchShape(keyword:)`, whose reduction is proven by sentinel reflection tests to transmit no keyword text (D-19) — so a title, keyword, tag value or URL cannot be transmitted even by accident; every counter and duration ships as a bucket, with two documented exceptions: exact search-keyword length, and exact per-namespace tag counts (D-16); the client no-ops entirely when the build carries no ingestion credential, keeping contributor clones, forks and the test workflow out of the dataset, while the two deploy workflows inject the credentials from repository secrets so official releases do report (the D-13 amendment recorded in `14-DECISIONS.md`); a runtime opt-out in General Settings stops every app-authored signal and empties the per-signal settings snapshot, leaving only the SDK's own session signal so installs still count (the D-01 reversal); and every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch.
 
+### A11Y — Accessibility
+
+- [ ] **A11Y-01**: Complete full-range Dynamic Type readability and operability (AX1–AX5) on the Phase 10 font/reflow foundation.
+  - Every user-facing app screen and sheet stays readable and operable at XXL / AX3 / AX5 with no *information loss* relative to the default size — no clipped or newly truncated text, no overlap, no unreachable control; dropping decoration to save space is acceptable, dropping contents is not. Layouts adapt by reflow only: no `dynamicTypeSize` cap, no `GeometryReader`, and `minimumScaleFactor` removed entirely (5 sites → 0). Default `.large` appearance parity is preserved and **outranks the `minimumScaleFactor` ban** where the two collide. Four error-level SwiftLint custom rules enforce the foundation (`minimumScaleFactor`, `.dynamicTypeSize(` as a modifier with environment reads still legal, `GeometryReader`, numeric-literal `.system(size:)`). Verified by an owner-signed simulator sweep across iPhone + iPad × portrait + landscape × three sizes, on a hand-logged-in simulator so authenticated content screens are reachable.
+
+- [ ] **A11Y-02**: Support VoiceOver, Voice Control, Reduced Motion, Sufficient Contrast, and Differentiate Without Color to the App Store Accessibility Nutrition Label bar.
+  - Every interactive element is reachable and correctly announced under VoiceOver (icon-only controls labeled, decorative images hidden, state as traits not label text, correct reading order and post-navigation focus) and actuatable by Voice Control (present under "Show numbers"/"Show names", input label matching visible text). Meaningful motion is gated on `accessibilityReduceMotion` and decorative motion dropped; subtle crossfades and `.contentTransition(.numericText())` are deliberately excluded as non-vestibular. All text meets 4.5:1 and non-text 3:1 in light, dark and Increase Contrast — achieved without moving a single gallery category background color, by making the badge text color adaptive black/white on resolved background luminance (84/84 variants pass; structural floor 4.58:1 for any color). No information is conveyed by color alone. Verified by `performAccessibilityAudit()` on the non-default `UITests` plan plus a manual VoiceOver/Voice Control walkthrough, and closed by a Nutrition Label recommendation stating which categories are claimable.
+
 ## v2 Requirements
 
 None. Deferred work is captured under Out of Scope (future milestone), not staged as v2 here.
@@ -127,13 +135,16 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | POLISH-03 | Phase 10 | Complete |
 | LINT-01 | Phase 11 | Complete |
 | ANALYTICS-01 | Phase 14 | Complete |
+| A11Y-01 | Phase 16 | Pending |
+| A11Y-02 | Phase 16 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 23 total
-- Mapped to phases: 23 ✓
+- v1 requirements: 25 total
+- Mapped to phases: 25 ✓
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*
+*Last updated: 2026-08-23 — A11Y-01/A11Y-02 added for Phase 16 (two-round accessibility scope); 25/25 mapped*
+*Previously updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*

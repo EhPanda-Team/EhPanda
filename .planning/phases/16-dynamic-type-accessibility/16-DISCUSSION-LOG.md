@@ -1,11 +1,12 @@
-# Phase 16: Dynamic Type Accessibility - Discussion Log
+# Phase 16: Accessibility (Dynamic Type + Assistive Technology) - Discussion Log
 
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
 > Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
 **Date:** 2026-08-23
 **Phase:** 16-dynamic-type-accessibility
-**Areas discussed:** Agent/human handoff shape, Verification surface + auth screens, Type-ramp sample points, Screen inventory boundary, The five known AX5 edge cases, minimumScaleFactor residue, Regression protection, Evidence artifacts + content privacy
+**Areas discussed (round 1 — Dynamic Type):** Agent/human handoff shape, Verification surface + auth screens, Type-ramp sample points, Screen inventory boundary, The five known AX5 edge cases, minimumScaleFactor residue, Regression protection, Evidence artifacts + content privacy
+**Areas discussed (round 2 — assistive technology, added mid-discussion):** Round-2 work split, Round ordering, Target bar, Category colours & contrast, Reduce Motion scope, Verification method, Voice Control across locales, Nutrition Label gap policy, Dynamic Type re-check
 
 ---
 
@@ -180,3 +181,139 @@
 - **`xSmall` and Bold Text passes** — declined for this phase; both catch real but different failures. Candidates for a future accessibility phase.
 - **WebView chrome at AX5** — the native nav bar / toolbar / dismiss chrome around EhSetting web pages and the Cloudflare challenge surface is ours and can still break, even though WebKit owns the text inside.
 - **ShareExtension and system-provided UI** — excluded; the only thing worth checking there is whether the strings handed to Apple's UI break, which is not layout work.
+
+---
+---
+
+# Round 2 — Assistive Technology (added mid-discussion)
+
+> The owner interrupted before `/gsd-plan-phase` to add a second round to Phase 16:
+> "add supports for voiceover, voice control, reduced motion, sufficient contrast,
+> differentiate without color alone." This required rewriting ROADMAP.md Phase 16 and
+> adding an `A11Y` section to REQUIREMENTS.md, both approved before the edits were made.
+
+## Round-2 work split
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Agent implements round 2 (recommended) | Label/input-label/motion-gating work is high-volume and mechanical with no visual judgment call | ✓ |
+| Same split — owner implements, agent verifies | Consistent with round 1; ~150 label sites by hand | |
+| Split by axis | Agent does mechanical axes, owner does judgment ones | |
+
+**User's choice:** Agent implements — "option 1, but please note that Sufficient Contrast and Differentiate w/o color might have already been implemented."
+**Notes:** Turned those two axes audit-first (D-20). The baseline scan agreed: `DownloadBadgeLabel` already varies its symbol by status, and category badges already carry the category name as text.
+
+---
+
+## Round ordering
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Round 2 first, then Dynamic Type (recommended) | DT sweep runs once against final text and layout | |
+| Dynamic Type first, then round 2 | Closes criterion 5's long-outstanding gate sooner; risks staleness | ✓ |
+| Interleaved per screen | Nothing goes stale; loses batched size-switching | |
+
+**User's choice:** Dynamic Type first.
+**Notes:** Staleness surface turned out narrow — accessibility labels aren't rendered and the eventual colour fix moves no layout, so only a newly added glyph can invalidate anything. Closed by D-25's targeted re-sweep.
+
+---
+
+## Target bar
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| App Store Accessibility Nutrition Label (recommended) | Apple's pass/fail criteria; every common task, not just the main screen; shippable App Store artifact | ✓ |
+| WCAG 2.2 Level AA | Precise numeric thresholds; not what Apple checks | |
+| Per-axis checklists we define | Most control; no external authority | |
+
+**User's choice:** Nutrition Label.
+
+---
+
+## Category colours and contrast
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| High-contrast variant behind Increase Contrast (recommended) | Brand colour untouched by default; compliant variant only under `.increased` | |
+| Fix the colours outright | Compliant for everyone; collides with the no-redesign constraint | |
+| Report only — owner rules per colour | No change without an explicit call | |
+| *(free text)* | "always keep them as-is" | ✓ *(later reversed)* |
+
+**User's first choice:** freeze all colours.
+**Then measured:** 45 of 84 variants below 4.5:1, and — the finding that changed the conversation — the colorsets already ship `contrast: high` variants that make contrast *worse* (E-Hentai Manga 2.56 → 1.79 with Increase Contrast on).
+**Follow-up asked:** whether the freeze covered the Increase Contrast entries too, and what happens to an unclaimable Nutrition Label category. **Owner dismissed both questions**, then returned with: *"alright, do what you think it's necessary to do with the colors, including category colors."*
+**Resolution (agent's call under delegation):** D-26 — freeze all 84 backgrounds byte-identical, make the badge *text* colour adaptive black/white on resolved background luminance. Verified 84/84 pass AA, worst case 4.62:1, structural floor 4.58:1 for any possible colour. 47 badges flip to black text.
+
+---
+
+## Reduce Motion scope
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Meaningful motion only (recommended) | Gate springs/slides/scale/transitions; leave subtle crossfades and numeric-text transitions | ✓ |
+| Gate everything that animates | All ~107 sites; easiest to grep-verify; flattens motion Apple never targeted | |
+| Classify all 107 sites first | Most rigorous; adds an audit pass before any code | |
+
+**User's choice:** Meaningful motion only.
+
+---
+
+## Verification method (round 2)
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Automated audit + manual walkthrough (recommended) | `performAccessibilityAudit()` on the Phase 13 `UITests` plan, plus a manual VoiceOver/Voice Control pass | ✓ |
+| Manual walkthrough only | No new test code; no regression guard | |
+| Automated only | Repeatable gate; can't judge label sense or focus order | |
+
+**User's choice:** Both.
+
+---
+
+## Voice Control across locales
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Verify in English, rely on the catalog (recommended) | Labels share `LocalizedStringResource` keys with visible text, so matching is structural; add a no-hardcoded-label check | ✓ |
+| Verify all six locales | Catches translator wording drift; 6× the pass | |
+| English plus one CJK locale | Highest-value second sample | |
+
+**User's choice:** English plus the structural guard.
+
+---
+
+## Nutrition Label gap policy
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Record as an accepted gap (recommended) | Documented tradeoff; the rest still get claimed | |
+| Come back to me with the numbers | Treat an unclaimable category as a trigger to reopen the blocking decision | ✓ |
+| All six or the phase isn't done | A single blocker holds the phase open | |
+
+**User's choice:** Come back with the numbers.
+**Notes:** Asked once earlier and dismissed; re-put after the colour decision made the situation less likely.
+
+---
+
+## Dynamic Type re-check after round 2
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Targeted re-sweep of touched screens (recommended) | Re-walk only screens where round 2 adds a visible element | ✓ |
+| Keep round 2 layout-neutral by construction | Nothing to re-check; constrains how non-colour work is solved | |
+| Full 12-pass re-sweep | Airtight; doubles round 1's largest cost | |
+
+**User's choice:** Targeted re-sweep.
+
+---
+
+## ROADMAP / REQUIREMENTS edits
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Yes — update both (recommended) | Rewrite Phase 16 goal/criteria/mode; add A11Y-01 and A11Y-02 | ✓ |
+| CONTEXT.md only for now | Planner reconciles later; ROADMAP stays wrong meanwhile | |
+| Show me a draft first | Proposal in chat before writing | |
+
+**User's choice:** Update both.
+**Result:** ROADMAP Phase 16 rewritten (title, goal, per-round implementation mode, target bar, 12 success criteria, accessibility baseline); REQUIREMENTS gained an `A11Y` section with A11Y-01/A11Y-02 and two traceability rows; coverage 23/23 → 25/25.
