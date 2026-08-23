@@ -54,7 +54,7 @@ with a Nutrition Label recommendation naming which categories are claimable.
 
 ### The verdict rule — what "degraded" means
 
-- **D-03: Degraded = the interface provides *less information* at a larger font size.** The
+- **D-03: Degraded = the interface provides less information at a larger font size.** The
   owner's rule verbatim, and the sole verdict basis. Removing decoration to save space is
   acceptable; the interface must always provide the same *contents*.
   - **Fine:** a label wrapping to 2–3 lines; a row growing taller so fewer fit per screen;
@@ -138,8 +138,8 @@ with a Nutrition Label recommendation naming which categories are claimable.
 
 ### Regression protection (the agent's round-1 carve-out)
 
-- **D-16: Four error-level SwiftLint custom rules, written by the agent, wired into
-  `.swiftlint.yml`.** The build-tool plugin runs them on every build, so enforcement is automatic
+- **D-16: Four error-level SwiftLint custom rules, written by the agent, wired into `.swiftlint.yml`.**
+  The build-tool plugin runs them on every build, so enforcement is automatic
   — no separate script, no CI job.
 
   | Rule | Bans | Current count |
@@ -154,7 +154,8 @@ with a Nutrition Label recommendation naming which categories are claimable.
   is a *read* — how a view asks "am I at an accessibility size?" in order to switch an HStack to
   a VStack, which is exactly the reflow the owner will be writing. A blanket regex would block
   his own fixes. Match the modifier form only.
-- **D-18: The `.system(size:)` rule matches numeric literals only.** `@ScaledMetric`-fed forms
+- **D-18: The system-size font rule matches numeric literals only.** The rule targets
+  `.system(size:)`; `@ScaledMetric`-fed forms
   such as `.font(.system(size: reloadSymbolSize))` are the Phase 10 pattern and stay legal; only
   `\.system\(size: [0-9]` is an error.
 - **D-19 (round-1 half): the Phase 11 exception protocol is the only escape hatch** — a
@@ -200,7 +201,7 @@ The owner first froze the category colours ("always keep them as-is"), then reve
 *"do what you think it's necessary to do with the colors, including category colors."* The decision
 below is the agent's, taken under that delegation.
 
-- **D-26: Category *background* colours are frozen; the badge *text* colour becomes adaptive.**
+- **D-26: Category background colours are frozen; the badge text colour becomes adaptive.**
   The background carries the brand identity and the at-a-glance scan-ability; the text colour
   carries neither. So all 84 category colour variants (11 categories × 2 hosts × {light, dark,
   light+HC, dark+HC}) stay **byte-identical**, and `CategoryLabel`'s hardcoded
@@ -213,8 +214,8 @@ below is the agent's, taken under that delegation.
   - **Cost, accepted:** 47 of 84 badges flip to black text. That is a visible change, which is
     why it required the owner's authorization. In exchange no brand colour moves and Sufficient
     Contrast becomes claimable.
-- **D-27: The Increase Contrast variants are re-authored — but this is a should-fix, not a
-  blocker.** The colorsets already ship `contrast: high` entries, and they currently make contrast
+- **D-27: The Increase Contrast variants are re-authored — but this is a should-fix, not a blocker.**
+  The colorsets already ship `contrast: high` entries, and they currently make contrast
   *worse* in nearly every case (E-Hentai Manga 2.56 → 1.79; Artist CG 1.93 → 1.36; Western 2.30 →
   1.92) because they were authored to match the website's brighter colours rather than for
   legibility. A user who enables Increase Contrast gets a less legible badge. Under D-26 they
@@ -235,8 +236,8 @@ below is the agent's, taken under that delegation.
 
 ### VoiceOver / Voice Control
 
-- **D-30: Voice Control is verified in English, with a structural guard for the other five
-  locales.** Input labels derive from the same `LocalizedStringResource` keys as the visible
+- **D-30: Voice Control is verified in English, with a structural guard for the other five locales.**
+  Input labels derive from the same `LocalizedStringResource` keys as the visible
   text, so per-locale matching is structural rather than something to re-walk by hand. The agent
   verifies `en` and adds a check that **no accessibility label is a hardcoded string** that could
   drift from its visible text.
