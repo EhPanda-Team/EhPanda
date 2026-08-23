@@ -6,7 +6,7 @@ current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: planning
 stopped_at: Phase 16 context gathered
-last_updated: "2026-08-23T07:18:19.526Z"
+last_updated: "2026-08-23T08:03:22.214Z"
 last_activity: 2026-08-23
 last_activity_desc: Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
 progress:
@@ -32,7 +32,7 @@ Phase: 16 — Dynamic Type Accessibility
 Plan: Not started
 Status: Context gathered — ready to plan
 Last activity: 2026-08-23 — Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
-Next: run /gsd-plan-phase 16. Context is locked in 16-CONTEXT.md: owner implements the reflow fixes, agent verifies only (one carve-out — the agent writes 4 error-level SwiftLint rules). Sweep = simulator, owner hand-logged-in, iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. Verdict rule = less information at a larger size. minimumScaleFactor banned (5 sites -> 0); default .large parity outranks the ban. Requirement A11Y-01 to be added to REQUIREMENTS.md. Phase 17 runs after 16 and is blocked on the owner's gallery choice.
+Next: run /gsd-plan-phase 16. Phase 16 is now TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
 
 Progress: [████████░░] 82% (14/17 phases)
 
