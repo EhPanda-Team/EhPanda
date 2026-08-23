@@ -1126,32 +1126,108 @@ to the owner with the measurements rather than accepting the gap (D-24).
 **Plans**: 26 plans (24 sequential waves; plans 16-01/16-02 and 16-13/16-14 pair up). Round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented, owner-reviewed.
 
 Plans:
+**Wave 1**
+
 - [ ] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
 - [ ] 16-02-PLAN.md — `16-SWEEP.md` skeleton: 42-surface inventory, 12-cell matrix, D-13 named rows, D-04 checklist, D-25 section
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 16-03-PLAN.md — D-09 owner hand-login checkpoint; record sweep infrastructure, baselines and pre-flight
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 16-04-PLAN.md — iPhone sweep, group A (rows 1–13) at XXL/AX3/AX5 × portrait/landscape
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 16-05-PLAN.md — iPhone sweep, group B (rows 14–27) + `.large` parity baselines for the shrink sites
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 16-06-PLAN.md — iPhone sweep, group C (rows 28–42)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 16-07-PLAN.md — iPad sweep, group A (rows 1–13)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 16-08-PLAN.md — iPad sweep, group B (rows 14–27)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 16-09-PLAN.md — iPad sweep, group C (rows 28–42); matrix complete
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 16-10-PLAN.md — Round-1 findings report + owner-fixes checkpoint (D-01)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
 - [ ] 16-11-PLAN.md — Batched re-verification loop of owner fixes until round 1 is clear (D-15 parity)
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
 - [ ] 16-12-PLAN.md — `no_minimum_scale_factor` rule after the 5 removals; owner-signed UAT gate (criterion 5)
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
 - [ ] 16-13-PLAN.md — `16-CONTRAST-AUDIT.md`: category / Increase Contrast / non-category / DWC audit; owner colour decisions checkpoint (D-22)
 - [ ] 16-14-PLAN.md — `Color+Contrast` helper + category colorset invariant test (84/84, two hash pins) (D-26/27)
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
 - [ ] 16-15-PLAN.md — Adaptive `CategoryLabel` / `CategoryCell` text; Increase Contrast variants per decision
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
 - [ ] 16-16-PLAN.md — VoiceOver semantics: Detail, Comments, Archives, Torrents, FolderManager
+
+**Wave 15** *(blocked on Wave 14 completion)*
+
 - [ ] 16-17-PLAN.md — VoiceOver semantics: Setting screens (toggles, rows, values) and DateSeek
+
+**Wave 16** *(blocked on Wave 15 completion)*
+
 - [ ] 16-18-PLAN.md — VoiceOver semantics: Reader control panel, slider, named page/zoom actions, focus
+
+**Wave 17** *(blocked on Wave 16 completion)*
+
 - [ ] 16-19-PLAN.md — VoiceOver semantics: toolbar menus, RatingView, tag cloud, list cells, Downloads
+
+**Wave 18** *(blocked on Wave 17 completion)*
+
 - [ ] 16-20-PLAN.md — Reduce Motion gating: Detail and Reader (D-29)
+
+**Wave 19** *(blocked on Wave 18 completion)*
+
 - [ ] 16-21-PLAN.md — Reduce Motion gating: lists, sheets, settings + source-scan pin test
+
+**Wave 20** *(blocked on Wave 19 completion)*
+
 - [ ] 16-22-PLAN.md — Differentiate-Without-Color remediation: view-side log-level symbols, Laboratory glyph if weak, re-measured (D-20)
+
+**Wave 21** *(blocked on Wave 20 completion)*
+
 - [ ] 16-23-PLAN.md — Non-category contrast fixes and the rating-star decision per audit decisions, re-measured (D-28)
+
+**Wave 22** *(blocked on Wave 21 completion)*
+
 - [ ] 16-24-PLAN.md — `AccessibilityAuditUITests` on the `UITests` plan over fixture-reachable surfaces; owner-approved exclusion checkpoint (D-31, D-22)
+
+**Wave 23** *(blocked on Wave 22 completion)*
+
 - [ ] 16-25-PLAN.md — Manual VoiceOver / Voice Control (English) / display-settings walkthrough on the physical device (D-31, D-30)
+
+**Wave 24** *(blocked on Wave 23 completion)*
+
 - [ ] 16-26-PLAN.md — D-25 targeted re-sweep, `16-NUTRITION-LABEL.md` recommendation, phase-close gates, owner sign-off (D-21)
+
+**Cross-cutting constraints:**
+
+- Findings are recorded and the sweep moves on; screenshots stay under the evidence root (`$HOME/Library/Caches/ehpanda-phase16/`); before/after paths go to the owner in chat (D-02, D-32, D-33).
+- Three sizes only, AX5 the maximum, large end only (D-05, D-06, D-07).
 
 ### Phase 17: Localized Screenshot Capture Harness
 
