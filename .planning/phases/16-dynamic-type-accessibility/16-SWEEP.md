@@ -66,12 +66,22 @@ follows, always with an explicit `--device <UDID>`:
 | `agent-device open <BUNDLE_ID> --foreground` | `xcrun simctl launch <UDID> <BUNDLE_ID>` (no-op if already running), then `sim-use ui` to confirm `App: EhPanda` |
 | `agent-device screenshot --out <path> --scale 0.5` | `sim-use screenshot --device <UDID> --output <path>` — writes the full-scale PNG (1260×2736 on the iPhone Air). **Evidence is stored full-scale**; no downscale step. |
 | `agent-device scroll down --settle` | `sim-use gesture scroll-up --device <UDID>` (content moves up = page down); repeat until the `ui` outline stops changing |
-| `agent-device orientation landscape-left` / `portrait` | `sim-use gesture rotate-cw --angle 90 --device <UDID>` / `rotate-ccw`; verify via the `App:` header tag in `sim-use ui` |
+| `agent-device orientation landscape-left` / `portrait` | **Keep `agent-device orientation …` — `sim-use gesture rotate-cw` does NOT rotate the device.** Corrected by plan 16-04: `gesture rotate-cw` dispatches a two-finger rotate *on the screen*, which the app interprets as a content gesture (in 16-04 it navigated into a pushed screen) and leaves the device orientation untouched. Device rotation needs `agent-device orientation landscape-left` / `portrait`, and `agent-device` keeps its session per working directory, so every `agent-device` call in a session must run from the same cwd or it fails `SESSION_NOT_FOUND`. Verify the result via the `App:` header tag in `sim-use ui` **before** capturing, never by assuming the command took. |
 | `agent-device press <alias>` | `sim-use tap --label '…' --device <UDID>` — re-run `ui` before every `@N` tap; disambiguate with `--element-type` / `--frame minY=0.7r` (tab bar) |
 | `xcrun simctl ui <UDID> content_size …` | unchanged — this is `simctl`, not a driver verb |
 
 `agent-device` 0.20.8 stays installed as a fallback; a plan that uses it for something `sim-use`
 cannot do records which command and why.
+
+Two further mechanics that 16-04 had to discover, recorded so later sweep plans do not:
+
+- **Landscape screenshots come out of `sim-use screenshot` in the device's native portrait
+  framebuffer**, i.e. rotated 90°. Straighten each landscape capture with `sips -r 270 <file>`
+  right after taking it, so the evidence reads the way the screen did.
+- **A page-up/page-down gesture in landscape can land on the home indicator** and switch apps
+  instead of scrolling; when that happens `sim-use ui` shows a different bundle in its `App:`
+  header. Assert `App: EhPanda` (and the expected orientation tag) before every capture and
+  abort the cell rather than screenshotting another app's window.
 
 ### Evidence root
 
@@ -464,48 +474,48 @@ written description only — never a screenshot filename (D-32).
 
 | # | Screen | Device | Orientation | Size | Status | Finding |
 |---|---|---|---|---|---|---|
-| 1 | Tab bar shell | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 1 | Tab bar shell | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 1 | Tab bar shell | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 1 | Tab bar shell | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 1 | Tab bar shell | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 1 | Tab bar shell | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 2 | Home root | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 2 | Home root | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 2 | Home root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 2 | Home root | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 2 | Home root | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 2 | Home root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 3 | Home › Frontpage | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 4 | Home › Popular | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 5 | Home › Watched | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 6 | Home › History | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 6 | Home › History | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 6 | Home › History | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 6 | Home › History | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 6 | Home › History | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 6 | Home › History | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 7 | Home › Toplists | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
+| 1 | Tab bar shell | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Tab bar keeps all five labels and glyphs; no truncation. |
+| 1 | Tab bar shell | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Tab bar labels unchanged — the system caps tab-bar text below AX sizes. |
+| 1 | Tab bar shell | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Tab bar labels unchanged and all five items reachable. |
+| 1 | Tab bar shell | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Tab bar renders all five labels; floating bar overlays scrollable content only. |
+| 1 | Tab bar shell | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Tab bar labels unchanged. |
+| 1 | Tab bar shell | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Tab bar labels unchanged and all five items reachable. |
+| 2 | Home root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#1 | Hero-carousel title drops from four lines to three; the tail is ellipsised. Sections, ranking cells and tab bar fine. |
+| 2 | Home root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero title collapses to one ellipsised line; ranking cells lose both title tail and uploader. |
+| 2 | Home root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #2, #3 | Hero title down to one clipped word, the neighbouring card is drawn over its title and rating, ranking cells heavily truncated. |
+| 2 | Home root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Wider card absorbs the growth — hero title, ranking titles and uploaders all read in full. |
+| 2 | Home root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero title reduced to one ellipsised line; ranking uploader ellipsised. |
+| 2 | Home root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #3 | Hero title ellipsised after three words; ranking cell title and uploader both truncated. |
+| 3 | Home › Frontpage | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#4, #5 | Long row titles lose their tail at the third line; the filter field's capsule rendered with no icon and no placeholder on this screen. |
+| 3 | Home › Frontpage | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; titles truncated; language, page count and date cut off by the screen's right edge. |
+| 3 | Home › Frontpage | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title not rendered at all; filter capsule empty; page count gone, date and language cut; cover thumbnail squeezed to a sliver. |
+| 3 | Home › Frontpage | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every value in the rows walked reads in full, filter field included. |
+| 3 | Home › Frontpage | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
+| 3 | Home › Frontpage | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values read in full. |
+| 4 | Home › Popular | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | A long row title is ellipsised at the third line; filter field, uploader, stats and date all read in full. |
+| 4 | Home › Popular | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; titles truncated; language, page count and date cut at the right edge. |
+| 4 | Home › Popular | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; title runs off the right edge un-ellipsised; page count lost; cover a sliver. |
+| 4 | Home › Popular | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All row values read in full. |
+| 4 | Home › Popular | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
+| 4 | Home › Popular | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title, uploader, language, page count and date all read in full in the rows walked. |
+| 5 | Home › Watched | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5, #9 | Session present, list shown. A long title loses its tail; a long uploader is ellipsised where a language value shares its line. |
+| 5 | Home › Watched | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; title truncated; language and page count cut at the right edge. |
+| 5 | Home › Watched | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; language and page count cut; cover thumbnail a sliver. |
+| 5 | Home › Watched | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The longest title in the list reads in full across two lines; all other values complete. |
+| 5 | Home › Watched | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#5 | The same title that read in full at XXL now ellipsises at the third line. |
+| 5 | Home › Watched | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | Title ellipsised at the third line; remaining values complete. |
+| 6 | Home › History | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | A long row title loses its tail; the footer note, filter field and all row values read in full. |
+| 6 | Home › History | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; title truncated; page count and date cut at the right edge. |
+| 6 | Home › History | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #8, #9 | Screen title absent; filter capsule empty and overlapping rows; title and date cut at the right edge; uploader ellipsised; cover a sliver. |
+| 6 | Home › History | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Footer note wraps; every row value reads in full. |
+| 6 | Home › History | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
+| 6 | Home › History | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Footer note wraps to two lines; row values read in full in the rows walked. |
+| 7 | Home › Toplists | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | Screen title and the type/jump-page controls read in full; a long row title loses its tail. |
+| 7 | Home › Toplists | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6, #7 | Screen title ellipsised; filter capsule empty; row title truncated; language, page count and date cut at the right edge. |
+| 7 | Home › Toplists | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; page count lost; cover a sliver. Type menu itself renders all four options in full. |
+| 7 | Home › Toplists | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
+| 7 | Home › Toplists | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
+| 7 | Home › Toplists | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
 | 8 | Favorites root | iPhone | portrait | XXL (extra-extra-extra-large) | pending |  |
 | 8 | Favorites root | iPhone | portrait | AX3 (accessibility-extra-large) | pending |  |
 | 8 | Favorites root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
@@ -1006,7 +1016,15 @@ reads as at `.large` — never a filename (D-32). Before/after images are sent t
 
 | #N | Screen | Cells affected | Description (written, no filenames) | Status |
 |---|---|---|---|---|
-| _none yet_ | | | | |
+| 1 | #2 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The hero carousel's card is a fixed-height card and its title is capped at four lines, so the title gives up characters as the type grows instead of the card growing. At the default size a long title reads to its last word across four lines. At XXL it is down to three lines ending in an ellipsis; at AX3 it is a single ellipsised line; at AX5 only the first word survives. The information the card exists to carry — which gallery it is — is progressively removed as the size increases. Landscape absorbs XXL (the card is wider there and the title reads in full) but fails the same way from AX3 up. Pre-registered as the D-13 "hero-carousel title truncation" case. | open |
+| 2 | #2 | iPhone portrait AX5 | At AX5 in portrait the hero card's contents no longer fit inside the card: the neighbouring card's cover image is drawn on top of the focused card's title tail and its rating stars, and the focused card's own cover is cut off by the screen's left edge. This is overlap, not a peek — the title and the star row are partly unreadable because another card's artwork sits over them. Landscape at the same size does not overlap. | open |
+| 3 | #2, #7 | iPhone portrait AX3 / AX5; iPhone landscape AX3 / AX5 | The Home Toplists section's ranking cell keeps a fixed row size, so from AX3 upward both of its texts are cut: the gallery title ellipsises after two or three characters and the uploader line below it ellipsises as well. At the default size and at XXL both read in full. At AX5 in portrait the uploader line is not visible at all inside the row. Covers the D-04 site `HomeFeature/GalleryRankingCell.swift:39`. | open |
+| 4 | #3, #4, #5, #6, #7 | iPhone portrait AX3 / AX5 (also observed at XXL on #3) | The pull-to-reveal filter field above the pushed lists renders as an empty rounded capsule at AX3 and AX5 in portrait: both the magnifying-glass glyph and the "Filter" placeholder are absent, so the control shows no indication of what it is or what it does. The capsule itself grows with the type size, so this is not a height clip of a fixed-size bar — the content is simply not drawn. At the default size and at XXL the same field reads "Filter" beside its glyph (verified on #4 and #6); on #3 the capsule was empty at XXL as well. In landscape the field renders normally at all three sizes. | open |
+| 5 | #3, #4, #5, #6, #7 (all list hosts) | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The gallery list row's title is capped at three lines (two when a download badge is present), so a longer title surrenders characters every time the type size goes up. A title that reads to its final bracketed suffix at the default size is already missing that suffix at XXL, loses roughly a third of its text at AX3, and at AX5 in portrait runs off the right edge cut mid-glyph rather than ellipsised. Directly evidenced: one title read in full in landscape at XXL and ellipsised at AX3 in the same orientation. Recorded once and tagged all list hosts. | open |
+| 6 | #3, #4, #5, #6, #7 (all list hosts) | iPhone portrait AX3 / AX5 | From AX3 upward in portrait the list row's text column is wider than the screen, so everything on its right-hand side is cut off by the screen edge rather than reflowed: the language value loses its last one or two letters, the date loses its time and then its year, and the page-count number loses digits — at AX5 the page-count number is gone entirely and only its glyph remains. None of these values is reachable anywhere else in the row. All of them read in full at the default size and at XXL. Covers the D-04 sites `GalleryListComponents/Cells/GalleryDetailCell.swift:152` and `:163` together with their paired shrinks at `:155` and `:166`, which engage and still fail to keep the value on screen. | open |
+| 7 | #3, #4, #5, #6, #7 | iPhone portrait AX3 / AX5 | The pushed screens' navigation large title degrades in portrait. At AX3 a long title is ellipsised. At AX5 the title is not rendered at all on any of these screens — the band where it belongs is blank, and the accessibility tree carries no heading either, so the screen loses its own name while the space it needs is still reserved. Short titles are affected exactly as long ones. Landscape keeps the inline title at every size. | open |
+| 8 | #3, #4, #5, #6, #7 (all list hosts) | iPhone portrait AX5 | At AX5 in portrait the row's cover thumbnail is squeezed to a narrow vertical sliver a few points wide and pushed partly past the screen's left edge, leaving an unrecognisable strip of the artwork instead of the cover. The cover is the row's only visual identifier and it is not reproduced anywhere else in the row. | open |
+| 9 | #5, #6 (all list hosts) | iPhone portrait XXL and above | The uploader name is ellipsised as soon as a language value shares its line: at XXL a seventeen-character uploader already reads with its last third replaced by an ellipsis, while the language value beside it is complete. At the default size both read in full on the same line. This is the D-04 site `GalleryListComponents/Cells/GalleryDetailCell.swift:107`, whose Phase-10 "fine" verdict rested on the secondary-text exemption that D-04 removes. At AX3 and above the same value is additionally cut by finding #6. | open |
 
 Status ∈ {`open`, `fixed-by <commit>`, `re-verified`, `accepted`}.
 
@@ -1016,13 +1034,13 @@ The five edge cases from ROADMAP criterion 4, pre-registered as named items so c
 off item by item and none is silently dropped. Tracked alongside § Findings, not merged into it.
 Each closes as `fixed` or `accepted (owner reason: …)` — never by omission.
 
-| Case | Screen | Site | Status | Disposition |
-|---|---|---|---|---|
-| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | pending |  |
-| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | pending |  |
-| Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | pending |  |
-| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | pending |  |
-| Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | pending |  |
+| Case | Screen | Site | Observed (iPhone, round 1) | Status | Disposition |
+|---|---|---|---|---|---|
+| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | _pending — screen #14 is Group B (plan 16-05)_ | pending |  |
+| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | _pending — screen #14 is Group B (plan 16-05)_ | pending |  |
+| Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | _pending — screen #25 is Group B (plan 16-05)_ | pending |  |
+| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | OBSERVED_FAV | pending |  |
+| Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | It ellipsises, which is the pre-registered failing case, and it does so well before AX5. At the default size the title reads to its last word over four lines. At AX5 in **portrait** only the first word survives and the ellipsis sits on top of the neighbouring card's artwork (finding #2); at AX5 in **landscape** the title is one line ending in an ellipsis after roughly three words. It does not wrap within `lineLimit(4)` at any accessibility size in either orientation — the card's fixed height, not the line limit, is what removes the text. Recorded as finding #1. | pending |  |
 
 Note on the reader counter: under D-03 a **wrap** is not degradation, so this case may close as
 `accepted` on the rule alone. That disposition is still recorded here rather than assumed.
@@ -1047,11 +1065,11 @@ when this table was written. D-04 status ∈ {`pending`, `fine`, `finding:#N`, `
 | `SettingFeature/EhSetting/EhSettingView+Sections3.swift:131` | section value | #38 | B3 / fine | pending |  |
 | `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:224` | log category chip | #32 | fine | pending |  |
 | `ReadingFeature/Support/ControlPanel.swift:176` | page indicator `n / total` | #25 | fine | pending | **D-13: reader total-page counter wrap** |
-| `HomeFeature/GalleryRankingCell.swift:39` | ranking cell subtitle | #2 | fine | pending |  |
+| `HomeFeature/GalleryRankingCell.swift:39` | ranking cell subtitle | #2 | fine | finding:#3 |  |
 | `SearchFeature/GalleryHistoryCell.swift:32` | history cell secondary line | #9 | fine | pending |  |
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:107` | uploader | all list hosts (#3, #4, #5, #8, #10) | fine (secondary exemption) | pending | **back in scope — the exemption is gone** |
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:152` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | pending | **back in scope + D-14 (paired shrink at :155)** |
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:163` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | pending | **back in scope + D-14 (paired shrink at :166)** |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:107` | uploader | all list hosts (#3, #4, #5, #8, #10) | fine (secondary exemption) | finding:#9 | **back in scope — the exemption is gone** |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:152` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | **back in scope + D-14 (paired shrink at :155)** |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:163` | stats value | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | **back in scope + D-14 (paired shrink at :166)** |
 | `GalleryListComponents/DownloadBadgeLabel.swift:19` | badge progress text | all list hosts + #11 | fine | pending |  |
 | `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` | thumbnail cell footnote | all list hosts (thumbnail layout) | fine | pending |  |
 | `AppComponents/TagCloudView.swift:122` | tag text | #14 | fine | pending | **D-13: long-tag right-edge clip** |
@@ -1071,7 +1089,7 @@ when this table was written. D-04 status ∈ {`pending`, `fine`, `finding:#N`, `
 | `DetailFeature/Archives/ArchivesView.swift:143` | funds line | #19 | fine | pending |  |
 | `DetailFeature/Archives/ArchivesView.swift:202` | archive price | #19 | fine | pending |  |
 | `QuickSearchFeature/QuickSearchView.swift:40` | quick-search word name | #40 | fine | pending |  |
-| `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | hero-carousel gallery title | #2 | fine | pending | **D-13: hero-carousel title truncation** |
+| `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | hero-carousel gallery title | #2 | fine | finding:#1 | **D-13: hero-carousel title truncation** |
 
 ### `minimumScaleFactor` — 5 sites, target 0 (D-14)
 
@@ -1080,8 +1098,8 @@ Banned outright, not judged case by case. The lint rule that makes the target me
 
 | Site (file:line at HEAD) | What is shrunk | Screen # | Phase-10 verdict | D-04 status | Note |
 |---|---|---|---|---|---|
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:155` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | pending | removal target 0 (D-14) |
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:166` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | pending | removal target 0 (D-14) |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:155` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | removal target 0 (D-14) |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:166` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | removal target 0 (D-14) |
 | `DetailFeature/DetailView+CommentCells.swift:42` (0.75) | comment author shrunk | #14 | fine | pending | removal target 0 (D-14) |
 | `DetailFeature/DetailView+HeaderSection.swift:73` (0.72) | header category label shrunk | #14 | fine | pending | **D-15 collision — plausibly engages at `.large`; parity outranks the ban** |
 | `DetailFeature/Comments/CommentsView.swift:165` (0.75) | comment header shrunk | #16 | fine | pending | removal target 0 (D-14) |
