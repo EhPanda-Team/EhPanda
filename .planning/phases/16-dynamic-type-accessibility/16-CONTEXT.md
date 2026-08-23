@@ -48,6 +48,12 @@ with a Nutrition Label recommendation naming which categories are claimable.
 - **D-01: The owner finds and fixes; the agent verifies.** The agent produces no reflow work
   order for the owner to execute against, and writes no reflow code. It runs the sweep, records
   findings, and re-verifies. The one exception is D-16's lint rules.
+  - **Amendment (owner, in chat, 2026-08-24):** the owner still writes every reflow fix by
+    hand, but asked the agent to *also* (a) extract a name-free catalogue of large-font reflow
+    patterns from a reference project's history, and (b) after the sweep, propose which pattern
+    applies to which finding, with the finding's before-screenshot sent in chat. A proposal is
+    prose + pattern id, never a diff or patch. The sweep plans (16-04 … 16-09) run as written;
+    plan 16-10's report gains a per-finding "Suggested pattern" column.
 - **D-02: Scanning protocol = record and move on.** The agent does not interrupt the sweep to
   raise each finding as it lands. It records the finding, continues to the next screen, and
   reports the complete list once every page has been scanned.
