@@ -46,6 +46,19 @@ custom_rules:
       - comment
     severity: error
 
+  accessibility_hardcoded_string:
+    name: "Accessibility Hardcoded String"
+    regex: '\.accessibility(Label|Value|Hint|InputLabels)\s*\(\s*\[?\s*"'
+    message: "Accessibility strings should come from the string catalog (a generated LocalizedStringResource key), so they cannot drift from the visible text and stay localized in every locale (Phase 16 D-30)."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      # `string` is deliberately NOT excluded here: the violation IS the string literal.
+    severity: error
+
   accessibility_text_argument:
     name: "Accessibility Text Argument"
     regex: '\.accessibility(Label|Value|Hint|InputLabels)\s*\((?:[^()]|\([^()]*\))*?\bText\s*\('
@@ -163,6 +176,48 @@ custom_rules:
     message: 'Avoid computed properties that only translate an if-case enum check into a Bool. Check the case at the call site instead, e.g. value.is(\.case) for @CasePathable types.'
     excluded_match_kinds:
       - comment
+      - string
+    severity: error
+
+  no_dynamic_type_size_modifier:
+    name: "No dynamicTypeSize Modifier"
+    # Matches the MODIFIER form only. `@Environment(\.dynamicTypeSize)` and property reads such as
+    # `dynamicTypeSize.isAccessibilitySize` have no `(` after the name and stay legal (Phase 16 D-17).
+    regex: '\.dynamicTypeSize\s*\('
+    message: 'Capping or clamping Dynamic Type with .dynamicTypeSize(...) is banned (Phase 10 D-02). Read @Environment(\.dynamicTypeSize) and reflow instead.'
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      - string
+    severity: error
+
+  no_fixed_system_font_size:
+    name: "No Fixed System Font Size"
+    # Numeric literals only (Phase 16 D-18); an @ScaledMetric-fed `.system(size: someMetric)` stays legal.
+    regex: '\.system\(\s*size:\s*[0-9]'
+    message: "A numeric-literal .system(size:) font does not scale with Dynamic Type (Phase 16 D-18). Use a text style, or feed the size from @ScaledMetric(relativeTo:)."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      - string
+    severity: error
+
+  no_geometry_reader:
+    name: "No GeometryReader"
+    regex: '\bGeometryReader\b'
+    message: "GeometryReader is banned (Phase 5). Use onGeometryChange, containerRelativeFrame, or ViewThatFits."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
       - string
     severity: error
 
