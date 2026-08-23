@@ -681,7 +681,7 @@ Make `16-SWEEP.md` the state: one row per (screen, device, orientation, size) wi
 
 ### Evidence discipline
 
-- Screenshot path root: the session scratchpad (`/private/tmp/claude-501/…/scratchpad/` in this session; any `/tmp` path is fine, a repo path is not).
+- Screenshot path root: the session scratchpad (`/private/tmp/claude-501/…/scratchpad/` in this session; any `/tmp` path is fine, a repo path is not). *Planning revision 2026-08-23: superseded by a persistent out-of-repo root, `$HOME/Library/Caches/ehpanda-phase16/`, defined in `16-SWEEP.md § Protocol` (plan 16-02) — a `/tmp` scratchpad does not survive the owner checkpoints that separate the D-15 baseline capture (16-05) from its comparison (16-11). D-32 is unchanged: never a repo path, never a committed image.*
 - Verdict table rows carry a *written* description ("uploader name ellipsised at AX3 portrait; full value visible at .large"), never a filename that implies the image is recoverable from the repo.
 - Before/after images go to the owner in chat (D-33).
 
@@ -1126,14 +1126,14 @@ RatingView(rating: gallery.rating)
 | A5 | `.yellow` rating stars are judged non-text (3:1) and the numeric rating beside them is the informational carrier | Contrast | Medium — if the owner wants the stars themselves compliant, the colour must darken in light mode (a visible change needing authorisation like D-26) |
 | A6 | "XXL" in the owner's vocabulary means slider position 7 (`xxxLarge`, token `extra-extra-extra-large`), as in Phase 10 D-03 | Token table | Low — confirm in the first sweep report |
 
-## Open Questions
+## Open Questions (RESOLVED — each routed to a plan at planning time, 2026-08-23)
 
-1. **Which simulator and which bundle id hold the login?** Both booted sims carry `app.ehpanda` and `app.ehpanda.personal`. The owner must name the UDID + bundle id; the plan should hard-code both and forbid erase/uninstall/UI-test runs on that UDID.
-2. **Does `.contextMenu` already surface as VoiceOver actions on iOS 26?** (A3) Decides whether tag/download/comment rows need explicit `accessibilityAction`s. Verify on `Owner-iPhone-Test` in the first manual pass.
-3. **Does Apple require the `.dynamicType`/`.textClipped` audit types to pass for the Larger Text label?** The label criteria are task-based, not audit-based; treat the audit as a regression gate and the owner-signed sweep as the evidence. Recommendation: run all iOS audit types but let only `.sufficientElementDescription`, `.hitRegion`, `.trait`, `.contrast` be hard failures initially; promote `.textClipped`/`.dynamicType` to hard failures once round 1 is signed.
-4. **Fixtures for Favorites / Archives / Torrents** (option (b) above): worth adding so the automated audit covers more login-gated screens without any credential — owner's call on scope.
-5. **Rating-star colour** (A5) — audit-first outcome that may need an owner decision like D-26.
-6. **`CategoryCell` excluded-state treatment**: opacity 0.3 is luminance-only; if the grayscale test reads as ambiguous, the fix (strike-through / `nosign` overlay) is a visible change at `.large` — surface to the owner with the measurement rather than deciding silently (D-22).
+1. **Which simulator and which bundle id hold the login?** Both booted sims carry `app.ehpanda` and `app.ehpanda.personal`. The owner must name the UDID + bundle id; the plan should hard-code both and forbid erase/uninstall/UI-test runs on that UDID. *(RESOLVED → plan 16-03 owner checkpoint records `IPHONE_UDID` / `IPAD_UDID` / `BUNDLE_ID` in `16-SWEEP.md § Infrastructure`; plan 16-02 § Protocol › Install-over makes the `plutil` bundle-id check the gate before every `simctl install`.)*
+2. **Does `.contextMenu` already surface as VoiceOver actions on iOS 26?** (A3) Decides whether tag/download/comment rows need explicit `accessibilityAction`s. Verify on `Owner-iPhone-Test` in the first manual pass. *(RESOLVED → plan 16-13 records the owner's `CONTEXTMENU=` answer; plans 16-16 / 16-19 add mirrors only under `not-exposed`; plan 16-25 confirms on the device.)*
+3. **Does Apple require the `.dynamicType`/`.textClipped` audit types to pass for the Larger Text label?** The label criteria are task-based, not audit-based; treat the audit as a regression gate and the owner-signed sweep as the evidence. Recommendation: run all iOS audit types but let only `.sufficientElementDescription`, `.hitRegion`, `.trait`, `.contrast` be hard failures initially; promote `.textClipped`/`.dynamicType` to hard failures once round 1 is signed. *(RESOLVED → plan 16-24 runs `.all` after round 1 is signed (wave order), so every type is a hard failure from the start; plan 16-26 cites the owner-signed sweep, not the audit, as the Larger Text evidence.)*
+4. **Fixtures for Favorites / Archives / Torrents** (option (b) above): worth adding so the automated audit covers more login-gated screens without any credential — owner's call on scope. *(RESOLVED → not added: plan 16-01 records the assumption and plan 16-24 documents the seven gated surfaces as a reachability assumption routed to the manual walkthrough (16-25) and the D-25 re-sweep (16-26).)*
+5. **Rating-star colour** (A5) — audit-first outcome that may need an owner decision like D-26. *(RESOLVED → plan 16-13 owner checkpoint `STARS=A|B`; plan 16-23 implements it.)*
+6. **`CategoryCell` excluded-state treatment**: opacity 0.3 is luminance-only; if the grayscale test reads as ambiguous, the fix (strike-through / `nosign` overlay) is a visible change at `.large` — surface to the owner with the measurement rather than deciding silently (D-22). *(RESOLVED → plan 16-13 owner checkpoint `CATEGORYCELL=A|B`; plan 16-15 implements it.)*
 
 ## Environment Availability
 

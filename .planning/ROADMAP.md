@@ -1123,7 +1123,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 25 plans (23 sequential waves; plans 16-01/16-02 and 16-13/16-14 pair up). Round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented, owner-reviewed.
+**Plans**: 26 plans (24 sequential waves; plans 16-01/16-02 and 16-13/16-14 pair up). Round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented, owner-reviewed.
 
 Plans:
 - [ ] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
@@ -1147,10 +1147,11 @@ Plans:
 - [ ] 16-19-PLAN.md — VoiceOver semantics: toolbar menus, RatingView, tag cloud, list cells, Downloads
 - [ ] 16-20-PLAN.md — Reduce Motion gating: Detail and Reader (D-29)
 - [ ] 16-21-PLAN.md — Reduce Motion gating: lists, sheets, settings + source-scan pin test
-- [ ] 16-22-PLAN.md — Contrast and Differentiate-Without-Color remediation per audit decisions (D-28)
-- [ ] 16-23-PLAN.md — `AccessibilityAuditUITests` on the `UITests` plan over fixture-reachable surfaces (D-31)
-- [ ] 16-24-PLAN.md — Manual VoiceOver / Voice Control / display-settings walkthrough on the physical device (D-31)
-- [ ] 16-25-PLAN.md — D-25 targeted re-sweep, `16-NUTRITION-LABEL.md` recommendation, phase-close gates, owner sign-off (D-21)
+- [ ] 16-22-PLAN.md — Differentiate-Without-Color remediation: view-side log-level symbols, Laboratory glyph if weak, re-measured (D-20)
+- [ ] 16-23-PLAN.md — Non-category contrast fixes and the rating-star decision per audit decisions, re-measured (D-28)
+- [ ] 16-24-PLAN.md — `AccessibilityAuditUITests` on the `UITests` plan over fixture-reachable surfaces; owner-approved exclusion checkpoint (D-31, D-22)
+- [ ] 16-25-PLAN.md — Manual VoiceOver / Voice Control (English) / display-settings walkthrough on the physical device (D-31, D-30)
+- [ ] 16-26-PLAN.md — D-25 targeted re-sweep, `16-NUTRITION-LABEL.md` recommendation, phase-close gates, owner sign-off (D-21)
 
 ### Phase 17: Localized Screenshot Capture Harness
 
