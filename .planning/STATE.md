@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-08-23T14:10:42.418Z"
-last_activity: 2026-08-23
-last_activity_desc: "Phase 16 plan 02 complete: 16-SWEEP.md skeleton committed (ca017d25) — 42-surface inventory re-derived at HEAD, 504 pending matrix cells, 5 D-13 rows, 48 D-04 rows, sweep protocol + install-over rule"
+stopped_at: Completed 16-03-PLAN.md
+last_updated: "2026-08-23T15:24:27.380Z"
+last_activity: 2026-08-24
+last_activity_desc: "Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — sweep UDIDs, BUNDLE_ID=app.ehpanda.personal, IPHONE_LOGIN=present / IPAD_LOGIN=none, sim-use tooling map, baselines recorded + read back, pre-flight A1/A6 confirmed"
 progress:
   total_phases: 17
   completed_phases: 13
   total_plans: 274
-  completed_plans: 249
+  completed_plans: 250
   percent: 76
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 3 of 26
+Plan: 4 of 26
 Status: Executing Phase 16
-Last activity: 2026-08-23 — Phase 16 plan 02 complete: 16-SWEEP.md skeleton committed (ca017d25) — 42-surface inventory re-derived at HEAD, 504 pending matrix cells, 5 D-13 rows, 48 D-04 rows, sweep protocol + install-over rule
-Next: run /gsd-execute-phase 16. Wave 1 COMPLETE — 16-01 (four D-16 lint rules + D-30 guard, all at zero) and 16-02 (16-SWEEP.md skeleton, 504 pending cells); wave 2 = 16-03, the D-09 hand-login checkpoint — the owner must name the logged-in simulator UDID and bundle id (app.ehpanda vs app.ehpanda.personal) before any sweep runs. Evidence root for the whole phase is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo; persists across sessions). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
+Last activity: 2026-08-24 — Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — IPHONE_UDID ADE09605…, IPAD_UDID 8250D97E…, BUNDLE_ID=app.ehpanda.personal (resolved build setting, never chosen), IPHONE_LOGIN=present, IPAD_LOGIN=none (gated iPad rows → blocked, surfaced by 16-10), sim-use tooling map, baselines iPhone medium/dark/disabled + iPad large/light/disabled recorded and read back, pre-flight A1 live re-layout + A6 XXL token confirmed
+Next: run /gsd-execute-phase 16. Wave 1 COMPLETE — 16-01 (four D-16 lint rules + D-30 guard, all at zero) and 16-02 (16-SWEEP.md skeleton, 504 pending cells); Wave 2 COMPLETE — 16-03 (D-09 hand-login done; § Infrastructure names IPHONE_UDID / IPAD_UDID / BUNDLE_ID=app.ehpanda.personal, IPAD_LOGIN=none, A1/A6 confirmed, sim-use is the driver). Next wave = 16-04 (iPhone group A sweep): paste the § Infrastructure shell block, terminate app.ehpanda on the iPhone, launch BUNDLE_ID, walk from the first pending row. Evidence root for the whole phase is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo; persists across sessions). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
 
 Progress: [████████░░] 82% (14/17 phases)
 
@@ -306,6 +306,7 @@ Progress: [████████░░] 82% (14/17 phases)
 | Phase 15 P76 | 45min | 2 tasks | 4 files |
 | Phase 16 P01 | 18min | 2 tasks | 1 files |
 | Phase 16 P02 | 14min | 2 tasks | 1 files |
+| Phase 16 P03 | 16min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -813,6 +814,9 @@ Recent decisions affecting current work:
 - [Phase 16]: accessibility_hardcoded_string deliberately does NOT exclude the 'string' match kind — the string literal itself is the violation (D-30).
 - [Phase 16]: 16-02: 16-SWEEP.md is the round-1 state machine: all 42 inventory surfaces are matrix screens (504 pending cells), partial exclusions live in the D-11 column of the host row rather than deleting the row, which is what makes plans 16-04…16-09 add up to 78/84/90 rows per device
 - [Phase 16]: 16-02: The sweep's status vocabulary is written as a brace-comma set, not a pipe-separated list, so the mechanical 'no verdict cell reads pass yet' check stays meaningful
+- [Phase 16]: 16-03: BUNDLE_ID = app.ehpanda.personal is derived from the project's resolved PRODUCT_BUNDLE_IDENTIFIER on this machine, never chosen; app.ehpanda is never swept
+- [Phase 16]: 16-03: IPAD_LOGIN=none — iPad rows of login-gated screens are blocked: no iPad session and surfaced by 16-10; one-row amendment if the owner logs in before 16-07
+- [Phase 16]: 16-03: sim-use is the primary sweep driver; § Protocol keeps agent-device vocabulary with a ### Tooling mapping table
 
 ### Pending Todos
 
@@ -873,6 +877,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-23T14:10:28.844Z
-Stopped at: Completed 16-02-PLAN.md
+Last session: 2026-08-23T15:24:27.369Z
+Stopped at: Completed 16-03-PLAN.md
 Resume file: None
