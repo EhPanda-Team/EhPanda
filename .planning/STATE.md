@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-08-23T15:26:23.271Z"
+stopped_at: Completed 16-04-PLAN.md
+last_updated: "2026-08-23T18:23:09.258Z"
 last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — IPHONE_UDID ADE09605…, IPAD_UDID 8250D97E…, BUNDLE_ID=app.ehpanda.personal (resolved build setting, never chosen), IPHONE_LOGIN=present, IPAD_LOGIN=none (gated iPad rows → blocked, surfaced by 16-10), sim-use tooling map, baselines iPhone medium/dark/disabled + iPad large/light/disabled recorded and read back, pre-flight A1 live re-layout + A6 XXL token confirmed"
+last_activity_desc: "Phase 16 plan 04 complete: iPhone Group A sweep (814fa06e rows 1-7, 07a2eb0e rows 8-13, 231de67a summary) — all 78 iPhone Group A cells judged, 12 findings opened. Portrait AX3+ is where it breaks: list rows overflow the right screen edge and lose language/page-count/date outright (#6), pushed screens lose their navigation large title entirely at AX5 (#7), the pull-to-reveal filter field renders as a blank capsule (#4), the row cover is squeezed to a sliver (#8), the Home hero card truncates its title from XXL and is overlapped by the neighbouring card at AX5 (#1,#2), the Search-root Recently Seen strip clips and overlaps (#10), and the download delete confirmation's message is cut mid-sentence (#11). Landscape XXL passes on every screen walked. D-13: hero-carousel truncation CONFIRMED; Favorites trailing-glyph clip does NOT reproduce (the value beside the glyph is what is lost). Nine D-04 rows dispositioned. Tooling correction recorded in 16-SWEEP.md: sim-use gesture rotate-cw does NOT rotate the device (use agent-device orientation); landscape captures need sips -r 270; assert App: EhPanda before every capture. Sweep created one download (only entry under Downloads/Default/). Simulator restored to medium/dark/disabled/portrait and read back."
 progress:
   total_phases: 17
   completed_phases: 13
   total_plans: 274
-  completed_plans: 250
+  completed_plans: 251
   percent: 76
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 4 of 26
+Plan: 5 of 26
 Status: Executing Phase 16
-Last activity: 2026-08-24 — Phase 16 plan 03 complete: 16-SWEEP.md § Infrastructure filled (77e22cec) — IPHONE_UDID ADE09605…, IPAD_UDID 8250D97E…, BUNDLE_ID=app.ehpanda.personal (resolved build setting, never chosen), IPHONE_LOGIN=present, IPAD_LOGIN=none (gated iPad rows → blocked, surfaced by 16-10), sim-use tooling map, baselines iPhone medium/dark/disabled + iPad large/light/disabled recorded and read back, pre-flight A1 live re-layout + A6 XXL token confirmed
-Next: run /gsd-execute-phase 16. Wave 1 COMPLETE — 16-01 (four D-16 lint rules + D-30 guard, all at zero) and 16-02 (16-SWEEP.md skeleton, 504 pending cells); Wave 2 COMPLETE — 16-03 (D-09 hand-login done; § Infrastructure names IPHONE_UDID / IPAD_UDID / BUNDLE_ID=app.ehpanda.personal, IPAD_LOGIN=none, A1/A6 confirmed, sim-use is the driver). Next wave = 16-04 (iPhone group A sweep): paste the § Infrastructure shell block, terminate app.ehpanda on the iPhone, launch BUNDLE_ID, walk from the first pending row. Evidence root for the whole phase is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo; persists across sessions). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
+Last activity: 2026-08-24 — Phase 16 plan 04 complete: iPhone Group A sweep (814fa06e rows 1-7, 07a2eb0e rows 8-13, 231de67a summary) — all 78 iPhone Group A cells judged, 12 findings opened. Portrait AX3+ is where it breaks: list rows overflow the right screen edge and lose language/page-count/date outright (#6), pushed screens lose their navigation large title entirely at AX5 (#7), the pull-to-reveal filter field renders as a blank capsule (#4), the row cover is squeezed to a sliver (#8), the Home hero card truncates its title from XXL and is overlapped by the neighbouring card at AX5 (#1,#2), the Search-root Recently Seen strip clips and overlaps (#10), and the download delete confirmation's message is cut mid-sentence (#11). Landscape XXL passes on every screen walked. D-13: hero-carousel truncation CONFIRMED; Favorites trailing-glyph clip does NOT reproduce (the value beside the glyph is what is lost). Nine D-04 rows dispositioned. Tooling correction recorded in 16-SWEEP.md: sim-use gesture rotate-cw does NOT rotate the device (use agent-device orientation); landscape captures need sips -r 270; assert App: EhPanda before every capture. Sweep created one download (only entry under Downloads/Default/). Simulator restored to medium/dark/disabled/portrait and read back.
+Next: run /gsd-execute-phase 16. Waves 1-2 COMPLETE (16-01 lint rules, 16-02 sweep skeleton, 16-03 infrastructure). Wave 3 COMPLETE — 16-04 (iPhone Group A, screens #1-#13): 78/78 cells judged, findings #1-#12 open in 16-SWEEP.md. Next wave = 16-05 (iPhone Group B, screens #14-#27) which also owns the three remaining D-13 cases and the D-15 .large baseline captures; then 16-06 (iPhone Group C), 16-07..16-09 (iPad). Before any sweep session: paste the § Infrastructure shell block, terminate every OTHER app on the sweep simulator (a foreign app stealing the foreground silently redirects taps and screenshots), launch BUNDLE_ID, walk from the first pending row. Rotation is agent-device orientation, NOT sim-use gesture rotate-cw. Evidence root is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
 
 Progress: [████████░░] 82% (14/17 phases)
 
@@ -307,6 +307,7 @@ Progress: [████████░░] 82% (14/17 phases)
 | Phase 16 P01 | 18min | 2 tasks | 1 files |
 | Phase 16 P02 | 14min | 2 tasks | 1 files |
 | Phase 16 P03 | 16min | 2 tasks | 1 files |
+| Phase 16 P04 | 2h 45m | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -878,6 +879,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-23T15:24:27.369Z
-Stopped at: Completed 16-03-PLAN.md
+Last session: 2026-08-23T18:23:09.249Z
+Stopped at: Completed 16-04-PLAN.md
 Resume file: None

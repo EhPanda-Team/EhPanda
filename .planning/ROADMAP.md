@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 3/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 4/26 | In Progress|  |
 | 17. Localized Screenshot Capture Harness | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1125,7 +1125,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 3/26 plans executed
+**Plans**: 4/26 plans executed
 
 Plans:
 **Wave 1**
@@ -1139,7 +1139,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 16-04-PLAN.md — iPhone sweep, group A (rows 1–13) at XXL/AX3/AX5 × portrait/landscape
+- [x] 16-04-PLAN.md — iPhone sweep, group A (rows 1–13) at XXL/AX3/AX5 × portrait/landscape
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
