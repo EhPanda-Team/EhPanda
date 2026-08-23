@@ -15,16 +15,63 @@ in § Infrastructure, written literally in its `$HOME/…` form and never expand
 
 ## Infrastructure
 
-Filled by plan **16-03** (the owner logs in by hand; the agent never handles a credential — D-09).
-Until then the placeholders below are unresolved and **no matrix row may be walked**.
+Filled by plan **16-03** on 2026-08-24 (the owner logged in by hand; the agent never handled a
+credential — D-09). Every sweep plan reads the values below and addresses the simulators by UDID.
 
 | Key | Value | Filled by |
 |---|---|---|
-| `IPHONE_UDID` | _unresolved_ | 16-03 |
-| `IPAD_UDID` | _unresolved_ | 16-03 |
-| `BUNDLE_ID` | _unresolved_ — one of `app.ehpanda` / `app.ehpanda.personal`; both are installed on both sweep simulators, so it is not guessable | 16-03 |
+| `IPHONE_UDID` | `ADE09605-A44E-4F00-BE12-235970217355` — iPhone Air, iOS 26.5 | 16-03 |
+| `IPAD_UDID` | `8250D97E-9AB0-42FD-99DB-07B0094BF8C7` — iPad Pro 11-inch (M5), iOS 26.5 | 16-03 |
+| `BUNDLE_ID` | `app.ehpanda.personal` — see "Why `app.ehpanda.personal`" below | 16-03 |
+| `IPHONE_LOGIN` | `present` — confirmed on `BUNDLE_ID` in 16-03 pre-flight (populated Favorites; nothing else read) | 16-03 |
+| `IPAD_LOGIN` | `none` — `BUNDLE_ID` on `IPAD_UDID` shows the login prompt on Favorites. iPad rows of login-gated screens (Favorites, Watched, Archives, Torrents, EhSetting, FolderManager, live Detail / Comments / Reading) are recorded `blocked: no iPad session` and surfaced in plan 16-10's report. If the owner logs in on the iPad before wave 6 (plan 16-07), amend this one row to `present` in a separate docs commit and the blocked rows go back to `pending` | 16-03 |
 | `SPARE_UDID` | `88B217DA-A166-4BAD-820D-DE13B1C4EB54` — iPhone 17e, iOS 26.4. **UI tests only**; never a sweep target, so the logged-in simulators are never a `xcodebuild test` destination | prefilled |
 | `EVIDENCE_ROOT` | `$HOME/Library/Caches/ehpanda-phase16/` | prefilled |
+
+Shell form, for pasting at the start of every sweep session (the same values as the table):
+
+```bash
+IPHONE_UDID=ADE09605-A44E-4F00-BE12-235970217355
+IPAD_UDID=8250D97E-9AB0-42FD-99DB-07B0094BF8C7
+SPARE_UDID=88B217DA-A166-4BAD-820D-DE13B1C4EB54
+BUNDLE_ID=app.ehpanda.personal
+IPHONE_LOGIN=present
+IPAD_LOGIN=none
+EVIDENCE_ROOT="$HOME/Library/Caches/ehpanda-phase16"
+```
+
+### Why `app.ehpanda.personal`
+
+Both `app.ehpanda` and `app.ehpanda.personal` are installed on both sweep simulators, and the
+iPhone happens to hold a session in both. `BUNDLE_ID` is nevertheless not a choice: the project's
+`PRODUCT_BUNDLE_IDENTIFIER` is `app.ehpanda$(BUNDLE_ID_SUFFIX)`, and on this machine the
+git-ignored `Config/LocalSigning.xcconfig` sets the suffix so that
+`xcodebuild -showBuildSettings -scheme EhPanda` resolves `PRODUCT_BUNDLE_IDENTIFIER =
+app.ehpanda.personal`. That is the only bundle the § Protocol install-over rule can ever target
+here, so it is the only bundle whose sweep verdicts stay valid across owner fix commits. **Never
+sweep `app.ehpanda`** on these simulators — it is not the build the project produces, and a fix
+installed over `app.ehpanda.personal` would leave it stale. Before any session, make sure only
+`BUNDLE_ID` is in the foreground (`xcrun simctl terminate <UDID> app.ehpanda` is safe: it ends
+the process and touches no data container).
+
+### Tooling
+
+The owner's choice for the sweep driver is **`sim-use` 0.13.0** (on PATH; preflight passes on
+both sweep UDIDs). The § Protocol listings are written in `agent-device` verbs; map them as
+follows, always with an explicit `--device <UDID>`:
+
+| § Protocol verb | `sim-use` equivalent |
+|---|---|
+| `agent-device snapshot` / accessibility tree | `sim-use ui --device <UDID>` (the `App:` header carries the orientation tag; no tag = portrait) |
+| `agent-device open <BUNDLE_ID> --foreground` | `xcrun simctl launch <UDID> <BUNDLE_ID>` (no-op if already running), then `sim-use ui` to confirm `App: EhPanda` |
+| `agent-device screenshot --out <path> --scale 0.5` | `sim-use screenshot --device <UDID> --output <path>` — writes the full-scale PNG (1260×2736 on the iPhone Air). **Evidence is stored full-scale**; no downscale step. |
+| `agent-device scroll down --settle` | `sim-use gesture scroll-up --device <UDID>` (content moves up = page down); repeat until the `ui` outline stops changing |
+| `agent-device orientation landscape-left` / `portrait` | `sim-use gesture rotate-cw --angle 90 --device <UDID>` / `rotate-ccw`; verify via the `App:` header tag in `sim-use ui` |
+| `agent-device press <alias>` | `sim-use tap --label '…' --device <UDID>` — re-run `ui` before every `@N` tap; disambiguate with `--element-type` / `--frame minY=0.7r` (tab bar) |
+| `xcrun simctl ui <UDID> content_size …` | unchanged — this is `simctl`, not a driver verb |
+
+`agent-device` 0.20.8 stays installed as a fallback; a plan that uses it for something `sim-use`
+cannot do records which command and why.
 
 ### Evidence root
 
@@ -49,8 +96,13 @@ the start of every session:
 
 | Simulator | `content_size` | `appearance` | `increase_contrast` | Orientation |
 |---|---|---|---|---|
-| `IPHONE_UDID` | _unrecorded_ (research observed `medium` on the iPhone Air) | _unrecorded_ (research observed `dark`) | _unrecorded_ (research observed `disabled`) | _unrecorded_ |
-| `IPAD_UDID` | _unrecorded_ (research observed `large` on the iPad Pro 11) | _unrecorded_ | _unrecorded_ | _unrecorded_ |
+| `IPHONE_UDID` | `medium` | `dark` | `disabled` | portrait |
+| `IPAD_UDID` | `large` | `light` | `disabled` | portrait |
+
+Recorded by 16-03 on 2026-08-24 before any change, and read back identical after the pre-flight
+restore (`content_size` / `appearance` / `increase_contrast` printed the values above on both
+simulators; both `sim-use ui` headers carried no orientation tag, and the iPhone's Home heading
+frame returned to its baseline 94×41 pt).
 
 The restore value is always the value **recorded** here at session start — never a fixed `large`.
 The two simulators differ, so a fixed restore would silently change one of them.
@@ -66,6 +118,23 @@ losing it costs the owner a manual re-login.
 | `xcrun simctl uninstall` | destroys the app's data container and the login |
 | `agent-device settings clear-app-state` | same effect through a different door |
 | any `xcodebuild test` destination pointing at these UDIDs | a test run installs a runner and can reset app state; use `SPARE_UDID` |
+
+### Pre-flight
+
+Run by 16-03 on `IPHONE_UDID` only, with `BUNDLE_ID` in the foreground on Home, portrait, from
+the `medium` baseline. Evidence under `$EVIDENCE_ROOT/preflight/`: `baseline-medium.png`,
+`ax5.png`, `xxl.png` (full-scale, never committed).
+
+| Check | Outcome |
+|---|---|
+| **A1: live re-layout confirmed.** | `xcrun simctl ui <IPHONE_UDID> content_size accessibility-extra-extra-extra-large` re-laid out the running app within two seconds with no relaunch — same process id before and after, the Home heading grew from 94×41 pt to accessibility size and the section titles wrapped ("Front page"). No sweep cell needs a relaunch after a size change. |
+| **A6: XXL = `extra-extra-extra-large` confirmed.** | Switching to `extra-extra-extra-large` rendered visibly smaller than AX5 and larger than the `medium` baseline (Home heading 94×41 → 105×46 pt; "Frontpage" 120×23 → 158×31 pt). This is iOS `xxxLarge`, slider 7, and is the token every XXL cell uses. |
+| **Login on `IPHONE_UDID`.** | `present` — Favorites shows a populated list on `BUNDLE_ID`. Nothing else was read. |
+| **Login on `IPAD_UDID`.** | `none` — see the `IPAD_LOGIN` row. |
+| **Restore.** | `content_size medium`; appearance, Increase Contrast and orientation were never changed. Read-back recorded in § Simulator baseline. |
+
+The pre-flight is not a matrix walk: what the AX5 and XXL shots show on Home is judged by plan
+16-04's Home rows, not here.
 
 ## Verdict rule
 
