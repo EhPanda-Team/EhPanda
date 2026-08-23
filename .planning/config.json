@@ -46,7 +46,10 @@
     "security_enforcement": true,
     "security_asvs_level": 1,
     "security_block_on": "high",
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "build_command": "xcodebuild build -project EhPanda.xcodeproj -scheme AppFeature -destination 'generic/platform=iOS Simulator'",
+    "test_command": "cd AppPackage && xcodebuild test -scheme AppPackage-Package -destination 'id=ADE09605-A44E-4F00-BE12-235970217355'",
+    "test_gate_timeout": 1800
   },
   "ship": {
     "pr_body_sections": [
