@@ -4,15 +4,15 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
-status: planning
-stopped_at: Phase 16 context gathered
-last_updated: "2026-08-23T08:03:22.214Z"
+status: executing
+stopped_at: Phase 16 planned (26 plans, 24 waves)
+last_updated: "2026-08-23T11:07:40.879Z"
 last_activity: 2026-08-23
-last_activity_desc: Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
+last_activity_desc: Phase 16 planned — 26 plans / 24 waves, checker passed on iteration 3 (4a1293cb)
 progress:
   total_phases: 17
   completed_phases: 13
-  total_plans: 248
+  total_plans: 274
   completed_plans: 247
   percent: 76
 ---
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 — Dynamic Type Accessibility
-Plan: Not started
-Status: Context gathered — ready to plan
-Last activity: 2026-08-23 — Phase 16 context gathered (16-CONTEXT.md, a38f80d7)
-Next: run /gsd-plan-phase 16. Phase 16 is now TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
+Plan: 0 of 26
+Status: Ready to execute
+Last activity: 2026-08-23 — Phase 16 planned: 26 plans in 24 waves (research 22c19eb3, validation 351006e7, pattern map f9173ac6, plans 5e24d973 → 4d3fdc7d → 4a1293cb; plan-checker passed on iteration 3, decision coverage 34/34)
+Next: run /gsd-execute-phase 16. Wave 1 = 16-01 (four D-16 lint rules + D-30 guard, all at zero today) and 16-02 (16-SWEEP.md skeleton); wave 2 = 16-03, the D-09 hand-login checkpoint — the owner must name the logged-in simulator UDID and bundle id (app.ehpanda vs app.ehpanda.personal) before any sweep runs. Evidence root for the whole phase is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo; persists across sessions). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
 
 Progress: [████████░░] 82% (14/17 phases)
 
