@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 0/0 | Not Started |  |
+| 16. Dynamic Type Accessibility | 1/26 | In Progress|  |
 | 17. Localized Screenshot Capture Harness | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1092,10 +1092,12 @@ the staleness window (D-25).
 **Depends on**: Phase 10 (Dynamic Type foundation) — runs last, against the fully-settled UI.
 **Requirements**: A11Y-01 (round 1), A11Y-02 (round 2)
 **Implementation mode**: **Split by round.**
+
   - **Round 1 is human-implemented; agent verify-only.** The owner finds and fixes every Dynamic Type
     breakage himself; the agent audits, drives the simulator, and reports. Do not spawn executor agents
     for round-1 reflow work. One carve-out: the agent authors the four error-level SwiftLint rules that
     lock the foundation in.
+
   - **Round 2 is agent-implemented, owner-reviewed.** Label, input-label, motion-gating and contrast work
     is high-volume and mechanical; the owner reviews and signs off. Sufficient Contrast and Differentiate
     Without Color are **audit-first** — measure what already exists before building anything.
@@ -1123,12 +1125,12 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 26 plans (24 sequential waves; plans 16-01/16-02 and 16-13/16-14 pair up). Round 1 is human-implemented (agent runs verification only); round 2 is agent-implemented, owner-reviewed.
+**Plans**: 1/26 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
+- [x] 16-01-PLAN.md — Four Dynamic Type / a11y SwiftLint rules at error severity with positive/negative probes (D-16/17/18/30); assumption-delta decision
 - [ ] 16-02-PLAN.md — `16-SWEEP.md` skeleton: 42-surface inventory, 12-cell matrix, D-13 named rows, D-04 checklist, D-25 section
 
 **Wave 2** *(blocked on Wave 1 completion)*
