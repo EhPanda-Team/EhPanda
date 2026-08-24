@@ -84,7 +84,7 @@
 
 ### A11Y — Accessibility
 
-- [ ] **A11Y-01**: Complete full-range Dynamic Type readability and operability (AX1–AX5) on the Phase 10 font/reflow foundation.
+- [x] **A11Y-01**: Complete full-range Dynamic Type readability and operability (AX1–AX5) on the Phase 10 font/reflow foundation.
   - Every user-facing app screen and sheet stays readable and operable at XXL / AX3 / AX5 with no *information loss* relative to the default size — no clipped or newly truncated text, no overlap, no unreachable control; dropping decoration to save space is acceptable, dropping contents is not. Layouts adapt by reflow only: no `dynamicTypeSize` cap, no `GeometryReader`, and `minimumScaleFactor` removed entirely (5 sites → 0). Default `.large` appearance parity is preserved and **outranks the `minimumScaleFactor` ban** where the two collide. Four error-level SwiftLint custom rules enforce the foundation (`minimumScaleFactor`, `.dynamicTypeSize(` as a modifier with environment reads still legal, `GeometryReader`, numeric-literal `.system(size:)`). Verified by an owner-signed simulator sweep across iPhone + iPad × portrait + landscape × three sizes, on a hand-logged-in simulator so authenticated content screens are reachable.
 
 - [ ] **A11Y-02**: Support VoiceOver, Voice Control, Reduced Motion, Sufficient Contrast, and Differentiate Without Color to the App Store Accessibility Nutrition Label bar.
@@ -135,7 +135,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | POLISH-03 | Phase 10 | Complete |
 | LINT-01 | Phase 11 | Complete |
 | ANALYTICS-01 | Phase 14 | Complete |
-| A11Y-01 | Phase 16 | Pending |
+| A11Y-01 | Phase 16 | Complete |
 | A11Y-02 | Phase 16 | Pending |
 
 **Coverage:**

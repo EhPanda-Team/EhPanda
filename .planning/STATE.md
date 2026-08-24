@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-06-PLAN.md
-last_updated: "2026-08-24T07:51:36.683Z"
+stopped_at: Completed 16-07-PLAN.md
+last_updated: "2026-08-24T09:26:00.078Z"
 last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 06 complete: all 90 Group C iPhone cells and all 252 iPhone matrix cells judged; findings #24-#31 opened; simulator restored to medium/dark/portrait with Increase Contrast disabled."
+last_activity_desc: "Phase 16 plan 07 complete: all 78 Group A iPad cells judged or login-blocked; Finding #32 opened; simulator restored to large/light/portrait with Increase Contrast disabled."
 progress:
   total_phases: 17
   completed_phases: 13
   total_plans: 274
-  completed_plans: 253
+  completed_plans: 254
   percent: 76
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 7 of 26
+Plan: 8 of 26
 Status: Ready to execute
-Last activity: 2026-08-24 — Phase 16 plan 06 complete: all 90 Group C iPhone cells and all 252 iPhone matrix cells judged; findings #24–#31 opened; simulator restored to medium/dark/portrait with Increase Contrast disabled.
-Next: run /gsd-execute-phase 16. Plans 16-01…16-06 are complete. Next wave = 16-07 (iPad Group A), followed by 16-08 and 16-09; login-gated iPad rows remain blocked on `IPAD_LOGIN=none`. Before any sweep session, load § Infrastructure, terminate every other app on the sweep simulator, launch `BUNDLE_ID`, and continue from the first pending row. Keep screenshots under `$HOME/Library/Caches/ehpanda-phase16/`; never add them to git.
+Last activity: 2026-08-24 — Phase 16 plan 07 complete: all 78 Group A iPad cells judged or login-blocked; Finding #32 opened; simulator restored to large/light/portrait with Increase Contrast disabled.
+Next: run /gsd-execute-phase 16. Plans 16-01…16-07 are complete. Next wave = 16-08 (iPad Group B), followed by 16-09; login-gated iPad rows remain blocked on `IPAD_LOGIN=none`. Before any sweep session, load § Infrastructure, terminate every other app on the sweep simulator, launch `BUNDLE_ID`, and continue from the first pending row. Keep screenshots under `$HOME/Library/Caches/ehpanda-phase16/`; never add them to git.
 
-Progress: [█████████░] 92% (14/17 phases)
+Progress: [█████████░] 93% (14/17 phases)
 
 ## Performance Metrics
 
@@ -310,6 +310,7 @@ Progress: [█████████░] 92% (14/17 phases)
 | Phase 16 P04 | 2h 45m | 2 tasks | 1 files |
 | Phase 16 P05 | 3h 5m | 2 tasks | 1 files |
 | Phase 16 P06 | 2h 20m | 2 tasks | 1 files |
+| Phase 16 P07 | 1h 21m | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -827,6 +828,9 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-06: Preserve the logged-in simulator and record native Login as blocked instead of forcing logout.
 - [Phase 16]: 16-06: D-13 observations move from matrix pending to open once iPhone evidence is recorded; owner disposition remains for closeout.
 - [Phase 16]: 16-06: Leave the download progress-spinner D-04 site pending until a legitimate active-transfer state is available.
+- [Phase 16]: Watched, Favorites, and FolderManager remain blocked because IPAD_LOGIN=none; no credential seam was used.
+- [Phase 16]: Shared iPhone/iPad defects retain Findings #1, #3, #4, #5, #6, and #10; the iPad-only badge/timestamp collision is Finding #32.
+- [Phase 16]: The sweep-created eight-page download remains preserved in its Default folder under the user-owned-download invariant.
 
 ### Pending Todos
 
@@ -888,6 +892,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-24T07:51:36.674Z
-Stopped at: Completed 16-06-PLAN.md
+Last session: 2026-08-24T09:26:00.067Z
+Stopped at: Completed 16-07-PLAN.md
 Resume file: None
