@@ -1235,6 +1235,54 @@ diff, or work order is part of this report (D-01).
 | 32 | #3 Frontpage | iPad portrait AX3/AX5 | A long regular-width category badge expands over the timestamp on the same stats line, painting the two values on top of each other. | `HomeFeature/Frontpage/FrontpageView.swift`; `GalleryListComponents/Cells/GalleryDetailCell.swift` |
 | 33 | #30 Login | iPad portrait AX5; iPad landscape AX5 | The enlarged Login heading overlaps the Username label in both modal orientations, so the two strings cannot be read independently. | `SettingFeature/Login/LoginView.swift` |
 
+### Suggested patterns (D-01 amendment, owner aid)
+
+Per the owner's 2026-08-24 amendment to D-01: each finding below is paired with the reflow
+pattern(s) from `16-REFLOW-PATTERNS.md` — a name-free catalogue extracted from a reference
+project's Dynamic Type history — that the agent judges applicable. These are prose suggestions
+only; no diff, patch, or work order accompanies them, and the owner remains free to fix
+differently. Pattern ids (P-01…P-15) refer to that catalogue.
+
+| #N | Pattern(s) | Applying it here |
+|---|---|---|
+| 1 | P-08 + P-10 | Let the hero card's height step up by `switch dynamicTypeSize` tiers instead of staying fixed, and treat `lineLimit(4)` as a per-tier budget; the title then keeps its tail because the card grows with it. |
+| 2 | P-08 | Same root as #1: once the card owns a height that fits its content tier, the neighbour can no longer be painted over the focused card. Fix #1 first and re-check. |
+| 3 | P-09 + P-08 | The ranking row is an icon-row: keep rank number and cover at intrinsic size, and at accessibility sizes give the title/uploader the full width below them; drop the fixed row height (stepped if a bound is wanted). |
+| 4 | P-05 + P-04 | The capsule's glyph+placeholder vanish because the fixed-height capsule clips its grown content; remove the fixed height (flexible frames sit outside any `ViewThatFits` candidates), and if space is tight at AX sizes drop the magnifying-glass glyph, keep the text. |
+| 5 | P-10 + P-04 | Reference `lineLimit` policy: user text gets `nil` (or a raised budget) at accessibility sizes; a `dynamicTypeSize <= .accessibility1`-style gate can keep today's 3-line look below the threshold and lift the cap above it. |
+| 6 | P-02 | The trailing language/pages/date column is a space-between stat set: at accessibility sizes it stops sharing the row and stacks beneath the text column, leading-aligned, each pair on its own line — the reference's `hSpaceBetween` degradation, nested so captions fall stepwise. |
+| 7 | — (system) | No catalogue pattern: the large-title band is navigation-bar behaviour. Suggest gating `navigationBarTitleDisplayMode(.inline)` at accessibility sizes (the catalogue's cross-cutting rule reserves explicit size branches for moves/removals like this); verify against a minimal repro first in case it is an iOS regression. |
+| 8 | P-09 | Exactly the icon-row fallback: the cover keeps intrinsic size; when the HStack no longer fits, the text takes full width beneath the cover instead of compressing it into a sliver. |
+| 9 | P-02 | Uploader + language are a stat pair sharing a line; at accessibility sizes stack them (uploader above, language below) rather than letting the pair ellipsise the uploader. |
+| 10 | P-08 + P-07 | Step the Recently-Seen card size by type tier so contents fit, or collapse the horizontal strip into a single-column vertical list at accessibility sizes, as the reference collapses wide layouts. |
+| 11 | P-11 | The fixed-width popover should become a measured, scroll-on-demand surface: native confirmation presentation already scrolls its message — prefer it (per the project's native-surfaces rule); if the custom popover stays, measure content height and enable scrolling past the fit point. |
+| 12 | P-07 + P-10 | At accessibility sizes reduce the thumbnail grid's column count so each cell widens, and give the category/title budgets instead of single lines; the trailing column then stays on-screen. |
+| 13 | P-10 | Raise or lift the header title's 3-line cap at accessibility sizes (user text → `nil` per the reference policy) and let the uploader wrap; the tap-to-expand affordance stays as a bonus, not the only route. |
+| 14 | P-02 + P-04 | The stats strip is the catalogue's canonical case: keep the horizontal fixed-fraction strip below the gate, and above it let each caption+value pair stack and the pairs flow vertically; values never abbreviate because each pair owns its line. |
+| 15 | P-10 | Let a chip's text wrap inside the chip with a small budget (the reference wraps badges with a 3-line budget) instead of extending past the trailing edge; the cloud already flows chips to new rows. |
+| 16 | P-08 + P-11 | Step the comment card's width/height by type tier (instead of fixed 300 pt) and make the card scroll once content exceeds the measured tier; removing the paired 0.75 shrink then satisfies D-14 without loss. |
+| 17 | P-08 + P-11 | Same card, same fix as #16 — body characters return as the card's budget grows with the tier. |
+| 18 | P-02 | Author / score / timestamp are a stat line: stack at accessibility sizes (author first, score+time as a second line) so the timestamp keeps its minutes and the author its characters. |
+| 19 | P-03 + P-10 | Info rows are title……value rows: flexible title, intrinsic value, and a per-row vertical flip when the value no longer fits; URLs and identifiers get `nil`/raised budgets at accessibility sizes. |
+| 20 | P-07 + P-02 | Collapse the archive card grid to one column at accessibility sizes, and render size/price as stacking stat pairs inside each card so the purchase-deciding values survive. |
+| 21 | P-02 + P-04 | The four meta slots are four caption+value pairs: below the gate keep today's compact row; above it let the pairs stack two-by-two or vertically — glyphs keep their numbers because each pair owns its space. |
+| 22 | P-12 | The reader bar is the catalogue's one adaptive bar: give slots a `@ScaledMetric` minimum width, measure available width, and overflow what no longer fits into a menu; the page counter keeps intrinsic size (`fixedSize`) instead of compressing to a sliver. |
+| 23 | P-11 | If this is a custom alert, replace with the native alert (system alerts scroll their message); if native behaviour still clips at landscape AX5, present as a measured scroll-on-demand sheet at accessibility sizes. Cancel must never be the casualty. |
+| 24 | P-03 | Cookie rows are title……value rows with the priorities inverted today: give the value intrinsic size and the label flexibility, and flip the row vertical at accessibility sizes so full values render under their labels. |
+| 25 | P-10 | Give the subsystem chip a wrap budget (reference logs use generous budgets) instead of one line; the timestamp already wraps — let the chip match. |
+| 26 | P-06 | Make the run picker a native control (`Picker` in a `Menu`): the system draws selection state at every size; hand-drawn checkmark rows are exactly what the reference deleted in its second try. |
+| 27 | P-07 | The three-column radio header cannot survive AX widths: collapse to one row per language with its own control at accessibility sizes (explicit size branch — a move/removal, the catalogue's sanctioned use). |
+| 28 | P-06 | Let the Form rows grow: remove fixed row heights and keep native `LabeledContent`-style rows — system form rows reflow multi-line labels and picker values on their own; the overlap is the fixed height fighting grown text. |
+| 29 | P-07 + P-10 | Fewer category columns at accessibility sizes and a wrap budget for names; note round 2 (plan 16-15) rebuilds `CategoryCell` — coordinate so this fix lands once, there. |
+| 30 | P-10 + P-03 | Saved-word name and content get budgets/`nil` at accessibility sizes; the edit-mode row is a title……value row that can flip vertical per-row. |
+| 31 | P-10 | The toast subtitle gets a small budget (2–3 lines) at accessibility sizes instead of one line; the toast grows downward, which the reference treats as fine. |
+| 32 | P-02 | Badge and timestamp are painted over each other — make them a stacking pair (badge above, timestamp below, trailing-aligned) rather than sharing anchored positions on one line. |
+| 33 | — (structural) | No catalogue pattern: the heading and field overlap from fixed spacing/offsets in the login layout; replace the fixed offsets with flowing stack spacing so the heading pushes the form down as it grows. |
+
+Cross-cutting, from the same history: the five D-14 `minimumScaleFactor` sites map onto the
+patterns above (#6→P-02, #13/#16→P-08/P-11, #18→P-02); the reference stripped every shrink the
+same release it introduced the replacing reflow, which is exactly D-14's target-zero.
+
 ### D-13 dispositions requested
 
 Each Disposition cell is intentionally blank for the owner. Valid responses are `fixed` or
