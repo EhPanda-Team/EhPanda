@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-05-PLAN.md
-last_updated: "2026-08-23T21:07:09.643Z"
+stopped_at: Completed 16-06-PLAN.md
+last_updated: "2026-08-24T07:51:36.683Z"
 last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 05 complete: iPhone Group B sweep + D-15 baselines (3220992b rows 14-20, 5be5be6e rows 21-27, 16-05-SUMMARY.md) — all 84 iPhone Group B cells judged (40 pass / 26 finding / 12 blocked / 6 n/a), findings #13-#23 opened. Group B fails differently from the lists: whole VALUES stop being drawn. Torrents meta row renders four glyphs with NO numbers at AX5 portrait (#21); the reader page indicator collapses to a 2pt sliver (#22); Archives cards lose size AND price, in landscape already at AX3 (#20); the Detail delete alert in landscape AX5 shows its red Delete button with NO message and NO Cancel (#23); Detail stats strip loses labels at XXL then values from AX3 (#14); long tags run off the right edge un-ellipsised (#15); Gallery Infos' lineLimit(3) eats the Archive/Torrent URL tokens (#19, NOT in the D-04 checklist — found by the walk). D-13: stats-strip and long-tag cases CONFIRMED; the reader counter case is CONTRADICTED — it does not wrap, it vanishes. D-15 baselines banked (4 fixed names under $HOME/Library/Caches/ehpanda-phase16/d15-baseline/, build 3.0.0 (158)); the predicted D-15 collision did NOT materialise — the 0.72 header shrink does not visibly engage at .large. 20 D-04 rows dispositioned. #21 Tag Detail blocked (English tag DB has empty descriptions), #22 NewDawn blocked (not presented), #27 Live Text n/a (system overlay draws no app text). Nothing purchased/posted/voted/downloaded/deleted; simulator restored to medium/dark/disabled/portrait and read back."
+last_activity_desc: "Phase 16 plan 06 complete: all 90 Group C iPhone cells and all 252 iPhone matrix cells judged; findings #24-#31 opened; simulator restored to medium/dark/portrait with Increase Contrast disabled."
 progress:
   total_phases: 17
   completed_phases: 13
   total_plans: 274
-  completed_plans: 252
+  completed_plans: 253
   percent: 76
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 6 of 26
-Status: Executing Phase 16
-Last activity: 2026-08-24 — Phase 16 plan 05 complete: iPhone Group B sweep + D-15 baselines (3220992b rows 14-20, 5be5be6e rows 21-27, 16-05-SUMMARY.md) — all 84 iPhone Group B cells judged (40 pass / 26 finding / 12 blocked / 6 n/a), findings #13-#23 opened. Group B fails differently from the lists: whole VALUES stop being drawn. Torrents meta row renders four glyphs with NO numbers at AX5 portrait (#21); the reader page indicator collapses to a 2pt sliver (#22); Archives cards lose size AND price, in landscape already at AX3 (#20); the Detail delete alert in landscape AX5 shows its red Delete button with NO message and NO Cancel (#23); Detail stats strip loses labels at XXL then values from AX3 (#14); long tags run off the right edge un-ellipsised (#15); Gallery Infos' lineLimit(3) eats the Archive/Torrent URL tokens (#19, NOT in the D-04 checklist — found by the walk). D-13: stats-strip and long-tag cases CONFIRMED; the reader counter case is CONTRADICTED — it does not wrap, it vanishes. D-15 baselines banked (4 fixed names under $HOME/Library/Caches/ehpanda-phase16/d15-baseline/, build 3.0.0 (158)); the predicted D-15 collision did NOT materialise — the 0.72 header shrink does not visibly engage at .large. 20 D-04 rows dispositioned. #21 Tag Detail blocked (English tag DB has empty descriptions), #22 NewDawn blocked (not presented), #27 Live Text n/a (system overlay draws no app text). Nothing purchased/posted/voted/downloaded/deleted; simulator restored to medium/dark/disabled/portrait and read back.
-Next: run /gsd-execute-phase 16. Waves 1-3 COMPLETE (16-01 lint rules, 16-02 sweep skeleton, 16-03 infrastructure, 16-04 iPhone Group A). Wave 4 COMPLETE — 16-05 (iPhone Group B, screens #14-#27): 84/84 cells judged, findings #13-#23 open, all three remaining D-13 cases observed, D-15 .large baselines banked. Next wave = 16-06 (iPhone Group C, screens #28-#42); then 16-07..16-09 (iPad, blocked on IPAD_LOGIN for the login-gated screens). Before any sweep session: paste the § Infrastructure shell block, terminate every OTHER app on the sweep simulator (a foreign app stealing the foreground silently redirects taps and screenshots), launch BUNDLE_ID, walk from the first pending row. Rotation is agent-device orientation, NOT sim-use gesture rotate-cw. Evidence root is $HOME/Library/Caches/ehpanda-phase16/ (outside the repo). Round 1 (16-02 … 16-12) is owner-implemented / agent verify-only and ends with the owner-signed UAT gate in 16-12; round 2 (16-13 … 16-26) is agent-implemented and depends on that gate. Phase 16 is TWO rounds (ROADMAP + REQUIREMENTS rewritten 2026-08-23, commit 84c8b9d8; A11Y-01 + A11Y-02, coverage 25/25). Round 1 = Dynamic Type, OWNER-implemented / agent verify-only (one carve-out: agent writes 4 error-level SwiftLint rules). Round 2 = VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-without-color, AGENT-implemented, owner-reviewed; Contrast + Differentiate are audit-first. Round 1 runs FIRST, then a targeted re-sweep of screens round 2 touches. Bar = App Store Accessibility Nutrition Label; an unclaimable category comes back to the owner with numbers. Colour call (owner-delegated): all 84 category BACKGROUNDS frozen byte-identical, badge TEXT colour becomes adaptive black/white on resolved luminance - 84/84 pass AA, worst 4.62:1, structural floor 4.58:1; 47 badges flip to black. Sweep = simulator, owner hand-logged-in (treat that sim as phase infrastructure), iPhone+iPad x portrait+landscape x XXL/AX3/AX5, app screens and sheets only. minimumScaleFactor banned 5 -> 0; default .large parity outranks the ban. No screenshot ever enters the repo. Phase 17 runs after 16, blocked on the owner's gallery choice.
+Plan: 7 of 26
+Status: Ready to execute
+Last activity: 2026-08-24 — Phase 16 plan 06 complete: all 90 Group C iPhone cells and all 252 iPhone matrix cells judged; findings #24–#31 opened; simulator restored to medium/dark/portrait with Increase Contrast disabled.
+Next: run /gsd-execute-phase 16. Plans 16-01…16-06 are complete. Next wave = 16-07 (iPad Group A), followed by 16-08 and 16-09; login-gated iPad rows remain blocked on `IPAD_LOGIN=none`. Before any sweep session, load § Infrastructure, terminate every other app on the sweep simulator, launch `BUNDLE_ID`, and continue from the first pending row. Keep screenshots under `$HOME/Library/Caches/ehpanda-phase16/`; never add them to git.
 
-Progress: [████████░░] 82% (14/17 phases)
+Progress: [█████████░] 92% (14/17 phases)
 
 ## Performance Metrics
 
@@ -309,6 +309,7 @@ Progress: [████████░░] 82% (14/17 phases)
 | Phase 16 P03 | 16min | 2 tasks | 1 files |
 | Phase 16 P04 | 2h 45m | 2 tasks | 1 files |
 | Phase 16 P05 | 3h 5m | 2 tasks | 1 files |
+| Phase 16 P06 | 2h 20m | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -823,6 +824,9 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-05: Detail stats-strip and tag-cloud D-13 cases reproduce; the reader page-counter case does not — the indicator vanishes rather than wrapping (finding #22)
 - [Phase 16]: 16-05: Findings #11 and #23 stay separate: two download-delete confirmations fail in different containers (Downloads popover in portrait vs Detail alert in landscape) for different reasons
 - [Phase 16]: 16-05: The D-15 collision did not materialise — the Detail header's 0.72 shrink does not visibly engage at .large for a seven-character category, and the badge never truncates at any sampled size
+- [Phase 16]: 16-06: Preserve the logged-in simulator and record native Login as blocked instead of forcing logout.
+- [Phase 16]: 16-06: D-13 observations move from matrix pending to open once iPhone evidence is recorded; owner disposition remains for closeout.
+- [Phase 16]: 16-06: Leave the download progress-spinner D-04 site pending until a legitimate active-transfer state is available.
 
 ### Pending Todos
 
@@ -884,6 +888,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-23T21:06:58.333Z
-Stopped at: Completed 16-05-PLAN.md
+Last session: 2026-08-24T07:51:36.674Z
+Stopped at: Completed 16-06-PLAN.md
 Resume file: None
