@@ -859,48 +859,48 @@ written description only — never a screenshot filename (D-32).
 
 | # | Screen | Device | Orientation | Size | Status | Finding |
 |---|---|---|---|---|---|---|
-| 14 | Gallery Detail | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 14 | Gallery Detail | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 14 | Gallery Detail | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 14 | Gallery Detail | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 14 | Gallery Detail | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 14 | Gallery Detail | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 15 | Detail › Previews | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 16 | Detail › Comments | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 17 | Detail › Detail Search | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 18 | Detail › Gallery Infos | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 19 | Detail › Archives sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | landscape | XXL (extra-extra-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | landscape | AX3 (accessibility-extra-large) | pending |  |
-| 20 | Detail › Torrents sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pending |  |
+| 14 | Gallery Detail | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 14 | Gallery Detail | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 14 | Gallery Detail | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 14 | Gallery Detail | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 14 | Gallery Detail | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 14 | Gallery Detail | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
+| 15 | Detail › Previews | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 15 | Detail › Previews | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 15 | Detail › Previews | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 15 | Detail › Previews | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 15 | Detail › Previews | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 15 | Detail › Previews | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
+| 16 | Detail › Comments | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 16 | Detail › Comments | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 16 | Detail › Comments | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 16 | Detail › Comments | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 16 | Detail › Comments | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 16 | Detail › Comments | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
+| 17 | Detail › Detail Search | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 17 | Detail › Detail Search | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 17 | Detail › Detail Search | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 17 | Detail › Detail Search | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 17 | Detail › Detail Search | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 17 | Detail › Detail Search | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 18 | Detail › Gallery Infos | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
+| 19 | Detail › Archives sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 19 | Detail › Archives sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 19 | Detail › Archives sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 19 | Detail › Archives sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 19 | Detail › Archives sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 19 | Detail › Archives sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
+| 20 | Detail › Torrents sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
+| 20 | Detail › Torrents sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
+| 20 | Detail › Torrents sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
+| 20 | Detail › Torrents sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
+| 20 | Detail › Torrents sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
+| 20 | Detail › Torrents sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
 | 21 | Detail › Tag Detail sheet | iPad | portrait | XXL (extra-extra-extra-large) | pending |  |
 | 21 | Detail › Tag Detail sheet | iPad | portrait | AX3 (accessibility-extra-large) | pending |  |
 | 21 | Detail › Tag Detail sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pending |  |
@@ -1094,8 +1094,8 @@ Each closes as `fixed` or `accepted (owner reason: …)` — never by omission.
 
 | Case | Screen | Site | Observed (iPhone, round 1) | Status | Disposition |
 |---|---|---|---|---|---|
-| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | It reproduces, and it is worse than "abbreviation": the strip's columns keep a fixed fraction of the container width and a fixed row height, so the column **labels** ellipsise first (at XXL portrait already — "FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…") and from AX3 up in portrait the **values** go too: a four-digit favourite count reads "11…" at AX3 and "1…" at AX5, a 4.50 rating reads "4.…" then is lost, and the unit lines read "Engl…" / "Ti…". The five-star rating row is clipped at both ends at every accessibility size and shows three stars for a 4.50 rating at AX5 landscape. Landscape keeps the values but loses the labels from AX3. Observed in iPhone portrait XXL / AX3 / AX5 and iPhone landscape AX3 / AX5; recorded as finding #14. | open |  |
-| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | It reproduces in portrait from AX3 up. Tags are laid out from a fixed leading column and are neither wrapped nor ellipsised when they exceed the remaining width, so a long tag runs off the right edge of the screen and is cut mid-glyph with nothing to mark the loss. At AX3 portrait a sixteen-character tag loses its last six characters; at AX5 portrait two separate tags are cut (one tag's own frame is 64 points wider than the screen) and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at XXL / AX3 / AX5. Observed in iPhone portrait AX3 / AX5; recorded as finding #15. | open |  |
+| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | It reproduces, and it is worse than "abbreviation": the strip's columns keep a fixed fraction of the container width and a fixed row height, so the column **labels** ellipsise first (at XXL portrait already — "FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…") and from AX3 up in portrait the **values** go too: a four-digit favourite count reads "11…" at AX3 and "1…" at AX5, a 4.50 rating reads "4.…" then is lost, and the unit lines read "Engl…" / "Ti…". The five-star rating row is clipped at both ends at every accessibility size and shows three stars for a 4.50 rating at AX5 landscape. Landscape keeps the values but loses the labels from AX3. Observed in iPhone portrait XXL / AX3 / AX5 and iPhone landscape AX3 / AX5; recorded as finding #14. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal layout. | open |  |
+| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | It reproduces in portrait from AX3 up. Tags are laid out from a fixed leading column and are neither wrapped nor ellipsised when they exceed the remaining width, so a long tag runs off the right edge of the screen and is cut mid-glyph with nothing to mark the loss. At AX3 portrait a sixteen-character tag loses its last six characters; at AX5 portrait two separate tags are cut (one tag's own frame is 64 points wider than the screen) and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at XXL / AX3 / AX5. Observed in iPhone portrait AX3 / AX5; recorded as finding #15. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal tag-cloud layout. | open |  |
 | Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | **The pre-registered prediction does not hold: the counter does not wrap, it disappears.** The indicator is a single-line `Text` in a glass capsule sharing a leading-aligned `HStack` with the close button, so as the type grows the capsule is squeezed rather than the row wrapping. In **portrait** it reads "1 / 14" in full at XXL, shows only an ellipsis at AX3, and at AX5 renders nothing at all — a two-point-wide sliver beside the close button — while the accessibility tree still reports the full string. In **landscape** it reads in full at XXL, AX3 and AX5. The lower bar's "1" and "14" slider end labels survive in every cell, but those are the slider's bounds, not the current page. Recorded as finding #22 and left undispositioned here per D-13 — with the wrap-is-acceptable reasoning no longer applicable, since nothing wraps. | open |  |
 | Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | On iPhone, the toolbar and menu glyphs do **not** clip: the favourites-index, sort-order and features glyphs keep their size and stay fully drawn at AX5 in both orientations, and the row's trailing `photoOnRectangleAngled` symbol is likewise never cut. What is lost is the number beside that symbol — at AX3 the page count loses digits at the screen's right edge and at AX5 only the glyph survives with no number at all (finding #6). So the pre-registered glyph clip does not reproduce on iPhone; the paired value does. iPad observation is blocked because `IPAD_LOGIN=none`; no iPad glyph verdict was inferred. | open |  |
 | Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | It ellipsises, which is the pre-registered failing case, and it does so well before AX5 on both devices. On iPhone at AX5 in **portrait** only the first word survives and the ellipsis sits on top of the neighbouring card's artwork (finding #2); at AX5 in **landscape** the title ends after roughly three words. On iPad the title also loses its tail in every sampled cell: portrait contracts from an ellipsised multi-line title at XXL to only its opening words at AX5, while landscape's extra width still cannot preserve the tail at XXL, AX3, or AX5. The title does not make useful use of `lineLimit(4)` at any accessibility size — the card's fixed height, not the nominal line limit, removes the text. Recorded as finding #1. | open |  |
