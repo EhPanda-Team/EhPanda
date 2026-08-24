@@ -1191,3 +1191,198 @@ disturb round 1's verified layout (D-24).
 | Screen | What round 2 changed | Cells re-walked | Status |
 |---|---|---|---|
 | _none yet_ | | | |
+
+## Round-1 report
+
+The full matrix is now closed: every one of its 504 device/orientation/size cells has a written
+verdict or an explicit reachability disposition. The 33 findings below are the complete round-1
+set. They are reported together at this boundary under D-02; no reflow implementation, patch,
+diff, or work order is part of this report (D-01).
+
+| #N | Screen(s) | Device/orientation/size cells | Description | Primary files (from the inventory) |
+|---|---|---|---|---|
+| 1 | #2 Home root | iPhone portrait XXL/AX3/AX5; iPhone landscape AX3/AX5; iPad portrait and landscape XXL/AX3/AX5 | The fixed-height hero card progressively removes its gallery title as type grows; only the opening word remains at iPhone portrait AX5, and even iPad landscape loses the tail. This is the D-13 hero-carousel case. | `HomeFeature/HomeView+Sections.swift`; `HomeFeature/GalleryCardCell.swift` |
+| 2 | #2 Home root | iPhone portrait AX5 | The neighbouring hero card's artwork overlaps the focused card's title and rating while the focused cover is cut at the leading edge, leaving separate contents unreadable. | `HomeFeature/HomeView+Sections.swift`; `HomeFeature/GalleryCardCell.swift` |
+| 3 | #2 Home root; #7 Toplists | iPhone portrait and landscape AX3/AX5; iPad portrait XXL/AX3/AX5; iPad landscape AX3/AX5 | Fixed ranking rows ellipsise the gallery title and then the uploader; at iPhone portrait AX5 the uploader disappears entirely. | `HomeFeature/HomeView+Sections.swift`; `HomeFeature/GalleryRankingCell.swift`; `HomeFeature/Toplists/ToplistsView.swift` |
+| 4 | #3–#7 pushed lists; #10 Search results; #32 Activity Logs | iPhone #3 portrait XXL/AX3/AX5; iPhone #4–#7 and #10 portrait AX3/AX5; iPhone #32 portrait AX3 and landscape AX5; iPad #3 portrait AX3 and landscape AX5; iPad #4/#7 portrait AX3 and landscape AX3/AX5; iPad #10 portrait AX3/AX5 and landscape AX5; iPad #32 portrait/landscape AX5 | The filter/search capsule non-monotonically loses both its glyph and visible placeholder/query, leaving an unlabeled empty shape even though the surrounding screen remains usable. | `HomeFeature/Frontpage/FrontpageView.swift`; `HomeFeature/Popular/PopularView.swift`; `HomeFeature/Watched/WatchedView.swift`; `HomeFeature/History/HistoryView.swift`; `HomeFeature/Toplists/ToplistsView.swift`; `SearchFeature/SearchView.swift`; `SettingFeature/AppActivityLogs/AppActivityLogsView.swift` |
+| 5 | #3–#7 and #17 gallery-list hosts | iPhone portrait XXL/AX3/AX5 and landscape AX3/AX5; iPad #3 portrait AX5 | The gallery title's line cap removes its tail as type grows; at AX5 portrait some titles run off the edge and are cut mid-glyph. | `GalleryListComponents/Cells/GalleryDetailCell.swift`; `HomeFeature/Frontpage/FrontpageView.swift`; `HomeFeature/Popular/PopularView.swift`; `HomeFeature/Watched/WatchedView.swift`; `HomeFeature/History/HistoryView.swift`; `HomeFeature/Toplists/ToplistsView.swift`; `DetailFeature/DetailSearch/DetailSearchView.swift` |
+| 6 | #3–#7, #12 and #17 | iPhone portrait AX3/AX5; iPad Inspector portrait and landscape AX5 | The row's right-hand metadata does not reflow: language, page-count and timestamp characters are cut by the edge; at AX5 the count can lose every digit, and the iPad Inspector timestamp loses its time. | `GalleryListComponents/Cells/GalleryDetailCell.swift`; `GalleryListComponents/DownloadBadgeLabel.swift`; `DownloadsFeature/DownloadsView+Subviews.swift` |
+| 7 | #3–#7 and #32 | iPhone portrait AX3/AX5 | Pushed-screen large titles ellipsise at AX3 and disappear at AX5; Activity Logs retains a title but shortens it at both accessibility sizes. | `HomeFeature/Frontpage/FrontpageView.swift`; `HomeFeature/Popular/PopularView.swift`; `HomeFeature/Watched/WatchedView.swift`; `HomeFeature/History/HistoryView.swift`; `HomeFeature/Toplists/ToplistsView.swift`; `SettingFeature/AppActivityLogs/AppActivityLogsView.swift` |
+| 8 | #3–#7 and #17 gallery-list hosts | iPhone portrait AX5 | The cover thumbnail collapses to a narrow sliver and is partly pushed off-screen, removing the row's only visual identifier. | `GalleryListComponents/Cells/GalleryDetailCell.swift`; `HomeFeature/Frontpage/FrontpageView.swift`; `HomeFeature/Popular/PopularView.swift`; `HomeFeature/Watched/WatchedView.swift`; `HomeFeature/History/HistoryView.swift`; `HomeFeature/Toplists/ToplistsView.swift`; `DetailFeature/DetailSearch/DetailSearchView.swift` |
+| 9 | #5, #6 and #17 gallery-list hosts | iPhone portrait XXL and above | A long uploader becomes ellipsised as soon as it shares the line with the language value, despite both reading fully at the baseline. | `GalleryListComponents/Cells/GalleryDetailCell.swift`; `HomeFeature/Watched/WatchedView.swift`; `HomeFeature/History/HistoryView.swift`; `DetailFeature/DetailSearch/DetailSearchView.swift` |
+| 10 | #9 Search root | iPhone portrait and landscape XXL/AX3/AX5; iPad portrait and landscape AX3/AX5 | Fixed Recently Seen cells clip titles and covers, overflow their slots, and at the largest sizes overlap the section heading or neighbouring cards. | `SearchFeature/SearchRootView.swift`; `SearchFeature/SearchRootView+Keywords.swift`; `SearchFeature/GalleryHistoryCell.swift` |
+| 11 | #11 Downloads root | iPhone portrait AX5 | The fixed-width delete-confirmation popover cuts its destructive-action explanation mid-sentence and provides no scroll route to the hidden tail. | `DownloadsFeature/DownloadsView.swift`; `DownloadsFeature/DownloadsView+Subviews.swift`; `DownloadsFeature/DownloadRowFeature.swift` |
+| 12 | All gallery-list hosts in Thumbnail mode | iPhone portrait AX5 | The thumbnail cell abbreviates the category into ambiguity, ellipsises the title and count, and sends the trailing column and star row beyond the screen edge. | `GalleryListComponents/Cells/GalleryThumbnailCell.swift`; `AppComponents/CategoryView.swift` |
+| 13 | #14 Gallery Detail | iPhone portrait XXL/AX3/AX5 | The header title's three-line cap removes progressively more text, and the uploader beneath it ellipsises from AX3. Tapping can expand the title, but the default rendering still provides less information. | `DetailFeature/DetailView+HeaderSection.swift` |
+| 14 | #14 Gallery Detail | iPhone portrait XXL/AX3/AX5; iPhone landscape AX3/AX5 | Fixed-fraction stats columns first abbreviate their labels, then lose their values and clip the rating stars; a four-digit count becomes `1…` and a 4.50 rating is no longer represented faithfully. This is the D-13 stats-strip case. | `DetailFeature/DetailView+Subviews.swift` |
+| 15 | #14 Gallery Detail | iPhone portrait AX3/AX5 | Long tags extend past the trailing screen edge and are cut mid-glyph without wrapping or an ellipsis. This is the D-13 long-tag case. | `DetailFeature/DetailView+Subviews.swift`; `AppComponents/TagCloudView.swift` |
+| 16 | #14 Gallery Detail comment cards | iPhone portrait and landscape XXL/AX3/AX5 | A fixed 300-point card ellipsises its author and timestamp at every sampled size; the paired 0.75 shrink engages first but does not preserve the content. | `DetailFeature/DetailView+CommentCells.swift` |
+| 17 | #14 Gallery Detail comment cards | iPhone portrait AX3/AX5; iPhone landscape AX5 | The same fixed-width card shows progressively fewer body characters as type grows; at landscape AX5 even a previously complete short comment loses its final word. | `DetailFeature/DetailView+CommentCells.swift` |
+| 18 | #16 Comments | iPhone portrait XXL/AX3/AX5; iPhone landscape AX5 | Author, vote score and timestamp stay on one line, so timestamps lose minutes first and authors collapse to a few characters; the 0.75 shrink does not prevent the loss. | `DetailFeature/Comments/CommentsView.swift`; `DetailFeature/Components/PostCommentView.swift` |
+| 19 | #18 Gallery Infos | iPhone portrait AX3/AX5 | Three-line value caps remove the tokens from Archive and Torrent URLs at AX3 and truncate additional URLs, the parent link, gallery title and identifiers at AX5. | `DetailFeature/GalleryInfos/GalleryInfosView.swift` |
+| 20 | #19 Archives | iPhone portrait and landscape AX3/AX5 | Fixed archive cards lose the size and price needed to choose an archive, make resolution names indistinguishable, draw text outside their borders, and truncate account balances. | `DetailFeature/Archives/ArchivesView.swift` |
+| 21 | #20 Torrents | iPhone portrait AX3/AX5 | Four fixed meta slots destroy the seed, leech, download and size values; at AX5 only their glyphs remain while uploader and timestamp are also shortened. | `DetailFeature/Torrents/TorrentsView.swift` |
+| 22 | #25 Reading control panel | iPhone portrait AX3/AX5 | The page indicator does not wrap: its capsule shrinks to an ellipsis at AX3 and a blank two-point sliver at AX5, removing both current and total page state. This is the D-13 reader-counter case. | `ReadingFeature/Support/ControlPanel.swift` |
+| 23 | #23 Detail download confirmation | iPhone landscape AX3/AX5 | The alert cuts its safety explanation at AX3; at AX5 both the message and Cancel control lie outside the visible/tappable bounds, leaving Delete as the only visible action. | `DetailFeature/DetailReducer+Download.swift`; `DetailFeature/DetailView.swift` |
+| 24 | #29 Account | iPhone portrait XXL/AX3/AX5; iPhone landscape AX3/AX5 | Cookie rows allow their credential values to collapse while labels wrap; at AX5 portrait every value is reduced to only three or four characters plus an ellipsis. | `SettingFeature/AccountSetting/AccountSettingView.swift` |
+| 25 | #32 Activity Logs | iPhone portrait AX3/AX5 and landscape AX5; iPad portrait and landscape AX3/AX5 | The single-line category chip removes the subsystem name while the adjacent timestamp is allowed to wrap, making similarly prefixed sources indistinguishable. | `SettingFeature/AppActivityLogs/AppActivityLogsView.swift` |
+| 26 | #32 Activity Logs | iPhone portrait AX3/AX5 and landscape AX5; iPad portrait AX5 | The Runs menu stops drawing the selected-run checkmark although the underlying selection and accessibility-tree checkmark remain. | `SettingFeature/AppActivityLogs/AppActivityLogsView.swift` |
+| 27 | #38 EhSetting | iPhone portrait XXL/AX3/AX5; iPhone landscape AX5 | The three Excluded Languages column headings refuse to wrap, overlap into one string and no longer identify their radio columns. | `SettingFeature/EhSetting/EhSettingView.swift`; `SettingFeature/EhSetting/EhSettingView+Sections3.swift` |
+| 28 | #38 EhSetting | iPhone portrait AX5 | Consecutive Multi-Page Viewer rows do not grow for multi-line labels and picker values; their text crosses separators, overlaps neighbours and becomes unreadable. | `SettingFeature/EhSetting/EhSettingView.swift`; `SettingFeature/EhSetting/EhSettingView+Sections1.swift`; `SettingFeature/EhSetting/EhSettingView+Sections2.swift`; `SettingFeature/EhSetting/EhSettingView+Sections3.swift` |
+| 29 | #39 Filters | iPhone and iPad portrait/landscape XXL/AX3/AX5 | Fixed/adaptive category columns keep one-line names too narrow; names are already ellipsised at XXL and collapse to ambiguous fragments at AX5 on both devices. | `FiltersFeature/FiltersView.swift`; `AppComponents/CategoryView.swift` |
+| 30 | #40 Quick Search | iPhone portrait XXL/AX3/AX5; iPhone landscape AX5 | A saved word's one-line name cap truncates first in Edit mode, then in the ordinary row; at AX3 portrait Edit mode also truncates its content. | `QuickSearchFeature/QuickSearchView.swift` |
+| 31 | #42 Error surface | iPhone portrait XXL/AX3/AX5 and landscape AX3/AX5; iPad portrait AX3/AX5 and landscape AX5 | The toast's one-line subtitle progressively removes the unsupported-link explanation while its title and the separate scrollable error-detail sheet remain complete. | `AppComponents/ErrorInfoView.swift`; `SystemNotification/ToastMessageView.swift`; `SystemNotification/View+Toast.swift` |
+| 32 | #3 Frontpage | iPad portrait AX3/AX5 | A long regular-width category badge expands over the timestamp on the same stats line, painting the two values on top of each other. | `HomeFeature/Frontpage/FrontpageView.swift`; `GalleryListComponents/Cells/GalleryDetailCell.swift` |
+| 33 | #30 Login | iPad portrait AX5; iPad landscape AX5 | The enlarged Login heading overlaps the Username label in both modal orientations, so the two strings cannot be read independently. | `SettingFeature/Login/LoginView.swift` |
+
+### D-13 dispositions requested
+
+Each Disposition cell is intentionally blank for the owner. Valid responses are `fixed` or
+`accepted (reason)`.
+
+| D-13 item | iPhone observation | iPad observation | Disposition |
+|---|---|---|---|
+| 1. Detail stats-strip abbreviation | Reproduced as finding #14 in portrait XXL/AX3/AX5 and landscape AX3/AX5; labels abbreviate first, then values disappear and stars clip. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the iPad modal layout was not inferred. |  |
+| 2. Long-tag right-edge clip | Reproduced as finding #15 at portrait AX3/AX5; the same tags remain complete in landscape. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the regular-width tag cloud was not inferred. |  |
+| 3. Reader total-page counter wrap | The prediction did not reproduce: finding #22 shows the counter vanishing at portrait AX3/AX5 instead of wrapping; landscape remains complete. | All six control-panel cells are blocked because `IPAD_LOGIN=none`; the regular-width panel was not inferred. |  |
+| 4. Favorites trailing-glyph clip | The glyphs do not clip. The adjacent numeric page count is what disappears, tracked by finding #6. | All six Favorites cells are blocked because `IPAD_LOGIN=none`; no glyph verdict was inferred. |  |
+| 5. Hero-carousel title truncation | Reproduced as finding #1 from XXL/AX3/AX5 portrait and AX3/AX5 landscape; AX5 portrait also overlaps, tracked separately by #2. | Reproduced as finding #1 in all six cells, including landscape XXL. |  |
+
+Under D-03, a genuine reader-counter **wrap** would not be degradation, so `accepted` on that
+rule alone would be legitimate. The observed counter does not wrap — it disappears — and the
+owner decides the actual disposition.
+
+### D-04 outcome
+
+The 48 checklist rows close as **16 `fine`**, **31 `finding:#N`**, and **1 `blocked`**. No D-04
+row remains pending. The one blocked row is the 20-point active-transfer spinner and is repeated
+under Blocked rows.
+
+Twenty-three Phase-10 `fine`/`B3 fine` line-limit sites became findings under the strict D-04
+reading:
+
+| Formerly accepted site | Round-1 outcome |
+|---|---|
+| `SettingFeature/EhSetting/EhSettingView+Sections3.swift:131` | finding #27 |
+| `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:224` | finding #25 |
+| `ReadingFeature/Support/ControlPanel.swift:176` | finding #22 |
+| `HomeFeature/GalleryRankingCell.swift:39` | finding #3 |
+| `SearchFeature/GalleryHistoryCell.swift:32` | finding #10 |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:107` | finding #9 |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:152` | finding #6 |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:163` | finding #6 |
+| `GalleryListComponents/DownloadBadgeLabel.swift:19` | finding #6 |
+| `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` | finding #12 |
+| `AppComponents/TagCloudView.swift:122` | finding #15 |
+| `AppComponents/CategoryView.swift:31` | finding #12 |
+| `AppComponents/CategoryView.swift:87` | finding #29 |
+| `DetailFeature/DetailView+CommentCells.swift:37` | finding #16 |
+| `DetailFeature/DetailView+CommentCells.swift:43` | finding #16 |
+| `DetailFeature/DetailView+Subviews.swift:99` | finding #14 |
+| `DetailFeature/DetailView+Subviews.swift:116` | finding #14 |
+| `DetailFeature/DetailView+HeaderSection.swift:324` | finding #13 |
+| `DetailFeature/Comments/CommentsView.swift:166` | finding #18 |
+| `DetailFeature/Archives/ArchivesView.swift:143` | finding #20 |
+| `DetailFeature/Archives/ArchivesView.swift:202` | finding #20 |
+| `QuickSearchFeature/QuickSearchView.swift:40` | finding #30 |
+| `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | finding #1 |
+
+Two other previously accepted outcomes also failed the strict walk: the B1-fixed toast subtitle
+at `SystemNotification/ToastMessageView.swift:70` is finding #31, and the two formerly
+`shrink-absorbed` torrent meta sites at `DetailFeature/Torrents/TorrentsView.swift:110,124` are
+finding #21. Four formerly fine `minimumScaleFactor` rows are finding-bearing D-14 removals
+(#6, #16 and #18); the fifth is visually fine but is still banned and listed below.
+
+### D-14 sites
+
+Live grep at the report boundary returns exactly five sites:
+
+| Site at current HEAD | Factor | Round-1 observation |
+|---|---:|---|
+| `AppPackage/Sources/GalleryListComponents/Cells/GalleryDetailCell.swift:155` | 0.75 | Paired stats value still loses content; finding #6. |
+| `AppPackage/Sources/GalleryListComponents/Cells/GalleryDetailCell.swift:166` | 0.75 | Paired stats value still loses content; finding #6. |
+| `AppPackage/Sources/DetailFeature/DetailView+HeaderSection.swift:73` | 0.72 | The anticipated D-15 collision did not visibly engage for the seven-character baseline category, and the badge stayed complete in the sampled cells; default-size parity nevertheless remains binding. |
+| `AppPackage/Sources/DetailFeature/DetailView+CommentCells.swift:42` | 0.75 | Shrink visibly engages and still ellipsises the author; finding #16. |
+| `AppPackage/Sources/DetailFeature/Comments/CommentsView.swift:165` | 0.75 | Shrink engages and still loses author/timestamp content; finding #18. |
+
+D-15 makes `.large` appearance parity higher priority than merely deleting a modifier. The
+captured baselines under `$HOME/Library/Caches/ehpanda-phase16/d15-baseline/` remain the comparison
+authority, especially for the 0.72 Detail-header category site originally identified as the
+likely collision. The `no_minimum_scale_factor` SwiftLint rule lands in plan 16-12 only after
+the live count reaches **0**.
+
+### Blocked rows
+
+Each entry below covers all six orientation/size cells for the named device and screen unless
+stated otherwise; together they enumerate every `blocked:` or `n/a:` Matrix row, plus the one
+blocked D-04 row.
+
+| Device / screen | Cells | Status | Reason |
+|---|---|---|---|
+| iPhone #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | blocked | Its only entry requires a non-empty translated tag description; the English translation database contains none. |
+| iPhone #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The server-issued once-per-day greeting was not presented and cannot be summoned. |
+| iPhone #27 Live Text overlay | portrait + landscape × XXL/AX3/AX5 | n/a | It draws no app-visible text; the visible selection/translation UI is system-owned. |
+| iPhone #30 Login | portrait + landscape × XXL/AX3/AX5 | blocked | The preserved logged-in session cannot expose the native form without a forbidden logout. |
+| iPad #5 Watched | portrait + landscape × XXL/AX3/AX5 | blocked | `IPAD_LOGIN=none`; no credential was entered. |
+| iPad #8 Favorites | portrait + landscape × XXL/AX3/AX5 | blocked | `IPAD_LOGIN=none`; no credential was entered. |
+| iPad #13 FolderManager | portrait + landscape × XXL/AX3/AX5 | blocked | The folder-management route is login-gated and `IPAD_LOGIN=none`. |
+| iPad #14 Gallery Detail | portrait + landscape × XXL/AX3/AX5 | blocked | Live Detail requires the missing iPad session; no iPhone modal verdict was inferred. |
+| iPad #15 Previews | portrait + landscape × XXL/AX3/AX5 | blocked | Its route starts from unavailable live Detail. |
+| iPad #16 Comments | portrait + landscape × XXL/AX3/AX5 | blocked | Live Comments requires the missing session; no post or vote surface was opened. |
+| iPad #17 Detail Search | portrait + landscape × XXL/AX3/AX5 | blocked | Its route starts from unavailable live Detail. |
+| iPad #18 Gallery Infos | portrait + landscape × XXL/AX3/AX5 | blocked | Its route starts from unavailable live Detail. |
+| iPad #19 Archives | portrait + landscape × XXL/AX3/AX5 | blocked | Archives is login-gated; nothing was purchased. |
+| iPad #20 Torrents | portrait + landscape × XXL/AX3/AX5 | blocked | Torrents is login-gated; no torrent or share action was opened. |
+| iPad #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | blocked | The English-description gate makes the sheet unreachable, and the missing live Detail session is an additional barrier. |
+| iPad #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The server-issued greeting was not presented and cannot be summoned. |
+| iPad #23 Detail download confirmation | portrait + landscape × XXL/AX3/AX5 | blocked | The live Detail route is unavailable; the preserved download was untouched. |
+| iPad #24 Reading | portrait + landscape × XXL/AX3/AX5 | blocked | Live Reading requires the missing iPad session; no saved download was opened or changed. |
+| iPad #25 Reading control panel | portrait + landscape × XXL/AX3/AX5 | blocked | Its regular-width layout requires unavailable live Reading. |
+| iPad #26 Reading Setting sheet | portrait + landscape × XXL/AX3/AX5 | blocked | The Group-B entry point is the unavailable live Reading control panel, though the Setting-root version is covered as #34. |
+| iPad #27 Live Text overlay | portrait + landscape × XXL/AX3/AX5 | blocked | Its entry point is the unavailable live Reading control panel. |
+| iPad #38 EhSetting | portrait + landscape × XXL/AX3/AX5 | blocked | Native EhSetting sections require a logged-in account and `IPAD_LOGIN=none`. |
+| D-04 progress spinner (`DownloadsView+Subviews.swift:145`) | #11/#12 active-transfer state | blocked | Neither simulator had an active transfer, and starting or altering a user-owned download solely for evidence was forbidden. |
+
+The iPad no-session rows are an explicit owner gap: either create the session manually before
+re-verification (`IPAD_LOGIN=present`) or accept the listed rows as a known coverage gap.
+
+### Evidence
+
+All paths below are **chat-only before evidence** under the out-of-repository evidence root. No
+image is tracked by git.
+
+| #N | Representative before image path(s) | What the image shows |
+|---|---|---|
+| 1 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-2-top.png`; `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax5-2-top.png` | Hero titles reduced to opening fragments at AX5 on both devices. |
+| 2 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-2-top.png` | Neighbouring artwork painted over the focused hero title/rating. |
+| 3 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax5-7-top.png` | Ranking title/uploader loss in Toplists. |
+| 4 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax3-3-top.png` | Filter capsule present with neither glyph nor text. |
+| 5 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-XXL-3-top.png` | Long gallery-row title already losing its tail at XXL. |
+| 6 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-3-top.png` | Right-side language/count/date values cut by the edge. |
+| 7 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-7-top.png` | Blank navigation-title band at AX5. |
+| 8 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-3-top.png` | Cover squeezed into an off-screen sliver. |
+| 9 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-XXL-5-top.png` | Uploader ellipsised while its paired language remains. |
+| 10 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax5-9-top.png` | Recently Seen contents overflowing their fixed cards. |
+| 11 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-11-deletedialog.png` | Delete explanation cut inside the fixed popover. |
+| 12 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-thumbnaillayout.png` | Thumbnail-grid text, category and trailing column lost. |
+| 13 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-14-top.png` | Detail header title/uploader shortened at AX5. |
+| 14 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-14-top.png` | Stats labels and values collapsed with clipped stars. |
+| 15 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-14-mid.png` | Tags cut at the trailing screen edge. |
+| 16 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-14-bottom.png` | Fixed-width comment card with shortened author/date. |
+| 17 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-14-bottom.png` | The same card showing fewer body characters. |
+| 18 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-16-bottom.png` | Comment author and timestamp reduced to fragments. |
+| 19 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-18-mid.png` | Gallery-info URLs cut before their identifying tails. |
+| 20 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-landscape-AX5-19-top.png` | Archive cards reduced to slivers beneath overlapping funds. |
+| 21 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-20-top.png` | Torrent meta glyphs shown with no numeric values. |
+| 22 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-25-top.png` | Reader page indicator collapsed to a blank sliver. |
+| 23 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-landscape-AX5-23-top.png` | Detail alert showing Delete without visible message or Cancel. |
+| 24 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-ax5-29-top.png` | Cookie values reduced to short ellipsised fragments. |
+| 25 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-ax3-32-top.png` | Activity-log subsystem chip ellipsised. |
+| 26 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-ax3-32-runmenu.png` | Runs menu lacking its visible selection tick. |
+| 27 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-landscape-AX5-38-langheader.png` | Excluded Languages headings overlapped into one string. |
+| 28 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-AX5-38-segmented.png` | Multi-Page Viewer labels and values painted across neighbouring rows. |
+| 29 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-AX5-39-top.png` | Category names collapsed to ellipsised fragments. |
+| 30 | `$HOME/Library/Caches/ehpanda-phase16/sweep/iphone-portrait-ax5-40-top.png` | Saved Quick Search name/content truncated. |
+| 31 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-AX5-42-toast.png` | Toast subtitle reduced while its title remains. |
+| 32 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax5-3-top.png` | Category badge painted over the adjacent timestamp. |
+| 33 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-AX5-30-top.png` | Login heading overlapping the Username label. |
