@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-08-PLAN.md
-last_updated: "2026-08-24T09:45:01.999Z"
+stopped_at: Completed 16-09-PLAN.md
+last_updated: "2026-08-24T10:56:58.537Z"
 last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 08 complete: all 84 Group B iPad cells recorded as reachability-blocked; no credentials or mutations; simulator restored to large/light/portrait with Increase Contrast disabled."
+last_activity_desc: "Phase 16 plan 09 complete: all 90 Group C iPad cells recorded; the full round-1 Matrix and D-04 checklist have zero pending rows; simulator baselines preserved."
 progress:
   total_phases: 17
   completed_phases: 13
   total_plans: 274
-  completed_plans: 255
+  completed_plans: 256
   percent: 76
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 9 of 26
+Plan: 10 of 26
 Status: Ready to execute
-Last activity: 2026-08-24 — Phase 16 plan 08 complete: all 84 Group B iPad cells recorded as reachability-blocked; no credentials or mutations; simulator restored to large/light/portrait with Increase Contrast disabled.
-Next: run /gsd-execute-phase 16. Plans 16-01…16-08 are complete. Next wave = 16-09 (iPad Group C); login-gated iPad rows remain blocked on `IPAD_LOGIN=none` for plan 16-10 to surface. Before any sweep session, load § Infrastructure, terminate every other app on the sweep simulator, launch `BUNDLE_ID`, and continue from the first pending row. Keep screenshots under `$HOME/Library/Caches/ehpanda-phase16/`; never add them to git.
+Last activity: 2026-08-24 — Phase 16 plan 09 complete: all 90 Group C iPad cells recorded; the full round-1 Matrix and D-04 checklist have zero pending rows; simulator baselines preserved.
+Next: run /gsd-execute-phase 16. Plans 16-01…16-09 are complete. Next wave = 16-10 (round-1 findings report and owner-fixes checkpoint); report all 33 findings together with the explicit blocked/N/A rows and the D-04 spinner block.
 
 Progress: [█████████░] 93% (14/17 phases)
 
@@ -312,6 +312,7 @@ Progress: [█████████░] 93% (14/17 phases)
 | Phase 16 P06 | 2h 20m | 2 tasks | 1 files |
 | Phase 16 P07 | 1h 21m | 2 tasks | 2 files |
 | Phase 16 P08 | 6min | 2 tasks | 2 files |
+| Phase 16 P09 | 1h 2m | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -834,6 +835,9 @@ Recent decisions affecting current work:
 - [Phase 16]: The sweep-created eight-page download remains preserved in its Default folder under the user-owned-download invariant.
 - [Phase 16]: 16-08: Honor IPAD_LOGIN=none as a hard reachability boundary; no credentials and no inferred iPad modal or regular-width verdicts.
 - [Phase 16]: 16-08: Record the Reading Setting sheet as blocked because its Group B entry point is the unavailable live Reading control panel.
+- [Phase 16]: 16-09: Honor IPAD_LOGIN=none as a hard reachability boundary for EhSetting; no credentials and no inferred iPad verdict.
+- [Phase 16]: 16-09: Block the unseen 20-point download-spinner D-04 site because no active transfer existed and user-owned downloads must not be altered solely for evidence.
+- [Phase 16]: 16-09: Preserve the empty Quick Search state; an unsaved editor was sufficient to judge the iPad layout without persisted test data.
 
 ### Pending Todos
 
@@ -895,6 +899,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-24T09:45:01.988Z
-Stopped at: Completed 16-08-PLAN.md
+Last session: 2026-08-24T10:56:58.527Z
+Stopped at: Completed 16-09-PLAN.md
 Resume file: None
