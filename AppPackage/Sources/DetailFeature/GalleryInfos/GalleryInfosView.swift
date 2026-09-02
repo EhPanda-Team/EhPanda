@@ -6,6 +6,7 @@ import SwiftUI
 import SystemNotification
 
 struct GalleryInfosView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable private var store: StoreOf<GalleryInfosReducer>
     @SharedReader(.setting) private var setting: Setting
     private let gallery: Gallery
@@ -94,36 +95,47 @@ struct GalleryInfosView: View {
         ]
     }
 
+    /// Every value on this screen is a URL, an identifier or a title — a string whose meaning lives
+    /// in the tail a cap removes first, and one the row exists to let the reader copy. Above the
+    /// default size the cap is lifted, so the row grows and the whole token reads; at and below it
+    /// the designed three-line budget is kept verbatim. The title beside the value stays flexible
+    /// and the row flips to a stack as soon as the pair no longer fits a line, so an uncapped value
+    /// wraps across the full width rather than into a narrow trailing column.
+    private var valueLineLimit: Int? {
+        dynamicTypeSize <= .large ? 3 : nil
+    }
+
     var body: some View {
         List(infos) { info in
-            let label =
-            Text(info.title)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            let content =
-            Button {
-                if let text = info.value {
-                    store.send(.copyText(text))
-                }
-            } label: {
-                Text(info.value ?? String(localized: .metadataNone))
-                    .lineLimit(3)
-                    .font(.caption)
-            }
-
             ViewThatFits(in: .horizontal) {
                 HStack {
-                    label
-                    content
+                    Text(info.title)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                    Spacer()
+                    content(for: info, lineLimit: 1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
                 VStack(alignment: .leading, spacing: 8) {
-                    label
-                    content
+                    Text(info.title)
+                    content(for: info, lineLimit: valueLineLimit)
                 }
             }
         }
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.metadataGalleryInfos)
+    }
+
+    private func content(for info: Info, lineLimit: Int?) -> some View {
+        Button {
+            if let text = info.value {
+                store.send(.copyText(text))
+            }
+        } label: {
+            Text(info.value ?? String(localized: .metadataNone))
+                .lineLimit(lineLimit)
+                .font(.caption)
+        }
     }
 }
 

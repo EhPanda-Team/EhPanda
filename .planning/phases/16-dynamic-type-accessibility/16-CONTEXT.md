@@ -54,6 +54,92 @@ with a Nutrition Label recommendation naming which categories are claimable.
     applies to which finding, with the finding's before-screenshot sent in chat. A proposal is
     prose + pattern id, never a diff or patch. The sweep plans (16-04 … 16-09) run as written;
     plan 16-10's report gains a per-finding "Suggested pattern" column.
+  - **Amendment 2 (owner, in chat, 2026-09-03):** the owner now delegates the round-1 fixes
+    themselves: executor agents implement the reflows, batched by root cause exactly as
+    `16-SWEEP.md § Suggested patterns` groups them (batches A–F, then standalones), one commit
+    per batch, applying the `16-REFLOW-PATTERNS.md` patterns named there. The owner reviews each
+    batch from before/after comparison images sent in chat and dispositions the findings; the
+    owner does not write the code. Plan 16-11's re-verification protocol applies unchanged with
+    "owner batch" read as "fix batch" (install-over by UDID, affected rows re-walked at
+    XXL/AX3/AX5, D-15 `.large` parity against the banked baselines). D-14, D-15 and D-16 stand:
+    `minimumScaleFactor` to zero, default-size parity binding, `no_minimum_scale_factor` in 16-12.
+- **Reflow quality bar (owner, in chat, 2026-09-03):** when an HStack falls back to a VStack at
+  accessibility sizes, the stacked layout must be *designed*, not merely made to fit: give the
+  vertical members deliberate `spacing` chosen per surface (not the reflex default), and keep or
+  restore horizontal padding so text does not hug the container edge. Applies to every fix batch;
+  batches A–E predate the rule and receive a spacing/padding polish pass after the owner's round-I
+  review. The chosen values carry a doc comment saying why.
+- **Round-I review directions (owner, in chat, 2026-09-03):** the owner reviewed the batch A–D
+  before/after set and redirected six fixes; where these name a batch-B/C/D design they override it.
+  - *Home hero card (#1):* the card never exceeds 50 % of its parent container's height, and its
+    rendered bounds never touch a neighbouring card or the horizontal edges. Cover and title stay
+    side by side at every size; only the rating may drop to a line of its own. Growing the card to
+    hold the whole title (the batch-B tier table) is the wrong direction: the card is the budget,
+    and the title truncates at its tail inside it.
+  - *Archives (#20):* a footer pinned at accessibility sizes crowds the grid out; when space is
+    short the footer stops being fixed and scrolls with the content (P-11).
+  - *Torrents (#21):* the counter icon row wraps onto further lines; nothing in it may be
+    ellipsised or hidden.
+  - *Search root (#10, #34):* wrapped section titles and keyword rows are leading-aligned. Some
+    batch-1 composites paired captures of different page states; batch-2 pairing must match state
+    and position (a `mid` after-image is never paired with a `top` before-image).
+  - *Frontpage list row (#5/#6/#8/#9/#32):* more vertical spacing and horizontal padding at
+    accessibility sizes; the category badge's corners must stay rounded (a fixed radius on a badge
+    several times taller reads as square, so the radius scales with the text); the cover reads too
+    small beside the enlarged text, and fixed point sizes are the limitation: scale it with the
+    text and bound it by the container instead.
+  - *Detail header / tags (#13/#15):* the cover stacks above the title at accessibility sizes
+    instead of competing with it for width; a tag row's namespace chip is arranged vertically
+    above its children.
+  - *Activity logs (#25):* the category chip moves to a line separate from the timestamp when the
+    row has no width for both.
+- **Round-II review directions (owner, in chat, 2026-09-03, after batches G–J and F):**
+  - *Thumbnail grid (#12):* never a single column; two columns is the floor at every size.
+  - *Filters category cell (#29):* the cell was designed with rounded corners and still reads square
+    at accessibility sizes: its corner radius scales with the text, like the badge's.
+  - *Filters sheet evidence:* review captures must show the whole sheet (scrolled positions), not
+    only its top.
+  - *Reader control panel (#22):* the upper panel stays on one line at every size. As an explicit
+    exception to D-16's `no_dynamic_type_size_modifier`, the panel may cap its Dynamic Type size
+    (`.dynamicTypeSize(...)` upper bound) to lock the size at which the designed row still fits;
+    the lint rule is disabled for that one site with the owner's authorisation recorded in the doc
+    comment. The lower panel's page numbers are single-line.
+  - *Detail header actions:* the three glass action buttons grow with their symbols; a symbol must
+    never overflow its glass background.
+  - *List gallery cell in landscape, owner decision 2026-09-04:* the cover and the title stay on one
+    line whenever the row is wide enough, so the accessibility-size stack (cover above text) is now
+    gated on the row's own measured width, not on the type size alone. A portrait phone still stacks;
+    a landscape phone and an iPad, in either orientation, keep cover and title side by side at every
+    size. Width, not a device-orientation read, is the signal (consistent with the phase's geometry
+    approach), with the divide at 550 pt.
+  - *Navigation titles, owner decision 2026-09-03:* a screen **presented as a sheet** does not use
+    `.inlineLarge`; it uses a plain large title. `SettingView` is the only such site, and it is the
+    same view in both roles — a sheet on a regular-width iPad, a tab root elsewhere — so the mode is
+    read from the presentation context (`\.isPresented`) rather than fixed: the sheet takes the plain
+    large title the owner asked for, the tab root keeps the `.inlineLarge` it is designed around. The
+    four other tab roots are untouched, since they are never sheets. The change is applied through the
+    phase's title policy, so the large title still falls back to inline at accessibility sizes, which
+    is what stops it disappearing (finding #7). Every other sheet already renders a plain large title.
+    Fixing this in one direction only was tried first and rejected on evidence: a plain large title on
+    the iPhone tab root collapses as the list scrolls, which is the appearance `.inlineLarge` exists
+    to avoid, and the owner's instruction named sheets, not tab roots.
+  - *Detail title, owner decision 2026-09-03:* the same treatment as the thumbnail cell — **three
+    lines at every size** until the reader expands the title, then none. The designed folding is
+    restored and round-I's uncapped-above-`.large` policy is withdrawn: the cap carries its remedy
+    in the same place (the title is the button that expands it, at every size), while the uncapped
+    title filled the screen and pushed the uploader, category and actions off the header. Parity at
+    the default size is untouched, since three lines is what it always drew.
+  - *Thumbnail cell title (#12), owner decision 2026-09-03:* **five lines at every size**, with or
+    without a download badge. This **supersedes D-15 for this one property** — the designed budget
+    (3 lines, 2 with a badge) becomes 5 at the default size too — because the owner reads the old
+    cap as an oversight in a design that never met this case: a half-width column at an
+    accessibility size fits three or four characters to a line, so three lines name no gallery,
+    while an uncapped title runs one cell past a whole screen. A uniform budget repairs the design
+    rather than trading information away, and the tail is reached by opening the gallery, which is
+    what tapping the cell does. *This is not a general D-04 exemption* — it is one owner-decided
+    budget at one site; every other truncation still counts as a finding.
+  - *Detail stats strip (#14):* keep the horizontal `ScrollView`; do not stack the strip. A column
+    may grow up to 90 % of the container width and wrap inside that budget.
 - **D-02: Scanning protocol = record and move on.** The agent does not interrupt the sweep to
   raise each finding as it lands. It records the finding, continues to the next screen, and
   reports the complete list once every page has been scanned.

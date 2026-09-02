@@ -61,6 +61,7 @@ public struct ReadingSettingView: View {
 }
 
 private struct ScaleFactorRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding private var scaleFactor: Double
     private let labelContent: LocalizedStringResource
     private let minFactor: Double
@@ -78,20 +79,48 @@ private struct ScaleFactorRow: View {
 
     var body: some View {
         VStack {
-            HStack {
-                Text(labelContent)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack {
+                    Text(labelContent)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text(.Constant.scaleFactor(scaleFactor.roundedString())).foregroundStyle(.tint)
+                    Text(.Constant.scaleFactor(scaleFactor.roundedString()))
+                        .foregroundStyle(.tint)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            } else {
+                HStack {
+                    Text(labelContent)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(.Constant.scaleFactor(scaleFactor.roundedString())).foregroundStyle(.tint)
+                }
             }
-            Slider(
-                value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
-                minimumValueLabel: Text(.Constant.scaleFactor(minFactor.roundedString()))
-                    .fontWeight(.medium).font(.callout),
-                maximumValueLabel: Text(.Constant.scaleFactor(maxFactor.roundedString()))
-                    .fontWeight(.medium).font(.callout),
-                label: EmptyView.init
-            )
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack {
+                    Text(.Constant.scaleFactor(minFactor.roundedString()))
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Slider(value: $scaleFactor, in: minFactor...maxFactor, step: 0.5)
+                        .frame(maxWidth: .infinity)
+
+                    Text(.Constant.scaleFactor(maxFactor.roundedString()))
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            } else {
+                Slider(
+                    value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
+                    minimumValueLabel: Text(.Constant.scaleFactor(minFactor.roundedString()))
+                        .fontWeight(.medium).font(.callout),
+                    maximumValueLabel: Text(.Constant.scaleFactor(maxFactor.roundedString()))
+                        .fontWeight(.medium).font(.callout),
+                    label: EmptyView.init
+                )
+            }
         }
         .padding(.vertical, 10)
     }

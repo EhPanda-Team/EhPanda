@@ -138,8 +138,7 @@ private struct DownloadInspectorValidationActionLabel: View {
             ProgressView()
                 .controlSize(.small)
                 .animation(.default) {
-                    $0
-                        .opacity(isValidating ? 1 : 0)
+                    $0.visible(isValidating)
                         .transition(.opacity.combined(with: .scale(scale: 0.85)))
                 }
                 .frame(width: 20, height: 20)

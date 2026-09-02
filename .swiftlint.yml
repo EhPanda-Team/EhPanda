@@ -185,11 +185,27 @@ custom_rules:
     # `dynamicTypeSize.isAccessibilitySize` have no `(` after the name and stay legal (Phase 16 D-17).
     regex: '\.dynamicTypeSize\s*\('
     message: 'Capping or clamping Dynamic Type with .dynamicTypeSize(...) is banned (Phase 10 D-02). Read @Environment(\.dynamicTypeSize) and reflow instead.'
+    # Owner-approved toolbar parity is confined to the reader's lower controls.
+    # The companion rule below still rejects every other range in that file.
+    excluded:
+      - '.*/Sources/ReadingFeature/Support/ControlPanel\.swift$'
     excluded_match_kinds:
       - comment
       # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
       # rule config and fall back to defaults; a custom rule has no default, so it silently
       # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      - string
+    severity: error
+
+  reading_controls_dynamic_type_range:
+    name: "Reading Controls Dynamic Type Range"
+    included:
+      - '.*/Sources/ReadingFeature/Support/ControlPanel\.swift$'
+    regex: '\.dynamicTypeSize\s*\((?!DynamicTypeSize\.large\.\.\.DynamicTypeSize\.xxLarge\))'
+    message: 'Only the owner-approved native toolbar range .large ... .xxLarge is permitted for the lower reading controls.'
+    excluded_match_kinds:
+      - comment
       - doccomment
       - string
     severity: error

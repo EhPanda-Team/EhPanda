@@ -23,22 +23,22 @@ struct AppActivityLogsView: View {
         }
         .listStyle(.plain)
         .animation(.default) {
-            $0.opacity(store.displayedLogs.isEmpty ? 0 : 1)
+            $0.visible(!store.displayedLogs.isEmpty)
         }
         .overlay {
             LoadingView()
                 .animation(.default) {
-                    $0.opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
+                    $0.visible(store.loadingState == .loading && store.displayedLogs.isEmpty)
                 }
         }
         .overlay {
             Text(.appActivityLogsViewNoLogs)
                 .foregroundStyle(.secondary)
                 .animation(.default) {
-                    $0.opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
+                    $0.visible(store.loadingState != .loading && store.displayedLogs.isEmpty)
                 }
         }
-        .searchable(text: $keyword, placement: .navigationBarDrawer)
+        .accessibilitySearchableWorkaround(text: $keyword)
         .onSubmit(of: .search) {
             store.send(.queryLogs(keyword))
         }
@@ -49,7 +49,7 @@ struct AppActivityLogsView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(.appActivityLogsViewTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .accessibilityNavigationTitleWorkaround()
         .sheet(isPresented: $isRunPickerPresented) {
             RunPickerSheet(store: store) { isRunPickerPresented = false }
                 .privacyMask()
@@ -74,27 +74,35 @@ struct AppActivityLogsView: View {
         }
     }
 
+    /// The run selector is a native `Picker`, not a column of hand-drawn checkmark rows.
+    ///
+    /// A menu row that draws its own tick as a `Label`'s icon loses that icon once the text reaches
+    /// accessibility sizes: the row keeps its accessibility-tree selected trait, so the selection is
+    /// still *reported*, but nothing on screen distinguishes the selected run from the others
+    /// (Phase 16 finding #26). A `Picker` hands the selection state to the system, which draws it at
+    /// every Dynamic Type size, and the rows keep their real titles for VoiceOver.
+    ///
+    /// One picker per group, each sharing the single selection, exactly as the checkmark rows shared
+    /// `store.selectedRun`. A menu renders no heading for a picker — neither the picker's own label
+    /// nor the title of a `Section` wrapped around it, verified on device — so each picker's inline
+    /// group keeps the divider that separated the runs but the "Current" and per-day *captions* are
+    /// gone. That is the one thing this change costs at every size, and it costs nothing outright:
+    /// the day a run belongs to is still spelled out by the sectioned list behind **More Logs**,
+    /// which is the surface for browsing every run rather than the five most recent. The labels stay
+    /// on the pickers because they are what VoiceOver announces for the control.
     @ViewBuilder
     private var runMenu: some View {
-        Section(.appActivityLogsViewCurrent) {
-            RunButton(
-                run: store.currentRun,
-                isSelected: store.selectedRun == nil
-            ) {
-                store.send(.selectRun(nil))
-            }
+        runPicker(title: Text(.appActivityLogsViewCurrent)) {
+            Text(runLabel(store.currentRun))
+                .tag(URL?.none)
         }
 
         // Show the latest runs including the current one: current + 4 previous = 5 rows.
         ForEach(groupedRuns(Array(store.previousRuns.prefix(4))), id: \.day) { group in
-            Section(runDayFormatter.string(from: group.day)) {
+            runPicker(title: Text(runDayFormatter.string(from: group.day))) {
                 ForEach(group.runs) { run in
-                    RunButton(
-                        run: run,
-                        isSelected: store.selectedRun == run.url
-                    ) {
-                        store.send(.selectRun(run.url))
-                    }
+                    Text(runLabel(run))
+                        .tag(URL?.some(run.url))
                 }
             }
         }
@@ -106,6 +114,18 @@ struct AppActivityLogsView: View {
                 Label(.appActivityLogsViewMoreLogs, systemSymbol: .ellipsisCalendar)
             }
         }
+    }
+
+    private func runPicker<Content: View>(
+        title: Text,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        Picker(
+            selection: $store.selectedRun.sending(\.selectRun),
+            content: content,
+            label: { title }
+        )
+        .pickerStyle(.inline)
     }
 }
 
@@ -204,32 +224,68 @@ private let runTimeFormatter: DateFormatter = {
 
 // MARK: AppActivityLogRow
 private struct AppActivityLogRow: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let log: AppActivityLog
+
+    /// The subsystem chip keeps the designed single line at and below the default size, and none
+    /// above it: the timestamp it shares the line with already wraps freely, so the chip matches it.
+    ///
+    /// A badge budget of a few lines is the usual answer, and it is not enough here — the chip is
+    /// left roughly a third of an already narrow row, so at accessibility sizes three lines fit only
+    /// a dozen characters and `DownloadClient` still loses its tail (measured on device at AX3).
+    /// Two sources that share a prefix are told apart *only* by that tail. No budget is needed to
+    /// bound this text either: the value is `os.Logger`'s category, a short identifier fixed in
+    /// source, not something a gallery or a server can grow.
+    private var categoryLineLimit: Int? {
+        dynamicTypeSize <= .large ? 1 : nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Image(systemSymbol: .circleFill)
-                    .foregroundStyle(log.level.color)
-                    .font(.caption2)
-                Text(log.dateDescription)
-                if !log.category.isEmpty {
-                    Text(log.category)
-                        .foregroundStyle(.primary)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 4)
-                        .background(Color(.systemGray5))
-                        .clipShape(.rect(cornerRadius: 4))
-                        .bold()
-                        .lineLimit(1)
-                }
-            }
+            stampAndCategory
             Text(log.message)
                 .lineLimit(30)
         }
         .font(.caption.monospaced())
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// The chip drops to a line of its own as soon as it stops fitting beside the timestamp, which
+    /// is where it used to be squeezed into the row's last third and wrap a character at a time
+    /// (Phase 16 finding #25). The timestamp and its level dot stay welded together in a nested
+    /// stack, because the dot marks *that* timestamp's severity and would read as a bullet for the
+    /// whole row if the split ever fell between them.
+    ///
+    /// This pair is a legitimate subject for `ViewThatFits`: neither member's ideal width is
+    /// open-ended — the timestamp is a fixed-format 18-character stamp and the category is
+    /// `os.Logger`'s, a short identifier fixed in source — so both candidates measure a real width
+    /// and the row keeps its designed single line for exactly as long as that line can hold both.
+    ///
+    /// Stacked, the chip keeps the row's own 4-point rhythm: the same gap the timestamp keeps from
+    /// the message beneath it, so the chip reads as the timestamp's second line rather than as a
+    /// third element of the row. The horizontal margins are the `List` row's own and are untouched
+    /// by the split, so neither line moves closer to the edge than the timestamp already sits.
+    private var stampAndCategory: some View {
+        AdaptiveStack(hSpacing: 4, hAlignment: .firstTextBaseline, vSpacing: 4, vAlignment: .leading) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Image(systemSymbol: .circleFill)
+                    .foregroundStyle(log.level.color)
+                    .font(.caption2)
+                Text(log.dateDescription)
+            }
+            if !log.category.isEmpty {
+                Text(log.category)
+                    .foregroundStyle(.primary)
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 4)
+                    .background(Color(.systemGray5))
+                    .clipShape(.rect(cornerRadius: 4))
+                    .bold()
+                    .lineLimit(categoryLineLimit)
+            }
+        }
     }
 }
 
@@ -262,4 +318,17 @@ private struct AppActivityLogRow: View {
             )
         )
     }
+}
+
+#Preview("Row at accessibility size") {
+    List {
+        AppActivityLogRow(
+            log: .init(
+                date: .now, category: "DownloadClient",
+                level: .notice, message: "Resumed 3 pending downloads."
+            )
+        )
+    }
+    .listStyle(.plain)
+    .environment(\.dynamicTypeSize, .accessibility3)
 }

@@ -58,7 +58,7 @@ struct DetailSearchView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     store.send(.filtersButtonTapped)

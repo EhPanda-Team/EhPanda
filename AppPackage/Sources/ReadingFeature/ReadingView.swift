@@ -79,58 +79,78 @@ public struct ReadingView: View {
     }
 
     public var body: some View {
-        changeTriggers(content: { content })
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("reading_view")
-            .sheet(
-                item: $store.scope(\.$destination, action: \.destination).readingSetting
-            ) { readingSettingStore in
-                NavigationStack {
-                    ReadingSettingView(store: readingSettingStore)
-                    .toolbar {
-                        if deviceClient.deviceType() != .pad && isLandscape {
-                            CustomToolbarItem(placement: .cancellationAction) {
-                                Button {
-                                    store.send(.destination(.dismiss))
-                                } label: {
-                                    Label(.close, systemSymbol: .chevronDown)
-                                }
+        NavigationStack {
+            changeTriggers(content: { content })
+                .toolbar(content: readingToolbar)
+                .toolbarTitleDisplayMode(.inline)
+                .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .navigationBar)
+                .toolbarBackground(.hidden, for: .navigationBar)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("reading_view")
+        .sheet(
+            item: $store.scope(\.$destination, action: \.destination).readingSetting
+        ) { readingSettingStore in
+            NavigationStack {
+                ReadingSettingView(store: readingSettingStore)
+                .toolbar {
+                    if deviceClient.deviceType() != .pad && isLandscape {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button {
+                                store.send(.destination(.dismiss))
+                            } label: {
+                                Label(.close, systemSymbol: .chevronDown)
                             }
                         }
                     }
                 }
+            }
+            .privacyMask()
+        }
+        .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
+            ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
                 .privacyMask()
-            }
-            .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
-                ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
-                    .privacyMask()
-            }
-            .toast($store.scope(\.$toast, action: \.toast))
+        }
+        .toast($store.scope(\.$toast, action: \.toast))
 
-            .animation(.linear(duration: 0.1), value: gestureHandler.offset)
-            .animation(.default, value: liveTextHandler.enablesLiveText)
-            .animation(.default, value: liveTextHandler.liveTextGroups)
-            .animation(.default, value: gestureHandler.scale)
-            .animation(.default, value: store.showsPanel)
-            .statusBarHidden(!store.showsPanel)
-            // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
-            // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
-            // repeating timer. Neither is reducer state, so no reducer action can stand in for this,
-            // and no value change marks the view's removal. Dropping it would leak an autoplay timer
-            // that keeps turning pages of a reader nobody is looking at.
-            // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
-            // presentation is torn down; a send from here would arrive after the destination is
-            // nil'd and be dropped. So only non-persistence teardown happens here.
-            // swiftlint:disable:next lifecycle_modifiers
-            .onDisappear {
-                liveTextHandler.cancelRequests()
-                setAutoPlayPolocy(.off)
-            }
+        .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+        .animation(.default, value: liveTextHandler.enablesLiveText)
+        .animation(.default, value: liveTextHandler.liveTextGroups)
+        .animation(.default, value: gestureHandler.scale)
+        .animation(.default, value: store.showsPanel)
+        .statusBarHidden(!store.showsPanel)
+        // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
+        // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
+        // repeating timer. Neither is reducer state, so no reducer action can stand in for this,
+        // and no value change marks the view's removal. Dropping it would leak an autoplay timer
+        // that keeps turning pages of a reader nobody is looking at.
+        // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
+        // presentation is torn down; a send from here would arrive after the destination is
+        // nil'd and be dropped. So only non-persistence teardown happens here.
+        // swiftlint:disable:next lifecycle_modifiers
+        .onDisappear {
+            liveTextHandler.cancelRequests()
+            setAutoPlayPolocy(.off)
+        }
+    }
+
+    private func readingToolbar() -> some ToolbarContent {
+        @Bindable var bindableLiveTextHandler = liveTextHandler
+        return ReadingToolbar(
+            setting: Binding($setting),
+            enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
+            autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
+            title: "\(max(Int(pageHandler.sliderValue), 1)) / \(store.gallery.pageCount)",
+            isLandscape: isLandscape,
+            dismissAction: { store.send(.onPerformDismiss) },
+            navigateSettingAction: { store.send(.presentReadingSetting) },
+            reloadAllImagesAction: { store.send(.reloadAllWebImages) },
+            retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) }
+        )
     }
 
     @ViewBuilder
     var content: some View {
-        @Bindable var bindableLiveTextHandler = liveTextHandler
         @Bindable var bindablePageHandler = pageHandler
 
         VStack {
@@ -171,17 +191,13 @@ public struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $bindablePageHandler.sliderValue, setting: Binding($setting),
-                enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
-                autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
+                sliderValue: $bindablePageHandler.sliderValue,
+                isReversed: setting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
-                navigateSettingAction: { store.send(.presentReadingSetting) },
-                reloadAllImagesAction: { store.send(.reloadAllWebImages) },
-                retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) },
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
@@ -285,7 +301,7 @@ public struct ReadingView: View {
             .onChange(of: store.showsSliderPreview) { _, newValue in
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
                 setAutoPlayPolocy(.off)
-            }
+        }
             // AutoPlay
             .onChange(of: store.destination != nil) { _, isPresented in
                 if isPresented {
@@ -374,7 +390,7 @@ extension ReadingView {
             // against the clamp for the rest of the interval.
             if target >= dataSource.count - 1 {
                 setAutoPlayPolocy(.off)
-            }
+        }
         })
     }
     private func tryScrollTo(id: Int) {

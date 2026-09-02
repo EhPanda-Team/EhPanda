@@ -83,7 +83,7 @@ public struct SearchRootView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
                     store.send(.filtersButtonTapped)
@@ -235,9 +235,11 @@ private struct HistoryGalleriesSection: View {
                             GalleryHistoryCell(gallery: gallery)
                                 .tint(.primary).multilineTextAlignment(.leading)
                         }
+                        .frame(maxHeight: .infinity, alignment: .top)
                     }
                     .withHorizontalSpacing()
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

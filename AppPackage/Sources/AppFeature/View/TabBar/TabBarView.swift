@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Dependencies
 import DetailFeature
-import DeviceClient
 import DownloadsFeature
 import FavoritesFeature
 import HomeFeature
@@ -15,7 +14,6 @@ import SwiftUI
 import SystemNotification
 
 struct TabBarView: View {
-    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.scenePhase) private var scenePhase
     @Bindable private var store: StoreOf<AppReducer>
 
@@ -24,18 +22,9 @@ struct TabBarView: View {
     }
 
     var body: some View {
-        TabView(
-            selection: .init(
-                get: { store.tabBarState.tabBarItemType },
-                set: { tab in
-                    if tab == .setting, deviceClient.deviceType() == .pad {
-                        store.send(.presentation(.presentSetting))
-                    } else {
-                        store.send(.tabBar(.setTabBarItemType(tab)))
-                    }
-                }
-            )
-        ) {
+        @Bindable var tabBarStore = store.scope(\.tabBarState, action: \.tabBar)
+
+        TabView(selection: $tabBarStore.tabBarItemType.sending(\.setTabBarItemType)) {
             ForEach(TabBarItemType.allCases) { type in
                 Group {
                     switch type {

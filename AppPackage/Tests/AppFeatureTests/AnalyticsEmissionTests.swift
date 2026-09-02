@@ -7,6 +7,7 @@ import ClipboardClient
 import ComposableArchitecture
 import CookieClient
 import CustomDump
+import DeviceClient
 import DownloadClient
 import Foundation
 import LogsClient
@@ -36,6 +37,9 @@ struct AnalyticsEmissionTests {
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
+        await store.receive(\.tabBar.selectSettingInline) {
+            $0.tabBarState.tabBarItemType = .setting
+        }
         await store.finish()
 
         expectNoDifference(recorded.value, [.tabOpened(.setting)])
@@ -49,6 +53,7 @@ struct AnalyticsEmissionTests {
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.tabBar(.setTabBarItemType(.setting)))
+        await store.receive(\.tabBar.selectSettingInline)
         await store.finish()
 
         expectNoDifference(recorded.value, [])
@@ -232,6 +237,7 @@ private extension AnalyticsEmissionTests {
                     $0.cookieClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
+                    $0.deviceClient = .noop
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop
                     $0.logsClient = .noop

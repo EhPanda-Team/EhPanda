@@ -35,11 +35,32 @@ extension View {
             self
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+            // A disclosure chevron restates the row's own affordance, so it is never announced —
+            // not even when drawn, which is why this is unconditional rather than a `visible(_:)`.
             Image(systemSymbol: .chevronRight)
                 .foregroundStyle(.secondary)
                 .imageScale(.small)
                 .opacity(isVisible ? 0.5 : 0)
+                .accessibilityHidden(true)
         }
+    }
+
+    /// Fades the view in or out, and takes it out of the accessibility tree while it is out.
+    ///
+    /// `opacity(0)` only stops a view being *drawn*. It stays in the layout — usually the whole
+    /// point, since the space it reserves is what holds the surrounding arrangement still — but it
+    /// also stays an accessibility element, so VoiceOver goes on reading a label for something
+    /// nobody can see and Voice Control still offers it a number. Visibility and accessibility have
+    /// to change together or they drift apart, which is why this pairs them once rather than
+    /// leaving `.opacity` and `.accessibilityHidden` to be written side by side at every call site.
+    ///
+    /// Use it wherever a view is hidden by fading rather than by leaving the hierarchy: a crossfade
+    /// between content and its empty state, an idle control against the spinner that replaces it, a
+    /// placeholder that exists only to reserve space. A view that is merely *dimmed* is still
+    /// visible and does not belong here.
+    public func visible(_ isVisible: Bool) -> some View {
+        opacity(isVisible ? 1 : 0)
+            .accessibilityHidden(!isVisible)
     }
 
     public func privacyMask() -> some View {

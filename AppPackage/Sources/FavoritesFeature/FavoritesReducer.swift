@@ -83,6 +83,7 @@ public struct FavoritesReducer: Sendable {
         case pushGalleryDetail(Gallery)
         case path(StackActionOf<GalleryPath>)
         case setFavoritesIndex(Int)
+        case selectSortOrder(FavoritesSortOrder?)
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
@@ -171,7 +172,13 @@ public struct FavoritesReducer: Sendable {
             case .path:
                 return .none
 
+            case .selectSortOrder(let order):
+                guard let order, order != state.sortOrder else { return .none }
+                // Selection reflects the server-confirmed order; failures keep the existing mark.
+                return .send(.fetchGalleries(sortOrder: order))
+
             case .setFavoritesIndex(let index):
+                guard index != state.favoritesIndex else { return .none }
                 state.favoritesIndex = index
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())

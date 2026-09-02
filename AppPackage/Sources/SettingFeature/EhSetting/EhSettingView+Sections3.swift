@@ -91,6 +91,7 @@ struct FilteredRemovalCountSection: View {
 
 // MARK: ExcludedLanguagesSection
 struct ExcludedLanguagesSection: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var ehSetting: EhSetting
 
     private let languages = Language.allExcludedCases.map(\.value)
@@ -115,34 +116,58 @@ struct ExcludedLanguagesSection: View {
         }
     }
 
+    /// The three-column radio matrix is kept verbatim at and below the default size and abandoned
+    /// above it (Phase 16 finding #27).
+    ///
+    /// The grid's whole meaning lives in its column headers: twenty-odd rows of identical circles
+    /// say nothing on their own. Those headers are three separate words centred over height-less
+    /// columns, and no arrangement of them survives accessibility widths — a quarter of the row goes
+    /// to the language name and each column gets a third of what is left, which is narrower than a
+    /// single scaled word. Wrapping them would only trade today's overlap for three columns of
+    /// stacked letters, and the circles they label would still be indistinguishable.
+    ///
+    /// So above the default size the matrix stops being a matrix. Each language becomes a block
+    /// headed by its own name, and its three exclusions become plain labelled switches underneath.
+    /// Every option then carries the word that names it instead of inheriting it from a column
+    /// position — which is also what VoiceOver gains, since the circles announce nothing but their
+    /// own symbol today.
     var body: some View {
         Section {
-            HStack {
-                // Blank corner above the language column; the hidden label names the column and
-                // supplies the row's line height (the category cells below are height-less Color.clear).
-                Text(.RLocalizable.language)
-                    .hidden()
-                    .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
-
-                ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in
-                    Color.clear
-                        .overlay {
-                            Text(category.value)
-                                .lineLimit(1)
-                                .font(.subheadline)
-                                .fixedSize()
-                        }
+            if dynamicTypeSize <= .large {
+                columnHeader
+                ForEach(rows.enumerated(), id: \.offset) { offset, row in
+                    ExcludeRow(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
                 }
-            }
-
-            ForEach(rows.enumerated(), id: \.offset) { offset, row in
-                ExcludeRow(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
+            } else {
+                ForEach(rows.enumerated(), id: \.offset) { offset, row in
+                    ExcludeLanguageBlock(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
+                }
             }
         } header: {
             Text.ehSettingBoldHeader(
                 .excludedLanguages,
                 description: .excludedLanguagesDescription
             )
+        }
+    }
+
+    private var columnHeader: some View {
+        HStack {
+            // Blank corner above the language column; the hidden label names the column and
+            // supplies the row's line height (the category cells below are height-less Color.clear).
+            Text(.RLocalizable.language)
+                .hidden()
+                .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
+
+            ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in
+                Color.clear
+                    .overlay {
+                        Text(category.value)
+                            .lineLimit(1)
+                            .font(.subheadline)
+                            .fixedSize()
+                    }
+            }
         }
     }
 }
@@ -160,7 +185,15 @@ struct ExcludeRow: View {
                 .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
 
             ForEach(bindings.enumerated(), id: \.offset) { offset, binding in
-                ExcludeToggle(isOn: binding).opacity(isFirstRow && offset == 0 ? 0 : 1)
+                if isFirstRow && offset == 0 {
+                    // The first row has no `original` variant, but its slot has to stay so the rows
+                    // below line up under it. An inert placeholder rather than the toggle drawn at
+                    // zero opacity: an invisible control is still tappable and still an
+                    // accessibility element, so it would offer to flip a binding that has no cell.
+                    Color.clear
+                } else {
+                    ExcludeToggle(isOn: binding)
+                }
             }
         }
     }
@@ -179,6 +212,64 @@ struct ExcludeToggle: View {
             }
             .onTapGesture {
                 withAnimation { isOn.toggle() }
+                hapticsClient.generateFeedback(.soft)
+            }
+    }
+}
+
+/// One language's exclusions as a self-contained block, for the sizes at which the grid is dropped.
+/// See ``EhSettingView/ExcludedLanguagesSection``.
+///
+/// `bindings` arrives in column order, so a cell's offset *is* its `ExcludedLanguagesCategory` raw
+/// value — including on the first row, whose placeholder occupies the `original` slot the grid draws
+/// at zero opacity. Here there are no columns to keep aligned, so that cell is simply not built
+/// rather than drawn invisibly.
+///
+/// Spacing is chosen for a block that is now a heading over three controls rather than a row of
+/// circles: 16 points sets the language name off from the options it governs, 12 points separates
+/// the options from each other, and 6 points of vertical padding widens the gap the `List`
+/// separator already puts between one language and the next. The horizontal margins are the form
+/// row's own and are untouched, so no label sits closer to the edge than the grid's did.
+struct ExcludeLanguageBlock: View {
+    let title: LocalizedStringResource
+    let bindings: [Binding<Bool>]
+    let isFirstRow: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(title)
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .leading, spacing: 12) {
+                ForEach(bindings.enumerated(), id: \.offset) { offset, binding in
+                    if !(isFirstRow && offset == 0),
+                       let category = EhSetting.ExcludedLanguagesCategory(rawValue: offset) {
+                        ExcludeLanguageToggle(category: category, isOn: binding)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+/// A single exclusion, named by its category so its meaning never depends on a column position.
+///
+/// The switch stands in for the grid's tap target and fires the same soft feedback, so flipping an
+/// exclusion feels the same at every size; the system control brings the label, the on/off value
+/// and the hit target that the bare `Image` never had. The feedback hangs off the value rather than
+/// off a wrapped binding because the exclusion is only ever flipped from this switch — the settings
+/// payload is fetched once per profile and never toggles a language behind the user's back.
+struct ExcludeLanguageToggle: View {
+    @Dependency(\.hapticsClient) private var hapticsClient
+    let category: EhSetting.ExcludedLanguagesCategory
+    @Binding var isOn: Bool
+
+    var body: some View {
+        AppToggle(category.value, isOn: $isOn)
+            .onChange(of: isOn) {
                 hapticsClient.generateFeedback(.soft)
             }
     }
@@ -249,7 +340,7 @@ struct GalleryCommentsSection: View {
                         .tag(order)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
 
             Picker(
                 .commentsVotesShowTiming,
@@ -260,7 +351,7 @@ struct GalleryCommentsSection: View {
                         .tag(timing)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text(.galleryComments)
                 .ehSettingRegularHeaderStyled()
@@ -280,7 +371,7 @@ struct GalleryTagsSection: View {
                         .tag(order)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text(.galleryTags)
                 .ehSettingRegularHeaderStyled()
@@ -303,7 +394,7 @@ struct GalleryPageThumbnailLabelingSection: View {
                         .tag(behavior)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text(.galleryPageThumbnailLabeling)
                 .ehSettingRegularHeaderStyled()
@@ -334,7 +425,7 @@ struct MultiplePageViewerSection: View {
                             .tag(style)
                     }
                 }
-                .pickerStyle(.menu)
+                .ehSettingPickerStyled()
 
                 AppToggle(
                     .showThumbnailPane,
@@ -360,4 +451,37 @@ extension String {
         }
         return count
     }
+}
+
+// A couple of exclusions are switched on so both states of a cell are visible in either layout:
+// index 0 is Japanese › translated (the first row has no `original` cell) and index 3 is
+// English › translated.
+private var excludedLanguagesPreviewSetting: EhSetting {
+    var setting = EhSetting.empty
+    setting.excludedLanguages = setting.excludedLanguages.enumerated().map { offset, isExcluded in
+        offset == 0 || offset == 3 || isExcluded
+    }
+    return setting
+}
+
+#Preview("Excluded languages, default size") {
+    @Previewable @State var ehSetting = excludedLanguagesPreviewSetting
+
+    NavigationStack {
+        Form {
+            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting)
+        }
+    }
+    .environment(\.dynamicTypeSize, .large)
+}
+
+#Preview("Excluded languages, AX3") {
+    @Previewable @State var ehSetting = excludedLanguagesPreviewSetting
+
+    NavigationStack {
+        Form {
+            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting)
+        }
+    }
+    .environment(\.dynamicTypeSize, .accessibility3)
 }
