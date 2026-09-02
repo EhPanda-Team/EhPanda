@@ -154,14 +154,14 @@ private extension DetailView {
             .padding(.top, 25)
         }
         .animation(.default) {
-            $0.opacity(store.galleryDetail == nil ? 0 : 1)
+            $0.visible(store.galleryDetail != nil)
         }
         .overlay {
             LoadingView()
                 .animation(.default) {
-                    $0.opacity(
+                    $0.visible(
                         store.galleryDetail == nil
-                            && store.loadingState == .loading ? 1 : 0
+                            && store.loadingState == .loading
                     )
                 }
         }
@@ -170,7 +170,7 @@ private extension DetailView {
             let retryAction: () -> Void = { store.send(.fetchGalleryDetail) }
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
                 .animation(.default) {
-                    $0.opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
+                    $0.visible(store.galleryDetail == nil && error != nil)
                 }
         }
         .accessibilityIdentifier("detail_view")

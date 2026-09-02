@@ -668,6 +668,7 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture)
         ],
+        resources: [.process(.resources)],
         plugins: swiftLintPlugins
     ),
     .target(

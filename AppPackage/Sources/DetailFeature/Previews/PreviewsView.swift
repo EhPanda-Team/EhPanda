@@ -24,7 +24,8 @@ struct PreviewsView: View {
                     regular: horizontalSizeClass == .regular
                 )
             ),
-            spacing: 10
+            spacing: 10,
+            alignment: .bottom
         )]
     }
 

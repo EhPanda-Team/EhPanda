@@ -8,6 +8,7 @@ import SwiftUI
 
 public struct QuickSearchView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable private var store: StoreOf<QuickSearchReducer>
     private let searchAction: (String) -> Void
 
@@ -18,67 +19,101 @@ public struct QuickSearchView: View {
         self.searchAction = searchAction
     }
 
+    /// A saved word's name is user-authored, so above the default size it carries no cap and wraps;
+    /// at and below it the designed single line is kept. Edit mode is where the cap bit first — the
+    /// reorder and delete controls take the width the name was living on — and the row's two
+    /// members are already stacked, so lifting the cap is all the reflow either mode needs.
+    private var nameLineLimit: Int? {
+        dynamicTypeSize <= .large ? 1 : nil
+    }
+
+    /// The search text is the word: it is what tapping the row runs, so above the default size it
+    /// keeps every character instead of losing the tail of a long query. At and below the default
+    /// size the designed two-line budget is kept verbatim.
+    private var contentLineLimit: Int? {
+        dynamicTypeSize <= .large ? 2 : nil
+    }
+
     public var body: some View {
         NavigationStack {
-            List {
-                // A leading list section, rather than a pinned top banner, keeps the navigation
-                // title intact: the word list is capped and the add button disables at the limit.
-                ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
-
-                ForEach(store.quickSearchWords) { word in
-                    Button {
-                        // Record the word-usage signal at the reducer seam, then run the host's search
-                        // callback exactly as before — the callback and its argument are unchanged.
-                        store.send(.wordTapped)
-                        searchAction(word.effectiveSearchText)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 5) {
-                            if !word.name.isEmpty, !word.content.isEmpty {
-                                Text(word.name)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
+            Group {
+                if store.quickSearchWords.isEmpty {
+                    ViewThatFits(in: .vertical) {
+                        VStack(spacing: 0) {
+                            ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                            ErrorView(error: .notFound)
+                                .frame(maxWidth: .infinity)
+                        }
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding()
+                                ErrorView(error: .notFound)
+                                    .frame(maxWidth: .infinity)
                             }
-                            Text(word.effectiveSearchText)
-                                .fontWeight(.medium)
-                                .font(.title3)
-                                .lineLimit(2)
                         }
-                        .tint(.primary)
+                        .scrollBounceBehavior(.basedOnSize)
                     }
-                    .swipeActions(edge: .trailing) {
-                        Button {
-                            store.send(.deleteWordButtonTapped(word))
-                        } label: {
-                            Label(.RLocalizable.delete, systemSymbol: .trash)
-                                .labelStyle(.iconOnly)
-                        }
-                        .tint(.red)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                } else {
+                    List {
+                        // A leading list section, rather than a pinned top banner, keeps the navigation
+                        // title intact: the word list is capped and the add button disables at the limit.
+                        ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
 
-                        Button {
-                            store.send(.editWordButtonTapped(word))
-                        } label: {
-                            Label(.editWord, systemSymbol: .squareAndPencil)
-                                .labelStyle(.iconOnly)
+                        ForEach(store.quickSearchWords) { word in
+                            Button {
+                                // Record the word-usage signal at the reducer seam, then run the host's search
+                                // callback exactly as before — the callback and its argument are unchanged.
+                                store.send(.wordTapped)
+                                searchAction(word.effectiveSearchText)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    if !word.name.isEmpty, !word.content.isEmpty {
+                                        Text(word.name)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(nameLineLimit)
+                                    }
+                                    Text(word.effectiveSearchText)
+                                        .fontWeight(.medium)
+                                        .font(.title3)
+                                        .lineLimit(contentLineLimit)
+                                }
+                                .tint(.primary)
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button {
+                                    store.send(.deleteWordButtonTapped(word))
+                                } label: {
+                                    Label(.RLocalizable.delete, systemSymbol: .trash)
+                                        .labelStyle(.iconOnly)
+                                }
+                                .tint(.red)
+
+                                Button {
+                                    store.send(.editWordButtonTapped(word))
+                                } label: {
+                                    Label(.editWord, systemSymbol: .squareAndPencil)
+                                        .labelStyle(.iconOnly)
+                                }
+                            }
+                            .withArrow(isVisible: !store.isListEditing)
+                            .padding(5)
+                        }
+                        .onDelete { offsets in
+                            store.send(.deleteWordWithOffsets(offsets))
+                        }
+                        .onMove { source, destination in
+                            store.send(.moveWord(source: source, destination: destination))
                         }
                     }
-                    .withArrow(isVisible: !store.isListEditing)
-                    .padding(5)
-                }
-                .onDelete { offsets in
-                    store.send(.deleteWordWithOffsets(offsets))
-                }
-                .onMove { source, destination in
-                    store.send(.moveWord(source: source, destination: destination))
                 }
             }
             .animation(.default, value: store.quickSearchWords)
-            .overlay {
-                ErrorView(error: .notFound)
-                    .animation(.default) {
-                        $0.opacity(store.quickSearchWords.isEmpty ? 1 : 0)
-                    }
-            }
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
@@ -105,7 +140,7 @@ public struct QuickSearchView: View {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel, action: dismiss.callAsFunction)
             }
-            CustomToolbarItem {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     store.send(.newWordButtonTapped)
                 } label: {
@@ -176,7 +211,7 @@ extension QuickSearchView {
         }
 
         private func toolbar() -> some ToolbarContent {
-            CustomToolbarItem {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(role: .confirm, action: confirmAction)
             }
         }

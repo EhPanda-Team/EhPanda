@@ -29,66 +29,9 @@ where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
     }
 }
 
-private struct FlowLayout: Layout {
-    let spacing: Double
-
-    func sizeThatFits(
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) -> CGSize {
-        let frames = frames(
-            for: subviews,
-            maxWidth: proposal.width ?? .infinity
-        )
-        let size = frames.reduce(CGSize.zero) { size, frame in
-            CGSize(
-                width: max(size.width, frame.maxX),
-                height: max(size.height, frame.maxY)
-            )
-        }
-        return CGSize(width: proposal.width ?? size.width, height: size.height)
-    }
-
-    func placeSubviews(
-        in bounds: CGRect,
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) {
-        let frames = frames(for: subviews, maxWidth: bounds.width)
-        for (subview, frame) in zip(subviews, frames) {
-            subview.place(
-                at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
-                proposal: ProposedViewSize(frame.size)
-            )
-        }
-    }
-
-    private func frames(for subviews: Subviews, maxWidth: CGFloat) -> [CGRect] {
-        var frames = [CGRect]()
-        var origin = CGPoint.zero
-        var rowHeight = CGFloat.zero
-        let maxWidth = maxWidth.isFinite ? maxWidth : .greatestFiniteMagnitude
-        let spacing = CGFloat(spacing)
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if origin.x > 0, origin.x + size.width > maxWidth {
-                origin.x = 0
-                origin.y += rowHeight + spacing
-                rowHeight = 0
-            }
-
-            frames.append(CGRect(origin: origin, size: size))
-            origin.x += size.width + spacing
-            rowHeight = max(rowHeight, size.height)
-        }
-        return frames
-    }
-}
-
 public struct TagCloudCell: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private let text: String
     private let imageURL: URL?
     private let showsImages: Bool
@@ -110,6 +53,16 @@ public struct TagCloudCell: View {
         self.backgroundColor = backgroundColor
     }
 
+    /// A chip is a badge, not prose on a line of its own, so its text keeps a budget instead of
+    /// losing the cap outright: the designed single line at and below the default size, three lines
+    /// above it. A tag whose enlarged text no longer fits the cloud's width then wraps inside its
+    /// own background — the cloud's flow layout confines it to that width — instead of running past
+    /// the trailing edge, and three lines is enough for the longest tag at the largest size while
+    /// still bounding a chip's height.
+    private var textLineLimit: Int {
+        dynamicTypeSize <= .large ? 1 : 3
+    }
+
     public var body: some View {
         HStack(spacing: 2) {
             Text(showsImages ? text : text.emojisRipped)
@@ -119,7 +72,11 @@ public struct TagCloudCell: View {
             }
         }
         .font(font.bold())
-        .lineLimit(1)
+        .lineLimit(textLineLimit)
+        // A chip is usually a Button's label, and a Button centres the wrapped lines of its label;
+        // a tag that wraps inside its chip reads leading-aligned like every other wrapped text.
+        // Single lines, which are all there are at and below the default size, are unaffected.
+        .multilineTextAlignment(.leading)
         .foregroundStyle(textColor)
         .padding(padding)
         .background(backgroundColor)

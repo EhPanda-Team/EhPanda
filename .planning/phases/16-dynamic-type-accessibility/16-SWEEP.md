@@ -24,8 +24,8 @@ credential — D-09). Every sweep plan reads the values below and addresses the 
 | `IPAD_UDID` | `8250D97E-9AB0-42FD-99DB-07B0094BF8C7` — iPad Pro 11-inch (M5), iOS 26.5 | 16-03 |
 | `BUNDLE_ID` | `app.ehpanda.personal` — see "Why `app.ehpanda.personal`" below | 16-03 |
 | `IPHONE_LOGIN` | `present` — confirmed on `BUNDLE_ID` in 16-03 pre-flight (populated Favorites; nothing else read) | 16-03 |
-| `IPAD_LOGIN` | `none` — `BUNDLE_ID` on `IPAD_UDID` shows the login prompt on Favorites. iPad rows of login-gated screens (Favorites, Watched, Archives, Torrents, EhSetting, FolderManager, live Detail / Comments / Reading) are recorded `blocked: no iPad session` and surfaced in plan 16-10's report. If the owner logs in on the iPad before wave 6 (plan 16-07), amend this one row to `present` in a separate docs commit and the blocked rows go back to `pending` | 16-03 |
-| `SPARE_UDID` | `88B217DA-A166-4BAD-820D-DE13B1C4EB54` — iPhone 17e, iOS 26.4. **UI tests only**; never a sweep target, so the logged-in simulators are never a `xcodebuild test` destination | prefilled |
+| `IPAD_LOGIN` | `present` — the owner signed in on `IPAD_UDID` themselves and reported it in chat on 2026-09-03. The rows previously recorded `blocked: no iPad session` (iPad #5, #8, #13, #14–#27, #38) are unblocked and go back to `pending`; they are walked by the re-verification batch that follows this amendment. No credential was ever entered by an agent (D-09) | 16-03, amended 2026-09-03 |
+| `SPARE_UDID` | `E2BF974E-DE4D-4A67-B84A-90D41325C4A7` — iPhone 17e, iOS 26.4. **UI tests only**; never a sweep target, so the logged-in simulators are never a `xcodebuild test` destination | prefilled |
 | `EVIDENCE_ROOT` | `$HOME/Library/Caches/ehpanda-phase16/` | prefilled |
 
 Shell form, for pasting at the start of every sweep session (the same values as the table):
@@ -33,10 +33,10 @@ Shell form, for pasting at the start of every sweep session (the same values as 
 ```bash
 IPHONE_UDID=ADE09605-A44E-4F00-BE12-235970217355
 IPAD_UDID=8250D97E-9AB0-42FD-99DB-07B0094BF8C7
-SPARE_UDID=88B217DA-A166-4BAD-820D-DE13B1C4EB54
+SPARE_UDID=E2BF974E-DE4D-4A67-B84A-90D41325C4A7   # re-created 2026-09-03; the original 88B217DA… spare no longer exists
 BUNDLE_ID=app.ehpanda.personal
 IPHONE_LOGIN=present
-IPAD_LOGIN=none
+IPAD_LOGIN=present
 EVIDENCE_ROOT="$HOME/Library/Caches/ehpanda-phase16"
 ```
 
@@ -140,7 +140,7 @@ the `medium` baseline. Evidence under `$EVIDENCE_ROOT/preflight/`: `baseline-med
 | **A1: live re-layout confirmed.** | `xcrun simctl ui <IPHONE_UDID> content_size accessibility-extra-extra-extra-large` re-laid out the running app within two seconds with no relaunch — same process id before and after, the Home heading grew from 94×41 pt to accessibility size and the section titles wrapped ("Front page"). No sweep cell needs a relaunch after a size change. |
 | **A6: XXL = `extra-extra-extra-large` confirmed.** | Switching to `extra-extra-extra-large` rendered visibly smaller than AX5 and larger than the `medium` baseline (Home heading 94×41 → 105×46 pt; "Frontpage" 120×23 → 158×31 pt). This is iOS `xxxLarge`, slider 7, and is the token every XXL cell uses. |
 | **Login on `IPHONE_UDID`.** | `present` — Favorites shows a populated list on `BUNDLE_ID`. Nothing else was read. |
-| **Login on `IPAD_UDID`.** | `none` — see the `IPAD_LOGIN` row. |
+| **Login on `IPAD_UDID`.** | `present` — owner-created session, 2026-09-03; see the `IPAD_LOGIN` row. |
 | **Restore.** | `content_size medium`; appearance, Increase Contrast and orientation were never changed. Read-back recorded in § Simulator baseline. |
 
 The pre-flight is not a matrix walk: what the AX5 and XXL shots show on Home is judged by plan
@@ -515,63 +515,63 @@ written description only — never a screenshot filename (D-32).
 | 1 | Tab bar shell | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Tab bar renders all five labels; floating bar overlays scrollable content only. |
 | 1 | Tab bar shell | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Tab bar labels unchanged. |
 | 1 | Tab bar shell | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Tab bar labels unchanged and all five items reachable. |
-| 2 | Home root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#1 | Hero-carousel title drops from four lines to three; the tail is ellipsised. Sections, ranking cells and tab bar fine. |
-| 2 | Home root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero title collapses to one ellipsised line; ranking cells lose both title tail and uploader. |
-| 2 | Home root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #2, #3 | Hero title down to one clipped word, the neighbouring card is drawn over its title and rating, ranking cells heavily truncated. |
-| 2 | Home root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Wider card absorbs the growth — hero title, ranking titles and uploaders all read in full. |
-| 2 | Home root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero title reduced to one ellipsised line; ranking uploader ellipsised. |
-| 2 | Home root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #3 | Hero title ellipsised after three words; ranking cell title and uploader both truncated. |
-| 3 | Home › Frontpage | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#4, #5 | Long row titles lose their tail at the third line; the filter field's capsule rendered with no icon and no placeholder on this screen. |
-| 3 | Home › Frontpage | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; titles truncated; language, page count and date cut off by the screen's right edge. |
-| 3 | Home › Frontpage | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title not rendered at all; filter capsule empty; page count gone, date and language cut; cover thumbnail squeezed to a sliver. |
-| 3 | Home › Frontpage | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every value in the rows walked reads in full, filter field included. |
-| 3 | Home › Frontpage | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
-| 3 | Home › Frontpage | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values read in full. |
-| 4 | Home › Popular | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | A long row title is ellipsised at the third line; filter field, uploader, stats and date all read in full. |
-| 4 | Home › Popular | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; titles truncated; language, page count and date cut at the right edge. |
-| 4 | Home › Popular | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; title runs off the right edge un-ellipsised; page count lost; cover a sliver. |
+| 2 | Home root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#1 | Hero-carousel title drops from four lines to three; the tail is ellipsised. Sections, ranking cells and tab bar fine. Re-verify (batch 1): the card now steps its height with the type size, but a long hero title still ends in an ellipsis. Ranking rows, sections and the neighbouring card all read in full. Re-verify (batch 2): the card is 336 x 243 pt (34% of the 708 pt scroll container), cover and title side by side with the rating still under the title, title complete. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): unchanged at XXL — the rating is still inside the text column at body size, measured at x 195.7..338.0 pt, y 335.7..359.3 pt, and the card is 42.0..377.7 pt, exactly its slot. |
+| 2 | Home root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#1 | Hero title collapses to one ellipsised line; ranking cells lose both title tail and uploader. Re-verify (batch 1): the card stacks its cover above the text and the ranking rows keep title and uploader, but the hero title is still ellipsised. Re-verify (batch 2): the card is 336 x 354 pt — exactly half the 708 pt scroll container — the rating has moved to its own full-width row under cover and title, and the title truncates at its tail with an ellipsis. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): once the rating drops to its own row the five symbols take `.caption2`, and the card's rendered bounds now equal its layout slot exactly — measured 42.0..377.7 pt (336.0 pt) in portrait, 145.7..766.3 pt (621.0 pt) in landscape — with the designed 20 pt gap to each peeking neighbour restored. The rating row measures 64.3..245.0 pt, 30.0 pt tall, well inside the card's 62.0..357.7 pt content box. |
+| 2 | Home root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Hero title down to one clipped word, the neighbouring card is drawn over its title and rating, ranking cells heavily truncated. Re-verify (batch 1): the hero title reads to its last word over seven lines, no neighbouring card is drawn over it, and the ranking rows are complete. Re-verify (batch 2): the card is capped at the same 354 pt (half the container) but renders 381.7 pt wide inside its 336 pt slot, so it overlaps both peeking neighbours by ~23 pt; the rating symbols themselves are not clipped, the title ellipsises at its tail. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): once the rating drops to its own row the five symbols take `.caption2`, and the card's rendered bounds now equal its layout slot exactly — measured 42.0..377.7 pt (336.0 pt) in portrait, 145.7..766.3 pt (621.0 pt) in landscape — with the designed 20 pt gap to each peeking neighbour restored. This is the cell the round-II residue was raised on: the rating row measured 44.7..400.7 pt then, 23.0 pt past the card's trailing edge and 2.7 pt into the neighbour's slot, and now measures 66.0..314.3 pt, 41.3 pt tall, inside the card at both ends. **Re-verify (batch 5b, `d6694e0d`):** the Home tab root's title, briefly `.large` in `e8fd65c4`, is reverted to `.inlineLarge`; at AX5 it draws a persistent large leading title (`Home` 105x46), matching the batch-4 layout — the revert is a no-op. The hero card and rows below were not re-judged in this batch. |
+| 2 | Home root | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#1 | Wider card absorbs the growth — hero title, ranking titles and uploaders all read in full. Re-verify (batch 1): a long hero title now ends in an ellipsis where round 1 recorded none — the card's shorter landscape height is the binding budget (the carousel is showing different galleries than in round 1). Ranking and list rows read in full. Re-verify (batch 2): the card is 621 x 139 pt, exactly its slot width, cover and title side by side, rating under the title, title complete. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): unchanged at XXL — the rating is still inside the text column at body size and the card is 145.7..766.3 pt, exactly its 621 pt slot. |
+| 2 | Home root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#1 | Hero title reduced to one ellipsised line; ranking uploader ellipsised. Re-verify (batch 1): the hero title is still ellipsised; the ranking cell's title and uploader now read in full. Re-verify (batch 2): the card is 621 x 150 pt, rating on its own row, cover shrunk along its 8/11 aspect to about 49 x 67 pt, title ellipsised at its tail. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): once the rating drops to its own row the five symbols take `.caption2`, and the card's rendered bounds now equal its layout slot exactly — measured 42.0..377.7 pt (336.0 pt) in portrait, 145.7..766.3 pt (621.0 pt) in landscape — with the designed 20 pt gap to each peeking neighbour restored. The rating row measures 168.7..349.0 pt, inside the card. |
+| 2 | Home root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#1 | Hero title ellipsised after three words; ranking cell title and uploader both truncated. Re-verify (batch 1): the hero title is ellipsised after five lines; ranking cell title and uploader are complete. Re-verify (batch 2): the card is 621 x 180 pt, still exactly its slot width with 20 pt gaps to both neighbours, rating row complete and unclipped, cover down to about 45 x 62 pt. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. Re-verify (batch 2b, `eb38acc4`): once the rating drops to its own row the five symbols take `.caption2`, and the card's rendered bounds now equal its layout slot exactly — measured 42.0..377.7 pt (336.0 pt) in portrait, 145.7..766.3 pt (621.0 pt) in landscape — with the designed 20 pt gap to each peeking neighbour restored. The rating row measures 169.7..418.0 pt, inside the card; the card is 165 pt tall, 15 pt shorter than in round II because the symbols no longer take the body size. |
+| 3 | Home › Frontpage | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#4 | Long row titles lose their tail at the third line; the filter field's capsule rendered with no icon and no placeholder on this screen. Re-verify (batch 1): row titles wrap to their last word and every trailing value reads in full. The empty filter capsule (#4) belongs to a later batch and was not re-checked. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. Re-verify (batch 3, `0dde25eb`+`72234cbc`+`7645e10c`, Display Mode = Thumbnail): two columns (182/183 pt cells; the right column ends at x 400 of a 420 pt screen), titles read to their last word, badges whole, page count and the whole five-star row drawn. The large title and the filter capsule are both intact at this size. **Re-verify (batch 4, `cbab163b`+`e30ddba0`, Display Mode = Thumbnail):** the 2-column floor confirmed again — no cell background crosses into its neighbour or off-screen. The five-symbol star row is drawn (the column is wide enough). |
+| 3 | Home › Frontpage | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter capsule empty; titles truncated; language, page count and date cut off by the screen's right edge. Re-verify (batch 1): the row stacks — title, uploader, language, rating, page count, badge and date are all complete. Filter capsule (#4) not re-checked. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Frontpage`, 161,77 99x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. Re-verify (batch 3, `0dde25eb`+`72234cbc`+`7645e10c`, Display Mode = Thumbnail): the masonry drops to one full-width column (380 pt) at the accessibility floor, so the cell's title reads to its last word over four lines and the page count and five-star row are complete on screen. **Re-verify (batch 4, `cbab163b`+`e30ddba0`, Display Mode = Thumbnail):** the 2-column floor confirmed again — no cell background crosses into its neighbour or off-screen. The star row falls back to a single symbol plus its numeral in the half-width column. |
+| 3 | Home › Frontpage | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #7 | Screen title not rendered at all; filter capsule empty; page count gone, date and language cut; cover thumbnail squeezed to a sliver. Re-verify (batch 1): the row reflows fully: cover at intrinsic size, title over four lines, uploader, rating, page count, badge and timestamp all complete. Filter capsule and navigation large title (#4, #7) not re-checked. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Frontpage`, 161,77 99x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. Re-verify (batch 3, `0dde25eb`+`72234cbc`+`7645e10c`, Display Mode = Thumbnail): one full-width column; the category badge reads in full in the cover's corner (round 1: `Douji…`), the title reads to its last word, and the star row is no longer clipped by the screen edge. **Re-verify (batch 4, `cbab163b`+`e30ddba0`, Display Mode = Thumbnail):** the 2-column floor confirmed again — no cell background crosses into its neighbour or off-screen. The star row falls back to a single symbol plus its numeral in the half-width column. **Re-verify (batch 6, `100f19fb`, Display Mode = Detail):** the same cell in portrait still stacks (380 x 793 pt), which is the narrow case the width gate is meant to keep — the arrangement flips on width exactly where designed. |
+| 3 | Home › Frontpage | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every value in the rows walked reads in full, filter field included. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 3 | Home › Frontpage | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 3 | Home › Frontpage | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | A long row title loses its tail at the third line; all other values read in full. Re-verify (batch 1): the long row title wraps to its last word; every other value reads in full. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. Re-verify (batch 3, `0dde25eb`+`72234cbc`+`7645e10c`, Display Mode = Thumbnail): one full-width column (744 pt) against three in round 1; title, page count, star row and badge all complete inside the screen. **Re-verify (batch 4, `cbab163b`+`e30ddba0`, Display Mode = Thumbnail):** the 2-column floor confirmed again — no cell background crosses into its neighbour or off-screen. The five-symbol star row is drawn (the column is wide enough). **Re-verify (batch 6, `100f19fb`, Display Mode = Detail):** answering the owner's direction that a landscape gallery cell keeps cover and title on one line, the accessibility-size stack is now gated on the row's measured width. The row measures 744 pt here — above the 550 pt divide — so cover and title share a line and the whole cell is 744 x 426 pt, with title, uploader, five-star rating, rounded badge and date all complete. |
+| 4 | Home › Popular | iPhone | portrait | XXL (extra-extra-extra-large) | pass | A long row title is ellipsised at the third line; filter field, uploader, stats and date all read in full. Re-verify (batch 1): the row title wraps in full; filter field, uploader, stats and date all read. |
+| 4 | Home › Popular | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter capsule empty; titles truncated; language, page count and date cut at the right edge. Re-verify (batch 1): title, language, page count and date are all complete. Filter capsule (#4) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Popular`, 173,77 74x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
+| 4 | Home › Popular | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #7 | Screen title absent; filter capsule empty; title runs off the right edge un-ellipsised; page count lost; cover a sliver. Re-verify (batch 1): the row stacks and keeps title, uploader, page count, badge and date, and the cover keeps its size. Filter capsule and large title (#4, #7) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Popular`, 173,77 74x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
 | 4 | Home › Popular | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All row values read in full. |
 | 4 | Home › Popular | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
 | 4 | Home › Popular | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title, uploader, language, page count and date all read in full in the rows walked. |
-| 5 | Home › Watched | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5, #9 | Session present, list shown. A long title loses its tail; a long uploader is ellipsised where a language value shares its line. |
-| 5 | Home › Watched | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; title truncated; language and page count cut at the right edge. |
-| 5 | Home › Watched | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; language and page count cut; cover thumbnail a sliver. |
-| 5 | Home › Watched | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The longest title in the list reads in full across two lines; all other values complete. |
-| 5 | Home › Watched | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#5 | The same title that read in full at XXL now ellipsises at the third line. |
-| 5 | Home › Watched | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | Title ellipsised at the third line; remaining values complete. |
-| 6 | Home › History | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | A long row title loses its tail; the footer note, filter field and all row values read in full. |
-| 6 | Home › History | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; title truncated; page count and date cut at the right edge. |
-| 6 | Home › History | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #8, #9 | Screen title absent; filter capsule empty and overlapping rows; title and date cut at the right edge; uploader ellipsised; cover a sliver. |
+| 5 | Home › Watched | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Session present, list shown. A long title loses its tail; a long uploader is ellipsised where a language value shares its line. Re-verify (batch 1): the long title reads to its last word and the uploader is no longer ellipsised beside the language value. |
+| 5 | Home › Watched | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter capsule empty; title truncated; language and page count cut at the right edge. Re-verify (batch 1): title, language and page count are all complete. Filter capsule (#4) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Watched`, 167,77 85x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
+| 5 | Home › Watched | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #7 | Screen title absent; filter capsule empty; language and page count cut; cover thumbnail a sliver. Re-verify (batch 1): the row stacks with the cover at full size; title, language and page count complete. Filter capsule and large title (#4, #7) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`Watched`, 167,77 85x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
+| 5 | Home › Watched | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The longest title in the list reads in full across two lines; all other values complete. Re-verify (batch 1): unchanged. |
+| 5 | Home › Watched | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The same title that read in full at XXL now ellipsises at the third line. Re-verify (batch 1): the title that ellipsised in round 1 now wraps to its last word. |
+| 5 | Home › Watched | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title ellipsised at the third line; remaining values complete. Re-verify (batch 1): the title is complete; every other row value reads in full. |
+| 6 | Home › History | iPhone | portrait | XXL (extra-extra-extra-large) | pass | A long row title loses its tail; the footer note, filter field and all row values read in full. Re-verify (batch 1): the long title wraps in full; footer note, filter field and all row values read. |
+| 6 | Home › History | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter capsule empty; title truncated; page count and date cut at the right edge. Re-verify (batch 1): title, page count and date are complete. Filter capsule (#4) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`History`, 175,77 70x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
+| 6 | Home › History | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | Screen title absent; filter capsule empty and overlapping rows; title and date cut at the right edge; uploader ellipsised; cover a sliver. Re-verify (batch 1): the row stacks — title, uploader and date complete and the cover keeps its size. Filter capsule (#4) not re-checked. Re-verify (batch 3, `27a360b1`): the navigation bar falls back to its inline title at the accessibility sizes, so the screen name is drawn again (`History`, 175,77 70x25 pt) and the pull-to-reveal filter capsule renders its magnifier and placeholder. The list rows below were not re-judged here. |
 | 6 | Home › History | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Footer note wraps; every row value reads in full. |
 | 6 | Home › History | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
 | 6 | Home › History | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Footer note wraps to two lines; row values read in full in the rows walked. |
-| 7 | Home › Toplists | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | Screen title and the type/jump-page controls read in full; a long row title loses its tail. |
-| 7 | Home › Toplists | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6, #7 | Screen title ellipsised; filter capsule empty; row title truncated; language, page count and date cut at the right edge. |
-| 7 | Home › Toplists | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #5, #6, #7, #8 | Screen title absent; filter capsule empty; page count lost; cover a sliver. Type menu itself renders all four options in full. |
+| 7 | Home › Toplists | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Screen title and the type/jump-page controls read in full; a long row title loses its tail. Re-verify (batch 1): screen title, the type/jump-page controls and the long row title all read in full. |
+| 7 | Home › Toplists | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #7 | Screen title ellipsised; filter capsule empty; row title truncated; language, page count and date cut at the right edge. Re-verify (batch 1): row title, language, page count and date are all complete. Screen title and filter capsule (#4, #7) not re-checked. Re-verify (batch 3, `27a360b1`): the filter capsule renders its magnifier and `Filter` placeholder again, and the title is drawn instead of missing — but it is now **ellipsised**: `Toplists - Yesterd…` in a 188 pt inline slot, against 157 pt complete when the same title collapses to inline at the default size. Still `open` on the title, fixed on the capsule. |
+| 7 | Home › Toplists | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #7 | Screen title absent; filter capsule empty; page count lost; cover a sliver. Type menu itself renders all four options in full. Re-verify (batch 1): the row stacks and keeps title, page count and badge with the cover at full size. Screen title and filter capsule (#4, #7) not re-checked. Re-verify (batch 3, `27a360b1`): the filter capsule renders its magnifier and `Filter` placeholder again, and the title is drawn instead of missing — but it is now **ellipsised**: `Toplists - Yesterd…` in a 188 pt inline slot, against 157 pt complete when the same title collapses to inline at the default size. Still `open` on the title, fixed on the capsule. |
 | 7 | Home › Toplists | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
 | 7 | Home › Toplists | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value in the rows walked. |
 | 7 | Home › Toplists | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Screen title, filter field and every row value read in full. |
-| 8 | Favorites root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | Session present, list shown. Long row titles lose their tail at the third line; index/sort/features glyphs, search field and all row values read in full. |
-| 8 | Favorites root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Titles truncated; page count and date cut at the screen's right edge. The tab-root search field still reads correctly. |
-| 8 | Favorites root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8 | Title cut mid-glyph at the right edge; page-count number lost; cover thumbnail squeezed to a sliver. Screen title and search field survive (tab root). |
-| 8 | Favorites root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row value reads in full in the rows walked. |
-| 8 | Favorites root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values complete. |
-| 8 | Favorites root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | A long row title loses its tail at the third line; all other values complete. |
-| 9 | Search root | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#10 | History keyword row and section headers fine; the Recently Seen cell's title is ellipsised. |
-| 9 | Search root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#10 | Recently Seen cell overflows its slot — the title is cut at both ends and the cover is pushed past the screen's left edge. |
-| 9 | Search root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Recently Seen cells overlap the section header and each other; titles cut at both edges; the section headings collapse to roughly one word per line. |
-| 9 | Search root | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#10 | Recently Seen cell titles ellipsised; keyword row and headers fine. |
-| 9 | Search root | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#10 | The search field overlaps the Recently Searched heading; Recently Seen cell titles cut. |
-| 9 | Search root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Recently Seen cells overlap each other and their covers; titles cut at both edges. |
-| 10 | Search results | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Screen title, row titles, uploader, language, page count and date all read in full. |
-| 10 | Search results | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #5, #6 | Filter capsule empty; a long title ellipsised; language, page count and date cut at the right edge. |
-| 10 | Search results | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #6, #7, #8 | Screen title not rendered; filter capsule empty; page count and date cut at the right edge; cover thumbnail squeezed away. |
+| 8 | Favorites root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Session present, list shown. Long row titles lose their tail at the third line; index/sort/features glyphs, search field and all row values read in full. Re-verify (batch 1): long row titles wrap to their last word; glyphs, search field and trailing values all read. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 8 | Favorites root | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Titles truncated; page count and date cut at the screen's right edge. The tab-root search field still reads correctly. Re-verify (batch 1): titles, page count and date are complete, and the tab-root search field still reads correctly. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 8 | Favorites root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Title cut mid-glyph at the right edge; page-count number lost; cover thumbnail squeezed to a sliver. Screen title and search field survive (tab root). Re-verify (batch 1): the row stacks — title complete, the page count keeps its number, and the cover keeps its size. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. **Re-verify (batch 5b, `d6694e0d`):** the Favorites tab root's title is reverted to `.inlineLarge` (from the brief `.large` in `e8fd65c4`); at AX5 it draws a persistent large leading title (`Favorites` 162x46) — the revert is a no-op. The list rows below were not re-judged in this batch. |
+| 8 | Favorites root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row value reads in full in the rows walked. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 8 | Favorites root | iPhone | landscape | AX3 (accessibility-extra-large) | pass | A long row title loses its tail at the third line; all other values complete. Re-verify (batch 1): the long row title wraps to its last word; all other values complete. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 8 | Favorites root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | A long row title loses its tail at the third line; all other values complete. Re-verify (batch 1): the long row title wraps to its last word; all other values complete. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 9 | Search root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | History keyword row and section headers fine; the Recently Seen cell's title is ellipsised. Re-verify (batch 1): the Recently Seen cell grows with the type — title, uploader and rating all read in full. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Recently Seen cell overflows its slot — the title is cut at both ends and the cover is pushed past the screen's left edge. Re-verify (batch 1): the cell grows instead of overflowing its slot; nothing overlaps the section heading. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#34 | Recently Seen cells overlap the section header and each other; titles cut at both edges; the section headings collapse to roughly one word per line. Re-verify (batch 1): the Recently Seen cells no longer overlap and their titles read in full, but the `Quick Search` section heading now breaks mid-word across four lines because the trailing Show All button keeps its share of the line — new finding #34. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. **Re-verify (batch 5b, `d6694e0d`):** the Search tab root's title is reverted to `.inlineLarge` (from the brief `.large` in `e8fd65c4`); at AX5 it draws a persistent large leading title (`Search` 124x46) — the revert is a no-op. The rows below were not re-judged in this batch. |
+| 9 | Search root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Recently Seen cell titles ellipsised; keyword row and headers fine. Re-verify (batch 1): Recently Seen titles read in full; keyword row and headings fine. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The search field overlaps the Recently Searched heading; Recently Seen cell titles cut. Re-verify (batch 1): the cells grow with the type; titles and uploaders read in full. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Recently Seen cells overlap each other and their covers; titles cut at both edges. Re-verify (batch 1): the cells grow and no longer overlap; titles and uploaders wrap in full, and the section heading stays on one line in landscape. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 10 | Search results | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Screen title, row titles, uploader, language, page count and date all read in full. Re-verify (batch 1): unchanged. |
+| 10 | Search results | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter capsule empty; a long title ellipsised; language, page count and date cut at the right edge. Re-verify (batch 1): title, language, page count and date are complete. Filter capsule (#4) not re-checked. Re-verify (batch 3, `4fbd0ae9`): the results screen takes the inline title at the accessibility sizes, so `Artbook` is drawn in the bar and the capsule shows the submitted query with its clear button. The list rows below were not re-judged here. |
+| 10 | Search results | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #7 | Screen title not rendered; filter capsule empty; page count and date cut at the right edge; cover thumbnail squeezed away. Re-verify (batch 1): the row stacks with the cover at full size and keeps page count and date. Filter capsule and large title (#4, #7) not re-checked. Re-verify (batch 3, `4fbd0ae9`): the results screen takes the inline title at the accessibility sizes, so `Artbook` is drawn in the bar and the capsule shows the submitted query with its clear button. The list rows below were not re-judged here. |
 | 10 | Search results | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All row values read in full. |
 | 10 | Search results | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
 | 10 | Search results | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | All row values read in full, including a long bracketed title over two lines. |
 | 11 | Downloads root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Empty state, populated row, row context menu and swipe action all read in full, download badge included. Empty-state copy wraps and stays complete. |
 | 11 | Downloads root | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Row title ellipsised at the second line (download badge present); the badge's progress text and the date are cut at the screen's right edge. |
-| 11 | Downloads root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8, #11 | Title cut mid-glyph; badge progress reduced to one digit; date cut; cover thumbnail gone; the delete confirmation's message is cut off mid-sentence. Row context menu and empty state remain complete. |
+| 11 | Downloads root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8, #11 | Title cut mid-glyph; badge progress reduced to one digit; date cut; cover thumbnail gone; the delete confirmation's message is cut off mid-sentence. Row context menu and empty state remain complete. **Re-verify (batch 5b, `d6694e0d`):** the Downloads tab root's title is reverted to `.inlineLarge` (from the brief `.large` in `e8fd65c4`); at AX5 it draws a persistent large leading title (`Downloads` 198x46) — the revert is a no-op. This batch re-walked only the title; the row findings above are unchanged. |
 | 11 | Downloads root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Row title, uploader, badge, category and date all read in full. |
 | 11 | Downloads root | iPhone | landscape | AX3 (accessibility-extra-large) | pass | All row values read in full. |
 | 11 | Downloads root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title over two lines, badge `14/14` and the full timestamp all read in full. |
@@ -592,60 +592,60 @@ written description only — never a screenshot filename (D-32).
 
 | # | Screen | Device | Orientation | Size | Status | Finding |
 |---|---|---|---|---|---|---|
-| 14 | Gallery Detail | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#13, #14, #16 | Header title ellipsised where it read to its last word at `.large`; stats-strip column labels all abbreviated ("FAVORI…", "196 RAT…") and the rating star row clipped at both ends; comment-cell author ellipsised. Tag cloud, previews strip and uploader still read in full. |
-| 14 | Gallery Detail | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#13, #14, #15, #16, #17 | Title and uploader both ellipsised; every stats column loses its label AND its value (1133 → "11…", 4.50 → "4.…"); the longest tag runs off the right edge cut mid-word; comment author and date both ellipsised. |
-| 14 | Gallery Detail | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#13, #14, #15, #16, #17 | Stats columns down to two characters each ("FA…", "1…", "Ti…") with the star row reduced to one clipped star; two tags cut at the right edge; comment author "Baro…" and date "2026…" — the timestamp loses even its year. |
-| 14 | Gallery Detail | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#16 | Title, uploader, category, all five stats columns and the whole tag cloud read in full; only the comment cell degrades — author ellipsised and the second cell's date loses its time. |
-| 14 | Gallery Detail | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#14, #16 | Stats-strip column labels ellipsised and the star row clipped at both ends, though every value survives; comment authors and dates ellipsised. Title, uploader and tag cloud read in full. |
-| 14 | Gallery Detail | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#14, #16, #17 | Stats labels down to four characters and the star row shows three stars for a 4.50 rating; comment card bodies now ellipsised where they read in full at `.large`. Title, uploader and tag cloud still complete. |
+| 14 | Gallery Detail | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Header title ellipsised where it read to its last word at `.large`; stats-strip column labels all abbreviated ("FAVORI…", "196 RAT…") and the rating star row clipped at both ends; comment-cell author ellipsised. Tag cloud, previews strip and uploader still read in full. Re-verify (batch 1): header title and uploader read in full, the stats strip stacks each label above its value with every value complete, and the comment card keeps author, score and date. Re-verify (batch 2): the header keeps cover and title side by side, the category badge's corners scale with its text, the stats strip and the comment strip are unchanged from batch 1, and a tag row keeps its namespace chip beside its children. **Re-verify (batch 4, `919b90bb`+`391ce4ea`):** the three header glass action buttons (download/favorite/read) each scale with their symbol — none overflows its circle. The stats strip keeps its horizontal `ScrollView`: scrolling it reveals every column (Favorited, Language, Ratings, Page Count, File Size on this gallery), each label+value complete and the five-star row un-clipped, with no column spanning the full container width. **Re-verify (batch 5b, `881104c0`):** the header title folds at three lines again (with tap-to-expand); at XXL it is three lines ending in an ellipsis (`[ai gener…`), and the category badge and the three action buttons stay on screen beneath it. |
+| 14 | Gallery Detail | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Title and uploader both ellipsised; every stats column loses its label AND its value (1133 → "11…", 4.50 → "4.…"); the longest tag runs off the right edge cut mid-word; comment author and date both ellipsised. Re-verify (batch 1): title, uploader and category badge complete; the stats columns stack and keep their values; long tags wrap inside their chips; the comment card's header reads in full. Re-verify (batch 2): the header cover stacks above the title (the cover itself stays at its designed 104 x 150 pt), the badge reads as rounded, a tag row puts its namespace chip on its own line above its children, and the Previews and Comments headings stack leading-aligned. Re-verify (batch 2b, `549c255d`): a tag that wraps inside its own chip is now leading-aligned — checked on 'needy streamer overload' and 'columbina hyposelenia', the same chips the round-II shot showed centre-aligned. Nothing else on the screen moves. **Re-verify (batch 4, `919b90bb`+`391ce4ea`):** the three header glass action buttons (download/favorite/read) each scale with their symbol — none overflows its circle. The stats strip keeps its horizontal `ScrollView`: scrolling it reveals every column (Favorited, Language, Ratings, Page Count, File Size on this gallery), each label+value complete and the five-star row un-clipped, with no column spanning the full container width. **Re-verify (batch 5b, `881104c0`):** the header title folds at three lines again (with tap-to-expand); at AX3 it is three lines ending in an ellipsis, and the category badge and the three action buttons stay on screen beneath it. |
+| 14 | Gallery Detail | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Stats columns down to two characters each ("FA…", "1…", "Ti…") with the star row reduced to one clipped star; two tags cut at the right edge; comment author "Baro…" and date "2026…" — the timestamp loses even its year. Re-verify (batch 1): title over three lines, uploader wrapped, badge complete; the stats strip puts one label-and-value pair per line; tags wrap inside their chips; the comment card header stacks and reads in full. Re-verify (batch 2): the header cover stacks above the title, the badge reads as rounded, the namespace chip sits on its own line above its children, and the Comments heading no longer breaks mid-word beside Show All. Re-verify (batch 2b, `549c255d`): wrapped chips are leading-aligned — checked on 'thigh high boots' and 'multimouth blowjob', both centre-aligned in round II, both flush left now. Single-line chips, which is all there is at and below the default size, are untouched. Re-verify (batch 3, `7645e10c`+`30e42c84`): the header's category badge carries no line cap of its own any more and `CategoryLabel` lets a name wrap above the default size. Checked on a nine-character category: the badge renders 238x63 pt with the name complete on one line, corners still rounded, title and uploader unchanged. **Re-verify (batch 4, `919b90bb`+`391ce4ea`):** the three header glass action buttons (download/favorite/read) each scale with their symbol — none overflows its circle. The stats strip keeps its horizontal `ScrollView`: scrolling it reveals every column (Favorited, Language, Ratings, Page Count, File Size on this gallery), each label+value complete and the five-star row un-clipped, with no column spanning the full container width. **Re-verify (batch 5b, `881104c0`):** the header title folds at three lines again; at AX5 it is three lines (frame 196 pt) ending in an ellipsis, and tapping the title expands it to the full text (326 pt). The category badge and the three action buttons stay on screen beneath it. |
+| 14 | Gallery Detail | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Title, uploader, category, all five stats columns and the whole tag cloud read in full; only the comment cell degrades — author ellipsised and the second cell's date loses its time. Re-verify (batch 1): the comment card's author, score and timestamp all read; stats columns and the tag cloud are complete. Re-verify (batch 2): the header keeps cover and title side by side, the category badge's corners scale with its text, the stats strip and the comment strip are unchanged from batch 1, and a tag row keeps its namespace chip beside its children. |
+| 14 | Gallery Detail | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Stats-strip column labels ellipsised and the star row clipped at both ends, though every value survives; comment authors and dates ellipsised. Title, uploader and tag cloud read in full. Re-verify (batch 1): the stats columns stack label above value and every value reads; the comment card header is complete. Re-verify (batch 2): the header cover stacks above the title (the cover itself stays at its designed 104 x 150 pt), the badge reads as rounded, a tag row puts its namespace chip on its own line above its children, and the Previews and Comments headings stack leading-aligned. |
+| 14 | Gallery Detail | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Stats labels down to four characters and the star row shows three stars for a 4.50 rating; comment card bodies now ellipsised where they read in full at `.large`. Title, uploader and tag cloud still complete. Re-verify (batch 1): the stats pairs stack and keep their labels; the comment card header reads in full and its body shows at least as much as at `.large`. Re-verify (batch 2): the header cover stacks above the title, the badge reads as rounded, the namespace chip sits on its own line above its children, and the Comments heading no longer breaks mid-word beside Show All. **Re-verify (batch 4, `919b90bb`+`391ce4ea`):** the three header glass action buttons (download/favorite/read) each scale with their symbol — none overflows its circle. The stats strip keeps its horizontal `ScrollView`: scrolling it reveals every column (Favorited, Language, Ratings, Page Count, File Size on this gallery), each label+value complete and the five-star row un-clipped, with no column spanning the full container width. **Re-verify (batch 5b, `881104c0`):** landscape AX5 keeps the full title in three lines (the wide layout fits it, so nothing is truncated); the three-line fold engages in portrait. |
 | 15 | Detail › Previews | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Grid stays three columns; every page number reads in full and the navigation title is complete. Walked to page 30. |
 | 15 | Detail › Previews | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Page numbers grow with the type size and the grid spaces itself to fit them; nothing clipped or ellipsised. |
 | 15 | Detail › Previews | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Page numbers render at full accessibility size beside their thumbnails, grid unchanged, navigation title complete. Walked past page 50. |
 | 15 | Detail › Previews | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Three-column grid, all page numbers and the navigation title read in full. |
 | 15 | Detail › Previews | iPhone | landscape | AX3 (accessibility-extra-large) | pass | No clipped or ellipsised value; the only text on the screen is the page number and it grows cleanly. |
 | 15 | Detail › Previews | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Page numbers reach accessibility size without colliding with their thumbnails; grid and navigation title intact. |
-| 16 | Detail › Comments | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#18 | Comment bodies wrap and read in full, but the scored rows' timestamps lose their minutes at the right edge of the header row. Authors still complete. |
-| 16 | Detail › Comments | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#18 | Every author is ellipsised ("Pecan…", "ezeq…") and every timestamp is cut back to its year ("2025/…"). Bodies and vote scores read in full. |
-| 16 | Detail › Comments | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#18 | Authors down to three or four characters ("Pec…", "eze…") and timestamps to "20…"; the header row keeps its single-line layout instead of stacking. Bodies wrap fully and the post-comment sheet (opened and cancelled, nothing posted) reads in full. |
-| 16 | Detail › Comments | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Author, vote score, full timestamp and body all read in full on every row walked. |
-| 16 | Detail › Comments | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Header rows still fit — author, score and the complete "YYYY/MM/DD, HH:MM" timestamp — and bodies wrap without loss. |
-| 16 | Detail › Comments | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#18 | Authors and bodies read in full, but the scored row's timestamp loses its minutes ("2025/04/20, 7:…"). |
+| 16 | Detail › Comments | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Comment bodies wrap and read in full, but the scored rows' timestamps lose their minutes at the right edge of the header row. Authors still complete. Re-verify (batch 1): author, vote score and the complete timestamp all read — the meta moves to its own line beneath the author. |
+| 16 | Detail › Comments | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Every author is ellipsised ("Pecan…", "ezeq…") and every timestamp is cut back to its year ("2025/…"). Bodies and vote scores read in full. Re-verify (batch 1): authors read in full and each timestamp keeps its date and time on the stacked meta line. |
+| 16 | Detail › Comments | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Authors down to three or four characters ("Pec…", "eze…") and timestamps to "20…"; the header row keeps its single-line layout instead of stacking. Bodies wrap fully and the post-comment sheet (opened and cancelled, nothing posted) reads in full. Re-verify (batch 1): authors and timestamps are complete on their own line; bodies wrap without loss. |
+| 16 | Detail › Comments | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Author, vote score, full timestamp and body all read in full on every row walked. Re-verify (batch 1): unchanged. |
+| 16 | Detail › Comments | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Header rows still fit — author, score and the complete "YYYY/MM/DD, HH:MM" timestamp — and bodies wrap without loss. Re-verify (batch 1): unchanged. |
+| 16 | Detail › Comments | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Authors and bodies read in full, but the scored row's timestamp loses its minutes ("2025/04/20, 7:…"). Re-verify (batch 1): the scored row's timestamp keeps its minutes; author and body are complete. |
 | 17 | Detail › Detail Search | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#5 | Reached by tapping a tag in the Detail tag cloud. Long row titles lose their tail at the third line; uploader, language, rating, page count, category badge and date all read in full, and the search term in the navigation bar is complete. |
 | 17 | Detail › Detail Search | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#5, #6 | Titles truncated; the row's right-hand column is cut by the screen edge — language loses its last letter, the page-count number loses digits and the date loses its time. |
 | 17 | Detail › Detail Search | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #6, #8, #9 | Titles run off the right edge cut mid-word with no ellipsis; uploader ellipsised beside the language value; page count reduced to its glyph; date cut after the month; cover thumbnail squeezed to a sliver. |
 | 17 | Detail › Detail Search | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row value reads in full in the rows walked, search term included. |
 | 17 | Detail › Detail Search | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Titles wrap to three complete lines; uploader, language, rating, page count, category and the full timestamp all read in full. |
 | 17 | Detail › Detail Search | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#5 | A long bracketed title loses its tail at the third line; every other row value, including the full timestamp, reads in full. |
-| 18 | Detail › Gallery Infos | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Reached through the trailing ellipsis item of the Detail stats strip. Every row reflows to a label-above-value layout when needed; title, all five URLs, uploader, timestamp and every count read in full. |
-| 18 | Detail › Gallery Infos | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#19 | The Archive URL and Torrent URL values are ellipsised at their third line, losing the token that is the whole point of the row; the remaining rows still read in full. |
-| 18 | Detail › Gallery Infos | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#19 | Title, Gallery URL, Archive URL, Torrent URL and Parent URL are all cut at the third line; the numeric rows and the uploader still read in full and the ID wraps rather than truncating. |
-| 18 | Detail › Gallery Infos | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row, URLs included, reads in full. |
-| 18 | Detail › Gallery Infos | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider line lets all five URLs finish inside three lines; nothing clipped. |
-| 18 | Detail › Gallery Infos | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title tail, all five URLs, uploader and every count read in full — the three-line cap is only reached in portrait. |
-| 19 | Detail › Archives sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Session present. Both archive cards keep their name, size and price inside the card; both funds values and the H@H action read in full. Nothing was purchased. |
-| 19 | Detail › Archives sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#20 | The first card's name is ellipsised ("Origin…") and its price line is pushed outside the card's border; both funds values lose most of their digits ("500,…", "7,1…"). |
-| 19 | Detail › Archives sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#20 | Card names down to "Orig…" / "128…" — the two resolutions are no longer distinguishable — sizes cut to "182.0…" without their unit, both texts drawn outside the card frame, and the funds values reduced to "50…" and "7,…". |
-| 19 | Detail › Archives sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Both cards, both funds values and the action button read in full. |
-| 19 | Detail › Archives sheet | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#20 | Both cards lose their size AND price lines entirely — only the resolution name survives — so the sheet no longer shows what an archive costs or how large it is. Funds values still read in full. |
-| 19 | Detail › Archives sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#20 | The cards are clipped to a sliver of their name, with the funds row drawn on top of them; the GP balance is ellipsised. Nothing was purchased. |
-| 20 | Detail › Torrents sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | All four meta values (seeders, leechers, downloads, file size), the torrent file name and the uploader-plus-timestamp line read in full. No torrent download was started. |
-| 20 | Detail › Torrents sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#21 | The four meta values are clipped by their fixed 44-point slots — the leechers "0" renders as a half glyph, the download count keeps only a fragment, and the file size is reduced to its first digit. The timestamp also loses its time. |
-| 20 | Detail › Torrents sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#21 | The four meta values are not rendered at all — only their glyphs remain, so seeders, leechers, downloads and file size are all invisible. The uploader and the timestamp are ellipsised to four characters each. |
-| 20 | Detail › Torrents sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Meta row, file name and the uploader-plus-timestamp line all read in full. |
-| 20 | Detail › Torrents sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider row keeps all four meta values, the whole file name over two lines and the full timestamp. |
-| 20 | Detail › Torrents sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Meta values, file name and timestamp all read in full; the sheet's own title is complete. |
-| 21 | Detail › Tag Detail sheet | iPhone | portrait | XXL (extra-extra-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 21 | Detail › Tag Detail sheet | iPhone | portrait | AX3 (accessibility-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 21 | Detail › Tag Detail sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 21 | Detail › Tag Detail sheet | iPhone | landscape | XXL (extra-extra-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 21 | Detail › Tag Detail sheet | iPhone | landscape | AX3 (accessibility-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 21 | Detail › Tag Detail sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: unreachable in an English session | The sheet's only entry point is the tag context menu, and that item is gated on the tag carrying a non-empty translated description. The sweep enabled the Tags Extension and Translate Tags, relaunched, and inspected the downloaded English translation cache: every one of its entries has an empty description field, so the gate can never open while the app runs in English. Both settings were switched back off afterwards. |
-| 22 | Detail › NewDawn sheet | iPhone | portrait | XXL (extra-extra-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
-| 22 | Detail › NewDawn sheet | iPhone | portrait | AX3 (accessibility-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
-| 22 | Detail › NewDawn sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
-| 22 | Detail › NewDawn sheet | iPhone | landscape | XXL (extra-extra-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
-| 22 | Detail › NewDawn sheet | iPhone | landscape | AX3 (accessibility-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
-| 22 | Detail › NewDawn sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: greeting not presented this session | The New Dawn greeting is server-issued once per day and cannot be summoned; it was not presented during this session, including across a full app relaunch. |
+| 18 | Detail › Gallery Infos | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Reached through the trailing ellipsis item of the Detail stats strip. Every row reflows to a label-above-value layout when needed; title, all five URLs, uploader, timestamp and every count read in full. Re-verify (batch 1): unchanged. |
+| 18 | Detail › Gallery Infos | iPhone | portrait | AX3 (accessibility-extra-large) | pass | The Archive URL and Torrent URL values are ellipsised at their third line, losing the token that is the whole point of the row; the remaining rows still read in full. Re-verify (batch 1): the three-line cap is lifted above the default size — every URL, title and identifier wraps in full. |
+| 18 | Detail › Gallery Infos | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Title, Gallery URL, Archive URL, Torrent URL and Parent URL are all cut at the third line; the numeric rows and the uploader still read in full and the ID wraps rather than truncating. Re-verify (batch 1): every value wraps in full; no URL, identifier or title row is ellipsised. |
+| 18 | Detail › Gallery Infos | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every row, URLs included, reads in full. Re-verify (batch 1): unchanged. |
+| 18 | Detail › Gallery Infos | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider line lets all five URLs finish inside three lines; nothing clipped. Re-verify (batch 1): unchanged. |
+| 18 | Detail › Gallery Infos | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Title tail, all five URLs, uploader and every count read in full — the three-line cap is only reached in portrait. Re-verify (batch 1): unchanged. |
+| 19 | Detail › Archives sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Session present. Both archive cards keep their name, size and price inside the card; both funds values and the H@H action read in full. Nothing was purchased. Re-verify (batch 1): unchanged. Re-verify (batch 2): the pinned layout is kept — grid, funds row and the download button are all on screen at once, unchanged from batch 1. |
+| 19 | Detail › Archives sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pass | The first card's name is ellipsised ("Origin…") and its price line is pushed outside the card's border; both funds values lose most of their digits ("500,…", "7,1…"). Re-verify (batch 1): the grid collapses to one card per row and name, size and price all read inside the card. Nothing was purchased. Re-verify (batch 2): the sheet is one scrolling column; both archive cards read with their size and price, and the funds row and the download button are reachable by scrolling. Re-verify (batch 2b, `a92e5465`): the single-column AX layout no longer draws a scroll indicator. At AX3 portrait the whole column fits, so the funds row and the button are reachable without scrolling and no indicator can appear; a capture taken with no settle delay right after a swipe measures a 0.0 pt bright run at the trailing edge. |
+| 19 | Detail › Archives sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Card names down to "Orig…" / "128…" — the two resolutions are no longer distinguishable — sizes cut to "182.0…" without their unit, both texts drawn outside the card frame, and the funds values reduced to "50…" and "7,…". Re-verify (batch 1): one card per row with name, size and price complete; the grid scrolls to the second card. Nothing was purchased. Re-verify (batch 2): the sheet is one scrolling column; both archive cards read with their size and price at the top, and scrolling reaches the funds row and the download button. The G funds value wraps mid-number onto a second line in portrait — a wrap, not a truncation. Re-verify (batch 2b, `a92e5465`): no scroll indicator — a capture taken with no settle delay immediately after the swipe measures a 0.0 pt bright run at the trailing edge, against 286.3 pt for the same capture technique on a surface that does draw one (Setting › General). The column still scrolls to the funds row and the action button. |
+| 19 | Detail › Archives sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Both cards, both funds values and the action button read in full. Re-verify (batch 1): unchanged. Re-verify (batch 2): the pinned layout is kept — grid, funds row and the download button are all on screen at once, unchanged from batch 1. |
+| 19 | Detail › Archives sheet | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#20 | Both cards lose their size AND price lines entirely — only the resolution name survives — so the sheet no longer shows what an archive costs or how large it is. Funds values still read in full. Re-verify (batch 1): still degraded in landscape — the archive grid is clipped to a sliver with the funds row drawn over it and the second card absent. Nothing was purchased. Re-verify (batch 2): the sheet is one scrolling column; both archive cards read with their size and price, and the funds row and the download button are reachable by scrolling. Re-verify (batch 2b, `a92e5465`): no scroll indicator (0.0 pt bright run at the trailing edge, captured with no settle delay after the swipe); the column still scrolls to the funds row and the action button, both of which read in full. |
+| 19 | Detail › Archives sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#20 | The cards are clipped to a sliver of their name, with the funds row drawn on top of them; the GP balance is ellipsised. Nothing was purchased. Re-verify (batch 1): still degraded — no archive card is rendered at all; only the funds row and the download button remain. Nothing was purchased. Re-verify (batch 2): the sheet is one scrolling column; both archive cards read with their size and price at the top, and scrolling reaches the funds row and the download button. The G funds value wraps mid-number onto a second line in portrait — a wrap, not a truncation. Re-verify (batch 2b, `a92e5465`): no scroll indicator (0.0 pt bright run at the trailing edge, captured with no settle delay after the swipe); the column still scrolls to the funds row and the action button. |
+| 20 | Detail › Torrents sheet | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#21 | All four meta values (seeders, leechers, downloads, file size), the torrent file name and the uploader-plus-timestamp line read in full. No torrent download was started. Re-verify (batch 1): regression against the round-1 `pass` — the file-size value is now ellipsised although seeders, leechers and downloads still read, and the same row is complete at `.large`. No torrent download was started. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): **the round-II regression is gone.** The flowed pairs are plain `HStack`s instead of `Label`s, so each pair measures its glyph and its value together: all four values render in full on one line — 6, 1, 2,526 and 501.8 MiB — with no ellipsis and no clipped glyph. |
+| 20 | Detail › Torrents sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#21 | The four meta values are clipped by their fixed 44-point slots — the leechers "0" renders as a half glyph, the download count keeps only a fragment, and the file size is reduced to its first digit. The timestamp also loses its time. Re-verify (batch 1): still degraded, and differently: the compact one-line row is still chosen, so all four values are cut mid-glyph inside their slots. No torrent download was started. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): all four values render in full over two lines (6 / 1 / 2,526, then 501.8 MiB); no value is cut mid-glyph and the file size is complete. |
+| 20 | Detail › Torrents sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The four meta values are not rendered at all — only their glyphs remain, so seeders, leechers, downloads and file size are all invisible. The uploader and the timestamp are ellipsised to four characters each. Re-verify (batch 1): the meta reflows to two pairs per line and all four values read in full. No torrent download was started. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): all four values render in full over three lines (6 and 1, then 2,526, then 501.8 MiB); the file name, uploader and timestamp below read in full when scrolled. |
+| 20 | Detail › Torrents sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Meta row, file name and the uploader-plus-timestamp line all read in full. Re-verify (batch 1): unchanged. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): all four values render in full on one line. |
+| 20 | Detail › Torrents sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider row keeps all four meta values, the whole file name over two lines and the full timestamp. Re-verify (batch 1): unchanged. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): all four values render in full on one line. |
+| 20 | Detail › Torrents sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Meta values, file name and timestamp all read in full; the sheet's own title is complete. Re-verify (batch 1): unchanged. Re-verify (batch 2): REGRESSED. Above the default size the counter row is a FlowLayout of four Label pairs, and every pair is laid out at its icon's size alone (44 x 44 pt at AX5), so all four values — seeders, leechers, downloads and file size — are not rendered at all; only the glyphs appear, and they cascade diagonally. Round I still showed every value (with only the file size ellipsised). Uploader and date are unaffected and read in full. Re-verify (batch 2b, `a731d905`): all four values render in full on one line. |
+| 21 | Detail › Tag Detail sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Unblocked by the batch-8 settings change (session language 简体中文, Tags Extension and Translate Tags on), so the tag context menu offers its **Detail** item and the sheet is reachable at last. Walked on a parody tag carrying a description, one image and three links. The description reads to its closing period over five lines, the Images section keeps its heading and thumbnail, and all three link URLs read to their last percent-escape. Nothing is clipped or ellipsised; the sheet reaches its own end. |
+| 21 | Detail › Tag Detail sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Description complete over eight lines, Images heading and thumbnail intact, and every one of the three link URLs wraps in full. The large title collapses to an inline one as the column scrolls, which is the phase title policy, not a loss. |
+| 21 | Detail › Tag Detail sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Title, description, Images heading and thumbnail and all three URLs all render at accessibility size with every character present; the column simply grows and scrolls. Content passes under the inline bar material, which is ordinary chrome behaviour. |
+| 21 | Detail › Tag Detail sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Inline title; the description finishes in three lines and the Images row and all three link URLs read in full. |
+| 21 | Detail › Tag Detail sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Description complete over four lines; every link URL reads to its end. |
+| 21 | Detail › Tag Detail sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Description complete over five lines, the Images heading and thumbnail render at full size, and both remaining URLs read to their last percent-escape after scrolling. |
+| 22 | Detail › NewDawn sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. Title, body and the full reward sentence all render; nothing is lost against `.large`. Content shown was the real server greeting (30 EXP, 10,452 Credits, 10,000 GP, 16 Hath), the longer of the two strings available. |
+| 22 | Detail › NewDawn sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. Every line renders in full; the block grows but stays inside the screen. Real greeting. |
+| 22 | Detail › NewDawn sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. The whole greeting still renders, ending at `16 Hath!`, but the block now spans the screen top to bottom with no margin at either end and the title is drawn across the decorative sun. Nothing is lost against `.large`, so this passes the D-04 test; the collision and the absent margin are recorded as design residue on finding #38. Real greeting, i.e. the stricter string. |
+| 22 | Detail › NewDawn sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. All three blocks render complete. The Dynamic Island covers the first characters of two lines, but it does so identically at `.large`, so that is not a type-size regression. |
+| 22 | Detail › NewDawn sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. All text renders; same pre-existing Dynamic Island overlap as at `.large`. |
+| 22 | Detail › NewDawn sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. All text renders, the first line sitting hard against the top edge. Same pre-existing Dynamic Island overlap. |
 | 23 | Detail › download confirmation dialogs | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Raised from the Detail header's download control on the gallery this phase downloaded. Title, the full explanatory sentence and both Cancel and Delete read in full. Cancelled; nothing was deleted. |
 | 23 | Detail › download confirmation dialogs | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Title wraps to two lines, the sentence to three, and both buttons stack side by side and read in full. |
 | 23 | Detail › download confirmation dialogs | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Title over two lines, the whole sentence over five, and Delete and Cancel stacked vertically — the full-width alert absorbs the growth cleanly. Cancelled. |
@@ -658,12 +658,12 @@ written description only — never a screenshot filename (D-32).
 | 24 | Reading | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Page images only; tap zones and page context menu intact. |
 | 24 | Reading | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Page images unchanged; context menu items read in full. |
 | 24 | Reading | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Page images unchanged; the context menu shows three of its five items at once and scrolls to the rest, each reading in full. |
-| 25 | Reading › Control panel | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Page indicator "1 / 14" reads in full in its capsule; the upper bar's three glyph controls and the lower bar's "1" / slider / "14" are all complete. |
-| 25 | Reading › Control panel | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#22 | The page indicator's capsule is squeezed to a stub showing only an ellipsis — the current page and the page total are both gone. Lower bar and glyph controls still read in full. |
-| 25 | Reading › Control panel | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#22 | The page indicator renders nothing at all: its capsule is a two-point sliver beside the close button. The lower bar's "1" and "14", the three upper glyphs, the More menu and the Auto-Play menu all remain readable (menu items wrap to two lines and the menu scrolls to reach the last one). |
+| 25 | Reading › Control panel | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Page indicator "1 / 14" reads in full in its capsule; the upper bar's three glyph controls and the lower bar's "1" / slider / "14" are all complete. Re-verify (batch 3, `15f9b09f`): above the default size the control bar is a flow — close button and page indicator on the first line, the three action glyphs leading-aligned on the second. The indicator takes its ideal width and reads in full (96,76 95x34 pt). **Re-verify (batch 4, `89d02f52`):** confirmed again on a different (166-page) gallery — the upper panel's "n / total" page indicator stays on one line and fully legible; the lower panel's page-range end labels ("1" / "166") remain single-line, not truncated. |
+| 25 | Reading › Control panel | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#22 | The page indicator's capsule is squeezed to a stub showing only an ellipsis — the current page and the page total are both gone. Lower bar and glyph controls still read in full. Re-verify (batch 3, `15f9b09f`): above the default size the control bar is a flow — close button and page indicator on the first line, the three action glyphs leading-aligned on the second. The indicator takes its ideal width and reads in full (96,76 147x53 pt; round 1 showed only an ellipsis). **Re-verify (batch 4, `89d02f52`):** confirmed again on a different (166-page) gallery — the upper panel's "n / total" page indicator stays on one line and fully legible; the lower panel's page-range end labels ("1" / "166") remain single-line, not truncated. |
+| 25 | Reading › Control panel | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#22 | The page indicator renders nothing at all: its capsule is a two-point sliver beside the close button. The lower bar's "1" and "14", the three upper glyphs, the More menu and the Auto-Play menu all remain readable (menu items wrap to two lines and the menu scrolls to reach the last one). Re-verify (batch 3, `15f9b09f`): above the default size the control bar is a flow — close button and page indicator on the first line, the three action glyphs leading-aligned on the second. The indicator takes its ideal width and reads in full (96,76 186x67 pt; round 1 showed a two-point sliver with no glyph). **Re-verify (batch 4, `89d02f52`):** confirmed again on a different (166-page) gallery — the upper panel's "n / total" page indicator stays on one line and fully legible; the lower panel's page-range end labels ("1" / "166") remain single-line, not truncated. |
 | 25 | Reading › Control panel | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Page indicator, glyph controls and slider end labels all read in full. |
 | 25 | Reading › Control panel | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Page indicator "1 / 14" complete; nothing clipped in either bar. |
-| 25 | Reading › Control panel | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Page indicator complete at accessibility size; both bars intact. The Auto-Play menu shows its header and first option inside the visible container with the rest laid out below it — synthetic drags dismissed the menu rather than scrolling it, so the remaining options' reachability in landscape is unconfirmed and is called out in the summary. The dual-page menu does not appear because this session's reading direction is Vertical. |
+| 25 | Reading › Control panel | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Page indicator complete at accessibility size; both bars intact. The Auto-Play menu shows its header and first option inside the visible container with the rest laid out below it — synthetic drags dismissed the menu rather than scrolling it, so the remaining options' reachability in landscape is unconfirmed and is called out in the summary. The dual-page menu does not appear because this session's reading direction is Vertical. Re-verify (batch 3, `15f9b09f`): the landscape row is still wide enough for one line; the indicator reads in full at 164,16 186x67 pt. **Re-verify (batch 4, `89d02f52`):** confirmed again on a different (166-page) gallery — the upper panel's "n / total" page indicator stays on one line and fully legible; the lower panel's page-range end labels ("1" / "166") remain single-line, not truncated. |
 | 26 | Reading › Reading Setting sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Reached from the control panel's More menu. Every row keeps its label and value on one line, both sliders keep their end labels, and the sheet scrolls to its end. |
 | 26 | Reading › Reading Setting sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Rows reflow to value-under-label where the line no longer fits; nothing is clipped and both sliders keep "1.5x" and "10.0x" / "5.0x". |
 | 26 | Reading › Reading Setting sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Labels wrap to three lines and values sit beside or beneath them; the slider maximum wraps to two lines but reads in full. Nothing lost. Reading Direction was read, never changed. |
@@ -681,36 +681,36 @@ written description only — never a screenshot filename (D-32).
 
 | # | Screen | Device | Orientation | Size | Status | Finding |
 |---|---|---|---|---|---|---|
-| 28 | Setting root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | All seven rows and their icon slots read in full; the list does not scroll and the tab bar keeps five labels. |
-| 28 | Setting root | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Rows grow taller, every label still complete; the 45-pt icon slot never clips its glyph. |
-| 28 | Setting root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | All seven labels read in full on one line each; icons stay inside their 45-pt frame; nothing scrolls out of reach. |
+| 28 | Setting root | iPhone | portrait | XXL (extra-extra-extra-large) | pass | All seven rows and their icon slots read in full; the list does not scroll and the tab bar keeps five labels. Re-verify (batch 5b, `e8fd65c4`): the root's navigation title moves from `.inlineLarge` to the phase policy's `.large`; on a normal tab entry it draws a plain large title (`Setting` 20,122 135x48, leading), and the rows below are unchanged. **Re-verify (batch 6, `be4665cf`):** the tab-root presentation keeps `.inlineLarge` after all — the mode is now read from the presentation context, so only the iPad sheet takes the plain large title. At `.large` the title is a persistent large leading `Setting` (20,70 115x41) that does not move when the list is scrolled. |
+| 28 | Setting root | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Rows grow taller, every label still complete; the 45-pt icon slot never clips its glyph. Re-verify (batch 5b, `e8fd65c4`): at AX3 the policy falls back to an inline title, drawn (`Setting` 175,77 69x25), not the blank band finding #7 records; rows unchanged. **Re-verify (batch 6, `be4665cf`):** unchanged at this size — the accessibility fallback is the same inline title either way; measured `Setting` 175,77 69x25, drawn. |
+| 28 | Setting root | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | All seven labels read in full on one line each; icons stay inside their 45-pt frame; nothing scrolls out of reach. Re-verify (batch 5b, `e8fd65c4`): at AX5 the title is inline and drawn (`Setting` 175,77 69x25), not blank; rows unchanged. **Re-verify (batch 6, `be4665cf`):** unchanged at this size — the accessibility fallback is the same inline title either way; measured `Setting` 175,77 69x25, drawn. The batch-5b caveat — that `.large` collapses on return from a Setting sub-screen on the iPhone — is withdrawn: the tab root no longer uses `.large`. |
 | 28 | Setting root | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Rows read in full; the list scrolls to About. |
 | 28 | Setting root | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Rows read in full; About reachable by scrolling. |
-| 28 | Setting root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Three and a half rows per screen but every label complete and About reachable; the floating tab bar overlays scrollable content only. |
-| 29 | Setting › Account | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#24 | The hash cookie row's value loses about a third of the characters it shows at the default size; the numeric id and the ExHentai token still read in full. Labels wrap, rows reachable, logout confirmation complete. |
-| 29 | Setting › Account | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#24 | The numeric member-id value, complete at the default size, is now ellipsised after five digits; the hash value is down to five characters and the ExHentai token to four. |
-| 29 | Setting › Account | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#24 | All three cookie value fields are reduced to three or four characters plus an ellipsis; the labels wrap to four lines each. The logout confirmation itself stays complete. |
-| 29 | Setting › Account | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The wider row lets every cookie value render in full, including the 32-character hash; all rows reachable. |
-| 29 | Setting › Account | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#24 | The hash value drops from complete at XXL to roughly fourteen characters plus an ellipsis; ids and the ExHentai token still complete. |
-| 29 | Setting › Account | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#24 | The hash value is down to about twelve characters; the numeric ids survive. Labels wrap, nothing is unreachable. |
-| 30 | Setting › Login | iPhone | portrait | XXL (extra-extra-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
-| 30 | Setting › Login | iPhone | portrait | AX3 (accessibility-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
-| 30 | Setting › Login | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
-| 30 | Setting › Login | iPhone | landscape | XXL (extra-extra-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
-| 30 | Setting › Login | iPhone | landscape | AX3 (accessibility-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
-| 30 | Setting › Login | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no logged-out session | The native login form is rendered only in the `!didLogin` branch of `AccountSettingView.swift` `AccountSection.body`; the Account screen of a logged-in session shows Logout in its place. Reaching it needs a logout, which D-09 forbids on this simulator. |
+| 28 | Setting root | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Three and a half rows per screen but every label complete and About reachable; the floating tab bar overlays scrollable content only. Re-verify (batch 5b, `e8fd65c4`): landscape AX5 title is inline and drawn (centered), not blank; rows unchanged. |
+| 29 | Setting › Account | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#24 | The hash cookie row's value loses about a third of the characters it shows at the default size; the numeric id and the ExHentai token still read in full. Labels wrap, rows reachable, logout confirmation complete. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The thirty-two-character hash wraps over three lines and reads in full, where round 1 cut it after fourteen characters. |
+| 29 | Setting › Account | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#24 | The numeric member-id value, complete at the default size, is now ellipsised after five digits; the hash value is down to five characters and the ExHentai token to four. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The seven-digit member id and the thirty-two-character hash both read in full, where round 1 cut them to `23674…` and `729fb…`. |
+| 29 | Setting › Account | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#24 | All three cookie value fields are reduced to three or four characters plus an ellipsis; the labels wrap to four lines each. The logout confirmation itself stays complete. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The hash occupies a 340x250 pt field over four wrapped lines and reads in full, where round 1 left three or four characters plus an ellipsis under a four-line key. |
+| 29 | Setting › Account | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The wider row lets every cookie value render in full, including the 32-character hash; all rows reachable. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The hash keeps all thirty-two characters, now in a 712x96 pt wrapped field under its key. |
+| 29 | Setting › Account | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#24 | The hash value drops from complete at XXL to roughly fourteen characters plus an ellipsis; ids and the ExHentai token still complete. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The hash reads in full in a 712x64 pt field, where round 1 cut it after sixteen characters. |
+| 29 | Setting › Account | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#24 | The hash value is down to about twelve characters; the numeric ids survive. Labels wrap, nothing is unreachable. Re-verify (batch 3, `f9286303`): above the default size the cookie row stacks — key and validity glyph on the first line, value beneath it in a vertical-axis field spanning the row. The hash reads in full in a 712 pt wrapped field, where round 1 cut it after twelve characters. |
+| 30 | Setting › Login | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. Heading, both field labels, both placeholders and the submit chevron all read in full, and the form fits without scrolling. |
+| 30 | Setting › Login | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. Labels and placeholders grow cleanly, the fields keep their full width and the submit chevron stays clear of the tab bar; the form still fits without scrolling. |
+| 30 | Setting › Login | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. The large title falls back to an inline one and the heading no longer paints through the `Username` label — finding #33's fix holds on the iPhone as it does on the iPad. Both labels, both placeholders and the submit chevron read in full and the form fits without scrolling. Focusing a field by tap changes nothing on screen; the software keyboard did not present because the simulator has a hardware keyboard attached, so the keyboard-inset path was not exercised. |
+| 30 | Setting › Login | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. Labels and placeholders read in full. The submit chevron rests half under the floating tab bar — it is fully visible there at `.large` — and one scroll brings it clear and complete. Judged fine: the column grew taller and the control moved below the fold of a scrolling form, which the verdict rule treats as reflow, not loss. |
+| 30 | Setting › Login | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. Labels and placeholders read in full; the submit chevron is below the fold at rest and one scroll brings it fully into view, clear of the tab bar. |
+| 30 | Setting › Login | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Walked on a dedicated logged-out iPhone Air simulator created for this batch (same device type as `IPHONE_UDID`, so the Matrix geometry matches); the owner's simulators were never signed out. No credential was entered and the form was never submitted. Labels and placeholders read in full; the password field's lower edge passes under the tab bar at rest and two scrolls bring both it and the submit chevron fully into view. The toast and the error sheet were **not** walked: both are reachable only by submitting the form, and no login attempt was made. |
 | 31 | Setting › General | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Every label, the Language value, the cache size value and the analytics footer read in full; the labels-hidden toggle in its 50-pt slot is a switch with no text and never clips. |
 | 31 | Setting › General | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Row labels wrap to two lines; Language value, cache size and the full analytics footer sentence all still read in full. |
 | 31 | Setting › General | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Labels wrap to three or four lines and the cache size wraps onto its own second line — nothing is ellipsised, the footer renders every word, and the clear-cache confirmation shows its message and its action in full. |
 | 31 | Setting › General | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All rows on one line each, cache size and analytics footer complete; scrolls to the end of the footer. |
 | 31 | Setting › General | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Rows still single-line, footer wraps to five lines and ends on its last word. |
 | 31 | Setting › General | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Two rows per screen; every label, the Language value and the cache size read in full and the footer reaches its last word by scrolling. |
-| 32 | Setting › General › Activity Logs | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Large title, search field, category chips, timestamps and every log message read in full; the Runs menu shows all its items and its selection tick. |
-| 32 | Setting › General › Activity Logs | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #7, #25, #26 | The category chip is cut to seven characters; the navigation large title is ellipsised; the search field renders as an empty capsule with neither glyph nor placeholder; the Runs menu stops drawing the tick beside the selected run. Log messages themselves wrap in full. |
-| 32 | Setting › General › Activity Logs | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#7, #25, #26 | The chip is down to four characters plus an ellipsis and the large title is ellipsised after two words; the Runs menu still has no selection tick. The search field renders normally at this size and log messages wrap in full. |
-| 32 | Setting › General › Activity Logs | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Everything single-line and complete, including the full chip and the whole message on one line. |
-| 32 | Setting › General › Activity Logs | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Chip, timestamp and message all complete; search field intact. |
-| 32 | Setting › General › Activity Logs | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #25, #26 | The chip is ellipsised, the search field is an empty capsule and the Runs menu drops the selection tick; the large title survives in landscape because the bar uses its inline form. |
+| 32 | Setting › General › Activity Logs | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Large title, search field, category chips, timestamps and every log message read in full; the Runs menu shows all its items and its selection tick. Re-verify (batch 1): unchanged. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. |
+| 32 | Setting › General › Activity Logs | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#4, #7, #26 | The category chip is cut to seven characters; the navigation large title is ellipsised; the search field renders as an empty capsule with neither glyph nor placeholder; the Runs menu stops drawing the tick beside the selected run. Log messages themselves wrap in full. Re-verify (batch 1): the category chip now wraps inside its pill and keeps the whole subsystem name. Large title, search capsule and Runs menu (#4, #7, #26) belong to other batches and were not re-checked. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. Re-verify (batch 3, `27a360b1`): the inline title reads `App Activity Logs` in full (76,77 168x25 pt) where the large title was ellipsised, and the search capsule shows its magnifier and `Search` placeholder. The log rows below were not re-judged here. |
+| 32 | Setting › General › Activity Logs | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#7, #26 | The chip is down to four characters plus an ellipsis and the large title is ellipsised after two words; the Runs menu still has no selection tick. The search field renders normally at this size and log messages wrap in full. Re-verify (batch 1): the chip wraps and reads in full. Large title and Runs menu (#7, #26) not re-checked. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. Re-verify (batch 3, `27a360b1`): the inline title reads `App Activity Logs` in full (76,77 168x25 pt) where the large title was ellipsised, and the search capsule shows its magnifier and `Search` placeholder. The log rows below were not re-judged here. |
+| 32 | Setting › General › Activity Logs | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Everything single-line and complete, including the full chip and the whole message on one line. Re-verify (batch 1): unchanged. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. |
+| 32 | Setting › General › Activity Logs | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Chip, timestamp and message all complete; search field intact. Re-verify (batch 1): unchanged. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. **Re-verify (batch 5b):** re-walked for finding #4's residual — the search capsule draws its magnifier glyph and `Search` placeholder, the inline title reads `App Activity Logs` in full, and the log rows are complete. |
+| 32 | Setting › General › Activity Logs | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #26 | The chip is ellipsised, the search field is an empty capsule and the Runs menu drops the selection tick; the large title survives in landscape because the bar uses its inline form. Re-verify (batch 1): the chip reads in full. Search capsule and Runs menu (#4, #26) not re-checked. Re-verify (batch 2): timestamp and category chip sit in an AdaptiveStack — in portrait the chip drops to its own line under the timestamp and both read in full; in landscape the row is wide enough and they share a line. **Re-verify (batch 5b):** finding #4's residual landscape occurrence is fixed — the search capsule draws its magnifier and `Search` placeholder (the round-1 sweep showed an empty capsule); the inline title reads `App Activity Logs` in full and the log rows are complete. The #26 Runs-menu-tick aspect was not re-checked. |
 | 33 | Setting › Appearance | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Theme and Display Mode keep label and value on one line and both read in full; the privacy-mask slider keeps both eye glyphs and its footer wraps completely. |
 | 33 | Setting › Appearance | iPhone | portrait | AX3 (accessibility-extra-large) | pass | Values drop onto their own line under the label — a wrap, not a loss; the disabled Maximum Number of Tags value still reads in full and the footer renders every word. |
 | 33 | Setting › Appearance | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Every label wraps to two or three lines with its value complete below it; the slider keeps both end glyphs; the App Icon picker's names wrap, its 60-pt icon slots never clip and the selection tick grows with the type. |
@@ -741,36 +741,36 @@ written description only — never a screenshot filename (D-32).
 | 37 | Setting › About | iPhone | landscape | XXL (extra-extra-extra-large) | pass | All rows single-line and complete; the list scrolls to its last acknowledgement. The copyright/version subtitle is absent in landscape at every size because the bar uses its inline form — an orientation effect, not a type-size one. |
 | 37 | Setting › About | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Long dependency names still fit on one line; every row complete to the bottom of the list. |
 | 37 | Setting › About | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Only the longest names wrap to two lines; nothing truncates and the final acknowledgement is reachable. |
-| 38 | Setting › EhSetting | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#27 | The Excluded Languages column headers collide into one unbroken string and slide off their columns, so the radio grid no longer says which column is which. Everything else — profile rows, pickers, the 200-pt segmented controls, the long explanatory paragraphs and both pixel sliders — reads in full to the end of the page. |
-| 38 | Setting › EhSetting | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#27 | Same column-header collision. All other rows wrap: labels take two or three lines, picker values move under their labels, slider bounds wrap rather than truncate, and the page scrolls to its last row. |
-| 38 | Setting › EhSetting | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#27, #28 | Column headers still collided; additionally three consecutive Multi-Page Viewer rows overlap — a three-line label painted over the next row's label and a picker value cut by the row separator. The 200-pt segmented controls and every explanatory paragraph still read in full. |
+| 38 | Setting › EhSetting | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#27 | The Excluded Languages column headers collide into one unbroken string and slide off their columns, so the radio grid no longer says which column is which. Everything else — profile rows, pickers, the 200-pt segmented controls, the long explanatory paragraphs and both pixel sliders — reads in full to the end of the page. Re-verify (batch 3, `32177686`): above the default size the three-column radio matrix is replaced by one block per language, headed by the language name, with three native switches labelled Original / Translated / Rewrite. Round 1 ran the three headers together into `OriginalTranslatedRewrite` beside the columns they label; nothing overlaps now and every option carries its own word. |
+| 38 | Setting › EhSetting | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#27 | Same column-header collision. All other rows wrap: labels take two or three lines, picker values move under their labels, slider bounds wrap rather than truncate, and the page scrolls to its last row. Re-verify (batch 3, `32177686`): above the default size the three-column radio matrix is replaced by one block per language, headed by the language name, with three native switches labelled Original / Translated / Rewrite. Round 1 left rows of identical unlabelled circles; every switch is now named. |
+| 38 | Setting › EhSetting | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#27, #28 | Column headers still collided; additionally three consecutive Multi-Page Viewer rows overlap — a three-line label painted over the next row's label and a picker value cut by the row separator. The 200-pt segmented controls and every explanatory paragraph still read in full. Re-verify (batch 3, `32177686`): above the default size the three-column radio matrix is replaced by one block per language, headed by the language name, with three native switches labelled Original / Translated / Rewrite. Round 1 painted the three headers on top of each other and past the card's trailing edge. |
 | 38 | Setting › EhSetting | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Every native row single-line with its value complete, the 200-pt segmented controls and both sliders intact, and the Excluded Languages column headers still separated and centred over their columns. |
 | 38 | Setting › EhSetting | iPhone | landscape | AX3 (accessibility-extra-large) | pass | Labels and picker values move onto separate lines; nothing is truncated and the language-grid headers still read as three separate words. |
-| 38 | Setting › EhSetting | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#27 | The Excluded Languages headers collide into one overlapping string. Everything else survives: the Multi-Page Viewer rows that overlap in portrait are clean here, and the 200-pt segmented controls read in full. |
-| 39 | Filters sheet | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#29 | Two of the nine category cells are already ellipsised; the host segmented control, Reset Filters, every advanced toggle row and the custom-filter rows read in full to the bottom of the sheet. |
-| 39 | Filters sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#29 | Eight of the nine category names are cut to three or four letters. Everything else on the sheet wraps and stays complete. |
-| 39 | Filters sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | Every category cell is one or two letters plus an ellipsis. The rest of the sheet is fine — advanced rows wrap to three lines, the reset confirmation shows its message and action in full, and the sheet scrolls to its last row. |
-| 39 | Filters sheet | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#29 | The grid relays out six per row but the cells keep their width, so the same two names are ellipsised; the rest of the sheet is complete. |
-| 39 | Filters sheet | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#29 | Eight of nine category names cut; other rows single-line and complete. |
-| 39 | Filters sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | All nine category cells reduced to one or two letters; the advanced and custom-filter rows still read in full on one line each. |
-| 40 | Quick Search sheet | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#30 | The saved word and its content both read in full in the normal row, but Edit mode narrows the row between its delete and reorder controls and cuts the saved name to `Dynamic Type Sweep…`; the empty state, editor labels and entered values otherwise read in full. |
-| 40 | Quick Search sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#30 | The normal row already cuts the saved name to `Dynamic Type Sw…`; Edit mode also cuts the content after a few characters. The sheet and editor remain reachable and their other labels wrap in full. |
-| 40 | Quick Search sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#30 | The normal row reduces the saved name and content to ellipsised fragments; Edit mode loses still more of both lines. The throwaway item was deleted after the walk and the original empty state was verified. |
-| 40 | Quick Search sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The saved name and content read in full in both normal and Edit modes; the empty state and editor are also complete. |
-| 40 | Quick Search sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider row keeps the full saved name and content in normal and Edit modes; controls remain reachable. |
-| 40 | Quick Search sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#30 | The saved name is cut in both normal and Edit modes while the content stays complete; the editor itself remains usable. |
+| 38 | Setting › EhSetting | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#27 | The Excluded Languages headers collide into one overlapping string. Everything else survives: the Multi-Page Viewer rows that overlap in portrait are clean here, and the 200-pt segmented controls read in full. Re-verify (batch 3, `32177686`): above the default size the three-column radio matrix is replaced by one block per language, headed by the language name, with three native switches labelled Original / Translated / Rewrite. Round 1 ran the headers together into one string here too. |
+| 39 | Filters sheet | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#29 | Two of the nine category cells are already ellipsised; the host segmented control, Reset Filters, every advanced toggle row and the custom-filter rows read in full to the bottom of the sheet. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Three columns; Game CG, Image Set and Asian Porn wrap to two lines and all ten names read in full. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 3 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#29 | Eight of the nine category names are cut to three or four letters. Everything else on the sheet wraps and stays complete. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. One column, each name on its own full-width row, all ten complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 1 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | Every category cell is one or two letters plus an ellipsis. The rest of the sheet is fine — advanced rows wrap to three lines, the reset confirmation shows its message and action in full, and the sheet scrolls to its last row. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. One column, all ten names complete, where round 1 cut every one of them to a letter or two. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 1 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPhone | landscape | XXL (extra-extra-extra-large) | finding:#29 | The grid relays out six per row but the cells keep their width, so the same two names are ellipsised; the rest of the sheet is complete. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Five columns, all ten names on one line each, complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 5 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#29 | Eight of nine category names cut; other rows single-line and complete. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Three columns, all ten names complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 3 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | All nine category cells reduced to one or two letters; the advanced and custom-filter rows still read in full on one line each. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Two columns, all ten names complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 2 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 40 | Quick Search sheet | iPhone | portrait | XXL (extra-extra-extra-large) | pass | The saved word and its content both read in full in the normal row, but Edit mode narrows the row between its delete and reorder controls and cuts the saved name to `Dynamic Type Sweep…`; the empty state, editor labels and entered values otherwise read in full. Re-verify (batch 1): the saved word's name and its content both read in full in the ordinary row and in Edit mode. |
+| 40 | Quick Search sheet | iPhone | portrait | AX3 (accessibility-extra-large) | pass | The normal row already cuts the saved name to `Dynamic Type Sw…`; Edit mode also cuts the content after a few characters. The sheet and editor remain reachable and their other labels wrap in full. Re-verify (batch 1): name and content read in full in both the ordinary row and Edit mode. |
+| 40 | Quick Search sheet | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The normal row reduces the saved name and content to ellipsised fragments; Edit mode loses still more of both lines. The throwaway item was deleted after the walk and the original empty state was verified. Re-verify (batch 1): name and content read in full in both modes; the editor itself is complete. |
+| 40 | Quick Search sheet | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The saved name and content read in full in both normal and Edit modes; the empty state and editor are also complete. Re-verify (batch 1): unchanged. |
+| 40 | Quick Search sheet | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The wider row keeps the full saved name and content in normal and Edit modes; controls remain reachable. Re-verify (batch 1): unchanged. |
+| 40 | Quick Search sheet | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The saved name is cut in both normal and Edit modes while the content stays complete; the editor itself remains usable. Re-verify (batch 1): the saved name reads in full in both normal and Edit modes. |
 | 41 | Date Seek picker | iPhone | portrait | XXL (extra-extra-extra-large) | pass | Month header, weekday row, every day number, the explanatory sentence and both Older / Newer buttons read in full. |
 | 41 | Date Seek picker | iPhone | portrait | AX3 (accessibility-extra-large) | pass | The graphical calendar keeps every date legible; the sentence wraps to two lines and both navigation buttons remain fully visible. |
 | 41 | Date Seek picker | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Weekday abbreviations and day numbers remain distinct, the sentence wraps in full, and scrolling reaches both complete navigation buttons. |
 | 41 | Date Seek picker | iPhone | landscape | XXL (extra-extra-extra-large) | pass | Month header, weekday row, every day number, the explanatory sentence and both Older / Newer buttons read in full. |
 | 41 | Date Seek picker | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The graphical date picker caps its own type scale, so the calendar is unchanged; the sentence and buttons below it grow and stay complete. |
 | 41 | Date Seek picker | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Weekday abbreviations sit shoulder to shoulder but none is cut or overlapped; every day number, the whole sentence and both buttons render, and the selected day keeps its highlight. |
-| 42 | Error surface | iPhone | portrait | XXL (extra-extra-extra-large) | finding:#31 | The error sheet scrolls through its complete description, solution, context and environment, but the toast keeps its title and ellipsises the one-line subtitle after `This link wasn't recognized…`. |
-| 42 | Error surface | iPhone | portrait | AX3 (accessibility-extra-large) | finding:#31 | The error sheet reflows every field and remains scrollable to the operating-system row; the toast subtitle is cut to `This link was…`. |
-| 42 | Error surface | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#31 | The error sheet grows substantially but every section is reachable and complete; the toast subtitle is reduced to `This link…`. |
-| 42 | Error surface | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The toast title and complete unsupported-link subtitle fit on one line, and the error sheet scrolls through every complete field. |
-| 42 | Error surface | iPhone | landscape | AX3 (accessibility-extra-large) | finding:#31 | The error sheet remains complete to its Environment section, but the toast subtitle ends after `EhPa…`. |
-| 42 | Error surface | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#31 | The error sheet remains complete and scrollable; the toast subtitle is ellipsised after `This link wasn't recognized…`. |
+| 42 | Error surface | iPhone | portrait | XXL (extra-extra-extra-large) | pass | The error sheet scrolls through its complete description, solution, context and environment, but the toast keeps its title and ellipsises the one-line subtitle after `This link wasn't recognized…`. Re-verify (batch 1): the toast subtitle now reads the whole sentence over two lines. |
+| 42 | Error surface | iPhone | portrait | AX3 (accessibility-extra-large) | accepted | The error sheet reflows every field and remains scrollable to the operating-system row; the toast subtitle is cut to `This link was…`. Re-verify (batch 1): still degraded — the subtitle is ellipsised after three lines. |
+| 42 | Error surface | iPhone | portrait | AX5 (accessibility-extra-extra-extra-large) | accepted | The error sheet grows substantially but every section is reachable and complete; the toast subtitle is reduced to `This link…`. Re-verify (batch 1): still degraded — the subtitle is ellipsised after three lines. |
+| 42 | Error surface | iPhone | landscape | XXL (extra-extra-extra-large) | pass | The toast title and complete unsupported-link subtitle fit on one line, and the error sheet scrolls through every complete field. Re-verify (batch 1): unchanged. |
+| 42 | Error surface | iPhone | landscape | AX3 (accessibility-extra-large) | pass | The error sheet remains complete to its Environment section, but the toast subtitle ends after `EhPa…`. Re-verify (batch 1): the toast subtitle reads the whole sentence. |
+| 42 | Error surface | iPhone | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The error sheet remains complete and scrollable; the toast subtitle is ellipsised after `This link wasn't recognized…`. Re-verify (batch 1): the toast subtitle reads the whole sentence. |
 
 ### iPad — Group A (#1–#13) — plan 16-07
 
@@ -782,57 +782,57 @@ written description only — never a screenshot filename (D-32).
 | 1 | Tab bar shell | iPad | landscape | XXL (extra-extra-extra-large) | pass | All five tab labels and glyphs render in full. |
 | 1 | Tab bar shell | iPad | landscape | AX3 (accessibility-extra-large) | pass | All five tab labels and glyphs render in full. |
 | 1 | Tab bar shell | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | All five tab labels and glyphs render in full. |
-| 2 | Home root | iPad | portrait | XXL (extra-extra-extra-large) | finding:#1, #3 | Hero title loses its tail; ranking titles that read in full at the baseline now ellipsise. Sections and tab shell remain reachable. |
-| 2 | Home root | iPad | portrait | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero title collapses to one ellipsised line; ranking titles and uploaders surrender more text. |
-| 2 | Home root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #3 | Hero title keeps only its opening words; ranking titles and uploaders are heavily ellipsised. |
-| 2 | Home root | iPad | landscape | XXL (extra-extra-extra-large) | finding:#1 | The wider hero still ellipsises its title; ranking titles and uploaders remain complete. |
-| 2 | Home root | iPad | landscape | AX3 (accessibility-extra-large) | finding:#1, #3 | Hero and ranking titles ellipsise; ranking uploaders remain visible. |
-| 2 | Home root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#1, #3 | Hero title and ranking titles lose still more text; several uploader lines ellipsise. |
-| 3 | Home › Frontpage | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter, title, uploader, category, page count and timestamp all read in full. |
-| 3 | Home › Frontpage | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4, #32 | Filter contents disappear; a long category badge grows over the timestamp beside it. |
-| 3 | Home › Frontpage | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#5, #32 | Long titles lose their tails; category badges and timestamps overlap. The filter contents return. |
-| 3 | Home › Frontpage | iPad | landscape | XXL (extra-extra-extra-large) | pass | All row values and the filter field read in full. |
-| 3 | Home › Frontpage | iPad | landscape | AX3 (accessibility-extra-large) | pass | All row values and the filter field remain complete. |
-| 3 | Home › Frontpage | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The filter renders as an empty capsule; the wider rows keep their values complete. |
+| 2 | Home root | iPad | portrait | XXL (extra-extra-extra-large) | pass | Hero title loses its tail; ranking titles that read in full at the baseline now ellipsise. Sections and tab shell remain reachable. Re-verify (batch 1): the hero title is complete and the ranking rows keep title and uploader. Re-verify (batch 2): the card is 668 x 243 pt, cover and title side by side, rating under the title. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 2 | Home root | iPad | portrait | AX3 (accessibility-extra-large) | finding:#1 | Hero title collapses to one ellipsised line; ranking titles and uploaders surrender more text. Re-verify (batch 1): the hero title still ends in an ellipsis; the ranking rows are complete. Re-verify (batch 2): the card is 668 x 388 pt (32% of the screen), rating on its own row. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 2 | Home root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Hero title keeps only its opening words; ranking titles and uploaders are heavily ellipsised. Re-verify (batch 1): the hero title reads in full over seven lines; ranking rows complete. Re-verify (batch 2): the card is 668 x 494 pt (41% of the screen; the half-viewport cap does not bite here), cover and title side by side, rating on its own row, title ellipsised at its tail. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 2 | Home root | iPad | landscape | XXL (extra-extra-extra-large) | pass | The wider hero still ellipsises its title; ranking titles and uploaders remain complete. Re-verify (batch 1): hero title and ranking rows all read in full. Re-verify (batch 2): the card is 968 x 243 pt, cover and title side by side, rating under the title, title complete. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 2 | Home root | iPad | landscape | AX3 (accessibility-extra-large) | pass | Hero and ranking titles ellipsise; ranking uploaders remain visible. Re-verify (batch 1): hero title and ranking rows all read in full. Re-verify (batch 2): the card is 968 x 364 pt — exactly half the 728 pt scroll container — rating on its own row. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 2 | Home root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Hero title and ranking titles lose still more text; several uploader lines ellipsise. Re-verify (batch 1): hero title and ranking rows all read in full. Re-verify (batch 2): the card is capped at the same 364 pt, cover and title side by side, rating on its own full-width row, title ellipsised at its tail. The section headings below stack leading-aligned at the accessibility sizes with Show All on its own line, and no blank line where a section has none. |
+| 3 | Home › Frontpage | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter, title, uploader, category, page count and timestamp all read in full. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 3 | Home › Frontpage | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | Filter contents disappear; a long category badge grows over the timestamp beside it. Re-verify (batch 1): the category badge sits on its own line and the timestamp beside it reads in full. Filter capsule (#4) not re-checked. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws its magnifier and "Filter" placeholder text (was empty). |
+| 3 | Home › Frontpage | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Long titles lose their tails; category badges and timestamps overlap. The filter contents return. Re-verify (batch 1): row title, badge and timestamp all read in full and no two values are painted over each other. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. Re-verify (batch 3, `0dde25eb`+`72234cbc`+`7645e10c`, Display Mode = Thumbnail): one full-width column (794 pt) against four in the pre-batch build; title complete, page count leading, language trailing, whole star row, badge whole. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`+`cbab163b`+`e30ddba0`):** the pull-to-reveal filter capsule still draws its magnifier and "Filter" placeholder text (this cell was not one of finding #4's failing ones for screen #3, and remains correct). Display Mode = Thumbnail: the 2-column floor holds, no cell background crosses into its neighbour or off-screen, five-symbol star row drawn. |
+| 3 | Home › Frontpage | iPad | landscape | XXL (extra-extra-extra-large) | pass | All row values and the filter field read in full. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 3 | Home › Frontpage | iPad | landscape | AX3 (accessibility-extra-large) | pass | All row values and the filter field remain complete. Re-verify (batch 1): unchanged. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. |
+| 3 | Home › Frontpage | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The filter renders as an empty capsule; the wider rows keep their values complete. Re-verify (batch 1): row values, badge and timestamp all read in full. Filter capsule (#4) not re-checked. Re-verify (batch 2): the row keeps the list's natural insets above the default size (no negative-inset hugging), the cover is scaled against .headline and bounded to half the row, the category badge's corners scale with its text and read as rounded, and title, uploader, language, rating, page count, badge and date all read in full. **Re-verify (batch 4, `cbab163b`+`e30ddba0`, Display Mode = Thumbnail, not walked in batch 3):** 2-column floor holds (this cell had never been captured in Thumbnail mode before); no cell background crosses into its neighbour or off-screen; five-symbol star row drawn. |
 | 4 | Home › Popular | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter and every row value read in full. |
-| 4 | Home › Popular | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The filter renders as an empty capsule; row titles and metadata remain complete. |
-| 4 | Home › Popular | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Filter contents return and the regular-width rows reflow without losing text. |
+| 4 | Home › Popular | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The filter renders as an empty capsule; row titles and metadata remain complete. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws its magnifier and "Filter" placeholder text (was empty). |
+| 4 | Home › Popular | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Filter contents return and the regular-width rows reflow without losing text. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws its magnifier and "Filter" placeholder text (was empty). |
 | 4 | Home › Popular | iPad | landscape | XXL (extra-extra-extra-large) | pass | Filter and every row value read in full. |
 | 4 | Home › Popular | iPad | landscape | AX3 (accessibility-extra-large) | finding:#4 | The filter contents disappear; row values remain complete. |
 | 4 | Home › Popular | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The filter remains an empty capsule; the rows themselves preserve their contents. |
-| 5 | Home › Watched | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 5 | Home › Watched | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 5 | Home › Watched | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 5 | Home › Watched | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 5 | Home › Watched | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 5 | Home › Watched | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
+| 5 | Home › Watched | iPad | portrait | XXL (extra-extra-extra-large) | pass | Login-gated screen now reachable (owner signed in on `IPAD_UDID`, D-09). Watched rows reflow: title/uploader/stars/rounded badge/page count/full date all complete; scrolled rows identical. The wider iPad layout keeps title beside cover. |
+| 5 | Home › Watched | iPad | portrait | AX3 (accessibility-extra-large) | pass | Filter field populated — iPhone finding #4 does not reproduce on iPad #5; title/uploader/stars/rounded badge/page count/full date complete; scrolled rows complete. |
+| 5 | Home › Watched | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | 'Watched' nav title drawn (iPhone finding #7 not reproduced); pull-to-reveal filter capsule shows magnifier + Search placeholder; cover stacks above stacked text, every value complete; scrolled rows complete. |
+| 5 | Home › Watched | iPad | landscape | XXL (extra-extra-extra-large) | pass | All five tab labels fit; compact rows keep title beside cover, rounded badge/page count/full date complete; scrolled rows complete. |
+| 5 | Home › Watched | iPad | landscape | AX3 (accessibility-extra-large) | pass | Rows complete, filter field populated; sits between the XXL and AX5 passes; scrolled rows complete. |
+| 5 | Home › Watched | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Watched title + populated filter; title/uploader/stars/page count/full date complete; scrolled rows complete. |
 | 6 | Home › History | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter, preservation notice, and gallery-row values remain readable. |
 | 6 | Home › History | iPad | portrait | AX3 (accessibility-extra-large) | pass | The notice stays on one line and every row value remains independently readable. |
 | 6 | Home › History | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The notice wraps cleanly; titles, ratings, categories, counts, and timestamps remain readable. |
 | 6 | Home › History | iPad | landscape | XXL (extra-extra-extra-large) | pass | Filter, notice, and gallery-row values remain readable. |
 | 6 | Home › History | iPad | landscape | AX3 (accessibility-extra-large) | pass | Rows reflow without clipping or overlapping their metadata. |
 | 6 | Home › History | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The wide row preserves all values at the largest sampled size. |
-| 7 | Home › Toplists | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter and Toplists rows preserve their titles and metadata. |
-| 7 | Home › Toplists | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The filter contents disappear; the gallery rows reflow without losing values. |
-| 7 | Home › Toplists | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Filter and every sampled row value remain visible at the largest size. |
-| 7 | Home › Toplists | iPad | landscape | XXL (extra-extra-extra-large) | pass | Filter and Toplists rows preserve their titles and metadata. |
-| 7 | Home › Toplists | iPad | landscape | AX3 (accessibility-extra-large) | finding:#4 | The filter is an empty capsule; row values remain readable. |
-| 7 | Home › Toplists | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The filter remains empty while the wide rows preserve their values. |
-| 8 | Favorites root | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 8 | Favorites root | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 8 | Favorites root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 8 | Favorites root | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 8 | Favorites root | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 8 | Favorites root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so no credentials were entered. |
-| 9 | Search root | iPad | portrait | XXL (extra-extra-extra-large) | pass | All three Recently Seen cards keep their covers, titles, and ratings readable. |
-| 9 | Search root | iPad | portrait | AX3 (accessibility-extra-large) | finding:#10 | Fixed-height cards clip the tops of their titles and crowd their star rows. |
-| 9 | Search root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Titles largely disappear while the covers and uploader lines overflow their cells. |
-| 9 | Search root | iPad | landscape | XXL (extra-extra-extra-large) | pass | The wider Recently Seen strip preserves every sampled card value. |
-| 9 | Search root | iPad | landscape | AX3 (accessibility-extra-large) | finding:#10 | Fixed-height cells clip their title tops even in the wider layout. |
-| 9 | Search root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#10 | Card contents overflow vertically and the title is no longer independently readable. |
+| 7 | Home › Toplists | iPad | portrait | XXL (extra-extra-extra-large) | pass | Filter and Toplists rows preserve their titles and metadata. Re-verify (batch 1): unchanged. |
+| 7 | Home › Toplists | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The filter contents disappear; the gallery rows reflow without losing values. Re-verify (batch 1): every sampled row value reads in full. Filter capsule (#4) not re-checked. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws its magnifier and "Filter" placeholder text (was empty). |
+| 7 | Home › Toplists | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Filter and every sampled row value remain visible at the largest size. Re-verify (batch 1): unchanged. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws its magnifier and "Filter" placeholder text (was empty). |
+| 7 | Home › Toplists | iPad | landscape | XXL (extra-extra-extra-large) | pass | Filter and Toplists rows preserve their titles and metadata. Re-verify (batch 1): unchanged. |
+| 7 | Home › Toplists | iPad | landscape | AX3 (accessibility-extra-large) | finding:#4 | The filter is an empty capsule; row values remain readable. Re-verify (batch 1): every sampled row value reads in full. Filter capsule (#4) not re-checked. |
+| 7 | Home › Toplists | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The filter remains empty while the wide rows preserve their values. Re-verify (batch 1): every sampled row value reads in full. Filter capsule (#4) not re-checked. |
+| 8 | Favorites root | iPad | portrait | XXL (extra-extra-extra-large) | pass | Reachable via the owner session (D-09). Rows reflow: title wraps complete, full 5-star row, rounded Misc badge, page count + full date/time; scrolled rows identical. |
+| 8 | Favorites root | iPad | portrait | AX3 (accessibility-extra-large) | pass | Cover larger, title wraps 3 lines complete, stars full, rounded Doujinshi badge, language/page count/date complete, no badge-timestamp overlap; scrolled rows complete. |
+| 8 | Favorites root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Cover stacks above stacked text; title 4 lines complete, full star row, rounded badge, language/page count/full date complete. Index popover (All / Favorites 0..9), Sort menu ('By last gallery update time' / 'By favorited time') and Features menu (Date Seek / Quick Search) all wrap and read in full. |
+| 8 | Favorites root | iPad | landscape | XXL (extra-extra-extra-large) | pass | All five tab labels fit; rows keep title beside cover, badge/language/page count/date complete; scrolled rows complete. |
+| 8 | Favorites root | iPad | landscape | AX3 (accessibility-extra-large) | pass | Long title wraps 2 lines complete, stars full, rounded badge, page count/date complete; scrolled rows complete. |
+| 8 | Favorites root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Long Japanese title wraps 3 lines complete ending [DL版], full star row, rounded badge, page count/full date complete; scrolled rows complete. |
+| 9 | Search root | iPad | portrait | XXL (extra-extra-extra-large) | pass | All three Recently Seen cards keep their covers, titles, and ratings readable. Re-verify (batch 1): unchanged. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPad | portrait | AX3 (accessibility-extra-large) | pass | Fixed-height cards clip the tops of their titles and crowd their star rows. Re-verify (batch 1): the Recently Seen cards grow with the type; titles, uploaders and ratings all read. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Titles largely disappear while the covers and uploader lines overflow their cells. Re-verify (batch 1): the cards grow with the type; titles, uploaders and ratings all read. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPad | landscape | XXL (extra-extra-extra-large) | pass | The wider Recently Seen strip preserves every sampled card value. Re-verify (batch 1): unchanged. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPad | landscape | AX3 (accessibility-extra-large) | pass | Fixed-height cells clip their title tops even in the wider layout. Re-verify (batch 1): the cards grow with the type; every sampled card value reads in full. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
+| 9 | Search root | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Card contents overflow vertically and the title is no longer independently readable. Re-verify (batch 1): the cards grow with the type; every sampled card value reads in full. Re-verify (batch 2): the section heading is leading-aligned and wraps whole words, Show All drops to its own line at the accessibility sizes and is omitted entirely (with no blank line) where the section has none, and the keyword rows are leading-aligned with the magnifier on the keyword's first line. |
 | 10 | Search results | iPad | portrait | XXL (extra-extra-extra-large) | pass | The query, result titles, uploader, category, count, and timestamp remain readable. |
-| 10 | Search results | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The search/filter capsule is empty; the result rows themselves remain readable. |
-| 10 | Search results | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The capsule still loses its query text while the result rows reflow successfully. |
+| 10 | Search results | iPad | portrait | AX3 (accessibility-extra-large) | finding:#4 | The search/filter capsule is empty; the result rows themselves remain readable. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws the submitted query with a clear button (was empty). |
+| 10 | Search results | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The capsule still loses its query text while the result rows reflow successfully. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal capsule draws the submitted query with a clear button (was empty). |
 | 10 | Search results | iPad | landscape | XXL (extra-extra-extra-large) | pass | Query and all sampled result-row values remain readable. |
 | 10 | Search results | iPad | landscape | AX3 (accessibility-extra-large) | pass | The query stays visible and the wide rows preserve all values. |
 | 10 | Search results | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4 | The query capsule becomes empty; result rows remain readable. |
@@ -848,101 +848,101 @@ written description only — never a screenshot filename (D-32).
 | 12 | Downloads › Inspector sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | Header, metadata, status sections, and actions remain readable. |
 | 12 | Downloads › Inspector sheet | iPad | landscape | AX3 (accessibility-extra-large) | pass | The timestamp stays complete and all action labels remain readable. |
 | 12 | Downloads › Inspector sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#6 | The timestamp loses its time after the date while the title and actions remain complete. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
-| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Login-gated; `IPAD_LOGIN=none`, so the folder-management route was not exercised. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | XXL (extra-extra-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | AX3 (accessibility-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. The delete confirmation itself was not raised — deleting a folder is forbidden on this simulator. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | XXL (extra-extra-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | AX3 (accessibility-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. |
+| 13 | Downloads › Move-to-folder / FolderManager | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Reached through the Detail header's download menu (`Manage Folders`); the sheet is a regular-width form sheet. Sheet title, close and add controls and the `Default` folder row all read in full. The row's swipe actions are icon-only rename and delete glyphs, so they carry no text to lose. The delete confirmation itself was not raised — deleting a folder is forbidden on this simulator. |
 
 ### iPad — Group B (#14–#27) — plan 16-08
 
 | # | Screen | Device | Orientation | Size | Status | Finding |
 |---|---|---|---|---|---|---|
-| 14 | Gallery Detail | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 14 | Gallery Detail | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 14 | Gallery Detail | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 14 | Gallery Detail | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 14 | Gallery Detail | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 14 | Gallery Detail | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Detail is login-gated; Favorites confirms `IPAD_LOGIN=none`, so no credential was entered and no iPhone verdict was inferred. |
-| 15 | Detail › Previews | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 15 | Detail › Previews | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 15 | Detail › Previews | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 15 | Detail › Previews | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 15 | Detail › Previews | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 15 | Detail › Previews | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Previews route requires the unavailable live Detail session; no credential was entered. |
-| 16 | Detail › Comments | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 16 | Detail › Comments | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 16 | Detail › Comments | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 16 | Detail › Comments | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 16 | Detail › Comments | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 16 | Detail › Comments | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Comments is login-gated; no credential was entered, and no post or vote surface was opened. |
-| 17 | Detail › Detail Search | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 17 | Detail › Detail Search | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 17 | Detail › Detail Search | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 17 | Detail › Detail Search | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 17 | Detail › Detail Search | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 17 | Detail › Detail Search | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The Detail Search route requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 18 | Detail › Gallery Infos | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Gallery Infos requires the unavailable live Detail session; no credential was entered. |
-| 19 | Detail › Archives sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 19 | Detail › Archives sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 19 | Detail › Archives sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 19 | Detail › Archives sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 19 | Detail › Archives sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 19 | Detail › Archives sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Archives is login-gated; no credential was entered and nothing was purchased. |
-| 20 | Detail › Torrents sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 20 | Detail › Torrents sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 20 | Detail › Torrents sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 20 | Detail › Torrents sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 20 | Detail › Torrents sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 20 | Detail › Torrents sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Torrents is login-gated; no credential was entered and no torrent action or share sheet was opened. |
-| 21 | Detail › Tag Detail sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 21 | Detail › Tag Detail sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 21 | Detail › Tag Detail sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 21 | Detail › Tag Detail sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 21 | Detail › Tag Detail sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 21 | Detail › Tag Detail sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: unreachable in an English session | The entry point requires a live Detail tag with a non-empty translated description; English descriptions are empty, and the unavailable iPad session also prevents opening live Detail. |
-| 22 | Detail › NewDawn sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 22 | Detail › NewDawn sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 22 | Detail › NewDawn sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 22 | Detail › NewDawn sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 22 | Detail › NewDawn sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 22 | Detail › NewDawn sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: greeting not presented this session | The server-issued greeting did not appear when the app was launched for this session and cannot be summoned. |
-| 23 | Detail › download confirmation dialogs | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 23 | Detail › download confirmation dialogs | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 23 | Detail › download confirmation dialogs | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 23 | Detail › download confirmation dialogs | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 23 | Detail › download confirmation dialogs | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 23 | Detail › download confirmation dialogs | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The live Detail download route is unavailable without a session; no dialog was opened and the preserved download was untouched. |
-| 24 | Reading | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 24 | Reading | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 24 | Reading | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 24 | Reading | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 24 | Reading | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 24 | Reading | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Reading is login-gated; no credential was entered and the preserved download was not opened or changed. |
-| 25 | Reading › Control panel | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 25 | Reading › Control panel | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 25 | Reading › Control panel | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 25 | Reading › Control panel | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 25 | Reading › Control panel | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 25 | Reading › Control panel | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The regular-width control panel requires the unavailable live Reading route; no iPhone verdict was inferred. |
-| 26 | Reading › Reading Setting sheet | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 26 | Reading › Reading Setting sheet | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 26 | Reading › Reading Setting sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 26 | Reading › Reading Setting sheet | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 26 | Reading › Reading Setting sheet | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 26 | Reading › Reading Setting sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | The sheet itself is not account-gated, but its only Group-B entry is the unavailable live Reading control panel. |
-| 27 | Reading › Live Text overlay | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
-| 27 | Reading › Live Text overlay | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
-| 27 | Reading › Live Text overlay | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
-| 27 | Reading › Live Text overlay | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
-| 27 | Reading › Live Text overlay | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
-| 27 | Reading › Live Text overlay | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no iPad session | Live Text is reached from the unavailable live Reading control panel; no overlay or system share UI was opened. |
+| 14 | Gallery Detail | iPad | portrait | XXL (extra-extra-extra-large) | pass | Regular-width modal card. Header: title 2-3 lines complete, cover, rounded Manga badge, action glyphs inside circles. **Stats strip (D-13)** is a horizontal `ScrollView`: FAVORITED/LANGUAGE/483 RATINGS (4.50 full star row)/PAGE COUNT complete, File Size reachable by horizontal scroll, no column spans full width. **Tag cloud (D-13)** wraps all chips inside the card, namespace chips inline, no right-edge clip. |
+| 14 | Gallery Detail | iPad | portrait | AX3 (accessibility-extra-large) | pass | Header title 3 lines complete, rounded badge, actions. Stats strip labels+values complete, unit lines/star row reachable by vertical scroll within the card. Tag cloud wraps inside card, no clipping. |
+| 14 | Gallery Detail | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Header title 3 lines complete (owner-accepted 3-line cap), rounded Manga badge, action glyphs inside circles. **Stats strip (D-13):** FAVORITED 15707 Times / LANGUAGE ZH Chinese complete, horizontal scroll reveals Ratings (star row)/Page Count/File Size all complete. **Tag cloud (D-13):** namespace chips (Language/Artist/Female) stacked above children, all 12 tags complete, no right-edge clip. Previews + Comments-preview sections render and read. |
+| 14 | Gallery Detail | iPad | landscape | XXL (extra-extra-extra-large) | pass | Wider modal: full stats strip visible (5 columns, star row), full tag cloud (Language/Artist/Female/Mixed/Other) all complete, Previews/Show All below. |
+| 14 | Gallery Detail | iPad | landscape | AX3 (accessibility-extra-large) | pass | Header + stats strip complete; tag cloud wraps, no clipping. |
+| 14 | Gallery Detail | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Header title 3 lines complete, rounded badge. Stats strip FAVORITED/LANGUAGE complete (scroll for the rest); tag cloud namespace chips stacked above children, all tags complete, no clip. |
+| 15 | Detail › Previews | iPad | portrait | XXL (extra-extra-extra-large) | pass | The Previews sheet keeps a five-column grid; every page number reads in full beneath its thumbnail and the inline sheet title and back control are complete. Walked past page 150. The full-screen cover opened from a thumbnail shows its page-number placeholder complete. |
+| 15 | Detail › Previews | iPad | portrait | AX3 (accessibility-extra-large) | pass | Page numbers grow with the type size and the grid spaces itself to fit them; nothing clipped or ellipsised, title and back control intact. |
+| 15 | Detail › Previews | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Page numbers render at full accessibility size beside their thumbnails, the grid stays five columns and nothing collides. In the full-screen cover the placeholder page number grows from 70x48 pt to 104x72 pt and still reads. |
+| 15 | Detail › Previews | iPad | landscape | XXL (extra-extra-extra-large) | pass | Five-column grid, all page numbers and the sheet title read in full. |
+| 15 | Detail › Previews | iPad | landscape | AX3 (accessibility-extra-large) | pass | The only text on the sheet is the page number and it grows cleanly; nothing clipped. |
+| 15 | Detail › Previews | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Page numbers reach accessibility size without colliding with their thumbnails; grid and title intact. |
+| 16 | Detail › Comments | iPad | portrait | XXL (extra-extra-extra-large) | pass | Comments render in a regular-width sheet. Author, vote score and the complete `YYYY/MM/DD, HH:MM` timestamp share one header line and all read; bodies wrap in full, including a multi-paragraph comment with a URL. Several screens of rows walked. The post-comment sheet was opened and dismissed without submitting — its title and both controls read. |
+| 16 | Detail › Comments | iPad | portrait | AX3 (accessibility-extra-large) | pass | The author moves to its own line and the score plus the complete timestamp follow on the meta line beneath it; bodies wrap in full. Nothing ellipsised. |
+| 16 | Detail › Comments | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Same stacked meta line — author, then score and a two-line timestamp — with bodies wrapping in full. The post-comment sheet's inline title and both controls still read. |
+| 16 | Detail › Comments | iPad | landscape | XXL (extra-extra-extra-large) | pass | Author and the complete timestamp fit one line; bodies wrap without loss. |
+| 16 | Detail › Comments | iPad | landscape | AX3 (accessibility-extra-large) | pass | Header row still fits on one line with the full timestamp; bodies complete. |
+| 16 | Detail › Comments | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Author on its own line, score and wrapped timestamp beneath, bodies complete; three-digit scores (`+164`) read. |
+| 17 | Detail › Detail Search | iPad | portrait | XXL (extra-extra-extra-large) | pass | Reached by tapping a tag in the Detail tag cloud; the results render in a regular-width sheet whose inline title carries the search term in full. Row titles wrap to as many lines as they need, and uploader, language, rating, page count, category badge and the full timestamp all read. |
+| 17 | Detail › Detail Search | iPad | portrait | AX3 (accessibility-extra-large) | pass | The row reflows to cover-above-title; title, uploader, language, rating and page count all read in full. None of iPhone findings #5, #6, #8 or #9 reproduces here. |
+| 17 | Detail › Detail Search | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Stacked row with the title complete over five lines; rating, page count, the `Artist CG` badge and the full timestamp all read. The features menu's Filters and Quick Search items read in full. |
+| 17 | Detail › Detail Search | iPad | landscape | XXL (extra-extra-extra-large) | pass | Every row value reads in full, search term included. |
+| 17 | Detail › Detail Search | iPad | landscape | AX3 (accessibility-extra-large) | pass | Cover-above-title reflow; badge and the complete timestamp sit side by side and both read. |
+| 17 | Detail › Detail Search | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Titles wrap complete; badge and the full `2026/09/04, 1:30` timestamp both read. Rows grow much taller than the sheet and scroll, which D-03 treats as fine. |
+| 18 | Detail › Gallery Infos | iPad | portrait | XXL (extra-extra-extra-large) | pass | Reached through the trailing ellipsis of the Detail stats strip (the strip has to be flicked sideways first in portrait). Every label and value reads; the long Archive URL drops below its label rather than truncating, and the counter rows at the bottom are complete. |
+| 18 | Detail › Gallery Infos | iPad | portrait | AX3 (accessibility-extra-large) | pass | Rows reflow to value-under-label wherever the line no longer fits; every URL, identifier and counter reads in full. |
+| 18 | Detail › Gallery Infos | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The token hyphenates across two lines and the title wraps, both complete; every counter row down to Torrent Count reads. |
+| 18 | Detail › Gallery Infos | iPad | landscape | XXL (extra-extra-extra-large) | pass | Every row, URLs included, reads in full. |
+| 18 | Detail › Gallery Infos | iPad | landscape | AX3 (accessibility-extra-large) | pass | The wider line lets the URLs finish; nothing clipped. |
+| 18 | Detail › Gallery Infos | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Token, title and every counter read in full; the sheet scrolls to its end. |
+| 19 | Detail › Archives sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | `pinnedColumn`: heading, both cards (Original / 1280x, size, Free) complete, funds + Download button all visible, no scroll needed. |
+| 19 | Detail › Archives sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | Cards stack one column, both complete; funds visible; Download button just below the fold. Scrolling to the button pushes the large title fully off the top — cards, funds and button all read with no overlap. |
+| 19 | Detail › Archives sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#36 | `scrollingColumn` at accessibility sizes: cards stack one column, Original/1280x with size+Free complete at top, funds below the fold. Scrolling to reach funds+Download button, the large 'Archives' navigation title stays and overlaps the '1280x' card — the short form-sheet has too little scroll travel to clear the large title. **NEW iPad-only finding #36.** |
+| 19 | Detail › Archives sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | `pinnedColumn`: heading, 2 cards, funds, Download button all fit, no overlap. |
+| 19 | Detail › Archives sheet | iPad | landscape | AX3 (accessibility-extra-large) | finding:#36 | Heading + both cards + funds fit; button just below the fold. Scrolling to the button, the 'Archives' title overlaps the '1280x' card (short landscape form-sheet). **NEW iPad-only finding #36.** |
+| 19 | Detail › Archives sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#36 | Both cards complete, funds below the fold. Scrolling to funds/button, the 'Archives' title overlaps the '1280x' card. **NEW iPad-only finding #36.** |
+| 20 | Detail › Torrents sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | Single-torrent card: counter row (↑8 ↓0 ★1,124 / 256.8 MiB — the finding-#21 flow, all four values), filename complete, uploader + timestamp all read; no title overlap (content short). |
+| 20 | Detail › Torrents sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | Counter row wraps, filename complete, uploader + timestamp read; 'Torrents' title clear above the card. |
+| 20 | Detail › Torrents sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Counters (↑8 ↓0 ★1,124 / 256.8 MiB, finding-#21 flow), filename (4 lines) complete, uploader + timestamp read; single-torrent content short so no title overlap. |
+| 20 | Detail › Torrents sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | Counter row single line, filename 2 lines, uploader+timestamp one line, all complete. |
+| 20 | Detail › Torrents sheet | iPad | landscape | AX3 (accessibility-extra-large) | pass | Counters wrap to two lines, filename 3 lines, uploader + timestamp complete inside the card; title clear above. |
+| 20 | Detail › Torrents sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Counters + filename + uploader in card; timestamp at the card-bottom fold, revealed in full by scroll (2025/10/17, 21:30); 'Torrents' title scrolls off cleanly with a gap above the card — no overlap (unlike Archives #36, the single-torrent content is short and the title collapses away). |
+| 21 | Detail › Tag Detail sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | Unblocked the same way as the iPhone column (session language 简体中文, Tags Extension and Translate Tags on) and with the owner-created iPad session in place. The sheet is a regular-width form sheet; walked on a female-namespace tag with a long description, three images and an empty links list. Title, the complete description, all three images and the Links heading fit the card without scrolling. |
+| 21 | Detail › Tag Detail sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | Description wraps to five lines inside the card and reads in full; the card scrolls to the images row and the Links heading with nothing clipped. |
+| 21 | Detail › Tag Detail sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Description complete at accessibility size; scrolling reaches the images row and the Links heading. No value is lost and no text is drawn outside the card. |
+| 21 | Detail › Tag Detail sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | The whole card is visible without scrolling — title, description, three images and the Links heading. |
+| 21 | Detail › Tag Detail sheet | iPad | landscape | AX3 (accessibility-extra-large) | pass | Description complete over four lines; one scroll brings the images row and the Links heading fully into view. |
+| 21 | Detail › Tag Detail sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Description complete over six lines; scrolling reaches the images row and the Links heading, each drawn inside the card. |
+| 22 | Detail › NewDawn sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. The whole greeting fits inside the form-sheet. |
+| 22 | Detail › NewDawn sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. Still fits: the last line `Hath!` sits well above the sheet's bottom edge. |
+| 22 | Detail › NewDawn sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#38 | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. The greeting outgrows the form-sheet and, because nothing scrolls, is cut at **both** ends: the first line `It is the dawn of a` is sliced horizontally by the sheet's top edge and the closing `Hath!` by its bottom edge. Both read in full at `.large`. |
+| 22 | Detail › NewDawn sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. The whole greeting fits inside the form-sheet. |
+| 22 | Detail › NewDawn sheet | iPad | landscape | AX3 (accessibility-extra-large) | pass | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. Still fits, with margin at both ends. |
+| 22 | Detail › NewDawn sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#38 | Walked in batch 9 against a greeting surfaced by a temporary, never-committed presentation injection (the owner authorised mocking, since only the layout is under test); `NewDawnView` itself was unmodified and the build was reverted and reinstalled clean afterwards. Same as portrait AX5 and slightly worse for the shorter sheet: the opening line and the closing `Hath!` are both cut in half by the sheet's edges, with no way to scroll to them. |
+| 23 | Detail › download confirmation dialogs | iPad | portrait | XXL (extra-extra-extra-large) | pass | Raised from the Detail header's trash control on the gallery this phase downloaded. Title, the full explanatory sentence and both Cancel and Delete read inside the alert's own card. Cancelled; nothing was deleted. |
+| 23 | Detail › download confirmation dialogs | iPad | portrait | AX3 (accessibility-extra-large) | finding:#37 | The alert's card stops mid-button: the Cancel and Delete capsules are drawn but their lower halves fall outside the card's rounded bottom edge, with the labels sitting on the clip line and no bottom padding at all. Title and sentence read. Cancelled. |
+| 23 | Detail › download confirmation dialogs | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The button row breaks to a vertical stack and the whole alert — two-line title, four-line sentence, Delete then Cancel — reads inside its card. Cancelled. |
+| 23 | Detail › download confirmation dialogs | iPad | landscape | XXL (extra-extra-extra-large) | pass | Title, sentence and both buttons read in full. Cancelled. iPhone finding #23 does not reproduce. |
+| 23 | Detail › download confirmation dialogs | iPad | landscape | AX3 (accessibility-extra-large) | finding:#37 | Same clipped button row as portrait AX3 — both capsules cut by the alert's bottom edge. Title and sentence read. Cancelled. |
+| 23 | Detail › download confirmation dialogs | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Stacked buttons; title, sentence, Delete and Cancel all read inside the card, so the iPhone landscape loss recorded as finding #23 does not reproduce on iPad. Cancelled. |
+| 24 | Reading | iPad | portrait | XXL (extra-extra-extra-large) | pass | The reading surface draws no app-owned text — page images only — and the centre tap zone still summons the control panel. The page context menu shows all five actions with their glyphs. |
+| 24 | Reading | iPad | portrait | AX3 (accessibility-extra-large) | pass | Page images unchanged; the context menu drops its glyphs (decoration) and shows all five items in full. |
+| 24 | Reading | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Page images unchanged and scrollable to the last page. The context menu shows four of its five items at once and scrolls to reach Share — nothing unreachable. |
+| 24 | Reading | iPad | landscape | XXL (extra-extra-extra-large) | pass | Page images only; tap zones and the five-item context menu intact. |
+| 24 | Reading | iPad | landscape | AX3 (accessibility-extra-large) | pass | Context menu items read in full. |
+| 24 | Reading | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The context menu scrolls to reach its fifth item; every item reads. |
+| 25 | Reading › Control panel | iPad | portrait | XXL (extra-extra-extra-large) | pass | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. The More menu's three items read in full and the Auto-Play menu marks the selected interval with a leading checkmark. |
+| 25 | Reading › Control panel | iPad | portrait | AX3 (accessibility-extra-large) | finding:#26 | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. The More menu reads in full, but the Auto-Play menu stops drawing the checkmark beside the selected interval, so the menu no longer says which interval is active — the same failure #26 records for the activity-log Runs menu. |
+| 25 | Reading › Control panel | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#26 | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. A three-digit counter (`132 / 254`) still reads in full on the iPad's wider bar, and the More menu wraps its items without loss; but the Auto-Play menu again draws no checkmark beside the selected interval (finding #26). The menu scrolls to reach its last option. |
+| 25 | Reading › Control panel | iPad | landscape | XXL (extra-extra-extra-large) | pass | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. Auto-Play checkmark present; both menus read in full. |
+| 25 | Reading › Control panel | iPad | landscape | AX3 (accessibility-extra-large) | finding:#26 | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. Auto-Play checkmark not drawn (finding #26); bars and More menu complete. |
+| 25 | Reading › Control panel | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#26 | The upper bar is capped at `.large` by the owner-authorised lint exception, so close button, page indicator and the three glyph actions keep one line at every size; the lower bar's end labels grow with the type and the slider is intact. Auto-Play checkmark not drawn (finding #26); bars and the More menu's three wrapped items all read. |
+| 26 | Reading › Reading Setting sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | The sheet is a measured 580x640 pt card. At XXL every row and both sliders' end labels fit inside it without scrolling; nothing is clipped. |
+| 26 | Reading › Reading Setting sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | The card keeps its measured height and scrolls (P-11): the two scale-factor rows sit below the fold at rest and every label, value and slider end label reads once scrolled. The navigation title collapses to an inline `Reading`. |
+| 26 | Reading › Reading Setting sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Labels wrap to two lines and the card scrolls to its end; every label, value and slider end label (`1.5x`, `10.0x`, `5.0x`) reads. Reading Direction was read, never changed. |
+| 26 | Reading › Reading Setting sheet | iPad | landscape | XXL (extra-extra-extra-large) | pass | Every row fits inside the card; both sliders keep their end labels. |
+| 26 | Reading › Reading Setting sheet | iPad | landscape | AX3 (accessibility-extra-large) | pass | The card scrolls to its end; nothing lost. |
+| 26 | Reading › Reading Setting sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The card scrolls to its end; every label, value and slider end label reads. |
+| 27 | Reading › Live Text overlay | iPad | portrait | XXL (extra-extra-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
+| 27 | Reading › Live Text overlay | iPad | portrait | AX3 (accessibility-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
+| 27 | Reading › Live Text overlay | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
+| 27 | Reading › Live Text overlay | iPad | landscape | XXL (extra-extra-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
+| 27 | Reading › Live Text overlay | iPad | landscape | AX3 (accessibility-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
+| 27 | Reading › Live Text overlay | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | n/a: no app-drawn text (system overlay) | The overlay was enabled from the control panel and inspected on a page whose art carries recognised text. Everything it draws is a transparent hit-target text view (clear text colour, zero-point font) plus highlight paths derived from the image, so there is no app-drawn string for Dynamic Type to reach and the highlight geometry is identical at every size — the landscape AX3 and AX5 frames are pixel-identical to the XXL frame above the control bar. The overlay was switched back off afterwards. |
 
 ### iPad — Group C (#28–#42) — plan 16-09
 
@@ -961,11 +961,11 @@ written description only — never a screenshot filename (D-32).
 | 29 | Setting › Account | iPad | landscape | AX3 (accessibility-extra-large) | pass | Labels and `None` values remain readable and every row is reachable. |
 | 29 | Setting › Account | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Rows reflow and scroll without information loss; no credential or logout action was available or attempted. |
 | 30 | Setting › Login | iPad | portrait | XXL (extra-extra-extra-large) | pass | Login title, both empty native fields and the submit glyph remain distinct; no credential was entered or submitted. |
-| 30 | Setting › Login | iPad | portrait | AX3 (accessibility-extra-large) | pass | Both field labels, placeholders and the disabled submit control read cleanly in the modal. |
-| 30 | Setting › Login | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#33 | The enlarged Login heading is painted through the Username label; the native fields remain reachable but the heading and first label cannot be read independently. |
+| 30 | Setting › Login | iPad | portrait | AX3 (accessibility-extra-large) | pass | Both field labels, placeholders and the disabled submit control read cleanly in the modal. Re-verify (batch 3, `0a965af3`): above the default size the screen stops ignoring the safe area, so the navigation bar's inset pushes the form clear of the heading, and the column scrolls if it outgrows the height. Heading clear of the Username label; both fields and the Login button on screen. |
+| 30 | Setting › Login | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#33 | The enlarged Login heading is painted through the Username label; the native fields remain reachable but the heading and first label cannot be read independently. Re-verify (batch 3, `0a965af3`): above the default size the screen stops ignoring the safe area, so the navigation bar's inset pushes the form clear of the heading, and the column scrolls if it outgrows the height. The bottom of `Login` no longer paints through the `Username` label; heading at 147,339 171x72 pt, the first label at 243,450, and the whole form including the button is drawn. |
 | 30 | Setting › Login | iPad | landscape | XXL (extra-extra-extra-large) | pass | The native form has ample width and every label, field and toolbar glyph is complete. |
-| 30 | Setting › Login | iPad | landscape | AX3 (accessibility-extra-large) | pass | Username and Password remain separate from the title and the disabled submit control stays visible. |
-| 30 | Setting › Login | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#33 | The Login heading overlaps the Username label in the compact-height modal just as it does in portrait. |
+| 30 | Setting › Login | iPad | landscape | AX3 (accessibility-extra-large) | pass | Username and Password remain separate from the title and the disabled submit control stays visible. Re-verify (batch 3, `0a965af3`): above the default size the screen stops ignoring the safe area, so the navigation bar's inset pushes the form clear of the heading, and the column scrolls if it outgrows the height. Heading clear of the field in the compact-height modal; whole form on screen. |
+| 30 | Setting › Login | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#33 | The Login heading overlaps the Username label in the compact-height modal just as it does in portrait. Re-verify (batch 3, `0a965af3`): above the default size the screen stops ignoring the safe area, so the navigation bar's inset pushes the form clear of the heading, and the column scrolls if it outgrows the height. Heading clear of the Username label; both fields and the Login button drawn. |
 | 31 | Setting › General | iPad | portrait | XXL (extra-extra-extra-large) | pass | Language, translation, cache and analytics rows read in full; the footer reaches its last word. |
 | 31 | Setting › General | iPad | portrait | AX3 (accessibility-extra-large) | pass | Labels and values wrap without loss and all controls remain reachable. |
 | 31 | Setting › General | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Every row and the full analytics footer are reachable; the clear-cache confirmation text and action are complete and the popover was cancelled outside. |
@@ -973,8 +973,8 @@ written description only — never a screenshot filename (D-32).
 | 31 | Setting › General | iPad | landscape | AX3 (accessibility-extra-large) | pass | Labels wrap cleanly and the bottom of the footer remains reachable. |
 | 31 | Setting › General | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | The modal scrolls through every enlarged row and the footer without clipping; no setting or cache state was changed. |
 | 32 | Setting › General › Activity Logs | iPad | portrait | XXL (extra-extra-extra-large) | pass | Title, search field, timestamps, category chips and log messages render completely. |
-| 32 | Setting › General › Activity Logs | iPad | portrait | AX3 (accessibility-extra-large) | finding:#25 | The category chip is ellipsised while the search field, title, timestamp and wrapped log message remain complete. |
-| 32 | Setting › General › Activity Logs | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #25, #26 | The search control is an empty capsule, category chips are ellipsised and the Runs menu omits its visible selection tick. The More Logs picker still shows its tick and complete labels. |
+| 32 | Setting › General › Activity Logs | iPad | portrait | AX3 (accessibility-extra-large) | finding:#25 | The category chip is ellipsised while the search field, title, timestamp and wrapped log message remain complete. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal search field draws its magnifier and "Search" placeholder text (was empty). The category-chip and Runs-menu-tick aspects of this row's other findings were not re-walked here. |
+| 32 | Setting › General › Activity Logs | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #25, #26 | The search control is an empty capsule, category chips are ellipsised and the Runs menu omits its visible selection tick. The More Logs picker still shows its tick and complete labels. **Re-verify (batch 4, `27a360b1`+`4fbd0ae9`, completing the batch-3 iPad walk):** the pull-to-reveal search field draws its magnifier and "Search" placeholder text (was empty). The category-chip and Runs-menu-tick aspects of this row's other findings were not re-walked here. |
 | 32 | Setting › General › Activity Logs | iPad | landscape | XXL (extra-extra-extra-large) | pass | Search, title, category and log contents are complete; the list scrolls through the available run. |
 | 32 | Setting › General › Activity Logs | iPad | landscape | AX3 (accessibility-extra-large) | finding:#25 | Search and title remain intact, but the category pill loses the end of `DownloadCoordinator`. |
 | 32 | Setting › General › Activity Logs | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#4, #25 | The search capsule loses both glyph and placeholder and category chips are ellipsised; timestamps and messages reflow in full. |
@@ -1008,18 +1008,18 @@ written description only — never a screenshot filename (D-32).
 | 37 | Setting › About | iPad | landscape | XXL (extra-extra-extra-large) | pass | Links and acknowledgements are complete and the list reaches its last row. |
 | 37 | Setting › About | iPad | landscape | AX3 (accessibility-extra-large) | pass | Long names wrap cleanly within the compact-height modal. |
 | 37 | Setting › About | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Every enlarged acknowledgement remains complete and reachable by scrolling. |
-| 38 | Setting › EhSetting | iPad | portrait | XXL (extra-extra-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 38 | Setting › EhSetting | iPad | portrait | AX3 (accessibility-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 38 | Setting › EhSetting | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 38 | Setting › EhSetting | iPad | landscape | XXL (extra-extra-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 38 | Setting › EhSetting | iPad | landscape | AX3 (accessibility-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 38 | Setting › EhSetting | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | blocked: no logged-in iPad session | Native EhSetting sections and the delete-profile confirmation require a logged-in account; login was forbidden and no iPhone verdict was inferred. |
-| 39 | Filters sheet | iPad | portrait | XXL (extra-extra-extra-large) | finding:#29 | The 100-point adaptive category cells already ellipsise names; host, reset and advanced rows remain complete. |
-| 39 | Filters sheet | iPad | portrait | AX3 (accessibility-extra-large) | finding:#29 | Category names lose more characters inside the unchanged 100-point columns; every other row wraps and remains reachable. |
-| 39 | Filters sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | Category names collapse to short ellipsised fragments; advanced rows grow and scroll without losing text. |
-| 39 | Filters sheet | iPad | landscape | XXL (extra-extra-extra-large) | finding:#29 | More 100-point columns fit per row, but the same category names are ellipsised inside each fixed-width cell. |
-| 39 | Filters sheet | iPad | landscape | AX3 (accessibility-extra-large) | finding:#29 | Category names remain cut while the rest of the sheet stays complete. |
-| 39 | Filters sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | The compact-height sheet scrolls through complete advanced rows, but the category cells retain only ellipsised name fragments. |
+| 38 | Setting › EhSetting | iPad | portrait | XXL (extra-extra-extra-large) | pass | Form-sheet modal, inline centered title. Profile picker expands inline (all profiles + checkmark), Image Load section readable, no title overlap. **Excluded Languages (#27)** reflows: each language a bold header + Original/Translated/Rewrite labeled toggle rows (leading-aligned, toggles right). **Multi-Page Viewer (#28)** Display Style = label + inline-expanded options with checkmark. All complete, no truncation — the wider iPad modal absorbs the iPhone-cramped matrices. |
+| 38 | Setting › EhSetting | iPad | portrait | AX3 (accessibility-extra-large) | pass | Inline title, profile picker expanded inline; #27/#28 render via the same header+toggle-row and inline-expanded-picker reflow verified at the bracketing XXL and AX5, no new failure mode. |
+| 38 | Setting › EhSetting | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | Stable state: inline centered title (the large title collapses cleanly, no #36-style overlap once settled), profile picker expanded. **Excluded Languages (#27)** language header + Original/Translated/Rewrite toggle rows all readable; **Multi-Page Viewer (#28)** Display Style options wrap to multiple lines, fully readable, checkmark on selected. No truncation. (Delete-Profile destructive dialog not opened, D-09.) |
+| 38 | Setting › EhSetting | iPad | landscape | XXL (extra-extra-extra-large) | pass | Wider form-sheet, inline title, full profile picker + second card; no overlap. Content (incl. #27/#28) reachable by scrolling; renders identically to portrait (orientation-invariant sheet width). |
+| 38 | Setting › EhSetting | iPad | landscape | AX3 (accessibility-extra-large) | pass | Profile picker expanded through Delete Profile; no overlap; #27/#28 render via the same reflow. |
+| 38 | Setting › EhSetting | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | Inline title, profile picker expanded, no overlap in the shorter landscape sheet. **Excluded Languages (#27)** Korean/Polish headers + Original/Translated/Rewrite toggle rows readable, no truncation; #28 renders identically to portrait. |
+| 39 | Filters sheet | iPad | portrait | XXL (extra-extra-extra-large) | finding:#29 | The 100-point adaptive category cells already ellipsise names; host, reset and advanced rows remain complete. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Four columns; Asian Porn wraps to two lines and all ten names read in full. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 4 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPad | portrait | AX3 (accessibility-extra-large) | finding:#29 | Category names lose more characters inside the unchanged 100-point columns; every other row wraps and remains reachable. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Two columns, all ten names complete. No round-1 capture of this cell shows the grid, so the after-image is supplementary rather than a pair. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 2 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | Category names collapse to short ellipsised fragments; advanced rows grow and scroll without losing text. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Two columns; Game CG and Image Set wrap to two lines, and all ten names read in full where round 1 showed `N…`, `Im…`, `C…`, `A…`, `Mi…`. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 2 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPad | landscape | XXL (extra-extra-extra-large) | finding:#29 | More 100-point columns fit per row, but the same category names are ellipsised inside each fixed-width cell. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Four columns, all ten names complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 4 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPad | landscape | AX3 (accessibility-extra-large) | finding:#29 | Category names remain cut while the rest of the sheet stays complete. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Two columns, all ten names complete on one line each. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 2 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
+| 39 | Filters sheet | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#29 | The compact-height sheet scrolls through complete advanced rows, but the category cells retain only ellipsised name fragments. Re-verify (batch 3, `7645e10c`): the adaptive column bounds scale with the text and a name that still does not fit wraps instead of losing its tail. Two columns, all ten names complete. **Re-verify (batch 4, `db5afd4e`):** the category cell's corner radius now scales with its text (`@ScaledMetric(relativeTo: .body)`), so every chip reads rounded, not square, at this size. Walked the whole sheet top to bottom: 2 columns, all ten names complete, and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly with nothing clipped or overlapping. |
 | 40 | Quick Search sheet | iPad | portrait | XXL (extra-extra-extra-large) | pass | The empty-state title, explanation and toolbar controls read in full. |
 | 40 | Quick Search sheet | iPad | portrait | AX3 (accessibility-extra-large) | pass | Empty-state text reflows without clipping and the editor remains reachable. |
 | 40 | Quick Search sheet | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | pass | The empty state and New Word editor labels and empty fields remain complete; the editor was dismissed without saving. |
@@ -1033,11 +1033,11 @@ written description only — never a screenshot filename (D-32).
 | 41 | Date Seek picker | iPad | landscape | AX3 (accessibility-extra-large) | pass | Every calendar label remains legible and both buttons are reachable. |
 | 41 | Date Seek picker | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | pass | A short scroll reveals both complete navigation buttons below the calendar; no selection was changed. |
 | 42 | Error surface | iPad | portrait | XXL (extra-extra-extra-large) | pass | The toast shows its full unsupported-link subtitle, and the detail sheet scrolls through every complete section. |
-| 42 | Error surface | iPad | portrait | AX3 (accessibility-extra-large) | finding:#31 | The toast title survives but its one-line subtitle ellipsises; the detail sheet remains complete. |
-| 42 | Error surface | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | finding:#31 | The toast subtitle is reduced to an early ellipsised fragment; Description, Suggested Solution, Context and Environment remain reachable in the sheet. |
+| 42 | Error surface | iPad | portrait | AX3 (accessibility-extra-large) | accepted | The toast title survives but its one-line subtitle ellipsises; the detail sheet remains complete. |
+| 42 | Error surface | iPad | portrait | AX5 (accessibility-extra-extra-extra-large) | accepted | The toast subtitle is reduced to an early ellipsised fragment; Description, Suggested Solution, Context and Environment remain reachable in the sheet. |
 | 42 | Error surface | iPad | landscape | XXL (extra-extra-extra-large) | pass | Toast title and subtitle fit in full, and the sheet scrolls through every complete field. |
 | 42 | Error surface | iPad | landscape | AX3 (accessibility-extra-large) | pass | The full unsupported-link subtitle remains visible and the detail sheet stays complete. |
-| 42 | Error surface | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | finding:#31 | The one-line subtitle ellipsises near its end; the detail sheet still exposes every complete section. |
+| 42 | Error surface | iPad | landscape | AX5 (accessibility-extra-extra-extra-large) | accepted | The one-line subtitle ellipsises near its end; the detail sheet still exposes every complete section. |
 
 ## Findings
 
@@ -1051,41 +1051,47 @@ reads as at `.large` — never a filename (D-32). Before/after images are sent t
 
 | #N | Screen | Cells affected | Description (written, no filenames) | Status |
 |---|---|---|---|---|
-| 1 | #2 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape XXL / AX3 / AX5 | The hero carousel's card is a fixed-height card and its title is capped at four lines, so the title gives up characters as the type grows instead of the card growing. At the default size a long title reads to its last word across four lines. On iPhone at XXL it is down to three lines ending in an ellipsis; at AX3 it is a single ellipsised line; at AX5 only the first word survives. The information the card exists to carry — which gallery it is — is progressively removed as the size increases. iPhone landscape absorbs XXL but fails from AX3 up. The iPad's wider layout still ellipsises the same hero in all six sampled cells: portrait progressively collapses to its opening words, while even landscape XXL loses the tail and AX3/AX5 shorten further. Pre-registered as the D-13 "hero-carousel title truncation" case. | open |
-| 2 | #2 | iPhone portrait AX5 | At AX5 in portrait the hero card's contents no longer fit inside the card: the neighbouring card's cover image is drawn on top of the focused card's title tail and its rating stars, and the focused card's own cover is cut off by the screen's left edge. This is overlap, not a peek — the title and the star row are partly unreadable because another card's artwork sits over them. Landscape at the same size does not overlap. | open |
-| 3 | #2, #7 | iPhone portrait AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape AX3 / AX5 | The Home Toplists section's ranking cell keeps a fixed row size, so as type grows both texts are cut: the gallery title ellipsises and the uploader line below it ellipsises as well. At AX5 on iPhone portrait the uploader is not visible at all. The iPad layout reproduces the title loss already at XXL portrait, worsens through AX3/AX5, and also loses title and then uploader text in landscape from AX3. Covers the D-04 site `HomeFeature/GalleryRankingCell.swift:39`. | open |
-| 4 | #3, #4, #5, #6, #7, #10, #32 | iPhone portrait AX3 / AX5 (also observed at XXL on #3); on #32 also iPhone landscape AX5; iPad #3 portrait AX3 and landscape AX5; iPad #4 and #7 portrait AX3 and landscape AX3 / AX5; iPad #10 portrait AX3 / AX5 and landscape AX5; iPad #32 portrait AX5 and landscape AX5 | The pull-to-reveal filter field above the pushed lists sometimes renders as an empty rounded capsule: both the magnifying-glass glyph and the "Filter" placeholder are absent, so the control shows no indication of what it is or does. The capsule itself grows with the type size, so this is not a fixed-height clip — the content is simply not drawn. The failure is non-monotonic: on the iPad it appears at AX3 portrait but returns at AX5 portrait on #3, #4, and #7, while landscape fails at AX5 on #3 and at both AX3/AX5 on #4 and #7. Search results (#10) loses its submitted query at AX3/AX5 portrait and AX5 landscape while preserving it at landscape AX3. Activity Logs (#32) fails at AX5 in both iPad orientations while its field is intact at XXL and AX3; the iPhone occurrence follows a different non-monotonic pattern. | open |
-| 5 | #3, #4, #5, #6, #7, #17 (all list hosts) | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad #3 portrait AX5 | The gallery list row's title is capped at three lines (two when a download badge is present), so a longer title surrenders characters every time the type size goes up. A title that reads to its final bracketed suffix at the default size is already missing that suffix at XXL, loses roughly a third of its text at AX3, and at AX5 in portrait runs off the right edge cut mid-glyph rather than ellipsised. The iPad's regular-width Frontpage row also loses a long title tail at AX5, while its wider landscape counterpart reads in full. Recorded once and tagged all list hosts. | open |
-| 6 | #3, #4, #5, #6, #7, #12, #17 (all list hosts) | iPhone portrait AX3 / AX5; iPad #12 portrait AX5 and landscape AX5 | From AX3 upward in iPhone portrait the list row's text column is wider than the screen, so everything on its right-hand side is cut off by the screen edge rather than reflowed: the language value loses its last one or two letters, the date loses its time and then its year, and the page-count number loses digits — at AX5 the page-count number is gone entirely and only its glyph remains. The iPad Inspector sheet reproduces the timestamp loss at AX5 in both orientations: the date remains, but the time is truncated. None of these values is reachable elsewhere in its host. All of them read in full at the default size and at XXL. Covers the D-04 sites `GalleryListComponents/Cells/GalleryDetailCell.swift:152` and `:163` together with their paired shrinks at `:155` and `:166`, which engage and still fail to keep the value on screen. | open |
-| 7 | #3, #4, #5, #6, #7, #32 | iPhone portrait AX3 / AX5 | The pushed screens' navigation large title degrades in portrait. At AX3 a long title is ellipsised. At AX5 the title is not rendered at all on any of these screens — the band where it belongs is blank, and the accessibility tree carries no heading either, so the screen loses its own name while the space it needs is still reserved. Short titles are affected exactly as long ones. Landscape keeps the inline title at every size. Screen #32 shows a milder variant of the same site: its large title is ellipsised at AX3 **and** at AX5 rather than disappearing, and it survives in landscape where the bar falls back to its inline title. | open |
-| 8 | #3, #4, #5, #6, #7, #17 (all list hosts) | iPhone portrait AX5 | At AX5 in portrait the row's cover thumbnail is squeezed to a narrow vertical sliver a few points wide and pushed partly past the screen's left edge, leaving an unrecognisable strip of the artwork instead of the cover. The cover is the row's only visual identifier and it is not reproduced anywhere else in the row. | open |
-| 9 | #5, #6, #17 (all list hosts) | iPhone portrait XXL and above | The uploader name is ellipsised as soon as a language value shares its line: at XXL a seventeen-character uploader already reads with its last third replaced by an ellipsis, while the language value beside it is complete. At the default size both read in full on the same line. This is the D-04 site `GalleryListComponents/Cells/GalleryDetailCell.swift:107`, whose Phase-10 "fine" verdict rested on the secondary-text exemption that D-04 removes. At AX3 and above the same value is additionally cut by finding #6. | open |
-| 10 | #9 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5; iPad portrait AX3 / AX5; iPad landscape AX3 / AX5 | The Search root's "Recently Seen" strip keeps a fixed cell size, so its contents are removed as the type grows rather than the cell growing with them. At XXL the iPhone cell's title is already ellipsised where it read in full at the default size. At AX3 the cell overflows its slot: the title is cut at the right edge *and* its opening words are pushed past the screen's left edge together with the cover, so neither end of the title is readable. At AX5 in iPhone portrait the cells are drawn on top of the section heading and on top of each other, and the two section headings collapse to roughly one word per line while the rest of their row stays empty; in landscape at AX5 the cells overlap their own covers. The iPad absorbs XXL, then reproduces the fixed-height loss from AX3 upward in both orientations: title tops clip first, and at AX5 the title and cover contents overflow their cells. Covers the D-04 site `SearchFeature/GalleryHistoryCell.swift:32`. | open |
+| 1 | #2 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape XXL / AX3 / AX5 | The hero carousel's card is a fixed-height card and its title is capped at four lines, so the title gives up characters as the type grows instead of the card growing. At the default size a long title reads to its last word across four lines. On iPhone at XXL it is down to three lines ending in an ellipsis; at AX3 it is a single ellipsised line; at AX5 only the first word survives. The information the card exists to carry — which gallery it is — is progressively removed as the size increases. iPhone landscape absorbs XXL but fails from AX3 up. The iPad's wider layout still ellipsises the same hero in all six sampled cells: portrait progressively collapses to its opening words, while even landscape XXL loses the tail and AX3/AX5 shorten further. Pre-registered as the D-13 "hero-carousel title truncation" case. **Re-verify (batch 1, `5e9f9cdb`):** the four-line cap is lifted above the default size and the card now steps its height by type, so iPhone portrait AX5, iPad portrait XXL and AX5 and all three iPad landscape cells read the title to its last word. It still ellipsises at iPhone portrait XXL and AX3, at iPad portrait AX3, and — where round 1 recorded a pass — at all three iPhone landscape cells, whose shorter card height is now the binding budget. Remains **open**. **Re-verify (batch 2, `803756c3`):** the owner's round-I direction is met on both devices. Cover and title stay side by side at every size and only the rating drops to a full-width row of its own, from `.accessibility1` up; the title truncates at its tail with an ellipsis inside the card rather than the card growing to hold it. Card height measured: iPhone portrait 243 pt at XXL and 354 pt at AX3 and AX5, the latter exactly half the 708 pt scroll container; iPhone landscape 139 / 150 / 180 pt; iPad portrait 243 / 388 / 494 pt (the cap does not bite, 41% of the screen at AX5); iPad landscape 243 pt at XXL and 364 pt at AX3 and AX5, exactly half its 728 pt container. At `.large` the card is the designed 336 x 190 pt (iPhone) and 668 x 190 pt (iPad), so D-15 parity holds. **One residue for the owner:** at iPhone portrait AX5 only, the card's rendered bounds are 381.7 pt wide inside its 336 pt layout slot — the five rating symbols need about 336 pt of content width against the 296 pt the card has — so the card overlaps each peeking neighbour by roughly 23 pt and the peek gap disappears. The symbols themselves are not clipped, and every other cell renders the card exactly at its slot width. **Re-verify (batch 2b, `eb38acc4`):** the one residue round II left for the owner is closed. Once the rating drops to its own row the five symbols take `.caption2`, so the card's rendered bounds equal its layout slot at every sampled cell — measured 42.0 to 377.7 pt (336.0 pt) in portrait at XXL, AX3 and AX5, and 145.7 to 766.3 pt (621.0 pt) in landscape at all three — against 19.3 to 400.7 pt (381.7 pt) at iPhone portrait AX5 in round II. The rating row itself measures 66.0 to 314.3 pt at portrait AX5, inside the card's 62.0 to 357.7 pt content box, where round II measured 44.7 to 400.7 pt, 23.0 pt past the card's trailing edge and 2.7 pt into the neighbouring card's slot; the designed 20 pt gap to each peeking neighbour is back on both sides. At XXL the rating is still inside the text column at body size, and at `.large` the rating row is pixel-identical to round II (x 195.7 to 301.7 pt, y 289.3 to 306.7 pt), so the step does not engage at the default size. Nothing else about the card moves. | re-verified |
+| 2 | #2 | iPhone portrait AX5 | At AX5 in portrait the hero card's contents no longer fit inside the card: the neighbouring card's cover image is drawn on top of the focused card's title tail and its rating stars, and the focused card's own cover is cut off by the screen's left edge. This is overlap, not a peek — the title and the star row are partly unreadable because another card's artwork sits over them. Landscape at the same size does not overlap. **Re-verify (batch 1, `5e9f9cdb`):** at AX5 portrait the card stacks its cover above its text, so no neighbouring card is drawn over the title or rating and the focused cover is no longer cut at the leading edge. | re-verified |
+| 3 | #2, #7 | iPhone portrait AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape AX3 / AX5 | The Home Toplists section's ranking cell keeps a fixed row size, so as type grows both texts are cut: the gallery title ellipsises and the uploader line below it ellipsises as well. At AX5 on iPhone portrait the uploader is not visible at all. The iPad layout reproduces the title loss already at XXL portrait, worsens through AX3/AX5, and also loses title and then uploader text in landscape from AX3. Covers the D-04 site `HomeFeature/GalleryRankingCell.swift:39`. **Re-verify (batch 1, `d3aec099`):** the ranking row reflows above the default size; title and uploader read in full at every re-walked cell (iPhone #2 portrait AX3/AX5 and landscape AX3/AX5, iPad #2 portrait and landscape at all three sizes). | re-verified |
+| 4 | #3, #4, #5, #6, #7, #10, #32 | iPhone portrait AX3 / AX5 (also observed at XXL on #3); on #32 also iPhone landscape AX5; iPad #3 portrait AX3 and landscape AX5; iPad #4 and #7 portrait AX3 and landscape AX3 / AX5; iPad #10 portrait AX3 / AX5 and landscape AX5; iPad #32 portrait AX5 and landscape AX5 | The pull-to-reveal filter field above the pushed lists sometimes renders as an empty rounded capsule: both the magnifying-glass glyph and the "Filter" placeholder are absent, so the control shows no indication of what it is or does. The capsule itself grows with the type size, so this is not a fixed-height clip — the content is simply not drawn. The failure is non-monotonic: on the iPad it appears at AX3 portrait but returns at AX5 portrait on #3, #4, and #7, while landscape fails at AX5 on #3 and at both AX3/AX5 on #4 and #7. Search results (#10) loses its submitted query at AX3/AX5 portrait and AX5 landscape while preserving it at landscape AX3. Activity Logs (#32) fails at AX5 in both iPad orientations while its field is intact at XXL and AX3; the iPhone occurrence follows a different non-monotonic pattern. **Re-verify (batch 3, `27a360b1`, `4fbd0ae9`):** the capsule is populated in every iPhone cell re-walked. At AX3 and AX5 portrait the magnifier and the placeholder are drawn on #3 (`Filter`), #4 (`Filter`), #5 (`Search`), #6 (`Filter`), #7 (`Filter`) and #32 (`Search`), and #10 draws the submitted query with its clear button; #3 was additionally checked at XXL portrait and is intact there too. The empty capsule did share the large-title root cause: the same commit that moves the bar to its inline title restores the field's contents. **Not re-walked in batch 3:** every iPad cell of this finding (#3, #4, #7, #10, #32) and the iPhone landscape #32 cell — the batch-3 iPad scope was #39, #30 and the Thumbnail-mode #3 cell. The finding stays `open` for those. **Re-verify (batch 4, `27a360b1`, `4fbd0ae9`, completing the batch-3 iPad walk):** every iPad portrait AX3/AX5 cell left open by batch 3 is now confirmed fixed — the capsule draws its magnifier and placeholder (or, on #10, the submitted query with its clear button) on #3, #4, #7, #10 and #32. **Not re-walked in batch 4:** every iPad landscape cell of this finding (#3 at AX5; #4 and #7 at AX3/AX5; #10 at AX5; #32 at AX5) and the iPhone landscape #32 cell. The finding stays `open` for those. **Re-verify (batch 5b):** the iPhone-landscape #32 occurrence — never re-walked before — now draws the search capsule's magnifier and `Search` placeholder at AX3 and AX5, where the round-1 sweep showed an empty capsule (the batch-3 `27a360b1`/`4fbd0ae9` inline-title fix reaches it). The finding stays `open` only for the iPad landscape occurrences of #3, #4, #7, #10 and #32, none of which are on this agent's device. | accepted (owner 2026-09-08: Apple native search rendering defect; no app fix) |
+| 5 | #3, #4, #5, #6, #7, #17 (all list hosts) | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad #3 portrait AX5 | The gallery list row's title is capped at three lines (two when a download badge is present), so a longer title surrenders characters every time the type size goes up. A title that reads to its final bracketed suffix at the default size is already missing that suffix at XXL, loses roughly a third of its text at AX3, and at AX5 in portrait runs off the right edge cut mid-glyph rather than ellipsised. The iPad's regular-width Frontpage row also loses a long title tail at AX5, while its wider landscape counterpart reads in full. Recorded once and tagged all list hosts. **Re-verify (batch 1, `b598c933`):** the row reflows above the default size — the cover keeps its intrinsic size, the title wraps to its last word and the trailing values move onto their own lines. Verified on iPhone #3–#8 and #10 portrait, iPhone #3/#5/#8 landscape and iPad #3 and #7 in both orientations. **Not re-walked in batch 1:** #17 Detail Search, which renders the same cell. **Re-verify (batch 2, `803756c3`):** re-walked on #3 and #8 at all six iPhone cells and all six iPad cells of #3. Titles read to their last word at every size. | re-verified |
+| 6 | #3, #4, #5, #6, #7, #12, #17 (all list hosts) | iPhone portrait AX3 / AX5; iPad #12 portrait AX5 and landscape AX5 | From AX3 upward in iPhone portrait the list row's text column is wider than the screen, so everything on its right-hand side is cut off by the screen edge rather than reflowed: the language value loses its last one or two letters, the date loses its time and then its year, and the page-count number loses digits — at AX5 the page-count number is gone entirely and only its glyph remains. The iPad Inspector sheet reproduces the timestamp loss at AX5 in both orientations: the date remains, but the time is truncated. None of these values is reachable elsewhere in its host. All of them read in full at the default size and at XXL. Covers the D-04 sites `GalleryListComponents/Cells/GalleryDetailCell.swift:152` and `:163` together with their paired shrinks at `:155` and `:166`, which engage and still fail to keep the value on screen. **Re-verify (batch 1, `b598c933`):** the trailing metadata column stops sharing the row at accessibility sizes, so language, page count and timestamp read in full on every re-walked list host. **Not re-walked in batch 1:** #12 Downloads Inspector and #17 Detail Search. **Re-verify (batch 2, `803756c3`):** the row now keeps the `List`'s natural insets above the default size instead of bleeding outwards, so nothing is pushed past either screen edge; every value on the row's trailing side reads in full. | re-verified |
+| 7 | #3, #4, #5, #6, #7, #32 | iPhone portrait AX3 / AX5 | The pushed screens' navigation large title degrades in portrait. At AX3 a long title is ellipsised. At AX5 the title is not rendered at all on any of these screens — the band where it belongs is blank, and the accessibility tree carries no heading either, so the screen loses its own name while the space it needs is still reserved. Short titles are affected exactly as long ones. Landscape keeps the inline title at every size. Screen #32 shows a milder variant of the same site: its large title is ellipsised at AX3 **and** at AX5 rather than disappearing, and it survives in landscape where the bar falls back to its inline title. **Re-verify (batch 3, `27a360b1`, `4fbd0ae9`):** `navigationTitleDisplayMode(_:)` switches the bar to its inline title at accessibility sizes, and the blank title band is gone on every one of these screens. #3 `Frontpage`, #4 `Popular`, #5 `Watched`, #6 `History`, #10 `Artbook` and #32 `App Activity Logs` all draw their name in full at AX3 and AX5 portrait — #32 in full where its large title used to be ellipsised. **#7 Toplists still loses characters:** its title is `Toplists - Yesterday`, and the inline bar cuts it to `Toplists - Yesterd…` in a 188 pt slot at both AX3 and AX5, where the same title collapses to inline at the default size complete in 157 pt. That is strictly better than round 1 (no title at all) but still a D-04 truncation, so the finding stays `open` on #7 alone. **Re-verify (batch 5b, `e8fd65c4`, `d6694e0d`):** the same inline-fallback policy was applied to the Setting root (#33), and its title is drawn at AX3/AX5 (inline, `Setting` 175,77 69x25) with a plain large title on normal entry at XXL/`.large` — the blank-band failure mode does not occur there. The four tab roots (#2, #8, #9, #11) were reverted to `.inlineLarge` and still draw a persistent large title at every size — the revert is a no-op. #7 Toplists itself is unchanged and stays `open`. **Re-verify (batch 6, `be4665cf`):** the batch-5b note that the Setting root's `.large` collapses on return from a sub-screen is resolved — the plain large title now applies only to the sheet presentation, and the iPhone tab root keeps `.inlineLarge`. #7 Toplists is untouched and stays `open`. | accepted (owner 2026-09-08: initial inline title and truncation accepted as-is) |
+| 8 | #3, #4, #5, #6, #7, #17 (all list hosts) | iPhone portrait AX5 | At AX5 in portrait the row's cover thumbnail is squeezed to a narrow vertical sliver a few points wide and pushed partly past the screen's left edge, leaving an unrecognisable strip of the artwork instead of the cover. The cover is the row's only visual identifier and it is not reproduced anywhere else in the row. **Re-verify (batch 1, `b598c933`):** at AX5 portrait the cover keeps its intrinsic size above the stacked text on every re-walked list host, so the row keeps its visual identifier. **Not re-walked in batch 1:** #17 Detail Search. **Re-verify (batch 2, `803756c3`):** the cover is `@ScaledMetric(relativeTo: .headline)` and bounded to half the row. Measured on iPhone portrait #3: 109 x 159 pt at XXL and 161 x 220 pt at AX3 and AX5, against the designed 87 x 120 pt and a half-row budget of about 161 pt — larger at every accessibility size and never wider than half the row. At `.large` the frame is the designed 87 x 120 pt. | re-verified |
+| 9 | #5, #6, #17 (all list hosts) | iPhone portrait XXL and above | The uploader name is ellipsised as soon as a language value shares its line: at XXL a seventeen-character uploader already reads with its last third replaced by an ellipsis, while the language value beside it is complete. At the default size both read in full on the same line. This is the D-04 site `GalleryListComponents/Cells/GalleryDetailCell.swift:107`, whose Phase-10 "fine" verdict rested on the secondary-text exemption that D-04 removes. At AX3 and above the same value is additionally cut by finding #6. **Re-verify (batch 1, `b598c933`):** the uploader no longer shares a line with the language value at accessibility sizes and reads in full from XXL up on #5 and #6. **Not re-walked in batch 1:** #17 Detail Search. **Re-verify (batch 2, `803756c3`):** uploader and language read in full side by side at XXL and on their own lines above it, on both list hosts. | re-verified |
+| 10 | #9 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5; iPad portrait AX3 / AX5; iPad landscape AX3 / AX5 | The Search root's "Recently Seen" strip keeps a fixed cell size, so its contents are removed as the type grows rather than the cell growing with them. At XXL the iPhone cell's title is already ellipsised where it read in full at the default size. At AX3 the cell overflows its slot: the title is cut at the right edge *and* its opening words are pushed past the screen's left edge together with the cover, so neither end of the title is readable. At AX5 in iPhone portrait the cells are drawn on top of the section heading and on top of each other, and the two section headings collapse to roughly one word per line while the rest of their row stays empty; in landscape at AX5 the cells overlap their own covers. The iPad absorbs XXL, then reproduces the fixed-height loss from AX3 upward in both orientations: title tops clip first, and at AX5 the title and cover contents overflow their cells. Covers the D-04 site `SearchFeature/GalleryHistoryCell.swift:32`. **Re-verify (batch 1, `5e9f9cdb`):** the Recently Seen cell grows with the type instead of clipping or overflowing; title, uploader and rating read in full in all six iPhone cells and in all four re-walked iPad cells. **Re-verify (batch 2, `803756c3`):** the Recently Seen cells read their title, uploader and rating at every sampled size on both devices, and the section heading above them is leading-aligned with no Show All line where the section offers none. | re-verified |
 | 11 | #11 | iPhone portrait AX5 | The download delete confirmation is presented as a popover of fixed width (about a quarter of the screen) rather than a full-width sheet, so at AX5 its explanatory sentence no longer fits: the message stops mid-sentence and its last word is hidden behind the confirm button, with the popover already running past the bottom of the screen and no way to scroll to the rest. The user is asked to confirm a destructive action from a sentence they cannot finish reading. At the default size and at XXL the same popover shows the sentence complete. The absence of a separate Cancel button is *not* part of this finding — the popover has no Cancel button at any size and is dismissed by tapping outside. | open |
-| 12 | all list hosts, thumbnail layout | iPhone portrait AX5 | With the list's Display Mode set to Thumbnail, the grid cell removes text as the type grows instead of reflowing: the category badge is abbreviated to its first word plus an ellipsis, so two different categories become indistinguishable from their badges; the cell's title is ellipsised after its bracketed prefix; the page-count line is cut; and the grid's right-hand column runs off the screen edge with its star row clipped. All of these read in full at the default size. Covers the D-04 sites `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` and `AppComponents/CategoryView.swift:31`. The sweep set Display Mode to Thumbnail for this one capture and restored it to Detail immediately afterwards. | open |
-| 13 | #14 | iPhone portrait XXL / AX3 / AX5 | The Detail header's title is capped at three lines (`DetailFeature/DetailView+HeaderSection.swift:319`, `lineLimit(showFullTitle ? nil : 3)`), so in portrait it surrenders characters as the type grows. A title that reads to its closing bracket over three lines at `.large` already ends in an ellipsis at XXL, loses its whole second half at AX3, and at AX5 keeps only its bracketed prefix. The header does carry a tap-to-expand affordance on the title itself — the same tap that opens the full text — so the value is recoverable in place; it is still recorded as a finding because the default rendering shows strictly less at each larger size (D-04). The **uploader** line directly beneath it (`:324`, single-line) has no such affordance and degrades in the same cells: full at XXL, "BaronArgyleS…" at AX3 and "BaronArg…" at AX5. Landscape is unaffected at all three sizes. | open |
-| 14 | #14 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The Detail stats strip lays its columns out at a fixed fraction of the container width (`DetailFeature/DetailView+Subviews.swift` `DescScroll`, `containerRelativeFrame(.horizontal, itemWidth)` inside a `frame(height: rowHeight)`), so the columns keep their width and height while the text inside them grows. At XXL portrait every column label is already abbreviated ("FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…", "PAGE COUNT" → "PAGE C…") and the five-star rating row is clipped at both ends. At AX3 the **values** go too — a four-digit favourite count reads "11…", a rating of 4.50 reads "4.…", and the unit lines read "Engl…" / "Pag…". At AX5 each column is down to two characters ("FA…", "1…", "Ti…") and the star row shows a single clipped star. Every one of these reads in full at `.large`, and none of them is reproduced anywhere else on the screen. Landscape holds the values but loses the labels from AX3 up and shows three stars for a 4.50 rating at AX5. This is the pre-registered D-13 "Detail stats-strip abbreviation" case, and it covers the D-04 sites `:99` and `:116`. | open |
-| 15 | #14 | iPhone portrait AX3 / AX5 | Tags in the Detail tag cloud are laid out from a fixed leading column and are not wrapped or ellipsised when they exceed the remaining width, so in portrait a long tag simply runs off the right edge of the screen and is cut mid-glyph with no ellipsis to mark it. At AX3 a sixteen-character tag loses its last six characters; at AX5 two separate tags are cut, one of them losing half its text, and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at every size. This is the pre-registered D-13 "long-tag right-edge clip" case and covers the D-04 site `AppComponents/TagCloudView.swift:122`. | open |
-| 16 | #14 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5 | The Detail comment cell's author line and timestamp are single-line and sit in a card of fixed 300-point width (`DetailFeature/DetailView+CommentCells.swift:37, :43, :51`), so both are ellipsised as the type grows — and the 0.75 `minimumScaleFactor` at `:42` visibly engages first and still fails to keep the name. A fifteen-character author reads in full at `.large`, is "BaronArgyle…" at XXL, "BaronA…" at AX3 and "Baro…" at AX5; the timestamp degrades in step, from the full "YYYY/MM/DD, HH:MM" to a bare "2026…" at AX5 that no longer carries even the month. **This is the only Group-B row that fails in landscape at XXL**, because the card width is fixed rather than derived from the screen. | open |
-| 17 | #14 | iPhone portrait AX3 / AX5; iPhone landscape AX5 | The same comment card's body text loses lines to the card's fixed frame (`:51`, width 300 with a `@ScaledMetric` height): the body is already ellipsised at `.large`, and each larger size shows strictly fewer characters of it — roughly a sixth fewer at AX3 and a third fewer at AX5 in portrait. In landscape at AX5 a short comment that read complete at every smaller size ("… seems to have been deleted") loses its final word. Because the height scales but the width does not, the card cannot trade one for the other. | open |
-| 18 | #16 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | The Comments view's header row keeps author, vote score and timestamp on one line at every size (`DetailFeature/Comments/CommentsView.swift:165, :166`), so the row's three values compete for a width that never grows. The timestamp goes first: at XXL portrait a scored row already reads "2025/03/23, 19…" where `.large` shows "2025/03/23, 19:02", and the same loss reappears in landscape at AX5. From AX3 up in portrait the author goes too — "Pecan Crisp" becomes "Pecan…" and then "Pec…" at AX5, with the timestamp reduced to "20…", which no longer identifies the comment's date at all. The 0.75 `minimumScaleFactor` at `:165` engages before the ellipsis and does not prevent it. The comment **bodies** are exemplary by contrast: they wrap freely and never lose a character at any size in either orientation, which is what makes the header row's behaviour a layout choice rather than a space limit. The post-comment sheet was opened at AX5 portrait, judged (title, close and confirm controls and the empty editor all read in full) and cancelled without posting. | open |
-| 19 | #18 | iPhone portrait AX3 / AX5 | Gallery Infos caps every value at three lines (`DetailFeature/GalleryInfos/GalleryInfosView.swift:110`, `.lineLimit(3)`), and in portrait three lines stop being enough from AX3 up. The Archive URL and the Torrent URL both end in an ellipsis at AX3 exactly where their token begins, and at AX5 the Gallery URL, the Parent URL and the gallery title go the same way. This screen exists to show the raw identifiers, its values are copy-on-tap, and the truncated tail is not shown anywhere else in the app — so the loss is total, not cosmetic. Everything reads in full at `.large` and at XXL, and in landscape at all three sizes, which is what makes this a line-count cap rather than a width limit. The site is **not** in the § D-04 checklist: the checklist enumerates `lineLimit(1)` and this is a `lineLimit(3)`, so it was found by the walk rather than inherited. | open |
-| 20 | #19 | iPhone portrait AX3 / AX5; iPhone landscape AX3 / AX5 | The Archives sheet loses exactly the two values a user needs in order to choose an archive: its **size** and its **price**. The archive card is a fixed-size grid item whose three stacked lines (resolution name, file size, price) do not fit once the type grows, and the funds row below it is single-line. In portrait the name ellipsises first — at AX5 "Original" and "1280x" both read as three characters plus an ellipsis, so two different resolutions become indistinguishable — the size loses its unit ("182.0…"), and the name and price lines are drawn *outside* the card's own border. In landscape the failure is worse and starts at AX3: both cards drop their size and price lines completely, leaving only the resolution name, and at AX5 the cards are clipped to a sliver of that name with the funds row drawn on top of them. The account's GP and Credits balances degrade in step, from the full "500,062,096" at XXL to "50…" at AX5 portrait. Covers the D-04 sites `DetailFeature/Archives/ArchivesView.swift:143` (funds line) and `:202` (archive price). Everything reads in full at `.large` and at XXL in both orientations. **Nothing was purchased and no download was started** — the sheet was opened, judged and dismissed. | open |
-| 21 | #20 | iPhone portrait AX3 / AX5 | Each torrent card's meta row puts four glyph-plus-value pairs (seeders, leechers, downloads, file size) on one line inside fixed 44-point slots, and in portrait the values are destroyed as the type grows while the glyphs stay untouched. At AX3 the leechers value is drawn as a half glyph (a "0" reads as a "C"), the download count keeps a fragment of its second digit, and "168.5 MiB" is reduced to the single character "1". At AX5 **none of the four values is rendered at all** — four glyphs sit alone with no numbers beside them, so the screen no longer says how healthy the torrent is or how large it is, even though the accessibility tree still reports every value. The uploader and the posted timestamp degrade alongside: full at XXL, "2026/01…" at AX3, "Disko…" and "2026…" at AX5. Covers the D-04 sites `DetailFeature/Torrents/TorrentsView.swift:110` and `:124`, whose Phase-10 verdict was "shrink-absorbed" — there is no shrink absorbing it now. Landscape passes at all three sizes, and portrait XXL reads in full. **No torrent download was started.** | open |
-| 22 | #25 | iPhone portrait AX3 / AX5 | The reader's page indicator disappears in portrait. It is a single-line `Text` inside a glass capsule that shares one leading-aligned `HStack` with the close button (`ReadingFeature/Support/ControlPanel.swift:170–179`), and as the type grows the capsule is squeezed instead of the row wrapping: at AX3 the capsule shows only an ellipsis, and at AX5 it is a two-point-wide sliver that renders no glyph at all, while the accessibility tree still reports "1 / 14". The reader therefore stops telling the user which page they are on and how many pages there are — the one piece of state the control panel exists to show. The lower bar's separate "1" and "14" slider end labels survive, but they are the slider's bounds, not the current page. Landscape keeps the indicator intact at all three sizes. This is the pre-registered D-13 "reader total-page counter wrap" case and the D-04 site `ControlPanel.swift:176` — **and the pre-registered prediction is wrong: the counter does not wrap, it vanishes.** | open |
-| 23 | #23 | iPhone landscape AX3 / AX5 | The Detail screen's download **delete confirmation** loses its content in landscape, and what it loses is the safety half. The alert's container is bounded by the short landscape screen and does not scroll, so the growing text simply falls outside it: at AX3 the sentence "This will remove the downloaded gallery from this device." is cut after its fourth word, with the remainder hidden behind the button row; at AX5 **neither the sentence nor the Cancel button is drawn at all** — the alert shows its title and the red Delete button and nothing else, while the accessibility tree still lists a Cancel button positioned below the alert's visible bounds. A user at AX5 in landscape is presented with a destructive confirmation whose only visible, tappable affordance is Delete, and no on-screen way to back out other than guessing that a tap outside dismisses it. Portrait absorbs the same growth cleanly at all three sizes (the buttons restack vertically and the sentence wraps to five lines), and landscape at XXL is complete. This is a different site and a different container from finding #11 — that one is the Downloads tab's fixed-width popover in portrait; this one is the Detail screen's full alert in landscape — so it is recorded separately. Only the delete variant could be exercised: the retry-mode variant needs a download in an error state and the session's only download is complete. **Every dialog raised was cancelled; nothing was deleted.** | open |
-| 24 | #29 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The Account screen's cookie rows keep their label and their value on a single line inside one row, and the value is the half that gives way: the label wraps (and even hyphenates) while the value is ellipsised. In portrait the long hash value already loses roughly a third of what it shows at the default size at XXL; at AX3 the short numeric member id — which reads complete at the default size and at XXL — is cut after five of its seven digits, and the ExHentai token is cut to four characters; at AX5 all three value fields are three or four characters plus an ellipsis while their labels occupy four wrapped lines each. Landscape absorbs XXL entirely (the hash renders all thirty-two characters there) and then fails the same way from AX3 up. Every one of these values is a credential fragment the row exists to let the user verify, and none of them is reproduced anywhere else in the app — the neighbouring copy action puts them on the pasteboard but never shows them. | open |
-| 25 | #32 | iPhone portrait AX3 / AX5; iPhone landscape AX5; iPad portrait AX3 / AX5; iPad landscape AX3 / AX5 | The activity-log row's category chip is a single-line pill (`SettingFeature/AppActivityLogs/AppActivityLogsView.swift:224`, `lineLimit(1)`) sharing one baseline-aligned row with the level dot and the timestamp, and the timestamp is the part allowed to wrap. The chip therefore gives up characters as the type grows while the timestamp beside it reflows freely: `DownloadCoordinator` reads in full at the default size and at XXL, is ellipsised at AX3 on the iPad, and shortens further at AX5 in both orientations. The chip is the only thing on the row that says which subsystem emitted the log, and two different subsystems whose names share a prefix become indistinguishable once it is cut. The log message underneath, by contrast, wraps perfectly at every size. | open |
-| 26 | #32 | iPhone portrait AX3 / AX5; iPhone landscape AX5; iPad portrait AX5 | The Runs menu stops drawing the checkmark beside the selected run as the type grows. At the default size and at XXL the menu marks the current run with a leading tick, which is the only thing in the menu that says which run the list below is showing. At the affected sizes the tick is not rendered while the run labels keep their full text, so the menu presents identical-looking rows and the screen no longer tells the user which one it is displaying. The accessibility tree still reports the checkmark, so this is visible only in the rendered frame. The iPad's run picker sheet reached through More Logs keeps its tick at AX5, confirming that the selection state survives in the sheet and is lost only in the menu. | open |
-| 27 | #38 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | The Excluded Languages grid's three column headers (`SettingFeature/EhSetting/EhSettingView+Sections3.swift:131`) are `lineLimit(1)` plus `fixedSize()` inside height-less `Color.clear` columns, so they refuse to wrap or shrink and instead grow past the column boundaries. At the default size the words Original, Translated and Rewrite sit separated and centred above their radio columns. From XXL upward they run together into one unbroken string and slide to the right of the columns they label, so the grid keeps twenty-odd rows of identical circles with nothing that says which circle means what. Every row's radio triple is still drawn and still tappable — what is lost is the only thing that gives the grid meaning. Because the headers are `fixedSize()` the string is not ellipsised, it simply overlaps and overflows, which is why the accessibility tree reports all three words correctly at every size. Landscape is wider and absorbs XXL and AX3 — the three words stay separated and centred over their columns there — and fails the same way only at AX5. | open |
-| 28 | #38 | iPhone portrait AX5 | EhSetting's `LabeledContent` rows stop reserving room for their own contents once both the label and the picker value need several lines. On the Multi-Page Viewer section at AX5 portrait the three-line "Use Multi-Page Viewer" label runs past the bottom of its row and is drawn over the next row's label, which is itself only half visible; the picker value below it ("Align left, scale if overwidth") has its last word drawn across the row separator and cut by the following row's background. Three consecutive rows are involved and two of them cannot be read at all. This is different from a wrap: the text is not reflowed into a taller row, it is painted outside the row it belongs to and covered by its neighbour. The same three rows are clean at AX5 in landscape, where the wider row keeps every label on one line. | open |
-| 29 | #39 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape XXL / AX3 / AX5 | The Filters sheet's category grid keeps every name to one line inside narrow cells (`AppComponents/CategoryView.swift:87`, `lineLimit(1)`), so names are eaten from the right as type grows. On iPhone the fixed three-column grid cuts two names at XXL, eight at AX3, and all nine at AX5; landscape lays out six per row but keeps the same progression. The iPad's 100-point adaptive columns reproduce the failure in all six cells: more columns fit across the wider sheet, but their width does not grow with the labels, so names are already ellipsised at XXL and collapse further at AX3 / AX5 in both orientations. Several cells become mutually indistinguishable from text alone. The colour is the cell's other identifier, but colour alone is not a name, and the grid is the sheet's primary control. | open |
-| 30 | #40 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | Quick Search's saved-word name is `lineLimit(1)` (`QuickSearchFeature/QuickSearchView.swift:40`). A throwaway row whose name and content both read in full at the default size is already cut in portrait Edit mode at XXL, is cut in the ordinary row from AX3 upward, and remains cut at AX5 landscape. Edit mode makes the failure worse because the delete and reorder controls take width from both text lines: at AX3 portrait the content is also reduced to a few characters plus an ellipsis. The editor fields themselves reflow correctly. The throwaway item and its generated search-history entry were both removed after the walk, restoring the original empty list. | open |
-| 31 | #42 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait AX3 / AX5; iPad landscape AX5 | The error toast's title stays complete, but its subtitle is hard-capped to one line (`SystemNotification/ToastMessageView.swift:70`) and progressively loses the unsupported-link explanation as Dynamic Type grows. On iPhone the complete sentence is visible in landscape XXL, while portrait XXL already ends after `recognized…`, portrait AX3 after `was…`, and portrait AX5 after `link…`; landscape AX3 and AX5 also ellipsise. The iPad absorbs the sentence at portrait and landscape XXL and at landscape AX3, but portrait AX3 / AX5 and landscape AX5 still cut it. The detail sheet reflows and scrolls through the complete Description, Suggested Solution, Context and Environment sections at every sampled size, so this finding is confined to the toast's immediate message. | open |
-| 32 | #3 | iPad portrait AX3 / AX5 | The regular-width gallery row keeps its category badge and timestamp on one horizontal stats line without reserving space between them. A long category name that fits beside the timestamp at XXL grows across the timestamp at AX3; at AX5 the badge covers the timestamp's leading date characters. Both values still exist, but their glyphs are painted on top of one another and cannot be read independently. The wider landscape row keeps them separated at all three sampled sizes. | open |
-| 33 | #30 | iPad portrait AX5; iPad landscape AX5 | The native Login screen's large heading and first field do not reserve enough vertical space for each other at AX5. The bottom of `Login` is painted through the `Username` label, leaving both strings present but impossible to read independently. The same overlap occurs in the compact-height landscape modal; XXL and AX3 keep the heading and field separated in both orientations. No credential was entered and no login was submitted. | open |
+| 12 | all list hosts, thumbnail layout | iPhone portrait AX5 | With the list's Display Mode set to Thumbnail, the grid cell removes text as the type grows instead of reflowing: the category badge is abbreviated to its first word plus an ellipsis, so two different categories become indistinguishable from their badges; the cell's title is ellipsised after its bracketed prefix; the page-count line is cut; and the grid's right-hand column runs off the screen edge with its star row clipped. All of these read in full at the default size. Covers the D-04 sites `GalleryListComponents/Cells/GalleryThumbnailCell.swift:99` and `AppComponents/CategoryView.swift:31`. The sweep set Display Mode to Thumbnail for this one capture and restored it to Detail immediately afterwards. **Re-verify (batch 3, `0dde25eb`, `72234cbc`, `7645e10c`, `30e42c84`):** the masonry's minimum cell width is now `@ScaledMetric(relativeTo: .callout)` from the designed 185, and its column floor drops from two to one at accessibility sizes, so the grid re-columns instead of squeezing. Measured column counts, iPhone portrait: 2 at `.large`, 2 at XXL (182/183 pt cells, right column ending at x 400 of 420), 1 at AX3 and AX5 (380 pt); iPhone landscape AX5: 1 (744 pt, against 3 in the pre-batch build); iPad portrait: 4 at `.large`, 1 at AX5 (794 pt, against 4). The right-hand column is fully on screen at every size. The cell's title and stat-line caps are lifted above the default size and its vertical spacing doubles, so titles read to their last word, the page count and language are both drawn, and the whole five-star row is inside the screen. `CategoryLabel` keeps `lineLimit(1)` at and below `.large` and wraps above it, so the badge on the cover reads in full (round 1: `Douji…`), and the Detail header badge — which now follows the same policy instead of overriding it — renders a nine-character category complete at AX5 portrait (238x63 pt, corners still rounded). Walked on iPhone portrait XXL / AX3 / AX5 (top and mid) and landscape AX5, and on iPad portrait AX5. **Re-verify (batch 4, `cbab163b`, `e30ddba0`):** answering the owner's round-II direction ('never a single column; two columns is the floor at every size'), the masonry's column floor is now 2 at every sampled size — measured iPhone portrait 2 at XXL/AX3/AX5, iPhone landscape 2 at AX5, iPad portrait 2 at AX5 (against 1 in batch 3), iPad landscape 2 at AX5 (not walked before). In the half-width column at iPhone portrait AX3/AX5 the five-star row now falls back to a single star symbol plus its numeral rather than clipping; on the wider iPad and landscape columns the full five-symbol row still draws. No cell's background crosses into its neighbour or off-screen at any sampled cell. **Re-verify (batch 5b, `1b06875b`):** answering the owner's round-II direction, the thumbnail title is now capped at five lines at every size (superseding D-15 for this one property: the default budget moved from three lines to five). Measured on the iPhone: at `.large` titles wrap to at most five lines and read complete; at XXL/AX3/AX5 they fill five lines ending in an ellipsis (`[202…`) rather than a mid-glyph cut; the grid stays two columns; and the tallest portrait-AX5 cell frame is 731 pt against a 912 pt screen, so one cell no longer runs past a whole screen as the batch-4 uncapped title did. | re-verified |
+| 13 | #14 | iPhone portrait XXL / AX3 / AX5 | The Detail header's title is capped at three lines (`DetailFeature/DetailView+HeaderSection.swift:319`, `lineLimit(showFullTitle ? nil : 3)`), so in portrait it surrenders characters as the type grows. A title that reads to its closing bracket over three lines at `.large` already ends in an ellipsis at XXL, loses its whole second half at AX3, and at AX5 keeps only its bracketed prefix. The header does carry a tap-to-expand affordance on the title itself — the same tap that opens the full text — so the value is recoverable in place; it is still recorded as a finding because the default rendering shows strictly less at each larger size (D-04). The **uploader** line directly beneath it (`:324`, single-line) has no such affordance and degrades in the same cells: full at XXL, "BaronArgyleS…" at AX3 and "BaronArg…" at AX5. Landscape is unaffected at all three sizes. **Re-verify (batch 1, `c6775b18`):** the header's three-line cap is lifted above the default size — title and uploader both read in full at portrait XXL, AX3 and AX5. The category badge was checked separately on a nine-character category at AX3 and AX5 portrait and reads in full, so the anticipated single-line clip in the shared category label did not reproduce. **Re-verify (batch 2, `803756c3`):** at the accessibility sizes the header cover stacks above the title, which then owns the row's whole width and reads to its last word. At XXL cover and title stay side by side. At `.large` the header is unchanged, including its three-line cap. **Re-verify (batch 5b, `881104c0`):** the owner withdrew round-I's uncapped-above-`.large` policy and restored the three-line fold at every size, with the title itself as the tap-to-expand affordance. Measured on the same gallery: portrait `.large` three lines; XXL/AX3/AX5 three lines with an ellipsis; the AX5 title frame is 196 pt (three lines) against the batch-4 build's 326 pt (uncapped, five lines), and tapping it expands to 326 pt showing the full text. The category badge and the three glass action buttons stay on screen beneath the title at every size; landscape AX5 keeps the full title in three lines. `.large` unchanged. **iPad walk (login-gated batch, 2026-09-04):** on the regular-width Detail modal the header title reads complete (the owner-accepted three-line cap holds) and the uploader beneath it is not clipped, at portrait and landscape XXL/AX3/AX5 — the iPad column, previously blocked for want of a session, passes. | re-verified |
+| 14 | #14 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The Detail stats strip lays its columns out at a fixed fraction of the container width (`DetailFeature/DetailView+Subviews.swift` `DescScroll`, `containerRelativeFrame(.horizontal, itemWidth)` inside a `frame(height: rowHeight)`), so the columns keep their width and height while the text inside them grows. At XXL portrait every column label is already abbreviated ("FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…", "PAGE COUNT" → "PAGE C…") and the five-star rating row is clipped at both ends. At AX3 the **values** go too — a four-digit favourite count reads "11…", a rating of 4.50 reads "4.…", and the unit lines read "Engl…" / "Pag…". At AX5 each column is down to two characters ("FA…", "1…", "Ti…") and the star row shows a single clipped star. Every one of these reads in full at `.large`, and none of them is reproduced anywhere else on the screen. Landscape holds the values but loses the labels from AX3 up and shows three stars for a 4.50 rating at AX5. This is the pre-registered D-13 "Detail stats-strip abbreviation" case, and it covers the D-04 sites `:99` and `:116`. **Re-verify (batch 1, `1050c21d`):** the stats strip stacks each caption above its value above the default size; every column keeps both label and value at iPhone portrait XXL/AX3/AX5 and landscape XXL/AX3/AX5. **Re-verify (batch 4, `391ce4ea`, `919b90bb`):** answering the owner's round-II direction ('keep the horizontal ScrollView; do not stack the strip; a column may grow up to 90% of the container width and wrap inside that budget'), the strip is a horizontal `ScrollView` again — scrolling it on iPhone portrait and landscape at XXL/AX3/AX5 reveals every column (Favorited, Language, Ratings, Page Count, File Size on the walked gallery) with its label and value complete and the five-star row un-clipped; no column spans the full container width. The three header glass action buttons (download/favorite/read) now scale their symbol with the circle — none overflows its background, checked at portrait and landscape AX5. **iPad walk (login-gated batch, 2026-09-04):** the pre-registered D-13 stats-strip case — whose iPad column was always blocked — now passes on the regular-width modal. The horizontal `ScrollView` reveals every column (Favorited, Language, Ratings with an un-clipped five-star row, Page Count, File Size) with its label and value complete and no column spanning the card width, at portrait XXL/AX3/AX5 and landscape XXL/AX3/AX5. | re-verified |
+| 15 | #14 | iPhone portrait AX3 / AX5 | Tags in the Detail tag cloud are laid out from a fixed leading column and are not wrapped or ellipsised when they exceed the remaining width, so in portrait a long tag simply runs off the right edge of the screen and is cut mid-glyph with no ellipsis to mark it. At AX3 a sixteen-character tag loses its last six characters; at AX5 two separate tags are cut, one of them losing half its text, and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at every size. This is the pre-registered D-13 "long-tag right-edge clip" case and covers the D-04 site `AppComponents/TagCloudView.swift:122`. **Re-verify (batch 1, `953a67b6`):** long tags now wrap inside their chips instead of running past the trailing edge; no tag is cut at portrait AX3 or AX5. **Re-verify (batch 2, `803756c3`):** a tag row's namespace chip is arranged above its children at the accessibility sizes (checked on Parody, Character, Male, Mixed and Other), and every chip is drawn inside the container — nothing runs off the trailing edge. A tag long enough to wrap inside its own chip is centre-aligned within that chip rather than leading-aligned; that is a round-I residue, not information loss. **Re-verify (batch 2b, `549c255d`):** the round-I residue is closed — a tag that wraps inside its own chip is now leading-aligned. Checked at AX3 portrait on 'needy streamer overload' and 'columbina hyposelenia', and at AX5 portrait on 'thigh high boots' and 'multimouth blowjob', each of them the same chip on the same gallery and in the same tag section that round II showed centre-aligned. Single-line chips, which is all a tag row holds at and below the default size, are unchanged, and the `.large` tag rows are identical. **iPad walk (login-gated batch, 2026-09-04):** the pre-registered D-13 long-tag case — iPad column previously blocked — passes on the regular-width modal. Every chip wraps inside the card, the namespace chips stack above their children, and no tag runs off the trailing edge, at portrait XXL/AX3/AX5 and landscape XXL/AX3/AX5. | re-verified |
+| 16 | #14 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5 | The Detail comment cell's author line and timestamp are single-line and sit in a card of fixed 300-point width (`DetailFeature/DetailView+CommentCells.swift:37, :43, :51`), so both are ellipsised as the type grows — and the 0.75 `minimumScaleFactor` at `:42` visibly engages first and still fails to keep the name. A fifteen-character author reads in full at `.large`, is "BaronArgyle…" at XXL, "BaronA…" at AX3 and "Baro…" at AX5; the timestamp degrades in step, from the full "YYYY/MM/DD, HH:MM" to a bare "2026…" at AX5 that no longer carries even the month. **This is the only Group-B row that fails in landscape at XXL**, because the card width is fixed rather than derived from the screen. **Re-verify (batch 1, `37b56570`):** the comment card's author, vote score and timestamp all read in full at every sampled size in both orientations. The same change altered the card's default-size rendering — recorded separately as finding #35. | re-verified |
+| 17 | #14 | iPhone portrait AX3 / AX5; iPhone landscape AX5 | The same comment card's body text loses lines to the card's fixed frame (`:51`, width 300 with a `@ScaledMetric` height): the body is already ellipsised at `.large`, and each larger size shows strictly fewer characters of it — roughly a sixth fewer at AX3 and a third fewer at AX5 in portrait. In landscape at AX5 a short comment that read complete at every smaller size ("… seems to have been deleted") loses its final word. Because the height scales but the width does not, the card cannot trade one for the other. **Re-verify (batch 1, `37b56570`):** the card now shows at least as many body characters as it does at `.large` at portrait AX3/AX5 and landscape AX5, so on D-04's `.large` basis it is no longer degraded. | re-verified |
+| 18 | #16 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | The Comments view's header row keeps author, vote score and timestamp on one line at every size (`DetailFeature/Comments/CommentsView.swift:165, :166`), so the row's three values compete for a width that never grows. The timestamp goes first: at XXL portrait a scored row already reads "2025/03/23, 19…" where `.large` shows "2025/03/23, 19:02", and the same loss reappears in landscape at AX5. From AX3 up in portrait the author goes too — "Pecan Crisp" becomes "Pecan…" and then "Pec…" at AX5, with the timestamp reduced to "20…", which no longer identifies the comment's date at all. The 0.75 `minimumScaleFactor` at `:165` engages before the ellipsis and does not prevent it. The comment **bodies** are exemplary by contrast: they wrap freely and never lose a character at any size in either orientation, which is what makes the header row's behaviour a layout choice rather than a space limit. The post-comment sheet was opened at AX5 portrait, judged (title, close and confirm controls and the empty editor all read in full) and cancelled without posting. **Re-verify (batch 1, `7839db1f`):** the header stacks score and timestamp onto their own line above the default size, so author, score and the complete `YYYY/MM/DD, HH:MM` timestamp all read at portrait XXL/AX3/AX5 and landscape AX5. | re-verified |
+| 19 | #18 | iPhone portrait AX3 / AX5 | Gallery Infos caps every value at three lines (`DetailFeature/GalleryInfos/GalleryInfosView.swift:110`, `.lineLimit(3)`), and in portrait three lines stop being enough from AX3 up. The Archive URL and the Torrent URL both end in an ellipsis at AX3 exactly where their token begins, and at AX5 the Gallery URL, the Parent URL and the gallery title go the same way. This screen exists to show the raw identifiers, its values are copy-on-tap, and the truncated tail is not shown anywhere else in the app — so the loss is total, not cosmetic. Everything reads in full at `.large` and at XXL, and in landscape at all three sizes, which is what makes this a line-count cap rather than a width limit. The site is **not** in the § D-04 checklist: the checklist enumerates `lineLimit(1)` and this is a `lineLimit(3)`, so it was found by the walk rather than inherited. **Re-verify (batch 1, `0a9f7dad`):** the three-line value cap is lifted above the default size; title, all five URLs, uploader and every count read in full at portrait AX3 and AX5. | re-verified |
+| 20 | #19 | iPhone portrait AX3 / AX5; iPhone landscape AX3 / AX5 | The Archives sheet loses exactly the two values a user needs in order to choose an archive: its **size** and its **price**. The archive card is a fixed-size grid item whose three stacked lines (resolution name, file size, price) do not fit once the type grows, and the funds row below it is single-line. In portrait the name ellipsises first — at AX5 "Original" and "1280x" both read as three characters plus an ellipsis, so two different resolutions become indistinguishable — the size loses its unit ("182.0…"), and the name and price lines are drawn *outside* the card's own border. In landscape the failure is worse and starts at AX3: both cards drop their size and price lines completely, leaving only the resolution name, and at AX5 the cards are clipped to a sliver of that name with the funds row drawn on top of them. The account's GP and Credits balances degrade in step, from the full "500,062,096" at XXL to "50…" at AX5 portrait. Covers the D-04 sites `DetailFeature/Archives/ArchivesView.swift:143` (funds line) and `:202` (archive price). Everything reads in full at `.large` and at XXL in both orientations. **Nothing was purchased and no download was started** — the sheet was opened, judged and dismissed. **Re-verify (batch 1, `1c14a1cf`):** fixed in portrait — the grid collapses to one card per row and name, size and price all read inside the card at AX3 and AX5. **Landscape is not fixed and is worse than round 1:** at AX3 the card grid is clipped to a sliver with the funds row drawn over it and the second card absent, and at AX5 no card is rendered at all. Remains **open**. **Re-verify (batch 2, `803756c3`):** at the accessibility sizes the sheet is one scrolling column, so the grid is no longer crowded out by a pinned footer: both archive cards read with their size and their price at the top of the sheet, and scrolling reaches the funds row and the download button. Verified at AX3 and AX5 in both orientations. At XXL the pinned layout is kept and is unchanged from batch 1, and `.large` parity holds (cards 148 x 175 pt at x 57 and x 215 in both builds). One cosmetic residue: at AX5 portrait the nine-digit GP value wraps mid-number onto a second line — a wrap, so not degradation under D-03. **iPad walk (login-gated batch, 2026-09-04):** the card-content loss does not reproduce on iPad — the archive cards render Original / 1280x with size, price and Free all complete at every sampled size in both orientations. But the short iPad form-sheet introduces a **new iPad-only defect (finding #36):** at the accessibility sizes the large 'Archives' navigation title overlaps the scrolled card. So the iPad #19 cells pass at XXL and portrait AX3, and are recorded as finding #36 at portrait AX5 and landscape AX3/AX5. | re-verified |
+| 21 | #20 | iPhone portrait AX3 / AX5 | Each torrent card's meta row puts four glyph-plus-value pairs (seeders, leechers, downloads, file size) on one line inside fixed 44-point slots, and in portrait the values are destroyed as the type grows while the glyphs stay untouched. At AX3 the leechers value is drawn as a half glyph (a "0" reads as a "C"), the download count keeps a fragment of its second digit, and "168.5 MiB" is reduced to the single character "1". At AX5 **none of the four values is rendered at all** — four glyphs sit alone with no numbers beside them, so the screen no longer says how healthy the torrent is or how large it is, even though the accessibility tree still reports every value. The uploader and the posted timestamp degrade alongside: full at XXL, "2026/01…" at AX3, "Disko…" and "2026…" at AX5. Covers the D-04 sites `DetailFeature/Torrents/TorrentsView.swift:110` and `:124`, whose Phase-10 verdict was "shrink-absorbed" — there is no shrink absorbing it now. Landscape passes at all three sizes, and portrait XXL reads in full. **No torrent download was started.** **Re-verify (batch 1, `9b1419a4`):** fixed only at AX5 portrait, where the meta reflows to two pairs per line and all four values read in full. At AX3 portrait the compact one-line row is still chosen, so all four values are still cut mid-glyph; and at XXL portrait — a round-1 `pass` — the file-size value is now ellipsised. Remains **open**, with a regression at XXL. **Re-verify (batch 2, `803756c3`): REGRESSED — this is worse than round I.** The `ViewThatFits` chain was replaced by a `FlowLayout` of the four `Label` pairs above `.large`, and in that layout every pair is sized at its icon alone: at AX5 portrait the four pair frames measure 44 x 44 pt at x 68, 151, 233 and then 68 on a second line. The consequence on screen is that **none of the four values renders at all** — seeders, leechers, downloads and file size are all absent and only the four glyphs are drawn, cascading diagonally. Round I still drew every value, with only the file size ellipsised. Confirmed at XXL, AX3 and AX5 in both orientations. The values are still present in the accessibility tree, which is why the outline reads correctly while the screen does not. At `.large` the compact row is untouched and renders all four values, so D-15 parity holds and the defect is confined to the flow branch. **Re-verify (batch 2b, `a731d905`): FIXED — the round-II regression is gone and the round-I truncation with it.** The flowed pairs are plain `HStack`s of a glyph and a `Text` instead of `Label`s, so each pair owns and reports its whole size rather than being answered with the list's shared icon column, and all four values render in full in every sampled cell: one line at XXL in both orientations and at AX3 and AX5 landscape, two lines at AX3 portrait (6 / 1 / 2,526, then 501.8 MiB) and three at AX5 portrait (6 and 1, then 2,526, then 501.8 MiB). No value is ellipsised, cut mid-glyph or absent, and no glyph is clipped. The file name, uploader and timestamp below read in full when scrolled. At `.large` the compact row is unchanged — three counters leading, the file size trailing-anchored — so D-15 parity holds. **iPad walk (login-gated batch, 2026-09-04):** the four-value loss does not reproduce on iPad — the single-torrent counter row renders all four values (seed 8, leech 0, downloads 1,124, size 256.8 MiB) complete at portrait and landscape XXL/AX3/AX5, with the uploader and posted timestamp also reading (the timestamp reached by a short scroll at AX5). iPad column passes. | re-verified |
+| 22 | #25 | iPhone portrait AX3 / AX5 | The reader's page indicator disappears in portrait. It is a single-line `Text` inside a glass capsule that shares one leading-aligned `HStack` with the close button (`ReadingFeature/Support/ControlPanel.swift:170–179`), and as the type grows the capsule is squeezed instead of the row wrapping: at AX3 the capsule shows only an ellipsis, and at AX5 it is a two-point-wide sliver that renders no glyph at all, while the accessibility tree still reports "1 / 14". The reader therefore stops telling the user which page they are on and how many pages there are — the one piece of state the control panel exists to show. The lower bar's separate "1" and "14" slider end labels survive, but they are the slider's bounds, not the current page. Landscape keeps the indicator intact at all three sizes. This is the pre-registered D-13 "reader total-page counter wrap" case and the D-04 site `ControlPanel.swift:176` — **and the pre-registered prediction is wrong: the counter does not wrap, it vanishes.** **Re-verify (batch 3, `15f9b09f`):** above the default size the bar's three members are handed to a `FlowLayout`, and the indicator takes its ideal width with `.fixedSize()` instead of being the only member with give. In portrait the close button and the indicator hold the first line and the three action glyphs move to a second, leading-aligned: the indicator measures 96,76 95x34 pt at XXL, 147x53 pt at AX3 and 186x67 pt at AX5, and every glyph is drawn (round 1: an ellipsis at AX3, a two-point sliver at AX5). Landscape AX5 still fits one line and reads in full at 164,16 186x67 pt. At `.large` the bar is the designed single row with identical frames — close 20,71 44x44, indicator 96,80 59x26, actions at 262 / 308 / 354 — measured on the same gallery in both builds. **Re-verify (batch 4, `89d02f52`):** re-confirmed on a different (166-page) gallery — the upper panel's page indicator stays on one line and fully legible at portrait XXL/AX3/AX5 and landscape AX5; the lower panel's page-range end labels ("1"/"166") remain single-line, not truncated. | re-verified |
+| 23 | #23 | iPhone landscape AX3 / AX5 | The Detail screen's download **delete confirmation** loses its content in landscape, and what it loses is the safety half. The alert's container is bounded by the short landscape screen and does not scroll, so the growing text simply falls outside it: at AX3 the sentence "This will remove the downloaded gallery from this device." is cut after its fourth word, with the remainder hidden behind the button row; at AX5 **neither the sentence nor the Cancel button is drawn at all** — the alert shows its title and the red Delete button and nothing else, while the accessibility tree still lists a Cancel button positioned below the alert's visible bounds. A user at AX5 in landscape is presented with a destructive confirmation whose only visible, tappable affordance is Delete, and no on-screen way to back out other than guessing that a tap outside dismisses it. Portrait absorbs the same growth cleanly at all three sizes (the buttons restack vertically and the sentence wraps to five lines), and landscape at XXL is complete. This is a different site and a different container from finding #11 — that one is the Downloads tab's fixed-width popover in portrait; this one is the Detail screen's full alert in landscape — so it is recorded separately. Only the delete variant could be exercised: the retry-mode variant needs a download in an error state and the session's only download is complete. **Every dialog raised was cancelled; nothing was deleted.** **iPad walk (batch 7, 2026-09-04):** it does **not** reproduce on the iPad. All six iPad cells of #23 were raised from the same delete control and cancelled: at XXL both orientations the alert reads whole, and at AX5 both orientations the button row restacks vertically and title, sentence, Delete and Cancel all read inside the card. The iPad's own AX3 defect is a different one and is recorded as finding #37. | open |
+| 24 | #29 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5 | The Account screen's cookie rows keep their label and their value on a single line inside one row, and the value is the half that gives way: the label wraps (and even hyphenates) while the value is ellipsised. In portrait the long hash value already loses roughly a third of what it shows at the default size at XXL; at AX3 the short numeric member id — which reads complete at the default size and at XXL — is cut after five of its seven digits, and the ExHentai token is cut to four characters; at AX5 all three value fields are three or four characters plus an ellipsis while their labels occupy four wrapped lines each. Landscape absorbs XXL entirely (the hash renders all thirty-two characters there) and then fails the same way from AX3 up. Every one of these values is a credential fragment the row exists to let the user verify, and none of them is reproduced anywhere else in the app — the neighbouring copy action puts them on the pasteboard but never shows them. **Re-verify (batch 3, `f9286303`):** above the default size the pair stops sharing a line — the key takes the first with its validity glyph trailing, and the value takes the whole row width beneath it in a vertical-axis field that wraps. Every value reads in full in all six iPhone cells: the thirty-two-character hash wraps over three lines at XXL portrait (round 1 cut it after fourteen characters), fills a 340x250 pt field over four lines at AX5 portrait (round 1: three or four characters plus an ellipsis under a four-line key), and reads whole in 712x96 pt at XXL landscape, 712x64 pt at AX3 landscape and 712 pt at AX5 landscape (round 1 cut it after sixteen and twelve characters respectively). The seven-digit member id and the ExHentai token likewise read in full at every size. Wrapped values are leading-aligned, and the 8 pt gap keeps key and value reading as one pair. At `.large` the row is the designed single line with identical frames. | re-verified |
+| 25 | #32 | iPhone portrait AX3 / AX5; iPhone landscape AX5; iPad portrait AX3 / AX5; iPad landscape AX3 / AX5 | The activity-log row's category chip is a single-line pill (`SettingFeature/AppActivityLogs/AppActivityLogsView.swift:224`, `lineLimit(1)`) sharing one baseline-aligned row with the level dot and the timestamp, and the timestamp is the part allowed to wrap. The chip therefore gives up characters as the type grows while the timestamp beside it reflows freely: `DownloadCoordinator` reads in full at the default size and at XXL, is ellipsised at AX3 on the iPad, and shortens further at AX5 in both orientations. The chip is the only thing on the row that says which subsystem emitted the log, and two different subsystems whose names share a prefix become indistinguishable once it is cut. The log message underneath, by contrast, wraps perfectly at every size. **Re-verify (batch 1, `6df974e9`, `aa3e18e1`):** the category chip wraps inside its pill and keeps the whole subsystem name at iPhone portrait AX3/AX5 and landscape AX5. **Not re-walked in batch 1:** the four iPad cells — the iPad re-walk scope this round was #2, #3, #7 and #9. **Re-verify (batch 2, `803756c3`):** timestamp and category chip now sit in an `AdaptiveStack`. In portrait at XXL, AX3 and AX5 the chip drops to a line of its own beneath the timestamp and both read in full; in landscape the row is wide enough and the two share a line, still both complete. | re-verified |
+| 26 | #32, #25 | iPhone portrait AX3 / AX5; iPhone landscape AX5; iPad portrait AX5; iPad #25 portrait AX3 / AX5 and landscape AX3 / AX5 | The Runs menu stops drawing the checkmark beside the selected run as the type grows. At the default size and at XXL the menu marks the current run with a leading tick, which is the only thing in the menu that says which run the list below is showing. At the affected sizes the tick is not rendered while the run labels keep their full text, so the menu presents identical-looking rows and the screen no longer tells the user which one it is displaying. The accessibility tree still reports the checkmark, so this is visible only in the rendered frame. The iPad's run picker sheet reached through More Logs keeps its tick at AX5, confirming that the selection state survives in the sheet and is lost only in the menu. **Second site found on the iPad (batch 7, 2026-09-04):** the same failure occurs in the reader control panel's **Auto-Play** menu (#25, `ReadingFeature/Support/ControlPanel.swift`). At `.large` and at XXL the menu marks the active interval — `Off` here — with a leading checkmark; from AX3 upward, in both orientations, the tick is not rendered while the interval labels keep their full text, so the menu no longer says which interval is selected. The accessibility tree still reports `#checkmark` on the selected row, exactly as on #32, so this is again visible only in the rendered frame. | open **Diagnosis (phase lead, 2026-09-04), now that batch 7 has confirmed a second site:** both sites build the mark the same way — a `Menu` whose items are `Button`s whose label is a `Text` followed by `Image(systemSymbol: .checkmark)` (`ReadingFeature/Support/ControlPanel.swift:258` for the Auto-Play menu). UIKit renders that trailing image as the menu item's accessory, and it is the accessory that the menu drops when it re-lays out at accessibility sizes; the selection itself is intact, which is why the accessibility tree still reports `#checkmark`. The candidate remedy is to stop expressing selection as an app-drawn accessory and let the menu own it — a `Picker` inside the `Menu`, whose selected item the system marks through `UIMenuElement.State.on` rather than through an image the layout may discard. That is a change of construct at two sites with a visible result, so it is left for the owner's disposition rather than made during a walk. |
+| 27 | #38 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | The Excluded Languages grid's three column headers (`SettingFeature/EhSetting/EhSettingView+Sections3.swift:131`) are `lineLimit(1)` plus `fixedSize()` inside height-less `Color.clear` columns, so they refuse to wrap or shrink and instead grow past the column boundaries. At the default size the words Original, Translated and Rewrite sit separated and centred above their radio columns. From XXL upward they run together into one unbroken string and slide to the right of the columns they label, so the grid keeps twenty-odd rows of identical circles with nothing that says which circle means what. Every row's radio triple is still drawn and still tappable — what is lost is the only thing that gives the grid meaning. Because the headers are `fixedSize()` the string is not ellipsised, it simply overlaps and overflows, which is why the accessibility tree reports all three words correctly at every size. Landscape is wider and absorbs XXL and AX3 — the three words stay separated and centred over their columns there — and fails the same way only at AX5. **Re-verify (batch 3, `32177686`):** above the default size the three-column radio matrix is dropped for one block per language — the language name as a heading, then three native switches labelled Original / Translated / Rewrite — so no option depends on a column position any more. Verified at XXL, AX3 and AX5 portrait and at AX5 landscape: nothing overlaps, nothing is ellipsised, and the first row correctly omits its `original` cell rather than drawing it invisibly. At `.large` the grid is untouched: the three headers sit at the identical x 153 / 226 / 317 in both builds, separated and centred over their columns. **iPad walk (login-gated batch, 2026-09-04):** the fix holds on iPad too — on the regular-width EhSetting form-sheet each language renders as a bold header above Original / Translated / Rewrite labeled toggle rows (leading-aligned, toggles right-aligned), nothing overlapping or truncated, at portrait XXL/AX3/AX5 and landscape AX5. iPad column passes. | re-verified |
+| 28 | #38 | iPhone portrait AX5 | EhSetting's `LabeledContent` rows stop reserving room for their own contents once both the label and the picker value need several lines. On the Multi-Page Viewer section at AX5 portrait the three-line "Use Multi-Page Viewer" label runs past the bottom of its row and is drawn over the next row's label, which is itself only half visible; the picker value below it ("Align left, scale if overwidth") has its last word drawn across the row separator and cut by the following row's background. Three consecutive rows are involved and two of them cannot be read at all. This is different from a wrap: the text is not reflowed into a taller row, it is painted outside the row it belongs to and covered by its neighbour. The same three rows are clean at AX5 in landscape, where the wider row keeps every label on one line. **iPad walk (login-gated batch, 2026-09-04):** this `LabeledContent` overlap does **not reproduce on iPad** — EhSetting renders as a regular-width form-sheet whose Multi-Page Viewer 'Display Style' picker expands inline to full wrapping rows (Align left / center variants, checkmark on the selected) and whose 'Use Multi-Page Viewer' toggle-label wraps without overlapping its neighbour, at portrait XXL/AX3/AX5 and landscape AX5. The iPad #38 cell passes because the wider layout avoids the failure; the iPhone-portrait-AX5 defect this entry describes still stands, so the status is left unchanged. | open |
+| 29 | #39 | iPhone portrait XXL / AX3 / AX5; iPhone landscape XXL / AX3 / AX5; iPad portrait XXL / AX3 / AX5; iPad landscape XXL / AX3 / AX5 | The Filters sheet's category grid keeps every name to one line inside narrow cells (`AppComponents/CategoryView.swift:87`, `lineLimit(1)`), so names are eaten from the right as type grows. On iPhone the fixed three-column grid cuts two names at XXL, eight at AX3, and all nine at AX5; landscape lays out six per row but keeps the same progression. The iPad's 100-point adaptive columns reproduce the failure in all six cells: more columns fit across the wider sheet, but their width does not grow with the labels, so names are already ellipsised at XXL and collapse further at AX3 / AX5 in both orientations. Several cells become mutually indistinguishable from text alone. The colour is the cell's other identifier, but colour alone is not a name, and the grid is the sheet's primary control. **Re-verify (batch 3, `7645e10c`):** the grid's adaptive column bounds are now `@ScaledMetric(relativeTo: .body)` from the designed 80 / 100 / 100 and are clamped by the measured grid width, and a cell's name loses its one-line cap above the default size, so a name that still does not fit its widened column wraps. All ten names read in full in all twelve cells. Measured column counts — iPhone portrait: 3 at `.large` and XXL (Game CG, Image Set and Asian Porn on two lines), 1 at AX3 and AX5; iPhone landscape: 5 at XXL, 3 at AX3, 2 at AX5; iPad portrait: 5 at `.large`, 4 at XXL, 2 at AX3 and AX5; iPad landscape: 4 at XXL, 2 at AX3 and AX5. At `.large` every name's frame is identical in both builds on both devices. One caveat: no round-1 capture of the iPad AX3-portrait cell shows the grid, so that one after-image is supplementary rather than a pair. **Re-verify (batch 4, `db5afd4e`):** answering the owner's round-II direction ('the cell was designed with rounded corners and still reads square at accessibility sizes: its corner radius scales with the text, like the badge's'), `CategoryCell`'s corner radius is now `@ScaledMetric(relativeTo: .body)` and every chip reads rounded, not square, at every sampled size. Also re-walked the whole sheet top to bottom on both devices at XXL/AX3/AX5 in both orientations, per the owner's direction that review captures show the whole sheet: all ten names remain complete and every control below the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper, the pages-range fields, the custom-filter toggles) renders correctly. | re-verified |
+| 30 | #40 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX5 | Quick Search's saved-word name is `lineLimit(1)` (`QuickSearchFeature/QuickSearchView.swift:40`). A throwaway row whose name and content both read in full at the default size is already cut in portrait Edit mode at XXL, is cut in the ordinary row from AX3 upward, and remains cut at AX5 landscape. Edit mode makes the failure worse because the delete and reorder controls take width from both text lines: at AX3 portrait the content is also reduced to a few characters plus an ellipsis. The editor fields themselves reflow correctly. The throwaway item and its generated search-history entry were both removed after the walk, restoring the original empty list. **Re-verify (batch 1, `03ec0db6`):** the saved word's name and its content read in full in both the ordinary row and Edit mode at portrait XXL/AX3/AX5 and landscape AX5. | re-verified |
+| 31 | #42 | iPhone portrait XXL / AX3 / AX5; iPhone landscape AX3 / AX5; iPad portrait AX3 / AX5; iPad landscape AX5 | The error toast's title stays complete, but its subtitle is hard-capped to one line (`SystemNotification/ToastMessageView.swift:70`) and progressively loses the unsupported-link explanation as Dynamic Type grows. On iPhone the complete sentence is visible in landscape XXL, while portrait XXL already ends after `recognized…`, portrait AX3 after `was…`, and portrait AX5 after `link…`; landscape AX3 and AX5 also ellipsise. The iPad absorbs the sentence at portrait and landscape XXL and at landscape AX3, but portrait AX3 / AX5 and landscape AX5 still cut it. The detail sheet reflows and scrolls through the complete Description, Suggested Solution, Context and Environment sections at every sampled size, so this finding is confined to the toast's immediate message. **Re-verify (batch 1, `2003c4f6`):** fixed at portrait XXL and at both landscape cells, where the subtitle reads the whole sentence. At portrait AX3 and AX5 it is still ellipsised after three lines. **Not re-walked in batch 1:** the iPad cells. Remains **open**. | accepted (owner reason, 2026-09-08: 「展示不下就展示不下直接接受」) |
+| 32 | #3 | iPad portrait AX3 / AX5 | The regular-width gallery row keeps its category badge and timestamp on one horizontal stats line without reserving space between them. A long category name that fits beside the timestamp at XXL grows across the timestamp at AX3; at AX5 the badge covers the timestamp's leading date characters. Both values still exist, but their glyphs are painted on top of one another and cannot be read independently. The wider landscape row keeps them separated at all three sampled sizes. **Re-verify (batch 1, `b598c933`):** the regular-width row puts the category badge on its own line above the timestamp, so the two are no longer painted over each other at iPad portrait AX3 and AX5. **Re-verify (batch 2, `803756c3`):** on the iPad's regular-width row at AX3 and AX5 the category badge and the timestamp are on the same stats line with clear space between them — the badge no longer paints across the timestamp — and the badge's corners scale with its text so it still reads as a rounded pill. | re-verified |
+| 33 | #30 | iPad portrait AX5; iPad landscape AX5 | The native Login screen's large heading and first field do not reserve enough vertical space for each other at AX5. The bottom of `Login` is painted through the `Username` label, leaving both strings present but impossible to read independently. The same overlap occurs in the compact-height landscape modal; XXL and AX3 keep the heading and field separated in both orientations. No credential was entered and no login was submitted. **Re-verify (batch 3, `0a965af3`):** above the default size the screen stops ignoring the safe area, so the navigation bar's inset — as tall as the title it draws — pushes the form down instead of under it, and a `ViewThatFits(in: .vertical)` lets the column scroll when it outgrows the height. At iPad AX5 portrait the heading sits at 147,339 171x72 pt and the `Username` label at 243,450, clear of each other, with both fields and the Login button drawn; the compact-height landscape modal is clear at AX5 too, and AX3 is clear in both orientations. At `.large` every frame is identical to the pre-batch build. No credential was entered and no login was submitted. | re-verified |
+| 34 | #9 | iPhone portrait AX5 | The section heading and its trailing Show All button share one line and the button keeps its share of the width, so at AX5 in portrait the heading is squeezed into a column about one short word wide and breaks mid-word across four lines. No characters are lost, so this is a layout-quality defect rather than a D-03 information loss, but the heading stops reading as a heading. It does not reproduce in landscape, where the wider line keeps it whole. Opened by the round-1 re-verification of fix batch 1. **Re-verify (batch 2, `803756c3`):** `SubSection` now gives the title a line of its own at the accessibility sizes, leading-aligned, with **Show All** beneath it and omitted entirely (no reserved blank line) where the section offers none. The heading no longer breaks mid-word. Verified on the Search root's Quick Search, Recently Searched and Recently Seen headings, on Home's Frontpage, Toplists and Other, and on Detail's Previews and Comments headings, at XXL, AX3 and AX5 in both orientations on both devices. `KeywordCell` is leading-aligned with the magnifier on the keyword's first line above `.large` and keeps its centred glyph at `.large`, where the glyph-to-text gap is unchanged from round I. | re-verified |
+| 35 | #14 | iPhone `.large` (default size) | **D-15 parity change.** In the Detail comment card, a card that carries a vote score now renders its score and date on a line of their own beneath the author, so the body starts one line lower than it did before the batch; a card with no score is pixel-identical. No information is lost and the change is confined to the default size, but D-15 ranks `.large` appearance parity above the modifier removal that produced it, so the owner decides whether to accept the new default-size look. Opened by the round-1 re-verification of fix batch 1 (`37b56570`). **Re-verify (batch 2, `803756c3`):** inherited unchanged — this batch did not touch `DetailView+CommentCells.swift`, and the `.large` comment strip is identical to the round-I build. Still awaiting the owner's disposition. | open |
+| 36 | #19 | iPad portrait AX5; iPad landscape AX3 / AX5 | **NEW — iPad-only, found in the login-gated re-verification walk (2026-09-04).** The Archives sheet renders as a regular-width form-sheet on iPad, and at the accessibility sizes its `scrollingColumn` branch is taller than the short sheet. When the user scrolls down to reach the funds row and the Download button, the sheet's large 'Archives' navigation title does not collapse or scroll away — there is too little scroll travel to clear it — so it stays and overlaps the '1280x' archive card beneath it, painting the title's glyphs over the card's text. The archive values read at the top of the sheet; the overlap appears only once scrolled. Portrait AX3 passes (the large title scrolls fully off before the content arrives) and XXL passes (the `pinnedColumn` layout fits without scrolling), so this is confined to portrait AX5 and landscape AX3/AX5. The parallel Torrents sheet (#20) does not show it: its single-torrent content is short and its title collapses away cleanly. **Re-verify (batch 6, `fbcc1694`):** the sheet now carries the phase's title policy with its designed `.automatic` mode, so at and below the default size it keeps the large title and above it falls back to inline. Walked on the iPad in all three failing cells: portrait AX5 and landscape AX3/AX5 draw a compact inline `Archives` (84x26) in the sheet's bar, the funds rows and the Download button are reachable by scrolling, and no title glyph is painted over an archive card — content scrolls under the bar's own material, which is ordinary chrome behaviour. `.large` portrait is unchanged: the title is still the leading large one (139x41). | re-verified |
+| 37 | #23 | iPad portrait AX3; iPad landscape AX3 | **NEW — iPad-only, found in the batch-7 iPad walk (2026-09-04).** The Detail download **delete confirmation** does not reserve the height its own button row needs at AX3. The alert keeps the two buttons side by side at that size — it only restacks them vertically at AX5 — and the row grows to 96 pt tall while the card's height is computed as though it were shorter, so the card's rounded bottom edge cuts both capsules roughly in half and the `Cancel` and `Delete` labels sit on the clip line with no bottom padding at all. The labels are still legible and the alert is still operable, so no value is lost outright, but a destructive confirmation renders visibly broken and its buttons' lower halves fall outside their own container. It reads correctly at `.large` and at XXL (button row well inside the card) and again at AX5 (stacked buttons, full bottom padding), so AX3 is the one size where the container's height and its contents disagree. Both orientations show it identically. Every dialog raised was cancelled; nothing was deleted. **Diagnosis (phase lead, 2026-09-04):** this is the **system's** alert, not the app's. `DetailReducer` builds an `AppAlertState`, and `AppComponents/AppAlertState.swift`'s `appAlert(_:)` renders it through SwiftUI's native `.alert(_:isPresented:presenting:actions:message:)`. The card, its height, its corner radius and the button row's layout are all drawn by the system; the only inputs the app supplies are the title, the message and the buttons' labels and roles. The capture was re-examined directly and the clip is exactly as recorded — the card's rounded bottom edge passes through both capsules. There is therefore no supported app-side lever: the one workaround available (rebuilding the confirmation as a custom card) is already ruled out by the standing preference for native presentation surfaces, and shortening the message to dodge a height miscalculation would trade real information for a fix that each localization would wrap differently. **Recommended disposition: accept as a system defect and file it with Apple**, unless the owner wants the copy shortened. No code change was made. | open (owner decision: accept as a system defect) |
+| 38 | #22 | iPad portrait AX5; iPad landscape AX5 | **NEW — iPad-only, found in the batch-9 mock walk (2026-09-04).** `NewDawnView` lays its three text blocks out in a plain `VStack` inside two `.overlay`s over a full-bleed gradient, with `lineLimit(nil)` and `fixedSize(horizontal: false, vertical: true)` and **no scroll container** (`AppComponents/NewDawnView.swift:66`). The block therefore grows without bound as the type size grows, and on the iPad — where the greeting is presented as a regular-width form-sheet rather than full-screen — it outgrows the sheet at AX5 and is clipped at both ends: the opening line `It is the dawn of a` is sliced horizontally by the sheet's top edge and the closing `Hath!` by its bottom, in both orientations. Nothing scrolls, so neither is recoverable. Both read in full at `.large`, XXL and AX3, so AX5 is the onset. The iPhone, which presents the same view full-screen, still renders the whole greeting at AX5 — but with the block spanning the screen edge to edge and the title drawn across the decorative sun, so the same absence of a scroll container is one longer string away from clipping there too. Two further defects on this screen are **not** type-size regressions and are recorded here only so they are not rediscovered: the Dynamic Island covers the first characters of two lines in iPhone landscape, and white body text is drawn over the yellow sun — both identical at `.large`, so both fail the D-04 comparison basis. **Re-verify (batch 10, `fc900bde`):** fixed as the owner directed — `NewDawnView` gained a `ScrollView` and `TextView` lost its `fixedSize(horizontal:vertical:)`. The content keeps the container's height as a *floor* (`minHeight`, measured with `onGeometryChange`) so it stays centred while it fits, and `scrollBounceBehavior(.basedOnSize)` withholds the bounce until there is something to scroll to. Walked on the iPad at portrait AX5: the opening line now draws in full at the top of the sheet and two swipes reach the closing `Hath!` complete — against a build where both were sliced by the sheet's edges. The iPhone at portrait AX5 shows the same behaviour full-screen. `.large` parity checked on both: the greeting is still vertically centred in its container and nothing scrolls. | re-verified |
 
 Status ∈ {`open`, `fixed-by <commit>`, `re-verified`, `accepted`}.
+
 
 ## D-13 named edge cases
 
@@ -1093,13 +1099,13 @@ The five edge cases from ROADMAP criterion 4, pre-registered as named items so c
 off item by item and none is silently dropped. Tracked alongside § Findings, not merged into it.
 Each closes as `fixed` or `accepted (owner reason: …)` — never by omission.
 
-| Case | Screen | Site | Observed (iPhone, round 1) | Status | Disposition |
-|---|---|---|---|---|---|
-| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | It reproduces, and it is worse than "abbreviation": the strip's columns keep a fixed fraction of the container width and a fixed row height, so the column **labels** ellipsise first (at XXL portrait already — "FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…") and from AX3 up in portrait the **values** go too: a four-digit favourite count reads "11…" at AX3 and "1…" at AX5, a 4.50 rating reads "4.…" then is lost, and the unit lines read "Engl…" / "Ti…". The five-star rating row is clipped at both ends at every accessibility size and shows three stars for a 4.50 rating at AX5 landscape. Landscape keeps the values but loses the labels from AX3. Observed in iPhone portrait XXL / AX3 / AX5 and iPhone landscape AX3 / AX5; recorded as finding #14. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal layout. | open |  |
-| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | It reproduces in portrait from AX3 up. Tags are laid out from a fixed leading column and are neither wrapped nor ellipsised when they exceed the remaining width, so a long tag runs off the right edge of the screen and is cut mid-glyph with nothing to mark the loss. At AX3 portrait a sixteen-character tag loses its last six characters; at AX5 portrait two separate tags are cut (one tag's own frame is 64 points wider than the screen) and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at XXL / AX3 / AX5. Observed in iPhone portrait AX3 / AX5; recorded as finding #15. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal tag-cloud layout. | open |  |
-| Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | **The pre-registered prediction does not hold: the counter does not wrap, it disappears.** The indicator is a single-line `Text` in a glass capsule sharing a leading-aligned `HStack` with the close button, so as the type grows the capsule is squeezed rather than the row wrapping. In **portrait** it reads "1 / 14" in full at XXL, shows only an ellipsis at AX3, and at AX5 renders nothing at all — a two-point-wide sliver beside the close button — while the accessibility tree still reports the full string. In **landscape** it reads in full at XXL, AX3 and AX5. The lower bar's "1" and "14" slider end labels survive in every cell, but those are the slider's bounds, not the current page. Recorded as finding #22 and left undispositioned here per D-13 — with the wrap-is-acceptable reasoning no longer applicable, since nothing wraps. **iPad observed:** blocked at all six cells because the regular-width panel requires a live Reading session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for its five/seven-thumbnail `.callout` layout. | open |  |
-| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | On iPhone, the toolbar and menu glyphs do **not** clip: the favourites-index, sort-order and features glyphs keep their size and stay fully drawn at AX5 in both orientations, and the row's trailing `photoOnRectangleAngled` symbol is likewise never cut. What is lost is the number beside that symbol — at AX3 the page count loses digits at the screen's right edge and at AX5 only the glyph survives with no number at all (finding #6). So the pre-registered glyph clip does not reproduce on iPhone; the paired value does. iPad observation is blocked because `IPAD_LOGIN=none`; no iPad glyph verdict was inferred. | open |  |
-| Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | It ellipsises, which is the pre-registered failing case, and it does so well before AX5 on both devices. On iPhone at AX5 in **portrait** only the first word survives and the ellipsis sits on top of the neighbouring card's artwork (finding #2); at AX5 in **landscape** the title ends after roughly three words. On iPad the title also loses its tail in every sampled cell: portrait contracts from an ellipsised multi-line title at XXL to only its opening words at AX5, while landscape's extra width still cannot preserve the tail at XXL, AX3, or AX5. The title does not make useful use of `lineLimit(4)` at any accessibility size — the card's fixed height, not the nominal line limit, removes the text. Recorded as finding #1. | open |  |
+| Case | Screen | Site | Observed (iPhone, round 1) | Observed (after, batch 1) | Status | Disposition |
+|---|---|---|---|---|---|---|
+| Detail stats-strip abbreviation | #14 | `DetailFeature/DetailView+Subviews.swift:99, 116` (stats strip) | It reproduces, and it is worse than "abbreviation": the strip's columns keep a fixed fraction of the container width and a fixed row height, so the column **labels** ellipsise first (at XXL portrait already — "FAVORITED" → "FAVORI…", "196 RATINGS" → "196 RAT…") and from AX3 up in portrait the **values** go too: a four-digit favourite count reads "11…" at AX3 and "1…" at AX5, a 4.50 rating reads "4.…" then is lost, and the unit lines read "Engl…" / "Ti…". The five-star rating row is clipped at both ends at every accessibility size and shows three stars for a 4.50 rating at AX5 landscape. Landscape keeps the values but loses the labels from AX3. Observed in iPhone portrait XXL / AX3 / AX5 and iPhone landscape AX3 / AX5; recorded as finding #14. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal layout. | **Re-verified.** The strip now stacks each caption above its value above the default size. At iPhone portrait XXL, AX3 and AX5 every column keeps both its label and its value and the star row is complete; landscape XXL, AX3 and AX5 likewise keep labels and values. Tracked as finding #14, now `re-verified`. **iPad walk (login-gated batch, 2026-09-04):** with the owner signed in on `IPAD_UDID` (D-09), the iPad column is walked at last — on the regular-width Detail modal the stats strip is a horizontal `ScrollView` that reveals every column (Favorited, Language, Ratings with an un-clipped five-star row, Page Count, File Size), each label and value complete and no column spanning the card width, at portrait XXL/AX3/AX5 and landscape XXL/AX3/AX5. The iPad case passes; the D-13 stats-strip case is now confirmed fixed on both devices. | re-verified |  |
+| Long-tag right-edge clip | #14 | `AppComponents/TagCloudView.swift:122` (tag cloud) | It reproduces in portrait from AX3 up. Tags are laid out from a fixed leading column and are neither wrapped nor ellipsised when they exceed the remaining width, so a long tag runs off the right edge of the screen and is cut mid-glyph with nothing to mark the loss. At AX3 portrait a sixteen-character tag loses its last six characters; at AX5 portrait two separate tags are cut (one tag's own frame is 64 points wider than the screen) and the label column beside them is itself clipped. The same tags read in full at `.large` and in landscape at XXL / AX3 / AX5. Observed in iPhone portrait AX3 / AX5; recorded as finding #15. **iPad observed:** blocked at all six cells because live Detail requires a session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for the iPad's modal tag-cloud layout. | **Re-verified.** Tags now wrap inside their own chip instead of extending past the trailing edge, so no tag is cut mid-glyph at portrait AX3 or AX5 and the label column beside them stays whole. The same tags continue to read in full at `.large` and in landscape. Tracked as finding #15, now `re-verified`. **iPad walk (login-gated batch, 2026-09-04):** the iPad column is walked at last — on the regular-width Detail modal every tag chip wraps inside the card, the namespace chips stack above their children, and no tag runs off the trailing edge, at portrait XXL/AX3/AX5 and landscape XXL/AX3/AX5. The iPad case passes; the D-13 long-tag case is now confirmed fixed on both devices. | re-verified |  |
+| Reader total-page counter wrap | #25 | `ReadingFeature/Support/ControlPanel.swift:176` (page indicator) | **The pre-registered prediction does not hold: the counter does not wrap, it disappears.** The indicator is a single-line `Text` in a glass capsule sharing a leading-aligned `HStack` with the close button, so as the type grows the capsule is squeezed rather than the row wrapping. In **portrait** it reads "1 / 14" in full at XXL, shows only an ellipsis at AX3, and at AX5 renders nothing at all — a two-point-wide sliver beside the close button — while the accessibility tree still reports the full string. In **landscape** it reads in full at XXL, AX3 and AX5. The lower bar's "1" and "14" slider end labels survive in every cell, but those are the slider's bounds, not the current page. Recorded as finding #22 and left undispositioned here per D-13 — with the wrap-is-acceptable reasoning no longer applicable, since nothing wraps. **iPad observed:** blocked at all six cells because the regular-width panel requires a live Reading session and `IPAD_LOGIN=none`; no iPhone verdict was inferred for its five/seven-thumbnail `.callout` layout. | Not in fix batch 1 — the reader control panel was not touched by this batch and was not re-walked. Finding #22 stays `open`. | open |  |
+| Favorites trailing-glyph clip | #8 | `FavoritesFeature/FavoritesView.swift` toolbar/menu glyphs + `GalleryListComponents/Cells/GalleryDetailCell.swift:140` trailing symbol | On iPhone, the toolbar and menu glyphs do **not** clip: the favourites-index, sort-order and features glyphs keep their size and stay fully drawn at AX5 in both orientations, and the row's trailing `photoOnRectangleAngled` symbol is likewise never cut. What is lost is the number beside that symbol — at AX3 the page count loses digits at the screen's right edge and at AX5 only the glyph survives with no number at all (finding #6). So the pre-registered glyph clip does not reproduce on iPhone; the paired value does. iPad observation is blocked because `IPAD_LOGIN=none`; no iPad glyph verdict was inferred. | **Re-verified for the paired value.** The row now reflows above the default size, so the page count keeps its number beside the trailing symbol at AX3 and at AX5 in both orientations, and the toolbar and menu glyphs are still never cut. The pre-registered glyph clip still does not reproduce. Tracked as finding #6, now `re-verified`. iPad Favorites remains blocked by `IPAD_LOGIN=none`. | re-verified |  |
+| Hero-carousel title truncation | #2 | `HomeFeature/GalleryCardCell.swift:73` (`lineLimit(4)`) | It ellipsises, which is the pre-registered failing case, and it does so well before AX5 on both devices. On iPhone at AX5 in **portrait** only the first word survives and the ellipsis sits on top of the neighbouring card's artwork (finding #2); at AX5 in **landscape** the title ends after roughly three words. On iPad the title also loses its tail in every sampled cell: portrait contracts from an ellipsised multi-line title at XXL to only its opening words at AX5, while landscape's extra width still cannot preserve the tail at XXL, AX3, or AX5. The title does not make useful use of `lineLimit(4)` at any accessibility size — the card's fixed height, not the nominal line limit, removes the text. Recorded as finding #1. | **Partly fixed; still open.** With the four-line cap lifted above the default size and the card's height stepped by type, the title reads to its last word at iPhone portrait AX5, at iPad portrait XXL and AX5, and in all three iPad landscape cells — the AX5 portrait overlap (#2) is gone with it. It still ellipsises at iPhone portrait XXL and AX3, at iPad portrait AX3, and at all three iPhone landscape cells, where the card's shorter height is now what removes the text. Tracked as finding #1, still `open`. | open |  |
 
 Note on the reader counter: under D-03 a **wrap** is not degradation, so this case may close as
 `accepted` on the rule alone. That disposition is still recorded here rather than assumed.
@@ -1288,13 +1294,13 @@ same release it introduced the replacing reflow, which is exactly D-14's target-
 Each Disposition cell is intentionally blank for the owner. Valid responses are `fixed` or
 `accepted (reason)`.
 
-| D-13 item | iPhone observation | iPad observation | Disposition |
-|---|---|---|---|
-| 1. Detail stats-strip abbreviation | Reproduced as finding #14 in portrait XXL/AX3/AX5 and landscape AX3/AX5; labels abbreviate first, then values disappear and stars clip. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the iPad modal layout was not inferred. |  |
-| 2. Long-tag right-edge clip | Reproduced as finding #15 at portrait AX3/AX5; the same tags remain complete in landscape. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the regular-width tag cloud was not inferred. |  |
-| 3. Reader total-page counter wrap | The prediction did not reproduce: finding #22 shows the counter vanishing at portrait AX3/AX5 instead of wrapping; landscape remains complete. | All six control-panel cells are blocked because `IPAD_LOGIN=none`; the regular-width panel was not inferred. |  |
-| 4. Favorites trailing-glyph clip | The glyphs do not clip. The adjacent numeric page count is what disappears, tracked by finding #6. | All six Favorites cells are blocked because `IPAD_LOGIN=none`; no glyph verdict was inferred. |  |
-| 5. Hero-carousel title truncation | Reproduced as finding #1 from XXL/AX3/AX5 portrait and AX3/AX5 landscape; AX5 portrait also overlaps, tracked separately by #2. | Reproduced as finding #1 in all six cells, including landscape XXL. |  |
+| D-13 item | iPhone observation | iPad observation | After fix batch 1 | Disposition |
+|---|---|---|---|---|
+| 1. Detail stats-strip abbreviation | Reproduced as finding #14 in portrait XXL/AX3/AX5 and landscape AX3/AX5; labels abbreviate first, then values disappear and stars clip. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the iPad modal layout was not inferred. | Re-verified: labels and values both survive at every re-walked iPhone cell. Full text in § D-13 named edge cases, `Observed (after, batch 1)`. |  |
+| 2. Long-tag right-edge clip | Reproduced as finding #15 at portrait AX3/AX5; the same tags remain complete in landscape. | All six live-Detail cells are blocked because `IPAD_LOGIN=none`; the regular-width tag cloud was not inferred. | Re-verified: tags wrap inside their chips and none is cut. Full text in § D-13 named edge cases. |  |
+| 3. Reader total-page counter wrap | The prediction did not reproduce: finding #22 shows the counter vanishing at portrait AX3/AX5 instead of wrapping; landscape remains complete. | All six control-panel cells are blocked because `IPAD_LOGIN=none`; the regular-width panel was not inferred. | Not touched by fix batch 1 and not re-walked; finding #22 stays `open`. |  |
+| 4. Favorites trailing-glyph clip | The glyphs do not clip. The adjacent numeric page count is what disappears, tracked by finding #6. | All six Favorites cells are blocked because `IPAD_LOGIN=none`; no glyph verdict was inferred. | Re-verified for the paired value: the page count keeps its number and the glyphs are still never cut. Full text in § D-13 named edge cases. |  |
+| 5. Hero-carousel title truncation | Reproduced as finding #1 from XXL/AX3/AX5 portrait and AX3/AX5 landscape; AX5 portrait also overlaps, tracked separately by #2. | Reproduced as finding #1 in all six cells, including landscape XXL. | Partly fixed, still open: the title survives at iPhone portrait AX5 and across the iPad, but still ellipsises at iPhone portrait XXL/AX3, iPad portrait AX3 and all three iPhone landscape cells. Full text in § D-13 named edge cases. |  |
 
 Under D-03, a genuine reader-counter **wrap** would not be degradation, so `accepted` on that
 rule alone would be legitimate. The observed counter does not wrap — it disappears — and the
@@ -1359,6 +1365,14 @@ authority, especially for the 0.72 Detail-header category site originally identi
 likely collision. The `no_minimum_scale_factor` SwiftLint rule lands in plan 16-12 only after
 the live count reaches **0**.
 
+**Round-1 re-verify (fix batch 1).** All five sites are gone: a live grep at the re-verified HEAD
+returns **0**. Each removal was paired with a `.large` parity capture (§ Evidence, `d15-after/`):
+the two gallery-list rows, the Comments view and the Detail header are pixel-identical to their
+banked baselines, and the Detail comment cells changed only for a card that carries a vote score —
+recorded as finding #35 for the owner to accept or reject. D-15's second half therefore holds on
+three of the four surfaces and is an explicit owner decision on the fourth. The
+`no_minimum_scale_factor` rule's precondition (live count 0) is met.
+
 ### Blocked rows
 
 Each entry below covers all six orientation/size cells for the named device and screen unless
@@ -1367,10 +1381,10 @@ blocked D-04 row.
 
 | Device / screen | Cells | Status | Reason |
 |---|---|---|---|
-| iPhone #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | blocked | Its only entry requires a non-empty translated tag description; the English translation database contains none. |
-| iPhone #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The server-issued once-per-day greeting was not presented and cannot be summoned. |
+| iPhone #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | **unblocked, walked (batch 8)** | The English-description gate was opened by switching the session language to a translated locale and enabling the Tags Extension; all six cells pass. Both settings were restored. |
+| iPhone #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The gain that raises the greeting is once per UTC day and account-wide, and it was already consumed for the current UTC day. Batch 8 enabled the greeting toggle and exercised five fetch opportunities against a live session; the server reported no gain and the sheet never presented. The toggle was restored to off. |
 | iPhone #27 Live Text overlay | portrait + landscape × XXL/AX3/AX5 | n/a | It draws no app-visible text; the visible selection/translation UI is system-owned. |
-| iPhone #30 Login | portrait + landscape × XXL/AX3/AX5 | blocked | The preserved logged-in session cannot expose the native form without a forbidden logout. |
+| iPhone #30 Login | portrait + landscape × XXL/AX3/AX5 | **unblocked, walked (batch 8)** | Walked on a dedicated logged-out iPhone Air simulator created for the batch, so neither owner simulator was signed out; all six cells pass. The toast and the error sheet stay unwalked — both need a submitted login attempt, and no credential was ever entered. |
 | iPad #5 Watched | portrait + landscape × XXL/AX3/AX5 | blocked | `IPAD_LOGIN=none`; no credential was entered. |
 | iPad #8 Favorites | portrait + landscape × XXL/AX3/AX5 | blocked | `IPAD_LOGIN=none`; no credential was entered. |
 | iPad #13 FolderManager | portrait + landscape × XXL/AX3/AX5 | blocked | The folder-management route is login-gated and `IPAD_LOGIN=none`. |
@@ -1381,8 +1395,8 @@ blocked D-04 row.
 | iPad #18 Gallery Infos | portrait + landscape × XXL/AX3/AX5 | blocked | Its route starts from unavailable live Detail. |
 | iPad #19 Archives | portrait + landscape × XXL/AX3/AX5 | blocked | Archives is login-gated; nothing was purchased. |
 | iPad #20 Torrents | portrait + landscape × XXL/AX3/AX5 | blocked | Torrents is login-gated; no torrent or share action was opened. |
-| iPad #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | blocked | The English-description gate makes the sheet unreachable, and the missing live Detail session is an additional barrier. |
-| iPad #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The server-issued greeting was not presented and cannot be summoned. |
+| iPad #21 Tag Detail | portrait + landscape × XXL/AX3/AX5 | **unblocked, walked (batch 8)** | Both barriers are gone: the owner's iPad session provides live Detail, and the same language/Tags-Extension change opens the description gate. All six cells pass; both settings were restored. |
+| iPad #22 NewDawn | portrait + landscape × XXL/AX3/AX5 | blocked | The daily gain is account-wide, and batch 8 established on the iPhone that it was already consumed for the current UTC day, so the iPad cannot present a greeting the iPhone could not. The iPad toggle was left at its recorded value. |
 | iPad #23 Detail download confirmation | portrait + landscape × XXL/AX3/AX5 | blocked | The live Detail route is unavailable; the preserved download was untouched. |
 | iPad #24 Reading | portrait + landscape × XXL/AX3/AX5 | blocked | Live Reading requires the missing iPad session; no saved download was opened or changed. |
 | iPad #25 Reading control panel | portrait + landscape × XXL/AX3/AX5 | blocked | Its regular-width layout requires unavailable live Reading. |
@@ -1391,8 +1405,10 @@ blocked D-04 row.
 | iPad #38 EhSetting | portrait + landscape × XXL/AX3/AX5 | blocked | Native EhSetting sections require a logged-in account and `IPAD_LOGIN=none`. |
 | D-04 progress spinner (`DownloadsView+Subviews.swift:145`) | #11/#12 active-transfer state | blocked | Neither simulator had an active transfer, and starting or altering a user-owned download solely for evidence was forbidden. |
 
-The iPad no-session rows are an explicit owner gap: either create the session manually before
-re-verification (`IPAD_LOGIN=present`) or accept the listed rows as a known coverage gap.
+The iPad no-session rows were an explicit owner gap, and the owner closed it: a session was created
+manually on `IPAD_UDID` on 2026-09-03 (`IPAD_LOGIN=present`), so those rows are no longer a coverage
+gap and are walked by the following re-verification batch. The rows that remain blocked for other
+reasons (the D-04 progress spinner, which needs an active transfer) are unaffected.
 
 ### Evidence
 
@@ -1434,3 +1450,1488 @@ image is tracked by git.
 | 31 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-AX5-42-toast.png` | Toast subtitle reduced while its title remains. |
 | 32 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-ax5-3-top.png` | Category badge painted over the adjacent timestamp. |
 | 33 | `$HOME/Library/Caches/ehpanda-phase16/sweep/ipad-portrait-AX5-30-top.png` | Login heading overlapping the Username label. |
+
+### Re-verification batches
+
+One entry per fix batch re-walked after the owner's D-01 amendment 2. Each entry records the
+commits it covers, the build actually installed, and exactly which cells were re-walked, so a
+later reader can tell a re-verified cell from one that was merely inherited.
+
+#### Fix batch 1 — round 1, 2026-09-03
+
+**Commits covered (16).** The branch was rewritten after these were authored, so both the hash
+they were built at and the hash they carry now are recorded; every pair is tree-identical and
+every right-hand hash is an ancestor of the branch tip.
+
+| Built at (old) | Now (after rewrite) | Subject |
+|---|---|---|
+| `f251e4d6` | `c999e286` | feat(16): add AdaptiveStack reflow component |
+| `d5fb868b` | `b598c933` | fix(16): reflow gallery list row at AX sizes |
+| `a0e7ebb2` | `5e9f9cdb` | fix(16): step hero and history card sizes by type |
+| `9f5b431d` | `37b56570` | fix(16): reflow detail comment cards at AX sizes |
+| `bea27ba8` | `1c14a1cf` | fix(16): reflow archive cards at AX sizes |
+| `208cf2ae` | `d3aec099` | fix(16): reflow ranking rows at AX sizes |
+| `23f4d0fb` | `1050c21d` | fix(16): stack detail stats strip at AX sizes |
+| `231e68f8` | `7839db1f` | fix(16): stack comment meta lines at AX sizes |
+| `982074b6` | `9b1419a4` | fix(16): stack torrent meta at AX sizes |
+| `0e1a2834` | `c6775b18` | fix(16): lift detail header caps, drop last shrink |
+| `7353a288` | `953a67b6` | fix(16): wrap long tags inside their chips |
+| `bae824c6` | `0a9f7dad` | fix(16): lift gallery info value caps at AX sizes |
+| `5c226548` | `6df974e9` | fix(16): wrap activity-log category chip |
+| `3dc7285f` | `aa3e18e1` | fix(16): let activity-log chip match its timestamp |
+| `1d781ea4` | `03ec0db6` | fix(16): lift quick search caps at AX sizes |
+| `92e899b8` | `2003c4f6` | fix(16): give toast subtitle a line budget |
+
+Fix batch E (`5996d145`, `1838f8b3`) is **not** part of this entry, so findings #26 and #28 were
+not judged here.
+
+**Builds installed.**
+
+| Build | Commit | Devices | Used for |
+|---|---|---|---|
+| A | `2003c4f6` | iPhone | Screens #2–#10 (the 79 after-captures reused from the interrupted first pass). |
+| B | `aa3e18e1` | iPhone, iPad | Everything else, both devices. |
+
+The only difference between the two builds is one file:
+`AppPackage/Sources/SettingFeature/AppActivityLogs/AppActivityLogsView.swift`
+(11 insertions, 6 deletions). That file renders screen #32 only, which build B re-walked, so the
+reused #2–#10 captures are unaffected by the gap.
+
+Both builds carry the personal bundle id. `plutil -extract CFBundleIdentifier raw <app>/Info.plist`
+prints, for the batch build, the parent build and the iPad build:
+
+```
+app.ehpanda.personal
+```
+
+Every install was `xcrun simctl install` over the existing app (install-over; nothing was
+uninstalled or erased), and after installing, Favorites was opened on the iPhone and still listed
+its content, confirming the session survived. No credential was ever entered (D-09).
+
+**Protocol deviation, recorded.** The first attempt at build B omitted the
+`BUNDLE_ID_SUFFIX=.personal` command-line override — a git worktree does not carry the untracked
+`Config/LocalSigning.xcconfig` that supplies it in the main checkout — so it produced
+`app.ehpanda`, and because the install was chained into the same command it installed over the
+non-target `app.ehpanda` bundle on the iPhone before the check could stop it. `simctl install`
+preserves the data container, nothing was erased, and `app.ehpanda` is not the sweep target. The
+build was redone with the override, verified as `app.ehpanda.personal`, and re-installed; the iPad
+build carried the override from the start. **Worktree builds must pass
+`BUNDLE_ID_SUFFIX=.personal` explicitly, and the `plutil` check must run before any install.**
+
+**Screens re-walked, iPhone** (portrait and landscape × XXL / AX3 / AX5 unless noted):
+
+| Screens | Orientations | Before-capture source |
+|---|---|---|
+| #2–#10 | portrait (reused from build A) | § Evidence round-1 sweep captures under `sweep/` |
+| #2, #3, #5, #8, #9 | landscape | `sweep/` |
+| #14, #16, #18, #19, #20, #32, #40, #42 | portrait + landscape | `sweep/` |
+
+**Screens re-walked, iPad:** #2, #3, #7 and #9, portrait and landscape at all three sizes, against
+the same `sweep/` before-captures. The login-gated iPad rows stay `blocked`: `IPAD_LOGIN=none` and
+no credential was entered.
+
+**Not re-walked in this batch** (so their cells keep their round-1 status): iPhone landscape #4,
+#6, #7 and #10; #12 Downloads Inspector; #17 Detail Search; #21–#31 and #33–#39 and #41; the iPad
+cells of findings #25 and #31.
+
+**D-15 parity.** All five `minimumScaleFactor` sites are removed by this batch and a live grep now
+returns 0. Parity was captured at `content_size large` on both the batch parent (`96f11614`,
+built in a second worktree) and the batch build, for each surface that hosted one — the gallery
+list row, the Detail header, the Detail comment cells and the Comments view — plus a screen-level
+`.large` sweep of every re-walked screen on both devices. Everything matched except the Detail
+comment cells, raised as finding #35.
+
+**Outcome.**
+
+- `re-verified`: #2, #3, #5, #6, #8, #9, #10, #13, #14, #15, #16, #17, #18, #19, #25, #30, #32.
+- still `open`: #1 (survives on iPad and at iPhone portrait AX5, still ellipsised elsewhere, and
+  now also in all three iPhone landscape cells), #20 (portrait fixed, landscape worse), #21
+  (AX5 portrait fixed, AX3 portrait unchanged, XXL portrait regressed from a round-1 `pass`),
+  #31 (XXL and landscape fixed, portrait AX3/AX5 unchanged).
+- new: **#34** (section heading breaks mid-word beside its trailing button at AX5 portrait;
+  primary file `AppPackage/Sources/AppComponents/SubSection.swift`) and **#35** (the D-15 parity
+  change in the Detail comment card at the default size).
+- The category-badge clip anticipated for the Detail header did not reproduce: checked on a
+  nine-character category at AX3 and AX5 portrait, the badge reads in full.
+- Spacing and padding quality were deliberately **not** judged: the owner's reflow quality bar
+  (16-CONTEXT.md, 2026-09-03) exempts batches A–E and schedules a separate polish pass.
+
+**Evidence.** After-captures are under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch1/`
+and the `.large` parity captures under `.../d15-after/batch1/`, with the parent-build comparison
+set under `.../d15-before/batch1/` and the four banked baselines under `.../d15-baseline/`. A
+`pairs.tsv` in the re-verify directory lists every judged after-image with its before image and
+verdict: 317 rows — 284 `pass`, 32 `open`, 1 `parity`. No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` /
+`disabled` / portrait 420×912; iPad `large` / `light` / `disabled` / portrait 834×1210.
+
+#### Fix batch 2 — round II, 2026-09-03
+
+The owner's round-I review redirected six of the batch-1 fixes and asked for four more; this
+entry covers the twelve commits that answer it, re-walked against the batch-1 build.
+
+**Commits covered (12), `68497009..803756c3`.**
+
+| Commit | Subject |
+|---|---|
+| `68497009` | refactor(16): make FlowLayout a public component |
+| `6942793b` | fix(16): wrap torrent counters onto more lines |
+| `9c1c0a50` | fix(16): let the archives sheet scroll as one |
+| `96576d6c` | fix(16): scale category badge with its text |
+| `ed5ed385` | fix(16): give the list row room and a scaled cover |
+| `a6a0dd61` | fix(16): stack the detail cover above its title |
+| `ff134a40` | fix(16): stack a tag row above its children |
+| `603a1bb6` | fix(16): cap hero card at half the viewport |
+| `dcb32539` | fix(16): keep hero cover and title side by side |
+| `64daeda7` | fix(16): stack SubSection heading at AX sizes |
+| `4e6ece35` | fix(16): align search keyword cell leading |
+| `803756c3` | fix(16): drop activity-log chip to its own line |
+
+**Build installed.** One build, at `803756c3`, marketing version 3.0.0 (158), built in the
+re-verification worktree with `BUNDLE_ID_SUFFIX=.personal` on the command line as the batch-1
+deviation requires. `plutil -extract CFBundleIdentifier raw <app>/Info.plist` printed:
+
+```
+app.ehpanda.personal
+```
+
+The check ran before either install. Both installs were `xcrun simctl install` over the existing
+app (install-over; nothing uninstalled, nothing erased). Favorites was opened on the iPhone after
+installing and still listed its content, confirming the session survived. No credential was ever
+entered (D-09); the iPad remains `IPAD_LOGIN=none` and its login-gated rows stay `blocked`.
+
+**Before-captures.** Every before image is the round-I fix build (`aa3e18e1`) rendering, taken
+from `$HOME/Library/Caches/ehpanda-phase16/reverify/batch1/`; the `.large` parity befores come
+from `.../d15-after/batch1/`. **`aa3e18e1` was not rebuilt** — batch 1 had already captured every
+cell this batch re-walks, so no second worktree was created. Each reused before image was opened
+and its page state confirmed to match the after image before the pair was written.
+
+**Screens re-walked, iPhone** (portrait and landscape × XXL / AX3 / AX5, top + mid + bottom where
+the screen scrolls): #2 Home root, #3 Frontpage list, #8 Favorites list, #9 Search root, #14
+Gallery Detail, #19 Archives, #20 Torrents, #32 Activity Logs.
+
+**Screens re-walked, iPad** (portrait and landscape × XXL / AX3 / AX5): #2, #3, #9.
+
+**Not re-walked in this batch,** so their cells keep the status they already carry: every screen
+outside that list, and the iPad cells of #8, #14, #19, #20 and #32.
+
+**Hero card measurement (#1).** Card height was read from the accessibility frame; the scroll
+container height is the `List`/`ScrollView` frame where it could be read, and the screen height
+(marked *scr*) where it could not.
+
+| Device / orientation | Size | Card (pt) | Viewport (pt) | Ratio |
+|---|---|---|---|---|
+| iPhone portrait | XXL | 336 × 243 | 708 | 34% |
+| iPhone portrait | AX3 | 336 × 354 | 708 | 50% (cap binds) |
+| iPhone portrait | AX5 | 336 × 354 | 708 | 50% (cap binds) |
+| iPhone landscape | XXL | 621 × 139 | not read | — |
+| iPhone landscape | AX3 | 621 × 150 | not read | — |
+| iPhone landscape | AX5 | 621 × 180 | not read | — |
+| iPad portrait | XXL | 668 × 243 | 1210 *scr* | 20% |
+| iPad portrait | AX3 | 668 × 388 | 1210 *scr* | 32% |
+| iPad portrait | AX5 | 668 × 494 | 1210 *scr* | 41% (cap does not bind) |
+| iPad landscape | XXL | 968 × 243 | 728 | 33% |
+| iPad landscape | AX3 | 968 × 364 | 728 | 50% (cap binds) |
+| iPad landscape | AX5 | 968 × 364 | 728 | 50% (cap binds) |
+
+At `.large` the card is the designed 336 × 190 pt (iPhone) and 668 × 190 pt (iPad).
+
+**Outcome.**
+
+- `re-verified`: #1, #5, #6, #8, #9, #10, #13, #15, #20, #25, #32, #34.
+- still `open`: **#21**, and it is a **regression** — above `.large` the torrent counter row is a
+  `FlowLayout` of four `Label` pairs and every pair is laid out at its icon's size alone
+  (44 × 44 pt at AX5), so none of the four values renders at all; only the glyphs are drawn,
+  cascading diagonally. Round I still drew every value, with only the file size ellipsised. The
+  values remain in the accessibility tree, which is why an outline read looks correct while the
+  screen does not. The `.large` compact row is untouched, so the defect is confined to the flow
+  branch.
+- **#35 is inherited, not re-judged**: this batch did not touch `DetailView+CommentCells.swift`
+  and the `.large` comment strip is identical to the round-I build. It stays `open` awaiting the
+  owner's disposition.
+- Three items are raised for the owner rather than judged: the five rating symbols overflowing
+  their slot at iPhone portrait AX5 (the card renders 381.7 pt wide inside a 336 pt slot, so it
+  overlaps each peeking neighbour by about 23 pt; the symbols themselves are not clipped), the
+  Detail header cover reading as a thumbnail once it stacks above the title, and the Archives
+  sheet's now-visible scroll indicator.
+- Spacing and padding quality were again **not** judged, per the owner's reflow quality bar.
+
+**D-15 parity.** Fourteen `.large` screens were captured on both devices and compared against
+the round-I set; all fourteen matched, and each is a `parity` row in `pairs.tsv`. Two apparent
+differences were pixel-measured and disproved: the Archives cards are 148 × 175 pt at x 57 and
+x 215 in both builds, and the list-row cover frame is 87 × 120 pt in both (the visible image
+differs only by `.scaledToFit()` letterboxing, and the frame's left edge back-computes to 30.0 pt
+in both, so the −10 pt leading bleed survives at the default size).
+
+**Protocol deviations, recorded.**
+
+1. **Tool versions.** `sim-use` 0.14.0 and `agent-device` 0.20.10 were installed, not the 0.13.0
+   and 0.20.8 recorded in § Tooling. Rotation still went through `agent-device orientation`.
+2. **Scrolling by explicit coordinates.** `sim-use gesture scroll-up` landed on the home indicator
+   and backgrounded the app twice, so every scroll used
+   `sim-use swipe --coordinate-space ui --from CX,YHI --to CX,YLO` inside a 35%–68% band, with an
+   `App: EhPanda` assertion before and after every capture.
+3. **iPhone simulator shutdown.** The iPhone shut down unexpectedly mid-walk. It was rebooted with
+   `xcrun simctl boot` (never erased), the app relaunched, and the login confirmed intact via
+   Favorites; content size and appearance had persisted.
+4. **iPad windowed mode.** A swipe grabbed the window and the iPad entered iPadOS 26 windowed mode
+   (1065 × 668). It was restored to full screen by tapping the green traffic-light control.
+5. **Sheet re-entry.** Up-swipes at the top of the Archives and Torrents sheets dismiss them, so
+   both sheets were re-opened from Detail's More menu, and their landscape cells were reached by
+   navigating in portrait and then rotating.
+6. **Content drift.** Live gallery content has refreshed since batch 1, so byte-identical content
+   in a before/after pair is impossible. Pairs match screen, position, size, orientation and page
+   state, and the verdict is on the layout property, not the artwork.
+7. **Eight unpaired captures.** Eight after-captures have no batch-1 counterpart of the same state
+   and are therefore **not** in `pairs.tsv` (no after-only rows): `iphone-landscape-{XXL,AX3,AX5}`
+   `-3-mid3`, `iphone-portrait-{AX3,AX5}-14-tagrow`, `iphone-portrait-{AX3,AX5}-14-tagcloud` and
+   `iphone-portrait-AX5-9-mid3`. They are supplementary evidence only.
+
+**Evidence.** After-captures are under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch2/`
+(152 images) and the `.large` parity captures under `.../d15-after/batch2/` (14 images). The
+`pairs.tsv` in the re-verify directory lists every judged after-image with its before image and
+verdict: 158 rows — 138 `pass`, 6 `open` (all six the iPhone #20 counter-row cells), 14 `parity`.
+No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` /
+`disabled` / portrait 420×912; iPad `large` / `light` / `disabled` / portrait 834×1210. The app
+is left installed on both.
+
+#### Fix batch 2b — round II follow-up, 2026-09-03
+
+Four commits answer the three items round II raised for the owner plus the one round-II
+regression. Only the cells those four commits can reach were re-walked, on the iPhone only; no
+iPad cell is touched by this entry.
+
+**Commits covered (4), `a731d905..549c255d`.**
+
+| Commit | Subject | Screens it can reach |
+|---|---|---|
+| `a731d905` | fix(16): flow torrent counters as plain stacks | #20 |
+| `eb38acc4` | fix(16): keep dropped hero rating inside the card | #2 |
+| `a92e5465` | fix(16): hide the archives column scroll indicator | #19 |
+| `549c255d` | fix(16): align wrapped tag chips leading | #14 (and every other tag-chip host) |
+
+**Build installed.** One build, at `0535d30c` — the docs commit whose tree is `549c255d`'s plus
+this file's batch-2 entry, so the build is `549c255d`'s code — marketing version 3.0.0 (158),
+built in the re-verification worktree with `BUNDLE_ID_SUFFIX=.personal` on the command line as
+the batch-1 deviation requires. `plutil -extract CFBundleIdentifier raw <app>/Info.plist`
+printed:
+
+```
+app.ehpanda.personal
+```
+
+The check ran before the install. The install was `xcrun simctl install` over the existing app
+(install-over; nothing uninstalled, nothing erased). Favorites was opened afterwards and still
+listed its content, confirming the session survived. No credential was ever entered (D-09).
+
+**Before-captures.** Every before image is the round-II fix build (`803756c3`) rendering, taken
+from `$HOME/Library/Caches/ehpanda-phase16/reverify/batch2/`; the `.large` parity befores come
+from `.../d15-after/batch2/`. **`803756c3` was not rebuilt** — batch 2 had already captured every
+cell this batch re-walks, including the two supplementary tag-row shots, so no second worktree
+was created. Each reused before image was opened and its page state confirmed to match the after
+image before the pair was written.
+
+**Cells re-walked, iPhone.**
+
+| Screen | Cells |
+|---|---|
+| #2 Home root | portrait and landscape × XXL / AX3 / AX5 (hero card only; the sections below it are unchanged by these commits and were not re-judged) |
+| #14 Gallery Detail | portrait AX3 and AX5, tag rows |
+| #19 Archives | portrait and landscape × AX3 / AX5 (XXL keeps the pinned-footer grid, which `a92e5465` does not touch) |
+| #20 Torrents | portrait and landscape × XXL / AX3 / AX5 |
+
+**Not re-walked in this batch,** so their cells keep the status they already carry: every screen
+outside that list, every iPad cell, and #19 at XXL in both orientations.
+
+**Hero card measurement (#1).** Rendered bounds are the card's own drawn extent measured in the
+screenshot, not the accessibility frame — the round-II residue was invisible to the frame, which
+reported the slot width while the symbols drew outside it. The rating row is the extent of the
+five symbols' own pixels within the rating row's vertical band.
+
+| Device / orientation | Size | Card slot (pt) | Card rendered (pt) | Rating row (pt) |
+|---|---|---|---|---|
+| iPhone portrait | XXL | 42.0..377.7 | 42.0..377.7 | 196.0..338.0, in the text column |
+| iPhone portrait | AX3 | 42.0..377.7 | 42.0..377.7 | 64.3..245.0, own row |
+| iPhone portrait | AX5 | 42.0..377.7 | 42.0..377.7 | 66.0..314.3, own row |
+| iPhone landscape | XXL | 145.7..766.3 | 145.7..766.3 | in the text column |
+| iPhone landscape | AX3 | 145.7..766.3 | 145.7..766.3 | 168.7..349.0, own row |
+| iPhone landscape | AX5 | 145.7..766.3 | 145.7..766.3 | 169.7..418.0, own row |
+
+Round II measured the same portrait AX5 card at 19.3..400.7 pt rendered (381.7 pt in a 336 pt
+slot) with its rating row at 44.7..400.7 pt — 23.0 pt past the card's trailing edge and 2.7 pt
+into the neighbouring card's slot, which begins at 398.0 pt. The card's content box is
+62.0..357.7 pt after its 20 pt inner padding, and the rating row now sits inside it at both ends;
+the peek gutters measure the designed 20.0 pt on both sides. Card heights are unchanged in
+portrait (243 / 354 / 354 pt) and 15 pt shorter at landscape AX5 (180 → 165 pt), because the
+symbols no longer take the body size.
+
+**Torrent counter measurement (#21).** All four values render in every sampled cell: one line at
+XXL portrait and landscape and at AX3 and AX5 landscape; two lines at AX3 portrait (6 / 1 / 2,526
+then 501.8 MiB); three at AX5 portrait (6 and 1, then 2,526, then 501.8 MiB). No ellipsis, no
+value cut mid-glyph, no clipped glyph. Round II drew none of the four values above `.large`.
+
+**Scroll-indicator measurement (#19).** A capture taken with **no settle delay** right after the
+swipe is the only way to see an indicator, which fades about a second after the gesture ends. In
+all six archives captures the longest bright run in the 2–14 pt band inside the trailing edge is
+**0.0 pt**. The technique was controlled on a surface that does draw one: Setting › General at
+AX5 portrait, captured the same way, measures a **286.3 pt** run at x 414.7 pt. So the absence is
+a measurement, not a missed frame. At AX3 portrait the whole column fits and the funds row and
+button need no scrolling; in the other three cells the column still scrolls to both.
+
+**Outcome.**
+
+- `re-verified`: **#1** (the round-II residue is closed — the card's rendered bounds equal its
+  slot at every sampled cell, and both peek gutters are back), **#15** (a chip that wraps inside
+  itself is leading-aligned, checked on the same chips round II showed centred), **#21** (the
+  round-II regression is gone and the round-I truncation with it — all four counter values render
+  in full at every size in both orientations).
+- The Archives scroll indicator round II raised for the owner is gone; the cell keeps its
+  existing status, since the indicator was never an information-loss finding.
+- still `open`: **#35** only, inherited unchanged — this batch did not touch
+  `DetailView+CommentCells.swift` and the `.large` comment strip is identical to round II. It
+  still awaits the owner's disposition.
+- The remaining round-II item for the owner — the Detail header cover reading as a thumbnail once
+  it stacks above the title — is **not** addressed by these four commits and was not re-judged.
+- Spacing and padding quality were again **not** judged, per the owner's reflow quality bar.
+
+**D-15 parity.** Six `.large` screens were captured on the iPhone and compared against the
+round-II set; all six matched, and each is a `parity` row in `pairs.tsv`. The hero card's rating
+row is pixel-identical (x 195.7..301.7 pt, y 289.3..306.7 pt, against 195.7..302.0 pt and the
+same y in round II), so the `.caption2` step does not engage at the default size. The Detail tag
+rows hold only single-line chips at `.large`, so the leading alignment has nothing to change. The
+Archives sheet keeps its two-column grid and pinned footer at `.large`, so it never enters the
+scrolling branch. The Torrents compact row is unchanged, three counters leading and the file size
+trailing-anchored.
+
+**Protocol deviations, recorded.**
+
+1. **Tool versions.** `sim-use` 0.14.0 and `agent-device` 0.20.10, as in batch 2, not the 0.13.0
+   and 0.20.8 recorded in § Tooling. Rotation still went through `agent-device orientation`, and
+   that command needed an explicit `--session iphone`: a session already existed for this device
+   under that name, and without the flag every `agent-device` call failed `SESSION_NOT_FOUND`
+   while `agent-device session list` reported no sessions at all.
+2. **Scrolling by explicit coordinates.** As in batch 2, every scroll used
+   `sim-use swipe --coordinate-space ui --from CX,YHI --to CX,YLO` inside a 35 %–68 % band, with
+   an `App: EhPanda` assertion around every capture.
+3. **Sheet re-entry.** Up-swipes at the top of the Archives and Torrents sheets dismiss them, so
+   both sheets were re-opened from Detail's More menu, and their landscape cells were reached by
+   navigating in portrait and then rotating.
+4. **Two galleries.** #19, #20 and the `.large` #14 parity were walked on the same gallery batch 2
+   used for them; the tag rows were walked on the gallery batch 2 took its two supplementary
+   tag-row shots from, so each tag pair is the same gallery, the same tag section and the same
+   chip as its before.
+5. **Content drift.** Live gallery content has refreshed again since batch 2 — the torrent's seed
+   count reads 6 where the `.large` before read 7, and the Home carousel and Frontpage show
+   different artwork. Pairs match screen, position, size, orientation and page state, and the
+   verdict is on the layout property, not the artwork or the value.
+6. **Indicator timing.** The batch-2 before captures were taken after the scroll settled, so none
+   of them shows an indicator either; they cannot serve as a positive before for that one
+   property. The evidence for `a92e5465` is therefore the pair of measurements described above —
+   0.0 pt on the archives column against 286.3 pt on a control surface under the identical
+   capture technique — rather than a before/after difference in the same image pair.
+7. **Five unpaired captures.** Five after-captures have no batch-2 counterpart of the same state
+   and are therefore **not** in `pairs.tsv` (no after-only rows):
+   `iphone-landscape-AX5-19-bottom2`, `iphone-portrait-AX5-14-tagcloud2`, and the three
+   `control-*-indicator` shots that establish the indicator-capture technique. They are
+   supplementary evidence only.
+
+**Evidence.** After-captures are under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch2b/`
+(30 images) and the `.large` parity captures under `.../d15-after/batch2b/` (6 images). The
+`pairs.tsv` in the re-verify directory lists every judged after-image with its before image and
+verdict: 31 rows — 25 `pass`, 0 `open`, 6 `parity`. No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` / `disabled`
+/ portrait 420×912. The iPad was not touched in this batch. The app is left installed.
+
+#### Fix batch 3 — round II batch F, 2026-09-03
+
+Batch F plus the round-II standalones: the thumbnail layout and the category vocabulary, the
+Excluded Languages grid, the Account cookie rows, the reader control bar, the pushed screens'
+navigation titles, and the Login form. Ten commits, re-walked against the batch-2b build.
+
+**Commits covered (10), `32177686..30e42c84`.**
+
+| Commit | Subject | Findings it can reach |
+|---|---|---|
+| `32177686` | fix(16): collapse excluded languages grid | #27 |
+| `f9286303` | fix(16): stack account cookie rows at AX sizes | #24 |
+| `15f9b09f` | fix(16): reflow the reader control bar | #22 |
+| `27a360b1` | fix(16): inline titles at accessibility sizes | #7, #4 |
+| `0a965af3` | fix(16): keep the login form clear of the title | #33 |
+| `4fbd0ae9` | fix(16): inline search results title at AX sizes | #7, #4 |
+| `0dde25eb` | fix(16): scale thumbnail columns with the text | #12 |
+| `72234cbc` | fix(16): give the thumbnail cell line budgets | #12 |
+| `7645e10c` | fix(16): wrap category names in badge and grid | #12, #29 |
+| `30e42c84` | fix(16): let the header badge follow its own policy | #12 |
+
+**Build installed.** One build, at `30e42c84`, marketing version 3.0.0 (158), built in the
+re-verification worktree with `BUNDLE_ID_SUFFIX=.personal` on the command line as the batch-1
+deviation requires. `plutil -extract CFBundleIdentifier raw <app>/Info.plist` printed:
+
+```
+app.ehpanda.personal
+```
+
+The check ran before either install. Both installs were `xcrun simctl install` over the existing
+app (install-over; nothing uninstalled, nothing erased). Favorites was opened on the iPhone after
+installing and still listed its content, confirming the session survived. No credential was ever
+entered (D-09); the iPad remains `IPAD_LOGIN=none` and its login-gated rows stay `blocked`.
+
+**Before-captures.** Three sources, one per kind of cell.
+
+| Cell kind | Before source |
+|---|---|
+| #25, #29, #30, #38, #39, #10 and the pushed-screen title/capsule cells (#3, #4, #5, #6, #7, #32) | the round-1 `sweep/` captures. Each was opened and its state confirmed before the pair was written; for the title/capsule cells the judged property is stated in `pairs.tsv`, because the list rows below them changed in round II. |
+| #14 header badge | the round-II fix build's own capture, `reverify/batch2/iphone-portrait-AX5-14-top.png` — batch 2b did not touch the header. |
+| every Thumbnail-mode cell, on both devices | captured live, before installing, on the build the simulators already carried. |
+
+**No second worktree was built.** The batch-2b build that both simulators carried is `0535d30c`,
+whose tree differs from this batch's parent `9cbdacfa` only in `.planning/` — `git diff 0535d30c
+9cbdacfa -- AppPackage App ShareExtension EhPanda.xcodeproj` is empty — so the installed binary
+*was* `9cbdacfa`'s code, and the Thumbnail-mode befores were taken on it directly rather than
+rebuilding it in a second worktree. The iPad still carried the batch-2 build (`803756c3`, installed
+13:49); over the sources that render this batch's iPad cells — `AppComponents/CategoryView.swift`,
+`SettingFeature/Login/LoginView.swift`, `GalleryListComponents/` and `FiltersFeature/` —
+`803756c3` and `9cbdacfa` are also identical, so the iPad befores are equally the parent's
+rendering.
+
+**`.large` parity befores** come from `d15-after/batch1/` (#4, #5, #6, #7, #10), `d15-after/batch2/`
+(#3, #32), `d15-after/batch2b/` (#14) where a `.large` capture of that screen already existed, and
+were captured live in `d15-before/batch3/` for the seven screens that had none (#25, #29, #38, #39,
+the Thumbnail-mode #3 cell, iPad #30 and iPad #39).
+
+**Cells re-walked, iPhone.**
+
+| Screen | Cells |
+|---|---|
+| #3 Frontpage, Display Mode = Thumbnail | portrait XXL / AX3 / AX5 (top + mid) and landscape AX5 (top + mid), plus `.large`. Display Mode was set from Setting › Appearance › List › Display Mode and restored to Detail afterwards. |
+| #3, #4, #5, #6, #7, #10, #32 | portrait AX3 and AX5, top, judged on the navigation title and the pull-to-reveal capsule only; #3 also at XXL |
+| #14 Gallery Detail | portrait AX5, header (nine-character category) |
+| #25 Reading control panel | portrait XXL / AX3 / AX5 and landscape AX5, panel shown |
+| #29 Account | portrait and landscape × XXL / AX3 / AX5, screen top and the cookie block |
+| #38 EhSetting Excluded Languages | portrait XXL / AX3 / AX5 and landscape AX5, section top and one scrolled position |
+| #39 Filters sheet | portrait and landscape × XXL / AX3 / AX5 |
+
+**Cells re-walked, iPad:** #39 Filters portrait and landscape × XXL / AX3 / AX5; #30 Login portrait
+and landscape × AX3 / AX5; #3 Frontpage in Thumbnail mode, portrait AX5 (Display Mode restored to
+Detail afterwards).
+
+**Not re-walked in this batch,** so their cells keep the status they already carry: every screen
+outside those lists; the iPhone landscape cells of #3–#7, #10 and #32; the iPad cells of #3, #4,
+#7, #10 and #32 that finding #4 names; and #38 at XXL and AX3 in landscape.
+
+**Thumbnail-grid measurement (#12).** Column count at the live call site, read from the cell frames
+in the accessibility tree.
+
+| Device / orientation | `.large` | XXL | AX3 | AX5 |
+|---|---|---|---|---|
+| iPhone portrait | 2 | 2 (182 / 183 pt cells) | 1 (380 pt) | 1 (380 pt) |
+| iPhone landscape | — | — | — | 1 (744 pt), against 3 before |
+| iPad portrait | 4 | — | — | 1 (794 pt), against 4 before |
+
+The right-hand column is entirely on screen at every sampled size: the widest case is iPhone
+portrait XXL, where the second column ends at x 400 pt of a 420 pt screen.
+
+**Inline-title measurement (#7).** The inline bar title is drawn at the same size at AX3 and AX5 —
+iOS does not scale it — so the question is only whether the string fits.
+
+| Screen | Title | Inline slot at AX3 / AX5 | Result |
+|---|---|---|---|
+| #3 | Frontpage | 99 pt | complete |
+| #4 | Popular | 74 pt | complete |
+| #5 | Watched | 85 pt | complete |
+| #6 | History | 70 pt | complete |
+| #7 | Toplists - Yesterday | 188 pt | **ellipsised** — `Toplists - Yesterd…` |
+| #10 | Artbook | 78 pt | complete |
+| #32 | App Activity Logs | 168 pt | complete |
+
+The same #7 title collapses to inline at the default size in 157 pt with every character drawn, so
+the cut is a Dynamic Type loss and not a pre-existing one.
+
+**Reader indicator measurement (#22).** Portrait: 96,76 95×34 pt at XXL, 147×53 pt at AX3, 186×67
+pt at AX5, every glyph drawn; landscape AX5: 164,16 186×67 pt. Round 1 measured an ellipsis-only
+capsule at AX3 and a two-point sliver rendering no glyph at AX5. At `.large` the bar is the designed
+single row and every frame is identical between the builds — close 20,71 44×44, indicator 96,80
+59×26, actions at 262 / 308 / 354 — measured on the same gallery in both.
+
+**Cookie-value measurement (#24).** The thirty-two-character hash's field, and whether the value
+reads whole:
+
+| Cell | Field | Value |
+|---|---|---|
+| iPhone portrait XXL | 340 pt wide, 3 wrapped lines | complete (round 1: cut after 14 characters) |
+| iPhone portrait AX3 | 340 pt wide | complete (round 1: `729fb…`) |
+| iPhone portrait AX5 | 340 × 250 pt, 4 wrapped lines | complete (round 1: `729f…`) |
+| iPhone landscape XXL | 712 × 96 pt | complete (already complete in round 1) |
+| iPhone landscape AX3 | 712 × 64 pt | complete (round 1: cut after 16 characters) |
+| iPhone landscape AX5 | 712 pt wide | complete (round 1: cut after 12 characters) |
+
+The seven-digit member id and the ExHentai token read in full in every one of those cells too. No
+value is recorded anywhere in this repository.
+
+**Category-grid measurement (#29).** Columns per cell, all ten names complete in every one:
+
+| Device / orientation | `.large` | XXL | AX3 | AX5 |
+|---|---|---|---|---|
+| iPhone portrait | 3 | 3 | 1 | 1 |
+| iPhone landscape | — | 5 | 3 | 2 |
+| iPad portrait | 5 | 4 | 2 | 2 |
+| iPad landscape | — | 4 | 2 | 2 |
+
+**Outcome.**
+
+- `re-verified`: **#12** (the thumbnail grid re-columns instead of squeezing; titles, stats, star
+  rows and cover badges all complete on both devices, and the Detail header badge renders a
+  nine-character category whole), **#22**, **#24**, **#27**, **#29**, **#33**.
+- still `open`: **#7**, now narrowed to **#7 Toplists alone** — the blank title band is gone
+  everywhere, but that screen's long title is ellipsised in the inline bar at AX3 and AX5 portrait.
+  Every other pushed screen draws its name in full.
+- still `open`: **#4**, but only outside this batch's scope. Every iPhone cell re-walked draws the
+  capsule's magnifier and placeholder (or, on #10, the submitted query); the iPad occurrences and
+  the iPhone landscape #32 occurrence were not re-walked here.
+- **#35** is inherited unchanged: this batch did not touch `DetailView+CommentCells.swift`. It still
+  awaits the owner's disposition.
+- Spacing and padding quality were judged only where these commits set it deliberately (the
+  thumbnail cell's 10 pt group spacing, the language block's 16 / 12 / 6 pt rhythm, the cookie
+  pair's 8 pt gap); the owner's reflow quality bar still exempts the batch A–E surfaces.
+
+**D-15 parity.** Nineteen `.large` comparisons, all matched, each a `parity` row in `pairs.tsv`.
+Four were pinned by frame equality rather than by eye: the Filters grid (every name's frame
+identical on both devices, e.g. iPhone Doujinshi 65,291 / Misc 83,406 and iPad Doujinshi 177,488 /
+Misc 601,527), the Excluded Languages headers (x 153 / 226 / 317 in both builds), the reader control
+bar (close 20,71 44×44, indicator 96,80 59×26, actions 262 / 308 / 354) and the iPad Login form
+(Username 243,476, field 253,509 328×22, Password 243,556, field 253,588, button 391,664 52×60).
+The Thumbnail-mode grid keeps its designed two columns on the phone and four on the iPad at
+`.large`, with the title still capped at three lines and ellipsised there.
+
+**Protocol deviations, recorded.**
+
+1. **Tool versions.** `sim-use` 0.14.0 and `agent-device` 0.20.10, as in batches 2 and 2b, not the
+   0.13.0 and 0.20.8 recorded in § Tooling. Rotation went through `agent-device orientation` with
+   an explicit `--session iphone` / `--session ipad`.
+2. **iPhone simulator shut down between batches.** It was found `Shutdown` at session start and
+   rebooted with `xcrun simctl boot` (never erased); `content_size`, `appearance` and
+   `increase_contrast` had persisted at their recorded baseline.
+3. **Display Mode lives in Setting › Appearance,** not in a list's features menu as § Protocol's
+   round-1 wording implies. Both devices were switched there and restored to `Detail` there, and the
+   restored value was read back from the picker on each.
+4. **Scrolling by explicit coordinates,** as in batches 2 and 2b: `sim-use swipe
+   --coordinate-space ui` inside a 35 %–68 % band, with an `App: EhPanda` assertion around every
+   capture.
+5. **The app was backgrounded once** by a swipe that reached the home indicator while the Filters
+   sheet was open on the iPhone; `sim-use ui` reported `App: SpringBoard`, the capture taken in that
+   state was deleted, the app was relaunched with `xcrun simctl launch`, and the cell was re-walked
+   from a fresh navigation. Nothing was erased and the session survived.
+6. **The XCUITest runner behind `sim-use` died twice** (once after the install, once mid-walk),
+   returning an empty accessibility tree. It was restarted by re-opening the `agent-device` session;
+   no simulator state was touched.
+7. **Content drift.** Live gallery content has refreshed again, so no before/after pair on a list
+   screen shows the same artwork. Pairs match screen, position, size, orientation and page state,
+   and the verdict is on the layout property. The one place this mattered — the `.large` reader
+   parity, where the page count is part of the indicator's width — was re-captured on the same
+   thirty-page gallery as its before.
+8. **`#38` scroll positions are swipe-counted, not offset-matched.** EhSetting is a static form, so
+   the section was reached by scrolling until the language rows appeared in the accessibility tree
+   rather than by reproducing a byte-identical offset; the before images are the round-1 captures
+   whose visible region is the same part of the section.
+9. **One #27 before is a neighbour, not the header row.** Round 1 stepped the AX3-portrait #38
+   scroll in threes and its captures skip the header row itself, so that cell's before is the
+   capture immediately below it — rows of identical unlabelled circles, which is the same
+   information loss the finding records.
+10. **Nineteen unpaired captures.** These after-images have no counterpart of the same state and are
+    therefore **not** in `pairs.tsv` (no after-only rows): the second scrolled position of the
+    language section, `iphone-{portrait-XXL,portrait-AX3,portrait-AX5,landscape-AX5}-38-lang2`
+    (four); the scrolled remainder of the category grid,
+    `iphone-{portrait-AX3,portrait-AX5,landscape-AX3,landscape-AX5}-39-mid` (four) and
+    `ipad-{portrait,landscape}-AX5-39-mid` (two); one extra scrolled landscape thumbnail shot,
+    `iphone-landscape-AX5-3thumb-mid2`; four Account captures taken at an uncontrolled scroll offset
+    before the cell was walked properly, `iphone-portrait-XXL-29-mid` and
+    `iphone-landscape-{XXL,AX3,AX5}-29-mid`; `ipad-portrait-AX3-39-top`, because no round-1 capture
+    of that cell shows the grid; `ipad-portrait-{AX3,AX5}-3-top`, supplementary evidence that the
+    iPad Frontpage title is drawn at the accessibility sizes (the iPad was never part of finding
+    #7); and `d15-after/batch3/large-7-collapsed`, which records that #7's title reads in full when
+    the same bar collapses to inline at the default size. They are supplementary evidence only.
+
+**Evidence.** After-captures are under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch3/`, the
+live befores under `.../reverify/batch3/before/` and `.../d15-before/batch3/`, and the `.large`
+after set under `.../d15-after/batch3/`. The `pairs.tsv` in the re-verify directory lists every
+judged after-image with its before image and verdict: 78 rows — 57 `pass`, 2 `open` (both the
+iPhone #7 title cells), 19 `parity`. No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` / `disabled` /
+portrait 420×912, Display Mode `Detail`; iPad `large` / `light` / `disabled` / portrait 834×1210,
+Display Mode `Detail`. The app is left installed on both.
+
+#### Fix batch 4 — round-II corrections, 2026-09-03
+
+Six commits closing the round-II directions batch 3 could not finish: the masonry's remaining
+single-column cells, the category cell's square corners, the reader's upper panel, the Detail
+header's glass action buttons, and the Detail stats strip's fixed-fraction columns. Re-walked
+against the batch-3 build, plus the four iPad cells (#10, #32 portrait AX3/AX5) that batch 3 left
+unconfirmed for finding #4.
+
+**Commits covered (6), `cbab163b..391ce4ea`.**
+
+| Commit | Subject | Findings it can reach |
+|---|---|---|
+| `cbab163b` | fix(16): keep two thumbnail columns at every size | #12 |
+| `db5afd4e` | fix(16): scale the category cell's corner radius | #29 |
+| `e30ddba0` | fix(16): keep the thumbnail rating inside its column | #12 |
+| `89d02f52` | fix(16): keep the reader upper panel on one line | #22 |
+| `919b90bb` | fix(16): grow header action glass with its symbol | #14 |
+| `391ce4ea` | fix(16): keep the stats strip scrolling sideways | #14 |
+
+**Build installed.** One build, at `391ce4ea`, marketing version 3.0.0 (158), built in a second
+re-verification worktree (a second `.claude/worktrees/` checkout) with `BUNDLE_ID_SUFFIX=.personal`,
+matching the batch-1 deviation. `plutil -extract CFBundleIdentifier raw <app>/Info.plist` printed
+`app.ehpanda.personal` on both installs, checked before each one. Both installs were `xcrun simctl
+install` over the existing app (install-over; nothing uninstalled, nothing erased). No credential
+was entered (D-09); the iPad remains `IPAD_LOGIN=none` and its login-gated rows stay `blocked`.
+The build worktree was torn down at the end of this session — its `16-SWEEP.md` was verified
+byte-identical to this file's pre-batch-4 state before removal, so nothing written there was lost.
+
+**Before-captures.** Two sources.
+
+| Cell kind | Before source |
+|---|---|
+| #3, #4, #7, #10, #32 iPad portrait AX3/AX5 (finding #4 completion) | the round-1 `sweep/` captures, opened and confirmed before each pair was written. |
+| every other cell (#12 Thumbnail-mode grid, #14 header + stats strip, #22 reader panel, #29 Filters sheet) | captured live, immediately before installing, on the batch-3 build (`30e42c84`) the simulators already carried. |
+
+**`.large` parity befores** come from `d15-after/batch3/`, which already held a `.large` capture of
+every screen this batch re-walked (#39, #14 header, #25, the Thumbnail-mode #3 cell on both
+devices).
+
+**Cells re-walked, iPhone.**
+
+| Screen | Cells |
+|---|---|
+| #3 Frontpage, Display Mode = Thumbnail | portrait XXL / AX3 / AX5 (top + mid) and landscape AX5 (top + mid), plus `.large`. Display Mode was set from Setting › Appearance › List › Display Mode and restored to Detail afterwards. |
+| #14 Gallery Detail | portrait XXL / AX3 / AX5 (header, action row, stats strip scrolled) and landscape AX5 (header, action row, stats strip scrolled) |
+| #25 Reading control panel | portrait XXL / AX3 / AX5 and landscape AX5, panel shown |
+| #39 Filters sheet | portrait and landscape × XXL / AX3 / AX5, walked top to bottom in scroll steps until every category name and every control beneath the grid had been captured |
+
+**Cells re-walked, iPad:** #3 Frontpage in Thumbnail mode, portrait and landscape AX5 (Display Mode
+restored to Detail afterwards); #39 Filters portrait and landscape × XXL / AX3 / AX5, walked top to
+bottom the same way; #3, #4, #7, #10, #32 portrait AX3 and AX5, judged on the pull-to-reveal
+capsule only, completing the iPad walk finding #4 left open after batch 3.
+
+**Not re-walked in this batch,** so their cells keep the status they already carry: every screen
+outside those lists; the iPhone landscape Thumbnail-mode cells at XXL/AX3 (only AX5 has ever been
+sampled there); the iPad landscape cells of #3, #4, #7, #10 and #32 that finding #4 names, and
+their iPad portrait XXL cells; #14 at iPhone landscape AX3; and the iPhone landscape #32 cell of
+finding #4.
+
+**Thumbnail-grid measurement (#12).** Column count at the live call site, read from the cell frames
+in the accessibility tree and confirmed against the capture. Column *widths* are unchanged from
+batch 3 (the fix is the floor, not the grid math); this batch's new numbers are only where the
+floor previously let a size drop to one column.
+
+| Device / orientation | XXL | AX3 | AX5 |
+|---|---|---|---|
+| iPhone portrait | 2 (unchanged) | 2, against 1 in batch 3 | 2, against 1 in batch 3 |
+| iPhone landscape | not sampled | not sampled | 2, against 1 in batch 3 |
+| iPad portrait | not sampled | not sampled | 2, against 1 in batch 3 |
+| iPad landscape | not sampled | not sampled | 2, not sampled before |
+
+In the iPhone portrait AX3/AX5 half-width column the five-star rating row now falls back to a
+single star glyph plus its numeral rather than clipping; every wider column (iPhone portrait XXL,
+every landscape and iPad column sampled) still draws the full five-symbol row. No cell's background
+was seen crossing into its neighbour or off-screen in any sampled cell, on either device.
+
+**Category-cell corner-radius measurement (#29).** The chip's rounded corner reads square at small
+sizes and round at large ones by design; the question batch 3 raised was whether the radius itself
+scales with the text or stays fixed while the chip grows around it. Measured on the iPhone portrait
+capture (3x screenshot scale) by walking pixel rows down from a chip's top-left corner and reading
+where the fill's left edge stops receding — the corner's inset at the very first row is the radius:
+
+| Sample | Chip | Corner inset (first row) |
+|---|---|---|
+| XXL | "Misc" (row of its own, 1 of 3 columns) | 7.0 pt |
+| AX3 | "Non-H" | 14.7 pt |
+| AX5 | "Non-H" | 19.0 pt |
+
+The radius roughly doubles from XXL to AX5, confirming `@ScaledMetric(relativeTo: .body)` is live
+rather than a fixed constant. Every chip on both devices, at every sampled size and in both
+orientations, read visibly rounded rather than square in this batch's direct image review — the
+walk covered the whole sheet, not just the grid, per the owner's round-II direction that review
+captures show the entire sheet: all ten category names stayed complete and every control beneath
+the grid (Reset Filters, Advanced Settings, the search-scope toggles, the minimum-rating stepper,
+the pages-range fields, the custom-filter toggles) rendered correctly at every stop.
+
+**Header glass-button measurement (#14).** Whether each action symbol (download / favorite / read)
+stays inside its own circular glass background as both scale together. Measured on the iPhone
+portrait AX5 header by the fill/glyph colour split (green fill + white glyph for the selected
+"read" button, dark-grey fill + green glyph for the other two):
+
+| Button | Circle | Glyph | Margin |
+|---|---|---|---|
+| Download | 104 x 90 pt | 46 x 41 pt | 18.3 pt |
+| Favorite | 105 x 90 pt | 36 x 34 pt | 20.7 pt |
+| Read (selected) | 104 x 90 pt | 42 x 33 pt | 20.7 pt |
+
+Every glyph sits inside its circle with a double-digit point margin — none overflows. The same
+three buttons were also checked at iPhone landscape AX5 by eye, with the same result.
+
+**Stats-strip measurement (#14).** The strip is a horizontal `ScrollView` again rather than a
+stack of fixed-fraction columns. Scrolling it at iPhone portrait XXL/AX3/AX5 and landscape AX5
+revealed every column on the walked gallery (Favorited, Language, Ratings, Page Count, File Size)
+with its label and value complete and the five-star rating row un-clipped at every stop; no single
+column ever spanned the full container width, matching the owner's round-II direction that a
+column may grow up to 90% of the container width and wrap inside that budget rather than the strip
+stacking vertically.
+
+**Reader upper-panel measurement (#22).** Re-walked on a different, 166-page gallery (round 1 and
+batch 3 both used a 30-page gallery, so this also checks the fix isn't page-count-dependent). At
+every sampled size and in both orientations the "n / total" page indicator (`1 / 166` at the start)
+stayed on one line and fully legible, and the lower panel's page-range end labels ("1" and "166")
+stayed single-line, not truncated.
+
+**Outcome.**
+
+- `re-verified`, remaining note: **#12** — the masonry never drops below two columns at any of the
+  cells this batch or batch 3 sampled, on either device, in either orientation; the rating symbol
+  row degrades gracefully (single star + numeral) rather than clipping in the one column narrow
+  enough to force it. **#22**, **#29** stay `re-verified`, now additionally confirmed against the
+  owner's round-II directions (never-one-column; scaling corner radius; whole-sheet review scope).
+  **#14** stays `re-verified`: the round-II regression this batch introduced by moving to a
+  horizontal-scrolling strip and glass action buttons is itself now confirmed correct at the cells
+  re-walked.
+- still `open`: **#4**, narrowed further. Every iPad portrait cell the finding named for #3, #4,
+  #7, #10 and #32 now draws the capsule's magnifier and placeholder (or, on #10, the submitted
+  query with its clear button). What remains unconfirmed: the iPad landscape occurrences of #3,
+  #4, #7, #10 and #32, and the iPhone landscape #32 occurrence — none of those were re-walked in
+  batch 3 or batch 4.
+- Every other finding is inherited unchanged: this batch touched only
+  `AppComponents/CategoryView.swift`, `GalleryListComponents/` (thumbnail cell and masonry layout),
+  `ReadingFeature/Support/ControlPanel.swift` and `DetailFeature/DetailView+HeaderSection.swift` /
+  `DetailView+Subviews.swift`.
+
+**D-15 parity.** Seven `.large` comparisons, all matched, each a `parity` row in `pairs.tsv`: the
+Filters sheet on both devices, the Detail header (download/favorite/read buttons and the stats
+strip's first row), the reader control panel, and the Thumbnail-mode grid on both devices (two
+columns on the phone, four on the iPad, title still capped at three lines with an ellipsis). The
+Detail header's `FAVORITED` count differs between the batch-3 and batch-4 `.large` shots only
+because the live gallery's favourite count changed between captures — content drift, not a layout
+change; every frame (button positions, stats-row layout) is otherwise identical.
+
+**Protocol deviations, recorded.**
+
+1. **Session interruption.** A prior sub-agent captured the bulk of this batch's evidence (all 116
+   after-images under `reverify/batch4/` and the 91 befores under `reverify/batch4/before/`) and
+   generated `pairs.tsv`, then was cut off by a transient server error partway through writing this
+   section and restoring the simulators. This session picked up from that point: it verified the
+   existing evidence (no re-capture was needed), fixed a documentation defect it found in the
+   partial work (below), wrote this section, and finished the simulator restore.
+2. **A wrong-simulator mixup during the restore, corrected before anything was written.** While
+   confirming the iPad's Display Mode after the interruption, this session queried booted
+   simulators by device-model substring rather than reading the recorded `IPAD_UDID`/`IPHONE_UDID`
+   values, and momentarily operated against the wrong booted "iPad Pro 11 (snapshots)" simulator and
+   the `SPARE_UDID` iPhone (reserved for UI tests, never a sweep target) instead of the recorded
+   `IPAD_UDID` and `IPHONE_UDID`. Nothing was captured or recorded against the wrong devices — the
+   mistake surfaced immediately when `xcrun simctl listapps` showed the wrong bundle map, before any
+   evidence was taken. `SPARE_UDID`'s `content_size` and `appearance` were changed (to `medium` /
+   `dark`) during the confusion; no baseline is recorded for `SPARE_UDID` (it is explicitly out of
+   the D-09 / § Simulator-baseline contract) and no forbidden operation (erase / uninstall /
+   clear-app-state) touched it, so it was left as it was rather than guessed back to an unknown
+   prior state. The recorded `IPHONE_UDID` was found already sitting at its exact baseline —
+   `medium` / `dark` / `disabled` / portrait, Display Mode `Detail` — confirming the
+   pre-interruption agent had restored it correctly before the crash.
+3. **A documentation defect found and fixed while finishing this section.** The interrupted agent's
+   five append-only edits to the § Findings table (findings #4, #12, #14, #22, #29) had inserted
+   their "Re-verify (batch 4, …)" notes into the table's **Status** column instead of its
+   **Description** column, corrupting that column's value (e.g. `open **Re-verify (batch 4,
+   ...)**…for those.` in place of a bare `open`). This session rebuilt those five notes from the
+   pristine pre-batch-4 row content and re-inserted them at the correct column boundary; the
+   Status column now again reads a bare `open` / `re-verified` on all five rows, verified by pipe
+   count (6, matching the table's five columns) and by eye. The § Matrix table's 35 batch-4 appends
+   were checked by the same method and found correctly placed — that table's last column is
+   already free-text ("Finding"), so the original append logic was correct there and needed no
+   fix. No image evidence and no `pairs.tsv` row were affected; this was a Markdown-table
+   formatting defect only.
+4. **A second worktree was built** to compile the `391ce4ea` binary with `BUNDLE_ID_SUFFIX=.personal`,
+   per the batch-1 deviation. It was removed at the end of this session, after confirming its
+   `.planning/16-SWEEP.md` was still byte-identical to this worktree's pre-batch-4 content (md5
+   `225b9d70a939fb0b5bdb4d6c43bb2494` on both), i.e. it had never been written to.
+5. **The iPad's Activity Logs sheet required an explicit dismiss tap** (on the dimmed area outside
+   the card) rather than a back-button tap, to return to the Search results screen after the
+   finding-#4 capture — the sheet's own in-card "<" glyph is not a distinct accessibility element
+   from the dimmed background in this presentation. Nothing was erased or backgrounded; the app
+   remained on `App: EhPanda` throughout.
+6. **Pull-to-reveal capsules on #10 and #32 required an explicit downward swipe** (`sim-use swipe
+   --coordinate-space ui`) past the top of the list to bring the capsule on screen before capturing,
+   matching the finding's own "pull-to-reveal" name and batches 1-3's protocol.
+7. **Content drift.** Live gallery content has refreshed again since batch 3, so no before/after
+   pair on a list screen shows the same artwork; pairs match screen, position, size, orientation and
+   page state, and the verdict is on the layout property. The reader parity comparison was
+   re-captured on a different (166-page, not 30-page) gallery deliberately, to check the fix isn't
+   tied to a particular page count; both the batch-4 walk and its own before are on that same
+   gallery.
+8. **One unpaired capture.** `iphone-portrait-AX5-14-stats3.png` has no before counterpart at that
+   scroll position (the before build's strip was a fixed-fraction row, not a `ScrollView`, so there
+   was nothing to scroll to a matching third position) and is **not** in `pairs.tsv`; it is
+   supplementary evidence that a third stats column is reachable by continuing to scroll.
+
+**Evidence.** After-captures are under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch4/`, the
+live befores under `.../reverify/batch4/before/`, and the `.large` after set under
+`.../d15-after/batch4/`. The `pairs.tsv` in the re-verify directory lists every judged after-image
+with its before image and verdict: 122 rows — 115 `pass`, 7 `parity`, 0 `open` (every `open` cell
+this batch touched belongs to finding #4, which this batch narrowed but left `open` in the
+Findings table rather than recording an open row in `pairs.tsv`, since no after-image of a still-
+failing cell was captured — the iPad landscape and iPhone-landscape-#32 gaps are absence of
+evidence, not evidence of failure). No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` / `disabled` /
+portrait 420×912, Display Mode `Detail`; iPad `large` / `light` / `disabled` / portrait 834×1210,
+Display Mode `Detail`. The app is left installed on both, resting on the Setting screen (iPhone:
+Home tab; iPad: Setting root list).
+
+#### iPad login-gated walk — 2026-09-04
+
+Batch 5a. The owner signed in on `IPAD_UDID` by hand and reported it in chat on 2026-09-03 (D-09 —
+no credential was ever entered by an agent; the logged-in simulator is treated as infrastructure).
+That unblocked the six iPad screens the 16-03 amendment had left `blocked: no iPad session` for want
+of a session, and this batch walks them for their first iPad judgment.
+
+**Build and install.** Base worktree at `85ea550d` (`git reset --hard`), built with
+`BUNDLE_ID_SUFFIX=.personal`; the installed bundle id was confirmed `app.ehpanda.personal` (via
+`simctl listapps`) before installing. Install-over on `IPAD_UDID` (`8250D97E-…`) only — never
+uninstalled or erased; the iPhones were not touched (a sibling batch owns them). The owner's
+`EhPanda` profile session and the populated Favorites confirmed the login before the walk.
+
+**Cells walked (36 iPad Matrix cells — all six orientation×size cells of each screen, top +
+scrolled):** #8 Favorites root (+ index / sort / features menus), #5 Home › Watched, #14 Gallery
+Detail (header + badge, stats strip, tag cloud, previews, comments preview), #19 Detail › Archives
+sheet, #20 Detail › Torrents sheet, #38 Setting › EhSetting (native sections 1–3, including findings
+#27 and #28). Screens #13, #15–#18, #21–#27 stayed out of scope and their iPad rows remain
+`blocked`.
+
+**Verdicts.** #5, #8, #14, #20 and #38 pass at every sampled cell; #19 passes at portrait XXL/AX3
+and landscape XXL, and records the **new iPad-only finding #36** at portrait AX5 and landscape
+AX3/AX5. The two D-13 named cases whose iPad column was always blocked — the Detail **stats strip**
+and the tag cloud's **long-tag** clipping — are now confirmed fixed on the regular-width Detail
+modal (§ D-13 table updated). Several iPhone findings are confirmed **absorbed by the iPad's wider
+layout**: the Excluded-Languages header overlap (#27) reflows to a language-header-above-toggle-rows
+block; the Multi-Page-Viewer `LabeledContent` overlap (#28 — still `open` on iPhone) does not
+reproduce because EhSetting is a regular-width form-sheet with inline-expanded pickers; the torrent
+four-value loss (#21) and the Archives card-content loss (#20) do not reproduce; and the Detail
+header title (#13) reads complete under its owner-accepted three-line cap.
+
+**New finding #36** (iPad-only): in the short iPad Archives form-sheet, at the accessibility sizes
+the `scrollingColumn` branch has too little scroll travel to collapse the large "Archives"
+navigation title, so scrolling to the funds row and Download button leaves the title pinned and
+overlapping the "1280x" card. Confined to portrait AX5 and landscape AX3/AX5; portrait AX3 (the
+title scrolls off first) and XXL (`pinnedColumn`, no scroll needed) pass, and the parallel Torrents
+sheet (#20) is exempt because its single-torrent content is short and its title collapses away
+cleanly.
+
+**Deviations.** (1) At #38 AX5 a scroll swipe landed on a `.menu`-style archiver picker and opened
+its modal popover, which would not dismiss via `sim-use` or the simulator-control HID taps (the
+SwiftUI menu popover sits in a separate window); the app was relaunched (`simctl terminate` /
+`launch`, cookies persist) to clear it, and scrolling was resumed with faster, longer swipes.
+Nothing was submitted — the picker's current value was never changed and no EhSetting upload button
+was tapped. (2) The delete-profile destructive dialog was **not** opened (D-09). (3) One #38
+AX5-portrait top capture caught a transient large-title-collapse frame that looked like an overlap;
+a fresh re-capture after settling showed a clean inline title, and that clean capture is the
+archived evidence.
+
+**Evidence.** Cell captures under `$HOME/Library/Caches/ehpanda-phase16/sweep-ipad-login/`, named
+`ipad-<orientation>-<SIZE>-<screen#><suffix>.png`, with `cells.tsv` (71 rows including header). The
+`.large` reference for each of the six screens under
+`$HOME/Library/Caches/ehpanda-phase16/d15-after/batch5a/` (`ipad-large-<screen#>.png`). No image is
+tracked by git (D-32).
+
+#### Fix batch 5b — owner's post-batch-4 changes, 2026-09-04
+
+The four changes the owner asked for after batch 4: a five-line thumbnail-cell title, the Detail
+title folded back to three lines with tap-to-expand, the Setting screen's plain large title, and
+the tab-root revert. Re-walked on the iPhone only against the batch-4 build (`391ce4ea`).
+
+**Commits covered (4).**
+
+| Commit | Subject | What it can reach |
+|---|---|---|
+| `1b06875b` | fix(16): cap the thumbnail title at five lines | #12 (#3 in Thumbnail mode) |
+| `881104c0` | fix(16): restore the detail title fold at three lines | #13 (#14 Detail header title) |
+| `e8fd65c4` | fix(16): give the roots a plain large title | #7 (#33 Setting) + the four tab roots |
+| `d6694e0d` | fix(16): keep inlineLarge on the tab roots | reverts the tab roots (#2, #8, #9, #11) |
+
+**Build installed.** One build under test, at `85ea550d` (the branch tip; its tree is `d6694e0d`'s
+code plus this file's docs), marketing version 3.0.0 (158), built in this re-verification worktree
+with `BUNDLE_ID_SUFFIX=.personal` on the command line as the batch-1 deviation requires.
+`plutil -extract CFBundleIdentifier raw <app>/Info.plist` printed `app.ehpanda.personal`, checked
+before every install. Every install was `xcrun simctl install` over the existing app (install-over;
+nothing uninstalled, nothing erased). Favorites was opened after installing and still listed its
+content, confirming the session survived. No credential was ever entered (D-09). iPhone only; the
+iPad was never touched.
+
+**Before-captures.** The batch-4 build (`391ce4ea`), from three sources.
+
+| Cell kind | Before source |
+|---|---|
+| #3 Thumbnail-mode grid (portrait XXL/AX3/AX5 top+mid, landscape AX5 top+mid) and its `.large` | the batch-4 after-captures under `reverify/batch4/` and `d15-after/batch4/`, each opened and confirmed to be the same cell/state |
+| #14 Detail header, #33 Setting root, the four tab roots | captured live on a second re-verification worktree's `391ce4ea` build (built with `BUNDLE_ID_SUFFIX=.personal`, `plutil`-checked, install-over), on the same "futanari" gallery for #14 so the title-fold pair is same-gallery — under `reverify/batch5b/before/` and `d15-before/batch5b/` |
+| #32 Activity Logs landscape AX3/AX5 | the round-1 sweep captures under `sweep/` (finding #4's landscape occurrence was never re-walked before) |
+
+**Cells re-walked, iPhone.**
+
+| Screen | Cells |
+|---|---|
+| #3 Frontpage, Display Mode = Thumbnail | portrait `.large` / XXL / AX3 / AX5 (top + mid) and landscape AX5 (top + mid). Display Mode was set from Setting › Appearance › List › Display Mode and restored to Detail afterwards, read back from the picker |
+| #14 Gallery Detail | portrait `.large` / XXL / AX3 / AX5 (header top) + landscape AX5, plus a second AX5-portrait capture after tapping the title |
+| #33 Setting root | portrait XXL / AX3 / AX5 + landscape AX5 + `.large`. On this iPhone Setting is a tab root (not a sheet), which is the reachable form here |
+| #2, #8, #9, #11 tab roots | portrait AX5 + `.large`, as the revert check |
+| #32 Activity Logs | landscape AX3 / AX5, for finding #4's residual |
+
+**Thumbnail-title measurement (#12, `1b06875b`).** The title is capped at five lines at every size,
+with or without a download badge — the owner-decided budget that supersedes the old three-line cap
+and D-15 for this one property. Portrait: at `.large` titles wrap to at most five lines and read
+complete; at AX3 a long title fills five lines and ends in an ellipsis (`(5921…`); at AX5 both
+sampled titles fill five lines ending in an ellipsis (`[202…`, closing rounded), the tail
+ellipsised rather than cut mid-glyph. The grid stays two columns at every sampled size (portrait
+`.large`/XXL/AX3/AX5, landscape AX5) — frames x=20/x=218 portrait, x=84/x=464 landscape. The cell
+height is now bounded: the tallest portrait-AX5 cell frame is 731 pt against a 912 pt screen, so
+one cell no longer runs past a whole screen, where the batch-4 build's uncapped title ran off the
+bottom. No cell's content crosses into its neighbour.
+
+**Detail-title measurement (#13, `881104c0`).** The header title folds at three lines at every size
+until the reader taps it. Portrait title-frame heights: `.large` three lines (complete for this
+title); XXL three lines with ellipsis (`[ai gener…`); AX3 three lines with ellipsis; AX5 196 pt =
+three lines with ellipsis, against the batch-4 build's 326 pt (uncapped, five lines) on the same
+gallery. **Tapping the title at AX5 expands it** from 196 pt to 326 pt and shows the full text over
+five lines — the remedy that justifies the cap. The uploader row is absent for this gallery, but
+the category badge (Misc) and the three glass action buttons (download / favorite / read) stay on
+screen beneath the title at every size, and the stats strip follows. Landscape AX5 keeps the full
+title in three lines (the wide layout fits it). `.large` is unchanged (the header always drew
+three).
+
+**Setting-title measurement (#7 / #33, `e8fd65c4`).** On a normal tab entry the Setting root draws
+a plain large title: `.large` 20,126 115x48, XXL 20,122 135x48 — leading, large. At AX3 and AX5 the
+phase policy falls back to inline and the title is drawn (`Setting` 175,77 69x25, centered), never
+the blank band finding #7 recorded; landscape AX5 is inline and drawn too. The batch-4 build's
+`.inlineLarge` drew a persistent large title at every size (128x46 at XXL/AX3/AX5), so the Setting
+root never had finding #7 on iPhone — the change's benefit is the iPad sheet. **Caveat, owner
+decision:** `.large` is a *collapsing* large title, so on iPhone it collapses to the inline title
+when the reader returns to the Setting root from a sub-screen (Appearance, General, …) or after an
+on-screen text-size change, whereas the batch-4 `.inlineLarge` stayed prominent. No information is
+lost (the title is always readable), but on iPhone the change trades a persistent large title for a
+collapsing one and, at AX sizes, a smaller inline title than the before, for no finding-#7 benefit
+on the root.
+
+**Tab-root revert (#2, #8, #9, #11, `d6694e0d`).** All four tab roots are back on `.inlineLarge`
+and render a persistent large leading title at AX5 (Home 105x46, Favorites 162x46, Search 124x46,
+Downloads 198x46) and `.large`, matching the batch-4 layout — the revert is a no-op.
+
+**Activity-logs capsule (#4, #32 landscape).** At landscape AX3 and AX5 the search capsule draws
+its magnifier glyph and `Search` placeholder, where the round-1 sweep before shows an empty
+capsule; the inline title reads `App Activity Logs` in full and the log rows are complete.
+
+**Outcome.**
+
+- `re-verified`: **#12** (thumbnail title capped at five lines with an ellipsis, cell height
+  bounded within a screen, two columns preserved), **#13** (Detail title folds at three lines with
+  a working tap-to-expand at AX5; header content stays on screen), **#7 / #33** (plain large title
+  on normal entry; inline title drawn at AX3/AX5 — the blank band is gone), and the tab-root revert
+  confirmed a no-op.
+- **#4** narrowed further: the iPhone-landscape #32 occurrence is now confirmed fixed (capsule
+  drawn at AX3 and AX5). What remains `open` for finding #4: the iPad landscape occurrences of #3,
+  #4, #7, #10 and #32, none of which are on this agent's device.
+- **Owner decision flagged** (not a D-03 degradation, so not recorded as a finding): the Setting
+  root's `.large` collapsing behaviour on iPhone described above.
+- Spacing and padding quality were not judged (the owner's reflow quality bar defers that to a
+  separate pass).
+
+**D-15 parity.** The thumbnail `.large` rows are `parity` with the note that the three-to-five-line
+budget is the owner-decided change, not a defect. The Detail `.large` header and the four tab-root
+`.large` titles matched their before (three lines / `.inlineLarge` unchanged). The Setting root
+`.large` is the owner-decided `.inlineLarge`→`.large` mode change (a large title on entry), not a
+parity break.
+
+**Protocol deviations, recorded.**
+
+1. **Tool versions.** `sim-use` 0.14.0 and `agent-device` 0.20.10, as in batches 2–4, not the
+   0.13.0 / 0.20.8 in § Tooling. Rotation went through `agent-device orientation … --session iphone`.
+2. **Scrolling by explicit coordinates**, as in batches 2–4: `sim-use swipe --coordinate-space ui`
+   inside a 35–68 % band, with an `App: EhPanda` assertion around every capture.
+3. **Landscape screenshots straightened** with `sips -r 270` (the device reported `landscape-right`;
+   `-r 90` came out upside-down).
+4. **Display Mode** was set to Thumbnail and restored to Detail from Setting › Appearance › List,
+   read back from the picker.
+5. **Same-gallery #14 before.** The batch-4 #14 capture is a different (short-title) gallery, so it
+   cannot show the fold change; the #14 before was captured on the same "futanari" gallery on the
+   `391ce4ea` build instead.
+6. **A Setting large-title rendering artifact, characterised.** The first Setting captures were
+   taken after popping back from the Appearance sub-screen and showed the title collapsed; a fresh
+   tab entry draws the large title, so the clean-entry captures were retaken and the collapse is
+   recorded as the caveat above.
+7. **Content drift.** Live gallery content has refreshed since batch 4; pairs match screen,
+   position, size, orientation and page state, and the verdict is on the layout property.
+8. **One unpaired capture.** `iphone-portrait-AX5-14-top-expanded.png` (the tapped/expanded title)
+   has no before counterpart and is not in `pairs.tsv`; it is supplementary evidence that
+   tap-to-expand restores the full title.
+
+**Evidence.** After-captures under `$HOME/Library/Caches/ehpanda-phase16/reverify/batch5b/`, the
+same-gallery / root befores under `.../reverify/batch5b/before/` and `.../d15-before/batch5b/`, and
+the `.large` after set under `.../d15-after/batch5b/`. The `pairs.tsv` in the re-verify directory
+lists every judged after-image with its before and verdict: 30 rows — 22 `pass`, 8 `parity`, 0
+`open`. No image is tracked by git (D-32).
+
+**Simulator state restored** after the walk and read back: iPhone `medium` / `dark` / `disabled` /
+portrait 420×912, Display Mode `Detail`. The iPad was not touched. The app is left installed.
+
+#### Fix batch 6 — the landscape list cell and the Setting title's presentation context, 2026-09-04
+
+Two owner-directed follow-ups, walked by the phase lead on the iPhone against the batch-5b build.
+
+**Commits covered (2).**
+
+| Commit | Subject | What it can reach |
+|---|---|---|
+| `100f19fb` | fix(16): keep list cover and title inline when wide | every list-mode gallery cell (#3, #4, #5, #6, #7, #8, #10, #11) in a wide row |
+| `be4665cf` | fix(16): keep the setting tab title inline large | #28 Setting root, tab-root presentation only |
+
+**Build installed.** One build at `be4665cf`, built from the main worktree with
+`BUNDLE_ID_SUFFIX=.personal` on the command line;
+`plutil -extract CFBundleIdentifier raw <app>/Info.plist` printed `app.ehpanda.personal`, checked
+before the install. Installed with `xcrun simctl install` over the existing app — nothing
+uninstalled, nothing erased, no credential entered (D-09). iPhone only; the iPad was untouched
+because another agent held it.
+
+**Cells walked.**
+
+| Screen | Cell | Result |
+|---|---|---|
+| #3 Frontpage, list mode | iPhone landscape AX5 | pass — cover and title share one line. The row measures 744 pt wide (above the 550 pt divide) and the whole cell 744 x 426 pt; cover on the left, title, uploader, five-star rating, rounded category badge and date on the right, all complete. |
+| #3 Frontpage, list mode | iPhone portrait AX5 | pass — the same cell stacks, 380 x 793 pt, as the narrow case requires. The predicate flips on width exactly where it is designed to. |
+| #28 Setting root | iPhone portrait `.large` | pass — the tab root draws a persistent large leading title (`Setting` 20,70 115x41) that does not move when the list is scrolled, i.e. `.inlineLarge` is back. |
+| #28 Setting root | iPhone portrait AX5 | pass — the title falls back to inline and is drawn (`Setting` 175,77 69x25), not a blank band; the rows below are unchanged. |
+
+**What this closes.** The batch-5b caveat on #28 — that the plain large title collapses on return
+from a Setting sub-screen on the iPhone — no longer applies: the tab root keeps `.inlineLarge`, and
+only the sheet presentation takes the plain large title the owner asked for. The sheet side is an
+iPad presentation and is not re-walked here; it is unchanged code from batch 5b, whose `.large`
+rendering the owner has already seen.
+
+
+**Follow-up in the same batch — new finding #36.** Batch 5a's iPad-only finding was fixed and
+re-walked here rather than left for a later round, because its remedy is the policy the phase already
+owns: `ArchivesView` applied no title display mode at all, so the sheet inherited a large title with
+too little scroll travel to collapse. Giving it `navigationTitleDisplayMode(.automatic)` keeps that
+inherited mode at and below the default size and falls back to inline above it.
+
+| Screen | Cell | Result |
+|---|---|---|
+| #19 Archives sheet | iPad portrait AX5 | pass — inline `Archives` (84x26); funds and Download button reached by scrolling with no title drawn over a card. |
+| #19 Archives sheet | iPad landscape AX3 | pass — same, inline title, all values reachable. |
+| #19 Archives sheet | iPad landscape AX5 | pass — same. |
+| #19 Archives sheet | iPad portrait `.large` | parity — the large leading title (139x41) is unchanged. |
+
+The sibling Torrents sheet (#20) was left alone: it passes today, and the same policy would be a
+change to a screen with no observed defect.
+#### iPad batch 7 walk — 2026-09-04
+
+Batch 7. The ten screens whose iPad cells the 16-03 amendment had left `blocked: no iPad session` on
+top of the batch-5a six — #13, #15, #16, #17, #18, #23, #24, #25, #26, #27 — walked for their first
+iPad judgment now that the owner's session is present on `IPAD_UDID`. Sixty Matrix cells, all six
+orientation × size cells of every screen; no iPhone cell was touched and the iPhone simulators were
+never addressed.
+
+**Build and install.** Worktree at `f1a2038e` (`git reset --hard`), built with
+`xcodebuild build -scheme EhPanda -configuration Debug` against `IPAD_UDID` and
+`BUNDLE_ID_SUFFIX=.personal`, `BUILD SUCCEEDED`. Before installing,
+`plutil -extract CFBundleIdentifier raw …/EhPanda.app/Info.plist` printed exactly
+`app.ehpanda.personal`. Install-over with `xcrun simctl install` on `IPAD_UDID` only — never
+uninstalled, never erased, no `xcodebuild test` destination, no credential entered (D-09). The
+owner's session survived the install: Favorites, live gallery detail, comments and the download
+inventory were all present afterwards.
+
+**Session.** Baseline read at start and identical at the end: `content_size large`,
+`appearance light`, `increase_contrast disabled`, portrait (`sim-use ui` header `EhPanda 834x1210`
+with no orientation tag). Rotation via `agent-device orientation … --session ipad`, confirmed each
+time from the `App:` header before capturing; landscape frames straightened with `sips -r 270`.
+
+**Verdicts.** Fifty-four cells `pass` or `n/a`, six carry a finding:
+
+| Screen | Result |
+|---|---|
+| #13 Move-to-folder / FolderManager | 6/6 pass — a regular-width form sheet; title, close and add controls and the folder row read at every size, and the row's swipe actions are icon-only glyphs. |
+| #15 Previews (grid + full-screen cover) | 6/6 pass — five-column grid at every size, every page number complete, the cover's placeholder page number grows and still reads. |
+| #16 Comments (+ post sheet) | 6/6 pass — author, vote score, full timestamp and body all read; the meta line stacks under the author from AX3 up. |
+| #17 Detail Search | 6/6 pass — the row reflows cover-above-title at the accessibility sizes and keeps title, uploader, language, rating, page count, badge and the full timestamp. |
+| #18 Gallery Infos | 6/6 pass — value-under-label reflow; URLs, token, title and every counter read in full. |
+| #23 download confirmation dialogs | 4 pass, 2 **finding:#37** (portrait AX3, landscape AX3). |
+| #24 Reading | 6/6 pass — no app-drawn text on the page surface; the page context menu keeps all five items and scrolls to the fifth at AX5. |
+| #25 Control panel | 2 pass (XXL both orientations), 4 **finding:#26** (AX3 and AX5, both orientations). |
+| #26 Reading Setting sheet | 6/6 pass — the measured card keeps its height and scrolls (P-11); nothing lost. |
+| #27 Live Text overlay | 6/6 `n/a: no app-drawn text (system overlay)` — the overlay's only text view is transparent with a zero-point font and its highlight paths are image-space. |
+
+**New finding #37** (iPad-only): the Detail download **delete confirmation** does not reserve the
+height its own button row needs at AX3. The alert keeps `Cancel` and `Delete` side by side at that
+size — it restacks them vertically only at AX5 — and the card's rounded bottom edge cuts both
+capsules roughly in half, with the labels on the clip line and no bottom padding. It reads correctly
+at `.large`, at XXL and again at AX5, so AX3 is the single size where the container's height and its
+contents disagree, and it shows identically in both orientations.
+
+**Second site for finding #26.** The reader control panel's **Auto-Play** menu (#25) loses the
+checkmark beside the selected interval from AX3 upward in both orientations, exactly as the activity
+log's Runs menu does on #32: present at `.large` and XXL, absent at AX3 and AX5, while the
+accessibility tree still reports `#checkmark`. The finding's Screen and Cells columns now name both
+sites.
+
+**Existing findings disconfirmed on iPad.** #23 (the iPhone landscape alert that hides its sentence
+and its `Cancel`) does **not** reproduce: every iPad cell of that screen was raised and cancelled,
+and at AX5 the alert restacks its buttons and reads whole. #5, #6, #8 and #9 (the gallery-row losses)
+do not reproduce on #17's regular-width rows. The reader's page indicator (#22) reads at every iPad
+size, including a three-digit `132 / 254` counter, because the owner-authorised `.large` cap on the
+upper bar keeps the row on one line and the iPad's width is far above the 375 pt budget that cap was
+measured against.
+
+**Deviations.** (1) The #23 **retry-mode** dialog was not exercised — it needs a download in an error
+state and the session's only download is complete; only the delete variant exists to raise, and every
+dialog raised was cancelled. (2) The #13 **delete confirmation** was not raised either: deleting a
+folder is forbidden on this simulator, and the sheet's only folder is `Default`. The swipe actions
+that would raise it were revealed and judged instead — they are icon-only glyphs with no text to
+lose. (3) The Detail stats strip has to be flicked sideways before its trailing `Gallery Infos`
+ellipsis is reachable in portrait, and a slow synthetic drag does not move it; a short flick
+(0.25 s) does. Two earlier slow drags were absorbed by the enclosing scroll view and one stale
+`--label` tap landed outside the modal and dismissed it, so the Detail was re-entered — no state was
+changed by either. (4) Reading Setting sliders were read, never moved (their values are byte-identical
+before and after); Live Text was toggled on for #27 and back off; no comment was posted, edited or
+voted on; no download, folder or gallery was deleted.
+
+**Restore proof.** `xcrun simctl ui <IPAD_UDID> content_size` / `appearance` / `increase_contrast`
+read back `large` / `light` / `disabled`, and `sim-use ui` reports `App: EhPanda 834x1210` with no
+orientation tag — the recorded baseline exactly.
+
+**Evidence.** Cell captures under `$HOME/Library/Caches/ehpanda-phase16/sweep-ipad-batch7/`, named
+`ipad-<orientation>-<SIZE>-<screen#>-<position>.png`, with `cells.tsv` (75 rows including header).
+The `.large` reference for each of the ten screens under
+`$HOME/Library/Caches/ehpanda-phase16/d15-after/batch7/` as `ipad-large-<screen#>.png`; each was
+compared against its sized frames and no default-size change was observed on any of the ten screens
+(D-15). No image is tracked by git (D-32).
+
+#### Unblock walk (batch 8) — 2026-09-04
+
+Batch 8. The three screens whose Matrix cells were still `blocked` for reasons unrelated to the iPad
+session — **#21 Tag Detail**, **#22 NewDawn**, **#30 Login** — attacked at their actual blockers.
+Thirty cells in scope (#21 on both devices, #22 on both devices, #30 on iPhone); eighteen are now
+walked and pass, twelve stay blocked with a corrected reason. No source file was touched: this was a
+walk, not a fix batch.
+
+**Follow-up by the phase lead, same day.** `Show New Dawn Greeting` was turned back **on** on
+`IPHONE_UDID` after this batch closed, and deliberately left on. The batch proved #22's block is a
+timing fact rather than a permission one: the daily gain is issued once per UTC day and account-wide,
+and the day's gain had already been consumed about nineteen hours before the walk. With the toggle
+armed before the next UTC day begins, that day's first fetch presents the sheet, which is the only
+honest way to reach these six iPhone cells. The catch is that the sheet presents to whoever opens the
+app first and is gone once dismissed, so walking it needs a run timed just after the UTC boundary, or
+the owner leaving the greeting on screen and saying so. The iPad's toggle was left off: one account,
+one gain, so only one device can be walked per day, and the iPhone is the Matrix's primary device.
+
+**Build and install.** Worktree at `53c3022b` (`git reset --hard`), built with
+`xcodebuild build -scheme EhPanda -configuration Debug` and `BUNDLE_ID_SUFFIX=.personal`,
+`BUILD SUCCEEDED`. Before every install `plutil -extract CFBundleIdentifier raw
+…/EhPanda.app/Info.plist` printed exactly `app.ehpanda.personal`. Install-over with
+`xcrun simctl install` on all three simulators; none was uninstalled or erased, no `xcodebuild test`
+destination was used, and no credential was entered by an agent (D-09). Both owner sessions survived
+the install.
+
+**Devices.** `IPHONE_UDID` and `IPAD_UDID` as recorded, plus a third simulator created for this
+batch: a logged-out **iPhone Air** on iOS 26.5 (`content_size large`, `appearance light`, portrait),
+used for **#30 only**. Its device type matches `IPHONE_UDID`, so the Matrix geometry for the #30 rows
+is the same 420×912 frame the rest of the iPhone column was walked in. Neither owner simulator was
+ever signed out — that is exactly what the third simulator exists to avoid.
+
+**Settings changed, and put back.** Every one of these was authorised by the owner for this batch,
+recorded before the change and read back after the restore.
+
+| Simulator | Setting | Recorded value | Set to | Restored | Read-back proof |
+|---|---|---|---|---|---|
+| iPhone | Preferred Language (iOS Settings › EhPanda) | English (Default) | 简体中文 | English (Default) | app relaunched: `Home` / `Reload` / `Frontpage` render in English |
+| iPhone | General › Tags › Enable Tags Extension | off | on | off | persisted `setting.enableTagsExtension = false` |
+| iPhone | General › Tags › Translate Tags | off | on | off | persisted `setting.translateTags = false` |
+| iPhone | Account › Show New Dawn Greeting | off | on | off | persisted `setting.showNewDawnGreeting = false` |
+| iPad | Preferred Language (iOS Settings › EhPanda) | English (Default) | 简体中文 | English (Default) | app relaunched: tab bar reads `Home / Favorites / Search / Downloads / Setting` |
+| iPad | General › Tags › Enable Tags Extension | off | on | off | in-app toggle value `0` after the change |
+| iPad | General › Tags › Translate Tags | off | on | off | in-app toggle value `0` after the change |
+
+Two incidental notes on the language change. The iOS Settings app lists **two** EhPanda entries (the
+`app.ehpanda` and `app.ehpanda.personal` bundles are both installed on both simulators, § "Why
+`app.ehpanda.personal`"). On the iPhone the first entry was the one that drove `BUNDLE_ID`; on the
+iPad it was the second, so the iPad's first entry was set and then **immediately set back to English
+(Default)** before the correct one was touched — it ends the batch exactly as it started. And the
+Tags Extension needs **Translate Tags** on as well as itself: `DetailView.swift:112` passes
+`returnOriginal: !setting.translateTags` to the lookup, so with translation off the tag carries no
+`TagTranslation` and the context menu's `Detail` item never appears regardless of the database.
+
+**#21 Detail › Tag Detail sheet — unblocked, 12/12 pass.** Round I recorded these cells blocked
+because every entry in the **English** tag-translation database has an empty description, and the
+menu item at `DetailFeature/DetailView+Subviews.swift:421` is gated on a non-empty one. Switching
+the session to 简体中文 downloads the zh-Hans database instead, in which **12,510 of 44,060 tags carry
+a non-empty description**, so the gate opens. The sheet was walked with the session locale Chinese —
+that is the only way it exists, and it is stated here so the captures are read correctly.
+
+| Device | Instance walked | Result |
+|---|---|---|
+| iPhone | a parody tag with a three-line description, one image and three long percent-escaped links | 6/6 pass — description, Images heading and thumbnail, and all three URLs read in full at portrait and landscape XXL/AX3/AX5; the column simply lengthens and scrolls |
+| iPad | a female-namespace tag with a 367-character description, three images and an empty links list | 6/6 pass — regular-width form sheet; description complete, all three images drawn inside the card, Links heading reached by scrolling at every accessibility size, nothing outside the card |
+
+**#22 Detail › NewDawn sheet — still blocked, corrected reason.** The round-I reason ("not presented
+this session") understated why. The greeting is fetched only when `Setting › Account › Show New Dawn
+Greeting` is on (`SettingReducer+Helpers.swift:61`), and it presents only when the server reports an
+actual gain (`!greeting.gainedNothing`) — a gain issued **once per UTC day and account-wide**. The
+toggle was switched on and five separate fetch opportunities were exercised against the live session:
+two cold relaunches, one background/foreground return (each sends `.setting(.fetchGreeting)`), and
+two gallery-detail loads (`DetailReducer+Fetch.swift:52-56` parses and presents a greeting off the
+detail response). The sheet never presented, so the server reported no gain. The UTC day was already
+about nineteen hours old when the batch ran and earlier phase-16 sessions had used it. **Nothing was
+fabricated, forced or simulated, and no app data was edited behind the app's back.** The twelve cells
+(iPhone and iPad) stay `blocked: no daily gain issued this UTC day (toggle now armed on the iPhone)`; the iPad is blocked by the same
+account-wide fact rather than by anything device-specific, so its toggle was left untouched. The
+toggle was restored to off on the iPhone.
+
+**#30 Setting › Login — unblocked, 6/6 pass, two sub-states deliberately unwalked.** The native form
+renders only in the `!didLogin` branch of `AccountSettingView.swift`, so it was walked on the
+dedicated logged-out simulator. At every sampled cell the heading, both field labels
+(`Username` / `Password`), both placeholders and the disabled submit chevron read in full. Two things
+worth recording:
+
+- **Finding #33's fix holds on the iPhone too.** At AX5 portrait the large title falls back to an
+  inline one and the heading no longer paints through the `Username` label — the same behaviour the
+  batch-3 re-verification measured on the iPad, now confirmed on the compact-width screen where the
+  original overlap was theorised.
+- **The submit chevron drops below the fold in landscape above the default size.** At `.large`
+  landscape it sits fully visible above the floating tab bar; at XXL it rests half under the bar, at
+  AX3 it is below the fold entirely, and at AX5 the password field's lower edge passes under the bar
+  as well. In every case one or two scrolls bring the control fully into view, clear of the bar
+  (`ViewThatFits(in: .vertical)` hands the column to its scrolling candidate). Judged **fine** under
+  the verdict rule — the form grew taller and a control moved below the fold of a screen that
+  scrolls, which the rule lists as reflow, not loss, and the same "content passes under the bar's own
+  material" reading already applied to finding #36. It is written out here because it is the one
+  borderline call in this batch and the owner may want to look at it.
+
+**The toast and the error sheet were not walked**, and cannot be without crossing a hard line: both
+are presented only from a login attempt (`LoginReducer` raises the toast on a failed `loginDone` and
+the error sheet from that toast's tap), and reaching them would mean typing a credential and
+submitting the form to a third-party service. No credential, real or fabricated, was entered; the
+form was never submitted; the `Website` toolbar item was not opened either (the WebView and
+Cloudflare challenge are out of scope by D-11 in any case). Those two sub-states stay unwalked and
+are recorded as such rather than guessed at.
+
+**New findings: none.** No cell in this batch is degraded, so the findings list still ends at #37 and
+no numbered entry was added. One size-independent observation is worth the owner's eye but is **not**
+a Dynamic Type finding: in the Tag Detail sheet's `LinksSection` and `ImagesSection`, the
+`ErrorView(error: .notFound)` empty-state overlay reports its text in the accessibility tree but
+draws nothing on screen — the area under the heading is blank. It renders identically at `.large`, so
+it fails the D-04 comparison basis and is out of this phase's scope.
+
+**Deviations.** (1) `sim-use tap` does not actuate a SwiftUI `Toggle` on these builds — three taps on
+the greeting switch left its AX value at `0`; explicit `sim-use touch --down` / `--up` with a short
+hold toggles it reliably, and every switch in this batch was driven that way. (2) After the per-app
+language change the app exposed an **empty accessibility tree** to `sim-use` until an `agent-device`
+XCUITest runner was attached to the same simulator; once attached, `sim-use ui` worked normally for
+the rest of the session. (3) In landscape, `sim-use swipe` coordinates are interpreted in the
+device's portrait framebuffer frame, so three early iPad landscape "bottom" captures did not actually
+scroll; they were retaken with `sim-use gesture scroll-up`, which handles the rotation, and only the
+retaken frames are archived. (4) Nothing was voted on, purchased, posted, downloaded or deleted; no
+tag vote was cast from the context menus that were opened, and every sheet raised was dismissed by
+swipe.
+
+**Restore proof.** All three simulators read back their recorded baselines at session end:
+`IPHONE_UDID` `medium` / `dark` / `disabled`, `IPAD_UDID` `large` / `light` / `disabled`, the
+logged-out simulator `large` / `light` / `disabled`; all three `sim-use ui` headers report
+`App: EhPanda` with no orientation tag (portrait). The app-level settings restores are in the table
+above.
+
+**Evidence.** Cell captures under `$HOME/Library/Caches/ehpanda-phase16/sweep-batch8/`, named
+`<device>-<orientation>-<SIZE>-<screen#>-<position>.png` with `<device>` ∈ {`iphone`, `ipad`,
+`loggedout`}, plus `cells.tsv` (48 rows including header). The `.large` references under
+`$HOME/Library/Caches/ehpanda-phase16/d15-after/batch8/` — `iphone-large-21.png`,
+`ipad-large-21.png`, `loggedout-large-30.png` and `loggedout-large-30-landscape.png`; each was
+compared against its sized frames and no default-size change was observed on either screen (D-15). No
+image is tracked by git (D-32).
+
+#### NewDawn mock walk (batch 9) — 2026-09-04
+
+The twelve screen-#22 cells, walked by the phase lead after the owner ruled that a mocked greeting
+was acceptable because only the layout is under test. This is the last block of `blocked` cells: the
+Matrix now has a verdict for every cell.
+
+**How the greeting was surfaced, and what that costs the evidence.** The sheet presents only when the
+server reports a daily gain, which is issued once per UTC day and account-wide, so it cannot be raised
+on demand. A single line was added to `AppReducer`'s `.active` branch — `.send(.presentation(
+.presentNewDawn(.mock)))` — built, installed, walked, and then **reverted**; it was never committed,
+and `git status` was clean before the clean rebuild. `NewDawnView` itself was not touched, so the view
+under test is the shipping one. After the walk the tree was reverted, rebuilt and reinstalled on both
+devices, and both apps were relaunched and confirmed running the clean build.
+
+Two content variants appear in the evidence, and the difference is deliberate rather than sloppy: the
+UTC day happened to roll over mid-walk, so the **iPhone portrait** set caught the *real* server
+greeting (30 EXP, 10,452 Credits, 10,000 GP, 16 Hath) — the longer string, and therefore the stricter
+case — while the remaining sets show `Greeting.mock` (10 / 10,000 / 10,000 / 10). Every cell's row
+says which it used.
+
+**Cells walked (12).**
+
+| Device | Orientation | Sizes | Result |
+|---|---|---|---|
+| iPhone | portrait | XXL, AX3, AX5 | 3 pass |
+| iPhone | landscape | XXL, AX3, AX5 | 3 pass |
+| iPad | portrait | XXL, AX3, AX5 | 2 pass, **AX5 finding:#38** |
+| iPad | landscape | XXL, AX3, AX5 | 2 pass, **AX5 finding:#38** |
+
+**New finding #38** — `NewDawnView` has no scroll container, so on the iPad's form-sheet the greeting
+is clipped at both ends at AX5. See its Findings row for the full description and for the two
+non-regressions (Dynamic Island overlap, white-on-yellow body text) that this walk turned up but that
+are identical at `.large`.
+
+**D-15.** `.large` references were captured per device and orientation
+(`d15-after/batch9/`), and the default-size appearance is unchanged on all four.
+
+**Deviations.** (1) `agent-device orientation` silently no-ops when its session has gone stale — it
+prints only a diagnostics-log line instead of `Rotated to …`. Two capture sets were taken against an
+unrotated device before this was caught; both were deleted and retaken after closing and reopening the
+session. Always require the `Rotated to …` line. (2) The agent-device runner app comes to the
+foreground when a session is opened, so the app under test must be relaunched afterwards. (3) On the
+first launch after an install the `.active` effects are skipped, because `hasLoadedInitialSetting` is
+still false; the greeting only presents from the second launch onward.
+
+**Restore.** iPhone `medium`/`dark`/portrait, iPad `large`/`light`/portrait, both read back. Both
+devices carry the clean build. No screenshot entered the repository.
+
+#### NewDawn scroll fix (batch 10) — 2026-09-04
+
+Finding #38, fixed and re-walked in the same session the owner raised it, because the remedy was the
+one the owner named: give `NewDawnView` a scroll container and drop the `fixedSize`.
+
+**What changed** (`AppComponents/NewDawnView.swift`, commit `fc900bde`): the text `VStack` moved
+inside a `ScrollView`, and `TextView` lost `fixedSize(horizontal: false, vertical: true)` — inside a
+scroll container the vertical axis is unbounded, so the text takes its natural height without it. The
+designed appearance is preserved by giving the content the container's height as a **floor** rather
+than a fixed height: `frame(minHeight:)` fed by `onGeometryChange`, so the greeting stays centred
+while it fits and grows past that once it doesn't, with `scrollBounceBehavior(.basedOnSize)`
+withholding the bounce until there is somewhere to scroll.
+
+**Verified on device**, against a mock raised the same authorised way as batch 9 (one temporary,
+never-committed line in `AppReducer`, reverted afterwards; both devices then rebuilt clean, installed
+and left at their baselines).
+
+| Cell | Result |
+|---|---|
+| #22 iPad portrait AX5 | pass — the opening line draws in full and two swipes reach `Hath!` complete, with a scroll indicator. |
+| #22 iPhone portrait AX5 | pass — same behaviour in the full-screen presentation. |
+| #22 iPad portrait `.large` | parity — still centred in the sheet, nothing scrolls. |
+| #22 iPhone portrait `.large` | parity — unchanged. |
+
+Full suite green (1022 tests) and SwiftLint `--strict` clean on the changed file.
+
+**Follow-up, same batch (`bbbaff9e`):** the owner asked for the scroll indicator to be hidden, so the container now carries `scrollIndicators(.hidden)`. Re-walked on the iPad at portrait AX5: the greeting still scrolls to its closing `Hath!` and no indicator is drawn. The modern `scrollIndicators(_:)` was used rather than this repository's more common `ScrollView(showsIndicators:)`, which Apple has superseded; the rest of this view is already built on current API (`onGeometryChange`, `scrollBounceBehavior`), so the file stays internally consistent.
+
+**Still open on this screen, and still not type-size regressions:** the Dynamic Island covers the
+first characters of two lines in iPhone landscape, and white body text is drawn over the yellow sun.
+Both are identical at `.large`, so they remain out of this round's scope and are recorded on #38's
+row rather than fixed here.
+
+
+#### Owner-requested iPhone 17e AX5 rerun — 2026-09-04
+
+Fresh portrait evidence from iPhone 17e, iOS 26.5, dark appearance, English locale,
+using `accessibility-extra-extra-extra-large` (AX5), verified by simulator readback.
+Clean build `0790d20b09ccfe726220993d68d165dc284e0b2d` succeeded and was installed
+over the existing `app.ehpanda.personal` app. No source changes were made.
+
+**Evidence:** 204 full-resolution screenshots (1170 × 2532), each paired with its UI
+outline, organized into 81 navigation groups. The gallery and a 42-entry coverage
+report are outside the repository at
+`$HOME/.codex/visualizations/2026/09/04/01a06c7a-19c6-7721-80e8-693828b2b1b7/iphone17e-ax5/`
+(`index.html`, `COVERAGE.md`, `run.json`).
+
+**Partial coverage:** this simulator was logged out and had no downloaded galleries.
+Account-only states, Archives, EhSetting, Download Inspector and download delete/retry
+dialogs remain unavailable. Translated Tag Detail and New Dawn were not captured.
+Several conditional editor/dialog states are also outstanding; the external report
+lists them explicitly. Repeated records in paginated lists were sampled. This rerun
+covers portrait AX5 only and does not replace the existing multi-device matrix or
+change its scores. The owner review gate remains open.
+
+**Restore:** text size `medium` and appearance `dark` were restored/read back; portrait
+was unchanged. Temporary thumbnail display mode and Live Text were restored. No
+credentials were entered, downloads started, folders deleted, or content posted.
+
+#### Targeted owner fixes — 2026-09-05
+
+Ten owner-requested findings were re-walked on iPhone 17e, iOS 26.5, portrait, dark
+appearance, at `accessibility-extra-extra-extra-large` (AX5). All ten passed: #7 Toplists
+thumbnail category placement, #9 Search-history spacing, #13 New Folder editor spacing,
+#14 Gallery Detail action reflow, #15 preview-index alignment, #18 Gallery Infos adaptive
+rows, the combined #24–#25 Reading/control boundary, #26 Reading Setting factor layout,
+#28 Setting-row spacing, and #31 General language layout.
+
+**Evidence:** 11 original-resolution screenshots (1170 × 2532) and a responsive dark
+gallery are outside the repository at
+`$HOME/.codex/visualizations/2026/09/04/01a06c7a-19c6-7721-80e8-693828b2b1b7/iphone17e-ax5-fixes-2026-09-05/`
+(`index.html`). The full EhPanda Debug simulator build succeeded, and its SwiftLint
+build-tool plugin completed cleanly.
+
+**Restore:** text size `medium`, dark appearance, portrait orientation, and Display Mode
+`Detail` were restored and read back. No credentials were entered; no downloads were
+started; no folders were created, moved, renamed or deleted; and no content was voted on,
+posted or otherwise mutated.
+
+This targeted pass supplements the existing iPhone 17e AX5 rerun. It does not close the
+existing owner review gate.
+
+**#13 spacing follow-up (2026-09-05).** All folder rows now use one private `LabelStyle`
+backed by default `HStack` spacing; the normal tint is preserved and no numeric spacing
+constant is used. The full simulator build and strict file SwiftLint passed. The refreshed
+iPhone 17e AX5 screenshot passed with the editing and regular title leading edges aligned:
+`$HOME/.codex/visualizations/2026/09/04/01a06c7a-19c6-7721-80e8-693828b2b1b7/iphone17e-ax5-fixes-2026-09-05/13-new-folder-editor-spacing.png`.
+The baseline `medium` text size and dark appearance were restored, and no folder was created.
+
+#### Owner-requested iPhone 17e Large rerun — 2026-09-05
+
+Fresh partial-journey evidence was captured on iPhone 17e, iOS 26.5, in portrait,
+dark appearance, and English, with `content_size large` verified by simulator readback.
+The rerun follows the same exact 204-stem partial journey sequence as the AX5 rerun.
+
+**Evidence:** 204 full-resolution screenshots (1170 × 2532), each paired with a
+nonempty UI outline, are outside the repository at
+`$HOME/.codex/visualizations/2026/09/04/01a06c7a-19c6-7721-80e8-693828b2b1b7/iphone17e-large/`.
+Current gallery, list, search, comment, metadata and torrent values reflect live service
+data and therefore differ from the AX5 evidence in places. The exact second gallery was
+unavailable because it had been expunged, so `[Allure Diffusion] Shoko Kieri - Office
+Landscape` by `Username1985` was substituted for all eight second-gallery targets. Large
+sometimes fit an AX5 overflow sequence in one stable state; repeated stable captures preserve
+the exact stem parity where additional scrolling produced no distinct state.
+
+**Restore:** no persistent content or settings were mutated. Reading values remained unchanged,
+Display Mode remained `Detail`, and Live Text was restored to off.
+
+**Partial coverage:** this rerun has the same partial-journey scope as the AX5 evidence. It does
+not replace the existing multi-device matrix or close outstanding coverage. The existing owner
+review gate remains open.
+
+#### E-Hentai Settings ValuePicker AX layout fix — 2026-09-05
+
+The shared E-Hentai Settings `ValuePicker` now branches on
+`dynamicTypeSize.isAccessibilitySize`. At accessibility sizes it lays out the minimum in a
+leading row, the full-width slider in a middle row, and the maximum in a trailing row. Regular
+sizes retain the native horizontal labeled `Slider`. Both branches apply
+`accessibilityLabel(title)`, giving all six controls their visible setting names.
+
+**Validation:** SettingFeature SwiftLint passed with only the two existing unrelated warnings,
+and the iPhone 17e simulator build succeeded. Six live AX5 PNG/TXT pairs, covering image width,
+image height, cover scale, tag filtering threshold, tag watching threshold, and virtual width,
+were verified at 1170 × 2532 with nonempty outlines at
+`$HOME/.codex/visualizations/2026/09/04/01a06c7a-19c6-7721-80e8-693828b2b1b7/iphone17e-ax5-eh-setting-slider-fix-2026-09-05/`.
+No setting values changed. The simulator was restored to medium text size, dark appearance, and
+portrait orientation.
+
+### Owner disposition — 2026-09-08 targeted recheck
+
+The owner accepted finding #31 (the fourth item in the targeted report), verbatim: 「第四個我覺得展示不下就展示不下直接接受」. The toast may truncate when its content does not fit. Its five remaining matrix cells are marked accepted, not passed; historical descriptions remain as evidence. No code change or round-1 completion is implied.
+
+## Owner disposition update — 2026-09-08
+
+Findings #4 and #7 are accepted: #4 is an Apple native-search issue with an explicit no-fix decision; #7 initial inline title/truncation is accepted as-is. Historical matrix observations remain evidence, not outstanding requests to fix these two findings. See `16-TARGETED-RECHECK.md` for the controlled experiments and the app-owned inline fallback clarification.

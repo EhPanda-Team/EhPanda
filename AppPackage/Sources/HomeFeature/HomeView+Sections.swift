@@ -34,12 +34,13 @@ struct CardSlideSection: View, Equatable {
     private let galleries: [Gallery]
     private let currentID: String
     private let colors: [Color]
+    private let maximumCardHeight: CGFloat
     private let navigateAction: (Gallery) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
-        colors: [Color],
+        colors: [Color], maximumCardHeight: CGFloat,
         navigateAction: @escaping (Gallery) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
@@ -47,6 +48,7 @@ struct CardSlideSection: View, Equatable {
         _pageIndex = pageIndex
         self.currentID = currentID
         self.colors = colors
+        self.maximumCardHeight = maximumCardHeight
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
         // Seed the initial position to the MIDDLE block's entry for the inbound page index
@@ -60,6 +62,7 @@ struct CardSlideSection: View, Equatable {
         lhs.galleries == rhs.galleries
             && lhs.currentID == rhs.currentID
             && lhs.colors == rhs.colors
+            && lhs.maximumCardHeight == rhs.maximumCardHeight
     }
 
     // A sliding window over an unbounded integer id space replaces `.loopPages()`: the window
@@ -100,13 +103,12 @@ struct CardSlideSection: View, Equatable {
         // Deferring the ScrollView until the width is known makes its first layout the real one,
         // so the seed anchors correctly (matching the fixed-size construct the loop shipped with).
         Group {
-            if carouselWidth > 0 {
+            if carouselWidth > 0 && maximumCardHeight > 0 {
                 carousel
             } else {
                 Color.clear
             }
         }
-        .frame(height: Defaults.FrameSize.cardCellHeight)
         .onGeometryChange(for: CGFloat.self, of: \.size.width) {
             carouselWidth = $0
         }
@@ -119,6 +121,7 @@ struct CardSlideSection: View, Equatable {
                     card(for: item.gallery)
                 }
             }
+            .fixedSize(horizontal: false, vertical: true)
             .scrollTargetLayout()
         }
         // `limitBehavior: .always` caps a gesture at one card — SwiftUIPager parity (the old
@@ -127,6 +130,7 @@ struct CardSlideSection: View, Equatable {
         // deceleration alone traverses several cards and chained flicks ran 40+ cards past
         // every settle (sim-measured), clamping at the window edge before any `.idle` rebase.
         .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
+        .fixedSize(horizontal: false, vertical: true)
         .scrollPosition(id: $scrollPositionID)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
@@ -194,6 +198,7 @@ struct CardSlideSection: View, Equatable {
                 gallery: gallery,
                 currentID: currentID,
                 colors: colors,
+                maximumHeight: maximumCardHeight,
                 webImageSuccessAction: {
                     webImageSuccessAction(gallery.gid, $0)
                 }
@@ -201,7 +206,7 @@ struct CardSlideSection: View, Equatable {
             .tint(.primary)
             .multilineTextAlignment(.leading)
         }
-        .frame(width: cardWidth, height: Defaults.FrameSize.cardCellHeight)
+        .frame(width: cardWidth)
         // Peek dimming, owner-tuned: SwiftUIPager parity was `interactive(opacity: 0.2)`, but at
         // this card size the peek slivers are thin, and 0.2 over the dark background rendered
         // them practically invisible. 0.6 keeps the neighbors clearly readable yet de-emphasized.
@@ -213,6 +218,7 @@ struct CardSlideSection: View, Equatable {
 
 // MARK: CoverWallSection
 struct CoverWallSection: View {
+    @GalleryCoverMetrics(.standard) private var coverSize
     private let galleries: [Gallery]
     private let isLoading: Bool
     private let navigateAction: (Gallery) -> Void
@@ -261,7 +267,7 @@ struct CoverWallSection: View {
                     .withHorizontalSpacing(width: 0)
                 }
             }
-            .frame(height: Defaults.ImageSize.rowH * 2 + 30)
+            .frame(height: coverSize.height * 2 + 30)
         }
     }
 }
@@ -275,19 +281,11 @@ struct VerticalCoverStack: View {
         self.navigateAction = navigateAction
     }
 
-    private func placeholder() -> some View {
-        Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect))
-    }
     private func imageContainer(gallery: Gallery) -> some View {
         Button {
             navigateAction(gallery)
         } label: {
-            KFImage(gallery.coverURL)
-                .placeholder(placeholder)
-                .defaultModifier()
-                .scaledToFill()
-                .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
-                .clipShape(.rect(cornerRadius: 2))
+            GalleryCover(url: gallery.coverURL, style: .standard)
         }
     }
 
@@ -300,6 +298,7 @@ struct VerticalCoverStack: View {
 
 // MARK: ToplistsSection
 struct ToplistsSection: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Dependency(\.deviceClient) private var deviceClient
 
     private let galleries: [Int: [Gallery]]
@@ -350,7 +349,7 @@ struct ToplistsSection: View {
             showAllAction: showAllAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                HStack(alignment: .top) {
                     ForEach(ToplistsType.allCases, content: verticalStacks)
                 }
             }
@@ -359,20 +358,67 @@ struct ToplistsSection: View {
     private func verticalStacks(type: ToplistsType) -> some View {
         VStack(alignment: .leading) {
             Text(type.value).font(.subheadline.bold())
-            HStack {
+            if deviceClient.deviceType() == .pad, horizontalSizeClass == .regular {
+                regularWidthGrid(type: type)
+            } else {
                 VerticalToplistsStack(
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
                     navigateAction: navigateAction
                 )
-                if deviceClient.deviceType() == .pad {
-                    VerticalToplistsStack(
-                        galleries: galleries(type: type, range: 3...5), startRanking: 4,
-                        navigateAction: navigateAction
-                    )
-                }
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 5)
+    }
+
+    private func regularWidthGrid(type: ToplistsType) -> some View {
+        let sectionGalleries = dataSource[type.categoryIndex] ?? []
+        let rowCount = min(3, sectionGalleries.count)
+
+        return Grid(horizontalSpacing: 8, verticalSpacing: 10) {
+            ForEach(0..<rowCount, id: \.self) { offset in
+                GridRow {
+                    if let leadingGallery = sectionGalleries.dropFirst(offset).first {
+                        regularWidthCell(
+                            gallery: leadingGallery,
+                            ranking: offset + 1,
+                            showsDivider: offset < rowCount - 1
+                        )
+                    }
+
+                    let trailingIndex = offset + 3
+                    if trailingIndex < sectionGalleries.count,
+                       let trailingGallery = sectionGalleries.dropFirst(trailingIndex).first {
+                        regularWidthCell(
+                            gallery: trailingGallery,
+                            ranking: offset + 4,
+                            showsDivider: trailingIndex < sectionGalleries.count - 1
+                        )
+                    } else {
+                        Color.clear.accessibilityHidden(true)
+                    }
+                }
+            }
+        }
+        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
+    }
+
+    private func regularWidthCell(
+        gallery: Gallery,
+        ranking: Int,
+        showsDivider: Bool
+    ) -> some View {
+        VStack(spacing: 10) {
+            Button {
+                navigateAction(gallery)
+            } label: {
+                GalleryRankingCell(gallery: gallery, ranking: ranking)
+                    .tint(.primary)
+                    .multilineTextAlignment(.leading)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            Divider().opacity(showsDivider ? 1 : 0)
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 }
 

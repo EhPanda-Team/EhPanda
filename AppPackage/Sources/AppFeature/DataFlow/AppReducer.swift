@@ -221,63 +221,15 @@ struct AppReducer {
             case .presentation:
                 return .none
 
+            case .tabBar(.delegate(.presentSetting)):
+                return .send(.presentation(.presentSetting))
+
             case .tabBar(.setTabBarItemType(let type)):
-                var effects = [Effect<Action>]()
-                let hapticEffect: Effect<Action> = .run { _ in
-                    await hapticsClient.generateFeedback(.soft)
-                }
-                if type == state.tabBarState.tabBarItemType {
-                    switch type {
-                    case .home:
-                        if !state.homeState.path.isEmpty {
-                            state.homeState.path.removeAll()
-                        } else {
-                            effects.append(.send(.home(.fetchAllGalleries)))
-                        }
-                    case .favorites:
-                        if !state.favoritesState.path.isEmpty {
-                            state.favoritesState.path.removeAll()
-                            effects.append(hapticEffect)
-                        } else if cookieClient.didLogin {
-                            effects.append(.send(.favorites(.fetchGalleries())))
-                            effects.append(hapticEffect)
-                        }
-                    case .search:
-                        if !state.searchRootState.path.isEmpty {
-                            state.searchRootState.path.removeAll()
-                        } else {
-                            // Keywords/quick-search words are live via @Shared now; re-tapping the
-                            // Search tab at its root refreshes the recently-viewed galleries instead.
-                            effects.append(.send(.searchRoot(.fetchHistoryGalleries)))
-                        }
-                    case .downloads:
-                        if !state.downloadsState.path.isEmpty {
-                            state.downloadsState.path.removeAll()
-                        } else {
-                            effects.append(.send(.downloads(.fetchDownloads)))
-                        }
-                        effects.append(hapticEffect)
-                    case .setting:
-                        if !state.settingState.path.isEmpty {
-                            state.settingState.path.removeAll()
-                            effects.append(hapticEffect)
-                        }
-                    }
-                    if [.home, .search].contains(type) {
-                        effects.append(hapticEffect)
-                    }
-                } else {
-                    // A genuine tab switch is the only thing that counts as a tab open. The equal-`type`
-                    // branch above is refresh / pop-to-root, so emitting there would inflate the metric
-                    // with scroll-to-top gestures that never changed which tab is showing (D-14, T-14-13).
-                    effects.append(.run(operation: { _ in analyticsClient.send(.tabOpened(AppTab(type))) }))
-                    // Presentation-driven lifecycle: tab roots are built once and live for the whole
-                    // session, so "this tab became the visible one" is what replaces their former
-                    // view `onAppear`. Their presentation actions are guarded, so re-activating a
-                    // populated tab refetches nothing.
-                    effects.append(tabPresentationEffect(for: type))
-                }
-                return effects.isEmpty ? .none : .merge(effects)
+                guard type != .setting else { return .none }
+                return tabSelectionEffect(type: type, state: &state)
+
+            case .tabBar(.selectSettingInline):
+                return tabSelectionEffect(type: .setting, state: &state)
 
             case .tabBar:
                 return .none
@@ -374,6 +326,65 @@ struct AppReducer {
 }
 
 private extension AppReducer {
+    func tabSelectionEffect(type: TabBarItemType, state: inout State) -> Effect<Action> {
+        var effects = [Effect<Action>]()
+        let hapticEffect: Effect<Action> = .run { _ in
+            await hapticsClient.generateFeedback(.soft)
+        }
+        if type == state.tabBarState.tabBarItemType {
+            switch type {
+            case .home:
+                if !state.homeState.path.isEmpty {
+                    state.homeState.path.removeAll()
+                } else {
+                    effects.append(.send(.home(.fetchAllGalleries)))
+                }
+            case .favorites:
+                if !state.favoritesState.path.isEmpty {
+                    state.favoritesState.path.removeAll()
+                    effects.append(hapticEffect)
+                } else if cookieClient.didLogin {
+                    effects.append(.send(.favorites(.fetchGalleries())))
+                    effects.append(hapticEffect)
+                }
+            case .search:
+                if !state.searchRootState.path.isEmpty {
+                    state.searchRootState.path.removeAll()
+                } else {
+                    // Keywords/quick-search words are live via @Shared now; re-tapping the
+                    // Search tab at its root refreshes the recently-viewed galleries instead.
+                    effects.append(.send(.searchRoot(.fetchHistoryGalleries)))
+                }
+            case .downloads:
+                if !state.downloadsState.path.isEmpty {
+                    state.downloadsState.path.removeAll()
+                } else {
+                    effects.append(.send(.downloads(.fetchDownloads)))
+                }
+                effects.append(hapticEffect)
+            case .setting:
+                if !state.settingState.path.isEmpty {
+                    state.settingState.path.removeAll()
+                    effects.append(hapticEffect)
+                }
+            }
+            if [.home, .search].contains(type) {
+                effects.append(hapticEffect)
+            }
+        } else {
+            // A genuine tab switch is the only thing that counts as a tab open. The equal-`type`
+            // branch above is refresh / pop-to-root, so emitting there would inflate the metric
+            // with scroll-to-top gestures that never changed which tab is showing (D-14, T-14-13).
+            effects.append(.run(operation: { _ in analyticsClient.send(.tabOpened(AppTab(type))) }))
+            // Presentation-driven lifecycle: tab roots are built once and live for the whole
+            // session, so "this tab became the visible one" is what replaces their former
+            // view `onAppear`. Their presentation actions are guarded, so re-activating a
+            // populated tab refetches nothing.
+            effects.append(tabPresentationEffect(for: type))
+        }
+        return effects.isEmpty ? .none : .merge(effects)
+    }
+
     /// The tab root's presentation action — the reducer-side replacement for the view `onAppear` it
     /// used to run. Setting takes no action here: its root menu is a static list, and each Setting
     /// screen starts itself when `SettingReducer` pushes it.

@@ -68,7 +68,7 @@ struct FavoritesSection: View {
                         .tag(order)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text(.favoritesSortOrderDescription)
                 .ehSettingRegularHeaderStyled()
@@ -115,7 +115,7 @@ struct SearchResultCountSection: View {
                         .tag(count)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(
                 .searchResultCount,
@@ -140,7 +140,7 @@ struct ThumbnailSettingsSection: View {
                         .tag(timing)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(
                 .thumbnailSettings,

@@ -6,17 +6,31 @@ import SFSafeSymbols
 import SwiftUI
 
 public struct SettingView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.isPresented) private var isPresented
+
     @Bindable private var store: StoreOf<SettingReducer>
 
     public init(store: StoreOf<SettingReducer>) {
         self.store = store
     }
 
+    /// The title mode this screen is designed around, which differs by how it is presented.
+    ///
+    /// As a tab root the screen owns the whole tab, so its title stays prominent while the list
+    /// scrolls: that is what `inlineLarge` buys, and it is the designed appearance. Inside a sheet
+    /// the same mode reads wrong — the sheet already carries a title band of its own, and a title
+    /// that never yields makes the sheet look like a second, competing navigation bar — so a sheet
+    /// takes the ordinary large title that collapses on scroll.
+    private var designedTitleDisplayMode: ToolbarTitleDisplayMode {
+        isPresented ? .large : .inlineLarge
+    }
+
     // MARK: SettingView
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 12 : 0) {
                     ForEach(SettingReducer.RootScreen.allCases) { screen in
                         SettingRow(rowType: screen) {
                             store.send(.settingRowTapped($0))
@@ -26,7 +40,7 @@ public struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .navigationTitle(.RLocalizable.setting)
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbarTitleDisplayMode(designedTitleDisplayMode)
         } destination: { pathStore in
             destination(pathStore)
         }

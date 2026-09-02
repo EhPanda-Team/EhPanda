@@ -28,7 +28,7 @@ public struct DownloadsView: View {
                     emptyStateView
                         .padding(.horizontal, 24)
                         .animation(.default) {
-                            $0.opacity(showsEmptyState ? 1 : 0)
+                            $0.visible(showsEmptyState)
                         }
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)
@@ -124,7 +124,7 @@ private extension DownloadsView {
     }
 
     @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             Menu {
                 Section {
                     Button {
@@ -136,12 +136,15 @@ private extension DownloadsView {
                         )
                     }
                 }
-                Section {
-                    folderFilterButton(.all)
+                Picker(selection: $store.folderFilter) {
+                    Text(DownloadFolderFilter.all.title).tag(DownloadFolderFilter.all)
                     ForEach(store.folders, id: \.self) { folder in
-                        folderFilterButton(.folder(folder))
+                        Text(DownloadFolderFilter.folder(folder).title).tag(DownloadFolderFilter.folder(folder))
                     }
+                } label: {
+                    Text(.RLocalizable.filters)
                 }
+                .pickerStyle(.inline)
             } label: {
                 Label(.RLocalizable.filters, systemSymbol: .dialLow)
                     .symbolRenderingMode(.hierarchical)
@@ -149,16 +152,6 @@ private extension DownloadsView {
         }
     }
 
-    private func folderFilterButton(_ filter: DownloadFolderFilter) -> some View {
-        Button {
-            store.folderFilter = filter
-        } label: {
-            Text(filter.title)
-            if store.folderFilter == filter {
-                Image(systemSymbol: .checkmark)
-            }
-        }
-    }
 }
 
 // MARK: DownloadRow

@@ -151,7 +151,7 @@ private struct AppIconRow: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Image(systemSymbol: .checkmarkCircleFill)
-                .opacity(isSelected ? 1 : 0)
+                .visible(isSelected)
                 .foregroundStyle(.tint)
                 .imageScale(.large)
         }

@@ -80,6 +80,7 @@ public struct FolderManagerView: View {
         } icon: {
             Image(systemSymbol: .folderBadgePlus)
         }
+        .labelStyle(FolderRowLabelStyle())
     }
 
     @ViewBuilder private func folderRow(_ folder: String) -> some View {
@@ -89,8 +90,10 @@ public struct FolderManagerView: View {
             } icon: {
                 Image(systemSymbol: .folder)
             }
+            .labelStyle(FolderRowLabelStyle())
         } else {
             Label(folder, systemSymbol: .folder)
+                .labelStyle(FolderRowLabelStyle())
         }
     }
 
@@ -112,13 +115,24 @@ public struct FolderManagerView: View {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .close, action: dismiss.callAsFunction)
             }
-            CustomToolbarItem {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     store.send(.setEditingField(.newFolder))
                 } label: {
                     Label(.newFolder, systemSymbol: .plus)
                 }
             }
+        }
+    }
+}
+
+private struct FolderRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.icon
+                .foregroundStyle(.tint)
+                .accessibilityHidden(true)
+            configuration.title
         }
     }
 }

@@ -106,6 +106,7 @@ public struct ToplistsReducer: Sendable {
                 return .none
 
             case .setToplistsType(let type):
+                guard type != state.type else { return .none }
                 state.type = type
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())

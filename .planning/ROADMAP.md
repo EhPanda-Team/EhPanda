@@ -1163,11 +1163,11 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 16-10-PLAN.md — Round-1 findings report + owner-fixes checkpoint (D-01)
+- [ ] 16-10-PLAN.md — Round-1 report committed; reconciled halted summary, owner dispositions pending (D-01 amended)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 16-11-PLAN.md — Batched re-verification loop of owner fixes until round 1 is clear (D-15 parity)
+- [ ] 16-11-PLAN.md — Fix-batch history reconciled; halted at remaining owner review and closure (D-15 parity)
 
 **Wave 11** *(blocked on Wave 10 completion)*
 

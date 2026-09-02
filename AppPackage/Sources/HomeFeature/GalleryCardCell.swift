@@ -6,13 +6,19 @@ import Dependencies
 import DeviceClient
 import Kingfisher
 import PreviewSupport
+import SFSafeSymbols
 import SwiftUI
 
 public struct GalleryCardCell: View {
     @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
+    @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
+
+    private let maximumHeight: CGFloat?
     private let currentID: String
     private let colors: [Color]
     private let webImageSuccessAction: (RetrieveImageResult) -> Void
@@ -36,8 +42,10 @@ public struct GalleryCardCell: View {
 
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
+        maximumHeight: CGFloat? = nil,
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
+        self.maximumHeight = maximumHeight
         self.gallery = gallery
         self.currentID = currentID
         self.colors = colors
@@ -57,27 +65,11 @@ public struct GalleryCardCell: View {
     }
 
     public var body: some View {
-        HStack {
-            KFImage(gallery.coverURL)
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                .onSuccess(handleCoverSuccess)
-                .defaultModifier()
-                .scaledToFill()
-                .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
-                .clipShape(.rect(cornerRadius: 5))
-
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(.title3.bold())
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .lineLimit(4)
-
-                RatingView(rating: gallery.rating).foregroundStyle(.yellow)
-            }
-            .padding(.leading, 15)
+        GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
+            cardContent
         }
         .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
         .background {
             if animated {
                 CardGradientView(colors: colors, reduceMotion: reduceMotion, speed: animationSpeed)
@@ -98,6 +90,72 @@ public struct GalleryCardCell: View {
             guard newScheme == .dark, let lastImageResult else { return }
             webImageSuccessAction(lastImageResult)
         }
+    }
+
+    private var cardContent: some View {
+        ViewThatFits(in: .vertical) {
+            GalleryCardLayout(isAccessibilitySize: dynamicTypeSize.isAccessibilitySize) {
+                cover
+                textColumn(titleLines: 4)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            GalleryCardLayout(isAccessibilitySize: dynamicTypeSize.isAccessibilitySize) {
+                cover
+                textColumn(titleLines: 2)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            HStack(alignment: .top, spacing: 16) {
+                GalleryCover(
+                    url: gallery.coverURL, style: .hero, contentMode: .fill,
+                    maximumHeight: max(0, (maximumHeight ?? 190) - 40),
+                    onSuccess: handleCoverSuccess
+                )
+                textColumn(titleLines: compactTitleLines)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var compactContentHeight: CGFloat {
+        max(0, (maximumHeight ?? 190) - 40)
+    }
+
+    private var compactTitleLines: Int {
+        max(1, min(2, Int((compactContentHeight - ratingLineHeight - 8) / titleLineHeight)))
+    }
+
+    private var cover: some View {
+        GalleryCover(url: gallery.coverURL, style: .hero, contentMode: .fill, onSuccess: handleCoverSuccess)
+    }
+
+    /// Reserve the same preview height for every gallery at a given arrangement.
+    /// The destination provides the complete title, while rating stays in this text column.
+    private func textColumn(titleLines: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.title3.bold())
+                .lineLimit(titleLines, reservesSpace: true)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+            rating
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var rating: some View {
+        ViewThatFits(in: .horizontal) {
+            RatingView(rating: gallery.rating)
+            Label {
+                Text(gallery.rating.halfRounded, format: .number)
+            } icon: {
+                Image(systemSymbol: .starFill)
+            }
+        }
+        .font(dynamicTypeSize.isAccessibilitySize ? .caption2 : .body)
+        .foregroundStyle(.yellow)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // Color analysis is only meaningful when the gradient is visible (dark mode). The result is
@@ -197,4 +255,46 @@ private extension Gallery {
         webImageSuccessAction: { _ in }
     )
     .padding()
+}
+
+// The carousel's card width is a fraction of its container; 336 is that fraction on a 420-point
+// screen, so the two sides of the rating gate are previewed against the width they actually get.
+//
+// Title and rating stay together while their typography follows the system text size.
+#Preview("Long title, largest non-AX size", traits: .sizeThatFitsLayout) {
+    let gallery = Gallery.previewFixture(identity: 2, title: previewLongTitle, rating: 4.5)
+    GalleryCardCell(
+        gallery: gallery, currentID: gallery.gid,
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .frame(width: 336)
+    .padding()
+    .environment(\.dynamicTypeSize, .xxxLarge)
+}
+
+// Accessibility layout gives the title its own row on narrow cards.
+#Preview("Long title, accessibility size", traits: .sizeThatFitsLayout) {
+    let gallery = Gallery.previewFixture(identity: 2, title: previewLongTitle, rating: 4.5)
+    GalleryCardCell(
+        gallery: gallery, currentID: gallery.gid,
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .frame(width: 336)
+    .padding()
+    .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+// A wide accessibility card retains its horizontal cover/title arrangement.
+#Preview("Wide card, accessibility size", traits: .sizeThatFitsLayout) {
+    let gallery = Gallery.previewFixture(identity: 3, title: previewLongTitle, rating: 4.5)
+    GalleryCardCell(
+        gallery: gallery, currentID: gallery.gid,
+        colors: previewCardColors,
+        webImageSuccessAction: { _ in }
+    )
+    .frame(width: 700)
+    .padding()
+    .environment(\.dynamicTypeSize, .accessibility5)
 }

@@ -1,45 +1,67 @@
 import AppComponents
 import AppModels
 import AppTools
-import Kingfisher
 import PreviewSupport
 import SwiftUI
 
 public struct GalleryHistoryCell: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private let gallery: Gallery
 
     public init(gallery: Gallery) {
         self.gallery = gallery
     }
 
+    /// The cell accepts the history row's tallest ideal height so every card shares one top and
+    /// bottom edge without measuring or fixing the row height.
+    ///
+    /// The cover is pinned to the top for the same reason. At the default size it is exactly as
+    /// tall as the text column beside it, so the alignment cannot be seen; once the text column is
+    /// several times taller, a centred cover floats away from the title it belongs to.
     public var body: some View {
-        HStack(spacing: 20) {
-            KFImage(gallery.coverURL)
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                .defaultModifier()
-                .scaledToFill()
-                .frame(width: Defaults.ImageSize.rowW * 0.75, height: Defaults.ImageSize.rowH * 0.75)
-                .clipShape(.rect(cornerRadius: 2))
+        HStack(alignment: .top, spacing: 20) {
+            GalleryCover(url: gallery.coverURL, style: .compact)
 
             VStack(alignment: .leading) {
                 Text(gallery.trimmedTitle)
                     .bold()
-                    .lineLimit(2)
+                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Spacer()
 
                 gallery.uploader.map(Text.init)?
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(2)
 
                 RatingView(rating: gallery.rating)
                     .foregroundStyle(.primary)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .font(.caption)
         }
-        .frame(width: Defaults.ImageSize.rowW * 3, height: Defaults.ImageSize.rowH * 0.75)
+        .frame(width: cellWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
     }
+
+    /// Unlike the home carousel's card, this cell is free to get wider: it sits in a plain
+    /// horizontal strip with no paging geometry keyed to its width. Widening is the cheapest fix
+    /// available here, because it feeds both the title's characters-per-line *and* the rating row,
+    /// whose five symbols grow with the text and refuse to compress — it was the rating, not the
+    /// title, that first made the cell's content wider than its frame. The top step stops short of
+    /// a compact screen's width so the cell still reads as a card in a strip rather than a page.
+    private var cellWidth: CGFloat {
+        let base = Defaults.ImageSize.rowW * 3
+        return switch dynamicTypeSize {
+        case .xSmall, .small, .medium, .large: base
+        case .xLarge, .xxLarge, .xxxLarge: base * 7 / 6
+        case .accessibility1, .accessibility2: base * 4 / 3
+        case .accessibility3, .accessibility4, .accessibility5: base * 17 / 12
+        @unknown default: base
+        }
+    }
+
 }
 
 private let previewLongTitle =
@@ -76,4 +98,11 @@ private extension Gallery {
 
 #Preview("Min rating, short title", traits: .sizeThatFitsLayout) {
     GalleryHistoryCell(gallery: .previewFixture(identity: 1, title: "Doujin", rating: 0, uploader: nil))
+}
+
+#Preview("Long title, accessibility size", traits: .sizeThatFitsLayout) {
+    GalleryHistoryCell(
+        gallery: .previewFixture(identity: 2, title: previewLongTitle, rating: 4.5, uploader: "Anonymous")
+    )
+    .environment(\.dynamicTypeSize, .accessibility5)
 }

@@ -32,13 +32,13 @@ struct EhSettingView: View {
         .overlay {
             LoadingView()
                 .animation(.default) {
-                    $0.opacity((store.loadingState == .loading || store.submittingState == .loading) ? 1 : 0)
+                    $0.visible(store.loadingState == .loading || store.submittingState == .loading)
                 }
         }
         .overlay {
             ErrorView(error: store.loadingState.failed ?? .unknown, action: { store.send(.fetchEhSetting) })
                 .animation(.default) {
-                    $0.opacity(store.loadingState.is(\.failed) ? 1 : 0)
+                    $0.visible(store.loadingState.is(\.failed))
                 }
         }
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in

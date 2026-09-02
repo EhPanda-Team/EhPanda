@@ -11,6 +11,14 @@ import Testing
 // measures the real `proposal.width` and any adjustment is a one-constant change to `m` (D-23).
 @Suite
 struct MasonryLayoutTests {
+    @Test
+    func largeLandscapeFloorSurvivesAccessibilityScaling() {
+        let layout = MasonryLayout(minCellWidth: 590, minimumColumns: 3)
+        #expect(layout.resolvedColumnCount(for: 1170) == 3)
+        #expect(MasonryLayout(minCellWidth: 185, minimumColumns: 3).resolvedColumnCount(for: 1170) == 5)
+        #expect(MasonryLayout(minCellWidth: 590).resolvedColumnCount(for: 650) == 2)
+    }
+
     // Asserts the formula `max(2, floor((w + 15) / (185 + 15)))` at the sign-off widths (D-20).
     // 990 → 5 because floor((990 + 15) / 200) = 5; the CONTEXT "13-inch iPad portrait → 4" note is a
     // Wave-2 spike sign-off item (whether real measured 13" width yields 4 or 5, and any `m` tweak),
@@ -27,6 +35,30 @@ struct MasonryLayoutTests {
     @Test(arguments: [0, -100, CGFloat.infinity, CGFloat.nan] as [CGFloat])
     func degenerateWidthsClampToMin(width: CGFloat) {
         #expect(MasonryLayout.columnCount(for: width) == MasonryLayout.minColumns)
+    }
+
+    // Phase 16: the same rule asked under a caller's scaled minimum. A minimum the container can no
+    // longer fit as often sheds columns, and the designed floor still holds underneath it — the
+    // phone keeps the two columns it has at the designed size (D-25 parity) even though the strict
+    // rule fits only one there.
+    @Test
+    func scaledMinimumShedsColumnsUnderTheDesignedFloor() {
+        #expect(MasonryLayout.columnCount(for: 380, minCellWidth: 250) == 2)
+        #expect(MasonryLayout.columnCount(for: 794, minCellWidth: 250) == 3)
+        #expect(MasonryLayout.columnCount(for: 1170, minCellWidth: 250) == 4)
+    }
+
+    // Two columns is the floor at every text size (owner, 2026-09-03), so no scaled minimum can
+    // ever produce a single full-width cell. 590 is the designed 185 grown to AX5 (callout 51/16),
+    // which is wider than a phone's whole container and wider than half an iPad's: the strict rule
+    // fits one column or none on all three, and the floor answers with two on all three. Past that
+    // point the container sets the cell width — a 415pt phone row splits into two 200pt columns.
+    @Test
+    func floorHoldsAtTwoColumnsForAnyScaledMinimum() {
+        #expect(MasonryLayout.columnCount(for: 415, minCellWidth: 590) == 2)
+        #expect(MasonryLayout.columnCount(for: 794, minCellWidth: 590) == 2)
+        #expect(MasonryLayout.columnCount(for: 1170, minCellWidth: 590) == 2)
+        #expect(MasonryLayout.cellWidth(containerWidth: 415, columns: 2) == 200)
     }
 
     // D-21/D-28: exact `(w − 15·(N−1)) / N` with no rounding. 4 cols @ 790 → (790 − 45) / 4 = 186.25.

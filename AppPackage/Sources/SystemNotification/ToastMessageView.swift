@@ -1,9 +1,9 @@
 //
 //  The Liquid Glass capsule shown by `View.toast(_:)`. The layout adapts SystemNotificationMessage
 //  (MIT, https://github.com/danielsaidi/SystemNotification): a leading symbol, a one-line bold title
-//  over an optional one-line subtitle, and a hidden trailing symbol that mirrors the leading one so
-//  the text stays optically centered. The capsule is pure Liquid Glass with nothing behind it,
-//  layering glass over a Material would render it opaque.
+//  over an optional subtitle on a small line budget, and a hidden trailing symbol that mirrors the
+//  leading one so the text stays optically centered. The capsule is pure Liquid Glass with nothing
+//  behind it, layering glass over a Material would render it opaque.
 //
 
 import AppComponents
@@ -24,7 +24,17 @@ struct ToastContent: Equatable {
 }
 
 struct ToastMessageView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     let content: ToastContent
+
+    /// The subtitle is the sentence that says *why* — why a link is unsupported, what a request
+    /// refused — and one line deletes it as soon as the text grows. Above the default size it gets
+    /// three: the capsule simply grows downward, which costs nothing but the silhouette. At and
+    /// below the default size the designed single line is kept verbatim.
+    private var subtitleLineLimit: Int {
+        dynamicTypeSize <= .large ? 1 : 3
+    }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -54,9 +64,10 @@ struct ToastMessageView: View {
         }
     }
 
-    // One line each, so the capsule is always exactly one or two lines tall. Anything longer is
-    // truncated rather than allowed to grow the capsule: the unabridged text lives on the detail
-    // surface the toast taps through to, and VoiceOver still reads the full string.
+    // The title stays one line, so the capsule keeps its designed silhouette; the subtitle keeps a
+    // budget rather than free rein (see `subtitleLineLimit`). Anything past the budget is still
+    // truncated rather than allowed to grow the capsule without bound: the unabridged text lives on
+    // the detail surface the toast taps through to, and VoiceOver still reads the full string.
     private var text: some View {
         VStack(spacing: 2) {
             Text(content.title)
@@ -67,7 +78,7 @@ struct ToastMessageView: View {
                 Text(subtitle)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(subtitleLineLimit)
             }
         }
     }

@@ -27,7 +27,7 @@ struct EhProfileSection: View {
                         .tag(ehProfile)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
 
             if !ehProfile.isDefault {
                 Button(.setAsDefault) {
@@ -84,7 +84,7 @@ struct ImageLoadSettingsSection: View {
                         .tag(setting)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(.imageLoadSettings)
         } footer: {
@@ -98,7 +98,7 @@ struct ImageLoadSettingsSection: View {
                         .tag(region)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             if let country = ehSetting.literalDetectedCountry, let region = ehSetting.literalHahRegion {
                 Text(
@@ -125,7 +125,7 @@ struct ImageSizeSettingsSection: View {
                         .tag(setting)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(
                 .imageSizeSettings,
@@ -176,7 +176,7 @@ struct GalleryNameDisplaySection: View {
                         .tag(name)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(
                 .galleryNameDisplay,
@@ -198,7 +198,7 @@ struct ArchiverSettingsSection: View {
                         .tag(behavior)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text.ehSettingBoldHeader(
                 .archiverSettings,
@@ -233,7 +233,7 @@ struct FrontPageSettingsSection: View {
                         .tag(mode)
                 }
             }
-            .pickerStyle(.menu)
+            .ehSettingPickerStyled()
         } header: {
             Text(.displayModeDescription)
                 .ehSettingRegularHeaderStyled()
@@ -258,6 +258,8 @@ struct ValuePicker: View {
     private let range: ClosedRange<Float>
     private let unit: String
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     init(title: LocalizedStringResource, value: Binding<Float>, range: ClosedRange<Float>, unit: String = "") {
         self.title = title
         _value = value
@@ -271,24 +273,108 @@ struct ValuePicker: View {
                 .foregroundStyle(.tint)
         }
 
-        Slider(
-            value: $value,
-            in: range,
-            label: EmptyView.init,
-            minimumValueLabel: {
-                Text(String(Int(range.lowerBound)) + unit)
-                    .fontWeight(.medium)
-                    .font(.callout)
-            },
-            maximumValueLabel: {
-                Text(String(Int(range.upperBound)) + unit)
-                    .fontWeight(.medium)
-                    .font(.callout)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack {
+                rangeLabel(range.lowerBound)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Slider(value: $value, in: range)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel(title)
+
+                rangeLabel(range.upperBound)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
-        )
+        } else {
+            Slider(
+                value: $value,
+                in: range,
+                label: EmptyView.init,
+                minimumValueLabel: {
+                    rangeLabel(range.lowerBound)
+                },
+                maximumValueLabel: {
+                    rangeLabel(range.upperBound)
+                }
+            )
+            .accessibilityLabel(title)
+        }
+    }
+
+    private func rangeLabel(_ value: Float) -> some View {
+        Text(String(Int(value)) + unit)
+            .fontWeight(.medium)
+            .font(.callout)
     }
 }
 
+}
+
+#Preview("Value picker, default size", traits: .fixedLayout(width: 393, height: 852)) {
+    @Previewable @State var value: Float = 0
+
+    Form {
+        EhSettingView.ValuePicker(
+            title: .horizontal,
+            value: $value,
+            range: 0...65535,
+            unit: "px"
+        )
+    }
+    .environment(\.dynamicTypeSize, .large)
+}
+
+#Preview("Value picker, AX5", traits: .fixedLayout(width: 393, height: 852)) {
+    @Previewable @State var value: Float = 0
+
+    Form {
+        EhSettingView.ValuePicker(
+            title: .horizontal,
+            value: $value,
+            range: 0...65535,
+            unit: "px"
+        )
+    }
+    .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// The Dynamic Type policy for this screen's menu pickers.
+///
+/// Every value on this page is server-authored prose — "Manual Select, Manual Start (Default)",
+/// "Align left, scale if overwidth" — and a `.menu` picker measures its current value as a single
+/// line while *wrapping* it once the text reaches accessibility sizes. The row is therefore laid
+/// out one line tall while three are drawn, and the value spills across the row's separators, its
+/// own section's rounded edges and the neighbouring rows (Phase 16 finding #28). Nothing at the
+/// call site can correct that measurement: the value label belongs to the picker, not to us.
+///
+/// So above the default size the very same native `Picker` renders `.inline` instead, which gives
+/// every option a full-width row of its own that wraps freely and leaves the system drawing the
+/// selection. At and below `.large` the designed menu row is used verbatim, so the screen's default
+/// appearance is unchanged (D-15). Applying this by policy rather than per row matters because the
+/// values arrive from the server and any of them can be long in any locale.
+///
+/// Both halves were reproduced on device at AX5 with a `.menu` picker whose value wrapped to two
+/// lines: the row clipped its title against the section's top edge and its value against the
+/// separator below, and the identical picker at `.inline` laid the label and all three options out
+/// as full-height wrapping rows with the selected one ticked.
+struct EhSettingPickerStyle: ViewModifier {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if dynamicTypeSize <= .large {
+            content.pickerStyle(.menu)
+        } else {
+            content.pickerStyle(.inline)
+        }
+    }
+}
+
+extension View {
+    /// Applies this screen's Dynamic Type-aware picker style. See ``EhSettingPickerStyle``.
+    func ehSettingPickerStyled() -> some View {
+        modifier(EhSettingPickerStyle())
+    }
 }
 
 extension Text {

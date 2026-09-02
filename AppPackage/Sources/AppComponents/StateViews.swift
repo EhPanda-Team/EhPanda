@@ -38,12 +38,12 @@ public struct FetchMoreFooter: View {
                 .imageScale(.large)
         }
         .animation(.default) {
-            $0.opacity(loadingState.is(\.failed) ? 1 : 0)
+            $0.visible(loadingState.is(\.failed))
         }
         .overlay {
             ProgressView()
                 .animation(.default) {
-                    $0.opacity(loadingState == .loading ? 1 : 0)
+                    $0.visible(loadingState == .loading)
                 }
         }
         .frame(maxWidth: .infinity, minHeight: 50)
