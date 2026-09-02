@@ -122,7 +122,7 @@ struct CommentsView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
                 store.send(.presentPostComment(commentID: ""))
             } label: {
@@ -147,23 +147,7 @@ extension CommentsView {
 
         var body: some View {
             VStack(alignment: .leading) {
-                HStack {
-                    Text(comment.author)
-                        .font(.subheadline.bold())
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Group {
-                        Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
-                            .opacity(comment.votedUp || comment.votedDown ? 1 : 0)
-
-                        comment.score.map(Text.init)
-                        Text(comment.formattedDateString)
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                }
-                .minimumScaleFactor(0.75)
-                .lineLimit(1)
+                authorAndMetadata
 
                 ForEach(comment.contents) { content in
                     switch content.type {
@@ -191,6 +175,60 @@ extension CommentsView {
                 .fixedSize(horizontal: false, vertical: true)
             }
             .padding()
+        }
+
+        /// The author and the vote/date group share the row for as long as both fit it whole, and
+        /// take a line each once they do not — which is what stops the timestamp losing its minutes
+        /// and then the author its characters, and what lets the banned 0.75 shrink go without the
+        /// name going with it. The comment body beneath already wraps freely, so the header row was
+        /// the one part of this cell that answered growing text by removing content.
+        ///
+        /// The candidates are written out rather than shared through `AdaptiveStack`, because the
+        /// spacer that holds the pair apart and the `.lineLimit(1)` that keeps it to one line must
+        /// belong to the horizontal candidate alone: in shared content the spacer would become a
+        /// vertical expander once the pair stacks, and the line limit would clamp the stacked
+        /// author to the very ellipsis the stacking exists to avoid.
+        ///
+        /// That spacer replaces the `.frame(maxWidth: .infinity, alignment: .leading)` the author
+        /// used to carry, for two reasons. A flexible frame inside a candidate absorbs the
+        /// overflow, so every candidate measures as fitting and the fallback can never win. And it
+        /// is greedy: it claims the row's slack for the author's own frame and leaves the metadata
+        /// beside it short, which is how a date starts ellipsising at the default size the moment
+        /// the shrink that had been papering over it is removed. `minLength: 0` keeps the spacer
+        /// from claiming width of its own, so the pair renders exactly where it does today.
+        private var authorAndMetadata: some View {
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    authorText
+
+                    Spacer(minLength: 0)
+
+                    metadata
+                }
+                .lineLimit(1)
+
+                VStack(alignment: .leading) {
+                    authorText
+                    metadata
+                }
+            }
+        }
+
+        private var authorText: some View {
+            Text(comment.author)
+                .font(.subheadline.bold())
+        }
+
+        private var metadata: some View {
+            HStack {
+                Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
+                    .visible(comment.votedUp || comment.votedDown)
+
+                comment.score.map(Text.init)
+                Text(comment.formattedDateString)
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
         }
 
         @ViewBuilder private func generateWebImages(
@@ -254,7 +292,7 @@ private extension KFImage {
     }
 }
 
-#Preview("Initial") {
+@MainActor private func previewCommentsView() -> some View {
     NavigationStack {
         CommentsView(
             store: .init(initialState: .init(galleryURL: .mock), reducer: CommentsReducer.init),
@@ -271,11 +309,20 @@ private extension KFImage {
                 ),
                 .init(
                     votedUp: true, votedDown: false, votable: true, editable: true,
-                    score: "+42", author: "Chihchy",
+                    score: "+42", author: "BaronArgyleSven",
                     contents: [.init(type: .plainText, text: "Agreed. The later pages look excellent.")],
                     commentID: "1", commentDate: .now
                 )
             ]
         )
     }
+}
+
+#Preview("Initial") {
+    previewCommentsView()
+}
+
+#Preview("Accessibility size") {
+    previewCommentsView()
+        .environment(\.dynamicTypeSize, .accessibility5)
 }

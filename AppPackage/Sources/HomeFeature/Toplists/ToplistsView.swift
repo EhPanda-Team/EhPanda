@@ -30,23 +30,34 @@ struct ToplistsView: View {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
+        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
         .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
         .toolbar(content: toolbar)
         .navigationTitle(navigationTitle)
+        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: store.alert != nil) {
-            ToplistsTypeMenu(type: store.type) { type in
-                if type != store.type {
-                    store.send(.setToplistsType(type))
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Menu {
+                Picker(selection: $store.type.sending(\.setToplistsType)) {
+                    ForEach(ToplistsType.allCases) { type in
+                        Text(type.value).tag(type)
+                    }
+                } label: {
+                    Text(.toplistsType)
                 }
+                .pickerStyle(.inline)
+            } label: {
+                Label(.toplistsType, systemSymbol: .dialLow)
+                    .symbolRenderingMode(.hierarchical)
             }
+            .disabled(store.alert != nil)
             if store.setting.galleryHost == .ehentai {
                 JumpPageButton(pageNumber: store.pageNumber ?? .init()) {
                     store.send(.presentJumpPageAlert)
                 }
+                .disabled(store.alert != nil)
             }
         }
     }

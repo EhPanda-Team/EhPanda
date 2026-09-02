@@ -1,6 +1,6 @@
 import Resources
 
-public enum DownloadFolderFilter: Equatable, Sendable {
+public enum DownloadFolderFilter: Hashable, Sendable {
     case all
     case folder(String)
 

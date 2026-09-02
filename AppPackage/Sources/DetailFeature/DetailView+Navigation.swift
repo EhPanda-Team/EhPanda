@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: ToolBar
 extension DetailView {
     func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             ToolbarFeaturesMenu {
                 Button {
                     store.send(.archivesButtonTapped)

@@ -46,13 +46,14 @@ struct FrontpageView: View {
             )
             .privacyMask()
         }
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
+        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.frontpage)
+        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
             }

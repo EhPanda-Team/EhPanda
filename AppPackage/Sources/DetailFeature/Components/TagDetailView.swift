@@ -60,33 +60,29 @@ private struct ImagesSection: View {
 
     var body: some View {
         SubSection(title: .images, showAll: false) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(imageURLs, id: \.self) { imageURL in
-                        KFImage(imageURL)
-                            .placeholder {
-                                Placeholder(style: .activity(
-                                    ratio: Defaults.ImageSize.previewAspect
-                                ))
-                            }
-                            .defaultModifier()
-                            .scaledToFit()
-                            .frame(width: width, height: height)
-                    }
-                    .withHorizontalSpacing(height: height)
-                }
-            }
-            .animation(.default) {
-                $0.opacity(imageURLs.isEmpty ? 0 : 1)
-            }
-            .overlay {
+            if imageURLs.isEmpty {
                 ErrorView(error: .notFound)
                     .padding()
-                    .animation(.default) {
-                        $0.opacity(imageURLs.isEmpty ? 1 : 0)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack {
+                        ForEach(imageURLs, id: \.self) { imageURL in
+                            KFImage(imageURL)
+                                .placeholder {
+                                    Placeholder(style: .activity(
+                                        ratio: Defaults.ImageSize.previewAspect
+                                    ))
+                                }
+                                .defaultModifier()
+                                .scaledToFit()
+                                .frame(width: width, height: height)
+                        }
+                        .withHorizontalSpacing(height: height)
                     }
+                }
             }
         }
+        .animation(.default, value: imageURLs)
     }
 }
 
@@ -99,33 +95,30 @@ private struct LinksSection: View {
 
     var body: some View {
         SubSection(title: .links, showAll: false) {
-            VStack(alignment: .leading) {
-                ForEach(links, id: \.self) { url in
-                    Button {
-                        UIApplication.shared.open(url, options: [:])
-                    } label: {
-                        Text(url.absoluteString)
-                            .multilineTextAlignment(.leading)
-                            .font(.callout.bold())
-                            .tint(.secondary)
-                    }
-                }
-            }
-            .padding(.vertical)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .animation(.default) {
-                $0.opacity(links.isEmpty ? 0 : 1)
-            }
-            .overlay {
+            if links.isEmpty {
                 ErrorView(error: .notFound)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .animation(.default) {
-                        $0.opacity(links.isEmpty ? 1 : 0)
+                    .padding(.horizontal)
+            } else {
+                VStack(alignment: .leading) {
+                    ForEach(links, id: \.self) { url in
+                        Button {
+                            UIApplication.shared.open(url, options: [:])
+                        } label: {
+                            Text(url.absoluteString)
+                                .multilineTextAlignment(.leading)
+                                .font(.callout.bold())
+                                .tint(.secondary)
+                        }
                     }
+                }
+                .padding(.vertical)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
+        .animation(.default, value: links)
     }
 }
 

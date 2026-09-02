@@ -7,6 +7,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GeneralSettingView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable private var store: StoreOf<GeneralSettingReducer>
     @Shared(.setting) private var setting: Setting
     // `tagTranslator` is the in-memory shared table, so its derived flags are read here directly rather
@@ -30,14 +31,27 @@ struct GeneralSettingView: View {
     var body: some View {
         Form {
             Section {
-                HStack {
-                    Text(.RLocalizable.language)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack {
+                        Text(.RLocalizable.language)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Button(language) {
-                        store.send(.navigateToSystemSetting)
+                        Button(language) {
+                            store.send(.navigateToSystemSetting)
+                        }
+                        .foregroundStyle(.tint)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    .foregroundStyle(.tint)
+                } else {
+                    HStack {
+                        Text(.RLocalizable.language)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button(language) {
+                            store.send(.navigateToSystemSetting)
+                        }
+                        .foregroundStyle(.tint)
+                    }
                 }
                 Button(.appActivityLogs) {
                     store.send(.delegate(.pushAppActivityLogs))
@@ -52,15 +66,15 @@ struct GeneralSettingView: View {
                     Image(systemSymbol: .exclamationmarkTriangleFill)
                         .foregroundStyle(.yellow)
                         .animation(.default) {
-                            $0.opacity(
+                            $0.visible(
                                 setting.translateTags && tagTranslatorEmpty
-                                && tagTranslatorLoadingState != .loading ? 1 : 0
+                                && tagTranslatorLoadingState != .loading
                             )
                         }
                         .overlay {
                             ProgressView()
                                 .animation(.default) {
-                                    $0.opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
+                                    $0.visible(tagTranslatorLoadingState == .loading)
                                 }
                         }
 

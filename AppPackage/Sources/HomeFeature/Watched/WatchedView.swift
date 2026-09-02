@@ -34,12 +34,12 @@ struct WatchedView: View {
             downloadBadges: store.downloadBadges
         )
         .animation(.default) {
-            $0.opacity(didLogin ? 1 : 0)
+            $0.visible(didLogin)
         }
         .overlay {
             NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 .animation(.default) {
-                    $0.opacity(didLogin ? 0 : 1)
+                    $0.visible(!didLogin)
                 }
         }
         .sheet(
@@ -68,7 +68,7 @@ struct WatchedView: View {
             )
             .privacyMask()
         }
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer)
+        .accessibilitySearchableWorkaround(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
@@ -80,10 +80,11 @@ struct WatchedView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(.watched)
+        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             ToolbarFeaturesMenu {
                 DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                     store.send(.dateSeekButtonTapped(navigation))

@@ -3,7 +3,6 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import CookieClient
-import Kingfisher
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -12,6 +11,7 @@ import SwiftUI
 
 // MARK: HeaderSection
 struct HeaderSection: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @SharedReader(.didLogin) private var didLogin: Bool
     @SharedReader(.user) var user: User
     @SharedReader(.setting) private var setting: Setting
@@ -35,12 +35,20 @@ struct HeaderSection: View {
     let navigateReadingAction: () -> Void
     let navigateUploaderAction: () -> Void
 
-    private let actionIconButtonSize: CGFloat = 32
+    // 32pt at default (.large); scales on the same metric as the symbol it holds, so the glass
+    // circle grows exactly as fast as the glyph inside it. A fixed size here let the symbol outgrow
+    // its own background and spill outside the circle at accessibility sizes.
+    @ScaledMetric(relativeTo: .callout) private var actionIconButtonSize: CGFloat = 32
     // 16pt at default (.large); scales with Dynamic Type relative to the nearest text style (.callout, 16pt).
     @ScaledMetric(relativeTo: .callout) private var actionIconFontSize: CGFloat = 16
     private var actionIconFont: Font { .system(size: actionIconFontSize, weight: .semibold) }
     // 10pt at default (.large); scales with Dynamic Type relative to the nearest text style (.caption2, 11pt).
     @ScaledMetric(relativeTo: .caption2) private var progressCenterSymbolSize: CGFloat = 10
+    // 2.5pt / 3pt at default (.large). The ring is drawn inside the download button, so it scales on
+    // the button's own metric: held at their literal values a 2.5pt stroke inset by 3pt reads as a
+    // hairline hugging the rim once the button is three times wider.
+    @ScaledMetric(relativeTo: .callout) private var progressRingLineWidth: CGFloat = 2.5
+    @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 3
 
     private var title: String {
         let normalTitle = galleryDetail.title
@@ -64,13 +72,24 @@ struct HeaderSection: View {
         return badge.progress.completedPageCount > 0
             && badge.progress.completedPageCount < badge.progress.pageCount
     }
+    /// The badge carries no line cap of its own: `CategoryLabel` keeps the designed single line at
+    /// and below the default size and lets a name wrap inside the badge above it, and this site
+    /// follows that one policy rather than overriding it. The vocabulary is eleven fixed names, so
+    /// a wrapped badge is at most two short lines, and here the cap would never have engaged anyway
+    /// (see below).
+    ///
+    /// The 0.72 shrink-to-fit factor that used to accompany that cap is gone (D-14). A shrink can
+    /// only engage where the badge is offered less width than it asked for, and at the default size
+    /// it never is: the horizontal candidate of ``bottomActionRow`` is picked only when every
+    /// member's *ideal* width already fits, and the vertical candidate hands the badge the whole
+    /// text column, several times wider than the longest category name drawn at `.headline`. Above
+    /// the default size the row grows instead — shrinking text the reader deliberately enlarged is
+    /// the answer this phase removes everywhere, not the one to keep at its last site.
     private var categoryLabel: some View {
         CategoryLabel(
-            text: gallery.category.value, color: gallery.color(host: setting.galleryHost), font: .headline,
+            text: gallery.category.value, color: gallery.color(host: setting.galleryHost), textStyle: .headline,
             insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4), cornerRadius: 3
         )
-        .lineLimit(1)
-        .minimumScaleFactor(0.72)
     }
     private var downloadButton: some View {
         Group {
@@ -170,7 +189,7 @@ struct HeaderSection: View {
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
         .animation(.default) {
-            $0.opacity(galleryDetail.isFavorited ? 0 : 1)
+            $0.visible(!galleryDetail.isFavorited)
         }
         .overlay {
             Button(action: unfavorAction) {
@@ -180,7 +199,7 @@ struct HeaderSection: View {
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
             .animation(.default) {
-                $0.opacity(galleryDetail.isFavorited ? 1 : 0)
+                $0.visible(galleryDetail.isFavorited)
             }
         }
         .buttonStyle(.glass(.regular.interactive()))
@@ -203,17 +222,17 @@ struct HeaderSection: View {
         progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
     ) -> some View {
         Circle()
-            .stroke(downloadButtonTint.opacity(0.18), lineWidth: 2.5)
+            .stroke(downloadButtonTint.opacity(0.18), lineWidth: progressRingLineWidth)
             .overlay {
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(downloadButtonTint, style: .init(lineWidth: 2.5, lineCap: .round))
+                    .stroke(downloadButtonTint, style: .init(lineWidth: progressRingLineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.default, value: progress)
             }
-            .padding(3)
+            .padding(progressRingInset)
             .animation(.default) {
-                $0.opacity(isDeterminate ? 1 : 0)
+                $0.visible(isDeterminate)
             }
             .overlay {
                 ProgressView()
@@ -221,7 +240,7 @@ struct HeaderSection: View {
                     .tint(downloadButtonTint)
                     .controlSize(.small)
                     .animation(.default) {
-                        $0.opacity(isDeterminate ? 0 : 1)
+                        $0.visible(!isDeterminate)
                     }
             }
             .overlay {
@@ -289,6 +308,29 @@ struct HeaderSection: View {
         default: return downloadIconSymbol
         }
     }
+    /// Three lines at every size until the reader expands the title, then none — the designed
+    /// behaviour, restored (owner decision, 2026-09-03).
+    ///
+    /// This site was briefly uncapped above the default size, on the reading that a title losing
+    /// its tail as the text grows is information taken away. It is not, here: the cap comes with a
+    /// remedy in the same place, since the title *is* the button that expands it, at every size.
+    /// What the uncapped title cost instead was the rest of the header — a long one filled the
+    /// screen on its own and pushed the uploader, the category and the three actions off it — and
+    /// nothing was gained, because the expansion the reader could already ask for had nothing left
+    /// to reveal. Same budget at the default size as ever, so parity is untouched; the folding is a
+    /// deliberate design, not a truncation this phase should remove (see the thumbnail cell's own
+    /// budget under D-01's round-II directions for the parallel case).
+    private var titleLineLimit: Int? {
+        showFullTitle ? nil : 3
+    }
+
+    /// The uploader is a user-authored name occupying a line of its own, so above the default size
+    /// it wraps onto a second line rather than ellipsising; at and below it the designed single line
+    /// is kept.
+    private var uploaderLineLimit: Int? {
+        dynamicTypeSize <= .large ? 1 : nil
+    }
+
     private var downloadIconSymbol: SFSymbol {
         switch downloadBadge?.status {
         case .completed: return .trash
@@ -302,34 +344,62 @@ struct HeaderSection: View {
         }
     }
 
-    var body: some View {
-        HStack {
-            KFImage(gallery.coverURL)
-                .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) })
-                .defaultModifier()
-                .scaledToFit()
-                .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
+    @GalleryCoverMetrics(.hero) private var coverSize
 
-            VStack(alignment: .leading) {
-                Button(action: showFullTitleAction) {
-                    Text(title)
-                        .font(.title3.bold())
-                        .multilineTextAlignment(.leading)
-                        .tint(.primary)
-                        .lineLimit(showFullTitle ? nil : 3)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+    private var cover: some View {
+        GalleryCover(url: gallery.coverURL, style: .hero)
+    }
 
-                Button(gallery.uploader ?? "", action: navigateUploaderAction)
-                    .lineLimit(1)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .frame(maxHeight: .infinity, alignment: .top)
-
-                bottomActionRow
+    private var textColumn: some View {
+        VStack(alignment: .leading) {
+            Button(action: showFullTitleAction) {
+                Text(title)
+                    .font(.title3.bold())
+                    .multilineTextAlignment(.leading)
+                    .tint(.primary)
+                    .lineLimit(titleLineLimit)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal, 10)
-            .frame(minHeight: Defaults.ImageSize.headerH)
+
+            Button(gallery.uploader ?? "", action: navigateUploaderAction)
+                .lineLimit(uploaderLineLimit)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .frame(maxHeight: .infinity, alignment: .top)
+
+            bottomActionRow
+        }
+    }
+
+    /// The cover is a fixed-width block, so beside it the title is drawn in whatever is left of the
+    /// header — and at an accessibility size that remainder is a column a few glyphs wide, in which
+    /// a `.title3` title spends a dozen lines saying what it could say in three. The two stop
+    /// competing for the same width by not sharing a line: stacked, the title is offered the whole
+    /// header and the cover keeps its designed size above it.
+    ///
+    /// The gap between them is 12: the cover is a large block of colour, so it needs more air than
+    /// the default spacing SwiftUI gives the text rows inside the column beneath it.
+    ///
+    /// The stacked column takes no horizontal padding of its own. The 10pt the row applies is there
+    /// to hold the column off the cover it sits beside; stacked there is nothing beside it, and any
+    /// inset would indent the text relative to the cover above it and every section below it, all
+    /// of which sit flush against the detail page's own margins. Below the accessibility sizes the
+    /// designed row is rendered verbatim — same padding, same `minHeight`, which keeps the header
+    /// at least as tall as the cover so the section below it never rides up beside it.
+    @ViewBuilder var body: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 12) {
+                cover
+                textColumn
+            }
+        } else {
+            HStack(alignment: .top) {
+                cover
+
+                textColumn
+                    .padding(.horizontal, 10)
+                    .frame(minHeight: coverSize.height)
+            }
         }
     }
 }
@@ -426,6 +496,15 @@ extension HeaderSection {
                 progress: .init(completedPageCount: 47, pageCount: 114)
             )
         )
+    }
+}
+
+#Preview("Accessibility size") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection()
+            .environment(\.dynamicTypeSize, .accessibility5)
     }
 }
 

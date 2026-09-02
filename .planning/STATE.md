@@ -1,20 +1,21 @@
 ---
 gsd_state_version: 1.0
 milestone: v3.0.0
-milestone_name: milestone
+milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-09-PLAN.md
-last_updated: "2026-08-24T10:56:58.537Z"
-last_activity: 2026-08-24
-last_activity_desc: "Phase 16 plan 09 complete: all 90 Group C iPad cells recorded; the full round-1 Matrix and D-04 checklist have zero pending rows; simulator baselines preserved."
+stopped_at: Reconciled 16-10 and 16-11; awaiting round-1 owner dispositions
+last_updated: "2026-09-08T10:16:10.107199+00:00"
+last_activity: 2026-09-08
+last_activity_desc: "Reconciled existing Phase 16 report and fixes into halted summaries; owner review remains open."
+state_head: 0cef6d22ab4321d67e9a7ae74743c42c6c186cdf
 progress:
   total_phases: 17
-  completed_phases: 13
+  completed_phases: 11
   total_plans: 274
   completed_plans: 256
-  percent: 76
+  percent: 65
 ---
 
 # Project State
@@ -29,10 +30,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 10 of 26
-Status: Ready to execute
-Last activity: 2026-08-24 — Phase 16 plan 09 complete: all 90 Group C iPad cells recorded; the full round-1 Matrix and D-04 checklist have zero pending rows; simulator baselines preserved.
-Next: run /gsd-execute-phase 16. Plans 16-01…16-09 are complete. Next wave = 16-10 (round-1 findings report and owner-fixes checkpoint); report all 33 findings together with the explicit blocked/N/A rows and the D-04 spinner block.
+Plan: 16-10 / 16-11 — existing report and fix-batch history reconciled; both summaries halted at owner review
+Status: Awaiting the remaining round-1 dispositions and final review, not new implementation dispatch
+Last activity: 2026-09-08 — Owner authorized reconciliation; recorded reachable report (`7afc084a`) and integrated implementation/verification (`5614f486`) without re-executing prior work.
+
+Resume from `.planning/phases/16-dynamic-type-accessibility/16-RECONCILIATION.md`. Five historically open findings need disposition or re-verification (#11, #23, #26, #28, #35). Owner accepted #4 as an Apple defect with no app fix, #7 title presentation as-is, and #31 toast truncation; #37 already records acceptance as a system defect. Do not request these acceptances again. All five D-13 disposition cells remain blank. The 397 pass / 95 finding / 12 n/a matrix is historical and contains references superseded by later batch records. The latest cover revision also leaves owner review pending.
+
+D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. The final owner review is not superseded. No `minimumScaleFactor` remains in current source. Do not advance to 16-12 until the remaining dispositions, evidence consistency check and `ROUND1-CLEAR` are complete. Do not push without the owner.
 
 Progress: [█████████░] 93% (14/17 phases)
 
@@ -838,6 +842,14 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-09: Honor IPAD_LOGIN=none as a hard reachability boundary for EhSetting; no credentials and no inferred iPad verdict.
 - [Phase 16]: 16-09: Block the unseen 20-point download-spinner D-04 site because no active transfer existed and user-owned downloads must not be altered solely for evidence.
 - [Phase 16]: 16-09: Preserve the empty Quick Search state; an unsaved editor was sufficient to judge the iPad layout without persisted test data.
+- [Phase 16]: D-01 amendment 2 (owner, chat): executor agents implement round-1 reflow fixes in root-cause batches A-F + standalones; owner reviews before/after comparison images per batch; 16-11 protocol unchanged with 'owner batch' = 'fix batch'
+- [Phase 16]: Owner reflow quality bar: HStack→VStack fallbacks need deliberate vertical spacing + horizontal padding, not just fitting; A–E get a polish pass after round-I review
+- [Phase 16]: Round-I review directions (owner, chat, 2026-09-03): hero card ≤ 50 % of container height, cover+title stay horizontal, only rating drops, title truncates inside the budget; Archives footer scrolls with content when short; Torrents counters wrap, never ellipsise; wrapped titles/keywords leading-aligned; list-row badge radius and cover scale with the text (no fixed points); Detail cover stacks above title at AX, namespace chip above its children; log chip on its own line when the row is short; batch-2 composites pair identical page states only
+- [Phase 16]: Round-II review directions (owner, chat, 2026-09-03): thumbnail grid floor = 2 columns; Filters category cell radius scales with text; Filters evidence must show the whole sheet; reader upper panel one line with an owner-authorised Dynamic Type cap (lint exception at that site), lower-panel page numbers one line; Detail action buttons grow with their symbols; Detail stats strip keeps its horizontal ScrollView, a column ≤ 90 % width
+- [Phase 16]: Thumbnail cell title = 5 lines at every size (owner, chat, 2026-09-03) — supersedes D-15 for that property (default size goes 3→5) because the designed cap never met a half-width column at an accessibility size; a repaired design, not a D-04 exemption; the tail is reached by opening the gallery
+- [Phase 16]: Detail title = 3 lines at every size until expanded (owner, chat, 2026-09-03) — round-I's uncapped-above-.large policy withdrawn; the cap's remedy is in place (title is its own expand button), default-size parity untouched
+- [Phase 16]: A sheet-presented screen uses a plain large title, never .inlineLarge (owner, chat, 2026-09-03) — SettingView is the only such site and the only one changed; the four tab roots keep .inlineLarge; applied via navigationTitleDisplayMode so the AX-size inline fallback (finding #7) still holds
+- [Phase 16]: List gallery cell keeps cover+title on one line when the row is wide (owner, chat, 2026-09-04) — the AX-size cover-above-text stack is gated on measured row width (<550pt), so landscape phones and iPad (both orientations) stay side-by-side; portrait phones still stack
 
 ### Pending Todos
 
@@ -862,12 +874,14 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 20260908-slideshow-viewport-cap | Revised small 70%/80%, large 50%/40%; title/rating VStack, top-aligned Toplists, large landscape three-column floor; 30 new captures across five six-configuration views; owner review pending | 2026-09-08 | 55c840b4 | [20260908-slideshow-viewport-cap](./quick/20260908-slideshow-viewport-cap/REVISION.md) |
 | 260818-ek3 | Fix G-15-2D/2E: intra-page progress + session heartbeat, and the activity-logs pump duplication race | 2026-08-18 | abb61ac2 | [260818-ek3-fix-g-15-2d-2e-intra-page-progress-sessi](./quick/260818-ek3-fix-g-15-2d-2e-intra-page-progress-sessi/) |
 | 260818-mjs | Fix G-15-2F/2H: freeze the gallery folder leaf across runs (no repair rename), and overlay a live run's credited page set on the published row so the Download Status sheet reads the run, not the stale record (D-SSOT-10) | 2026-08-18 | 764c5958 | [260818-mjs-fix-g-15-2f-and-g-15-2h](./quick/260818-mjs-fix-g-15-2f-and-g-15-2h/) |
 | 260819-12o | Never delete a user's download folder: retire the completion sweep's cross-folder deletion and the repair-seed materialization (G-15-2H, guard the invariant only; no rename resolution) | 2026-08-19 | b208fa25 | [260819-12o-never-delete-a-user-s-download-folder-re](./quick/260819-12o-never-delete-a-user-s-download-folder-re/) |
 | 260819-lq3 | Fix G-15-2I: abandon and retry a page transfer that goes 60 s without bytes (2a2c5982), and give the continued-processing card a bounded stall nudge — one sub-unit per stalled heartbeat, cap 30, no second work condition (d6079878); device verification pending | 2026-08-19 | d6079878 | [260819-lq3-fix-g-15-2i-stall-abandon-and-card-nudge](./quick/260819-lq3-fix-g-15-2i-stall-abandon-and-card-nudge/) |
 | 260819-n3y | Close DEF-15-05/06/08/09/11: the downloads list reports a refused Pause/Resume through a toast sharing the inspector's mapping (668c57be); `fetchDownloads`/`fetchFolders` made non-throwing at the interface, four `try` sites and the unreachable `.failed` list branch removed (ace21ed5); `EHPANDA_UITEST_FORCE_PAUSE_REFUSAL` seam forces either refusal arm on both surfaces (a87bbc10); the two convergence detectors fenced by a sentinel instead of a wall clock (f704ece5); the row dialog pinned against reorder and leave-then-return ticks (9c8145a1); doc-comment polish (0e9803e1) | 2026-08-19 | 0e9803e1 | [260819-n3y-fix-def-15-05-06-08-09-11-toast-fence](./quick/260819-n3y-fix-def-15-05-06-08-09-11-toast-fence/) |
 | 260819-ovp | Close DEF-15-04/10: the pad UI test reads the idiom in the main-actor test method via `guard`/`throw XCTSkip` (the `setUpWithError` override is nonisolated, so the class `@MainActor` never reached it) — UITests build-for-testing 4 → 0 warning lines (97347f5d); all 43 `ResourceStringSymbols` accessors forward to Xcode's generated catalog symbols with signatures and `count:`/`page:` labels unchanged, no key literal, `table:`, `defaultValue:`, bundle description or `#bundle` left, a renamed key now a compile error at its forwarder (observed, reverted) (15cf9273); 1020 tests, 0 failures, unchanged | 2026-08-19 | 15cf9273 | [260819-ovp-close-def-15-04-10-idiom-skip-forwarders](./quick/260819-ovp-close-def-15-04-10-idiom-skip-forwarders/) |
+| 260907-n39 | Unify cover roles with bounded Dynamic Type scaling and stable carousel layout; build, regression and simulator checks passed | 2026-09-07 | 0cef6d22 | [260907-n39-unify-cover-sizing-with-bounded-dynamic-](./quick/260907-n39-unify-cover-sizing-with-bounded-dynamic-/) |
 
 ### Roadmap Evolution
 
@@ -899,6 +913,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-08-24T10:56:58.527Z
-Stopped at: Completed 16-09-PLAN.md
-Resume file: None
+Last session: 2026-09-08
+Stopped at: Existing 16-10/16-11 work reconciled into halted summaries; awaiting remaining owner dispositions
+Resume file: .planning/phases/16-dynamic-type-accessibility/16-RECONCILIATION.md

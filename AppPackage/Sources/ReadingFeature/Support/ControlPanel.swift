@@ -1,98 +1,30 @@
 import AppComponents
 import AppModels
 import AppTools
-import Dependencies
-import DeviceClient
 import Resources
 import SFSafeSymbols
 import SwiftUI
 
-// MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {
-    @Dependency(\.deviceClient) private var deviceClient
-    @Binding private var showsPanel: Bool
-    @Binding private var showsSliderPreview: Bool
-    @Binding private var sliderValue: Float
-    @Binding private var setting: Setting
-    @Binding private var enablesLiveText: Bool
-    @Binding private var autoPlayPolicy: AutoPlayPolicy
-    @State private var upperPanelWindowInsets = EdgeInsets()
-
-    private let range: ClosedRange<Float>
-    private let previewURLs: [Int: URL]
-    private let containerSize: CGSize
-    private let dismissGesture: G
-    private let dismissAction: () -> Void
-    private let navigateSettingAction: () -> Void
-    private let reloadAllImagesAction: () -> Void
-    private let retryAllFailedImagesAction: () -> Void
-    private let fetchPreviewURLsAction: (Int) -> Void
-
-    init(
-        showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        containerSize: CGSize, range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
-        dismissAction: @escaping () -> Void,
-        navigateSettingAction: @escaping () -> Void,
-        reloadAllImagesAction: @escaping () -> Void,
-        retryAllFailedImagesAction: @escaping () -> Void,
-        fetchPreviewURLsAction: @escaping (Int) -> Void
-    ) {
-        _showsPanel = showsPanel
-        _showsSliderPreview = showsSliderPreview
-        _sliderValue = sliderValue
-        _setting = setting
-        _enablesLiveText = enablesLiveText
-        _autoPlayPolicy = autoPlayPolicy
-        self.containerSize = containerSize
-        self.range = range
-        self.previewURLs = previewURLs
-        self.dismissGesture = dismissGesture
-        self.dismissAction = dismissAction
-        self.navigateSettingAction = navigateSettingAction
-        self.reloadAllImagesAction = reloadAllImagesAction
-        self.retryAllFailedImagesAction = retryAllFailedImagesAction
-        self.fetchPreviewURLsAction = fetchPreviewURLsAction
-    }
-
-    private var title: String {
-        ["\(max(Int(sliderValue), 1))", "\(Int(range.upperBound))"].joined(separator: " / ")
-    }
-
-    // iPhone in landscape has almost no top safe-area inset, so the upper toolbar hugs the very
-    // top edge; a small top padding gives it breathing room. iPad and portrait already inset it.
-    private var upperPanelTopPadding: CGFloat {
-        deviceClient.deviceType() != .pad && isLandscape ? 8 : 0
-    }
-
-    private var isLandscape: Bool {
-        containerSize.width > containerSize.height
-    }
+    @Binding var showsPanel: Bool
+    @Binding var showsSliderPreview: Bool
+    @Binding var sliderValue: Float
+    let isReversed: Bool
+    let containerSize: CGSize
+    let range: ClosedRange<Float>
+    let previewURLs: [Int: URL]
+    let dismissGesture: G
+    let dismissAction: () -> Void
+    let fetchPreviewURLsAction: (Int) -> Void
 
     var body: some View {
-        let isPad = deviceClient.deviceType() == .pad
-
         VStack {
-            UpperPanel(
-                title: title,
-                setting: $setting,
-                enablesLiveText: $enablesLiveText,
-                autoPlayPolicy: $autoPlayPolicy,
-                isLandscape: isLandscape,
-                dismissAction: dismissAction,
-                navigateSettingAction: navigateSettingAction,
-                reloadAllImagesAction: reloadAllImagesAction,
-                retryAllFailedImagesAction: retryAllFailedImagesAction
-            )
-            .padding(.top, upperPanelTopPadding + upperPanelWindowInsets.top)
-            .frame(maxHeight: .infinity, alignment: .top)
-            .offset(y: showsPanel ? 0 : -50)
-
+            Spacer()
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
-                    isReversed: setting.readingDirection == .rightToLeft,
+                    isReversed: isReversed,
                     containerSize: containerSize,
                     dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
@@ -101,165 +33,17 @@ struct ControlPanel<G: Gesture>: View {
                 .offset(y: showsPanel ? 0 : 50)
             }
         }
-        .opacity(showsPanel ? 1 : 0)
+        // Match the native reading toolbar: measured on iOS 26.5 from XS through AX5.
+        // This owner-approved range also covers the preview and the lower Close button.
+        .dynamicTypeSize(DynamicTypeSize.large...DynamicTypeSize.xxLarge)
+        .visible(showsPanel)
         .disabled(!showsPanel)
-        // iOS 26 reports overlapping window controls in the top-leading corner inset. Fold in
-        // the rectangular safe area only when that exclusion exists, so full-screen iPad stays unchanged.
-        .onGeometryChange(for: EdgeInsets.self) { proxy in
-            guard isPad else { return EdgeInsets() }
-            let windowControlInsets = proxy.containerCornerInsets.topLeading
-            guard windowControlInsets != .zero else { return EdgeInsets() }
-            return EdgeInsets(
-                top: max(proxy.safeAreaInsets.top, windowControlInsets.height),
-                leading: max(proxy.safeAreaInsets.leading, windowControlInsets.width),
-                bottom: 0,
-                trailing: 0
-            )
-        } action: {
-            upperPanelWindowInsets = $0
-        }
-    }
-}
-
-// MARK: UpperPanel
-private struct UpperPanel: View {
-    @Binding private var setting: Setting
-    @Binding private var enablesLiveText: Bool
-    @Binding private var autoPlayPolicy: AutoPlayPolicy
-
-    private let title: String
-    private let isLandscape: Bool
-    private let dismissAction: () -> Void
-    private let navigateSettingAction: () -> Void
-    private let reloadAllImagesAction: () -> Void
-    private let retryAllFailedImagesAction: () -> Void
-
-    init(
-        title: String,
-        setting: Binding<Setting>,
-        enablesLiveText: Binding<Bool>,
-        autoPlayPolicy: Binding<AutoPlayPolicy>,
-        isLandscape: Bool,
-        dismissAction: @escaping () -> Void,
-        navigateSettingAction: @escaping () -> Void,
-        reloadAllImagesAction: @escaping () -> Void,
-        retryAllFailedImagesAction: @escaping () -> Void
-    ) {
-        self.title = title
-        self.isLandscape = isLandscape
-        _setting = setting
-        _enablesLiveText = enablesLiveText
-        _autoPlayPolicy = autoPlayPolicy
-        self.dismissAction = dismissAction
-        self.navigateSettingAction = navigateSettingAction
-        self.reloadAllImagesAction = reloadAllImagesAction
-        self.retryAllFailedImagesAction = retryAllFailedImagesAction
-    }
-
-    var body: some View {
-        HStack {
-            HStack(spacing: 16) {
-                Button(action: dismissAction) {
-                    Label(.close, systemSymbol: .xmark)
-                        .labelStyle(.iconOnly)
-                        .font(.title2)
-                        .frame(width: 44, height: 44)
-                }
-                .glassEffect(.regular.interactive())
-
-                Text(title)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-                    .accessibilityIdentifier("reading_page_indicator")
-                    .lineLimit(1)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .glassEffect(.regular.interactive())
-                    .animation(.default, value: title)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            HStack(spacing: 20) {
-                Button {
-                    enablesLiveText.toggle()
-                } label: {
-                    Label(.liveText, systemSymbol: .viewfinderCircle)
-                        .labelStyle(.iconOnly)
-                        .symbolVariant(enablesLiveText ? .fill : .none)
-                        .font(.title2)
-                }
-
-                if isLandscape && setting.readingDirection != .vertical {
-                    Menu {
-                        Button {
-                            setting.enableDualPageMode.toggle()
-                        } label: {
-                            Text(.dualPageMode)
-                            if setting.enableDualPageMode {
-                                Image(systemSymbol: .checkmark)
-                            }
-                        }
-                        Button {
-                            setting.exceptCover.toggle()
-                        } label: {
-                            Text(.exceptTheCover)
-                            if setting.exceptCover {
-                                Image(systemSymbol: .checkmark)
-                            }
-                        }
-                        .disabled(!setting.enableDualPageMode)
-                    } label: {
-                        Image(systemSymbol: .rectangleSplit2x1)
-                            .symbolVariant(setting.enableDualPageMode ? .fill : .none)
-                            .font(.title2)
-                    }
-                }
-
-                Menu {
-                    Text(.autoPlay).foregroundStyle(.secondary)
-                    ForEach(AutoPlayPolicy.allCases) { policy in
-                        Button {
-                            autoPlayPolicy = policy
-                        } label: {
-                            Text(policy.value)
-                            if autoPlayPolicy == policy {
-                                Image(systemSymbol: .checkmark)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemSymbol: .timer)
-                        .font(.title2)
-                }
-                .buttonStyle(.borderless)
-
-                ToolbarFeaturesMenu {
-                    Button(action: retryAllFailedImagesAction) {
-                        Label(.retryAllFailedImages, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                    }
-                    Button(action: reloadAllImagesAction) {
-                        Label(.reloadAllImages, systemSymbol: .arrowCounterclockwise)
-                    }
-                    Button(action: navigateSettingAction) {
-                        Label(.readingSetting, systemSymbol: .gear)
-                    }
-                }
-                .buttonStyle(.borderless)
-                .font(.title2)
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 20)
-            .glassEffect(.regular.interactive())
-        }
-        .foregroundStyle(.primary)
-        .padding(.horizontal, 20)
     }
 }
 
 // MARK: LowerPanel
 private struct LowerPanel<G: Gesture>: View {
+    @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     private let previewURLs: [Int: URL]
@@ -293,12 +77,12 @@ private struct LowerPanel<G: Gesture>: View {
                 Label(.close, systemSymbol: .xmark)
                     .labelStyle(.iconOnly)
                     .font(.title2)
-                    .frame(width: 44, height: 44)
+                    .frame(width: closeButtonSize, height: closeButtonSize)
             }
             .foregroundStyle(.primary)
             .glassEffect(.regular.interactive())
             .gesture(dismissGesture)
-            .opacity(showsSliderPreview ? 0 : 1)
+            .visible(!showsSliderPreview)
 
             VStack(spacing: 0) {
                 SliderPreivew(
@@ -311,10 +95,18 @@ private struct LowerPanel<G: Gesture>: View {
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
 
+                // A page number is a value, not a label: its digits carry no break opportunity, so
+                // it either reads in full or not at all, and the single line says so explicitly.
+                // The slider is the flexible member of the row — it takes whatever the two numbers
+                // leave, up to its designed 60 % of the container, so a number that grew with the
+                // reader's type size widens its end of the bar instead of losing digits to it. At
+                // and below the default size the row has slack to spare, the slider still takes
+                // the full 60 %, and the bar renders exactly as designed.
                 HStack {
                     Text(isReversed ? Int(range.upperBound) : Int(range.lowerBound), format: .number)
                         .fontWeight(.medium)
                         .font(.caption)
+                        .lineLimit(1)
                         .padding()
 
                     Slider(
@@ -322,7 +114,7 @@ private struct LowerPanel<G: Gesture>: View {
                         in: range,
                         onEditingChanged: { if !$0 { showsSliderPreview = false } }
                     )
-                    .frame(width: containerSize.width * 0.6)
+                    .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity)
@@ -332,6 +124,7 @@ private struct LowerPanel<G: Gesture>: View {
                     Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
                         .fontWeight(.medium)
                         .font(.caption)
+                        .lineLimit(1)
                         .padding()
                 }
             }
@@ -344,6 +137,7 @@ private struct LowerPanel<G: Gesture>: View {
 // MARK: SliderPreview
 private struct SliderPreivew: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @ScaledMetric(relativeTo: .callout) private var scaledPreviewLabelClearance: CGFloat = 28
     @Binding private var showsSliderPreview: Bool
     @Binding var sliderValue: Float
     private let previewURLs: [Int: URL]
@@ -351,6 +145,9 @@ private struct SliderPreivew: View {
     private let isReversed: Bool
     private let containerSize: CGSize
     private let fetchPreviewURLsAction: (Int) -> Void
+    // The designed 28pt clearance covers one regular-width `.large` callout line plus the
+    // existing 8pt VStack spacing. Subtracting it preserves the exact `.large` tray height.
+    private let designedPreviewLabelClearance: CGFloat = 28
 
     static let outerPadding: CGFloat = 8
 
@@ -383,7 +180,7 @@ private struct SliderPreivew: View {
                         .font(horizontalSizeClass == .regular ? .callout : .caption)
                         .foregroundStyle(page == Int(sliderValue) ? Color.accentColor : Color.secondary)
                 }
-                .opacity(checkIndex(page) ? 1 : 0)
+                .visible(checkIndex(page))
             }
         }
         // The window of slots is a pure function of `sliderValue` (and the size class / container
@@ -396,10 +193,14 @@ private struct SliderPreivew: View {
                 fetchPreviewURLsAction(page)
             }
         }
-        .opacity(showsSliderPreview ? 1 : 0)
+        .visible(showsSliderPreview)
         .padding(.vertical, verticalPadding)
         .padding(.horizontal, horizontalPadding)
-        .frame(height: showsSliderPreview ? previewHeight + verticalPadding * 2 : 0)
+        .frame(
+            height: showsSliderPreview
+                ? previewHeight + verticalPadding * 2 + previewLabelClearanceGrowth
+                : 0
+        )
     }
 }
 
@@ -427,6 +228,9 @@ private extension SliderPreivew {
     var previewHeight: CGFloat {
         previewWidth / Defaults.ImageSize.previewAspect
     }
+    var previewLabelClearanceGrowth: CGFloat {
+        max(scaledPreviewLabelClearance - designedPreviewLabelClearance, 0)
+    }
     var previewWidth: CGFloat {
         guard previewsCount > 0 else { return 0 }
         let count = CGFloat(previewsCount)
@@ -437,4 +241,31 @@ private extension SliderPreivew {
     func checkIndex(_ index: Int) -> Bool {
         index >= Int(range.lowerBound) && index <= Int(range.upperBound)
     }
+}
+
+private let previewContainerSize = CGSize(width: 375, height: 667)
+
+@MainActor private func previewControlPanel() -> some View {
+    ControlPanel(
+        showsPanel: .constant(true),
+        showsSliderPreview: .constant(false),
+        sliderValue: .constant(1),
+        isReversed: false,
+        containerSize: previewContainerSize,
+        range: 1...14,
+        previewURLs: [:],
+        dismissGesture: TapGesture(),
+        dismissAction: {},
+        fetchPreviewURLsAction: { _ in }
+    )
+    .background(.black)
+}
+
+#Preview("Default size, portrait", traits: .fixedLayout(width: 375, height: 667)) {
+    previewControlPanel()
+}
+
+#Preview("Accessibility 5, portrait", traits: .fixedLayout(width: 375, height: 667)) {
+    previewControlPanel()
+        .environment(\.dynamicTypeSize, .accessibility5)
 }

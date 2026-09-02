@@ -11,9 +11,16 @@ import SwiftUI
 
 public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var viewportSize: CGSize = .zero
 
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
+    }
+
+    private var maximumCardHeight: CGFloat {
+        GalleryViewport(size: viewportSize, isRegularWidth: horizontalSizeClass == .regular)
+            .maximumSlideshowHeight
     }
 
     // MARK: HomeView
@@ -28,6 +35,7 @@ public struct HomeView: View {
                                 pageIndex: $store.cardPageIndex,
                                 currentID: store.currentCardID,
                                 colors: store.cardColors,
+                                maximumCardHeight: maximumCardHeight,
                                 navigateAction: navigateTo(gallery:),
                                 webImageSuccessAction: { gid, result in
                                     store.send(.analyzeImageColors(gid: gid, result: result))
@@ -57,17 +65,19 @@ public struct HomeView: View {
                     .padding(.vertical)
                 }
             }
-            .animation(.default) {
-                $0.opacity(store.popularGalleries.isEmpty ? 0 : 1)
+            .onGeometryChange(for: CGSize.self, of: \.size) {
+                viewportSize = $0
             }
-            .opacity(store.popularGalleries.isEmpty ? 0 : 1)
+            .animation(.default) {
+                $0.visible(!store.popularGalleries.isEmpty)
+            }
             .animation(.default, value: store.popularLoadingState)
             .overlay {
                 LoadingView()
                     .animation(.default) {
-                        $0.opacity(
+                        $0.visible(
                             store.popularLoadingState == .loading
-                                && store.popularGalleries.isEmpty ? 1 : 0
+                                && store.popularGalleries.isEmpty
                         )
                     }
             }
@@ -77,9 +87,8 @@ public struct HomeView: View {
                     store.send(.fetchAllGalleries)
                 }
                 .animation(.default) {
-                    $0.opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
+                    $0.visible(store.popularGalleries.isEmpty && error != nil)
                 }
-                .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
             }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle(.RLocalizable.home)
@@ -103,14 +112,14 @@ public struct HomeView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
                 store.send(.fetchAllGalleries)
             } label: {
                 Label(.reload, systemSymbol: .arrowCounterclockwise)
             }
-            .opacity(store.popularLoadingState == .loading ? 0 : 1)
-            .overlay(ProgressView().opacity(store.popularLoadingState == .loading ? 1 : 0))
+            .visible(store.popularLoadingState != .loading)
+            .overlay(ProgressView().visible(store.popularLoadingState == .loading))
         }
     }
 }

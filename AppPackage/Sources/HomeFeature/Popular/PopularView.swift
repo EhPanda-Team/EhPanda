@@ -33,13 +33,14 @@ struct PopularView: View {
             FiltersView(store: store)
                 .privacyMask()
         }
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
+        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.popular)
+        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             FiltersButton {
                 store.send(.filtersButtonTapped)
             }

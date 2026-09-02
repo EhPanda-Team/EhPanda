@@ -28,6 +28,26 @@ So for a per-row destructive action, keep the modifier on the row. Verified on d
 
 **No absolute home paths in generated docs**: In any documentation artifact an agent generates or edits (planning docs, research notes, plan/summary files, and any other generated Markdown), never write an absolute home-directory path such as `/Users/<name>/…` or `/home/<name>/…` — in this open-source repository that leaks the contributor's username. Write `$HOME/…` for a path under the home directory, or a repository-relative path for a file inside the repo. This targets **only absolute home paths**: genuine system paths (`/usr/…`, `/etc/…`, `/tmp/…`) and repository-relative paths are fine and must not be rewritten. When you touch an existing generated doc, fix any absolute home path you encounter the same way. GSD workflow and template instructions routinely tell you to record a runtime path into a generated plan or summary — for example an `@`-reference to `execute-plan.md` or a summary template in a plan's `<execution_context>`. **This rule overrides those instructions on how the path is written.** Record the same reference *target*, but always with a `$HOME/…` (or repository-relative) prefix — never the expanded absolute home path — even when the workflow text shows, resolves, or hands you an absolute `/Users/<name>/…` path. Change only the leaked home prefix; do not drop or repoint the reference.
 
+## Accessibility navigation and search policy
+
+Preserve designed `.inlineLarge` titles and measure them independently at accessibility text sizes;
+do not apply the automatic-title fallback to them by default. The Phase 16 iPhone AX3/AX5 samples
+retained all five root titles; iPad top tabs and the Settings sheet use different presentations.
+These samples are not a guarantee for every size, state, device, or orientation.
+
+On `.automatic` title screens with recorded native title disappearance or overlap, use the shared
+`accessibilityNavigationTitleWorkaround()` to select `.inline` only at accessibility sizes.
+On `.searchable` screens with recorded blank native search drawers, use the shared
+`accessibilitySearchableWorkaround(text:prompt:)` to select
+`.navigationBarDrawer(displayMode: .always)` only at accessibility sizes. Keep unaffected sites
+native and preserve view identity during size changes. Record evidence before extending either scope.
+
+Both common modifiers must explicitly document that they are temporary Apple rendering workarounds,
+the failure they address, and when to remove them. Once the affected screens pass without the
+workaround on supported OS versions, remove the modifier and its call sites. Verify cold entry,
+live AX size changes, and relevant search focus/orientation states. See
+`.planning/phases/16-dynamic-type-accessibility/16-AX-POLICY-REVIEW.md` for evidence and open coverage.
+
 ## Project structure
 
 EhPanda is being modularized to match the App-shell + local-package layout:

@@ -89,6 +89,7 @@ struct VerticalKeywordsStack: View {
 }
 
 struct KeywordCell: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private let wrappedKeyword: WrappedKeyword
     private let searchAction: (String) -> Void
     private let removeAction: ((String) -> Void)?
@@ -104,16 +105,11 @@ struct KeywordCell: View {
     }
 
     var body: some View {
+        // The delete button stays centred against the whole cell rather than following the
+        // keyword's first line: it acts on the row, not on a line of it, and the keyword's
+        // flexible frame keeps it pinned to the trailing edge however many lines the keyword takes.
         HStack(spacing: 20) {
-            Button {
-                searchAction(wrappedKeyword.keyword)
-            } label: {
-                Image(systemSymbol: .magnifyingglass)
-
-                Text(title)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .tint(.primary)
+            searchButton
 
             if removeAction != nil {
                 Button {
@@ -126,6 +122,44 @@ struct KeywordCell: View {
                 }
             }
         }
+    }
+
+    /// Where the magnifier sits against the keyword beside it.
+    ///
+    /// Above the default size the keyword wraps, and a centred glyph lands beside the *middle* line
+    /// of the block, reading as a mark on the wrong row; the first baseline sets it against the
+    /// keyword's opening line instead, the way `Label` sets an icon beside a title.
+    ///
+    /// A gate rather than a constant, because the two alignments disagree on a single line too: an
+    /// SF Symbol's baseline sits a shade off the centre of its box, so taking the baseline
+    /// everywhere would nudge the glyph at the default size, where the implicit `Button`-label
+    /// stack centres it today. D-15 binds default-size appearance, so `.large` and below keep the
+    /// centring they already render and only the sizes that can wrap take the baseline.
+    private var glyphAlignment: VerticalAlignment {
+        dynamicTypeSize <= .large ? .center : .firstTextBaseline
+    }
+
+    /// A `Button` centres a multi-line label, so a keyword long enough to wrap at an accessibility
+    /// size came out as a column of centred fragments under a leading-aligned list (Phase 16
+    /// finding #34). The leading alignment is stated explicitly so it survives however the keyword
+    /// breaks; a keyword that fits one line — every keyword at the default size — is unaffected.
+    ///
+    /// The stack is spelled out rather than left to the implicit label layout for the same reason:
+    /// where the magnifier sits against the keyword has to be this view's decision, and
+    /// `glyphAlignment` is where that decision lives.
+    private var searchButton: some View {
+        Button {
+            searchAction(wrappedKeyword.keyword)
+        } label: {
+            HStack(alignment: glyphAlignment) {
+                Image(systemSymbol: .magnifyingglass)
+
+                Text(title)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .tint(.primary)
     }
 }
 

@@ -44,12 +44,12 @@ public struct FavoritesView: View {
                 downloadBadges: store.downloadBadges
             )
             .animation(.default) {
-                $0.opacity(didLogin ? 1 : 0)
+                $0.visible(didLogin)
             }
             .overlay {
                 NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                     .animation(.default) {
-                        $0.opacity(didLogin ? 0 : 1)
+                        $0.visible(!didLogin)
                     }
             }
             .sheet(
@@ -88,18 +88,38 @@ public struct FavoritesView: View {
         }
     }
 
-    private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
-            FavoritesIndexMenu(index: store.favoritesIndex) { index in
-                if index != store.favoritesIndex {
-                    store.send(.setFavoritesIndex(index))
+    @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker(selection: $store.favoritesIndex.sending(\.setFavoritesIndex)) {
+                    ForEach(-1..<10) { index in
+                        Text(store.user.getFavoriteCategory(index: index)).tag(index)
+                    }
+                } label: {
+                    Text(.RLocalizable.favorites)
                 }
+                .pickerStyle(.inline)
+            } label: {
+                Label(.RLocalizable.favorites, systemSymbol: .dialLow)
+                    .symbolRenderingMode(.hierarchical)
             }
-            SortOrderMenu(sortOrder: store.sortOrder) { order in
-                if store.sortOrder != order {
-                    store.send(.fetchGalleries(sortOrder: order))
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                Picker(selection: $store.sortOrder.sending(\.selectSortOrder)) {
+                    ForEach(FavoritesSortOrder.allCases) { order in
+                        Text(order.value).tag(Optional(order))
+                    }
+                } label: {
+                    Text(.sortOrder)
                 }
+                .pickerStyle(.inline)
+            } label: {
+                Label(.sortOrder, systemSymbol: .arrowUpArrowDownCircle)
+                    .symbolRenderingMode(.hierarchical)
             }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
             ToolbarFeaturesMenu {
                 DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                     store.send(.dateSeekButtonTapped(navigation))

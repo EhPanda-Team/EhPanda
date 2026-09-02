@@ -69,13 +69,13 @@ public struct GalleryList: View {
         .overlay {
             LoadingView()
                 .animation(.default) {
-                    $0.opacity(loadingState == .loading ? 1 : 0)
+                    $0.visible(loadingState == .loading)
                 }
         }
         .overlay {
             ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
                 .animation(.default) {
-                    $0.opacity(loadingState.is(\.failed) ? 1 : 0)
+                    $0.visible(loadingState.is(\.failed))
                 }
         }
         .refreshable { fetchAction?() }
@@ -159,6 +159,13 @@ private struct DetailList: View {
 
 // MARK: ThumbnailList
 private struct ThumbnailList: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var viewportSize: CGSize = .zero
+
+    /// Text scales the preferred column width; large landscape viewports retain at least three columns.
+    @ScaledMetric(relativeTo: .callout)
+    private var minCellWidth: CGFloat = MasonryLayout.defaultMinCellWidth
+
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
@@ -203,7 +210,12 @@ private struct ThumbnailList: View {
             // page after page (D-36). As part of this single row, nothing below the grid gets
             // anchored; appended content extends below the viewport and the scroll offset stays put.
             VStack(spacing: 0) {
-                MasonryLayout {
+                MasonryLayout(
+                    minCellWidth: minCellWidth,
+                    minimumColumns: GalleryViewport(
+                        size: viewportSize, isRegularWidth: horizontalSizeClass == .regular
+                    ).minimumThumbnailColumns
+                ) {
                     ForEach(galleries) { gallery in
                         Button {
                             navigateAction?(gallery)
@@ -228,6 +240,9 @@ private struct ThumbnailList: View {
             }
         }
         .listStyle(.plain)
+        .onGeometryChange(for: CGSize.self, of: \.size) {
+            viewportSize = $0
+        }
         .autoLoadNextPage(
             pageNumber: pageNumber,
             footerLoadingState: footerLoadingState,

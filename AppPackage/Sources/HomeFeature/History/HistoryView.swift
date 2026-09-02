@@ -32,13 +32,14 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
+        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.history)
+        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        ToolbarItemGroup(placement: .topBarTrailing) {
             Button {
                 store.send(.clearHistoryButtonTapped)
             } label: {

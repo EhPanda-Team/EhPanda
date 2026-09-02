@@ -267,7 +267,7 @@ struct ImageContainer: View {
                     focusedLiveTextGroup: focusedLiveTextGroup,
                     tapAction: liveTextTapAction
                 )
-                .opacity(enablesLiveText ? 1 : 0)
+                .visible(enablesLiveText)
             )
         } else {
             backgroundColor
@@ -285,12 +285,12 @@ struct ImageContainer: View {
                         .font(.system(size: reloadSymbolSize, weight: .medium))
                         .foregroundStyle(.gray)
                         .animation(.default) {
-                            $0.opacity(loadingState == .loading ? 0 : 1)
+                            $0.visible(loadingState != .loading)
                         }
                         .overlay {
                             ProgressView()
                                 .animation(.default) {
-                                    $0.opacity(loadingState == .loading ? 1 : 0)
+                                    $0.visible(loadingState == .loading)
                                 }
                         }
                     }
