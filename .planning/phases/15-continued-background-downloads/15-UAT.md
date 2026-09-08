@@ -503,8 +503,8 @@ intermediate state. The confirmation's own Delete button and the context-menu De
 read as destructive (red).
 why_human: This is an animation sequence. Plan 15-77 built Candidate 0 (drop `role: .destructive`
 from the swipe button, tint red, animate the removal) and gated it on an owner device evaluation —
-and that verdict was never recorded: no 15-77-SUMMARY.md exists, though its commits (8277ded7,
-15afbde4) are on the branch.
+the device verdict is recorded below. The missing 15-77-SUMMARY.md was reconstructed on
+2026-09-08 from this result and the implementation commits (8fd06d86, 234fcdf6).
 covers: UAT-FU-2 (Deferred Follow-Ups, test 6)
 note: |
   15-RESEARCH established (docs-index sweep, VERIFIED) that the full three-part hold-open
