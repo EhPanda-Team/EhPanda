@@ -3,6 +3,7 @@ import SwiftUI
 
 /// Stable artwork geometry for fixed-cover surfaces, including loading and local download covers.
 public struct GalleryCover: View {
+    @Environment(\.colorScheme) private var colorScheme
     @GalleryCoverMetrics private var size: CGSize
     private let maximumHeight: CGFloat?
     private let url: URL?
@@ -29,13 +30,15 @@ public struct GalleryCover: View {
             .placeholder {
                 Color(.systemGray5)
                     .overlay { ProgressView() }
+                    .aspectRatio(size.width / size.height, contentMode: .fill)
             }
             .onSuccess(onSuccess)
             .fade(duration: 0.25)
             .resizable()
             .aspectRatio(contentMode: contentMode)
             .frame(width: height * size.width / size.height, height: height)
-            .background(Color(.secondarySystemBackground))
+            // In dark grouped lists, secondarySystemBackground matches the cell itself.
+            .background(Color(colorScheme == .dark ? .systemGray5 : .secondarySystemBackground))
             .clipShape(.rect(cornerRadius: 5))
     }
 }
