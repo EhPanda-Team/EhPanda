@@ -52,3 +52,31 @@ After all findings and D-13 items are resolved, obtain the owner's `ROUND1-CLEAR
 On 2026-09-08 the owner accepted #31 (error-toast truncation when content does not fit): 「第四個我覺得展示不下就展示不下直接接受」. Remove #31 from the pending review set. The acknowledgment of seeing the first two screenshots is not acceptance of those findings. Auto-Play comparison screenshots are now present in the external evidence page.
 
 Owner update 2026-09-08: #4 accepted as Apple defect, no app fix; #7 accepted as-is. Together with #31 and #37 these need no repeat approval. Auto-Play (#26) remains under discussion. See `16-TARGETED-RECHECK.md`.
+
+Owner update 2026-09-09: #35 accepted after the review question explicitly described score/date appearing beneath the author at normal text size. The owner replied “yes.” This closes the recorded comment-card parity disposition only; no other finding, D-13 disposition, or ROUND1-CLEAR is inferred.
+
+Owner update 2026-09-09: D13-1 (detail statistics) and D13-2 (long tags) approved as fixed based on the recorded passing checks on both devices. The owner replied “yes” to the question naming those two cases. Their disposition cells are now filled; D13-3 through D13-5 and ROUND1-CLEAR remain pending.
+
+Owner update 2026-09-09: D13-3 (reader page counter) approved as fixed based on the recent native-toolbar checks showing complete sampled page numbers at AX5 on iPhone and iPad, including the final leading iPad title. The owner replied “yes” to the question naming this case. Its stale batch-1 description is reconciled with `16-TARGETED-RECHECK.md`; D13-4, D13-5 and ROUND1-CLEAR remain pending.
+
+Owner update 2026-09-09: D13-4 (Favorites trailing glyph and page count) remains pending. The owner requested leaving it open for now and continuing with other review questions; no fresh Favorites check or acceptance is inferred.
+
+Owner update 2026-09-09: D13-5 (hero-carousel long-title truncation) accepted. The owner accepts ellipsis within the bounded-height carousel card. This is a disposition of title truncation, not blanket approval of all cover layouts. D13-4 remains pending at the owner’s request; ROUND1-CLEAR has not been given.
+
+Owner update 2026-09-09: finding #11 (Downloads delete confirmation) confirmed checked and fixed by the owner. Its Findings status is now re-verified with owner provenance; no current-agent device check is claimed. Finding #23 remains pending while the Detail delete confirmation entry and Cancel action are clarified.
+
+Owner update 2026-09-09: finding #23 (Detail delete confirmation at iPhone landscape AX5) remains pending at the owner’s request. Continue reviewing other items; no acceptance, fix confirmation, or fresh device check is inferred.
+
+Owner update 2026-09-09: finding #28 (E-Hentai Settings Multi-Page Viewer row overlap) remains pending. The owner does not recall whether it was fixed and requested leaving it open while continuing other review questions. No verification or acceptance is inferred.
+
+Owner update 2026-09-09: finding #26 (Runs and Auto-Play selected checkmarks) confirmed fixed by the owner. Its status is re-verified with owner provenance, not a claim of a new agent device pass.
+
+## Current review boundary — 2026-09-09
+
+This review closes #11 and #26 as owner-confirmed fixed, #35 as owner-accepted, D13-1/2/3 as owner-approved fixed, and D13-5 as owner-accepted truncation. The previously accepted #37 status has been normalized. Prior #4/#7/#31 acceptances remain preserved.
+
+The remaining owner dispositions are D13-4 (populated Favorites page count/glyph) and #28 (E-Hentai Settings Multi-Page Viewer row overlap). Finding #23 is now owner-accepted as recorded below. Do not request ROUND1-CLEAR or mark plans 16-10/11 complete while these remain unresolved. No full matrix re-verification or final closure consistency pass was performed in this review.
+
+Fresh checks on 2026-09-09 are recorded in `16-LOGIN-COVER-RECHECK.md`: D13-4 and #28 did not reproduce in the sampled conditions; #23 still reproduces during live rotation/text-size changes. These observations do not infer owner acceptance. The same report records the subsequent login and cover changes, their passing targeted tests, and the remaining live-verification limits.
+
+Owner update 2026-09-09 after viewing the fresh snapshot: #23 accepted. The owner explicitly quoted the iPhone landscape AX5 loss of the message and Cancel and replied 「就沒有那麼多空間可以用來顯示，通過」. Record this as acceptance of the space-constrained presentation, not a fixed rendering defect. Preserve the reproduction evidence; no app change is required for #23. D13-4, #28, and ROUND1-CLEAR are not inferred from this acceptance.
