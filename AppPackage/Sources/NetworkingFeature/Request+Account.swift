@@ -120,21 +120,17 @@ public struct LoginRequest: Request {
             logger.warning("Login blocked by a site error: \(String(describing: siteError), privacy: .public)")
             throw siteError
         }
+        // A returned CAPTCHA form can omit the forum's error box entirely. Detect the gate
+        // independently, before the generic refusal fallback discards this actionable reason.
+        if Parser.loginFormRequiresCaptcha(content: content) {
+            throw AppError.loginCaptchaRequired
+        }
         if let message = Parser.parseLoginErrorMessage(content: content) {
-            // A CAPTCHA-gated form gets its own case rather than collapsing into the generic
-            // failure: it is the one rejection no password and no number of retries can clear,
-            // because the submission is missing a field this request cannot produce. Reporting it
-            // as a plain failure would send the user back to re-check a password that was never
-            // the problem, so it carries its own recovery route instead.
-            let captchaGated = Parser.loginFormRequiresCaptcha(content: content)
-            logger.warning("""
-                Login rejected by the forum: \(message, privacy: .public) \
-                captchaGated=\(captchaGated, privacy: .public)
-                """)
+            logger.warning("Login rejected by the forum: \(message, privacy: .public)")
             // The message is carried rather than logged and dropped. It is the only part of the
             // response that separates a wrong password from a missing field from the attempt
             // lockout, and dropping it is what made every refusal arrive on screen as "unknown".
-            throw captchaGated ? AppError.loginCaptchaRequired : AppError.loginRejected(message)
+            throw AppError.loginRejected(message)
         }
         if refusedWithoutDiagnosis {
             // The page says the credential did not take but carries no readable reason. Still a
