@@ -63,7 +63,8 @@ public struct LoginRequest: Request {
             "ipb_login_submit": "Login!"
         ]
 
-        var request = URLRequest(url: Defaults.URL.login)
+        // A previous sign-in response cannot authenticate a new attempt. Always contact the forum.
+        var request = URLRequest(url: Defaults.URL.login, cachePolicy: .reloadIgnoringLocalCacheData)
         request.httpMethod = "POST"
         request.httpBody = params.dictString().data(using: .utf8)
         request.setURLEncodedContentType()
@@ -102,19 +103,10 @@ public struct LoginRequest: Request {
         // Set-Cookie tombstones from reaching the jar, since `setCredentials` is now the only thing
         // that files anything from this exchange and it runs on success alone.
         let siteError = Parser.parseResponseError(content: content)
-        // `.authenticationRequired` is the site-wide "you are not signed in" verdict, which is
-        // meaningless as the *outcome of a login POST*: not being signed in is the premise here, not
-        // a diagnosis. It fires readily on this path too — the parser reads `bounce_login.php` as its
-        // marker, and the login form the forum hands back on a refusal is exactly the page that links
-        // to it — so an ordinary wrong password surfaced as a general authentication error, wearing
-        // copy written for another caller entirely.
-        //
-        // It does not throw here, it falls through: this branch runs *before* the login-specific
-        // reading below, so throwing on it would skip the forum's own error box and the CAPTCHA
-        // detection on every page carrying that link, which is most refusal pages. The verdict is
-        // kept only as the fallback for a page nothing further can read.
-        let refusedWithoutDiagnosis = siteError == .authenticationRequired
-        if let siteError, !refusedWithoutDiagnosis {
+        // The successful forum response also links to `bounce_login.php` to finish sign-in.
+        // That site-wide marker alone cannot classify this POST. Preserve explicit errors below,
+        // then require fresh authentication cookies before accepting a page carrying the marker.
+        if let siteError, siteError != .authenticationRequired {
             // A genuine site condition — a quota, a ban — keeps its own case and its tailored
             // recovery suggestion rather than collapsing into a login refusal.
             logger.warning("Login blocked by a site error: \(String(describing: siteError), privacy: .public)")
@@ -132,12 +124,18 @@ public struct LoginRequest: Request {
             // lockout, and dropping it is what made every refusal arrive on screen as "unknown".
             throw AppError.loginRejected(message)
         }
-        if refusedWithoutDiagnosis {
-            // The page says the credential did not take but carries no readable reason. Still a
-            // login refusal, reported as one: `.unknown` would discard the half of this that is
-            // certain. Throwing also keeps the rejection page's Set-Cookie tombstones out of the jar.
-            logger.warning("Login refused with no readable reason.")
-            throw AppError.loginRejected(nil)
+        if siteError == .authenticationRequired {
+            let headers = httpResponse?.allHeaderFields as? [String: String] ?? [:]
+            let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: Defaults.URL.login)
+            let credentialNames = Set(cookies.filter { cookie in
+                !cookie.value.isEmpty && (cookie.expiresDate.map({ $0 > Date() }) ?? true)
+            }
+            .map(\.name))
+            guard [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash].allSatisfy(credentialNames.contains) else {
+                // A returned login form without credentials remains a refusal. Do not deliver its
+                // cookie tombstones to the shared jar, where they could erase an existing session.
+                throw AppError.loginRejected(nil)
+            }
         }
         // No error box and no recognised site error, yet a login can still not have happened. The
         // form's own submit control is the cheapest tell that the page came back as the login form

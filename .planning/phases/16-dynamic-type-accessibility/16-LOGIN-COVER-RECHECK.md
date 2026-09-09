@@ -58,3 +58,28 @@ The owner accepted the dark cover result. Login-return observation has since mov
 Setting-tab source inspection: the `.sending` binding setter sends an action without directly mutating the selected value. `TabBarReducer` handles a Setting request by asynchronously resolving device type; on iPad it emits a presentation delegate while leaving the selected tab unchanged. It does not select Setting and then restore the previous reducer value. The reported transient visual selection is not explained by a reducer rollback; SwiftUI's tab selection rendering and asynchronous presentation remain distinct from that state invariant. No change to the Setting-tab presentation mechanism is part of this follow-up.
 
 Validation for the reducer follow-up: both login-return observation tests and six Setting presentation tests passed (8 total); changed Swift files passed SwiftLint and whitespace checks. These tests prove action routing and selected-state invariants, not the absence of a transient native tab animation.
+
+
+## Native login verified — 2026-09-10
+
+This follow-up supersedes the deferred native-login status above. The owner supplied credentials in a private temporary file outside the repository, completed Cloudflare verification on the simulator, and confirmed successful login. No credential values or raw authentication exchanges are included in repository artifacts.
+
+### Root cause and correction
+
+The app's cached native-login POST responses contained a successful sign-in page, authentication `Set-Cookie` headers, and a `bounce_login.php` redirect. The general response parser interprets that URL as an authentication-required marker. `LoginRequest` converted the marker into a reasonless refusal before passing the successful response to the cookie client. The earlier CAPTCHA-form classification change did not address this failure.
+
+`LoginRequest` now permits a response with that marker when both authentication cookies are present, nonempty, and unexpired. Explicit site errors, forum error messages, and CAPTCHA forms retain their existing handling. A marker-bearing page without valid credentials still throws before its cookie tombstones can reach the shared jar. Login requests also use `reloadIgnoringLocalCacheData`, so a new attempt cannot reuse an earlier local authentication response.
+
+### Live evidence
+
+- Correct test app: `app.ehpanda.personal`, iPhone review simulator, iOS 26.5.
+- Proxyman captured POST flow 1900: HTTP 403 with `Cf-Mitigated: challenge`. The app presented its challenge web view. After the owner clicked verification, the Cloudflare page kept spinning; app logs reported an empty challenge cookie store and no clearance capture.
+- The system proxy was disabled, restoring its initial state. A fresh native-login attempt again presented a challenge. The owner completed it; at 00:56:44 JST the app logged clearance capture, a response without the login form, and successful login.
+- The final successful exchange was inspected through the existing local DEBUG response dump, not Proxyman: HTTP 200, the successful-login message, the bounce redirect, and both authentication cookie names. Cookie values were not printed. The final exchange occurred with the system proxy disabled.
+- Account displayed Logout. Selecting Favorites loaded real gallery rows and covers. `native-login-favorites-2026-09-10.png` records that populated state; `native-login-challenge-pending-2026-09-10.png` records the earlier spinner. Both are stored with the external evidence described above.
+
+This is a successful native-login run, including user-completed Cloudflare verification and subsequent Favorites loading. It does not independently verify returning directly from a Favorites login wall without selecting the tab. Disabling the proxy was sufficient for this later verification to complete, but this sequence does not establish the exact cause of the earlier Cloudflare spinner.
+
+### Validation
+
+The final build passed 39 tests: 27 request-layer tests across login rejection, account request assembly, and CAPTCHA handling, plus 12 login challenge-flow tests. New coverage preserves authentication cookies on an anonymous successful bounce-redirect fixture and asserts the login request's cache policy. Changed Swift files passed SwiftLint without suppressions, and `git diff --check` passed. The normal updated app remains installed and logged in on Favorites.
