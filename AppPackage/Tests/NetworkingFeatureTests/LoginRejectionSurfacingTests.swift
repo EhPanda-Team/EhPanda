@@ -140,6 +140,23 @@ struct LoginRejectionSurfacingTests {
         #expect(handle.attempts(for: Defaults.URL.login) == 1)
     }
 
+    @Test(arguments: [false, true])
+    func captchaWithoutAnErrorBoxKeepsItsActionableReason(hasBounceLink: Bool) async {
+        let link = hasBounceLink ? "<a href='/bounce_login.php'>Login</a>" : ""
+        let page = Data("<html><body>\(link)<div class='cf-turnstile'></div></body></html>".utf8)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([Defaults.URL.login: [.http(status: 200, data: page)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+        }
+
+        #expect(result == .failure(.loginCaptchaRequired))
+        #expect(handle.attempts(for: Defaults.URL.login) == 1)
+    }
+
     // MARK: - Fixtures
 
     private static let rejectionPage = Data(
