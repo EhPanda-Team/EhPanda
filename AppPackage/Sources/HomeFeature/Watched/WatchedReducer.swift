@@ -25,6 +25,7 @@ public struct WatchedReducer: Sendable {
     }
 
     private enum CancelID {
+        case observeLogin
         case fetchGalleries, fetchMoreGalleries, observeDownloads, fetchDateSeekGalleries
     }
 
@@ -57,6 +58,7 @@ public struct WatchedReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onPresented
+        case loginSucceeded
         case delegate(Delegate)
         case filtersButtonTapped
         case quickSearchButtonTapped
@@ -94,13 +96,28 @@ public struct WatchedReducer: Sendable {
             // Watched is login-gated, so a logged-out visit shows the sign-in overlay and fetches
             // nothing, exactly as the view's `didLogin` check did.
             case .onPresented:
-                guard state.galleries.isEmpty, cookieClient.didLogin else {
-                    return .send(.observeDownloads)
+                // Subscribe before returning the effect so a login during presentation is buffered.
+                let changes = cookieClient.cookiesDidChange()
+                let initiallyLoggedIn = cookieClient.didLogin
+                let observeLogin: Effect<Action> = .run { send in
+                    var wasLoggedIn = initiallyLoggedIn
+                    for await _ in changes {
+                        let isLoggedIn = cookieClient.didLogin
+                        if !wasLoggedIn && isLoggedIn {
+                            await send(.loginSucceeded)
+                        }
+                        wasLoggedIn = isLoggedIn
+                    }
                 }
-                return .merge(
-                    .send(.observeDownloads),
-                    .send(.fetchGalleries())
-                )
+                .cancellable(id: CancelID.observeLogin, cancelInFlight: true)
+                guard state.galleries.isEmpty, initiallyLoggedIn else {
+                    return .merge(observeLogin, .send(.observeDownloads))
+                }
+                return .merge(observeLogin, .send(.observeDownloads), .send(.fetchGalleries()))
+
+            case .loginSucceeded:
+                guard state.galleries.isEmpty else { return .none }
+                return .send(.fetchGalleries())
 
             case .delegate:
                 return .none
