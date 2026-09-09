@@ -26,6 +26,7 @@ struct AccountRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
+        #expect(request.cachePolicy == .reloadIgnoringLocalCacheData)
         #expect(response?.statusCode == 204)
         #expect(response?.url == Defaults.URL.login)
         expectFormRequest(
