@@ -43,12 +43,8 @@ struct LoginRejectionSurfacingTests {
         #expect(result == .failure(.quotaExceeded))
     }
 
-    // The site-wide "you are not signed in" verdict is not a login outcome: not being signed in is
-    // the premise of a login POST. It reached users as an authentication error carrying copy written
-    // for another caller, because the forum's refusal page is the login form and the login form links
-    // to `bounce_login.php`, which is the marker the parser reads.
     @Test
-    func aRefusalPageIsNotReportedAsAGeneralAuthenticationError() async {
+    func bounceLinkWithoutCredentialsRemainsARefusal() async {
         let (session, handle) = makeStubbedSession(
             script: StubScript([Defaults.URL.login: [.http(status: 200, data: Self.bounceLoginPage)]])
         )
@@ -58,11 +54,33 @@ struct LoginRejectionSurfacingTests {
             try await LoginRequest(username: "u", password: "p", urlSession: session).response()
         }
 
-        #expect(result != .failure(.authenticationRequired))
-        // This page carries the marker but no readable reason, so there is nothing to quote — but it
-        // is still a refusal, and reporting it as `.unknown` would discard the part that is certain.
-        #expect(result != .failure(.unknown))
         #expect(result == .failure(.loginRejected(nil)))
+    }
+
+    @Test
+    func successfulBounceRedirectPreservesAuthenticationCookies() async throws {
+        let page = Data(
+            """
+            <html><head>
+            <meta http-equiv="refresh" content="2; url=https://e-hentai.org/bounce_login.php?b=d&amp;bt=1-1">
+            </head><body><div id="redirectwrap"><h4>Thanks</h4>
+            <p>You are now logged in as: Test User<br>Please wait while we transfer you...</p>
+            <a href="https://e-hentai.org/bounce_login.php?b=d&amp;bt=1-1">Continue</a>
+            </div></body></html>
+            """.utf8
+        )
+        let cookies = "ipb_member_id=123; Path=/, ipb_pass_hash=test-hash; Path=/"
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([
+                Defaults.URL.login: [.http(status: 200, data: page, headers: ["Set-Cookie": cookies])]
+            ])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await LoginRequest(username: "u", password: "p", urlSession: session).response()
+
+        #expect(response?.statusCode == 200)
+        #expect(response?.value(forHTTPHeaderField: "Set-Cookie") == cookies)
     }
 
     // The same site-wide marker on a page that DOES carry the forum's error box. The marker must not
