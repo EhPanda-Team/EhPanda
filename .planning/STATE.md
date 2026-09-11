@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-20-PLAN.md (Reduce Motion: Detail and Reader); next 16-21 (wave 19)"
-last_updated: "2026-09-11T15:59:27.921Z"
+stopped_at: "Completed 16-21-PLAN.md (Reduce Motion: lists, sheets, settings + inventory pin); next 16-22 (wave 20)"
+last_updated: "2026-09-11T23:53:05.137Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-20 complete: Reduce Motion gating in Detail and the reader (D-29) — HeaderSection spin kept only when motion is allowed (spinsDownloadIcon / downloadPreparationAnimation), upright glyph with .symbolEffect(.pulse, isActive:) under Reduce Motion; DetailView's three height animations and the CommentsView deep-linked scrollTo run reduceMotion ? nil : .default; ReadingView offset/scale settle and the page jump gated with the echo-guard choreography byte-identical; ControlPanel's single lower offset collapses to 0 (hiddenPanelOffset) so .visible(showsPanel) fades alone, preview-pop animation nil. Crossfades, Live Text swaps, favourite swap and every numericText untouched (ControlPanel numericText = 0 before/after; the indicator is ReadingToolbar.swift:31). Verified OFF/ON on iPhone 17e 67377A20… via the real Settings switch (ReduceMotionEnabled 0→1→0, restored and read back); recordings under $HOME/Library/Caches/ehpanda-phase16/round2/reduce-motion/ (spin OFF observed, spin ON pulse source-verified only; showsUserRating login-gated, source-verified). ReadingFeatureTests 24/24; lint 0 violations ×3 — commits 9687c82d, 449628fb; wave 18 complete; next 16-21 (wave 19)."
-state_head: 449628fb6cf7580a3dad4883dad7fac5eaeb7491
+last_activity_desc: "Plan 16-21 complete: Reduce Motion gating across the list-diff sites (D-29) — Downloads id-keyed list + inspector transition, Search root ×3, Quick Search ×2, FolderManager ×2 (b5e69032); Torrents, General tag rows ×3, Home popularLoadingState (card insertion pushes sections down; crossfades and numericText kept) (9841ff22); ReduceMotionGatingSourceTests pins D-29 as five two-directional equalities (reads 17, ternaries 22, withAnimation 2, mentions 52, numericText 11 none gated), RED → GREEN → mutation-verified, RepositoryWalk shared (bb265cb1). OFF/ON verified on iPhone 17e 67377A20… via the real Settings switch, restored to 0; full FeatureTests plan green (1,060 tests); wave 19 complete; next 16-22 (wave 20)."
+state_head: bb265cb1c8a38449530cd1c83a390b35e155e3c4
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 268
+  completed_plans: 269
   percent: 59
 ---
 
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 21 of 26 — next 16-21 (wave 19); plans 16-01 through 16-20 complete — wave 18 (16-20) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-20 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-20 complete: `DetailView+HeaderSection.swift` `spinsDownloadIcon` + `downloadPreparationAnimation` + `.symbolEffect(.pulse, isActive: showsMetadataPreparation && reduceMotion)`; `DetailView.swift` 3 × `.animation(reduceMotion ? nil : .default, value:)`; `CommentsView.swift` `withAnimation(reduceMotion ? nil : .default)` (`9687c82d`); `ReadingView.swift` offset / scale predicates + page-jump `withAnimation(reduceMotion ? nil : .default)` with `performingChanges` / `echoGuardDuration` unchanged; `ControlPanel.swift` `hiddenPanelOffset` (`reduceMotion ? 0 : 50`, the only offset — the top bar is the native `ReadingToolbar`) + preview-pop predicate (`449628fb`). Live on iPhone 17e `67377A20…` with Reduce Motion OFF then ON through Settings › Accessibility › Motion (restored, `ReduceMotionEnabled` read back `0`): spin rotated across frames OFF / no rotation ON (pulse source-verified, preparation shorter than one frame); title expansion, comment scroll, panel, preview tray and zoom settle animated OFF and one-frame ON; `showsUserRating` source-verified (`Give a Rating` is `.disabled(!didLogin)`). `ReadingFeatureTests` 24/24; lint build green ×3, 0 violations, no suppression; two out-of-scope observations (download-badge flicker at enqueue; Home `Unknown Error` section when logged out) in `deferred-items.md`; two public galleries downloaded to the simulator's `Second` folder, nothing deleted; nothing pushed.
+Plan: 22 of 26 — next 16-22 (wave 20); plans 16-01 through 16-21 complete — wave 19 (16-21) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-21 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-21 complete: Reduce Motion gating across the list-diff sites (D-29) — `DownloadsView.swift` id-keyed list, the inspector spinner transition (`.opacity` only; the site's `visible(_:)` opacity toggle makes the transition inert either way, deferred), `SearchRootView.swift` ×3, `QuickSearchView.swift` ×2 (`listEditMode` included), `FolderManagerView.swift` ×2 (`editingField` included: `.newFolder` inserts the top row) (`b5e69032`); `TorrentsView.swift`, `GeneralSettingView.swift` `rowAnimation` ×3 (cache-size `numericText` kept), `HomeView.swift` `popularLoadingState` gated — the card insertion pushes the sections below down, crossfades kept (`9841ff22`). `ReduceMotionGatingSourceTests` (`AppToolsTests`) pins D-29 as five exact two-directional equalities over `AppPackage/Sources`: reads 17 / 16 files, `reduceMotion ?` ternaries 22 / 14 files, `withAnimation(reduceMotion` 2, gate-value mentions 52 (catches the line-broken toast ternary and the `||` / `&&` compositions), `numericText` 11 with none gated on the same line; RED (26 issues) → GREEN 5/5 → mutation (dropped gate + over-gated digit roll) 3/5 failed, reverted; `RepositoryWalk` extracted for both scanning suites (`bb265cb1`). Every site observed OFF then ON on iPhone 17e `67377A20…` through the real Settings switch (`ReduceMotionEnabled` 1 → 0 → 1 → 0, restored and read back); FolderManager source-verified (login-gated). Full `FeatureTests` plan green in one invocation (1,060 tests / 185 suites / 22 targets, 0 violations). The previous executor's `--label "dismiss popup"` incident (gallery `4178996` deleted, re-downloaded on the orchestrator's order) is recorded in the SUMMARY; this continuation dismissed the row-anchored delete popover by a verified scrim coordinate only, and `4178996` reads 112/112 with 114 entries on disk before and after. Nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
@@ -328,6 +328,7 @@ Progress: [██████░░░░] 59% (268/274 plans)
 | Phase 16 P18 | 13min | 2 tasks | 4 files |
 | Phase 16 P19 | 26 min | 3 tasks | 6 files |
 | Phase 16 P20 | 31min | 2 tasks | 5 files |
+| Phase 16 P21 | 1h 38m | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -880,6 +881,8 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-20: Reduce Motion gates read the environment at the animating view and substitute nil / a non-repeating .default / an opacity-only path / .symbolEffect(.pulse); crossfades and numericText stay ungated (D-29)
 - [Phase 16]: 16-20: the reader control panel has a single lower offset (the top bar is the native ReadingToolbar); under Reduce Motion the hidden offset collapses to 0 so the existing .visible(showsPanel) fade carries the transition alone
 - [Phase 16]: 16-20: Reduce Motion on the simulator is toggled through the real Settings switch (knob at the row's trailing edge) and read back from com.apple.Accessibility ReduceMotionEnabled; agent-device snapshots wedge on the reader and Settings, so heavy screens are driven with sim-use and simctl
+- [Phase 16]: 16-21: Home popularLoadingState animation gated (card insertion pushes sections down; crossfades kept); FolderManager editingField gated with folders; Quick Search listEditMode gated
+- [Phase 16]: 16-21: ReduceMotionGatingSourceTests pins D-29 as five two-directional equalities (reads 17, ternaries 22, withAnimation 2, mentions 52, numericText 11 none gated); RepositoryWalk shared in AppToolsTests
 
 ### Pending Todos
 
@@ -944,6 +947,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T15:59:27.305Z
-Stopped at: Completed 16-20-PLAN.md (Reduce Motion: Detail and Reader); next 16-21 (wave 19)
+Last session: 2026-09-11T23:53:04.420Z
+Stopped at: Completed 16-21-PLAN.md (Reduce Motion: lists, sheets, settings + inventory pin); next 16-22 (wave 20)
 Resume file: None
