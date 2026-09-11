@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-10 and 16-11 (round-1 closure, ROUND1-CLEAR 2026-09-11); next 16-12
-last_updated: "2026-09-11T08:15:00.328Z"
+stopped_at: "Completed 16-12-PLAN.md (round-1 owner sign-off recorded); next wave 12: 16-13 + 16-14"
+last_updated: "2026-09-11T08:39:54.460Z"
 last_activity: 2026-09-11
-last_activity_desc: "Round 1 closed: D13-4 and #28 dispositions recorded, ROUND1-CLEAR 2026-09-11T08:04Z, Task 3 check 0/0/1/0; plans 16-10 and 16-11 complete; next 16-12."
-state_head: 9f3f303521e98ace67d8502633073f0931dd1979
+last_activity_desc: "Round 1 signed off: owner approved 2026-09-11T08:35Z covering HEAD d5afe78f, recorded in 16-SWEEP.md § Owner sign-off (c5138ea7); no_minimum_scale_factor live (d5afe78f); plan 16-12 complete, A11Y-01 complete; next wave 12: 16-13 + 16-14."
+state_head: c5138ea7029dc53c87bc40a7be625e7ea9862ce3
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 259
+  completed_plans: 260
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 16-12 of 26 — next (wave 11); plans 16-10 and 16-11 complete
-Status: Round 1 closed — owner `ROUND1-CLEAR` 2026-09-11T08:04Z; ready to dispatch 16-12 (`no_minimum_scale_factor` rule + owner-signed UAT gate)
-Last activity: 2026-09-11 — Recorded the final two dispositions (`D13-4=fixed`, `#28=fixed`; commit `7d7b8d43`), ran plan 16-11 Task 3's closure check (0 pending/re-verify cells, 0 open findings, `### Round-1 closure` present, `minimumScaleFactor` 0; commit `9f3f3035`), replaced both halted summaries with complete ones.
+Plan: 13 of 26 — next (wave 12: 16-13 contrast audit + 16-14 contrast helper); plans 16-01 through 16-12 complete
+Status: Round 1 signed off — owner `approved` 2026-09-11T08:35Z covering HEAD `d5afe78f`, recorded as text in `16-SWEEP.md § Owner sign-off` (commit `c5138ea7`). Round 2 (assistive technology) unblocked under D-23.
+Last activity: 2026-09-11 — Plan 16-12 complete: `no_minimum_scale_factor` landed at error severity with the tree at 0 sites, probed (positives fire; comment/doccomment/string negatives silent), strict lint 0 violations in 571 files, scheme build and FeatureTests build-for-testing green (commit `d5afe78f`); owner sign-off recorded (commit `c5138ea7`), closing 10-UAT.md test 7 (D-03 device gate), ROADMAP Phase 16 criteria 5 and 6, and A11Y-01.
 
-Round-1 state: 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Nothing was re-run on 2026-09-11. Do not re-ask any recorded disposition.
+Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
-D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. No `minimumScaleFactor` remains in current source (removed by `59fb2eb9`). A11Y-01 completes at 16-12's owner sign-off, not before; the phase is not complete. Do not push without the owner.
+D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (259/274 plans)
+Progress: [██████░░░░] 59% (260/274 plans)
 
 ## Performance Metrics
 
@@ -319,6 +319,7 @@ Progress: [██████░░░░] 59% (259/274 plans)
 | Phase 16 P09 | 1h 2m | 2 tasks | 2 files |
 | Phase 16 P10 | 6min (closure) | 2 tasks | 1 files |
 | Phase 16 P11 | 6min (closure) | 3 tasks | 2 files |
+| Phase 16 P12 | 21min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -853,6 +854,8 @@ Recent decisions affecting current work:
 - [Phase 16]: A sheet-presented screen uses a plain large title, never .inlineLarge (owner, chat, 2026-09-03) — SettingView is the only such site and the only one changed; the four tab roots keep .inlineLarge; applied via navigationTitleDisplayMode so the AX-size inline fallback (finding #7) still holds
 - [Phase 16]: List gallery cell keeps cover+title on one line when the row is wide (owner, chat, 2026-09-04) — the AX-size cover-above-text stack is gated on measured row width (<550pt), so landscape phones and iPad (both orientations) stay side-by-side; portrait phones still stack
 - [Phase 16]: Round 1 closed on owner ROUND1-CLEAR (2026-09-11T08:04Z); D13-4 and #28 fixed on recorded evidence; matrix labelled historical, targeted rechecks sampled
+- [Phase 16]: Round 1 signed off: owner approved 2026-09-11T08:35Z covering HEAD d5afe78f, recorded as text in 16-SWEEP.md § Owner sign-off; closes 10-UAT.md test 7 (D-03), ROADMAP Phase 16 criterion 5 and A11Y-01; round 2 unblocked (D-23)
+- [Phase 16]: no_minimum_scale_factor lands at error severity only with the tree at 0 sites (zero-then-ban); all five Dynamic Type lint rules live
 
 ### Pending Todos
 
@@ -917,6 +920,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T08:14:59.325Z
-Stopped at: Completed 16-10 and 16-11 (round-1 closure, ROUND1-CLEAR 2026-09-11); next 16-12
+Last session: 2026-09-11T08:39:53.686Z
+Stopped at: Completed 16-12-PLAN.md (round-1 owner sign-off recorded); next wave 12: 16-13 + 16-14
 Resume file: None
