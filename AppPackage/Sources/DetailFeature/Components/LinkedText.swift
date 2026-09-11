@@ -73,11 +73,14 @@ struct LinkedText: View {
     init (text: String, action: @escaping (URL) -> Void) {
         self.text = text
         self.action = action
-        let nsText = text as NSString
+        links = Self.linkMatches(in: text)
+    }
 
-        // find the ranges of the string that have URLs
-        let wholeString = NSRange(location: 0, length: nsText.length)
-        links = linkDetector?.matches(in: text, options: [], range: wholeString) ?? []
+    /// The URL ranges of `text`, from the same detector the view colours and taps by — so a
+    /// caller listing a comment's links names exactly the runs this view makes tappable.
+    static func linkMatches(in text: String) -> [NSTextCheckingResult] {
+        let wholeString = NSRange(location: 0, length: (text as NSString).length)
+        return linkDetector?.matches(in: text, options: [], range: wholeString) ?? []
     }
 
     var body: some View {

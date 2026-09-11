@@ -145,7 +145,15 @@ extension CommentsView {
             self.linkAction = linkAction
         }
 
+        /// The row is one accessibility element: a comment is read as a unit — author, vote,
+        /// score, date, then its runs in order — instead of as one stop per run. The vote travels
+        /// as the element's value, never as text (the thumb glyph is hidden below), and only while
+        /// a vote exists. The link runs are reached by tap gestures VoiceOver and Voice Control
+        /// cannot see, so every link the comment carries is also a named action on the element;
+        /// the tap gestures stay for sighted users. The swipe actions need nothing here: iOS
+        /// surfaces them on the row's element already (`CONTEXTMENU=not-exposed` read, 16-CONTRAST-AUDIT).
         var body: some View {
+            let links = links
             VStack(alignment: .leading) {
                 authorAndMetadata
 
@@ -175,6 +183,43 @@ extension CommentsView {
                 .fixedSize(horizontal: false, vertical: true)
             }
             .padding()
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
+            .accessibilityValue(.accessibilityVotedDown, isEnabled: comment.votedDown)
+            .accessibilityActions {
+                ForEach(links, id: \.self) { link in
+                    Button(openLinkActionName(link, distinguished: links.count > 1)) {
+                        linkAction(link)
+                    }
+                }
+            }
+        }
+
+        /// Every URL the comment's text runs carry, in reading order and without repeats: a
+        /// `.linkedText` or `.singleLink` run names its own, and a `.plainText` run holds whatever
+        /// the detector behind `LinkedText` finds in it. Linked images are left out: they are
+        /// `Button`s already.
+        private var links: [URL] {
+            var seen: Set<URL> = []
+            return comment.contents.flatMap(links(in:)).filter({ seen.insert($0).inserted })
+        }
+
+        private func links(in content: CommentContent) -> [URL] {
+            switch content.type {
+            case .plainText:
+                content.text.map({ LinkedText.linkMatches(in: $0).compactMap(\.url) }) ?? []
+            case .linkedText, .singleLink:
+                content.link.map({ [$0] }) ?? []
+            case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
+                []
+            }
+        }
+
+        /// A comment with one link gets the plain "Open link"; with several, each action names
+        /// its host so the rotor entries can be told apart. A URL without a host (`mailto:`) falls
+        /// back to the whole URL.
+        private func openLinkActionName(_ link: URL, distinguished: Bool) -> LocalizedStringResource {
+            distinguished ? .accessibilityOpenLinkTo(link.host() ?? link.absoluteString) : .accessibilityOpenLink
         }
 
         /// The author and the vote/date group share the row for as long as both fit it whole, and
@@ -223,6 +268,7 @@ extension CommentsView {
             HStack {
                 Image(systemSymbol: comment.votedUp ? .handThumbsupFill : .handThumbsdownFill)
                     .visible(comment.votedUp || comment.votedDown)
+                    .accessibilityHidden(true)
 
                 comment.score.map(Text.init)
                 Text(comment.formattedDateString)
