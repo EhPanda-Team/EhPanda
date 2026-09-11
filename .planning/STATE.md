@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-17-PLAN.md (VoiceOver: Setting screens + DateSeek); next 16-18 (wave 16)"
-last_updated: "2026-09-11T14:28:50.910Z"
+stopped_at: "Completed 16-18-PLAN.md (VoiceOver: reader); next 16-19 (wave 17)"
+last_updated: "2026-09-11T14:48:51.927Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-17 complete: SettingFeature + DateSeek VoiceOver pass — ExcludeToggle and the Laboratory cell present as system Toggles via accessibilityRepresentation (accessibility.exclude_language, two positional %@), AppIconRow a plain Button with .isSelected + hidden checkmark, Setting root rows Buttons with SettingRowStyle for the pressed background, cookie validity an accessibilityValue on the key text (accessibility.cookie_valid/_invalid) with the glyph hidden and the TextField separate, General warning glyph hidden, log-level dot labelled with log.level.title, Date Seek verified native (unchanged); three six-locale keys; live AX verified on 67377A20 (root rows AXButton, App Icon Default [Selected, Button], Laboratory AXCheckBox [Toggle], cookie key AXValue Valid beside an AXTextField, log dot AXImage Error, Older/Newer AXButton); ExcludeToggle source-verified (EhSetting login-gated) — commits c0291090, 311c1456; wave 15 complete; next 16-18 (wave 16)."
-state_head: 311c1456ddb5993a9d4fb99f5dd3462d90d93c88
+last_activity_desc: "Plan 16-18 complete: reader VoiceOver / Voice Control pass — every page element carries Next page / Previous page named actions that reach jump(toPagerIndex:) (direction-agnostic +1/-1; live custom_actions on each AXImage page), accessibilityZoomAction drives the direction-guarded double-tap toggle, the page slider announces Page, 1 of 112 from accessibility.page_slider + accessibility.page_of (named %#@current@/%#@total@ substitutions; live agent-device value \"1 of 112\"), showing the panel focuses its lower Close button via @AccessibilityFocusState; toolbar menus verified already native at HEAD (ReadingToolbar.swift, not redone); no timer-driven panel hide; scroll native; four six-locale keys; ReadingFeatureTests 24/24 on 67377A20; lint 0 violations — commits 73383692, 5d76fed7; wave 16 complete; next 16-19 (wave 17)."
+state_head: 5d76fed78cf68b4a7071e8c879b1af22e62fc069
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 265
+  completed_plans: 266
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 18 of 26 — next 16-18 (wave 16); plans 16-01 through 16-17 complete — wave 15 (16-17) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15, 16-16 and 16-17 added none (neither changed layout nor drew anything new). 16-16 handed two items to the orchestrator: the tag-cell `.contextMenu` in `DetailView+Subviews.swift` is owned by neither 16-16 (comment menus only) nor 16-19 as written (its grep targets `TagCloudView.swift`), and Torrents / Archive counters are announced as bare numbers (the glyph was the unit). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-17 complete: `EhSetting/EhSettingView+Sections3` `ExcludeToggle` representation + `Components/LaboratorySettingView` representation + `AppearanceSetting/AppearanceSettingView` `AppIconRow` `Button` + `SettingView` `SettingRow` `Button` / `SettingRowStyle` + `accessibility.exclude_language` (`c0291090`); `AccountSetting/AccountSettingView` cookie value on the key text + hidden glyph, `GeneralSetting/GeneralSettingView` hidden warning glyph, `AppActivityLogs/AppActivityLogsView` level-dot label + `accessibility.cookie_valid` / `_invalid` (`311c1456`). Live AX reads on iPhone 17e `67377A20…` via `sim-use describe-ui`: root rows `AXButton`; App Icon `Default` traits `[Selected, Button]`; Laboratory `AXCheckBox` `[Toggle, Button]` value 0; cookie key `AXStaticText` value `Valid` beside a separate `AXTextField`; log dot `AXImage "Error"`; Date Seek `Older` / `Newer` `AXButton` (nothing added). `ExcludeToggle` source-verified (EhSetting login-gated). Lint build green ×2, 0 violations, no suppression; four out-of-scope findings in `deferred-items.md`; nothing pushed.
+Plan: 19 of 26 — next 16-19 (wave 17); plans 16-01 through 16-18 complete — wave 16 (16-18) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15, 16-16, 16-17 and 16-18 added none (none changed layout or drew anything new). 16-16 handed two items to the orchestrator: the tag-cell `.contextMenu` in `DetailView+Subviews.swift` is owned by neither 16-16 (comment menus only) nor 16-19 as written (its grep targets `TagCloudView.swift`), and Torrents / Archive counters are announced as bare numbers (the glyph was the unit). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-18 complete: `Support/ControlPanel.swift` slider `accessibilityLabel(.accessibilityPageSlider)` + `accessibilityValue(.accessibilityPageOf(current:total:))`, `@AccessibilityFocusState` on the lower Close button set from `.onChange(of: showsPanel)` (`73383692`); `ReadingView.swift` `.accessibilityAction(named: .accessibilityNextPage / .accessibilityPreviousPage)` → `jump(toPagerIndex: pageModel.index ± 1)` + `.accessibilityZoomAction(performAccessibilityZoom)` (direction-guarded `onDoubleTapGestureEnded`, `ReadingView+Gestures.swift`) (`5d76fed7`). Toolbar menus (`ReadingToolbar.swift`: `Label` titles, `Toggle`s, inline `Picker`) verified already native at HEAD, not redone. Live on iPhone 17e `67377A20…`: each page `AXImage custom_actions ["Previous page", "Next page"]` traits `[Image, Scrollable]` (sim-use hit-test); slider `label "Page" value "1 of 112"` (agent-device `--json`; sim-use shows only the numeric AXValue); toolbar `Close / 1 / 112 / Live Text / Auto-Play / More`. `no timer-driven hide` (only `.toggleShowsPanel` writes `showsPanel`); scroll native, `accessibilityScrollAction` not added; zoom action and focus landing source-verified (no simulator tool observes them). `ReadingFeatureTests` 24/24; lint build green ×2, 0 violations, no suppression; two out-of-scope observations (two `Close` buttons; slider end labels) in `deferred-items.md`; nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (265/274 plans)
+Progress: [██████░░░░] 59% (266/274 plans)
 
 ## Performance Metrics
 
@@ -325,6 +325,7 @@ Progress: [██████░░░░] 59% (265/274 plans)
 | Phase 16 P15 | 35min | 3 tasks | 16 files |
 | Phase 16 P16 | 30min | 2 tasks | 7 files |
 | Phase 16 P17 | 12min | 2 tasks | 8 files |
+| Phase 16 P18 | 13min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -870,6 +871,8 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-17: Setting root rows are Buttons with SettingRowStyle drawing the pressed background from isPressed (plan's first option; .isButton fallback not needed)
 - [Phase 16]: 16-17: cookie validity is an accessibilityValue on the key Text (glyph hidden, TextField kept separate) — combining a row over a TextField would remove its editing role, a value on the field would replace its text
 - [Phase 16]: 16-17: custom on/off cells (ExcludeToggle, Laboratory cell) use accessibilityRepresentation { Toggle(isOn:) } with the visible/positional title; App Icon rows are plain Buttons with .isSelected and a hidden checkmark
+- [Phase 16]: 16-18: reader Next/Previous page named actions are direction-agnostic +1/-1 into jump(toPagerIndex:) (the data source stays forward; RTL flips only the paging axis); the assistive zoom maps to the direction-guarded double-tap toggle, not stepped magnify calls
+- [Phase 16]: 16-18: a slider's accessibilityValue string is read from agent-device snapshot -i --json (sim-use reports the numeric AXValue); .accessibilityAction(named:) on a container propagates to every descendant element
 
 ### Pending Todos
 
@@ -934,6 +937,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T14:28:50.338Z
-Stopped at: Completed 16-17-PLAN.md (VoiceOver: Setting screens + DateSeek); next 16-18 (wave 16)
+Last session: 2026-09-11T14:48:36.927Z
+Stopped at: Completed 16-18-PLAN.md (VoiceOver: reader); next 16-19 (wave 17)
 Resume file: None
