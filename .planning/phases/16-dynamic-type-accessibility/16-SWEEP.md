@@ -2991,3 +2991,38 @@ batches, not a current-build verdict. The later targeted rechecks (`16-TARGETED-
 2026-09-08; `16-LOGIN-COVER-RECHECK.md`, 2026-09-09/10) are sampled evidence for specific items and
 do not replace the matrix. Round 1's findings loop is closed; the `no_minimum_scale_factor` lint
 rule and the owner-signed UAT gate follow in plan 16-12.
+
+## Owner sign-off
+
+**Resume signal (verbatim):** `approved`
+
+**Delivery route and time:** given by the owner at 2026-09-11T08:35Z through the execute-phase
+orchestrator's structured question for plan 16-12 Task 2 (`checkpoint:human-verify`, `gate="blocking"`),
+selecting the option labelled `approved`; no additional signature line was typed, so none is recorded.
+
+**Commit the signature covers:** HEAD `d5afe78f` (`feat(16-12): ban minimumScaleFactor via lint`),
+verified as `git rev-parse --short HEAD` at 08:35Z with a clean working tree. The signature covers the
+completed round-1 table as it stood at that commit: § Matrix with 0 `pending` / 0 `re-verify` cells,
+§ Findings with 0 `open` entries, § D-13 with 5/5 dispositions, and `### Round-1 closure` with the
+measured counts (see the section directly above).
+
+**What this closes:**
+
+- Phase 10's `10-UAT.md` test 7 (item 5, `skipped` there): the owner-signed device UAT for Dynamic Type
+  readability and operability at XXL / AX3 / AX5 across every screen, including the authenticated
+  content screens — the D-03 device gate Phase 10 deferred to this phase.
+- ROADMAP Phase 16 success criterion 5 (owner-signed UAT). Criterion 6 closed with the lint state below.
+- Requirement A11Y-01 (round 1). A11Y-02 (round 2) remains open.
+- The `.large` half of D-15: default-size parity as verified per fix batch in plan 16-11 is included in
+  the signed table.
+
+**Lint state at the signed commit:** `no_minimum_scale_factor` live at `severity: error` in the root
+`.swiftlint.yml`; `grep -rn "minimumScaleFactor" AppPackage/Sources App ShareExtension | wc -l` = 0
+before and after the rule landed; all four D-16 rules (`no_dynamic_type_size_modifier`,
+`no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`) plus
+`no_minimum_scale_factor` live at error severity; strict standalone lint `Found 0 violations, 0
+serious in 571 files`; scheme build and FeatureTests build-for-testing both green (plan 16-12 Task 1).
+
+**Round 2 may begin.** Per D-23, plans 16-13 onward (assistive technology: VoiceOver, Voice Control,
+Reduced Motion, Sufficient Contrast, Differentiate Without Color) are unblocked and land against the
+layout signed here. Per D-32 this signature is text only; no image enters the repository.
