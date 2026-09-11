@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-18-PLAN.md (VoiceOver: reader); next 16-19 (wave 17)"
-last_updated: "2026-09-11T14:48:51.927Z"
+stopped_at: "Completed 16-19-PLAN.md (VoiceOver: shared components, list cells, Downloads); next 16-20 (wave 18)"
+last_updated: "2026-09-11T15:22:06.398Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-18 complete: reader VoiceOver / Voice Control pass — every page element carries Next page / Previous page named actions that reach jump(toPagerIndex:) (direction-agnostic +1/-1; live custom_actions on each AXImage page), accessibilityZoomAction drives the direction-guarded double-tap toggle, the page slider announces Page, 1 of 112 from accessibility.page_slider + accessibility.page_of (named %#@current@/%#@total@ substitutions; live agent-device value \"1 of 112\"), showing the panel focuses its lower Close button via @AccessibilityFocusState; toolbar menus verified already native at HEAD (ReadingToolbar.swift, not redone); no timer-driven panel hide; scroll native; four six-locale keys; ReadingFeatureTests 24/24 on 67377A20; lint 0 violations — commits 73383692, 5d76fed7; wave 16 complete; next 16-19 (wave 17)."
-state_head: 5d76fed78cf68b4a7071e8c879b1af22e62fc069
+last_activity_desc: "Plan 16-19 complete: VoiceOver / Voice Control pass over shared components, list hosts and Downloads — RatingView is one element (accessibility.rating + accessibility.rating_value, named %#@rating@ substitution with .1f → Float parameter; live cell value \"1.5 out of 5\", Detail header AXValue \"0.5 out of 5\"); the four checkmark menus verified native inline Pickers at HEAD (live [selected] on Toplists type and Downloads filter items; ToolbarItems.swift holds no menus), not redone; TagCloudCell spacer and TagSuggestionView glyphs hidden, suggestion row a plain Button; Detail tag chips feed accessibilityActions from the menu builder; Downloads row gains the context-menu-only Detail action via accessibilityActions { detailButton } — swipe actions NOT mirrored (SwiftUI exposes them and does not de-duplicate; measured duplicates; coordinator option A); live row [\"Detail\", \"Pages\", \"Move\", \"Delete\"]; AppComponents catalog trailing comma normalised; DownloadsFeatureTests 488/488 on 67377A20; lint 0 violations ×3 — commits ac1b92b0, 86ad21a7, 9b349248; wave 17 complete; next 16-20 (wave 18)."
+state_head: 9b349248c485cb3791a1bd7d24cb50a00145b63e
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 266
+  completed_plans: 267
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 19 of 26 — next 16-19 (wave 17); plans 16-01 through 16-18 complete — wave 16 (16-18) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15, 16-16, 16-17 and 16-18 added none (none changed layout or drew anything new). 16-16 handed two items to the orchestrator: the tag-cell `.contextMenu` in `DetailView+Subviews.swift` is owned by neither 16-16 (comment menus only) nor 16-19 as written (its grep targets `TagCloudView.swift`), and Torrents / Archive counters are announced as bare numbers (the glyph was the unit). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-18 complete: `Support/ControlPanel.swift` slider `accessibilityLabel(.accessibilityPageSlider)` + `accessibilityValue(.accessibilityPageOf(current:total:))`, `@AccessibilityFocusState` on the lower Close button set from `.onChange(of: showsPanel)` (`73383692`); `ReadingView.swift` `.accessibilityAction(named: .accessibilityNextPage / .accessibilityPreviousPage)` → `jump(toPagerIndex: pageModel.index ± 1)` + `.accessibilityZoomAction(performAccessibilityZoom)` (direction-guarded `onDoubleTapGestureEnded`, `ReadingView+Gestures.swift`) (`5d76fed7`). Toolbar menus (`ReadingToolbar.swift`: `Label` titles, `Toggle`s, inline `Picker`) verified already native at HEAD, not redone. Live on iPhone 17e `67377A20…`: each page `AXImage custom_actions ["Previous page", "Next page"]` traits `[Image, Scrollable]` (sim-use hit-test); slider `label "Page" value "1 of 112"` (agent-device `--json`; sim-use shows only the numeric AXValue); toolbar `Close / 1 / 112 / Live Text / Auto-Play / More`. `no timer-driven hide` (only `.toggleShowsPanel` writes `showsPanel`); scroll native, `accessibilityScrollAction` not added; zoom action and focus landing source-verified (no simulator tool observes them). `ReadingFeatureTests` 24/24; lint build green ×2, 0 violations, no suppression; two out-of-scope observations (two `Close` buttons; slider end labels) in `deferred-items.md`; nothing pushed.
+Plan: 20 of 26 — next 16-20 (wave 18); plans 16-01 through 16-19 complete — wave 17 (16-19) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-19 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-19 complete: `RatingView.swift` `.accessibilityElement(children: .ignore)` + `.accessibilityLabel(.accessibilityRating)` + `.accessibilityValue(.accessibilityRatingValue(rating:))` (named `%#@rating@` substitution, `formatSpecifier .1f`, generated `Float` parameter; catalog trailing comma normalised) (`ac1b92b0`); `TagCloudView.swift` spacer hidden, `TagSuggestionView.swift` row → `Button` + `.buttonStyle(.plain)` with glyphs hidden, `DetailView+Subviews.swift` tag chip `.accessibilityActions { tagContextMenu(…) }` (`86ad21a7`); `DownloadsView.swift` `DownloadRow` `.accessibilityActions { detailButton }` — swipe actions deliberately not mirrored after measuring `["Delete", "Pages", "Pages", "Move", "Delete"]` with literal mirrors (coordinator option A) (`9b349248`). Menus (`FavoritesView`, `ToplistsView`, `DownloadsView` inline `Picker`s) verified native, not redone; cells verified one element with the rating value, page glyph `Label`-hosted, not edited. Live on iPhone 17e `67377A20…`: Frontpage cell `Button "…, Rating, 14, Misc, …" value "1.5 out of 5"`; Detail header `AXGenericElement "Rating" AXValue "0.5 out of 5"`; Toplists menu `"Yesterday" [selected]`; Downloads filter `"All" [selected]`; Downloads row `actions ["Detail", "Pages", "Move", "Delete"]`. `DownloadsFeatureTests` 488/488; lint build green ×3, 0 violations, no suppression; one out-of-scope observation (Detail user-rating drag has no adjustable action) in `deferred-items.md`; nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (266/274 plans)
+Progress: [██████░░░░] 59% (267/274 plans)
 
 ## Performance Metrics
 
@@ -326,6 +326,7 @@ Progress: [██████░░░░] 59% (266/274 plans)
 | Phase 16 P16 | 30min | 2 tasks | 7 files |
 | Phase 16 P17 | 12min | 2 tasks | 8 files |
 | Phase 16 P18 | 13min | 2 tasks | 4 files |
+| Phase 16 P19 | 26 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -873,6 +874,8 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-17: custom on/off cells (ExcludeToggle, Laboratory cell) use accessibilityRepresentation { Toggle(isOn:) } with the visible/positional title; App Icon rows are plain Buttons with .isSelected and a hidden checkmark
 - [Phase 16]: 16-18: reader Next/Previous page named actions are direction-agnostic +1/-1 into jump(toPagerIndex:) (the data source stays forward; RTL flips only the paging axis); the assistive zoom maps to the direction-guarded double-tap toggle, not stepped magnify calls
 - [Phase 16]: 16-18: a slider's accessibilityValue string is read from agent-device snapshot -i --json (sim-use reports the numeric AXValue); .accessibilityAction(named:) on a container propagates to every descendant element
+- [Phase 16]: 16-19: swipe actions are not mirrored as named accessibility actions — SwiftUI exposes .swipeActions as custom actions and does not de-duplicate (measured duplicates on 67377A20…); only context-menu-only items (Downloads row Detail, Detail tag chips) are mirrored via accessibilityActions { <menu builder> }
+- [Phase 16]: 16-19: RatingView value uses a named %#@rating@ substitution with formatSpecifier .1f (generated Float parameter, locale-aware); whole ratings read 5.0 out of 5 — owner may prefer the positional formatted() fallback
 
 ### Pending Todos
 
@@ -937,6 +940,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T14:48:36.927Z
-Stopped at: Completed 16-18-PLAN.md (VoiceOver: reader); next 16-19 (wave 17)
+Last session: 2026-09-11T15:22:05.816Z
+Stopped at: Completed 16-19-PLAN.md (VoiceOver: shared components, list cells, Downloads); next 16-20 (wave 18)
 Resume file: None
