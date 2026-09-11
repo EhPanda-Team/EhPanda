@@ -71,7 +71,6 @@ struct CategoryColorsetInvariantTests {
         "ExHentai/Game CG.colorset/Contents.json",
         "E-Hentai/Manga.colorset/Contents.json"
     ]
-    private static let repositoryRootMarkers = ["App", "AppPackage"]
 
     /// 11 categories × 2 hosts. `Private` ships only light and dark on both hosts, hence 84 variants
     /// rather than 88: 20 × 4 + 2 × 2.
@@ -296,7 +295,7 @@ private extension CategoryColorsetInvariantTests {
 
 private extension CategoryColorsetInvariantTests {
     private static func scan() throws -> Scan {
-        let colorsDirectory = try repositoryRoot().appending(path: colorsDirectory)
+        let colorsDirectory = try RepositoryWalk.repositoryRoot().appending(path: colorsDirectory)
         let decoder = JSONDecoder()
         var files = [String]()
         var variants = [Variant]()
@@ -312,7 +311,7 @@ private extension CategoryColorsetInvariantTests {
             where url.lastPathComponent == "Contents.json"
                 && url.deletingLastPathComponent().pathExtension == "colorset" {
                 let category = url.deletingLastPathComponent().deletingPathExtension().lastPathComponent
-                files.append(repositoryRelativePath(of: url, under: colorsDirectory))
+                files.append(RepositoryWalk.relativePath(of: url, under: colorsDirectory))
                 let contents = try decoder.decode(Contents.self, from: Data(contentsOf: url))
                 for entry in contents.colors {
                     variants.append(try variant(host: host, category: category, entry: entry))
@@ -333,43 +332,6 @@ private extension CategoryColorsetInvariantTests {
                 "The walk lost its known member \(knownMember); it refuses a vacuous pass."
             )
         }
-    }
-
-    static func repositoryRoot() throws -> URL {
-        var directory = URL(filePath: #filePath).deletingLastPathComponent()
-        var located: URL?
-
-        while located == nil, directory.path != "/" {
-            if isRepositoryRoot(directory) {
-                located = directory
-            } else {
-                directory = directory.deletingLastPathComponent()
-            }
-        }
-
-        return try #require(
-            located,
-            "Could not locate the repository root; the colorset invariant refuses a vacuous walk."
-        )
-    }
-
-    static func isRepositoryRoot(_ directory: URL) -> Bool {
-        let fileManager = FileManager.default
-        return repositoryRootMarkers.allSatisfy({ marker in
-            var isDirectory: ObjCBool = false
-            let exists = fileManager.fileExists(
-                atPath: directory.appending(path: marker).path,
-                isDirectory: &isDirectory
-            )
-            return exists && isDirectory.boolValue
-        })
-    }
-
-    static func repositoryRelativePath(of url: URL, under root: URL) -> String {
-        let path = url.standardizedFileURL.path
-        let rootPath = root.standardizedFileURL.path + "/"
-        guard path.hasPrefix(rootPath) else { return path }
-        return String(path.dropFirst(rootPath.count))
     }
 }
 
