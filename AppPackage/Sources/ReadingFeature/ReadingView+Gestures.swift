@@ -56,4 +56,24 @@ extension ReadingView {
             )
         }
     }
+
+    // The assistive zoom (VoiceOver's zoom rotor, Voice Control's "zoom in / out") is the reader's
+    // double tap, which already toggles between 1 and `doubleTapScaleFactor` at a point. The
+    // direction guard is what keeps the toggle honest: "zoom in" only fires unzoomed, "zoom out"
+    // only zoomed, so neither can land on the opposite side. Continuous pinch steps are not
+    // replayed on purpose — stepping the magnify handler would need its own step and clamping
+    // arithmetic, a second zoom path beside the gesture's.
+    func performAccessibilityZoom(_ action: AccessibilityZoomGestureAction) {
+        switch action.direction {
+        case .zoomIn:
+            guard gestureHandler.scale == 1 else { return }
+        case .zoomOut:
+            guard gestureHandler.scale > 1 else { return }
+        }
+        gestureHandler.onDoubleTapGestureEnded(
+            location: action.point,
+            scaleMaximum: store.setting.maximumScaleFactor,
+            doubleTapScale: store.setting.doubleTapScaleFactor
+        )
+    }
 }
