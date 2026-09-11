@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 11/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 12/26 | In Progress|  |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1125,7 +1125,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 11/26 plans executed
+**Plans**: 12/26 plans executed
 
 Plans:
 **Wave 1**
@@ -1171,7 +1171,7 @@ Plans:
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
-- [ ] 16-12-PLAN.md — `no_minimum_scale_factor` rule after the 5 removals; owner-signed UAT gate (criterion 5)
+- [x] 16-12-PLAN.md — `no_minimum_scale_factor` rule after the 5 removals; owner-signed UAT gate (criterion 5)
 
 **Wave 12** *(blocked on Wave 11 completion)*
 
