@@ -80,3 +80,17 @@ The remaining owner dispositions are D13-4 (populated Favorites page count/glyph
 Fresh checks on 2026-09-09 are recorded in `16-LOGIN-COVER-RECHECK.md`: D13-4 and #28 did not reproduce in the sampled conditions; #23 still reproduces during live rotation/text-size changes. These observations do not infer owner acceptance. The same report records the subsequent login and cover changes, their passing targeted tests, and the remaining live-verification limits.
 
 Owner update 2026-09-09 after viewing the fresh snapshot: #23 accepted. The owner explicitly quoted the iPhone landscape AX5 loss of the message and Cancel and replied 「就沒有那麼多空間可以用來顯示，通過」. Record this as acceptance of the space-constrained presentation, not a fixed rendering defect. Preserve the reproduction evidence; no app change is required for #23. D13-4, #28, and ROUND1-CLEAR are not inferred from this acceptance.
+
+## Round-1 closure — 2026-09-11
+
+The owner review is closed. At 2026-09-11T08:04Z the owner gave the final two dispositions through the
+orchestrator's structured question: `D13-4=fixed` (basis: the recorded iPhone #6 re-verification plus
+the 2026-09-09 sampled populated-iPad Favorites AX3/AX5 checks in `16-LOGIN-COVER-RECHECK.md`) and
+`#28=fixed` (basis: the 2026-09-09 sampled iPhone portrait AX5 check in the same record; recorded as
+`re-verified (owner 2026-09-11: …)`), then `ROUND1-CLEAR` conditional on both being recorded. Both are
+recorded in `16-SWEEP.md` (§ Findings, § D-13 named edge cases, `### D-13 dispositions requested`,
+`### Owner review closure — 2026-09-11`), and plan 16-11 Task 3's consistency check is recorded in
+`16-SWEEP.md § Round-1 report › ### Round-1 closure`. No simulator check, build or test was run today.
+
+Plans 16-10 and 16-11 are complete. Next: plan 16-12 (wave 11) — the `no_minimum_scale_factor` rule and
+the owner-signed UAT gate; A11Y-01 completes there, not here. The history above is retained as written.
