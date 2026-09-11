@@ -7,6 +7,7 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 public struct QuickSearchView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable private var store: StoreOf<QuickSearchReducer>
@@ -32,6 +33,13 @@ public struct QuickSearchView: View {
     /// size the designed two-line budget is kept verbatim.
     private var contentLineLimit: Int? {
         dynamicTypeSize <= .large ? 2 : nil
+    }
+
+    /// Words are inserted, deleted and reordered as whole rows, and edit mode slides the reorder and
+    /// delete controls into every row — position motion, so both land instantly under Reduce Motion
+    /// (D-29).
+    private var listAnimation: Animation? {
+        reduceMotion ? nil : .default
     }
 
     public var body: some View {
@@ -113,13 +121,13 @@ public struct QuickSearchView: View {
                     }
                 }
             }
-            .animation(.default, value: store.quickSearchWords)
+            .animation(listAnimation, value: store.quickSearchWords)
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)
-            .animation(.default, value: store.listEditMode)
+            .animation(listAnimation, value: store.listEditMode)
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
             .navigationTitle(.RLocalizable.quickSearch)
