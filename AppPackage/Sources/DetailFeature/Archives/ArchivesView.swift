@@ -212,6 +212,9 @@ private struct ArchiveFundsView: View {
     /// take a line each once they do not. The pair is deliberately *not* space-between — the row
     /// is centred as a block today and stays so — and both balances are numbers, whose ideal
     /// widths are honest, so `ViewThatFits` can arbitrate this level.
+    ///
+    /// The coin glyphs are decorative to assistive technology: they would be announced by their
+    /// symbol names beside each number, so they are hidden and the balances are read as text.
     var body: some View {
         AdaptiveStack(hSpacing: 20) {
             Label {
@@ -220,6 +223,7 @@ private struct ArchiveFundsView: View {
                     .animation(.default, value: galleryPoints)
             } icon: {
                 Image(systemSymbol: .gCircleFill)
+                    .accessibilityHidden(true)
             }
             Label {
                 Text(credits, format: .number)
@@ -227,6 +231,7 @@ private struct ArchiveFundsView: View {
                     .animation(.default, value: credits)
             } icon: {
                 Image(systemSymbol: .cCircleFill)
+                    .accessibilityHidden(true)
             }
         }
         .font(.headline.monospacedDigit()).lineLimit(balanceLineLimit).padding()
@@ -333,10 +338,12 @@ private struct HathArchiveGrid: View {
 }
 
 // MARK: DownloadButton
+/// A real `Button`, so VoiceOver announces the banner as one with its visible title and Voice
+/// Control lists it by that title; the tap-and-long-press pair it replaced had neither a role nor
+/// a name. `.disabled` carries the no-selection state as the button's own state.
 private struct DownloadButton: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-    @State private var isPressing = false
     // 50pt at default (.large); scales with Dynamic Type relative to the banner's text style (.headline).
     @ScaledMetric(relativeTo: .headline) private var bannerHeight: CGFloat = 50
 
@@ -348,12 +355,6 @@ private struct DownloadButton: View {
         self.action = action
     }
 
-    private var textColor: Color {
-        isDisabled ? .white.opacity(0.5) : isPressing ? .white.opacity(0.5) : .white
-    }
-    private var backgroundColor: Color {
-        isDisabled ? .accentColor.opacity(0.5) : isPressing ? .accentColor.opacity(0.5) : .accentColor
-    }
     private var paddingInsets: EdgeInsets {
         horizontalSizeClass == .regular
             ? .init(top: 0, leading: 0, bottom: 30, trailing: 0)
@@ -361,24 +362,34 @@ private struct DownloadButton: View {
     }
 
     var body: some View {
-        Text(.downloadToHathClient)
-            .font(.headline)
-            .foregroundStyle(textColor)
-            .frame(maxWidth: .infinity)
-            .frame(height: bannerHeight)
+        Button(action: action) {
+            Text(.downloadToHathClient)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .frame(height: bannerHeight)
+        }
+        .buttonStyle(DownloadBannerStyle())
+        .padding(paddingInsets)
+        .disabled(isDisabled)
+    }
+}
+
+/// The banner's designed rendering, drawn from the button's own state instead of a tracked
+/// long-press: white on the accent colour, both at half opacity while pressed or disabled, with
+/// the colour change animated. `.plain` would have dropped the pressed dimming, so the style is
+/// what keeps the appearance identical to the gesture-driven original.
+private struct DownloadBannerStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let isDimmed = !isEnabled || configuration.isPressed
+        configuration.label
+            .foregroundStyle(isDimmed ? .white.opacity(0.5) : .white)
             .animation(.default) {
-                $0.background(backgroundColor)
+                $0.background(isDimmed ? Color.accentColor.opacity(0.5) : Color.accentColor)
             }
             .clipShape(.rect(cornerRadius: 30))
             .glassEffect(.regular.interactive())
-            .padding(paddingInsets)
-            .onTapGesture(perform: { if !isDisabled { action() }})
-            .onLongPressGesture(
-                minimumDuration: 0,
-                maximumDistance: 50,
-                pressing: { isPressing = $0 },
-                perform: {}
-            )
     }
 }
 

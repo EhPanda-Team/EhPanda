@@ -163,10 +163,16 @@ private extension TorrentsView {
 
         /// The same glyph and value as `labelledCounter`, at the 3-point gap the labels get from
         /// `labelIconToTitleSpacing`, in a stack that measures as a whole (see `counters`).
+        ///
+        /// The glyph is hidden from assistive technology so both arrangements announce alike: a
+        /// `Label` exposes only its title, whereas a bare `Image` in a stack is its own element
+        /// read by its symbol description — "Arrow Up Circle", and "Selected" for the downloads
+        /// glyph, which is wrong information beside a count (observed at AX3, plan 16-16).
         private func flowedCounter(_ counter: TorrentCounter) -> some View {
             HStack(spacing: 3) {
                 Image(systemSymbol: counter.symbol)
                     .imageScale(.medium)
+                    .accessibilityHidden(true)
                 value(of: counter)
             }
         }
