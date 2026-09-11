@@ -19,6 +19,7 @@ private let logger = Logger(category: .init(describing: ReadingView.self))
 public struct ReadingView: View {
     @Dependency(\.dataCache) private var dataCache
     @Dependency(\.deviceClient) private var deviceClient
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
@@ -113,10 +114,14 @@ public struct ReadingView: View {
         }
         .toast($store.scope(\.$toast, action: \.toast))
 
-        .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+        // Pan and zoom: the page still follows the finger — these animate only the eased settle
+        // after each gesture step, which is position / size motion, so Reduce Motion drops it. The
+        // Live Text swaps are opacity-only and stay animated; `showsPanel` keeps its animation for
+        // the panel's fade, whose slide `ControlPanel` removes on its own (D-29).
+        .animation(reduceMotion ? nil : .linear(duration: 0.1), value: gestureHandler.offset)
         .animation(.default, value: liveTextHandler.enablesLiveText)
         .animation(.default, value: liveTextHandler.liveTextGroups)
-        .animation(.default, value: gestureHandler.scale)
+        .animation(reduceMotion ? nil : .default, value: gestureHandler.scale)
         .animation(.default, value: store.showsPanel)
         .statusBarHidden(!store.showsPanel)
         // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
@@ -376,7 +381,11 @@ extension ReadingView {
         guard pageModel.index != clampedIndex else { return }
         performingChanges = true
         pageModel.update(.new(index: clampedIndex))
-        withAnimation {
+        // A jump slides the pager across every page in between; under Reduce Motion it lands
+        // instantly. The echo guard around it is independent of the animation: it covers the
+        // observer round-trip of the index write, not the scroll's travel, so its window stays
+        // `echoGuardDuration` in both modes (D-29).
+        withAnimation(reduceMotion ? nil : .default) {
             scrollPositionID = clampedIndex
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
