@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 9/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 11/26 | In Progress|  |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1125,7 +1125,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 9/26 plans executed
+**Plans**: 11/26 plans executed
 
 Plans:
 **Wave 1**
@@ -1163,11 +1163,11 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 16-10-PLAN.md — Round-1 report committed; reconciled halted summary, owner dispositions pending (D-01 amended)
+- [x] 16-10-PLAN.md — Round-1 report committed; owner dispositions recorded item by item, checkpoint resolved 2026-09-11 (D-01 amended)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 16-11-PLAN.md — Fix-batch history reconciled; halted at remaining owner review and closure (D-15 parity)
+- [x] 16-11-PLAN.md — Re-verification batches recorded; round-1 findings loop closed on ROUND1-CLEAR 2026-09-11 (D-15 parity)
 
 **Wave 11** *(blocked on Wave 10 completion)*
 
