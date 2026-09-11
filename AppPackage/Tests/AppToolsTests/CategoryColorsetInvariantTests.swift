@@ -14,10 +14,10 @@ import Testing
 /// (`Color.Resolved.relativeLuminance`, `Color.contrastingForeground(on:)`), so a regression in the
 /// maths fails here against the audited table as well as in `ColorContrastTests`.
 ///
-/// The 40 `contrast: high` variants carry a *separate* pin. D-27 leaves their re-authoring as a
-/// should-fix for the owner; when that happens the HC pin is re-derived deliberately while the standard
-/// pin stays untouched, so "more contrast" can be made to mean more without ever loosening the guard
-/// on the standard backgrounds.
+/// The 40 `contrast: high` variants carry a *separate* pin. D-27 left their re-authoring as a
+/// should-fix for the owner; plan 16-15 did it under the `HC=A` decision, re-deriving the HC pin
+/// deliberately while the standard pin stayed untouched — "more contrast" now means more, and the
+/// guard on the standard backgrounds was never loosened to get there.
 ///
 /// The walk reads the live `Contents.json` files from the repository, because the app resolves these
 /// colours from the main bundle's catalog, which a package test cannot load by name. It refuses to
@@ -92,7 +92,13 @@ struct CategoryColorsetInvariantTests {
     private static let standardPin = "f940492af7648bf41e12a5cca24532c8f7451d79875a75b3534a7b9c0f235363"
     /// SHA-256 over the sorted canonical lines of the 40 `contrast: high` variants. Re-derive only
     /// under a deliberate D-27 re-authoring; never touch the standard pin to do so.
-    private static let highContrastPin = "e81b0604c84754a0260818465051f11fae99fe756b934db2f16929ea83600937"
+    ///
+    /// Re-pinned by plan 16-15 under the owner's `HC=A` decision (`16-CONTRAST-AUDIT.md § Decisions`):
+    /// the 19 HC variants whose best-of contrast was below their standard sibling's were rewritten to
+    /// the audit's proposed values, so no Increase Contrast badge now reads worse than its standard
+    /// one (0 / 40 lower). The previous pin, over the as-shipped HC bytes, was
+    /// `e81b0604c84754a0260818465051f11fae99fe756b934db2f16929ea83600937`.
+    private static let highContrastPin = "84accf722ad6601f41e6cf8d069344f5c066f58df42bfdbf21b780dbcc539407"
 
     private static let linearBlack = Color.Resolved(colorSpace: .sRGBLinear, red: 0, green: 0, blue: 0)
     private static let linearWhite = Color.Resolved(colorSpace: .sRGBLinear, red: 1, green: 1, blue: 1)
