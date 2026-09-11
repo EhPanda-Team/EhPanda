@@ -515,3 +515,73 @@ Every screen where round 2 adds a visible element or a size-changing contrast ch
 D-28 sites whose fix changes size: **none** — the audit proposed colour-only fixes for every failing site, so no exceptions exist.
 The included set is therefore Activity Logs and Laboratory, both from plan 16-22; plan 16-26 re-walks exactly those unless a
 later plan records an exception here.
+
+Plan 16-15 (CATEGORYCELL=A, HC=A) records **no exception**: it changed badge text colour, Increase Contrast background bytes and
+accessibility traits only, so per D-24 the Filters sheet and the badge screens stay **excluded** (see `### 16-15 result`).
+
+### 16-15 result
+
+Plan 16-15 built the category half of the decisions above; this is the rendered evidence, taken on the iOS 26.5 iPhone 17e
+`67377A20-A90A-4DB2-9A9C-9965532B0AA9` with the `app.ehpanda.personal` build of the tree at `b8296146` installed over the
+existing bundle (`plutil -extract CFBundleIdentifier raw` printed `app.ehpanda.personal` before `xcrun simctl install`; nothing
+uninstalled or erased; no session, no credential). The simulator's baselines (`appearance light`, `increase_contrast disabled`,
+`content_size large`) were read after boot, restored and read back identical, and the device was shut down.
+
+**What changed.** `CategoryLabel` (list cells, Detail header) and the Filters `CategoryCell` draw black or white text chosen by
+`Color.contrastingForeground(in:)` from the resolved background (D-26); `CategoryCell` is a `Button` (`.plain`) whose visible
+name is its label, with `.isSelected` while the category is included (CATEGORYCELL=A: opacity 0.3 kept, no visible cue, no
+catalog key — the trait alone carries the state). The 19 `lower` `contrast: high` entries of § Re-authoring proposal were
+rewritten to the proposed values (HC=A); the standard-44 pin `f940492a…5363` is byte-identical, and the HC-40 pin was
+re-derived to `84accf722ad6601f41e6cf8d069344f5c066f58df42bfdbf21b780dbcc539407` (from `e81b0604…0937`). After the rewrite:
+84 / 84 variants ≥ 4.5:1 best-of, 47 flips to black (every re-authored variant keeps the text side its proposal row named),
+worst best-of still ExHentai / Game CG / light 4.62, and **0 / 40** HC variants below their standard sibling (was 19 / 40); the
+worst HC best-of is now E-Hentai / Game CG / dark+HC 5.91. Padding, font, corner radius and `lineLimit` are untouched.
+
+**Badge flips, rendered set.** Only E-Hentai public content is reachable on this simulator, so the rendered set is the ten
+Filters tiles plus the three categories the Frontpage list happened to show (Misc, Doujinshi, Image Set) and the Doujinshi Detail
+header, each in light / dark / light+IC / dark+IC. Dominant colours sampled from the captures:
+
+| Set | light | dark | light+IC | dark+IC | Black of rendered |
+|---|---|---|---|---|---|
+| Filters tiles, included (10 per mode) | 7 black (Doujinshi, Manga, Artist CG, Game CG, Western, Non-H, Asian Porn) | 3 black (Manga, Artist CG, Western) | 9 black (all but Image Set) | 7 black (all but Doujinshi, Cosplay, Image Set) | **26 / 40** |
+| Frontpage list badges (Misc, Doujinshi, Image Set) | Doujinshi black | none | Misc, Doujinshi black | Misc black | **4 / 12** |
+| Detail header badge (Doujinshi) | black on `#FC4F4F` 6.37 | white on `#9B0202` 8.74 | black on `#FC7272` 7.79 | white on `#9B0101` 8.76 | 2 / 4 |
+
+Every rendered background equals its colorset entry, including the re-authored bytes (Image Set light+IC `#2956A3`, dark+IC
+`#1B4389`; Misc dark+IC `#8B969C`; Doujinshi dark+IC `#9B0101`; Asian Porn dark+IC `#DD67CA`; Cosplay light+IC `#C27AFF`, dark+IC
+`#6B009C`; Game CG dark+IC `#069E0C`), and every rendered text/background pair is ≥ **4.69:1** (worst: E-Hentai Asian Porn, light,
+black on `#B551A5`), against 2.70 – 3.30 for the white text these badges had before. The full 47 / 84 count is the invariant
+test's, not a rendered count; the rendered subset agrees with the table row by row.
+
+**Excluded cell composite.** The Filters `Form` section card is `secondarySystemGroupedBackground`: the section card sampled
+`#FFFFFF` / `#2C2C2E` / `#FFFFFF` / `#363638` (light / dark / light+IC / dark+IC) — that colour's values at the elevated (sheet)
+interface level — while the sheet behind it sampled `#F2F2F7` / `#1C1C1E` / `#EBEBF0` / `#242426` (`systemGroupedBackground`).
+The cell chooses its text against `category.resolve(in:).composited(over: secondarySystemGroupedBackground, opacity: 0.3)`, the
+16-14 helper's linear blend. Misc, excluded through the new `Button` (tapped once to exclude, once to restore; the filter was
+left as found, all ten included):
+
+| Mode | Raw Misc (L) | Linear composite L → text | Rendered tile | Rendered ratio of chosen text | White would be |
+|---|---|---|---|---|---|
+| light | `#707070` (0.162) | 0.749 → black | `#D4D4D4` (L 0.658) | **14.17** | 1.48 |
+| dark | `#545B5E` (0.102) | 0.048 → white | `#383A3C` (L 0.042) | **11.42** | 11.42 |
+| light+IC | `#9E9E9E` (0.342) | 0.803 → black | `#E2E2E2` (L 0.761) | **16.21** | 1.30 |
+| dark+IC | `#8B969C` (0.297) | 0.115 → white | `#505356` (L 0.086) | **7.74** | 7.74 |
+
+The dark+IC row is the case the composite exists for: the re-authored raw Misc HC colour would pick *black* (L 0.297), and black
+on the rendered `#505356` wash reads 2.71:1; the composite picks white at 7.74. The renderer blends in gamma space (rendered
+`#D4D4D4` = 0.3 × `#707070` + 0.7 × `#FFFFFF` byte-wise) while the helper blends in linear light; both were computed for all 80
+filter variants against both the elevated card and the base-level grouped background, and every one of the 320 pairs picks the
+same text: light-family washes have L ≥ 0.53, dark-family washes L ≤ 0.16, so no case sits near the 0.1791 crossover.
+
+**Assistive-technology read.** The Filters accessibility tree now lists ten `Button` elements labelled with the category names
+(before: unlabelled text with no role). Raw traits read from the simulator: included `['Button', 'Selected']`, and Misc after
+exclusion `['Button']` — the state travels as the trait, not as colour or a label.
+
+**D-25.** Nothing is added to the re-sweep list: CATEGORYCELL=A added no visible cue, the text-colour flips and the HC background
+bytes move no layout (D-24), and the Filters cells' `Button` conversion keeps the same frame (the `LazyVGrid` cells still measure
+100 × 30 pt at `.large`). The `Filters sheet (CategoryCell)` and `Increase Contrast` rows above stay **excluded**.
+
+**Evidence (owner review; never committed, D-32).** Full-scale captures under `$HOME/Library/Caches/ehpanda-phase16/round2/badge-review/`,
+named `<mode>-<screen>.png` with mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic` and screen ∈ `frontpage` (top of the
+Frontpage list, all Misc), `frontpage-scrolled` (Misc, Doujinshi, Image Set badges), `detail-header` (Doujinshi header badge),
+`filters` (all ten tiles included), `filters-excluded` (Misc excluded) — 20 files.
