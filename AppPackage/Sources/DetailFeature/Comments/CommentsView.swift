@@ -10,6 +10,7 @@ import SwiftUI
 import SystemNotification
 
 struct CommentsView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @SharedReader(.didLogin) private var didLogin: Bool
     @Bindable private var store: StoreOf<CommentsReducer>
     private let gid: String
@@ -90,7 +91,9 @@ struct CommentsView: View {
             .onChange(of: store.scrollCommentID, initial: true) {
                 if let scrollCommentID = store.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                        withAnimation {
+                        // The deep-linked comment lands at the same anchor either way; only the
+                        // travel there is motion, so Reduce Motion drops the animation, not the jump.
+                        withAnimation(reduceMotion ? nil : .default) {
                             proxy.scrollTo(scrollCommentID, anchor: .top)
                         }
                     }
