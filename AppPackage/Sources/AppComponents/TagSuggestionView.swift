@@ -90,36 +90,44 @@ private struct SuggestionCell: View {
 
     var body: some View {
         if deviceClient.deviceType() == .phone {
-            HStack(spacing: 20) {
-                Image(systemSymbol: .magnifyingglass)
+            // A real `Button`, so the row is a named, activatable control for VoiceOver and Voice
+            // Control; `.plain` keeps the designed row look. Its two texts name it, so the glyphs are
+            // decoration: the search symbol restates the row's purpose and the photo symbol only
+            // reserves the tag image's space.
+            Button(action: action) {
+                HStack(spacing: 20) {
+                    Image(systemSymbol: .magnifyingglass)
+                        .accessibilityHidden(true)
 
-                VStack(alignment: .leading) {
-                    HStack(spacing: 2) {
-                        Text(displayValue.localizedKey)
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 2) {
+                            Text(displayValue.localizedKey)
 
-                        if let imageURL = suggestion.tag.valueImageURL, showsImages {
-                            Image(systemSymbol: .photo)
-                                .opacity(0)
-                                .overlay(
-                                    KFImage(imageURL)
-                                        .resizable()
-                                        .scaledToFit()
-                                )
+                            if let imageURL = suggestion.tag.valueImageURL, showsImages {
+                                Image(systemSymbol: .photo)
+                                    .opacity(0)
+                                    .overlay(
+                                        KFImage(imageURL)
+                                            .resizable()
+                                            .scaledToFit()
+                                    )
+                                    .accessibilityHidden(true)
+                            }
                         }
-                    }
-                    .font(.callout)
-                    .lineLimit(1)
-
-                    Text(suggestion.displayKey.localizedKey)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.callout)
                         .lineLimit(1)
+
+                        Text(suggestion.displayKey.localizedKey)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .allowsHitTesting(false)
                 }
-                .allowsHitTesting(false)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(.rect)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(.rect)
-            .onTapGesture(perform: action)
+            .buttonStyle(.plain)
         } else {
             Text(searchCompletionLabel)
                 .searchCompletion(suggestion.tag.searchKeyword)

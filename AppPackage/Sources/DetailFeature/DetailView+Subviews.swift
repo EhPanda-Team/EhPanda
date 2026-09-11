@@ -422,6 +422,12 @@ extension TagsSection {
             .contextMenu {
                 tagContextMenu(content: content, translation: translation)
             }
+            // SwiftUI surfaces swipe actions, but not context-menu items, as VoiceOver custom
+            // actions (16-CONTRAST-AUDIT, `CONTEXTMENU=not-exposed`), so the builder that fills the
+            // menu also fills the Actions rotor: an action can never exist without its menu item.
+            .accessibilityActions {
+                tagContextMenu(content: content, translation: translation)
+            }
         }
 
         @ViewBuilder
