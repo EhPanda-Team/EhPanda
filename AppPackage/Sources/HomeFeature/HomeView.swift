@@ -10,6 +10,7 @@ import SFSafeSymbolsExt
 import SwiftUI
 
 public struct HomeView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable private var store: StoreOf<HomeReducer>
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var viewportSize: CGSize = .zero
@@ -71,7 +72,12 @@ public struct HomeView: View {
             .animation(.default) {
                 $0.visible(!store.popularGalleries.isEmpty)
             }
-            .animation(.default, value: store.popularLoadingState)
+            // Keyed on the loading state, this animates the scroll content only (the overlays are
+            // attached after it): `fetchPopularGalleriesDone` settles the state and lands the
+            // galleries in one action, so what it drives is the card section's insertion, which
+            // pushes the sections below it down — position motion, instant under Reduce Motion
+            // (D-29). The whole-content fade above and the overlays' fades are crossfades and stay.
+            .animation(reduceMotion ? nil : .default, value: store.popularLoadingState)
             .overlay {
                 LoadingView()
                     .animation(.default) {
