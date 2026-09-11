@@ -181,6 +181,18 @@ public struct ReadingView: View {
         )
         .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
         .gesture(magnificationGesture)
+        // Assistive alternatives to the edge taps and the pinch (VoiceOver criterion 5, Voice
+        // Control criterion 2). Both page actions reach `jump(toPagerIndex:)`, the one write path
+        // the tap zones' offset closure already lands on. "Next" is +1 in the data source, which
+        // stays forward under every reading direction — RTL flips only the paging axis, never the
+        // index order — so no direction is derived here and no second page-turn path exists.
+        .accessibilityAction(named: .accessibilityNextPage) {
+            jump(toPagerIndex: pageModel.index + 1)
+        }
+        .accessibilityAction(named: .accessibilityPreviousPage) {
+            jump(toPagerIndex: pageModel.index - 1)
+        }
+        .accessibilityZoomAction(performAccessibilityZoom)
         .ignoresSafeArea()
         .id(store.forceRefreshID)
         .background {
