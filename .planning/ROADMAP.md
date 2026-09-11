@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 12/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 13/26 | In Progress|  |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1125,7 +1125,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
 
 **Accessibility baseline measured 2026-08-23:** 13 accessibility call sites repo-wide, all added opportunistically in Phases 5/7/9/10/15; 0 `accessibilityInputLabels`; 5 `accessibilityReduceMotion` reads against ~107 animation sites; 45 of 84 category-color variants below 4.5:1, with the Increase Contrast variants *less* contrasty than their standard counterparts in nearly every case.
 
-**Plans**: 12/26 plans executed
+**Plans**: 13/26 plans executed
 
 Plans:
 **Wave 1**
@@ -1176,7 +1176,7 @@ Plans:
 **Wave 12** *(blocked on Wave 11 completion)*
 
 - [ ] 16-13-PLAN.md — `16-CONTRAST-AUDIT.md`: category / Increase Contrast / non-category / DWC audit; owner colour decisions checkpoint (D-22)
-- [ ] 16-14-PLAN.md — `Color+Contrast` helper + category colorset invariant test (84/84, two hash pins) (D-26/27)
+- [x] 16-14-PLAN.md — `Color+Contrast` helper + category colorset invariant test (84/84, two hash pins) (D-26/27)
 
 **Wave 13** *(blocked on Wave 12 completion)*
 
