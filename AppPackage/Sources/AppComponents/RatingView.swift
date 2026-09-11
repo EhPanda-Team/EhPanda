@@ -47,6 +47,13 @@ public struct RatingView: View {
                 ForEach(0..<5) { _ in FilledStar() }
             }
         }
+        // The five symbols are one fact, not five: read separately they are SF Symbol descriptions
+        // ("Star Fill, Star Fill, Star Leadinghalf Filled, Star, Star") that make the listener count.
+        // One element carries the fact as a label and the half-rounded value the stars draw, so a
+        // list cell or the Detail header announces "Rating, 4.5 out of 5" once.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(.accessibilityRating)
+        .accessibilityValue(.accessibilityRatingValue(rating: rating))
     }
 }
 
