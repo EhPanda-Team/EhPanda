@@ -90,18 +90,18 @@ public struct SettingView: View {
 }
 
 // MARK: SettingRow
+/// A root row is a `Button` whose label is the row's `Label`, so it carries the button role and
+/// its visible title as both the VoiceOver label and the Voice Control name; a tap gesture with a
+/// long-press tracking the pressed look gave it neither. The designed pressed background is drawn
+/// by ``SettingRowStyle`` from the button's own pressed state instead.
 private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var isPressing = false
 
     private let rowType: SettingReducer.RootScreen
     private let tapAction: (SettingReducer.RootScreen) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
-    }
-    private var backgroundColor: Color {
-        isPressing ? color.opacity(0.1) : .clear
     }
 
     init(rowType: SettingReducer.RootScreen, tapAction: @escaping (SettingReducer.RootScreen) -> Void) {
@@ -110,31 +110,42 @@ private struct SettingRow: View {
     }
 
     var body: some View {
-        Label {
-            Text(rowType.value)
-                .fontWeight(.medium)
-                .font(.title3)
-                .foregroundStyle(color)
-        } icon: {
-            Image(systemSymbol: rowType.symbol)
-                .font(.largeTitle)
-                .foregroundStyle(color)
-                .padding(.trailing, 20)
-                .frame(width: 45, height: 45)
+        Button {
+            tapAction(rowType)
+        } label: {
+            Label {
+                Text(rowType.value)
+                    .fontWeight(.medium)
+                    .font(.title3)
+                    .foregroundStyle(color)
+            } icon: {
+                Image(systemSymbol: rowType.symbol)
+                    .font(.largeTitle)
+                    .foregroundStyle(color)
+                    .padding(.trailing, 20)
+                    .frame(width: 45, height: 45)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(.rect)
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .background(backgroundColor)
-        .clipShape(.rect(cornerRadius: 10))
-        .onTapGesture { tapAction(rowType) }
-        .onLongPressGesture(
-            minimumDuration: .infinity,
-            maximumDistance: 50,
-            pressing: { isPressing = $0 },
-            perform: {}
-        )
+        .buttonStyle(SettingRowStyle(color: color))
+    }
+}
+
+/// The root row's designed look: full-width leading content, the row's own padding, and a tinted
+/// background at a tenth of the row colour for exactly as long as the row is pressed. `.plain`
+/// has no hook for that background, which is why the row was previously a gesture pair rather
+/// than a `Button`; reading `isPressed` here keeps the pressed look and the tap-on-release
+/// behaviour of the original while letting the row be a real control.
+private struct SettingRowStyle: ButtonStyle {
+    let color: Color
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 20)
+            .background(configuration.isPressed ? color.opacity(0.1) : .clear)
+            .clipShape(.rect(cornerRadius: 10))
+            .contentShape(.rect)
     }
 }
 
