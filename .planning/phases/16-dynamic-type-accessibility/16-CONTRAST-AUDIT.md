@@ -421,11 +421,97 @@ state ratio that the grayscale check depends on; the last three columns are the 
 
 ## Decisions
 
-Filled by Task 3 from the owner's resume line (`STARS=A|B CATEGORYCELL=A|B[:strike|nosign|outline] HC=A|B D28=ok|veto:<sites>
-CONTEXTMENU=exposed|not-exposed`). Until then every slot is pending and nothing is built (D-22).
+Owner resume line, recorded verbatim:
 
-- **STARS** — pending.
-- **CATEGORYCELL** — pending.
-- **HC** — pending.
-- **D28** — pending.
-- **CONTEXTMENU** (research Open Question 2) — pending.
+```
+STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed
+```
+
+Delivered 2026-09-11 through the orchestrator's structured checkpoint questions (option labels selected verbatim from the plan's
+Task 2 options). `STARS=B`, `CATEGORYCELL=A`, `HC=A` and `D28=ok` are the owner's own selections (owner reply ≈ 10:20 UTC).
+`CONTEXTMENU=not-exposed` has a different provenance and is recorded as such in its slot below: the owner asked the orchestrator
+to verify research Open Question 2 with agent-device instead of performing the VoiceOver rotor check on `Owner-iPhone-Test`.
+`D28=ok` means every proposed D-28 fix is applied; no site was vetoed. Nothing is built by this plan; each slot names the plan
+that builds against it.
+
+- **STARS = B** — darken the rating-star colour in **light mode only** to ≥ 3:1; dark mode keeps `.yellow`.
+  - Plan **16-19** labels the star group for VoiceOver (a single element with a label and a value, e.g. "Rating, 4.5 out of 5"),
+    on every `RatingView` site including the list cells, where the audit found no numeric rating beside the stars.
+  - Plan **16-23** changes the light-mode star colour only. The audit's measured candidates are `#B59000` (3.02:1 on white — fails
+    the Home card's `#E8E8E9`), `#A38100` (3.69:1 on white, 3.01:1 on the Home card) and Apple's own Increase-Contrast yellow
+    `#A16A00` (4.59:1 on white, 3.75:1 on the Home card). **The audit recommends `#A38100`**: it is the smallest visible departure
+    from `.yellow` that clears 3:1 on both measured light backgrounds (list cell white, Home card gray). Its Home-card margin is
+    0.01, so 16-23 must re-measure it from rendered pixels; if the rendered Home-card ratio falls below 3.00, 16-23 escalates to
+    `#A16A00`, which has real headroom and additionally makes the light and light+IC star colours identical. No code changes here.
+  - Recorded caveat: the Home card's **dark** backgrounds are the cover-derived animated gradient (1.97:1 and 2.21:1 measured on
+    one cover). B as chosen leaves dark on `.yellow`, so that case is content-dependent and stays a documented caveat for the
+    Nutrition Label recommendation (plan 16-26); the 16-19 VoiceOver value carries the rating regardless of the glyph colour.
+- **CATEGORYCELL = A** — keep opacity 0.3 for the excluded state; no visible non-colour cue is added.
+  - Plan **16-15** keeps `color.opacity(isFiltered ? 0.3 : 1)`, gives the cell D-26's adaptive text resolved against the
+    **composited** colour (the category colour at 0.3 over the sheet row, gamma-space blend — the table above validates the
+    composite against the rendered Misc tiles), so the excluded label goes from white 1.48:1 (light) / 1.30:1 (light+IC) to the
+    best-of black ≥ 12.33:1 on every light-family excluded tile, and adds `Button` semantics plus `.isSelected` for the included
+    state (VoiceOver / Voice Control read the state as a trait, not as colour).
+  - The Differentiate Without Color claim for this state rests on the measured grayscale numbers alone: on E-Hentai Misc the
+    included:excluded luminance ratio is **3.34** in light and **1.65** in dark; across all 80 filter variants the dark minimum is
+    **1.25** (ExHentai Cosplay; 20/20 below 3.0, 6 below 1.5) and the light minimum 1.59. The Nutrition Label recommendation
+    (plan 16-26) must carry that caveat verbatim: in dark mode the excluded state is a luminance-only distinction that is weak
+    for about a third of the categories.
+- **HC = A** — adopt the re-authored values for the 19 `lower` Increase Contrast variants; the 44 standard variants stay frozen.
+  - Plan **16-15** edits exactly the 19 `contrast: high` entries listed in § Re-authoring proposal to the proposed sRGB values
+    (one of them, E-Hentai Cosplay light+HC, does not keep its hue exactly because a channel clipped at 1.0); the other 21 HC
+    entries and all 44 standard entries are not touched.
+  - `CategoryColorsetInvariantTests` (plan 16-14) re-pins **only** the HC-40 hash: the current
+    `e81b0604c84754a0260818465051f11fae99fe756b934db2f16929ea83600937` is re-derived from the edited colorsets. The standard-44
+    pin `f940492af7648bf41e12a5cca24532c8f7451d79875a75b3534a7b9c0f235363` never changes. D-26's "84 byte-identical" therefore
+    narrows to "44 standard byte-identical + 40 HC re-pinned", and D-27 is fulfilled: Increase Contrast never yields less badge
+    contrast than standard. The change is visible only to users with Increase Contrast on.
+- **D28 = ok** — every proposed non-category fix is applied; no site vetoed.
+  - Plan **16-23** applies, and re-measures from rendered pixels, the fixes proposed in § Findings for: `read-glyph` (glyph colour
+    from the resolved accent's luminance via the 16-14 helper), `comment-link` (light link colour `#54832A`), `comment-date`
+    (`.foregroundStyle(.primary)` for the date — the first-listed option; it is colour-only, whereas dropping the gray-5 card
+    would move layout), `offline-notice` (text `.primary`, `.orange` stays on the glyph), `swipe-move` (a tint that carries white,
+    measured), `swipe-pages` (an explicit `.tint` on `inspectButton`, measured), `swipe-update` (a darker tint, `#B36119`-class in
+    light, measured), `newdawn` (darken the light gradient's top stop, e.g. `#008198`; a scrim only if the stop cannot pass).
+    `swipe-delete` and `swipe-pause` are applied as proposed: **kept**, recorded as platform conventions (`.red` is Apple's
+    delete tint; Apple's Increase-Contrast dark palette is pastel by design, so every white-label swipe action fails dark+IC).
+    `stars-list` / `stars-card` are the STARS decision above. `secondary-meta` proposed no change and stays unchanged; it is the
+    one known `.secondary` caveat (4.00:1 in light, unchanged under Increase Contrast) for the Nutrition Label recommendation.
+  - Plan **16-22** adds the Differentiate Without Color carriers: per-level activity-log glyphs (`circle.fill` for debug / info /
+    notice, `exclamationmark.circle.fill` for error, `xmark.octagon.fill` for fault, palette-rendered so the mark is `.primary`
+    and the colour is redundant — this is also the `log-dot` contrast fix), a Laboratory on/off state glyph (or a real `Toggle`)
+    with `.isToggle` / `.isSelected`, and `.underlineStyle(.single)` on comment link runs in `LinkColoredText`.
+- **CONTEXTMENU = not-exposed** (research Open Question 2) — SwiftUI `.contextMenu` items are **not** surfaced as VoiceOver
+  custom actions on iOS 26.5, while `.swipeActions` are.
+  - Plans **16-16** and **16-19** therefore add explicit `accessibilityAction`s for every context-menu item (tag cells in the tag
+    cloud, Downloads rows, reader pages and the other `.contextMenu` sites those plans own); this is not a duplication.
+  - **Provenance.** This is a simulator accessibility-tree read, not a VoiceOver rotor pass on the physical device. The
+    orchestrator ran `agent-device snapshot --actions` (private-AX backend) on the iPhone 17e simulator `67377A20…` (iOS 26.5) on
+    2026-09-11 at ≈ 10:35 UTC. The Downloads row — `DownloadsView.swift` `.contextMenu { downloadContextMenu() }` = Detail,
+    Pages, Move, [Update], [Pause], Delete; `.swipeActions` = Pages, Move | Delete for a completed download — exposed the custom
+    actions `["Pages", "Move", "Delete"]`, exactly the swipe-action set; the context menu's distinguishing `Detail` item was
+    absent. The reader page (`.contextMenu` only, no swipe actions) could not be read by the private-AX backend and is not
+    corroborating evidence. No screenshot enters the repository. Plan 16-25's manual VoiceOver walkthrough on the physical device
+    confirms the behaviour with the rotor.
+
+### D-25 re-sweep candidates
+
+Every screen where round 2 adds a visible element or a size-changing contrast change is re-walked at XXL / AX3 / AX5 in plan
+16-26. Per D-24, a change of text or glyph *colour* only moves no layout and is excluded. Applying that rule to the decisions above:
+
+| Screen | Change | Re-sweep? | Reason |
+|---|---|---|---|
+| Frontpage / Toplists / Favorites / Search list cells | STARS=B star colour (16-23) | **excluded** | Colour only; the `RatingView` glyphs keep their size and count |
+| Home hero cards | STARS=B star colour (16-23) | **excluded** | Colour only; no backing shape was chosen under B |
+| Detail header (`DescScrollRatingItem`) | none | **excluded** | The header stars are `.primary`, not `.yellow`; 16-23 does not touch them |
+| Filters sheet (`CategoryCell`) | CATEGORYCELL=A adaptive text + semantics (16-15) | **excluded** | Text colour and accessibility traits only — no visible cue added, no layout moves |
+| Any screen showing a category badge with Increase Contrast on | HC=A re-authored HC bytes (16-15) | **excluded** | Background colour only; badge geometry unchanged |
+| Settings › General › App Activity Logs | per-level glyphs replace the colour-only disc (16-22) | **included** | A newly added glyph is one of D-24's two layout risks; the glyph box is meant to be unchanged and the re-sweep proves it |
+| Settings › Laboratory | on/off state glyph or `Toggle` (16-22) | **included** | New glyph or control in the cell; joins regardless of whether the cell height changes |
+| Comments (`LinkColoredText`) | underline on link runs (16-22) | **excluded** | Text decoration inside the line box; 16-22 re-measures and promotes it to the list only if any line height moves at AX5 |
+| Detail header Read button, Detail offline notice, Detail comment preview, Downloads swipe actions | D-28 fixes (16-23) | **excluded** | Every § Findings row is marked `Layout moves? No`: colour, tint or weight-neutral changes only |
+| NewDawn greeting | D-28 `newdawn` fix (16-23) | **excluded** | Darkening a gradient stop is colour only; if 16-23 falls back to a scrim (a new shape), 16-23 adds NewDawn to this list |
+
+D-28 sites whose fix changes size: **none** — the audit proposed colour-only fixes for every failing site, so no exceptions exist.
+The included set is therefore Activity Logs and Laboratory, both from plan 16-22; plan 16-26 re-walks exactly those unless a
+later plan records an exception here.
