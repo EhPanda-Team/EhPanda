@@ -6,6 +6,11 @@ import SFSafeSymbols
 import SwiftUI
 
 struct ControlPanel<G: Gesture>: View {
+    // The panel is a custom overlay, not a sheet, so nothing moves VoiceOver into it by itself:
+    // showing it lands focus on the lower Close button (the panel's first control), the way a
+    // modal surface would. Hiding needs no counterpart — `.visible(false)` takes the panel out of
+    // the accessibility tree and VoiceOver falls back to the page on its own.
+    @AccessibilityFocusState private var isCloseButtonFocused: Bool
     @Binding var showsPanel: Bool
     @Binding var showsSliderPreview: Bool
     @Binding var sliderValue: Float
@@ -22,6 +27,7 @@ struct ControlPanel<G: Gesture>: View {
             Spacer()
             if range.upperBound > range.lowerBound {
                 LowerPanel(
+                    closeButtonFocus: $isCloseButtonFocused,
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: isReversed,
@@ -38,12 +44,18 @@ struct ControlPanel<G: Gesture>: View {
         .dynamicTypeSize(DynamicTypeSize.large...DynamicTypeSize.xxLarge)
         .visible(showsPanel)
         .disabled(!showsPanel)
+        .onChange(of: showsPanel) { _, isShown in
+            if isShown {
+                isCloseButtonFocused = true
+            }
+        }
     }
 }
 
 // MARK: LowerPanel
 private struct LowerPanel<G: Gesture>: View {
     @ScaledMetric(relativeTo: .title2) private var closeButtonSize: CGFloat = 44
+    private let closeButtonFocus: AccessibilityFocusState<Bool>.Binding
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     private let previewURLs: [Int: URL]
@@ -55,11 +67,13 @@ private struct LowerPanel<G: Gesture>: View {
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
+        closeButtonFocus: AccessibilityFocusState<Bool>.Binding,
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
         containerSize: CGSize, dismissGesture: G, dismissAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
+        self.closeButtonFocus = closeButtonFocus
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previewURLs = previewURLs
@@ -82,6 +96,7 @@ private struct LowerPanel<G: Gesture>: View {
             .foregroundStyle(.primary)
             .glassEffect(.regular.interactive())
             .gesture(dismissGesture)
+            .accessibilityFocused(closeButtonFocus)
             .visible(!showsSliderPreview)
 
             VStack(spacing: 0) {
@@ -116,6 +131,13 @@ private struct LowerPanel<G: Gesture>: View {
                     )
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                    // The slider's own value would be a percentage; the page it stands for is the
+                    // value that means something ("Page, 12 of 112"). `range.upperBound` is the
+                    // gallery's page count — the reader passes `1...pageCount`.
+                    .accessibilityLabel(.accessibilityPageSlider)
+                    .accessibilityValue(
+                        .accessibilityPageOf(current: Int(sliderValue), total: Int(range.upperBound))
+                    )
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity)
                             .onChanged({ if $0 { showsSliderPreview = true } })
