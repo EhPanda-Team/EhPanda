@@ -184,7 +184,11 @@ struct HeaderSection: View {
                 Button(user.getFavoriteCategory(index: index)) { favorAction(index) }
             }
         } label: {
-            Image(systemSymbol: .heart)
+            // The title is the menu's VoiceOver label and its Voice Control name; the heart alone
+            // had neither. The favourited state is the overlaid `Label` below, swapped in by
+            // visibility, so the state travels as which control is present, not as label text.
+            Label(.accessibilityAddToFavorites, systemSymbol: .heart)
+                .labelStyle(.iconOnly)
                 .font(actionIconFont)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
@@ -244,9 +248,12 @@ struct HeaderSection: View {
                     }
             }
             .overlay {
+                // Decorative: the enclosing button already announces the status and the action
+                // through `downloadButtonAccessibilityLabel`, so the glyph would only be read twice.
                 Image(systemSymbol: centerSymbol)
                     .font(.system(size: progressCenterSymbolSize, weight: .semibold))
                     .foregroundStyle(downloadButtonTint)
+                    .accessibilityHidden(true)
             }
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
     }
