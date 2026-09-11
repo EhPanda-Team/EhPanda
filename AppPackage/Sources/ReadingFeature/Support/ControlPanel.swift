@@ -11,6 +11,7 @@ struct ControlPanel<G: Gesture>: View {
     // modal surface would. Hiding needs no counterpart — `.visible(false)` takes the panel out of
     // the accessibility tree and VoiceOver falls back to the page on its own.
     @AccessibilityFocusState private var isCloseButtonFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var showsPanel: Bool
     @Binding var showsSliderPreview: Bool
     @Binding var sliderValue: Float
@@ -21,6 +22,12 @@ struct ControlPanel<G: Gesture>: View {
     let dismissGesture: G
     let dismissAction: () -> Void
     let fetchPreviewURLsAction: (Int) -> Void
+
+    /// Where the hidden panel rests: 50 pt below its shown position, so showing it is a rise
+    /// paired with the fade `.visible(showsPanel)` provides. The rise is position motion, so under
+    /// Reduce Motion the hidden panel sits in place and only the fade remains — the reader's
+    /// `.animation(.default, value: store.showsPanel)` drives that half unchanged (D-29).
+    private var hiddenPanelOffset: CGFloat { reduceMotion ? 0 : 50 }
 
     var body: some View {
         VStack {
@@ -35,8 +42,10 @@ struct ControlPanel<G: Gesture>: View {
                     dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
-                .animation(.default, value: showsSliderPreview)
-                .offset(y: showsPanel ? 0 : 50)
+                // The preview tray grows from zero height while the Close button fades out — size
+                // motion, so under Reduce Motion the tray appears in place (D-29).
+                .animation(reduceMotion ? nil : .default, value: showsSliderPreview)
+                .offset(y: showsPanel ? 0 : hiddenPanelOffset)
             }
         }
         // Match the native reading toolbar: measured on iOS 26.5 from XS through AX5.
