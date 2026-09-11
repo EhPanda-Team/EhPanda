@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-19-PLAN.md (VoiceOver: shared components, list cells, Downloads); next 16-20 (wave 18)"
-last_updated: "2026-09-11T15:22:06.398Z"
+stopped_at: "Completed 16-20-PLAN.md (Reduce Motion: Detail and Reader); next 16-21 (wave 19)"
+last_updated: "2026-09-11T15:59:27.921Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-19 complete: VoiceOver / Voice Control pass over shared components, list hosts and Downloads — RatingView is one element (accessibility.rating + accessibility.rating_value, named %#@rating@ substitution with .1f → Float parameter; live cell value \"1.5 out of 5\", Detail header AXValue \"0.5 out of 5\"); the four checkmark menus verified native inline Pickers at HEAD (live [selected] on Toplists type and Downloads filter items; ToolbarItems.swift holds no menus), not redone; TagCloudCell spacer and TagSuggestionView glyphs hidden, suggestion row a plain Button; Detail tag chips feed accessibilityActions from the menu builder; Downloads row gains the context-menu-only Detail action via accessibilityActions { detailButton } — swipe actions NOT mirrored (SwiftUI exposes them and does not de-duplicate; measured duplicates; coordinator option A); live row [\"Detail\", \"Pages\", \"Move\", \"Delete\"]; AppComponents catalog trailing comma normalised; DownloadsFeatureTests 488/488 on 67377A20; lint 0 violations ×3 — commits ac1b92b0, 86ad21a7, 9b349248; wave 17 complete; next 16-20 (wave 18)."
-state_head: 9b349248c485cb3791a1bd7d24cb50a00145b63e
+last_activity_desc: "Plan 16-20 complete: Reduce Motion gating in Detail and the reader (D-29) — HeaderSection spin kept only when motion is allowed (spinsDownloadIcon / downloadPreparationAnimation), upright glyph with .symbolEffect(.pulse, isActive:) under Reduce Motion; DetailView's three height animations and the CommentsView deep-linked scrollTo run reduceMotion ? nil : .default; ReadingView offset/scale settle and the page jump gated with the echo-guard choreography byte-identical; ControlPanel's single lower offset collapses to 0 (hiddenPanelOffset) so .visible(showsPanel) fades alone, preview-pop animation nil. Crossfades, Live Text swaps, favourite swap and every numericText untouched (ControlPanel numericText = 0 before/after; the indicator is ReadingToolbar.swift:31). Verified OFF/ON on iPhone 17e 67377A20… via the real Settings switch (ReduceMotionEnabled 0→1→0, restored and read back); recordings under $HOME/Library/Caches/ehpanda-phase16/round2/reduce-motion/ (spin OFF observed, spin ON pulse source-verified only; showsUserRating login-gated, source-verified). ReadingFeatureTests 24/24; lint 0 violations ×3 — commits 9687c82d, 449628fb; wave 18 complete; next 16-21 (wave 19)."
+state_head: 449628fb6cf7580a3dad4883dad7fac5eaeb7491
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 267
+  completed_plans: 268
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 20 of 26 — next 16-20 (wave 18); plans 16-01 through 16-19 complete — wave 17 (16-19) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-19 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-19 complete: `RatingView.swift` `.accessibilityElement(children: .ignore)` + `.accessibilityLabel(.accessibilityRating)` + `.accessibilityValue(.accessibilityRatingValue(rating:))` (named `%#@rating@` substitution, `formatSpecifier .1f`, generated `Float` parameter; catalog trailing comma normalised) (`ac1b92b0`); `TagCloudView.swift` spacer hidden, `TagSuggestionView.swift` row → `Button` + `.buttonStyle(.plain)` with glyphs hidden, `DetailView+Subviews.swift` tag chip `.accessibilityActions { tagContextMenu(…) }` (`86ad21a7`); `DownloadsView.swift` `DownloadRow` `.accessibilityActions { detailButton }` — swipe actions deliberately not mirrored after measuring `["Delete", "Pages", "Pages", "Move", "Delete"]` with literal mirrors (coordinator option A) (`9b349248`). Menus (`FavoritesView`, `ToplistsView`, `DownloadsView` inline `Picker`s) verified native, not redone; cells verified one element with the rating value, page glyph `Label`-hosted, not edited. Live on iPhone 17e `67377A20…`: Frontpage cell `Button "…, Rating, 14, Misc, …" value "1.5 out of 5"`; Detail header `AXGenericElement "Rating" AXValue "0.5 out of 5"`; Toplists menu `"Yesterday" [selected]`; Downloads filter `"All" [selected]`; Downloads row `actions ["Detail", "Pages", "Move", "Delete"]`. `DownloadsFeatureTests` 488/488; lint build green ×3, 0 violations, no suppression; one out-of-scope observation (Detail user-rating drag has no adjustable action) in `deferred-items.md`; nothing pushed.
+Plan: 21 of 26 — next 16-21 (wave 19); plans 16-01 through 16-20 complete — wave 18 (16-20) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-20 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-20 complete: `DetailView+HeaderSection.swift` `spinsDownloadIcon` + `downloadPreparationAnimation` + `.symbolEffect(.pulse, isActive: showsMetadataPreparation && reduceMotion)`; `DetailView.swift` 3 × `.animation(reduceMotion ? nil : .default, value:)`; `CommentsView.swift` `withAnimation(reduceMotion ? nil : .default)` (`9687c82d`); `ReadingView.swift` offset / scale predicates + page-jump `withAnimation(reduceMotion ? nil : .default)` with `performingChanges` / `echoGuardDuration` unchanged; `ControlPanel.swift` `hiddenPanelOffset` (`reduceMotion ? 0 : 50`, the only offset — the top bar is the native `ReadingToolbar`) + preview-pop predicate (`449628fb`). Live on iPhone 17e `67377A20…` with Reduce Motion OFF then ON through Settings › Accessibility › Motion (restored, `ReduceMotionEnabled` read back `0`): spin rotated across frames OFF / no rotation ON (pulse source-verified, preparation shorter than one frame); title expansion, comment scroll, panel, preview tray and zoom settle animated OFF and one-frame ON; `showsUserRating` source-verified (`Give a Rating` is `.disabled(!didLogin)`). `ReadingFeatureTests` 24/24; lint build green ×3, 0 violations, no suppression; two out-of-scope observations (download-badge flicker at enqueue; Home `Unknown Error` section when logged out) in `deferred-items.md`; two public galleries downloaded to the simulator's `Second` folder, nothing deleted; nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (267/274 plans)
+Progress: [██████░░░░] 59% (268/274 plans)
 
 ## Performance Metrics
 
@@ -327,6 +327,7 @@ Progress: [██████░░░░] 59% (267/274 plans)
 | Phase 16 P17 | 12min | 2 tasks | 8 files |
 | Phase 16 P18 | 13min | 2 tasks | 4 files |
 | Phase 16 P19 | 26 min | 3 tasks | 6 files |
+| Phase 16 P20 | 31min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -876,6 +877,9 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-18: a slider's accessibilityValue string is read from agent-device snapshot -i --json (sim-use reports the numeric AXValue); .accessibilityAction(named:) on a container propagates to every descendant element
 - [Phase 16]: 16-19: swipe actions are not mirrored as named accessibility actions — SwiftUI exposes .swipeActions as custom actions and does not de-duplicate (measured duplicates on 67377A20…); only context-menu-only items (Downloads row Detail, Detail tag chips) are mirrored via accessibilityActions { <menu builder> }
 - [Phase 16]: 16-19: RatingView value uses a named %#@rating@ substitution with formatSpecifier .1f (generated Float parameter, locale-aware); whole ratings read 5.0 out of 5 — owner may prefer the positional formatted() fallback
+- [Phase 16]: 16-20: Reduce Motion gates read the environment at the animating view and substitute nil / a non-repeating .default / an opacity-only path / .symbolEffect(.pulse); crossfades and numericText stay ungated (D-29)
+- [Phase 16]: 16-20: the reader control panel has a single lower offset (the top bar is the native ReadingToolbar); under Reduce Motion the hidden offset collapses to 0 so the existing .visible(showsPanel) fade carries the transition alone
+- [Phase 16]: 16-20: Reduce Motion on the simulator is toggled through the real Settings switch (knob at the row's trailing edge) and read back from com.apple.Accessibility ReduceMotionEnabled; agent-device snapshots wedge on the reader and Settings, so heavy screens are driven with sim-use and simctl
 
 ### Pending Todos
 
@@ -940,6 +944,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T15:22:05.816Z
-Stopped at: Completed 16-19-PLAN.md (VoiceOver: shared components, list cells, Downloads); next 16-20 (wave 18)
+Last session: 2026-09-11T15:59:27.305Z
+Stopped at: Completed 16-20-PLAN.md (Reduce Motion: Detail and Reader); next 16-21 (wave 19)
 Resume file: None

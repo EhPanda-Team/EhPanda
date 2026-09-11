@@ -22,3 +22,8 @@ Out-of-scope discoveries logged by executors (deviation-rule scope boundary). No
 ## Found during 16-19
 
 - `AppPackage/Sources/DetailFeature/DetailView+Subviews.swift` `ActionSection`: the user-rating `RatingView` (shown after "Rate") is driven by a `DragGesture` only. With 16-19's single-element `RatingView` it now announces `Rating, 2.5 out of 5` correctly, but the drag has no assistive equivalent (no `accessibilityAdjustableAction`), so VoiceOver / Voice Control users cannot rate. DetailFeature site (16-16 did not cover it because the research classed `RatingView` as read-only); an owner call for a follow-up.
+
+## Found during 16-20
+
+- `AppPackage/Sources/DetailFeature/DetailView+HeaderSection.swift` download button: in the Reduce-Motion-OFF recording of a download start (`spin-off.mp4`, 10 fps contact sheet) the header alternated **ring → rotated glyph → ring** over about 0.4 s right after the folder was chosen, i.e. `downloadBadge` appears to flip non-nil → nil → non-nil once during the queued/active hand-off, so the "preparing" state showed twice. Cosmetic and pre-existing (the plan only changed which animation the state selects); a downloads owner should look at the badge publication around enqueue.
+- Home tab on the logged-out simulator: the first snapshot of the session showed a section rendering `questionmark.circle.fill` / `Unknown Error` / `An unknown error occurred. Please try again later.` / `Retry` below Toplists (most likely the login-gated Watched section surfacing a generic error instead of a sign-in notice). Not an accessibility item and not touched.
