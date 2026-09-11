@@ -201,7 +201,7 @@ private struct CookieRow: View {
     @ViewBuilder private var row: some View {
         if dynamicTypeSize <= .large {
             HStack {
-                Text(cookieState.key)
+                keyLabel
 
                 TextField(cookieState.value.placeholder, text: $cookieState.editingText)
                     .submitLabel(.done)
@@ -214,7 +214,7 @@ private struct CookieRow: View {
         } else {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(cookieState.key)
+                    keyLabel
                     Spacer()
                     validityGlyph
                 }
@@ -227,9 +227,26 @@ private struct CookieRow: View {
         }
     }
 
+    /// The cookie's name, carrying the validity that the glyph beside it shows sighted users.
+    ///
+    /// The state lives here rather than on the field or on a combined row: an `accessibilityValue`
+    /// on the `TextField` would replace the cookie text it exists to read out, and folding the
+    /// field into one combined element would take away its editing role. So the field stays a
+    /// plain text field, the glyph is kept out of the accessibility tree, and the key announces
+    /// "valid" or "invalid" as its value — the same fact the glyph's shape and colour convey.
+    private var keyLabel: some View {
+        Text(cookieState.key)
+            .accessibilityValue(validityValue)
+    }
+
+    private var validityValue: LocalizedStringResource {
+        cookieState.value.isInvalid ? .accessibilityCookieInvalid : .accessibilityCookieValid
+    }
+
     private var validityGlyph: some View {
         Image(systemSymbol: cookieState.value.isInvalid ? .xmarkCircle : .checkmarkCircle)
             .foregroundStyle(cookieState.value.isInvalid ? .red : .accentColor)
+            .accessibilityHidden(true)
     }
 }
 
