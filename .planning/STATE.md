@@ -1,21 +1,21 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v3.0.0
 milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Reconciled 16-10 and 16-11; awaiting round-1 owner dispositions
-last_updated: "2026-09-08T10:16:10.107199+00:00"
-last_activity: 2026-09-08
-last_activity_desc: "Reconciled existing Phase 16 report and fixes into halted summaries; owner review remains open."
-state_head: 0cef6d22ab4321d67e9a7ae74743c42c6c186cdf
+stopped_at: Completed 16-10 and 16-11 (round-1 closure, ROUND1-CLEAR 2026-09-11); next 16-12
+last_updated: "2026-09-11T08:15:00.328Z"
+last_activity: 2026-09-11
+last_activity_desc: "Round 1 closed: D13-4 and #28 dispositions recorded, ROUND1-CLEAR 2026-09-11T08:04Z, Task 3 check 0/0/1/0; plans 16-10 and 16-11 complete; next 16-12."
+state_head: 9f3f303521e98ace67d8502633073f0931dd1979
 progress:
   total_phases: 17
-  completed_phases: 11
+  completed_phases: 10
   total_plans: 274
-  completed_plans: 256
-  percent: 65
+  completed_plans: 259
+  percent: 59
 ---
 
 # Project State
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 16-10 / 16-11 — existing report and fix-batch history reconciled; both summaries halted at owner review
-Status: Awaiting the remaining round-1 dispositions and final review, not new implementation dispatch
-Last activity: 2026-09-08 — Owner authorized reconciliation; recorded reachable report (`7afc084a`) and integrated implementation/verification (`5614f486`) without re-executing prior work.
+Plan: 16-12 of 26 — next (wave 11); plans 16-10 and 16-11 complete
+Status: Round 1 closed — owner `ROUND1-CLEAR` 2026-09-11T08:04Z; ready to dispatch 16-12 (`no_minimum_scale_factor` rule + owner-signed UAT gate)
+Last activity: 2026-09-11 — Recorded the final two dispositions (`D13-4=fixed`, `#28=fixed`; commit `7d7b8d43`), ran plan 16-11 Task 3's closure check (0 pending/re-verify cells, 0 open findings, `### Round-1 closure` present, `minimumScaleFactor` 0; commit `9f3f3035`), replaced both halted summaries with complete ones.
 
-Resume from `.planning/phases/16-dynamic-type-accessibility/16-RECONCILIATION.md`. Five historically open findings need disposition or re-verification (#11, #23, #26, #28, #35). Owner accepted #4 as an Apple defect with no app fix, #7 title presentation as-is, and #31 toast truncation; #37 already records acceptance as a system defect. Do not request these acceptances again. All five D-13 disposition cells remain blank. The 397 pass / 95 finding / 12 n/a matrix is historical and contains references superseded by later batch records. The latest cover revision also leaves owner review pending.
+Round-1 state: 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Nothing was re-run on 2026-09-11. Do not re-ask any recorded disposition.
 
-D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. The final owner review is not superseded. No `minimumScaleFactor` remains in current source. Do not advance to 16-12 until the remaining dispositions, evidence consistency check and `ROUND1-CLEAR` are complete. Do not push without the owner.
+D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. No `minimumScaleFactor` remains in current source (removed by `59fb2eb9`). A11Y-01 completes at 16-12's owner sign-off, not before; the phase is not complete. Do not push without the owner.
 
-Progress: [█████████░] 93% (14/17 phases)
+Progress: [██████░░░░] 59% (259/274 plans)
 
 ## Performance Metrics
 
@@ -317,6 +317,8 @@ Progress: [█████████░] 93% (14/17 phases)
 | Phase 16 P07 | 1h 21m | 2 tasks | 2 files |
 | Phase 16 P08 | 6min | 2 tasks | 2 files |
 | Phase 16 P09 | 1h 2m | 2 tasks | 2 files |
+| Phase 16 P10 | 6min (closure) | 2 tasks | 1 files |
+| Phase 16 P11 | 6min (closure) | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -850,6 +852,7 @@ Recent decisions affecting current work:
 - [Phase 16]: Detail title = 3 lines at every size until expanded (owner, chat, 2026-09-03) — round-I's uncapped-above-.large policy withdrawn; the cap's remedy is in place (title is its own expand button), default-size parity untouched
 - [Phase 16]: A sheet-presented screen uses a plain large title, never .inlineLarge (owner, chat, 2026-09-03) — SettingView is the only such site and the only one changed; the four tab roots keep .inlineLarge; applied via navigationTitleDisplayMode so the AX-size inline fallback (finding #7) still holds
 - [Phase 16]: List gallery cell keeps cover+title on one line when the row is wide (owner, chat, 2026-09-04) — the AX-size cover-above-text stack is gated on measured row width (<550pt), so landscape phones and iPad (both orientations) stay side-by-side; portrait phones still stack
+- [Phase 16]: Round 1 closed on owner ROUND1-CLEAR (2026-09-11T08:04Z); D13-4 and #28 fixed on recorded evidence; matrix labelled historical, targeted rechecks sampled
 
 ### Pending Todos
 
@@ -914,6 +917,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-08
-Stopped at: Existing 16-10/16-11 work reconciled into halted summaries; awaiting remaining owner dispositions
-Resume file: .planning/phases/16-dynamic-type-accessibility/16-RECONCILIATION.md
+Last session: 2026-09-11T08:14:59.325Z
+Stopped at: Completed 16-10 and 16-11 (round-1 closure, ROUND1-CLEAR 2026-09-11); next 16-12
+Resume file: None
