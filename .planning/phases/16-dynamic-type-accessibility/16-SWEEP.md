@@ -1163,11 +1163,11 @@ Banned outright, not judged case by case. The lint rule that makes the target me
 
 | Site (file:line at HEAD) | What is shrunk | Screen # | Phase-10 verdict | D-04 status | Note |
 |---|---|---|---|---|---|
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:155` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | removal target 0 (D-14) |
-| `GalleryListComponents/Cells/GalleryDetailCell.swift:166` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | finding:#6 | removal target 0 (D-14) |
-| `DetailFeature/DetailView+CommentCells.swift:42` (0.75) | comment author shrunk | #14 | fine | finding:#16 | removal target 0 (D-14). The 0.75 shrink visibly engages at XXL and the author is still ellipsised. |
-| `DetailFeature/DetailView+HeaderSection.swift:73` (0.72) | header category label shrunk | #14 | fine | fine | **D-15 collision — plausibly engages at `.large`; parity outranks the ban.** **D-15 evidence:** the 0.72 shrink does NOT visibly engage at `.large` for a seven-character category, and the badge never truncates at XXL / AX3 / AX5 either — so removing it should be parity-safe for that name length. |
-| `DetailFeature/Comments/CommentsView.swift:165` (0.75) | comment header shrunk | #16 | fine | finding:#18 | removal target 0 (D-14). The 0.75 shrink engages before the ellipsis and does not prevent it. |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:155` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | removed-by 59fb2eb9 | Removed by `59fb2eb9` (`feat: complete Dynamic Type accessibility layouts`, 2026-09-02; verified with `git log -S'minimumScaleFactor' -- AppPackage/Sources`: five `.minimumScaleFactor` lines removed, none added, live count 0). Previously `finding:#6`, closed `re-verified`. Removal target 0 (D-14). |
+| `GalleryListComponents/Cells/GalleryDetailCell.swift:166` (0.75) | stats value shrunk instead of reflowed | all list hosts (#3, #4, #5, #8, #10) | fine | removed-by 59fb2eb9 | Removed by `59fb2eb9` (`feat: complete Dynamic Type accessibility layouts`, 2026-09-02; verified with `git log -S'minimumScaleFactor' -- AppPackage/Sources`: five `.minimumScaleFactor` lines removed, none added, live count 0). Previously `finding:#6`, closed `re-verified`. Removal target 0 (D-14). |
+| `DetailFeature/DetailView+CommentCells.swift:42` (0.75) | comment author shrunk | #14 | fine | removed-by 59fb2eb9 | Removed by `59fb2eb9` (`feat: complete Dynamic Type accessibility layouts`, 2026-09-02; verified with `git log -S'minimumScaleFactor' -- AppPackage/Sources`: five `.minimumScaleFactor` lines removed, none added, live count 0). Previously `finding:#16`, closed `re-verified`; the `.large` parity delta on the vote-score card was raised as finding #35 and owner-accepted 2026-09-09. Removal target 0 (D-14). The 0.75 shrink visibly engages at XXL and the author is still ellipsised. |
+| `DetailFeature/DetailView+HeaderSection.swift:73` (0.72) | header category label shrunk | #14 | fine | removed-by 59fb2eb9 | Removed by `59fb2eb9` (`feat: complete Dynamic Type accessibility layouts`, 2026-09-02; verified with `git log -S'minimumScaleFactor' -- AppPackage/Sources`: five `.minimumScaleFactor` lines removed, none added, live count 0). Previously `fine`; the batch-1 `.large` parity capture matched its banked baseline. **D-15 collision — plausibly engages at `.large`; parity outranks the ban.** **D-15 evidence:** the 0.72 shrink does NOT visibly engage at `.large` for a seven-character category, and the badge never truncates at XXL / AX3 / AX5 either — so removing it should be parity-safe for that name length. |
+| `DetailFeature/Comments/CommentsView.swift:165` (0.75) | comment header shrunk | #16 | fine | removed-by 59fb2eb9 | Removed by `59fb2eb9` (`feat: complete Dynamic Type accessibility layouts`, 2026-09-02; verified with `git log -S'minimumScaleFactor' -- AppPackage/Sources`: five `.minimumScaleFactor` lines removed, none added, live count 0). Previously `finding:#18`, closed `re-verified`. Removal target 0 (D-14). The 0.75 shrink engages before the ellipsis and does not prevent it. |
 
 ### Fixed frames and widths
 
@@ -2966,3 +2966,28 @@ D13-1/2/3 fixed and D13-5 accepted (2026-09-09).
 
 **Not done today:** no simulator check, build, or test was run on 2026-09-11. This entry records
 dispositions and their evidence basis only; it adds no new device verdict.
+
+### Round-1 closure
+
+Consistency check run on 2026-09-11 against the table only (plan 16-11 Task 3); no code, asset or
+lint-config change and no simulator, build or test run were part of it.
+
+| Measure | Value |
+|---|---|
+| Matrix rows walked (persisted, historical stored results) | 504 cells: 397 `pass`, 95 historical finding references (90 `finding:#N` + 5 `accepted` on #31's cells, converted 2026-09-08), 12 system-overlay `n/a`; 0 `pending`, 0 `re-verify` |
+| Findings total | 38 |
+| Findings `re-verified` | 32 (including #11, #26 and #28, whose `re-verified` carries owner provenance rather than a new agent device pass) |
+| Findings `accepted` | 6: #4, #7, #31 (2026-09-08); #23, #35 (2026-09-09); #37 (system defect) |
+| Findings `open` | 0 |
+| D-13 items dispositioned | 5/5: 4 `fixed` (items 1, 2, 3 on 2026-09-09; item 4 on 2026-09-11), 1 `accepted` (item 5, 2026-09-09) |
+| Parity findings raised | 1: #35, raised in fix batch 1 as the D-15 `.large` delta on the Detail comment cell that carries a vote score (`### Re-verification batches`). Every other `.large` comparison in the batch log is a matched `parity` row, not a finding |
+| Parity findings resolved | 1: #35 owner-accepted 2026-09-09 |
+| `minimumScaleFactor` live count | 0 (`grep -rn "minimumScaleFactor" AppPackage/Sources`); the five § D-04 checklist sites read `removed-by 59fb2eb9` |
+| § D-04 checklist statuses | every row is `fine`, a closed `finding:#N`, `removed-by 59fb2eb9`, or `blocked: no active transfer` |
+| Owner `ROUND1-CLEAR` | 2026-09-11T08:04Z (see `### Owner review closure — 2026-09-11`) |
+
+The matrix figures are the persisted results of the original sweep and the recorded re-verification
+batches, not a current-build verdict. The later targeted rechecks (`16-TARGETED-RECHECK.md`,
+2026-09-08; `16-LOGIN-COVER-RECHECK.md`, 2026-09-09/10) are sampled evidence for specific items and
+do not replace the matrix. Round 1's findings loop is closed; the `no_minimum_scale_factor` lint
+rule and the owner-signed UAT gate follow in plan 16-12.
