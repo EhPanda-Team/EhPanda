@@ -10,6 +10,7 @@ import SwiftUI
 import TagTranslationFeature
 
 public struct DetailView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
     @SharedReader(.didLogin) var didLogin: Bool
     @Bindable var store: StoreOf<DetailReducer>
@@ -24,9 +25,13 @@ public struct DetailView: View {
 
     public var body: some View {
         modalModifiers(content: { content })
-            .animation(.default, value: store.showsUserRating)
-            .animation(.default, value: store.showsFullTitle)
-            .animation(.default, value: store.galleryDetail)
+            // Height changes: the rating row unfolding, the title growing to its full length and the
+            // detail sections arriving each move everything below them — the position motion Reduce
+            // Motion asks to remove — so `nil` lets those states land instantly. The opacity
+            // crossfades inside the sections keep their own animations (D-29).
+            .animation(reduceMotion ? nil : .default, value: store.showsUserRating)
+            .animation(reduceMotion ? nil : .default, value: store.showsFullTitle)
+            .animation(reduceMotion ? nil : .default, value: store.galleryDetail)
             .onChange(of: store.galleryDetail) { _, _ in
                 runLaunchAutomationIfNeeded()
             }

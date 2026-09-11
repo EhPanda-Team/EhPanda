@@ -11,6 +11,7 @@ import SwiftUI
 
 // MARK: HeaderSection
 struct HeaderSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @SharedReader(.didLogin) private var didLogin: Bool
     @SharedReader(.user) var user: User
@@ -55,6 +56,19 @@ struct HeaderSection: View {
         return displayJapaneseTitle ? galleryDetail.jpnTitle ?? normalTitle : normalTitle
     }
     private var showsMetadataPreparation: Bool { isPreparingDownload && downloadBadge == nil }
+    /// Whether the download glyph turns while the gallery's metadata is being prepared. Spinning is
+    /// motion Apple's Reduced Motion criteria name explicitly, so under Reduce Motion the glyph is
+    /// not slowed but held upright, and ``downloadIconLabel`` pulses it instead (`.symbolEffect(.pulse)`
+    /// is an opacity-only effect): the "work in progress" affordance survives without rotation.
+    private var spinsDownloadIcon: Bool { showsMetadataPreparation && !reduceMotion }
+    /// One full turn every 0.9 s for as long as the preparation lasts; back to `.default` once it ends,
+    /// so the glyph settles like any other state change. Under Reduce Motion the spin never starts
+    /// (see ``spinsDownloadIcon``), and the repeating animation must not either — a `repeatForever`
+    /// attached to a view that no longer rotates would still re-run every other change beneath it.
+    private var downloadPreparationAnimation: Animation {
+        guard spinsDownloadIcon else { return .default }
+        return .linear(duration: 0.9).repeatForever(autoreverses: false)
+    }
     private var isDownloadActionDisabled: Bool {
         guard canDownload else { return true }
         return isPreparingDownload
@@ -153,11 +167,7 @@ struct HeaderSection: View {
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
-                .animation(
-                    showsMetadataPreparation
-                        ? .linear(duration: 0.9).repeatForever(autoreverses: false) : .default,
-                    value: showsMetadataPreparation
-                )
+                .animation(downloadPreparationAnimation, value: showsMetadataPreparation)
             } else {
                 Button(action: downloadAction) {
                     downloadIconLabel
@@ -172,9 +182,11 @@ struct HeaderSection: View {
     }
     private var downloadIconLabel: some View {
         Image(systemSymbol: downloadIconSymbol)
+            // Reduce Motion's stand-in for the spin below: same state, no rotation (D-29).
+            .symbolEffect(.pulse, isActive: showsMetadataPreparation && reduceMotion)
             .font(actionIconFont)
             .foregroundStyle(canDownload ? downloadButtonTint : .secondary)
-            .rotationEffect(.degrees(showsMetadataPreparation ? 360 : 0))
+            .rotationEffect(.degrees(spinsDownloadIcon ? 360 : 0))
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             .contentShape(.circle)
     }
