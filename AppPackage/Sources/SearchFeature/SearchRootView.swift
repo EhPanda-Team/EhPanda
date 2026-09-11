@@ -98,6 +98,8 @@ public struct SearchRootView: View {
 
 // MARK: SuggestionsPanel
 private struct SuggestionsPanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
     private let quickSearchWords: [QuickSearchWord]
@@ -121,6 +123,12 @@ private struct SuggestionsPanel: View {
         self.navigateQuickSearchAction = navigateQuickSearchAction
         self.searchKeywordAction = searchKeywordAction
         self.removeKeywordAction = removeKeywordAction
+    }
+
+    /// Each section inserts or removes whole rows as words, keywords and galleries come and go —
+    /// position motion, so the diffs land instantly under Reduce Motion (D-29).
+    private var listAnimation: Animation? {
+        reduceMotion ? nil : .default
     }
 
     var body: some View {
@@ -147,9 +155,9 @@ private struct SuggestionsPanel: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.default, value: quickSearchWords)
-        .animation(.default, value: historyGalleries)
-        .animation(.default, value: historyKeywords)
+        .animation(listAnimation, value: quickSearchWords)
+        .animation(listAnimation, value: historyGalleries)
+        .animation(listAnimation, value: historyKeywords)
         .padding(.vertical)
     }
 }

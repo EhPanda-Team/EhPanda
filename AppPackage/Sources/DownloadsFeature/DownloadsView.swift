@@ -11,6 +11,7 @@ import SwiftUI
 import SystemNotification
 
 public struct DownloadsView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable private var store: StoreOf<DownloadsReducer>
 
     public init(store: StoreOf<DownloadsReducer>) {
@@ -90,7 +91,8 @@ private extension DownloadsView {
             // tick. Keyed on the id list, only membership moves — a confirmed delete, a folder or
             // keyword filter change — so the deletion reads as the standard List collapse instead
             // of the snapshot snapping the row out with no transition at all.
-            .animation(.default, value: store.filteredDownloads.map(\.id))
+            // Under Reduce Motion the row snaps out instead of collapsing; delete flow and manifest unchanged.
+            .animation(reduceMotion ? nil : .default, value: store.filteredDownloads.map(\.id))
         }
     }
 

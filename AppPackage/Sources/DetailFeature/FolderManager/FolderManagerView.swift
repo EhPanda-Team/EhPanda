@@ -8,10 +8,18 @@ import SwiftUI
 public struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
     @FocusState private var focusedField: FolderManagerReducer.EditingField?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
 
     public init(store: StoreOf<FolderManagerReducer>) {
         self.store = store
+    }
+
+    /// Folders come and go as whole rows, and `editingField == .newFolder` inserts the new-folder
+    /// row at the top, pushing every folder row down — position motion, instant under Reduce Motion
+    /// (D-29). The rename swap is in place, but it rides the same keyed animation, so it goes with it.
+    private var listAnimation: Animation? {
+        reduceMotion ? nil : .default
     }
 
     public var body: some View {
@@ -46,8 +54,8 @@ public struct FolderManagerView: View {
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
-            .animation(.default, value: store.folders)
-            .animation(.default, value: store.editingField)
+            .animation(listAnimation, value: store.folders)
+            .animation(listAnimation, value: store.editingField)
             .synchronize($store.editingField, $focusedField)
             .toolbar(content: toolbar)
             .navigationTitle(.folders)
