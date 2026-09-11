@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: Completed 16-13-PLAN.md (round-2 colour decisions recorded); next 16-15
-last_updated: "2026-09-11T12:48:40.639Z"
+stopped_at: Completed 16-15-PLAN.md (adaptive badge text, CategoryCell Button, HC=A); next 16-16 (wave 14)
+last_updated: "2026-09-11T13:29:59.581Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-13 complete: 16-CONTRAST-AUDIT.md (84 category variants reproduced, 19/40 HC lower + proposal, 28 non-category sites x 4 ratios, DWC verdicts) and the owner's round-2 decisions recorded verbatim — STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed — commits 5e71ea53, e25d5b53; wave 12 (16-13 + 16-14) complete; next 16-15 (wave 13)."
-state_head: e25d5b5304291f83235d6cda9d5082f19148bb03
+last_activity_desc: "Plan 16-15 complete: CategoryLabel / CategoryCell text adaptive via Color.contrastingForeground(in:) (47/84 badges black), CategoryCell is a Button with .isSelected, HC=A re-authored the 19 lower contrast:high entries (HC-40 pin -> 84accf72...9407, standard-44 pin f940492a...5363 unchanged, 0/40 HC lower), owner review captures under the evidence root, D-25 list unchanged — commits 4a6169f6, b8296146, c1655cc3; wave 13 complete; next 16-16 (wave 14)."
+state_head: c1655cc308d0d58c46fe6fd12a728b1676e62ec8
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 262
+  completed_plans: 263
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 15 of 26 — next 16-15 (adaptive `CategoryLabel` / `CategoryCell` text + HC=A re-authoring of the 19 `lower` Increase Contrast entries; wave 13); plans 16-01 through 16-14 complete — wave 12 (16-13 + 16-14) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin `e81b0604…0937` (re-pinned by 16-15 under HC=A). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-13 complete: `16-CONTRAST-AUDIT.md` (Task 1 `5e71ea53`: 84 / 45 / 0 / worst 4.62 ExHentai Game CG light / 47 flips / crossover 0.17913 reproduced from live JSON; 19/40 HC variants lower with a 19-row re-authoring proposal; 28 non-category sites × 4 ratios from rendered pixels on iPhone 17e `67377A20…`, 14 proposed fixes; DWC fails: activity-log level dots, Laboratory on/off; weak: `CategoryCell` excluded) + `## Decisions` filled from the owner's resume line (Task 3 `e25d5b53`). Plan 16-14 (`bd34e60c`, `d81f0301`) landed between the two tasks; full `FeatureTests` 1055 tests green.
+Plan: 16 of 26 — next 16-16 (VoiceOver semantics: Detail, Comments, Archives, Torrents, FolderManager; wave 14); plans 16-01 through 16-15 complete — wave 13 (16-15) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 added none. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-15 complete: `CategoryView.swift` adaptive text at both sites + `CategoryCell` `Button`/`.isSelected` (`4a6169f6`); HC=A colorset rewrite (13 files, 19 entries, values only) + HC pin re-derived (`b8296146`); `16-CONTRAST-AUDIT.md § 16-15 result` with rendered evidence on iPhone 17e `67377A20…` — Filters 26/40 tiles black, worst rendered 4.69:1, excluded Misc black on `#D4D4D4` 14.17 / white on `#383A3C` 11.42, AX traits `Button`+`Selected` (`c1655cc3`). Full `FeatureTests` 1055 tests green; 20 captures under `$HOME/Library/Caches/ehpanda-phase16/round2/badge-review/`, none committed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (262/274 plans)
+Progress: [██████░░░░] 59% (263/274 plans)
 
 ## Performance Metrics
 
@@ -322,6 +322,7 @@ Progress: [██████░░░░] 59% (262/274 plans)
 | Phase 16 P12 | 21min | 3 tasks | 2 files |
 | Phase 16 P14 | 43min | 2 tasks | 3 files |
 | Phase 16 P13 | two sessions | 3 tasks | 1 files |
+| Phase 16 P15 | 35min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -860,6 +861,8 @@ Recent decisions affecting current work:
 - [Phase 16]: no_minimum_scale_factor lands at error severity only with the tree at 0 sites (zero-then-ban); all five Dynamic Type lint rules live
 - [Phase 16]: 16-14: better-of contrast rule exposed on a Double (contrastingForeground(forRelativeLuminance:)); Color.Resolved is Float-backed so the 0.1791 tie is pinned at the Double level (orchestrator option A)
 - [Phase 16]: 16-14: category backgrounds pinned by SHA-256 in two groups — standard-44 f940492a…5363 (never re-pinned) and contrast-high-40 e81b0604…0937 (re-pin only under D-27)
+- [Phase 16]: 16-15: CategoryCell excluded-state text is chosen against the linear composite over secondarySystemGroupedBackground (elevated card, verified from pixels); one excludedOpacity constant feeds wash and composite; no catalog key under CATEGORYCELL=A
+- [Phase 16]: 16-15: HC=A applied — 19 contrast:high entries rewritten values-only; HC-40 pin re-derived to 84accf72…9407, standard-44 pin f940492a…5363 byte-identical; 0/40 HC variants below standard
 
 ### Pending Todos
 
@@ -924,6 +927,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T12:48:40.060Z
-Stopped at: Completed 16-13-PLAN.md (round-2 colour decisions recorded); next 16-15
+Last session: 2026-09-11T13:29:59.033Z
+Stopped at: Completed 16-15-PLAN.md (adaptive badge text, CategoryCell Button, HC=A); next 16-16 (wave 14)
 Resume file: None
