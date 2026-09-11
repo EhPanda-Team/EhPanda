@@ -222,6 +222,15 @@ private struct DownloadRow: View {
             deleteButton(role: nil)
                 .tint(.red)
         }
+        // SwiftUI exposes swipe actions as VoiceOver custom actions by itself, and does NOT
+        // de-duplicate: mirroring them with named actions doubled every rotor entry (measured
+        // 2026-09-12 on the iPhone 17e simulator — `["Delete", "Pages", "Pages", "Move",
+        // "Delete"]`). Context-menu items are not exposed (16-CONTRAST-AUDIT, `CONTEXTMENU=
+        // not-exposed`), so the one item that lives only in the menu is the one that needs a
+        // mirror. It is the same `detailButton` the menu shows, so name and send cannot drift.
+        .accessibilityActions {
+            detailButton
+        }
         .confirmationDialog(
             $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
