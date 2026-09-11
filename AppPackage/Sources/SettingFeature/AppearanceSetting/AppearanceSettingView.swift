@@ -110,9 +110,7 @@ struct AppIconView: View {
                         iconName: icon.name,
                         filename: icon.filename,
                         isSelected: icon == setting.appIconType
-                    )
-                    .contentShape(.rect)
-                    .onTapGesture {
+                    ) {
                         $setting.withLock({ $0.appIconType = icon })
                     }
                 }
@@ -126,35 +124,47 @@ struct AppIconView: View {
 }
 
 // MARK: AppIconRow
+/// One selectable icon: a plain-styled `Button` so the row is a real control — it has the button
+/// role, the icon's name as its label and Voice Control name, and the current choice as the
+/// `.isSelected` trait. The trailing checkmark is the sighted rendering of that same trait, so it
+/// is kept out of the accessibility tree rather than announced a second time as "Selected".
 private struct AppIconRow: View {
     private let iconName: LocalizedStringResource
     private let filename: String
     private let isSelected: Bool
+    private let action: () -> Void
 
-    init(iconName: LocalizedStringResource, filename: String, isSelected: Bool) {
+    init(iconName: LocalizedStringResource, filename: String, isSelected: Bool, action: @escaping () -> Void) {
         self.iconName = iconName
         self.filename = filename
         self.isSelected = isSelected
+        self.action = action
     }
 
     var body: some View {
-        HStack(spacing: 20) {
-            UIImage(named: filename, in: .main, with: nil)
-                .map(Image.init)?
-                .resizable()
-                .scaledToFit()
-                .frame(width: 60, height: 60)
-                .clipShape(.rect(cornerRadius: 15))
-                .padding(.vertical, 10)
+        Button(action: action) {
+            HStack(spacing: 20) {
+                UIImage(named: filename, in: .main, with: nil)
+                    .map(Image.init)?
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 60, height: 60)
+                    .clipShape(.rect(cornerRadius: 15))
+                    .padding(.vertical, 10)
 
-            Text(iconName)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(iconName)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            Image(systemSymbol: .checkmarkCircleFill)
-                .visible(isSelected)
-                .foregroundStyle(.tint)
-                .imageScale(.large)
+                Image(systemSymbol: .checkmarkCircleFill)
+                    .opacity(isSelected ? 1 : 0)
+                    .accessibilityHidden(true)
+                    .foregroundStyle(.tint)
+                    .imageScale(.large)
+            }
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 

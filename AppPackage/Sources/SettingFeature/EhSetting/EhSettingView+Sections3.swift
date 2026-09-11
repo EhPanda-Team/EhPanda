@@ -191,16 +191,26 @@ struct ExcludeRow: View {
                     // zero opacity: an invisible control is still tappable and still an
                     // accessibility element, so it would offer to flip a binding that has no cell.
                     Color.clear
-                } else {
-                    ExcludeToggle(isOn: binding)
+                } else if let category = EhSetting.ExcludedLanguagesCategory(rawValue: offset) {
+                    ExcludeToggle(title: title, category: category, isOn: binding)
                 }
             }
         }
     }
 }
 
+/// One cell of the exclusion grid: a circle that becomes a no-sign when the language is excluded.
+///
+/// Visually the cell is a bare glyph whose meaning comes from the language name at the row's start
+/// and the category word at the column's top. Assistive technologies see none of that geometry,
+/// so the cell is presented to them as a system `Toggle` named "Exclude <language> <category>":
+/// the representation supplies the label, the on/off value, the toggle trait and the Voice
+/// Control name in one move, while the rendered glyph and its tap feedback stay exactly as
+/// designed.
 struct ExcludeToggle: View {
     @Dependency(\.hapticsClient) private var hapticsClient
+    let title: LocalizedStringResource
+    let category: EhSetting.ExcludedLanguagesCategory
     @Binding var isOn: Bool
 
     var body: some View {
@@ -213,6 +223,11 @@ struct ExcludeToggle: View {
             .onTapGesture {
                 withAnimation { isOn.toggle() }
                 hapticsClient.generateFeedback(.soft)
+            }
+            .accessibilityRepresentation {
+                Toggle(isOn: $isOn) {
+                    Text(.accessibilityExcludeLanguage(String(localized: title), String(localized: category.value)))
+                }
             }
     }
 }

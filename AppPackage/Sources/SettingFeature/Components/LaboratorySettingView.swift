@@ -55,6 +55,10 @@ struct LaboratoryCell: View {
         isOn ? tintColor : .secondary
     }
 
+    /// The cell reads its state to sighted users through tint (on) versus gray (off); assistive
+    /// technologies get the same state as a system `Toggle` carrying the cell's own title, so the
+    /// label, the on/off value, the toggle trait and the Voice Control name all come from one
+    /// representation while the tinted rendering and its animated colour change stay untouched.
     var body: some View {
         Label {
             Text(title)
@@ -72,6 +76,11 @@ struct LaboratoryCell: View {
         .clipShape(.rect(cornerRadius: 15))
         .animation(.default, value: isOn)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
+        .accessibilityRepresentation {
+            Toggle(isOn: $isOn) {
+                Text(title)
+            }
+        }
     }
 }
 
