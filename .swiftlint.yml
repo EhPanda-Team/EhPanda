@@ -237,6 +237,21 @@ custom_rules:
       - string
     severity: error
 
+  no_minimum_scale_factor:
+    name: "No minimumScaleFactor"
+    # Banned outright, not grandfathered (Phase 16 D-14). Landed only once the tree reached 0 sites,
+    # because the build-tool plugin runs this at error severity in every module.
+    regex: '\.minimumScaleFactor\s*\('
+    message: "minimumScaleFactor is banned (Phase 16 D-14): it is a Dynamic Type cap in disguise. Reflow instead: wrap the text, use ViewThatFits, or stack at accessibility sizes."
+    excluded_match_kinds:
+      - comment
+      # `doccomment`, NOT `doc_comment`. An unrecognised kind makes SwiftLint discard the WHOLE
+      # rule config and fall back to defaults; a custom rule has no default, so it silently
+      # vanishes behind one stderr warning and reports zero violations forever.
+      - doccomment
+      - string
+    severity: error
+
   no_nslock:
     name: "No NSLock"
     regex: "\\bNSLock\\b"
