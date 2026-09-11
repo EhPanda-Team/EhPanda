@@ -20,6 +20,10 @@ extension DetailView {
                 .joined()
         }
 
+        /// The card is one accessibility element: a comment is read as a unit — author, vote,
+        /// score, date, text — rather than as four stops in a strip of near-identical cards. The
+        /// vote travels as the element's value, never as text: the thumb glyph is hidden below,
+        /// and the value is attached only while a vote exists, so an unvoted comment has none.
         var body: some View {
             VStack(alignment: .leading) {
                 authorAndMetadata
@@ -32,6 +36,9 @@ extension DetailView {
             .background(backgroundColor)
             .frame(width: cardWidth, height: cardHeight * cardHeightScale)
             .clipShape(.rect(cornerRadius: 15))
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(.accessibilityVotedUp, isEnabled: comment.votedUp)
+            .accessibilityValue(.accessibilityVotedDown, isEnabled: comment.votedDown)
         }
 
         /// The author and the vote/date group share a line for as long as both fit it whole, and
@@ -81,6 +88,7 @@ extension DetailView {
                     .animation(.default) {
                         $0.visible(comment.votedUp || comment.votedDown)
                     }
+                    .accessibilityHidden(true)
 
                 comment.score.map(Text.init)
 
