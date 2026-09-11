@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-16-PLAN.md (VoiceOver: Detail, Comments, Archives, Torrents, FolderManager); next 16-17 (wave 15)"
-last_updated: "2026-09-11T14:01:59.581Z"
+stopped_at: "Completed 16-17-PLAN.md (VoiceOver: Setting screens + DateSeek); next 16-18 (wave 16)"
+last_updated: "2026-09-11T14:28:50.910Z"
 last_activity: 2026-09-11
-last_activity_desc: "Plan 16-16 complete: DetailFeature VoiceOver pass — favorites Menu labelled (accessibility.add_to_favorites), ring glyph hidden, both comment cells combined with a conditional vote accessibilityValue and per-link Open link actions, Archives banner a Button with parity ButtonStyle + coin glyphs hidden, Torrents flowed glyphs hidden (read as Selected at AX3), five six-locale keys; live AX verified on 67377A20 (favorites PopUpButton NotEnabled, row custom_actions [Open link], Torrents AX3 numbers only); Archives/FolderManager source-verified (login-gated) — commits d4e0c27d, c032c243; wave 14 complete; next 16-17 (wave 15)."
-state_head: c032c2431ddc749ff6e965f40faffa7788a7fcc3
+last_activity_desc: "Plan 16-17 complete: SettingFeature + DateSeek VoiceOver pass — ExcludeToggle and the Laboratory cell present as system Toggles via accessibilityRepresentation (accessibility.exclude_language, two positional %@), AppIconRow a plain Button with .isSelected + hidden checkmark, Setting root rows Buttons with SettingRowStyle for the pressed background, cookie validity an accessibilityValue on the key text (accessibility.cookie_valid/_invalid) with the glyph hidden and the TextField separate, General warning glyph hidden, log-level dot labelled with log.level.title, Date Seek verified native (unchanged); three six-locale keys; live AX verified on 67377A20 (root rows AXButton, App Icon Default [Selected, Button], Laboratory AXCheckBox [Toggle], cookie key AXValue Valid beside an AXTextField, log dot AXImage Error, Older/Newer AXButton); ExcludeToggle source-verified (EhSetting login-gated) — commits c0291090, 311c1456; wave 15 complete; next 16-18 (wave 16)."
+state_head: 311c1456ddb5993a9d4fb99f5dd3462d90d93c88
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 264
+  completed_plans: 265
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 17 of 26 — next 16-17 (VoiceOver semantics: Setting screens (toggles, rows, values) and DateSeek; wave 15); plans 16-01 through 16-16 complete — wave 14 (16-16) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 and 16-16 added none (16-16 changed no layout and drew nothing new). 16-16 handed two items to the orchestrator: the tag-cell `.contextMenu` in `DetailView+Subviews.swift` is owned by neither 16-16 (comment menus only) nor 16-19 as written (its grep targets `TagCloudView.swift`), and Torrents / Archive counters are announced as bare numbers (the glyph was the unit). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-16 complete: `DetailView+HeaderSection` / `+CommentCells` / `Comments/CommentsView` / `Components/LinkedText` + five catalog keys (`d4e0c27d`); `Archives/ArchivesView` banner `Button` + hidden coin glyphs, `Torrents/TorrentsView` hidden flowed glyphs (`c032c243`). Live AX reads on iPhone 17e `67377A20…` via `sim-use describe-ui --point`: favorites `AXPopUpButton "Add to favorites"` `NotEnabled`; Comments row one element with `custom_actions ["Open link"]`, `AXValue null` unvoted; Torrents at AX3 before/after — `Image "Selected"` etc. gone, numbers only. Archives (menu disabled logged-out) and FolderManager (no icon-only control at HEAD) source-verified. Lint build green ×3, 0 violations, no suppression; nothing pushed.
+Plan: 18 of 26 — next 16-18 (wave 16); plans 16-01 through 16-17 complete — wave 15 (16-17) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15, 16-16 and 16-17 added none (neither changed layout nor drew anything new). 16-16 handed two items to the orchestrator: the tag-cell `.contextMenu` in `DetailView+Subviews.swift` is owned by neither 16-16 (comment menus only) nor 16-19 as written (its grep targets `TagCloudView.swift`), and Torrents / Archive counters are announced as bare numbers (the glyph was the unit). Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-11 — Plan 16-17 complete: `EhSetting/EhSettingView+Sections3` `ExcludeToggle` representation + `Components/LaboratorySettingView` representation + `AppearanceSetting/AppearanceSettingView` `AppIconRow` `Button` + `SettingView` `SettingRow` `Button` / `SettingRowStyle` + `accessibility.exclude_language` (`c0291090`); `AccountSetting/AccountSettingView` cookie value on the key text + hidden glyph, `GeneralSetting/GeneralSettingView` hidden warning glyph, `AppActivityLogs/AppActivityLogsView` level-dot label + `accessibility.cookie_valid` / `_invalid` (`311c1456`). Live AX reads on iPhone 17e `67377A20…` via `sim-use describe-ui`: root rows `AXButton`; App Icon `Default` traits `[Selected, Button]`; Laboratory `AXCheckBox` `[Toggle, Button]` value 0; cookie key `AXStaticText` value `Valid` beside a separate `AXTextField`; log dot `AXImage "Error"`; Date Seek `Older` / `Newer` `AXButton` (nothing added). `ExcludeToggle` source-verified (EhSetting login-gated). Lint build green ×2, 0 violations, no suppression; four out-of-scope findings in `deferred-items.md`; nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (264/274 plans)
+Progress: [██████░░░░] 59% (265/274 plans)
 
 ## Performance Metrics
 
@@ -324,6 +324,7 @@ Progress: [██████░░░░] 59% (264/274 plans)
 | Phase 16 P13 | two sessions | 3 tasks | 1 files |
 | Phase 16 P15 | 35min | 3 tasks | 16 files |
 | Phase 16 P16 | 30min | 2 tasks | 7 files |
+| Phase 16 P17 | 12min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -866,6 +867,9 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-15: HC=A applied — 19 contrast:high entries rewritten values-only; HC-40 pin re-derived to 84accf72…9407, standard-44 pin f940492a…5363 byte-identical; 0/40 HC variants below standard
 - [Phase 16]: 16-16: comment cells are combined AX elements carrying the vote as a conditional accessibilityValue; per-link Open link actions via the accessibilityActions builder; Torrents flowed glyphs hidden (not combined) because checkmark.circle reads as 'Selected'; Hath banner is a Button with a parity ButtonStyle
 - [Phase 16]: 16-16: sim-use describe-ui --point is the instrument for VoiceOver label/value/trait/custom-action evidence; the agent-device node dump lists AX-hidden nodes and Menu label nodes, so it cannot prove hidden-ness
+- [Phase 16]: 16-17: Setting root rows are Buttons with SettingRowStyle drawing the pressed background from isPressed (plan's first option; .isButton fallback not needed)
+- [Phase 16]: 16-17: cookie validity is an accessibilityValue on the key Text (glyph hidden, TextField kept separate) — combining a row over a TextField would remove its editing role, a value on the field would replace its text
+- [Phase 16]: 16-17: custom on/off cells (ExcludeToggle, Laboratory cell) use accessibilityRepresentation { Toggle(isOn:) } with the visible/positional title; App Icon rows are plain Buttons with .isSelected and a hidden checkmark
 
 ### Pending Todos
 
@@ -930,6 +934,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T14:01:59.034Z
-Stopped at: Completed 16-16-PLAN.md (VoiceOver: Detail, Comments, Archives, Torrents, FolderManager); next 16-17 (wave 15)
+Last session: 2026-09-11T14:28:50.338Z
+Stopped at: Completed 16-17-PLAN.md (VoiceOver: Setting screens + DateSeek); next 16-18 (wave 16)
 Resume file: None
