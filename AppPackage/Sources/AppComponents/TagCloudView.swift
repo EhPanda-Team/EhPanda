@@ -67,8 +67,11 @@ public struct TagCloudCell: View {
         HStack(spacing: 2) {
             Text(showsImages ? text : text.emojisRipped)
             if let imageURL = imageURL, showsImages {
+                // The chip's text is what names it; the tag image is decoration, and the spacer
+                // that reserves its space would otherwise be announced by its symbol name.
                 Image(systemSymbol: .photo).opacity(0)
                     .overlay(KFImage(imageURL).resizable().scaledToFit())
+                    .accessibilityHidden(true)
             }
         }
         .font(font.bold())
