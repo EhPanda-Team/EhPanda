@@ -71,6 +71,9 @@ struct GeneralSettingView: View {
                                 && tagTranslatorLoadingState != .loading
                             )
                         }
+                        // The glyph sits beside the row's own text and would otherwise be read by
+                        // its symbol name; the spinner overlaid on it stays its own element.
+                        .accessibilityHidden(true)
                         .overlay {
                             ProgressView()
                                 .animation(.default) {

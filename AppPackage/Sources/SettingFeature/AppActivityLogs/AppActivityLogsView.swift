@@ -270,9 +270,11 @@ private struct AppActivityLogRow: View {
     private var stampAndCategory: some View {
         AdaptiveStack(hSpacing: 4, hAlignment: .firstTextBaseline, vSpacing: 4, vAlignment: .leading) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
+                // Colour is the dot's only visible meaning; the level name is what it stands for.
                 Image(systemSymbol: .circleFill)
                     .foregroundStyle(log.level.color)
                     .font(.caption2)
+                    .accessibilityLabel(log.level.title)
                 Text(log.dateDescription)
             }
             if !log.category.isEmpty {
