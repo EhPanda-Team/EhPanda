@@ -7,6 +7,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GeneralSettingView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable private var store: StoreOf<GeneralSettingReducer>
     @Shared(.setting) private var setting: Setting
@@ -22,6 +23,13 @@ struct GeneralSettingView: View {
 
     private var tagTranslatorEmpty: Bool { tagTranslator.translations.isEmpty }
     private var tagTranslatorHasCustomTranslations: Bool { tagTranslator.hasCustomTranslations }
+
+    /// The three tag flags insert and remove whole rows of the Tags section — position motion, so
+    /// the rows appear and disappear instantly under Reduce Motion (D-29). The cache-size readout's
+    /// `numericText` crossfade is a digit change and keeps its own `.default` animation.
+    private var rowAnimation: Animation? {
+        reduceMotion ? nil : .default
+    }
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
@@ -159,9 +167,9 @@ struct GeneralSettingView: View {
                 Text(.shareAnalyticsDataFooter)
             }
         }
-        .animation(.default, value: tagTranslatorHasCustomTranslations)
-        .animation(.default, value: setting.enableTagsExtension)
-        .animation(.default, value: tagTranslatorEmpty)
+        .animation(rowAnimation, value: tagTranslatorHasCustomTranslations)
+        .animation(rowAnimation, value: setting.enableTagsExtension)
+        .animation(rowAnimation, value: tagTranslatorEmpty)
         .onChange(of: setting.enableTagsExtension) { _, _ in
             store.send(.delegate(.enableTagsExtensionChanged))
         }

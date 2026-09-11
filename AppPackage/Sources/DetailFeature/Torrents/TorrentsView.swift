@@ -8,6 +8,7 @@ import SwiftUI
 import SystemNotification
 
 struct TorrentsView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable private var store: StoreOf<TorrentsReducer>
     private let gid: String
     private let token: String
@@ -53,7 +54,9 @@ struct TorrentsView: View {
                     .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))
-            .animation(.default, value: store.torrents)
+            // The fetched torrents arrive as whole rows — position motion, instant under Reduce
+            // Motion (D-29). The loading and error overlays above keep their own crossfades.
+            .animation(reduceMotion ? nil : .default, value: store.torrents)
             .navigationTitle(.torrents)
         }
     }
