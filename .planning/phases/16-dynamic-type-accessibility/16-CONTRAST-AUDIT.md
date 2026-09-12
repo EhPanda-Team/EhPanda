@@ -506,15 +506,15 @@ Every screen where round 2 adds a visible element or a size-changing contrast ch
 | Detail header (`DescScrollRatingItem`) | none | **excluded** | The header stars are `.primary`, not `.yellow`; 16-23 does not touch them |
 | Filters sheet (`CategoryCell`) | CATEGORYCELL=A adaptive text + semantics (16-15) | **excluded** | Text colour and accessibility traits only — no visible cue added, no layout moves |
 | Any screen showing a category badge with Increase Contrast on | HC=A re-authored HC bytes (16-15) | **excluded** | Background colour only; badge geometry unchanged |
-| Settings › General › App Activity Logs | per-level glyphs replace the colour-only disc (16-22) | **included** | A newly added glyph is one of D-24's two layout risks; the glyph box is meant to be unchanged and the re-sweep proves it |
-| Settings › Laboratory | on/off state glyph or `Toggle` (16-22) | **included** | New glyph or control in the cell; joins regardless of whether the cell height changes |
+| #32 Activity Logs (Settings › General › App Activity Logs) | per-level glyphs replaced the colour-only disc — built by 16-22 (`286ecc15`), six shapes at the old `.caption2` size | **included** | A newly added glyph is one of D-24's two layout risks; the row pitch measured unchanged at `large` (see `### 16-22 result (DWC)`) and the re-sweep proves the accessibility sizes |
+| #36 Laboratory (Settings › Laboratory) | `checkmark.circle.fill` / `circle` state glyph leading the title — built by 16-22 (`286ecc15`) | **included** | New glyph in the cell; the cell measured 358 × 71 pt before and after at `large`, and the row joins regardless |
 | Comments (`LinkColoredText`) | underline on link runs (16-22) | **excluded** | Text decoration inside the line box; 16-22 re-measures and promotes it to the list only if any line height moves at AX5 |
 | Detail header Read button, Detail offline notice, Detail comment preview, Downloads swipe actions | D-28 fixes (16-23) | **excluded** | Every § Findings row is marked `Layout moves? No`: colour, tint or weight-neutral changes only |
 | NewDawn greeting | D-28 `newdawn` fix (16-23) | **excluded** | Darkening a gradient stop is colour only; if 16-23 falls back to a scrim (a new shape), 16-23 adds NewDawn to this list |
 
 D-28 sites whose fix changes size: **none** — the audit proposed colour-only fixes for every failing site, so no exceptions exist.
-The included set is therefore Activity Logs and Laboratory, both from plan 16-22; plan 16-26 re-walks exactly those unless a
-later plan records an exception here.
+The included set is therefore `#32 Activity Logs` and `#36 Laboratory`, both from plan 16-22 (built; see `### 16-22 result
+(DWC)`); plan 16-26 re-walks exactly those unless a later plan records an exception here.
 
 Plan 16-15 (CATEGORYCELL=A, HC=A) records **no exception**: it changed badge text colour, Increase Contrast background bytes and
 accessibility traits only, so per D-24 the Filters sheet and the badge screens stay **excluded** (see `### 16-15 result`).
@@ -585,3 +585,85 @@ bytes move no layout (D-24), and the Filters cells' `Button` conversion keeps th
 named `<mode>-<screen>.png` with mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic` and screen ∈ `frontpage` (top of the
 Frontpage list, all Misc), `frontpage-scrolled` (Misc, Doujinshi, Image Set badges), `detail-header` (Doujinshi header badge),
 `filters` (all ten tiles included), `filters-excluded` (Misc excluded) — 20 files.
+
+### 16-22 result (DWC)
+
+Plan 16-22 built the Differentiate Without Color half of the decisions above and re-measured what it drew. Evidence taken on
+the iOS 26.5 iPhone 17e `67377A20-A90A-4DB2-9A9C-9965532B0AA9` with the `app.ehpanda.personal` build of the tree committed
+unchanged as `286ecc15`, installed over the existing bundle (`plutil -extract CFBundleIdentifier raw` printed
+`app.ehpanda.personal` before `xcrun simctl install`; nothing uninstalled or erased; no session, no credential, D-09). Baselines
+read after boot (`appearance light`, `content_size large`, `increase_contrast disabled`), restored and read back identical at the
+end; the device was shut down. Captures: `xcrun simctl io <UDID> screenshot` at full scale (1170 × 2532); ratios by the same
+formula as the rest of this file, from the dominant foreground and background colours of a pixel box over each glyph
+(anti-aliased edge colours ignored); non-text threshold 3:1, compared `>=`, no rounding up.
+
+**What changed.** `AppActivityLogRow` draws `Image(systemSymbol: log.level.symbol)` instead of `circle.fill`, with the colour,
+`.caption2` size and `accessibilityLabel(level.title)` unchanged; `OSLogEntryLog.Level.symbol` is a `private extension` in
+`SettingFeature` (`AppActivityLogsView.swift`) — debug `ant`, info `info.circle.fill`, notice `bell.fill`, error
+`exclamationmark.triangle.fill`, fault `xmark.octagon.fill`, undefined and `@unknown default` `questionmark.circle.fill` — because
+`AppModels` does not depend on `SFSafeSymbols` and the glyph is presentation (`Package.swift` and `AppModels` untouched). This
+supersedes the three-shape proposal in the D-20 table (`circle.fill` shared by debug / info / notice): with a shared shape those
+three levels would still have differed by colour alone. `LaboratoryCell` gained a leading `checkmark.circle.fill` / `circle`
+glyph at the cell's `.title2` text size, hidden from accessibility (the `Toggle` representation from 16-17 carries the state).
+The audit's Laboratory verdict was **fail** (state ratio ≈ 1.1 in grayscale), so the glyph was added. Plan 16-22 kept
+`.foregroundStyle(level.color)` as written in its plan — no palette rendering — so the level colours are as measured in § D-28.
+
+**Layout.** Row height unchanged: at `content_size large` the Activity Logs timestamps sit at y = 174 / 265 / 355 / 446 / 537 /
+627 pt before and after the change (row pitch 90.6 pt; `before-large-activity-logs.png` / `after-large-activity-logs.png`), and
+the glyph frame reads 11 × 10 pt (was 11 × 11). The Laboratory cell measures 358 × 71 pt before and after
+(`before-large-laboratory.png` / `after-large-laboratory.png`); the glyph occupies 22 × 22 pt inside the existing padding.
+
+**Levels present.** Every run log on this simulator (18 JSONL files under the app's `Documents/Logs`) holds `level` 3 (notice) and
+4 (error) only; no debug, info, fault or undefined row exists in any run, so those four glyphs could not be rendered and are
+**source-derived**: the system colours behind `Level.color` (`.indigo`, `.blue`, `.red`, `.primary` → `UIColor.systemIndigo` /
+`.systemBlue` / `.systemRed` / `.label`) were resolved with UIKit trait collections for the four modes by a throwaway tool run
+inside the same simulator (`xcrun simctl spawn`; scratchpad only). The tool reproduced the rendered gray, orange, indigo and
+red bytes of § D-28 byte-for-byte (`#8E8E93`…, `#FF8D28`…, `#6155F5`…, `#FF383C`…), which is the validation of that basis; the
+page background resolved to `#FFFFFF` / `#000000` in every mode, matching the captures. Rendered rows come from run 4's
+`07:28:27` second (three notice rows and one error row on one screen, reached through the Runs picker and the search field) and
+from the Laboratory cell in both states (toggled ON with a held tap and restored to OFF; `after-large-laboratory-restored.png`
+reads gray-5 `#E5E5EA` at the cell centre).
+
+| glyph | level/state | L | D | L+IC | D+IC | threshold 3:1 | verdict | basis |
+|---|---|---|---|---|---|---|---|---|
+| `ant` | debug `.indigo` | 5.09 (`#6155F5` on `#FFFFFF`) | 5.98 (`#6D7CFF` on `#000000`) | 6.12 (`#564ADE` on `#FFFFFF`) | 9.84 (`#A7AAFF` on `#000000`) | 3:1 | pass | source-derived (no debug row in any run) |
+| `info.circle.fill` | info `.blue` | 3.52 (`#0088FF` on `#FFFFFF`) | 6.49 (`#0091FF` on `#000000`) | 4.57 (`#1E6EF4` on `#FFFFFF`) | 9.76 (`#5CB8FF` on `#000000`) | 3:1 | pass (light margin 0.52) | source-derived (no info row in any run) |
+| `bell.fill` | notice `.gray` | 3.26 (`#8E8E93` on `#FFFFFF`) | 6.44 (`#8E8E93` on `#000000`) | 5.23 (`#6C6C70` on `#FFFFFF`) | 9.50 (`#AEAEB2` on `#000000`) | 3:1 | pass | rendered: `*-activity-logs.png`; equals § D-28 row 11 |
+| `exclamationmark.triangle.fill` | error `.orange` | **2.31** (`#FF8D28` on `#FFFFFF`) | 9.41 (`#FF9230` on `#000000`) | 4.55 (`#C55300` on `#FFFFFF`) | 10.41 (`#FFA056` on `#000000`) | 3:1 | **FAIL** (light) → D-28 row `log-glyph-error`, plan 16-23 | rendered: `*-activity-logs.png`; equals § D-28 row 12 |
+| `xmark.octagon.fill` | fault `.red` | 3.57 (`#FF383C` on `#FFFFFF`) | 6.12 (`#FF4245` on `#000000`) | 4.56 (`#E9152D` on `#FFFFFF`) | 7.15 (`#FF6165` on `#000000`) | 3:1 | pass | source-derived (no fault row in any run); the same bytes as the rendered `swipe-delete` tint |
+| `questionmark.circle.fill` | undefined `.primary` | 21.00 (`#000000` on `#FFFFFF`) | 21.00 (`#FFFFFF` on `#000000`) | 21.00 | 21.00 | 3:1 | pass | source-derived (`.label`; the level is never logged) |
+| `circle` | Laboratory OFF, `.secondary` on `Color(.systemGray5)` | 4.50 (`#676769` on `#E5E5EA`) | 6.07 (`#ABABAB` on `#2C2C2E`) | 4.35 (`#616163` on `#D8D8DC`) | 5.50 (`#AFAFAF` on `#363638`) | 3:1 | pass | rendered: `*-laboratory-off.png`; equals § D-28 row 13 |
+| `checkmark.circle.fill` | Laboratory ON, `.purple` on `.purple.opacity(0.2)` | 3.39 (`#C51ADB` on `#F2D3F6`) | 4.79 (`#FD45FF` on `#432248`) | 4.33 (`#A518B9` on `#EAD1EE`) | 7.33 (`#FFA3FF` on `#3E2B42`) | 3:1 | pass | rendered: `*-laboratory-on.png`; equals § D-28 row 14 |
+
+The notice light+IC box sampled `#FEFEFE` and `#FFFFFF` in equal share; the ratio is against the page white (against `#FEFEFE`
+it is 5.18 — both pass). Every rendered glyph colour equals the dot colour § D-28 measured for the same level or state, as
+expected: the glyph swap changed shape only.
+
+**D-28 row handed to plan 16-23 — `log-glyph-error`.** The `.error` glyph is `.orange` on white at **2.31:1** in light mode
+(dark 9.41, light+IC 4.55, dark+IC 10.41): the colour half of the `log-dot` finding is *not* closed by 16-22, whose plan kept
+`.foregroundStyle(level.color)` and forbade editing `AppModels`. The § Findings proposal stands for 16-23, now against the
+triangle rather than a disc: palette rendering so the mark is `.primary` and the colour redundant, or a light-mode orange that
+clears 3:1 (`#DF7B22` reads 3.00 — no margin; `#B36119` reads 4.53; iOS's own Increase-Contrast orange `#C55300` reads 4.55).
+`.blue` (info) passes light at 3.52 and needs nothing, but has the smallest margin of the passing rows. Note for 16-23: the
+`D28 = ok` slot above attributes "palette-rendered" glyphs and the comment-link `.underlineStyle(.single)` to 16-22; neither is
+in plan 16-22's tasks or files, so both remain open for 16-23 (the `Comments (LinkColoredText)` D-25 row is unchanged and still
+awaits the plan that draws the underline).
+
+**Grayscale.** The light captures were desaturated with `sips --matchTo 'Generic Gray Profile.icc'` into
+`$HOME/Library/Caches/ehpanda-phase16/round2/dwc/gray/` (`light-std-activity-logs.png`, `light-std-laboratory-off.png`,
+`light-std-laboratory-on.png`, plus the three dark siblings) and re-sampled at the same boxes. Activity Logs: bell `#7C7C7C`
+and triangle `#9C9C9C` on white — a tonal ratio of only 1.3 between the two levels, which is why the disc failed; the bell and
+the warning triangle are distinct shapes and read as such (dark: `#7C7C7C` / `#A0A0A0` on black). Laboratory: the OFF ring and
+the ON disc render `#545454` on `#DFDFDF` and `#616161` on `#D5D5D5` (dark `#9B9B9B` / `#888888` on `#212121` / `#232323`) —
+the tones are within the audit's 1.1 state ratio, and the states are told apart by the ring versus the filled checkmark disc
+(glyph coverage 12 % versus 46 % of the box). No colour-only state remains on either screen.
+
+**D-25.** `#32 Activity Logs` and `#36 Laboratory` are the two included re-sweep screens (rows updated above): a new glyph
+shape at the old size, and a new glyph inside the existing cell, both with unchanged frames at `large`; plan 16-26 re-walks them
+at XXL / AX3 / AX5.
+
+**Evidence (owner review; never committed, D-32).** `$HOME/Library/Caches/ehpanda-phase16/round2/dwc/`: the `large` pairs
+`before-large-activity-logs.png` / `after-large-activity-logs.png` and `before-large-laboratory.png` /
+`after-large-laboratory.png` (+ `after-large-laboratory-restored.png`), the four-mode sets `<mode>-activity-logs.png`,
+`<mode>-laboratory-off.png`, `<mode>-laboratory-on.png` with mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic`, and
+`gray/` (six desaturated copies) — 23 files.
