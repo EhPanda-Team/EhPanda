@@ -1196,7 +1196,7 @@ disturb round 1's verified layout (D-24).
 
 | Screen | What round 2 changed | Cells re-walked | Status |
 |---|---|---|---|
-| _none yet_ | | | |
+| 14 Gallery Detail | 16-24: the action row ("Give a Rating" / "Similar Gallery") labels gain `minHeight: 24` for the audit's hit region; at `.large` the row is 3.7 pt taller and everything below it moves down 11 px, header and stats strip unchanged (`16-CONTRAST-AUDIT.md § Automated audit (16-24) › D-25`) | XXL / AX3 / AX5, iPhone portrait (16-26) | open |
 
 ## Round-1 report
 

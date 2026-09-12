@@ -753,3 +753,227 @@ link lines and the body lines around them sit at the same y in all four captures
 **Evidence (owner review; never committed, D-32).** `$HOME/Library/Caches/ehpanda-phase16/round2/contrast-after/` — 32 files:
 `<mode>-{home-root,frontpage,detail-top,detail-comments,comments-full,swipe-leading,general,activity-logs}.png` with
 mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic`. Befores are the 16-13 captures under `…/round2/contrast/`.
+
+### Automated audit (16-24)
+
+`AccessibilityAuditUITests` (`EhPandaUITests/AccessibilityAuditUITests.swift`, plan `UITests`) runs
+`performAccessibilityAudit(for: .all)` on every surface the hermetic fixtures reach: 28 tests, 27 on iPhone and one
+iPad-only (`testPadSettingAndDetailModalsAudit`, skipped on iPhone). Every report is printed as
+`[a11y-audit] <surface> | <audit type> | <verdict> | <detail> | <element>` and the audited screenshot is attached as
+`surface-<name>`, so each verdict below can be measured against the rendered pixels. The runner installs on the two
+spare simulators only: iPhone 17e (iOS 26.5, `4293F269-149A-47EB-A718-4AE54272B9E6`) and iPad (A16) (iOS 26.5,
+`B6679864-3783-4A3B-89B5-B0B010588C13`); the plan's `88B217DA…` destination does not exist on this machine (16-24
+SUMMARY deviation). Evidence lives under `$HOME/Library/Caches/ehpanda-phase16/round2/audit/` (never in the repo,
+D-32).
+
+**Runs (Task 2).**
+
+| bundle | tree | what it shows |
+|---|---|---|
+| `a11y-audit-iphone.xcresult` | `5d5844ba` as committed (no exclusions, `continueAfterFailure = false`) | 41 tests: 12 passed / 27 failed / 2 skipped; each surface stopped at its first report, so it is the red list, not the finding |
+| `a11y-audit-iphone-2.xcresult` | first fixes + the log-everything handler | 41 tests: 13 / 26 / 2 over 93 test runs (the plan's three retries); 838 report lines, 262 distinct: the first complete finding |
+| `diag-2` … `diag-8.xcresult` | intermediate | single-surface diagnostics (`-run-tests-until-failure`) that identified the element-less hit regions and measured the fixes |
+| `diag-9.xcresult` | every (a) fix applied | the audit class alone, one attempt each: Search root passed, 26 failed, 1 skipped; 267 reports, all of them in the candidate rows or the (b) list below |
+| `a11y-post-fix-iphone.xcresult` | the fix commit's tree | the plan's post-fix `UITests` run as configured (retries on): 41 tests, 13 passed / 26 failed / 2 skipped over 93 test runs; 248 distinct reports, 6 element-less (the picker's own); the 26 red tests are exactly the candidate-named ones, Search root and the 12 deep-link / share tests green |
+
+**How the engine judges (measured, not assumed).** Three behaviours decide most of the classification and are
+recorded here because the summary rows depend on them. (1) The contrast check compares the two dominant colours of
+the element's frame, not the glyph against its backdrop: a frame that holds a second background shade — a Liquid Glass
+bar's scroll-edge blur, a glass button's shadow halo, a chip's own fill, or a glyph too thin to dominate — is compared
+background-to-background, which is how 21.00:1 black-on-white captions ("110 RATINGS", "PAGE COUNT") report "Contrast
+failed". (2) The audit walks elements the app has hidden with `accessibilityHidden(true)` — every `visible(false)`
+overlay (`AppComponents/ViewModifiers.swift`: opacity 0 plus `accessibilityHidden`) is judged as if on screen,
+identified from the frames the reports carry (the hidden `ErrorView` beneath Home's sections at y 326–523 where the
+screenshot shows the Frontpage grid; Detail's hidden `LoadingView`/`ErrorView` reported as `"detail_view"` because
+the host's `accessibilityIdentifier` propagates and XCUI prefers it to the label; the reader's slider-preview strip at
+y 744–773 while the panel shows no strip). (3) `dynamicType` "partially unsupported" and `textClipped` are
+size-sampling heuristics with no measurement; they fire on plain `Text` that the round-1 sweep verified at AX5
+(`16-SWEEP.md`, screens 2–42) and the hero-carousel title they name changes with the fixture order. "Contrast nearly
+passed" means ≥ 3:1 and < 4.5:1 and is a reported issue like any other (D-22).
+
+One test-infrastructure finding (kept in the test's doc comment): reading `issue.element.frame` inside the audit
+handler takes a fresh snapshot, after which the identity-bound elements in lazy containers no longer resolve — diag-9
+logged 111 of 267 reports as `<no element>` that run 2 had named. The handler logs the description only; exclusions
+that need a frame must take it from a pre-audit inventory (`AuditContext`).
+
+#### Fixed (class a)
+
+Each fix sits in the owning file with a doc comment naming the report it answers; none changes a colour except the
+reader placeholder (a colorset authored on the 16-23 idiom), and one grows a row by four points (D-25 row below).
+
+| report (run / diagnostic that motivated it) | file | fix | after |
+|---|---|---|---|
+| `Home root \| hitRegion \| Hit area is too small` — the "Show All" buttons 58.7 × 18 (Frontpage and Toplists headings; also Detail's Previews / Comments headings) | `AppComponents/SubSection.swift` | `.frame(minHeight: 24)` on the `showAllButton` text: the heading row is 24 tall, so the button fills it without moving it (WCAG 2.5.8 minimum; 44 would add 20 points under every heading) | not reported (run 2, diag-9) |
+| `Gallery Detail \| hitRegion` — the Gallery Infos ellipsis 22.7 × 8 | `DetailFeature/DetailView+Subviews.swift` | `.frame(minWidth: 44, minHeight: 44).contentShape(.rect)` on the label inside the 60-point strip row; nothing moves | not reported |
+| `Gallery Detail \| hitRegion` ×3, element-less — uploader 49.7 × 19.3, "Give a Rating" 175 × 20.3, "Similar Gallery" 175 × 19.3, the rating-count group 13 tall (the only interactive elements under 24 points in the diag-3 dump) | `DetailFeature/DetailView+HeaderSection.swift`, `DetailView+Subviews.swift` | uploader: a `Text` label with `.frame(minHeight: 24, alignment: .topLeading)` inside the flexible column (text stays put); action row: `.frame(maxWidth: .infinity, minHeight: 24)` on both labels (row grows 3.7 points — D-25 row); the count / value / stars group is one element (`accessibilityElement(children: .combine)`) | not reported (diag-9: no `hitRegion` on Gallery Detail) |
+| `Detail › Gallery Infos \| hitRegion` ×7, element-less — the copy buttons are 14.3 tall (caption values); `sufficientElementDescription \| Label not human-readable` ×5 on the URL buttons | `DetailFeature/GalleryInfos/GalleryInfosView.swift` | the whole 44-point row is the copy button (`contentShape(.rect)`), named by the row title with the value as `accessibilityValue`; the title is forced to `Color.primary` — the hierarchical `.primary` resolves against the button tint and turned the titles green (diag-9 screenshot, 20 "nearly passed" rows), which `Color.primary` undoes | hit regions and labels not reported; the ten accent values remain (E-5) |
+| `Home root \| sufficientElementDescription \| Element has no description` ×8 — the vertical cover stack's cover buttons | `HomeFeature/HomeView+Sections.swift` | `.accessibilityLabel(gallery.title)` on each cover button | not reported |
+| `Detail › Previews \| sufficientElementDescription` ×12 and `Gallery Detail` ×4 — preview thumbnails | `DetailFeature/Previews/PreviewsView.swift`, `DetailView+Subviews.swift`, DetailFeature `Localizable.xcstrings` | `.accessibilityLabel(.accessibilityPreviewPage(page:))` — key `accessibility.preview_page` = "Page %#@page@", six locales | not reported |
+| `Gallery Detail \| sufficientElementDescription \| Element has no description \| Image` — the hero cover | `DetailFeature/DetailView+HeaderSection.swift` | `.accessibilityHidden(true)`: decorative beside the title, uploader and category | not reported |
+| `Setting › Reading \| textClipped` ×2 and `Reading › Reading Setting sheet` ×2, element-less — the "10.0x" / "5.0x" slider end labels | `ReadingSettingFeature/ReadingSettingView.swift`, its `Localizable.xcstrings` | end labels `.accessibilityHidden(true)`; the slider carries the row title as its label and the factor as its value (`accessibility.scale_factor` = "%@ times", six locales) | not reported |
+| `Reading (page) \| contrast \| Contrast failed \| "2"` — the page-number placeholder of a page that has not loaded (run 2 ×3): `.gray` `#8E8E93` on the reader's `systemGray4` page `#D1D1D6` = **2.14** in light (dark `#8E8E93` on `#1C1C1E` = 5.22 passed) | `AppComponents/Placeholder.swift`, `AppComponents/Resources/Colors.xcassets/PagePlaceholder.colorset`, `ReadingFeature/ReadingViewComponents.swift` | `Color.pagePlaceholder`: light `#5C5C60` (system gray × 0.35 black, **4.37** on `#D1D1D6`, the smallest twentieth clearing 3:1 that also clears light Increase Contrast: `#464649` on `#BCBCC0` = 4.97); dark entries keep the rendered grays (`#8E8E93` on `#1C1C1E` 5.22, `#AEAEB2` on `#242426` 7.01). The number and the reload glyph on the failed-load page use the same asset | not reported (diag-9; the placeholder renders `#5C5C60` in `surface-Reading (page)`) |
+
+Tried and reverted, recorded so nobody repeats them: `.accessibilityHidden(true)` on the `ContentUnavailableView`
+label's icon in both `Label` forms (title-and-symbol, and the closure form with the modifier on the `Image`) leaves
+the symbol exposed under its SF Symbol name — verified twice against the exposed hierarchy (the same run shows the
+hidden slider end labels absent, so the hide itself works elsewhere); it is the `ContentUnavailableView.symbol`
+entry below. `.background(_:in:)` for `SettingRowStyle`'s `.clipShape` did not change the "Appearance" `textClipped`
+report (E-8). A `visible(_:)` refactor to test the `.animation(_:body:)` form was disproven by the diag-1/diag-2
+dumps and fully reverted.
+
+#### System-owned (class b) — `systemOwnedExclusions`
+
+| id | element / Apple component | reports it matches | evidence |
+|---|---|---|---|
+| `UISearchBar.field` | the `.searchable` field, a UISearchBar | `textClipped` on the Search root `SearchField` (1 per attempt) | run 2, diag-9: the field itself is the element; nothing app-side draws it |
+| `UIDatePicker.parts` | every label inside the graphical `DatePicker` (UIDatePicker) | `dynamicType` on "1"–"30" and "September 2023" (31 per attempt) | the frame test against `app.datePickers.firstMatch.frame`; the app-drawn Older/Newer (y 592) sit below the picker (maxY 512) and stay audited (E-6, E-8) |
+| `UIDatePicker.elementDetection` | the picker's own text rendering | the two element-less `elementDetection` reports on the Date Seek sheet | only while a date picker is on screen; no element to match more narrowly |
+| `ContentUnavailableView.symbol` | the symbol `Image` `ContentUnavailableView` draws from the `Label` it is given | `sufficientElementDescription \| Label not human-readable` on `person.crop.circle.badge.questionmark.fill` (Favorites) and `rectangle.and.text.magnifyingglass` (History) | the two hides above verified ineffective; the matcher lists exactly those two symbol names, so any other unlabelled image stays under audit. The view's title / description / action texts are *not* in this entry: their `dynamicType` / `textClipped` reports are the same heuristic as on app-laid-out text and sit in E-8 |
+
+`ownerApprovedExclusions` is `[]` until the owner replies to the rows below (D-22); `UITests.xctestplan` is untouched.
+
+#### Owner-approval candidates
+
+Each row is an app-owned report class the agent did not exclude and did not change (D-22): a fix would need a visible
+change or cross a recorded decision, or the report is a false positive only the owner can accept. `measured` is the
+rendered ratio from the attached `surface-<name>` screenshot (dominant text and background colours over the element,
+this file's formula) or the frame the report carried; the audit's own verdict is quoted beside it. The tests named
+stay red until the reply is applied. Reply one line per id: `E-n=approve` (the exclusion enters
+`ownerApprovedExclusions` with the reply quoted in its doc comment), `E-n=fix: <what>` (the agent changes the app as
+told and re-runs), or `E-n=reopen: <why>`.
+
+| id | surfaces (tests kept red) | element(s) | audit type — verdict | what was measured | why a fix needs the owner (decision crossed) | proposed exclusion scope |
+|---|---|---|---|---|---|---|
+| E-1 | Home root, Toast (unsupported link), Frontpage, Popular, Favorites (login placeholder), Gallery Detail, Setting › General › App Activity Logs, Reading (page), Reading › control panel | content the app keeps in the hierarchy at opacity 0 through `visible(false)` (`AppComponents/ViewModifiers.swift`: `opacity` + `accessibilityHidden(!isVisible)`): the hidden `ErrorView` beneath each list ("Unknown Error", "An unknown error occurred. Please try again later.", "Retry"), Detail's hidden `LoadingView` / `ErrorView` (reported as `"detail_view"`, the host identifier), the "No Logs Found" overlay behind the log list, and the reader's slider-preview strip while the panel shows no strip (page captions "1"–"3", three `ActivityIndicator`s) plus, on Reading (page), the hidden panel's own labels | contrast — failed / nearly passed; dynamicType; textClipped; sufficientElementDescription | The frames prove the elements are not visible: Home's "Unknown Error" at y 326 where `surface-Home root` shows the Frontpage grid; Detail's `"detail_view"` texts at y 358 and 454 under the header; the strip at y 744–773 in `surface-Reading › control panel`, which shows only the slider. The same run lists the hidden slider end labels of the Reading Setting sheet as *absent* from the exposed hierarchy, so the hide works — the audit engine walks past it. | `visible(_:)` is the app's idiom for state views that fade in place (the D-29 Reduce Motion work relies on it). Removing the hidden views from the hierarchy (`if` insertion with `.transition(.opacity)`) changes the fade choreography of every state view; excluding them changes nothing visible. | reports whose element is one of the hidden state views on these surfaces, matched by the labels above (`ErrorView` texts and "Retry", `"detail_view"`-identified texts, "No Logs Found", the strip's captions and `ActivityIndicator`) — or `E-1=fix:` conditional insertion for state views |
+| E-2 | Home root, Toast (unsupported link), Frontpage, Popular, Setting › About, Setting › General, Setting › General › App Activity Logs, Detail › Comments | text that lies under the Liquid Glass tab bar, its scroll-edge blur, the navigation bar, or the toast card at the moment of the audit: Home's Toplists heading row "Yesterday" / "Past Month" (y 735, 18 tall, inside the bar's scroll-edge region), "Toplists" and the placeholder rows "......" (under the toast card and the bar); the last Frontpage / Popular cell ("[Mark Gavatino] Chainsaw Man Works", "Shordreno", "Portuguese", "10", "Western", "9/8/23, 9:25 AM", "Manga"); About "Kaed3mi" / "Zack Asahina"; General "Analytics" / "Share Analytics Data" / its description; the Activity Logs row "Published date failed to parse: …"; the linked comment's author, date and body on Comments (`proxy.scrollTo(id, anchor: .top)` lands it under the navigation bar) | contrast — failed | Rendered through the bar: General "Analytics" **2.60**; but "Yesterday" **18.11** and About "Kaed3mi" **11.10** render fine and still report — the engine's dominant-colour pair picks the blur layer. The set changes with scroll position between attempts (run 2 named seven Frontpage cells, diag-9 four), which is why these tests also flip. | The bars are Apple's Liquid Glass and content scrolling under them is the platform look (`16-AX-POLICY-REVIEW.md`, keep-native policy); an opaque bar, a bottom inset, or scrolling the linked comment below the bar is a visible change. | `.contrast` reports on elements whose pre-audit frame intersects `app.tabBars.firstMatch`, `app.navigationBars.firstMatch` or the toast card (frames taken before the audit; see the infrastructure note) — or `E-2=fix:` a scroll offset for the Comments anchor |
+| E-3 | Gallery Detail, Setting › General › App Activity Logs, Setting › About, Setting › Appearance, Detail › Previews | text whose rendered contrast is high but which the engine's two-colour sampling fails: the stats-strip captions "110 RATINGS" / "PAGE COUNT" (drawn under `drawingGroup()`), the eight "Parser" category chips, About "Website", Appearance "List" (identical style to "Gallery" beside it, which reports "nearly passed"), Previews caption "4" (identical to "1"–"12") | contrast — failed | Rendered: captions **21.00** (`#000000` on `#FFFFFF`; the frame's dominant pair is `#FFFFFF` / `#FEFEFE`, 1.01), chips **16.73** (`#000000` on `#E5E5EA`; the pair is chip fill vs cell white, 1.26), "Website" **20.75**, "List" **3.29** (same as "Gallery"), "4" **3.44** (same as its siblings). Deterministic across diag-2, diag-3, run 2 and diag-9. | Nothing is wrong in the rendering; removing `drawingGroup()` from the stats strip or the chip fill would be a change made for the tool. | `.contrast` "failed" on these named elements, each with its rendered ratio in the doc comment |
+| E-4 | Frontpage, Popular, History, Filters sheet, Date Seek sheet, Quick Search sheet, Setting › Account / General / Appearance / Reading / Download / Laboratory / About, Gallery Detail, Detail › Previews, Detail › Comments, Reading › Reading Setting sheet, Error info sheet | every `.secondary` text: list-cell uploader, language, page count and date; comment score and date; preview captions "1"–"12"; Detail's uploader button "Pokom"; Form section headers and footers ("Advanced", "Tags", "Navigation", "Caches", "Network", "Special Thanks", "Code-level Contributors", "E-Hentai", "ExHentai", "Appearance", "Gallery", "Context", "Description", "Environment", "Suggested Solution"); descriptions ("Blurs the app in the App Switcher…", "Only one gallery downloads at a time…", "Seek to galleries around the selected date.", "Only the latest 1,000 records are preserved.", "There seems to be nothing here.", "Up to 1,000 words can be saved.", "This link wasn't recognized…", History's visible "A parsing error occurred. Please try again later."); the Laboratory "Bypass SNI Filtering" switch label | contrast — nearly passed (≥ 3:1, < 4.5:1) | Rendered `#7F7F7F` on `#FFFFFF` = **4.00** in list cells, `#8A8A8E` on `#FFFFFF` = **3.44** (Previews captions, Detail uploader), `#85858B` on `#F2F2F7` = **3.29** (grouped headers, footers, descriptions). 141 of the 285 diag-3 reports; 2 of the 3 verdicts on most Setting screens. | The colour is the platform's hierarchical `.secondary`; raising it is the `secondary-meta` disposition (§ Non-category colours row 19; 16-23: "no change — recorded caveat", D-28), and a change would recolour every metadata run and every Form header in the app. | `.contrast` "Contrast nearly passed" on `.staticText` / `.switch` elements — never "failed"; listed under `secondary-meta` in the Nutrition Label (16-26) |
+| E-5 | Home root, Toast (unsupported link), Filters sheet, Setting › Account / General / Reading, Reading › Reading Setting sheet, Gallery Detail, Detail › Gallery Infos | accent-tinted text controls and values: "Login", "Copy Cookies" (×2), "English", "Import Custom Translations", "5.7 MB", "Show All" (Home ×2, Detail ×2), the "2.0x" / "3.0x" scale values, the ten Gallery Infos copy values (identifier, token, title, URLs, "Non-H"); the system-red "Reset Filters" | contrast — nearly passed; one "failed" (the lower Account "Copy Cookies", whose frame reaches the grouped background) | Rendered accent `#669D34` on `#FFFFFF` = **3.26**, on `#F2F2F7` = **2.92**; `.red` `#FF383C` on `#FFFFFF` = **3.57**. Dark `#96D35F` ≥ 9.54 passes. | The accent is the brand colour; 16-23 left the light accent at 3.26 for glyph-on-tint sites and re-authored only `read-glyph` and `comment-link`. Darkening it for text controls is an app-wide palette change that must be mirrored into `CommentLink` (16-23 note). | `.contrast` "nearly passed" on `.button` elements and on the named accent value texts, plus the lower "Copy Cookies" "failed" at 2.92, light appearance only |
+| E-6 | Gallery Detail, Date Seek sheet | disabled controls: "Give a Rating" (logged out), "Newer" (no newer page) | contrast — failed | Rendered `#C5C5C7` on `#FFFFFF` = **1.72**, `#C6C6C6` on `#FFFFFF` = **1.71** (the system's disabled tint). | WCAG 1.4.3 exempts inactive controls; drawing disabled controls darker crosses the platform convention (the reason `swipe-delete` / `swipe-pause` were kept in 16-23). | `.contrast` reports on elements whose `isEnabled` is `false` |
+| E-7 | Gallery Detail | the tag-namespace chip "Other" (white on `#8E8E93`) | contrast — nearly passed | Rendered `#FFFFFF` on `#8E8E93` = **3.26**. The category badges the audit also named — "Manga" 8.20, "Doujinshi" 6.37, "Asian Porn" 4.69 — pass. | The chip colour is the namespace palette under D-26; a darker gray is a visible chip change. | `.contrast` "nearly passed" on the namespace chip elements of Detail's tag section |
+| E-8 | Home root, Toast (unsupported link), Downloads (empty), Favorites (login placeholder), Setting root, History, Filters sheet, Date Seek sheet, Setting › Account / General / Appearance / Download / About, Gallery Detail, Error info sheet | app text the heuristics report: "Dynamic Type font sizes are partially unsupported" on hero-carousel titles, Older / Newer, "Pokom    ", "10/27/24, 3:20 PM", Form rows ("English", "Language", "ExHentai", "Gallery", "List", "Network", "Code-level Contributors", "Luminescent_yq", "Advanced", "Search Torrent Filenames", the Download and Error-info descriptions) and the visible `ContentUnavailableView` texts ("You need to login to access this feature.", "Login", "Parse Error", "A parsing error occurred. Please try again later.", "Retry", "Downloaded galleries will appear here."); "Text clipped" on hero-carousel titles, "Appearance" (Setting root), "Asian Porn" (Filters tile), Older / Newer, "10/27/24, 3:20 PM", "Only the latest 1,000 records are preserved.", the toast title and body | dynamicType; textClipped | No measurement: the engine samples other content sizes. Every named text renders whole at `.large` in the attached screenshot, and every screen is in the signed round-1 sweep (`16-SWEEP.md`, iPhone / iPad × XXL / AX3 / AX5); the toast subtitle's ellipsis is round-1 #42, accepted. The set is not stable (the hero title named changes with the carousel position; run 2 named three, diag-9 one). | Not a rendering defect the app can act on; silencing per element would mean `.lineLimit(nil)` / dropping `.fixedSize` on designed single-line rows (D-02, D-04 checklist, D-24). | `.dynamicType` and `.textClipped` reports on app-drawn text; the round-1 sweep stays the Larger Text evidence (16-RESEARCH Q3) |
+| E-9 | Reading › control panel | the panel's page indicator (`reading_page_indicator`, "2 / 156") and the slider end labels "1" / "156" | dynamicType — partially unsupported | The panel is deliberately clamped to `.dynamicTypeSize(.large...xxLarge)` (`ControlPanel.swift`, owner-approved range; lint rule `reading_controls_dynamic_type_range`), so "partially unsupported" is, for once, literally true and by decision. | The range is the recorded decision; lifting it is the 16-11 question reopened. | `.dynamicType` reports on elements inside the reader control panel |
+
+Under the plan's own rule (`ownerApprovedExclusions` stays `[]` until the reply), every test above is red in the
+post-fix run; the (a) fixes are what changed between run 2 and diag-9, not the verdict count.
+
+#### Classification of every report
+
+One row per surface × audit type × class over the post-fix run's 248 distinct reports (`a11y-post-fix-iphone.xcresult`,
+every element named; run 2 and diag-9 carry the same set less the fixed ones), elements quoted by their XCUI label.
+Reports the (a) fixes removed are in the Fixed table above with the diagnostic line that motivated each. Every
+system-owned row is matched and ignored by its exclusion — Search root passes; Date Seek records 6 of its 39 reports,
+Favorites and History 7 of 8.
+
+| surface | element(s) | audit type — verdict | class | action |
+|---|---|---|---|---|
+| Home root | "Retry" Button; "Unknown Error"; "An unknown error occurred. Please try again later." | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Home root | "An unknown error occurred. Please try again later." | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Home root | "An unknown error occurred. Please try again later."; "Retry" Button | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Home root | "Yesterday"; "Past Month"; "......" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Home root | "Show All" Button | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Home root | "Princess Knight Sigalda: Queen Cordeli…"; "Rite Of Passage - Futa and Sissy varia…" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Home root | "Princess Knight Sigalda: Queen Cordeli…"; "Rite Of Passage - Futa and Sissy varia…" | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Search root | "Search" SearchField | textClipped — Text clipped | b | excluded (b): `UISearchBar.field`, not a failure |
+| Downloads (empty) | "Downloaded galleries will appear here." | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Favorites (login placeholder) | "Retry"; "Unknown Error"; "An unknown error occurred. Please try again later." | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Favorites (login placeholder) | "An unknown error occurred. Please try again later." | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Favorites (login placeholder) | "Retry" | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Favorites (login placeholder) | "Login" Button; "You need to login to access this featu…" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Favorites (login placeholder) | "person.crop.circle.badge.questionmark.…" Image | sufficientElementDescription — Label not human-readable | b | excluded (b): `ContentUnavailableView.symbol`, not a failure |
+| Setting root | "Appearance" | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Frontpage | "An unknown error occurred. Please try again later."; "Unknown Error"; "Retry" | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Frontpage | "An unknown error occurred. Please try again later." | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Frontpage | "An unknown error occurred. Please try again later." | contrast — Contrast nearly passed | E-1 | candidate E-1 (fails the test until the reply) |
+| Frontpage | "Manga"; "Shordreno"; "Portuguese"; "10"; "Western"; "9/8/23, 9:25 AM"; "[Mark Gavatino] Chainsaw Man Works" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Frontpage | "hobohobo"; "48"; "Doujinshi"; "9/8/23, 9:35 AM"; "sera1938"; "Chinese"; "52"; "9/8/23, 9:26 AM"; "HandsomeRiley"; "30" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Popular | "Unknown Error"; "An unknown error occurred. Please try again later."; "Retry" | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Popular | "An unknown error occurred. Please try again later." | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Popular | "An unknown error occurred. Please try again later." | contrast — Contrast nearly passed | E-1 | candidate E-1 (fails the test until the reply) |
+| Popular | "Manga"; "Shordreno"; "Portuguese"; "10"; "Western"; "9/8/23, 9:25 AM"; "[Mark Gavatino] Chainsaw Man Works" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Popular | "hobohobo"; "48"; "Doujinshi"; "9/8/23, 9:35 AM"; "sera1938"; "Chinese"; "52"; "9/8/23, 9:26 AM"; "HandsomeRiley"; "30" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| History | "A parsing error occurred. Please try again later."; "Only the latest 1,000 records are preserved." | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| History | "A parsing error occurred. Please try again later."; "Retry" Button; "Parse Error" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| History | "A parsing error occurred. Please try again later."; "Only the latest 1,000 records are preserved." | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| History | "rectangle.and.text.magnifyingglass" Image | sufficientElementDescription — Label not human-readable | b | excluded (b): `ContentUnavailableView.symbol`, not a failure |
+| Filters sheet | "Advanced" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Filters sheet | "Reset Filters" Button | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Filters sheet | "Search Torrent Filenames"; "Advanced" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Filters sheet | "Asian Porn" Button | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Date Seek sheet | "Seek to galleries around the selected …" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Date Seek sheet | "Newer" | contrast — Contrast failed | E-6 | candidate E-6 (fails the test until the reply) |
+| Date Seek sheet | "Older"; "Newer" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Date Seek sheet | "Newer"; "Older" | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Date Seek sheet | the 30 day numbers and "September 2023" (inside the picker) | dynamicType — Dynamic Type font sizes are partially unsupported | b | excluded (b): `UIDatePicker.parts`, not a failure |
+| Date Seek sheet | (no element) | elementDetection — Potentially inaccessible text | b | excluded (b): `UIDatePicker.elementDetection`, not a failure |
+| Quick Search sheet | "Up to 1,000 words can be saved."; "There seems to be nothing here." | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › Account | "E-Hentai"; "ExHentai" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › Account | "Login" Button; "Copy Cookies" Button | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Setting › Account | "Copy Cookies" Button | contrast — Contrast failed | E-5 | candidate E-5 (fails the test until the reply) |
+| Setting › Account | "ExHentai"; "ipb_pass_hash" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Setting › General | "Analytics"; "Helps EhPanda's maintainers see which …"; "Share Analytics Data" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Setting › General | "Tags"; "Navigation"; "Caches" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › General | "English" Button; "Import Custom Translations" Button; "5.7 MB" | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Setting › General | "English" Button; "Language" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Setting › General › App Activity Logs | "No Logs Found" | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Setting › General › App Activity Logs | "Text rating failed to parse: AppModels…"; "Published date failed to parse: AppMod…" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Setting › General › App Activity Logs | "Parser" | contrast — Contrast failed | E-3 | candidate E-3 (fails the test until the reply) |
+| Setting › Appearance | "List" | contrast — Contrast failed | E-3 | candidate E-3 (fails the test until the reply) |
+| Setting › Appearance | "Blurs the app in the App Switcher and …"; "Gallery" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › Appearance | "List"; "Gallery" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Setting › Reading | "Appearance" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › Reading | "3.0x"; "2.0x" | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Setting › Download | "Network"; "Only one gallery downloads at a time. …" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › Download | "Network"; "Only one gallery downloads at a time. …" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Setting › Laboratory | "Bypass SNI Filtering" Switch | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › About | "Kaed3mi"; "Zack Asahina" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Setting › About | "Website" | contrast — Contrast failed | E-3 | candidate E-3 (fails the test until the reply) |
+| Setting › About | "Special Thanks"; "Code-level Contributors" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Setting › About | "Code-level Contributors"; "Luminescent_yq" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Gallery Detail | "detail_view" | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Gallery Detail | "detail_view" | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Gallery Detail | "PAGE COUNT"; "110 RATINGS" | contrast — Contrast failed | E-3 | candidate E-3 (fails the test until the reply) |
+| Gallery Detail | "Pokom" Button | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Gallery Detail | "Show All" Button | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Gallery Detail | "Give a Rating" | contrast — Contrast failed | E-6 | candidate E-6 (fails the test until the reply) |
+| Gallery Detail | "Other" | contrast — Contrast nearly passed | E-7 | candidate E-7 (fails the test until the reply) |
+| Gallery Detail | "10/27/24, 3:20 PM"; "Pokom  " | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Gallery Detail | "10/27/24, 3:20 PM" | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Detail › Previews | "4" | contrast — Contrast failed | E-3 | candidate E-3 (fails the test until the reply) |
+| Detail › Previews | "1"; "2"; "3"; "5"; "6"; "7"; "8"; "9"; "10"; "11"; "12" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Detail › Gallery Infos | "3103480"; "0000000000"; "EhPanda UITest Fixture"; "https://e-hentai.org/g/3103480/0000000…"; "https://ehgt.org/03/08/0308268821e9962…"; "https://e-hentai.org/archiver.php?gid=…"; "https://e-hentai.org/gallerytorrents.p…"; "https://e-hentai.org/g/2930572/daf4b98…"; "Non-H"; "https://e-hentai.org/gallerytorrents.p…" | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Detail › Comments | "曾俊华  "; "1/11/23, 2:28 PM"; "谁说E站就只能看那些东西？凡是我们所欣赏的，都可以在这里表达出来" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Detail › Comments | "+9"; "1/11/23, 7:59 PM"; "+7"; "7/2/23, 12:23 PM"; "+12"; "7/2/23, 6:34 PM"; "+21"; "1/27/24, 12:35 AM"; "10/27/24, 3:24 PM" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Reading (page) | "1"; "156"; "3"; "2" | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Reading › control panel | "1"; "3"; "2" | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Reading › control panel | ActivityIndicator | sufficientElementDescription — Element has no description | E-1 | candidate E-1 (fails the test until the reply) |
+| Reading › control panel | "1"; "2"; "3" | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Reading › control panel | "156"; "reading_page_indicator" | dynamicType — Dynamic Type font sizes are partially unsupported | E-9 | candidate E-9 (fails the test until the reply) |
+| Reading › Reading Setting sheet | "Appearance" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Reading › Reading Setting sheet | "3.0x"; "2.0x" | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Toast (unsupported link) | "Unknown Error"; "Retry" Button; "An unknown error occurred. Please try again later." | dynamicType — Dynamic Type font sizes are partially unsupported | E-1 | candidate E-1 (fails the test until the reply) |
+| Toast (unsupported link) | "An unknown error occurred. Please try again later." | textClipped — Text clipped | E-1 | candidate E-1 (fails the test until the reply) |
+| Toast (unsupported link) | "An unknown error occurred. Please try again later."; "Retry" Button | contrast — Contrast failed | E-1 | candidate E-1 (fails the test until the reply) |
+| Toast (unsupported link) | "Show All" Button; "Toplists"; "Yesterday"; "Past Month"; "......" | contrast — Contrast failed | E-2 | candidate E-2 (fails the test until the reply) |
+| Toast (unsupported link) | "Show All" Button | contrast — Contrast nearly passed | E-5 | candidate E-5 (fails the test until the reply) |
+| Toast (unsupported link) | "marao＠AI_illustration__2022.10-2023.01"; "絶倫オヤジ転生!美人ママの息子に転生したから甘えるフリしておっぱいを弄び幼馴…" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+| Toast (unsupported link) | "marao＠AI_illustration__2022.10-2023.01"; "This link wasn't recognized as an EhPa…"; "絶倫オヤジ転生!美人ママの息子に転生したから甘えるフリしておっぱいを弄び幼馴…" | textClipped — Text clipped | E-8 | candidate E-8 (fails the test until the reply) |
+| Error info sheet | "Description"; "This link wasn't recognized as an EhPa…"; "Suggested Solution"; "Context"; "Environment" | contrast — Contrast nearly passed | E-4 | candidate E-4 (fails the test until the reply) |
+| Error info sheet | "Open an e-hentai.org or exhentai.org g…" | dynamicType — Dynamic Type font sizes are partially unsupported | E-8 | candidate E-8 (fails the test until the reply) |
+
+#### D-25 (16-24)
+
+One row grows: Detail's action row ("Give a Rating" / "Similar Gallery") gains `minHeight: 24` on its labels. Parity
+at `.large` on the iPhone 17e run: header, title, stats strip unchanged (content bands 426–875 px and 966–1145 px
+identical in the run-1 failure capture `detail-large-before-5d5844ba.png` and `surface-Gallery Detail` of the post-fix
+run); the action row's text is centred 5 px lower and everything below it moves down 11 px (3.7 pt): the tag section's
+"Other" chip 1387 → 1398 px. Nothing else moves; no text size, colour or wrap changes. Recorded in
+`16-SWEEP.md § D-25 re-sweep` for the 16-26 walk at XXL / AX3 / AX5.
+
+#### Reachability assumption
+
+The hermetic fixtures render no session, so seven surfaces are not reachable by these tests and stay on the manual
+walkthrough: Favorites (list; its login placeholder *is* audited), Watched, Archives, Torrents, EhSetting,
+FolderManager and Detail Search. Home's login-gated section renders its generic `ErrorView` hidden beneath the
+sections (E-1). The History surface audited is its parse-error state — the History fixture does not parse on the
+stub (recorded in `deferred-items.md`).
