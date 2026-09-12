@@ -154,7 +154,7 @@ public struct GalleryCardCell: View {
             }
         }
         .font(dynamicTypeSize.isAccessibilitySize ? .caption2 : .body)
-        .foregroundStyle(.yellow)
+        .foregroundStyle(Color.ratingStar)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 

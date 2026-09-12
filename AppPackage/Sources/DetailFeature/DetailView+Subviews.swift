@@ -248,7 +248,7 @@ struct ActionSection: View {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
-                        .foregroundStyle(.yellow)
+                        .foregroundStyle(Color.ratingStar)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)
