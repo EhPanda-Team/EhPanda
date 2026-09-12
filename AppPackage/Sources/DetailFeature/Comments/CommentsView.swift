@@ -166,14 +166,21 @@ extension CommentsView {
                         if let text = content.text {
                             LinkedText(text: text, action: linkAction)
                         }
+                    // The parsed link runs draw in the same colour and underline as the detected
+                    // runs in `LinkedText` (Phase 16 D-28 `comment-link`; criterion 11): the accent
+                    // read 3.26:1 on the light cell, and colour was the only thing marking a link.
                     case .linkedText:
                         if let text = content.text, let link = content.link {
-                            Text(text).foregroundStyle(.tint)
+                            Text(text)
+                                .foregroundStyle(Color.commentLink)
+                                .underline()
                                 .onTapGesture { linkAction(link) }
                         }
                     case .singleLink:
                         if let link = content.link {
-                            Text(link.absoluteString).foregroundStyle(.tint)
+                            Text(link.absoluteString)
+                                .foregroundStyle(Color.commentLink)
+                                .underline()
                                 .onTapGesture { linkAction(link) }
                         }
                     case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
