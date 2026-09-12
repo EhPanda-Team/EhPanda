@@ -44,6 +44,8 @@ struct PreviewsView: View {
                         } label: {
                             PreviewImageView(originalURL: displayPreviewURLs[page])
                         }
+                        // The thumbnail is the button's only content; the page it opens is its name.
+                        .accessibilityLabel(.accessibilityPreviewPage(page: page))
                         Text(page, format: .number)
                             .font(horizontalSizeClass == .regular ? .callout : .caption)
                             .foregroundStyle(.secondary)

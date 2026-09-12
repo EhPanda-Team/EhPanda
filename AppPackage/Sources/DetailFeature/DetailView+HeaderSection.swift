@@ -376,8 +376,12 @@ struct HeaderSection: View {
 
     @GalleryCoverMetrics(.hero) private var coverSize
 
+    /// The cover is decorative here: the title, uploader and category beside it say everything it
+    /// shows, and the audit (16-24) otherwise reports the unlabeled image as an element with no
+    /// description.
     private var cover: some View {
         GalleryCover(url: gallery.coverURL, style: .hero)
+            .accessibilityHidden(true)
     }
 
     private var textColumn: some View {
@@ -391,11 +395,18 @@ struct HeaderSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Button(gallery.uploader ?? "", action: navigateUploaderAction)
-                .lineLimit(uploaderLineLimit)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .frame(maxHeight: .infinity, alignment: .top)
+            // The name alone is a 19-point-tall hit region (the accessibility audit's "hit area is
+            // too small", 16-24); the frame inside the button raises it to the WCAG 2.5.8 minimum
+            // of 24, top-aligned so the text does not move, and the flexible frame below absorbs
+            // the difference, so the column keeps its layout.
+            Button(action: navigateUploaderAction) {
+                Text(gallery.uploader ?? "")
+                    .lineLimit(uploaderLineLimit)
+                    .frame(minHeight: 24, alignment: .topLeading)
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .frame(maxHeight: .infinity, alignment: .top)
 
             bottomActionRow
         }
