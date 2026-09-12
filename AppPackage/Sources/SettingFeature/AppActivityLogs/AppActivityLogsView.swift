@@ -270,8 +270,9 @@ private struct AppActivityLogRow: View {
     private var stampAndCategory: some View {
         AdaptiveStack(hSpacing: 4, hAlignment: .firstTextBaseline, vSpacing: 4, vAlignment: .leading) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                // Colour is the dot's only visible meaning; the level name is what it stands for.
-                Image(systemSymbol: .circleFill)
+                // The shape carries the level, the colour repeats it, and the level name is what
+                // both stand for (`Level.symbol` below).
+                Image(systemSymbol: log.level.symbol)
                     .foregroundStyle(log.level.color)
                     .font(.caption2)
                     .accessibilityLabel(log.level.title)
@@ -287,6 +288,34 @@ private struct AppActivityLogRow: View {
                     .bold()
                     .lineLimit(categoryLineLimit)
             }
+        }
+    }
+}
+
+// MARK: OSLogEntryLog.Level.symbol
+/// The shape that carries a level once its colour is gone (Phase 16 criterion 11, Differentiate
+/// Without Color).
+///
+/// Every level is a distinct SF Symbol, so two rows of different severity still differ by shape under
+/// grayscale, a colour filter or a colour-vision deficiency, where the coloured dot they replaced read
+/// as two identical discs. `Level.color` stays as the redundant cue and `Level.title` is what both
+/// stand for: symbol, colour and title are three views of one enum, joined at the single row that
+/// draws a level.
+///
+/// The mapping lives here, beside that row, rather than next to `color` and `title` in `AppModels`:
+/// that module does not depend on `SFSafeSymbols`, and which glyph draws a level is a presentation
+/// choice, not model data. `.undefined` and any level added by a later OS share the question mark,
+/// so an unknown level is never mistaken for a known one.
+private extension OSLogEntryLog.Level {
+    var symbol: SFSymbol {
+        switch self {
+        case .debug: .ant
+        case .info: .infoCircleFill
+        case .notice: .bellFill
+        case .error: .exclamationmarkTriangleFill
+        case .fault: .xmarkOctagonFill
+        case .undefined: .questionmarkCircleFill
+        @unknown default: .questionmarkCircleFill
         }
     }
 }
