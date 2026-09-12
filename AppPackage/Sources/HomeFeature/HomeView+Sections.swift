@@ -281,12 +281,16 @@ struct VerticalCoverStack: View {
         self.navigateAction = navigateAction
     }
 
+    /// The cover is the button's only content, so without a label VoiceOver and Voice Control got
+    /// an unnamed button (eight of them on Home, the Phase 16 automated audit's "element has no
+    /// description"); the gallery's title is what the cover stands for.
     private func imageContainer(gallery: Gallery) -> some View {
         Button {
             navigateAction(gallery)
         } label: {
             GalleryCover(url: gallery.coverURL, style: .standard)
         }
+        .accessibilityLabel(gallery.title)
     }
 
     var body: some View {

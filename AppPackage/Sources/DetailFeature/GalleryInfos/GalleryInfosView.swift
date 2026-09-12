@@ -105,37 +105,57 @@ struct GalleryInfosView: View {
         dynamicTypeSize <= .large ? 3 : nil
     }
 
+    /// The whole row is the copy button, not just the caption-sized value: the value alone was a
+    /// 14-point-tall hit region (the accessibility audit's "hit area is too small", 16-24), and
+    /// widening the button to the row gives it the row's own 44 points without moving anything.
+    /// The title keeps `Color.primary` so it does not take the button tint the value already wears
+    /// (the hierarchical `.primary` would resolve against that tint and turn the title green too).
+    /// The element is named by the title and carries the value, so VoiceOver reads "Gallery URL,
+    /// https://…" instead of a bare URL or identifier as the button's name (the audit's "label not
+    /// human-readable").
     var body: some View {
         List(infos) { info in
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text(info.title)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                    Spacer()
-                    content(for: info, lineLimit: 1)
-                        .fixedSize(horizontal: true, vertical: false)
+            Button {
+                if let text = info.value {
+                    store.send(.copyText(text))
                 }
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(info.title)
-                    content(for: info, lineLimit: valueLineLimit)
+            } label: {
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        title(for: info)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Spacer()
+                        value(for: info, lineLimit: 1)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        title(for: info)
+                        value(for: info, lineLimit: valueLineLimit)
+                    }
                 }
+                .contentShape(.rect)
             }
+            .accessibilityLabel(info.title)
+            .accessibilityValue(valueText(for: info))
         }
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.metadataGalleryInfos)
     }
 
-    private func content(for info: Info, lineLimit: Int?) -> some View {
-        Button {
-            if let text = info.value {
-                store.send(.copyText(text))
-            }
-        } label: {
-            Text(info.value ?? String(localized: .metadataNone))
-                .lineLimit(lineLimit)
-                .font(.caption)
-        }
+    private func title(for info: Info) -> some View {
+        Text(info.title)
+            .foregroundStyle(Color.primary)
+    }
+
+    private func value(for info: Info, lineLimit: Int?) -> some View {
+        Text(valueText(for: info))
+            .lineLimit(lineLimit)
+            .font(.caption)
+    }
+
+    private func valueText(for info: Info) -> String {
+        info.value ?? String(localized: .metadataNone)
     }
 }
 

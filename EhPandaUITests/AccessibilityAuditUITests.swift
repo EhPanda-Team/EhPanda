@@ -13,8 +13,59 @@ import XCTest
 final class AccessibilityAuditUITests: XCTestCase {
     /// Issues on elements EhPanda does not draw — a UITabBar, UINavigationBar or UIPicker part
     /// owned by an Apple component. Each entry names the element and the Apple component that
-    /// owns it, and matches that element only; nothing app-drawn belongs here.
-    private let systemOwnedExclusions: [AuditExclusion] = []
+    /// owns it, and matches that element only; nothing app-drawn belongs here. The evidence for
+    /// every entry is in `16-CONTRAST-AUDIT.md § Automated audit (16-24) › System-owned`.
+    private let systemOwnedExclusions: [AuditExclusion] = [
+        AuditExclusion(
+            id: "UISearchBar.field",
+            reason: "The `.searchable` field is a UISearchBar; the audit reports the field itself "
+                + "as clipped text (Search root, every run). Nothing app-side draws the field.",
+            matches: { issue, _ in
+                issue.auditType == .textClipped && issue.element?.elementType == .searchField
+            }
+        ),
+        AuditExclusion(
+            id: "UIDatePicker.parts",
+            reason: "The graphical `DatePicker` is a UIDatePicker; every day, weekday and month "
+                + "label inside its frame is the picker's own (33 Dynamic Type reports on the Date "
+                + "Seek sheet). The frame test keeps the app-drawn Older/Newer buttons and the "
+                + "section footer, which sit outside it, under audit.",
+            matches: { issue, context in
+                guard let element = issue.element, let picker = context.datePickerFrame else { return false }
+                return picker.contains(element.frame)
+            }
+        ),
+        AuditExclusion(
+            id: "ContentUnavailableView.symbol",
+            reason: "`ContentUnavailableView` draws the symbol of the `Label` it is given as its own "
+                + "`Image`, exposed under the raw SF Symbol name (Favorites' login placeholder, "
+                + "History's parse-error state). `accessibilityHidden(true)` on the label's icon — "
+                + "in both `Label` forms — does not reach that image, so nothing app-side can "
+                + "name or hide it. The list is the symbols the audited surfaces show, so any "
+                + "other unlabelled image stays under audit.",
+            matches: { issue, _ in
+                guard issue.auditType == .sufficientElementDescription,
+                      let element = issue.element, element.elementType == .image else { return false }
+                return AccessibilityAuditUITests.contentUnavailableSymbols.contains(element.identifier)
+            }
+        ),
+        AuditExclusion(
+            id: "UIDatePicker.elementDetection",
+            reason: "The two `elementDetection` reports on the Date Seek sheet carry no element; "
+                + "they appear only while the UIDatePicker is on screen and are its own text "
+                + "rendering. An element-less report cannot be matched more narrowly.",
+            matches: { issue, context in
+                issue.auditType == .elementDetection && issue.element == nil && context.datePickerFrame != nil
+            }
+        )
+    ]
+
+    /// The SF Symbol names `ContentUnavailableView` exposes on the audited surfaces (see
+    /// `ContentUnavailableView.symbol`).
+    private static let contentUnavailableSymbols: Set<String> = [
+        "person.crop.circle.badge.questionmark.fill",
+        "rectangle.and.text.magnifyingglass"
+    ]
 
     /// App-owned issues that are documented false positives and cannot be resolved without a
     /// visible change the owner has not authorised — for example a `.contrast` report on text
@@ -85,7 +136,14 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testHistoryAudit() throws {
         let app = try launch(tab: "home")
         requireHomeRoot(in: app)
-        tapScrolling(app.buttons["History"].firstMatch, in: app)
+        // History is the last item of the horizontal misc grid at the foot of Home: scroll the
+        // page down to the grid, then scroll the grid itself sideways until the item is on screen.
+        let historyButton = app.buttons["History"].firstMatch
+        XCTAssertTrue(historyButton.waitForExistence(timeout: 15), "Home did not render its misc grid.")
+        scrollUntilHittable(historyButton, in: app, of: app, direction: .upward)
+        scrollUntilHittable(historyButton, in: app.buttons["Popular"].firstMatch, of: app, direction: .leftward)
+        XCTAssertTrue(historyButton.isHittable, "The History grid item never became hittable.")
+        historyButton.tap()
         requireNavigationTitle("History", in: app)
         try audit(app, surface: "History")
     }
@@ -108,10 +166,13 @@ final class AccessibilityAuditUITests: XCTestCase {
         dismissSheet(in: app)
     }
 
-    /// Quick Search lives on the Search root's toolbar, not on Frontpage's.
+    /// Quick Search lives on the Search root's toolbar, not on Frontpage's, inside its More menu.
     func testQuickSearchSheetAudit() throws {
         let app = try launch(tab: "search")
         requireNavigationTitle("Search", in: app)
+        let moreButton = app.buttons["More"].firstMatch
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 15), "The Search toolbar did not expose More.")
+        moreButton.tap()
         try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
         try audit(app, surface: "Quick Search sheet")
         dismissSheet(in: app)
@@ -136,6 +197,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         try pushSettingRow("General", in: app)
         tapScrolling(app.buttons["App Activity Logs"].firstMatch, in: app)
         requireNavigationTitle("App Activity Logs", in: app)
+        // The entries load after the title; audit the list, not the empty state.
+        XCTAssertTrue(
+            app.collectionViews.cells.firstMatch.waitForExistence(timeout: 15),
+            "App Activity Logs did not render a log row."
+        )
         try audit(app, surface: "Setting › General › App Activity Logs")
     }
 
@@ -195,11 +261,9 @@ final class AccessibilityAuditUITests: XCTestCase {
         // on screen first, then scroll the strip itself until the button can be tapped.
         let infosButton = detailView.buttons["Gallery Infos"].firstMatch
         XCTAssertTrue(infosButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
-        scrollUntilHittable(infosButton, in: app, direction: .upward)
-        if !infosButton.isHittable {
-            let statsStrip = detailView.scrollViews.firstMatch
-            scrollUntilHittable(infosButton, in: statsStrip, direction: .leftward)
-        }
+        scrollUntilHittable(infosButton, in: app, of: app, direction: .upward)
+        scrollUntilHittable(infosButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
+        XCTAssertTrue(infosButton.isHittable, "The Gallery Infos button never became hittable.")
         infosButton.tap()
         requireNavigationTitle("Gallery Infos", in: app)
         try audit(app, surface: "Detail › Gallery Infos")
@@ -211,7 +275,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         try app.openCold(commentURL)
         app.requireForeground()
         app.requireElement("comments_view", matching: .collectionView)
-        app.requireElement("comment_cell_" + UITestConstants.commentID)
+        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        // The linked row is highlighted by a fade to 25 % and back over two seconds; auditing
+        // mid-pulse measured the dimmed row as three contrast failures. Let the pulse finish.
+        settle(app, for: 2.5)
+        XCTAssertTrue(linkedComment.exists, "The linked comment left the screen while settling.")
         try audit(app, surface: "Detail › Comments")
     }
 
@@ -309,18 +377,37 @@ private extension AccessibilityAuditUITests {
 
     /// Audits everything on screen. Every issue is logged with the surface name so the result
     /// bundle carries the complete finding, then judged against the two allow-lists; while both
-    /// are empty the handler returns `false` for every issue and the test fails on the first one.
+    /// are empty the handler returns `false` for every issue and each one fails the test.
+    ///
+    /// XCTest records the failure for a non-ignored issue inside the handler, so with the class's
+    /// `continueAfterFailure = false` the test would stop at the first issue and every later one
+    /// would never reach the log. The flag is lifted for the audit call alone — navigation before
+    /// it still stops at its first failed wait — so one run records a surface's complete list.
     func audit(_ app: XCUIApplication, surface: String) throws {
         let systemOwned = systemOwnedExclusions
         let ownerApproved = ownerApprovedExclusions
+        let context = AuditContext(app: app)
+        let stopsAfterFailure = !continueAfterFailure
+        continueAfterFailure = true
+        defer { continueAfterFailure = !stopsAfterFailure }
+        // The screenshot the audit judged, kept in the result bundle beside its finding so a
+        // contrast verdict can be measured against the rendered pixels afterwards.
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "surface-\(surface)"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
         try app.performAccessibilityAudit(for: .all) { issue in
+            // The element's description only, never its frame: reading the frame here takes a
+            // fresh snapshot of the app, after which the audit's identity-bound elements in lazy
+            // containers (list cells, the carousels) no longer resolve and the later issues on the
+            // same surface log as "<no element>" (a 16-24 diagnostic run lost 111 of 267 that way).
             let elementDescription = issue.element?.description ?? "<no element>"
             print(
                 "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
                     + " | \(issue.detailedDescription) | \(elementDescription)"
             )
-            return systemOwned.contains(where: { $0.matches(issue) })
-                || ownerApproved.contains(where: { $0.matches(issue) })
+            return systemOwned.contains(where: { $0.matches(issue, context) })
+                || ownerApproved.contains(where: { $0.matches(issue, context) })
         }
     }
 }
@@ -331,6 +418,14 @@ private extension AccessibilityAuditUITests {
     enum SwipeDirection {
         case upward
         case leftward
+    }
+
+    /// Waits out an animation the screen is known to run before auditing it. XCTest has no
+    /// expectation for "no element is animating", so the interval is the animation's own length;
+    /// the unfulfilled expectation is the framework's idiom for a timed pause on the main thread.
+    func settle(_ app: XCUIApplication, for seconds: TimeInterval) {
+        let pause = XCTestExpectation(description: "\(app.description) settles for \(seconds) s")
+        _ = XCTWaiter.wait(for: [pause], timeout: seconds)
     }
 
     func launch(tab: String) throws -> XCUIApplication {
@@ -432,14 +527,28 @@ private extension AccessibilityAuditUITests {
             file: file,
             line: line
         )
-        scrollUntilHittable(element, in: app, direction: .upward)
+        scrollUntilHittable(element, in: app, of: app, direction: .upward)
         XCTAssertTrue(element.isHittable, "\(element) never became hittable.", file: file, line: line)
         element.tap()
     }
 
-    func scrollUntilHittable(_ element: XCUIElement, in container: XCUIElement, direction: SwipeDirection) {
+    /// Swipes the container until the element lies inside the window, or gives up after a
+    /// screenful of swipes. The window test is done on frames, never through `isHittable`: XCTest
+    /// records a failure ("activation point invalid") when hittability is asked of an element that
+    /// is laid out beyond the screen edge, which is exactly the state this loop exists to leave.
+    func scrollUntilHittable(
+        _ element: XCUIElement,
+        in container: XCUIElement,
+        of app: XCUIApplication,
+        direction: SwipeDirection
+    ) {
+        let window = app.windows.firstMatch.frame
         var remainingSwipes = 8
-        while !element.isHittable, remainingSwipes > 0 {
+        while remainingSwipes > 0 {
+            let frame = element.frame
+            if !frame.isEmpty, window.contains(frame), element.isHittable {
+                return
+            }
             switch direction {
             case .upward:
                 container.swipeUp()
@@ -456,5 +565,17 @@ private extension AccessibilityAuditUITests {
 private struct AuditExclusion {
     let id: String
     let reason: String
-    let matches: (XCUIAccessibilityAuditIssue) -> Bool
+    let matches: (XCUIAccessibilityAuditIssue, AuditContext) -> Bool
+}
+
+/// What the exclusions and the log need to know about the screen, captured once before the
+/// audit so the issue handler does not query the app for every issue.
+private struct AuditContext {
+    /// The graphical UIDatePicker's frame, when one is on screen.
+    let datePickerFrame: CGRect?
+
+    @MainActor init(app: XCUIApplication) {
+        let picker = app.datePickers.firstMatch
+        datePickerFrame = picker.exists ? picker.frame : nil
+    }
 }

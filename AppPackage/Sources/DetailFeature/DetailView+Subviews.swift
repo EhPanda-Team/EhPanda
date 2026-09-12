@@ -108,11 +108,18 @@ struct DescriptionSection: View {
         }
     }
 
+    /// The ellipsis glyph alone measures about 23 × 8 points, far under any touch-target floor
+    /// (the audit's "hit area is too small", Phase 16). The 44-point frame is the HIG minimum and
+    /// fits inside the strip's 60-point row and its column width, so the glyph stays centred where
+    /// it was and no layout moves; `contentShape` makes the whole frame tappable, not just the
+    /// glyph's pixels.
     private var galleryInfosButton: some View {
         Button(action: navigateGalleryInfosAction) {
             Label(.metadataGalleryInfos, systemSymbol: .ellipsis)
                 .labelStyle(.iconOnly)
                 .font(.title3.weight(.bold))
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(.rect)
         }
     }
 
@@ -189,6 +196,10 @@ extension DescriptionSection {
                 // never the member that gets clipped.
                 RatingView(rating: rating).font(.caption).foregroundStyle(.primary)
             }
+            // One element for the column: the caption-sized star group on its own was a 13-point
+            // accessibility element, which the audit reports as a hit region too small (16-24);
+            // read together, count, value and stars are one fact anyway.
+            .accessibilityElement(children: .combine)
         }
 
         /// The caption carries the rating count, so it is a value as much as a label, and it holds
@@ -261,6 +272,10 @@ struct ActionSection: View {
         .padding(.horizontal)
     }
 
+    /// Each label is at least 24 points tall: the callout line alone measured 19–20 points, which
+    /// the accessibility audit (16-24) reports as a hit area too small, and 24 is the WCAG 2.5.8
+    /// minimum. The frame sits inside the button so the hit region grows with it; the row is
+    /// about four points taller than the bare line, which the D-25 re-sweep records.
     @ViewBuilder private var actionButtons: some View {
         Group {
             Button(action: showUserRatingAction) {
@@ -270,7 +285,7 @@ struct ActionSection: View {
                 } icon: {
                     Image(systemSymbol: .squareAndPencil)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 24)
             }
             .disabled(!didLogin)
 
@@ -280,7 +295,7 @@ struct ActionSection: View {
                 } icon: {
                     Image(systemSymbol: .photoOnRectangleAngled)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 24)
             }
         }
         .font(.callout)
@@ -531,6 +546,8 @@ struct PreviewsSection: View {
                             PreviewImageView(originalURL: previewURL)
                                 .frame(width: width, height: height)
                         }
+                        // The thumbnail is the button's only content; the page it opens is its name.
+                        .accessibilityLabel(.accessibilityPreviewPage(page: index))
                     }
                     .withHorizontalSpacing(height: height)
                 }

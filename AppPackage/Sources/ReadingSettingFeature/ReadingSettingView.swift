@@ -77,6 +77,10 @@ private struct ScaleFactorRow: View {
         self.maxFactor = maxFactor
     }
 
+    /// The slider is the row's control, so it carries the row's title as its label and the chosen
+    /// factor as its value, spoken as words ("3.0 times"). The "1.5x" / "10.0x" end labels are
+    /// hidden: read on their own they are two more stops on the way to the slider, and the audit
+    /// reports the larger one as a label that is not human-readable (Phase 16).
     var body: some View {
         VStack {
             if dynamicTypeSize.isAccessibilitySize {
@@ -102,24 +106,34 @@ private struct ScaleFactorRow: View {
                         .fontWeight(.medium)
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityHidden(true)
 
                     Slider(value: $scaleFactor, in: minFactor...maxFactor, step: 0.5)
                         .frame(maxWidth: .infinity)
+                        .accessibilityLabel(labelContent)
+                        .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
 
                     Text(.Constant.scaleFactor(maxFactor.roundedString()))
                         .fontWeight(.medium)
                         .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                        .accessibilityHidden(true)
                 }
             } else {
                 Slider(
                     value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
                     minimumValueLabel: Text(.Constant.scaleFactor(minFactor.roundedString()))
-                        .fontWeight(.medium).font(.callout),
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .accessibilityHidden(true),
                     maximumValueLabel: Text(.Constant.scaleFactor(maxFactor.roundedString()))
-                        .fontWeight(.medium).font(.callout),
+                        .fontWeight(.medium)
+                        .font(.callout)
+                        .accessibilityHidden(true),
                     label: EmptyView.init
                 )
+                .accessibilityLabel(labelContent)
+                .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
             }
         }
         .padding(.vertical, 10)
