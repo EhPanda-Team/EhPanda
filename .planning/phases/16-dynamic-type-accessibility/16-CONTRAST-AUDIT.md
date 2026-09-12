@@ -508,11 +508,15 @@ Every screen where round 2 adds a visible element or a size-changing contrast ch
 | Any screen showing a category badge with Increase Contrast on | HC=A re-authored HC bytes (16-15) | **excluded** | Background colour only; badge geometry unchanged |
 | #32 Activity Logs (Settings › General › App Activity Logs) | per-level glyphs replaced the colour-only disc — built by 16-22 (`286ecc15`), six shapes at the old `.caption2` size | **included** | A newly added glyph is one of D-24's two layout risks; the row pitch measured unchanged at `large` (see `### 16-22 result (DWC)`) and the re-sweep proves the accessibility sizes |
 | #36 Laboratory (Settings › Laboratory) | `checkmark.circle.fill` / `circle` state glyph leading the title — built by 16-22 (`286ecc15`) | **included** | New glyph in the cell; the cell measured 358 × 71 pt before and after at `large`, and the row joins regardless |
-| Comments (`LinkColoredText`) | underline on link runs (16-22) | **excluded** | Text decoration inside the line box; 16-22 re-measures and promotes it to the list only if any line height moves at AX5 |
-| Detail header Read button, Detail offline notice, Detail comment preview, Downloads swipe actions | D-28 fixes (16-23) | **excluded** | Every § Findings row is marked `Layout moves? No`: colour, tint or weight-neutral changes only |
-| NewDawn greeting | D-28 `newdawn` fix (16-23) | **excluded** | Darkening a gradient stop is colour only; if 16-23 falls back to a scrim (a new shape), 16-23 adds NewDawn to this list |
+| Comments (`LinkColoredText`, `CommentsView` link runs) | underline on link runs — built by 16-23 (`0d9945e0`, `4d2acc70`) with the `comment-link` colour | **excluded** | Text decoration inside the line box; the link lines sit at the same y in the four `<mode>-comments-full.png` captures as the untouched body lines around them (see `### 16-23 result (contrast)`) |
+| Detail header Read button, Detail offline notice, Detail comment preview, Downloads swipe actions, Activity Logs error glyph, General tags warning glyph | D-28 fixes — built by 16-23 (`0d9945e0`) | **excluded** | Every § Findings row is marked `Layout moves? No`: colour, tint or weight-neutral changes only; 16-23 changed colour alone at every site |
+| NewDawn greeting | D-28 `newdawn` fix — built by 16-23 (`0d9945e0`): the light top stop darkened, no scrim | **excluded** | Darkening a gradient stop is colour only; the stop passed (4.48:1 source-derived), so no scrim was added and NewDawn stays off the list |
 
 D-28 sites whose fix changes size: **none** — the audit proposed colour-only fixes for every failing site, so no exceptions exist.
+
+Plan 16-23 (D28=ok, STARS=B) records **no exception**: colour-only changes add no screen (D-24) — every star site, the Read
+glyph, the comment links and date, the offline notice, the swipe tints, the two warning glyphs and the NewDawn stop changed
+colour alone, no size or layout (see `### 16-23 result (contrast)`).
 The included set is therefore `#32 Activity Logs` and `#36 Laboratory`, both from plan 16-22 (built; see `### 16-22 result
 (DWC)`); plan 16-26 re-walks exactly those unless a later plan records an exception here.
 
@@ -667,3 +671,85 @@ at XXL / AX3 / AX5.
 `after-large-laboratory.png` (+ `after-large-laboratory-restored.png`), the four-mode sets `<mode>-activity-logs.png`,
 `<mode>-laboratory-off.png`, `<mode>-laboratory-on.png` with mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic`, and
 `gray/` (six desaturated copies) — 23 files.
+
+### 16-23 result (contrast)
+
+Plan 16-23 applied the `D28 = ok` and `STARS = B` decisions above and re-measured every changed site. Evidence taken on the iOS
+26.5 iPhone 17e `67377A20-A90A-4DB2-9A9C-9965532B0AA9` with the `app.ehpanda.personal` build of the tree at `4d2acc70` (the
+plan's three code commits `0d9945e0`, `d778cc08`, `4d2acc70`), built by UDID into `$HOME/Library/Caches/ehpanda-phase16/DerivedData`
+and installed over the existing bundle (`plutil -extract CFBundleIdentifier raw` printed `app.ehpanda.personal` before each of the
+two `xcrun simctl install`s; nothing uninstalled or erased; no session, no credential, D-09; downloads `4178996` / `4183242` /
+`4179873` untouched). Baselines read after boot (`appearance light`, `content_size large`, `increase_contrast disabled`),
+restored and read back identical at the end; the device was shut down. Captures: `xcrun simctl io <UDID> screenshot` at full
+scale (1170 × 2532), one screen per state, re-captured in place under `appearance light|dark` × `increase_contrast
+disabled|enabled`; ratios by this file's formula from the dominant foreground and background colours of a pixel box over each
+element (anti-aliased edges ignored); compared `>=` the threshold, no rounding up. An earlier install-over of `d778cc08` was
+superseded by `4d2acc70` after the comment-link finding below; every row is from the `4d2acc70` build.
+
+**What changed (per id; each site carries a doc comment with its factor or value).** Colour APIs: `Color.mix(with: .black,
+by:)` in its default perceptual space for the darkened tints and glyphs — the rendered bytes equal SwiftUI's own `mix` output
+resolved on macOS for the same input colours (e.g. teal `#00C3D0` × 0.35 → `#006C74` on both), which is what makes the
+source-derived rows below trustworthy; two module colorsets (`AppComponents/Resources/Colors.xcassets/RatingStar`,
+`DetailFeature/Resources/Colors.xcassets/CommentLink`) with light / dark / high-contrast entries; and the 16-14 helper for the
+Read glyph. No category colorset changed (`CategoryColorsetInvariantTests` green, standard-44 pin `f940492a…5363`).
+
+- `stars-list` / `stars-card` (**STARS = B**): `Color.ratingStar` — light `#A38100`, dark `#FFD600`, light+HC `#A16A00`,
+  dark+HC `#FEDF43` — at the five star sites and the `RatingView` previews. The Home card re-measured **3.01** from rendered
+  pixels (`#A38100` on `#E8E8E9`, exactly 3.0102), so **no escalation** to `#A16A00`; `#A38100` stands.
+- `read-glyph`: `Color.accentColor.contrastingForeground(in: environment)` on the `.glassProminent` Read button — black in light /
+  dark / dark+IC, white in light+IC, where the accent resolves to the darkened `#416321`.
+- `comment-link`: the audit attributed the rendered runs to `LinkColoredText`; on the device the failing runs were the parsed
+  `.linkedText` / `.singleLink` contents that `CommentsView` draws with `.foregroundStyle(.tint)`. Both sites now use
+  `Color.commentLink` (light `#54832A`; dark and the two Increase Contrast entries copy the accent's rendered values) and an
+  underline (`underlineStyle = .single` on the attributed runs; `.underline()` on the parsed runs) — the DWC carrier the
+  `D28 = ok` slot attributed to 16-22.
+- `comment-date`: `.foregroundStyle(.primary)` on the date text only; the vote glyph and score keep `.secondary`.
+- `offline-notice`: text `.primary`, `.orange` on the `wifi.exclamationmark` glyph only, same font and weight.
+- `swipe-pages`: `inspectButton.tint(.indigo.mix(with: .black, by: 0.3))`; `swipe-move`: `.teal.mix(with: .black, by: 0.35)`;
+  `swipe-update`: `.orange.mix(with: .black, by: 0.3)`. Each factor is the smallest twentieth whose four ratios all clear 4.5:1
+  (dark+IC included), so no swipe site the plan touched is left at the "platform limit" the § Findings rows anticipated.
+- `swipe-delete` / `swipe-pause`: **kept** as platform conventions (no change; the rows below repeat the audit's numbers).
+- `secondary-meta`: **no change** (the one known `.secondary` caveat for the Nutrition Label recommendation).
+- `log-glyph-error` (16-22 hand-over): `OSLogEntryLog.Level.glyphColor` beside `symbol` in `AppActivityLogsView.swift` —
+  `.error` → `color.mix(with: .black, by: 0.15)`, every other level unchanged; `AppModels` untouched.
+- `newdawn`: the light gradient's top stop is `Color(.systemTeal).mix(with: .black, by: 0.25)`; the dark branch, the indigo
+  bottom stop and the sun are unchanged; no scrim.
+- General › Tags warning glyph (`GeneralSettingView.swift`, measured as its own row per the plan; not a § Findings id):
+  `.yellow.mix(with: .black, by: 0.3)` — recorded as a 16-23 deviation in its SUMMARY.
+- Toast title / subtitle / icon: `ToastMessageView.swift` is byte-identical to the audited `8d462178` (`git log 8d462178..HEAD`
+  on the file is empty), rows 8–10 passed at ≥ 4.70 / 3.54 — **already passing, not redone**.
+
+| site | before (L / D / L+IC / D+IC) | after (L / D / L+IC / D+IC) | threshold | verdict | basis |
+|---|---|---|---|---|---|
+| Rating stars — list cells (`stars-list`) | 1.51 / 12.05 / 4.59 / 11.69 | **3.69** (`#A38100` on `#FFFFFF`) / 12.05 (`#FFD600` on `#1C1C1E`) / 4.59 (`#A16A00` on `#FFFFFF`) / 11.69 (`#FEDF43` on `#242426`) | 3:1 | pass | rendered: `<mode>-frontpage.png`, two cells, identical |
+| Rating stars — Home card (`stars-card`) | 1.23 / 1.97 / 3.54 / 2.21 | **3.01** (`#A38100` on `#E8E8E9`) / 5.51 (`#FFD600` on `#7E4138`) / 3.54 (`#A16A00` on `#E2E2E2`) / 6.06 (`#FEDF43` on `#774236`) | 3:1 | pass (light exactly 3.0102, no escalation; dark backgrounds are this cover's gradient — content-dependent caveat stands) | rendered: `<mode>-home-root.png` |
+| Read button glyph (`read-glyph`) | 3.30 / 1.81 / 9.10 / 1.12 | **6.37** (`#000000` on `#669C34`) / **11.75** (`#000000` on `#95D35D`) / 6.93 (`#FFFFFF` on `#416321`) / **18.17** (`#000000` on `#C7FF95`) | 3:1 | pass | rendered: `<mode>-detail-top.png` |
+| Comment link runs (`comment-link`) | 3.26 / 9.54 / 11.40 / 14.26 | **4.51** (`#54832A` on `#FFFFFF`; 4.51 exact 4.5094 ≥ 4.5) / 7.82 (`#96D35F` on `#2C2C2E`) / 11.40 (`#2A4015` on `#FFFFFF`) / 11.09 (`#E1FFC6` on `#363638`) | 4.5:1 | pass (underline present in all four captures) | rendered: `<mode>-comments-full.png`, two link lines, identical; the dark cell sampled `#2C2C2E` where the audit's basis was `#1C1C1E` — the link is unchanged in dark and passes on either |
+| Comment preview date (`comment-date`) | 3.13 / 5.29 / 4.74 / 5.85 | **16.73** (`#000000` on `#E5E5EA`) / 13.94 (`#FFFFFF` on `#2C2C2E`) / 14.78 (`#000000` on `#D8D8DC`) / 12.06 (`#FFFFFF` on `#363638`) | 4.5:1 | pass | rendered: `<mode>-detail-comments.png` |
+| Offline notice text (`offline-notice`) | 2.31 / 9.41 / 4.55 / 10.41 | **21.00** / 21.00 / 21.00 / 21.00 (`.primary` on the page basis the audit used) | 4.5:1 | pass; the `.orange` glyph beside it stays at the audit's 2.31 in light as a decorative duplicate of the text | source-derived (the state needs a Detail load failure; not triggerable on this simulator) |
+| Swipe *Pages* glyph on its tint (`swipe-pages`) | 1.68 / 9.12 / 2.21 / 7.56 | **10.16** (`#FFFFFF` on `#393198`) / 7.78 (on `#414A9E`) / **11.49** (on `#322A89`) / 5.20 (on `#66689E`) | 4.5:1 | pass | rendered: `<mode>-swipe-leading.png` (row `4183242`) |
+| Swipe *Move* glyph on its tint (`swipe-move`) | 2.16 / 1.86 / 4.57 / 1.65 | **6.18** (`#FFFFFF` on `#006C74`) / **5.47** (on `#00757D`) / 10.63 (on `#004553`) / **4.98** (on `#1D7B84`) | 4.5:1 | pass | rendered: `<mode>-swipe-leading.png` |
+| Swipe *Update* glyph on its tint (`swipe-update`) | 2.31 / 2.23 / 4.55 / 2.02 | **5.58** (`#FFFFFF` on `#9E5515`) / **5.43** (on `#9E581A`) / 9.39 (on `#793000`) / **4.99** (on `#9E6132`) | 4.5:1 | pass | source-derived: `.orange` × 0.3 resolved by SwiftUI's `mix` from the audit's rendered oranges; the same machinery rendered the Pages and Move bytes exactly |
+| Swipe *Delete* (`swipe-delete`) | 3.57 / 3.43 / 4.56 / 2.94 | unchanged | 4.5:1 | **kept — platform convention** (`.red` is Apple's delete tint) | audit rows, no change |
+| Swipe *Pause* (`swipe-pause`) | 5.09 / 3.51 / 6.12 / 2.13 | unchanged | 4.5:1 | **kept — platform convention** (Increase-Contrast dark palette is pastel by design) | audit rows, no change |
+| Activity-log `.error` glyph (`log-glyph-error`) | 2.31 / 9.41 / 4.55 / 10.41 | **3.52** (`#CE701E` on `#FFFFFF`) / 6.20 (`#CE7525` on `#000000`) / 6.54 (`#9E4100` on `#FFFFFF`) / 6.80 (`#CE8044` on `#000000`) | 3:1 | pass | rendered: `<mode>-activity-logs.png`, two rows, identical |
+| NewDawn greeting over the gradient top (`newdawn`) | 2.16 / 13.94 / 4.57 / 12.06 | **4.48** (`#FFFFFF` on `#00848D`) / 13.94 (dark branch unchanged) / 8.32 (on `#005666`) / 12.06 (unchanged) | 3:1 | pass | source-derived: no greeting renders without a session; light stops from SwiftUI's `mix` of the audit's rendered teals |
+| General › Tags warning glyph (plan Task 1 row) | 1.51 / 12.05 / 4.59 / 11.69 (`.yellow` on the rendered row `#FFFFFF` / `#1C1C1E` / `#FFFFFF` / `#242426`) | **3.86** (`#9E7E00` on `#FFFFFF`) / 4.66 (`#9E8400` on `#1C1C1E`) / 9.42 (`#623F00` on `#FFFFFF`) / 4.51 (`#9E8A26` on `#242426`) | 3:1 | pass | source-derived glyph (visible only with translations enabled and empty) on rendered row backgrounds from `<mode>-general.png` |
+| `.secondary` metadata (`secondary-meta`) | 4.00 / 5.20 / 4.00 / 4.98 | unchanged | 4.5:1 | **no change — recorded caveat** | audit row 19 |
+| Toast title / subtitle / icon | 20.47 / 16.74 / 19.95 / 16.60; 4.73 / 7.16 / 4.70 / 7.13; 3.54 / 5.68 / 4.45 / 6.65 | unchanged (file byte-identical to `8d462178`) | 4.5:1 / 4.5:1 / 3:1 | already passing, not redone | audit rows 8–10 |
+
+Every `after` is ≥ its threshold; there is no `accepted residual (owner veto)` because `D28 = ok` vetoed nothing. The two
+`kept` rows and `secondary-meta` are the audit's own proposals applied.
+
+**Observations, not fixes (out of this plan's scope; logged in `deferred-items.md`).** (1) On iOS 26 the swipe action's *text*
+label ("Pages", "Move") is drawn by the system in its own gray outside the tinted disc — `#85858B` on `#F2F2F7` = 3.29 in light
+(dark 6.36, light+IC 5.33, dark+IC 8.48); the app cannot tint it, and the audit's swipe rows measured the glyph on the disc,
+which is what this plan fixed. (2) The comment *preview* card's score (`+471`) shares the date's old `.secondary`-on-gray-5
+basis (3.13 in light) and was not a § Findings row; it stays `.secondary` under `secondary-meta`.
+
+**D-25.** Nothing added: colour-only changes add no screen (D-24). The Comments row above records the underline as built; the
+link lines and the body lines around them sit at the same y in all four captures.
+
+**Evidence (owner review; never committed, D-32).** `$HOME/Library/Caches/ehpanda-phase16/round2/contrast-after/` — 32 files:
+`<mode>-{home-root,frontpage,detail-top,detail-comments,comments-full,swipe-leading,general,activity-logs}.png` with
+mode ∈ `light-std`, `dark-std`, `light-ic`, `dark-ic`. Befores are the 16-13 captures under `…/round2/contrast/`.
