@@ -69,10 +69,11 @@ private struct LinkColoredText: View {
     }
 }
 
-private extension Color {
-    /// The colour of a link run inside a comment (Phase 16 D-28, `comment-link`).
+extension Color {
+    /// The colour of a link run inside a comment (Phase 16 D-28, `comment-link`), shared by the
+    /// detected runs here and the parsed `.linkedText` / `.singleLink` runs in `CommentsView`.
     ///
-    /// The runs used to draw in `.accentColor`, which measured 3.26:1 on the light comment cell —
+    /// The runs used to draw in the accent, which measured 3.26:1 on the light comment cell —
     /// short of the 4.5:1 body text needs — while passing in dark (9.54:1) and under Increase
     /// Contrast (≥ 11:1). A per-scheme value belongs in a colorset rather than a `colorScheme`
     /// read at the call site, so the light entry is the darkened accent `#54832A` (4.51:1 on white,
