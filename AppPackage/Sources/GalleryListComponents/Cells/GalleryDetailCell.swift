@@ -249,7 +249,7 @@ private struct GalleryDetailCellContent: View {
         AdaptiveStack(hSpaceBetween: true, vSpacing: pairSpacing) {
             RatingView(rating: gallery.rating)
                 .font(.caption)
-                .foregroundStyle(.yellow)
+                .foregroundStyle(Color.ratingStar)
 
             pageCountOrDownloadBadge
         }
