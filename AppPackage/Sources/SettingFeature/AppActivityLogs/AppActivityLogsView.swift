@@ -273,7 +273,7 @@ private struct AppActivityLogRow: View {
                 // The shape carries the level, the colour repeats it, and the level name is what
                 // both stand for (`Level.symbol` below).
                 Image(systemSymbol: log.level.symbol)
-                    .foregroundStyle(log.level.color)
+                    .foregroundStyle(log.level.glyphColor)
                     .font(.caption2)
                     .accessibilityLabel(log.level.title)
                 Text(log.dateDescription)
@@ -316,6 +316,23 @@ private extension OSLogEntryLog.Level {
         case .fault: .xmarkOctagonFill
         case .undefined: .questionmarkCircleFill
         @unknown default: .questionmarkCircleFill
+        }
+    }
+
+    /// `color`, except that the error orange is darkened for the glyph (Phase 16 D-28,
+    /// `log-glyph-error`).
+    ///
+    /// `.orange` on the page measured 2.31:1 in light — under the 3:1 a non-text glyph needs — and
+    /// 9.41 / 4.55 / 10.41 in dark and the two Increase Contrast variants. The same hue mixed
+    /// toward black by 0.15 (`Color.mix`, perceptual) reads 3.52 / 6.20 / 6.54 / 6.80: the
+    /// smallest twentieth that keeps at least half a unit of margin in every variant. The other
+    /// levels already clear 3:1 (info blue is the nearest at 3.52 in light) and keep `color`
+    /// untouched. The darkening lives here, beside the one row that draws the glyph, because
+    /// `Level.color` is model data shared with every other reader of the level.
+    var glyphColor: Color {
+        switch self {
+        case .error: color.mix(with: .black, by: 0.15)
+        default: color
         }
     }
 }
