@@ -118,38 +118,18 @@ final class AccessibilityAuditUITests: XCTestCase {
             reason: "`.contrast` \"failed\" on text lying under the Liquid Glass tab bar or its "
                 + "scroll-edge blur, the navigation bar, or the toast card at audit time: Home's "
                 + "Toplists heading row and placeholder rows (and, behind the toast, its Show All), "
-                + "the last Frontpage / Popular cell, About \"Kaed3mi\" / \"Zack Asahina\", General "
-                + "\"Analytics\" and its description, the bottom Activity Logs rows, the linked "
-                + "comment (author, score, date, body) scrolled under the bar. Rendered through the "
-                + "bar General \"Analytics\" is "
-                + "2.60:1, yet \"Yesterday\" (18.11) and \"Kaed3mi\" (11.10) report the same — the "
-                + "engine samples the blur layer. Matched by the fixture-fixed names per surface "
-                + "(the audit's identity-bound elements cannot be asked for a frame mid-audit). "
-                + "Owner: `E-2=approve` (2026-09-13).",
+                + "the last Frontpage / Popular cell, the About contributor rows and General rows "
+                + "at the foot of the screen, the bottom Activity Logs rows, the linked comment "
+                + "(author, score, date, body) scrolled under the bar. Rendered through the bar "
+                + "General \"Analytics\" is 2.60:1, yet \"Yesterday\" (18.11) and \"Kaed3mi\" (11.10) "
+                + "report the same — the engine samples the blur layer. Matched on the frames of "
+                + "the snapshot taken before the audit (`SurfaceInventory`): an exposed element "
+                + "with the report's name intersects a bar, the toast, or the scroll-edge band "
+                + "above the tab bar. The frames replace a per-surface name list that matched only "
+                + "the iPhone 17e's scroll positions. Owner: `E-2=approve` (2026-09-13); the frame "
+                + "matcher with the 24-pt band: \"Approve both\" (2026-09-13).",
             matches: { report in
-                guard report.auditType == .contrast, report.verdict == "Contrast failed",
-                      let element = report.element else { return false }
-                let name = element.name
-                switch report.surface {
-                case "Home root":
-                    return ["Yesterday", "Past Month", "Toplists", "......"].contains(name)
-                case "Toast (unsupported link)":
-                    return ["Yesterday", "Past Month", "Toplists", "......", "Show All"].contains(name)
-                case "Frontpage", "Popular":
-                    return AccessibilityAuditUITests.lastListCellTexts.contains(name)
-                case "Setting › About":
-                    return ["Kaed3mi", "Zack Asahina"].contains(name)
-                case "Setting › General":
-                    return ["Analytics", "Share Analytics Data"].contains(name)
-                        || name.hasPrefix("Helps EhPanda's maintainers")
-                case "Setting › General › App Activity Logs":
-                    return name.hasSuffix("AppModels.AppError.parseFailed")
-                case "Detail › Comments":
-                    return name.hasPrefix("曾俊华") || name.hasPrefix("谁说E站")
-                        || name == "1/11/23, 2:28\u{202F}PM" || name == "+19"
-                default:
-                    return false
-                }
+                report.auditType == .contrast && report.verdict == "Contrast failed" && report.liesUnderOcclusion
             }
         ),
         AuditExclusion(
@@ -161,7 +141,13 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "About \"Website\" (20.75:1), Appearance \"List\" (3.29:1, identical to "
                 + "\"Gallery\" beside it, which reports \"nearly passed\"), the Previews caption "
                 + "\"4\" (3.44:1, identical to its siblings). Deterministic across every run. "
-                + "Owner: `E-3=approve` (2026-09-13).",
+                + "Owner: `E-3=approve` (2026-09-13). On the iPhone 17 the engine also fails "
+                + "Frontpage / Popular cell texts that lie clear of every bar, so the frame matcher "
+                + "(E-2) rightly leaves them: the category badge \"Manga\" at y 613.7 mid-screen "
+                + "(8.21:1, black on `#E88C1A`, audit row 25), the page count \"52\" at y 440.7 "
+                + "(`#7F7F7F` on white, 4.00:1) and the page count \"10\" at y 751.1–766.7, 0.3 pt "
+                + "above the scroll-edge band (`#818181` on white, 3.90:1; its frame also holds "
+                + "`#FEFEFE`). Owner: \"Approve both\" (2026-09-13).",
             matches: { report in
                 guard report.auditType == .contrast, report.verdict == "Contrast failed",
                       let element = report.element else { return false }
@@ -261,24 +247,15 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// The reader control panel's texts while the panel is hidden on the page surface (E-1).
     private static let hiddenPanelTexts: Set<String> = ["1", "2", "3", "156", "reading_page_indicator"]
 
-    /// The fixture's last Frontpage / Popular cell, the one under the tab bar (E-2).
-    private static let lastListCellTexts: Set<String> = [
-        "[Mark Gavatino] Chainsaw Man Works",
-        "Shordreno",
-        "Portuguese",
-        "10",
-        "Western",
-        "9/8/23, 9:25\u{202F}AM",
-        "Manga"
-    ]
-
     /// The high-contrast texts the engine's two-colour sampling fails, per surface (E-3).
     private static let samplingArtifacts: [String: Set<String>] = [
         "Gallery Detail": ["110 RATINGS", "PAGE COUNT"],
         "Setting › General › App Activity Logs": ["Parser"],
         "Setting › About": ["Website"],
         "Setting › Appearance": ["List"],
-        "Detail › Previews": ["4"]
+        "Detail › Previews": ["4"],
+        "Frontpage": ["Manga", "52", "10"],
+        "Popular": ["Manga", "52", "10"]
     ]
 
     override func setUpWithError() throws {
@@ -597,12 +574,13 @@ private extension AccessibilityAuditUITests {
         defer { continueAfterFailure = !stopsAfterFailure }
         // The screenshot the audit judged, kept in the result bundle beside its finding so a
         // contrast verdict can be measured against the rendered pixels afterwards.
+        let inventory = try SurfaceInventory(app: app)
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "surface-\(surface)"
         screenshot.lifetime = .keepAlways
         add(screenshot)
         try app.performAccessibilityAudit(for: .all) { issue in
-            let report = AuditReport(surface: surface, issue: issue)
+            let report = AuditReport(surface: surface, issue: issue, inventory: inventory)
             print(
                 "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
                     + " | \(issue.detailedDescription) | \(report.elementDescription)"
@@ -779,13 +757,63 @@ private struct AuditReport {
     let verdict: String
     let element: AuditElement?
     let elementDescription: String
+    /// Whether an exposed element with the report's name lay under a bar or the toast before
+    /// the audit (E-2).
+    let liesUnderOcclusion: Bool
 
-    init(surface: String, issue: XCUIAccessibilityAuditIssue) {
+    init(surface: String, issue: XCUIAccessibilityAuditIssue, inventory: SurfaceInventory) {
         self.surface = surface
         auditType = issue.auditType
         verdict = issue.compactDescription
-        elementDescription = issue.element?.description ?? "<no element>"
-        element = AuditElement(description: issue.element?.description)
+        let description = issue.element?.description
+        elementDescription = description ?? "<no element>"
+        element = AuditElement(description: description)
+        liesUnderOcclusion = element.map({ inventory.liesUnderOcclusion(name: $0.name) }) ?? false
+    }
+}
+
+/// The frames of the exposed hierarchy, captured in one snapshot before the audit: what occludes
+/// scrolled content (tab bar, navigation bar, the toast card) and where each named element lies.
+/// Taken before the audit, never inside the handler, so the engine's identity-bound elements are
+/// not re-resolved while the reports arrive.
+private struct SurfaceInventory {
+    /// The Liquid Glass tab bar blurs a band of content above its own frame (the scroll-edge
+    /// effect); Home's Toplists heading row, 9 points above the bar on the iPhone 17e, reports
+    /// through it. The band is the largest gap measured, rounded up.
+    private static let scrollEdgeBand: CGFloat = 24
+
+    private let occludingFrames: [CGRect]
+    private let framesByName: [String: [CGRect]]
+
+    @MainActor init(app: XCUIApplication) throws {
+        var occludingFrames: [CGRect] = []
+        var framesByName: [String: [CGRect]] = [:]
+        var pending: [XCUIElementSnapshot] = [try app.snapshot()]
+        while let node = pending.popLast() {
+            pending.append(contentsOf: node.children)
+            switch node.elementType {
+            case .tabBar:
+                var band = node.frame
+                band.origin.y -= Self.scrollEdgeBand
+                band.size.height += Self.scrollEdgeBand
+                occludingFrames.append(band)
+            case .navigationBar:
+                occludingFrames.append(node.frame)
+            default:
+                break
+            }
+            if node.identifier == "toast_message" { occludingFrames.append(node.frame) }
+            // XCTest describes an element by its identifier when it has one, else by its label.
+            let name = node.identifier.isEmpty ? node.label : node.identifier
+            if !name.isEmpty { framesByName[name, default: []].append(node.frame) }
+        }
+        self.occludingFrames = occludingFrames
+        self.framesByName = framesByName
+    }
+
+    func liesUnderOcclusion(name: String) -> Bool {
+        guard let frames = framesByName[name] else { return false }
+        return occludingFrames.contains(where: { occluder in frames.contains(where: { $0.intersects(occluder) }) })
     }
 }
 
