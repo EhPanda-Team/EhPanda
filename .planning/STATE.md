@@ -5,16 +5,16 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: "Completed 16-21-PLAN.md (Reduce Motion: lists, sheets, settings + inventory pin); next 16-22 (wave 20)"
-last_updated: "2026-09-11T23:53:05.137Z"
-last_activity: 2026-09-11
-last_activity_desc: "Plan 16-21 complete: Reduce Motion gating across the list-diff sites (D-29) — Downloads id-keyed list + inspector transition, Search root ×3, Quick Search ×2, FolderManager ×2 (b5e69032); Torrents, General tag rows ×3, Home popularLoadingState (card insertion pushes sections down; crossfades and numericText kept) (9841ff22); ReduceMotionGatingSourceTests pins D-29 as five two-directional equalities (reads 17, ternaries 22, withAnimation 2, mentions 52, numericText 11 none gated), RED → GREEN → mutation-verified, RepositoryWalk shared (bb265cb1). OFF/ON verified on iPhone 17e 67377A20… via the real Settings switch, restored to 0; full FeatureTests plan green (1,060 tests); wave 19 complete; next 16-22 (wave 20)."
-state_head: bb265cb1c8a38449530cd1c83a390b35e155e3c4
+stopped_at: "Completed 16-22-PLAN.md (Differentiate Without Color: log-level symbols, Laboratory glyph, measurements); next 16-23 (wave 21)"
+last_updated: "2026-09-12T00:18:20.399Z"
+last_activity: 2026-09-12
+last_activity_desc: "Plan 16-22 complete: Differentiate Without Color carriers — `OSLogEntryLog.Level.symbol` as a private view-side extension in `SettingFeature` (ant / info.circle.fill / bell.fill / exclamationmark.triangle.fill / xmark.octagon.fill / questionmark.circle.fill) drawn at the old dot's `.caption2` size with colour and label unchanged; Laboratory cell gains a hidden checkmark.circle.fill / circle state glyph leading the title, cell 358 × 71 pt unchanged (286ecc15); `AppModels` and `Package.swift` untouched. Re-measured on iPhone 17e 67377A20… across light / dark × Increase Contrast: bell 3.26 / 6.44 / 5.23 / 9.50, triangle 2.31 (light FAIL → D-28 row `log-glyph-error` for 16-23) / 9.41 / 4.55 / 10.41, Laboratory circle ≥ 4.35, checkmark ≥ 3.39; debug / info / fault / undefined absent from every run log and source-derived from UIKit-resolved iOS 26 colours validated against the rendered ones; grayscale shapes distinct; `16-CONTRAST-AUDIT.md § 16-22 result (DWC)` appended, D-25 rows `#32 Activity Logs` / `#36 Laboratory` recorded as built (a4b67241). SettingFeatureTests 60/60; lint build 0 violations; baselines restored, simulator shut down. Open for 16-23 / owner: palette rendering and the comment-link underline that § Decisions attributed to 16-22 are in no plan. Nothing pushed."
+state_head: a4b672415dfa2f1f2a6c1ef70cd1a518d78cd676
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 269
+  completed_plans: 270
   percent: 59
 ---
 
@@ -30,15 +30,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 22 of 26 — next 16-22 (wave 20); plans 16-01 through 16-21 complete — wave 19 (16-21) closed
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates so far: Activity Logs and Laboratory (16-22); 16-15 through 16-21 added none (none changed layout or drew anything new). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
-Last activity: 2026-09-11 — Plan 16-21 complete: Reduce Motion gating across the list-diff sites (D-29) — `DownloadsView.swift` id-keyed list, the inspector spinner transition (`.opacity` only; the site's `visible(_:)` opacity toggle makes the transition inert either way, deferred), `SearchRootView.swift` ×3, `QuickSearchView.swift` ×2 (`listEditMode` included), `FolderManagerView.swift` ×2 (`editingField` included: `.newFolder` inserts the top row) (`b5e69032`); `TorrentsView.swift`, `GeneralSettingView.swift` `rowAnimation` ×3 (cache-size `numericText` kept), `HomeView.swift` `popularLoadingState` gated — the card insertion pushes the sections below down, crossfades kept (`9841ff22`). `ReduceMotionGatingSourceTests` (`AppToolsTests`) pins D-29 as five exact two-directional equalities over `AppPackage/Sources`: reads 17 / 16 files, `reduceMotion ?` ternaries 22 / 14 files, `withAnimation(reduceMotion` 2, gate-value mentions 52 (catches the line-broken toast ternary and the `||` / `&&` compositions), `numericText` 11 with none gated on the same line; RED (26 issues) → GREEN 5/5 → mutation (dropped gate + over-gated digit roll) 3/5 failed, reverted; `RepositoryWalk` extracted for both scanning suites (`bb265cb1`). Every site observed OFF then ON on iPhone 17e `67377A20…` through the real Settings switch (`ReduceMotionEnabled` 1 → 0 → 1 → 0, restored and read back); FolderManager source-verified (login-gated). Full `FeatureTests` plan green in one invocation (1,060 tests / 185 suites / 22 targets, 0 violations). The previous executor's `--label "dismiss popup"` incident (gallery `4178996` deleted, re-downloaded on the orchestrator's order) is recorded in the SUMMARY; this continuation dismissed the row-anchored delete popover by a verified scrim coordinate only, and `4178996` reads 112/112 with 114 entries on disk before and after. Nothing pushed.
+Plan: 23 of 26 — next 16-23 (wave 21); plans 16-01 through 16-22 complete — wave 20 (16-22) closed
+Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates: `#32 Activity Logs` and `#36 Laboratory`, built by 16-22 (six level glyph shapes at the old size; a hidden on/off glyph in the Laboratory cell — both frames unchanged at `large`, re-walked at XXL / AX3 / AX5 by 16-26); 16-15 through 16-21 added none (none changed layout or drew anything new). 16-22 measured the `.error` glyph at 2.31:1 in light and handed it to 16-23 as D-28 row `log-glyph-error`; the palette rendering and the comment-link underline that § Decisions attributed to 16-22 are in no plan (deferred-items.md). Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`).
+Last activity: 2026-09-12 — Plan 16-22 complete: Differentiate Without Color carriers — `OSLogEntryLog.Level.symbol` as a private view-side extension in `SettingFeature` (ant / info.circle.fill / bell.fill / exclamationmark.triangle.fill / xmark.octagon.fill / questionmark.circle.fill) drawn at the old dot's `.caption2` size with colour and label unchanged; Laboratory cell gains a hidden checkmark.circle.fill / circle state glyph leading the title, cell 358 × 71 pt unchanged (286ecc15); `AppModels` and `Package.swift` untouched. Re-measured on iPhone 17e 67377A20… across light / dark × Increase Contrast: bell 3.26 / 6.44 / 5.23 / 9.50, triangle 2.31 (light FAIL → D-28 row `log-glyph-error` for 16-23) / 9.41 / 4.55 / 10.41, Laboratory circle ≥ 4.35, checkmark ≥ 3.39; debug / info / fault / undefined absent from every run log and source-derived from UIKit-resolved iOS 26 colours validated against the rendered ones; grayscale shapes distinct; `16-CONTRAST-AUDIT.md § 16-22 result (DWC)` appended, D-25 rows `#32 Activity Logs` / `#36 Laboratory` recorded as built (a4b67241). SettingFeatureTests 60/60; lint build 0 violations; baselines restored, simulator shut down. Open for 16-23 / owner: palette rendering and the comment-link underline that § Decisions attributed to 16-22 are in no plan. Nothing pushed.
 
 Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted` (#4, #7, #31 on 2026-09-08; #23, #35 on 2026-09-09; #37 system defect), 0 `open`. D-13 5/5 dispositioned (1–3 fixed 2026-09-09, 4 fixed 2026-09-11, 5 accepted 2026-09-09). The 504-cell matrix (397 pass / 95 historical finding references / 12 n/a) is stored historical results; `16-TARGETED-RECHECK.md` and `16-LOGIN-COVER-RECHECK.md` are sampled evidence, not a matrix replacement. Do not re-ask any recorded disposition. The sweep simulators recorded in `16-SWEEP.md § Infrastructure` no longer exist in the simulator inventory; round 2 must re-derive UDIDs.
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (268/274 plans)
+Progress: [██████░░░░] 59% (270/274 plans)
 
 ## Performance Metrics
 
@@ -329,6 +329,7 @@ Progress: [██████░░░░] 59% (268/274 plans)
 | Phase 16 P19 | 26 min | 3 tasks | 6 files |
 | Phase 16 P20 | 31min | 2 tasks | 5 files |
 | Phase 16 P21 | 1h 38m | 3 tasks | 11 files |
+| Phase 16 P22 | 16 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -883,6 +884,10 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-20: Reduce Motion on the simulator is toggled through the real Settings switch (knob at the row's trailing edge) and read back from com.apple.Accessibility ReduceMotionEnabled; agent-device snapshots wedge on the reader and Settings, so heavy screens are driven with sim-use and simctl
 - [Phase 16]: 16-21: Home popularLoadingState animation gated (card insertion pushes sections down; crossfades kept); FolderManager editingField gated with folders; Quick Search listEditMode gated
 - [Phase 16]: 16-21: ReduceMotionGatingSourceTests pins D-29 as five two-directional equalities (reads 17, ternaries 22, withAnimation 2, mentions 52, numericText 11 none gated); RepositoryWalk shared in AppToolsTests
+- [Phase 16]: 16-22: six distinct level shapes for the Activity Logs glyph (ant / info.circle.fill / bell.fill / exclamationmark.triangle.fill / xmark.octagon.fill / questionmark.circle.fill) via a private view-side OSLogEntryLog.Level.symbol in SettingFeature — AppModels gains no SFSafeSymbols dependency
+- [Phase 16]: 16-22: Laboratory cell carries a checkmark.circle.fill / circle state glyph leading the title, accessibilityHidden because the Toggle representation carries the state; cell height unchanged (358 × 71 pt)
+- [Phase 16]: 16-22: the .error glyph colour (.orange, 2.31:1 on white in light) is handed to 16-23 as D-28 row log-glyph-error; AppModels untouched
+- [Phase 16]: 16-22: absent log levels (debug, info, fault, undefined) measured source-derived from UIKit-resolved iOS 26 colours validated against the rendered gray / orange / indigo / red; labelled per row
 
 ### Pending Todos
 
@@ -947,6 +952,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T23:53:04.420Z
-Stopped at: Completed 16-21-PLAN.md (Reduce Motion: lists, sheets, settings + inventory pin); next 16-22 (wave 20)
+Last session: 2026-09-12T00:18:19.855Z
+Stopped at: Completed 16-22-PLAN.md (Differentiate Without Color: log-level symbols, Laboratory glyph, measurements); next 16-23 (wave 21)
 Resume file: None
