@@ -12,7 +12,8 @@ import XCTest
 @MainActor
 final class AccessibilityAuditUITests: XCTestCase {
     /// Issues on elements EhPanda does not draw — a UISearchBar, UIDatePicker or
-    /// ContentUnavailableView part owned by an Apple component. Each entry names the element and
+    /// ContentUnavailableView part owned by an Apple component, or the presenting content a UIKit
+    /// sheet presentation dims beneath the sheet. Each entry names the element and
     /// the Apple component that owns it, and matches that element only; nothing app-drawn belongs
     /// here. The evidence for every entry is in `16-CONTRAST-AUDIT.md § Automated audit (16-24) ›
     /// System-owned`.
@@ -49,6 +50,22 @@ final class AccessibilityAuditUITests: XCTestCase {
             }
         ),
         AuditExclusion(
+            id: "UISheetPresentationController.dimmed-presenting-content",
+            reason: "On the regular-width pad idiom Setting, Gallery Detail and the toolbar sheets are "
+                + "presented as form sheets over the tab UI, and UIKit's sheet presentation keeps the "
+                + "presenting content — Home's carousel, sections and the top tab bar — on screen "
+                + "under its dimming view. The audit reports that dimmed text as element-less "
+                + "`elementDetection` \"Potentially inaccessible text\" (4–7 per attempt on every "
+                + "sheet surface of the iPad (A16) run `a11y-final-ipad`, none on the same surfaces "
+                + "on iPhone). The text is the presenting app's, rendered inert by the presentation, "
+                + "not the sheet's. Matched on the pad idiom and the sheet surfaces only. Owner: "
+                + "\"Approve, measure four now\" (2026-09-13).",
+            matches: { report in
+                report.isPadIdiom && report.auditType == .elementDetection && report.element == nil
+                    && AccessibilityAuditUITests.padSheetSurfaces.contains(report.surface)
+            }
+        ),
+        AuditExclusion(
             id: "ContentUnavailableView.symbol",
             reason: "`ContentUnavailableView` draws the symbol of the `Label` it is given as its own "
                 + "`Image`, exposed under the raw SF Symbol name (Favorites' login placeholder, "
@@ -69,6 +86,30 @@ final class AccessibilityAuditUITests: XCTestCase {
     private static let contentUnavailableSymbols: Set<String> = [
         "person.crop.circle.badge.questionmark.fill",
         "rectangle.and.text.magnifyingglass"
+    ]
+
+    /// The surfaces the pad idiom presents as a sheet over the tab UI (see
+    /// `UISheetPresentationController.dimmed-presenting-content`). The Date Seek sheet has its own
+    /// entry; the reader surfaces cover the whole screen and are not listed.
+    private static let padSheetSurfaces: Set<String> = [
+        "Setting root",
+        "Setting (iPad modal)",
+        "Setting › Account",
+        "Setting › General",
+        "Setting › General › App Activity Logs",
+        "Setting › Appearance",
+        "Setting › Reading",
+        "Setting › Download",
+        "Setting › Laboratory",
+        "Setting › About",
+        "Gallery Detail",
+        "Gallery Detail (iPad modal)",
+        "Detail › Previews",
+        "Detail › Gallery Infos",
+        "Detail › Comments",
+        "Filters sheet",
+        "Quick Search sheet",
+        "Error info sheet"
     ]
 
     /// App-owned issues that are documented false positives and cannot be resolved without a
@@ -92,7 +133,10 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "name per surface. The strip's captions share their names with the visible slider "
                 + "label and page number: on the page surface only `.dynamicType` is matched, so a "
                 + "placeholder contrast regression still shows there. Owner: `E-1=approve` "
-                + "(2026-09-13).",
+                + "(2026-09-13). The iPad (A16) run names the strip's captions \"0\" and \"4\" as "
+                + "well (the wider panel lays out five): each element crop is the strip's empty "
+                + "`#F2F2F5` band with no caption drawn (`#CACACF` edge, 1.46:1). Owner: \"Approve, "
+                + "measure four now\" (2026-09-13).",
             matches: { report in
                 guard let element = report.element else { return false }
                 switch report.surface {
@@ -106,7 +150,8 @@ final class AccessibilityAuditUITests: XCTestCase {
                     return report.auditType == .dynamicType
                         && AccessibilityAuditUITests.hiddenPanelTexts.contains(element.name)
                 case "Reading › control panel":
-                    return (report.auditType == .contrast && ["1", "2", "3"].contains(element.name))
+                    let isStripCaption = AccessibilityAuditUITests.hiddenStripCaptions.contains(element.name)
+                    return (report.auditType == .contrast && isStripCaption)
                         || element.type == "ActivityIndicator"
                 default:
                     return false
@@ -147,7 +192,10 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "(8.21:1, black on `#E88C1A`, audit row 25), the page count \"52\" at y 440.7 "
                 + "(`#7F7F7F` on white, 4.00:1) and the page count \"10\" at y 751.1–766.7, 0.3 pt "
                 + "above the scroll-edge band (`#818181` on white, 3.90:1; its frame also holds "
-                + "`#FEFEFE`). Owner: \"Approve both\" (2026-09-13).",
+                + "`#FEFEFE`). Owner: \"Approve both\" (2026-09-13). On the iPad (A16) the Previews "
+                + "tile captions \"16\"–\"20\" report too: their frames lie past the foot of the form "
+                + "sheet, and each element crop is the dimmed Home content beneath it, a flat "
+                + "`#C6C7C6` (1.01:1). Owner: \"Approve, measure four now\" (2026-09-13).",
             matches: { report in
                 guard report.auditType == .contrast, report.verdict == "Contrast failed",
                       let element = report.element else { return false }
@@ -247,13 +295,17 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// The reader control panel's texts while the panel is hidden on the page surface (E-1).
     private static let hiddenPanelTexts: Set<String> = ["1", "2", "3", "156", "reading_page_indicator"]
 
+    /// The slider-preview strip's captions while the control panel shows no strip: three on the
+    /// iPhone, five on the iPad's wider panel (E-1).
+    private static let hiddenStripCaptions: Set<String> = ["0", "1", "2", "3", "4"]
+
     /// The high-contrast texts the engine's two-colour sampling fails, per surface (E-3).
     private static let samplingArtifacts: [String: Set<String>] = [
         "Gallery Detail": ["110 RATINGS", "PAGE COUNT"],
         "Setting › General › App Activity Logs": ["Parser"],
         "Setting › About": ["Website"],
         "Setting › Appearance": ["List"],
-        "Detail › Previews": ["4"],
+        "Detail › Previews": ["4", "16", "17", "18", "19", "20"],
         "Frontpage": ["Manga", "52", "10"],
         "Popular": ["Manga", "52", "10"]
     ]
@@ -566,9 +618,13 @@ private extension AccessibilityAuditUITests {
     /// `continueAfterFailure = false` the test would stop at the first issue and every later one
     /// would never reach the log. The flag is lifted for the audit call alone — navigation before
     /// it still stops at its first failed wait — so one run records a surface's complete list.
+    ///
+    /// A `.contrast` report whose element the engine withholds is logged and attached, never
+    /// judged: see `logElementlessContrast(_:surface:count:)`.
     func audit(_ app: XCUIApplication, surface: String) throws {
         let systemOwned = systemOwnedExclusions
         let ownerApproved = ownerApprovedExclusions
+        let isPadIdiom = UIDevice.current.userInterfaceIdiom == .pad
         let stopsAfterFailure = !continueAfterFailure
         continueAfterFailure = true
         defer { continueAfterFailure = !stopsAfterFailure }
@@ -579,15 +635,48 @@ private extension AccessibilityAuditUITests {
         screenshot.name = "surface-\(surface)"
         screenshot.lifetime = .keepAlways
         add(screenshot)
+        var elementlessContrastCount = 0
         try app.performAccessibilityAudit(for: .all) { issue in
-            let report = AuditReport(surface: surface, issue: issue, inventory: inventory)
+            let report = AuditReport(surface: surface, issue: issue, inventory: inventory, isPadIdiom: isPadIdiom)
             print(
                 "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
                     + " | \(issue.detailedDescription) | \(report.elementDescription)"
             )
+            if report.auditType == .contrast, report.element == nil {
+                elementlessContrastCount += 1
+                self.logElementlessContrast(report, surface: surface, count: elementlessContrastCount)
+                return true
+            }
             return systemOwned.contains(where: { $0.matches(report) })
                 || ownerApproved.contains(where: { $0.matches(report) })
         }
+    }
+
+    /// Records a `.contrast` report that arrived without its element — logged with the surface,
+    /// the verdict and the running count, and attached to the result bundle — and never fails
+    /// the test on it.
+    ///
+    /// This is a known blind spot of the audit engine on Xcode 26.6 with the iOS 26.5 simulator,
+    /// not a verdict on the app. For some runs the engine returns `.contrast` reports whose
+    /// `issue.element` is nil, from cold boots on both iPhone spares, with nothing but time
+    /// differing between runs: `fresh-1`/`-2`/`-3`, `a11y-final-iphone-1`/`-2` and `diag-24`
+    /// bound every element, while `diag-22` and `diag-23` (Frontpage alone) withheld every
+    /// contrast element (17 and 51 reports) and the iPad (A16) run `a11y-final-ipad` withheld
+    /// most. A report without an element cannot be told apart from its bound twin — which an
+    /// owner-approved entry may already cover — so failing on it would make the gate fail by
+    /// run, not by app; excluding it through a list would hide what it says. It is logged
+    /// instead, so the count is visible in every result bundle. Every other audit type, and
+    /// every element-bound contrast report, is judged by the two allow-lists as before; nothing
+    /// else takes this path. The blind spot is recorded in `16-CONTRAST-AUDIT.md § Automated
+    /// audit (16-24)` for the Nutrition Label. Owner: "O-2: log, never fail" (2026-09-13).
+    func logElementlessContrast(_ report: AuditReport, surface: String, count: Int) {
+        let line = "[a11y-audit] \(surface) | element-less contrast #\(count) | \(report.verdict)"
+            + " | logged, not judged (engine withheld the element)"
+        print(line)
+        let attachment = XCTAttachment(string: line)
+        attachment.name = "elementless-contrast-\(surface)-\(count)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
 }
@@ -760,9 +849,12 @@ private struct AuditReport {
     /// Whether an exposed element with the report's name lay under a bar or the toast before
     /// the audit (E-2).
     let liesUnderOcclusion: Bool
+    /// Whether the run is on the pad idiom, where Setting and Detail present as sheets.
+    let isPadIdiom: Bool
 
-    init(surface: String, issue: XCUIAccessibilityAuditIssue, inventory: SurfaceInventory) {
+    init(surface: String, issue: XCUIAccessibilityAuditIssue, inventory: SurfaceInventory, isPadIdiom: Bool) {
         self.surface = surface
+        self.isPadIdiom = isPadIdiom
         auditType = issue.auditType
         verdict = issue.compactDescription
         let description = issue.element?.description
@@ -826,8 +918,8 @@ private struct SurfaceInventory {
 /// the engine's identity-bound elements are never re-resolved mid-audit (reading a frame there
 /// re-queries the element by description; 16-24 diag-9 lost the later reports of a surface that
 /// way). A report whose element the engine withholds (`issue.element == nil`) has no
-/// `AuditElement` and matches no element-scoped exclusion; a degraded simulator produced such
-/// reports for every list cell (16-24 diagnostics 10–21), a fresh simulator none.
+/// `AuditElement` and matches no element-scoped exclusion; a withheld `.contrast` element is the
+/// engine blind spot `logElementlessContrast(_:surface:count:)` records.
 private struct AuditElement {
     let name: String
     let type: String
