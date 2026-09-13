@@ -142,7 +142,7 @@ final class AccessibilityAuditUITests: XCTestCase {
                 switch report.surface {
                 case "Home root", "Toast (unsupported link)", "Frontpage", "Popular", "Favorites (login placeholder)":
                     return AccessibilityAuditUITests.hiddenErrorTexts.contains(element.name)
-                case "Gallery Detail":
+                case "Gallery Detail", "Gallery Detail (iPad modal)":
                     return element.name == "detail_view" && element.type == "StaticText"
                 case "Setting › General › App Activity Logs":
                     return element.name == "No Logs Found"
@@ -159,8 +159,8 @@ final class AccessibilityAuditUITests: XCTestCase {
             }
         ),
         AuditExclusion(
-            id: "E-2.under-bar-or-toast",
-            reason: "`.contrast` \"failed\" on text lying under the Liquid Glass tab bar or its "
+            id: "E-2.hidden-when-audited",
+            reason: "`.contrast` \"failed\" on text hidden when the audit ran. Under the Liquid Glass tab bar or its "
                 + "scroll-edge blur, the navigation bar, or the toast card at audit time: Home's "
                 + "Toplists heading row and placeholder rows (and, behind the toast, its Show All), "
                 + "the last Frontpage / Popular cell, the About contributor rows and General rows "
@@ -172,9 +172,18 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "with the report's name intersects a bar, the toast, or the scroll-edge band "
                 + "above the tab bar. The frames replace a per-surface name list that matched only "
                 + "the iPhone 17e's scroll positions. Owner: `E-2=approve` (2026-09-13); the frame "
-                + "matcher with the 24-pt band: \"Approve both\" (2026-09-13).",
+                + "matcher with the 24-pt band: \"Approve both\" (2026-09-13). Past the edge of what is "
+                + "shown: on the iPad a form sheet's content below or beside its frame (Detail's "
+                + "comment cards \"+113\" / \"Post Comment\" / authors / dates / body / pixiv URL, the "
+                + "\"FILE SIZE\" column, Filters' \"Search Torrent Filenames\" cut by the sheet's foot, "
+                + "Error info \"Environment\") — each element crop is the dimmed presenting content, "
+                + "`#BABDB9`–`#C6C7C6` — and, with no sheet presented, content cut by the window "
+                + "edge (Home's \"Past Month\" Toplists column at the right edge). The same geometric "
+                + "rule: an exposed element with the report's name lies outside, or is cut by, the "
+                + "presented sheet's frame (the window's when none is presented). Owner: \"Approve "
+                + "both\" (2026-09-13).",
             matches: { report in
-                report.auditType == .contrast && report.verdict == "Contrast failed" && report.liesUnderOcclusion
+                report.auditType == .contrast && report.verdict == "Contrast failed" && report.wasHiddenWhenAudited
             }
         ),
         AuditExclusion(
@@ -195,7 +204,10 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "`#FEFEFE`). Owner: \"Approve both\" (2026-09-13). On the iPad (A16) the Previews "
                 + "tile captions \"16\"–\"20\" report too: their frames lie past the foot of the form "
                 + "sheet, and each element crop is the dimmed Home content beneath it, a flat "
-                + "`#C6C7C6` (1.01:1). Owner: \"Approve, measure four now\" (2026-09-13).",
+                + "`#C6C7C6` (1.01:1). Owner: \"Approve, measure four now\" (2026-09-13). The toast "
+                + "body \"This link wasn't recognized as an EhPanda gallery link.\" on the iPad renders "
+                + "`#727272` on `#FDFDFD`, 4.79:1, in a frame that also holds `#FBFBFE`. Owner: "
+                + "\"Approve both\" (2026-09-13).",
             matches: { report in
                 guard report.auditType == .contrast, report.verdict == "Contrast failed",
                       let element = report.element else { return false }
@@ -245,7 +257,8 @@ final class AccessibilityAuditUITests: XCTestCase {
             matches: { report in
                 guard report.auditType == .contrast, report.verdict == "Contrast failed",
                       let element = report.element else { return false }
-                return (report.surface == "Gallery Detail" && element.name == "Give a Rating")
+                let onDetail = AccessibilityAuditUITests.galleryDetailSurfaces.contains(report.surface)
+                return (onDetail && element.name == "Give a Rating")
                     || (report.surface == "Date Seek sheet" && element.name == "Newer")
             }
         ),
@@ -256,7 +269,8 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "it pass at 8.20 / 6.37 / 4.69). Owner: `E-7=approve` (2026-09-13).",
             matches: { report in
                 report.auditType == .contrast && report.verdict == "Contrast nearly passed"
-                    && report.surface == "Gallery Detail" && report.element?.name == "Other"
+                    && AccessibilityAuditUITests.galleryDetailSurfaces.contains(report.surface)
+                    && report.element?.name == "Other"
             }
         ),
         AuditExclusion(
@@ -285,6 +299,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         )
     ]
 
+    /// The two routes to the same Detail view: the deep link, and on the iPad the Frontpage row that
+    /// presents it as a sheet (`testPadSettingAndDetailModalsAudit`). An entry that names a Detail
+    /// element names it on both.
+    private static let galleryDetailSurfaces: Set<String> = ["Gallery Detail", "Gallery Detail (iPad modal)"]
+
     /// The hidden `ErrorView`'s texts (E-1).
     private static let hiddenErrorTexts: Set<String> = [
         "Unknown Error",
@@ -302,12 +321,14 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// The high-contrast texts the engine's two-colour sampling fails, per surface (E-3).
     private static let samplingArtifacts: [String: Set<String>] = [
         "Gallery Detail": ["110 RATINGS", "PAGE COUNT"],
+        "Gallery Detail (iPad modal)": ["110 RATINGS", "PAGE COUNT"],
         "Setting › General › App Activity Logs": ["Parser"],
         "Setting › About": ["Website"],
         "Setting › Appearance": ["List"],
         "Detail › Previews": ["4", "16", "17", "18", "19", "20"],
         "Frontpage": ["Manga", "52", "10"],
-        "Popular": ["Manga", "52", "10"]
+        "Popular": ["Manga", "52", "10"],
+        "Toast (unsupported link)": ["This link wasn't recognized as an EhPanda gallery link."]
     ]
 
     override func setUpWithError() throws {
@@ -363,7 +384,7 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testPopularAudit() throws {
         let app = try launch(tab: "home")
         requireHomeRoot(in: app)
-        tapScrolling(app.buttons["Popular"].firstMatch, in: app)
+        try tapScrolling(app.buttons["Popular"].firstMatch, in: app)
         requireNavigationTitle("Popular", in: app)
         try audit(app, surface: "Popular")
     }
@@ -375,8 +396,8 @@ final class AccessibilityAuditUITests: XCTestCase {
         // page down to the grid, then scroll the grid itself sideways until the item is on screen.
         let historyButton = app.buttons["History"].firstMatch
         XCTAssertTrue(historyButton.waitForExistence(timeout: 15), "Home did not render its misc grid.")
-        scrollUntilHittable(historyButton, in: app, of: app, direction: .upward)
-        scrollUntilHittable(historyButton, in: app.buttons["Popular"].firstMatch, of: app, direction: .leftward)
+        try scrollUntilHittable(historyButton, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(historyButton, in: app.buttons["Popular"].firstMatch, of: app, direction: .leftward)
         XCTAssertTrue(historyButton.isHittable, "The History grid item never became hittable.")
         historyButton.tap()
         requireNavigationTitle("History", in: app)
@@ -430,7 +451,7 @@ final class AccessibilityAuditUITests: XCTestCase {
     func testActivityLogsAudit() throws {
         let app = try launch(tab: "setting")
         try pushSettingRow("General", in: app)
-        tapScrolling(app.buttons["App Activity Logs"].firstMatch, in: app)
+        try tapScrolling(app.buttons["App Activity Logs"].firstMatch, in: app)
         requireNavigationTitle("App Activity Logs", in: app)
         // The entries load after the title; audit the list, not the empty state.
         XCTAssertTrue(
@@ -484,7 +505,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         let detailView = try openGalleryDetail(in: app)
         // The fixture gallery has more than twenty pages, so the Previews section offers Show All;
         // the query is scoped to the detail scroll view so Home's own Show All buttons never match.
-        tapScrolling(detailView.buttons["Show All"].firstMatch, in: app)
+        try tapScrolling(detailView.buttons["Show All"].firstMatch, in: app)
         requireNavigationTitle("Previews", in: app)
         try audit(app, surface: "Detail › Previews")
     }
@@ -496,8 +517,8 @@ final class AccessibilityAuditUITests: XCTestCase {
         // on screen first, then scroll the strip itself until the button can be tapped.
         let infosButton = detailView.buttons["Gallery Infos"].firstMatch
         XCTAssertTrue(infosButton.waitForExistence(timeout: 15), "Detail did not render its stats strip.")
-        scrollUntilHittable(infosButton, in: app, of: app, direction: .upward)
-        scrollUntilHittable(infosButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
+        try scrollUntilHittable(infosButton, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(infosButton, in: detailView.scrollViews.firstMatch, of: app, direction: .leftward)
         XCTAssertTrue(infosButton.isHittable, "The Gallery Infos button never became hittable.")
         infosButton.tap()
         requireNavigationTitle("Gallery Infos", in: app)
@@ -610,17 +631,40 @@ private extension AccessibilityAuditUITests {
         return names.isEmpty ? "rawValue \(auditType.rawValue)" : names.joined(separator: "+")
     }
 
+    /// The audit runs as one `performAccessibilityAudit(for:)` call per audit type, never one
+    /// `.all` call. On the iPad (A16) a single `.all` call over a long surface hit the engine's own
+    /// limit of about 600 s ("Audit failed to complete in time", error −56: Frontpage and Popular
+    /// in `a11y-final-ipad`; Date Seek, Filters, Frontpage, Popular and the iPad modals in
+    /// `diag-25`), which fails the test with no report at all; smaller calls keep each one under
+    /// that limit. Coverage does not shrink: the last group is `.all` less the named types — every
+    /// bit the platform may add — so the groups' union is `.all` by construction. Owner: "Split
+    /// audits, fix helper" (2026-09-13).
+    static let auditTypeGroups: [XCUIAccessibilityAuditType] = {
+        let named: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
+        let covered = named.reduce(into: XCUIAccessibilityAuditType()) { union, group in
+            union.formUnion(group)
+        }
+        return named + [XCUIAccessibilityAuditType.all.subtracting(covered)]
+    }()
+
+    /// The audit types whose element-less reports are logged rather than judged (see
+    /// `logElementlessReport(_:surface:count:)`).
+    static let elementlessLoggedTypes: [XCUIAccessibilityAuditType] = [
+        .contrast, .dynamicType, .textClipped, .elementDetection
+    ]
+
     /// Audits everything on screen. Every issue is logged with the surface name so the result
-    /// bundle carries the complete finding, then judged against the two allow-lists; while both
-    /// are empty the handler returns `false` for every issue and each one fails the test.
+    /// bundle carries the complete finding, then judged against the two allow-lists.
     ///
     /// XCTest records the failure for a non-ignored issue inside the handler, so with the class's
     /// `continueAfterFailure = false` the test would stop at the first issue and every later one
-    /// would never reach the log. The flag is lifted for the audit call alone — navigation before
-    /// it still stops at its first failed wait — so one run records a surface's complete list.
+    /// would never reach the log. The flag is lifted for the audit calls alone — navigation before
+    /// them still stops at its first failed wait — so one run records a surface's complete list.
     ///
-    /// A `.contrast` report whose element the engine withholds is logged and attached, never
-    /// judged: see `logElementlessContrast(_:surface:count:)`.
+    /// The frames and the screenshot are taken once, before the first call, and the calls run one
+    /// group at a time (`auditTypeGroups`). A report the allow-lists do not claim and whose
+    /// element the engine withheld is logged and attached, never judged, when its type is one of
+    /// `elementlessLoggedTypes`: see `logElementlessReport(_:surface:count:)`.
     func audit(_ app: XCUIApplication, surface: String) throws {
         let systemOwned = systemOwnedExclusions
         let ownerApproved = ownerApprovedExclusions
@@ -635,46 +679,70 @@ private extension AccessibilityAuditUITests {
         screenshot.name = "surface-\(surface)"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        var elementlessContrastCount = 0
-        try app.performAccessibilityAudit(for: .all) { issue in
-            let report = AuditReport(surface: surface, issue: issue, inventory: inventory, isPadIdiom: isPadIdiom)
-            print(
-                "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
-                    + " | \(issue.detailedDescription) | \(report.elementDescription)"
-            )
-            if report.auditType == .contrast, report.element == nil {
-                elementlessContrastCount += 1
-                self.logElementlessContrast(report, surface: surface, count: elementlessContrastCount)
-                return true
+        var elementlessCounts: [String: Int] = [:]
+        for group in Self.auditTypeGroups {
+            // Each call is its own activity, so a call that stalls is named in the test report even
+            // when the process is ended before its buffered output is written.
+            try XCTContext.runActivity(named: "Audit \(surface): \(Self.name(of: group))") { _ in
+                try app.performAccessibilityAudit(for: group) { issue in
+                    let report = AuditReport(
+                        surface: surface, issue: issue, inventory: inventory, isPadIdiom: isPadIdiom
+                    )
+                    print(
+                        "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
+                            + " | \(issue.detailedDescription) | \(report.elementDescription)"
+                    )
+                    if systemOwned.contains(where: { $0.matches(report) })
+                        || ownerApproved.contains(where: { $0.matches(report) }) {
+                        return true
+                    }
+                    guard report.element == nil,
+                          Self.elementlessLoggedTypes.contains(where: { $0 == report.auditType }) else {
+                        // A failing report carries the pre-audit geometry its element's name had, so
+                        // the record shows why no geometric rule claimed it.
+                        print("[a11y-audit] \(surface) | judged | \(inventory.geometry(of: report.element?.name))")
+                        return false
+                    }
+                    let typeName = Self.name(of: report.auditType)
+                    elementlessCounts[typeName, default: 0] += 1
+                    self.logElementlessReport(report, surface: surface, count: elementlessCounts[typeName, default: 0])
+                    return true
+                }
             }
-            return systemOwned.contains(where: { $0.matches(report) })
-                || ownerApproved.contains(where: { $0.matches(report) })
         }
     }
 
-    /// Records a `.contrast` report that arrived without its element — logged with the surface,
-    /// the verdict and the running count, and attached to the result bundle — and never fails
-    /// the test on it.
+    /// Records a report that arrived without its element — logged with the surface, the audit
+    /// type, the verdict and that type's running count on the surface, and attached to the result
+    /// bundle — and never fails the test on it.
     ///
     /// This is a known blind spot of the audit engine on Xcode 26.6 with the iOS 26.5 simulator,
-    /// not a verdict on the app. For some runs the engine returns `.contrast` reports whose
-    /// `issue.element` is nil, from cold boots on both iPhone spares, with nothing but time
-    /// differing between runs: `fresh-1`/`-2`/`-3`, `a11y-final-iphone-1`/`-2` and `diag-24`
-    /// bound every element, while `diag-22` and `diag-23` (Frontpage alone) withheld every
-    /// contrast element (17 and 51 reports) and the iPad (A16) run `a11y-final-ipad` withheld
-    /// most. A report without an element cannot be told apart from its bound twin — which an
-    /// owner-approved entry may already cover — so failing on it would make the gate fail by
-    /// run, not by app; excluding it through a list would hide what it says. It is logged
-    /// instead, so the count is visible in every result bundle. Every other audit type, and
-    /// every element-bound contrast report, is judged by the two allow-lists as before; nothing
-    /// else takes this path. The blind spot is recorded in `16-CONTRAST-AUDIT.md § Automated
-    /// audit (16-24)` for the Nutrition Label. Owner: "O-2: log, never fail" (2026-09-13).
-    func logElementlessContrast(_ report: AuditReport, surface: String, count: Int) {
-        let line = "[a11y-audit] \(surface) | element-less contrast #\(count) | \(report.verdict)"
+    /// not a verdict on the app. For some runs the engine returns reports whose `issue.element`
+    /// is nil, from cold boots on both iPhone spares, with nothing but time differing between
+    /// runs: `fresh-1`/`-2`/`-3`, `a11y-final-iphone-1`/`-2` and `diag-24` bound every contrast
+    /// element, while `diag-22` and `diag-23` (Frontpage alone) withheld every one (17 and 51
+    /// reports). The iPad (A16) runs `a11y-final-ipad` and `diag-25` withheld most contrast
+    /// elements and also delivered element-less `.dynamicType` (the top tab bar's labels,
+    /// "unsupported" on Error info and About), `.textClipped` (Comments, Error info, the search
+    /// field) and `.elementDetection` reports; the iPhone runs `a11y-final-iphone-1`/`-2` an
+    /// element-less `.textClipped` on Gallery Detail and Activity Logs. A report without an element
+    /// cannot be told apart from its bound twin — which an entry may already cover — so failing
+    /// on it would make the gate fail by run, not by app, and excluding it through a list would
+    /// hide what it says; it is logged instead, so the count is visible in every result bundle.
+    /// The allow-lists are consulted first, so an element-less report an entry claims (the
+    /// Date Seek picker's, the iPad sheets' dimmed presenting content) stays classified by that
+    /// entry and is not counted here. Every report that names its element, and every element-less
+    /// report of another type, is judged by the allow-lists as before. The blind spot is recorded
+    /// in `16-CONTRAST-AUDIT.md § Automated audit (16-24)` for the Nutrition Label. Owner: "O-2:
+    /// log, never fail" (2026-09-13); widened to `.dynamicType`, `.textClipped` and
+    /// `.elementDetection`: "Extend O-2 to them" (2026-09-13).
+    func logElementlessReport(_ report: AuditReport, surface: String, count: Int) {
+        let typeName = Self.name(of: report.auditType)
+        let line = "[a11y-audit] \(surface) | element-less \(typeName) #\(count) | \(report.verdict)"
             + " | logged, not judged (engine withheld the element)"
         print(line)
         let attachment = XCTAttachment(string: line)
-        attachment.name = "elementless-contrast-\(surface)-\(count)"
+        attachment.name = "elementless-\(typeName)-\(surface)-\(count)"
         attachment.lifetime = .keepAlways
         add(attachment)
     }
@@ -737,7 +805,7 @@ private extension AccessibilityAuditUITests {
 
     func pushSettingRow(_ label: String, titled title: String? = nil, in app: XCUIApplication) throws {
         requireNavigationTitle("Setting", in: app)
-        tapScrolling(app.buttons[label].firstMatch, in: app)
+        try tapScrolling(app.buttons[label].firstMatch, in: app)
         requireNavigationTitle(title ?? label, in: app)
     }
 
@@ -782,41 +850,53 @@ private extension AccessibilityAuditUITests {
         app.requireElement("reading_page_indicator", matching: .staticText, timeout: 5)
     }
 
-    /// Waits for the element, scrolls it into the hittable area if the screen is longer than the
-    /// window, then taps it.
+    /// Waits for the element, scrolls it into the hittable area if the screen is longer than what
+    /// is shown, then taps it.
     func tapScrolling(
         _ element: XCUIElement,
         in app: XCUIApplication,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) throws {
         XCTAssertTrue(
             element.waitForExistence(timeout: 15),
             "\(element) did not appear.",
             file: file,
             line: line
         )
-        scrollUntilHittable(element, in: app, of: app, direction: .upward)
+        try scrollUntilHittable(element, in: app, of: app, direction: .upward)
         XCTAssertTrue(element.isHittable, "\(element) never became hittable.", file: file, line: line)
         element.tap()
     }
 
-    /// Swipes the container until the element lies inside the window, or gives up after a
-    /// screenful of swipes. The window test is done on frames, never through `isHittable`: XCTest
-    /// records a failure ("activation point invalid") when hittability is asked of an element that
-    /// is laid out beyond the screen edge, which is exactly the state this loop exists to leave.
+    /// Swipes the container until the element lies inside what is shown along the swipe's axis,
+    /// or gives up after a screenful of swipes.
+    ///
+    /// What is shown is the presented sheet's frame, or the window's when none is presented
+    /// (`SurfaceInventory.visibleBounds(in:)`): on the iPad the Detail form sheet is 580 points
+    /// wide inside an 820-point window, so the stats strip's Gallery Infos button lay inside the
+    /// window yet past the sheet's trailing edge, and a window test swiped the page upward until
+    /// the strip left the sheet (`a11y-final-ipad`, `diag-25`). Each call settles its own axis —
+    /// an upward swipe stops once the element lies within the bounds vertically, a leftward swipe
+    /// once it does horizontally — and only an element wholly inside the bounds is asked whether
+    /// it is hittable (still under a bar, it is swiped further). XCTest records a failure
+    /// ("activation point invalid") when hittability is asked of an element laid out beyond the
+    /// screen edge, which is exactly the state this loop exists to leave. Owner: "Split audits,
+    /// fix helper" (2026-09-13).
     func scrollUntilHittable(
         _ element: XCUIElement,
         in container: XCUIElement,
         of app: XCUIApplication,
         direction: SwipeDirection
-    ) {
-        let window = app.windows.firstMatch.frame
+    ) throws {
+        let bounds = SurfaceInventory.visibleBounds(in: try app.snapshot())
         var remainingSwipes = 8
         while remainingSwipes > 0 {
             let frame = element.frame
-            if !frame.isEmpty, window.contains(frame), element.isHittable {
-                return
+            if !frame.isEmpty, direction.axisSpan(of: frame, liesWithin: bounds) {
+                if !bounds.contains(frame) || element.isHittable {
+                    return
+                }
             }
             switch direction {
             case .upward:
@@ -829,112 +909,14 @@ private extension AccessibilityAuditUITests {
     }
 }
 
-/// One allow-listed audit issue. `matches` is deliberately narrow — it identifies one element
-/// and one audit type — so an entry can never silence a neighbouring finding.
-private struct AuditExclusion {
-    let id: String
-    let reason: String
-    let matches: (AuditReport) -> Bool
-}
-
-/// One audit report, read once in the handler so every exclusion judges the same values.
-private struct AuditReport {
-    let surface: String
-    let auditType: XCUIAccessibilityAuditType
-    /// The audit's own verdict text ("Contrast failed", "Contrast nearly passed", …); the API
-    /// exposes no severity, so the text is the only handle on it.
-    let verdict: String
-    let element: AuditElement?
-    let elementDescription: String
-    /// Whether an exposed element with the report's name lay under a bar or the toast before
-    /// the audit (E-2).
-    let liesUnderOcclusion: Bool
-    /// Whether the run is on the pad idiom, where Setting and Detail present as sheets.
-    let isPadIdiom: Bool
-
-    init(surface: String, issue: XCUIAccessibilityAuditIssue, inventory: SurfaceInventory, isPadIdiom: Bool) {
-        self.surface = surface
-        self.isPadIdiom = isPadIdiom
-        auditType = issue.auditType
-        verdict = issue.compactDescription
-        let description = issue.element?.description
-        elementDescription = description ?? "<no element>"
-        element = AuditElement(description: description)
-        liesUnderOcclusion = element.map({ inventory.liesUnderOcclusion(name: $0.name) }) ?? false
-    }
-}
-
-/// The frames of the exposed hierarchy, captured in one snapshot before the audit: what occludes
-/// scrolled content (tab bar, navigation bar, the toast card) and where each named element lies.
-/// Taken before the audit, never inside the handler, so the engine's identity-bound elements are
-/// not re-resolved while the reports arrive.
-private struct SurfaceInventory {
-    /// The Liquid Glass tab bar blurs a band of content above its own frame (the scroll-edge
-    /// effect); Home's Toplists heading row, 9 points above the bar on the iPhone 17e, reports
-    /// through it. The band is the largest gap measured, rounded up.
-    private static let scrollEdgeBand: CGFloat = 24
-
-    private let occludingFrames: [CGRect]
-    private let framesByName: [String: [CGRect]]
-
-    @MainActor init(app: XCUIApplication) throws {
-        var occludingFrames: [CGRect] = []
-        var framesByName: [String: [CGRect]] = [:]
-        var pending: [XCUIElementSnapshot] = [try app.snapshot()]
-        while let node = pending.popLast() {
-            pending.append(contentsOf: node.children)
-            switch node.elementType {
-            case .tabBar:
-                var band = node.frame
-                band.origin.y -= Self.scrollEdgeBand
-                band.size.height += Self.scrollEdgeBand
-                occludingFrames.append(band)
-            case .navigationBar:
-                occludingFrames.append(node.frame)
-            default:
-                break
-            }
-            if node.identifier == "toast_message" { occludingFrames.append(node.frame) }
-            // XCTest describes an element by its identifier when it has one, else by its label.
-            let name = node.identifier.isEmpty ? node.label : node.identifier
-            if !name.isEmpty { framesByName[name, default: []].append(node.frame) }
+private extension AccessibilityAuditUITests.SwipeDirection {
+    /// Whether the frame lies within the bounds along the axis this direction scrolls.
+    func axisSpan(of frame: CGRect, liesWithin bounds: CGRect) -> Bool {
+        switch self {
+        case .upward:
+            frame.minY >= bounds.minY && frame.maxY <= bounds.maxY
+        case .leftward:
+            frame.minX >= bounds.minX && frame.maxX <= bounds.maxX
         }
-        self.occludingFrames = occludingFrames
-        self.framesByName = framesByName
-    }
-
-    func liesUnderOcclusion(name: String) -> Bool {
-        guard let frames = framesByName[name] else { return false }
-        return occludingFrames.contains(where: { occluder in frames.contains(where: { $0.intersects(occluder) }) })
-    }
-}
-
-/// The element a report names, taken from the description XCTest prints for it: `"name" Type`,
-/// where the name is the identifier when the element has one and the label otherwise, or the
-/// bare type for an unlabelled element (`ActivityIndicator`).
-///
-/// Only the description is read: it names the element and its type, which is all the exclusions
-/// need, and it is resolved once per report — nothing in the handler queries the app again, so
-/// the engine's identity-bound elements are never re-resolved mid-audit (reading a frame there
-/// re-queries the element by description; 16-24 diag-9 lost the later reports of a surface that
-/// way). A report whose element the engine withholds (`issue.element == nil`) has no
-/// `AuditElement` and matches no element-scoped exclusion; a withheld `.contrast` element is the
-/// engine blind spot `logElementlessContrast(_:surface:count:)` records.
-private struct AuditElement {
-    let name: String
-    let type: String
-
-    init?(description: String?) {
-        guard let description, let typeStart = description.lastIndex(of: " ") else {
-            // No space: the bare type of an unlabelled element, or nothing at all.
-            guard let description, !description.isEmpty else { return nil }
-            name = ""
-            type = description
-            return
-        }
-        type = String(description[description.index(after: typeStart)...])
-        let quoted = description[..<typeStart]
-        guard quoted.hasPrefix("\""), quoted.hasSuffix("\""), quoted.count >= 2 else { return nil }
-        name = String(quoted.dropFirst().dropLast())
     }
 }
