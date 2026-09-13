@@ -151,6 +151,16 @@ extension DescriptionSection {
         var body: some View {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption)
+                valueWithUnit
+            }
+        }
+
+        /// The value and the unit beneath it ("314.3" over "MB", "156" over "Pages") are one reading:
+        /// exposed apart, the number is a bare figure the audit reports as "Label not human-readable"
+        /// (Phase 16, the file-size column on iPad) and VoiceOver announces without its unit. The
+        /// inner stack keeps the outer 3-point spacing, so the column lays out exactly as before.
+        private var valueWithUnit: some View {
+            VStack(spacing: 3) {
                 Text(value)
                     .fontWeight(.medium)
                     .font(.title3)
@@ -160,6 +170,7 @@ extension DescriptionSection {
                     .animation(.default, value: value)
                 Text(description).font(.caption)
             }
+            .accessibilityElement(children: .combine)
         }
 
         /// The designed single line is kept at and below the default size, where the strip's height
