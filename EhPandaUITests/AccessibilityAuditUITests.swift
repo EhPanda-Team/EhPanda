@@ -4,7 +4,7 @@ import XCTest
 /// Runs Xcode's accessibility audit engine over every surface the hermetic fixtures can reach.
 ///
 /// Each test launches EhPanda through the stubbed launcher (no network, no credential, English
-/// catalog), navigates to one surface, waits for it, and audits it with `.all` audit types. The
+/// catalog), navigates to one surface, waits for it, and audits it with every iOS audit type. The
 /// deployment target is iOS 26, so no `#available` guard is needed (Phase 16 D-31). Surfaces that
 /// only a logged-in session renders (Favorites, Watched, Archives, Torrents, EhSetting,
 /// FolderManager, Detail Search) are not reachable here and are covered by the manual
@@ -221,11 +221,24 @@ final class AccessibilityAuditUITests: XCTestCase {
                 + "headers, footers and descriptions. Rendered `#7F7F7F` on white 4.00:1, `#8A8A8E` on "
                 + "white 3.44:1, `#85858B` on `#F2F2F7` 3.29:1 — the platform's hierarchical "
                 + "`.secondary`, the recorded `secondary-meta` caveat (16-CONTRAST-AUDIT D-28). "
-                + "Never a \"failed\" verdict. Owner: `E-4=approve` (2026-09-13).",
+                + "Owner: `E-4=approve` (2026-09-13). The same `.secondary` metadata also reports "
+                + "\"failed\" by name on the iPad (A16): Comments \"+7\" and the Frontpage cells' "
+                + "\"English\", \"KC135\", \"Chinese\", \"HandsomeRiley\", \"Shordreno\", "
+                + "\"Portuguese\", fully shown and rendered `#7F7F7F` on `#FFFFFF`, 4.00:1 "
+                + "(`diag-25`, `diag-27`). Those names match both verdicts; any other text still "
+                + "fails on \"failed\". Owner: \"Extend E-4 by name (Recommended)\" (2026-09-14).",
             matches: { report in
-                guard report.auditType == .contrast, report.verdict == "Contrast nearly passed",
-                      let element = report.element else { return false }
-                return element.type == "StaticText" || element.type == "Switch"
+                guard report.auditType == .contrast, let element = report.element,
+                      element.type == "StaticText" || element.type == "Switch" else { return false }
+                switch report.verdict {
+                case "Contrast nearly passed":
+                    return true
+                case "Contrast failed":
+                    let names = AccessibilityAuditUITests.secondaryFailedNames[report.surface]
+                    return names?.contains(element.name) == true
+                default:
+                    return false
+                }
             }
         ),
         AuditExclusion(
@@ -317,6 +330,12 @@ final class AccessibilityAuditUITests: XCTestCase {
     /// The slider-preview strip's captions while the control panel shows no strip: three on the
     /// iPhone, five on the iPad's wider panel (E-1).
     private static let hiddenStripCaptions: Set<String> = ["0", "1", "2", "3", "4"]
+
+    /// The `.secondary` metadata the engine fails outright by name on the iPad, per surface (E-4).
+    private static let secondaryFailedNames: [String: Set<String>] = [
+        "Detail › Comments": ["+7"],
+        "Frontpage": ["English", "KC135", "Chinese", "HandsomeRiley", "Shordreno", "Portuguese"]
+    ]
 
     /// The high-contrast texts the engine's two-colour sampling fails, per surface (E-3).
     private static let samplingArtifacts: [String: Set<String>] = [
@@ -635,17 +654,14 @@ private extension AccessibilityAuditUITests {
     /// `.all` call. On the iPad (A16) a single `.all` call over a long surface hit the engine's own
     /// limit of about 600 s ("Audit failed to complete in time", error −56: Frontpage and Popular
     /// in `a11y-final-ipad`; Date Seek, Filters, Frontpage, Popular and the iPad modals in
-    /// `diag-25`), which fails the test with no report at all; smaller calls keep each one under
-    /// that limit. Coverage does not shrink: the last group is `.all` less the named types — every
-    /// bit the platform may add — so the groups' union is `.all` by construction. Owner: "Split
-    /// audits, fix helper" (2026-09-13).
-    static let auditTypeGroups: [XCUIAccessibilityAuditType] = {
-        let named: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
-        let covered = named.reduce(into: XCUIAccessibilityAuditType()) { union, group in
-            union.formUnion(group)
-        }
-        return named + [XCUIAccessibilityAuditType.all.subtracting(covered)]
-    }()
+    /// `diag-25`), which fails the test with no report at all. Owner: "Split audits, fix helper"
+    /// (2026-09-13). Coverage does not shrink: the Xcode 26.6 iOS SDK header
+    /// `XCUIAutomation.framework/Headers/XCUIAccessibilityAuditTypes.h` defines exactly these
+    /// seven types for iOS — `action` and `parentChild` are macOS-only — so the calls' union is
+    /// `.all` on iOS. A call for the bits `.all` holds beyond them defines no iOS type, yet the
+    /// engine ran it as a full audit (`diag-28`: the Comments remainder call re-reported 42
+    /// contrast issues), so it is not made. Owner, dropping it: "yes" (2026-09-14).
+    static let auditTypeGroups: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
 
     /// The audit types whose element-less reports are logged rather than judged (see
     /// `logElementlessReport(_:surface:count:)`).
