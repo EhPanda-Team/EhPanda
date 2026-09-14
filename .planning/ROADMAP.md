@@ -1120,6 +1120,7 @@ to the owner with the measurements rather than accepting the gap (D-24).
   10. All text meets WCAG 4.5:1 and non-text elements 3:1, in light and dark and under Increase Contrast. Gallery **category background colors stay byte-identical** (all 84 variants, both hosts); the badge *text* color becomes adaptive black/white by resolved background luminance, which passes 84/84 with a structural floor of 4.58:1 for any possible color (D-21).
   11. No information is conveyed by color alone — every color-coded state also carries a shape, glyph, or text.
   12. A Nutrition Label recommendation is produced, stating which categories are claimable and why.
+      *Superseded 2026-09-15 (owner):* EhPanda is not distributed on the App Store, so accessibility work is best effort and no Nutrition Label recommendation is produced. Round 2 closes instead with an agent-run walkthrough of the main flows (in-simulator VoiceOver, Voice Control label proxy, display settings; the owner only listens to named utterances), the D-25 re-sweep, the closing gates and owner sign-off. The Nutrition Label wording in the goal and target bar above is kept as the original record.
 
 **Foundation already in place (Phase 10):** 7 fixed-pixel font sites scaled with text styles + `@ScaledMetric` (10-10); B1–B10 AX5 reflows via constraint-drop / `@ScaledMetric` at default-size parity (10-11). Prohibitions to preserve: no `dynamicTypeSize` cap, no `GeometryReader`, and — as of this phase — no `minimumScaleFactor` at all.
 
@@ -1220,11 +1221,11 @@ Plans:
 
 **Wave 23** *(blocked on Wave 22 completion)*
 
-- [ ] 16-25-PLAN.md — Manual VoiceOver / Voice Control (English) / display-settings walkthrough on the physical device (D-31, D-30)
+- [ ] 16-25-PLAN.md — Agent-run VoiceOver (in-simulator) / Voice Control label proxy (English) / display-settings walkthrough of the main flows, iPhone only, with one owner listening checkpoint (D-31, D-30; rescoped 2026-09-15)
 
 **Wave 24** *(blocked on Wave 23 completion)*
 
-- [ ] 16-26-PLAN.md — D-25 targeted re-sweep, `16-NUTRITION-LABEL.md` recommendation, phase-close gates, owner sign-off (D-21)
+- [ ] 16-26-PLAN.md — D-25 targeted re-sweep (iPhone), phase-close gates, owner sign-off; no Nutrition Label document (D-21; rescoped 2026-09-15)
 
 **Cross-cutting constraints:**
 

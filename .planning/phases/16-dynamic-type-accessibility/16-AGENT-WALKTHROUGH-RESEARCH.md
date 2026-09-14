@@ -519,12 +519,24 @@ today: catalog keys, round-2 idioms, no suppression, module tests + lint build p
 
 1. **Which § 7 option for gated flows?** Owner decision. The booted `EhPanda Login iPhone Air (26.5)`
    simulator may already be an option A candidate.
+   **RESOLVED (2026-09-15):** option A. The owner logged in by hand on `EhPanda Login iPhone Air (26.5)`
+   `C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D` (login confirmed by a populated Favorites list); it is the D-09
+   simulator for gated flows, iPhone only ("只做 iPhone 就好").
 2. **Download row for OQ2 / F6 without a live session?** Try the automation download keys on a hermetic
    simulator first. If no row appears, F6 moves to the gated set.
+   **RESOLVED (2026-09-15):** the revised 16-25 tries the hermetic automation download first, then the
+   logged-in simulator (one real download at most), and records the outcome if neither yields a row.
 3. **VO-2 versus the approved `E-1.hidden-content` exclusion.** D-22: present to the owner with
    `WR/walk-reader-panel.txt` and `WR/17-reader-panel.png`.
+   **RESOLVED (2026-09-15, orchestrator under the owner's delegation "全都先你自己做"):** VO-2 is a defect
+   fixed in 16-25 across every hide-idiom site; `E-1.hidden-content` is removed only if its audit reports
+   disappear on both gate devices. Only a fix that needs a visible change returns to the owner (D-22).
 4. **Focus-return policy (VO-3).** The owner rules whether pop → first row and dismiss-from-menu → title
    are acceptable.
+   **RESOLVED (2026-09-15, orchestrator under the same delegation, which named VoiceOver focus testing):**
+   the skill's qa-checklist is the standard: 1.7 push → first element of the new screen; 1.8 sheet/alert
+   dismiss → the triggering element (the Filters → Search-title case is a fail). Pop-back focus is not a
+   checklist item and is recorded as an observation.
 
 ## Sources
 
