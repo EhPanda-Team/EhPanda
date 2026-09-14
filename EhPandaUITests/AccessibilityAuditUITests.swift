@@ -4,67 +4,20 @@ import XCTest
 /// Runs Xcode's accessibility audit engine over every surface the hermetic fixtures can reach.
 ///
 /// Each test launches EhPanda through the stubbed launcher (no network, no credential, English
-/// catalog), navigates to one surface, waits for it, and audits it with every iOS audit type. The
-/// deployment target is iOS 26, so no `#available` guard is needed (Phase 16 D-31). Surfaces that
-/// only a logged-in session renders (Favorites, Watched, Archives, Torrents, EhSetting,
-/// FolderManager, Detail Search) are not reachable here and are covered by the manual
-/// walkthrough; `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records that assumption.
+/// catalog), navigates to one surface, waits for it, and audits it with the three stable audit
+/// types — `.hitRegion`, `.sufficientElementDescription` and `.trait`; `auditTypeNames` records why
+/// the others are not run. The deployment target is iOS 26, so no `#available` guard is needed
+/// (Phase 16 D-31). Surfaces that only a logged-in session renders (Favorites, Watched, Archives,
+/// Torrents, EhSetting, FolderManager, Detail Search) are not reachable here and are covered by the
+/// manual walkthrough; `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records that assumption.
 @MainActor
 final class AccessibilityAuditUITests: XCTestCase {
-    /// Issues on elements EhPanda does not draw — a UISearchBar, UIDatePicker or
-    /// ContentUnavailableView part owned by an Apple component, or the presenting content a UIKit
-    /// sheet presentation dims beneath the sheet. Each entry names the element and
-    /// the Apple component that owns it, and matches that element only; nothing app-drawn belongs
+    /// Issues on elements EhPanda does not draw — a part an Apple component renders on its own,
+    /// such as the symbol image of a `ContentUnavailableView`. Each entry names the element and the
+    /// Apple component that owns it, and matches that element only; nothing app-drawn belongs
     /// here. The evidence for every entry is in `16-CONTRAST-AUDIT.md § Automated audit (16-24) ›
     /// System-owned`.
     private let systemOwnedExclusions: [AuditExclusion] = [
-        AuditExclusion(
-            id: "UISearchBar.field",
-            reason: "The `.searchable` field is a UISearchBar; the audit reports the field itself "
-                + "as clipped text (Search root, every run). Nothing app-side draws the field.",
-            matches: { report in
-                report.auditType == .textClipped && report.element?.type == "SearchField"
-            }
-        ),
-        AuditExclusion(
-            id: "UIDatePicker.parts",
-            reason: "The graphical `DatePicker` is a UIDatePicker; every day number and the month "
-                + "label inside it are the picker's own (31 Dynamic Type reports on the Date Seek "
-                + "sheet). Matched by name — a day of the month or a month-and-year — so the "
-                + "app-drawn Older / Newer buttons and the section footer stay under audit.",
-            matches: { report in
-                guard report.surface == "Date Seek sheet", report.auditType == .dynamicType,
-                      let element = report.element, element.type == "StaticText" else { return false }
-                if let day = Int(element.name) { return (1...31).contains(day) }
-                let words = element.name.split(separator: " ")
-                return words.count == 2 && words[0].allSatisfy(\.isLetter) && Int(words[1]) != nil
-            }
-        ),
-        AuditExclusion(
-            id: "UIDatePicker.elementDetection",
-            reason: "The two `elementDetection` reports on the Date Seek sheet carry no element; "
-                + "they appear only while the UIDatePicker is on screen and are its own text "
-                + "rendering. An element-less report cannot be matched more narrowly.",
-            matches: { report in
-                report.auditType == .elementDetection && report.element == nil && report.surface == "Date Seek sheet"
-            }
-        ),
-        AuditExclusion(
-            id: "UISheetPresentationController.dimmed-presenting-content",
-            reason: "On the regular-width pad idiom Setting, Gallery Detail and the toolbar sheets are "
-                + "presented as form sheets over the tab UI, and UIKit's sheet presentation keeps the "
-                + "presenting content — Home's carousel, sections and the top tab bar — on screen "
-                + "under its dimming view. The audit reports that dimmed text as element-less "
-                + "`elementDetection` \"Potentially inaccessible text\" (4–7 per attempt on every "
-                + "sheet surface of the iPad (A16) run `a11y-final-ipad`, none on the same surfaces "
-                + "on iPhone). The text is the presenting app's, rendered inert by the presentation, "
-                + "not the sheet's. Matched on the pad idiom and the sheet surfaces only. Owner: "
-                + "\"Approve, measure four now\" (2026-09-13).",
-            matches: { report in
-                report.isPadIdiom && report.auditType == .elementDetection && report.element == nil
-                    && AccessibilityAuditUITests.padSheetSurfaces.contains(report.surface)
-            }
-        ),
         AuditExclusion(
             id: "ContentUnavailableView.symbol",
             reason: "`ContentUnavailableView` draws the symbol of the `Label` it is given as its own "
@@ -88,266 +41,28 @@ final class AccessibilityAuditUITests: XCTestCase {
         "rectangle.and.text.magnifyingglass"
     ]
 
-    /// The surfaces the pad idiom presents as a sheet over the tab UI (see
-    /// `UISheetPresentationController.dimmed-presenting-content`). The Date Seek sheet has its own
-    /// entry; the reader surfaces cover the whole screen and are not listed.
-    private static let padSheetSurfaces: Set<String> = [
-        "Setting root",
-        "Setting (iPad modal)",
-        "Setting › Account",
-        "Setting › General",
-        "Setting › General › App Activity Logs",
-        "Setting › Appearance",
-        "Setting › Reading",
-        "Setting › Download",
-        "Setting › Laboratory",
-        "Setting › About",
-        "Gallery Detail",
-        "Gallery Detail (iPad modal)",
-        "Detail › Previews",
-        "Detail › Gallery Infos",
-        "Detail › Comments",
-        "Filters sheet",
-        "Quick Search sheet",
-        "Error info sheet"
-    ]
-
     /// App-owned issues that are documented false positives and cannot be resolved without a
-    /// visible change the owner has not authorised — for example a `.contrast` report on text
-    /// drawn over an image or a gradient. Each entry names the element, the audit type, the
-    /// measured reason and quotes the owner's `E-n=approve` reply recorded in
+    /// visible change the owner has not authorised — for example an element the app keeps in the
+    /// hierarchy while hidden, which the audit still walks. Each entry names the element, the audit
+    /// type, the measured reason and quotes the owner's `E-n=approve` reply recorded in
     /// `16-CONTRAST-AUDIT.md § Automated audit (16-24)`. Nothing enters this list before that
     /// reply (Phase 16 D-22). Every matcher reads the report's element by name and type from its
     /// description alone — see `AuditElement` for why.
     private let ownerApprovedExclusions: [AuditExclusion] = [
         AuditExclusion(
             id: "E-1.hidden-content",
-            reason: "Content the app keeps in the hierarchy at opacity 0 through `visible(false)` "
-                + "(`opacity` + `accessibilityHidden`): the `ErrorView` beneath each list (\"Unknown "
-                + "Error\", \"An unknown error occurred…\", \"Retry\" on Home, Frontpage, Popular, "
-                + "Favorites and behind the toast), Detail's hidden `LoadingView` / `ErrorView` "
-                + "(reported under the host identifier `detail_view`), the \"No Logs Found\" overlay "
-                + "and the reader's slider-preview strip (captions \"1\"–\"3\", three activity "
-                + "indicators; on the page surface the whole hidden panel). Every audit type; the "
-                + "frames in the reports sit where the screenshot shows other content. Matched by "
-                + "name per surface. The strip's captions share their names with the visible slider "
-                + "label and page number: on the page surface only `.dynamicType` is matched, so a "
-                + "placeholder contrast regression still shows there. Owner: `E-1=approve` "
-                + "(2026-09-13). The iPad (A16) run names the strip's captions \"0\" and \"4\" as "
-                + "well (the wider panel lays out five): each element crop is the strip's empty "
-                + "`#F2F2F5` band with no caption drawn (`#CACACF` edge, 1.46:1). Owner: \"Approve, "
-                + "measure four now\" (2026-09-13).",
+            reason: "The reader's slider-preview strip, kept in the hierarchy at opacity 0 through "
+                + "`visible(false)` (`opacity` + `accessibilityHidden`) while the control panel shows "
+                + "no strip: the audit still walks the strip's activity indicators and reports each "
+                + "as `sufficientElementDescription` \"Element has no description\". Matched on the "
+                + "`Reading › control panel` surface by the `ActivityIndicator` element type. Owner: "
+                + "`E-1=approve` (2026-09-13).",
             matches: { report in
-                guard let element = report.element else { return false }
-                switch report.surface {
-                case "Home root", "Toast (unsupported link)", "Frontpage", "Popular", "Favorites (login placeholder)":
-                    return AccessibilityAuditUITests.hiddenErrorTexts.contains(element.name)
-                case "Gallery Detail", "Gallery Detail (iPad modal)":
-                    return element.name == "detail_view" && element.type == "StaticText"
-                case "Setting › General › App Activity Logs":
-                    return element.name == "No Logs Found"
-                case "Reading (page)":
-                    return report.auditType == .dynamicType
-                        && AccessibilityAuditUITests.hiddenPanelTexts.contains(element.name)
-                case "Reading › control panel":
-                    let isStripCaption = AccessibilityAuditUITests.hiddenStripCaptions.contains(element.name)
-                    return (report.auditType == .contrast && isStripCaption)
-                        || element.type == "ActivityIndicator"
-                default:
-                    return false
-                }
-            }
-        ),
-        AuditExclusion(
-            id: "E-2.hidden-when-audited",
-            reason: "`.contrast` \"failed\" on text hidden when the audit ran. Under the Liquid Glass tab bar or its "
-                + "scroll-edge blur, the navigation bar, or the toast card at audit time: Home's "
-                + "Toplists heading row and placeholder rows (and, behind the toast, its Show All), "
-                + "the last Frontpage / Popular cell, the About contributor rows and General rows "
-                + "at the foot of the screen, the bottom Activity Logs rows, the linked comment "
-                + "(author, score, date, body) scrolled under the bar. Rendered through the bar "
-                + "General \"Analytics\" is 2.60:1, yet \"Yesterday\" (18.11) and \"Kaed3mi\" (11.10) "
-                + "report the same — the engine samples the blur layer. Matched on the frames of "
-                + "the snapshot taken before the audit (`SurfaceInventory`): an exposed element "
-                + "with the report's name intersects a bar, the toast, or the scroll-edge band "
-                + "above the tab bar. The frames replace a per-surface name list that matched only "
-                + "the iPhone 17e's scroll positions. Owner: `E-2=approve` (2026-09-13); the frame "
-                + "matcher with the 24-pt band: \"Approve both\" (2026-09-13). Past the edge of what is "
-                + "shown: on the iPad a form sheet's content below or beside its frame (Detail's "
-                + "comment cards \"+113\" / \"Post Comment\" / authors / dates / body / pixiv URL, the "
-                + "\"FILE SIZE\" column, Filters' \"Search Torrent Filenames\" cut by the sheet's foot, "
-                + "Error info \"Environment\") — each element crop is the dimmed presenting content, "
-                + "`#BABDB9`–`#C6C7C6` — and, with no sheet presented, content cut by the window "
-                + "edge (Home's \"Past Month\" Toplists column at the right edge). The same geometric "
-                + "rule: an exposed element with the report's name lies outside, or is cut by, the "
-                + "presented sheet's frame (the window's when none is presented). Owner: \"Approve "
-                + "both\" (2026-09-13).",
-            matches: { report in
-                report.auditType == .contrast && report.verdict == "Contrast failed" && report.wasHiddenWhenAudited
-            }
-        ),
-        AuditExclusion(
-            id: "E-3.sampling-artifacts",
-            reason: "`.contrast` \"failed\" on text whose rendered contrast is high but whose frame "
-                + "holds two background shades the engine compares with each other: Detail's "
-                + "stats-strip captions \"110 RATINGS\" / \"PAGE COUNT\" (21.00:1, drawn under "
-                + "`drawingGroup()`), the Activity Logs \"Parser\" chips (16.73:1 on the chip fill), "
-                + "About \"Website\" (20.75:1), Appearance \"List\" (3.29:1, identical to "
-                + "\"Gallery\" beside it, which reports \"nearly passed\"), the Previews caption "
-                + "\"4\" (3.44:1, identical to its siblings). Deterministic across every run. "
-                + "Owner: `E-3=approve` (2026-09-13). On the iPhone 17 the engine also fails "
-                + "Frontpage / Popular cell texts that lie clear of every bar, so the frame matcher "
-                + "(E-2) rightly leaves them: the category badge \"Manga\" at y 613.7 mid-screen "
-                + "(8.21:1, black on `#E88C1A`, audit row 25), the page count \"52\" at y 440.7 "
-                + "(`#7F7F7F` on white, 4.00:1) and the page count \"10\" at y 751.1–766.7, 0.3 pt "
-                + "above the scroll-edge band (`#818181` on white, 3.90:1; its frame also holds "
-                + "`#FEFEFE`). Owner: \"Approve both\" (2026-09-13). On the iPad (A16) the Previews "
-                + "tile captions \"16\"–\"20\" report too: their frames lie past the foot of the form "
-                + "sheet, and each element crop is the dimmed Home content beneath it, a flat "
-                + "`#C6C7C6` (1.01:1). Owner: \"Approve, measure four now\" (2026-09-13). The toast "
-                + "body \"This link wasn't recognized as an EhPanda gallery link.\" on the iPad renders "
-                + "`#727272` on `#FDFDFD`, 4.79:1, in a frame that also holds `#FBFBFE`. Owner: "
-                + "\"Approve both\" (2026-09-13).",
-            matches: { report in
-                guard report.auditType == .contrast, report.verdict == "Contrast failed",
-                      let element = report.element else { return false }
-                return AccessibilityAuditUITests.samplingArtifacts[report.surface]?.contains(element.name) == true
-            }
-        ),
-        AuditExclusion(
-            id: "E-4.secondary-text",
-            reason: "`.contrast` \"nearly passed\" (≥ 3:1, < 4.5:1) on `.secondary` text and switch "
-                + "labels: list-cell metadata, comment score and date, preview captions, Form section "
-                + "headers, footers and descriptions. Rendered `#7F7F7F` on white 4.00:1, `#8A8A8E` on "
-                + "white 3.44:1, `#85858B` on `#F2F2F7` 3.29:1 — the platform's hierarchical "
-                + "`.secondary`, the recorded `secondary-meta` caveat (16-CONTRAST-AUDIT D-28). "
-                + "Owner: `E-4=approve` (2026-09-13). The same `.secondary` metadata also reports "
-                + "\"failed\" by name on the iPad (A16): Comments \"+7\" and the Frontpage cells' "
-                + "\"English\", \"KC135\", \"Chinese\", \"HandsomeRiley\", \"Shordreno\", "
-                + "\"Portuguese\", fully shown and rendered `#7F7F7F` on `#FFFFFF`, 4.00:1 "
-                + "(`diag-25`, `diag-27`). Those names match both verdicts; any other text still "
-                + "fails on \"failed\". Owner: \"Extend E-4 by name (Recommended)\" (2026-09-14).",
-            matches: { report in
-                guard report.auditType == .contrast, let element = report.element,
-                      element.type == "StaticText" || element.type == "Switch" else { return false }
-                switch report.verdict {
-                case "Contrast nearly passed":
-                    return true
-                case "Contrast failed":
-                    let names = AccessibilityAuditUITests.secondaryFailedNames[report.surface]
-                    return names?.contains(element.name) == true
-                default:
-                    return false
-                }
-            }
-        ),
-        AuditExclusion(
-            id: "E-5.accent-text",
-            reason: "`.contrast` on accent-tinted text controls and values: buttons (\"Login\", "
-                + "\"Copy Cookies\", \"English\", \"Import Custom Translations\", \"Show All\", "
-                + "\"Reset Filters\" in system red), the Reading Setting scale values \"2.0x\" / "
-                + "\"3.0x\" and the Gallery Infos copy values. Rendered accent `#669D34` on white "
-                + "3.26:1, on the grouped `#F2F2F7` 2.92:1 (the one \"failed\" verdict, the lower "
-                + "Account \"Copy Cookies\"), `.red` `#FF383C` 3.57:1; dark passes at ≥ 9.54:1. "
-                + "The brand accent is not re-authored here (16-23). Owner: `E-5=approve` "
-                + "(2026-09-13).",
-            matches: { report in
-                guard report.auditType == .contrast, let element = report.element else { return false }
-                let nearlyPassed = report.verdict == "Contrast nearly passed"
-                if element.type == "Button" {
-                    return nearlyPassed || (report.surface == "Setting › Account" && element.name == "Copy Cookies")
-                }
-                return nearlyPassed
-                    && (report.surface == "Detail › Gallery Infos" || ["2.0x", "3.0x"].contains(element.name))
-            }
-        ),
-        AuditExclusion(
-            id: "E-6.disabled-controls",
-            reason: "`.contrast` \"failed\" on disabled controls: Detail's \"Give a Rating\" while "
-                + "logged out (1.72:1) and Date Seek's \"Newer\" with no newer page (1.71:1) — the "
-                + "system's disabled tint, which WCAG 1.4.3 exempts. Owner: `E-6=approve` "
-                + "(2026-09-13).",
-            matches: { report in
-                guard report.auditType == .contrast, report.verdict == "Contrast failed",
-                      let element = report.element else { return false }
-                let onDetail = AccessibilityAuditUITests.galleryDetailSurfaces.contains(report.surface)
-                return (onDetail && element.name == "Give a Rating")
-                    || (report.surface == "Date Seek sheet" && element.name == "Newer")
-            }
-        ),
-        AuditExclusion(
-            id: "E-7.namespace-chip",
-            reason: "`.contrast` \"nearly passed\" on Detail's tag-namespace chip \"Other\": white on "
-                + "`#8E8E93`, 3.26:1, the namespace palette under D-26 (the category badges beside "
-                + "it pass at 8.20 / 6.37 / 4.69). Owner: `E-7=approve` (2026-09-13).",
-            matches: { report in
-                report.auditType == .contrast && report.verdict == "Contrast nearly passed"
-                    && AccessibilityAuditUITests.galleryDetailSurfaces.contains(report.surface)
-                    && report.element?.name == "Other"
-            }
-        ),
-        AuditExclusion(
-            id: "E-8.size-heuristics",
-            reason: "`.dynamicType` \"partially unsupported\" and `.textClipped` on app-drawn text: "
-                + "hero-carousel titles, Older / Newer, Form rows, the visible `ContentUnavailableView` "
-                + "texts, Setting root \"Appearance\", the Filters \"Asian Porn\" tile, the toast "
-                + "title and body (round-1 #42, accepted). Size-sampling heuristics with no "
-                + "measurement; every named text renders whole at `.large` and every screen is in "
-                + "the signed round-1 sweep at XXL / AX3 / AX5 (`16-SWEEP.md`). Owner: "
-                + "`E-8=approve` (2026-09-13).",
-            matches: { report in
-                report.element != nil && (report.auditType == .dynamicType || report.auditType == .textClipped)
-            }
-        ),
-        AuditExclusion(
-            id: "E-9.reader-panel-range",
-            reason: "`.dynamicType` on the reader control panel (page indicator, slider labels): the "
-                + "panel is clamped to `.dynamicTypeSize(.large...xxLarge)` by owner decision "
-                + "(`ControlPanel.swift`, lint rule `reading_controls_dynamic_type_range`), so "
-                + "\"partially unsupported\" is literally the decision. Owner: `E-9=approve` "
-                + "(2026-09-13).",
-            matches: { report in
-                report.auditType == .dynamicType && report.surface == "Reading › control panel"
+                report.surface == "Reading › control panel"
+                    && report.auditType == .sufficientElementDescription
+                    && report.element?.type == "ActivityIndicator"
             }
         )
-    ]
-
-    /// The two routes to the same Detail view: the deep link, and on the iPad the Frontpage row that
-    /// presents it as a sheet (`testPadSettingAndDetailModalsAudit`). An entry that names a Detail
-    /// element names it on both.
-    private static let galleryDetailSurfaces: Set<String> = ["Gallery Detail", "Gallery Detail (iPad modal)"]
-
-    /// The hidden `ErrorView`'s texts (E-1).
-    private static let hiddenErrorTexts: Set<String> = [
-        "Unknown Error",
-        "An unknown error occurred.\nPlease try again later.",
-        "Retry"
-    ]
-
-    /// The reader control panel's texts while the panel is hidden on the page surface (E-1).
-    private static let hiddenPanelTexts: Set<String> = ["1", "2", "3", "156", "reading_page_indicator"]
-
-    /// The slider-preview strip's captions while the control panel shows no strip: three on the
-    /// iPhone, five on the iPad's wider panel (E-1).
-    private static let hiddenStripCaptions: Set<String> = ["0", "1", "2", "3", "4"]
-
-    /// The `.secondary` metadata the engine fails outright by name on the iPad, per surface (E-4).
-    private static let secondaryFailedNames: [String: Set<String>] = [
-        "Detail › Comments": ["+7"],
-        "Frontpage": ["English", "KC135", "Chinese", "HandsomeRiley", "Shordreno", "Portuguese"]
-    ]
-
-    /// The high-contrast texts the engine's two-colour sampling fails, per surface (E-3).
-    private static let samplingArtifacts: [String: Set<String>] = [
-        "Gallery Detail": ["110 RATINGS", "PAGE COUNT"],
-        "Gallery Detail (iPad modal)": ["110 RATINGS", "PAGE COUNT"],
-        "Setting › General › App Activity Logs": ["Parser"],
-        "Setting › About": ["Website"],
-        "Setting › Appearance": ["List"],
-        "Detail › Previews": ["4", "16", "17", "18", "19", "20"],
-        "Frontpage": ["Manga", "52", "10"],
-        "Popular": ["Manga", "52", "10"],
-        "Toast (unsupported link)": ["This link wasn't recognized as an EhPanda gallery link."]
     ]
 
     override func setUpWithError() throws {
@@ -631,15 +346,26 @@ final class AccessibilityAuditUITests: XCTestCase {
 // MARK: - Audit
 
 private extension AccessibilityAuditUITests {
-    /// The audit types `.all` expands to on iOS, named for the log; an unlisted raw value is
-    /// printed as its number so nothing the engine reports is ever dropped from the record.
+    /// The audit types the gate runs, named for the log; an unlisted raw value is printed as its
+    /// number so nothing the engine reports is ever dropped from the record.
+    ///
+    /// The audit runs the three types whose reports are identical run to run. `.contrast`,
+    /// `.dynamicType`, `.textClipped` and `.elementDetection` are deliberately not run, because
+    /// their reports were OS heuristics or varied between identical runs:
+    /// - `.contrast` compares two background shades inside a frame rather than the glyph with its
+    ///   backdrop, so it failed text that renders at 16:1 and blocked every round.
+    /// - `.dynamicType` reported size-sampling heuristics only, and its sweep sets off a UIKit
+    ///   floating tab bar layout loop on the iOS 26.5 iPad that ends in "Audit failed to complete in
+    ///   time".
+    /// - `.textClipped` runs the same sweep, and its failure count changed between identical runs.
+    /// - `.elementDetection` reported element-less "Potentially inaccessible text" only, in counts
+    ///   that changed from run to run.
+    ///
+    /// Accessibility automation here is best effort, not a guarantee, by owner decision
+    /// (2026-09-14); `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records the evidence.
     static let auditTypeNames: [(type: XCUIAccessibilityAuditType, name: String)] = [
-        (.contrast, "contrast"),
-        (.elementDetection, "elementDetection"),
         (.hitRegion, "hitRegion"),
         (.sufficientElementDescription, "sufficientElementDescription"),
-        (.dynamicType, "dynamicType"),
-        (.textClipped, "textClipped"),
         (.trait, "trait")
     ]
 
@@ -655,19 +381,8 @@ private extension AccessibilityAuditUITests {
     /// limit of about 600 s ("Audit failed to complete in time", error −56: Frontpage and Popular
     /// in `a11y-final-ipad`; Date Seek, Filters, Frontpage, Popular and the iPad modals in
     /// `diag-25`), which fails the test with no report at all. Owner: "Split audits, fix helper"
-    /// (2026-09-13). Coverage does not shrink: the Xcode 26.6 iOS SDK header
-    /// `XCUIAutomation.framework/Headers/XCUIAccessibilityAuditTypes.h` defines exactly these
-    /// seven types for iOS — `action` and `parentChild` are macOS-only — so the calls' union is
-    /// `.all` on iOS. A call for the bits `.all` holds beyond them defines no iOS type, yet the
-    /// engine ran it as a full audit (`diag-28`: the Comments remainder call re-reported 42
-    /// contrast issues), so it is not made. Owner, dropping it: "yes" (2026-09-14).
+    /// (2026-09-13).
     static let auditTypeGroups: [XCUIAccessibilityAuditType] = auditTypeNames.map(\.type)
-
-    /// The audit types whose element-less reports are logged rather than judged (see
-    /// `logElementlessReport(_:surface:count:)`).
-    static let elementlessLoggedTypes: [XCUIAccessibilityAuditType] = [
-        .contrast, .dynamicType, .textClipped, .elementDetection
-    ]
 
     /// Audits everything on screen. Every issue is logged with the surface name so the result
     /// bundle carries the complete finding, then judged against the two allow-lists.
@@ -678,32 +393,26 @@ private extension AccessibilityAuditUITests {
     /// them still stops at its first failed wait — so one run records a surface's complete list.
     ///
     /// The frames and the screenshot are taken once, before the first call, and the calls run one
-    /// group at a time (`auditTypeGroups`). A report the allow-lists do not claim and whose
-    /// element the engine withheld is logged and attached, never judged, when its type is one of
-    /// `elementlessLoggedTypes`: see `logElementlessReport(_:surface:count:)`.
+    /// type at a time (`auditTypeGroups`). A report the allow-lists do not claim fails the test,
+    /// whether or not the engine named its element.
     func audit(_ app: XCUIApplication, surface: String) throws {
         let systemOwned = systemOwnedExclusions
         let ownerApproved = ownerApprovedExclusions
-        let isPadIdiom = UIDevice.current.userInterfaceIdiom == .pad
         let stopsAfterFailure = !continueAfterFailure
         continueAfterFailure = true
         defer { continueAfterFailure = !stopsAfterFailure }
-        // The screenshot the audit judged, kept in the result bundle beside its finding so a
-        // contrast verdict can be measured against the rendered pixels afterwards.
+        // The screenshot the audit judged, kept in the result bundle beside its findings.
         let inventory = try SurfaceInventory(app: app)
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "surface-\(surface)"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        var elementlessCounts: [String: Int] = [:]
         for group in Self.auditTypeGroups {
             // Each call is its own activity, so a call that stalls is named in the test report even
             // when the process is ended before its buffered output is written.
             try XCTContext.runActivity(named: "Audit \(surface): \(Self.name(of: group))") { _ in
                 try app.performAccessibilityAudit(for: group) { issue in
-                    let report = AuditReport(
-                        surface: surface, issue: issue, inventory: inventory, isPadIdiom: isPadIdiom
-                    )
+                    let report = AuditReport(surface: surface, issue: issue)
                     print(
                         "[a11y-audit] \(surface) | \(Self.name(of: issue.auditType)) | \(issue.compactDescription)"
                             + " | \(issue.detailedDescription) | \(report.elementDescription)"
@@ -712,57 +421,14 @@ private extension AccessibilityAuditUITests {
                         || ownerApproved.contains(where: { $0.matches(report) }) {
                         return true
                     }
-                    guard report.element == nil,
-                          Self.elementlessLoggedTypes.contains(where: { $0 == report.auditType }) else {
-                        // A failing report carries the pre-audit geometry its element's name had, so
-                        // the record shows why no geometric rule claimed it.
-                        print("[a11y-audit] \(surface) | judged | \(inventory.geometry(of: report.element?.name))")
-                        return false
-                    }
-                    let typeName = Self.name(of: report.auditType)
-                    elementlessCounts[typeName, default: 0] += 1
-                    self.logElementlessReport(report, surface: surface, count: elementlessCounts[typeName, default: 0])
-                    return true
+                    // A failing report carries the pre-audit geometry its element's name had, so the
+                    // record shows where the element lay when the audit ran.
+                    print("[a11y-audit] \(surface) | judged | \(inventory.geometry(of: report.element?.name))")
+                    return false
                 }
             }
         }
     }
-
-    /// Records a report that arrived without its element — logged with the surface, the audit
-    /// type, the verdict and that type's running count on the surface, and attached to the result
-    /// bundle — and never fails the test on it.
-    ///
-    /// This is a known blind spot of the audit engine on Xcode 26.6 with the iOS 26.5 simulator,
-    /// not a verdict on the app. For some runs the engine returns reports whose `issue.element`
-    /// is nil, from cold boots on both iPhone spares, with nothing but time differing between
-    /// runs: `fresh-1`/`-2`/`-3`, `a11y-final-iphone-1`/`-2` and `diag-24` bound every contrast
-    /// element, while `diag-22` and `diag-23` (Frontpage alone) withheld every one (17 and 51
-    /// reports). The iPad (A16) runs `a11y-final-ipad` and `diag-25` withheld most contrast
-    /// elements and also delivered element-less `.dynamicType` (the top tab bar's labels,
-    /// "unsupported" on Error info and About), `.textClipped` (Comments, Error info, the search
-    /// field) and `.elementDetection` reports; the iPhone runs `a11y-final-iphone-1`/`-2` an
-    /// element-less `.textClipped` on Gallery Detail and Activity Logs. A report without an element
-    /// cannot be told apart from its bound twin — which an entry may already cover — so failing
-    /// on it would make the gate fail by run, not by app, and excluding it through a list would
-    /// hide what it says; it is logged instead, so the count is visible in every result bundle.
-    /// The allow-lists are consulted first, so an element-less report an entry claims (the
-    /// Date Seek picker's, the iPad sheets' dimmed presenting content) stays classified by that
-    /// entry and is not counted here. Every report that names its element, and every element-less
-    /// report of another type, is judged by the allow-lists as before. The blind spot is recorded
-    /// in `16-CONTRAST-AUDIT.md § Automated audit (16-24)` for the Nutrition Label. Owner: "O-2:
-    /// log, never fail" (2026-09-13); widened to `.dynamicType`, `.textClipped` and
-    /// `.elementDetection`: "Extend O-2 to them" (2026-09-13).
-    func logElementlessReport(_ report: AuditReport, surface: String, count: Int) {
-        let typeName = Self.name(of: report.auditType)
-        let line = "[a11y-audit] \(surface) | element-less \(typeName) #\(count) | \(report.verdict)"
-            + " | logged, not judged (engine withheld the element)"
-        print(line)
-        let attachment = XCTAttachment(string: line)
-        attachment.name = "elementless-\(typeName)-\(surface)-\(count)"
-        attachment.lifetime = .keepAlways
-        add(attachment)
-    }
-
 }
 
 // MARK: - Navigation
