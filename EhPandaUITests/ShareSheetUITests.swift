@@ -30,21 +30,28 @@ final class ShareSheetUITests: XCTestCase {
             onboardingCloseButton.tap()
         }
 
-        // Probed and pinned on iOS 26.5: the capsule toolbar exposes the address
-        // bar as a *text field* identified `TabBarItemTitle` (it was a button in
-        // earlier releases). Re-probe `safari.debugDescription` if this drifts.
-        let addressField = safari.textFields["TabBarItemTitle"].firstMatch
+        // Safari's address field is a *text field* whose identifier depends on the
+        // layout, so both pinned identifiers are accepted:
+        // - iPhone (probed on iOS 26.5): the capsule toolbar exposes it as
+        //   `TabBarItemTitle` (it was a button in earlier releases).
+        // - iPad (probed on iPadOS 26.5 and 27.0, regular width): the top tab bar
+        //   has no `TabBarItemTitle`. It nests the field twice: an outer text field
+        //   identified `SearchFieldItemView?isActive=true&UUID=…` (a per-tab UUID,
+        //   so it cannot be pinned) wraps the editable `TabBarItemTitleContainer`
+        //   ("Address", placeholder "Search or enter website"). The inner one is
+        //   the stable identifier.
+        // Re-probe `safari.debugDescription` if either drifts.
+        let addressField = safari.textFields
+            .matching(NSPredicate(format: "identifier IN %@", ["TabBarItemTitle", "TabBarItemTitleContainer"]))
+            .firstMatch
         XCTAssertTrue(
             addressField.waitForExistence(timeout: 10),
-            "Safari did not expose its TabBarItemTitle address field.\n\(safari.debugDescription)"
+            "Safari did not expose its address field.\n\(safari.debugDescription)"
         )
         addressField.tap()
 
-        XCTAssertTrue(
-            safari.keyboards.firstMatch.waitForExistence(timeout: 10),
-            "Safari did not raise the keyboard for its address field.\n\(safari.debugDescription)"
-        )
-        safari.typeText(sharePageServer.url.absoluteString + "\n")
+        let focusedField = focusedAddressField(in: safari)
+        focusedField.typeText(sharePageServer.url.absoluteString + "\n")
 
         // Safari greets a fresh simulator with a feature tip popover that covers
         // the page; it has to go before the link is long-pressable.
@@ -110,6 +117,56 @@ final class ShareSheetUITests: XCTestCase {
                 .waitForExistence(timeout: 10),
             "The share handoff did not render the hermetic gallery marker."
         )
+    }
+
+    /// Returns the Safari text field that holds keyboard focus after the address field was tapped.
+    ///
+    /// The URL is typed into the focused element itself, never into the tapped container or the
+    /// whole app, and success is judged by focus rather than by a visible software keyboard: the
+    /// keyboard can be missing while focus is correct (a connected hardware keyboard hides it), and
+    /// it can be up while focus sits elsewhere. Both happened on iPadOS 27.0 in 16-24
+    /// (`share-fix/attempt1/share-ipad2.xcresult`), which is why the old "keyboard exists" check is gone.
+    ///
+    /// On iPad, Safari has two states, both read from its hierarchy dumps:
+    /// - A fresh empty tab: the tap on the tab bar's `TabBarItemTitleContainer` focuses that field
+    ///   directly.
+    /// - A restored tab with a loaded page (`TabDocument?…IsPageLoaded=true`, e.g. the previous
+    ///   run's page): the tap does not focus the tab bar's field. It opens Safari's address editor
+    ///   instead, a separate overlay (615 × 720 pt on the 820-pt iPad) whose own text field is
+    ///   also identified `TabBarItemTitleContainer` ("Address", with the page's host as its value,
+    ///   frame (124.5, 41, 575, 44)). The tab bar's inner field leaves the hierarchy while the
+    ///   editor is open. The dump showed the editor open with neither a keyboard nor a focused
+    ///   element.
+    ///
+    /// So, when no field takes focus after the first tap, the editor's field is the only
+    /// `TabBarItemTitleContainer` left, and it is tapped once, because that is the element the
+    /// editor expects to be focused. No other element is re-tapped. If focus still never arrives,
+    /// the test fails with the focus query and the full hierarchy.
+    private func focusedAddressField(in safari: XCUIApplication) -> XCUIElement {
+        let focusedField = safari.textFields
+            .matching(NSPredicate(format: "hasKeyboardFocus == true"))
+            .firstMatch
+        if focusedField.waitForExistence(timeout: 10) {
+            return focusedField
+        }
+
+        let editorFields = safari.textFields.matching(identifier: "TabBarItemTitleContainer")
+        XCTAssertEqual(
+            editorFields.count,
+            1,
+            "Safari's address editor did not expose exactly one field to focus.\n\(safari.debugDescription)"
+        )
+        editorFields.firstMatch.tap()
+
+        XCTAssertTrue(
+            focusedField.waitForExistence(timeout: 10),
+            """
+            No Safari text field took keyboard focus after tapping the address editor's field.
+            Focused-element query: \(focusedField.debugDescription)
+            \(safari.debugDescription)
+            """
+        )
+        return focusedField
     }
 }
 
