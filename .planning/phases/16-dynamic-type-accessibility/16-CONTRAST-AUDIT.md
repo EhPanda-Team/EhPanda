@@ -839,8 +839,102 @@ retry-on-failure setting unchanged, bundles and logs under `$HOME/Library/Caches
 
 The skipped iPhone test is the iPad-only `testPadSettingAndDetailModalsAudit`.
 
-The section introduction above and every subsection below are the pre-2026-09-14 record and no longer describe the
-gate; their measurements stand as recorded.
+The section introduction above and every subsection after `#### Final gate (2026-09-15)` are the pre-2026-09-14
+record and no longer describe the gate; their measurements stand as recorded. The two subsections that follow
+directly, `#### Gate runtimes (2026-09-15)` and `#### Final gate (2026-09-15)`, record the current gate.
+
+#### Gate runtimes (2026-09-15)
+
+Owner decision (2026-09-15), superseding for the iPad the 2026-09-14 choice of "ios 26.5 + ipados 27": "iPad 改回
+26.5，27 的問題先記進 deferred" (move the iPad back to 26.5; defer the 27 problem), and "但是注意現在的 27 還是 beta"
+(note that 27 is still beta). The gate devices are:
+
+| device | UDID | runtime |
+|---|---|---|
+| iPhone 17 | `73E148DA-26E4-4892-8C8A-7EDC6725D0E7` | iOS 26.5 (23F77) |
+| iPad (A16) | `B6679864-3783-4A3B-89B5-B0B010588C13` | iPadOS 26.5 (23F77) |
+
+iPadOS 27.0 (24A434) is a pre-release runtime and is excluded from the gate; the `stable-ipad27` row above is a record
+of that runtime, not a gate leg. On it, presenting Gallery Detail intermittently pins the main thread for minutes; the
+stall, its standalone reproduction and the two candidate avoidances are in `deferred-items.md § Found during 16-24`
+(the `DetailView+HeaderSection.swift` entry), with the re-run to do on each new iPadOS 27 seed and on the release build.
+
+The plan text names the spare iPhone `88B217DA-A166-4BAD-820D-DE13B1C4EB54` and an iPad simulator created with
+`xcrun simctl create`; neither was used. `88B217DA…` does not exist on this machine, and the gate ran on the two
+existing simulators above (neither is a D-09 simulator), with no simulator created.
+
+#### Final gate (2026-09-15)
+
+Xcode 26.6, plan `UITests`, tree `7e4bb963` (every test and app source of HEAD); products built once with
+`build-for-testing` on the iPhone and run with `test-without-building`. The 2026-09-15 `build-for-testing` compiled
+no Swift file of the app, package or UI test targets (no `SwiftCompile`, link or code-sign step in
+`final-gate/bft-iphone265.log`; no object file newer than the previous build), so the iPad leg is the orchestrator's
+full-plan run on the same products. Bundles and logs under `$HOME/Library/Caches/ehpanda-phase16/round2/audit/`:
+
+| bundle | device / OS | passed / failed / skipped | test runs | duration |
+|---|---|---|---|---|
+| `final-gate/full-iphone265-1.xcresult` | iPhone 17 `73E148DA…`, iOS 26.5 (23F77) | 39 / 0 / 2 | 41 for 41 tests (no repetition, no retry) | 550.6 s |
+| `final-gate/full-iphone265-2.xcresult` | iPhone 17 `73E148DA…`, iOS 26.5 (23F77) | 39 / 0 / 2 | 41 for 41 tests (no repetition, no retry) | 540.9 s |
+| `ipad265-recheck/full-ipad265.xcresult` | iPad (A16) `B6679864…`, iPadOS 26.5 (23F77) | 41 / 0 / 0 | 41 for 41 tests (no repetition, no retry) | 740.3 s |
+
+The two iPhone skips are the iPad-only tests `AccessibilityAuditUITests.testPadSettingAndDetailModalsAudit` and
+`DeepLinkPadUITests.testPadTabModalReplacedByDeepLink` (`XCTSkip` on the phone idiom). The 13 pre-existing UI tests
+(`DeepLinkEntry`, `DeepLinkPad`, `DeepLinkScheme`, `DeepLinkSmoke`, `ShareSheet`) pass in the same runs: 12 passed and
+1 skipped on each iPhone run, 13 passed on the iPad. The `[a11y-audit]` lines of the two iPhone logs are identical (5
+lines each, same order); every one is claimed by an allow-list, and no `judged` line was printed in any of the three
+logs.
+
+Per surface. Cells give the result and the test's duration; "issues found" lists the kept-type reports
+(`hitRegion`, `sufficientElementDescription`, `trait`) from the logs.
+
+| surface | test | iPhone run 1 | iPhone run 2 | iPad | issues found | fix / exclusion |
+|---|---|---|---|---|---|---|
+| Home root | `testHomeRootAudit` | passed 6.5 s | passed 6.3 s | passed 8.4 s | none | none |
+| Search root | `testSearchRootAudit` | passed 6.1 s | passed 5.8 s | passed 6.6 s | none | none |
+| Downloads (empty) | `testDownloadsEmptyStateAudit` | passed 6.0 s | passed 6.0 s | passed 7.0 s | none | none |
+| Favorites (login placeholder) | `testFavoritesLoginPlaceholderAudit` | passed 7.2 s | passed 7.5 s | passed 8.7 s | `sufficientElementDescription` "Label not human-readable" on the `"person.crop.circle.badge.questionmark.fill"` Image, ×1 on each run and device | `ContentUnavailableView.symbol` |
+| Setting root | `testSettingRootAudit` | passed 5.8 s | passed 5.7 s | passed 6.4 s | none | none |
+| Frontpage | `testFrontpageAudit` | passed 8.6 s | passed 8.6 s | passed 11.6 s | none | none |
+| Popular | `testPopularAudit` | passed 11.8 s | passed 11.7 s | passed 12.2 s | none | none |
+| History | `testHistoryAudit` | passed 13.0 s | passed 13.1 s | passed 12.4 s | `sufficientElementDescription` "Label not human-readable" on the `"rectangle.and.text.magnifyingglass"` Image, ×1 on each run and device | `ContentUnavailableView.symbol` |
+| Filters sheet | `testFiltersSheetAudit` | passed 14.3 s | passed 14.3 s | passed 16.3 s | none | none |
+| Date Seek sheet | `testDateSeekSheetAudit` | passed 14.4 s | passed 14.2 s | passed 15.6 s | none | none |
+| Quick Search sheet | `testQuickSearchSheetAudit` | passed 14.2 s | passed 14.0 s | passed 14.9 s | none | none |
+| Setting › Account | `testAccountSettingAudit` | passed 9.6 s | passed 9.6 s | passed 10.6 s | none | none |
+| Setting › General | `testGeneralSettingAudit` | passed 9.5 s | passed 9.6 s | passed 12.1 s | none | none |
+| Setting › General › App Activity Logs | `testActivityLogsAudit` | passed 14.6 s | passed 14.6 s | passed 15.7 s | none | none |
+| Setting › Appearance | `testAppearanceSettingAudit` | passed 9.6 s | passed 9.5 s | passed 10.9 s | none | none |
+| Setting › Reading | `testReadingSettingAudit` | passed 9.5 s | passed 9.3 s | passed 10.3 s | none | none |
+| Setting › Download | `testDownloadSettingAudit` | passed 9.4 s | passed 9.3 s | passed 10.4 s | none | none |
+| Setting › Laboratory | `testLaboratorySettingAudit` | passed 9.4 s | passed 9.2 s | passed 10.1 s | none | none |
+| Setting › About | `testAboutAudit` | passed 9.8 s | passed 9.7 s | passed 10.8 s | none | none |
+| Gallery Detail | `testGalleryDetailAudit` | passed 7.3 s | passed 7.2 s | passed 11.9 s | none | none |
+| Detail › Previews | `testPreviewsAudit` | passed 11.0 s | passed 10.7 s | passed 11.5 s | none | none |
+| Detail › Gallery Infos | `testGalleryInfosAudit` | passed 12.2 s | passed 12.2 s | passed 15.7 s | none | none |
+| Detail › Comments | `testCommentsAudit` | passed 10.0 s | passed 10.0 s | passed 10.6 s | none | none |
+| Reading (page) | `testReadingPageAudit` | passed 7.1 s | passed 6.9 s | passed 8.3 s | none | none |
+| Reading › control panel | `testReadingControlPanelAudit` | passed 10.0 s | passed 9.9 s | passed 11.9 s | `sufficientElementDescription` "Element has no description" on `ActivityIndicator`: ×3 on each iPhone run, ×5 on the iPad | `E-1.hidden-content` |
+| Reading › Reading Setting sheet | `testReadingSettingSheetAudit` | passed 15.1 s | passed 14.8 s | passed 15.5 s | none | none |
+| Toast (unsupported link), Error info sheet | `testErrorToastAndErrorInfoAudit` | passed 9.4 s | passed 9.4 s | passed 11.5 s | none | none |
+| Setting (iPad modal), Gallery Detail (iPad modal) | `testPadSettingAndDetailModalsAudit` | skipped (iPad-only) | skipped (iPad-only) | passed 18.2 s | none | none |
+
+**`systemOwnedExclusions` (current).**
+
+| id | element / Apple component | matches |
+|---|---|---|
+| `ContentUnavailableView.symbol` | the symbol `Image` that `ContentUnavailableView` draws from the `Label` it is given, exposed under the raw SF Symbol name; `accessibilityHidden(true)` on the label's icon, in both `Label` forms, does not reach it | `sufficientElementDescription` reports on an `Image` element whose name is `person.crop.circle.badge.questionmark.fill` or `rectangle.and.text.magnifyingglass` (Favorites' login placeholder, History's parse-error state); any other unlabelled image stays under audit |
+
+**`ownerApprovedExclusions` (current).**
+
+| id | element / audit type / reason | owner's reply |
+|---|---|---|
+| `E-1.hidden-content` | the reader's slider-preview strip, kept in the hierarchy at opacity 0 through `visible(false)` (`opacity` + `accessibilityHidden`) while the control panel shows no strip; the audit still walks the strip's activity indicators and reports each as `sufficientElementDescription` "Element has no description". Matched on the `Reading › control panel` surface by the `ActivityIndicator` element type | `E-1=approve` (2026-09-13) |
+
+**Reachability assumption.** Favorites, Watched, Archives, Torrents, EhSetting, FolderManager and Detail Search are
+login-gated: without a session their views render a login placeholder, and no credential seam or login fixture is
+added to reach them, so no fixture renders the real surface and the audit cannot reach it. They are covered by 16-25's
+manual walkthrough and the D-25 re-sweep instead. The Favorites login placeholder itself is audited
+(`testFavoritesLoginPlaceholderAudit`).
 
 #### Fixed (class a)
 
