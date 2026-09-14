@@ -796,6 +796,52 @@ handler takes a fresh snapshot, after which the identity-bound elements in lazy 
 logged 111 of 267 reports as `<no element>` that run 2 had named. The handler logs the description only; exclusions
 that need a frame must take it from a pre-audit inventory (`AuditContext`).
 
+#### Scope change (2026-09-14)
+
+Owner decision (2026-09-14), superseding the plan wherever it requires every audit type, or owner exclusions for the
+removed types: "我們不需要用測試擔保對比度" (we do not need tests to guarantee contrast), then "比較穩定的測試可以留下來，不穩定擋路的刪掉，因為本來就是 best effort 沒有要保證可以"
+(keep the stable tests, delete the unstable ones that block, because this was always best effort, not a guarantee).
+EhPanda is not distributed on the App Store. The gate now runs `.hitRegion`, `.sufficientElementDescription` and
+`.trait` only, one `performAccessibilityAudit(for:)` call per type (`d67192f5`).
+
+Classification from the recorded runs under `$HOME/Library/Caches/ehpanda-phase16/round2/audit/` (counts of
+recorded test-failure lines where a run is cited with a number):
+
+| audit type | disposition | evidence |
+|---|---|---|
+| `.contrast` | removed | blocked every round (`approved-1.log`: 204 "nearly passed" + 93 "failed"; `final-ipad.log`: 241 "failed"); it needed E-2 … E-7 plus per-OS name lists; on iOS 27 every `AccessibilityAuditUITests` failure is a contrast false positive (`ios27/full-iphone27-1.log`, `ios27/full-ipad27.log`: the engine compares two greys, 1.02:1, on text rendered at about 16:1) |
+| `.dynamicType` | removed | every element report was already exempt (E-8, E-9) and the element-less ones only logged (O-2); its sweep triggers the iOS 26.5 iPad UIKit `_UIFloatingTabBar` layout loop and the −56 "Audit failed to complete in time" failures (`final-ipad.log`, `diag25-ipad.log`, `diag28-ipad.log`) |
+| `.textClipped` | removed | the same sweep; its failure count varied between identical runs before E-8 (`final-iphone-1.log` 4, `final-iphone-2.log` 5), and the element-less counts varied |
+| `.elementDetection` | removed | every report ever recorded is element-less "Potentially inaccessible text", in counts that vary run to run (`final-ipad.log` 15–19 per sheet surface, `diag27-ipad.log` 5–18, `ios27/stall-ipad27-1` / `-2` / `-3.log` 15 / 14 / 14) |
+| `.hitRegion` | kept | deterministic; no report in the final runs |
+| `.sufficientElementDescription` | kept | deterministic: `iphone265-gate/gate-iphone265-1.log` and `-2.log` carry identical reports (3 × `Reading › control panel` "Element has no description" on `ActivityIndicator`; "Label not human-readable" on the `History` image `"rectangle.and.text.magnifyingglass"` and the `Favorites (login placeholder)` image `"person.crop.circle.badge.questionmark.fill"`); `ios27/full-ipad27.log` has none |
+| `.trait` | kept | deterministic; no report in the final runs |
+
+The unit tests (`ColorContrastTests`, `CategoryColorsetInvariantTests`, `ReduceMotionGatingSourceTests`,
+`GalleryCoverLayoutTests`, `MasonryLayoutTests`) and the SwiftLint rules are stable and unchanged.
+
+**Allow-lists after the change.** Retired: E-2 … E-9; O-2 (the element-less logging path, so a kept-type report no
+allow-list claims now fails whether or not it names its element); the four class-b entries `UISearchBar.field`,
+`UIDatePicker.parts`, `UIDatePicker.elementDetection` and `UISheetPresentationController.dimmed-presenting-content`.
+Narrowed: E-1 (`E-1.hidden-content`) matches only the reader panel's activity indicators, the hidden slider-preview
+strip's `ActivityIndicator` elements reported as `sufficientElementDescription` on `Reading › control panel`, under the
+same `E-1=approve` (2026-09-13). Kept: `ContentUnavailableView.symbol`.
+
+**Verification.** `build-for-testing` (Xcode 26.6, plan `UITests`) succeeded and SwiftLint reports 0 violations on
+both touched files. Three sequential runs of `-only-testing:EhPandaUITests/AccessibilityAuditUITests` with the plan's
+retry-on-failure setting unchanged, bundles and logs under `$HOME/Library/Caches/ehpanda-phase16/round2/audit/stable-types/`:
+
+| run | device / OS | passed / failed / skipped | test runs | reports |
+|---|---|---|---|---|
+| `stable-iphone265-1` | iPhone 17 `73E148DA-26E4-4892-8C8A-7EDC6725D0E7`, iOS 26.5 | 27 / 0 / 1 | 28 (every test first try) | the five `sufficientElementDescription` reports above, all claimed (E-1 × 3, `ContentUnavailableView.symbol` × 2) |
+| `stable-iphone265-2` | iPhone 17 `73E148DA-26E4-4892-8C8A-7EDC6725D0E7`, iOS 26.5 | 27 / 0 / 1 | 28 (every test first try) | identical to run 1 |
+| `stable-ipad27` | A11y Audit iPad A16 (27) `5C21368C-FA5C-47AF-B4DF-1A1D747E09D0`, iPadOS 27.0 | 28 / 0 / 0 | 28 (every test first try) | none |
+
+The skipped iPhone test is the iPad-only `testPadSettingAndDetailModalsAudit`.
+
+The section introduction above and every subsection below are the pre-2026-09-14 record and no longer describe the
+gate; their measurements stand as recorded.
+
 #### Fixed (class a)
 
 Each fix sits in the owning file with a doc comment naming the report it answers; none changes a colour except the
