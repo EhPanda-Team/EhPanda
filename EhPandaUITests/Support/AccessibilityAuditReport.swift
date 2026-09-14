@@ -1,7 +1,7 @@
 import XCTest
 
-// The report model and the pre-audit frame inventory `AccessibilityAuditUITests` judges every
-// audit issue with.
+// The report model `AccessibilityAuditUITests` judges every audit issue with, and the pre-audit
+// frame inventory it logs beside a failing report.
 
 /// One allow-listed audit issue. `matches` is deliberately narrow — it identifies one element
 /// and one audit type — so an entry can never silence a neighbouring finding.
@@ -15,38 +15,27 @@ struct AuditExclusion {
 struct AuditReport {
     let surface: String
     let auditType: XCUIAccessibilityAuditType
-    /// The audit's own verdict text ("Contrast failed", "Contrast nearly passed", …); the API
-    /// exposes no severity, so the text is the only handle on it.
-    let verdict: String
     let element: AuditElement?
     let elementDescription: String
-    /// Whether an exposed element with the report's name was hidden before the audit: under a
-    /// bar or the toast, or outside what is shown (E-2).
-    let wasHiddenWhenAudited: Bool
-    /// Whether the run is on the pad idiom, where Setting and Detail present as sheets.
-    let isPadIdiom: Bool
 
-    init(surface: String, issue: XCUIAccessibilityAuditIssue, inventory: SurfaceInventory, isPadIdiom: Bool) {
+    init(surface: String, issue: XCUIAccessibilityAuditIssue) {
         self.surface = surface
-        self.isPadIdiom = isPadIdiom
         auditType = issue.auditType
-        verdict = issue.compactDescription
         let description = issue.element?.description
         elementDescription = description ?? "<no element>"
         element = AuditElement(description: description)
-        wasHiddenWhenAudited = element.map({ inventory.wasHidden(name: $0.name) }) ?? false
     }
 }
 
 /// The frames of the exposed hierarchy, captured in one snapshot before the audit: what occludes
 /// scrolled content (tab bar, navigation bar, the toast card), what is shown (the presented
-/// sheet, else the window) and where each named element lies. Taken before the audit, never
-/// inside the handler, so the engine's identity-bound elements are not re-resolved while the
-/// reports arrive.
+/// sheet, else the window) and where each named element lies, logged beside a report no
+/// allow-list claims. Taken before the audit, never inside the handler, so the engine's
+/// identity-bound elements are not re-resolved while the reports arrive.
 struct SurfaceInventory {
     /// The Liquid Glass tab bar blurs a band of content above its own frame (the scroll-edge
-    /// effect); Home's Toplists heading row, 9 points above the bar on the iPhone 17e, reports
-    /// through it. The band is the largest gap measured, rounded up.
+    /// effect), so the band counts as occluded; Home's Toplists heading row sits 9 points above
+    /// the bar on the iPhone 17e, inside it. The band is the largest gap measured, rounded up.
     private static let scrollEdgeBand: CGFloat = 24
 
     /// The identifier UIKit gives the dimming view of a sheet or popover presentation ("dismiss
@@ -112,16 +101,6 @@ struct SurfaceInventory {
         let frames = name.flatMap({ framesByName[$0] }) ?? []
         return "frames \(frames) | shown \(visibleBounds) | occluders \(occludingFrames)"
     }
-
-    /// Whether an exposed element with this name lay under a bar or the toast, or outside or cut
-    /// by what is shown.
-    func wasHidden(name: String) -> Bool {
-        guard let frames = framesByName[name] else { return false }
-        return frames.contains { frame in
-            occludingFrames.contains(where: { frame.intersects($0) })
-                || (!frame.isEmpty && !visibleBounds.contains(frame))
-        }
-    }
 }
 
 /// The element a report names, taken from the description XCTest prints for it: `"name" Type`,
@@ -133,8 +112,7 @@ struct SurfaceInventory {
 /// the engine's identity-bound elements are never re-resolved mid-audit (reading a frame there
 /// re-queries the element by description; 16-24 diag-9 lost the later reports of a surface that
 /// way). A report whose element the engine withholds (`issue.element == nil`) has no
-/// `AuditElement` and matches no element-scoped exclusion; a withheld element is the
-/// engine blind spot `logElementlessReport(_:surface:count:)` records.
+/// `AuditElement`, matches no element-scoped exclusion, and so fails the test.
 struct AuditElement {
     let name: String
     let type: String
