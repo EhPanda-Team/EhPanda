@@ -12,30 +12,6 @@ extension Color.Resolved {
     public var relativeLuminance: Double {
         0.2126 * Double(linearRed) + 0.7152 * Double(linearGreen) + 0.0722 * Double(linearBlue)
     }
-
-    /// Source-over compositing of the receiver drawn at `opacity` over an opaque `backdrop`.
-    ///
-    /// Exists for the Filters `CategoryCell`, whose excluded state draws the category colour at
-    /// 0.3 opacity over the sheet background: the text colour must be chosen against what is actually
-    /// on screen — the composite — not against the raw category colour, which is far darker than
-    /// the wash the eye sees.
-    ///
-    /// The blend runs per *linear* channel because light adds linearly; interpolating the
-    /// gamma-encoded channels would darken the result and skew the luminance the composite feeds
-    /// into. The receiver is treated as opaque (every category colour is), so `opacity` is the only
-    /// coverage in play, and the result is returned opaque in `.sRGBLinear`.
-    public func composited(over backdrop: Color.Resolved, opacity: Double) -> Color.Resolved {
-        func blend(_ source: Float, over destination: Float) -> Float {
-            Float(opacity * Double(source) + (1 - opacity) * Double(destination))
-        }
-        return Color.Resolved(
-            colorSpace: .sRGBLinear,
-            red: blend(linearRed, over: backdrop.linearRed),
-            green: blend(linearGreen, over: backdrop.linearGreen),
-            blue: blend(linearBlue, over: backdrop.linearBlue),
-            opacity: 1
-        )
-    }
 }
 
 extension Color {
