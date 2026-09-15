@@ -3082,7 +3082,7 @@ read back at its baseline (`VoiceOverTouchEnabled=0`).
 | F1 | VO-1; W-5; W-6; the Toplists placeholder rows are the `deferred-items.md § Found during 16-24` item 1 (cited, not re-reported); the Frontpage list reads one element per cell in visual order | 1.7 pass: pre-focus Frontpage `Show All` (reached below VO-1 through the Containers rotor, R6) → push → `Screen Changed`, focus `Loading…`; W-29: once the list loads, focus moves to the second cell, not the first; pop observation: focus on the inline `Home` title; 1.8 not exercised: no sheet or alert in F1 | 1.9 not exercised: no adjustable control; 1.10 pass (`Loading, ellipsis` on push); 1.11 pass (pass-through taps) | not exercised: no tag chip, comment cell or download row in F1 | pass (every tappable is a Button or RadioButton named by its visible text; two identical `Show All` names on Home, observation); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (Dark + Increase Contrast, Bold Text, Button Shapes, Reduce Transparency, software grayscale, AX5); Reduce Motion pass: the hero card gradient moves with it off (largest frame change 0.004) and is still with it on (0.000) | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-headings-rotor.txt`, `…/transcripts/vo1-home-containers-rotor.txt`, `…/transcripts/vo1-home-below-trap.txt`, `…/transcripts/f1-home-to-frontpage.txt`, `…/transcripts/f1-frontpage-walk.txt`, `…/transcripts/f1-frontpage-pop.txt`, `…/transcripts/f1-home-vc.txt`, `…/transcripts/f1-frontpage-vc.txt`, `…/display/F1/contact.png`, `…/display/F1-pass.txt` |
 | F2 | W-5; W-10; the root and results screens otherwise read in visual order | 1.7 pass: pre-focus the search field → keyword typed with `sim-use` and Return → results push, `Screen Changed`, focus the `Search` back button; 1.8 VO-3 (Filters): pre-focus `Filters` in More → sheet, focus `Cancel`; `Cancel` → focus the error toast (from the results) or the `Search` heading (from the root), not `More`; pop observation: results → root lands on the error toast (W-10) | 1.9 not exercised: no adjustable control; 1.10 pass (two trials: the app's announcement is cut after about 20 ms by the toast's own focus move, and the focus utterance then speaks the full toast text uninterrupted; the superseded run's interruption did not reproduce); 1.11 pass (pass-through taps) | not exercised: no tag chip, comment cell or download row in F2 | pass (More, the search field, `Recently Searched`, the keyword, its icon-only `Delete` with an English name, the toast Button, tabs; results: back, More, the field, cells); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass, with W-24 (the keyword `Delete` glyph nearly vanishes in software grayscale); Reduce Motion pass (`View+Toast.swift` gate): the toast slides up over about 7 frames with it off and appears in place over 2–3 frames with it on | `…/transcripts/f2-root-keywords.txt`, `…/transcripts/f2-search.txt`, `…/transcripts/f2-filters.txt`, `…/transcripts/vo3-filters.txt`, `…/transcripts/f2-toast.txt`, `…/transcripts/f2-toast-trap.txt`, `…/transcripts/f2-root-vc.txt`, `…/transcripts/f2-results-vc.txt`, `…/display/F2/contact.png`, `…/display/F2-pass.txt` |
 | F3 | VO-4; W-5; W-7; W-8; W-23; the Comments screen reads one element per cell in visual order | 1.7 pass (twice): pre-focus a Frontpage cell → Detail push, `Screen Changed`, focus the `Frontpage` back button; pre-focus the Comments `Show All` → Comments push, focus the first comment cell; 1.8 not exercised hermetically: no sheet in this part (F8 covers Post Comment) | 1.9 not exercised: the user rating is a drag with no adjustable action (`deferred-items.md § Found during 16-19`, cited; F8 walks it); 1.10 not exercised: the fixture Detail loads before a loading state is caught; 1.11 pass (pass-through taps); `LOGIN_UDID` tag chip: walked to the commit point; not committed (account safety): the vote items were spoken in the Actions rotor and never activated, and `custom_actions` read the same after the pass | W-11. Hermetic tag chip (signed out, no translation): no Actions rotor, `custom_actions` empty, matching its empty menu. Comment cell: three link actions, `custom_actions` identical, no context menu. `LOGIN_UDID` tag chip (signed in): `Vote Down`, `Vote Up`, `custom_actions` identical; nothing missing, nothing listed twice | pass (title and uploader Buttons, Download and Add to favorites PopUpButtons, Read, Gallery Infos, Give a Rating, Similar Gallery, tag chip, both section titles, both `Show All`, preview pages, Post Comment, tabs; Comments: Back, Post Comment); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass; the `Read` glyph is white on the accent again (pale under Dark + Increase Contrast): reverted item 5 of `16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)`, cited, not re-reported; Reduce Motion not exercised: `showsUserRating` needs the signed-in rating reveal (filmed in F8) and `showsFullTitle` changes nothing visible with the one-line fixture title | `…/transcripts/f3-frontpage-to-detail.txt`, `…/transcripts/f3-detail-walk.txt`, `…/transcripts/r7-detail-preview-strip.txt`, `…/transcripts/w-detail-screenchange-2.txt`, `…/transcripts/w-detail-screenchange-3.txt`, `…/transcripts/f3-detail-headings.txt`, `…/transcripts/f3-detail-tags.txt`, `…/transcripts/f3-tag-point.json`, `…/transcripts/f3-detail-comments.txt`, `…/transcripts/f3-comments-walk.txt`, `…/transcripts/f3-comment-rotor.txt`, `…/transcripts/f3-comment-point.json`, `…/transcripts/f3-login-tag-rotor.txt`, `…/transcripts/f3-login-tag-point.json`, `…/transcripts/f3-detail-vc.txt`, `…/transcripts/f3-comments-vc.txt`, `…/display/F3/contact.png`, `…/display/F3-pass.txt` |
-| F4 | VO-2; W-30 (a page element's number is never spoken); the two `Close` buttons and the slider end labels are the `deferred-items.md § Found during 16-18` items (cited); pages and their `Reload` buttons read in order | 1.7 pass: pre-focus `Read` → reader cover, `Screen Changed`, focus the current page (the reader opened at page 3, saved progress); 1.8 W-13: pre-focus the top `Close` → dismiss → focus the Detail back button, not `Read` | 1.9 pass: `Page, 3 of 48, adjustable`; Ctrl+Option+Up → `7 of 48`; Ctrl+Option+Down → `2 of 48`; 1.10 not exercised: hermetic pages fail at once, so no loading change is reached; 1.11 pass (pass-through taps) | W-11; W-12: the page's Actions are `Previous page`, `Next page`; its context menu's `Reload` (no mirror) is missing from the rotor | pass (Close, Live Text, Auto-Play, More, Reload, the lower Close, the `Page` slider; the two `Close` names are the deferred 16-18 item); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (the panel stays capped at xxLarge by design); the page number and reload glyph are gray on the placeholder again: reverted item 8, cited; Reduce Motion pass (`ControlPanel.swift` `hiddenPanelOffset`): the panel rises over about 8 frames with it off and fades in place over about 4 frames with it on | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-read.txt`, `…/transcripts/f4-read-prefocus.png`, `…/transcripts/f4-panel.txt`, `…/transcripts/f4-page-rotor.txt`, `…/transcripts/f4-panel-vc.txt`, `…/display/F4/contact.png`, `…/display/F4/motion-panel-show-rm-off/`, `…/display/F4/motion-panel-show-rm-on/`, `…/display/F4-pass.txt` |
+| F4 | VO-2; W-30 (a page element's number is never spoken; withdrawn: refuted by the recording, R13); the two `Close` buttons and the slider end labels are the `deferred-items.md § Found during 16-18` items (cited); pages and their `Reload` buttons read in order | 1.7 pass: pre-focus `Read` → reader cover, `Screen Changed`, focus the current page (the reader opened at page 3, saved progress); 1.8 W-13: pre-focus the top `Close` → dismiss → focus the Detail back button, not `Read` | 1.9 pass: `Page, 3 of 48, adjustable`; Ctrl+Option+Up → `7 of 48`; Ctrl+Option+Down → `2 of 48`; 1.10 not exercised: hermetic pages fail at once, so no loading change is reached; 1.11 pass (pass-through taps) | W-11; W-12: the page's Actions are `Previous page`, `Next page`; its context menu's `Reload` (no mirror) is missing from the rotor | pass (Close, Live Text, Auto-Play, More, Reload, the lower Close, the `Page` slider; the two `Close` names are the deferred 16-18 item); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (the panel stays capped at xxLarge by design); the page number and reload glyph are gray on the placeholder again: reverted item 8, cited; Reduce Motion pass (`ControlPanel.swift` `hiddenPanelOffset`): the panel rises over about 8 frames with it off and fades in place over about 4 frames with it on | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-read.txt`, `…/transcripts/f4-read-prefocus.png`, `…/transcripts/f4-panel.txt`, `…/transcripts/f4-page-rotor.txt`, `…/transcripts/f4-panel-vc.txt`, `…/display/F4/contact.png`, `…/display/F4/motion-panel-show-rm-off/`, `…/display/F4/motion-panel-show-rm-on/`, `…/display/F4-pass.txt` |
 | F5 | W-14; W-15; W-21; the Favorites list cells read one element each in visual order | 1.7 pass: pre-focus a list cell → Detail push, `Loading, ellipsis`, focus the `Favorites` back button; 1.8 not exercised: the favorite control opens no sheet or alert (it removes the favorite at once) | 1.9 not exercised: no adjustable control; 1.10 pass (`Loading, ellipsis` on push, then focus to the back button); 1.11 pass (pass-through taps on a cell and Back); walked to the commit point; not committed (account safety): VoiceOver focus on `Favorited`, never activated | not exercised: no tag chip, comment cell or download row walked in F5 (the logged-in tag chip is covered in F3) | W-15 (an invisible `Retry` Button is in the tree); otherwise pass (folder filter, Sort Order, More, the search field, cells; Detail: back, More, title, Download, Favorited, Read, Similar Gallery, Give a Rating, tag chips, section titles, Show All, pages, tabs); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (on the dark baseline; stars keep filled and outline shapes in grayscale); Reduce Motion not exercised: Favorites and `GalleryList` have no gated site in `ReduceMotionGatingSourceTests` | `…/transcripts/f5-favorites.txt`, `…/transcripts/f5-favorites.png`, `…/transcripts/f5-favorites-leak-retry.png`, `…/transcripts/f5-detail.txt`, `…/transcripts/f5-favorites-vc.txt`, `…/transcripts/f5-detail-vc.txt`, `…/display/F5/contact.png`, `…/display/F5-pass.txt` |
 | F6 | W-16; W-17; W-18 | 1.7 not exercised: no push in F6; sheet open pass: pre-focus a row stop → leading swipe → `Pages` → inspector, `Screen Changed`, focus `Close`; 1.8 W-13: `Close` → focus the `Downloads` heading, not the row | 1.9 not exercised: no adjustable control; 1.10 not exercised: no loading or toast change on this surface; 1.11 pass (pass-through swipe and taps) | pass: Actions `Detail`, `Pages`, `Resume`, `Delete` on the row stops, `custom_actions` identical; the row's context menu for this state (Detail, Pages, Resume, Delete; Move and Update conditions false) has every item and none twice; swipe actions leading `Pages`, trailing `Delete` and `Resume` (revealed and closed; only `Pages` tapped) | W-16; Filters, the search field and tabs pass; 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (the paused badge keeps glyph and text in grayscale); the untinted `Pages` swipe disc is reverted item 5, cited; Reduce Motion not exercised: the gated sites need a row added or removed, or validation or progress running, which would need Delete or a running download | `…/transcripts/f6-downloads.txt`, `…/transcripts/f6-downloads.png`, `…/transcripts/f6-empty-state-sweep.txt`, `…/transcripts/f6-row-rotor.txt`, `…/transcripts/f6-row-point.json`, `…/transcripts/f6-row-point-date.json`, `…/transcripts/f6-swipe-leading.png`, `…/transcripts/f6-swipe-trailing.png`, `…/transcripts/f6-swipe-closed.png`, `…/transcripts/f6-pages.txt`, `…/transcripts/f6-downloads-vc.txt`, `…/display/F6/contact.png`, `…/display/F6-pass.txt` |
 | F7 | W-19; the General form otherwise reads in visual order | 1.7 pass: pre-focus `General` row → push → `Screen Changed`, focus `Language` (first form element; same as the Task 1 tracer); pop observation: pre-focus the `Setting` back button → pop → focus the `Setting` heading, not the `General` trigger; 1.8 not exercised: the toggle opens no sheet or alert | 1.9 not exercised: no adjustable control; 1.10 not exercised: no loading or toast change; 1.11 pass: with VoiceOver on and focus on `Detect Links from the Clipboard, Switch button, off`, a pass-through tap switched it on and re-focusing read `on`; set back off and read back `off` (value 0). No unexpected Activate event appeared in the log (R12 hazard) | not exercised: no tag chip, comment cell or download row in F7 | pass (the switches are CheckBoxes named by their text); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (rows wrap at AX5); Reduce Motion not exercised: the General `rowAnimation` needs the Tags Extension turned on, which starts a translator download F7 does not ask for | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/t1-setting-general.txt`, `…/transcripts/vo3-general-pop.txt`, `…/transcripts/f7-general-cc05.txt`, `…/transcripts/f7-toggle-activate.txt`, `…/transcripts/f7-toggle-on.png`, `…/transcripts/f7-toggle-restored.png`, `…/transcripts/f7-general-vc.txt`, `…/display/F7/contact.png`, `…/display/F7-pass.txt` |
@@ -3159,7 +3159,7 @@ toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has n
 | W-5 | F1, F2, F3 | 1.4 | Section titles (`Frontpage`, `Toplists`, `Other`, `Recently Searched`, `Previews`, `Comments`) are spoken as "Button" with no heading trait; the Headings rotor on Detail finds no heading | `…/transcripts/vo1-home-below-trap.txt`, `…/transcripts/f2-root-keywords.txt`, `…/transcripts/f3-detail-headings.txt` | fix | — |
 | W-6 | F1 | 1.2 | A Frontpage list cell's utterance gives title, uploader, the word "Rating", page count, category and date, and only then the rating value ("4.5 out of 5"), so the value is separated from its name | `…/transcripts/f1-frontpage-walk.txt` | fix | — |
 | W-7 | F3 | 1.3 | The Detail preview strip is 40 linear stops (`Page 1` … `Page 40`) before the walk leaves it for `Comments`; it ends, so it is not a trap (R7) | `…/transcripts/r7-detail-preview-strip.txt` | accepted: (c) a finite strip that the walk leaves; an observation on walk length, not a checklist fail | — |
-| W-8 | F3 | 1.3 | Once, about 1 s after focus reached the uploader with no key pressed, VoiceOver logged `Screen Changed` and reset focus to `More`; two reproduction attempts (45 s idle each, two launch routes) logged nothing | `…/transcripts/f3-detail-walk.txt`, `…/transcripts/w-detail-screenchange-2.txt`, `…/transcripts/w-detail-screenchange-3.txt` | deferred: `deferred-items.md § Found during 16-25` item 1 | — |
+| W-8 | F3 | 1.3 | Once in the Task 2 walk, about 1 s after focus reached the uploader with no key pressed, VoiceOver logged `Screen Changed` and reset focus to `More`; two reproduction attempts (45 s idle each, two launch routes) logged nothing. The listening recordings (R13) reproduced it in 2 of 4 Detail launches: in L-2 focus reached the uploader at 20.09 s, `Screen Changed` at 20.86 s, focus `More` at 21.64 s; in L-5 at 17.88 s, 18.65 s and 19.43 s, so the reset follows about 0.77 s after focus reaches the uploader | `…/transcripts/f3-detail-walk.txt`, `…/transcripts/w-detail-screenchange-2.txt`, `…/transcripts/w-detail-screenchange-3.txt`, `…/listen/audio/run1/L-2.vot.log`, `…/listen/audio/run1/L-2.report.txt`, `…/listen/audio/run1/L-5.vot.log`, `…/listen/audio/run1/L-5.report.txt` | fix (was `deferred`; reproduced by the recording and moved, R13) | — |
 | W-10 | F2 | 1.3, 1.8 | The error toast is first in the reading order of the Search screens: previous from the back button lands on it and stops, a forward walk from the field to the last tab never reaches it, and the results pop and the Filters `Cancel` land on it | `…/transcripts/f2-toast-trap.txt`, `…/transcripts/f2-search.txt`, `…/transcripts/f2-filters.txt` | fix | — |
 | W-11 | F3, F4 | 1.6 | VoiceOver lists a view's actions in reverse declaration order: comment links (reverse of the body's link order), the signed-in tag chip (`Vote Down` before `Vote Up`, the menu declares Up first), the reader page (`Previous page` before `Next page`, declared Next first); `custom_actions` carries the same order | `…/transcripts/f3-comment-rotor.txt`, `…/transcripts/f3-comment-point.json`, `…/transcripts/f3-login-tag-rotor.txt`, `…/transcripts/f3-login-tag-point.json`, `…/transcripts/f4-page-rotor.txt` | accepted: (b) the order is the system's presentation of the declared actions, identical across `accessibilityAction` and menu-derived actions on three sites | — |
 | W-12 | F4 | 1.6 | The reader page's context menu offers `Reload` (and Copy / Save / Save Original with an image URL), but the page has no `accessibilityAction` mirror and `Reload` is not in the rotor | `…/transcripts/f4-page-rotor.txt` | fix | — |
@@ -3173,15 +3173,20 @@ toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has n
 | W-20 | F8 | 1.4, 2.7 | The Post Comment editor has no name: it is spoken "Text field, Is editing" | `…/transcripts/f8-post-comment.txt` | fix | — |
 | W-21 | F5, sweep | 1.5 | Placeholder symbols are spoken by their raw symbol names (`questionmark.circle.fill`, `person.crop.circle.badge.questionmark.fill`) on Favorites, Watched and the signed-out screens | `…/transcripts/f5-favorites.txt`, `…/transcripts/sw-watched-login.txt`, `…/transcripts/sw-favorites-signedout.txt` | deferred: `deferred-items.md § Found during 16-24` item 2 (`ContentUnavailableView.symbol`) | — |
 | W-22 | sweep | 1.4 | Watched signed out has no title element and no visible title, while signed in the same screen shows the `Watched` heading | `…/transcripts/sw-watched-signedout.txt`, `…/transcripts/sw-watched-login.txt` | owner (D-22): show the `Watched` navigation title in the signed-out state (before image `…/transcripts/sw-watched-signedout.png`) | — |
-| W-23 | F3 | 1.2, 1.3 | The Detail stats strip reads column headers and values interleaved (two headers, then two values, then the rating group, two headers, two values), so a value is not next to its header | `…/transcripts/f3-detail-walk.txt` | fix | — |
+| W-23 | F3 | 1.2, 1.3 | The Detail stats strip reads column headers and values interleaved (two headers, then two values, then the rating group, two headers, two values), so a value is not next to its header. The recording confirms the order (L-4, 33–51 s: "FAVORITED", "LANGUAGE", "591, Times", "JA, Japanese", "110 Ratings, 4 dot 50", then "Rating, 4.5 out of 5"). Owner requirements (2026-09-16, verbatim): "favorited 591 times 這類 items 應該都一起唸而不是分開一個個 label 唸" (each column is one stop that reads its title, value and unit together, for example "Favorited, 591 times"); "語言的 abbr 不用唸出聲，是單純的視覺裝飾" (the language abbreviation is hidden as visual decoration) | `…/transcripts/f3-detail-walk.txt`, `…/listen/audio/run1/L-4.report.txt` | fix | — |
 | W-24 | F2 | 6.1 | The Search root keyword `Delete` glyph renders pale green that nearly vanishes in software grayscale | `…/display/F2/grayscale-software.png` | deferred: `deferred-items.md § Found during 16-25` item 2 | — |
 | W-25 | sweep | 1.2, 1.4 | Torrent rows read their seed, peer and completion counts as bare numbers without meaning; the two zero counts produce no speech at all (a pause and "Actions available") | `…/transcripts/sw-torrents.txt` | fix | — |
 | W-26 | sweep | 1.5 | The Archives funds row exposes both coin glyphs by symbol name ("g.circle.fill", "C Circle") although `ArchivesView.swift:226` / `:234` mark them `accessibilityHidden(true)`; the GP balance of zero is silent and the credits balance is a bare number | `…/transcripts/sw-archives.txt` | fix | — |
 | W-27 | sweep | 1.2 | Reproduces on `cc05aca6` (the row's severity dot is back to the pre-16-24 circle). Each App Activity Logs row is four stops: the dot spoken "Error", the timestamp, the category, the message | `…/transcripts/sw-activity-logs.txt` | fix | — |
 | W-28 | sweep | 1.2 | Reproduces on `cc05aca6`. On Login, each field is two stops with one name: the caption (`Username`, `Password`), then the field spoken by its placeholder | `…/transcripts/sw-login.txt` | fix | — |
 | W-29 | F1, sweep | 1.7 | When a loading view gives way to content, focus moves to the element that now sits where the loading view was, not to the first element: the second Frontpage cell; `Create New` in the middle of Account Configuration | `…/transcripts/f1-home-to-frontpage.txt`, `…/transcripts/sw-ehsetting.txt` | fix | — |
-| W-30 | F4 | 1.4 | A reader page element's label is its page number, and VoiceOver speaks nothing for it (a pause and "Actions available"), so a page is identified only by its `Reload` button | `…/transcripts/f4-read.txt` | fix | — |
+| W-30 | F4 | 1.4 | Task 2 read a reader page element as silent: its label is the page number and the `vot` log shows no spoken string for it (a pause and "Actions available"). The recording refutes it (R13): in L-7, focus on page element `4` at 31.53 s produced an audible "Four", and page `3` produced "Three"; the log has no `Post-processed string` line for those utterances, so only the log missed the number | `…/transcripts/f4-read.txt`, `…/listen/audio/run1/L-7.vot.log`, `…/listen/audio/run1/L-7.report.txt`, `…/listen/audio/clips/10-reader-page-number.m4a` | withdrawn: refuted by the recording (R13) | — |
 | W-31 | F8 | display pass (Button Shapes) | With Button Shapes on, an empty capsule appears under the Detail title: the uploader Button renders with an empty label when the gallery has no uploader (`DetailView+HeaderSection.swift:387`); VoiceOver skips it | `…/display/F8/button-shapes.png`, `…/display/F8/contact.png` | owner (D-22): leave out the uploader line when there is no uploader, which removes the empty capsule and its line (before image `…/display/F8/button-shapes.png`) | — |
+| W-32 | listening (L-5) | 1.2 (speech) | A comment author and body in Chinese are read with mixed voices: the author is split across zh-CN Tingting, ja-JP Kyoko and zh-CN, with 「斯」 mispronounced; 「真的美」 is read by ja-JP Kyoko with Japanese readings (L-5, 229–237 s). Owner: "我個人覺得 author, comment author, comment 這種 ugc 沒有辦法避免，都可以接受" | `…/listen/audio/run1/L-5.report.txt`, `…/listen/audio/run1/L-5.en-US.json`, `…/listen/audio/clips/07-chinese-comment.m4a` | accepted: user content spoken by the system voice | — |
+| W-33 | listening (L-6) | 1.2 (speech) | A comment's time is heard as "four thirty two" with no "PM". The date and time are app-authored (a formatted value); the spoken string carries U+202F (narrow no-break space) before "PM" (`4:32\u202fPM` in the `vot` log), but that this character is why "PM" is dropped is unproven | `…/listen/audio/run1/L-6.vot.log`, `…/listen/audio/run1/L-6.report.txt`, `…/listen/audio/clips/06-comment-time.m4a` | fix | — |
+| W-34 | listening (L-5 route, Detail) | 1.2 (speech) | File-size units are spoken as letters: "MiB" is heard as "M I B". Owner: "MiB 確實被唸成三個獨立字母". App-authored; a fix changes the spoken unit only, not the visible text (orchestrator default, R13; the owner may veto) | `…/listen/audio/run1/L-5.report.txt`, `…/listen/audio/clips/04-file-size-gallery-infos.m4a` | fix | — |
+| W-35 | owner report (Detail) | 1.7 | After Detail opens, VoiceOver focus goes to the `More` button first, not to the gallery title. Owner: "進入 detail 後的焦點不在標題而是先到 more button"; target stated by the owner: the title | `…/transcripts/f3-detail-walk.txt`, `…/listen/audio/run1/L-2.vot.log` | fix | — |
+| W-36 | listening (L-4) | 1.2 | The stats strip speaks the rating twice in two forms: "110 Ratings, 4 dot 50" and then "Rating, 4.5 out of 5" (L-4, 33–51 s). Same scope as W-23 | `…/listen/audio/run1/L-4.report.txt` | fix | — |
 
 ### Hide-idiom sweep
 
@@ -3339,9 +3344,253 @@ Check run (Task 2): `WALK_UDID` shut down with `xcrun simctl shutdown`, then
 `env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/bash "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/listen.sh" --check`
 → `listen/check.log`: `SIM_USE /opt/homebrew/bin/sim-use`, `BOOTED CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `VOICEOVER ON`, then `OK` for L-0, L-2, L-4, L-5, L-6 and L-7; no `MISMATCH` (2026-09-15, `cc05aca6`).
 
+#### Owner reply (2026-09-16)
+
+Task 3 was resolved by the owner's replacement of the method (orchestrator ruling R13). Instead of the owner
+running `listen.sh` and listening to every item, the agent recorded the Mac's audio output for each item and
+analysed it, and the owner listened only to the uncertain clips. Owner, verbatim: "還有不要用腳本開",
+"你可以直接截取 audio output 來分析嗎？", "好", and "注意你錄製的方式 是要每個項目的過程都錄下來 這樣你可以無意中發現其他問題 還有避免 timelag 沒錄到".
+
+Method. Tool `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/recorder/`: `ListenRecorder.app`
+records through a Core Audio process tap and transcribes on-device with SpeechAnalyzer (en-US only);
+`record-items.sh`, `analyze.py`, `focus-seq.py` and `summary.py` drive and analyse it. Each item was recorded
+whole: a `vot` log stream spanning the recording, a 2 s pre-roll, the route driven by `listen.sh <id>` on the
+`cc05aca6` install, and a 6 s post-roll. `analyze.py` matches every enqueued utterance against the recorded
+sound (ffmpeg silencedetect) and the transcript, and lists every stretch of sound the log does not explain.
+Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/run1/` (L-0, L-2, L-4, L-5,
+L-6 and a first L-7, which was a MISMATCH because the reader opened at saved page 4 and `next8` never reached
+`Page`), `…/listen/audio/run1-L7b/` (the L-7 re-run, OK), and `…/listen/audio/clips/` (ten clips,
+`index.json` with each clip's source item and time window, `listening-clips.m4a`). Per item: `<id>.caf`,
+`.caf.start`, `.vot.log`, `.en-US.json`, `.report.txt`, `.report.json`. Audio stays in the evidence root and is
+never committed.
+
+Agent results. Every logged utterance had sound (no NO-AUDIO); the only sounds the log did not explain were
+short screen-change and focus earcons. W-8 reproduced in 2 of 4 Detail launches (`### Findings` W-8). W-30 is
+refuted: page numbers are spoken although the log shows no string for them (W-30). The stats strip reads
+headers before values and speaks the rating twice (W-23, W-36). In L-5 (229–237 s) the Chinese author is split
+across zh-CN Tingting, ja-JP Kyoko and zh-CN, and 「真的美」 is read by ja-JP Kyoko (W-32).
+
+Owner findings sent before the recording (2026-09-16, verbatim):
+- "進入 detail 後的焦點不在標題而是先到 more button"
+- "favorited 591 times 這類 items 應該都一起唸而不是分開一個個 label 唸"
+- "語言的 abbr 不用唸出聲，是單純的視覺裝飾"
+
+Owner verdicts on the clips (2026-09-16, verbatim; clips 1–2 are L-2, 3 is L-4, 4–5 and 7 are L-5, 6 is L-6,
+8–10 are L-7):
+- "EhPanda 確實被唸成 Eh Panda，但不是 A panda"
+- "Pokom, Non-H 我聽起來是準確的"
+- "MiB 確實被唸成三個獨立字母"
+- "infos 聽起來像 infus imageset 聽起來像 imagecent 沒錯，就跟 a panda 和 non-age 一樣，都是有模糊但在可接受範圍內"
+- "four thirty two 沒聽到 PM"
+- "囧斯诺聽起來怪怪的，「斯」發音錯誤，其他兩個字怪但是可以接受"
+- "「真的美」是中文漢字，被當成日文漢字發音"
+- "home 也是聽起來模糊但不是 palm，可接受"
+- "我個人覺得 author, comment author, comment 這種 ugc 沒有辦法避免，都可以接受"
+
+Resume-signal lines (the orchestrator's normalisation of the replies above, R13):
+
+L-0=ok
+L-2=ok
+L-4=ok
+L-5=unclear: 「斯」 mispronounced and 「真的美」 read with Japanese readings (comment author and body)
+L-6=unclear: "four thirty two", no PM
+L-7=ok
+
+Findings from listening: L-5 → W-32 (`accepted: user content spoken by the system voice`); L-6 → W-33 (`fix`);
+the MiB reply → W-34 (`fix`); the Detail first-focus report → W-35 (`fix`); the stats-strip replies → W-23
+requirements and W-36 (`fix`).
+
 ### Design proposals (16-25)
 
+`…/` stands for `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`. Every variant below was a patch
+under `…/vo2/` or `…/vo1/`, applied with `git apply`, built for `WALK_UDID` under the lock, installed over, walked
+(the V6 layout-check builds were read without a walk), and reverted with `git apply -R`
+(`git status --porcelain -- AppPackage` empty after each). None was committed. After the last variant
+`WALK_UDID` was rebuilt from the unchanged sources and installed over again, with VoiceOver left off.
+
+#### P-VO2
+
+**Proven cause.** `visible(_:)` (`AppComponents/ViewModifiers.swift`) writes `.accessibilityHidden(!isVisible)`,
+so a *visible* view writes `accessibilityHidden(false)`. When a visible ancestor does that and no scroll container
+sits between it and a nested `visible(false)` (or `accessibilityHidden(true)`), the descendants that nested hide
+hid are exposed again; a scroll container in between keeps them hidden (V6). In the reader, the lower panel
+sits inside `ControlPanel.swift:54` `.visible(showsPanel)`; with the panel shown that ancestor writes `false`
+over the slider-preview strip's own `visible(false)` (`:227`) and its slots (`:214`). Same walk each time
+(`scripts/vo2-walk.sh`: reader fixture, tap the page, lower `Close`, 12 × next):
+
+| variant | patch | change | walk result | transcript |
+|---|---|---|---|---|
+| V0 (baseline, `cc05aca6`) | — | none | leaks: three unnamed 20 × 20 stops at y 774, then three page captions, then the end label and the slider | `…/transcripts/vo2-V0-baseline-cc05.txt` |
+| V1 | `…/vo2/V1-remove-slot-visible.patch` | remove the per-slot `.visible(checkIndex(page))` | still leaks, unchanged: the slots' own `accessibilityHidden(false)` is not the cause | `…/transcripts/vo2-V1.txt` |
+| V2 | `…/vo2/V2-slot-image-color-clear.patch` | slot `PreviewImageView(…)` → `Color.clear`, same frame | the three unnamed stops are gone (they were the placeholder `ProgressView`s), but the three captions still leak: the `ProgressView` does not escape the hide on its own, it only adds elements | `…/transcripts/vo2-V2.txt` |
+| V3 | `…/vo2/V3-panel-opacity-without-ancestor-accessibilityHidden.patch` | the panel's ancestor `.visible(showsPanel)` (`:54`) → `.opacity(showsPanel ? 1 : 0)`, no accessibility value on the ancestor | hidden: lower `Close` → end label `1` → `Page` slider, no spinner or caption stop | `…/transcripts/vo2-V3.txt` |
+| V4 | `…/vo2/V4-visible-accessibilityHidden-isEnabled.patch` | the proposed fix: `visible(_:)` writes `.accessibilityHidden(true, isEnabled: !isVisible)` | hidden: the panel's show moves focus to the lower `Close` (same frame as V0, y 719.67), then end label `1` → `Page` slider → `156` → pages, no spinner or caption stop. Control walk with the panel hidden (no tap): no panel element is reachable, only the native toolbar `Close` / `More` and the pages | `…/transcripts/vo2-V4.txt`, `…/transcripts/vo2-V4-panel-hidden.txt` |
+| V5 | `…/vo2/V5-scrollview-boundary-around-strip.patch` | tree as `cc05aca6`; `SliderPreivew(…)` (`:227`'s view) wrapped in `ScrollView(.horizontal) { … }.scrollDisabled(true)`, so a scroll container sits between `:54` and `:227` | hidden: lower `Close` → `1` → `Page` → `156` → pages. Confounded: the scroll view takes the strip's 0-point hidden height and clips the slots that overflow it in V0, and it leading-aligns the strip 10 points left (measured on V6a below). The `Close` focus frame the walk logged on show (y 769.67 against V0's 719.67) is not a layout change: the unchanged layout logs the same 769.67 on show while its laid-out frame is 719.67 (`…/transcripts/vo2-layout-M0.txt`), so that frame depends on when the panel's slide-in is sampled | `…/transcripts/vo2-V5.txt` |
+| V6 layout check | `…/vo2/V6-layout-probe.patch` on V0, then with `…/vo2/V6a-scrollclipdisabled-with-layout-probe.patch` and `…/vo2/V6b-containerrelativeframe-with-layout-probe.patch` | throwaway `onGeometryChange` logs of the global frames of the lower `Close`, the strip, and each slot, slot image and caption, read after the panel's show | V0: `Close` 179, 719.67, 44 × 44; strip 18, 793.67, 366 × 0; slots y 784.22, 108.67 × 18.89 at x 28 / 146.67 / 265.33; captions y 788.78. V6a (V5 + `.scrollClipDisabled()`): every y identical, every x 10 points left. V6b (V6a + `.containerRelativeFrame(.horizontal)` on the strip): every probed frame identical to V0 | `…/transcripts/vo2-layout-M0.txt`, `…/transcripts/vo2-layout-V6a.txt`, `…/transcripts/vo2-layout-V6b.txt` |
+| V6 | `…/vo2/V6-scrollview-boundary-layout-identical.patch` | V6b without the probe: `SliderPreivew(…)` in `ScrollView(.horizontal) { … .containerRelativeFrame(.horizontal) }.scrollDisabled(true).scrollClipDisabled()` | hidden, with the V0 layout: the panel's show moves focus to the lower `Close` at y 719.67, then end label `1` → `Page` → `156` → pages, no spinner or caption stop (two earlier runs were stopped part-way by an audio pause and are not counted) | `…/transcripts/vo2-V6.txt` |
+
+V1 and V2 did not separate the cause, so V3 tested the common factor the sweep recorded (a leaking hide nested
+inside a visible `visible(_:)` ancestor), and it separates it: removing only the ancestor's
+`accessibilityHidden(false)` hides the strip. The same shape explains the other leaks: `GalleryList.swift:72` /
+`:78` inside `FavoritesView.swift:47` / `WatchedView.swift:37` (hidden on Frontpage, which has no such ancestor),
+and W-26's `ArchivesView.swift:226` / `:234` inside `ArchivesView.swift:35`. V3 also showed that with no
+accessibility value on the ancestor the panel's show did not move focus to the lower `Close`, so the fix keeps
+the hidden-state value.
+
+**The Detail header sites (code).** `DetailView+HeaderSection.swift:208` / `:218` sit inside
+`DetailView.swift:162`, which is true once loaded, and stay hidden. In code the difference is a scroll container:
+`:162` is applied to the `ScrollView` of `DetailView.swift:50`, and both header hides are inside that scroll
+view's content. Every leaking site has no scroll container between the visible ancestor and the hide:
+`GalleryList.swift:72` / `:78` are overlays on `GalleryList`'s outer `VStack`, outside its list, and the ancestor
+(`FavoritesView.swift:47` / `WatchedView.swift:37`) wraps that `GalleryList`; the reader strip (`:214` / `:227`)
+and `:54` share one plain stack; the coin glyphs (`:226` / `:234`) are in `funds`, which `pinnedColumn` places
+outside the grid's `ScrollView`, under `:35`. The other swept `hidden` rows under a true ancestor fit the same
+line: `SubSection.swift:97` / `:114` are inside the `ScrollView` that `HomeView.swift:73` is applied to, and
+`DetailView+CommentCells.swift:89` inside `:162`'s. The code predicts one more case not walked: at accessibility
+sizes Archives uses `scrollingColumn`, which puts `funds` inside a `ScrollView`, so the coin glyphs should stay
+hidden there. V5 put a scroll container between `:54` and `:227` and the strip stopped leaking, but V5 also clipped
+and shifted the strip (table), so it did not separate the container from the clipping. V6 did: the same scroll
+container with clipping disabled and a container-relative width, every probed frame identical to V0, and the strip
+stays hidden. So the scroll container is the condition that separates `:208` / `:218` from the leaking sites. The
+fix does not depend on it: V4 removes the ancestor's `false`, with or without a scroll container.
+
+**Fix.** One modifier, `AppComponents/ViewModifiers.swift` `visible(_:)`: replace
+`.accessibilityHidden(!isVisible)` with `.accessibilityHidden(true, isEnabled: !isVisible)`
+(`View.accessibilityHidden(_:isEnabled:)`, iOS 18, present in the Xcode 26.6 SDK's SwiftUI interface with the
+same `ModifiedContent<Self, AccessibilityAttachmentModifier>` result as today's call, so no call site's view type
+or identity changes). A hidden view is still hidden exactly as now; a visible view applies no accessibility-hidden
+value, so it can no longer override a descendant's hide. The doc comment gains the why (an ancestor's explicit
+`false` re-exposes nested hides, V3). Measured as V4 on the reader panel: the strip is hidden, the panel's show
+still moves focus to the lower `Close`, and the hidden panel is still unreachable. Per site under V4: reader
+strip (`ControlPanel.swift:214` / `:227`) hidden; `GalleryList.swift:72` / `:78` unreached (their leaking state
+needs `visible(didLogin)` true, that is a session, so neither Favorites nor Watched reaches it hermetically);
+`ArchivesView.swift:226` / `:234` unreached (the sheet needs a session). No variant build is installed on
+`LOGIN_UDID`, which holds the owner's session. For W-15 (`GalleryList`) and W-26 (the coin glyphs) the fix's
+effect is therefore expected, not yet measured: Task 7's walk 2 on `LOGIN_UDID` (final HEAD, install-over)
+verifies both. The regression's red/green runs and the Task 6 walk confirm the rest; if a site still leaks the
+executor stops and reports rather than choosing another construct.
+
+**Scope.** The shared modifier, which carries all 46 G3 call sites. Rows it is meant to change: every
+`leaks` row of `### Hide-idiom sweep` (`GalleryList.swift:72`, `:78`, `ControlPanel.swift:214`, `:227`) and the
+unpaired `ArchivesView.swift:226` / `:234` hides (W-26), whose ancestor is `ArchivesView.swift:35`; W-15 is the
+`GalleryList` part. Every other swept row must stay as recorded (`hidden` / `not an element`), which Task 6's
+after-fix sweep checks.
+
+**Rendered layout.** None: opacity, frames and insertion are unchanged; only an accessibility attribute is
+written differently. No `§ D-25 re-sweep` row.
+
+**Regression.** `EhPandaUITests/AccessibilityAuditUITests.swift`, class `AccessibilityAuditUITests`, a new test
+that opens the reader control panel with no slider preview (`showReadingControlPanel(in:)`), reads the `Page`
+slider's frame, and asserts that `app.activityIndicators` has no element in the strip band (frame `minY` ≥
+slider `minY` − 30 and `maxY` ≤ slider `minY`). Pre-fix signal, measured once with a throwaway method
+(`…/vo2/signal-probe.patch`, run alone on `GATE_IPHONE` to `…/vo2/signal-probe.xcresult`, console
+`…/vo2/signal-probe.log`, passed first try with no `Repetition` node, reverted): 40 activity indicators in the
+app, 6 in the band (three distinct 20 × 20 frames at y 774.33, each listed twice; slider `minY` 801.33). The
+band is 30 points because a 120-point window also caught 4 indicators of the Detail screen beneath the reader
+(y 755 and 710). The first probe attempt did not build (a `single_line_trailing_closure` lint error in the
+probe itself, `…/vo2/signal-probe-attempt1-lint.log`); no test ran. So the regression is red on the pre-fix tree
+(6) and green at 0. An absence in the exposed hierarchy could also come from an unrelated change, so the `vot`
+walk stays the confirming oracle.
+
+**Effect on E-1.** `E-1.hidden-content` excludes the `sufficientElementDescription` reports on the strip's
+`ActivityIndicator`s (×3 per iPhone run, ×5 on the iPad). V3 shows the strip was exposed, not merely walked while
+hidden, so the reports are the leak itself. After the fix the matched count is expected to be 0 on both gate
+devices; Task 6 removes E-1 only if both logs show zero with first-try runs, and otherwise keeps it with a
+corrected reason. `16-CONTRAST-AUDIT.md § Automated audit (16-24)` "How the engine judges" item (2) reads the
+strip as hidden; Task 6 corrects that sentence with these results.
+
+#### P-VO1
+
+**Instrumentation.** Only debug log lines at existing call sites of `HomeFeature/HomeView+Sections.swift`
+`CardSlideSection` and `HomeReducer+Body.swift`: the content offset and the current `scrollPositionID` from the
+`onScrollGeometryChange` transform, the handoff `pageIndex` write, every `onScrollPhaseChange` call (with
+`scrollPositionID`), the idle `pageIndex` write, the rebase branch, the reducer's `cardPageIndex` change and both
+edges of `allowsCardHitTesting`. No view or modifier was added. The section has no timer. Each build ran the same
+walk (`scripts/vo1-walk.sh`: hermetic Home, VoiceOver on after launch, 3 × previous, 40 × next), and its log was
+merged with the `vot` focus lines and every `Layout Changed` / `Screen Changed` note. The six fixture galleries
+give a window block of 6 cards, one card pitch is 341.6 points, and one block is 2049.6 points.
+
+| build | patch | change | walk result | evidence |
+|---|---|---|---|---|
+| 1 | `…/vo1/vo1-r16-build1-existing-call-site-logs.patch` | the log lines only | 3 resets to the `Home` heading (02:33:46.539, 02:34:09.659, 02:35:19.071) | `…/transcripts/vo1-r16b1.txt`, `…/transcripts/vo1-r16b1-app.log`, `…/vo1/r16b1-merged-timeline.txt` |
+| 2 | `…/vo1/vo1-r16-build2-idle-scroll-anchor-sync.patch` | build 1 plus one change to the anchor: when the handoff fires while the scroll phase is idle, `scrollPositionID` moves to the id of the newly centred card (the id nearest the current anchor with that logical index); the phase is kept in a `@State` set by the existing `onScrollPhaseChange` | no reset in 3 previous and 40 next; no offset jump other than two rebase compensations | `…/transcripts/vo1-r16b2.txt`, `…/transcripts/vo1-r16b2-app.log`, `…/vo1/r16b2-merged-timeline.txt` |
+
+**Proven cause.** VoiceOver's next and previous scroll the carousel themselves. That scroll moves the content offset
+by one pitch and produces no scroll phase, so `scrollPositionID`, which SwiftUI updates only when a scroll phase
+settles, keeps the id of the last phase-settled card. `scrollPosition(id:)` keeps that stale id's card in place
+across the next content change, so a few steps later the offset jumps back to it and the card VoiceOver focused is
+off screen; VoiceOver then drops focus to the screen's first element. In build 1 each reset is preceded by exactly
+this event, and it appears nowhere else:
+
+- 02:33:45.352 a next step moves the offset to 17381.27 with `scrollPositionID` 41 and no phase line; at
+  02:33:45.368 the offset returns to 16014.87 (card 41, −1366.4) and the handoff writes `pageIndex` 3 → 5; focus is
+  set at 02:33:45.391 on the card the step reached; reset at 02:33:46.539 (1.17 s).
+- 02:34:08.468 → 02:34:08.483 the same, again back to card 41; reset at 02:34:09.659 (1.18 s).
+- 02:35:17.888 → 02:35:17.903 the offset returns from 16698.07 to 14648.47 (card 55, −2049.6; same logical card, so
+  no `pageIndex` write); reset at 02:35:19.071 (1.17 s).
+
+The only other offset jumps in build 1 (02:33:12.235, 02:34:22.964, 02:34:48.988, 02:35:00.586) are rebase
+compensations, logged in the same transaction as a phase change to idle and a rebase line; none is followed by a
+reset. The rebase is therefore not the cause. `Layout Changed` arrives twice on every one of the 37 steps, reset or
+not, and no `Screen Changed` arrives during the walk. `allowsCardHitTesting` goes false on every step and true
+300 ms later, identically on reset and non-reset steps. Build 2 changes only the stale anchor and the resets stop,
+with no jump-back left in its log. Build 2 also shows the second half of VO-1: without the reset, 40 next steps never
+leave the carousel, because every step reaches another copy of the six cards in the sliding window, so the Frontpage
+heading is still not reached linearly.
+
+**Fix.** `HomeFeature/HomeView+Sections.swift`, `CardSlideSection` only:
+
+1. Keep the anchor on the card VoiceOver scrolled to. A `@State` scroll phase, set at the top of the existing
+   `onScrollPhaseChange`. In the existing handoff action, after the `pageIndex` write: if the phase is `.idle` (a
+   scroll no gesture drives, which is VoiceOver's own scroll), set `scrollPositionID` to that card's id in the
+   middle block, `windowBase + galleries.count * middleBlock + newValue`. The handoff transform keeps returning the
+   logical index, so the rebase frame, whose geometry briefly pairs the new `windowBase` with the old offset, still
+   never fires the action.
+2. Give VoiceOver one pass of the galleries. Each card outside the middle block
+   (`windowBase + count * middleBlock ..< windowBase + count * (middleBlock + 1)`) is hidden from assistive
+   technologies with `.accessibilityHidden(true, isEnabled: !isInMiddleBlock)`, the same form P-VO2 gives
+   `visible(_:)`, so a middle-block card writes no value. Linear navigation then reads the six galleries once and
+   continues to the Frontpage heading, and previous from that heading returns to the last of the six. The rebase
+   already keeps the settled card in the middle block, so the exposed six always include the centred card.
+
+Part 1 writes the middle-block id, not build 2's nearest id. With part 2, VoiceOver only lands on middle-block
+cards, and the nearest id would pick the neighbouring block's copy when previous from the Frontpage heading jumps
+from the first card to the last. The combination is not built in Task 4, because R16 allows no new modifier on the
+cards in a variant. Task 6's walk verifies it.
+
+**The "`scrollPositionID` is never written during scrolling" invariant.** That rule exists so that no programmatic
+write cancels an in-flight gesture or moves the window mid-flight. The fix adds a second bounded exception beside
+the gallery-count sync: a write only while the phase is `.idle`, so never during a drag, deceleration or animation,
+and only to the card the offset already shows, so nothing scrolls. The doc comments on `bufferedCards` and on the
+handoff state both exceptions and why. The sliding window, `windowBlocks`, the `.idle` rebase,
+`.viewAligned(limitBehavior: .always)` one-card paging, the peek dimming, `allowsCardHitTesting` and the Reduce
+Motion behaviour are unchanged: the write carries no animation and moves nothing.
+
+**Scope.** VO-1 only: `CardSlideSection`. No other carousel uses the sliding window.
+
+**Rendered layout.** None: frames, offsets and opacity are unchanged; only the anchor value and an accessibility
+attribute change. No `§ D-25 re-sweep` row.
+
+**Regression.** Part 2: `EhPandaUITests/AccessibilityAuditUITests.swift`, class `AccessibilityAuditUITests`, a
+new test on hermetic Home that reads the labels of the carousel's exposed card buttons and asserts each gallery
+appears exactly once. Before the fix every card the lazy stack has built is exposed, including copies beyond the
+six (build 1's first focus landed on a card two pitches left of the centred one), so a gallery is expected to
+appear more than once. That count was not measured in Task 4, so Task 6 must see the test red
+on the pre-fix tree before the fix commit, or record that no red signal exists. Part 1 has no runnable pre-fix
+signal: XCUITest drives no VoiceOver navigation and cannot produce a scroll with no phase, so the `vot` walk is its
+only oracle.
+
+**Task 6 verification.** Install over on `WALK_UDID` and repeat the 40-step walk from Home's first element. It
+passes if focus reaches the Frontpage heading, the Toplists heading and the tab bar with no `FOCUS` reset that no
+key press caused, and previous from the Frontpage heading lands on the last card with no reset. Consecutive swipes
+must still settle one card each and wrap to the first card after six swipes. Save both transcripts under `…/`.
+
 ### Visible-change batch (16-25)
+
+| id | visible change a fix needs | before image path | screens |
+|---|---|---|---|
+| W-22 | show the `Watched` navigation title in the signed-out state | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/sw-watched-signedout.png` | Home › Other › Watched, signed out (#5) |
+| W-31 | leave out the uploader line when the gallery has no uploader, which removes the empty capsule Button Shapes draws and its line | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/display/F8/button-shapes.png` | Gallery Detail header (#14) |
 
 ### Approved designs and decisions (16-25)
 
