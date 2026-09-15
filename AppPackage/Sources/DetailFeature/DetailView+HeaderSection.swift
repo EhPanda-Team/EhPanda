@@ -13,11 +13,6 @@ import SwiftUI
 struct HeaderSection: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    /// The whole environment, for the Read button's glyph: the accent it sits on resolves to a
-    /// different colour under each of light / dark / Increase Contrast, and `Color.resolve(in:)`
-    /// needs the full `EnvironmentValues` to pick the same one the button is about to draw (the
-    /// `CategoryLabel` rule, applied to one glyph).
-    @Environment(\.self) private var environment
     @SharedReader(.didLogin) private var didLogin: Bool
     @SharedReader(.user) var user: User
     @SharedReader(.setting) private var setting: Setting
@@ -228,18 +223,12 @@ struct HeaderSection: View {
         .tint(.accentColor)
         .disabled(!didLogin)
     }
-    /// The glyph is black or white, whichever contrasts more with the accent the prominent glass
-    /// draws underneath it (Phase 16 D-28, `read-glyph`). A fixed white glyph measured 3.30:1 in
-    /// light but 1.81:1 in dark and 1.12:1 with Increase Contrast, where the accent resolves to a
-    /// pale green; the better-of rule keeps the glyph at or above 4.58:1 on every variant by
-    /// construction, and never re-implements the choice: `Color.contrastingForeground(in:)` is the
-    /// one source, with the crossover pinned by its unit tests.
     private var readButton: some View {
         Button(action: navigateReadingAction) {
             Label(.read, systemSymbol: .bookFill)
                 .labelStyle(.iconOnly)
                 .font(actionIconFont)
-                .foregroundStyle(Color.accentColor.contrastingForeground(in: environment))
+                .foregroundStyle(.white)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
         .buttonStyle(.glassProminent)
@@ -395,18 +384,11 @@ struct HeaderSection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // The name alone is a 19-point-tall hit region (the accessibility audit's "hit area is
-            // too small", 16-24); the frame inside the button raises it to the WCAG 2.5.8 minimum
-            // of 24, top-aligned so the text does not move, and the flexible frame below absorbs
-            // the difference, so the column keeps its layout.
-            Button(action: navigateUploaderAction) {
-                Text(gallery.uploader ?? "")
-                    .lineLimit(uploaderLineLimit)
-                    .frame(minHeight: 24, alignment: .topLeading)
-            }
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .frame(maxHeight: .infinity, alignment: .top)
+            Button(gallery.uploader ?? "", action: navigateUploaderAction)
+                .lineLimit(uploaderLineLimit)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .frame(maxHeight: .infinity, alignment: .top)
 
             bottomActionRow
         }

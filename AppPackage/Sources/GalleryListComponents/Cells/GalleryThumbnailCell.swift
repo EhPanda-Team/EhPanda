@@ -92,7 +92,7 @@ public struct GalleryThumbnailCell: View {
             RatingView(rating: gallery.rating)
             compactRating
         }
-        .foregroundStyle(Color.ratingStar)
+        .foregroundStyle(.yellow)
         .font(.caption)
     }
 

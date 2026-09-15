@@ -190,31 +190,18 @@ private struct DownloadRow: View {
         .contextMenu {
             downloadContextMenu()
         }
-        // The swipe labels are system-drawn white, so the tint is the only contrast lever, and
-        // the standard tints measured below 4.5:1 against that white (Phase 16 D-28). Each failing
-        // tint is the same hue mixed toward black — `Color.mix` in its default perceptual space —
-        // by the smallest twentieth that clears 4.5:1 in light, dark and both Increase Contrast
-        // variants; the factor and the measured ratios are on each tint. Delete (`.red`) and Pause
-        // (`.indigo`) keep the platform's own tints and are recorded as such in the audit.
         .swipeActions(edge: .leading, allowsFullSwipe: false) {
-            // Untinted, SwiftUI drew the system gray (1.68:1 in light, 2.21:1 with Increase
-            // Contrast); the darkened indigo reads 10.16 / 7.78 / 11.49 / 5.20 (`swipe-pages`).
             inspectButton
-                .tint(.indigo.mix(with: .black, by: 0.3))
 
             if canMove {
-                // `.teal` read 2.16 / 1.86 / 4.57 / 1.65; darkened, 6.18 / 5.47 / 10.63 / 4.98
-                // (`swipe-move`).
                 moveButton
-                    .tint(.teal.mix(with: .black, by: 0.35))
+                    .tint(.teal)
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if download.canTriggerUpdate {
-                // `.orange` read 2.31 / 2.23 / 4.55 / 2.02; darkened, 5.58 / 5.43 / 9.39 / 4.99
-                // (`swipe-update`).
                 updateButton
-                    .tint(.orange.mix(with: .black, by: 0.3))
+                    .tint(.orange)
             }
 
             if download.canTogglePause {
