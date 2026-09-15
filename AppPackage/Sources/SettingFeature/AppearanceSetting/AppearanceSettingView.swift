@@ -124,7 +124,7 @@ struct AppIconView: View {
 }
 
 // MARK: AppIconRow
-/// One selectable icon: a plain-styled `Button` so the row is a real control — it has the button
+/// One selectable icon: an unhighlighted `Button` so the row is a real control — it has the button
 /// role, the icon's name as its label and Voice Control name, and the current choice as the
 /// `.isSelected` trait. The trailing checkmark is the sighted rendering of that same trait, so it
 /// is kept out of the accessibility tree rather than announced a second time as "Selected".
@@ -163,7 +163,7 @@ private struct AppIconRow: View {
             }
             .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.unhighlighted)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

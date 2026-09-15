@@ -19,16 +19,9 @@ public struct NewDawnView: View {
     /// being drawn across it rather than merely being nudged off its brightest part.
     @ScaledMetric private var scrollTopMargin: CGFloat = 50
 
-    /// The light gradient's top stop is the system teal mixed toward black by 0.25 (`Color.mix`,
-    /// perceptual) rather than the teal itself (Phase 16 D-28, `newdawn`): the white bold greeting
-    /// over the raw teal measured 2.16:1, under the 3:1 large bold text needs, while the indigo
-    /// bottom stop reads 5.09:1 and the dark stops 13.94 / 5.99. Darkened, the top reads 4.48:1
-    /// (8.32:1 under Increase Contrast) — the same headroom as Apple's own Increase-Contrast teal —
-    /// and every point between the two stops lies between two passing colours, so the text passes
-    /// wherever the scroll puts it. A colour change only; no scrim, no layout.
     private var gradientColors: [Color] {
         if colorScheme == .light {
-            return [Color(.systemTeal).mix(with: .black, by: 0.25), Color(.systemIndigo)]
+            return [Color(.systemTeal), Color(.systemIndigo)]
         } else {
             return [Color(.systemGray5), Color(.systemGray2)]
         }

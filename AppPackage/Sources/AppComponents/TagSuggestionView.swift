@@ -91,7 +91,7 @@ private struct SuggestionCell: View {
     var body: some View {
         if deviceClient.deviceType() == .phone {
             // A real `Button`, so the row is a named, activatable control for VoiceOver and Voice
-            // Control; `.plain` keeps the designed row look. Its two texts name it, so the glyphs are
+            // Control; `.unhighlighted` keeps the designed row look. Its two texts name it, so the glyphs are
             // decoration: the search symbol restates the row's purpose and the photo symbol only
             // reserves the tag image's space.
             Button(action: action) {
@@ -127,7 +127,7 @@ private struct SuggestionCell: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(.rect)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.unhighlighted)
         } else {
             Text(searchCompletionLabel)
                 .searchCompletion(suggestion.tag.searchKeyword)

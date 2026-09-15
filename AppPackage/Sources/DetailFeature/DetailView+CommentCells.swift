@@ -92,14 +92,7 @@ extension DetailView {
 
                 comment.score.map(Text.init)
 
-                // The date is the one metadata run that has to be read, and `.secondary` on the
-                // card's gray-5 measured 3.13:1 in light (Phase 16 D-28, `comment-date`): the
-                // date alone is promoted to `.primary` (≥ 12:1 on every variant), a colour-only
-                // change, rather than the card losing its background, which would move layout.
-                // The vote glyph and the score keep `.secondary` as the platform's own metadata
-                // convention (the audit's `secondary-meta` caveat).
                 Text(comment.formattedDateString)
-                    .foregroundStyle(.primary)
             }
             .foregroundStyle(.secondary)
             .font(.footnote)

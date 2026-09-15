@@ -57,31 +57,12 @@ private struct LinkColoredText: View {
                 result.append(AttributedString(text))
             case .link(let text, _):
                 var link = AttributedString(text)
-                link.foregroundColor = .commentLink
-                // The underline is the non-colour carrier (Phase 16 criterion 11): without it a
-                // link run differed from the body text by hue alone. A decoration inside the line
-                // box, so no line height moves.
-                link.underlineStyle = .single
+                link.foregroundColor = .accentColor
                 result.append(link)
             }
         }
         return Text(result)
     }
-}
-
-extension Color {
-    /// The colour of a link run inside a comment (Phase 16 D-28, `comment-link`), shared by the
-    /// detected runs here and the parsed `.linkedText` / `.singleLink` runs in `CommentsView`.
-    ///
-    /// The runs used to draw in the accent, which measured 3.26:1 on the light comment cell —
-    /// short of the 4.5:1 body text needs — while passing in dark (9.54:1) and under Increase
-    /// Contrast (≥ 11:1). A per-scheme value belongs in a colorset rather than a `colorScheme`
-    /// read at the call site, so the light entry is the darkened accent `#54832A` (4.51:1 on white,
-    /// 4.66:1 against the black body text) and the other three entries are the accent's own
-    /// rendered values (dark `#96D35F`; Increase Contrast `#2A4015` / `#E1FFC6`), copied so that
-    /// the variants that already passed change by nothing. They do not follow the accent asset
-    /// automatically: an accent change has to be mirrored here.
-    static let commentLink = Color("CommentLink", bundle: .module)
 }
 
 struct LinkedText: View {

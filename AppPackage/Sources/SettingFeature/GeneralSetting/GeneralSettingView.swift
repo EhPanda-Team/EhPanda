@@ -71,13 +71,8 @@ struct GeneralSettingView: View {
                     Text(.enableTagsExtension)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // The warning yellow, mixed toward black by 0.3 (`Color.mix`, perceptual):
-                    // `.yellow` on the white row measured 1.51:1 in light, under the 3:1 a
-                    // non-text glyph needs (dark 9.87, Increase Contrast 4.59 / 9.10). Darkened it
-                    // reads 3.86 / 3.82 / 9.42 / 3.51 — the smallest twentieth with at least half
-                    // a unit of margin in every variant (Phase 16 D-28).
                     Image(systemSymbol: .exclamationmarkTriangleFill)
-                        .foregroundStyle(.yellow.mix(with: .black, by: 0.3))
+                        .foregroundStyle(.yellow)
                         .animation(.default) {
                             $0.visible(
                                 setting.translateTags && tagTranslatorEmpty
