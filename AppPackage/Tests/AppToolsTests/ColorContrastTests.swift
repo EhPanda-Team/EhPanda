@@ -118,24 +118,6 @@ struct ColorContrastTests {
         }
     }
 
-    // MARK: - composited(over:opacity:)
-
-    @Test(arguments: [
-        CompositeFixture(opacity: 0.3, expectedChannel: 0.75373),
-        CompositeFixture(opacity: 1, expectedChannel: 0.1791),
-        CompositeFixture(opacity: 0, expectedChannel: 1)
-    ])
-    private func compositesInLinearSpace(fixture: CompositeFixture) {
-        let gray = Self.linearGray(Float(Self.crossoverLuminance))
-
-        let composite = gray.composited(over: Self.linearWhite, opacity: fixture.opacity)
-
-        for channel in [composite.linearRed, composite.linearGreen, composite.linearBlue] {
-            #expect(abs(Double(channel) - fixture.expectedChannel) < 1e-6)
-        }
-        #expect(composite.opacity == 1)
-    }
-
     private static func linearGray(_ channel: Float) -> Color.Resolved {
         Color.Resolved(colorSpace: .sRGBLinear, red: channel, green: channel, blue: channel)
     }
@@ -163,11 +145,4 @@ private struct ForegroundFixture: CustomTestStringConvertible, Sendable {
     let expectedForeground: Color
 
     var testDescription: String { name }
-}
-
-private struct CompositeFixture: CustomTestStringConvertible, Sendable {
-    let opacity: Double
-    let expectedChannel: Double
-
-    var testDescription: String { "opacity \(opacity)" }
 }

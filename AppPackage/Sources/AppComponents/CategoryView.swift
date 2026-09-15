@@ -156,19 +156,19 @@ public struct CategoryView: View {
 /// name and neither is readable by assistive technology, so the state is exposed as the
 /// `.isSelected` trait instead of being spelled into a label: a trait is re-announced on its own
 /// when it changes, where a state baked into the label would re-read the whole label.
+///
+/// The name is white on every tile, included or excluded, in every appearance (owner decision,
+/// 2026-09-15). The tile therefore deliberately does not share `CategoryLabel`'s better-of text
+/// rule (D-26): the owner chose the designed white name over adaptive text, knowing that white on a
+/// light-scheme excluded wash reads at far lower contrast than black would.
 private struct CategoryCell: View {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    /// The whole environment: the category colour is an asset-catalog colour whose light / dark /
-    /// Increase Contrast variant is picked by `colorScheme` and `colorSchemeContrast` together, and
-    /// so is the grouped background it is washed over. See `CategoryLabel.environment`.
-    @Environment(\.self) private var environment
     @SharedReader(.setting) private var setting: Setting
     @Binding private var isFiltered: Bool
     private let category: AppModels.Category
 
-    /// The designed opacity of an excluded tile. One constant for both the drawn background and the
-    /// composite the text colour is chosen against, so the two can never drift apart.
+    /// The designed opacity of an excluded tile.
     private static let excludedOpacity = 0.3
 
     /// The designed 5pt breathing room above and below the name, scaled with the name itself: at
@@ -210,31 +210,6 @@ private struct CategoryCell: View {
         category.color(host: setting.galleryHost)
     }
 
-    /// Black or white, whichever contrasts more with what is actually on screen behind the name
-    /// (D-26's better-of rule, `Color.contrastingForeground`).
-    ///
-    /// For an included tile that is the category colour itself. For an excluded tile it is *not*:
-    /// the colour is drawn at `excludedOpacity` over the Filters `Form`'s section card, so the eye
-    /// sees a pale wash that is far lighter (light schemes) or far darker (dark schemes) than the
-    /// raw category colour — choosing against the raw colour is what left the excluded label white
-    /// on a near-white wash at 1.48:1 in the round-2 audit. The card is
-    /// `secondarySystemGroupedBackground`: the audit's Filters captures rendered it as `#FFFFFF` /
-    /// `#2C2C2E` / `#FFFFFF` / `#363638` (light / dark / light+IC / dark+IC), which are exactly that
-    /// colour's values at the elevated (sheet) interface level, while the sheet behind the card is
-    /// the `systemGroupedBackground` gray. The blend is `Color.Resolved.composited(over:opacity:)` —
-    /// the one helper, in linear light. The choice is deliberately insensitive to the details: every
-    /// light-family excluded wash has L ≥ 0.53 and every dark-family one L ≤ 0.16 under either
-    /// blend and either interface level, far from the 0.1791 crossover, so all 80 filter variants
-    /// choose the same text (black on light schemes, white on dark ones) however the card resolves.
-    private var nameColor: Color {
-        guard isFiltered else { return tileColor.contrastingForeground(in: environment) }
-        let composite = tileColor.resolve(in: environment).composited(
-            over: Color(.secondarySystemGroupedBackground).resolve(in: environment),
-            opacity: Self.excludedOpacity
-        )
-        return Color.contrastingForeground(on: composite)
-    }
-
     var body: some View {
         Button {
             isFiltered.toggle()
@@ -242,12 +217,7 @@ private struct CategoryCell: View {
         } label: {
             Text(category.value)
                 .bold()
-                // The same `.default` animation as the background below, so the text flips in step
-                // with the wash it sits on rather than snapping ahead of it. A colour-only crossfade
-                // is not a vestibular trigger and stays ungated by Reduce Motion (D-29).
-                .animation(.default) {
-                    $0.foregroundStyle(nameColor)
-                }
+                .foregroundStyle(.white)
                 .padding(.vertical, verticalInset)
                 .padding(.horizontal, horizontalInset)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
