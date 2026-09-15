@@ -457,6 +457,13 @@ that builds against it.
     **1.25** (ExHentai Cosplay; 20/20 below 3.0, 6 below 1.5) and the light minimum 1.59. The Nutrition Label recommendation
     (plan 16-26) must carry that caveat verbatim: in dark mode the excluded state is a luminance-only distinction that is weak
     for about a third of the categories.
+  - **Text colour superseded (owner, 2026-09-15):** "categorycell 固定用白色字" ("CategoryCell always uses white text"). The
+    Filters `CategoryCell` name is fixed white on included and excluded tiles in every appearance, replacing the adaptive
+    text above; opacity 0.3, the `Button` semantics and `.isSelected` are unchanged. The excluded light-family tiles return to
+    white on the pale wash (1.48:1 light, 1.30:1 light+IC as measured above), accepted by the owner under the 2026-09-14
+    best-effort scope. `CategoryLabel` badges keep D-26's adaptive text. `Color.Resolved.composited(over:opacity:)` existed
+    only for the adaptive cell text and was removed with its test. The rows and rendered evidence below that describe the
+    adaptive cell text are the pre-2026-09-15 record.
 - **HC = A** — adopt the re-authored values for the 19 `lower` Increase Contrast variants; the 44 standard variants stay frozen.
   - Plan **16-15** edits exactly the 19 `contrast: high` entries listed in § Re-authoring proposal to the proposed sRGB values
     (one of them, E-Hentai Cosplay light+HC, does not keep its hue exactly because a channel clipped at 1.0); the other 21 HC
