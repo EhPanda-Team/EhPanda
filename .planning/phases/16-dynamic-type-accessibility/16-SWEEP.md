@@ -3026,3 +3026,78 @@ serious in 571 files`; scheme build and FeatureTests build-for-testing both gree
 **Round 2 may begin.** Per D-23, plans 16-13 onward (assistive technology: VoiceOver, Voice Control,
 Reduced Motion, Sufficient Contrast, Differentiate Without Color) are unblocked and land against the
 layout signed here. Per D-32 this signature is text only; no image enters the repository.
+
+## Round-2 walkthrough (16-25)
+
+Plan 16-25 (D-31, walkthrough half). The agent walks the eight main flows on iPhone simulators with the
+real VoiceOver daemon, the Voice Control label proxy (D-30) and the display settings. Transcripts,
+screenshots and logs stay under the evidence root and are never committed (D-32); rows below describe
+them in writing.
+
+| Key | Value |
+|---|---|
+| Date | 2026-09-15 |
+| HEAD built and installed | `24bf5c10244e8a787824c5b2be7024ff16a36a7a` (`docs(16): rescope plans 16-25 and 16-26`) |
+| Toolchain | Xcode 26.6 (17F113), selected with `DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer` on macOS 27.0 (orchestrator ruling R2, 2026-09-15: the default `xcode-select` now points at Xcode 27.0; every earlier Phase-16 gate used 26.6) |
+| `WALK_UDID` | `CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `EhPanda A11y Walkthrough iPhone 17 (26.5)`, device type `com.apple.CoreSimulator.SimDeviceType.iPhone-17`, runtime `com.apple.CoreSimulator.SimRuntime.iOS-26-5` (iOS 26.5, 23F77); created by 16-25 Task 1 and kept for 16-26. System `AppleLanguages` = `("en-JP", "ja-JP", "zh-Hant-JP")` (English first); the app is launched with `-AppleLanguages (en) -AppleLocale en_US`, the D-30 Voice Control language. Hermetic only: no session, never a test destination |
+| `LOGIN_UDID` | `C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D`, `EhPanda Login iPhone Air (26.5)`, runtime iOS 26.5. Found **Shutdown** at 2026-09-15 12:13; booted by 16-25 (orchestrator ruling R3) to receive the install-over, and restored to Shutdown in Task 7. Install-over: built by its UDID, `plutil -extract CFBundleIdentifier raw …/EhPanda.app/Info.plist` printed `app.ehpanda.personal`, then `xcrun simctl install` over the existing app (never uninstalled). D-09 simulator: the owner's hand-entered session |
+| `WALK_UDID` install | built by its UDID into `$HOME/Library/Caches/ehpanda-phase16/DerivedData`, `plutil` printed `app.ehpanda.personal`, `xcrun simctl install` |
+| Bundle id | `app.ehpanda.personal` |
+| Baseline, `WALK_UDID` (read before any change) | `appearance=light`, `increase_contrast=disabled`, `content_size=large`; `com.apple.Accessibility`: `VoiceOverTouchEnabled` missing (0), `CommandAndControlEnabled` missing (0), `ReduceMotionEnabled=0`, `EnhancedBackgroundContrastEnabled` missing (0), `EnhancedTextLegibilityEnabled` missing (0), `ButtonShapesEnabled` missing (0), `GrayscaleDisplay=0` |
+| Baseline, `LOGIN_UDID` (read after the R3 boot, before any change) | `appearance=dark`, `increase_contrast=disabled`, `content_size=large`; `VoiceOverTouchEnabled` missing (0), `CommandAndControlEnabled` missing (0), `ReduceMotionEnabled=0`, `EnhancedBackgroundContrastEnabled` missing (0), `EnhancedTextLegibilityEnabled` missing (0), `ButtonShapesEnabled` missing (0), `GrayscaleDisplay=0`; `AppleLanguages` = `("en-JP", "ja-JP", "zh-Hant-JP")` |
+| Method | Real VoiceOver in the iOS 26.5 Simulator; `vot` log as oracle; pass-through taps; iPhone only; not a physical device. Focus moves by VoiceOver keyboard chords (`sim-use ios key-combo`, Ctrl+Option+arrows); verdicts come from the `vot` debug log's `Will set element` (FOCUS), screen-change (`First element in app focus`, or the `Screen Changed` note when VoiceOver logs no first-element line) and `Post-processed string` (SPOKE) lines, never from an accessibility tree (research `16-AGENT-WALKTHROUGH-RESEARCH.md`, `90e5e6b4`) |
+| Owner decisions (2026-09-15, verbatim) | "2" (walk only the main flows, no exhaustive per-cell table); "而且全都先你自己做 / 我只會去處理必須需要我聽的部分 / 包括 voiceover 的焦點測試也是你可以處理的" (the agent does everything first, including VoiceOver focus testing; the owner handles only what requires listening); "只做 iPhone 就好" (iPhone only). Accessibility here is best effort, not a guarantee |
+| Evidence root | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/` (`scripts/`, `transcripts/`, `display/`, `hide-sweep/`, `vo2/`, `vo1/`, `listen/`, `audit/`) |
+
+**Tracer (Task 1, method re-validated on the HEAD build).** On `WALK_UDID`, hermetic launch with
+`EHPANDA_AUTOMATION_TAB=setting`. Enabling VoiceOver raised the system "VoiceOver Gestures" sheet once
+(as the research recorded); it was dismissed with a pass-through tap on its OK button, after which
+`First element in app focus` landed on the `Setting` heading. The keyboard walk reached `General`; with
+VoiceOver focus on `General`, a pass-through tap pushed General: VoiceOver logged a `Screen Changed`
+note and set focus on `Language`, the first form element (no `First element in app focus` line, the same
+shape as the research's push trials). Ten further steps walked the form in visual order (19 FOCUS lines
+in the transcript in total). The back-button tap popped to Setting, and focus landed on the `Account`
+row, not the `General` trigger (pop observation). Transcript:
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/t1-setting-general.txt`
+(raw log `transcripts/vot-t1.log`). VoiceOver was turned off afterwards and every `WALK_UDID` setting
+read back at its baseline (`VoiceOverTouchEnabled=0`).
+
+### Flows
+
+| flow | route | simulator | session need |
+|---|---|---|---|
+| F1 Browse | Home root (hero carousel, Frontpage, Toplists) → Show All → Frontpage list | `WALK_UDID` (hermetic) | none |
+| F2 Search | Search tab → keyword typed → results → More › Filters sheet → Cancel; unsupported-link toast while on Search | `WALK_UDID` (hermetic) | none |
+| F3 Gallery detail | Frontpage cell → Detail → tag chip (rotor) → push Comments (comment-cell rotor); logged-in tag chip rotor (vote items, never activated) | `WALK_UDID` (hermetic) and `LOGIN_UDID` (tag chip) | none hermetically; session for the vote items |
+| F4 Read | Detail › Read → tap page → control panel → page slider (1.9) → Close | `WALK_UDID` (hermetic) | none |
+| F5 Favorites | Favorites tab → list → gallery Detail → favorite control (walked to the commit point) | `LOGIN_UDID` | session |
+| F6 Download | Downloads tab row (hermetic automation download, else an existing row on `LOGIN_UDID`) → rotor Actions and swipe actions → Pages inspector open and dismiss; no Move, Delete or confirmation | `WALK_UDID`, else `LOGIN_UDID` | a download row; never start or delete one on `LOGIN_UDID` |
+| F7 Change a setting | Setting → General → toggle `Detect Links from the Clipboard` once and back → pop | `WALK_UDID` (hermetic) | none |
+| F8 Comment and rate | Comments › Post Comment sheet → Cancel without typing; Detail › Give a Rating (walked, no drag) | `LOGIN_UDID` | session |
+
+### Flow results
+
+| flow | 1.1–1.6 walk | 1.7 / 1.8 focus | 1.9 / 1.10 / 1.11 | rotor (OQ2) | Voice Control proxy (2.x) | display pass | evidence |
+|---|---|---|---|---|---|---|---|
+| F1 | pending | pending | pending | pending | pending | pending | pending |
+| F2 | pending | pending | pending | pending | pending | pending | pending |
+| F3 | pending | pending | pending | pending | pending | pending | pending |
+| F4 | pending | pending | pending | pending | pending | pending | pending |
+| F5 | pending | pending | pending | pending | pending | pending | pending |
+| F6 | pending | pending | pending | pending | pending | pending | pending |
+| F7 | pending | 1.7 pass: pre-focus `General` row → push → `Screen Changed` note, focus `Language` (first form element); pop observation: pre-focus `Caches` heading → back → focus `Account` row, not the `General` trigger (not a checklist item); 1.8 pending (toggle has no sheet; checked in Task 2) | pending | pending | pending | pending | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/t1-setting-general.txt` |
+| F8 | pending | pending | pending | pending | pending | pending | pending |
+
+### Findings
+
+### Hide-idiom sweep
+
+### Listening (owner)
+
+### Design proposals (16-25)
+
+### Visible-change batch (16-25)
+
+### Approved designs and decisions (16-25)
+
+### Walkthrough closure
