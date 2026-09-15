@@ -1196,7 +1196,7 @@ disturb round 1's verified layout (D-24).
 
 | Screen | What round 2 changed | Cells re-walked | Status |
 |---|---|---|---|
-| 14 Gallery Detail | 16-24: the action row ("Give a Rating" / "Similar Gallery") labels gain `minHeight: 24` for the audit's hit region; at `.large` the row is 3.7 pt taller and everything below it moves down 11 px, header and stats strip unchanged (`16-CONTRAST-AUDIT.md § Automated audit (16-24) › D-25`) | XXL / AX3 / AX5, iPhone portrait (16-26) | open |
+| 14 Gallery Detail | 16-24: the action row ("Give a Rating" / "Similar Gallery") labels gain `minHeight: 24` for the audit's hit region; at `.large` the row is 3.7 pt taller and everything below it moves down 11 px, header and stats strip unchanged (`16-CONTRAST-AUDIT.md § Automated audit (16-24) › D-25`) | XXL / AX3 / AX5, iPhone portrait (16-26) | withdrawn: cc05aca6 reverted the 16-24 minHeight (owner, 2026-09-15; 16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)); the action row is back to its pre-16-24 height |
 
 ## Round-1 report
 
@@ -3037,7 +3037,7 @@ them in writing.
 | Key | Value |
 |---|---|
 | Date | 2026-09-15 |
-| HEAD built and installed | `24bf5c10244e8a787824c5b2be7024ff16a36a7a` (`docs(16): rescope plans 16-25 and 16-26`) |
+| HEAD built and installed | Task 1 (tracer): `24bf5c10244e8a787824c5b2be7024ff16a36a7a` (`docs(16): rescope plans 16-25 and 16-26`). Task 2 onward: `cc05aca6e9b2e817721f310d21468f12dee5e2d4` (`fix(16): revert remaining visual a11y changes`), built by each simulator's UDID and installed over on both (orchestrator ruling R12, 2026-09-15) |
 | Toolchain | Xcode 26.6 (17F113), selected with `DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer` on macOS 27.0 (orchestrator ruling R2, 2026-09-15: the default `xcode-select` now points at Xcode 27.0; every earlier Phase-16 gate used 26.6) |
 | `WALK_UDID` | `CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `EhPanda A11y Walkthrough iPhone 17 (26.5)`, device type `com.apple.CoreSimulator.SimDeviceType.iPhone-17`, runtime `com.apple.CoreSimulator.SimRuntime.iOS-26-5` (iOS 26.5, 23F77); created by 16-25 Task 1 and kept for 16-26. System `AppleLanguages` = `("en-JP", "ja-JP", "zh-Hant-JP")` (English first); the app is launched with `-AppleLanguages (en) -AppleLocale en_US`, the D-30 Voice Control language. Hermetic only: no session, never a test destination |
 | `LOGIN_UDID` | `C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D`, `EhPanda Login iPhone Air (26.5)`, runtime iOS 26.5. Found **Shutdown** at 2026-09-15 12:13; booted by 16-25 (orchestrator ruling R3) to receive the install-over, and restored to Shutdown in Task 7. Install-over: built by its UDID, `plutil -extract CFBundleIdentifier raw …/EhPanda.app/Info.plist` printed `app.ehpanda.personal`, then `xcrun simctl install` over the existing app (never uninstalled). D-09 simulator: the owner's hand-entered session |
@@ -3047,7 +3047,7 @@ them in writing.
 | Baseline, `LOGIN_UDID` (read after the R3 boot, before any change) | `appearance=dark`, `increase_contrast=disabled`, `content_size=large`; `VoiceOverTouchEnabled` missing (0), `CommandAndControlEnabled` missing (0), `ReduceMotionEnabled=0`, `EnhancedBackgroundContrastEnabled` missing (0), `EnhancedTextLegibilityEnabled` missing (0), `ButtonShapesEnabled` missing (0), `GrayscaleDisplay=0`; `AppleLanguages` = `("en-JP", "ja-JP", "zh-Hant-JP")` |
 | Method | Real VoiceOver in the iOS 26.5 Simulator; `vot` log as oracle; pass-through taps; iPhone only; not a physical device. Focus moves by VoiceOver keyboard chords (`sim-use ios key-combo`, Ctrl+Option+arrows); verdicts come from the `vot` debug log's `Will set element` (FOCUS), screen-change (`First element in app focus`, or the `Screen Changed` note when VoiceOver logs no first-element line) and `Post-processed string` (SPOKE) lines, never from an accessibility tree (research `16-AGENT-WALKTHROUGH-RESEARCH.md`, `90e5e6b4`) |
 | Owner decisions (2026-09-15, verbatim) | "2" (walk only the main flows, no exhaustive per-cell table); "而且全都先你自己做 / 我只會去處理必須需要我聽的部分 / 包括 voiceover 的焦點測試也是你可以處理的" (the agent does everything first, including VoiceOver focus testing; the owner handles only what requires listening); "只做 iPhone 就好" (iPhone only). Accessibility here is best effort, not a guarantee |
-| Evidence root | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/` (`scripts/`, `transcripts/`, `display/`, `hide-sweep/`, `vo2/`, `vo1/`, `listen/`, `audit/`) |
+| Evidence root | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/` (`scripts/`, `transcripts/`, `display/`, `listen/`, `audit/`; the superseded `24bf5c10` Task 2 files in `superseded-24bf5c10/`) |
 
 **Tracer (Task 1, method re-validated on the HEAD build).** On `WALK_UDID`, hermetic launch with
 `EHPANDA_AUTOMATION_TAB=setting`. Enabling VoiceOver raised the system "VoiceOver Gestures" sheet once
@@ -3079,20 +3079,265 @@ read back at its baseline (`VoiceOverTouchEnabled=0`).
 
 | flow | 1.1–1.6 walk | 1.7 / 1.8 focus | 1.9 / 1.10 / 1.11 | rotor (OQ2) | Voice Control proxy (2.x) | display pass | evidence |
 |---|---|---|---|---|---|---|---|
-| F1 | pending | pending | pending | pending | pending | pending | pending |
-| F2 | pending | pending | pending | pending | pending | pending | pending |
-| F3 | pending | pending | pending | pending | pending | pending | pending |
-| F4 | pending | pending | pending | pending | pending | pending | pending |
-| F5 | pending | pending | pending | pending | pending | pending | pending |
-| F6 | pending | pending | pending | pending | pending | pending | pending |
-| F7 | pending | 1.7 pass: pre-focus `General` row → push → `Screen Changed` note, focus `Language` (first form element); pop observation: pre-focus `Caches` heading → back → focus `Account` row, not the `General` trigger (not a checklist item); 1.8 pending (toggle has no sheet; checked in Task 2) | pending | pending | pending | pending | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/t1-setting-general.txt` |
-| F8 | pending | pending | pending | pending | pending | pending | pending |
+| F1 | VO-1; W-5; W-6; the Toplists placeholder rows are the `deferred-items.md § Found during 16-24` item 1 (cited, not re-reported); the Frontpage list reads one element per cell in visual order | 1.7 pass: pre-focus Frontpage `Show All` (reached below VO-1 through the Containers rotor, R6) → push → `Screen Changed`, focus `Loading…`; W-29: once the list loads, focus moves to the second cell, not the first; pop observation: focus on the inline `Home` title; 1.8 not exercised: no sheet or alert in F1 | 1.9 not exercised: no adjustable control; 1.10 pass (`Loading, ellipsis` on push); 1.11 pass (pass-through taps) | not exercised: no tag chip, comment cell or download row in F1 | pass (every tappable is a Button or RadioButton named by its visible text; two identical `Show All` names on Home, observation); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (Dark + Increase Contrast, Bold Text, Button Shapes, Reduce Transparency, software grayscale, AX5); Reduce Motion pass: the hero card gradient moves with it off (largest frame change 0.004) and is still with it on (0.000) | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-headings-rotor.txt`, `…/transcripts/vo1-home-containers-rotor.txt`, `…/transcripts/vo1-home-below-trap.txt`, `…/transcripts/f1-home-to-frontpage.txt`, `…/transcripts/f1-frontpage-walk.txt`, `…/transcripts/f1-frontpage-pop.txt`, `…/transcripts/f1-home-vc.txt`, `…/transcripts/f1-frontpage-vc.txt`, `…/display/F1/contact.png`, `…/display/F1-pass.txt` |
+| F2 | W-5; W-10; the root and results screens otherwise read in visual order | 1.7 pass: pre-focus the search field → keyword typed with `sim-use` and Return → results push, `Screen Changed`, focus the `Search` back button; 1.8 VO-3 (Filters): pre-focus `Filters` in More → sheet, focus `Cancel`; `Cancel` → focus the error toast (from the results) or the `Search` heading (from the root), not `More`; pop observation: results → root lands on the error toast (W-10) | 1.9 not exercised: no adjustable control; 1.10 pass (two trials: the app's announcement is cut after about 20 ms by the toast's own focus move, and the focus utterance then speaks the full toast text uninterrupted; the superseded run's interruption did not reproduce); 1.11 pass (pass-through taps) | not exercised: no tag chip, comment cell or download row in F2 | pass (More, the search field, `Recently Searched`, the keyword, its icon-only `Delete` with an English name, the toast Button, tabs; results: back, More, the field, cells); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass, with W-24 (the keyword `Delete` glyph nearly vanishes in software grayscale); Reduce Motion pass (`View+Toast.swift` gate): the toast slides up over about 7 frames with it off and appears in place over 2–3 frames with it on | `…/transcripts/f2-root-keywords.txt`, `…/transcripts/f2-search.txt`, `…/transcripts/f2-filters.txt`, `…/transcripts/vo3-filters.txt`, `…/transcripts/f2-toast.txt`, `…/transcripts/f2-toast-trap.txt`, `…/transcripts/f2-root-vc.txt`, `…/transcripts/f2-results-vc.txt`, `…/display/F2/contact.png`, `…/display/F2-pass.txt` |
+| F3 | VO-4; W-5; W-7; W-8; W-23; the Comments screen reads one element per cell in visual order | 1.7 pass (twice): pre-focus a Frontpage cell → Detail push, `Screen Changed`, focus the `Frontpage` back button; pre-focus the Comments `Show All` → Comments push, focus the first comment cell; 1.8 not exercised hermetically: no sheet in this part (F8 covers Post Comment) | 1.9 not exercised: the user rating is a drag with no adjustable action (`deferred-items.md § Found during 16-19`, cited; F8 walks it); 1.10 not exercised: the fixture Detail loads before a loading state is caught; 1.11 pass (pass-through taps); `LOGIN_UDID` tag chip: walked to the commit point; not committed (account safety): the vote items were spoken in the Actions rotor and never activated, and `custom_actions` read the same after the pass | W-11. Hermetic tag chip (signed out, no translation): no Actions rotor, `custom_actions` empty, matching its empty menu. Comment cell: three link actions, `custom_actions` identical, no context menu. `LOGIN_UDID` tag chip (signed in): `Vote Down`, `Vote Up`, `custom_actions` identical; nothing missing, nothing listed twice | pass (title and uploader Buttons, Download and Add to favorites PopUpButtons, Read, Gallery Infos, Give a Rating, Similar Gallery, tag chip, both section titles, both `Show All`, preview pages, Post Comment, tabs; Comments: Back, Post Comment); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass; the `Read` glyph is white on the accent again (pale under Dark + Increase Contrast): reverted item 5 of `16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)`, cited, not re-reported; Reduce Motion not exercised: `showsUserRating` needs the signed-in rating reveal (filmed in F8) and `showsFullTitle` changes nothing visible with the one-line fixture title | `…/transcripts/f3-frontpage-to-detail.txt`, `…/transcripts/f3-detail-walk.txt`, `…/transcripts/r7-detail-preview-strip.txt`, `…/transcripts/w-detail-screenchange-2.txt`, `…/transcripts/w-detail-screenchange-3.txt`, `…/transcripts/f3-detail-headings.txt`, `…/transcripts/f3-detail-tags.txt`, `…/transcripts/f3-tag-point.json`, `…/transcripts/f3-detail-comments.txt`, `…/transcripts/f3-comments-walk.txt`, `…/transcripts/f3-comment-rotor.txt`, `…/transcripts/f3-comment-point.json`, `…/transcripts/f3-login-tag-rotor.txt`, `…/transcripts/f3-login-tag-point.json`, `…/transcripts/f3-detail-vc.txt`, `…/transcripts/f3-comments-vc.txt`, `…/display/F3/contact.png`, `…/display/F3-pass.txt` |
+| F4 | VO-2; W-30 (a page element's number is never spoken); the two `Close` buttons and the slider end labels are the `deferred-items.md § Found during 16-18` items (cited); pages and their `Reload` buttons read in order | 1.7 pass: pre-focus `Read` → reader cover, `Screen Changed`, focus the current page (the reader opened at page 3, saved progress); 1.8 W-13: pre-focus the top `Close` → dismiss → focus the Detail back button, not `Read` | 1.9 pass: `Page, 3 of 48, adjustable`; Ctrl+Option+Up → `7 of 48`; Ctrl+Option+Down → `2 of 48`; 1.10 not exercised: hermetic pages fail at once, so no loading change is reached; 1.11 pass (pass-through taps) | W-11; W-12: the page's Actions are `Previous page`, `Next page`; its context menu's `Reload` (no mirror) is missing from the rotor | pass (Close, Live Text, Auto-Play, More, Reload, the lower Close, the `Page` slider; the two `Close` names are the deferred 16-18 item); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (the panel stays capped at xxLarge by design); the page number and reload glyph are gray on the placeholder again: reverted item 8, cited; Reduce Motion pass (`ControlPanel.swift` `hiddenPanelOffset`): the panel rises over about 8 frames with it off and fades in place over about 4 frames with it on | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-read.txt`, `…/transcripts/f4-read-prefocus.png`, `…/transcripts/f4-panel.txt`, `…/transcripts/f4-page-rotor.txt`, `…/transcripts/f4-panel-vc.txt`, `…/display/F4/contact.png`, `…/display/F4/motion-panel-show-rm-off/`, `…/display/F4/motion-panel-show-rm-on/`, `…/display/F4-pass.txt` |
+| F5 | W-14; W-15; W-21; the Favorites list cells read one element each in visual order | 1.7 pass: pre-focus a list cell → Detail push, `Loading, ellipsis`, focus the `Favorites` back button; 1.8 not exercised: the favorite control opens no sheet or alert (it removes the favorite at once) | 1.9 not exercised: no adjustable control; 1.10 pass (`Loading, ellipsis` on push, then focus to the back button); 1.11 pass (pass-through taps on a cell and Back); walked to the commit point; not committed (account safety): VoiceOver focus on `Favorited`, never activated | not exercised: no tag chip, comment cell or download row walked in F5 (the logged-in tag chip is covered in F3) | W-15 (an invisible `Retry` Button is in the tree); otherwise pass (folder filter, Sort Order, More, the search field, cells; Detail: back, More, title, Download, Favorited, Read, Similar Gallery, Give a Rating, tag chips, section titles, Show All, pages, tabs); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (on the dark baseline; stars keep filled and outline shapes in grayscale); Reduce Motion not exercised: Favorites and `GalleryList` have no gated site in `ReduceMotionGatingSourceTests` | `…/transcripts/f5-favorites.txt`, `…/transcripts/f5-favorites.png`, `…/transcripts/f5-favorites-leak-retry.png`, `…/transcripts/f5-detail.txt`, `…/transcripts/f5-favorites-vc.txt`, `…/transcripts/f5-detail-vc.txt`, `…/display/F5/contact.png`, `…/display/F5-pass.txt` |
+| F6 | W-16; W-17; W-18 | 1.7 not exercised: no push in F6; sheet open pass: pre-focus a row stop → leading swipe → `Pages` → inspector, `Screen Changed`, focus `Close`; 1.8 W-13: `Close` → focus the `Downloads` heading, not the row | 1.9 not exercised: no adjustable control; 1.10 not exercised: no loading or toast change on this surface; 1.11 pass (pass-through swipe and taps) | pass: Actions `Detail`, `Pages`, `Resume`, `Delete` on the row stops, `custom_actions` identical; the row's context menu for this state (Detail, Pages, Resume, Delete; Move and Update conditions false) has every item and none twice; swipe actions leading `Pages`, trailing `Delete` and `Resume` (revealed and closed; only `Pages` tapped) | W-16; Filters, the search field and tabs pass; 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (the paused badge keeps glyph and text in grayscale); the untinted `Pages` swipe disc is reverted item 5, cited; Reduce Motion not exercised: the gated sites need a row added or removed, or validation or progress running, which would need Delete or a running download | `…/transcripts/f6-downloads.txt`, `…/transcripts/f6-downloads.png`, `…/transcripts/f6-empty-state-sweep.txt`, `…/transcripts/f6-row-rotor.txt`, `…/transcripts/f6-row-point.json`, `…/transcripts/f6-row-point-date.json`, `…/transcripts/f6-swipe-leading.png`, `…/transcripts/f6-swipe-trailing.png`, `…/transcripts/f6-swipe-closed.png`, `…/transcripts/f6-pages.txt`, `…/transcripts/f6-downloads-vc.txt`, `…/display/F6/contact.png`, `…/display/F6-pass.txt` |
+| F7 | W-19; the General form otherwise reads in visual order | 1.7 pass: pre-focus `General` row → push → `Screen Changed`, focus `Language` (first form element; same as the Task 1 tracer); pop observation: pre-focus the `Setting` back button → pop → focus the `Setting` heading, not the `General` trigger; 1.8 not exercised: the toggle opens no sheet or alert | 1.9 not exercised: no adjustable control; 1.10 not exercised: no loading or toast change; 1.11 pass: with VoiceOver on and focus on `Detect Links from the Clipboard, Switch button, off`, a pass-through tap switched it on and re-focusing read `on`; set back off and read back `off` (value 0). No unexpected Activate event appeared in the log (R12 hazard) | not exercised: no tag chip, comment cell or download row in F7 | pass (the switches are CheckBoxes named by their text); 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (rows wrap at AX5); Reduce Motion not exercised: the General `rowAnimation` needs the Tags Extension turned on, which starts a translator download F7 does not ask for | `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/t1-setting-general.txt`, `…/transcripts/vo3-general-pop.txt`, `…/transcripts/f7-general-cc05.txt`, `…/transcripts/f7-toggle-activate.txt`, `…/transcripts/f7-toggle-on.png`, `…/transcripts/f7-toggle-restored.png`, `…/transcripts/f7-general-vc.txt`, `…/display/F7/contact.png`, `…/display/F7-pass.txt` |
+| F8 | W-20; W-31; the Comments top reads Back, heading, `Post Comment` | 1.7 not exercised: no push in F8 beyond F3's; sheet open pass: pre-focus `Post Comment` → sheet, `Screen Changed`, focus the editor; the sheet walks `Close`, `Post Comment` heading, `Done, dimmed`, editor; 1.8 W-13: `Close` (tapped by frame coordinates, away from `Done`) → focus the back button, not `Post Comment`; pop observation: Comments → Detail lands on the Detail back button | 1.9 not exercised: the revealed `Rating, 0.0 out of 5` control has no adjustable action (`deferred-items.md § Found during 16-19`, cited) and adjusting it would submit a rating, so no Ctrl+Option+Up/Down was pressed; 1.10 not exercised: no loading or toast change; 1.11 pass (pass-through taps on `Post Comment`, `Close`, `Give a Rating`); walked to the commit point; not committed (account safety): nothing typed, `Done` and the stars never touched, the rating reveal closed by tapping `Give a Rating` again | not exercised: the comment-cell rotor is covered hermetically in F3; the logged-in cell was not rotored, to stay clear of vote actions (account safety) | pass (Comments: Back, Post Comment, tabs; Detail with the rating revealed: every control a Button or PopUpButton named by its text); the stars are one non-actionable element, the deferred 16-19 item; 2.2 / 2.5 / 2.6 not exercised: simulator speech-recognition asset fails (research § 4) | pass (Detail with the rating revealed, dark baseline), with W-31 (Button Shapes draws an empty capsule where the uploader would be); the yellow stars are reverted item 5, cited; Reduce Motion pass (`DetailView.swift` `showsUserRating`): the reveal and the hide animate over 7–8 frames with it off and land in one frame with it on | `…/transcripts/f8-comments-vc.txt`, `…/transcripts/f8-post-comment.txt`, `…/transcripts/f8-post-sheet.png`, `…/transcripts/f8-post-closed.png`, `…/transcripts/f8-rating.txt`, `…/transcripts/f8-rating-prefocus.png`, `…/transcripts/f8-rating-revealed.png`, `…/transcripts/f8-rating-vc.txt`, `…/display/F8/contact.png`, `…/display/F8/button-shapes.png`, `…/display/F8/motion-rating-show-rm-off/`, `…/display/F8/motion-rating-show-rm-on/`, `…/display/F8/motion-rating-hide-rm-off/`, `…/display/F8/motion-rating-hide-rm-on/`, `…/display/F8-pass.txt` |
+
+`…/` in the evidence cells stands for `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`.
+Every changed display setting was restored to its recorded baseline and read back after each flow
+(`display/F1-pass.txt` … `display/F8-pass.txt`). Observations that match an item the owner reverted in
+`cc05aca6` are cited to `16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)` and not re-reported.
+
+**Rotor against `CONTEXTMENU=not-exposed` (OQ2).** The three action-bearing elements agree with the
+16-13 record wherever a mirror exists: the signed-in tag chip lists exactly its menu's vote items
+(`Vote Down`, `Vote Up`), the comment cell lists its link actions, and the download row lists `Detail`
+(its `accessibilityAction` mirror) plus the swipe actions `Pages`, `Resume` and `Delete`, so every
+context-menu item of that row state is present once. The one gap is on a site without a mirror, the
+reader page: its context menu's `Reload` is not in the rotor (W-12). Where a view declares several
+`accessibilityAction`s or menu items, VoiceOver lists them in reverse declaration order (W-11). Nothing
+was activated.
+
+**Run notes.**
+- Task 2's precondition (`git log 401fee9d..HEAD -- AppPackage App ShareExtension` prints nothing) was
+  false: the owner-directed commits `1507a65a fix(16): fixed white CategoryCell text` and
+  `cc05aca6 fix(16): revert remaining visual a11y changes` changed app sources after Task 1. A first
+  Task 2 walk on the installed `24bf5c10` build was superseded after the owner's visible-change review
+  (`16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)`). Orchestrator ruling R12 (2026-09-15):
+  build `cc05aca6` by each simulator's UDID, install over on `WALK_UDID` and `LOGIN_UDID`, and re-run
+  Task 2 in full (candidates, the eight flows, the hide-idiom sweep from live greps at `cc05aca6`, the
+  listening list and its check). Every verdict above and below comes from the `cc05aca6` walk; Task 1
+  ran on `24bf5c10`. The superseded walk's files were moved, not deleted, to
+  `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/superseded-24bf5c10/` (relative paths kept);
+  Task 1's transcripts and the scripts stay in place.
+- Build: the `cc05aca6` builds waited on the shared `xcodebuild` lock while an unrelated build was
+  running (R1); the waiting wrapper was left to finish and no second build was started. Both builds
+  succeeded, `plutil` printed `app.ehpanda.personal` for both products, and both installs were
+  install-over (`audit/build-cc05-walk.log`, `audit/build-cc05-login.log`, `plutil-cc05-walk.txt`,
+  `plutil-cc05-login.txt`).
+- Hazard (R12): a background shell left by the superseded F7 step, waiting on standard input, stayed
+  hung and was not killed; had it resumed it would have sent one Activate chord to `WALK_UDID`. No
+  Activate event that this walk did not send appears in any `cc05aca6` log.
+- Log stream stop (R11): in Task 1 the executor also ran a pattern `pkill` on `vot` log streams after
+  stopping its own by PID; nothing matched afterwards, and whether another `vot` stream existed before
+  is unverifiable. From then on only recorded PIDs were stopped.
+- Method note: after a launch with VoiceOver off, `sim-use ui` returns an empty app tree; turning
+  VoiceOver on and off again exposes it. The Voice Control proxy reads were taken after that toggle.
+- F6 row source: plan step 1 as written (`EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID=3103480` with
+  `EHPANDA_AUTOMATION_TAB=downloads`) showed one paused row. That row already existed on `WALK_UDID`:
+  the superseded walk created it with `EHPANDA_AUTOMATION_GALLERY_URL` added, because the automation
+  starts only on that gallery's Detail (`DetailReducer+Download.swift:170-179`). Nothing was started or
+  deleted on `LOGIN_UDID`; the hermetic Detail's Download button reads the paused row's state.
+- F8: the Post Comment sheet has a `Close` button, not `Cancel`; it was dismissed with `Close`, tapped at
+  its frame coordinates away from `Done`, and nothing was typed.
+- `LOGIN_UDID` Account screen: it displays cookie fields. It was never captured, dumped or recorded:
+  the route to Account Configuration walked its top rows with VoiceOver and stopped on
+  `Account Configuration` before the cookie section, and the row was tapped at its logged frame.
+- Speaking rate: after a failed Actions search on the hermetic tag chip the rotor rested on
+  `Speaking Rate`; it was moved to `Headings` with no value step, and the rate did not change.
+- Screen evidence follows R9: where VoiceOver logs no `First element in app focus` line, the
+  `Screen Changed` note plus the first FOCUS after it is the SCREEN evidence.
+- Every `cc05aca6` log stream was stopped by its recorded PID (`vo.sh off`).
 
 ### Findings
 
+`…/` stands for `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`. VO-3b splits the General
+pop observation out of VO-3, so that the Filters 1.8 row keeps its own route. The superseded walk's
+toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has no row.
+
+| id | flow | qa id | what was observed (written description) | evidence | route | walk 2 |
+|---|---|---|---|---|---|---|
+| VO-1 | F1 | 1.3 | Reproduces on `cc05aca6`. A 40-step walk from Home's first element cycles the six hero cards and resets to the Home heading on every loop with no key pressed, so the Frontpage section and everything below is never reached linearly. The Headings rotor finds no heading below; the Containers rotor reaches the tab bar, and a backward walk from there reaches the sections (R6) | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-headings-rotor.txt`, `…/transcripts/vo1-home-containers-rotor.txt`, `…/transcripts/vo1-home-below-trap.txt` | fix | — |
+| VO-2 | F4 | 1.5 | Reproduces. With the reader panel shown and no slider preview, the walk from the lower `Close` to the page slider passes three silent unnamed 20 × 20 point elements and three page captions from the hidden slider preview (`ControlPanel.swift:214`, `:227`), then the first end label and the slider | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-panel.txt` | fix | — |
+| VO-3 | F2 | 1.8 | Reproduces. Search › More › Filters › `Cancel` does not return focus to `More`: from the root it lands on the `Search` heading; from the results it lands on the error toast | `…/transcripts/vo3-filters.txt`, `…/transcripts/f2-filters.txt` | fix | — |
+| VO-3b | F7 | 1.8 (observation) | General pop: focus lands on the `Setting` heading on `cc05aca6` (the Task 1 tracer on `24bf5c10` landed on the `Account` row), not on the `General` trigger; the other pops seen (Frontpage → inline `Home` title, Comments → Detail back button, results → toast) have the same shape | `…/transcripts/vo3-general-pop.txt`, `…/transcripts/f7-general-cc05.txt`, `…/transcripts/f1-frontpage-pop.txt`, `…/transcripts/f8-rating.txt` | accepted: (c) pop-back focus is an observation, not a checklist item | — |
+| VO-4 | F3 | 1.2 | Reproduces. The stats strip reads counts with their units as separate phrases and decimals as "4 dot 50"; comment dates are read "N slash N slash N"; a comment body that is a URL is spelled out ("https colon slash slash …") | `…/transcripts/f3-detail-walk.txt`, `…/transcripts/f3-comments-walk.txt` | accepted: (a) verbosity from transcript text; no round-2 idiom shortens these without dropping information | — |
+| W-5 | F1, F2, F3 | 1.4 | Section titles (`Frontpage`, `Toplists`, `Other`, `Recently Searched`, `Previews`, `Comments`) are spoken as "Button" with no heading trait; the Headings rotor on Detail finds no heading | `…/transcripts/vo1-home-below-trap.txt`, `…/transcripts/f2-root-keywords.txt`, `…/transcripts/f3-detail-headings.txt` | fix | — |
+| W-6 | F1 | 1.2 | A Frontpage list cell's utterance gives title, uploader, the word "Rating", page count, category and date, and only then the rating value ("4.5 out of 5"), so the value is separated from its name | `…/transcripts/f1-frontpage-walk.txt` | fix | — |
+| W-7 | F3 | 1.3 | The Detail preview strip is 40 linear stops (`Page 1` … `Page 40`) before the walk leaves it for `Comments`; it ends, so it is not a trap (R7) | `…/transcripts/r7-detail-preview-strip.txt` | accepted: (c) a finite strip that the walk leaves; an observation on walk length, not a checklist fail | — |
+| W-8 | F3 | 1.3 | Once, about 1 s after focus reached the uploader with no key pressed, VoiceOver logged `Screen Changed` and reset focus to `More`; two reproduction attempts (45 s idle each, two launch routes) logged nothing | `…/transcripts/f3-detail-walk.txt`, `…/transcripts/w-detail-screenchange-2.txt`, `…/transcripts/w-detail-screenchange-3.txt` | deferred: `deferred-items.md § Found during 16-25` item 1 | — |
+| W-10 | F2 | 1.3, 1.8 | The error toast is first in the reading order of the Search screens: previous from the back button lands on it and stops, a forward walk from the field to the last tab never reaches it, and the results pop and the Filters `Cancel` land on it | `…/transcripts/f2-toast-trap.txt`, `…/transcripts/f2-search.txt`, `…/transcripts/f2-filters.txt` | fix | — |
+| W-11 | F3, F4 | 1.6 | VoiceOver lists a view's actions in reverse declaration order: comment links (reverse of the body's link order), the signed-in tag chip (`Vote Down` before `Vote Up`, the menu declares Up first), the reader page (`Previous page` before `Next page`, declared Next first); `custom_actions` carries the same order | `…/transcripts/f3-comment-rotor.txt`, `…/transcripts/f3-comment-point.json`, `…/transcripts/f3-login-tag-rotor.txt`, `…/transcripts/f3-login-tag-point.json`, `…/transcripts/f4-page-rotor.txt` | accepted: (b) the order is the system's presentation of the declared actions, identical across `accessibilityAction` and menu-derived actions on three sites | — |
+| W-12 | F4 | 1.6 | The reader page's context menu offers `Reload` (and Copy / Save / Save Original with an image URL), but the page has no `accessibilityAction` mirror and `Reload` is not in the rotor | `…/transcripts/f4-page-rotor.txt` | fix | — |
+| W-13 | F4, F6, F8 | 1.8 | Dismissing a cover or sheet does not return focus to the control that opened it: reader `Close` → Detail back button (not `Read`); Pages inspector `Close` → `Downloads` heading (not the row); Post Comment `Close` → Comments back button (not `Post Comment`) | `…/transcripts/f4-panel.txt`, `…/transcripts/f6-pages.txt`, `…/transcripts/f8-post-comment.txt` | fix | — |
+| W-14 | F5 | 1.4 | The favorited control is spoken "Favorited, Button": the label names the state, activating it removes the favorite at once, and there is no selected trait or action wording | `…/transcripts/f5-detail.txt` | fix | — |
+| W-15 | F5, sweep | 1.5, 2.1 | On Favorites (loaded) and on Watched (error shown), `GalleryList`'s loading view (`GalleryList.swift:72`) is read although nothing is loading, and on Favorites the error view (`:78`) is read too, with a focus ring on an invisible `Retry` over the list; Voice Control's tree carries that `Retry` | `…/transcripts/f5-favorites.txt`, `…/transcripts/f5-favorites-leak-retry.png`, `…/transcripts/f5-favorites-vc.txt`, `…/transcripts/sw-watched-login.txt` | fix | — |
+| W-16 | F6 | 1.2, 2.4 | One download row is seven VoiceOver stops (cover, title, uploader, rating, status badge, category, date), and each is a Button named with the gallery title, so Voice Control shows seven identical names for one row | `…/transcripts/f6-downloads.txt`, `…/transcripts/f6-downloads-vc.txt` | fix | — |
+| W-17 | F6 | 1.5 | The Pages inspector's cover is spoken "(null), Image" | `…/transcripts/f6-pages.txt` | fix | — |
+| W-18 | F6 | 1.4 | The inspector's `Downloaded (0), No Pages` group row is spoken with "selected" first (its checkmark glyph), although nothing is selected | `…/transcripts/f6-pages.txt` | fix | — |
+| W-19 | F7 | 1.2 | `Enable Tags Extension` is two stops with the same name: the text, then the labels-hidden switch | `…/transcripts/f7-general-cc05.txt` | fix | — |
+| W-20 | F8 | 1.4, 2.7 | The Post Comment editor has no name: it is spoken "Text field, Is editing" | `…/transcripts/f8-post-comment.txt` | fix | — |
+| W-21 | F5, sweep | 1.5 | Placeholder symbols are spoken by their raw symbol names (`questionmark.circle.fill`, `person.crop.circle.badge.questionmark.fill`) on Favorites, Watched and the signed-out screens | `…/transcripts/f5-favorites.txt`, `…/transcripts/sw-watched-login.txt`, `…/transcripts/sw-favorites-signedout.txt` | deferred: `deferred-items.md § Found during 16-24` item 2 (`ContentUnavailableView.symbol`) | — |
+| W-22 | sweep | 1.4 | Watched signed out has no title element and no visible title, while signed in the same screen shows the `Watched` heading | `…/transcripts/sw-watched-signedout.txt`, `…/transcripts/sw-watched-login.txt` | owner (D-22): show the `Watched` navigation title in the signed-out state (before image `…/transcripts/sw-watched-signedout.png`) | — |
+| W-23 | F3 | 1.2, 1.3 | The Detail stats strip reads column headers and values interleaved (two headers, then two values, then the rating group, two headers, two values), so a value is not next to its header | `…/transcripts/f3-detail-walk.txt` | fix | — |
+| W-24 | F2 | 6.1 | The Search root keyword `Delete` glyph renders pale green that nearly vanishes in software grayscale | `…/display/F2/grayscale-software.png` | deferred: `deferred-items.md § Found during 16-25` item 2 | — |
+| W-25 | sweep | 1.2, 1.4 | Torrent rows read their seed, peer and completion counts as bare numbers without meaning; the two zero counts produce no speech at all (a pause and "Actions available") | `…/transcripts/sw-torrents.txt` | fix | — |
+| W-26 | sweep | 1.5 | The Archives funds row exposes both coin glyphs by symbol name ("g.circle.fill", "C Circle") although `ArchivesView.swift:226` / `:234` mark them `accessibilityHidden(true)`; the GP balance of zero is silent and the credits balance is a bare number | `…/transcripts/sw-archives.txt` | fix | — |
+| W-27 | sweep | 1.2 | Reproduces on `cc05aca6` (the row's severity dot is back to the pre-16-24 circle). Each App Activity Logs row is four stops: the dot spoken "Error", the timestamp, the category, the message | `…/transcripts/sw-activity-logs.txt` | fix | — |
+| W-28 | sweep | 1.2 | Reproduces on `cc05aca6`. On Login, each field is two stops with one name: the caption (`Username`, `Password`), then the field spoken by its placeholder | `…/transcripts/sw-login.txt` | fix | — |
+| W-29 | F1, sweep | 1.7 | When a loading view gives way to content, focus moves to the element that now sits where the loading view was, not to the first element: the second Frontpage cell; `Create New` in the middle of Account Configuration | `…/transcripts/f1-home-to-frontpage.txt`, `…/transcripts/sw-ehsetting.txt` | fix | — |
+| W-30 | F4 | 1.4 | A reader page element's label is its page number, and VoiceOver speaks nothing for it (a pause and "Actions available"), so a page is identified only by its `Reload` button | `…/transcripts/f4-read.txt` | fix | — |
+| W-31 | F8 | display pass (Button Shapes) | With Button Shapes on, an empty capsule appears under the Detail title: the uploader Button renders with an empty label when the gallery has no uploader (`DetailView+HeaderSection.swift:387`); VoiceOver skips it | `…/display/F8/button-shapes.png`, `…/display/F8/contact.png` | owner (D-22): leave out the uploader line when there is no uploader, which removes the empty capsule and its line (before image `…/display/F8/button-shapes.png`) | — |
+
 ### Hide-idiom sweep
 
+Inventory from live greps at `cc05aca6` (orchestrator ruling R12). Paths below are
+relative to `AppPackage/Sources/`; `…/` stands for
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`.
+
+#### Sweep inventory
+
+| command | raw count | swept rows | excluded rows |
+|---|---|---|---|
+| G1: `grep -rnE 'opacity\(' AppPackage/Sources --include='*.swift'` | 25 | 7 | 18 |
+| G2: `grep -rnE '\.hidden\(\)' AppPackage/Sources --include='*.swift'` | 2 | 2 | 0 |
+| G3: `grep -rnE 'visible\(' AppPackage/Sources --include='*.swift'` | 51 | 46 | 5 |
+| G4: `grep -rnE 'accessibilityHidden\(' AppPackage/Sources --include='*.swift'` | 23 | 7 paired | 16 unpaired |
+
+G4 unpaired (16): `AccountSettingView.swift:249`, `AppearanceSettingView.swift:40`, `AppearanceSettingView.swift:44`, `HomeView+Sections.swift:401`, `ViewModifiers.swift:63`, `TagSuggestionView.swift:100`, `DetailView+HeaderSection.swift:268`, `DetailView+HeaderSection.swift:373`, `TorrentsView.swift:178`, `FolderManagerView.swift:142`, `ArchivesView.swift:226`, `ArchivesView.swift:234`, `ReadingSettingView.swift:109`, `ReadingSettingView.swift:120`, `ReadingSettingView.swift:128`, `ReadingSettingView.swift:132`.
+
+Changes against the planning-time counts: G1, G2 and G3 match the plan's 25, 2 and 51 (G3's 51 is 46
+call sites, the declaration and four comment or doc lines, not the plan's 48 / 1 / 2). G4 is 23, not 24:
+`cc05aca6` removed the `accessibilityHidden(true)` at `LaboratorySettingView.swift:72` with the on/off
+marker it hid. Several sites moved lines with `cc05aca6` (for example `DetailView+HeaderSection.swift`
+213 → 208, 223 → 218, 262 → 251, 270 → 259; `CommentsView.swift` 280 → 273; `GeneralSettingView.swift`
+82 → 77, 93 → 88; `ReadingViewComponents.swift` 290 → 288, 295 → 293; `SubSection.swift` 122 → 114). The
+rows use the `cc05aca6` lines.
+
+#### Enumerated, not swept
+
+| match | idiom | reason |
+|---|---|---|
+| `SettingFeature/SettingView.swift:146` `color.opacity(0.1)` | G1 | alpha on a colour value (row press background) |
+| `SettingFeature/Components/LaboratorySettingView.swift:52` `tintColor.opacity(0.2)` | G1 | alpha on a colour value |
+| `SettingFeature/Login/LoginView.swift:45` `Color(.systemGray2).opacity(0.2)` | G1 | alpha on a colour value (wave fill) |
+| `SettingFeature/Login/LoginView.swift:46` `Color(.systemGray).opacity(0.2)` | G1 | alpha on a colour value (wave fill) |
+| `SettingFeature/Login/LoginReducer.swift:69` `.primary.opacity(0.25) : .primary.opacity(0.75)` | G1 | alpha on a shape-style value (button colour) |
+| `ReadingFeature/Support/LiveTextView.swift:24` `.color(.black.opacity(0.1))` | G1 | alpha on a colour value (canvas fill) |
+| `ReadingFeature/Support/LiveTextView.swift:70` `.color(.accentColor.opacity(0.6))` | G1 | alpha on a colour value (canvas fill) |
+| `GalleryListComponents/DownloadBadgeLabel.swift:25` `badge.color.opacity(0.15)` | G1 | alpha on a colour value (badge background) |
+| `AppComponents/CategoryView.swift:214` `tileColor.opacity(isFiltered ? Self.excludedOpacity : 1)` | G1 | alpha on a shape-style value (tile colour) |
+| `DetailFeature/DetailView+HeaderSection.swift:241` `downloadButtonTint.opacity(0.18)` | G1 | alpha on a shape-style value (ring track stroke) |
+| `DetailFeature/Archives/ArchivesView.swift:258` `.gray.opacity(0.5)` | G1 | alpha on a colour value |
+| `DetailFeature/Archives/ArchivesView.swift:387` `.white.opacity(0.5) : .white` | G1 | alpha on a shape-style value (foreground) |
+| `DetailFeature/Archives/ArchivesView.swift:389` `Color.accentColor.opacity(0.5) : Color.accentColor` | G1 | alpha on a colour value (background) |
+| `HomeFeature/GalleryCardCell.swift:85` `.opacity(0.2)` | G1 | can never be 0: literal `0.2` |
+| `HomeFeature/HomeView+Sections.swift:214` `content.opacity(phase.isIdentity ? 1 : 0.6)` | G1 | can never be 0: branches `1` and `0.6` |
+| `DetailFeature/Comments/CommentsView.swift:45` `$0.opacity(comment.commentID == store.scrollCommentID ? store.scrollRowOpacity : 1)` | G1 | can never be 0: branches `store.scrollRowOpacity` and `1`; `scrollRowOpacity` starts at `1` and is only set to `0.25` and `1` (`CommentsReducer.swift:145`, `:149`) |
+| `AppComponents/ViewModifiers.swift:50` | G1 | doc comment text |
+| `AppComponents/ViewModifiers.swift:62` `opacity(isVisible ? 1 : 0)` | G1 | the `visible(_:)` declaration itself |
+| `ReadingFeature/Support/ControlPanel.swift:11` | G3 | comment text |
+| `ReadingFeature/Support/ControlPanel.swift:27` | G3 | doc comment text |
+| `AppComponents/ViewModifiers.swift:39` | G3 | comment text |
+| `AppComponents/ViewModifiers.swift:61` `public func visible(_ isVisible: Bool) -> some View` | G3 | the declaration itself |
+| `AppComponents/SubSection.swift:64` | G3 | doc comment text |
+
+#### Swept sites
+
+| site (file:line and the call as written) | idiom (G1/G2/G3) | paired accessibilityHidden | surface # | hidden state | reached how | before fix | after fix | evidence |
+|---|---|---|---|---|---|---|---|---|
+| `SettingFeature/AppearanceSetting/AppearanceSettingView.swift:159` `.opacity(isSelected ? 1 : 0)` | G1 | `accessibilityHidden(true)` `AppearanceSettingView.swift:160` | 33 | checkmark on an unselected app icon | `WALK_UDID` hermetic: Setting › Appearance › App Icon (five icons, one selected) | hidden | pending | `…/transcripts/sw-app-icon.txt` |
+| `HomeFeature/HomeView+Sections.swift:423` `Divider().opacity(showsDivider ? 1 : 0)` | G1 | — | 2 | the ranking row divider in the regular-width ranking layout | not reached | unreached: regular-width (iPad) layout only; this walk is iPhone only | pending | — |
+| `HomeFeature/HomeView+Sections.swift:456` `Divider().opacity(offset == galleries.count - 1 ? 0 : 1)` | G1 | — | 2 | the last Toplists row's divider | `WALK_UDID` hermetic: Home, below VO-1 through the Containers rotor, backward walk through the Toplists rows | not an element (walk evidence) | pending | `…/transcripts/vo1-home-below-trap.txt` |
+| `SearchFeature/SearchRootView+Keywords.swift:84` `Divider().opacity(keyword == keywords.last ? 0 : 1)` | G1 | — | 9 | the last recent keyword's divider (one keyword) | `WALK_UDID` hermetic: Search root after one search | not an element (walk evidence) | pending | `…/transcripts/f2-root-keywords.txt` |
+| `AppComponents/TagCloudView.swift:72` `Image(systemSymbol: .photo).opacity(0)` | G1 | `accessibilityHidden(true)` `TagCloudView.swift:74` | 14 | always (spacer under a translated tag's image overlay) | not reached | unreached: needs tag translation data with images (Tags Extension on and a translator download), which this plan does not start; the hermetic and `LOGIN_UDID` tag chips carry no translation image | pending | — |
+| `AppComponents/ViewModifiers.swift:43` `.opacity(isVisible ? 0.5 : 0)` | G1 | `accessibilityHidden(true)` `ViewModifiers.swift:44` | 40 | a row's disclosure chevron with `isVisible` false | `WALK_UDID` hermetic: Search › More › Quick Search | unreached: no saved quick-search word, so no row exists (`Not Found`) | pending | `…/transcripts/sw-quicksearch.txt` |
+| `AppComponents/TagSuggestionView.swift:108` `.opacity(0)` | G1 | `accessibilityHidden(true)` `TagSuggestionView.swift:114` | 9 | always (spacer under a suggestion's image overlay) | not reached | unreached: suggestions with images need tag translation data, which this plan does not download | pending | — |
+| `SystemNotification/ToastMessageView.swift:43` `icon.hidden()` | G2 | — | 42 | always (balancing copy of the icon) | `WALK_UDID` hermetic: unsupported-link toast on Search | hidden | pending | `…/transcripts/f2-toast-trap.txt` |
+| `SettingFeature/EhSetting/EhSettingView+Sections3.swift:159` `.hidden()` | G2 | — | 38 | always (the language column label) | `LOGIN_UDID`: Setting › Account › Account Configuration (read-only load), Headings rotor to Excluded Languages | hidden | pending | `…/transcripts/sw-ehsetting-excluded.txt` |
+| `SettingFeature/EhSetting/EhSettingView.swift:35` `$0.visible(store.loadingState == .loading \|\| store.submittingState == .loading)` | G3 | — | 38 | loaded, not submitting | `LOGIN_UDID`: Account Configuration after load | hidden | pending | `…/transcripts/sw-ehsetting.txt` |
+| `SettingFeature/EhSetting/EhSettingView.swift:41` `$0.visible(store.loadingState.is(\.failed))` | G3 | — | 38 | loaded | `LOGIN_UDID`: Account Configuration after load | hidden | pending | `…/transcripts/sw-ehsetting.txt` |
+| `SettingFeature/GeneralSetting/GeneralSettingView.swift:77` `$0.visible(setting.translateTags && tagTranslatorEmpty && tagTranslatorLoadingState != .loading)` | G3 | `accessibilityHidden(true)` `GeneralSettingView.swift:84` | 31 | Tags Extension off | `WALK_UDID` hermetic: F7 General | hidden | pending | `…/transcripts/f7-general-cc05.txt` |
+| `SettingFeature/GeneralSetting/GeneralSettingView.swift:88` `$0.visible(tagTranslatorLoadingState == .loading)` | G3 | — | 31 | translator not loading | `WALK_UDID` hermetic: F7 General | hidden | pending | `…/transcripts/f7-general-cc05.txt` |
+| `SettingFeature/Login/LoginView.swift:158` `$0.visible(store.loginState == .loading)` | G3 | — | 30 | not logging in | `WALK_UDID` hermetic: Setting › Account › Login, nothing typed | hidden | pending | `…/transcripts/sw-login.txt` |
+| `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:26` `$0.visible(!store.displayedLogs.isEmpty)` | G3 | — | 32 | no logs | `WALK_UDID` hermetic: Setting › General › App Activity Logs | unreached: logs exist on `WALK_UDID`, so the list is shown | pending | `…/transcripts/sw-activity-logs.txt` |
+| `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:31` `$0.visible(store.loadingState == .loading && store.displayedLogs.isEmpty)` | G3 | — | 32 | logs shown | `WALK_UDID` hermetic: App Activity Logs, forward and backward walks | hidden | pending | `…/transcripts/sw-activity-logs.txt` |
+| `SettingFeature/AppActivityLogs/AppActivityLogsView.swift:38` `$0.visible(store.loadingState != .loading && store.displayedLogs.isEmpty)` | G3 | — | 32 | logs shown | `WALK_UDID` hermetic: App Activity Logs, forward and backward walks | hidden | pending | `…/transcripts/sw-activity-logs.txt` |
+| `ReadingFeature/ReadingViewComponents.swift:270` `.visible(enablesLiveText)` | G3 | — | 24 | Live Text off | not reached | unreached: the Live Text overlay exists only on a loaded image; hermetic pages fail to load | pending | — |
+| `ReadingFeature/ReadingViewComponents.swift:288` `$0.visible(loadingState != .loading)` | G3 | — | 24 | a page while it loads | not reached | unreached: hermetic pages fail at once, so no page is caught loading | pending | — |
+| `ReadingFeature/ReadingViewComponents.swift:293` `$0.visible(loadingState == .loading)` | G3 | — | 24 | a failed page | `WALK_UDID` hermetic: reader page walk | hidden | pending | `…/transcripts/f4-read.txt` |
+| `ReadingFeature/Support/ControlPanel.swift:54` `.visible(showsPanel)` | G3 | — | 25 | panel hidden | `WALK_UDID` hermetic: reader with the panel hidden | hidden | pending | `…/transcripts/f4-read.txt` |
+| `ReadingFeature/Support/ControlPanel.swift:109` `.visible(!showsSliderPreview)` | G3 | — | 25 | the lower `Close` while the slider preview shows | not reached | unreached: the preview shows only during a slider drag; VoiceOver adjustment does not show it | pending | `…/transcripts/f4-panel.txt` |
+| `ReadingFeature/Support/ControlPanel.swift:214` `.visible(checkIndex(page))` | G3 | — | 25 | preview slots inside the hidden preview | `WALK_UDID` hermetic: panel shown, no preview | leaks | pending | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-panel.txt` |
+| `ReadingFeature/Support/ControlPanel.swift:227` `.visible(showsSliderPreview)` | G3 | — | 25 | preview not shown | `WALK_UDID` hermetic: panel shown, no preview | leaks | pending | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-panel.txt` |
+| `FavoritesFeature/FavoritesView.swift:47` `$0.visible(didLogin)` | G3 | — | 8 | signed out | `WALK_UDID` hermetic (no session): Favorites tab | hidden | pending | `…/transcripts/sw-favorites-signedout.txt` |
+| `FavoritesFeature/FavoritesView.swift:52` `$0.visible(!didLogin)` | G3 | — | 8 | signed in | `LOGIN_UDID`: F5 Favorites | hidden | pending | `…/transcripts/f5-favorites.txt` |
+| `HomeFeature/HomeView.swift:73` `$0.visible(!store.popularGalleries.isEmpty)` | G3 | — | 2 | popular galleries empty | not reached | unreached: the fixtures always load the popular galleries | pending | — |
+| `HomeFeature/HomeView.swift:84` `$0.visible(store.popularLoadingState == .loading && store.popularGalleries.isEmpty)` | G3 | — | 2 | loaded | `WALK_UDID` hermetic: Home walks | hidden | pending | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-below-trap.txt` |
+| `HomeFeature/HomeView.swift:96` `$0.visible(store.popularGalleries.isEmpty && error != nil)` | G3 | — | 2 | loaded | `WALK_UDID` hermetic: Home walks | hidden | pending | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-below-trap.txt` |
+| `HomeFeature/HomeView.swift:127` `.visible(store.popularLoadingState != .loading)` | G3 | — | 2 | the Reload button while popular loads | not reached | unreached: the fixture load finishes before the first walk step | pending | — |
+| `HomeFeature/HomeView.swift:128` `.overlay(ProgressView().visible(store.popularLoadingState == .loading))` | G3 | — | 2 | not loading | `WALK_UDID` hermetic: Home walks (Reload read, no progress stop) | hidden | pending | `…/transcripts/vo1-home-40.txt` |
+| `HomeFeature/Watched/WatchedView.swift:37` `$0.visible(didLogin)` | G3 | — | 5 | signed out | `WALK_UDID` hermetic: Home › Other › Watched | hidden | pending | `…/transcripts/sw-watched-signedout.txt` |
+| `HomeFeature/Watched/WatchedView.swift:42` `$0.visible(!didLogin)` | G3 | — | 5 | signed in | `LOGIN_UDID`: Home › Other › Watched | hidden | pending | `…/transcripts/sw-watched-login.txt` |
+| `GalleryListComponents/GalleryList.swift:72` `$0.visible(loadingState == .loading)` | G3 | — | 3, 5, 8 | not loading | `WALK_UDID` Frontpage (hidden there); `LOGIN_UDID` Favorites (loaded) and Watched (error shown), where it is read | leaks | pending | `…/transcripts/f1-frontpage-walk.txt`, `…/transcripts/f5-favorites.txt`, `…/transcripts/sw-watched-login.txt` |
+| `GalleryListComponents/GalleryList.swift:78` `$0.visible(loadingState.is(\.failed))` | G3 | — | 3, 8 | not failed | `WALK_UDID` Frontpage (hidden there); `LOGIN_UDID` Favorites (loaded), where the error view and an invisible `Retry` are read | leaks | pending | `…/transcripts/f1-frontpage-walk.txt`, `…/transcripts/f5-favorites.txt`, `…/transcripts/f5-favorites-leak-retry.png` |
+| `AppComponents/StateViews.swift:41` `$0.visible(loadingState.is(\.failed))` | G3 | — | 3 | the list-end footer's `Retry` while not failed | not reached | unreached: the list end was not reached in the 70-cell Frontpage walk | pending | — |
+| `AppComponents/StateViews.swift:46` `$0.visible(loadingState == .loading)` | G3 | — | 3 | the list-end footer's spinner while idle | not reached | unreached: the list end was not reached in the 70-cell Frontpage walk | pending | — |
+| `AppComponents/SubSection.swift:97` `$0.visible(isLoading == true)` | G3 | — | 2 | section title not loading | `WALK_UDID` hermetic: Home sections | hidden | pending | `…/transcripts/vo1-home-below-trap.txt` |
+| `AppComponents/SubSection.swift:114` `.visible(showAll)` | G3 | — | 2 | a section without `Show All` (`Other`) | `WALK_UDID` hermetic: Home sections | hidden | pending | `…/transcripts/vo1-home-below-trap.txt` |
+| `DetailFeature/DetailView+CommentCells.swift:89` `$0.visible(comment.votedUp \|\| comment.votedDown)` | G3 | `accessibilityHidden(true)` `DetailView+CommentCells.swift:91` | 14 | comment not voted | `WALK_UDID` hermetic: Detail comment preview cards | hidden | pending | `…/transcripts/f3-detail-walk.txt` |
+| `DetailFeature/DetailView+HeaderSection.swift:208` `$0.visible(!galleryDetail.isFavorited)` | G3 | — | 14 | favorited | `LOGIN_UDID`: F5 Detail of a favorite | hidden | pending | `…/transcripts/f5-detail.txt` |
+| `DetailFeature/DetailView+HeaderSection.swift:218` `$0.visible(galleryDetail.isFavorited)` | G3 | — | 14 | not favorited | `WALK_UDID` hermetic: fixture Detail | hidden | pending | `…/transcripts/f3-detail-walk.txt` |
+| `DetailFeature/DetailView+HeaderSection.swift:251` `$0.visible(isDeterminate)` | G3 | — | 14 | the progress ring of a queued download | not reached | unreached: the ring shows only for an active or queued download; none is started (D-09 on `LOGIN_UDID`; the `WALK_UDID` row is paused) | pending | — |
+| `DetailFeature/DetailView+HeaderSection.swift:259` `$0.visible(!isDeterminate)` | G3 | — | 14 | the spinner of an active download | not reached | unreached: the ring shows only for an active or queued download; none is started (D-09 on `LOGIN_UDID`; the `WALK_UDID` row is paused) | pending | — |
+| `DetailFeature/DetailView.swift:162` `$0.visible(store.galleryDetail != nil)` | G3 | — | 14 | detail not yet loaded | `LOGIN_UDID`: F5 push from Favorites (full-screen loading, then the back button, no content stop) | hidden | pending | `…/transcripts/f5-detail.txt` |
+| `DetailFeature/DetailView.swift:167` `$0.visible(store.galleryDetail == nil && store.loadingState == .loading)` | G3 | — | 14 | loaded | `WALK_UDID` hermetic: fixture Detail | hidden | pending | `…/transcripts/f3-detail-walk.txt` |
+| `DetailFeature/DetailView.swift:178` `$0.visible(store.galleryDetail == nil && error != nil)` | G3 | — | 14 | loaded | `WALK_UDID` hermetic: fixture Detail | hidden | pending | `…/transcripts/f3-detail-walk.txt` |
+| `DetailFeature/Comments/CommentsView.swift:273` `.visible(comment.votedUp \|\| comment.votedDown)` | G3 | `accessibilityHidden(true)` `CommentsView.swift:274` | 16 | comment not voted | `WALK_UDID` hermetic: Comments walk | hidden | pending | `…/transcripts/f3-comments-walk.txt` |
+| `DetailFeature/Torrents/TorrentsView.swift:40` `$0.visible(store.loadingState == .loading && store.torrents.isEmpty)` | G3 | — | 20 | torrents loaded | `LOGIN_UDID`: Detail › More › Torrents (one torrent) | hidden | pending | `…/transcripts/sw-torrents.txt` |
+| `DetailFeature/Torrents/TorrentsView.swift:49` `$0.visible(error != nil && store.torrents.isEmpty)` | G3 | — | 20 | torrents loaded | `LOGIN_UDID`: Detail › More › Torrents | hidden | pending | `…/transcripts/sw-torrents.txt` |
+| `DetailFeature/Archives/ArchivesView.swift:35` `$0.visible(!store.hathArchives.isEmpty)` | G3 | — | 19 | no archive options | `LOGIN_UDID`: Detail › More › Archives | unreached: the options loaded, so the content is shown | pending | `…/transcripts/sw-archives.txt` |
+| `DetailFeature/Archives/ArchivesView.swift:40` `$0.visible(store.loadingState == .loading && store.hathArchives.isEmpty)` | G3 | — | 19 | options loaded | `LOGIN_UDID`: Detail › More › Archives, nothing activated | hidden | pending | `…/transcripts/sw-archives.txt` |
+| `DetailFeature/Archives/ArchivesView.swift:49` `$0.visible(error != nil && store.hathArchives.isEmpty)` | G3 | — | 19 | options loaded | `LOGIN_UDID`: Detail › More › Archives, nothing activated | hidden | pending | `…/transcripts/sw-archives.txt` |
+| `DownloadsFeature/DownloadsView.swift:32` `$0.visible(showsEmptyState)` | G3 | — | 11 | one row present | `WALK_UDID` hermetic: F6 Downloads | hidden | pending | `…/transcripts/f6-downloads.txt`, `…/transcripts/f6-empty-state-sweep.txt` |
+| `DownloadsFeature/DownloadsView+Subviews.swift:143` `$0.visible(isValidating)` | G3 | — | 12 | not validating | `WALK_UDID` hermetic: F6 Pages inspector | hidden | pending | `…/transcripts/f6-pages.txt` |
+
+Counts: 55 swept rows (G1 7, G2 2, G3 46): 4 leak (`GalleryList.swift:72`, `:78`,
+`ControlPanel.swift:214`, `:227`), 34 hidden, 2 not an element (walk evidence), 15 unreached.
+
+**What the leaking sites have in common.** Each leaking `visible(false)` sits inside an ancestor whose
+own `visible(_:)` is true at that moment, which applies `accessibilityHidden(false)` above it:
+`GalleryList.swift:72` and `:78` leak on Favorites and Watched, where `GalleryList` is wrapped in
+`FavoritesView.swift:47` / `WatchedView.swift:37` (`visible(didLogin)`, true when signed in), and are
+hidden on Frontpage, where no such ancestor exists; `ControlPanel.swift:214` sits inside `:227`, which
+sits inside `:54` (`visible(showsPanel)`, true with the panel shown). The unpaired G4 hides that fail the
+same way fit the pattern: `ArchivesView.swift:226` and `:234` (the coin glyphs, W-26) sit inside
+`ArchivesView.swift:35` (`visible(!store.hathArchives.isEmpty)`, true once options load). Nesting alone
+does not predict a leak: `DetailView+HeaderSection.swift:208` and `:218` sit inside `DetailView.swift:162`
+(true once loaded) and stay hidden. Other traits seen on the leaking views: `GalleryList`'s overlays are a
+`ProgressView` (`LoadingView`) and a `ContentUnavailableView` (`ErrorView`); the leaking preview slots
+hold an image whose frame height is 0 while the preview is hidden (the three silent 20 × 20 elements).
+
 ### Listening (owner)
+
+Picked from the `WALK_UDID` transcripts of the `cc05aca6` walk. The spoken text stays in the evidence
+root (`listen/items.tsv` carries it with the route, the chords and the expected focus prefix);
+transcript paths are relative to `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/`.
+
+| id | description | screen | route | transcript file and line |
+|---|---|---|---|---|
+| L-0 | calibration: the `Setting` title | Setting root | hermetic launch with `EHPANDA_AUTOMATION_TAB=setting`; previous item until `Setting` | `f7-general-cc05.txt:8-9` |
+| L-2 | Detail header: the gallery title, then the uploader | Detail (fixture gallery) | hermetic launch with the fixture gallery URL; next items to the title, then to the uploader | `f3-detail-walk.txt:20-25` |
+| L-4 | Detail rating group in the stats strip | Detail (fixture gallery) | hermetic launch with the fixture gallery URL; next items to the rating group | `f3-detail-walk.txt:80-81` |
+| L-5 | a comment whose author and body are Chinese text (not a URL) | Comments | fixture gallery URL; next items to the Comments section, tap its `Show All`; next items to the comment | `f3-comments-walk.txt:37` |
+| L-6 | a comment date read as "N slash N slash N" (VO-4 is `accepted`) | Comments | fixture gallery URL; next items to the Comments section, tap its `Show All`; next items to the comment | `f3-comments-walk.txt:34-35` |
+| L-7 | the reader page slider after one adjustment | reader panel | hermetic launch; Home `Show All` → first Frontpage cell → `Read` → tap the page; next items to the `Page` slider; one Ctrl+Option+Up (the reader opens at the saved page) | `f4-panel.txt:28-37` |
+
+Omitted: L-1 (a Frontpage cell with Japanese text), because the W-6 fix changes a cell's utterance; L-3
+(the stats-strip language and file-size values), because the W-23 fix changes how the strip's values
+and headers are read.
+
+Run: `bash "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/listen.sh"` (one item:
+add its id, for example `L-5`). The script prepares `WALK_UDID` itself (boot, window, VoiceOver on)
+and leaves VoiceOver on.
+
+Check run (Task 2): `WALK_UDID` shut down with `xcrun simctl shutdown`, then
+`env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/bash "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/listen.sh" --check`
+→ `listen/check.log`: `SIM_USE /opt/homebrew/bin/sim-use`, `BOOTED CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `VOICEOVER ON`, then `OK` for L-0, L-2, L-4, L-5, L-6 and L-7; no `MISMATCH` (2026-09-15, `cc05aca6`).
 
 ### Design proposals (16-25)
 
