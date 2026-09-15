@@ -108,18 +108,11 @@ struct DescriptionSection: View {
         }
     }
 
-    /// The ellipsis glyph alone measures about 23 × 8 points, far under any touch-target floor
-    /// (the audit's "hit area is too small", Phase 16). The 44-point frame is the HIG minimum and
-    /// fits inside the strip's 60-point row and its column width, so the glyph stays centred where
-    /// it was and no layout moves; `contentShape` makes the whole frame tappable, not just the
-    /// glyph's pixels.
     private var galleryInfosButton: some View {
         Button(action: navigateGalleryInfosAction) {
             Label(.metadataGalleryInfos, systemSymbol: .ellipsis)
                 .labelStyle(.iconOnly)
                 .font(.title3.weight(.bold))
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.rect)
         }
     }
 
@@ -270,7 +263,7 @@ struct ActionSection: View {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
-                        .foregroundStyle(Color.ratingStar)
+                        .foregroundStyle(.yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)
@@ -283,10 +276,6 @@ struct ActionSection: View {
         .padding(.horizontal)
     }
 
-    /// Each label is at least 24 points tall: the callout line alone measured 19–20 points, which
-    /// the accessibility audit (16-24) reports as a hit area too small, and 24 is the WCAG 2.5.8
-    /// minimum. The frame sits inside the button so the hit region grows with it; the row is
-    /// about four points taller than the bare line, which the D-25 re-sweep records.
     @ViewBuilder private var actionButtons: some View {
         Group {
             Button(action: showUserRatingAction) {
@@ -296,7 +285,7 @@ struct ActionSection: View {
                 } icon: {
                     Image(systemSymbol: .squareAndPencil)
                 }
-                .frame(maxWidth: .infinity, minHeight: 24)
+                .frame(maxWidth: .infinity)
             }
             .disabled(!didLogin)
 
@@ -306,7 +295,7 @@ struct ActionSection: View {
                 } icon: {
                     Image(systemSymbol: .photoOnRectangleAngled)
                 }
-                .frame(maxWidth: .infinity, minHeight: 24)
+                .frame(maxWidth: .infinity)
             }
         }
         .font(.callout)

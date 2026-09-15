@@ -57,25 +57,6 @@ public struct RatingView: View {
     }
 }
 
-extension Color {
-    /// The colour every rating star is drawn in (Phase 16 D-28, owner decision `STARS=B`).
-    ///
-    /// `.yellow` measured 1.51:1 on a white list cell and 1.23:1 on the Home card's gray in light
-    /// mode — under the 3:1 a non-text glyph needs — while passing in dark (≥ 12:1) and under
-    /// Increase Contrast, where iOS already swaps in its own amber. The light entry is therefore the
-    /// darkened `#A38100` (3.69:1 on white, 3.01:1 on the card), the smallest visible departure
-    /// from `.yellow` that clears both measured light backgrounds; dark keeps the value `.yellow`
-    /// renders (`#FFD600`); the Increase Contrast entries are the system's own yellow variants
-    /// (`#A16A00` light, `#FEDF43` dark), so raising contrast never lowers it.
-    ///
-    /// A colorset rather than a `colorScheme` read: the star is drawn at five call sites across
-    /// four modules, and the per-scheme and per-contrast choice belongs in one asset those sites
-    /// name, not in five switches that would have to agree. The Home card's *dark* background is a
-    /// cover-derived gradient, so the dark ratio there is content-dependent and stays a recorded
-    /// caveat; the star group's accessibility value carries the rating regardless.
-    public static let ratingStar = Color("RatingStar", bundle: .module)
-}
-
 private extension RatingView {
     var rating: Float {
         rawRating.halfRounded
@@ -101,20 +82,20 @@ private extension RatingView {
 #Preview("Interactive", traits: .sizeThatFitsLayout) {
     @Previewable @State var rating: Float = 2.5
     VStack(spacing: 16) {
-        RatingView(rating: rating).foregroundStyle(Color.ratingStar)
+        RatingView(rating: rating).foregroundStyle(.yellow)
         Slider(value: $rating, in: 0...5, step: 0.5)
     }
     .padding()
 }
 
 #Preview("Empty (0)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 0).foregroundStyle(Color.ratingStar)
+    RatingView(rating: 0).foregroundStyle(.yellow)
 }
 
 #Preview("Half (2.5)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 2.5).foregroundStyle(Color.ratingStar)
+    RatingView(rating: 2.5).foregroundStyle(.yellow)
 }
 
 #Preview("Full (5)", traits: .sizeThatFitsLayout) {
-    RatingView(rating: 5).foregroundStyle(Color.ratingStar)
+    RatingView(rating: 5).foregroundStyle(.yellow)
 }

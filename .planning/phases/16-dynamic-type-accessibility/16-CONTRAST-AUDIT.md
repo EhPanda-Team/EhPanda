@@ -421,6 +421,11 @@ state ratio that the grayscale check depends on; the last three columns are the 
 
 ## Decisions
 
+The owner's visible-change review of 2026-09-15 reverted the visible parts of `STARS=B`, `D28=ok`, D-26's adaptive badge
+text, the 16-22 non-colour carriers and the 16-24 hit-region fixes, and kept `HC=A` and the D-29 Reduce Motion gating:
+see § Visible-change review (2026-09-15). The decision slots and result sections below are the record of what was built
+before that review.
+
 Owner resume line, recorded verbatim:
 
 ```
@@ -461,9 +466,10 @@ that builds against it.
     Filters `CategoryCell` name is fixed white on included and excluded tiles in every appearance, replacing the adaptive
     text above; opacity 0.3, the `Button` semantics and `.isSelected` are unchanged. The excluded light-family tiles return to
     white on the pale wash (1.48:1 light, 1.30:1 light+IC as measured above), accepted by the owner under the 2026-09-14
-    best-effort scope. `CategoryLabel` badges keep D-26's adaptive text. `Color.Resolved.composited(over:opacity:)` existed
-    only for the adaptive cell text and was removed with its test. The rows and rendered evidence below that describe the
-    adaptive cell text are the pre-2026-09-15 record.
+    best-effort scope. `Color.Resolved.composited(over:opacity:)` existed only for the adaptive cell text and was removed
+    with its test. Later the same day the owner's visible-change review also returned `CategoryLabel` badges to white
+    text (§ Visible-change review (2026-09-15)). The rows and rendered evidence below that describe adaptive text are the
+    pre-2026-09-15 record.
 - **HC = A** — adopt the re-authored values for the 19 `lower` Increase Contrast variants; the 44 standard variants stay frozen.
   - Plan **16-15** edits exactly the 19 `contrast: high` entries listed in § Re-authoring proposal to the proposed sRGB values
     (one of them, E-Hentai Cosplay light+HC, does not keep its hue exactly because a channel clipped at 1.0); the other 21 HC
@@ -1124,3 +1130,60 @@ walkthrough: Favorites (list; its login placeholder *is* audited), Watched, Arch
 FolderManager and Detail Search. Home's login-gated section renders its generic `ErrorView` hidden beneath the
 sections (E-1). The History surface audited is its parse-error state — the History fixture does not parse on the
 stub (recorded in `deferred-items.md`).
+
+## Visible-change review (2026-09-15)
+
+The owner reviewed every visible change made after `db560275`, the last UI change they had confirmed. Replies, verbatim
+with glosses, in order:
+
+1. "db560275d3617363425dafe59918e2e26bad5e77 為止是我最後確認過可以接受的 UI 變更，往後的 accessibility 關聯的更改是潛在刪除對象，把它們列出來"
+   (up to `db560275` is the last UI change I confirmed as acceptable; the accessibility-related changes after it are
+   deletion candidates; list them).
+2. "篩出視覺上的變更" (filter out the visual changes).
+3. "接受 reduce motion 的變更，剩下什麼" (accept the Reduce Motion changes; what remains).
+4. "接受增加對比的變更，告訴我剩下的" (accept the Increase Contrast changes; tell me what remains), after before / after
+   captures of `b8296146` under Increase Contrast in light and dark, both hosts
+   (`$HOME/Library/Caches/ehpanda-phase16/round2/ic-compare/compare/`).
+5. "剩下的這 1-8 都撤回，一個 commit 就好" (revert the remaining items 1–8, in one commit).
+
+Earlier the same day: "categorycell 固定用白色字" (CategoryCell always uses white text), commit `1507a65a`.
+
+**Kept.** The D-29 Reduce Motion gating (`9687c82d`, `449628fb`, `b5e69032`, `9841ff22`, pinned by `bb265cb1`); the
+re-authored Increase Contrast category colours (`b8296146`, `HC=A`) and both colorset pins; every accessibility-semantics
+change (16-16 to 16-19, `c91c2b31`, and the labels, hides and combined elements inside the reverted commits).
+
+**Reverted: the visible part of each item only.**
+
+| # | commit | what renders again | semantics kept |
+|---|---|---|---|
+| 1 | `4a6169f6` | `CategoryLabel` text is white on every badge; the Filters `CategoryCell` shows no press dimming | the cell stays a `Button` with `.isSelected`, drawn through the new `UnhighlightedButtonStyle` (`.unhighlighted`), which renders the label alone |
+| 2 | `c0291090` | the app icon row shows no press dimming | `Button` role, label and `.isSelected` (`.unhighlighted`) |
+| 3 | `86ad21a7` | the tag suggestion row shows no press dimming | `Button` role and label (`.unhighlighted`); the decorative glyphs stay hidden |
+| 4 | `286ecc15` | Activity Logs level marker is the coloured `circle.fill` dot; Laboratory cells have no leading state glyph | the dot's level label; the Laboratory `Toggle` representation |
+| 5 | `0d9945e0` | Read glyph white; Detail comment preview date `.secondary`; offline notice label orange; Downloads swipe tints: Pages untinted, Move `.teal`, Update `.orange`; log error dot `.orange`; NewDawn light top stop `systemTeal`; General › Tags warning glyph `.yellow`. The DetailFeature `CommentLink` colorset is removed | — |
+| 6 | `d778cc08` | rating stars `.yellow` at all five sites; the `RatingStar` colorset is removed | the star group's label and value (16-19) |
+| 7 | `4d2acc70` | comment link runs in the accent tint, not underlined | — |
+| 8 | `9a3cd7ce` | the reader placeholder's page number and reload glyph `.gray` (`PagePlaceholder` colorset removed); "Show All", Detail's uploader and the "Give a Rating" / "Similar Gallery" labels without `minHeight: 24`, so Detail's action row is back to its pre-16-24 height; the Gallery Infos ellipsis without its 44-point frame; each Gallery Infos row is again a title beside a value that is the copy button | the hero cover hide, the preview-page labels, the Reading Setting slider label and value, the rating column as one element, and each Gallery Infos row as one element named by its title with the value (`accessibilityElement(children: .combine)`) |
+
+**Removed with them.** `AppTools/Extensions/Color+Contrast.swift` lost its last callers (the adaptive badge text and the
+Read glyph) and is deleted with `ColorContrastTests`. `CategoryColorsetInvariantTests` keeps the colorset walk, the
+parser checks and both pins, and drops the best-of contrast assertions: the badge text is white, and contrast is not
+guaranteed by tests (owner, 2026-09-14).
+
+**Audit.** The hit regions 16-24 had grown are reported again. `ownerApprovedExclusions` gains
+`V-1.designed-hit-regions`, quoting reply 5: `hitRegion` reports on the Buttons "Show All", "Similar Gallery" and the
+fixture uploaders "Pokom" and "hobohobo", on Home root, Toast (unsupported link), Gallery Detail and Gallery Detail (iPad
+modal) only. The Gallery Infos rows and the ellipsis are not reported.
+
+**Gates (Xcode 26.6).** FeatureTests on iPhone 17 (iOS 26.5): 1,049 tests, 0 failures (11 expected failures, the
+existing known issues). The SwiftLint build of `EhPanda` for generic iOS Simulator succeeds with no warnings.
+`AccessibilityAuditUITests`: iPhone 17 27 passed and 1 skipped (the iPad-only modal test), iPad (A16) 28 passed, both on
+the first try (no repetition in either result). Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/revert-visual/`
+(`*-1789458753.*`); the earlier run whose `hitRegion` failures motivated `V-1` is `audit-*-1789457708.*`.
+
+**Records this supersedes.** § Decisions `STARS=B`, `D28=ok` and the CATEGORYCELL adaptive text; § 16-15, 16-22 and
+16-23 results; § Automated audit (16-24) › Fixed (class a) rows for "Show All", the ellipsis, the uploader and action
+row, the Gallery Infos rows and the reader placeholder; § D-25 (16-24), whose action-row growth no longer exists; and
+the `ownerApprovedExclusions` (current) table, which now also holds `V-1`. Those sections stay as the record of what was
+built. Plan 16-25's Task 2 walk ran on the pre-review build `24bf5c10`; the orchestrator re-scopes the affected flows
+and the `16-SWEEP.md § D-25 re-sweep` action-row row when 16-25 resumes.

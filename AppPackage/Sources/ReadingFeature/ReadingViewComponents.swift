@@ -273,11 +273,9 @@ struct ImageContainer: View {
             backgroundColor
                 .overlay {
                     VStack {
-                        // `Color.pagePlaceholder` carries the measured contrast; the loading
-                        // placeholder draws the same number in the same colour.
                         Text(index.description)
                             .font(.largeTitle.bold())
-                            .foregroundStyle(Color.pagePlaceholder)
+                            .foregroundStyle(.gray)
                             .padding(.bottom, 30)
 
                         Button(action: reloadImage) {
@@ -285,7 +283,7 @@ struct ImageContainer: View {
                                 .labelStyle(.iconOnly)
                         }
                         .font(.system(size: reloadSymbolSize, weight: .medium))
-                        .foregroundStyle(Color.pagePlaceholder)
+                        .foregroundStyle(.gray)
                         .animation(.default) {
                             $0.visible(loadingState != .loading)
                         }

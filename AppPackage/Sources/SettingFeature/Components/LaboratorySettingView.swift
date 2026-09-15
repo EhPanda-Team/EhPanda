@@ -55,27 +55,16 @@ struct LaboratoryCell: View {
         isOn ? tintColor : .secondary
     }
 
-    /// The cell reads its state to sighted users through tint (on) versus gray (off) and through the
-    /// on/off glyph that leads the title; assistive technologies get the same state as a system
-    /// `Toggle` carrying the cell's own title, so the label, the on/off value, the toggle trait and
-    /// the Voice Control name all come from one representation while the tinted rendering and its
-    /// animated colour change stay untouched.
+    /// The cell reads its state to sighted users through tint (on) versus gray (off); assistive
+    /// technologies get the same state as a system `Toggle` carrying the cell's own title, so the
+    /// label, the on/off value, the toggle trait and the Voice Control name all come from one
+    /// representation while the tinted rendering and its animated colour change stay untouched.
     var body: some View {
-        HStack {
-            // The glyph is the state's non-colour carrier (Phase 16 criterion 11): desaturated, the
-            // tinted and the gray cell measured within 1.1:1 of each other, so a filled versus an
-            // empty circle says on/off where the colour alone cannot. It takes the cell's own text
-            // size, so the row keeps its height. It is hidden from assistive technologies because the
-            // `Toggle` representation below already carries the state as a value; the marker stays
-            // decorative even if that representation is ever removed.
-            Image(systemSymbol: isOn ? .checkmarkCircleFill : .circle)
-                .accessibilityHidden(true)
-            Label {
-                Text(title)
-                    .bold()
-            } icon: {
-                Image(systemSymbol: symbol)
-            }
+        Label {
+            Text(title)
+                .bold()
+        } icon: {
+            Image(systemSymbol: symbol)
         }
         .foregroundStyle(contentColor)
         .font(.title2)

@@ -105,19 +105,11 @@ public struct SubSection<Content: View>: View {
 
     /// Leading-aligned for the same reason as the title: a locale whose "Show All" is long enough
     /// to wrap would otherwise centre its lines under a leading-aligned heading.
-    ///
-    /// The subheadline label is 18 points tall at the default size, which the accessibility audit
-    /// reports as a hit region too small to interact with (Phase 16 automated audit). The floor is
-    /// the heading row's own height — the title beside it measures 24 points — so the target grows
-    /// to the row without moving the row: the text stays centred where it was, and the WCAG 2.5.8
-    /// minimum target size (24 × 24) is met without the 44-point ideal, which would add 20 points
-    /// to every section heading on Home, Detail and Search.
     private var showAllButton: some View {
         Button(action: showAllAction) {
             Text(.showAll)
                 .font(.subheadline)
                 .multilineTextAlignment(.leading)
-                .frame(minHeight: 24)
         }
         .visible(showAll)
     }

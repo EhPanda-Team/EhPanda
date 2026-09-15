@@ -278,17 +278,12 @@ private extension DetailView {
 
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            // The text is `.primary` and only the glyph keeps the warning orange (Phase 16 D-28,
-            // `offline-notice`): 15pt semibold sits below the large-text cut, so the text needs
-            // 4.5:1, and `.orange` on the material measured 2.31:1 in light. The glyph is a
-            // decorative duplicate of the text beside it and keeps the hue the state is known by.
-            Label {
-                Text(.savedDetails)
-            } icon: {
-                Image(systemSymbol: .wifiExclamationmark)
-                    .foregroundStyle(.orange)
-            }
+            Label(
+                .savedDetails,
+                systemSymbol: .wifiExclamationmark
+            )
             .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.orange)
             if error.isRetryable != false {
                 Button(.RLocalizable.retry) {
                     store.send(.fetchGalleryDetail)

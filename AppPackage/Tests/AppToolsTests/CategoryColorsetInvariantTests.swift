@@ -1,18 +1,14 @@
-import AppTools
 import CryptoKit
 import CustomDump
 import Foundation
-import SwiftUI
 import Testing
 
 /// Pins the 84 category background variants that Phase 16 D-26 froze.
 ///
-/// D-26 makes the background the category's identity and derives the badge text colour from it, so the
-/// backgrounds must never move by accident: the 44 standard (light / dark) variants are pinned by a
-/// SHA-256 over a canonical serialization of their channels, and every one of the 84 is proven to pass
-/// WCAG AA with the better of black or white text through the very helper the badge uses
-/// (`Color.Resolved.relativeLuminance`, `Color.contrastingForeground(on:)`), so a regression in the
-/// maths fails here against the audited table as well as in `ColorContrastTests`.
+/// D-26 makes the background the category's identity, so the backgrounds must never move by accident:
+/// the 44 standard (light / dark) variants are pinned by a SHA-256 over a canonical serialization of
+/// their channels. The badge text is white on every variant (owner decision, 2026-09-15), and contrast
+/// is not guaranteed by tests (owner decision, 2026-09-14), so nothing here measures it.
 ///
 /// The 40 `contrast: high` variants carry a *separate* pin. D-27 left their re-authoring as a
 /// should-fix for the owner; plan 16-15 did it under the `HC=A` decision, re-deriving the HC pin
@@ -45,15 +41,12 @@ struct CategoryColorsetInvariantTests {
         let blue: Double
 
         var name: String { "\(host) / \(category) / \(appearance.rawValue)" }
+        var channels: [Double] { [red, green, blue] }
 
         /// `<host>/<category>/<appearance>:<r>,<g>,<b>` with six-decimal channels — the hashed shape.
         var canonicalLine: String {
-            let channels = [red, green, blue].map({ String(format: "%.6f", $0) }).joined(separator: ",")
-            return "\(host)/\(category)/\(appearance.rawValue):\(channels)"
-        }
-
-        var resolved: Color.Resolved {
-            Color.Resolved(colorSpace: .sRGB, red: Float(red), green: Float(green), blue: Float(blue), opacity: 1)
+            let serialized = channels.map({ String(format: "%.6f", $0) }).joined(separator: ",")
+            return "\(host)/\(category)/\(appearance.rawValue):\(serialized)"
         }
     }
 
@@ -65,8 +58,8 @@ struct CategoryColorsetInvariantTests {
 
     private static let colorsDirectory = "App/Assets.xcassets/Category/Colors"
     private static let hosts = ["E-Hentai", "ExHentai"]
-    /// The worst best-of variant's file and one file from the other host, so an enumerator that
-    /// silently walked nothing cannot let a test pass vacuously — for either root.
+    /// One file from each host, so an enumerator that silently walked nothing cannot let a test pass
+    /// vacuously — for either root.
     private static let knownMembers = [
         "ExHentai/Game CG.colorset/Contents.json",
         "E-Hentai/Manga.colorset/Contents.json"
@@ -78,13 +71,6 @@ struct CategoryColorsetInvariantTests {
     private static let expectedVariantCount = 84
     private static let expectedStandardVariantCount = 44
     private static let expectedHighContrastVariantCount = 40
-
-    /// Audited in `16-CONTRAST-AUDIT.md § Category variants`: the worst best-of is ExHentai / Game CG /
-    /// light (white 4.55, black 4.62) and 47 of 84 variants choose black text.
-    private static let expectedWorstBestOf = 4.62
-    private static let expectedWorstVariantName = "ExHentai / Game CG / light"
-    private static let expectedBlackTextCount = 47
-    private static let minimumTextContrast = 4.5
 
     /// SHA-256 over the sorted canonical lines of the 44 standard variants. Changing any standard
     /// background byte fails this pin; that is the point (D-26).
@@ -98,9 +84,6 @@ struct CategoryColorsetInvariantTests {
     /// one (0 / 40 lower). The previous pin, over the as-shipped HC bytes, was
     /// `e81b0604c84754a0260818465051f11fae99fe756b934db2f16929ea83600937`.
     private static let highContrastPin = "84accf722ad6601f41e6cf8d069344f5c066f58df42bfdbf21b780dbcc539407"
-
-    private static let linearBlack = Color.Resolved(colorSpace: .sRGBLinear, red: 0, green: 0, blue: 0)
-    private static let linearWhite = Color.Resolved(colorSpace: .sRGBLinear, red: 1, green: 1, blue: 1)
 
     // MARK: - Walk
 
@@ -135,55 +118,17 @@ struct CategoryColorsetInvariantTests {
     }
 
     /// ExHentai / Cosplay is the only colorset using decimal-byte components; a parser that misses that
-    /// encoding reads `"163"` as 163.0 and reports a luminance in the tens of thousands.
+    /// encoding reads `"163"` as 163.0, a channel far outside the unit interval the pins serialize.
     @Test
-    func decimalEncodedCosplayVariantsHaveUnitIntervalLuminance() throws {
+    func decimalEncodedCosplayVariantsHaveUnitIntervalChannels() throws {
         let scan = try Self.scan()
         let cosplay = scan.variants.filter({ $0.host == "ExHentai" && $0.category == "Cosplay" })
         try #require(cosplay.isEmpty == false)
 
         for variant in cosplay {
-            let luminance = variant.resolved.relativeLuminance
-            #expect((0...1).contains(luminance), "\(variant.name) has luminance \(luminance)")
+            let isUnitInterval = variant.channels.allSatisfy({ (0...1).contains($0) })
+            #expect(isUnitInterval, "\(variant.name) has channels \(variant.channels)")
         }
-    }
-
-    // MARK: - Contrast
-
-    @Test
-    func everyVariantPassesWithBlackOrWhiteText() throws {
-        let scan = try Self.scan()
-
-        for variant in scan.variants {
-            let bestOf = Self.bestOfContrast(variant)
-            #expect(
-                bestOf >= Self.minimumTextContrast,
-                "\(variant.name) reaches only \(bestOf):1 with the better of black or white text"
-            )
-        }
-    }
-
-    @Test
-    func worstBestOfIsExHentaiGameCGLight() throws {
-        let scan = try Self.scan()
-
-        let worst = try #require(
-            scan.variants.min(by: { Self.bestOfContrast($0) < Self.bestOfContrast($1) })
-        )
-
-        expectNoDifference(worst.name, Self.expectedWorstVariantName)
-        #expect(abs(Self.bestOfContrast(worst) - Self.expectedWorstBestOf) < 0.01)
-    }
-
-    @Test
-    func fortySevenVariantsChooseBlackText() throws {
-        let scan = try Self.scan()
-
-        let blackTextCount = scan.variants
-            .filter({ Color.contrastingForeground(on: $0.resolved) == .black })
-            .count
-
-        expectNoDifference(blackTextCount, Self.expectedBlackTextCount)
     }
 
     // MARK: - Pins
@@ -213,16 +158,9 @@ struct CategoryColorsetInvariantTests {
     }
 }
 
-// MARK: - Contrast and hashing
+// MARK: - Hashing
 
 private extension CategoryColorsetInvariantTests {
-    private static func bestOfContrast(_ variant: Variant) -> Double {
-        max(
-            Color.contrastRatio(variant.resolved, linearWhite),
-            Color.contrastRatio(variant.resolved, linearBlack)
-        )
-    }
-
     private static func digest(of variants: [Variant]) -> String {
         let serialization = variants.map(\.canonicalLine).sorted().joined(separator: "\n")
         return SHA256.hash(data: Data(serialization.utf8)).map({ String(format: "%02x", $0) }).joined()
@@ -278,7 +216,7 @@ private extension CategoryColorsetInvariantTests {
     private static func variant(host: String, category: String, entry: Entry) throws -> Variant {
         try #require(
             entry.color.colorSpace == "srgb",
-            "\(host) / \(category) declares colour space \(entry.color.colorSpace); the contrast maths assumes sRGB"
+            "\(host) / \(category) declares colour space \(entry.color.colorSpace); the pins assume sRGB channels"
         )
         return Variant(
             host: host,

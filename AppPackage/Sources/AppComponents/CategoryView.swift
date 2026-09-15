@@ -6,13 +6,7 @@ import Sharing
 import SwiftUI
 
 // MARK: CategoryLabel
-/// A category name drawn inside a small rounded badge, in black or white over the category colour.
-///
-/// The background is the category's identity and is frozen (D-26): every legibility gain has to
-/// come from the text, so the text is the *better of black or white* for the resolved background,
-/// chosen by `Color.contrastingForeground(in:)`. The badge never re-implements that rule: the helper
-/// is the single source, and its unit tests pin the crossover, so the tie cannot resolve differently
-/// on screen than in the audited table.
+/// A category name drawn white-on-colour inside a small rounded badge.
 ///
 /// Every metric of the badge is proportional to the glyphs it wraps, not a fixed number of points:
 /// a radius and an inset designed against a 13pt footnote read as a hairline and a hairline of air
@@ -33,12 +27,6 @@ import SwiftUI
 /// it grows downwards rather than outwards.
 public struct CategoryLabel: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    /// The whole environment, not a single key: `color` is an asset-catalog colour whose light /
-    /// dark / Increase Contrast variant is picked by `colorScheme` *and* `colorSchemeContrast`
-    /// together, and `Color.resolve(in:)` needs the full `EnvironmentValues` to pick the same one
-    /// the badge is about to draw. Reading one key would choose the text against a variant that is
-    /// not on screen.
-    @Environment(\.self) private var environment
 
     private let text: LocalizedStringResource
     private let color: Color
@@ -82,7 +70,7 @@ public struct CategoryLabel: View {
             // matching `Font` constant, so naming the style costs the call sites nothing.
             .font(.system(textStyle).bold())
             .lineLimit(lineLimit)
-            .foregroundStyle(color.contrastingForeground(in: environment))
+            .foregroundStyle(.white)
             .padding(scaledInsets)
             .background(
                 Rectangle().foregroundStyle(color).clipShape(.rect(cornerRadius: cornerRadius))
@@ -157,10 +145,8 @@ public struct CategoryView: View {
 /// `.isSelected` trait instead of being spelled into a label: a trait is re-announced on its own
 /// when it changes, where a state baked into the label would re-read the whole label.
 ///
-/// The name is white on every tile, included or excluded, in every appearance (owner decision,
-/// 2026-09-15). The tile therefore deliberately does not share `CategoryLabel`'s better-of text
-/// rule (D-26): the owner chose the designed white name over adaptive text, knowing that white on a
-/// light-scheme excluded wash reads at far lower contrast than black would.
+/// The name is white on every tile, like `CategoryLabel`'s, and a press draws nothing
+/// (`.unhighlighted`): the tile keeps its designed look in every state (owner decision, 2026-09-15).
 private struct CategoryCell: View {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -230,7 +216,7 @@ private struct CategoryCell: View {
                 }
                 .clipShape(.rect(cornerRadius: cornerRadius))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.unhighlighted)
         // The binding's sense is inverted relative to the trait: `isFiltered == true` means the
         // category is *excluded* from results, so the tile reads as selected exactly when it is
         // not filtered. Passing `[]` rather than removing the trait keeps the modifier unconditional.
