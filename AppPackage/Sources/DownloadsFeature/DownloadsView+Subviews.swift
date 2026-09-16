@@ -394,6 +394,7 @@ struct DownloadListRow: View {
     @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
     @SharedReader(.setting) private var setting: Setting
     let download: DownloadedGallery
+    let rowFocus: AccessibilityFocusState<String?>.Binding
     let openAction: () -> Void
 
     var body: some View {
@@ -411,5 +412,6 @@ struct DownloadListRow: View {
         .onTapGesture(perform: openAction)
         .accessibilityAddTraits(.isButton)
         .accessibilityElement(children: .combine)
+        .accessibilityFocused(rowFocus, equals: download.id)
     }
 }
