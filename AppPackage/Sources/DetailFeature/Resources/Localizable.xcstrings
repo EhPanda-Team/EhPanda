@@ -1649,6 +1649,453 @@
         }
       }
     },
+    "accessibility.size.gibibyte": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Gibibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Gibibyte"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "gibibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "gibibytes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "ギビバイト"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "기비바이트"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二进制吉字节"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二進位十億位元組"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+            }
+    },
+    "accessibility.size.kibibyte": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Kibibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Kibibyte"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "kibibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "kibibytes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "キビバイト"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "키비바이트"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二进制千字节"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二進位千位元組"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+            }
+    },
+    "accessibility.size.mebibyte": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Mebibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Mebibyte"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "mebibyte"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "mebibytes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "メビバイト"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "메비바이트"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二进制兆字节"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@quantity@"
+          },
+          "substitutions": {
+            "quantity": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "二進位百萬位元組"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+            }
+    },
     "accessibility.torrent_downloads": {
       "extractionState": "manual",
       "localizations": {
