@@ -3715,6 +3715,15 @@ authorised: W-22 — the `Watched` title in the signed-out state, in three sites
 authorised: W-37 — on a gallery with no uploader, the Detail header's uploader `Button` is exposed to VoiceOver with an empty name; fix it without any visible change (for example by excluding the control from the accessibility tree when the uploader is absent), and if the only available fix alters what is drawn, revert the edit and route the finding `owner (D-22): carried to the 16-26 sign-off` with a before image path instead.
 carried to the 16-26 sign-off: W-31.
 
+### W-22 color-difference acceptance amendment (2026-09-16)
+
+The exact user-message time is unavailable. After being shown the matched `.large` and AX5 Favorites out pairs,
+the user replied 「可以接受」. This accepts only the two recorded cells and conditions: native `1206x2622`, ROI
+`[0,330,1206,2622]`, `.large` cross-build 325105 nonzero pixels with maximum RGB delta 3, AX5 cross-build 89381
+nonzero pixels with maximum RGB delta 8, and same-version 1-vs-2 ROI comparisons at both sizes with zero
+differences. It does not establish that the differences are natural system noise, approve a tolerance for other
+cells, or mark W-22 complete.
+
 ### Continuation note (2026-09-16T02:13:24Z)
 
 The owner authorised phase16 `xcodebuild` jobs to run concurrently with unrelated jobs, provided
@@ -3872,7 +3881,7 @@ The v3b AFTER run accounts for all 18 Search portrait cells (iPhone/iPad × S1/S
 
 The clipping checks reached Gallery9 fully inside the viewport on both devices: phone `(8,562,371x213)` and iPad `(433,931,371x213)`. The live `.large` → AX5 → `.large` sequence retained the literal query `Fixture query`; the return anchors were phone `y685` and iPad `y488`. Exact scroll equality is not claimed. Matched landscape evidence is available for both devices: phone BEFORE/AFTER use `phone-landscape-before-matched-ui.txt` / `phone-landscape-before-matched.png` and `phone-landscape-after-matched-ui.txt` / `phone-landscape-after-matched.png`, with title `(38,23 124x46)`, field `(78,79 718x124)`, and Quick `(78,234 394x66)`; iPad BEFORE/AFTER use `pad-landscape-before-matched-ui.txt` / `pad-landscape-before-matched.png` and `pad-landscape-after-matched-ui.txt` / `pad-landscape-after-matched.png`, with field `(20,87 1140x124)` and Quick `(16,242 394x66)`.
 
-The eight Favorites/Watched calibration cells remain individually pending matched verification. Existing evidence paths are: Favorites out BEFORE `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/favorites-large-out-screen.png` and `favorites-AX5-out-screen.png`; Favorites in BEFORE `favorites-signedin-large-screen.png` and `favorites-signedin-AX5-screen.png`; Watched out BEFORE `watched-large-out-screen.png` and `watched-AX5-out-screen.png`; Watched in BEFORE `watched-large-in-screen.png` and `watched-AX5-in-screen.png`. AFTER candidates are `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/after/favorites-out-large-cold-valid-1.png` / `favorites-out-large-cold-valid-2.png` and `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/after/watched-parity-after-large.png` / `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/after/watched-parity-after-AX5.png`; they do not establish all eight matched pairs. The cross-build Favorites out pixel comparison remains **FAIL/PENDING**: same-build AFTER controls are exact, while visible cross-build Glass/tab-bar differences remain.
+Of the eight Favorites/Watched calibration cells, the two recorded Favorites out cells are owner-accepted and the remaining six matched pairs remain unmeasured. The superseded older Favorites out paths are retained only as history; the accepted observation uses the matched pairs `calibration-v3b/before/favorites-out-large-1.png` ↔ `calibration-v3b/after/favorites-out-large-1.png` and `calibration-v3b/before/favorites-out-ax5-1.png` ↔ `calibration-v3b/after/favorites-out-ax5-1.png`, with same-version 1-vs-2 captures producing zero ROI differences at both sizes. These are two recorded cells only: native `1206x2622`, ROI `[0,330,1206,2622]`, large had 325105 nonzero differences with maximum RGB delta 3, and AX5 had 89381 with maximum RGB delta 8. The user's acceptance records these observed differences as acceptable for these two cells; it does not establish natural-system noise, a general tolerance, or W-22 completion.
 
 
 ### W-22 v3b per-cell evidence paths (2026-09-16)
@@ -3907,8 +3916,8 @@ The following rows expand every Search cell as required by W-22. Paths are writt
 
 | Cell | BEFORE path(s) | AFTER path(s) | Matched verdict |
 |---|---|---|---|
-| Favorites out / `.large` | `favorites-large-out-ui.txt`, `favorites-large-out-screen.png`, `favorites-large-out-readback.log` | `calibration-v3b/after/favorites-out-large-cold-valid-1.png`, `favorites-out-large-cold-valid-2.png`, `favorites-out-large-cold-valid-1-ui.txt`, `favorites-out-large-cold-valid-2-ui.txt`, `favorites-out-large-cold-valid-readback.log` | pending matched pair; same-build AFTER control exact, cross-build pixel FAIL/PENDING |
-| Favorites out / AX5 | `favorites-AX5-out-ui.txt`, `favorites-AX5-out-screen.png`, `favorites-AX5-out-readback.log` | no valid matched AFTER pair (prior capture invalid size provenance) | pending |
+| Favorites out / `.large` | `calibration-v3b/before/favorites-out-large-1.png` plus same-version 2; older `favorites-large-out-*` paths superseded | `calibration-v3b/after/favorites-out-large-1.png` plus same-version 2 | **accepted observation for this recorded cell**; native `1206x2622`, ROI `[0,330,1206,2622]`, cross-build 325105 nonzero / max RGB 3; same-version 1-vs-2 ROI 0 diff |
+| Favorites out / AX5 | `calibration-v3b/before/favorites-out-ax5-1.png` plus same-version 2; older `favorites-AX5-out-*` paths superseded | `calibration-v3b/after/favorites-out-ax5-1.png` plus same-version 2 | **accepted observation for this recorded cell**; native `1206x2622`, ROI `[0,330,1206,2622]`, cross-build 89381 nonzero / max RGB 8; same-version 1-vs-2 ROI 0 diff |
 | Favorites in / `.large` | `favorites-signedin-large-ui.txt`, `favorites-signedin-large-screen.png`, `favorites-signedin-large-readback.log` | no corresponding valid AFTER capture | pending |
 | Favorites in / AX5 | `favorites-signedin-AX5-ui.txt`, `favorites-signedin-AX5-screen.png`, `favorites-signedin-AX5-readback.log` | no corresponding valid AFTER capture | pending |
 | Watched out / `.large` | `watched-large-out-ui.txt`, `watched-large-out-screen.png`, `watched-large-out-readback.log` | no valid AFTER out capture; route remained Home in attempted fresh capture | pending |
