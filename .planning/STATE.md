@@ -5,11 +5,11 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: 16-25 Task 6 semantics progress recording — W-34 committed; VO-3, W-22 and Task 7 remain ongoing
-last_updated: "2026-09-16T05:26:31Z"
+stopped_at: 16-25 Task 6 semantics progress recording — W-33/W-10 gate passed; W-22 and Task 7 remain ongoing
+last_updated: "2026-09-16T06:49:23Z"
 last_activity: 2026-09-16
-last_activity_desc: "16-25 Task 6 semantics batches through W-34 recorded; latest committed head 700db090; Task 7 actual VoiceOver walks remain pending"
-state_head: 700db0907294506f72564bee7c206d11f0914f9b
+last_activity_desc: "16-25 Task 6 semantics batches through W-33/W-10 recorded; latest committed head a12b9903; W-22 AFTER and Task 7 remain pending"
+state_head: a12b9903aa21d09e574898fa68dac6553212f4b9
 progress:
   total_phases: 17
   completed_phases: 10
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 25 of 26 — Task 6 semantics recording active; W-22 owns current source work; plans 16-01 through 16-24 complete — 24/26 plans complete
 Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates: `#32 Activity Logs` and `#36 Laboratory`, built by 16-22 (six level glyph shapes at the old size; a hidden on/off glyph in the Laboratory cell — both frames unchanged at `large`, re-walked at XXL / AX3 / AX5 by 16-26); 16-15 through 16-21 added none (none changed layout or drew anything new). 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-16 — Task 6 semantics batches through W-34 are committed through `700db090`; W-34 has 39 module cases with zero repetition and a 54-output six-locale unit smoke. Actual VoiceOver walks remain pending Task 7. W-22 owns the current source work; its BEFORE matrix is accepted and AFTER is pending. VO-3 Filters remains an approved six-line `SearchView.swift` change, uncommitted; its build evidence is not runtime verification. Phase 16 remains executing; no state CLI advance or completion update has been applied.
+Last activity: 2026-09-16 — Task 6 semantics batches through W-34 are committed through `700db090`; W-34 has 39 module cases with zero repetition and a 54-output six-locale unit smoke. W-33's three Detail files are committed as `a12b9903`; W-10's three-line removal remains uncommitted. The combined scoped gate passed 43 cases across 11 suites with zero failures and zero Repetition, followed by the required generic Simulator build. Actual VoiceOver walks remain pending Task 7. W-22 owns the current source work; its BEFORE matrix is accepted and AFTER remains under fresh verification. The approved VO-3 six-line `SearchView.swift` trial and W-35 two-scope negative trial were withdrawn to HEAD; neither has a validated fix. Phase 16 remains executing; no state CLI advance or completion update has been applied.
 
 ## Historical P-VO1 handoff (superseded by 962f60c9 / 6b786dc3 and the recorded traversal amendment)
 
