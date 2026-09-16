@@ -214,6 +214,8 @@ struct HeaderSection: View {
                     .font(actionIconFont)
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
+            .accessibilityLabel(.accessibilityRemoveFromFavorites)
+            .accessibilityAddTraits(.isSelected)
             .animation(.default) {
                 $0.visible(galleryDetail.isFavorited)
             }
@@ -385,6 +387,7 @@ struct HeaderSection: View {
             }
 
             Button(gallery.uploader ?? "", action: navigateUploaderAction)
+                .accessibilityHidden(gallery.uploader?.isEmpty != false)
                 .lineLimit(uploaderLineLimit)
                 .font(.callout)
                 .foregroundStyle(.secondary)
