@@ -5,6 +5,8 @@ import SwiftUI
 
 public struct GalleryList: View {
     @SharedReader(.setting) private var setting: Setting
+    @AccessibilityFocusState private var localFocusedGalleryID: String?
+    private let galleryFocus: AccessibilityFocusState<String?>.Binding?
 
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
@@ -25,7 +27,8 @@ public struct GalleryList: View {
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
-        downloadBadges: [String: DownloadBadge] = [:]
+        downloadBadges: [String: DownloadBadge] = [:],
+        galleryFocus: AccessibilityFocusState<String?>.Binding? = nil
     ) {
         self.galleries = galleries
         self.downloadBadges = downloadBadges
@@ -37,9 +40,11 @@ public struct GalleryList: View {
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.translateAction = translateAction
+        self.galleryFocus = galleryFocus
     }
 
     public var body: some View {
+        let focusedGalleryID = galleryFocus ?? $localFocusedGalleryID
         VStack(spacing: 0) {
             switch setting.listDisplayMode {
             case .detail:
@@ -51,7 +56,8 @@ public struct GalleryList: View {
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
                     translateAction: translateAction,
-                    downloadBadges: downloadBadges
+                    downloadBadges: downloadBadges,
+                    galleryFocus: focusedGalleryID
                 )
             case .thumbnail:
                 ThumbnailList(
@@ -62,7 +68,8 @@ public struct GalleryList: View {
                     fetchMoreAction: fetchMoreAction,
                     navigateAction: navigateAction,
                     translateAction: translateAction,
-                    downloadBadges: downloadBadges
+                    downloadBadges: downloadBadges,
+                    galleryFocus: focusedGalleryID
                 )
             }
         }
@@ -84,6 +91,7 @@ public struct GalleryList: View {
 
 // MARK: DetailList
 private struct DetailList: View {
+    private let galleryFocus: AccessibilityFocusState<String?>.Binding
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
@@ -99,7 +107,8 @@ private struct DetailList: View {
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
-        downloadBadges: [String: DownloadBadge] = [:]
+        downloadBadges: [String: DownloadBadge] = [:],
+        galleryFocus: AccessibilityFocusState<String?>.Binding
     ) {
         self.galleries = galleries
         self.downloadBadges = downloadBadges
@@ -109,6 +118,7 @@ private struct DetailList: View {
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.translateAction = translateAction
+        self.galleryFocus = galleryFocus
     }
 
     private func shouldShowFooter(gallery: Gallery) -> Bool {
@@ -136,6 +146,7 @@ private struct DetailList: View {
                     )
                 }
                 .foregroundStyle(.primary)
+                .accessibilityFocused(galleryFocus, equals: gallery.id)
                 // Fetch-more fires when the trailing row actually becomes visible in the scroll
                 // container — a per-scroll-arrival signal, not a view-mounting one. The geometry
                 // heuristic below (AutoLoadNextPage) cannot serve this layout: its accounting was
@@ -165,6 +176,7 @@ private struct ThumbnailList: View {
     /// Text scales the preferred column width; large landscape viewports retain at least three columns.
     @ScaledMetric(relativeTo: .callout)
     private var minCellWidth: CGFloat = MasonryLayout.defaultMinCellWidth
+    private let galleryFocus: AccessibilityFocusState<String?>.Binding
 
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
@@ -181,7 +193,8 @@ private struct ThumbnailList: View {
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> TagTranslationLookup)? = nil,
-        downloadBadges: [String: DownloadBadge] = [:]
+        downloadBadges: [String: DownloadBadge] = [:],
+        galleryFocus: AccessibilityFocusState<String?>.Binding
     ) {
         self.galleries = galleries
         self.downloadBadges = downloadBadges
@@ -191,6 +204,7 @@ private struct ThumbnailList: View {
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.translateAction = translateAction
+        self.galleryFocus = galleryFocus
     }
 
     var body: some View {
@@ -228,6 +242,7 @@ private struct ThumbnailList: View {
                             .tint(.primary).multilineTextAlignment(.leading)
                         }
                         .buttonStyle(.borderless)
+                        .accessibilityFocused(galleryFocus, equals: gallery.id)
                     }
                 }
                 .animation(nil, value: galleries)
