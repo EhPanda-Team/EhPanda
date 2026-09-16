@@ -350,6 +350,35 @@ final class AccessibilityAuditUITests: XCTestCase {
         try audit(app, surface: "Error info sheet")
     }
 
+    // MARK: Walkthrough regressions (16-25)
+
+    /// VO-2: with the reader's control panel shown and no slider preview, the slider-preview strip
+    /// is hidden, so nothing inside it may reach the accessibility hierarchy.
+    ///
+    /// Before the fix the panel's visible ancestor wrote `accessibilityHidden(false)` over the
+    /// strip's own hide, and the strip's placeholder activity indicators were exposed with it. The
+    /// band is the thirty points above the page slider, which is where the strip lies; a wider
+    /// window also caught the indicators of the Detail screen the reader is presented over.
+    /// `16-SWEEP.md § Design proposals (16-25) › P-VO2` records the isolation builds that proved
+    /// the cause and the pre-fix count this asserts away.
+    func testReadingControlPanelHidesSliderPreview() throws {
+        let app = XCUIApplication()
+        try showReadingControlPanel(in: app)
+        let slider = app.sliders.firstMatch
+        XCTAssertTrue(slider.waitForExistence(timeout: 15), "The page slider did not appear.")
+        settle(app, for: 2)
+        let sliderMinY = slider.frame.minY
+        let exposed = app.activityIndicators.allElementsBoundByIndex.filter { indicator in
+            indicator.frame.minY >= sliderMinY - 30 && indicator.frame.maxY <= sliderMinY
+        }
+        let frames = exposed.map({ NSCoder.string(for: $0.frame) }).joined(separator: " ")
+        XCTAssertEqual(
+            exposed.count,
+            0,
+            "The hidden slider-preview strip exposed \(exposed.count) activity indicators: \(frames)"
+        )
+    }
+
     // MARK: iPad presentations
 
     /// On the regular-width pad idiom the Setting tab and a tapped gallery present as modals rather
