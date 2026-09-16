@@ -4027,6 +4027,12 @@ both installed dylibs have SHA `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-login-install.txt`. These are build/install
 facts only; no production gate completion is claimed here.
 
+**2026-09-17 D-25 scope correction.** The historical Activity Logs and Laboratory glyph rows are withdrawn by
+`cc05aca6`, which reverted the rendered glyph/HStack changes from `286ecc15`; the remaining Activity Logs combine
+modifier is accessibility semantics only and Laboratory has no post-revert diff. Gallery Detail remains withdrawn.
+The effective rendered D-25 scope is therefore exactly Search root, Favorites and Watched from `7edfb1a7`, using the
+existing login/out routes and nine planned iPhone-portrait XXL / AX3 / AX5 cells. No new glyph row is opened.
+
 ### Withdrawn uncommitted focus probes (2026-09-16)
 
 The W-13 Comments, W-35 Detail title, and VO-3 Search toolbar probes did not meet the owner's target and are withdrawn; their runtime observations remain open evidence and are not accepted or system-owned fixes. The temporary W-8 diagnostic was likewise restored and remains open. The five source files are byte-exact at their HEAD versions after restore; the withdrawn diff and before/after SHA records are retained at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/unresolved-focus/withdrawn-focus-probes.patch`, `source-sha-before-restore.txt`, and `source-sha-restored.txt`. The Search localizable additions were part of the withdrawn VO-3 probe. The W-13 Comments probe is not a validated fix or phase-completion signal; the committed W-13 Read and Downloads results remain separate. LOGIN was restored to VoiceOver off and shut down at `18:42`, with the readback recorded in the cache evidence.

@@ -530,8 +530,15 @@ D-28 sites whose fix changes size: **none** — the audit proposed colour-only f
 Plan 16-23 (D28=ok, STARS=B) records **no exception**: colour-only changes add no screen (D-24) — every star site, the Read
 glyph, the comment links and date, the offline notice, the swipe tints, the two warning glyphs and the NewDawn stop changed
 colour alone, no size or layout (see `### 16-23 result (contrast)`).
-The included set is therefore `#32 Activity Logs` and `#36 Laboratory`, both from plan 16-22 (built; see `### 16-22 result
-(DWC)`); plan 16-26 re-walks exactly those unless a later plan records an exception here.
+The included set was therefore `#32 Activity Logs` and `#36 Laboratory`, both from plan 16-22 (built; see `### 16-22 result
+(DWC)`); this is retained as historical candidate evidence.
+
+**2026-09-17 superseding ruling.** The owner-reverted visual commit `cc05aca6` removed the Activity Logs six glyphs and
+the Laboratory state glyph/HStack from `286ecc15`; the subsequent HEAD diff leaves only the Activity Logs `.accessibilityElement(children: .combine)`
+semantics change and no Laboratory diff. Accordingly, both historical
+candidate rows are withdrawn from the 16-26 rendered D-25 scope. Gallery Detail is already withdrawn. The effective
+scope is the three rendered W-22 screens — Search root, Favorites and Watched — with their existing iPhone-portrait
+XXL / AX3 / AX5 cells; no old measurements are erased.
 
 Plan 16-15 (CATEGORYCELL=A, HC=A) records **no exception**: it changed badge text colour, Increase Contrast background bytes and
 accessibility traits only, so per D-24 the Filters sheet and the badge screens stay **excluded** (see `### 16-15 result`).
