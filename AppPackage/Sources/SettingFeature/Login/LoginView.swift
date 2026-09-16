@@ -202,6 +202,7 @@ private struct LoginTextField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(description)
+                .accessibilityHidden(true)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

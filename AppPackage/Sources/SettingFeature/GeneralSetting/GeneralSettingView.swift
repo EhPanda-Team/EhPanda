@@ -69,6 +69,7 @@ struct GeneralSettingView: View {
             Section(.tags) {
                 HStack {
                     Text(.enableTagsExtension)
+                        .accessibilityHidden(true)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Image(systemSymbol: .exclamationmarkTriangleFill)
