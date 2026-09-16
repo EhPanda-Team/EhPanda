@@ -34,7 +34,6 @@ private struct ToastViewModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var item: Store<AppAlertState<Never>, Never>?
     let onErrorTap: (ErrorInfo) -> Void
-    @AccessibilityFocusState private var focusedToastID: UUID?
 
     func body(content: Content) -> some View {
         content.overlay(alignment: .bottom) {
@@ -58,11 +57,11 @@ private struct ToastViewModifier: ViewModifier {
                                     .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityFocused($focusedToastID, equals: id)
                         } else {
                             ToastMessageView(content: toast)
                         }
                     }
+                    .accessibilitySortPriority(-1)
                     .glassEffect(.regular, in: .capsule)
                     .id(id)
                     .padding(.horizontal)
@@ -143,7 +142,6 @@ private struct ToastViewModifier: ViewModifier {
         if errorInfo != nil {
             await Task.yield()
             guard !Task.isCancelled, item?.state.id == presentedID else { return }
-            focusedToastID = presentedID
             AccessibilityNotification.Announcement(toast.announcement).post()
         } else {
             await autoDismiss(toast, presentedID: presentedID)
