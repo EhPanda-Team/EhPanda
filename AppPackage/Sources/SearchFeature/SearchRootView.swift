@@ -10,6 +10,7 @@ import SwiftUI
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
+    @State private var containerHeight: CGFloat = 0
 
     public init(store: StoreOf<SearchRootReducer>) {
         self.store = store
@@ -17,61 +18,55 @@ public struct SearchRootView: View {
 
     public var body: some View {
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
-            let content =
-                ScrollView(showsIndicators: false) {
-                    SuggestionsPanel(
-                        historyKeywords: store.historyKeywords.reversed(),
-                        historyGalleries: store.historyGalleries,
-                        quickSearchWords: store.quickSearchWords,
-                        navigateGalleryAction: { store.send(.galleryTapped($0)) },
-                        navigateQuickSearchAction: { store.send(.quickSearchButtonTapped) },
-                        searchKeywordAction: { keyword in
-                            store.send(.setKeyword(keyword))
-                            store.send(.pushSearch)
-                        },
-                        removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
-                    )
-                }
-                .sheet(
-                    item: $store.scope(\.$destination, action: \.destination).filters
-                ) { store in
-                    FiltersView(store: store)
-                        .privacyMask()
-                }
-                .sheet(
-                    item: $store.scope(\.$destination, action: \.destination).quickSearch
-                ) { store in
-                    QuickSearchView(store: store) { keyword in
-                        self.store.send(.destination(.dismiss))
-                        self.store.send(.setKeyword(keyword))
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.store.send(.pushSearch)
-                        }
-                    }
-                    .privacyMask()
-                }
-                .searchable(text: $store.keyword, placement: .navigationBarDrawer)
-                .searchSuggestions {
-                    TagSuggestionView(
-                        keyword: $store.keyword, translations: store.tagTranslator.translations,
-                        showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
-                    )
-                }
-                .onSubmit(of: .search) {
-                    store.send(.pushSearch)
-                }
-                .toolbar(content: toolbar)
-                .toolbarTitleDisplayMode(.inlineLarge)
-                .navigationTitle(.RLocalizable.search)
-
-            // Workaround: Prevent the title disappearing issue. The blank subtitle only reserves
-            // layout; `verbatim` keeps Xcode from extracting it as a localizable " " key.
-            if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
-                content
-                    .navigationSubtitle(Text(verbatim: " "))
-            } else {
-                content
+            ScrollView(showsIndicators: false) {
+                SuggestionsPanel(
+                    historyKeywords: store.historyKeywords.reversed(),
+                    historyGalleries: store.historyGalleries,
+                    quickSearchWords: store.quickSearchWords,
+                    containerHeight: containerHeight,
+                    navigateGalleryAction: { store.send(.galleryTapped($0)) },
+                    navigateQuickSearchAction: { store.send(.quickSearchButtonTapped) },
+                    searchKeywordAction: { keyword in
+                        store.send(.setKeyword(keyword))
+                        store.send(.pushSearch)
+                    },
+                    removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
+                )
             }
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) {
+                containerHeight = $0
+            }
+            .sheet(
+                item: $store.scope(\.$destination, action: \.destination).filters
+            ) { store in
+                FiltersView(store: store)
+                    .privacyMask()
+            }
+            .sheet(
+                item: $store.scope(\.$destination, action: \.destination).quickSearch
+            ) { store in
+                QuickSearchView(store: store) { keyword in
+                    self.store.send(.destination(.dismiss))
+                    self.store.send(.setKeyword(keyword))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.store.send(.pushSearch)
+                    }
+                }
+                .privacyMask()
+            }
+            .searchable(text: $store.keyword, placement: .navigationBarDrawer)
+            .searchSuggestions {
+                TagSuggestionView(
+                    keyword: $store.keyword, translations: store.tagTranslator.translations,
+                    showsImages: store.setting.showImagesInTags, isEnabled: store.setting.showTagsSearchSuggestion
+                )
+            }
+            .onSubmit(of: .search) {
+                store.send(.pushSearch)
+            }
+            .toolbar(content: toolbar)
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .navigationTitle(.RLocalizable.search)
         } destination: { store in
             switch store.case {
             case .search(let store):
@@ -103,6 +98,7 @@ private struct SuggestionsPanel: View {
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
     private let quickSearchWords: [QuickSearchWord]
+    private let containerHeight: CGFloat
     private let navigateGalleryAction: (Gallery) -> Void
     private let navigateQuickSearchAction: () -> Void
     private let searchKeywordAction: (String) -> Void
@@ -110,7 +106,7 @@ private struct SuggestionsPanel: View {
 
     init(
         historyKeywords: [String], historyGalleries: [Gallery],
-        quickSearchWords: [QuickSearchWord],
+        quickSearchWords: [QuickSearchWord], containerHeight: CGFloat,
         navigateGalleryAction: @escaping (Gallery) -> Void,
         navigateQuickSearchAction: @escaping () -> Void,
         searchKeywordAction: @escaping (String) -> Void,
@@ -119,6 +115,7 @@ private struct SuggestionsPanel: View {
         self.historyKeywords = historyKeywords
         self.historyGalleries = historyGalleries
         self.quickSearchWords = quickSearchWords
+        self.containerHeight = containerHeight
         self.navigateGalleryAction = navigateGalleryAction
         self.navigateQuickSearchAction = navigateQuickSearchAction
         self.searchKeywordAction = searchKeywordAction
@@ -154,7 +151,10 @@ private struct SuggestionsPanel: View {
                 )
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Keep rows at their intrinsic height before applying the sparse-content viewport floor.
+        .fixedSize(horizontal: false, vertical: true)
+        // Keep the panel at least as tall as its scroll viewport when content is sparse.
+        .frame(maxWidth: .infinity, minHeight: containerHeight, alignment: .top)
         .animation(listAnimation, value: quickSearchWords)
         .animation(listAnimation, value: historyGalleries)
         .animation(listAnimation, value: historyKeywords)

@@ -20,28 +20,8 @@ struct WatchedView: View {
     }
 
     var body: some View {
-        GalleryList(
-            galleries: store.galleries,
-            pageNumber: store.pageNumber,
-            loadingState: store.loadingState,
-            footerLoadingState: store.footerLoadingState,
-            fetchAction: { store.send(.fetchGalleries()) },
-            fetchMoreAction: { store.send(.fetchMoreGalleries) },
-            navigateAction: { store.send(.delegate(.pushDetail($0))) },
-            translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
-            },
-            downloadBadges: store.downloadBadges
-        )
-        .animation(.default) {
-            $0.visible(didLogin)
-        }
-        .overlay {
-            NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-                .animation(.default) {
-                    $0.visible(!didLogin)
-                }
-        }
+        content
+        .animation(.default, value: didLogin)
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).quickSearch
         ) { store in
@@ -81,6 +61,28 @@ struct WatchedView: View {
         .toolbar(content: toolbar)
         .navigationTitle(.watched)
         .accessibilityNavigationTitleWorkaround()
+    }
+
+    @ViewBuilder private var content: some View {
+        if didLogin {
+            GalleryList(
+                galleries: store.galleries,
+                pageNumber: store.pageNumber,
+                loadingState: store.loadingState,
+                footerLoadingState: store.footerLoadingState,
+                fetchAction: { store.send(.fetchGalleries()) },
+                fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                navigateAction: { store.send(.delegate(.pushDetail($0))) },
+                translateAction: {
+                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+                },
+                downloadBadges: store.downloadBadges
+            )
+            .transition(.opacity)
+        } else {
+            NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
+                .transition(.opacity)
+        }
     }
 
     private func toolbar() -> some ToolbarContent {
