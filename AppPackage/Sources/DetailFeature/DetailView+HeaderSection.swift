@@ -34,6 +34,7 @@ struct HeaderSection: View {
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
     let navigateReadingAction: () -> Void
+    let readButtonFocus: AccessibilityFocusState<Bool>.Binding
     let navigateUploaderAction: () -> Void
 
     // 32pt at default (.large); scales on the same metric as the symbol it holds, so the glass
@@ -235,6 +236,7 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
+        .accessibilityFocused(readButtonFocus)
     }
     private func progressIndicator(
         progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
@@ -478,6 +480,7 @@ extension HeaderSection {
 // Section-scoped previews: the full DetailView preview pays the NavigationStack + ScrollView
 // scaffolding cost on every canvas update, so iterate on a single section here instead.
 @MainActor private func previewHeaderSection(
+    readButtonFocus: AccessibilityFocusState<Bool>.Binding,
     downloadBadge: DownloadBadge? = nil,
     downloadNeedsRepair: Bool = false
 ) -> some View {
@@ -499,24 +502,28 @@ extension HeaderSection {
         favorAction: { _ in },
         unfavorAction: {},
         navigateReadingAction: {},
+        readButtonFocus: readButtonFocus,
         navigateUploaderAction: {}
     )
     .padding(.horizontal)
 }
 
 #Preview("Idle") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewHeaderSection()
+        previewHeaderSection(readButtonFocus: $readButtonFocused)
     }
 }
 
 #Preview("Downloading") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
         previewHeaderSection(
+            readButtonFocus: $readButtonFocused,
             downloadBadge: .init(
                 status: .active,
                 progress: .init(completedPageCount: 47, pageCount: 114)
@@ -526,19 +533,22 @@ extension HeaderSection {
 }
 
 #Preview("Accessibility size") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewHeaderSection()
+        previewHeaderSection(readButtonFocus: $readButtonFocused)
             .environment(\.dynamicTypeSize, .accessibility5)
     }
 }
 
 #Preview("Needs repair") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
         previewHeaderSection(
+            readButtonFocus: $readButtonFocused,
             downloadBadge: .init(
                 status: .error,
                 progress: .init(completedPageCount: 12, pageCount: 114)
