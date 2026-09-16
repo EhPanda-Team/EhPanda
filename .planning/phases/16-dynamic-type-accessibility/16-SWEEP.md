@@ -4247,3 +4247,48 @@ The root walkthrough was restored and shut down after the bounded run. `$HOME/Li
 The initial `cc05aca6` provenance inventory recorded raw G1=25, G2=2, G3=51, and G4=23 sites. Its swept inventory was G1=7, G2=2, G3=46 plus 7 paired G4 sites; its excluded inventory was G1=18, G2=0, G3=5 plus 16 unpaired G4 sites. The initial swept runtime result was 34 hidden rows, 4 observed leaks, 2 not-an-element rows, and 15 unreached rows. Current after-fix bounded evidence is 38 hidden, 2 not an element, 15 unreached, and 0 pending; the four leak observations are resolved in the current runtime evidence. This is a before/after evidence comparison, not a claim that the historical source scan is identical to the current source grep. The original swept and excluded sites remain recorded above.
 
 Task 7 walkthrough execution is closed with carried items. W-33 and W-34 remain owner phonetic judgments; W-8, W-35, VO-3, W-13 Comments, and W-38 remain unresolved or carried to 16-26 and are not passes. Current Flow and hide cells contain no pending status. Historical progress sections retain earlier pending/null wording; a raw-document grep therefore differs from the current semantic status check by design.
+
+## Round-2 close (16-26)
+
+### Closing gates
+
+The gate session recorded repository HEAD `c6a58688`; the current measured source was the immutable
+`b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, and later documentation-only commits preserve that source.
+All runs used `DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer` through
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/scripts/xb2.sh`, with the phase-owned
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/production-gates/DerivedData-Generic-Lint`
+path. The root-approved ordering amendment records gates and runtime before the summary/docs, with no
+measurement rerun on a documentation-only HEAD.
+
+| Gate | Command (short) | Device / OS | Result | Evidence |
+|---|---|---|---|---|
+| FeatureTests | `xb2.sh <log> test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination platform=iOS Simulator,id=73E148DA-26E4-4892-8C8A-7EDC6725D0E7` | iPhone 17, iOS 26.5 (23F77) | 1050 total: 1039 passed, 11 expected failures, 0 failed/skipped, Repetition 0; summary 79.824 s, console 82.369 s. The 402 parameterized executions belong to 67 dynamic tests and are not the suite test count. | `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-featuretests-iphone.{log,xcresult,summary.json,tests.json}` |
+| UITests | `xb2.sh <log> test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination platform=iOS Simulator,id=73E148DA-26E4-4892-8C8A-7EDC6725D0E7` | iPhone 17, iOS 26.5 (23F77) | 39 passed in 41 test runs, 2 expected iPad-only skips, 0 failed, Repetition 0; summary 566.927 s, console 569.952 s. | `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-uitests-iphone.{log,xcresult,summary.json,tests.json}` |
+| UITests | `xb2.sh <log> test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination platform=iOS Simulator,id=B6679864-3783-4A3B-89B5-B0B010588C13` | iPad (A16), iPadOS 26.5 (23F77) | 41 passed in 41 test runs, 0 skipped/failed, Repetition 0; summary 642.417 s, console 645.214 s. | `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-uitests-ipad.{log,xcresult,summary.json,tests.json}` |
+
+The aggregate gate record is `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-closing-gates-evidence.txt`.
+
+The two expected iPhone skips are `AccessibilityAuditUITests.testPadSettingAndDetailModalsAudit` and
+`DeepLinkPadUITests.testPadTabModalReplacedByDeepLink`. SwiftLint used `swiftlint lint --strict --no-cache --config .swiftlint.yml AppPackage/Sources App ShareExtension EhPandaUITests AppPackage/Tests` and found 0 violations in 579 files. The six error rules were `accessibility_hardcoded_string`, `no_dynamic_type_size_modifier`, `reading_controls_dynamic_type_range`, `no_fixed_system_font_size`, `no_geometry_reader`, and `no_minimum_scale_factor`; the added-media check over `c65be7b8^..HEAD` found 0. The full FeatureTests bundle covered 22
+targets and 15 historical references (13 existing, 1 moved, 1 merged); it was not rerun separately.
+The ignored local workflow test command is repointed to the current project/scheme and gate iPhone;
+the phase-local lock and unrelated different-UDID/DerivedData jobs did not block this evidence.
+
+Tasks 3–4 owner sign-off remains pending. W-33 and W-34 remain owner audio judgments; no 16-26
+SUMMARY or phase/A11Y-02 completion is claimed.
+
+### Pending owner decision
+
+| Item | Current bounded status |
+|---|---|
+| #39 Favorites AX5 | Blank native Search capsule; owner-routed to 16-26 |
+| W-8 / W-35 | Detail focus limits remain unresolved |
+| VO-3 | Search Filters dismissal focus remains unresolved |
+| W-13 Comments | Comments remains unresolved; Read and Downloads have bounded evidence |
+| W-38 | Reader reaches page 51/52; indicator shows 44/52 while visible page is 51 |
+| W-31 | Button Shapes shows the empty uploader capsule; owner decision remains |
+| W-33 / W-34 | Owner listening pending for date/PM and File Size/MiB speech; clips are `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/task7-final-20260917-0248/clips/w33-date.m4a` and `w34-file-size.m4a` |
+
+W-21, W-24, and the other accepted/deferred records retain their existing closure dispositions.
+Voice Control spoken actuation and VoiceOver double-tap activation remain unmeasured limitations,
+not owner decisions. The approved natural colour acceptance applies to W-22 only and is not phase sign-off.
