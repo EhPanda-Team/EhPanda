@@ -8,6 +8,7 @@ import Sharing
 import SwiftUI
 
 struct EhSettingView: View {
+    @AccessibilityFocusState private var profilePickerFocused: Bool
     @Bindable private var store: StoreOf<EhSettingReducer>
     @SharedReader(.setting) private var setting: Setting
 
@@ -28,6 +29,10 @@ struct EhSettingView: View {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))
             }
+        }
+        .onChange(of: store.ehSetting != nil && store.ehProfile != nil) { _, isReady in
+            guard isReady else { return }
+            profilePickerFocused = true
         }
         .overlay {
             LoadingView()
@@ -56,6 +61,7 @@ struct EhSettingView: View {
                 EhProfileSection(
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
+                    profilePickerFocus: $profilePickerFocused,
                     editingProfileName: $store.editingProfileName,
                     deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
                     deleteConfirmationDialog: $store.scope(
