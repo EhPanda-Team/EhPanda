@@ -30,28 +30,8 @@ public struct FavoritesView: View {
             state: \.path,
             action: \.path
         ) {
-            GalleryList(
-                galleries: store.galleries ?? [],
-                pageNumber: store.pageNumber,
-                loadingState: store.loadingState ?? .idle,
-                footerLoadingState: store.footerLoadingState ?? .idle,
-                fetchAction: { store.send(.fetchGalleries()) },
-                fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                navigateAction: { store.send(.galleryTapped($0)) },
-                translateAction: {
-                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
-                },
-                downloadBadges: store.downloadBadges
-            )
-            .animation(.default) {
-                $0.visible(didLogin)
-            }
-            .overlay {
-                NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-                    .animation(.default) {
-                        $0.visible(!didLogin)
-                    }
-            }
+            content
+            .animation(.default, value: didLogin)
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).quickSearch
             ) { store in
@@ -85,6 +65,28 @@ public struct FavoritesView: View {
             .toolbar(content: toolbar)
             .navigationTitle(navigationTitle)
             .toolbarTitleDisplayMode(.inlineLarge)
+        }
+    }
+
+    @ViewBuilder private var content: some View {
+        if didLogin {
+            GalleryList(
+                galleries: store.galleries ?? [],
+                pageNumber: store.pageNumber,
+                loadingState: store.loadingState ?? .idle,
+                footerLoadingState: store.footerLoadingState ?? .idle,
+                fetchAction: { store.send(.fetchGalleries()) },
+                fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                navigateAction: { store.send(.galleryTapped($0)) },
+                translateAction: {
+                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
+                },
+                downloadBadges: store.downloadBadges
+            )
+            .transition(.opacity)
+        } else {
+            NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
+                .transition(.opacity)
         }
     }
 
