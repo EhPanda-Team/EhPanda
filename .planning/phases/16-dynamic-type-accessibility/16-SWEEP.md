@@ -4010,6 +4010,23 @@ The dynamic evidence is indexed in the preceding `### W-22 dynamic Search drawer
 
 The W-35 host-scope diagnostic is measurement only. Its actual log is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/w35-host-cold-20260917.log`; the build log is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w35-host-scope-20260917/w35-host-build.log`, provenance is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w35-host-scope-20260917/provenance-v2.txt`, and the cold image is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w35-host-scope-20260917/cold-initial.png`. The real `NavigationStack` cold run recorded candidate More at `00:50:54.552`, Will set actual at `00:50:54.553`, later More actual at `00:50:55.469`, and spoken More at `00:50:55.484`, with no verified title focus; the three patched files were withdrawn. W-8 cold1 evidence also includes `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w8-timing-20260917/runtime/cold1-merged.log`, and its matched evidence includes `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w8-timing-20260917/runtime/matched-runtime-summary.txt` and `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w8-timing-20260917/runtime/root-normal-header-settled.png`. W-8 cold1 recorded uploader actual/spoken at `00:29:33.517/.518`, Screen Changed at `00:29:34.294`, More actual/spoken at `00:29:35.079/.093`, and the next HID at `00:29:35.404`; detail load completed at `00:28:04`, with scroll offset `-70 → -48.667` in the same evidence. This does not establish causality; `pid=7790` resolved to SpringBoard and does not prove system ownership. W-8's matched cold route did not use VoiceOver to reach the uploader, so it has no 10-second idle sample and is not a negative result; the original cold1 reached the uploader without activation. The href-only normal sample used different uploader/category/cover content and is not a causal comparison. W-13 Comments remains the original Post Comment target with a negative Back return. VO-3's original toolbar target remains unmet; `visiblebodyMore` is an owner-decision candidate, not a fix. These limits remain unresolved technical evidence for 16-26 sign-off; do not repeat the same API probes.
 
+### Task 6 UI/E1 closeout (2026-09-17)
+
+The E-1 source removal is `b01add4c`. The first after-E1 `testReadingControlPanelAudit` runs passed 1/1 with zero
+failures and zero skips on both gate devices: phone testcase 8.670 s, wrapper `TEST SUCCEEDED` in 64.522 s with
+`XB_EXIT=0`; iPad testcase 9.130 s with wrapper `TEST SUCCEEDED` and `XB_EXIT=0`. Both full-test results report actual
+`nodeType` Repetition 0. The standing regression is `testReadingControlPanelAudit`; the former element-query absence
+probe was dropped because it enumerated hidden elements and stayed red after the fix. V-1's owner-approved
+designed-hit-region exclusion is preserved; `systemOwnedExclusions` remains unchanged and no new exclusion is added.
+Task 6's recorded UI/E1 evidence is closed; Task 7 remains in progress, and the 16-26
+D-25 re-sweep remains pending. Root's final by-UDID WALK and LOGIN build/install completed at 31.110 s and 25.705 s;
+both installed dylibs have SHA `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638217e9ac2709b6621`. Evidence is
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-walk-build.log`,
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-walk-install.txt`,
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-login-build.log`, and
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-login-install.txt`. These are build/install
+facts only; no production gate completion is claimed here.
+
 ### Withdrawn uncommitted focus probes (2026-09-16)
 
 The W-13 Comments, W-35 Detail title, and VO-3 Search toolbar probes did not meet the owner's target and are withdrawn; their runtime observations remain open evidence and are not accepted or system-owned fixes. The temporary W-8 diagnostic was likewise restored and remains open. The five source files are byte-exact at their HEAD versions after restore; the withdrawn diff and before/after SHA records are retained at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/unresolved-focus/withdrawn-focus-probes.patch`, `source-sha-before-restore.txt`, and `source-sha-restored.txt`. The Search localizable additions were part of the withdrawn VO-3 probe. The W-13 Comments probe is not a validated fix or phase-completion signal; the committed W-13 Read and Downloads results remain separate. LOGIN was restored to VoiceOver off and shut down at `18:42`, with the readback recorded in the cache evidence.
