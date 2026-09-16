@@ -3761,4 +3761,30 @@ original SHA-256 `5b4eb50046160ee3b4a1f4ae27fd6a4a00ec2d7535ec93ba9ba1a0107fb87f
 
 2026-09-16 P-VO1 verification amendment: the original 40-step walk remains recorded as not reaching the tab bar. With the unchanged six-card carousel and 24-card Frontpage fixture, the complete finite walk reaches Frontpage at step 8, Toplists at step 34, and the tab bar at steps 54–58, with zero unsolicited focus resets. Under the plan’s authority for the orchestrator to settle non-listening questions, this measured full traversal is accepted as the VO-1 no-trap oracle; no accessible item is removed, grouped merely to shorten the count, or hidden to meet the former sampling budget. Heading-previous, one-card swipes, six-swipe wrap, and the approved same-state layout comparison all remain required and have passed.
 
+### W-5 implementation and gate evidence (2026-09-16)
+
+W-5 is a semantics-only fix for finding W-5. `AppPackage/Sources/AppComponents/SubSection.swift` adds
+`.accessibilityAddTraits(.isHeader)` to `titleButton`; the existing button action, hit-testing condition,
+frames, styles, child content and `ProgressView` remain unchanged. The fix is committed as
+`a8cb5d53` (`fix(16-25): section heading traits`). It adds no D-25 re-sweep row because it cannot change
+rendered layout or frames. The expected Headings rotor result is still a Task 7 walk2 observation and is
+not marked passed here.
+
+The first command attempt was an invocation syntax error: the `test` action was omitted, so Xcode exited 64
+with `The flag -testPlan is only supported when testing` before any test started. Its log is retained at
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w5/module-tests.log` and is not a failed test run.
+After root authorization, the exact scoped command ran once with Xcode 26.6, GATE_IPHONE
+`73E148DA-26E4-4892-8C8A-7EDC6725D0E7`, and isolated `DerivedData-W5`. `AppToolsTests` ran 13 tests,
+`DetailFeatureTests` 26, `HomeFeatureTests` 24 and `SearchFeatureTests` 12: 75 tests total, passed, with
+zero `Repetition` nodes. The result and log are retained at
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w5/module-tests-v2.xcresult` and
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w5/module-tests-v2.log`.
+
+The follow-up Xcode 26.6 lint build also passed (`BUILD SUCCEEDED`) using the same isolated derived data;
+its log is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w5/lint-build.log`. No test file was
+changed, so no standalone test-file lint or build-for-testing was required. The only source change was
+released for root review; `SearchView.swift` retains the separate approved VO-3 six-line edit and remains
+uncommitted. W-22's four temporary seed/bootstrap patches remain strict-lint ready, with its
+before-measurement build and matrix still pending. The phase remains executing and Task 7 walk2 is pending.
+
 ### Walkthrough closure
