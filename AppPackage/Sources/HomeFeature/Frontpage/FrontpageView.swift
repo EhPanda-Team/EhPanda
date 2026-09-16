@@ -10,6 +10,7 @@ import SwiftUI
 import TagTranslationFeature
 
 struct FrontpageView: View {
+    @AccessibilityFocusState private var focusedGalleryID: String?
     @Bindable private var store: StoreOf<FrontpageReducer>
 
     init(store: StoreOf<FrontpageReducer>) {
@@ -27,7 +28,8 @@ struct FrontpageView: View {
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
-            }
+            },
+            galleryFocus: $focusedGalleryID
         )
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
@@ -47,6 +49,10 @@ struct FrontpageView: View {
             .privacyMask()
         }
         .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
+        .onChange(of: store.galleries.isEmpty) { oldEmpty, newEmpty in
+            guard oldEmpty, !newEmpty, let firstGallery = store.filteredGalleries.first else { return }
+            focusedGalleryID = firstGallery.id
+        }
         .toolbar(content: toolbar)
         .navigationTitle(.frontpage)
         .accessibilityNavigationTitleWorkaround()

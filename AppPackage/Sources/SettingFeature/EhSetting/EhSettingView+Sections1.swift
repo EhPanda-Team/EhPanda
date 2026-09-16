@@ -11,6 +11,7 @@ extension EhSettingView {
 struct EhProfileSection: View {
     @Binding var ehSetting: EhSetting
     @Binding var ehProfile: EhProfile
+    let profilePickerFocus: AccessibilityFocusState<Bool>.Binding
     @Binding var editingProfileName: String
     let deleteDialogAction: () -> Void
     let deleteConfirmationDialog:
@@ -28,6 +29,7 @@ struct EhProfileSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .accessibilityFocused(profilePickerFocus)
 
             if !ehProfile.isDefault {
                 Button(.setAsDefault) {
