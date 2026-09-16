@@ -65,7 +65,10 @@ struct GalleryInfosView: View {
             Info(title: .metadataPageCount, value: String(galleryDetail.pageCount)),
             Info(
                 title: .metadataFileSize,
-                value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
+                value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType,
+                accessibilityValue: galleryDetail
+                    .accessibilitySizeUnit(quantity: Double(Int(galleryDetail.sizeCount)))
+                    .map { String(Int(galleryDetail.sizeCount)) + " " + $0 }
             ),
             Info(
                 title: .metadataFavoritedTimes,
@@ -127,7 +130,7 @@ struct GalleryInfosView: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(info.title)
-            .accessibilityValue(valueText(for: info))
+            .accessibilityValue(info.accessibilityValue ?? valueText(for: info))
         }
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.metadataGalleryInfos)
@@ -154,6 +157,17 @@ private struct Info: Identifiable {
     var id: Int { String(localized: title).hashValue }
     let title: LocalizedStringResource
     let value: String?
+    let accessibilityValue: String?
+
+    init(
+        title: LocalizedStringResource,
+        value: String?,
+        accessibilityValue: String? = nil
+    ) {
+        self.title = title
+        self.value = value
+        self.accessibilityValue = accessibilityValue
+    }
 }
 
 #Preview("Loaded") {

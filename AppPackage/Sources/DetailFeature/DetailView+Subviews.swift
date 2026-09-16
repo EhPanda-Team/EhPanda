@@ -59,7 +59,11 @@ struct DescriptionSection: View {
         ),
         DescScrollInfo(
             title: .fileSize,
-            description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
+            description: galleryDetail.sizeType,
+            value: .init(galleryDetail.sizeCount),
+            accessibilityDescription: galleryDetail.accessibilitySizeUnit(
+                quantity: Double(galleryDetail.sizeCount)
+            )
         )
     ]}
     /// The strip stays a strip at every size — columns side by side, scrolled horizontally, never
@@ -125,7 +129,8 @@ struct DescriptionSection: View {
                 title: info.title,
                 value: info.value,
                 description: info.description,
-                isValueDecorative: info.isValueDecorative
+                isValueDecorative: info.isValueDecorative,
+                accessibilityDescription: info.accessibilityDescription
             )
         }
     }
@@ -140,6 +145,7 @@ extension DescriptionSection {
         var rating: Float = 0
         var isRating = false
         var isValueDecorative = false
+        var accessibilityDescription: String?
     }
     struct DescScrollItem: View {
         @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -148,6 +154,7 @@ extension DescriptionSection {
         let value: String
         let description: String
         let isValueDecorative: Bool
+        let accessibilityDescription: String?
 
         var body: some View {
             VStack(spacing: 3) {
@@ -171,7 +178,9 @@ extension DescriptionSection {
                     .contentTransition(.numericText())
                     .animation(.default, value: value)
                     .accessibilityHidden(isValueDecorative)
-                Text(description).font(.caption)
+                Text(description)
+                    .font(.caption)
+                    .accessibilityLabel(accessibilityDescription ?? description)
             }
         }
 
