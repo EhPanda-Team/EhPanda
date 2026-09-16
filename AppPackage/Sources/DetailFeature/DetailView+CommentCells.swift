@@ -93,6 +93,9 @@ extension DetailView {
                 comment.score.map(Text.init)
 
                 Text(comment.formattedDateString)
+                    .accessibilityRepresentation {
+                        Text(comment.accessibilityAttributedDateString)
+                    }
             }
             .foregroundStyle(.secondary)
             .font(.footnote)
