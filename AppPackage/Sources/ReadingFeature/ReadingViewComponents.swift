@@ -147,6 +147,7 @@ struct HorizontalImageStack: View {
             prefetchAction(page)
         }
         .contextMenu { contextMenuItems(page: page) }
+        .accessibilityActions { contextMenuItems(page: page) }
     }
     @ViewBuilder private func contextMenuItems(page: Int) -> some View {
         Button {
