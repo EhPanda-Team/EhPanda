@@ -3830,4 +3830,14 @@ Detail files were committed separately as `a12b9903`, while W-10's three-line re
 strict-lint ready, with AFTER verification still pending for fresh size provenance and matched comparisons.
 The phase remains executing and Task 7 walk2 is pending.
 
+### Continuation corrections — 2026-09-16
+
+W-13's earlier claim that WALK `pid=61210` crashed or showed a loading-error screen is withdrawn. The lifecycle audit identifies `pid=61450` as the explicit relaunch, and `w13-showall.png` is a normal Detail screen. The prior Reader return trial closed with VoiceOver off and is not a valid W-13 pass; evidence remains in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/WALK/w13/w13-lifecycle-audit.log`.
+
+W-22 v3's first build succeeded in 84.346 seconds, but its source was restored during execution, so its provenance is invalid for verification. The v3b root-complete wait exited 0 in 39.433 seconds and restored all five temporary files byte-exactly. Its iPhone cold S2 AX5 second row was complete (`16,600,370x125`, two lines) and confirmed in the PNG; the 18-cell matrix remains open.
+
+W-29 remains a read-only proposal: target the first Frontpage gallery by stable gallery ID in both existing `GalleryList.swift:128–137` detail-mode and `:219–231` thumbnail-mode Buttons, and target the existing Account Configuration profile Picker at `EhSettingView+Sections1.swift:24–30`. Observe only `galleries.isEmpty → non-empty` and `ehSetting == nil → non-nil`; an already-loaded entry needs no `initial: true`, and refreshes retaining content must not steal focus.
+
+W-35 remains unimplemented. The approved probe gives `DetailView` private `@AccessibilityFocusState titleFocused: Bool`; Header receives the real binding on its existing title Button; the outer DetailView observes `store.galleryDetail != nil` with `initial: true`, guards loaded state, then focuses the title. It covers nil-to-loaded and already-loaded entry, leaves nonnil-to-nonnil refreshes alone, and adds no defaultFocus, delay, task, onAppear, latch or UIKit shim. Cold, normal and already-loaded runtime plus the W-8 45-second idle check remain pending.
+
 ### Walkthrough closure
