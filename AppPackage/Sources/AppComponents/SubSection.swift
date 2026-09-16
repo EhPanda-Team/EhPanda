@@ -98,6 +98,7 @@ public struct SubSection<Content: View>: View {
                     }
             }
         }
+        .accessibilityAddTraits(.isHeader)
         .allowsHitTesting(reloadAction != nil)
         .foregroundStyle(.primary)
         .frame(maxWidth: .infinity, alignment: .leading)
