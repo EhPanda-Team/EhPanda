@@ -173,6 +173,7 @@ struct DownloadInspectorPageGroupRow: View {
                 .foregroundStyle(status.tintColor)
                 .font(.title3)
                 .labelReservedIconWidth(24)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(status.summaryTitle(count: pages.count))
@@ -409,6 +410,6 @@ struct DownloadListRow: View {
         .contentShape(.rect)
         .onTapGesture(perform: openAction)
         .accessibilityAddTraits(.isButton)
-        .accessibilityLabel(download.title)
+        .accessibilityElement(children: .combine)
     }
 }

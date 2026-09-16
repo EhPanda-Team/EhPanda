@@ -1,6 +1,143 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "accessibility.rating_summary": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewertung, %#@rating@ von 5"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating, %#@rating@ out of 5"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "評価、5点満点中 %#@rating@ 点"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "평점 %#@rating@점, 5점 만점"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "评分：%#@rating@，满分 5 分"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "評分：%#@rating@，滿分 5 分"
+          },
+          "substitutions": {
+            "rating": {
+              "argNum": 1,
+              "formatSpecifier": ".1f",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "download_badge.downloaded": {
       "extractionState": "manual",
       "localizations": {
