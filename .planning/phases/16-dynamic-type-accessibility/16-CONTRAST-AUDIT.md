@@ -943,6 +943,8 @@ Per surface. Cells give the result and the test's duration; "issues found" lists
 |---|---|---|
 | `E-1.hidden-content` | the reader's slider-preview strip, kept in the hierarchy at opacity 0 through `visible(false)` (`opacity` + `accessibilityHidden`) while the control panel shows no strip; the audit still walks the strip's activity indicators and reports each as `sufficientElementDescription` "Element has no description". Matched on the `Reading › control panel` surface by the `ActivityIndicator` element type | `E-1=approve` (2026-09-13) |
 
+**2026-09-17 status line.** The after-fix and after-E1 raw `ActivityIndicator` counts are 0 on both gate devices. E-1 is removed and retired by the after-E1 gate; the `V-1.designed-hit-regions` owner-approved exclusion from the 2026-09-15 visual-change review remains current, and `systemOwnedExclusions` is unchanged.
+
 **Reachability assumption.** Favorites, Watched, Archives, Torrents, EhSetting, FolderManager and Detail Search are
 login-gated: without a session their views render a login placeholder, and no credential seam or login fixture is
 added to reach them, so no fixture renders the real surface and the audit cannot reach it. They are covered by 16-25's
@@ -1130,6 +1132,43 @@ walkthrough: Favorites (list; its login placeholder *is* audited), Watched, Arch
 FolderManager and Detail Search. Home's login-gated section renders its generic `ErrorView` hidden beneath the
 sections (E-1). The History surface audited is its parse-error state — the History fixture does not parse on the
 stub (recorded in `deferred-items.md`).
+
+#### E-1 and the VO-2 fix (16-25)
+
+The P-VO2 cause was an explicit `.accessibilityHidden(false)` written by `visible(true)`. That explicit un-hide
+re-exposed nested descendants that their own `visible(false)` had hidden, including the reader panel's slider-preview
+`ActivityIndicator`s. The fix in `ViewModifiers.swift` writes only
+`.accessibilityHidden(true, isEnabled: !isVisible)`: visible content expresses no hidden value, so it cannot cancel a
+descendant's hide.
+
+The after-fix audit evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-fix-iphone.log`
+with bundle `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-fix-iphone.xcresult`, and
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-fix-ipad.log` with bundle
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-fix-ipad.xcresult`. The iPhone run reports
+39 passed, 0 failed and 2 normal iPad-only guard skips; the iPad run reports 41 passed, 0 failed and 0 skips.
+Both result bundles have actual `nodeType` Repetition count 0. The raw E-1 `ActivityIndicator` count is 0 in both
+logs. These are after-fix observations; the after-E1 gate below supplies the first-try retirement evidence.
+
+The after-E1 gate ran only `testReadingControlPanelAudit`, which now serves as the standing regression, on both gate devices. The
+phone bundle `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-e1-iphone.xcresult` reports 1/1
+passed, 0 failed and 0 skipped; the iPad bundle
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/after-e1-ipad.xcresult` reports 1/1 passed, 0 failed
+and 0 skipped. Full-test results recorded actual `nodeType` Repetition 0 on both devices; testcase durations were
+8.670 s (phone) and 9.130 s (iPad), with the wrapper logs reporting `TEST SUCCEEDED` and `XB_EXIT=0` for both
+devices (64.522 s for the phone wrapper). This first-try evidence retires E-1.
+
+The 2026-09-15 Final gate remains historical evidence and is not rewritten: its exact bundles are
+`$HOME/Library/Caches/ehpanda-phase16/round2/audit/final-gate/full-iphone265-1.xcresult`,
+`$HOME/Library/Caches/ehpanda-phase16/round2/audit/final-gate/full-iphone265-2.xcresult`, and
+`$HOME/Library/Caches/ehpanda-phase16/round2/audit/ipad265-recheck/full-ipad265.xcresult`. That gate recorded the
+E-1 report at ×3 per iPhone run and ×5 on iPad, as already stated above.
+
+**2026-09-17 correction to “How the engine judges” item (2).** The earlier measurement is retained verbatim: the
+audit's element query listed the hidden strip labels as absent while the audit reports named the strip. The VO-2
+variant evidence now establishes that the reports were exposure caused by the ancestor's explicit un-hide, rather than
+VoiceOver or the audit merely walking past content that was absent from the accessibility tree. The corrected
+interpretation is therefore: before `26625a78`, `visible(true)` could re-expose nested hidden descendants; after the
+fix, the nested hide remains effective. The after-E1 gate above verifies retirement.
 
 ## Visible-change review (2026-09-15)
 
