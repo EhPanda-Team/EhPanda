@@ -3848,4 +3848,10 @@ The Detail W-13 slice was committed as `a90750a7` and has a valid root-runtime R
 
 The v3b offline evidence includes the iPad S2 AX3 repair cell with EhPanda selected on Search and both quick rows at `379x48`. The final Gallery9 anchors are fully within the viewport on both devices: phone `8,562,371x213` and pad `433,931,371x213`. Both devices retain the three Search query states; returning to `.large` restores the Gallery9 anchors at phone `685` and pad `488`. These are bounded evidence points, not closure of W-22: all 18 portrait cells are accounted for as 17 valid plus the S2 AX3 repair readback, while landscape coverage and pixel calibration remain pending. The complete evidence remains under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/after-verified-v3b/`.
 
+### W-13 Downloads approved probe (2026-09-16)
+
+The approved Downloads-only probe is a design record, not a validated fix. Ownership is limited to `DownloadsView.swift` and `DownloadsView+Subviews.swift`, with no production implementation yet. `DownloadsView` owns `@AccessibilityFocusState private var focusedRowID: String?` and `@State private var inspectorOriginID: String?`. `DownloadRow` receives an `openInspectorAction: () -> Void` closure; its caller records the row origin ID and then sends the existing `inspectorButtonTapped` action, without adding a thin wrapper. `DownloadListRow` keeps its existing combined row semantics and attaches the real binding after that element boundary as `.accessibilityFocused(rowFocus, equals: download.id)`.
+
+The existing inspector sheet uses native `onDismiss`; it guards the origin ID against the current `visibleRows`, restores focus only when that row is still present, and clears the origin with `defer` on every path. This preserves the existing controls and semantics group. The runtime check must cover normal pages → inspector → Close with the same stable gallery ID and the missing-row guard; fixture download rows already provide the data, so no new download is permitted.
+
 ### Walkthrough closure
