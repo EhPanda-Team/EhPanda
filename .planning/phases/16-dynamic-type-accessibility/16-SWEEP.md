@@ -3187,7 +3187,7 @@ toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has n
 | W-34 | listening (L-5 route, Detail) | 1.2 (speech) | File-size units are spoken as letters: "MiB" is heard as "M I B". Owner: "MiB 確實被唸成三個獨立字母". App-authored; a fix changes the spoken unit only, not the visible text (orchestrator default, R13; the owner may veto) | `…/listen/audio/run1/L-5.report.txt`, `…/listen/audio/clips/04-file-size-gallery-infos.m4a` | fix | — |
 | W-35 | owner report (Detail) | 1.7 | After Detail opens, VoiceOver focus goes to the `More` button first, not to the gallery title. Owner: "進入 detail 後的焦點不在標題而是先到 more button"; target stated by the owner: the title | `…/transcripts/f3-detail-walk.txt`, `…/listen/audio/run1/L-2.vot.log` | fix | — |
 | W-36 | listening (L-4) | 1.2 | The stats strip speaks the rating twice in two forms: "110 Ratings, 4 dot 50" and then "Rating, 4.5 out of 5" (L-4, 33–51 s). Same scope as W-23 | `…/listen/audio/run1/L-4.report.txt` | fix | — |
-
+| W-37 | F3 | 1.4, 2.7 | On a gallery with no uploader the Detail header still draws an uploader `Button` with an empty title, and it is exposed to VoiceOver with an empty name. Found in the Button Shapes display pass beside W-31, which is the same control seen as a visible defect (the empty capsule); this row is the semantics half, which a fix can close without changing what is drawn | `…/display/F8/button-shapes.png`, `…/display/F8/contact.png` | fix (authorised as a semantics-only fix, orchestrator Task 5 reply 2026-09-16) | — |
 ### Hide-idiom sweep
 
 Inventory from live greps at `cc05aca6` (orchestrator ruling R12). Paths below are
@@ -3499,6 +3499,26 @@ devices; Task 6 removes E-1 only if both logs show zero with first-try runs, and
 corrected reason. `16-CONTRAST-AUDIT.md § Automated audit (16-24)` "How the engine judges" item (2) reads the
 strip as hidden; Task 6 corrects that sentence with these results.
 
+**Regression, revised (2026-09-16).** The proposal's regression signal does not work, and the measurement that
+shows it also shows the fix is correct. Runs, all on the one post-fix `build-for-testing` product (the app binary's
+mtime equals that build's completion, and no build wrote to the same derived-data path between the two
+`test-without-building` runs; the intervening `WALK_UDID` build used a separate `-derivedDataPath`):
+
+| run | tree | result | evidence |
+|---|---|---|---|
+| regression, red | pre-fix (`50e8412d`'s tree) | fails: 6 activity indicators in the band, three distinct 20 × 20 frames at y 774.33 each listed twice, slider `minY` 801.33 | `…/audit/regression-red-iphone.xcresult`, `…/audit/regression-red-iphone.log` |
+| regression, after the fix | `26625a78` | **still fails: 6, the identical frames** | `…/audit/regression-green-iphone.xcresult`, `…/audit/regression-green-iphone.log` |
+| `testReadingControlPanelAudit`, `GATE_IPHONE` | `26625a78` | passes, `Repetition` nodes 0; ActivityIndicator `sufficientElementDescription` reports **0** (pre-fix ×3) | `…/audit/after-vo2-panel-iphone.xcresult`, `…/audit/after-vo2-panel-iphone.log` |
+| `testReadingControlPanelAudit`, `GATE_IPAD` | `26625a78` | passes, `Repetition` nodes 0; the same reports **0** (pre-fix ×5) | `…/audit/after-vo2-panel-ipad.xcresult`, `…/audit/after-vo2-panel-ipad.log` |
+| `vot` walk, `WALK_UDID` | `26625a78`, built by `WALK_UDID`, `plutil` printed the bundle id, installed over | V4 verbatim: lower `Close` (y 719.67) → end label `1` → `Page` slider → `156` → pages, no spinner stop and no caption stop | `…/transcripts/vo2-postfix-26625a78.txt` |
+
+So `app.activityIndicators`, an XCUITest *element query*, enumerates elements that `accessibilityHidden(true)` has
+removed from the accessibility tree, while `performAccessibilityAudit(for:)` and VoiceOver both respect it. An absence
+assertion written through the element query therefore can never go green, and pins nothing: it reports the same count
+on a tree where the strip is exposed and on one where it is not. The proposal's warning — that such an assertion "may
+never go red" — named the wrong failure mode; the signal it chose is red unconditionally. Orchestrator decision D-A
+(2026-09-16): the test is dropped, and VO-2's standing pin becomes `testReadingControlPanelAudit` with `E-1` retired.
+
 #### P-VO1
 
 **Instrumentation.** Only debug log lines at existing call sites of `HomeFeature/HomeView+Sections.swift`
@@ -3584,6 +3604,21 @@ only oracle.
 passes if focus reaches the Frontpage heading, the Toplists heading and the tab bar with no `FOCUS` reset that no
 key press caused, and previous from the Frontpage heading lands on the last card with no reset. Consecutive swipes
 must still settle one card each and wrap to the first card after six swipes. Save both transcripts under `…/`.
+
+**Part 2's pre-fix signal, measured (2026-09-16).** The proposal's premise is disproved, not merely unconfirmed.
+A test written exactly as this section specifies — hermetic Home, read the labels of the carousel's exposed card
+buttons, assert no gallery appears twice — **passed** on the pre-fix tree, printing `cards=5 distinct=5 repeated=0`
+(`…/audit/regression-red-iphone.log`, the same run that measured P-VO2's red count). A read-only accessibility-tree
+read of `WALK_UDID` on the same build agrees: three cards are exposed at rest, and still three distinct after eight
+programmatic swipes. `LazyHStack` culls the copies it is not laying out, so two copies of one gallery never coexist in
+a static XCUITest snapshot; the duplicate exposure VO-1 suffers is transient and produced by VoiceOver's own
+traversal, which XCUITest cannot drive. The other reading of the assertion — that all six galleries are present —
+is red before the fix *and* after it, because the fix hides the cards outside the middle block but cannot realise
+cards the lazy stack never built. Neither reading yields red → green. The test was removed from the working tree
+before `50e8412d`, so no part of it was committed.
+
+Orchestrator decision D-B (2026-09-16): part 2 carries no XCUITest regression, and no green-only test is added in its
+place. Its oracle is the `vot` walk, identical to part 1, and the plan's `<behavior>` items are the pass condition.
 
 ### Visible-change batch (16-25)
 
