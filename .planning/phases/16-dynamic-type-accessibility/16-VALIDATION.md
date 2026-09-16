@@ -1,160 +1,259 @@
 ---
-phase: 16
-slug: dynamic-type-accessibility
-# status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-# audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
-created: 2026-08-23
+phase: "16"
+slug: "dynamic-type-accessibility"
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
+created: "2026-08-23"
+audited: "2026-09-17"
 ---
 
 # Phase 16 — Validation Strategy
 
-> Per-phase validation contract for feedback sampling during execution.
-> Seeded from `16-RESEARCH.md` § Validation Architecture. Task IDs are filled in by
-> `/gsd-validate-phase` once plans exist.
+Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24fe8146c; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
 
----
 
 ## Test Infrastructure
 
 | Property | Value |
-|----------|-------|
-| **Framework** | Swift Testing (package tests, ~178 files / ~1020 `@Test`); XCTest/XCUITest (`EhPandaUITests`, 13 tests, non-default `UITests` plan) |
-| **Config file** | `AppPackage/Tests/FeatureTests.xctestplan` (default, package tests via the app scheme); `UITests.xctestplan` (non-default, UI tests); the `AppPackage-Package` scheme runs every package test target |
-| **Quick run command** | `xcodebuild build -project EhPanda.xcodeproj -scheme AppFeature -destination 'generic/platform=iOS Simulator'` — the build runs the SwiftLint plugin, so this *is* the lint gate |
-| **Full suite command** | `cd AppPackage && xcodebuild test -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=<spare sim UDID>'`, then `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination 'platform=iOS Simulator,id=<spare sim UDID>'` |
-| **Estimated runtime** | ~60 s (package suite) + a few minutes for the UI-test plan; the lint build is a few minutes from clean |
-
-**Standing execution constraints.** Run **one** `xcodebuild test` invocation at a time —
-overlapping runs, or `pkill`-ing one mid-launch, wedges `testmanagerd`. `xcodebuild` buffers
-stdout until exit, so silence is not a hang. Bare `swift build` does not work for this package;
-everything goes through `xcodebuild`.
-
-**Simulator discipline (D-09).** The owner's logged-in simulator is phase infrastructure: it is
-driven for the round-1 sweep and never erased, reset, uninstalled, or used as a UI-test
-destination. UI tests and the accessibility audit run on a *spare* simulator (`<spare sim UDID>`
-above), always addressed by UDID — `booted` is ambiguous with two booted simulators.
-
----
-
-## Sampling Rate
-
-- **After every task commit:** quick run command (lint gate) plus the touched package test
-  target via the `AppPackage-Package` scheme (`-only-testing:<Target>`)
-- **After every plan wave:** full `AppPackage-Package` test action; the `UITests` plan whenever
-  `EhPandaUITests/` or view accessibility semantics changed
-- **Before `/gsd-verify-work`:** both suites green, all four D-16 lint rules (plus the D-30
-  guard) at zero violations, the owner-signed sweep table complete (no `pending` / `re-verify`
-  rows), all five D-13 items dispositioned, the manual VoiceOver / Voice Control walkthrough
-  recorded, and the D-25 re-sweep rows added and passed
-- **Max feedback latency:** ~60 s for the package suite; the lint build is the slow gate and is
-  run per commit, not per edit
-
----
+|---|---|
+| Framework | Swift Testing; XCTest/XCUITest |
+| Config | `AppPackage/Tests/FeatureTests.xctestplan`; `UITests.xctestplan` |
+| Quick run | Existing lint/build gates; strict no-cache SwiftLint evidence in closing cache |
+| Full suite | FeatureTests iPhone, UITests iPhone, UITests iPad in prescribed order |
+| Toolchain | Xcode 26.6 via `DEVELOPER_DIR`; phase-local `xb2.sh`; independent xcodebuild concurrency authorized |
+| Gate devices | iPhone `73E148DA-26E4-4892-8C8A-7EDC6725D0E7`; iPad `B6679864-3783-4A3B-89B5-B0B010588C13` |
 
 ## Per-Task Verification Map
 
-Task IDs are TBD until plans are written; the rows below are the behavior contract each plan
-task must map onto. Round 1 (A11Y-01) is owner-implemented, so its rows are verification work
-the agent performs, not implementation tasks.
+| Task ID | Plan | Wave | Requirement | Type | Automated | Manual/checkpoint | Class | Status |
+|---|---|---|---|---|---|---|---|---|
+| 16-01-T1 | 16-01 | 1 | A11Y-01, A11Y-02 | auto | yes | yes | test | existing-artifact |
+| 16-01-T2 | 16-01 | 1 | A11Y-01, A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-02-T1 | 16-02 | 1 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-02-T2 | 16-02 | 1 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-03-T1 | 16-03 | 2 | A11Y-01 | checkpoint:human-action | no | yes | task | existing-artifact |
+| 16-03-T2 | 16-03 | 2 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-04-T1 | 16-04 | 3 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-04-T2 | 16-04 | 3 | A11Y-01 | auto | yes | yes | task | existing-artifact |
+| 16-05-T1 | 16-05 | 4 | A11Y-01 | auto | yes | yes | task | existing-artifact |
+| 16-05-T2 | 16-05 | 4 | A11Y-01 | auto | yes | yes | task | existing-artifact |
+| 16-06-T1 | 16-06 | 5 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-06-T2 | 16-06 | 5 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-07-T1 | 16-07 | 6 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-07-T2 | 16-07 | 6 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-08-T1 | 16-08 | 7 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-08-T2 | 16-08 | 7 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-09-T1 | 16-09 | 8 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-09-T2 | 16-09 | 8 | A11Y-01 | auto | yes | no | task | existing-artifact |
+| 16-10-T1 | 16-10 | 9 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-10-T2 | 16-10 | 9 | A11Y-01 | checkpoint:human-action | no | yes | source | existing-artifact |
+| 16-11-T1 | 16-11 | 10 | A11Y-01 | auto | yes | yes | test | existing-artifact |
+| 16-11-T2 | 16-11 | 10 | A11Y-01 | checkpoint:human-action | no | yes | docs | existing-artifact |
+| 16-11-T3 | 16-11 | 10 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-12-T1 | 16-12 | 11 | A11Y-01 | auto | yes | yes | task | existing-artifact |
+| 16-12-T2 | 16-12 | 11 | A11Y-01 | checkpoint:human-verify | no | yes | docs | existing-artifact |
+| 16-12-T3 | 16-12 | 11 | A11Y-01 | auto | yes | yes | docs | existing-artifact |
+| 16-13-T1 | 16-13 | 12 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-13-T2 | 16-13 | 12 | A11Y-02 | checkpoint:decision | no | yes | source | existing-artifact |
+| 16-13-T3 | 16-13 | 12 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-14-T1 | 16-14 | 12 | A11Y-02 | auto | yes | no | test | existing-artifact |
+| 16-14-T2 | 16-14 | 12 | A11Y-02 | auto | yes | no | test | existing-artifact |
+| 16-15-T1 | 16-15 | 13 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-15-T2 | 16-15 | 13 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-15-T3 | 16-15 | 13 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-16-T1 | 16-16 | 14 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-16-T2 | 16-16 | 14 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-17-T1 | 16-17 | 15 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-17-T2 | 16-17 | 15 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-18-T1 | 16-18 | 16 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-18-T2 | 16-18 | 16 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-19-T1 | 16-19 | 17 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-19-T2 | 16-19 | 17 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-19-T3 | 16-19 | 17 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-20-T1 | 16-20 | 18 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-20-T2 | 16-20 | 18 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-21-T1 | 16-21 | 19 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-21-T2 | 16-21 | 19 | A11Y-02 | auto | yes | no | task | existing-artifact |
+| 16-21-T3 | 16-21 | 19 | A11Y-02 | auto | yes | no | test | existing-artifact |
+| 16-22-T1 | 16-22 | 20 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-22-T2 | 16-22 | 20 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-23-T1 | 16-23 | 21 | A11Y-02 | auto | yes | yes | source | existing-artifact |
+| 16-23-T2 | 16-23 | 21 | A11Y-02 | auto | yes | yes | task | existing-artifact |
+| 16-23-T3 | 16-23 | 21 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-24-T1 | 16-24 | 22 | A11Y-02 | auto | yes | yes | test | existing-artifact |
+| 16-24-T2 | 16-24 | 22 | A11Y-02 | auto | yes | yes | source | existing-artifact |
+| 16-24-T3 | 16-24 | 22 | A11Y-02 | checkpoint:human-verify | no | yes | test | existing-artifact |
+| 16-24-T4 | 16-24 | 22 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-25-T1 | 16-25 | 23 | A11Y-02 | tracer | yes | yes | task | existing-artifact |
+| 16-25-T2 | 16-25 | 23 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-25-T3 | 16-25 | 23 | A11Y-02 | checkpoint:human-action | no | yes | task | existing-artifact |
+| 16-25-T4 | 16-25 | 23 | A11Y-02 | auto | yes | yes | docs | existing-artifact |
+| 16-25-T5 | 16-25 | 23 | A11Y-02 | checkpoint:decision | no | yes | docs | existing-artifact |
+| 16-25-T6 | 16-25 | 23 | A11Y-02 | auto | yes | yes | source | existing-artifact |
+| 16-25-T7 | 16-25 | 23 | A11Y-02 | auto | yes | yes | source | completed-evidence |
+| 16-26-T1 | 16-26 | 24 | A11Y-01, A11Y-02 | tracer | yes | yes | docs | completed-evidence |
+| 16-26-T2 | 16-26 | 24 | A11Y-01, A11Y-02 | auto | yes | no | docs | completed-evidence |
+| 16-26-T3 | 16-26 | 24 | A11Y-01, A11Y-02 | checkpoint:decision | no | yes | docs | manual-pending-owner |
+| 16-26-T4 | 16-26 | 24 | A11Y-01, A11Y-02 | auto | yes | yes | docs | manual-pending-owner |
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | A11Y-01 | — | `minimumScaleFactor` count is 0 and the `no_minimum_scale_factor` rule is error-level | lint (build) | quick run command; standalone cross-check `swiftlint lint --strict --no-cache --config .swiftlint.yml AppPackage/Sources App ShareExtension EhPandaUITests AppPackage/Tests` | ❌ W0 (`.swiftlint.yml` rule) | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | `.dynamicTypeSize(` as a view modifier is an error; `@Environment(\.dynamicTypeSize)` and property reads stay legal (negative-control probe) | lint (build) | same as above | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | `GeometryReader` is an error (count stays 0) | lint (build) | same as above | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | Numeric-literal `.system(size:)` is an error; `@ScaledMetric`-fed forms stay legal (negative-control probe) | lint (build) | same as above | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | T-16 data protection | Every screen readable and operable at XXL / AX3 / AX5 × iPhone + iPad × portrait + landscape, judged by D-03 ("less information" = degraded); scroll-to-bottom on every screen | **manual (agent sweep, owner-signed)** | sweep per `16-RESEARCH.md` § Round-1 verification mechanics; evidence = `16-SWEEP.md` verdict table (text only) | ❌ W0 (verdict-table skeleton) | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | Each of the five D-13 AX5 edge cases closes as `fixed` or `accepted (reason recorded)` | manual | named rows in `16-SWEEP.md` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | `.large` parity after every owner fix — no visible change at the default size (D-15) | manual | before/after screenshots at `large` in the scratchpad, judged in chat (D-33) | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-01 | — | The ~30 `lineLimit(1)` sites re-judged under D-04 (no secondary-text exemption) | manual (checklist) | `16-RESEARCH.md` § D-04 re-judgement checklist, each row dispositioned in `16-SWEEP.md` | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | No accessibility label / hint / value / input label is a hardcoded string literal (D-30 guard) | lint (build) | quick run command (`accessibility_hardcoded_string`) | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Luminance helper: crossover at L ≈ 0.179, best-of black/white ≥ 4.58:1 for any colour, worst real variant 4.62:1 | unit | `cd AppPackage && xcodebuild test -scheme AppPackage-Package … -only-testing:AppToolsTests` (`ColorContrastTests.swift`) | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | 84/84 category variants ≥ 4.5:1 with best-of text; colorset JSON bytes unchanged (hash pin; parser handles hex / float / plain-integer components) | unit (repo walk) | `… -only-testing:<target>` (`CategoryColorsetInvariantTests.swift`) | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | `CategoryLabel` and the Filters `CategoryCell` render black-or-white text by resolved background luminance; no other white-on-category site remains | unit + manual | source scan + contrast test; light/dark/Increase Contrast screenshots in chat | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Missing labels, undersized hit regions, trait and contrast failures are caught on every fixture-reachable screen | UI (XCUITest) | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests -destination 'platform=iOS Simulator,id=<spare sim UDID>'` (`AccessibilityAuditUITests.swift`) | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Every icon-only control and custom tappable carries a label; decorative images hidden; state as traits (`ExcludeToggle`, `CategoryCell` included) | UI audit + manual | audit above + VoiceOver walkthrough | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Every interactive element appears under Voice Control "Show numbers" / "Show names" with an input label matching its visible text (English) | **manual (device)** | walkthrough checklist from `$HOME/.claude/skills/swift-accessibility-skill/resources/qa-checklist.md` on `Owner-iPhone-Test` | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | VoiceOver reading order and post-navigation focus are sensible on every common-task screen | **manual (device)** | same walkthrough | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Each in-scope meaningful-motion site reads `accessibilityReduceMotion` and degrades to dissolve / nothing; crossfades and `.numericText()` stay ungated | source scan + manual | Swift Testing scan over the listed sites (pattern: `DownloadSourceInventoryTests`) + Accessibility Inspector "Reduce Motion" simulation | ❌ W0 (optional scan) | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Non-category colours meet 4.5:1 text / 3:1 non-text in light, dark and Increase Contrast | manual sim | `xcrun simctl ui <UDID> appearance dark`, `… increase_contrast enabled`; Accessibility Inspector contrast calculator | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | No state is colour-only: activity-log level dots gain a glyph/text; filter selection and laboratory toggles carry non-colour cues | manual (grayscale) | Settings → Accessibility → Display → Color Filters → Grayscale on a device; screenshot review in chat | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Screens touched by a visible round-2 addition re-pass XXL / AX3 / AX5 (D-25 targeted re-sweep) | manual | rows appended to `16-SWEEP.md` | — | ⬜ pending |
-| TBD | TBD | TBD | A11Y-02 | — | Nutrition Label recommendation names each of the 6 claimed categories with its evidence, plus Dark Interface and the two N/A categories | doc | `16-NUTRITION-LABEL.md` present with one section per category | ❌ phase close | ⬜ pending |
-| TBD | TBD | TBD | — | — | Existing package suite stays green (no regression from label / motion / colour changes) | regression | full `AppPackage-Package` test action | ✅ exists | ⬜ pending |
-| TBD | TBD | TBD | — | — | Existing 13 UI tests stay green | regression | `UITests` plan | ✅ exists | ⬜ pending |
+Map counts: {"plans": 26, "tasks": 68, "automated": 59, "manualOrCheckpoint": 48, "statusExistingArtifact": 63, "statusCompletedEvidence": 3, "statusManualPendingOwner": 2}
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
-**Sequencing constraint the map depends on.** The SwiftLint plugin runs at error severity on
-every build, so the `no_minimum_scale_factor` rule can only be committed once the owner's five
-removals have landed (or in the same commit); landing it earlier breaks everyone's build. The
-other three D-16 rules and the D-30 guard flag zero sites today and can land immediately.
+## Authoritative Artifact Basis (68 tasks)
 
-**Why the lint rows carry negative-control probes.** A custom regex rule with a mis-spelled
-`match_kinds` or an over-broad pattern either silently matches nothing or blocks the owner's own
-reflow code (`@Environment(\.dynamicTypeSize)`, `@ScaledMetric`-fed `.system(size:)`). Each rule is
-proven with one positive and one negative sample against the SwiftLint 0.65.0 binary before it is
-committed, per the `11-EXCEPTIONS.md` §1.2 pattern.
+The per-task map records artifact basis separately from command availability; a command present in a plan is not evidence that it passed.
 
----
+| Task | Artifact basis |
+|---|---|
+| 16-01-T1 | 16-01-SUMMARY.md |
+| 16-01-T2 | 16-01-SUMMARY.md |
+| 16-02-T1 | 16-02-SUMMARY.md |
+| 16-02-T2 | 16-02-SUMMARY.md |
+| 16-03-T1 | 16-03-SUMMARY.md |
+| 16-03-T2 | 16-03-SUMMARY.md |
+| 16-04-T1 | 16-04-SUMMARY.md |
+| 16-04-T2 | 16-04-SUMMARY.md |
+| 16-05-T1 | 16-05-SUMMARY.md |
+| 16-05-T2 | 16-05-SUMMARY.md |
+| 16-06-T1 | 16-06-SUMMARY.md |
+| 16-06-T2 | 16-06-SUMMARY.md |
+| 16-07-T1 | 16-07-SUMMARY.md |
+| 16-07-T2 | 16-07-SUMMARY.md |
+| 16-08-T1 | 16-08-SUMMARY.md |
+| 16-08-T2 | 16-08-SUMMARY.md |
+| 16-09-T1 | 16-09-SUMMARY.md |
+| 16-09-T2 | 16-09-SUMMARY.md |
+| 16-10-T1 | 16-10-SUMMARY.md |
+| 16-10-T2 | 16-10-SUMMARY.md |
+| 16-11-T1 | 16-11-SUMMARY.md |
+| 16-11-T2 | 16-11-SUMMARY.md |
+| 16-11-T3 | 16-11-SUMMARY.md |
+| 16-12-T1 | 16-12-SUMMARY.md |
+| 16-12-T2 | 16-12-SUMMARY.md |
+| 16-12-T3 | 16-12-SUMMARY.md |
+| 16-13-T1 | 16-13-SUMMARY.md |
+| 16-13-T2 | 16-13-SUMMARY.md |
+| 16-13-T3 | 16-13-SUMMARY.md |
+| 16-14-T1 | 16-14-SUMMARY.md |
+| 16-14-T2 | 16-14-SUMMARY.md |
+| 16-15-T1 | 16-15-SUMMARY.md |
+| 16-15-T2 | 16-15-SUMMARY.md |
+| 16-15-T3 | 16-15-SUMMARY.md |
+| 16-16-T1 | 16-16-SUMMARY.md |
+| 16-16-T2 | 16-16-SUMMARY.md |
+| 16-17-T1 | 16-17-SUMMARY.md |
+| 16-17-T2 | 16-17-SUMMARY.md |
+| 16-18-T1 | 16-18-SUMMARY.md |
+| 16-18-T2 | 16-18-SUMMARY.md |
+| 16-19-T1 | 16-19-SUMMARY.md |
+| 16-19-T2 | 16-19-SUMMARY.md |
+| 16-19-T3 | 16-19-SUMMARY.md |
+| 16-20-T1 | 16-20-SUMMARY.md |
+| 16-20-T2 | 16-20-SUMMARY.md |
+| 16-21-T1 | 16-21-SUMMARY.md |
+| 16-21-T2 | 16-21-SUMMARY.md |
+| 16-21-T3 | 16-21-SUMMARY.md |
+| 16-22-T1 | 16-22-SUMMARY.md |
+| 16-22-T2 | 16-22-SUMMARY.md |
+| 16-23-T1 | 16-23-SUMMARY.md |
+| 16-23-T2 | 16-23-SUMMARY.md |
+| 16-23-T3 | 16-23-SUMMARY.md |
+| 16-24-T1 | 16-24-SUMMARY.md |
+| 16-24-T2 | 16-24-SUMMARY.md |
+| 16-24-T3 | 16-24-SUMMARY.md |
+| 16-24-T4 | 16-24-SUMMARY.md |
+| 16-25-T1 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T2 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T3 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T4 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T5 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T6 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-25-T7 | 16-SWEEP.md Task 7/cache walkthrough closure |
+| 16-26-T1 | 16-26 Task 1 plan/gate evidence |
+| 16-26-T2 | 16-26 Task 2 plan/gate evidence |
+| 16-26-T3 | 16-26 Task 3 plan/gate evidence |
+| 16-26-T4 | 16-26 Task 4 plan/gate evidence |
+
+## Behavior Coverage Map (23 rows)
+
+| # | Requirement | Status | Plan/task | Evidence / disposition |
+|---:|---|---|---|---|
+| 1 | minimumScaleFactor rule/error and zero count | COVERED | 16-01 T1/T2; 16-12 T1 | .swiftlint.yml + strict no-cache lint evidence (0 violations) |
+| 2 | .dynamicTypeSize modifier rule and negative control | COVERED | 16-01 T1/T2 | .swiftlint.yml + lint gate |
+| 3 | GeometryReader rule and zero count | COVERED | 16-01 T1/T2 | .swiftlint.yml + lint gate |
+| 4 | numeric .system(size:) rule and negative control | COVERED | 16-01 T1/T2 | .swiftlint.yml + lint gate |
+| 5 | all surfaces readable/operable XXL AX3 AX5 both devices/orientations | MANUAL | 16-02 T1/T2; 16-04..09 T1/T2; 16-11 T1/T3; 16-25 T2/T7; 16-26 T1/T2 | 16-SWEEP.md matrix and simulator walkthrough evidence |
+| 6 | five D-13 AX5 edge cases dispositioned | MANUAL | 16-02 T1; 16-11 T1/T3; 16-26 T1/T2 | 16-SWEEP.md named D-13 rows |
+| 7 | .large parity after owner fixes | MANUAL | 16-05 T1/T2; 16-11 T1; 16-25 T6/T7 | before/after cache captures and owner review |
+| 8 | lineLimit(1) checklist re-judged | MANUAL | 16-02 T1; 16-11 T1 | 16-SWEEP.md D-04 checklist |
+| 9 | hardcoded accessibility strings guard | COVERED | 16-01 T1/T2; 16-16 T1/T2; 16-17 T1/T2 | .swiftlint.yml + strict lint evidence |
+| 10 | luminance crossover and contrast helper | SUPERSEDED | 16-14 T1 | The contrast helper and its historical test were removed by the owner in cc05aca6; no current test claim |
+| 11 | 84 category variants and colorset hash pins | COVERED | 16-14 T2; 16-15 T2 | AppPackage/Tests/AppToolsTests/CategoryColorsetInvariantTests.swift; closing FeatureTests pass |
+| 12 | CategoryLabel/CategoryCell resolved text contrast | MANUAL | 16-15 T1/T3; 16-23 T1/T2 | Adaptive contrast implementation was reverted; owner-accepted white treatment remains a manual visual decision |
+| 13 | fixture-reachable accessibility audit | COVERED | 16-24 T1/T2/T4 | EhPandaUITests/AccessibilityAuditUITests.swift; UITests closing gates pass |
+| 14 | icon-only/custom tappable labels and traits | COVERED+MANUAL | 16-16 T1/T2; 16-17 T1; 16-19 T1/T2/T3; 16-24 T1/T2; 16-25 T2/T7 | UI audit + actual-focus/VC proxy evidence |
+| 15 | Voice Control spoken commands/actuation | MANUAL-ONLY | 16-25 T2/T3/T7 | spoken commands not exercised; retain manual-only |
+| 16 | VoiceOver announcement/order/post-navigation focus | MANUAL | 16-25 T2/T3/T7; 16-26 T1/T2 | sim-use/vot actual-focus + spoken transcripts; double-tap activation remains manual |
+| 17 | Reduce Motion gating and rendered outcome | COVERED+MANUAL | 16-20 T1/T2; 16-21 T1/T2/T3 | ReduceMotionGatingSourceTests + display captures/manual rendered judgment |
+| 18 | non-category contrast dark/IC | MANUAL | 16-13 T1/T2; 16-15 T2/T3; 16-23 T1/T2 | simulator display evidence and contrast measurements |
+| 19 | Differentiate Without Color/grayscale | MANUAL | 16-13 T1/T2; 16-22 T1/T2; 16-23 T1/T2 | grayscale display evidence |
+| 20 | D-25 targeted re-sweep | MANUAL | 16-25 T7; 16-26 T1/T2 | 9 cells: Search #9, Favorites #8, Watched #5; 8 pass plus Favorites AX5 finding #39 |
+| 21 | Nutrition Label document | SUPERSEDED | 16-26 T4 | owner 2026-09-15 superseded deliverable; no test/file gap |
+| 22 | package regression suite | COVERED | 16-14/16-24 and 16-26 T2 | closing FeatureTests: 1039 passed, 0 failed, 0 skipped, 11 expected; first try |
+| 23 | UI regression suite | COVERED | 16-24 T4 and 16-26 T2 | closing UITests: iPhone 39 passed/2 skipped; iPad 41 passed/0 skipped; 0 failed; no Repetition |
 
 ## Wave 0 Requirements
 
-- [ ] `.swiftlint.yml` — five custom rules (four D-16 + the D-30 `accessibility_hardcoded_string`
-      guard); `no_minimum_scale_factor` sequenced after the owner's removals
-- [ ] `.planning/phases/16-dynamic-type-accessibility/16-SWEEP.md` — verdict-table skeleton:
-      the re-derived ~42-surface inventory × 12 cells (iPhone/iPad × portrait/landscape ×
-      XXL/AX3/AX5), plus the 5 named D-13 rows and the D-04 `lineLimit(1)` checklist rows;
-      status vocabulary `pending | pass | finding:#N | re-verify | accepted`
-- [ ] `AppPackage/Tests/AppToolsTests/ColorContrastTests.swift` — luminance / contrast helper tests
-- [ ] `AppPackage/Tests/<target>/CategoryColorsetInvariantTests.swift` — 84/84 ≥ 4.5:1 with
-      best-of text + colorset SHA-256 pin (parser handles the three component encodings)
-- [ ] `EhPandaUITests/AccessibilityAuditUITests.swift` — `performAccessibilityAudit()` per
-      fixture-reachable screen, deep-link entry via the existing `UITestConstants`; registered in
-      `UITests.xctestplan`
-- [ ] Catalog keys (`accessibility.*`) in each touched module's `.xcstrings`, all six locales
-      filled, numeric arguments labeled per `CLAUDE.md`
-- [ ] (optional) hermetic fixtures for Favorites / Archives / Torrents so the automated audit
-      reaches them credential-free
-- [ ] Framework install: none — Swift Testing, XCTest and both test plans already exist
-
----
+- [x] `.swiftlint.yml` six custom rules at error severity; strict no-cache lint reports 0 violations.
+- [x] CategoryColorsetInvariantTests.swift exists and its background pins are covered by closing FeatureTests; the removed contrast helper is not current coverage.
+- [x] `ReduceMotionGatingSourceTests.swift` exists.
+- [x] `EhPandaUITests/AccessibilityAuditUITests.swift` exists and is covered by closing UITests.
+- [x] Existing test infrastructure; no framework install required.
 
 ## Manual-Only Verifications
 
-VoiceOver and Voice Control do not exist in the Simulator, the D-03 verdict ("less information")
-is a visual judgment, and the Nutrition Label bar requires every common user task to work — so a
-human pass is required by the bar itself, not a coverage gap.
+- Rendered Dynamic Type, D-03 readability/operability, `.large` parity and D-25 visible changes: visual simulator/cache evidence plus owner review.
+- VoiceOver actual-focus/spoken evidence exists through sim-use/vot; experiential confirmation remains manual and double-tap activation is unmeasured.
+- Voice Control spoken commands and VO double-tap activation were not measured; native UI/VC proxies are not command execution.
+- Reduce Motion rendered effects, dark/Increase Contrast and grayscale require rendered judgment.
+- Owner final sign-off remains a checkpoint.
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Readability / operability at XXL / AX3 / AX5, both devices, both orientations | A11Y-01 | Truncation is a rendered outcome; the AX snapshot still reports the full label, so the screenshot is the verdict basis | Per cell: `xcrun simctl ui <UDID> content_size <token>` (`extra-extra-extra-large` / `accessibility-extra-large` / `accessibility-extra-extra-extra-large`), `agent-device orientation …`, open the screen, **scroll to the bottom**, screenshot to the scratchpad, record the row in `16-SWEEP.md`; restore `content_size large` afterwards |
-| `.large` parity after each owner fix | A11Y-01 | Parity is a visual comparison against the pre-fix appearance | Before/after at `large`, sent in chat (D-33); owner judges |
-| Owner-signed UAT (criterion 5) | A11Y-01 | The gate carried over from Phase 10 is the owner's signature, not the agent's | Owner reviews the completed `16-SWEEP.md` and the chat evidence, signs the table |
-| VoiceOver announcement, reading order, focus after navigation | A11Y-02 | No VoiceOver in the Simulator; order and focus are experiential | `Owner-iPhone-Test`: Settings → Accessibility → VoiceOver; walk every common-task screen with the skill's `qa-checklist.md` |
-| Voice Control "Show numbers" / "Show names" actuation | A11Y-02 | No Voice Control in the Simulator | Same device: Settings → Accessibility → Voice Control; say "Show names", confirm every control is listed and its name matches the visible text; actuate by name |
-| Reduce Motion outcome (dissolve / none on gated sites) | A11Y-02 | The replacement is a rendered effect | Accessibility Inspector → Settings → Reduce Motion, or device Settings; exercise each gated site |
-| Contrast under dark + Increase Contrast | A11Y-02 | Colour resolution depends on the live trait environment | `xcrun simctl ui <UDID> appearance dark`, `… increase_contrast enabled`; Accessibility Inspector contrast calculator on badge text and non-category colours |
-| Differentiate Without Color | A11Y-02 | The cue has to survive a grayscale render | Device Color Filters → Grayscale; confirm every colour-coded state still reads |
+## Superseded / excluded
 
-**Evidence rules (D-32 / D-33):** screenshots live only under the session scratchpad and are
-sent to the owner in chat; the committed artifacts are text-only verdict tables with written
-descriptions. No image file is ever added to the repository, even of a content-free screen.
+- Nutrition Label deliverable is superseded by owner D-34; no missing file/test gap.
+- Comments modal has no tab bar; no tab-boundary gap is asserted.
 
----
+
+## Closing Gate Provenance (2026-09-17)
+
+- Immutable source under validation: b01add4c11b1f9c355ac8f2e055ed8b24fe8146c.
+- Configured test command (from .planning/config.json):
+
+  ```bash
+  DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer bash "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/scripts/xb2.sh" "$HOME/Library/Caches/ehpanda-phase16/round2/close/regression-gate.log" test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=73E148DA-26E4-4892-8C8A-7EDC6725D0E7' -derivedDataPath "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/production-gates/DerivedData-Generic-Lint"
+  ```
+- FeatureTests iPhone: $HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-featuretests-iphone.summary.json; 1039 passed, 0 failed, 0 skipped, 11 expected, Repetition 0; console 82.369 s.
+- UI tests: iPhone summary $HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-uitests-iphone.summary.json, 39 passed, 0 failed, 2 skipped, Repetition 0; iPad summary $HOME/Library/Caches/ehpanda-phase16/round2/close/20260917-final-uitests-ipad.summary.json, 41 passed, 0 failed, 0 skipped, Repetition 0.
+- Strict no-cache SwiftLint: 579 files, 0 violations; command and binary are recorded in 20260917-final-closing-gates-evidence.txt.
+- D-25 evidence is under $HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/; Search #9, Favorites #8, and Watched #5 each have XXL/AX3/AX5 coverage (9 cells, 8 pass plus the Favorites AX5 finding). Search is not pending.
+- W-22 module gate: 49 tests (AppTools 13, Home 24, Search 12), zero failed/skipped/Repetition in 54.033 s; matching generic Simulator build passed in 67.206 s, debug dylib SHA 70e573ff0231029a87a233cee5b768bdd705147ded7ba869ab07afc324cf0ed0.
+- Owner gates remain manual: phonetic audio judgment and final sign-off.
+
+
+## Audit Trail
+
+- Audited: 2026-09-17.
+- 68 tasks and 23 behavior rows were mapped to artifact basis; command presence is not a pass assertion.
+- Automated gaps: 0 genuine gaps identified; no new tests were added by this audit.
+- Created baseline retained from 2026-08-23; current closing evidence is separately identified above.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s for the package suite
-- [ ] Owner-signed `16-SWEEP.md` with every row non-pending and all five D-13 rows dispositioned
-- [ ] Device walkthrough (VoiceOver + Voice Control) recorded
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] Complete 68-task map and 23 behavior map.
+- [x] No new automated coverage gap identified.
+- [x] Existing meaningful tests and first-run gates recorded.
+- [x] Manual-only constraints explicit.
+- [ ] Owner final sign-off and phonetic judgment.
 
-**Approval:** pending
+**Approval:** pending (coverage compliant does not equal phase approved)
