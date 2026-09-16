@@ -40,6 +40,76 @@ IPAD_LOGIN=present
 EVIDENCE_ROOT="$HOME/Library/Caches/ehpanda-phase16"
 ```
 
+### Re-pointed 2026-09-17 (plan 16-26)
+
+The original table and shell form above remain the round-1 historical record. The current plan uses
+the following four known UDIDs from the fresh inventory dated 2026-09-17; the former `88B217DA…`
+spare is retained only as that prefix because its full identifier was not verified.
+
+| Key | Current value | Baseline / evidence |
+|---|---|---|
+| `LOGIN_UDID` | `C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D` | LOGIN dark/large, Increase Contrast disabled; restored and shut down in `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/login-restored.txt` |
+| `WALK_UDID` | `CAE8CEE9-7C40-48D3-BE75-F0940B403DA8` | WALK light/large, Increase Contrast disabled; restored/shut down in `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/walk-restored.txt` and `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/inventory-restored-20260917.json` |
+| `GATE_IPHONE` | `73E148DA-26E4-4892-8C8A-7EDC6725D0E7` | closing test destination only |
+| `GATE_IPAD` | `B6679864-3783-4A3B-89B5-B0B010588C13` | closing test destination only |
+| `IPHONE_UDID` | alias of `LOGIN_UDID` | current protocol alias; `IPHONE_LOGIN` is present from the owner session on 2026-09-15 |
+| `IPAD_UDID` | `none` | no login iPad; re-sweep is iPhone-only |
+| `WALKTHROUGH_UDID` | alias of `WALK_UDID` | hermetic walkthrough only |
+| `GATE_IPHONE_UDID` | alias of `GATE_IPHONE` | only iPhone test destination |
+| `GATE_IPAD_UDID` | alias of `GATE_IPAD` | only iPad test destination |
+| `EVIDENCE_ROOT` | `$HOME/Library/Caches/ehpanda-phase16/` | persistent cache evidence root |
+| `BUNDLE_ID` | `app.ehpanda.personal` | install-over target |
+
+The retired `ADE09605…`, `8250D97E…`, and `E2BF974E…` identifiers are absent from that fresh
+inventory; their full historical values remain in the original table. The fresh inventory is
+`$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/inventory-20260917.json`. `BUNDLE_ID` remains
+`app.ehpanda.personal`. The current D-25 rendered scope is exactly Search root #9, Favorites #8,
+and Watched #5: nine iPhone-portrait cells at XXL, AX3, and AX5. Search root is the Task 1 tracer;
+Activity Logs, Laboratory, and Gallery Detail are withdrawn from the current rendered scope.
+The source is immutable at `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`; the measurement/gate evidence
+predates the documentation commit `8a199c2f` and was not rerun on that documentation HEAD. The
+gitignored workflow test command was corrected separately and is not part of this document change.
+
+Current aliases resolve through this table: `IPHONE_UDID` = `LOGIN_UDID`, `IPHONE_LOGIN` = `present`
+(owner session, 2026-09-15); `IPAD_UDID` = `none` and `IPAD_LOGIN` = `none` because the re-sweep is
+iPhone-only; `WALKTHROUGH_UDID` = `WALK_UDID`; `GATE_IPHONE_UDID` = `GATE_IPHONE`; and
+`GATE_IPAD_UDID` = `GATE_IPAD`. `EVIDENCE_ROOT` is `$HOME/Library/Caches/ehpanda-phase16/` and
+`BUNDLE_ID` is `app.ehpanda.personal`. The protocol's former `IPHONE_UDID`, `IPAD_UDID`, and
+`SPARE_UDID` names now resolve through this current table; `SPARE_UDID` maps to the two gate
+destinations for test purposes, and iPadOS 27 is excluded.
+
+Current shell form (the historical shell above is retained unchanged):
+
+```bash
+LOGIN_UDID=C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D
+WALK_UDID=CAE8CEE9-7C40-48D3-BE75-F0940B403DA8
+GATE_IPHONE=73E148DA-26E4-4892-8C8A-7EDC6725D0E7
+GATE_IPAD=B6679864-3783-4A3B-89B5-B0B010588C13
+IPHONE_UDID="$LOGIN_UDID"
+IPAD_UDID=none
+IPHONE_LOGIN=present
+IPAD_LOGIN=none
+WALKTHROUGH_UDID="$WALK_UDID"
+GATE_IPHONE_UDID="$GATE_IPHONE"
+GATE_IPAD_UDID="$GATE_IPAD"
+SPARE_UDID="$GATE_IPHONE" # protocol alias; use GATE_IPAD separately for the iPad gate
+BUNDLE_ID=app.ehpanda.personal
+EVIDENCE_ROOT="$HOME/Library/Caches/ehpanda-phase16"
+```
+
+#### Retired (history)
+
+The fresh `inventory-20260917.json` records these retired identifiers absent on 2026-09-17:
+
+| Historical key | Retired value | Status |
+|---|---|---|
+| `IPHONE_UDID` | `ADE09605-A44E-4F00-BE12-235970217355` | absent 2026-09-17 |
+| `IPAD_UDID` | `8250D97E-9AB0-42FD-99DB-07B0094BF8C7` | absent 2026-09-17 |
+| `SPARE_UDID` | `E2BF974E-DE4D-4A67-B84A-90D41325C4A7` | absent 2026-09-17 |
+| former spare | `88B217DA…` | prefix matches the historical record; full ID was not verified, so no full-ID absence is asserted |
+
+The original table, shell form, and `Why app.ehpanda.personal` section remain the round-1 record.
+
 ### Why `app.ehpanda.personal`
 
 Both `app.ehpanda` and `app.ehpanda.personal` are installed on both sweep simulators, and the
@@ -1200,6 +1270,30 @@ disturb round 1's verified layout (D-24).
 | Search root (#W-22) | v3b changes the `SuggestionsPanel` intrinsic-height floor, title identity and search layout; committed in `7edfb1a7` (`fix(16-25): stabilize sparse search layout`); `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-before-verified/search.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-after-verified/search.png` | XXL / AX3 / AX5, iPhone portrait (16-26); W22 before/after matrix and bounded dynamic evidence recorded below | **open / D-25 re-sweep pending** — final UI batch remains pending |
 | Favorites (#W-22) | v3b applies the same signed-out content-identity change in `FavoritesView.swift`; committed in `7edfb1a7`; `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/before/favorites-out-large-1.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/after/favorites-out-large-1.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/before/favorites-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/after/favorites-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | **open / D-25 re-sweep pending** — final UI batch remains pending |
 | Watched (#W-22) | v3b applies the same signed-out content-identity change in `WatchedView.swift`; committed in `7edfb1a7`; `.large` BF/AF captures: signed-out `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/before/screen-2.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/after/screen-2.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/before/watched-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/after/watched-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | **open / D-25 re-sweep pending** — final UI batch remains pending |
+
+### Re-sweep cells (16-26)
+
+Root's approved ordering amendment ran the measurement and closing gates before writing this summary
+documentation. Plan-start repository HEAD was `8a199c2f`; the immutable measured source was
+`b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, with loader and dylib hashes recorded in
+`16-25-SUMMARY.md`. The `.large` Search capture is reference only and is not counted in the nine-cell
+matrix; its readable filename pattern is `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-large-9-top.png`
+and `iphone-portrait-large-9-bottom.png`. Each measured size has top/bottom captures, matching UI
+JSON, a readback, and two scroll UI captures; after both scrolls normalized entries and frames were
+stable, and the title, field, Recently Searched, final keyword, and normal native drawer scroll-away
+were bounded.
+
+| Screen | Device | Orientation | Size | Status | Evidence |
+|---|---|---|---|---|---|
+| Search root #9 | WALK | portrait | XXL | pass | `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-xxl-9-top.png`, `-bottom.png`, matching `-top-ui.json`/`-bottom-ui.json`, `-readback.txt`, `-scroll1-ui.json`, `-scroll2-ui.json` |
+| Search root #9 | WALK | portrait | AX3 | pass | `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax3-9-top.png`, `-bottom.png`, matching `-top-ui.json`/`-bottom-ui.json`, `-readback.txt`, `-scroll1-ui.json`, `-scroll2-ui.json` |
+| Search root #9 | WALK | portrait | AX5 | pass | `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-9-top.png`, `-bottom.png`, matching `-top-ui.json`/`-bottom-ui.json`, `-readback.txt`, `-scroll1-ui.json`, `-scroll2-ui.json` |
+| Favorites #8 | LOGIN | portrait | XXL | pending | Task 2 |
+| Favorites #8 | LOGIN | portrait | AX3 | pending | Task 2 |
+| Favorites #8 | LOGIN | portrait | AX5 | pending | Task 2 |
+| Watched #5 | LOGIN | portrait | XXL | pending | Task 2 |
+| Watched #5 | LOGIN | portrait | AX3 | pending | Task 2 |
+| Watched #5 | LOGIN | portrait | AX5 | pending | Task 2 |
 
 ## Round-1 report
 
