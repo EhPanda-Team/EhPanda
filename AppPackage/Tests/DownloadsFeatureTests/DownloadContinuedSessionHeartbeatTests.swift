@@ -141,16 +141,28 @@ private extension DownloadContinuedSessionHeartbeatTests {
         return SessionFixture(manager: manager, storage: storage, rootURL: rootURL)
     }
 
-    /// Advances the clock until `condition` holds.
+    /// Checks the condition before advancing the clock so `waitUntil`'s final predicate recheck
+    /// cannot trigger one unnecessary heartbeat after the condition has already become true.
     ///
-    /// Advancing repeatedly rather than once is what removes the race between this case and the
-    /// heartbeat task registering its sleeper: an advance that finds no sleeper is a no-op, and the
-    /// next one lands. It returns the moment the condition holds, so a healthy run costs nothing.
+    /// Advancing repeatedly rather than once removes the race between this case and the heartbeat
+    /// task registering its sleeper: an advance that finds no sleeper is a no-op, and the next one
+    /// lands. It returns the moment the condition holds without advancing after that moment.
     func beat(_ clock: TestClock<Duration>, until condition: @escaping @Sendable () -> Bool) async throws {
         try await waitUntil {
+            if condition() { return true }
             await clock.advance(by: .seconds(10))
             return condition()
         }
+    }
+
+    @Test
+    func beatDoesNotAdvanceClockWhenConditionAlreadyHolds() async throws {
+        let clock = TestClock()
+        let before = clock.now
+
+        try await beat(clock, until: { true })
+
+        #expect(clock.now == before)
     }
 
     /// Advances the clock a fixed number of times, for the NEGATIVE cases: they must state how far
