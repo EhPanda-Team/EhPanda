@@ -3594,4 +3594,89 @@ must still settle one card each and wrap to the first card after six swipes. Sav
 
 ### Approved designs and decisions (16-25)
 
+The orchestrator's Task 5 reply, received 2026-09-16 09:30 JST, verbatim:
+
+> **P-VO2: approved as proposed.** Implement exactly the proposal's fix and scope: `visible(_:)` in
+> `AppComponents/ViewModifiers.swift` writes `.accessibilityHidden(true, isEnabled: !isVisible)`, the doc comment
+> gains the V3 why, and every other swept row stays as recorded.
+>
+> **P-VO1: approved as proposed, with three additions.**
+> 1. Part 2 must have a **measured** pre-fix red run, recorded like P-VO2's: the bundle path and the measured
+>    duplicate count. The proposal notes the count was never measured; measure it. If the test is not red on the
+>    pre-fix tree, stop and report — do not proceed under "no red signal exists" for part 2. Part 1 keeps its
+>    stated position that XCUITest can produce no pre-fix signal and the `vot` walk is its only oracle.
+> 2. The proposal claims no rendered layout change. Verify it: capture hermetic Home's carousel at `.large` on
+>    `GATE_IPHONE` before and after the fix in the same state, and compare. Only differences attributable to
+>    asynchronous image loading are acceptable; anything else stops the fix and is reported.
+> 3. The card-level `.accessibilityHidden(true, isEnabled: !isInMiddleBlock)` carries a doc comment naming it as
+>    the same form P-VO2 gives `visible(_:)`, and the `bufferedCards` and handoff doc comments name both bounded
+>    exceptions to the "`scrollPositionID` is never written during scrolling" invariant, as the proposal states.
+>
+> **W-22: authorised**, in three sites and no others. Activity Logs, Archives and Home are not in scope: the owner
+> confirmed they do not exhibit the failure. The proven cause is a scrolling container held at `opacity(0)`.
+>
+> (a) `HomeFeature/Watched/WatchedView.swift`. Replace the `visible(didLogin)` fade plus `NotLoginView` overlay
+> with a single `@ViewBuilder` content property that returns the `GalleryList` when signed in and `NotLoginView`
+> when signed out, each with `.transition(.opacity)`, and `.animation(.default, value: didLogin)` applied to it.
+> Neither state is held at `opacity(0)` any more. `.navigationTitle(.watched)` and
+> `accessibilityNavigationTitleWorkaround()` stay exactly as they are — do not change the title mode, do not remove
+> the workaround, do not add Reduce Motion gating (not in scope).
+>
+> (b) `FavoritesFeature/FavoritesView.swift`. The identical structural change, same shape. **The title is not
+> touched**: `.toolbarTitleDisplayMode(.inlineLarge)` stays exactly as it is, and
+> `accessibilityNavigationTitleWorkaround()` is **not** added. Per AGENTS.md § Accessibility navigation and search
+> policy, designed `.inlineLarge` titles are measured independently and do not inherit the automatic-title
+> fallback; Favorites is a designed `.inlineLarge` screen, not an accessibility-size inline screen. Keeping these
+> two distinct is a hard requirement of this authorisation.
+>
+> (c) `SearchFeature/SearchRootView.swift`. Delete the `if store.historyKeywords.isEmpty && …` / `else` branch and
+> the `navigationSubtitle(Text(verbatim: " "))` workaround, so the screen keeps one view identity in every state
+> and the title keeps its full `.inlineLarge` size. Replace `SuggestionsPanel`'s ineffective
+> `.frame(maxWidth: .infinity, maxHeight: .infinity)` (inside a `ScrollView`, `maxHeight: .infinity` collapses to
+> the child's ideal height, which is 0 when all three sections are empty — that zero-height scroll content is why
+> the title drops) with the repo's own established idiom from `AppComponents/NewDawnView.swift`: read the
+> `ScrollView`'s height with `.onGeometryChange(for: CGFloat.self) { $0.size.height } action:` into a `@State`,
+> and apply `.frame(maxWidth: .infinity, minHeight: containerHeight, alignment: .top)` to the panel.
+> **`minHeight`, never a fixed height and never `containerRelativeFrame(.vertical)`** — a rigid viewport-height
+> frame would pin content taller than the viewport and make it unreachable at accessibility sizes.
+> `alignment: .top` is required: the default `.center` would vertically centre short content, which is a visible
+> change. Add a doc comment stating why the min-height exists and that it is a floor, not a fixed height. This
+> also removes a latent defect: the deleted condition ignored `quickSearchWords`, so a screen that had quick-search
+> words but no history was given the blank subtitle and a shrunken title despite having content.
+>
+> **W-22 verification matrix (required; the owner asked for it explicitly).** Changing the Search root subcomponent
+> can break its accessibility layout, so prove it did not, before and after, in the same states:
+> - Devices: `GATE_IPHONE` and `GATE_IPAD`. Sizes: `.large`, AX3, AX5.
+> - Search root states: **S1** no quick-search words and no history; **S2** quick-search words only, no history;
+>   **S3** quick-search words plus history keywords plus history galleries.
+> - 2 devices × 3 sizes × 3 states, captured on the pre-fix tree **and** after the fix, same seeds and same state.
+> - Per cell: the navigation title is present, and its measured frame after the fix is the full `.inlineLarge`
+>   size, never the subtitle-shrunken one; the first content row's top y is unchanged from before (no vertical
+>   centring); the search field and drawer are unchanged.
+> - **Clipping check, the real hazard**: in S3 at AX5 on both devices, scroll to the bottom and confirm the last
+>   history gallery row is reachable and fully visible. If any content is unreachable, stop and report.
+> - Worst-case viewport: repeat S3 at AX5 in landscape on both devices.
+> - Live size change on Search root, `.large` → AX5 → `.large`, on both devices: the title survives, and view
+>   identity survives (the typed keyword and scroll position are preserved), per AGENTS.md.
+> - Watched and Favorites: capture signed-out and signed-in states before and after on `GATE_IPHONE` at `.large`
+>   and AX5. Only the navigation title may differ before vs after; any other pixel difference stops the fix.
+>   Do not use `LOGIN_UDID` for this — see the guards.
+> - Record every cell and its evidence path in `16-SWEEP.md`, and add the `§ D-25 re-sweep` rows the plan's D-25
+>   rule requires for any layout- or frame-changing fix.
+>
+> **W-31: carried to the 16-26 sign-off.** The uploader-line change is a visible change and stays unauthorised.
+> Its before image path is already recorded in `### Visible-change batch (16-25)`.
+>
+> **New, authorised as a semantics-only `W-n` fix:** on a gallery with no uploader, the Detail header's uploader
+> `Button` is exposed to VoiceOver with an empty name. Fix it without any visible change — e.g. exclude the
+> control from the accessibility tree when the uploader is absent. If the only fix you can find alters what is
+> drawn, stop, revert the edit, and route it `owner (D-22): carried to the 16-26 sign-off` with a before image
+> path instead.
+
+P-VO2: approved as proposed.
+P-VO1: revised — approved as proposed with three additions: (1) part 2's regression must have a measured pre-fix red run recorded like P-VO2's, with bundle path and measured duplicate count, and if it is not red on the pre-fix tree the executor stops and reports rather than proceeding under "no red signal exists"; part 1 keeps its stated position that XCUITest can produce no pre-fix signal and the `vot` walk is its only oracle; (2) the "no rendered layout change" claim is verified by capturing hermetic Home's carousel at `.large` on `GATE_IPHONE` before and after the fix in the same state and comparing, where only differences attributable to asynchronous image loading are acceptable and anything else stops the fix and is reported; (3) the card-level `.accessibilityHidden(true, isEnabled: !isInMiddleBlock)` carries a doc comment naming it as the same form P-VO2 gives `visible(_:)`, and the `bufferedCards` and handoff doc comments name both bounded exceptions to the "`scrollPositionID` is never written during scrolling" invariant.
+authorised: W-22 — the `Watched` title in the signed-out state, in three sites and no others (Activity Logs, Archives and Home are out of scope; the owner confirmed they do not exhibit the failure, and the proven cause is a scrolling container held at `opacity(0)`): (a) `HomeFeature/Watched/WatchedView.swift` replaces the `visible(didLogin)` fade plus `NotLoginView` overlay with one `@ViewBuilder` content property returning `GalleryList` when signed in and `NotLoginView` when signed out, each `.transition(.opacity)`, with `.animation(.default, value: didLogin)` on it, keeping `.navigationTitle(.watched)` and `accessibilityNavigationTitleWorkaround()` exactly as they are; (b) `FavoritesFeature/FavoritesView.swift` takes the identical structural change with its `.toolbarTitleDisplayMode(.inlineLarge)` untouched and no `accessibilityNavigationTitleWorkaround()` added; (c) `SearchFeature/SearchRootView.swift` drops the `historyKeywords.isEmpty` branch and the `navigationSubtitle(Text(verbatim: " "))` workaround and gives `SuggestionsPanel` the `NewDawnView.swift` min-height idiom (`onGeometryChange` height into `@State`, `.frame(maxWidth: .infinity, minHeight: containerHeight, alignment: .top)`), with the stated verification matrix and `§ D-25 re-sweep` rows.
+authorised: W-37 — on a gallery with no uploader, the Detail header's uploader `Button` is exposed to VoiceOver with an empty name; fix it without any visible change (for example by excluding the control from the accessibility tree when the uploader is absent), and if the only available fix alters what is drawn, revert the edit and route the finding `owner (D-22): carried to the 16-26 sign-off` with a before image path instead.
+carried to the 16-26 sign-off: W-31.
+
 ### Walkthrough closure
