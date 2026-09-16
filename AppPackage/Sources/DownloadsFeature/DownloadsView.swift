@@ -12,6 +12,8 @@ import SystemNotification
 
 public struct DownloadsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AccessibilityFocusState private var focusedRowID: String?
+    @State private var inspectorOriginID: String?
     @Bindable private var store: StoreOf<DownloadsReducer>
 
     public init(store: StoreOf<DownloadsReducer>) {
@@ -34,7 +36,8 @@ public struct DownloadsView: View {
                 }
                 .searchable(text: $store.keyword, placement: .navigationBarDrawer)
                 .sheet(
-                    item: $store.scope(\.$destination, action: \.destination).inspector
+                    item: $store.scope(\.$destination, action: \.destination).inspector,
+                    onDismiss: restoreInspectorFocus
                 ) { store in
                     NavigationStack {
                         DownloadInspectorView(store: store)
@@ -82,7 +85,15 @@ private extension DownloadsView {
                 // not rendered. Keyed on `state.id` because a `Store` is `Identifiable` by its own
                 // object identity, which is not the row's gid.
                 ForEach(visibleRows, id: \.state.id) { rowStore in
-                    DownloadRow(store: store, rowStore: rowStore)
+                    DownloadRow(
+                        store: store,
+                        rowStore: rowStore,
+                        rowFocus: $focusedRowID,
+                        openInspectorAction: {
+                            inspectorOriginID = rowStore.state.id
+                            store.send(.inspectorButtonTapped(rowStore.state.download.gid))
+                        }
+                    )
                 }
             }
             .refreshable { store.send(.refreshDownloads) }
@@ -104,6 +115,14 @@ private extension DownloadsView {
     private var visibleRows: [StoreOf<DownloadRowFeature>] {
         let visible = Set(store.filteredDownloads.map(\.id))
         return store.scope(\.rows, action: \.rows).filter({ visible.contains($0.state.id) })
+    }
+
+    private func restoreInspectorFocus() {
+        defer { inspectorOriginID = nil }
+        guard let inspectorOriginID,
+              visibleRows.contains(where: { $0.state.id == inspectorOriginID })
+        else { return }
+        focusedRowID = inspectorOriginID
     }
 
     @ViewBuilder private var emptyStateView: some View {
@@ -178,12 +197,15 @@ private extension DownloadsView {
 private struct DownloadRow: View {
     let store: StoreOf<DownloadsReducer>
     @Bindable var rowStore: StoreOf<DownloadRowFeature>
+    let rowFocus: AccessibilityFocusState<String?>.Binding
+    let openInspectorAction: () -> Void
 
     private var download: DownloadedGallery { rowStore.download }
 
     var body: some View {
         DownloadListRow(
-            download: download
+            download: download,
+            rowFocus: rowFocus
         ) {
             store.send(.openReading(download.gid))
         }
@@ -273,7 +295,7 @@ private extension DownloadRow {
 
     var inspectButton: some View {
         Button {
-            store.send(.inspectorButtonTapped(download.gid))
+            openInspectorAction()
         } label: {
             Label(
                 .inspectPages,
