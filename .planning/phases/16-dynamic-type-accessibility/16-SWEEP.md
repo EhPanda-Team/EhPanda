@@ -3761,6 +3761,24 @@ original SHA-256 `5b4eb50046160ee3b4a1f4ae27fd6a4a00ec2d7535ec93ba9ba1a0107fb87f
 
 2026-09-16 P-VO1 verification amendment: the original 40-step walk remains recorded as not reaching the tab bar. With the unchanged six-card carousel and 24-card Frontpage fixture, the complete finite walk reaches Frontpage at step 8, Toplists at step 34, and the tab bar at steps 54–58, with zero unsolicited focus resets. Under the plan’s authority for the orchestrator to settle non-listening questions, this measured full traversal is accepted as the VO-1 no-trap oracle; no accessible item is removed, grouped merely to shorten the count, or hidden to meet the former sampling budget. Heading-previous, one-card swipes, six-swipe wrap, and the approved same-state layout comparison all remain required and have passed.
 
+### Task 6 semantics progress (2026-09-16)
+
+The completed semantics-only commits and their evidence are recorded here; actual VoiceOver walks remain pending Task 7 and no runtime closure is claimed.
+
+| Commit | Scope and evidence |
+|---|---|
+| `6b7ef86a` | W-12 reader context actions; 37 cases (AppTools 13 + Reading 24), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w12/`. |
+| `464d1584` | W-19/W-27/W-28 settings semantics; 73 cases (AppTools + Setting), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w19-w27-w28/`. |
+| `772e8f85`, `1eb49e96` | W-14/W-20/W-23/W-25/W-26/W-36/W-37 Detail semantics (39 cases: AppTools 13 + Detail 26) and catalog formatting-only follow-up; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/detail-semantics/`. |
+| `f811bf5e` | W-6/W-16/W-17/W-18 gallery/download semantics; 509 cases, 503 passed, 6 expected failures, 8 expected-failure nodes, 88 suites, zero Repetition; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w6-download-semantics/`. |
+| `700db090` | W-34 binary size unit semantics; 39 cases, zero Repetition, 54-output smoke (6 locales × 3 units × 3 quantities), visible strings and copy values untouched; evidence under `$HOME/Library/Caches/ehpanda-phase16/round2/w34-file-size/`. |
+
+VO-3 results remain negative for native-menu A, label B and native-menu-combine C. B/C environment and UIKit checks passed, and More/Filters keyboard pre-focus succeeded; Cancel → Search-back lacks a focus binding change and remains under investigation. The approved six-line `SearchView.swift` change is still uncommitted. W-22's accepted BEFORE set covers 18 Search cells, 8 Watched/Favorites cells, both bottom/live states and landscape; its production/AFTER run is in progress and its full cell table remains owned by W-22.
+
+W-8 latest runtime sample: one of four trials reproduced the transition. In v4, uploader focus was at 14:20:32.786, `Screen Changed` at 14:20:33.548, and `More` at 14:20:34.340. The timestamp extract is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/w8-v4-screenchange-extract.txt`; this is evidence only, with no proven root cause or fix claim.
+
+For phase16 builds, unrelated `xcodebuild` jobs may run concurrently. `xb2.sh` keeps the phase-local mkdir lock, waits only for the same derived-data path or an explicitly matching destination UDID, and requires an explicit derived-data path; a cache permission failure exits 98. It must not kill or interrupt other tests or daemons. Every evidence path above was verified to exist.
+
 ### W-5 implementation and gate evidence (2026-09-16)
 
 W-5 is a semantics-only fix for finding W-5. `AppPackage/Sources/AppComponents/SubSection.swift` adds
