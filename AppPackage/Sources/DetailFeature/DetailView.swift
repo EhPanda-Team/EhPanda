@@ -11,10 +11,17 @@ import TagTranslationFeature
 
 public struct DetailView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AccessibilityFocusState private var readButtonFocused: Bool
+    @State private var readingOrigin: ReadingOrigin?
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
     @SharedReader(.didLogin) var didLogin: Bool
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
+
+    private enum ReadingOrigin {
+        case headerRead
+        case inlinePreview
+    }
 
     public init(
         store: StoreOf<DetailReducer>, gid: String
@@ -74,7 +81,11 @@ private extension DetailView {
                     createDefaultFolderAction: { store.send(.createDefaultFolder) },
                     favorAction: { store.send(.favorGallery($0)) },
                     unfavorAction: { store.send(.unfavorGallery) },
-                    navigateReadingAction: { store.send(.openReading) },
+                    navigateReadingAction: {
+                        readingOrigin = .headerRead
+                        store.send(.openReading)
+                    },
+                    readButtonFocus: $readButtonFocused,
                     navigateUploaderAction: {
                         if let uploader = store.galleryDetail?.uploader {
                             let keyword = "uploader:" + "\"\(uploader)\""
@@ -136,6 +147,7 @@ private extension DetailView {
                             )))
                         },
                         navigateReadingAction: {
+                            readingOrigin = .inlinePreview
                             store.send(.updateReadingProgress($0))
                             store.send(.openReading)
                         }
@@ -211,7 +223,13 @@ private extension DetailView {
     private func primaryModalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             .fullScreenCover(
-                item: $store.scope(\.$destination, action: \.destination).reading
+                item: $store.scope(\.$destination, action: \.destination).reading,
+                onDismiss: {
+                    if readingOrigin == .headerRead {
+                        readButtonFocused = true
+                    }
+                    readingOrigin = nil
+                }
             ) { store in
                 ReadingView(store: store)
                     .privacyMask()
