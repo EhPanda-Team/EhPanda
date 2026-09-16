@@ -247,6 +247,7 @@ private struct AppActivityLogRow: View {
             Text(log.message)
                 .lineLimit(30)
         }
+        .accessibilityElement(children: .combine)
         .font(.caption.monospaced())
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
