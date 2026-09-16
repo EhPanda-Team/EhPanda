@@ -1221,7 +1221,7 @@ Plans:
 
 **Wave 23** *(blocked on Wave 22 completion)*
 
-- [ ] 16-25-PLAN.md — Agent-run VoiceOver (in-simulator) / Voice Control label proxy (English) / display-settings walkthrough of the main flows, iPhone only, with one owner listening checkpoint (D-31, D-30; rescoped 2026-09-15)
+- [x] 16-25-PLAN.md — Agent-run VoiceOver (in-simulator) / Voice Control label proxy (English) / display-settings walkthrough of the main flows, iPhone only, with one owner listening checkpoint (D-31, D-30; rescoped 2026-09-15)
 
 **Wave 24** *(blocked on Wave 23 completion)*
 

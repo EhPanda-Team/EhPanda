@@ -5,16 +5,17 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: 16-25 Task 6 UI/E1 documentation closeout — W-22 dynamic drawer/live-scroll evidence and after-E1 gate recorded; W-13 Comments, VO-3, W-8 and W-35 remain unresolved for 16-26 sign-off; Task 7 remains in progress and D-25 re-sweep is pending
-last_updated: "2026-09-16T16:41:40Z"
+stopped_at: Plan 16-25 documentation closure recorded — current hide ledger 38 hidden, 2 not an element, 15 unreached, 0 pending; carried W-8, W-35, VO-3, W-13 Comments and W-38 plus W-33/W-34 owner phonetic sign-off remain for 16-26
+last_updated: "2026-09-16T20:20:03Z"
 last_activity: 2026-09-17
-last_activity_desc: "16-25 Task 6 UI/E1 documentation closeout: W-22 dynamic Search drawer/live-scroll evidence and the after-E1 gate are recorded. The after-E1 phone and iPad runs passed 1/1 with actual nodeType Repetition 0; E-1 is retired and testReadingControlPanelAudit remains the standing regression. W-13 Comments, W-8, VO-3 and W-35 remain unresolved for 16-26 sign-off. Task 7 remains in progress and the D-25 re-sweep remains pending. Root completed the final WALK by-UDID build/install evidence (walk 31.110 s, LOGIN 25.705 s); no phase completion is claimed."
-state_head: b01add4c11b1f9c355ac8f2e055ed8b24fe8146c
+last_activity_desc: "Plan 16-25 closure is recorded in SWEEP and commit 77d16bef: current hide ledger 38 hidden, 2 not an element, 15 unreached, 0 pending; E-1 is retired with testReadingControlPanelAudit as standing regression; D-25 current rendered scope is Search root, Favorites and Watched. Task 7 is closed with carried items, while W-8, W-35, VO-3, W-13 Comments, W-38 and W-33/W-34 owner judgments remain for 16-26; no phase completion is claimed."
+state_head: 77d16befc93596a8b36cd2f7f43ae23111ecb95d
+source_head: b01add4c11b1f9c355ac8f2e055ed8b24fe8146c
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 274
-  completed_plans: 272
+  completed_plans: 273
   percent: 59
 ---
 
@@ -30,15 +31,16 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
-Plan: 25 of 26 — Task 6 UI/E1 documentation closeout complete for the recorded evidence; W-22 dynamic drawer/live-scroll evidence is recorded for its bounded S3 cells and live sequences, W-10 and W-13 Read+Downloads have bounded runtime evidence, W-13 Comments/VO-3/W-8/W-35 remain open, and Task 7 remains in progress; plans 16-01 through 16-24 complete — 24/26 plans complete
-Status: Round 2 executing — round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). D-25 re-sweep candidates: `#32 Activity Logs` and `#36 Laboratory`, built by 16-22 (six level glyph shapes at the old size; a hidden on/off glyph in the Laboratory cell — both frames unchanged at `large`, re-walked at XXL / AX3 / AX5 by 16-26); 16-15 through 16-21 added none (none changed layout or drew anything new). 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-17 — Task 6's recorded UI/E1 evidence is closed: after-E1 phone and iPad runs passed 1/1 with actual `nodeType` Repetition 0, and E-1 is retired with `testReadingControlPanelAudit` as the standing regression. W-22 source layout fix is committed as `7edfb1a7`; dynamic Search drawer/live-scroll evidence is recorded for eight focused S3 cells and four same-launch live sequences. W-13 Comments remains unresolved; W-8, VO-3 and W-35 remain open, and W-35 did not obtain verified title focus. Task 7 remains in progress and the 16-26 D-25 re-sweep remains pending. Root completed the final WALK by-UDID build/install evidence; no production completion is claimed.
+Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 Task 1/2 measurement evidence is complete and awaits documentation close, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
+Status: Round 2 executing — current closure and carry-forward status are recorded above. Historical colour, audit, and candidate context follows: round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). Historical D-25 candidates included `#32 Activity Logs` and `#36 Laboratory`, but the 2026-09-17 superseding ruling below limits current rendered scope to Search root, Favorites and Watched; Gallery Detail remains withdrawn. 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
+Last activity: 2026-09-17 — Task 7 walkthrough closure is recorded in `16-SWEEP.md` and commit `77d16bef`: current hide ledger is 38 hidden, 2 not an element, 15 unreached, 0 pending; E-1 is retired with `testReadingControlPanelAudit` as the standing regression. D-25 current rendered scope is Search root, Favorites and Watched. Task 7 is closed with carried items; W-8, W-35, VO-3, W-13 Comments, W-38 and W-33/W-34 owner judgments remain for 16-26. No phase completion is claimed.
 
 **2026-09-17 D-25 scope correction.** The prior Activity Logs/Laboratory candidate description is historical. After
 `cc05aca6` reverted `286ecc15`'s rendered glyph/HStack changes, the effective current D-25 rendered scope is exactly
 three W-22 screens: Search root, Favorites and Watched, using nine planned iPhone-portrait XXL / AX3 / AX5 cells.
 Gallery Detail remains withdrawn; Activity Logs retains only an accessibility combine modifier and Laboratory has no
-post-revert diff. Task 7 remains in progress across 24/26 completed plans. The 45 → 65 Settings tap and long-press
+post-revert diff. Historical status at that correction was Task 7 in progress across 24/26 completed plans; current status is
+documented above. The 45 → 65 Settings tap and long-press
 owner ruling is unchanged.
 
 ## Historical P-VO1 handoff (superseded by 962f60c9 / 6b786dc3 and the recorded traversal amendment)
@@ -51,7 +53,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (272/274 plans)
+Progress: [██████░░░░] 59% (273/274 plans)
 
 ## Performance Metrics
 
@@ -974,5 +976,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-09-14T16:35:46.517Z
-Stopped at: Completed 16-24-PLAN.md (automated accessibility audit gate); next 16-25 (wave 23)
+Historical stopped point: Completed 16-24-PLAN.md (automated accessibility audit gate); superseded by current position above.
 Resume file: None
