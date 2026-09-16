@@ -954,6 +954,8 @@ None yet.
 - Phase 17 added: Localized Screenshot Capture Harness — all-language / light+dark deterministic marketing screenshots from owner-chosen real-gallery mock data under a locked clock, for the EhPanda website and AltStore
 - Phase 17 edited: Expanded existing Phase 17: real-gallery fixtures, full language/Dynamic Type/orientation/device/color-scheme capture matrix, website and AltStore exports, snapshot regression tests, iOS/iPadOS 27 native API migration and app-wide soft top scroll-edge effect. Phase 16 remains active.
 
+Continuation corrections (2026-09-16): W-13's earlier `pid=61210` crash/loading-error claim is withdrawn; lifecycle evidence identifies `pid=61450` as the explicit relaunch and the saved `w13-showall.png` as normal Detail. Its prior Reader return used VoiceOver off and is not a valid pass. W-22 v3 provenance is invalid because source was restored during execution; v3b completed with exit 0 in 39.433 seconds and restored five temporary files byte-exactly, with only the cold S2 AX5 second row confirmed so far. W-29 remains a read-only proposal targeting the first Frontpage gallery and profile Picker. W-35 has an approved, unimplemented title-focus probe; runtime and the W-8 idle check remain open.
+
 ## Deferred Items
 
 Items acknowledged and carried forward from previous milestone close:
