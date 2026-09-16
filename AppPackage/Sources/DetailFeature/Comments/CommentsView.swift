@@ -275,6 +275,9 @@ extension CommentsView {
 
                 comment.score.map(Text.init)
                 Text(comment.formattedDateString)
+                    .accessibilityRepresentation {
+                        Text(comment.accessibilityAttributedDateString)
+                    }
             }
             .font(.footnote)
             .foregroundStyle(.secondary)
