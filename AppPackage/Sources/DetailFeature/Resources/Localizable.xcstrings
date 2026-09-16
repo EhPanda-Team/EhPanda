@@ -83,6 +83,83 @@
         }
       }
     },
+    "accessibility.comment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Comment" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kommentar" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コメント" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "댓글" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "评论" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "留言" } }
+      }
+    },
+    "accessibility.credits_balance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Credits balance: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "de": { "stringUnit": { "state": "translated", "value": "Credits-Guthaben: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ja": { "stringUnit": { "state": "translated", "value": "クレジット残高: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ko": { "stringUnit": { "state": "translated", "value": "크레딧 잔액: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "信用点余额：%#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "信用點數餘額：%#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } }
+      }
+    },
+    "accessibility.gallery_points_balance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Gallery points balance: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "de": { "stringUnit": { "state": "translated", "value": "Galeriepunkte-Guthaben: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ギャラリーポイント残高: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ko": { "stringUnit": { "state": "translated", "value": "갤러리 포인트 잔액: %#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图库点数余额：%#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "畫廊點數餘額：%#@balance@" }, "substitutions": { "balance": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } }
+      }
+    },
+    "accessibility.remove_from_favorites": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Remove from Favorites" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aus Favoriten entfernen" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "お気に入りから削除" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "즐겨찾기에서 삭제" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "从收藏中移除" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "從收藏移除" } }
+      }
+    },
+    "accessibility.torrent_downloads": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Completed downloads: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "de": { "stringUnit": { "state": "translated", "value": "Abgeschlossene Downloads: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ja": { "stringUnit": { "state": "translated", "value": "完了したダウンロード数: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ko": { "stringUnit": { "state": "translated", "value": "완료된 다운로드 수: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已完成下载数：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已完成下載數：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } }
+      }
+    },
+    "accessibility.torrent_peers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Peers: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "de": { "stringUnit": { "state": "translated", "value": "Peers: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ピア数: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ko": { "stringUnit": { "state": "translated", "value": "피어 수: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "连接者数：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "連線者數：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } }
+      }
+    },
+    "accessibility.torrent_seeds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Seeds: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "de": { "stringUnit": { "state": "translated", "value": "Seeds: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ja": { "stringUnit": { "state": "translated", "value": "シード数: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시드 수: %#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "做种者数：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "種子數：%#@count@" }, "substitutions": { "count": { "argNum": 1, "formatSpecifier": "lld", "variations": { "plural": { "other": { "stringUnit": { "state": "translated", "value": "%arg" } } } } } } }
+      }
+    },
     "accessibility.download": {
       "extractionState": "manual",
       "localizations": {

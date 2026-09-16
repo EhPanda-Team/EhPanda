@@ -135,6 +135,7 @@ struct ArchivesView: View {
             .animation(.default) {
                 $0.redacted(reason: credits != nil && galleryPoints != nil ? .init() : .placeholder)
             }
+            .accessibilityHidden(credits == nil || galleryPoints == nil)
     }
 
     private var downloadButton: some View {
@@ -225,6 +226,8 @@ private struct ArchiveFundsView: View {
                 Image(systemSymbol: .gCircleFill)
                     .accessibilityHidden(true)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(.accessibilityGalleryPointsBalance(balance: galleryPoints))
             Label {
                 Text(credits, format: .number)
                     .contentTransition(.numericText(value: Double(credits)))
@@ -233,6 +236,8 @@ private struct ArchiveFundsView: View {
                 Image(systemSymbol: .cCircleFill)
                     .accessibilityHidden(true)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(.accessibilityCreditsBalance(balance: credits))
         }
         .font(.headline.monospacedDigit()).lineLimit(balanceLineLimit).padding()
     }
