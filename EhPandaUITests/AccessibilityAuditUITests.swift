@@ -42,26 +42,12 @@ final class AccessibilityAuditUITests: XCTestCase {
     ]
 
     /// App-owned issues that cannot be resolved without a visible change the owner has not
-    /// authorised or has withdrawn — for example an element the app keeps in the hierarchy while
-    /// hidden, which the audit still walks. Each entry names the element, the audit type, the
-    /// measured reason and quotes the owner's reply recorded in `16-CONTRAST-AUDIT.md`. Nothing
-    /// enters this list before that reply (Phase 16 D-22). Every matcher reads the report's element
-    /// by name and type from its description alone — see `AuditElement` for why.
+    /// authorised or has withdrawn — for example a designed hit-region size. Each entry names the
+    /// element, audit type and measured reason, and quotes the owner's reply recorded in
+    /// `16-CONTRAST-AUDIT.md`. Nothing enters this list before that reply (Phase 16 D-22). Every
+    /// matcher reads the report's element by name and type from its description alone — see
+    /// `AuditElement` for why.
     private let ownerApprovedExclusions: [AuditExclusion] = [
-        AuditExclusion(
-            id: "E-1.hidden-content",
-            reason: "The reader's slider-preview strip, kept in the hierarchy at opacity 0 through "
-                + "`visible(false)` (`opacity` + `accessibilityHidden`) while the control panel shows "
-                + "no strip: the audit still walks the strip's activity indicators and reports each "
-                + "as `sufficientElementDescription` \"Element has no description\". Matched on the "
-                + "`Reading › control panel` surface by the `ActivityIndicator` element type. Owner: "
-                + "`E-1=approve` (2026-09-13).",
-            matches: { report in
-                report.surface == "Reading › control panel"
-                    && report.auditType == .sufficientElementDescription
-                    && report.element?.type == "ActivityIndicator"
-            }
-        ),
         AuditExclusion(
             id: "V-1.designed-hit-regions",
             reason: "Buttons drawn at their designed size, under the 24-point WCAG 2.5.8 floor: the "
