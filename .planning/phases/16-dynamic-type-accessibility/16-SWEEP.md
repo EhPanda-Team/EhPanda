@@ -3714,4 +3714,51 @@ authorised: W-22 — the `Watched` title in the signed-out state, in three sites
 authorised: W-37 — on a gallery with no uploader, the Detail header's uploader `Button` is exposed to VoiceOver with an empty name; fix it without any visible change (for example by excluding the control from the accessibility tree when the uploader is absent), and if the only available fix alters what is drawn, revert the edit and route the finding `owner (D-22): carried to the 16-26 sign-off` with a before image path instead.
 carried to the 16-26 sign-off: W-31.
 
+### Continuation note (2026-09-16T02:13:24Z)
+
+The owner authorised phase16 `xcodebuild` jobs to run concurrently with unrelated jobs, provided
+phase16 keeps its mkdir lock and every invocation uses an isolated `$HOME/Library/Caches/ehpanda-phase16/`
+`-derivedDataPath`, destination and evidence path. The walkthrough `xb2.sh` coordinator was updated accordingly:
+it waits only for an xcodebuild using the same derived-data path or an explicitly matching `id=<UDID>` destination;
+generic destinations do not create a device lock, and missing `-derivedDataPath` is rejected. The original script is
+preserved at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/scripts/xb2.sh.pre-parallel-20260916`.
+
+The first P-VO1 test attempt accidentally ran the full `FeatureTests` plan instead of the approved only-testing scope.
+It completed its recorded suites but failed with exit 65 at
+`DownloadContinuedSessionHeartbeatTests.heartbeatIsIdleWithoutPendingWork()` after a simulator diagnostics timeout;
+the evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo1/featuretests-iphone.xcresult` and its
+matching log. It was not retried.
+
+The recorded failure still contained 13 passing `AppToolsTests` cases and 24 passing `HomeFeatureTests` cases,
+with zero repetition nodes. The separately authorized heartbeat-fix run completed 489 tests across 84 suites,
+with 8 known issues and zero repetition nodes; its result is `a0a2cbb3`. The full plan's exit 65 is retained and
+is not described as a green run.
+
+The escalated WALK preflight and install-over succeeded on the existing P-VO1 app. The original 40-step transcript
+reached `Frontpage` at step 8 and `Toplists` at step 34, but remained on a first Toplists card at step 40, so the
+original 40-step acceptance criterion is not marked passed. A same-build diagnostic walk reached the tab bar at
+steps 54–58 (`Home`, `Favorites`, `Search`, `Downloads`, `Setting`) and was stopped at step 86 when `Setting` /
+`Tab` / `5 of 5` repeated. No unsolicited focus reset was observed; the repeated end element followed explicit
+next commands and is recorded as a boundary observation, not a reset. The exact heading-previous transcript reached
+the last Frontpage hero card. After foregrounding the app again, six ordinary coordinate swipes each advanced one
+hero card and the sixth returned to the same starting hero card; screenshots are retained
+at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo1/six-swipe-0.png` through `six-swipe-6.png`, with
+time/non-synchronous rendering accounting for whole-image hash differences. Transcripts are retained at
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/vo1-pvo1-validated.txt`,
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/pvo1-diag120.txt`, and
+`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/pvo1-previous-heading.txt`.
+
+The first fresh `.large` pair was retained as a failed measurement because cold launch shuffled the six-card fixture.
+The authorized measurement-only deterministic variant temporarily removed that shuffle for both builds, leaving all
+other reducer and view bytes unchanged. On `GATE_IPHONE`, with content size `.large`, light appearance, increased
+contrast disabled, the same fixed fixture order and initial card position were installed over and captured. Before
+and after builds both succeeded (`DerivedData-PVO1-Before-Deterministic`, `DerivedData-PVO1-After-Deterministic`).
+The before image hash is `464842639170f44a3a266ef1d38a8ab4f659c581622cb3f6bc98267230064491`; the after image hash is
+`295eabb300431141d63518f397ca9d3718ae6286fe9a5d543936cc05d61542a0`. Frame inspection found no layout, text,
+focus, or card-order change; the measured difference (`changed_fraction=0.07217472`, mean channel difference
+`0.21640442`) is limited to asynchronous image rendering. The temporary reducer variant was restored to its
+original SHA-256 `5b4eb50046160ee3b4a1f4ae27fd6a4a00ec2d7535ec93ba9ba1a0107fb87f78` and was not committed.
+
+2026-09-16 P-VO1 verification amendment: the original 40-step walk remains recorded as not reaching the tab bar. With the unchanged six-card carousel and 24-card Frontpage fixture, the complete finite walk reaches Frontpage at step 8, Toplists at step 34, and the tab bar at steps 54–58, with zero unsolicited focus resets. Under the plan’s authority for the orchestrator to settle non-listening questions, this measured full traversal is accepted as the VO-1 no-trap oracle; no accessible item is removed, grouped merely to shorten the count, or hidden to meet the former sampling budget. Heading-previous, one-card swipes, six-swipe wrap, and the approved same-state layout comparison all remain required and have passed.
+
 ### Walkthrough closure
