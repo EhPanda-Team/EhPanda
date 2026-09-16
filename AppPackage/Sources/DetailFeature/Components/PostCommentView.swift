@@ -32,6 +32,7 @@ struct PostCommentView: View {
             TextEditor(text: $content)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .focused($isTextEditorFocused)
+                .accessibilityLabel(.accessibilityComment)
                 .padding()
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

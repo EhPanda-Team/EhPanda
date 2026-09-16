@@ -142,11 +142,17 @@ private extension TorrentsView {
             .lineLimit(1)
         }
 
-        private func value(of counter: TorrentCounter) -> Text {
+        @ViewBuilder private func value(of counter: TorrentCounter) -> some View {
             switch counter {
-            case .seeds: Text(torrent.seedCount, format: .number)
-            case .peers: Text(torrent.peerCount, format: .number)
-            case .downloads: Text(torrent.downloadCount, format: .number)
+            case .seeds:
+                Text(torrent.seedCount, format: .number)
+                    .accessibilityLabel(.accessibilityTorrentSeeds(count: torrent.seedCount))
+            case .peers:
+                Text(torrent.peerCount, format: .number)
+                    .accessibilityLabel(.accessibilityTorrentPeers(count: torrent.peerCount))
+            case .downloads:
+                Text(torrent.downloadCount, format: .number)
+                    .accessibilityLabel(.accessibilityTorrentDownloads(count: torrent.downloadCount))
             case .fileSize: Text(torrent.fileSize)
             }
         }

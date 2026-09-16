@@ -45,7 +45,8 @@ struct DescriptionSection: View {
         DescScrollInfo(
             title: .RLocalizable.language,
             description: String(localized: galleryDetail.language.value),
-            value: galleryDetail.language.abbreviation
+            value: galleryDetail.language.abbreviation,
+            isValueDecorative: true
         ),
         DescScrollInfo(
             title: .ratingsCount(count: galleryDetail.ratingCount),
@@ -120,7 +121,12 @@ struct DescriptionSection: View {
         if info.isRating {
             DescScrollRatingItem(title: info.title, rating: info.rating)
         } else {
-            DescScrollItem(title: info.title, value: info.value, description: info.description)
+            DescScrollItem(
+                title: info.title,
+                value: info.value,
+                description: info.description,
+                isValueDecorative: info.isValueDecorative
+            )
         }
     }
 }
@@ -133,6 +139,7 @@ extension DescriptionSection {
         let value: String
         var rating: Float = 0
         var isRating = false
+        var isValueDecorative = false
     }
     struct DescScrollItem: View {
         @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -140,12 +147,14 @@ extension DescriptionSection {
         let title: LocalizedStringResource
         let value: String
         let description: String
+        let isValueDecorative: Bool
 
         var body: some View {
             VStack(spacing: 3) {
                 Text(title).textCase(.uppercase).font(.caption)
                 valueWithUnit
             }
+            .accessibilityElement(children: .combine)
         }
 
         /// The value and the unit beneath it ("314.3" over "MB", "156" over "Pages") are one reading:
@@ -161,9 +170,9 @@ extension DescriptionSection {
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .animation(.default, value: value)
+                    .accessibilityHidden(isValueDecorative)
                 Text(description).font(.caption)
             }
-            .accessibilityElement(children: .combine)
         }
 
         /// The designed single line is kept at and below the default size, where the strip's height
@@ -197,8 +206,12 @@ extension DescriptionSection {
                     .animation(.default, value: rating)
                 // The five symbols are the rating itself, not decoration: three drawn stars for a
                 // 4.50 rating misstate the value. They set the column's width floor, so they are
-                // never the member that gets clipped.
-                RatingView(rating: rating).font(.caption).foregroundStyle(.primary)
+                // never the member that gets clipped. VoiceOver receives the numeric rating once
+                // from the text above, so the drawn stars stay out of its combined element.
+                RatingView(rating: rating)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
             }
             // One element for the column: the caption-sized star group on its own was a 13-point
             // accessibility element, which the audit reports as a hit region too small (16-24);
