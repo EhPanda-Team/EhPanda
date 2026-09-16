@@ -58,9 +58,19 @@ extension View {
     /// between content and its empty state, an idle control against the spinner that replaces it, a
     /// placeholder that exists only to reserve space. A view that is merely *dimmed* is still
     /// visible and does not belong here.
+    ///
+    /// The hidden state is applied through `isEnabled:` rather than as `accessibilityHidden(false)`
+    /// on a visible view, because the two are not symmetric. `accessibilityHidden(false)` is not
+    /// "no opinion": it is an explicit *un*-hide that re-exposes the descendants a nested hide had
+    /// already taken out of the tree. A visible `visible(true)` therefore used to cancel the hides
+    /// below it, and the reader's slider-preview strip — hidden by its own `visible(false)` inside
+    /// the shown control panel — was read out in full (Phase 16 VO-2; the V3 isolation build in
+    /// `16-SWEEP.md § Design proposals (16-25) › P-VO2` proved the ancestor's `false` was the
+    /// cause). With `isEnabled:` a visible view writes no accessibility-hidden value at all, so it
+    /// states only its own visibility and never overrides a descendant's.
     public func visible(_ isVisible: Bool) -> some View {
         opacity(isVisible ? 1 : 0)
-            .accessibilityHidden(!isVisible)
+            .accessibilityHidden(true, isEnabled: !isVisible)
     }
 
     public func privacyMask() -> some View {
