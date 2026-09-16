@@ -25,6 +25,9 @@ private let middleBlock = windowBlocks / 2
 struct CardSlideSection: View, Equatable {
     @State private var scrollPositionID: Int?
     @State private var carouselWidth: CGFloat = 0
+    // Last phase `onScrollPhaseChange` reported. Read by the handoff below to tell VoiceOver's own
+    // scrolling (which produces no phase, so the phase stays `.idle`) from a gesture-driven one.
+    @State private var scrollPhase: ScrollPhase = .idle
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
     // under rebase whether derived from its id or from its layout slot.
@@ -72,8 +75,11 @@ struct CardSlideSection: View, Equatable {
     // changes — `scrollPosition(id:)` keeps the settled view pinned across the content diff and
     // `scrollPositionID` is never written during scrolling — so the focused card's view identity
     // (and its gradient playback) survives every wrap, and no programmatic scroll can cancel an
-    // in-flight gesture. The sole exception is a gallery-count change, which invalidates the id
-    // space and requires the synchronization write in `body` below.
+    // in-flight gesture. There are exactly two bounded exceptions, and both write only while no
+    // scroll is in flight: a gallery-count change, which invalidates the id space and requires the
+    // synchronization write in `body` below; and the `.idle` anchor sync in the nearest-center
+    // handoff, which re-anchors on the card VoiceOver has already scrolled to (see there for why a
+    // VoiceOver scroll leaves the anchor stale). Neither animates and neither moves the content.
     private struct BufferedCard: Identifiable, Equatable {
         let id: Int
         let gallery: Gallery
@@ -85,6 +91,13 @@ struct CardSlideSection: View, Equatable {
         return (windowBase..<windowBase + count * windowBlocks).map { id in
             BufferedCard(id: id, gallery: galleries[logicalIndex(of: id)])
         }
+    }
+
+    // The ids of the block the rebase keeps the settled card in. Empty while there are no
+    // galleries, which is also when `bufferedCards` is empty, so nothing is ever tested against it.
+    private var middleBlockIDs: Range<Int> {
+        let count = galleries.count
+        return windowBase + count * middleBlock..<windowBase + count * (middleBlock + 1)
     }
 
     // Positive modulo: window ids run below zero after enough backward loops.
@@ -119,6 +132,18 @@ struct CardSlideSection: View, Equatable {
             LazyHStack(spacing: cardSpacing) {
                 ForEach(bufferedCards) { item in
                     card(for: item.gallery)
+                        // One pass of the galleries for assistive technologies. The window carries
+                        // `windowBlocks` copies of the list, and every copy the lazy stack builds is
+                        // an accessibility element, so linear VoiceOver navigation reads the same
+                        // galleries over and over and never leaves the carousel for the Frontpage
+                        // heading. Exposing only the middle block leaves one pass, and the `.idle`
+                        // rebase already keeps the centred card in that block, so whatever is on
+                        // screen is always among the six. This is the same form `visible(_:)` uses
+                        // (`AppComponents/ViewModifiers.swift`): the value is applied through
+                        // `isEnabled:` rather than as `accessibilityHidden(false)`, because an
+                        // explicit `false` is an *un*-hide that would re-expose whatever a
+                        // descendant had hidden, not an absence of opinion (Phase 16 VO-2).
+                        .accessibilityHidden(true, isEnabled: !middleBlockIDs.contains(item.id))
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -146,6 +171,21 @@ struct CardSlideSection: View, Equatable {
         // scroll reaches `.idle`. The `.idle` write below stays as the settle-time reconciliation.
         // The transform returns the LOGICAL index, so the window rebase (slots and offset shift
         // together by whole blocks, logical value unchanged) never fires this action.
+        //
+        // The action also re-anchors while the phase is `.idle`, which is the second of the two
+        // bounded exceptions to "`scrollPositionID` is never written during scrolling" that
+        // `bufferedCards` names. VoiceOver scrolls the carousel itself when focus moves to the next
+        // card, and that scroll raises no phase, so SwiftUI — which only updates `scrollPositionID`
+        // when a phase settles — leaves the anchor on the last gesture-settled card. Since
+        // `scrollPosition(id:)` holds that card in place across the next content change, the offset
+        // later snaps back to it, the focused card leaves the screen and VoiceOver drops focus to
+        // the screen's first element (Phase 16 VO-1: in the instrumented build every reset followed
+        // exactly this jump, about 1.17 s later, and nothing else did). Writing the anchor here
+        // keeps it on the card the offset already shows: `.idle` means no drag, deceleration or
+        // animation is in flight, and the value written is the card that is already centred, so
+        // nothing scrolls and no gesture can be cancelled. The id written is the MIDDLE-block copy,
+        // the only block the cards above expose, so a `previous` step from the Frontpage heading
+        // returns to the last of the six rather than a neighbouring block's copy of it.
         .onScrollGeometryChange(for: Int.self) { geometry in
             let count = galleries.count
             guard count > 0, cardWidth > 0 else { return pageIndex }
@@ -157,8 +197,11 @@ struct CardSlideSection: View, Equatable {
         } action: { _, newValue in
             guard !galleries.isEmpty, pageIndex != newValue else { return }
             pageIndex = newValue
+            guard scrollPhase == .idle else { return }
+            scrollPositionID = windowBase + galleries.count * middleBlock + newValue
         }
         .onScrollPhaseChange { _, newPhase in
+            scrollPhase = newPhase
             guard newPhase == .idle, let settledID = scrollPositionID, !galleries.isEmpty else { return }
             let count = galleries.count
             let logical = logicalIndex(of: settledID)
