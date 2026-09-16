@@ -3781,6 +3781,16 @@ W-22 Favorites gate update (2026-09-16): the `AppToolsTests` + `FavoritesFeature
 
 For phase16 builds, unrelated `xcodebuild` jobs may run concurrently. `xb2.sh` keeps the phase-local mkdir lock, waits only for the same derived-data path or an explicitly matching destination UDID, and requires an explicit derived-data path; a cache permission failure exits 98. It must not kill or interrupt other tests or daemons. Every evidence path above was verified to exist.
 
+### Latest concurrency and focus diagnostics (2026-09-16)
+
+The owner ruling 「xcodebuild 可以並行，找辦法解決，但不要打斷別的測試」 supersedes the earlier global single-`xcodebuild`/`pgrep` guard for resumed work. `xb2.sh` retains the phase mkdir lock, waits only for a matching derived-data path or explicit destination UDID, permits generic destinations to proceed without a device lock, requires `-derivedDataPath`, and exits 98 on cache permission failure. No phase job may kill or interrupt another test, test manager, daemon, or CoreSimulator process.
+
+W-8 E2 remains diagnostic evidence only. In E2, the measured geometry was offset `-70` to `-48.667`, inset `70`, container `708`; uploader focus occurred at `15:13:09.979`, followed by `Screen Changed` at `15:13:10.744` and `More` at `15:13:11.526`. The source patch only added scroll telemetry and did not instrument state changes, so the absence of a recorded state change does not prove that none occurred. Evidence is in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/variantF-e2-v1-vot.log` and `variantF-e2-v1-nslog.log`; the F1/F2 controls are `variantF-v1-vot.log`, `variantF-v1-nslog.log`, `variantF-v2-vot.log`, and `variantF-v2-nslog.log` in the same directory. W-8 has no proven root cause or fix, and W-35 default-focus work remains under measurement.
+
+The F body native button is also negative in the current focus diagnostic. This confirms the observed focus-state behavior is not limited to the menu or toolbar controls; it does not establish a root cause or close the remaining W-13 focus design.
+
+W-33/W-10 remain uncommitted and their 43-case module gate is waiting for the device lease. The earlier 43.790-second generic build was an iOS device build; the correct Simulator lint gate is the pending W-35 full-current-tree build and is not recorded as passed.
+
 ### W-5 implementation and gate evidence (2026-09-16)
 
 W-5 is a semantics-only fix for finding W-5. `AppPackage/Sources/AppComponents/SubSection.swift` adds
