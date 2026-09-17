@@ -238,7 +238,7 @@ The per-task map records artifact basis separately from command availability; a 
 - Strict no-cache SwiftLint: 579 files, 0 violations; command and binary are recorded in 20260917-final-closing-gates-evidence.txt.
 - D-25 evidence is under $HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/; Search #9, Favorites #8, and Watched #5 each have XXL/AX3/AX5 coverage (9 cells, 8 pass plus the Favorites AX5 finding). Search is not pending.
 - W-22 module gate: 49 tests (AppTools 13, Home 24, Search 12), zero failed/skipped/Repetition in 54.033 s; matching generic Simulator build passed in 67.206 s, debug dylib SHA 70e573ff0231029a87a233cee5b768bdd705147ded7ba869ab07afc324cf0ed0.
-- Owner gates remain manual: phonetic audio judgment and final sign-off.
+- Owner gates remain manual: W-33 phonetic judgment and final sign-off; W-34 MiB pronunciation is accepted within scope.
 
 
 ## Audit Trail
@@ -254,6 +254,6 @@ The per-task map records artifact basis separately from command availability; a 
 - [x] No new automated coverage gap identified.
 - [x] Existing meaningful tests and first-run gates recorded.
 - [x] Manual-only constraints explicit.
-- [ ] Owner final sign-off and phonetic judgment.
+- [ ] Owner final sign-off and W-33 phonetic judgment.
 
 **Approval:** pending (coverage compliant does not equal phase approved)
