@@ -64,7 +64,7 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 
 **WARNING — measurement coverage.** Voice Control spoken-command activation and VoiceOver double-tap activation were not directly measured; the walkthrough contains native-label/Voice Control proxy evidence. The native labels and accessibility actions are present across the audited surfaces, and actual VoiceOver focus and speech work on the simulator, but direct command success is an evidence limit.
 
-**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. Current carried items include W-35 (first More target), VO-3 (Filters dismissal focus), W-13 (Comments dismissal target), W-38 (Reader page/indicator reachability), and W-33/W-34 (phonetic owner judgments). These are retained as carried limits and are not counted as new findings. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
+**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. Current carried items include W-35 (first More target), VO-3 (Filters dismissal focus), W-13 (Comments dismissal target), W-38 (Reader page/indicator reachability), and W-33 (uncertain PM pronunciation). W-34 is an implemented fix with owner phonetic verification passed. The listed carried items are retained as carried limits and are not counted as new findings. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
 
 ## Selected Cached Evidence
 
@@ -76,7 +76,7 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 ## Applicable Accepted and Deferred Limits
 
 - The D-25 rendered scope is the nine-cell Search root, Favorites, and Watched set. Existing resweep evidence records 8 passes and one current #39 finding.
-- W-8 is current and reproduced; W-35, VO-3, W-13, W-38, W-33, and W-34 remain carried owner or evidence limits.
+- W-8 is current and reproduced; W-35, VO-3, W-13, W-38, and W-33 remain uncertain; W-34 is confirmed within the MiB pronunciation scope and is not a carried limit.
 - W-24 remains an owner-visible-change decision. Accepted platform/native rulings and the owner’s contrast reversions are preserved.
 - The iPadOS 27 Gallery Detail stall remains deferred on the beta runtime; the evidence does not establish a CPU or glass-menu cause, so this report records it without causal attribution.
 - No registry audit applies: this is a native SwiftUI project with no shadcn/third-party component registry in scope.

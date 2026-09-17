@@ -5,11 +5,11 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-stopped_at: 16-26 Task 1/2 measurement and D-25 documentation recorded — 8 pass cells, finding #39, closing gates recorded; Task 3 owner sign-off remains pending, with W-33/W-34 audio judgments and carried accessibility limits unresolved
-last_updated: "2026-09-16T20:35:29Z"
+stopped_at: 16-26 Task 1/2 measurement and D-25 documentation recorded — 8 pass cells, finding #39, closing gates recorded; Task 3 owner sign-off remains pending, with W-33 audio uncertainty and carried accessibility limits unresolved; W-34 MiB pronunciation accepted within scope
+last_updated: "2026-09-17T12:00:44Z"
 last_activity: 2026-09-17
-last_activity_desc: "16-26 Task 1/2 documentation is recorded in SWEEP: D-25 has 8 bounded pass cells and finding #39; closing gates recorded FeatureTests 1039 plus 11 expected failures, iPhone UI 39 plus 2 expected iPad-only skips, iPad UI 41, all Repetition 0. Task 3 owner sign-off remains pending; code review has 0 new findings and no phase/A11Y-02 completion is claimed."
-state_head: 182a5b0ce012db16618e6e244a3e90aae64dd0d2
+last_activity_desc: "16-26 Task 1/2 documentation is recorded in SWEEP: D-25 has 8 bounded pass cells and finding #39; closing gates recorded FeatureTests 1039 plus 11 expected failures, iPhone UI 39 plus 2 expected iPad-only skips, iPad UI 41, all Repetition 0. Task 3 owner sign-off remains pending; W-33 remains uncertain, W-34 MiB pronunciation is accepted within scope, and W-31 is accepted only for the empty Button Shapes uploader capsule; code review has 0 new findings and no phase/A11Y-02 completion is claimed."
+state_head: 7f3fbadf9b47158b21b66b11b0250ed65786c4b1
 source_head: b01add4c11b1f9c355ac8f2e055ed8b24fe8146c
 progress:
   total_phases: 17
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 Task 1/2 measurement and D-25 documentation are complete, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
 Status: Round 2 executing — current closure and carry-forward status are recorded above. Historical colour, audit, and candidate context follows: round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). Historical D-25 candidates included `#32 Activity Logs` and `#36 Laboratory`, but the 2026-09-17 superseding ruling below limits current rendered scope to Search root, Favorites and Watched; Gallery Detail remains withdrawn. 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-17 — 16-26 Task 1/2 measurement and D-25 documentation are complete: current scope is Search root, Favorites and Watched with 8 pass cells and finding #39; closing gates are recorded with no failed tests or Repetition. Task 3 owner sign-off remains pending, with carried accessibility limits and W-33/W-34 audio judgments unresolved. No phase completion is claimed.
+Last activity: 2026-09-17 — 16-26 Task 1/2 measurement and D-25 documentation are complete: current scope is Search root, Favorites and Watched with 8 pass cells and finding #39; closing gates are recorded with no failed tests or Repetition. Task 3 owner sign-off remains pending, with W-33 uncertain, W-34 accepted only for the MiB pronunciation, and carried accessibility limits unresolved. No phase completion is claimed.
 
 **2026-09-17 D-25 scope correction.** The prior Activity Logs/Laboratory candidate description is historical. After
 `cc05aca6` reverted `286ecc15`'s rendered glyph/HStack changes, the effective current D-25 rendered scope is exactly
@@ -978,3 +978,11 @@ Items acknowledged and carried forward from previous milestone close:
 Last session: 2026-09-14T16:35:46.517Z
 Historical stopped point: Completed 16-24-PLAN.md (automated accessibility audit gate); superseded by current position above.
 Resume file: None
+
+
+**2026-09-17 listening feedback (recorded 2026-09-17T12:00:44Z).** With repository documentation HEAD `7f3fbadf9b47158b21b66b11b0250ed65786c4b1` and measured source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, the user said:
+
+> Mebibytes 聽起來沒錯
+> PM 那句太長了我不太確定
+
+W-34 is accepted only for MiB pronunciation; W-33 remains uncertain. The user separately accepted only the W-31 empty uploader button capsule under Button Shapes, not other blank controls. This is follow-up status, not phase or A11Y-02 approval.
