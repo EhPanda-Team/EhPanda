@@ -20,11 +20,11 @@ Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24f
 
 **Overall: 21/24**
 
-## Top 3 Priority Fixes
+## Current Owner Follow-up Priorities
 
-1. **Owner disposition for Favorites AX5 blank native search capsule (finding #39)** — visible discoverability is degraded in one current D-25 cell; retain as an owner packet item and decide whether a future native-search workaround is warranted after cause is established.
-2. **Owner follow-up on reproduced Detail VoiceOver focus reset (W-8)** — focus moved from the uploader to More after a Screen Changed event in 2 of 4 listening launches; cause is unproven and requires targeted investigation.
-3. **Owner disposition for Search recent-keyword Delete glyph contrast (W-24)** — the icon nearly disappears in light software grayscale although it is named correctly; this remains deferred pending the owner’s visible-change decision.
+1. **Root-cause investigation for Detail focus findings (W-8/W-35)** — focus behavior remains unexplained and needs targeted investigation.
+2. **Root-cause investigation for Search/Comments dismissal findings (VO-3/W-13)** — these remain open and are not accepted or classified as system limits.
+3. **Owner operation demonstration for Reader reachability (W-38)** — the page/indicator mismatch awaits direct demonstration before judgment.
 
 ## Detailed Findings
 
@@ -36,7 +36,7 @@ The large-font cached states preserve full user-facing headings and empty-state 
 
 ### Pillar 2: Visuals (3/4)
 
-**WARNING — finding #39.** The cached Favorites AX5 image shows the title and top controls with a very large empty rounded search capsule beneath them. The native search affordance is visually blank in that state, even though the screen remains navigable and its full metadata is reachable. This is the current D-25 rendered finding from the existing prep evidence, recorded in `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/16-26-prep-draft-20260917.md`; the exact Favorites AX5 image and UI evidence are `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-top.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-bottom.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-first-row-end.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-top-ui.json`, and `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-bottom-ui.json`. Task 26 is the owner/orchestrator destination; repository closure is recorded in `16-SWEEP.md § Re-sweep closure`, where finding #39 remains recorded and owner-pending; this UI report records review evidence and bounded recommendations.
+**ACCEPTED OWNER RULING — finding #39.** The cached Favorites AX5 image shows the title and top controls with a very large empty rounded search capsule beneath them. The native search affordance is visually blank in that state, even though the screen remains navigable and its full metadata is reachable. This is the current D-25 rendered finding from the existing prep evidence, recorded in `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/16-26-prep-draft-20260917.md`; the exact Favorites AX5 image and UI evidence are `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-top.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-bottom.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-first-row-end.png`, `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-top-ui.json`, and `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-ax5-8-bottom-ui.json`. Task 26 is the owner/orchestrator destination; `16-SWEEP.md § Re-sweep closure` records finding #39 as an accepted Apple native-search bug with no app fix requested; this UI report records review evidence and bounded recommendations.
 
 **PASS WITH LIMIT.** Existing Detail, Reader, Favorites, Watched, and Search captures show clear focal hierarchy, native glass/capsule controls, readable action rows, and preserved tab navigation at large accessibility sizes. The reader upper control panel remains one line under its owner-approved Dynamic Type cap (`AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift:51-55`), and Detail action buttons remain visually bounded in the inspected AX5 evidence.
 
@@ -60,11 +60,11 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 
 ### Pillar 6: Experience Design (3/4)
 
-**WARNING — W-8 carried.** The final walkthrough reproduced a VoiceOver `Screen Changed` event that moved focus from the uploader to More in 2 of 4 Detail listening launches. The issue is recorded as an unresolved owner-packet item in `deferred-items.md` and `16-SWEEP.md`; its cause is unproven and it can interrupt a user’s reading order.
+**WARNING — W-8 root-cause investigation required.** The final walkthrough reproduced a VoiceOver `Screen Changed` event that moved focus from the uploader to More in 2 of 4 Detail listening launches. The issue remains open in `deferred-items.md` and `16-SWEEP.md`; its cause is unproven and it can interrupt a user’s reading order.
 
 **WARNING — measurement coverage.** Voice Control spoken-command activation and VoiceOver double-tap activation were not directly measured; the walkthrough contains native-label/Voice Control proxy evidence. The native labels and accessibility actions are present across the audited surfaces, and actual VoiceOver focus and speech work on the simulator, but direct command success is an evidence limit.
 
-**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. Current carried items include W-35 (first More target), VO-3 (Filters dismissal focus), W-13 (Comments dismissal target), W-38 (Reader page/indicator reachability), and W-33 (uncertain PM pronunciation). W-34 is an implemented fix with owner phonetic verification passed. The listed carried items are retained as carried limits and are not counted as new findings. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
+**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. W-35, VO-3, W-13, and W-38 require the follow-up decisions recorded in SWEEP; W-33 is in revision for ordinary “P M” pronunciation. W-34 is an implemented fix with owner phonetic verification passed. These current items are not accepted system limits. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
 
 ## Selected Cached Evidence
 
@@ -75,8 +75,8 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 
 ## Applicable Accepted and Deferred Limits
 
-- The D-25 rendered scope is the nine-cell Search root, Favorites, and Watched set. Existing resweep evidence records 8 passes and one current #39 finding.
-- W-8 is current and reproduced; W-35, VO-3, W-13, W-38, and W-33 remain uncertain; W-34 is confirmed within the MiB pronunciation scope and is not a carried limit.
+- The D-25 rendered scope is the nine-cell Search root, Favorites, and Watched set. Existing resweep evidence records 8 passes and one accepted #39 finding; the owner identifies #39 as an Apple native-search bug with no app fix requested.
+- W-8, W-35, VO-3, and W-13 require root-cause investigation; W-38 awaits an owner operation demonstration; W-33 is in revision for ordinary “P M” pronunciation; W-34 is confirmed within the MiB pronunciation scope and is not a carried limit.
 - W-24 remains an owner-visible-change decision. Accepted platform/native rulings and the owner’s contrast reversions are preserved.
 - The iPadOS 27 Gallery Detail stall remains deferred on the beta runtime; the evidence does not establish a CPU or glass-menu cause, so this report records it without causal attribution.
 - No registry audit applies: this is a native SwiftUI project with no shadcn/third-party component registry in scope.
