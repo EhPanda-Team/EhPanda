@@ -4304,9 +4304,9 @@ The covered repository documentation HEAD is `812c85c7aa1342606f401e7de6e5d1924e
 | W-8 / W-35 | Root-cause investigation required; no acceptance or system-limit classification |
 | VO-3 | Root-cause investigation required; no acceptance or system-limit classification |
 | W-13 Comments | Root-cause investigation required; Read and Downloads have bounded evidence |
-| W-38 | Pending owner operation demonstration for the Reader page/indicator mismatch |
+| W-38 | Reproduced under native VoiceOver navigation with both mock and live images; ordinary-touch controls pass and the page-model divergence is confirmed; root cause recorded in `16-W38-ROOT-CAUSE.md`; no fix or phase-pass claimed |
 | W-31 | Accepted only for the empty uploader button capsule under Button Shapes, within that observed scope; no other blank control is accepted |
-| W-33 | Prior short clip demonstrated capital-letter announcements; owner requested ordinary `P M` pronunciation and the replacement recording is pending. Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/task7-final-20260917-0248/clips/w33-time-short.m4a` (359.350–363.300 s, 3.950 s, unaltered), provenance `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/task7-final-20260917-0248/clips/w33-time-short-provenance.md` |
+| W-33 | Prior short clip demonstrated capital-letter announcements; the corrected 4.5-second replacement clip has been provided and owner listening judgement remains pending. Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/audio/root-final-0139-date-pm-corrected.wav` (source 17.000–21.500 s, SHA-256 `d212aecb148a09fd8ed04b064f9acc2aea9ec57e601a5582f6d8d6c63fc3ec55`); the prior capital-letter clip and provenance remain historical |
 | W-34 | Implemented fix with owner phonetic verification passed for the MiB pronunciation; clip is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/task7-final-20260917-0248/clips/w34-file-size.m4a` |
 
 W-21, W-24, and the other accepted/deferred records retain their existing closure dispositions.
