@@ -8,16 +8,17 @@ Times below are recorded in the source logs' local JST context unless explicitly
 
 ## W33 audio judgement
 
-The pending ordinary P-M user-listening judgement uses the new corrected clip:
+The ordinary P-M user-listening judgement passed on the new corrected clip. The user confirmed that this recording speaks `P M` correctly:
 
 - `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/audio/root-final-0139-date-pm-corrected.wav`
 - Source interval: 17.000--21.500 seconds
 - Duration: 4.5 seconds
 - SHA-256: `d212aecb148a09fd8ed04b064f9acc2aea9ec57e601a5582f6d8d6c63fc3ec55`
 - The full recording is 37.162667 seconds, original speed, with no mixing.
-- The candidate remains uncommitted.
+- The tested candidate is owner-verified for the audio result. The tested source SHA-256 is `d0b99bda712425785fc8b474f55ab9a5ccddd8c3b6c9e61ef0f7b544e959d77a`.
+- Locale preflight and generic build evidence are retained at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/preflight.log` and `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/generic-build.log`.
 
-The older miscut is not valid evidence and is omitted from acceptance claims.
+The older miscut is invalid evidence. The prior capital-pronunciation clip is retained only as historical context and is not part of the accepted result. This closes W-33's audio listening criterion only; it does not sign off Phase 16 or accept any other finding.
 
 ## W38 reader video
 
@@ -89,4 +90,4 @@ The following standing decisions remain unchanged:
 
 ## Review boundary
 
-This record intentionally preserves unresolved hypotheses and pending human judgements. It does not mark any item accepted, does not claim a confirmed VO-3/W-13 root cause, and does not declare Phase 16 complete.
+This record intentionally preserves unresolved hypotheses and pending human judgements for the remaining items. It does not claim a confirmed VO-3/W-13 root cause or declare Phase 16 complete.
