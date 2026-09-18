@@ -10,7 +10,7 @@ Times below are recorded in the source logs' local JST context unless explicitly
 
 The pending ordinary P-M user-listening judgement uses the new corrected clip:
 
-- `root-final-0139-date-pm-corrected.wav`
+- `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/audio/root-final-0139-date-pm-corrected.wav`
 - Source interval: 17.000--21.500 seconds
 - Duration: 4.5 seconds
 - SHA-256: `d212aecb148a09fd8ed04b064f9acc2aea9ec57e601a5582f6d8d6c63fc3ec55`
@@ -27,7 +27,7 @@ The v3 recording is a control group: ordinary swipe navigation with VoiceOver of
 
 The v4 recording is the actual native VoiceOver flow: Ctrl-Option-Right advanced content 47, 48, 49, 50, and 51, followed by reopening the panel. The panel then displayed `47 / 52` over a blurred background while page 51 had been reached earlier. The evidence must not claim a clear same-frame page-51 plus panel-page match.
 
-The v4 full and short media details, including the short interval 100.000--176.800 seconds, durations, and hashes, are preserved in the cache provenance at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/rootcause-20260918/reader-demo/w38-reader-demo-v4-provenance.md`. The user judgement is pending; this is not accepted evidence.
+The v4 full and short media details, including the short interval 100.000--176.800 seconds, durations, and hashes, are preserved in the cache provenance at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/rootcause-20260918/reader-demo/w38-reader-demo-v4-provenance.md`. The user has confirmed the required flow; this is now recorded as a reproduced finding, not a pending judgement. The four-case root-cause record is [16-W38-ROOT-CAUSE.md](16-W38-ROOT-CAUSE.md), with local helper/log/image provenance at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/reader-matrix/`.
 
 ## W8 runtime observations
 
