@@ -24,7 +24,12 @@ extension GalleryComment {
         guard ["AM", "PM"].contains(token.uppercased()), let range = result.range(of: token) else {
             return result
         }
-        result[range].accessibilitySpeechSpellsOutCharacters = true
+        // Lowercase only the speech representation to avoid VoiceOver capital-letter announcements;
+        // the displayed formatted date remains unchanged.
+        let lowercaseToken = token.lowercased()
+        result.replaceSubrange(range, with: AttributedString(lowercaseToken))
+        guard let lowercaseRange = result.range(of: lowercaseToken) else { return result }
+        result[lowercaseRange].accessibilitySpeechSpellsOutCharacters = true
         return result
     }
 }
