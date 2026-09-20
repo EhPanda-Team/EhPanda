@@ -4,6 +4,8 @@
 
 This document records the current evidence for VO-3, W-13, W-8, W-35, and the related withdrawn or pending probes. It is an investigation record, not an acceptance record. Phase 16 is not complete, and there is no blanket approval.
 
+The 2026-09-19 root-cause round is recorded in [Root-cause round (2026-09-19)](#root-cause-round-2026-09-19) at the end. It identifies the VO-3 and W-13 Comments cause as a SwiftUI limitation, records the workaround that was evaluated and the owner ruling against adopting it, states the platform rule behind W-35, and supersedes the W-8 activation-order conclusion below. The earlier sections are kept as the historical record they were written as.
+
 Times below are recorded in the source logs' local JST context unless explicitly marked UTC. The cache paths are written with `$HOME` to avoid embedding a machine-specific home path.
 
 ## W33 audio judgement
@@ -91,9 +93,60 @@ The VO-only direct variant further bounds W-35. On GATE, PID 12581 with VOT PID 
 The following standing decisions remain unchanged:
 
 - #39: owner decision is Apple-bug handling; do not fix locally.
+- VO-3 and the W-13 Comments slice: owner decision (2026-09-20) is Apple-bug handling; do not fix locally; no Feedback report.
 - W31: blank button capsule only.
 - W34: mebibytes decision accepted.
 
+## Root-cause round (2026-09-19)
+
+All runs below used the WALK simulator (iPhone 17, iOS 26.5, 23F77) with real VoiceOver, the `vot` debug log as the focus oracle (`Will set element`, `First element in app focus`, `Received note`), hermetic stub-network launches, and pass-through taps. Evidence is under `$HOME/Library/Caches/ehpanda-phase16/round3/focus-rootcause-20260919/`; the wide VoiceOver log is `e2-vo-after-wide.log`.
+
+### VO-3 and W-13 Comments: cause, evaluated workaround, owner ruling
+
+**Platform default.** Apple Contacts was used as the native calibration: Add, the New Contact sheet, then closing it lands VoiceOver on the first element of the screen underneath, not on Add (`e3-contacts-01..03*.png`). Returning focus to the control that opened a sheet is therefore app-level behavior on iOS 26.5, not something the system does and the app breaks.
+
+**Cause.** The app's approved designs (set an `AccessibilityFocusState` from the sheet's `onDismiss`) were correct and failed for one reason: SwiftUI bridges a toolbar `Button` or `Menu` whose label is a `Label` to a native `UIBarButtonItem` (accessibility element class `_UIButtonBarButton`), and a bridged item drops an `accessibilityFocused` binding in both directions. The control can neither be focused programmatically nor report focus. This is the mechanism behind the earlier "native icon-only toolbar focus binding breakpoint".
+
+The standalone probe (`toolbar-probe/`, sources `FocusProbeApp-T1..T4.swift.txt` plus the current T5 file, logs `runtime-t1..t5.log`) isolates the discriminator:
+
+| Toolbar control form | Element | Binding |
+|---|---|---|
+| `Label` label, `.labelStyle(.iconOnly)` (the production form) | `_UIButtonBarButton` | dropped |
+| `Label` label plus `.accessibilityLabel` on the control | `_UIButtonBarButton` | dropped |
+| `Label` label under a custom `LabelStyle` that renders the icon only (T5) | bridged | dropped |
+| Custom `ButtonStyle` | SwiftUI-hosted | works, but the accessibility frame shrinks to the glyph (26.7 x 27.3); rejected |
+| `Image` label | `SwiftUI.AccessibilityNode` | works, native-size frame |
+
+So the label's type decides: any `Label` is bridged, an `Image` stays hosted. In the full menu, item, sheet, dismiss flow the hosted menu button is VoiceOver's first and only focus decision after dismissal.
+
+A hosted item loses what the `Label` supplied for free. The accessibility label is restored with `.accessibilityLabel`. The Large Content Viewer title is restored with `.accessibilityShowsLargeContentViewer { Label(…) }`, which has to sit on the control itself: attached inside the label it shows the glyph without its title (`toolbar-probe/t5-lcv-compare.png`; correct form in `t3-lcv-compare.png`).
+
+**Evaluated workaround (not adopted).** A build that swapped the `Label` for an `Image` on the More menu and on Post Comment, re-added the accessibility label and the Large Content Viewer title by hand, and set the binding from each sheet's `onDismiss` was measured on 2026-09-19. It behaved as intended: after the dismiss tap, VoiceOver's single focus decision was `More` from the Search root (Filters `15:02:20.519`, Quick Search `15:04:44.905`) and from the results (Filters `15:03:13.670`, Quick Search `15:03:44.219`, Date Seek `15:03:59.103`), `Post Comment` on Comments (`15:06:22.155`), and the edited comment's row for the edit origin (`15:07:41.657`, exercised with a scratch copy of the fixtures carrying one editable comment; the repository fixtures are unchanged). The six audits touching those controls, the full `FeatureTests` plan (1064 tests in 185 suites) and a warning-free build passed on that build. Transcripts and screenshots are in `fix-verify/`, logs in `fix-uitests.log`, `fix-featuretests.log` and `fix-build.log`.
+
+It is a workaround, not a fix, and was judged as one. The defect stays in SwiftUI; the swap only steps around the bridge. It rests on an undocumented rule (which label types are bridged) that a later SDK can change silently, and no test can guard it because XCUITest cannot drive VoiceOver. It downgrades a `Label` to an `Image` and restores by hand what the `Label` supplied for free. It also moves a glyph: measured against the capsule's vertical center at 84 pt (`toolbar-probe/t4-*.png`), `square.and.pencil` sits at 83.67 bridged and 85.00 hosted (1.33 pt lower), `ellipsis.circle` at 84.17 and 83.83, and a lone item's accessibility frame becomes 30 to 31 x 36 instead of 36 x 36.
+
+**Owner ruling (2026-09-20).** Apple-bug handling: do not fix locally, and no Feedback report. The source edits were reverted; production keeps the `Label` form, and no app-side change is carried for VO-3 or the W-13 Comments slice. After such a sheet is dismissed, VoiceOver lands on the first element of the screen underneath, which is the platform default measured in Contacts above.
+
+**Scope of the limitation.** The same cause applies to every sheet opened from a toolbar control, not only the two recorded flows: the More menu on `SearchRootView`, `SearchView`, `WatchedView`, `FavoritesView`, `DetailSearchView`, `DetailView` and the reader, and the direct toolbar buttons on `FrontpageView`, `PopularView`, `EhSettingView`, `LoginView` and `CommentsView`. All of them stay at the platform default under the ruling. One part of the approved W-13 Comments slice does not depend on the workaround: the edit origin returns focus to a content row, where the binding works, as it does for the Read and Downloads slices. It was reverted together with the rest and is not implemented.
+
+All measurements were taken on the simulator with pass-through taps, because VoiceOver's activate gesture does not fire there; behavior after a real double-tap activation on a physical device is unverified.
+
+### W-35: the platform rule
+
+On Screen Changed, VoiceOver asks the app for its first element, and UIKit answers with the first element in traversal order; the navigation bar precedes the content. The only elements UIKit exempts are loading spinners, status-bar items and table section elements (never first), so while Detail loads, with its content accessibility-hidden, `More` is the only candidate, and once it has loaded `More` still precedes the title. Detail has no navigation title, and in the app-level sheet route no leading item, so `More` is first; in the pushed route Back is first, which checklist item 1.7 accepts. An inline navigation title does not outrank a leading item either: the titled probe's first element was its leading button (`14:54:18.870`).
+
+Two details of the recorded behavior are now explained. The second `More` decision after load came from the `.disabled` flip rebuilding the bridged bar button (focus went to null) plus the app's load-time Screen Changed; on the unadopted workaround build, whose menu was SwiftUI-hosted, the two decisions remained (`15:07:03.580`, `15:07:04.491`). When VoiceOver is switched on over an already-loaded Detail, the first element is the title: that path does not go through a Screen Changed first-element query.
+
+There is no synchronous public hook to change the first element: `accessibilityDefaultFocus` stays non-functional on 26.5 (previous probes), and the private hooks are not available to an app. Programmatic title focus works but lands 0.8 to 0.9 s late, after `More` has been selected, through VoiceOver's delayed update pass (the withdrawn probe above). W-35 therefore needs an owner decision among: accept the platform convention (first navigation-bar element, as on the pushed route); adopt the app's existing "focus newly loaded content" pattern for the Detail title and accept that `More` is selected first; or give the sheet route a navigation title or leading item so the bar's first element is something other than `More`, which is a visible design change.
+
+### W-8: corrected characterization
+
+The producer boundary stands: SpringBoard posts the Screen Changed (`1000`), and VoiceOver then selects the app's first element. The chain is: a VoiceOver-keyboard-driven scroll makes the app post Layout Changed; VoiceOver's delayed layout-change handler (about 0.77 s) queries SpringBoard (lock screen, notification center, foreground processes and scenes); SpringBoard answers with `1000`.
+
+The activation-order conclusion above is superseded. The reset fires once per app activation, at a nondeterministic time. In app PID 81511 SpringBoard's deferred `1000` landed inside the presentation flurry (`14:30:33.334`), harmlessly, and the later uploader walk did not reset. In PID 81181, with VoiceOver already on before the app launched, it landed mid-walk (`14:29:43.613`); likewise in the fresh-VoiceOver run (`14:26:36.802`). After it has fired, further VoiceOver scrolls on the same screen do not reset. The earlier A/B/A samples were single samples of this timing, which also explains "2 of 4 launches".
+
+Refuted this round: a one-time lazy `AXBackBoardServer` connection by VoiceOver (a reset occurs without a new registration); an app-independent system behavior (stock Settings shows no reset, `e1-settings-system.log`, although the no-app-logic SwiftUI fixture above does); a navigation-bar scroll-edge transition (touch scrolls post the identical `1044`, `1001`, `1069` sequence and never draw a SpringBoard `1000`). The app's notifications around the reset are ordinary, and the only focus-retention hook UIKit consults is private, so no app-side lever exists. W-8 is a system behavior on the tested simulator runtime; SpringBoard's internal trigger remains unidentified, and nothing is extrapolated to physical devices. For walkthrough evidence, the mitigation is procedural: wait for SpringBoard's deferred `1000` after a launch before starting a walk.
+
 ## Review boundary
 
-This record intentionally preserves unresolved hypotheses and pending human judgements for the remaining items. It does not claim a confirmed VO-3/W-13 root cause or declare Phase 16 complete.
+This record preserves unresolved hypotheses and pending human judgements for the remaining items. As of 2026-09-20 it claims a confirmed cause for VO-3 and the W-13 Comments slice, measured on the simulator only, and records the owner ruling that it is handled as an Apple bug with no local fix. It does not claim a decision on W-35, an identified SpringBoard trigger for W-8, or that Phase 16 is complete.
