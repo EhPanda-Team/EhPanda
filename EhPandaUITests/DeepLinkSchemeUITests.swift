@@ -34,7 +34,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
 
         try app.openCold(url)
 
-        assertReaderDestination(in: app)
+        try assertReaderDestination(in: app)
     }
 
     func testPageLinkWarmForegroundOpensReaderAtPage() throws {
@@ -45,7 +45,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
         app.requireForeground()
         app.openWarm(url)
 
-        assertReaderDestination(in: app)
+        try assertReaderDestination(in: app)
     }
 
     func testCommentLinkColdLaunchScrollsToComment() throws {
@@ -115,7 +115,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
         in app: XCUIApplication,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) throws {
         app.requireForeground(file: file, line: line)
         app.requireElement("detail_view", matching: .scrollView, file: file, line: line)
         let readingView = app.requireElement(
@@ -139,6 +139,14 @@ final class DeepLinkSchemeUITests: XCTestCase {
             pageIndicator.label == expectedValue || indicatorValue == expectedValue,
             "Expected reader page indicator \(expectedValue), got label "
                 + "\(pageIndicator.label.debugDescription) and value \(String(describing: indicatorValue)).",
+            file: file,
+            line: line
+        )
+        // The indicator is computed from the page model, so it cannot show that the reader opened
+        // on the linked page; the page under the center of the reader can (`ReaderPageProbe`).
+        try ReaderPageProbe(app: app).requirePage(
+            "On opening the page link",
+            where: { $0 == UITestConstants.pageIndex },
             file: file,
             line: line
         )
