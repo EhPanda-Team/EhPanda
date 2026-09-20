@@ -126,8 +126,8 @@ public struct ReadingView: View {
         .statusBarHidden(!store.showsPanel)
         // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
         // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
-        // repeating timer. Neither is reducer state, so no reducer action can stand in for this,
-        // and no value change marks the view's removal. Dropping it would leak an autoplay timer
+        // ticking task. Neither is reducer state, so no reducer action can stand in for this,
+        // and no value change marks the view's removal. Dropping it would leak an autoplay task
         // that keeps turning pages of a reader nobody is looking at.
         // Progress is NOT flushed here: the reducer flushes on `.onPerformDismiss`, before the
         // presentation is torn down; a send from here would arrive after the destination is
