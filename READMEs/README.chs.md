@@ -20,7 +20,7 @@
 2. 使用 [AltStore](https://altstore.io) 这类软件将 ipa 文件安装到你的设备。
 
 ## 系统要求
-请确保你的设备系统为 iOS / iPadOS 26.0 以上。
+请确保你的设备系统为 iOS / iPadOS 27.0 以上。
 
 ## 内容及其著作权
 本应用程序中的内容均来自 E-Hentai，而 E-Hentai 的内容均为用户生成内容。
