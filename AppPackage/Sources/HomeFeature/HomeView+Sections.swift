@@ -23,11 +23,9 @@ private let middleBlock = windowBlocks / 2
 
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
+    @Environment(\.layoutDirection) private var layoutDirection
     @State private var scrollPositionID: Int?
     @State private var carouselWidth: CGFloat = 0
-    // Last phase `onScrollPhaseChange` reported. Read by the handoff below to tell VoiceOver's own
-    // scrolling (which produces no phase, so the phase stays `.idle`) from a gesture-driven one.
-    @State private var scrollPhase: ScrollPhase = .idle
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
     // under rebase whether derived from its id or from its layout slot.
@@ -75,11 +73,9 @@ struct CardSlideSection: View, Equatable {
     // changes — `scrollPosition(id:)` keeps the settled view pinned across the content diff and
     // `scrollPositionID` is never written during scrolling — so the focused card's view identity
     // (and its gradient playback) survives every wrap, and no programmatic scroll can cancel an
-    // in-flight gesture. There are exactly two bounded exceptions, and both write only while no
-    // scroll is in flight: a gallery-count change, which invalidates the id space and requires the
-    // synchronization write in `body` below; and the `.idle` anchor sync in the nearest-center
-    // handoff, which re-anchors on the card VoiceOver has already scrolled to (see there for why a
-    // VoiceOver scroll leaves the anchor stale). Neither animates and neither moves the content.
+    // in-flight gesture. A gallery-count change invalidates the id space and reseeds the anchor.
+    // Native gesture settling owns scroll-position updates; geometry only observes selection, so
+    // a layout change never issues a scroll command.
     private struct BufferedCard: Identifiable, Equatable {
         let id: Int
         let gallery: Gallery
@@ -131,7 +127,7 @@ struct CardSlideSection: View, Equatable {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: cardSpacing) {
                 ForEach(bufferedCards) { item in
-                    card(for: item.gallery)
+                    card(for: item.gallery, id: item.id)
                         // One pass of the galleries for assistive technologies. The window carries
                         // `windowBlocks` copies of the list, and every copy the lazy stack builds is
                         // an accessibility element, so linear VoiceOver navigation reads the same
@@ -159,49 +155,15 @@ struct CardSlideSection: View, Equatable {
         .scrollPosition(id: $scrollPositionID)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
+        .accessibilityIdentifier("home_carousel")
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
             windowBase = 0
             scrollPositionID = newCount * middleBlock + min(max(pageIndex, 0), newCount - 1)
         }
-        // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
-        // that crosses the container's midline is the card the scroll will land on. Flipping
-        // `pageIndex` (→ `currentCardID` → the focused-card gradient) at the crossing hands the
-        // gradient over while the card is still sliding in, instead of ~0.5s later when the
-        // scroll reaches `.idle`. The `.idle` write below stays as the settle-time reconciliation.
-        // The transform returns the LOGICAL index, so the window rebase (slots and offset shift
-        // together by whole blocks, logical value unchanged) never fires this action.
-        //
-        // The action also re-anchors while the phase is `.idle`, which is the second of the two
-        // bounded exceptions to "`scrollPositionID` is never written during scrolling" that
-        // `bufferedCards` names. VoiceOver scrolls the carousel itself when focus moves to the next
-        // card, and that scroll raises no phase, so SwiftUI — which only updates `scrollPositionID`
-        // when a phase settles — leaves the anchor on the last gesture-settled card. Since
-        // `scrollPosition(id:)` holds that card in place across the next content change, the offset
-        // later snaps back to it, the focused card leaves the screen and VoiceOver drops focus to
-        // the screen's first element (Phase 16 VO-1: in the instrumented build every reset followed
-        // exactly this jump, about 1.17 s later, and nothing else did). Writing the anchor here
-        // keeps it on the card the offset already shows: `.idle` means no drag, deceleration or
-        // animation is in flight, and the value written is the card that is already centred, so
-        // nothing scrolls and no gesture can be cancelled. The id written is the MIDDLE-block copy,
-        // the only block the cards above expose, so a `previous` step from the Frontpage heading
-        // returns to the last of the six rather than a neighbouring block's copy of it.
-        .onScrollGeometryChange(for: Int.self) { geometry in
-            let count = galleries.count
-            guard count > 0, cardWidth > 0 else { return pageIndex }
-            // `visibleRect.midX` is inset-convention-proof here: the `.scrollContent` margins are
-            // symmetric, so the visible midpoint is identical whether or not they are included.
-            let rawSlot = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
-            let slot = min(max(Int(rawSlot), 0), count * windowBlocks - 1)
-            return logicalIndex(of: windowBase + slot)
-        } action: { _, newValue in
-            guard !galleries.isEmpty, pageIndex != newValue else { return }
-            pageIndex = newValue
-            guard scrollPhase == .idle else { return }
-            scrollPositionID = windowBase + galleries.count * middleBlock + newValue
-        }
+        // Native snapping has settled by `.idle`; this handler only reconciles the selected
+        // buffered ID and rebases the sliding window without changing the settled gesture.
         .onScrollPhaseChange { _, newPhase in
-            scrollPhase = newPhase
             guard newPhase == .idle, let settledID = scrollPositionID, !galleries.isEmpty else { return }
             let count = galleries.count
             let logical = logicalIndex(of: settledID)
@@ -221,9 +183,7 @@ struct CardSlideSection: View, Equatable {
         }
     }
 
-    // Shared by the layout and the nearest-center geometry math — they must never drift apart.
     private var cardWidth: CGFloat { carouselWidth * 0.8 }
-    private var cardPitch: CGFloat { cardWidth + cardSpacing }
     private let cardSpacing: CGFloat = 20
 
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
@@ -233,7 +193,7 @@ struct CardSlideSection: View, Equatable {
         (carouselWidth - cardWidth) / 2
     }
 
-    private func card(for gallery: Gallery) -> some View {
+    private func card(for gallery: Gallery, id: Int) -> some View {
         Button {
             navigateAction(gallery)
         } label: {
@@ -250,6 +210,38 @@ struct CardSlideSection: View, Equatable {
             .multilineTextAlignment(.leading)
         }
         .frame(width: cardWidth)
+        // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
+        // whose actual bounds cross the viewport midpoint is the card the scroll will land on.
+        // Measuring those bounds relative to the horizontal scroll viewport avoids deriving a
+        // slot from the lazy stack's estimated content origin, which can remain translated after
+        // rotation. Each card's observer flips `pageIndex` (→ `currentCardID` → the focused-card
+        // gradient) when that card becomes nearest, instead of waiting ~0.5s for `.idle`.
+        //
+        // Geometry observation updates only the semantic page index, preserving the gradient's
+        // nearest-card timing. It cannot distinguish a resize from VoiceOver navigation, so it
+        // never writes `scrollPositionID`; native gesture settling owns the target binding.
+        .onGeometryChange(for: Bool.self) { [layoutDirection] proxy in
+            guard let viewport = proxy.bounds(of: .scrollView(axis: .horizontal)), proxy.size.width > 0 else {
+                return false
+            }
+            let relativeMidpoint = viewport.midX - proxy.size.width / 2
+            let halfInterval = (proxy.size.width + cardSpacing) / 2
+            let isNearest: Bool
+            switch layoutDirection {
+            case .leftToRight:
+                isNearest = relativeMidpoint >= -halfInterval && relativeMidpoint < halfInterval
+            case .rightToLeft:
+                isNearest = relativeMidpoint > -halfInterval && relativeMidpoint <= halfInterval
+            @unknown default:
+                isNearest = relativeMidpoint >= -halfInterval && relativeMidpoint < halfInterval
+            }
+            return isNearest
+        } action: { _, isNearest in
+            guard isNearest, !galleries.isEmpty else { return }
+            let logical = logicalIndex(of: id)
+            guard pageIndex != logical else { return }
+            pageIndex = logical
+        }
         // Peek dimming, owner-tuned: SwiftUIPager parity was `interactive(opacity: 0.2)`, but at
         // this card size the peek slivers are thin, and 0.2 over the dark background rendered
         // them practically invisible. 0.6 keeps the neighbors clearly readable yet de-emphasized.
