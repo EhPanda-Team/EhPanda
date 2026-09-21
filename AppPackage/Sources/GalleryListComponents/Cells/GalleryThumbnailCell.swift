@@ -176,7 +176,7 @@ public struct GalleryThumbnailCell: View {
     /// designed one-line row into two lines is a visible change at the size this phase holds fixed;
     /// what the row does there instead — give both members the width and let them truncate — is the
     /// designed behaviour and stays it.
-    @ViewBuilder private var pageCountAndLanguageArrangement: some View {
+    @ContentBuilder private var pageCountAndLanguageArrangement: some View {
         if dynamicTypeSize <= .large {
             HStack(spacing: 10) {
                 pageCountOrDownloadBadge
@@ -197,7 +197,7 @@ public struct GalleryThumbnailCell: View {
         (gallery.language?.value).map(Text.init)
     }
 
-    @ViewBuilder private var pageCountOrDownloadBadge: some View {
+    @ContentBuilder private var pageCountOrDownloadBadge: some View {
         if let downloadBadge {
             DownloadBadgeLabel(badge: downloadBadge)
         } else {

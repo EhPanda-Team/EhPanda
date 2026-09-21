@@ -70,11 +70,13 @@ final class EmbeddedWebviewController: UIViewController {
     init(coordinator: WebView.Coordinator) {
         delegate = coordinator
         webview = WKWebView()
+        webview.scrollView.topEdgeEffect.style = .soft
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
         webview = WKWebView()
+        webview.scrollView.topEdgeEffect.style = .soft
         super.init(coder: coder)
     }
 

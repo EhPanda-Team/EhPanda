@@ -34,6 +34,7 @@ struct TorrentsView: View {
                     }
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .overlay {
                 LoadingView()
                     .animation(.default) {
@@ -51,6 +52,7 @@ struct TorrentsView: View {
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
                 ActivityView(activityItems: [url.wrappedValue])
+                    .scrollEdgeEffectStyle(.soft, for: .top)
                     .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))
@@ -115,7 +117,7 @@ private extension TorrentsView {
         /// What is given up above the gate is the file size's trailing anchor: in a flow the pairs
         /// simply follow one another, so the size sits wherever its line leaves it. That is
         /// decoration, and the values are content.
-        @ViewBuilder private var counters: some View {
+        @ContentBuilder private var counters: some View {
             if dynamicTypeSize <= .large {
                 compactCounters
             } else {
@@ -142,7 +144,7 @@ private extension TorrentsView {
             .lineLimit(1)
         }
 
-        @ViewBuilder private func value(of counter: TorrentCounter) -> some View {
+        @ContentBuilder private func value(of counter: TorrentCounter) -> some View {
             switch counter {
             case .seeds:
                 Text(torrent.seedCount, format: .number)

@@ -39,6 +39,7 @@ public struct FiltersView: View {
                     submitAction: { store.send(.onTextFieldSubmitted) }
                 )
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .synchronize($store.focusedBound, $focusedBound)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

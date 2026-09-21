@@ -26,7 +26,7 @@ struct TabBarView: View {
 
         TabView(selection: $tabBarStore.tabBarItemType.sending(\.setTabBarItemType)) {
             ForEach(TabBarItemType.allCases) { type in
-                Group {
+                Tab(value: type) {
                     switch type {
                     case .home:
                         HomeView(
@@ -49,8 +49,9 @@ struct TabBarView: View {
                             store: store.scope(\.settingState, action: \.setting)
                         )
                     }
+                } label: {
+                    Label(type.title, systemSymbol: type.symbol)
                 }
-                .tabItem(type.label).tag(type)
             }
         }
         .privacyMask()
@@ -126,9 +127,6 @@ extension TabBarItemType {
         case .setting:
             return .gearshapeCircle
         }
-    }
-    func label() -> Label<Text, Image> {
-        Label(title, systemSymbol: symbol)
     }
 }
 

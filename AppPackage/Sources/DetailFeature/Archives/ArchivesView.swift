@@ -49,9 +49,9 @@ struct ArchivesView: View {
                         $0.visible(error != nil && store.hathArchives.isEmpty)
                     }
                 }
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .toast($store.scope(\.$toast, action: \.toast))
                 .navigationTitle(.archives)
-                .accessibilityNavigationTitleWorkaround()
         }
     }
 
@@ -71,7 +71,7 @@ struct ArchivesView: View {
     /// read: that is where a card stops sharing its row and grows to the height its own text needs,
     /// so it is also where the funds row and the download banner stop leaving the grid a usable
     /// share of the sheet.
-    @ViewBuilder private var sheetContent: some View {
+    @ContentBuilder private var sheetContent: some View {
         if dynamicTypeSize.isAccessibilitySize {
             scrollingColumn
         } else {
@@ -88,10 +88,12 @@ struct ArchivesView: View {
                 archiveGrid
             }
             .frame(maxHeight: .infinity, alignment: .top)
+            .scrollEdgeEffectStyle(.soft, for: .top)
 
             funds
             downloadButton
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
     }
 
     /// Above the threshold the pinned footer is given up: it grows with the text until it owns the
@@ -126,7 +128,7 @@ struct ArchivesView: View {
         HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
     }
 
-    @ViewBuilder private var funds: some View {
+    @ContentBuilder private var funds: some View {
         let placeholderValue = 100000
         let credits = store.user.credits.flatMap(Int.init)
         let galleryPoints = store.user.galleryPoints.flatMap(Int.init)
@@ -296,7 +298,7 @@ private struct HathArchiveGrid: View {
     /// accessibility threshold the card fills its (now single) column and takes the height its
     /// contents ask for, so the border always encloses what it is drawn around. Below it the
     /// designed card is used verbatim.
-    @ViewBuilder private var sizedCard: some View {
+    @ContentBuilder private var sizedCard: some View {
         if dynamicTypeSize.isAccessibilitySize {
             tintedCard
                 .padding(10)
@@ -309,7 +311,7 @@ private struct HathArchiveGrid: View {
 
     // `foregroundColor` is optional: nil means inherit the ambient tint, so
     // apply `foregroundStyle` only when a concrete color is supplied.
-    @ViewBuilder private var tintedCard: some View {
+    @ContentBuilder private var tintedCard: some View {
         let card = VStack(spacing: 10) {
             Text(archive.resolution.value)
                 .font(.title3.bold())

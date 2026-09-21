@@ -58,14 +58,12 @@ struct DetailSearchView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            ToolbarFeaturesMenu {
-                FiltersButton {
-                    store.send(.filtersButtonTapped)
-                }
-                QuickSearchButton {
-                    store.send(.quickSearchButtonTapped)
-                }
+        ToolbarOverflowMenu {
+            FiltersButton {
+                store.send(.filtersButtonTapped)
+            }
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
             }
         }
     }

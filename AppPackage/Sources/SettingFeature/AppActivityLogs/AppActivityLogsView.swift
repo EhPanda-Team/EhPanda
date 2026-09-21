@@ -38,7 +38,8 @@ struct AppActivityLogsView: View {
                     $0.visible(store.loadingState != .loading && store.displayedLogs.isEmpty)
                 }
         }
-        .accessibilitySearchableWorkaround(text: $keyword)
+        .scrollEdgeEffectStyle(.soft, for: .top)
+        .searchable(text: $keyword, placement: .navigationBarDrawer)
         .onSubmit(of: .search) {
             store.send(.queryLogs(keyword))
         }
@@ -49,23 +50,22 @@ struct AppActivityLogsView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(.appActivityLogsViewTitle)
-        .accessibilityNavigationTitleWorkaround()
         .sheet(isPresented: $isRunPickerPresented) {
             RunPickerSheet(store: store) { isRunPickerPresented = false }
                 .privacyMask()
         }
     }
 
-    @ToolbarContentBuilder
+    @ContentBuilder
     private func toolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 runMenu
             } label: {
                 Label(.appActivityLogsViewRuns, systemSymbol: .clock)
             }
         }
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Button {
                 store.send(.navigateToFileApp)
             } label: {
@@ -90,7 +90,7 @@ struct AppActivityLogsView: View {
     /// the day a run belongs to is still spelled out by the sectioned list behind **More Logs**,
     /// which is the surface for browsing every run rather than the five most recent. The labels stay
     /// on the pickers because they are what VoiceOver announces for the control.
-    @ViewBuilder
+    @ContentBuilder
     private var runMenu: some View {
         runPicker(title: Text(.appActivityLogsViewCurrent)) {
             Text(runLabel(store.currentRun))
@@ -118,7 +118,7 @@ struct AppActivityLogsView: View {
 
     private func runPicker<Content: View>(
         title: Text,
-        @ViewBuilder content: () -> Content
+        @ContentBuilder content: () -> Content
     ) -> some View {
         Picker(
             selection: $store.selectedRun.sending(\.selectRun),
@@ -161,8 +161,9 @@ private struct RunPickerSheet: View {
                     }
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(.appActivityLogsViewRuns)
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .cancel, action: dismissAction)

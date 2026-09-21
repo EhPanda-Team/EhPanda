@@ -87,8 +87,9 @@ public struct DateSeekPickerView: View {
                     Button(role: .cancel, action: dismiss.callAsFunction)
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(.RLocalizable.dateSeek)
-            .navigationBarTitleDisplayMode(.large)
+            .toolbarTitleDisplayMode(.large)
         }
     }
 }

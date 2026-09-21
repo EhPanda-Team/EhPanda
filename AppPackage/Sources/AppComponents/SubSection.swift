@@ -19,7 +19,7 @@ public struct SubSection<Content: View>: View {
         isLoading: Bool? = nil,
         reloadAction: (() -> Void)? = nil,
         showAllAction: @escaping () -> Void = {},
-        @ViewBuilder content: () -> Content
+        @ContentBuilder content: () -> Content
     ) {
         self.title = title
         self.showAll = showAll
@@ -63,7 +63,7 @@ public struct SubSection<Content: View>: View {
     /// pass `showAll: false` — so the accessibility branch does not build the button at all. The
     /// difference is confined to layout: `visible(_:)` takes the invisible button out of the
     /// accessibility tree, so neither branch offers a control that cannot be seen.
-    @ViewBuilder private var heading: some View {
+    @ContentBuilder private var heading: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 8) {
                 titleButton

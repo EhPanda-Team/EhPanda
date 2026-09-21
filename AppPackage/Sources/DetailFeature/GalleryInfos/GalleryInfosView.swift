@@ -132,6 +132,7 @@ struct GalleryInfosView: View {
             .accessibilityLabel(info.title)
             .accessibilityValue(info.accessibilityValue ?? valueText(for: info))
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.metadataGalleryInfos)
     }

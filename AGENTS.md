@@ -30,23 +30,24 @@ So for a per-row destructive action, keep the modifier on the row. Verified on d
 
 ## Accessibility navigation and search policy
 
-Preserve designed `.inlineLarge` titles and measure them independently at accessibility text sizes;
-do not apply the automatic-title fallback to them by default. The Phase 16 iPhone AX3/AX5 samples
-retained all five root titles; iPad top tabs and the Settings sheet use different presentations.
-These samples are not a guarantee for every size, state, device, or orientation.
+Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed
+`.inlineLarge` root titles and verify them independently at standard, AX1, AX3 and AX5 sizes,
+including cold entry and live size changes on iPhone and iPad. Keep sheet-specific title modes and
+search focus, query and orientation behavior intact. Do not reintroduce the removed accessibility
+title or search workarounds, dynamic-type branches, or fallback placement modifiers.
 
-On `.automatic` title screens with recorded native title disappearance or overlap, use the shared
-`accessibilityNavigationTitleWorkaround()` to select `.inline` only at accessibility sizes.
-On `.searchable` screens with recorded blank native search drawers, use the shared
-`accessibilitySearchableWorkaround(text:prompt:)` to select
-`.navigationBarDrawer(displayMode: .always)` only at accessibility sizes. Keep unaffected sites
-native and preserve view identity during size changes. Record evidence before extending either scope.
+## Scroll-edge policy
 
-Both common modifiers must explicitly document that they are temporary Apple rendering workarounds,
-the failure they address, and when to remove them. Once the affected screens pass without the
-workaround on supported OS versions, remove the modifier and its call sites. Verify cold entry,
-live AX size changes, and relevant search focus/orientation states. See
-`.planning/phases/16-dynamic-type-accessibility/16-AX-POLICY-REVIEW.md` for evidence and open coverage.
+Every app-owned page carries `.scrollEdgeEffectStyle(.soft, for: .top)` at its effective scroll
+hierarchy, including separately presented sheets, covers, forms, lists, scroll views, text editors
+and non-scrolling states. Owned UIKit scroll hosts use their equivalent native top-edge property.
+The modifier is attached to the page content root or the exact ancestor recorded in the page
+inventory; it must not depend on propagation across a presentation boundary. Non-scrolling states
+still carry the policy and naturally show no visible edge effect. Keep system-owned scrolling, such
+as `UIActivityViewController` internals, untouched while applying the presentation-root policy.
+The migration coverage is recorded in
+`.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md`.
+When adding a page, include its native scroll host and any separate presentation root in this policy.
 
 ## Project structure
 

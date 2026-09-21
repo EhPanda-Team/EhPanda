@@ -82,9 +82,11 @@ public struct ReadingView: View {
     public var body: some View {
         NavigationStack {
             changeTriggers(content: { content })
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .toolbar(content: readingToolbar)
                 .toolbarTitleDisplayMode(.inline)
                 .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .navigationBar)
+                .toolbarVisibility(store.showsPanel ? .visible : .hidden, for: .statusBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
         }
         .accessibilityElement(children: .contain)
@@ -110,6 +112,7 @@ public struct ReadingView: View {
         }
         .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
             ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .privacyMask()
         }
         .toast($store.scope(\.$toast, action: \.toast))
@@ -123,7 +126,6 @@ public struct ReadingView: View {
         .animation(.default, value: liveTextHandler.liveTextGroups)
         .animation(reduceMotion ? nil : .default, value: gestureHandler.scale)
         .animation(.default, value: store.showsPanel)
-        .statusBarHidden(!store.showsPanel)
         // D-02 exception candidate: teardown of two view-owned `@State` handlers that hold live
         // work of their own — `liveTextHandler`'s in-flight Vision requests and `autoPlayHandler`'s
         // ticking task. Neither is reducer state, so no reducer action can stand in for this,
@@ -154,7 +156,7 @@ public struct ReadingView: View {
         )
     }
 
-    @ViewBuilder
+    @ContentBuilder
     var content: some View {
         @Bindable var bindablePageHandler = pageHandler
 
@@ -249,6 +251,7 @@ public struct ReadingView: View {
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID)
         .scrollDisabled(gestureHandler.scale != 1)
         // RTL flips only the paging axis; the data source stays forward so every index keeps
@@ -274,8 +277,8 @@ public struct ReadingView: View {
         }
     }
 
-    @ViewBuilder
-    private func changeTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    @ContentBuilder
+    private func changeTriggers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
         pageAndAutoPlayTriggers(content: content)
             // LiveText
             .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
@@ -288,8 +291,8 @@ public struct ReadingView: View {
             }
     }
 
-    @ViewBuilder
-    private func pageAndAutoPlayTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    @ContentBuilder
+    private func pageAndAutoPlayTriggers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
         content()
             // Page
             .onChange(
@@ -327,7 +330,7 @@ public struct ReadingView: View {
             }
     }
 
-    @ViewBuilder private func imageStack(index: Int) -> some View {
+    @ContentBuilder private func imageStack(index: Int) -> some View {
         let setting = store.setting
         let imageStackConfig = store.state.imageContainerConfigs(
             index: index,

@@ -39,6 +39,7 @@ public struct SettingView: View {
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(.RLocalizable.setting)
             .toolbarTitleDisplayMode(designedTitleDisplayMode)
         } destination: { pathStore in
@@ -47,7 +48,7 @@ public struct SettingView: View {
     }
 
     // MARK: Destinations
-    @ViewBuilder
+    @ContentBuilder
     private func destination(_ pathStore: StoreOf<SettingPath>) -> some View {
         switch pathStore.case {
         case .account(let accountStore):

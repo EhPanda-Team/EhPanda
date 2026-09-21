@@ -128,6 +128,7 @@ public struct QuickSearchView: View {
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)
             .animation(listAnimation, value: store.listEditMode)
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
             .navigationTitle(.RLocalizable.quickSearch)
@@ -164,7 +165,7 @@ public struct QuickSearchView: View {
             }
         }
     }
-    @ViewBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
+    @ContentBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
         EditWordView(
             title: kind == .new
                 ? .newWord
@@ -213,6 +214,7 @@ extension QuickSearchView {
                         .focused(focusedField, equals: .content)
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .toolbar(content: toolbar)
             .onSubmit(of: .text, submitAction)
             .navigationTitle(title)

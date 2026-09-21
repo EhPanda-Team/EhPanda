@@ -31,6 +31,7 @@ struct PostCommentView: View {
         NavigationStack {
             TextEditor(text: $content)
                 .frame(maxHeight: .infinity, alignment: .top)
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .focused($isTextEditorFocused)
                 .accessibilityLabel(.accessibilityComment)
                 .padding()
@@ -43,7 +44,7 @@ struct PostCommentView: View {
                             .disabled(content.isEmpty)
                     }
                 }
-                .navigationBarTitleDisplayMode(.inline)
+                .toolbarTitleDisplayMode(.inline)
                 .navigationTitle(title)
         }
         .synchronize($isFocused, $isTextEditorFocused)

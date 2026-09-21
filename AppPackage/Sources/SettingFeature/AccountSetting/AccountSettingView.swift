@@ -48,10 +48,12 @@ struct AccountSettingView: View {
                 copyAction: { store.send(.copyCookies($0)) }
             )
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .privacyMask()
         }
         .navigationTitle(.account)
@@ -198,7 +200,7 @@ private struct CookieRow: View {
             }
     }
 
-    @ViewBuilder private var row: some View {
+    @ContentBuilder private var row: some View {
         if dynamicTypeSize <= .large {
             HStack {
                 keyLabel

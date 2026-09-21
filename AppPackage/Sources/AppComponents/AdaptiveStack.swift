@@ -42,7 +42,7 @@ public struct AdaptiveStack<Content: View>: View {
         hAlignment: VerticalAlignment = .center,
         vSpacing: CGFloat? = nil,
         vAlignment: HorizontalAlignment = .leading,
-        @ViewBuilder content: () -> Content
+        @ContentBuilder content: () -> Content
     ) {
         self.hSpaceBetween = hSpaceBetween
         self.hSpacing = hSpacing

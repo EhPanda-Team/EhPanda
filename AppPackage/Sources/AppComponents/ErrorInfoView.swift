@@ -63,6 +63,7 @@ public struct ErrorInfoView: View {
                 }
             }
             .accessibilityIdentifier("error_info_view")
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(.error)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

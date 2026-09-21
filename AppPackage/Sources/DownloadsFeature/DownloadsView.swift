@@ -27,6 +27,7 @@ public struct DownloadsView: View {
             action: \.path
         ) {
             downloadsList
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .overlay {
                     emptyStateView
                         .padding(.horizontal, 24)
@@ -72,7 +73,7 @@ public struct DownloadsView: View {
 
 // MARK: Subviews
 private extension DownloadsView {
-    @ViewBuilder private var downloadsList: some View {
+    @ContentBuilder private var downloadsList: some View {
         switch store.loadingState {
         case .loading where store.downloads.isEmpty:
             LoadingView()
@@ -125,7 +126,7 @@ private extension DownloadsView {
         focusedRowID = inspectorOriginID
     }
 
-    @ViewBuilder private var emptyStateView: some View {
+    @ContentBuilder private var emptyStateView: some View {
         if store.downloads.isEmpty {
             ContentUnavailableView {
                 Label(.emptyDownloads, systemSymbol: .squareAndArrowDown)
@@ -144,7 +145,7 @@ private extension DownloadsView {
         }
     }
 
-    @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
             Menu {
                 Section {
@@ -364,7 +365,7 @@ private extension DownloadRow {
         }
     }
 
-    @ViewBuilder func downloadContextMenu() -> some View {
+    @ContentBuilder func downloadContextMenu() -> some View {
         detailButton
         inspectButton
 

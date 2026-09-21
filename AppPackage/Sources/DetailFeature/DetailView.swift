@@ -170,6 +170,7 @@ private extension DetailView {
             .padding(.bottom, 20)
             .padding(.top, 25)
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .animation(.default) {
             $0.visible(store.galleryDetail != nil)
         }
@@ -193,7 +194,7 @@ private extension DetailView {
         .accessibilityIdentifier("detail_view")
     }
 
-    func modalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    func modalModifiers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
         primaryModalModifiers(content: content)
             .sheet(item: $store.destination.postComment, id: \.id) { _ in
                 PostCommentView(
@@ -220,7 +221,7 @@ private extension DetailView {
             }
     }
 
-    private func primaryModalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    private func primaryModalModifiers<Content: View>(@ContentBuilder content: () -> Content) -> some View {
         content()
             .fullScreenCover(
                 item: $store.scope(\.$destination, action: \.destination).reading,
@@ -265,6 +266,7 @@ private extension DetailView {
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
                 ActivityView(activityItems: [url.wrappedValue])
+                    .scrollEdgeEffectStyle(.soft, for: .top)
                     .privacyMask()
             }
     }
@@ -294,7 +296,7 @@ private extension DetailView {
         store.send(.runLaunchAutomationIfNeeded)
     }
 
-    @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {
+    @ContentBuilder private func offlineFallbackNotice(error: AppError) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(
                 .savedDetails,

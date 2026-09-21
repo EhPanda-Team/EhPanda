@@ -66,6 +66,7 @@ public struct HomeView: View {
                     .padding(.vertical)
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .onGeometryChange(for: CGSize.self, of: \.size) {
                 viewportSize = $0
             }

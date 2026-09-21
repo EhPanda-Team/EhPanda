@@ -49,8 +49,10 @@ struct EhSettingView: View {
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .privacyMask()
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toolbar(content: toolbar)
         .navigationTitle(.hostSettings(galleryHost.rawValue))
     }
@@ -97,11 +99,12 @@ struct EhSettingView: View {
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
     }
     // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {
         Group {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     store.send(.presentWebView(Defaults.URL.uConfig(host: setting.galleryHost)))
                 } label: {
