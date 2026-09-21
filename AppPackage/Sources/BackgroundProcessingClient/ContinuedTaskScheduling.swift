@@ -52,7 +52,7 @@ struct ContinuedTaskScheduling {
     /// Registers a launch handler for one identifier, returning whether the system accepted it.
     var register: @MainActor (_ identifier: String, _ launchHandler: @escaping ContinuedTaskLaunchHandler) -> Bool
     /// Submits a request for an already-registered identifier, throwing what the scheduler throws.
-    var submit: @MainActor (_ identifier: String, _ title: String, _ subtitle: String) throws -> Void
+    var submit: @MainActor (_ identifier: String, _ title: String, _ subtitle: String) async throws -> Void
     /// Takes one still-pending request back, by the identifier it was submitted under.
     var cancel: @MainActor (_ identifier: String) -> Void
 }
@@ -99,20 +99,33 @@ extension ContinuedTaskScheduling {
             }
         },
         submit: { identifier, title, subtitle in
-            let request = BGContinuedProcessingTaskRequest(
+            try await submitTaskRequest(
                 identifier: identifier,
                 title: title,
                 subtitle: subtitle
             )
-            // A request the system cannot start immediately waits behind other work instead of
-            // failing outright, which matters because nothing catches a lost session.
-            request.strategy = .queue
-            try BGTaskScheduler.shared.submit(request)
         },
         cancel: { identifier in
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: identifier)
         }
     )
+}
+
+@concurrent
+private func submitTaskRequest(
+    identifier: String,
+    title: String,
+    subtitle: String
+) async throws {
+    let request = BGContinuedProcessingTaskRequest(
+        identifier: identifier,
+        title: title,
+        subtitle: subtitle
+    )
+    // A request the system cannot start immediately waits behind other work instead of
+    // failing outright, which matters because nothing catches a lost session.
+    request.strategy = .queue
+    try await BGTaskScheduler.shared.submitTaskRequest(request)
 }
 
 /// Forwards ``ContinuedProcessingTasking`` straight to a system task, and does nothing else.
