@@ -1,4 +1,4 @@
-// swift-tools-version: 6.3.1
+// swift-tools-version: 6.4
 
 import PackageDescription
 
@@ -1114,7 +1114,7 @@ let targets: [PackageDescription.Target] = [
 let package = Package(
     name: "AppPackage",
     defaultLocalization: "en",
-    platforms: [.iOS(.v26)],
+    platforms: [.iOS(.v27)],
     products: targets
         .filter({
             !$0.isTest
