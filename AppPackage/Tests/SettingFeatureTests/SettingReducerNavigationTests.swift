@@ -208,10 +208,18 @@ struct SettingReducerNavigationTests {
     @Test
     func generalFilePickedImportsAndStoresTagTranslator() async throws {
         let imported = TagTranslator(hasCustomTranslations: true)
+        let (results, continuation) = AsyncStream<Result<TagTranslator, AppError>>.makeStream()
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.analyticsClient = .noop
             $0.libraryClient = .noop
-            $0.fileClient.importTagTranslator = { _ in .success(imported) }
+            $0.fileClient.importTagTranslator = { _ in
+                var iterator = results.makeAsyncIterator()
+                guard let result = await iterator.next() else {
+                    Issue.record("The tag-translator import stream finished before a result was provided.")
+                    return .failure(.fileOperationFailed("Missing controlled tag-translator result"))
+                }
+                return result
+            }
         }
 
         await store.send(.settingRowTapped(.general)) {
@@ -222,6 +230,7 @@ struct SettingReducerNavigationTests {
         await store.receive(\.path[id: id].general.calculateWebImageDiskCacheDone)
         let url = URL(filePath: "/tmp/tags.json")
         await store.send(.path(.element(id: id, action: .general(.onTranslationsFilePicked(url)))))
+        continuation.yield(.success(imported))
 
         // The parent intercept runs `fileClient.importTagTranslator`, stores the (in-memory) table
         // and records the custom-import flag in the persisted `tagTranslatorInfo`.
@@ -229,6 +238,8 @@ struct SettingReducerNavigationTests {
             $0.$tagTranslator.withLock({ $0 = imported })
             $0.$tagTranslatorInfo.withLock({ $0 = TagTranslatorInfo(hasCustomTranslations: true) })
         }
+        continuation.finish()
+        await store.finish()
     }
 
     // MARK: Post-login cascade
