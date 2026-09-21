@@ -119,6 +119,8 @@ struct KeywordCell: View {
                         .labelStyle(.iconOnly)
                         .imageScale(.small)
                         .foregroundStyle(.secondary)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(.rect)
                 }
             }
         }
