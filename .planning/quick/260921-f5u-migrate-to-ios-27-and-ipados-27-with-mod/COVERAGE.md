@@ -1,0 +1,1 @@
+No external API integration: this task migrates the existing Apple-platform UI and toolchain to iOS/iPadOS 27; it adds no external service or endpoint integration. Existing web-login and network protocols remain unchanged.
