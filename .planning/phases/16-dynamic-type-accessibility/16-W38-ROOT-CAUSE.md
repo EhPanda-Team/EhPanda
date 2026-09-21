@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-W-38 was tested in four bounded WALK cases on iPhone 17, iOS 26.5 (23F77), portrait. The same installed binary was used throughout (SHA-256 `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638217e9ac2709b6621`). Two VoiceOver cases show the divergence and two ordinary-touch cases show normal synchronization. The finding is root-cause confirmed for the tested vertical reading path and remains unimplemented; it is not a phase-pass or a claim about other orientations, devices, physical hardware, OS versions, custom rotors, or three-finger VoiceOver scrolling.
+W-38 was tested in four bounded WALK cases on iPhone 17, iOS 26.5 (23F77), portrait. The same installed binary was used throughout (SHA-256 `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638217e9ac2709b6621`). Two VoiceOver cases show the divergence and two ordinary-touch cases show normal synchronization. The finding is root-cause confirmed for the tested vertical reading path and is unimplemented again, after the fix written on 2026-09-19 was withdrawn on 2026-09-21 (see Attempted fix, withdrawn); it is not a phase-pass or a claim about other orientations, devices, physical hardware, OS versions, custom rotors, or three-finger VoiceOver scrolling.
 
 The mock run used PID 12418 and the live gallery run PID 16531. The launch script explicitly used `EHPANDA_UITEST_STUB_NETWORK=1` by default or `0` when overridden, with the same automation gallery URL. The mock used synthetic test data, 156 pages, and failed-image placeholders. The live gallery used its real gallery data, 155 pages, and successfully loaded images; the actual URL and title remain confined to local cache provenance.
 
@@ -31,7 +31,7 @@ The source remained unchanged. The app was launched and its UI/VoiceOver state w
 
 ## Follow-up boundary
 
-The planned next diagnostic—observing actual image position or geometry together with the model update boundary—was completed by the standalone probes below. Production position synchronization remains unselected.
+The planned next diagnostic—observing actual image position or geometry together with the model update boundary—was completed by the standalone probes below. A production position synchronization was selected and written afterwards, then withdrawn (see Attempted fix, withdrawn), so none is in the app today.
 
 ## Standalone position probe evidence (2026-09-18)
 
@@ -46,7 +46,43 @@ The bounded standalone probe used 20 fixed vertical targets with alternating 700
 
 The original setter observation was previously inconclusive because SwiftUI could bypass the setter. The standalone probes now add direct `onChange` observations: in both the optional-ID and `ScrollPosition` fixtures, the binding's observed ID remained unchanged during the tested VoiceOver movement while `onScrollGeometryChange` continued to report offset and visible-midpoint changes. This is evidence for these fixtures only; it does not infer private SwiftUI internals or generalize beyond the tested runtime.
 
-The bounded root cause therefore has two layers: native SwiftUI scroll-position selection does not publish a corresponding ID/phase event for the tested VoiceOver auto-scroll, and the app's vertical `AdvancedList` updates `PageModel` only from the idle phase. The first layer leaves the native position observable stale; the second leaves the app indicator stale. A simple containment rule is rejected by the probe. Nearest-target-center remains a hypothesis for further design work. If a position-sync fix is selected, its implementation must validate native `.center` semantics, variable heights, spacing, first/last targets, jumps, and echo guards; the owner is choosing whether to pursue that app synchronization or retain native behavior. No production synchronization algorithm has been selected or implemented.
+The bounded root cause therefore has two layers: native SwiftUI scroll-position selection does not publish a corresponding ID/phase event for the tested VoiceOver auto-scroll, and the app's vertical `AdvancedList` updates `PageModel` only from the idle phase. The first layer leaves the native position observable stale; the second leaves the app indicator stale. A simple containment rule is rejected by the probe. Nearest-target-center remains a hypothesis for further design work. If a position-sync fix is selected, its implementation must validate native `.center` semantics, variable heights, spacing, first/last targets, jumps, and echo guards; the owner chose to pursue that app synchronization on 2026-09-19 and withdrew the result on 2026-09-21, so no production synchronization algorithm is in the app today. The list of properties above is what the withdrawn attempt had to satisfy, and a second attempt inherits it along with the last-page jitter that ended the first.
+
+## Attempted fix, withdrawn (2026-09-19 to 2026-09-21)
+
+An app-side position synchronization was implemented on 2026-09-19 after the owner selected it, verified on the simulator, and withdrawn by the owner on 2026-09-21. W-38 is open again and this document describes an unfixed finding. The branch no longer carries the fix. The withdrawn commits are kept reachable under the local tag `withdrawn/w38-fix-20260921` so a second attempt can read the design back rather than rediscover it.
+
+### Why it was withdrawn
+
+The owner found a degraded behavior that the simulator verification did not cover: scrolling to the last page jitters. That is the whole reported symptom. No cause is established or claimed here, and the withdrawal was not conditional on finding one. A second attempt should look first at the two places where the withdrawn design touches the end of the content, both described below: the sync published a page from geometry on every settled change, including at a content end where there is no further page to settle onto, and the last child of each lazy stack was a zero-size sentinel whose spacing was taken back with a negative bottom padding on the stack itself.
+
+### What the withdrawn design was
+
+| Piece | What it did |
+|---|---|
+| `ScrollTargetTracker` | A pure state machine, `following(target, hasArrived)` or `free`. `observe` classified a reported page as `.userScrolled` or `.displaced`; `follow` suppressed the echo of a jump without a timer. |
+| `PageScrollTarget` | A per-page preference claiming "this page covers the container center". A preference rather than an action, because a lazy page that leaves the stack never reports the claim as false. |
+| `PageScrollSync` | The shared modifier. Observers only recorded into `@State` and acted from `onChange`, because mutating the model inside `onPreferenceChange` makes VoiceOver lose focus. After `.displaced` the pager renamed the page and the strip released its anchor. |
+| `PageScrollLookAheadSentinel` | A zero-size final child, added because a lazy stack's look ahead never realizes its own last child, so VoiceOver's Move to Next Item could not reach the last page. |
+
+Designs rejected along the way, which a second attempt does not need to retry: focus-driven sync (`AccessibilityFocusState` arrives one element late), stateless geometry publishing (it publishes jump and launch transients and oscillates at the content ends), and `onScrollTargetVisibilityChange` (it drops the final event).
+
+### What was kept
+
+The reader's page-change routes are now under automated test, and that coverage does not depend on the withdrawn fix, so it stayed:
+
+| Route | Coverage |
+|---|---|
+| Scrolling, the slider, the pager's tap zones, auto-play | `EhPandaUITests/ReaderPageSyncUITests`, each under the vertical strip and the left-to-right pager |
+| Entering the reader: page link, direction switch, reading again from saved progress | The two `DeepLinkSchemeUITests` page-link tests, which now also read the screen, and `testReadingAgainResumesOnThePageLeft` |
+| Auto-play cadence, restart, stop, stop from inside a tick, invalidation | `AutoPlayHandlerTests` on a `TestClock`, after `AutoPlayHandler` moved from `Timer.scheduledTimer` to the injected `continuousClock` |
+| An assistive technology's own scrolling, the W-38 route itself | Not drivable from XCTest, which neither turns VoiceOver on nor issues Move to Next Item. On screen it is covered only by the simulator walks recorded above |
+
+Every UI check reads both sides through `EhPandaUITests/Support/ReaderPageProbe`: the page the indicator names, and the page number nearest the center of the page list. An assertion on the indicator alone cannot see W-38, because the indicator is computed from the page model, which is the side that goes stale.
+
+`ScrollTargetTrackerTests` was not kept. It tested the withdrawn state machine and has nothing left to test.
+
+This coverage was run once more on 2026-09-21 with the fix gone, and passed 13 of 13 on the first attempt, 5 reader tests and 8 deep-link tests (`withdraw-uitest.log`). It therefore stands on the unfixed reader, which is what makes it safe to keep here, and it is not evidence about W-38: the routes it drives all settle the scroll, and settling is exactly what the unfixed reader already synchronizes on.
 
 ## Artifact provenance
 
