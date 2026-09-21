@@ -48,7 +48,7 @@ struct ToastMessageView: View {
         .accessibilityIdentifier("toast_message")
     }
 
-    @ViewBuilder
+    @ContentBuilder
     private var icon: some View {
         switch content.icon {
         case .loading:

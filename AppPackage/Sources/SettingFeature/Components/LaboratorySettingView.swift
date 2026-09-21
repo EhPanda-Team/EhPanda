@@ -25,6 +25,7 @@ struct LaboratorySettingView: View {
             }
             .padding()
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.laboratory)
         .onChange(of: setting.bypassSNIFiltering) { _, newValue in
             store.send(.bypassSNIFilteringChanged(newValue))

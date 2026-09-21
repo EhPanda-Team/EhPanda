@@ -4,7 +4,7 @@ import SwiftUI
 // Builds the view for a single gallery stack element. Shared by every gallery host (and reused by the
 // nested `.gallery` case of Home's and SearchRoot's paths) so the screen wiring lives in one place.
 @MainActor
-@ViewBuilder
+@ContentBuilder
 public func galleryDestination(
     _ store: StoreOf<GalleryPath>
 ) -> some View {
@@ -43,7 +43,7 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
         store: Store<HostState, HostAction>,
         state statePath: KeyPath<HostState, StackState<GalleryPath.State>>,
         action actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>,
-        @ViewBuilder root: () -> Root
+        @ContentBuilder root: () -> Root
     ) {
         self.store = store
         self.statePath = statePath

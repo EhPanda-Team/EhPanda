@@ -118,6 +118,7 @@ struct CommentsView: View {
             )
             .privacyMask()
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
         .animation(.default, value: store.scrollRowOpacity)
         .toolbar(content: toolbar)
@@ -283,7 +284,7 @@ extension CommentsView {
             .foregroundStyle(.secondary)
         }
 
-        @ViewBuilder private func generateWebImages(
+        @ContentBuilder private func generateWebImages(
             imgURL: URL?, secondImgURL: URL?,
             link: URL?, secondLink: URL?
         ) -> some View {
@@ -314,7 +315,7 @@ extension CommentsView {
                 }
             }
         }
-        @ViewBuilder func imageContainer(
+        @ContentBuilder func imageContainer(
             url: URL, widthFactor: Double, action: (() -> Void)? = nil
         ) -> some View {
             let image = KFImage(url)

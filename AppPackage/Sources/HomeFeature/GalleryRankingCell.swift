@@ -31,7 +31,7 @@ public struct GalleryRankingCell: View {
     /// the title wraps: its *ideal* width is its full single-line width, so every candidate holding
     /// it measures as not fitting and the stacked one would win at every size, the default
     /// included.
-    @ViewBuilder private var rankAndText: some View {
+    @ContentBuilder private var rankAndText: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top) {

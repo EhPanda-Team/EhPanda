@@ -174,6 +174,7 @@ struct GeneralSettingView: View {
         .onChange(of: setting.enableTagsExtension) { _, _ in
             store.send(.delegate(.enableTagsExtensionChanged))
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.general)
     }
 }

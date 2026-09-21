@@ -12,7 +12,7 @@ where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
 
     public init<Data: RandomAccessCollection>(
         data: Data, id: KeyPath<Element, ID> = \Element.id, spacing: Double = 4,
-        @ViewBuilder content: @escaping (Element) -> TagCell
+        @ContentBuilder content: @escaping (Element) -> TagCell
     ) where Data.Index == Int, Data.Element == Element {
         self.data = .init(data)
         self.id = id

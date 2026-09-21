@@ -94,6 +94,7 @@ final class ChallengeWebViewController: UIViewController, WKHTTPCookieStoreObser
         cookieStore = dataStore.httpCookieStore
         webView = WKWebView(frame: .zero, configuration: configuration)
         super.init(nibName: nil, bundle: nil)
+        webView.scrollView.topEdgeEffect.style = .soft
         webView.navigationDelegate = self
     }
 

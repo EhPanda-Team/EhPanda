@@ -41,6 +41,7 @@ struct AboutView: View {
                 }
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.ehPanda)
         .toolbar {
             ToolbarItem(placement: .largeSubtitle) {

@@ -362,7 +362,7 @@ struct ValuePicker: View {
 struct EhSettingPickerStyle: ViewModifier {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    @ViewBuilder
+    @ContentBuilder
     func body(content: Content) -> some View {
         if dynamicTypeSize <= .large {
             content.pickerStyle(.menu)

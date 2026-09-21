@@ -21,6 +21,7 @@ struct TagDetailView: View {
                     LinksSection(links: detail.links).padding(.vertical)
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(detail.title.emojisRipped)
         }
     }

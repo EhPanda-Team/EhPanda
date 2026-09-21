@@ -149,7 +149,7 @@ struct HorizontalImageStack: View {
         .contextMenu { contextMenuItems(page: page) }
         .accessibilityActions { contextMenuItems(page: page) }
     }
-    @ViewBuilder private func contextMenuItems(page: Int) -> some View {
+    @ContentBuilder private func contextMenuItems(page: Int) -> some View {
         Button {
             refetchAction(page)
         } label: {
@@ -247,7 +247,7 @@ struct ImageContainer: View {
         }
         .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
     }
-    @ViewBuilder private func image(url: URL?) -> some View {
+    @ContentBuilder private func image(url: URL?) -> some View {
         ByteRoutedReaderImage(
             url: url,
             isActive: isActive,
@@ -321,7 +321,7 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
 
     let url: URL?
     let isActive: Bool
-    @ViewBuilder let placeholder: (Progress?) -> Placeholder
+    @ContentBuilder let placeholder: (Progress?) -> Placeholder
     let onSucceeded: () -> Void
     let onFailed: () -> Void
 
@@ -344,7 +344,7 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         }
     }
 
-    @ViewBuilder private var content: some View {
+    @ContentBuilder private var content: some View {
         if let animatedData {
             AnimatedImage(data: animatedData, isAnimating: .constant(isActive))
                 .resizable()

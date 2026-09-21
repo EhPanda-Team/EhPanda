@@ -33,6 +33,7 @@ public struct SearchRootView: View {
                     removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                 )
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .onGeometryChange(for: CGFloat.self, of: \.size.height) {
                 containerHeight = $0
             }
@@ -78,14 +79,12 @@ public struct SearchRootView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
-                FiltersButton {
-                    store.send(.filtersButtonTapped)
-                }
-                QuickSearchButton {
-                    store.send(.quickSearchButtonTapped)
-                }
+        ToolbarOverflowMenu {
+            FiltersButton {
+                store.send(.filtersButtonTapped)
+            }
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
             }
         }
     }

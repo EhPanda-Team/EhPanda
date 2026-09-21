@@ -30,11 +30,10 @@ struct ToplistsView: View {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
-        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
         .toolbar(content: toolbar)
         .navigationTitle(navigationTitle)
-        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {

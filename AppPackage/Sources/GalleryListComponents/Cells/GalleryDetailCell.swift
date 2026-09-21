@@ -119,7 +119,7 @@ private struct GalleryDetailCellContent: View {
     /// Stacked, the gap between cover and column is 12 rather than the 10 that separates them side
     /// by side: horizontally the two are told apart by being on different columns, vertically only
     /// by the gap itself, and it has to read as wider than the 10 between the column's own groups.
-    @ViewBuilder private var coverAndText: some View {
+    @ContentBuilder private var coverAndText: some View {
         if stacksCoverAboveText {
             VStack(alignment: .leading, spacing: 12) {
                 cover
@@ -199,7 +199,7 @@ private struct GalleryDetailCellContent: View {
     ///
     /// Its stacked candidate takes the same ``pairSpacing`` as the `AdaptiveStack` pairs below it:
     /// uploader and language are one group however they are arranged.
-    @ViewBuilder private var uploaderAndLanguage: some View {
+    @ContentBuilder private var uploaderAndLanguage: some View {
         if gallery.uploader != nil || gallery.language != nil {
             ViewThatFits(in: .horizontal) {
                 HStack {
@@ -229,7 +229,7 @@ private struct GalleryDetailCellContent: View {
         (gallery.language?.value).map(Text.init)
     }
 
-    @ViewBuilder private var tagCloud: some View {
+    @ContentBuilder private var tagCloud: some View {
         let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
         if setting.showTagsInList, !tagContents.isEmpty {
             TagCloudView(data: tagContents) { content in
@@ -260,7 +260,7 @@ private struct GalleryDetailCellContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    @ViewBuilder private var pageCountOrDownloadBadge: some View {
+    @ContentBuilder private var pageCountOrDownloadBadge: some View {
         if let downloadBadge {
             DownloadBadgeLabel(badge: downloadBadge)
         } else {

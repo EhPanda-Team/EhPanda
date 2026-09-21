@@ -4,26 +4,6 @@ import SFSafeSymbols
 import SFSafeSymbolsExt
 import SwiftUI
 
-public struct ToolbarFeaturesMenu<Content: View>: View {
-    private let content: Content
-    private let symbolRenderingMode: SymbolRenderingMode
-
-    public init(symbolRenderingMode: SymbolRenderingMode = .monochrome, @ViewBuilder content: () -> Content) {
-        self.content = content()
-        self.symbolRenderingMode = symbolRenderingMode
-    }
-
-    public var body: some View {
-        Menu {
-            content
-        } label: {
-            Label(.more, systemSymbol: .ellipsisCircle)
-                .labelStyle(.iconOnly)
-                .symbolRenderingMode(symbolRenderingMode)
-        }
-    }
-}
-
 public struct FiltersButton: View {
     private let action: () -> Void
 
@@ -34,7 +14,7 @@ public struct FiltersButton: View {
     public var body: some View {
         Button(action: action) {
             // A plain `Label` renders icon-only in a toolbar and as an icon+title
-            // row inside `ToolbarFeaturesMenu`, so the container picks the
+            // row inside native toolbar overflow, so the container picks the
             // presentation — no explicit `.labelStyle` needed.
             Label(.RLocalizable.filters, systemSymbol: .line3HorizontalDecrease)
         }

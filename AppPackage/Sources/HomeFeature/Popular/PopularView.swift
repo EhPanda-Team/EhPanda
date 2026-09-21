@@ -33,10 +33,9 @@ struct PopularView: View {
             FiltersView(store: store)
                 .privacyMask()
         }
-        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.popular)
-        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {

@@ -32,10 +32,9 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.history)
-        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {

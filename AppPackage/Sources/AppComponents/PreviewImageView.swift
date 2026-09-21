@@ -52,7 +52,7 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
     init(
         fileURL: URL,
         maxPixelSize: CGFloat,
-        @ViewBuilder placeholder: () -> Placeholder
+        @ContentBuilder placeholder: () -> Placeholder
     ) {
         self.fileURL = fileURL
         self.maxPixelSize = maxPixelSize

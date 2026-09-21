@@ -99,6 +99,7 @@ public struct NewDawnView: View {
                 .padding()
                 .frame(maxWidth: .infinity, minHeight: max(0, containerHeight - scrollTopMargin))
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .contentMargins(.top, scrollTopMargin, for: .scrollContent)
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)

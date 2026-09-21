@@ -12,7 +12,7 @@ public struct AppToggle<Label: View>: View {
     private let isOn: Binding<Bool>
     private let label: Label
 
-    public init(isOn: Binding<Bool>, @ViewBuilder label: () -> Label) {
+    public init(isOn: Binding<Bool>, @ContentBuilder label: () -> Label) {
         self.isOn = isOn
         self.label = label()
     }

@@ -23,6 +23,7 @@ struct ReadingToolbar: ToolbarContent {
                 Label(.close, systemSymbol: .xmark)
             }
         }
+        .visibilityPriority(.high)
         ToolbarItem(placement: horizontalSizeClass == .regular ? .topBarLeading : .title) {
             Text(title)
                 .font(.headline)
@@ -37,6 +38,7 @@ struct ReadingToolbar: ToolbarContent {
                 .glassEffect(.regular)
         }
         .sharedBackgroundVisibility(.hidden)
+        .visibilityPriority(.high)
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 enablesLiveText.toggle()
@@ -75,17 +77,15 @@ struct ReadingToolbar: ToolbarContent {
                 Label(.autoPlay, systemSymbol: .timer)
             }
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            ToolbarFeaturesMenu {
-                Button(action: retryAllFailedImagesAction) {
-                    Label(.retryAllFailedImages, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                }
-                Button(action: reloadAllImagesAction) {
-                    Label(.reloadAllImages, systemSymbol: .arrowCounterclockwise)
-                }
-                Button(action: navigateSettingAction) {
-                    Label(.readingSetting, systemSymbol: .gear)
-                }
+        ToolbarOverflowMenu {
+            Button(action: retryAllFailedImagesAction) {
+                Label(.retryAllFailedImages, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+            }
+            Button(action: reloadAllImagesAction) {
+                Label(.reloadAllImages, systemSymbol: .arrowCounterclockwise)
+            }
+            Button(action: navigateSettingAction) {
+                Label(.readingSetting, systemSymbol: .gear)
             }
         }
     }

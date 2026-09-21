@@ -56,6 +56,7 @@ public struct ReadingSettingView: View {
                 )
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.reading)
     }
 }

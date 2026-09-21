@@ -68,7 +68,7 @@ public struct FavoritesView: View {
         }
     }
 
-    @ViewBuilder private var content: some View {
+    @ContentBuilder private var content: some View {
         if didLogin {
             GalleryList(
                 galleries: store.galleries ?? [],
@@ -87,10 +87,11 @@ public struct FavoritesView: View {
         } else {
             NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 .transition(.opacity)
+                .scrollEdgeEffectStyle(.soft, for: .top)
         }
     }
 
-    @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 Picker(selection: $store.favoritesIndex.sending(\.setFavoritesIndex)) {
@@ -121,14 +122,12 @@ public struct FavoritesView: View {
                     .symbolRenderingMode(.hierarchical)
             }
         }
-        ToolbarItem(placement: .topBarTrailing) {
-            ToolbarFeaturesMenu {
-                DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
-                    store.send(.dateSeekButtonTapped(navigation))
-                }
-                QuickSearchButton {
-                    store.send(.quickSearchButtonTapped)
-                }
+        ToolbarOverflowMenu {
+            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                store.send(.dateSeekButtonTapped(navigation))
+            }
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
             }
         }
     }
