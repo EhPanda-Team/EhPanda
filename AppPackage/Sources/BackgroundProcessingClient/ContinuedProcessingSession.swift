@@ -63,8 +63,15 @@ public final class ContinuedProcessingSession {
     /// a process with no bundle identifier at all, which no shipping app is.
     private let bundleIdentifier: String?
 
+    struct SubmissionRecord {
+        let sessionID: UUID
+        let identifier: String
+        let task: Task<Void, Never>
+    }
+
     private var task: (any ContinuedProcessingTasking)?
     private var continuation: AsyncStream<BackgroundProcessingEvent>.Continuation?
+    private(set) var submission: SubmissionRecord?
     /// The identity callers use to complete this session.
     ///
     /// Minted in the same synchronous run that stores the continuation and cleared only in
@@ -143,7 +150,7 @@ public final class ContinuedProcessingSession {
     ) -> BackgroundProcessingSession? {
         // One session at a time. A second registration of an identifier kills the app, and the
         // store holds exactly one task, so re-entry is refused before any scheduler touch.
-        guard task == nil, continuation == nil, !isAwaitingTask else {
+        guard task == nil, continuation == nil, !isAwaitingTask, submission == nil else {
             return nil
         }
 
@@ -215,26 +222,54 @@ public final class ContinuedProcessingSession {
         }
 
         // Identity BEFORE the hand-over (WR-08). The request is named and the awaiting window is
-        // open before the scheduler can possibly launch it, so a launch delivered *during*
-        // `submit` passes `adopt`'s identity gate and is adopted. With these two lines after the
-        // call, that launch was turned away as a stray, completed unsuccessfully, and then awaited
-        // forever by a store that had just declared itself awaiting a task nobody would deliver.
-        // Production cannot stage that delivery — this type is `@MainActor` and the system delivers
-        // launches on the main queue, so `submit` cannot reenter it — but this seam exists to be
-        // driven by injected doubles, and a synchronous double is exactly what the ordering must
-        // survive. Nothing may assign either property after the call returns: `adopt` clears
+        // open before the scheduler can possibly launch it, so a launch delivered while the
+        // asynchronous submission is in flight passes `adopt`'s identity gate and is adopted.
+        // Nothing may assign either property after the submission starts: `adopt` clears
         // `pendingIdentifier` itself, and a trailing assignment would put a dead identifier back.
         pendingIdentifier = identifier
         isAwaitingTask = true
 
-        do {
-            try scheduling.submit(identifier, title, subtitle)
-            logger.notice("Submitted continued-processing request.")
-        } catch {
+        let submissionTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.scheduling.submit(identifier, title, subtitle)
+                self.settleSubmission(
+                    sessionID: sessionID,
+                    identifier: identifier,
+                    error: nil
+                )
+            } catch {
+                self.settleSubmission(
+                    sessionID: sessionID,
+                    identifier: identifier,
+                    error: error
+                )
+            }
+        }
+        submission = SubmissionRecord(
+            sessionID: sessionID,
+            identifier: identifier,
+            task: submissionTask
+        )
+
+        return session
+    }
+
+    private func settleSubmission(sessionID: UUID, identifier: String, error: (any Error)?) {
+        guard let record = submission,
+              record.sessionID == sessionID,
+              record.identifier == identifier
+        else { return }
+        guard self.sessionID == sessionID else {
+            scheduling.cancel(identifier)
+            submission = nil
+            return
+        }
+        submission = nil
+        if let error {
             // The type is the operational signal — which refusal this was — and it is a closed set
             // of symbol names. The value is not: a scheduler error may embed arbitrary system
-            // strings, so it stays private (IN-04). `DownloadLogPrivacyInvariantTests` scans this
-            // module under the download client's rules and fails on the raw-value shape.
+            // strings, so it stays private (IN-04).
             logger.error(
                 """
                 Continued-processing submission failed, \
@@ -243,10 +278,9 @@ public final class ContinuedProcessingSession {
                 """
             )
             endSession(yielding: .unavailable, success: false)
-            return session
+        } else {
+            logger.notice("Submitted continued-processing request.")
         }
-
-        return session
     }
 
     /// Pushes fresh counts and a refreshed subtitle to the named system card.
