@@ -86,6 +86,7 @@ public struct GalleryList: View {
                 }
         }
         .refreshable { fetchAction?() }
+        .scrollEdgeEffectStyle(.soft, for: .top)
     }
 }
 

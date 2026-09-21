@@ -48,14 +48,13 @@ struct FrontpageView: View {
             )
             .privacyMask()
         }
-        .accessibilitySearchableWorkaround(text: $store.keyword, prompt: .filter)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .onChange(of: store.galleries.isEmpty) { oldEmpty, newEmpty in
             guard oldEmpty, !newEmpty, let firstGallery = store.filteredGalleries.first else { return }
             focusedGalleryID = firstGallery.id
         }
         .toolbar(content: toolbar)
         .navigationTitle(.frontpage)
-        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {

@@ -86,6 +86,7 @@ struct AppearanceSettingView: View {
                 )
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.appearance)
         .onChange(of: setting.preferredColorScheme) { _, newValue in
             store.send(.preferredColorSchemeChanged(newValue))
@@ -116,6 +117,7 @@ struct AppIconView: View {
                 }
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.appIcon)
         .onChange(of: setting.appIconType) { _, newValue in
             store.send(.appIconTypeChanged(newValue))

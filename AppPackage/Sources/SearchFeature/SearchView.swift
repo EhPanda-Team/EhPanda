@@ -56,7 +56,7 @@ struct SearchView: View {
             )
             .privacyMask()
         }
-        .accessibilitySearchableWorkaround(text: $store.keyword)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
@@ -68,21 +68,18 @@ struct SearchView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(store.lastKeyword)
-        .accessibilityNavigationTitleWorkaround()
     }
 
     private func toolbar() -> some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            ToolbarFeaturesMenu {
-                DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
-                    store.send(.dateSeekButtonTapped(navigation))
-                }
-                FiltersButton {
-                    store.send(.filtersButtonTapped)
-                }
-                QuickSearchButton {
-                    store.send(.quickSearchButtonTapped)
-                }
+        ToolbarOverflowMenu {
+            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                store.send(.dateSeekButtonTapped(navigation))
+            }
+            FiltersButton {
+                store.send(.filtersButtonTapped)
+            }
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
             }
         }
     }

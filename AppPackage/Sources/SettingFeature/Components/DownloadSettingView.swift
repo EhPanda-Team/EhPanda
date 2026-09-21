@@ -36,6 +36,7 @@ struct DownloadSettingView: View {
                 Text(.networkDescription)
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.title)
     }
 

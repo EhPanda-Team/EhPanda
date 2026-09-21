@@ -50,6 +50,7 @@ public struct FolderManagerView: View {
                         }
                 }
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .overlay(content: { stateOverlay })
             .confirmationDialog(
                 $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
@@ -59,11 +60,11 @@ public struct FolderManagerView: View {
             .synchronize($store.editingField, $focusedField)
             .toolbar(content: toolbar)
             .navigationTitle(.folders)
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inline)
         }
     }
 
-    @ViewBuilder private var stateOverlay: some View {
+    @ContentBuilder private var stateOverlay: some View {
         switch store.loadingState {
         case .loading where store.folders.isEmpty:
             LoadingView()
@@ -91,7 +92,7 @@ public struct FolderManagerView: View {
         .labelStyle(FolderRowLabelStyle())
     }
 
-    @ViewBuilder private func folderRow(_ folder: String) -> some View {
+    @ContentBuilder private func folderRow(_ folder: String) -> some View {
         if store.editingField == .renameFolder(folder) {
             Label {
                 editingTextField(.renameFolder(folder))

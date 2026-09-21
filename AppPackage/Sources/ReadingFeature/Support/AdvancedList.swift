@@ -15,7 +15,7 @@ where PageView: View, ID: Hashable, G: Gesture {
     init<Data: RandomAccessCollection>(
         page: PageModel, data: Data,
         id: KeyPath<Element, ID>, spacing: CGFloat, gesture: G,
-        @ViewBuilder content: @escaping (Element) -> PageView
+        @ContentBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {
         self.pagerModel = page
         self.data = .init(data)
@@ -36,6 +36,7 @@ where PageView: View, ID: Hashable, G: Gesture {
             }
             .scrollTargetLayout()
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID, anchor: .center)
         .onScrollPhaseChange { _, newValue in
             if newValue == .idle, let index = scrollPositionID {

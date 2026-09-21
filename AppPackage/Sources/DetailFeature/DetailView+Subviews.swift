@@ -82,7 +82,7 @@ struct DescriptionSection: View {
     /// it. At the default size the scaled floor is its literal 80, the cap cannot bind — it only
     /// could on a container narrower than 89 pt — and the content is shorter than the pin, so the
     /// strip renders exactly as designed, which is what default-size parity requires.
-    @ViewBuilder var body: some View {
+    @ContentBuilder var body: some View {
         if dynamicTypeSize <= .large {
             strip.frame(height: rowHeight)
         } else {
@@ -121,7 +121,7 @@ struct DescriptionSection: View {
         }
     }
 
-    @ViewBuilder private func item(for info: DescScrollInfo) -> some View {
+    @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
         if info.isRating {
             DescScrollRatingItem(title: info.title, rating: info.rating)
         } else {
@@ -298,7 +298,7 @@ struct ActionSection: View {
         .padding(.horizontal)
     }
 
-    @ViewBuilder private var actionButtons: some View {
+    @ContentBuilder private var actionButtons: some View {
         Group {
             Button(action: showUserRatingAction) {
                 Label {
@@ -413,7 +413,7 @@ extension TagsSection {
         /// The 8pt gap is deliberately narrower than the 14pt of air inside the chip: the chip and
         /// its children are one group, and the gap has to read as smaller than the space separating
         /// this row from the next one.
-        @ViewBuilder var body: some View {
+        @ContentBuilder var body: some View {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: 8) {
                     namespaceChip
@@ -442,7 +442,7 @@ extension TagsSection {
             }
         }
 
-        @ViewBuilder
+        @ContentBuilder
         private func tagContentView(content: GalleryTag.Content) -> some View {
             let translation = translateAction(content.rawNamespace + content.text).translation
             Button {
@@ -467,7 +467,7 @@ extension TagsSection {
             }
         }
 
-        @ViewBuilder
+        @ContentBuilder
         private func tagContextMenu(
             content: GalleryTag.Content,
             translation: TagTranslation?
@@ -490,7 +490,7 @@ extension TagsSection {
             }
         }
 
-        @ViewBuilder
+        @ContentBuilder
         private func tagVoteButtons(content: GalleryTag.Content) -> some View {
             if content.isVotedUp || content.isVotedDown {
                 Button {

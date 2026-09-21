@@ -40,6 +40,7 @@ struct LoginView: View {
     // MARK: LoginView
     var body: some View {
         formLayer
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .background {
                 Group {
                     WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
@@ -59,6 +60,7 @@ struct LoginView: View {
                     store.send(.loginDone(.success(nil)))
                 }
                 .ignoresSafeArea(edges: .bottom)
+                .scrollEdgeEffectStyle(.soft, for: .top)
                 .privacyMask()
             }
             // The Cloudflare wall. It carries no explanatory chrome on purpose: an auto-passing
@@ -70,6 +72,7 @@ struct LoginView: View {
                     ChallengeWebView(url: url.wrappedValue) { clearance in
                         store.send(.challengeClearanceCaptured(clearance))
                     }
+                    .scrollEdgeEffectStyle(.soft, for: .top)
                     // The page runs edge to edge under a background-less bar, so the cancel control
                     // floats on its own glass over the challenge instead of sitting on an opaque strip.
                     // Cloudflare's interstitial is vertically centred with generous padding, so nothing
@@ -118,6 +121,7 @@ struct LoginView: View {
             ScrollView(.vertical) {
                 form
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             // The 30 pt the button already puts between itself and the fields, so a scrolled form
             // opens and closes on the same rhythm it keeps inside.
             .contentMargins(.vertical, 30, for: .scrollContent)
@@ -170,7 +174,7 @@ struct LoginView: View {
 
     // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Button {
                 store.send(.presentWebView(Defaults.URL.webLogin))
             } label: {

@@ -104,9 +104,10 @@ struct DownloadInspectorView: View {
                 .listStyle(.insetGrouped)
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.downloadStatus)
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .close, action: dismiss.callAsFunction)
@@ -271,7 +272,7 @@ private extension DownloadedGallery {
 }
 
 private extension View {
-    @ViewBuilder
+    @ContentBuilder
     func disabledActionForegroundStyle(_ isDisabled: Bool) -> some View {
         if isDisabled {
             foregroundStyle(.secondary)

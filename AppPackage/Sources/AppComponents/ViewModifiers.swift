@@ -24,7 +24,7 @@ public struct PrivacyMaskModifier: ViewModifier {
 }
 
 extension View {
-    @ViewBuilder public func withHorizontalSpacing(width: CGFloat = 8, height: CGFloat? = nil) -> some View {
+    @ContentBuilder public func withHorizontalSpacing(width: CGFloat = 8, height: CGFloat? = nil) -> some View {
         Color.clear.frame(width: width, height: height)
         self
         Color.clear.frame(width: width, height: height)

@@ -70,6 +70,7 @@ struct PreviewsView: View {
                 store.send(.fetchPreviewURLs(page))
             }
         }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.previews)
     }
 }
