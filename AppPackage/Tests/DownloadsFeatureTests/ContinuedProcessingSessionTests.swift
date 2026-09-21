@@ -71,6 +71,10 @@ final class ContinuedTaskSchedulingSpy {
     private(set) var submissions = [Submission]()
     private(set) var cancelledIdentifiers = [String]()
     private var launchHandlers = [String: ContinuedTaskLaunchHandler]()
+    private var submissionEntryCount = 0
+    private var entryWaiters = [CheckedContinuation<Void, Never>]()
+    private var submissionRelease: CheckedContinuation<Void, Never>?
+    var holdSubmissions = false
 
     /// Refuses exactly one registration, the way the system scheduler refuses an identifier the
     /// app's `Info.plist` does not permit. The scheduler's own type name stays confined to the
@@ -106,10 +110,20 @@ final class ContinuedTaskSchedulingSpy {
                 return true
             },
             submit: { identifier, title, subtitle in
+                if self.entryWaiters.isEmpty {
+                    self.submissionEntryCount += 1
+                } else {
+                    self.entryWaiters.forEach({ $0.resume() })
+                    self.entryWaiters.removeAll()
+                }
+                if self.holdSubmissions {
+                    await withCheckedContinuation { continuation in
+                        self.submissionRelease = continuation
+                    }
+                }
                 if let error = self.nextSubmissionError {
                     // Cleared by the submission that throws it, and recorded as no submission at
-                    // all: a request whose `submit` threw never reached the scheduler's queue, so
-                    // listing it beside accepted ones would model an acceptance that did not happen.
+                    // all: a request whose `submit` threw never reached the scheduler's queue.
                     self.nextSubmissionError = nil
                     throw error
                 }
@@ -121,6 +135,24 @@ final class ContinuedTaskSchedulingSpy {
                 self.cancelledIdentifiers.append(identifier)
             }
         )
+    }
+
+    /// Waits for the next async submission to enter the scheduler seam.
+    func waitForSubmissionEntry() async {
+        if submissionEntryCount > 0 {
+            submissionEntryCount -= 1
+            return
+        }
+        await withCheckedContinuation { continuation in
+            entryWaiters.append(continuation)
+        }
+    }
+
+    /// Releases a held submission without inventing scheduler timing.
+    func releaseSubmission() {
+        holdSubmissions = false
+        submissionRelease?.resume()
+        submissionRelease = nil
     }
 
     /// Delivers a launch for `identifier`, exactly as the system would.
@@ -138,6 +170,25 @@ final class ContinuedTaskSchedulingSpy {
 struct ContinuedSubmissionFailure: Error {}
 
 // MARK: - Tests
+
+@MainActor
+private func awaitSubmission(
+    store: ContinuedProcessingSession,
+    spy: ContinuedTaskSchedulingSpy,
+    sessionID: UUID
+) async throws {
+    do {
+        let submissionTask = try #require(store.submission?.task)
+        await spy.waitForSubmissionEntry()
+        await submissionTask.value
+    } catch {
+        let submissionTask = store.submission?.task
+        store.finish(sessionID: sessionID, success: false)
+        spy.releaseSubmission()
+        await submissionTask?.value
+        throw error
+    }
+}
 
 /// Pins the session store's lifecycle: which request is cancelled when, and which launched task
 /// may be adopted.
@@ -165,6 +216,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 20
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: session.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
 
         let task = ContinuedTaskSpy()
@@ -196,6 +248,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: session.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
         let task = ContinuedTaskSpy()
         spy.launch(identifier, with: task)
@@ -251,6 +304,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: firstSession.id)
         #expect(spy.registeredIdentifiers.count == 1)
         let abandonedIdentifier = try #require(spy.registeredIdentifiers.first)
         #expect(spy.submissions.map(\.identifier) == [abandonedIdentifier])
@@ -287,6 +341,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 4
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: secondSession.id)
         // The later start re-submits the identifier this process already registered rather than
         // registering a second permanent handler (G-15-31). The count and the equality are the same
         // fact from both sides; neither would hold against per-session minting.
@@ -340,6 +395,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: firstSession.id)
         store.finish(sessionID: firstSession.id, success: true)
 
         let secondSession = try #require(
@@ -350,6 +406,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 6
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: secondSession.id)
         store.finish(sessionID: secondSession.id, success: true)
 
         #expect(Set(spy.registeredIdentifiers).count == 1)
@@ -395,6 +452,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: firstSession.id)
         store.finish(sessionID: firstSession.id, success: true)
         let identifier = try #require(spy.registeredIdentifiers.first)
 
@@ -412,6 +470,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 6
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: secondSession.id)
         #expect(spy.registeredIdentifiers.count == 1)
 
         let liveTask = ContinuedTaskSpy()
@@ -457,6 +516,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: session.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
 
         let task = ContinuedTaskSpy()
@@ -502,6 +562,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: session.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
         let task = ContinuedTaskSpy()
         spy.launch(identifier, with: task)
@@ -548,6 +609,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: firstSession.id)
         let firstIdentifier = try #require(spy.registeredIdentifiers.first)
         #expect(spy.registeredIdentifiers.count == 1)
         #expect(spy.submissions.count == 1)
@@ -575,6 +637,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 20
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: laterSession.id)
         let laterIdentifier = try #require(spy.registeredIdentifiers.last)
         #expect(spy.registeredIdentifiers.count == 1)
         #expect(laterIdentifier == firstIdentifier)
@@ -697,6 +760,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 4
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: grantedSession.id)
         #expect(spy.registeredIdentifiers.count == 2)
         let freshIdentifier = try #require(spy.registeredIdentifiers.last)
         #expect(freshIdentifier != refusedIdentifier)
@@ -760,6 +824,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 4
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: grantedSession.id)
         // One-shot: the armed error was consumed by the submission that threw it, so this one
         // reaches the scheduler normally.
         //
@@ -803,6 +868,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: session.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
         expectNoDifference(spy.submissions.map(\.identifier), [identifier])
         expectNoDifference(spy.cancelledIdentifiers, [])
@@ -825,6 +891,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 4
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: laterSession.id)
         let laterIdentifier = try #require(spy.registeredIdentifiers.last)
         #expect(laterIdentifier == identifier)
         let laterTask = ContinuedTaskSpy()
@@ -870,6 +937,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 10
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: staleSession.id)
         let identifier = try #require(spy.registeredIdentifiers.first)
         store.finish(sessionID: staleSession.id, success: true)
 
@@ -887,6 +955,7 @@ struct ContinuedProcessingSessionTests {
                 totalUnitCount: 6
             )
         )
+        try await awaitSubmission(store: store, spy: spy, sessionID: liveSession.id)
         #expect(spy.registeredIdentifiers.count == 1)
 
         let liveTask = ContinuedTaskSpy()
@@ -911,4 +980,5 @@ struct ContinuedProcessingSessionTests {
         }
         expectNoDifference(liveEvents, [.granted])
     }
+
 }

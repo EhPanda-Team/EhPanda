@@ -345,7 +345,7 @@ struct DownloadSourceInventoryTests {
     /// store, so each of its three endpoints hops off the calling actor. A double that answers
     /// synchronously is therefore not a faster stand-in but a DIFFERENT seam: it certifies as
     /// impossible every reentrancy the live one admits, and a suite green against it is green about
-    /// a world that does not exist. Three closures apiece across three doubles is the nine below.
+    /// a world that does not exist. Three closures apiece across four doubles is the twelve below.
     ///
     /// The full argument for the rule lives on `BackgroundProcessingClientSpy`'s header, where it
     /// was written and — until this census — honoured alone; a reader who wants the reasoning
@@ -373,21 +373,22 @@ struct DownloadSourceInventoryTests {
     /// observed table instead.
     private static let expectedClientDoubleSuspensionSites = [
         "BackgroundProcessingClient.swift": 3,
+        "ContinuedSubmissionCoordinatorTests.swift": 3,
         "DownloadContinuedSessionExpirationTests.swift": 3,
         "DownloadFeatureTestSupportTypes.swift": 3
     ]
 
     /// The suspension table's sum, asserted separately for the reason every joined total here is.
-    private static let expectedClientDoubleSuspensionTotal = 9
+    private static let expectedClientDoubleSuspensionTotal = 12
 
     /// Every construction-shaped naming of the seam's endpoints in the double-bearing trees,
     /// named per file.
     ///
-    /// **What this number means.** A POPULATION rather than a property. Three hand-built doubles
-    /// exist — the recording spy, the `.unavailable` refusal value and the module's `noop`
-    /// default — and the timing obligation above covers exactly those three. The module file's
-    /// count of three is one declaration plus two constructions: the endpoint-label token
-    /// necessarily matches the `updateProgress` property declaration and the `live` value there,
+    /// **What this number means.** A POPULATION rather than a property. Four hand-built doubles
+    /// exist — the recording spy, the `.unavailable` refusal value, the module's `noop`
+    /// default and the held coordinator value — and the timing obligation above covers exactly those four.
+    /// The module file's count of three is one declaration plus two constructions: the endpoint-label
+    /// token necessarily matches the `updateProgress` property declaration and the `live` value there,
     /// and both rows are deliberately counted rather than filtered, so a fourth match in that file
     /// means a new value appeared and must be classified. `live` is the one construction with no
     /// yield obligation — its hop is real — and the macro-synthesized no-argument value supplies
@@ -403,12 +404,13 @@ struct DownloadSourceInventoryTests {
     /// adjusted until the double itself passes.
     private static let expectedClientDoubleConstructionSites = [
         "BackgroundProcessingClient.swift": 3,
+        "ContinuedSubmissionCoordinatorTests.swift": 1,
         "DownloadContinuedSessionExpirationTests.swift": 1,
         "DownloadFeatureTestSupportTypes.swift": 1
     ]
 
     /// The population table's sum, asserted the same way and for the same reason.
-    private static let expectedClientDoubleConstructionTotal = 5
+    private static let expectedClientDoubleConstructionTotal = 6
 
     /// Every production site that opts a probe into DELETING what it refuses, named per file.
     ///

@@ -149,7 +149,8 @@ extension DownloadCoordinator {
         // failover re-resolution rather than propagating a stop the user never asked for.
         beginPageTransfer(gid: context.gid, pageIndex: context.pageIndex)
         defer { endPageTransfer(gid: context.gid, pageIndex: context.pageIndex) }
-        let attempt = Task {
+        let pageDownloader = self.pageDownloader
+        let attempt = Task { [pageDownloader, weak self] in
             try await pageDownloader.download(request, context) { [weak self] written, expected in
                 Task {
                     await self?.recordPageTransferBytes(
