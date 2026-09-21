@@ -161,76 +161,21 @@ extension Module {
     }
 }
 
-// MARK: Exclude
-enum Path: String {
-    case resources = "Resources"
-}
-
-enum Exclude {
-    case literal(String)
-    case path(Path)
-
-    var name: String {
-        switch self {
-        case .literal(let stringLiteral):
-            return stringLiteral
-
-        case .path(let path):
-            return path.rawValue
-        }
-    }
-}
-
-// MARK: Resource
-enum Resource {
-    case copy(Path)
-    case embedInCode(Path)
-    case process(Path, PackageDescription.Resource.Localization? = nil)
-
-    var value: PackageDescription.Resource {
-        switch self {
-        case .copy(let path):
-            return .copy(path.rawValue)
-
-        case .embedInCode(let path):
-            return .embedInCode(path.rawValue)
-
-        case .process(let path, let localization):
-            return .process(path.rawValue, localization: localization)
-        }
-    }
-}
-
 // MARK: Helper methods
+@MainActor
 extension PackageDescription.Target {
     static func target(
         module: Module,
         dependencies: [Module.Dependency] = .init(),
-        path: String? = nil,
-        exclude: [Exclude] = .init(),
-        sources: [String]? = nil,
-        resources: [Resource]? = nil,
-        publicHeadersPath: String? = nil,
-        packageAccess: Bool = true,
-        cSettings: [PackageDescription.CSetting]? = nil,
-        cxxSettings: [PackageDescription.CXXSetting]? = nil,
+        resources: [PackageDescription.Resource]? = nil,
         swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
-        linkerSettings: [PackageDescription.LinkerSetting]? = nil,
-        plugins: [PackageDescription.Target.PluginUsage]? = nil
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
     ) -> PackageDescription.Target {
         target(
             name: module.rawValue,
             dependencies: dependencies.map(\.targetDependency),
-            path: path,
-            exclude: exclude.map(\.name),
-            sources: sources,
-            resources: resources?.map(\.value),
-            publicHeadersPath: publicHeadersPath,
-            packageAccess: packageAccess,
-            cSettings: cSettings,
-            cxxSettings: cxxSettings,
+            resources: resources,
             swiftSettings: swiftSettings,
-            linkerSettings: linkerSettings,
             plugins: plugins
         )
     }
@@ -238,29 +183,15 @@ extension PackageDescription.Target {
     static func testTarget(
         module: Module,
         dependencies: [Module.Dependency] = .init(),
-        path: String? = nil,
-        exclude: [Exclude] = .init(),
-        sources: [String]? = nil,
-        resources: [Resource]? = nil,
-        packageAccess: Bool = true,
-        cSettings: [PackageDescription.CSetting]? = nil,
-        cxxSettings: [PackageDescription.CXXSetting]? = nil,
+        resources: [PackageDescription.Resource]? = nil,
         swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
-        linkerSettings: [PackageDescription.LinkerSetting]? = nil,
-        plugins: [PackageDescription.Target.PluginUsage]? = nil
+        plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
     ) -> PackageDescription.Target {
         testTarget(
             name: module.rawValue,
             dependencies: dependencies.map(\.targetDependency),
-            path: path,
-            exclude: exclude.map(\.name),
-            sources: sources,
-            resources: resources?.map(\.value),
-            packageAccess: packageAccess,
-            cSettings: cSettings,
-            cxxSettings: cxxSettings,
+            resources: resources,
             swiftSettings: swiftSettings,
-            linkerSettings: linkerSettings,
             plugins: plugins
         )
     }
@@ -311,8 +242,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .appModels,
@@ -323,21 +253,18 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.casePaths),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .resources,
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .deviceClient,
         dependencies: [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .downloadClient,
@@ -354,8 +281,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.sharing)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .fileClient,
@@ -364,8 +290,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture),
             .targetDependency(.openCC)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .systemNotification,
@@ -374,15 +299,13 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .appTools,
         dependencies: [
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .appLaunchAutomationClient,
@@ -390,24 +313,21 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .backgroundProcessingClient,
         dependencies: [
             .module(.osLogExt),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .clipboardClient,
         dependencies: [
             .module(.animatedImageFeature),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     // The sole owner of the TelemetryDeck SDK: no other module may import it, so every payload
     // that leaves the app is minted through this module's closed signal vocabulary. The
@@ -424,8 +344,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .targetDependency(.telemetryDeck)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .cookieClient,
@@ -435,8 +354,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .dfClient,
@@ -444,8 +362,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .networkingFeature,
@@ -457,15 +374,13 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .module(.legacyCFReadStream),
             .targetDependency(.kanna)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .hapticsClient,
         dependencies: [
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .appComponents,
@@ -483,8 +398,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .galleryListComponents,
@@ -498,22 +412,19 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .animatedImageFeature,
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     // Preview-only support: a frozen table of stable fixture identities. Foundation-only and
     // depended on by feature modules purely so their `#Preview` fixtures stop minting random
     // UUIDs; nothing in a production code path may reference it.
     .target(
-        module: .previewSupport,
-        plugins: swiftLintPlugins
+        module: .previewSupport
     ),
     // App-owned markdown helper: the sole owner of the swift-markdown (`Markdown`) dependency,
     // keeping parser node types out of feature modules (D-08, D-09).
@@ -521,23 +432,20 @@ let targets: [PackageDescription.Target] = [
         module: .markdownExt,
         dependencies: [
             .targetDependency(.markdown)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .sfSafeSymbolsExt,
         dependencies: [
             .targetDependency(.sfSafeSymbols)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     // App-owned local dominant-color module. Clean-room reimplementation of the
     // app-needed dominant-color surface, replacing the external jathu/UIImageColors
     // package while preserving color-selection output (DEP-02, D-01/D-04/D-16).
     // Modernized I/O: a CGImage goes in and non-optional SwiftUI Colors come out.
     .target(
-        module: .imageColors,
-        plugins: swiftLintPlugins
+        module: .imageColors
     ),
     // Internal isolation module for the one deprecated CFNetwork call the app relies on
     // (`CFReadStreamCreateForHTTPRequest`, for domain fronting — DEP-06 / D-12/D-14). Compiled
@@ -546,15 +454,13 @@ let targets: [PackageDescription.Target] = [
     // Kept out of `products` (below): it is an internal implementation detail, not a public library.
     .target(
         module: .legacyCFReadStream,
-        swiftSettings: sharedSwiftSettings + [.unsafeFlags(["-suppress-warnings"])],
-        plugins: swiftLintPlugins
+        swiftSettings: sharedSwiftSettings + [.unsafeFlags(["-suppress-warnings"])]
     ),
     .target(
         module: .osLogExt,
         dependencies: [
             .module(.appTools)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .logsClient,
@@ -563,8 +469,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.osLogExt),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .tagTranslationFeature,
@@ -572,8 +477,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.markdownExt)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .filtersFeature,
@@ -584,8 +488,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .dateSeekFeature,
@@ -597,8 +500,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .readingSettingFeature,
@@ -609,8 +511,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .quickSearchFeature,
@@ -623,8 +524,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .downloadsFeature,
@@ -645,8 +545,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .favoritesFeature,
@@ -668,8 +567,7 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .settingFeature,
@@ -696,8 +594,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .searchFeature,
@@ -724,8 +621,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .homeFeature,
@@ -754,8 +650,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .detailFeature,
@@ -785,8 +680,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .readingFeature,
@@ -813,8 +707,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
     .target(
         module: .imageClient,
@@ -823,8 +716,7 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .libraryClient,
@@ -837,8 +729,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
             .module(.imageColors)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .parserFeature,
@@ -848,24 +739,21 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.osLogExt),
             .targetDependency(.kanna)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .applicationClient,
         dependencies: [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .target(
         module: .userDefaultsClient,
         dependencies: [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
 
     // MARK: Test Support
@@ -874,8 +762,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.kanna)
         ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
+        resources: [.process("Resources")]
     ),
 
     // MARK: Tests
@@ -884,23 +771,20 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.analyticsClient),
             .module(.appFeature)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .appToolsTests,
         dependencies: [
             .module(.appTools)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .homeFeatureTests,
         dependencies: [
             .module(.analyticsClient),
             .module(.homeFeature)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .parserFeatureTests,
@@ -913,8 +797,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.parserFeature),
             .targetDependency(.kanna)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .downloadsFeatureTests,
@@ -944,16 +827,14 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .fileClientTests,
         dependencies: [
             .module(.appModels),
             .module(.fileClient)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .settingFeatureTests,
@@ -967,8 +848,7 @@ let targets: [PackageDescription.Target] = [
             .module(.settingFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .detailFeatureTests,
@@ -978,23 +858,20 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.hapticsClient),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .networkingFeatureTests,
         dependencies: [
             .module(.appModels),
             .module(.networkingFeature)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .appModelsTests,
         dependencies: [
             .module(.appModels)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .cookieClientTests,
@@ -1002,15 +879,13 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.appModels),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .swiftyOpenCCTests,
         dependencies: [
             .targetDependency(.openCC)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .imageClientTests,
@@ -1019,15 +894,13 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.appModels),
             .module(.testingSupport)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .imageColorsTests,
         dependencies: [
             .module(.imageColors)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     // DEP-03 parity: exercises MarkdownExt.MarkdownUtil (swift-markdown-backed) against the
     // Wave 0 expected outputs originally locked on CommonMarkExt (D-09).
@@ -1035,23 +908,20 @@ let targets: [PackageDescription.Target] = [
         module: .markdownExtTests,
         dependencies: [
             .module(.markdownExt)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .tagTranslationFeatureTests,
         dependencies: [
             .module(.appModels),
             .module(.tagTranslationFeature)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .galleryListComponentsTests,
         dependencies: [
             .module(.galleryListComponents)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .readingFeatureTests,
@@ -1063,15 +933,13 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.cookieClient),
             .module(.readingFeature)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .systemNotificationTests,
         dependencies: [
             .module(.systemNotification)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .analyticsClientTests,
@@ -1081,8 +949,7 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .searchFeatureTests,
@@ -1095,8 +962,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.searchFeature),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     ),
     .testTarget(
         module: .favoritesFeatureTests,
@@ -1105,8 +971,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.favoritesFeature),
             .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
+        ]
     )
 ]
 
