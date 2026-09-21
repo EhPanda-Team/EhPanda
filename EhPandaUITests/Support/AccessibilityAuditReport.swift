@@ -78,6 +78,7 @@ struct SurfaceInventory {
     /// The frame of what is shown: the topmost presented sheet — the sibling of a presentation's
     /// dimming view that is smaller than the window (the iPad form sheet, `{120, 260, 580, 650}`
     /// in an 820 × 1180 window) — or the window when nothing is presented.
+    @MainActor
     static func visibleBounds(in root: XCUIElementSnapshot) -> CGRect {
         let window = root.children.first(where: { $0.elementType == .window })?.frame ?? root.frame
         var bounds = window
