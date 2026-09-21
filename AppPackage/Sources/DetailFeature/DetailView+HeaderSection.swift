@@ -93,13 +93,9 @@ struct HeaderSection: View {
     /// a wrapped badge is at most two short lines, and here the cap would never have engaged anyway
     /// (see below).
     ///
-    /// The 0.72 shrink-to-fit factor that used to accompany that cap is gone (D-14). A shrink can
-    /// only engage where the badge is offered less width than it asked for, and at the default size
-    /// it never is: the horizontal candidate of ``bottomActionRow`` is picked only when every
-    /// member's *ideal* width already fits, and the vertical candidate hands the badge the whole
-    /// text column, several times wider than the longest category name drawn at `.headline`. Above
-    /// the default size the row grows instead — shrinking text the reader deliberately enlarged is
-    /// the answer this phase removes everywhere, not the one to keep at its last site.
+    /// The header measures the category and controls at their intrinsic sizes, keeping the category
+    /// beside the controls while a complete arrangement fits. At narrower widths the category gets
+    /// its own row and follows its normal wrapping policy; the action controls retain their size.
     private var categoryLabel: some View {
         CategoryLabel(
             text: gallery.category.value, color: gallery.color(host: setting.galleryHost), textStyle: .headline,
@@ -273,46 +269,12 @@ struct HeaderSection: View {
             }
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
     }
-    private var actionButtons: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 6) {
-                downloadButton
-                favoriteButton
-                readButton
-            }
-            .fixedSize(horizontal: true, vertical: false)
-
-            VStack(alignment: .trailing, spacing: 6) {
-                HStack(spacing: 6) {
-                    downloadButton
-                    favoriteButton
-                }
-                readButton
-            }
-            .fixedSize(horizontal: true, vertical: false)
-
-            VStack(alignment: .trailing, spacing: 6) {
-                downloadButton
-                favoriteButton
-                readButton
-            }
-            .fixedSize(horizontal: true, vertical: false)
-        }
-        .layoutPriority(1)
-    }
     private var bottomActionRow: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                categoryLabel.frame(maxWidth: .infinity, alignment: .leading)
-                actionButtons
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                categoryLabel
-
-                actionButtons
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
+        HeaderActionsLayout {
+            categoryLabel
+            downloadButton
+            favoriteButton
+            readButton
         }
     }
     private var queuedDownloadProgress: Double? {
@@ -414,7 +376,7 @@ struct HeaderSection: View {
     /// of which sit flush against the detail page's own margins. Below the accessibility sizes the
     /// designed row is rendered verbatim — same padding, same `minHeight`, which keeps the header
     /// at least as tall as the cover so the section below it never rides up beside it.
-    @ViewBuilder var body: some View {
+    @ContentBuilder var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 12) {
                 cover
