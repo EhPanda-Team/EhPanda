@@ -11,7 +11,6 @@ on:
         required: false
         type: string
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.6.app
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -22,7 +21,7 @@ env:
 
 jobs:
   Deploy:
-    runs-on: macos-26
+    runs-on: xcode-27
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
@@ -31,7 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Install iOS 26 Platform
+      - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:
           retry_on: error
@@ -40,19 +39,21 @@ jobs:
           command: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
+      - name: Verify Xcode 27 and iOS 27 SDK
+        run: |
+          set -euo pipefail
+          xcodebuild -version | grep -q '^Xcode 27\.'
+          [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
       - name: Run tests
         run: xcodebuild clean test
-          -skipMacroValidation
-          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone Air'
+          -testPlan FeatureTests
+          -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
       - name: Xcode archive
         env:
           TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
           TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
         run: xcodebuild archive
-          -skipMacroValidation
-          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'generic/platform=iOS'
           -archivePath ${{ env.ARCHIVE_PATH }}

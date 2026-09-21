@@ -2,15 +2,14 @@ name: Test
 on: [push, workflow_dispatch]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_26.6.app
 jobs:
   Test:
-    runs-on: macos-26
+    runs-on: xcode-27
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Install iOS 26 Platform
+      - name: Install iOS 27 Platform
         uses: nick-fields/retry@v4
         with:
           retry_on: error
@@ -62,9 +61,13 @@ jobs:
           echo "D-03 holds: analytics disclosure present in all six READMEs."
       - name: Show Xcode version
         run: xcodebuild -version
+      - name: Verify Xcode 27 and iOS 27 SDK
+        run: |
+          set -euo pipefail
+          xcodebuild -version | grep -q '^Xcode 27\.'
+          [[ "$(xcrun --sdk iphonesimulator --show-sdk-version)" == 27.* ]]
       - name: Run tests
         run: xcodebuild clean test
-          -skipMacroValidation
-          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone Air'
+          -testPlan FeatureTests
+          -destination 'platform=iOS Simulator,name=iPhone Air,OS=27.0'
