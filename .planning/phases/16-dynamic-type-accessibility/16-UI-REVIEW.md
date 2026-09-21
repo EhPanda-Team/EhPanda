@@ -24,7 +24,7 @@ Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24f
 
 1. **Owner decisions for the Detail focus findings (W-8/W-35)**: both are explained as of 2026-09-19 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`). W-8 is a system-side deferred `Screen Changed` with no app-side lever found and awaits an owner disposition; W-35 follows the platform first-element rule and awaits an owner choice among three recorded options.
 2. **Search/Comments dismissal findings (VO-3/W-13 Comments)**: decided 2026-09-20 as Apple-bug handling with no local fix. The cause is SwiftUI bridging a `Label`-labeled toolbar control to a native bar button item that drops the focus binding; the evaluated `Image`-label workaround was not adopted (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`).
-3. **Owner operation demonstration for Reader reachability (W-38)** — the page/indicator mismatch awaits direct demonstration before judgment.
+3. **Reader reachability (W-38)**: the app fix implemented on 2026-09-19 was withdrawn by the owner on 2026-09-21 after it made scrolling to the last page jitter, so the page/indicator mismatch is open and unfixed (`16-W38-ROOT-CAUSE.md § Attempted fix, withdrawn`).
 
 
 ## Detailed Findings
@@ -65,7 +65,7 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 
 **WARNING — measurement coverage.** Voice Control spoken-command activation and VoiceOver double-tap activation were not directly measured; the walkthrough contains native-label/Voice Control proxy evidence. The native labels and accessibility actions are present across the audited surfaces, and actual VoiceOver focus and speech work on the simulator, but direct command success is an evidence limit.
 
-**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. W-35 requires the owner decision recorded in SWEEP; VO-3 and the W-13 Comments slice are handled as an Apple bug with no local fix by owner ruling (2026-09-20); W-38 awaits an owner operation demonstration; W-33 is in revision for ordinary “P M” pronunciation. W-34 is an implemented fix with owner phonetic verification passed. Apart from the VO-3 and W-13 Comments ruling, these current items are not accepted system limits. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
+**PASS WITH LIMIT.** Loading/error/empty coverage, retry actions, disabled states, Reduce Motion gates, and title/search rendering workarounds are present across the source. W-35 requires the owner decision recorded in SWEEP; VO-3 and the W-13 Comments slice are handled as an Apple bug with no local fix by owner ruling (2026-09-20); W-38 is open again after its implemented fix was withdrawn on 2026-09-21; W-33 is in revision for ordinary “P M” pronunciation. W-34 is an implemented fix with owner phonetic verification passed. Apart from the VO-3 and W-13 Comments ruling, these current items are not accepted system limits. Duplicate native Close labels in the Reader and the rating DragGesture without an adjustable accessibility action remain documented owner follow-ups.
 
 ## Selected Cached Evidence
 
@@ -77,7 +77,7 @@ No fresh spacing regression is supported by the cached evidence. Historical spac
 ## Applicable Accepted and Deferred Limits
 
 - The D-25 rendered scope is the nine-cell Search root, Favorites, and Watched set. Existing resweep evidence records 8 passes and one accepted #39 finding; the owner identifies #39 as an Apple native-search bug with no app fix requested.
-- W-8 and W-35 are explained and await owner decisions, and VO-3 and the W-13 Comments slice are handled as an Apple bug with no local fix by owner ruling of 2026-09-20 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`); W-38 awaits an owner operation demonstration; W-33 is in revision for ordinary “P M” pronunciation; W-34 is confirmed within the MiB pronunciation scope and is not a carried limit.
+- W-8 and W-35 are explained and await owner decisions, and VO-3 and the W-13 Comments slice are handled as an Apple bug with no local fix by owner ruling of 2026-09-20 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`); W-38 is open again after its implemented fix was withdrawn on 2026-09-21; W-33 is in revision for ordinary “P M” pronunciation; W-34 is confirmed within the MiB pronunciation scope and is not a carried limit.
 - W-24 remains an owner-visible-change decision. Accepted platform/native rulings and the owner’s contrast reversions are preserved.
 - The iPadOS 27 Gallery Detail stall remains deferred on the beta runtime; the evidence does not establish a CPU or glass-menu cause, so this report records it without causal attribution.
 - No registry audit applies: this is a native SwiftUI project with no shadcn/third-party component registry in scope.
