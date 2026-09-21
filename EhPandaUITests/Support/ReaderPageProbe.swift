@@ -51,6 +51,28 @@ struct ReaderPageProbe {
         readingView.descendants(matching: .slider).firstMatch
     }
 
+    private var moreMenuButton: XCUIElement {
+        let navigationBars = app.navigationBars.containing(
+            .staticText,
+            identifier: "reading_page_indicator"
+        )
+        XCTAssertEqual(
+            navigationBars.count,
+            1,
+            "The reader page indicator did not identify exactly one navigation bar."
+        )
+        let navigationBar = navigationBars.element(boundBy: 0)
+        let buttons = navigationBar.buttons.matching(
+            NSPredicate(format: "identifier == %@", "OverflowBarButtonItem")
+        )
+        XCTAssertEqual(
+            buttons.count,
+            1,
+            "The reader navigation bar did not expose exactly one More button."
+        )
+        return buttons.element(boundBy: 0)
+    }
+
     // MARK: Reading
 
     func standing() throws -> Standing {
@@ -158,7 +180,7 @@ struct ReaderPageProbe {
     /// leaves the sheet dismissed. The setting persists between launches, so every test states
     /// the direction it runs under instead of inheriting one.
     func setDirection(_ direction: Direction) {
-        tap(app.buttons["More"].firstMatch, "the toolbar's More menu")
+        tap(moreMenuButton, "the reader toolbar's More menu")
         tap(app.buttons["Reading Setting"].firstMatch, "More's Reading Setting")
 
         let sheetTitle = app.navigationBars["Reading"].firstMatch

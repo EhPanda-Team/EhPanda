@@ -6,7 +6,7 @@ import XCTest
 /// Each test launches EhPanda through the stubbed launcher (no network, no credential, English
 /// catalog), navigates to one surface, waits for it, and audits it with the three stable audit
 /// types — `.hitRegion`, `.sufficientElementDescription` and `.trait`; `auditTypeNames` records why
-/// the others are not run. The deployment target is iOS 26, so no `#available` guard is needed
+/// the others are not run. The deployment target is iOS 27, so no `#available` guard is needed
 /// (Phase 16 D-31). Surfaces that only a logged-in session renders (Favorites, Watched, Archives,
 /// Torrents, EhSetting, FolderManager, Detail Search) are not reachable here and are covered by the
 /// manual walkthrough; `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records that assumption.
