@@ -57,11 +57,13 @@ struct DetailSearchView: View {
         .navigationTitle(store.lastKeyword)
     }
 
-    private func toolbar() -> some ToolbarContent {
-        ToolbarOverflowMenu {
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
             FiltersButton {
                 store.send(.filtersButtonTapped)
             }
+        }
+        ToolbarOverflowMenu {
             QuickSearchButton {
                 store.send(.quickSearchButtonTapped)
             }

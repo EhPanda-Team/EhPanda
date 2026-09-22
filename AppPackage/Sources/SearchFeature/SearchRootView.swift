@@ -55,7 +55,7 @@ public struct SearchRootView: View {
                 }
                 .privacyMask()
             }
-            .searchable(text: $store.keyword, placement: .navigationBarDrawer)
+            .searchable(text: $store.keyword, placement: .navigationBarDrawer(displayMode: .always))
             .searchSuggestions {
                 TagSuggestionView(
                     keyword: $store.keyword, translations: store.tagTranslator.translations,
@@ -78,11 +78,13 @@ public struct SearchRootView: View {
         }
     }
 
-    private func toolbar() -> some ToolbarContent {
-        ToolbarOverflowMenu {
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
             FiltersButton {
                 store.send(.filtersButtonTapped)
             }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
             QuickSearchButton {
                 store.send(.quickSearchButtonTapped)
             }

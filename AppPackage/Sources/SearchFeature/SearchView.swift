@@ -70,13 +70,15 @@ struct SearchView: View {
         .navigationTitle(store.lastKeyword)
     }
 
-    private func toolbar() -> some ToolbarContent {
+    @ContentBuilder private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            FiltersButton {
+                store.send(.filtersButtonTapped)
+            }
+        }
         ToolbarOverflowMenu {
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
                 store.send(.dateSeekButtonTapped(navigation))
-            }
-            FiltersButton {
-                store.send(.filtersButtonTapped)
             }
             QuickSearchButton {
                 store.send(.quickSearchButtonTapped)
