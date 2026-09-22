@@ -150,3 +150,7 @@ Refuted this round: a one-time lazy `AXBackBoardServer` connection by VoiceOver 
 ## Review boundary
 
 This record preserves unresolved hypotheses and pending human judgements for the remaining items. As of 2026-09-20 it claims a confirmed cause for VO-3 and the W-13 Comments slice, measured on the simulator only, and records the owner ruling that it is handled as an Apple bug with no local fix. It does not claim a decision on W-35, an identified SpringBoard trigger for W-8, or that Phase 16 is complete.
+
+## Owner disposition (2026-09-22T02:56:39Z)
+
+The owner approved the focus issues with the reply “approve focus issues.” W-8 and W-35 are accepted with the behavior and limitations recorded above; W-35 retains the platform-default initial focus. VO-3 and W-13 Comments keep their existing Apple-bug disposition with no workaround adopted. This approval does not establish a new root cause or new runtime measurement. W-38 remains open under the separate VoiceOver-only index-update request in `16-SWEEP.md`; Phase 16 and A11Y-02 are not complete.
