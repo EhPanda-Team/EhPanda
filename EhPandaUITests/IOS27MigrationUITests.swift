@@ -10,11 +10,11 @@ final class IOS27MigrationUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testSearchOverflowSearchAndTitleRecoveryAtStandardSize() throws {
+    func testSearchToolbarSearchAndTitleRecoveryAtStandardSize() throws {
         try exerciseSearchSurface(preferredContentSizeCategory: .large)
     }
 
-    func testSearchOverflowSearchAndTitleRecoveryAtAX5() throws {
+    func testSearchToolbarSearchAndTitleRecoveryAtAX5() throws {
         try exerciseSearchSurface(
             preferredContentSizeCategory: UIContentSizeCategory.accessibilityExtraExtraExtraLarge
         )
@@ -216,11 +216,18 @@ final class IOS27MigrationUITests: XCTestCase {
             "Search did not render its native title."
         )
 
-        tap(moreButton(in: app), named: "Search More")
-        tap(app.buttons["Quick Search"].firstMatch, named: "Quick Search")
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10), "Search did not expose its native search field.")
+        XCTAssertTrue(searchField.isHittable, "Search field was hidden on entry.")
+        app.scrollViews.firstMatch.swipeUp()
+        XCTAssertTrue(searchField.isHittable, "Scrolling hid the Search root field.")
+        app.scrollViews.firstMatch.swipeDown()
+        XCTAssertTrue(searchField.isHittable, "Returning to the top hid the Search root field.")
+        XCTAssertTrue(app.navigationBars["Search"].buttons["Filters"].isHittable)
+        tap(app.navigationBars["Search"].buttons["Quick Search"], named: "Quick Search")
         XCTAssertTrue(
             app.navigationBars["Quick Search"].firstMatch.waitForExistence(timeout: 10),
-            "Quick Search did not open from native overflow."
+            "Quick Search did not open from the Search root toolbar."
         )
         tap(app.buttons["New Word"].firstMatch, named: "New Word")
         XCTAssertTrue(
@@ -243,7 +250,6 @@ final class IOS27MigrationUITests: XCTestCase {
             "Returning from Quick Search did not restore Search's title."
         )
 
-        let searchField = app.searchFields.firstMatch
         XCTAssertTrue(searchField.waitForExistence(timeout: 10), "Search did not expose its native search field.")
         tap(searchField, named: "Search Field")
         searchField.typeText("artist:fixture")
@@ -267,6 +273,10 @@ final class IOS27MigrationUITests: XCTestCase {
         XCTAssertTrue(
             app.navigationBars["fixture"].firstMatch.waitForExistence(timeout: 15),
             "Submitting the cleared Search field did not open fixture results."
+        )
+        XCTAssertTrue(
+            app.navigationBars["fixture"].buttons["Filters"].isHittable,
+            "Search results did not expose Filters directly in the toolbar."
         )
         tap(
             app.navigationBars["fixture"].buttons["Search"].firstMatch,
