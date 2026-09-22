@@ -30,7 +30,7 @@ public struct QuickSearchButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Label(.RLocalizable.quickSearch, systemSymbol: .magnifyingglass)
+            Label(.RLocalizable.quickSearch, systemSymbol: .textMagnifyingglass)
         }
     }
 }
