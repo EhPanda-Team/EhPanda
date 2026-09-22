@@ -1,5 +1,8 @@
 // swift-tools-version: 6.4
 
+// reason: Package.swift is permanently exempt from file-length limits so package declarations can stay together.
+// swiftlint:disable file_length
+
 import PackageDescription
 
 // MARK: Dependency
@@ -161,20 +164,45 @@ extension Module {
     }
 }
 
+// MARK: Path
+enum Path: String {
+    case resources = "Resources"
+}
+
+// MARK: Resource
+enum Resource {
+    case copy(Path)
+    case embedInCode(Path)
+    case process(Path, PackageDescription.Resource.Localization? = nil)
+
+    var value: PackageDescription.Resource {
+        switch self {
+        case .copy(let path):
+            return .copy(path.rawValue)
+
+        case .embedInCode(let path):
+            return .embedInCode(path.rawValue)
+
+        case .process(let path, let localization):
+            return .process(path.rawValue, localization: localization)
+        }
+    }
+}
+
 // MARK: Helper methods
 @MainActor
 extension PackageDescription.Target {
     static func target(
         module: Module,
         dependencies: [Module.Dependency] = .init(),
-        resources: [PackageDescription.Resource]? = nil,
+        resources: [Resource]? = nil,
         swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
         plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
     ) -> PackageDescription.Target {
         target(
             name: module.rawValue,
             dependencies: dependencies.map(\.targetDependency),
-            resources: resources,
+            resources: resources?.map(\.value),
             swiftSettings: swiftSettings,
             plugins: plugins
         )
@@ -183,14 +211,14 @@ extension PackageDescription.Target {
     static func testTarget(
         module: Module,
         dependencies: [Module.Dependency] = .init(),
-        resources: [PackageDescription.Resource]? = nil,
+        resources: [Resource]? = nil,
         swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
         plugins: [PackageDescription.Target.PluginUsage] = swiftLintPlugins
     ) -> PackageDescription.Target {
         testTarget(
             name: module.rawValue,
             dependencies: dependencies.map(\.targetDependency),
-            resources: resources,
+            resources: resources?.map(\.value),
             swiftSettings: swiftSettings,
             plugins: plugins
         )
@@ -242,7 +270,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .appModels,
@@ -253,11 +281,11 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.casePaths),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .resources,
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .deviceClient,
@@ -354,7 +382,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .dfClient,
@@ -398,7 +426,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .galleryListComponents,
@@ -412,7 +440,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .animatedImageFeature,
@@ -488,7 +516,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .dateSeekFeature,
@@ -500,7 +528,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .readingSettingFeature,
@@ -511,7 +539,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .quickSearchFeature,
@@ -524,7 +552,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .downloadsFeature,
@@ -545,7 +573,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .favoritesFeature,
@@ -567,7 +595,7 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .settingFeature,
@@ -594,7 +622,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .searchFeature,
@@ -621,7 +649,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .homeFeature,
@@ -650,7 +678,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .detailFeature,
@@ -680,7 +708,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .readingFeature,
@@ -707,7 +735,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
     .target(
         module: .imageClient,
@@ -762,7 +790,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.kanna)
         ],
-        resources: [.process("Resources")]
+        resources: [.process(.resources)]
     ),
 
     // MARK: Tests
