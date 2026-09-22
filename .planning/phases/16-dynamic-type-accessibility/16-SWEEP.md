@@ -4313,3 +4313,17 @@ The covered repository documentation HEAD is `812c85c7aa1342606f401e7de6e5d1924e
 W-21, W-24, and the other accepted/deferred records retain their existing closure dispositions.
 Voice Control spoken actuation and VoiceOver double-tap activation remain unmeasured limitations,
 not owner decisions. The approved natural colour acceptance applies to W-22 only and is not phase sign-off.
+
+### Owner focus approval and W-38 continuation (2026-09-22T02:56:39Z)
+
+The owner replied in the Codex task:
+
+> approve focus issues.
+>
+> w-38 still need a proper fix. do not change the index update logics completely, just add one more path to update it only for voiceover.
+
+This approves W-8 and W-35 with their recorded behavior and evidence limits. W-35 keeps the platform's initial navigation-bar focus; no delayed title focus or visible navigation redesign is requested. VO-3 and W-13 Comments retain the existing Apple-bug disposition and no local workaround. This supersedes the pending focus-decision wording above; it is not approval of W-38 or completion of Phase 16/A11Y-02.
+
+Reopen: W-38 — Add an additional index update path only while VoiceOver is active; preserve the existing index update logic and avoid the withdrawn fix's last-page jitter — `16-W38-ROOT-CAUSE.md`.
+
+The owner explicitly requests implementation now. That request supersedes the no-fix restriction in 16-26 only for this bounded W-38 continuation. Existing ordinary scrolling, slider, tap, autoplay, resume, page mapping, and scroll bindings remain authoritative. Final sign-off and current-source verification remain pending. Historical iOS 26.5 gates are not current iOS 27 gate results.
