@@ -20,9 +20,9 @@ extension XCUIApplication {
     /// fixture whose title is `EhPanda UITest Fixture`. This pins cold delivery
     /// to the closest D-05 system-open mechanism that also preserves D-06's
     /// hermetic launch environment; warm delivery uses the literal D-05 API.
-    func openCold(_ url: URL) throws {
+    func openCold(_ url: URL, extraEnvironment: [String: String] = [:]) throws {
         terminate()
-        try configureStubbedLaunch()
+        try configureStubbedLaunch(extraEnvironment: extraEnvironment)
         open(url)
     }
 

@@ -12,6 +12,7 @@ import TagTranslationFeature
 public struct DetailView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AccessibilityFocusState private var readButtonFocused: Bool
+    @State private var isHeaderVisible = true
     @State private var readingOrigin: ReadingOrigin?
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
     @SharedReader(.didLogin) var didLogin: Bool
@@ -46,6 +47,9 @@ public struct DetailView: View {
                 runLaunchAutomationIfNeeded()
             }
             .appAlert($store.scope(\.$alert, action: \.alert))
+            .navigationTitle(navigationTitle)
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar(removing: isHeaderVisible || store.galleryDetail == nil ? .title : nil)
             .toolbar(content: toolbar)
     }
 
@@ -53,6 +57,11 @@ public struct DetailView: View {
 
 // MARK: Content
 private extension DetailView {
+    var navigationTitle: String {
+        let title = store.galleryDetail?.title ?? store.gallery.title
+        return store.setting.displayJapaneseTitle ? store.galleryDetail?.jpnTitle ?? title : title
+    }
+
     var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 30) {
@@ -94,6 +103,12 @@ private extension DetailView {
                     }
                 )
                 .padding(.horizontal)
+                .onGeometryChange(for: Bool.self) { geometry in
+                    guard let viewport = geometry.bounds(of: .scrollView(axis: .vertical)) else { return true }
+                    return viewport.intersects(CGRect(origin: .zero, size: geometry.size))
+                } action: { isVisible in
+                    isHeaderVisible = isVisible
+                }
 
                 DescriptionSection(
                     gallery: store.gallery,
