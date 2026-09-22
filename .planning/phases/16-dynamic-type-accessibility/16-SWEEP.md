@@ -4327,3 +4327,9 @@ This approves W-8 and W-35 with their recorded behavior and evidence limits. W-3
 Reopen: W-38 — Add an additional index update path only while VoiceOver is active; preserve the existing index update logic and avoid the withdrawn fix's last-page jitter — `16-W38-ROOT-CAUSE.md`.
 
 The owner explicitly requests implementation now. That request supersedes the no-fix restriction in 16-26 only for this bounded W-38 continuation. Existing ordinary scrolling, slider, tap, autoplay, resume, page mapping, and scroll bindings remain authoritative. Final sign-off and current-source verification remain pending. Historical iOS 26.5 gates are not current iOS 27 gate results.
+
+### W-38 current-runtime checkpoint (2026-09-22)
+
+The unchanged iOS 27 baseline built successfully. Native VoiceOver checks on task-owned iPhone and iPad simulators, including loaded synthetic tall/short images, advanced the existing index path. A read-only debugger trace confirmed `AdvancedList`'s existing idle callback invoked `PageModel.update` during native VoiceOver movement. The historical iOS 26.5 missing-callback case was not reproduced in these bounded checks; no production fix was made. Evidence and limitations are in `16-W38-ROOT-CAUSE.md § Current iOS 27 baseline`.
+
+The prior iPad ordinary-touch test bundle remains red: it contains both page 2 / page 3 mismatches in earlier runs and a final page 2 / page 2 failure to advance. These results do not drive VoiceOver and must not be treated as a current reproduction of its missing update. The owner was asked for the current failing OS/device and VoiceOver action so the authorized additive path can be validated. W-38, 16-26 and A11Y-02 remain open; the focus approvals are unchanged.
