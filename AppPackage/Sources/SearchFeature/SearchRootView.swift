@@ -80,13 +80,13 @@ public struct SearchRootView: View {
 
     @ContentBuilder private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            FiltersButton {
-                store.send(.filtersButtonTapped)
+            QuickSearchButton {
+                store.send(.quickSearchButtonTapped)
             }
         }
         ToolbarItem(placement: .topBarTrailing) {
-            QuickSearchButton {
-                store.send(.quickSearchButtonTapped)
+            FiltersButton {
+                store.send(.filtersButtonTapped)
             }
         }
     }
