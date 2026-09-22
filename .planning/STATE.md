@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-last_updated: "2026-09-22T02:56:39Z"
-last_activity: 2026-09-21
-last_activity_desc: "Completed quick task 260921-f5u: iOS/iPadOS 27 minimum, native APIs and every-page soft top scroll edges. Complete FeatureTests and migration UI cases pass on both devices; clean VoiceOver carousel walks pass. The corrected reader toolbar selector passes; only existing iPad W-38 remains red. The final reader invocation finalized with exit 65 for the carried W-38 failure. Phase 16 owner decisions remain open as recorded."
+last_updated: "2026-09-22T03:32:42Z"
+last_activity: 2026-09-22
+last_activity_desc: "Owner approved focus issues. W-38 remains open: native iOS/iPadOS 27 baseline checks invoked existing index updates; no production patch made. Await current failing VoiceOver reproduction to validate the requested additive path. Prior iPad ordinary-touch test failures remain unresolved."
 state_head: d7f8b191705c5789e172d89270d70a6dc4b8c4ba
 progress:
   total_phases: 17
@@ -16,7 +16,7 @@ progress:
   completed_plans: 273
   percent: 59
 source_head: d7f8b191705c5789e172d89270d70a6dc4b8c4ba
-stopped_at: Owner approved the focus issues; W-38 VoiceOver-only additive index-update repair is executing; phase sign-off remains pending
+stopped_at: W-38 current-runtime reproduction checkpoint; additive VoiceOver-only repair authorized, source unchanged, owner device/action details pending
 ---
 
 # Project State
@@ -33,9 +33,13 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 Task 1/2 measurement and D-25 documentation are complete, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
 Status: Round 2 executing — current closure and carry-forward status are recorded above. Historical colour, audit, and candidate context follows: round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). Historical D-25 candidates included `#32 Activity Logs` and `#36 Laboratory`, but the 2026-09-17 superseding ruling below limits current rendered scope to Search root, Favorites and Watched; Gallery Detail remains withdrawn. 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-21 — Completed quick task 260921-f5u: iOS/iPadOS 27 minimum, native APIs and every-page soft top scroll edges. Complete FeatureTests and migration UI cases pass on both devices; clean VoiceOver carousel walks pass. The corrected reader toolbar selector passes; only existing iPad W-38 remains red. The final reader invocation finalized with exit 65 for the carried W-38 failure. Phase 16 owner decisions remain open as recorded.
+Last activity: 2026-09-22 — Owner approved the focus issues. The unchanged reader built on Xcode 27 and bounded native VoiceOver checks on isolated iPhone/iPad simulators advanced the existing index path, including loaded synthetic images. No source patch was made. W-38 remains open pending a current failing VoiceOver case; ordinary-touch migration failures remain red and are not evidence for a VoiceOver-only fix. See `16-W38-ROOT-CAUSE.md § Current iOS 27 baseline` for observations and limits.
 
 **2026-09-22 active continuation:** The owner approved the focus issues (W-8 and W-35; VO-3/W-13 Comments retain their Apple-bug disposition) and explicitly requested a proper W-38 fix by adding an index update path only for VoiceOver, without replacing existing index update logic. This supersedes the pending focus decisions in historical entries. W-38 and A11Y-02 remain open; no whole-phase approval is inferred. The exact reply and bounded authorization are in `16-SWEEP.md § Owner focus approval and W-38 continuation`.
+
+**W-38 diagnostic checkpoint:** The current native VoiceOver baseline did not reproduce the historical missing index update. A read-only debugger trace confirmed the existing idle callback calls `PageModel.update` during a native VoiceOver scroll on iOS 27. The owner was asked which current OS/device and VoiceOver action still fail; that question is unanswered. No speculative observer, restored global synchronization, or new source/test change was made. This checkpoint does not revoke the implementation authorization or close W-38.
+
+The following carry-forward paragraph records the historical 2026-09-21 status; the focus approval above supersedes its pending owner choices.
 
 **Phase 16 carry-forward:** W-38 remains open and unfixed. Its 2026-09-19 position-synchronization fix was withdrawn by the owner on 2026-09-21 for last-page jitter and is retained only under `withdrawn/w38-fix-20260921`. Injected-clock autoplay and the tests comparing the visible page with its indicator remain. The formerly red iOS 27 Settings import test now passes with controlled asynchronous test input; the complete FeatureTests plan is green on both iOS 27 device classes. VO-3 and W-13 Comments retain the owner's Apple-bug disposition with no Image-label workaround adopted. W-35 still awaits the recorded owner choice; W-8 remains the deferred SpringBoard Screen Changed issue with no app-side lever identified. This quick task does not approve Phase 16 or A11Y-02.
 
