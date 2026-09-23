@@ -55,6 +55,16 @@ Registry safety: not applicable; no shadcn component registry is in scope. Revie
 - Current SearchRootView and SearchRootView+Keywords; FavoritesView; WatchedView; GalleryDetailCell; GalleryThumbnailCell; DetailView+HeaderSection; ReadingFeature ControlPanel.
 - Repository AGENTS and SwiftLint policy; GSD UI review workflow, Swift accessibility and SwiftUI review guidance.
 
+
+
+### Orchestrator closing-gate addendum — 2026-09-23
+
+The earlier 52-pass phone count was an in-progress snapshot supplied to the reviewer. Final bundles now
+show iPhone 54 passes/two expected iPad-only skips and iPad 56 passes/no skips; both have zero failures
+and zero Repetition nodes. Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/uitests-{iphone,ipad}-final.*`.
+This updates test provenance only; the review scores, visual evidence limits and pending whole-phase
+owner checkpoint are unchanged.
+
 ## Historical review — September 17, with earlier follow-up annotations
 
 The following material preserves its original scores and evidence. Pending owner decisions, workaround implementations and runtime status in this historical section are superseded by the dated current refresh above.

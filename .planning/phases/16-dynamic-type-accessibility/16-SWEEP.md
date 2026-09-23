@@ -4384,3 +4384,48 @@ The corrected probe pairs each numeric text with its nearest Reload button by ge
 The autoplay failure's synthesized Off tap was `(712, 59)` points, inside the visible popup row. The exported AX archives contain only an empty application root, so they cannot prove the exact option frame or query count. The recording shows the menu still open and autoplay advancing for the remaining approximately 1.7 seconds before teardown; it does not prove the menu would remain indefinitely. No speculative More-button wait was adopted. Instead, the helper now requires the selected option to disappear within five seconds after its existing single tap, before querying the next toolbar control. The focused autoplay run passed on its first attempt (`autoplay-menu-postcondition-ipad.{log,xcresult}`, 1 pass, zero failures/skips/Repetition nodes). There are no tap retries, relaxed assertions or product changes.
 
 The executor's read-only review found no assertion weakening or further required corrections. Failure-only screenshot/frame attachments remain for future diagnosis. Full iPhone and iPad UI gates must now run on this final helper; original failed bundles remain preserved. FeatureTests targets and all production source remain unchanged from their passing run.
+
+
+### Final current-source closing gates (2026-09-23)
+
+The current closing result covers source commit `7675a7ac77301de9464a8e924c9fc8c70f691849`
+plus the pre-existing Xcode project serialization diff captured before testing. All 809 source/config
+hashes remained unchanged during the final UI gates; the unrelated project diff remains byte-identical,
+uncommitted and outside this task's changes. Later commits contain documentation only.
+
+The durable evidence copy is `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/`; original run paths under
+`/tmp/ehpanda-phase16-close-20260923/` remain the provenance of logs and commands. The archive includes
+the original failed and diagnostic bundles, the final bundles, exported summary/test JSON, source
+fingerprints and the pre-existing project patch. No failed attempt is relabeled a pass.
+
+| Gate | Current result | Evidence basename |
+|---|---|---|
+| FeatureTests, iPhone Air / iOS 27.0 (24A434) | 1,066 reported tests: 1,055 passed, 11 expected failures, 0 failed/skipped, 0 Repetition nodes; exit 0; result interval 125.250 s | `featuretests-iphone` |
+| UITests, iPhone Air / iOS 27.0 (24A434) | 56 tests/executions: 54 passed, 2 expected iPad-only skips, 0 failed, 0 Repetition nodes; exit 0; result interval 1114.336 s | `uitests-iphone-final` |
+| UITests, iPad Pro 11-inch (M5) / iPadOS 27.0 (24A434) | 56 tests/executions: 56 passed, 0 failed/skipped, 0 Repetition nodes; exit 0; result interval 1206.840 s | `uitests-ipad-final` |
+| Strict no-cache SwiftLint | 0 violations, 0 serious, 586 files | `swiftlint-final.log` |
+| Six phase custom rules | All six present at error severity | `static-checks-final.json` |
+| Phase-range added media | 0 across `c65be7b8^..HEAD` | `static-checks-final.json` |
+
+Each test basename has `.log`, `.xcresult`, `-summary.json` and `-tests.json` evidence. The exact
+destinations were phone `8E3EA338-4F93-40A7-BE4F-1F6E7C855F32` and pad
+`55C7BED8-A301-4C4B-94F7-1959B45EBE27`; the result metadata confirms these task-owned devices.
+The shared lock serialized builds. The final phone suite passed before cleanup encountered Xcode's
+concurrent shutdown (the destination had become Shutdown between the inventory check and command).
+Cleanup now rereads state and tolerates only confirmed Shutdown. Only the remaining iPad gate was
+then started; the passing phone suite was not rerun for a cleanup error. Final device state is recorded
+in `final-cleanup.json`; other work's devices were not operated.
+
+The wrapper's `-collect-test-diagnostics never` disables the auxiliary diagnostic collector; assertions,
+failure screenshots/attachments and the existing retry policy remain intact. Xcode's internal QoS runtime
+warnings remain in the result bundles; zero SwiftLint violations does not mean zero platform warnings.
+FeatureTests remain current: the only source deltas after that run are the three recorded UI-test files.
+The 22 FeatureTests targets and UI plan cover the earlier-phase regression inventory after the documented
+test/target renames (`regression-coverage.json` and `regression-files.json`). No extra regression run is
+needed on unchanged production and FeatureTests sources.
+
+The incremental code review found 0 actionable findings in 98 files; the refreshed UI review retains
+21/24 with accepted/deferred limitations. The 68-task validation map and 113-row threat register are
+reconciled to the plans. Current test gates are green; Task 3 owner sign-off, Task 4 and the subsequent
+goal verifier remain pending. No `16-26-SUMMARY.md`, `16-VERIFICATION.md` or A11Y-02 completion is
+asserted by this gate record.

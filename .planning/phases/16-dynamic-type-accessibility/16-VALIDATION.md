@@ -5,12 +5,12 @@ status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: "2026-08-23"
-audited: "2026-09-17"
+audited: "2026-09-23"
 ---
 
 # Phase 16 — Validation Strategy
 
-Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24fe8146c; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
+Current coverage refresh: tested source `7675a7ac` plus the preserved pre-existing project diff. The final iOS 27 gates are recorded below. Owner 16-26 Task 3, verifier and phase completion remain pending; this audit added no tests or source changes. Historical September 17 provenance is retained separately.
 
 
 ## Test Infrastructure
@@ -21,8 +21,8 @@ Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24f
 | Config | `AppPackage/Tests/FeatureTests.xctestplan`; `UITests.xctestplan` |
 | Quick run | Existing lint/build gates; strict no-cache SwiftLint evidence in closing cache |
 | Full suite | FeatureTests iPhone, UITests iPhone, UITests iPad in prescribed order |
-| Toolchain | Xcode 26.6 via `DEVELOPER_DIR`; phase-local `xb2.sh`; independent xcodebuild concurrency authorized |
-| Gate devices | iPhone `73E148DA-26E4-4892-8C8A-7EDC6725D0E7`; iPad `B6679864-3783-4A3B-89B5-B0B010588C13` |
+| Toolchain | Xcode 27.0.0 via `DEVELOPER_DIR`; phase-local `xb27.sh`; sequential phase gates under the shared lock |
+| Gate devices | iPhone `8E3EA338-4F93-40A7-BE4F-1F6E7C855F32`; iPad `55C7BED8-A301-4C4B-94F7-1959B45EBE27`; iOS/iPadOS 27.0 (24A434) |
 
 ## Per-Task Verification Map
 
@@ -194,14 +194,14 @@ The per-task map records artifact basis separately from command availability; a 
 | 13 | fixture-reachable accessibility audit | COVERED | 16-24 T1/T2/T4 | EhPandaUITests/AccessibilityAuditUITests.swift; UITests closing gates pass |
 | 14 | icon-only/custom tappable labels and traits | COVERED+MANUAL | 16-16 T1/T2; 16-17 T1; 16-19 T1/T2/T3; 16-24 T1/T2; 16-25 T2/T7 | UI audit + actual-focus/VC proxy evidence |
 | 15 | Voice Control spoken commands/actuation | MANUAL-ONLY | 16-25 T2/T3/T7 | spoken commands not exercised; retain manual-only |
-| 16 | VoiceOver announcement/order/post-navigation focus | MANUAL | 16-25 T2/T3/T7; 16-26 T1/T2 | sim-use/vot actual-focus + spoken transcripts; double-tap activation remains manual |
+| 16 | VoiceOver announcement/order/post-navigation focus | MANUAL | 16-25 T2/T3/T7; 16-26 T1/T2 | sim-use/vot actual-focus + spoken transcripts; native double-tap has bounded W-38 reader-panel evidence only |
 | 17 | Reduce Motion gating and rendered outcome | COVERED+MANUAL | 16-20 T1/T2; 16-21 T1/T2/T3 | ReduceMotionGatingSourceTests + display captures/manual rendered judgment |
 | 18 | non-category contrast dark/IC | MANUAL | 16-13 T1/T2; 16-15 T2/T3; 16-23 T1/T2 | simulator display evidence and contrast measurements |
 | 19 | Differentiate Without Color/grayscale | MANUAL | 16-13 T1/T2; 16-22 T1/T2; 16-23 T1/T2 | grayscale display evidence |
 | 20 | D-25 targeted re-sweep | MANUAL | 16-25 T7; 16-26 T1/T2 | 9 cells: Search #9, Favorites #8, Watched #5; 8 pass plus Favorites AX5 finding #39 |
 | 21 | Nutrition Label document | SUPERSEDED | 16-26 T4 | owner 2026-09-15 superseded deliverable; no test/file gap |
-| 22 | package regression suite | COVERED | 16-14/16-24 and 16-26 T2 | closing FeatureTests: 1039 passed, 0 failed, 0 skipped, 11 expected; first try |
-| 23 | UI regression suite | COVERED | 16-24 T4 and 16-26 T2 | closing UITests: iPhone 39 passed/2 skipped; iPad 41 passed/0 skipped; 0 failed; no Repetition |
+| 22 | package regression suite | COVERED | 16-14/16-24 and 16-26 T2 | current FeatureTests: 1055 passed, 0 failed/skipped, 11 expected failures; Repetition 0 |
+| 23 | UI regression suite | COVERED | 16-24 T4 and 16-26 T2 | current UITests: iPhone 54 passed/2 expected skips; iPad 56 passed/0 skipped; 0 failed; Repetition 0 |
 
 ## Wave 0 Requirements
 
@@ -214,8 +214,8 @@ The per-task map records artifact basis separately from command availability; a 
 ## Manual-Only Verifications
 
 - Rendered Dynamic Type, D-03 readability/operability, `.large` parity and D-25 visible changes: visual simulator/cache evidence plus owner review.
-- VoiceOver actual-focus/spoken evidence exists through sim-use/vot; experiential confirmation remains manual and double-tap activation is unmeasured.
-- Voice Control spoken commands and VO double-tap activation were not measured; native UI/VC proxies are not command execution.
+- VoiceOver actual-focus/spoken evidence exists through sim-use/vot; experiential confirmation remains manual; the approved W-38 reader-panel reveal is the bounded native double-tap exception.
+- Voice Control spoken commands and nonreader native VO double-tap activation were not measured; native UI/VC proxies are not command execution.
 - Reduce Motion rendered effects, dark/Increase Contrast and grayscale require rendered judgment.
 - Owner final sign-off remains a checkpoint.
 
@@ -254,6 +254,27 @@ The per-task map records artifact basis separately from command availability; a 
 - [x] No new automated coverage gap identified.
 - [x] Existing meaningful tests and first-run gates recorded.
 - [x] Manual-only constraints explicit.
-- [ ] Owner final sign-off and phonetic judgment on the revised W-33 audio.
+- [x] W-33/W-34 bounded phonetic judgments accepted by the owner.
+- [ ] Owner final whole-phase sign-off.
 
 **Approval:** pending (coverage compliant does not equal phase approved)
+
+
+## Validation Audit — 2026-09-23
+
+The plan map still contains 68 tasks (59 with automated commands and nine checkpoint tasks), with no
+task/type/wave/command-presence mismatch against the existing map. All 26 plans and 25 summaries
+were inventoried; the missing 16-26 summary is intentional until Tasks 3–4 conclude. The 23 behavior
+rows retain their manual/superseded distinctions; command presence alone is not a pass.
+
+Current evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/`: FeatureTests 1055 passes plus 11 expected failures; full iPhone UI
+54 passes/two expected skips; full iPad UI 56 passes; every bundle has zero failures and Repetition
+nodes. Strict lint is zero in 586 files. `validation-map-recheck.json`, `regression-coverage.json`,
+`regression-files.json` and source hashes bind this coverage to the tested tree. All 22 feature-test
+targets and the UI plan remain available; CategoryColorsetInvariantTests, ReduceMotionGatingSourceTests,
+AccessibilityAuditUITests and ReaderPageSyncUITests retain meaningful behavior assertions.
+
+Automated coverage gaps identified: 0. New tests added by this audit: 0. No Nyquist executor was needed.
+The original failed/retried runs remain failed historical evidence. The D-25 nine-cell scope, fifteen
+unreached sites, spoken Voice Control and nonreader double-tap limits remain explicit. Accepted focus
+and W-38 decisions are not reopened. Coverage compliance is not owner approval or phase completion.
