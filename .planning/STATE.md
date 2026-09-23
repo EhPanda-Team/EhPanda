@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: planning
-last_updated: "2026-09-23T07:05:16.525Z"
+last_updated: "2026-09-23T09:38:19.864Z"
 last_activity: 2026-09-23
-last_activity_desc: Phase 16 complete, transitioned to Phase 17
+last_activity_desc: "Quick task 260923-nnu: build/lint/runtime warnings resolved; intermittent iPad autoplay test remains open"
 state_head: a46ef2385e3a6ceb449819f266b1a4725ca74c99
 progress:
   total_phases: 17
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 — Screenshot Automation, Visual Regression & OS 27 Modernization
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-23 — Phase 16 complete, transitioned to Phase 17
+Last activity: 2026-09-23 — Quick task 260923-nnu: build/lint/runtime warnings resolved; intermittent iPad autoplay test remains open
 
 ### Historical round-2 status snapshots
 
@@ -967,6 +967,7 @@ None yet.
 | 260819-ovp | Close DEF-15-04/10: the pad UI test reads the idiom in the main-actor test method via `guard`/`throw XCTSkip` (the `setUpWithError` override is nonisolated, so the class `@MainActor` never reached it) — UITests build-for-testing 4 → 0 warning lines (97347f5d); all 43 `ResourceStringSymbols` accessors forward to Xcode's generated catalog symbols with signatures and `count:`/`page:` labels unchanged, no key literal, `table:`, `defaultValue:`, bundle description or `#bundle` left, a renamed key now a compile error at its forwarder (observed, reverted) (15cf9273); 1020 tests, 0 failures, unchanged | 2026-08-19 | 15cf9273 | [260819-ovp-close-def-15-04-10-idiom-skip-forwarders](./quick/260819-ovp-close-def-15-04-10-idiom-skip-forwarders/) |
 | 260907-n39 | Unify cover roles with bounded Dynamic Type scaling and stable carousel layout; build, regression and simulator checks passed | 2026-09-07 | 0cef6d22 | [260907-n39-unify-cover-sizing-with-bounded-dynamic-](./quick/260907-n39-unify-cover-sizing-with-bounded-dynamic-/) |
 | 260921-f5u | Migrate to iOS/iPadOS 27 with native APIs and every-page soft top edges; tests verified with W-38 carried | 2026-09-21 | d7f8b191 | [260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod](./quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/) |
+| 260923-nnu | Build, test and lint cleanup: zero build/lint/runtime warnings; 1,057 feature passes plus 11 expected failures; 104 UI passes and 2 skips, with one intermittent iPad autoplay failed attempt passing on retry (still unresolved) | 2026-09-23 | 7ac307e1 | [260923-nnu-build-and-test-resolve-all-warnings-erro](./quick/260923-nnu-build-and-test-resolve-all-warnings-erro/) |
 
 ### Roadmap Evolution
 
