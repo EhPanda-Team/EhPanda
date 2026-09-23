@@ -10,7 +10,7 @@ audited: "2026-09-23"
 
 # Phase 16 — Validation Strategy
 
-Current coverage refresh: tested source `7675a7ac` plus the preserved pre-existing project diff. The final iOS 27 gates are recorded below. Owner 16-26 Task 3, verifier and phase completion remain pending; this audit added no tests or source changes. Historical September 17 provenance is retained separately.
+Current coverage refresh: tested source `7675a7ac` plus the preserved pre-existing project diff. The final iOS 27 gates are recorded below. Owner 16-26 Tasks 3–4 are complete (`a4cc3754`); verifier and phase completion remain pending; this audit added no tests or source changes. Historical September 17 provenance is retained separately.
 
 
 ## Test Infrastructure
@@ -94,10 +94,10 @@ Current coverage refresh: tested source `7675a7ac` plus the preserved pre-existi
 | 16-25-T7 | 16-25 | 23 | A11Y-02 | auto | yes | yes | source | completed-evidence |
 | 16-26-T1 | 16-26 | 24 | A11Y-01, A11Y-02 | tracer | yes | yes | docs | completed-evidence |
 | 16-26-T2 | 16-26 | 24 | A11Y-01, A11Y-02 | auto | yes | no | docs | completed-evidence |
-| 16-26-T3 | 16-26 | 24 | A11Y-01, A11Y-02 | checkpoint:decision | no | yes | docs | manual-pending-owner |
-| 16-26-T4 | 16-26 | 24 | A11Y-01, A11Y-02 | auto | yes | yes | docs | manual-pending-owner |
+| 16-26-T3 | 16-26 | 24 | A11Y-01, A11Y-02 | checkpoint:decision | no | yes | docs | completed-evidence |
+| 16-26-T4 | 16-26 | 24 | A11Y-01, A11Y-02 | auto | yes | yes | docs | completed-evidence |
 
-Map counts: {"plans": 26, "tasks": 68, "automated": 59, "manualOrCheckpoint": 48, "statusExistingArtifact": 63, "statusCompletedEvidence": 3, "statusManualPendingOwner": 2}
+Map counts: {"plans": 26, "tasks": 68, "automated": 59, "manualOrCheckpoint": 48, "statusExistingArtifact": 63, "statusCompletedEvidence": 5, "statusManualPendingOwner": 0}
 
 
 ## Authoritative Artifact Basis (68 tasks)
@@ -217,7 +217,7 @@ The per-task map records artifact basis separately from command availability; a 
 - VoiceOver actual-focus/spoken evidence exists through sim-use/vot; experiential confirmation remains manual; the approved W-38 reader-panel reveal is the bounded native double-tap exception.
 - Voice Control spoken commands and nonreader native VO double-tap activation were not measured; native UI/VC proxies are not command execution.
 - Reduce Motion rendered effects, dark/Increase Contrast and grayscale require rendered judgment.
-- Owner final sign-off remains a checkpoint.
+- Owner final checkpoint completed: `approved`, recorded in `16-SWEEP.md § Owner sign-off (round 2)` at `a4cc3754`.
 
 ## Superseded / excluded
 
@@ -255,16 +255,16 @@ The per-task map records artifact basis separately from command availability; a 
 - [x] Existing meaningful tests and first-run gates recorded.
 - [x] Manual-only constraints explicit.
 - [x] W-33/W-34 bounded phonetic judgments accepted by the owner.
-- [ ] Owner final whole-phase sign-off.
+- [x] Owner final whole-phase sign-off (`a4cc3754`).
 
-**Approval:** pending (coverage compliant does not equal phase approved)
+**Approval:** owner signed off on 2026-09-23; goal verification and canonical phase completion follow separately.
 
 
 ## Validation Audit — 2026-09-23
 
 The plan map still contains 68 tasks (59 with automated commands and nine checkpoint tasks), with no
-task/type/wave/command-presence mismatch against the existing map. All 26 plans and 25 summaries
-were inventoried; the missing 16-26 summary is intentional until Tasks 3–4 conclude. The 23 behavior
+task/type/wave/command-presence mismatch against the existing map. At the pre-approval audit, all 26 plans and 25 summaries
+were inventoried. Tasks 3–4 are now complete and `16-26-SUMMARY.md` records the final owner sign-off, bringing the current summary count to 26. The 23 behavior
 rows retain their manual/superseded distinctions; command presence alone is not a pass.
 
 Current evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/`: FeatureTests 1055 passes plus 11 expected failures; full iPhone UI

@@ -7,7 +7,7 @@ current_phase_name: dynamic-type-accessibility
 status: executing
 last_updated: "2026-09-23T04:38:22Z"
 last_activity: 2026-09-23
-last_activity_desc: "Final iOS 27 gates passed first try on the corrected UI-test helper; production reader logic unchanged. Code/UI/security/coverage reviews recorded. Whole-phase Task 3 owner sign-off remains pending."
+last_activity_desc: "Owner approved Phase 16 round 2; sign-off a4cc3754 and all 26 summaries recorded. Current iOS 27 gates and reviews complete; goal verifier pending."
 state_head: cf5866b97f6dfef05fc65545ee6463fbcfbbef8d
 progress:
   total_phases: 17
@@ -16,7 +16,7 @@ progress:
   completed_plans: 273
   percent: 59
 source_head: 7675a7ac77301de9464a8e924c9fc8c70f691849
-stopped_at: 16-26 Task 3 whole-phase owner sign-off; current closing gates and reviews complete
+stopped_at: Phase 16 goal verification; 26/26 plans and whole-phase owner sign-off complete
 ---
 
 # Project State
@@ -29,6 +29,15 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 **Current focus:** Phase 16 — dynamic-type-accessibility
 
 ## Current Position
+
+Phase: 16 (dynamic-type-accessibility) — GOAL VERIFICATION PENDING
+Plan: 26 of 26 — all 26 summaries complete
+Status: Owner round-2 sign-off recorded in `a4cc3754` over reviewed HEAD `30f54fe9`; canonical goal verification remains. All current gates passed with zero failures and zero Repetition nodes. Code, UI, security and coverage reviews are complete under the approved best-effort scope.
+Last activity: 2026-09-23 — Recorded whole-phase `approved`, closed the final sign-off threat and completed plan 16-26's summary. W-33/W-34 are owner verified; W-38 is accepted on the native VoiceOver mock page 1-to-41 recording with no production index change. Fifteen unreached sites, spoken Voice Control and nonreader native double-tap activation remain explicit evidence limits. No Nutrition Label claim is made.
+
+### Historical round-2 status snapshots
+
+The following snapshots preserve earlier decisions and provenance. Their pending, open, current-position and implementation wording is historical: the current position above and the latest sweep owner sign-off supersede it. In particular, `cc05aca6` removed the contrast helper, `ColorContrastTests` and added visible glyphs; no reverted implementation is credited as current.
 
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 D-25 measurement/documentation is complete, current-runtime closing gates passed, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
