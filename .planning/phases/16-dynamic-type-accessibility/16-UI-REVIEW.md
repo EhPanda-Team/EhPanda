@@ -1,5 +1,64 @@
 # Phase 16 — UI Review
 
+## Current refresh — 2026-09-23
+
+**Baseline:** Abstract six-pillar native SwiftUI standards, Phase 16 owner decisions, and the repository's native iOS 27 title/search and soft top scroll-edge policies. No UI-SPEC applies.
+**Source:** `7675a7ac77301de9464a8e924c9fc8c70f691849` (orchestrator-supplied tested source); documentation baseline `5ef04717`.
+**Method:** Source inspection and existing evidence only. No build, test, simulator operation, browser, dev-server launch, or new screenshot capture was performed by this reviewer. Screenshot-directory creation and dev-server detection were omitted under the explicit report-only scope; no media was written to the repository. The historical review below is retained as dated evidence, not current status.
+**Status:** Whole-phase 16-26 Task 3 owner approval and remaining closing work are pending. This refresh does not complete Phase 16 or A11Y-02.
+
+### Current pillar scores
+
+| Pillar | Score | Current finding |
+|---|---|---|
+| Copywriting | 4/4 | PASS: localized task labels remain specific; W-33 ordinary P M and W-34 MiB pronunciation now have bounded owner verification. |
+| Visuals | 3/4 | WARNING, accepted: historical Favorites AX5 blank native search capsule #39 remains a measured quality limitation; it is not a pass or a newly reproduced iOS 27 defect. |
+| Color | 3/4 | WARNING, deferred: W-24's pale Delete glyph remains a documented salience limitation; current source still uses secondary styling. |
+| Typography | 4/4 | PASS within reviewed evidence: semantic scaling and layout budgets remain; iOS 27 uses native title/search behavior, with no removed workaround credited. |
+| Spacing | 4/4 | PASS within reviewed evidence: adaptive gallery layouts and persistent Detail action controls remain; Search Delete now has a 44-point minimum target. |
+| Experience Design | 3/4 | WARNING, coverage: fifteen unreached surfaces, spoken Voice Control activation and nonreader native double-tap flows remain unverified. Accepted focus behavior and W-38 are closed within their exact scopes. |
+
+**Overall: 21/24.** Scores are retained individually; acceptance of a limitation does not erase its observed quality cost. No new source defect or BLOCKER was established by this refresh. Passing scores describe the inspected scope, not every screen, device or assistive-technology flow.
+
+### Top 3 priority follow-ups
+
+1. **Complete current-source closing evidence and owner review.** Retain failed historical bundles and report final iPad results separately when available; do not infer a full gate pass from focused reader tests or the phone result. Present the bounded result for 16-26 Task 3 approval.
+2. **Close the explicit interaction coverage gaps before making broader accessibility claims.** Exercise the fifteen unreached surfaces with their required fixtures/accounts, spoken Voice Control commands, and native VoiceOver double-tap in nonreader flows; record each action and outcome separately. These are evidence tasks, not proven product defects.
+3. **Retain the deferred W-21/W-24 visual decisions.** If the owner later authorizes visible changes, review W-21's ContentUnavailableView symbol and strengthen the Search Delete glyph's salience, then compare light/dark and grayscale states. No palette or symbol change is authorized by this audit, and accepted #39 is not reopened.
+
+### Current evidence by pillar
+
+**1. Copywriting — PASS (4/4).** Search root now presents direct localized Quick Search and Filters toolbar actions (`AppPackage/Sources/SearchFeature/SearchRootView.swift`); the old generic More navigation assumption is obsolete. Keyword deletion retains the localized `Label(.RLocalizable.delete, systemSymbol: .xmark)` at `SearchRootView+Keywords.swift:118`. Reader slider semantics express current and total page values (`AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift:146`). The latest owner-disposition table in `16-SWEEP.md` closes W-33 for ordinary P M and W-34 for MiB only; neither is pending pronunciation work.
+
+**2. Visuals — WARNING, accepted limitation (3/4).** The D-25 result remains exactly nine iPhone portrait cells: Search root, Favorites and Watched at XXL, AX3 and AX5; eight passes and accepted #39. Its September 17 cached images are historical, not new iOS 27 rendering measurements. No new blank-capsule reproduction is claimed. The reviewer directly inspected the September 23 W-38 `page-41-panel-check.png`: placeholder 41 and panel 41 / 156 are simultaneously visible, with separated native upper controls and a bottom slider. A still image proves that final visual agreement only; continuous native VoiceOver behavior and owner acceptance come from the dated recording provenance in `16-W38-ROOT-CAUSE.md`.
+
+**3. Color — WARNING, deferred (3/4).** The Delete glyph still has `.imageScale(.small)` and `.foregroundStyle(.secondary)` (`AppPackage/Sources/SearchFeature/SearchRootView+Keywords.swift:120-121`). Historical light grayscale W-24 evidence remains relevant as a carried limitation, not a newly measured contrast ratio. The added target frame at line 122 addresses touch area, not glyph contrast. Historical contrast-remediation proposals and owner-reverted palettes are not counted as installed fixes. No web 60/30/10 token distribution or Tailwind accent count is applicable to this native interface; no new quantitative palette measurement was performed.
+
+**4. Typography — PASS (4/4).** `GalleryThumbnailCell.swift:21,50,91` and `GalleryDetailCell.swift:181,204` retain scaled metrics, line budgets and intrinsic fitting. The reader control cap at `ControlPanel.swift:53` remains the specific owner-approved exception. `FavoritesView.swift:67` retains `.inlineLarge`; current Search root uses native search/title behavior. The migration removed both AccessibilityNavigationTitleWorkaround and AccessibilitySearchableWorkaround: historical claims that those implementations are present are superseded. Native titles require independent standard/AX1/AX3/AX5 cold-entry and live-size evidence; D-25's nine cells do not substitute for that broader matrix.
+
+**5. Spacing — PASS (4/4).** `GalleryDetailCell.swift:124,129,204` preserves responsive vertical/horizontal arrangements; `GalleryThumbnailCell.swift:91` uses intrinsic fitting. Detail uses persistent `HeaderActionsLayout` controls (`DetailView+HeaderSection.swift:273`), rather than the removed alternate view trees. Search Delete explicitly has `minWidth: 44, minHeight: 44` (`SearchRootView+Keywords.swift:122`). The migration inventory records all 46 page roots and their effective scroll hosts, including independent presentations; Search root's direct soft/top policy and Favorites/Watched logged-out policy remain in source. That inventory proves source coverage, not visible blur on every page or fresh runtime spacing verification.
+
+**6. Experience Design — WARNING, bounded coverage (3/4).** W-8/W-35 were accepted on September 22 with their recorded focus behavior. VO-3/W-13 Comments remain the September 20 Apple-bug disposition with no local workaround. W-38 was accepted and closed September 23 after the page 1→41 native VoiceOver recording; production reader index logic is unchanged. Reader panel reveal now has bounded native double-tap evidence, so the older blanket statement that double-tap was never measured is obsolete. It does not establish activation in other walkthrough flows. The fifteen unreached surfaces and spoken Voice Control remain explicit gaps. W-21/W-24 stay deferred. Loading/error/empty/retry and Reduce Motion coverage documented below is retained without claiming these gaps are covered.
+
+### Current validation provenance and limits
+
+The orchestrator reports FeatureTests at 1,055 passes plus eleven expected failures, Repetition 0; strict SwiftLint at zero violations across 586 files; and a fresh code review of 98 files with zero findings. The final phone UI gate reports 52 passes, zero failed attempts and two expected skips. The final iPad gate was pending when this refresh was prepared. These are supplied orchestrator results, not runs executed by the UI reviewer. Earlier failed iPad bundles remain historical failures; corrected probe geometry and the autoplay menu postcondition are test-helper changes, not reader production fixes. See the dated continuation at the end of `16-SWEEP.md` for the preserved diagnostic chain.
+
+The directly inspected current reader image is `$HOME/.codex/visualizations/2026/09/22/01a0c704-1c73-75c1-ba0d-1c1acd596cdf/w38-recording/page-41-panel-check.png`. Other cached images and contrast measurements cited below retain their original dates. The native iOS 27 migration summary and `SCROLL-EDGE-INVENTORY.md` in `.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/` supersede historical workaround/stall implementation descriptions; they do not supply universal runtime acceptance.
+
+Registry safety: not applicable; no shadcn component registry is in scope. Review output changes only this report. No source fixes, test changes, index changes, commits, new SUMMARY or VERIFICATION, or phase-completion claim are part of this refresh.
+
+### Refresh files audited
+
+- Phase 16 plans 01–26, summaries 01–25, CONTEXT, existing UI review, current SWEEP dispositions/continuation, FOCUS-INVESTIGATION, W38-ROOT-CAUSE, CONTRAST-AUDIT, and deferred-items.
+- iOS 27 migration summary and SCROLL-EDGE-INVENTORY.
+- Current SearchRootView and SearchRootView+Keywords; FavoritesView; WatchedView; GalleryDetailCell; GalleryThumbnailCell; DetailView+HeaderSection; ReadingFeature ControlPanel.
+- Repository AGENTS and SwiftLint policy; GSD UI review workflow, Swift accessibility and SwiftUI review guidance.
+
+## Historical review — September 17, with earlier follow-up annotations
+
+The following material preserves its original scores and evidence. Pending owner decisions, workaround implementations and runtime status in this historical section are superseded by the dated current refresh above.
+
 Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24fe8146c; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
 
 **Audited:** 2026-09-17  
