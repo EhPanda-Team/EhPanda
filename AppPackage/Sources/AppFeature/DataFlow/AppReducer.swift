@@ -192,7 +192,7 @@ struct AppReducer {
                 }
 
             case .appDelegate(.onLaunchFinish):
-                // Import any launch-automation cookies and load the persisted settings straight away.
+                // Finish cookie maintenance before importing automation credentials or loading settings.
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
                 return .merge(
                     .send(.appLogsPump(.startPump)),
@@ -204,6 +204,7 @@ struct AppReducer {
                         }
                     },
                     .run { send in
+                        await cookieClient.prepareForLaunch()
                         if let loginCookies {
                             cookieClient.importAutomationCookies(
                                 memberID: loginCookies.memberID,

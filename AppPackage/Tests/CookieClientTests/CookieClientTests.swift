@@ -5,6 +5,30 @@ import Testing
 
 struct CookieClientTests {
     @Test
+    func preparesAllLaunchCookiesBeforeReturning() async throws {
+        let client = CookieClient.testing()
+        let siblingURL = try #require(GalleryHost.exhentai.cookieURLs.last)
+        seedCredentials(in: client, for: .exhentai, igneous: "igneous-fixture")
+        for url in [GalleryHost.exhentai.url, siblingURL] {
+            client.setOrEditCookie(for: url, key: "yay", value: "stale")
+        }
+
+        await client.prepareForLaunch()
+
+        for url in [GalleryHost.ehentai.url, GalleryHost.exhentai.url, siblingURL] {
+            #expect(cookieValue(in: client, url: url, name: CookieName.memberID) == "member-fixture")
+            #expect(cookieValue(in: client, url: url, name: CookieName.passHash) == "pass-fixture")
+        }
+        for url in [GalleryHost.exhentai.url, siblingURL] {
+            #expect(cookieValue(in: client, url: url, name: "yay").isEmpty)
+            #expect(cookieValue(in: client, url: url, name: CookieName.igneous) == "igneous-fixture")
+        }
+        for url in [GalleryHost.ehentai.url, GalleryHost.exhentai.url] {
+            #expect(cookieValue(in: client, url: url, name: "nw") == "1")
+        }
+    }
+
+    @Test
     func recognizesEhentaiCredentialsWithoutExhentaiCredentials() {
         let client = CookieClient.testing()
         seedCredentials(in: client, for: .ehentai)
@@ -105,6 +129,41 @@ struct CookieClientTests {
         let ehentaiSkipServerURL = GalleryHost.ehentai.url.appendingPathComponent("s/")
         let ehentaiCookies = client.cookies(for: ehentaiSkipServerURL)
         #expect(ehentaiCookies.contains(where: { $0.name == CookieName.skipServer }) == false)
+    }
+
+    @Test
+    func editingCookiePreservesEachMatchingScopeAndAttributes() throws {
+        let storage = makeCookieStorage()
+        let client = CookieClient.live(cookieStorage: storage)
+        defer { client.clearAll() }
+        let url = GalleryHost.ehentai.url.appendingPathComponent("s/page")
+        let domain = try #require(url.host)
+        let expiry = Date(timeIntervalSinceNow: 86_400)
+        for path in ["/", "/s/"] {
+            storage.setCookie(try #require(HTTPCookie(properties: [
+                .domain: domain,
+                .path: path,
+                .name: CookieName.memberID,
+                .value: "old-member",
+                .expires: expiry,
+                .secure: "TRUE"
+            ])))
+        }
+        client.setOrEditCookie(for: url, key: CookieName.passHash, value: "unchanged-pass")
+        let originals = client.cookies(for: url).filter({ $0.name == CookieName.memberID })
+
+        client.editCookie(for: url, key: CookieName.memberID, value: "new-member")
+
+        let edited = client.cookies(for: url).filter({ $0.name == CookieName.memberID })
+        #expect(Set(edited.map(\.path)) == ["/", "/s/"])
+        for cookie in edited {
+            let original = try #require(originals.first(where: { $0.path == cookie.path }))
+            #expect(cookie.value == "new-member")
+            #expect(cookie.domain == domain)
+            #expect(cookie.expiresDate == original.expiresDate)
+            #expect(cookie.isSecure)
+        }
+        #expect(cookieValue(in: client, url: url, name: CookieName.passHash) == "unchanged-pass")
     }
 
     @Test
