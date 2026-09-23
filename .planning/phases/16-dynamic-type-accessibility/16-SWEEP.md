@@ -4429,3 +4429,28 @@ The incremental code review found 0 actionable findings in 98 files; the refresh
 reconciled to the plans. Current test gates are green; Task 3 owner sign-off, Task 4 and the subsequent
 goal verifier remain pending. No `16-26-SUMMARY.md`, `16-VERIFICATION.md` or A11Y-02 completion is
 asserted by this gate record.
+
+### Owner sign-off (round 2)
+
+> approved
+
+The approval was delivered in the main Codex task and was observed at `2026-09-23T06:35:48Z` (UTC).
+It covers repository HEAD `30f54fe93729ebd8885dbea488b5a1445eaa9453`, including the D-25 re-sweep
+closure, the 16-25 walkthrough closure and its accepted, carried and deferred items, the E-1 state,
+the listening result, and the final current-source closing gates. The unrelated pre-existing
+`EhPanda.xcodeproj/project.pbxproj` serialization diff remains unchanged and uncommitted; it is
+carried as provenance and is outside the phase documentation changes.
+
+The bounded scope and limits remain explicit: W-8 and W-35 are accepted with their recorded evidence;
+VO-3 and W-13 Comments retain their Apple-bug dispositions; W-38 is accepted on the native VoiceOver
+page 1-to-41 recording without a reader-source change; W-33/W-34 retain their phonetic outcomes;
+W-21 and W-24 remain deferred; and D-25 finding #39 remains the accepted Apple native-search finding
+within nine cells (eight passes and one finding). The 15 unreached sites remain documented, Voice
+Control spoken commands remain unmeasured, and native VoiceOver double-tap activation outside the
+bounded W-38 panel reveal remains unmeasured. This sign-off makes no blanket accessibility or App
+Store guarantee.
+
+The owner decision of 2026-09-15 replaced the Nutrition Label deliverable with this best-effort
+sign-off: “比較穩定的測試可以留下來，不穩定擋路的刪掉，因為本來就是 best effort 沒有要保證可以”.
+
+Status: signed off
