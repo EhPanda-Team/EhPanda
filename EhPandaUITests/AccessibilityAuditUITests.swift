@@ -175,13 +175,10 @@ final class AccessibilityAuditUITests: XCTestCase {
         dismissSheet(in: app)
     }
 
-    /// Quick Search lives on the Search root's toolbar, not on Frontpage's, inside its More menu.
+    /// Quick Search is a direct toolbar button on the Search root.
     func testQuickSearchSheetAudit() throws {
         let app = try launch(tab: "search")
         requireNavigationTitle("Search", in: app)
-        let moreButton = app.buttons["More"].firstMatch
-        XCTAssertTrue(moreButton.waitForExistence(timeout: 15), "The Search toolbar did not expose More.")
-        moreButton.tap()
         try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
         try audit(app, surface: "Quick Search sheet")
         dismissSheet(in: app)
