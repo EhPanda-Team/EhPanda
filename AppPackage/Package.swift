@@ -220,6 +220,9 @@ extension PackageDescription.Target {
             dependencies: dependencies.map(\.targetDependency),
             resources: resources?.map(\.value),
             swiftSettings: swiftSettings,
+            // Xcode extracts App Intents metadata for test bundles, including those whose
+            // dependencies do not already link the framework through SwiftUI.
+            linkerSettings: [.linkedFramework("AppIntents")],
             plugins: plugins
         )
     }
