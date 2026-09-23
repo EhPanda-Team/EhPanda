@@ -2,7 +2,6 @@ import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
-import CookieClient
 import DownloadClient
 import LibraryClient
 import OSLogExt
@@ -21,7 +20,6 @@ struct AppDelegateReducer {
     }
 
     @Dependency(\.libraryClient) private var libraryClient
-    @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.analyticsClient) private var analyticsClient
 
     var body: some Reducer<State, Action> {
@@ -37,10 +35,6 @@ struct AppDelegateReducer {
                         $galleryHistory.withLock({ $0.pruneToHistoryCap() })
                     },
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
-                    .run(operation: { _ in cookieClient.removeYay() }),
-                    .run(operation: { _ in cookieClient.syncExCookies() }),
-                    .run(operation: { _ in cookieClient.ignoreOffensive() }),
-                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
                     // Initialize the analytics SDK exactly once per process, sequenced through the
                     // launch-finish action alongside the other one-shot client calls — never from a
                     // view lifecycle callback (D-14). This send is already gated behind the app

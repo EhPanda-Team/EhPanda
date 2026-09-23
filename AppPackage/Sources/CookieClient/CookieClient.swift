@@ -1,6 +1,7 @@
 import AppModels
 import AppTools
 import ComposableArchitecture
+import Dispatch
 import Foundation
 #if DEBUG
 import Synchronization
@@ -130,6 +131,20 @@ extension CookieClient {
 
 // MARK: Foundation
 extension CookieClient {
+    public func prepareForLaunch() async {
+        // Foundation's synchronous cookie mutations can wait on CFNetwork persistence.
+        // Keep this maintenance off both the main actor and Swift's cooperative executor.
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                removeYay()
+                syncExCookies()
+                ignoreOffensive()
+                fulfillAnotherHostField()
+                continuation.resume()
+            }
+        }
+    }
+
     public func importAutomationCookies(memberID: String, passHash: String, igneous: String?) {
         let urls = [Defaults.URL.ehentai, Defaults.URL.exhentai, Defaults.URL.sexhentai]
         let authKeys = [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
@@ -181,14 +196,12 @@ extension CookieClient {
         setCookieValue(url, key, value, path, expiresTime, sessionOnly)
     }
     public func editCookie(for url: URL, key: String, value: String) {
-        var newCookie: HTTPCookie?
         cookiesForURL(url).forEach { cookie in
             guard cookie.name == key else { return }
-            newCookie = initializeCookie(cookie, value)
-            removeCookie(url, key)
+            // Storage replaces cookies by name, domain and path. Deleting first blocks in
+            // CFNetwork and discards other matching scopes before they can be updated.
+            storeCookie(initializeCookie(cookie, value))
         }
-        guard let cookie = newCookie else { return }
-        storeCookie(cookie)
     }
     public func setOrEditCookie(for url: URL, key: String, value: String) {
         if checkExistence(url, key) {
