@@ -7,6 +7,8 @@ behavior_unverified: 0
 overrides_applied: 8
 verification_scope: approved best-effort contract; historical and unmeasured limits retained
 verified_head: a46ef238
+metadata_rechecked: 2026-09-23T07:10:03Z
+metadata_rechecked_head: 01103bf1b72f7d94ea3e50e9213a70ca41ec034e
 tested_source: 7675a7ac77301de9464a8e924c9fc8c70f691849
 human_verification: []
 decision_coverage:
@@ -51,6 +53,7 @@ covered_files:
   - ".github/workflows/deploy.yml"
   - ".github/workflows/test.yml"
   - ".gitignore"
+  - ".planning/PROJECT.md"
   - ".planning/REQUIREMENTS.md"
   - ".planning/ROADMAP.md"
   - ".planning/STATE.md"
@@ -111,6 +114,7 @@ covered_files:
   - ".planning/phases/16-dynamic-type-accessibility/16-26-SUMMARY.md"
   - ".planning/phases/16-dynamic-type-accessibility/16-AGENT-WALKTHROUGH-RESEARCH.md"
   - ".planning/phases/16-dynamic-type-accessibility/16-AX-POLICY-REVIEW.md"
+  - ".planning/phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md"
   - ".planning/phases/16-dynamic-type-accessibility/16-CONTEXT.md"
   - ".planning/phases/16-dynamic-type-accessibility/16-CONTRAST-AUDIT.md"
   - ".planning/phases/16-dynamic-type-accessibility/16-DISCUSSION-LOG.md"
@@ -139,6 +143,7 @@ covered_files:
   - ".planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/260921-f5u-VERIFICATION.md"
   - ".planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/COVERAGE.md"
   - ".planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md"
+  - ".planning/state.json"
   - ".swiftlint.yml"
   - "AGENTS.md"
   - "App/Assets.xcassets/Category/Colors/E-Hentai/Asian Porn.colorset/Contents.json"
@@ -300,7 +305,7 @@ covered_files:
   - "READMEs/README.jpn.md"
   - "READMEs/README.ko.md"
   - "UITests.xctestplan"
-covered_digest: "v1:sha256:506b670fa73dc3e17ee1d7e1b6cccb6185a541acb101e287e07d2cc288a54b95"
+covered_digest: "v1:sha256:cbae9d6b5d155ba328a0822881b086c3486c4a4dc29f20f48f2665aecf80be81"
 ---
 # Phase 16: Accessibility Verification Report
 
@@ -501,3 +506,11 @@ The current code and existing current-input gate results achieve the **owner-app
 _Verified: 2026-09-23T06:58:01Z_  
 _Verifier: gsd-verifier; source inspection and existing evidence, no new execution_
 
+
+## Post-completion metadata verification
+
+The orchestrator reviewed the canonical completion and transition changes through `01103bf1b72f7d94ea3e50e9213a70ca41ec034e`. Changes since the verifier's `a46ef238` input are limited to PROJECT, REQUIREMENTS, ROADMAP, STATE, the generated state-contract snapshot, this report and the closeout notes. They record the already-approved completion, preserve historical reference warnings and advance only planning position to Phase 17. The state-contract snapshot also reports Phase 16 complete.
+
+The source/config diff from tested commit `7675a7ac` still contains only the pre-existing Xcode project edit, whose patch is byte-identical to the archived patch. No source, test, decision or gate outcome changed. The earlier passage describing A11Y-02 tracking as pending is historical; canonical completion now marks it complete. No runtime checks were rerun for these documentation-only changes.
+
+After this bounded metadata review, the orchestrator refreshed `covered_files` and `covered_digest` with the canonical `verification.fingerprint` command, retaining every original covered input and adding the transition documents. This resolves the stale tracking-document digest without dropping coverage or changing the verifier's verdict or evidence limits.
