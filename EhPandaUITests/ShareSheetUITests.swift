@@ -8,6 +8,42 @@ final class ShareSheetUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// Outbound sharing from Detail is independent of the inbound Safari extension handoff.
+    func testDetailOverflowDisabledActionsAndSharePresentation() throws {
+        let app = XCUIApplication()
+        let galleryURL = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
+        try app.openCold(galleryURL)
+        app.requireForeground()
+        app.requireElement("detail_view", matching: .scrollView)
+        XCTAssertTrue(
+            app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 15),
+            "The fixture gallery detail did not render."
+        )
+
+        app.buttons.matching(identifier: "OverflowBarButtonItem")
+            .firstMatch.tapWhenHittable("Detail More")
+
+        let archives = app.buttons["Archives"].firstMatch
+        XCTAssertTrue(archives.waitForExistence(timeout: 5), "More did not expose Archives.")
+        XCTAssertFalse(archives.isEnabled, "Archives must remain disabled while logged out.")
+
+        let torrents = app.buttons["Torrents (1)"].firstMatch
+        XCTAssertTrue(torrents.waitForExistence(timeout: 5), "More did not expose Torrents (1).")
+        XCTAssertTrue(torrents.isEnabled, "Torrents (1) must remain enabled.")
+
+        let share = app.buttons["Share"].firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 5), "More did not expose Share.")
+        XCTAssertTrue(share.isEnabled, "Share must remain enabled.")
+        share.tapWhenHittable("Share")
+
+        XCTAssertTrue(
+            app.collectionViews["activityCollectionView"].waitForExistence(timeout: 10),
+            "Share did not present the system activity collection view."
+        )
+        app.buttons["header.closeButton"].firstMatch.tapWhenHittable("Activity Close")
+        app.requireElement("detail_view", matching: .scrollView)
+    }
+
     func testShareSheetHandoffLandsOnDetail() throws {
         let app = XCUIApplication()
         try app.launchStubbed()

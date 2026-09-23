@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 /// Reads the reader's two answers to "which page is this?" and drives the ways of changing it.
@@ -233,9 +234,9 @@ struct ReaderPageProbe {
 
     /// Picks an auto-play interval from the toolbar's menu, by the title the menu lists it under.
     func selectAutoPlay(_ title: String) {
-        tap(app.buttons["Auto-Play"].firstMatch, "the toolbar's Auto-Play menu")
+        app.buttons["Auto-Play"].firstMatch.tapWhenHittable("The toolbar's Auto-Play menu")
         let option = app.buttons[title].firstMatch
-        tap(option, "Auto-Play's \(title)")
+        option.tapWhenHittable("Auto-Play's \(title)")
         XCTAssertTrue(
             option.waitForNonExistence(timeout: 5),
             "The Auto-Play menu did not dismiss after selecting \(title)."
@@ -246,45 +247,25 @@ struct ReaderPageProbe {
     /// leaves the sheet dismissed. The setting persists between launches, so every test states
     /// the direction it runs under instead of inheriting one.
     func setDirection(_ direction: Direction) {
-        tap(moreMenuButton, "the reader toolbar's More menu")
-        tap(app.buttons["Reading Setting"].firstMatch, "More's Reading Setting")
+        moreMenuButton.tapWhenHittable("The reader toolbar's More menu")
+        app.buttons["Reading Setting"].firstMatch.tapWhenHittable("More's Reading Setting")
 
         let sheetTitle = app.navigationBars["Reading"].firstMatch
         XCTAssertTrue(sheetTitle.waitForExistence(timeout: 5), "The Reading Setting sheet did not appear.")
-        tap(
-            app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Direction'")).firstMatch,
-            "the sheet's Direction picker"
-        )
-        tap(app.buttons[direction.rawValue].firstMatch, "Direction's \(direction.rawValue)")
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Direction'"))
+            .firstMatch.tapWhenHittable("The sheet's Direction picker")
+        app.buttons[direction.rawValue].firstMatch.tapWhenHittable("Direction's \(direction.rawValue)")
 
-        sheetTitle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-            .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
+        // ReadingView adds Close only for the phone's landscape presentation.
+        if UIDevice.current.userInterfaceIdiom != .pad && XCUIDevice.shared.orientation.isLandscape {
+            sheetTitle.buttons["Close"].firstMatch.tapWhenHittable("Reading Setting Close")
+        } else {
+            sheetTitle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+                .press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
+        }
         XCTAssertTrue(
             sheetTitle.waitForNonExistence(timeout: 5),
             "The Reading Setting sheet did not dismiss."
         )
-    }
-
-    /// Taps a control once it can take the tap. Existing is not enough: while the menu or sheet
-    /// before it is still leaving, a toolbar button is in the tree with nowhere to be hit, and a
-    /// tap sent then goes nowhere without failing.
-    private func tap(
-        _ element: XCUIElement,
-        _ name: String,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let becomesHittable = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "isHittable == true"),
-            object: element
-        )
-        XCTAssertEqual(
-            XCTWaiter.wait(for: [becomesHittable], timeout: 10),
-            .completed,
-            "The reader never let \(name) be tapped.",
-            file: file,
-            line: line
-        )
-        element.tap()
     }
 }
