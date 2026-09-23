@@ -7,8 +7,13 @@
 
 import Foundation
 
+guard let releaseNotes = CommandLine.arguments.dropFirst().first else {
+    FileHandle.standardError.write(Data("Usage: ReleaseNotesFilter <release-notes>\n".utf8))
+    exit(EXIT_FAILURE)
+}
+
 print(
-    CommandLine.arguments[1]
+    releaseNotes
         .split(separator: "\r\n")
         .map(String.init)
         .filter({
