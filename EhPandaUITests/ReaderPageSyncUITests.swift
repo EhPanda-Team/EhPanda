@@ -66,18 +66,35 @@ final class ReaderPageSyncUITests: XCTestCase {
         }
     }
 
-    /// Leaving the reader saves the page; reading again seeds the reader from it.
+    /// Leaving the landscape reader saves the page; reading again after restoring portrait
+    /// seeds the reader from it. Settings and the indicator must remain usable in landscape.
     func testReadingAgainResumesOnThePageLeft() throws {
+        let device = XCUIDevice.shared
+        device.orientation = .landscapeLeft
+        defer { device.orientation = .portrait }
+
         let reader = try openReader()
         reader.setDirection(.vertical)
         reader.dragSlider(toNormalizedPosition: 0.5)
         let left = try reader.requirePage("After dragging the slider", where: { $0 > 10 })
 
         let app = reader.app
-        app.buttons["Close"].firstMatch.tap()
+        app.buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
         let readButton = app.buttons["Read"].firstMatch
         XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
-        readButton.tap()
+        XCTAssertTrue(
+            app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 10),
+            "Closing the reader did not return to Gallery Detail."
+        )
+
+        let restorationStart = ContinuousClock.now
+        device.orientation = .portrait
+        readButton.tapWhenHittable("Gallery Detail Read after portrait restoration")
+        XCTAssertLessThan(
+            ContinuousClock.now - restorationStart,
+            Duration.seconds(15),
+            "Portrait restoration exceeded the 15-second screen-readiness budget."
+        )
         app.requireElement("reading_view")
         reader.showPanel()
 

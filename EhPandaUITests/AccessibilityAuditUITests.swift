@@ -10,6 +10,8 @@ import XCTest
 /// (Phase 16 D-31). Surfaces that only a logged-in session renders (Favorites, Watched, Archives,
 /// Torrents, EhSetting, FolderManager, Detail Search) are not reachable here and are covered by the
 /// manual walkthrough; `16-CONTRAST-AUDIT.md § Automated audit (16-24)` records that assumption.
+/// Home and Search also check interaction across rotation and text sizes: carousel selection,
+/// search-field visibility and input, and navigation through Quick Search's editor and results.
 @MainActor
 final class AccessibilityAuditUITests: XCTestCase {
     /// Issues on elements EhPanda does not draw — a part an Apple component renders on its own,
@@ -91,15 +93,31 @@ final class AccessibilityAuditUITests: XCTestCase {
     // MARK: Tab roots
 
     func testHomeRootAudit() throws {
+        XCUIDevice.shared.orientation = .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
         let app = try launch(tab: "home")
         requireHomeRoot(in: app)
         try audit(app, surface: "Home root")
+        try requireCarouselPreservesSelectionAcrossRotation(in: app)
     }
 
     func testSearchRootAudit() throws {
-        let app = try launch(tab: "search")
+        let app = try launch(tab: "search", preferredContentSizeCategory: .large)
         requireNavigationTitle("Search", in: app)
         try audit(app, surface: "Search root")
+        try exerciseSearchRoot(in: app)
+    }
+
+    /// Interaction coverage at AX5 complements the audit engine's standard-size checks.
+    func testSearchRootAndQuickSearchRemainUsableAtAX5() throws {
+        let app = try launch(tab: "search", preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        requireNavigationTitle("Search", in: app)
+        XCTAssertTrue(app.searchFields.firstMatch.isHittable, "Search field was hidden on cold entry at AX5.")
+        try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
+        exerciseNewWordEditor(in: app)
+        dismissSheet(in: app)
+        requireNavigationTitle("Search", in: app)
+        try exerciseSearchRoot(in: app)
     }
 
     func testDownloadsEmptyStateAudit() throws {
@@ -177,11 +195,13 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     /// Quick Search is a direct toolbar button on the Search root.
     func testQuickSearchSheetAudit() throws {
-        let app = try launch(tab: "search")
+        let app = try launch(tab: "search", preferredContentSizeCategory: .large)
         requireNavigationTitle("Search", in: app)
         try presentSheet(titled: "Quick Search", from: "Quick Search", in: app)
         try audit(app, surface: "Quick Search sheet")
+        exerciseNewWordEditor(in: app)
         dismissSheet(in: app)
+        requireNavigationTitle("Search", in: app)
     }
 
     // MARK: Setting children
@@ -463,8 +483,14 @@ private extension AccessibilityAuditUITests {
         _ = XCTWaiter.wait(for: [pause], timeout: seconds)
     }
 
-    func launch(tab: String) throws -> XCUIApplication {
+    func launch(
+        tab: String,
+        preferredContentSizeCategory: UIContentSizeCategory? = nil
+    ) throws -> XCUIApplication {
         let app = XCUIApplication()
+        if let preferredContentSizeCategory {
+            app.launchArguments += ["-UIPreferredContentSizeCategoryName", preferredContentSizeCategory.rawValue]
+        }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": tab])
         app.requireForeground()
         return app
@@ -509,15 +535,106 @@ private extension AccessibilityAuditUITests {
 
     func presentSheet(titled title: String, from buttonLabel: String, in app: XCUIApplication) throws {
         let button = app.buttons[buttonLabel].firstMatch
-        XCTAssertTrue(button.waitForExistence(timeout: 15), "The toolbar did not expose \(buttonLabel).")
-        button.tap()
+        button.tapWhenHittable("The toolbar's \(buttonLabel)")
         requireNavigationTitle(title, in: app)
     }
 
     func dismissSheet(in app: XCUIApplication) {
         let cancelButton = app.buttons["Cancel"].firstMatch
-        XCTAssertTrue(cancelButton.waitForExistence(timeout: 5), "The sheet did not expose Cancel.")
-        cancelButton.tap()
+        cancelButton.tapWhenHittable("Sheet Cancel")
+    }
+
+    func exerciseNewWordEditor(in app: XCUIApplication) {
+        app.buttons["New Word"].firstMatch.tapWhenHittable("New Word")
+        requireNavigationTitle("New Word", in: app)
+        XCTAssertTrue(
+            app.textFields.firstMatch.waitForExistence(timeout: 5),
+            "New Word did not expose its name field."
+        )
+        XCTAssertTrue(
+            app.textViews.firstMatch.waitForExistence(timeout: 5),
+            "New Word did not expose its content editor."
+        )
+        app.navigationBars["New Word"].buttons["Quick Search"].firstMatch.tapWhenHittable("New Word Back")
+        requireNavigationTitle("Quick Search", in: app)
+    }
+
+    func exerciseSearchRoot(in app: XCUIApplication) throws {
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10), "Search did not expose its native search field.")
+        XCTAssertTrue(searchField.isHittable, "Search field was hidden on entry.")
+        app.scrollViews.firstMatch.swipeUp()
+        XCTAssertTrue(searchField.isHittable, "Scrolling hid the Search root field.")
+        app.scrollViews.firstMatch.swipeDown()
+        XCTAssertTrue(searchField.isHittable, "Returning to the top hid the Search root field.")
+        XCTAssertTrue(app.navigationBars["Search"].buttons["Filters"].isHittable)
+
+        searchField.tapWhenHittable("Search Field")
+        searchField.typeText("artist:fixture")
+        XCTAssertEqual(searchField.value as? String, "artist:fixture", "The search field did not accept input.")
+
+        let clear = app.buttons["Clear text"].firstMatch
+        clear.tapWhenHittable("Search Clear")
+        XCTAssertTrue(
+            clear.waitForNonExistence(timeout: 5),
+            "The native clear action remained visible after clearing Search."
+        )
+        let clearedValue = try XCTUnwrap(searchField.value as? String)
+        let placeholder = searchField.placeholderValue ?? ""
+        XCTAssertTrue(
+            clearedValue.isEmpty || clearedValue == placeholder,
+            "The native clear action left Search containing \(clearedValue)."
+        )
+        searchField.tapWhenHittable("Search Field After Clear")
+        searchField.typeText("fixture\n")
+        requireNavigationTitle("fixture", in: app)
+        XCTAssertTrue(
+            app.navigationBars["fixture"].buttons["Filters"].isHittable,
+            "Search results did not expose Filters directly in the toolbar."
+        )
+        app.navigationBars["fixture"].buttons["Search"].firstMatch.tapWhenHittable("Search Results Back")
+        requireNavigationTitle("Search", in: app)
+    }
+
+    func requireCarouselPreservesSelectionAcrossRotation(in app: XCUIApplication) throws {
+        let query = app.scrollViews.matching(identifier: "home_carousel")
+        let carousel = query.element(boundBy: 0)
+        XCTAssertTrue(carousel.waitForExistence(timeout: 15), "Home did not expose its carousel scroll view.")
+        XCTAssertEqual(query.count, 1, "Home exposed an unexpected number of carousel scroll views.")
+        let expectedLabel = try centeredCarouselButton(in: carousel).label
+        XCTAssertFalse(expectedLabel.isEmpty, "The centered Home carousel gallery had no label.")
+
+        for orientation in [UIDeviceOrientation.landscapeLeft, .portrait] {
+            let rotationStart = ContinuousClock.now
+            XCUIDevice.shared.orientation = orientation
+            XCTAssertTrue(carousel.waitForExistence(timeout: 10), "Home carousel disappeared after rotation.")
+            let label = try centeredCarouselButton(in: carousel).label
+            XCTAssertLessThan(
+                ContinuousClock.now - rotationStart,
+                Duration.seconds(15),
+                "Home carousel rotation exceeded the 15-second screen-readiness budget."
+            )
+            XCTAssertEqual(label, expectedLabel, "Rotation changed the centered Home carousel gallery.")
+        }
+    }
+
+    func centeredCarouselButton(in carousel: XCUIElement) throws -> XCUIElement {
+        let viewport = carousel.frame
+        let visibleButtons = carousel.buttons.allElementsBoundByIndex.filter { button in
+            let frame = button.frame
+            return !button.label.isEmpty && frame.width > 0 && frame.height > 0 && frame.intersects(viewport)
+        }
+        let nearest = visibleButtons.min { left, right in
+            abs(left.frame.midX - viewport.midX) < abs(right.frame.midX - viewport.midX)
+        }
+        let centered = try XCTUnwrap(nearest, "Home carousel had no visible labeled gallery button.")
+        XCTAssertEqual(
+            centered.frame.midX,
+            viewport.midX,
+            accuracy: 1,
+            "The selected Home carousel card was not centered in its viewport."
+        )
+        return centered
     }
 
     @discardableResult
