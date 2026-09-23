@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v3.0.0
 milestone_name: )
-current_phase: 16
-current_phase_name: dynamic-type-accessibility
-status: executing
-last_updated: "2026-09-23T04:38:22Z"
+current_phase: 17
+current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
+status: planning
+last_updated: "2026-09-23T07:05:16.525Z"
 last_activity: 2026-09-23
-last_activity_desc: "Owner approved Phase 16 round 2; sign-off a4cc3754 and all 26 summaries recorded. Current iOS 27 gates and reviews complete; goal verifier pending."
-state_head: cf5866b97f6dfef05fc65545ee6463fbcfbbef8d
+last_activity_desc: Phase 16 complete, transitioned to Phase 17
+state_head: a46ef2385e3a6ceb449819f266b1a4725ca74c99
 progress:
   total_phases: 17
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 274
-  completed_plans: 273
-  percent: 59
+  completed_plans: 274
+  percent: 65
 source_head: 7675a7ac77301de9464a8e924c9fc8c70f691849
 stopped_at: Phase 16 goal verification; 26/26 plans and whole-phase owner sign-off complete
 ---
@@ -30,10 +30,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 16 (dynamic-type-accessibility) — GOAL VERIFICATION PENDING
-Plan: 26 of 26 — all 26 summaries complete
-Status: Owner round-2 sign-off recorded in `a4cc3754` over reviewed HEAD `30f54fe9`; canonical goal verification remains. All current gates passed with zero failures and zero Repetition nodes. Code, UI, security and coverage reviews are complete under the approved best-effort scope.
-Last activity: 2026-09-23 — Recorded whole-phase `approved`, closed the final sign-off threat and completed plan 16-26's summary. W-33/W-34 are owner verified; W-38 is accepted on the native VoiceOver mock page 1-to-41 recording with no production index change. Fifteen unreached sites, spoken Voice Control and nonreader native double-tap activation remain explicit evidence limits. No Nutrition Label claim is made.
+Phase: 17 — Screenshot Automation, Visual Regression & OS 27 Modernization
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-23 — Phase 16 complete, transitioned to Phase 17
 
 ### Historical round-2 status snapshots
 
@@ -70,13 +70,13 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [██████░░░░] 59% (273/274 plans)
+Progress: [███████░░░] 65% (273/274 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 218
+- Total plans completed: 244
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -96,6 +96,7 @@ Progress: [██████░░░░] 59% (273/274 plans)
 | 13 | 10 | - | - |
 | 14 | 18 | - | - |
 | 15 | 77 | - | - |
+| 16 | 26 | - | - |
 
 **Recent Trend:**
 
