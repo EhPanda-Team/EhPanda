@@ -3,8 +3,8 @@ phase: "16"
 slug: "dynamic-type-accessibility"
 status: verified
 threats_open: 0
-open_total: 1
-below_threshold_open: 1
+open_total: 0
+below_threshold_open: 0
 asvs_level: 1
 created: "2026-09-17"
 audited: "2026-09-23"
@@ -12,7 +12,7 @@ audited: "2026-09-23"
 
 # Phase 16 — Security
 
-Historical baseline: the September 17 pre-owner review used immutable source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. The September 23 refresh below records current provenance; owner 16-26 Task 3, verifier and completion remain pending. This audit added no source or test changes.
+Historical baseline: the September 17 pre-owner review used immutable source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. The September 23 refresh below records current provenance; owner 16-26 Tasks 3–4 are now complete (`a4cc3754`), with verifier and completion pending. This audit added no source or test changes.
 
 
 ## Threat Register
@@ -129,7 +129,7 @@ Historical baseline: the September 17 pre-owner review used immutable source `b0
 | 16-25 | T-16-SC | Tampering | npm/pip/cargo installs | low | accept | No package-manager installs in this plan. | closed |
 | 16-26 | T-16-03 | Tampering | `LOGIN_UDID` session and data container | high | mitigate | Build by UDID, `plutil` check, `simctl install` over the existing app; no erase, uninstall, clear-app-state or test destination; found state recorded and restored. | closed |
 | 16-26 | T-16-01 | Information disclosure | re-sweep screenshots of adult content | high | mitigate | `$HOME/Library/Caches/ehpanda-phase16/resweep/` only; written descriptions in the repo; working-tree image check before every commit and the `c65be7b8^..HEAD` added-files check in the gate. | closed |
-| 16-26 | T-16-26 | Repudiation | a sign-off over a stale, retried or failing gate | medium | mitigate | Gates run at the recorded HEAD after the re-sweep; each bundle must show zero failures and zero `Repetition` nodes, because `UITests.xctestplan` retries a failure up to 3 times and a retried green is not a first-try pass; any failure stops the plan without a re-run; the sign-off records the HEAD hash on a clean tree. | open — below high threshold |
+| 16-26 | T-16-26 | Repudiation | a sign-off over a stale, retried or failing gate | medium | mitigate | Gates run at the recorded HEAD after the re-sweep; each bundle must show zero failures and zero `Repetition` nodes, because `UITests.xctestplan` retries a failure up to 3 times and a retried green is not a first-try pass; any failure stops the plan without a re-run; the sign-off records the HEAD hash on a clean tree. | closed — owner sign-off a4cc3754; approved clean-task-tree amendment |
 | 16-26 | T-16-16 | Denial of service | overlapping `xcodebuild` wedging `testmanagerd`; touching other work's simulators | medium | mitigate | Shared mkdir lock plus `pgrep -x xcodebuild`; strictly sequential test plans; never kill a run; `67377A20…`, `5C21368C…` and simulators booted by other work untouched; no Simulator window closed. | closed |
 | 16-26 | T-16-SC | Tampering | npm/pip/cargo installs | low | accept | No package-manager installs in this plan. | closed |
 
@@ -156,11 +156,11 @@ Historical baseline: the September 17 pre-owner review used immutable source `b0
 ## Sign-Off
 
 - [x] All 113 variants have disposition and classification.
-- [x] `threats_open: 0` at high threshold; sole OPEN is medium.
+- [x] All 113 variants closed; `threats_open: 0`, `open_total: 0`.
 - [x] ASVS 1 and authored register permit L1 short-circuit. The register is authored evidence, not a new security scan.
-- [ ] Owner final sign-off exists; `T-16-26` remains unsigned/open below threshold.
+- [x] Owner final sign-off exists; `T-16-26` closed by `a4cc3754` over the current evidence and approved clean-task-tree boundary.
 
-**Approval:** pending (unsigned owner closure)
+**Approval:** owner signed off on 2026-09-23 (`a4cc3754`).
 
 
 ## Actual Evidence Basis (113 rows)
@@ -279,7 +279,7 @@ All 113 threat rows are retained, including repeated IDs. Evidence is row-specif
 | 16-25 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-26 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-26 | T-16-01 | CLOSED | plan summary/cache gate evidence: 16-SWEEP.md evidence-root-only rule, image checks, and closing range image check (0) |
-| 16-26 | T-16-26 | OPEN | plan summary/cache gate evidence: closing gate summaries/tests JSON: zero failures, zero Repetition, source HEAD recorded; owner final sign-off is still pending |
+| 16-26 | T-16-26 | CLOSED | Closing gate summaries/tests JSON: zero failures, zero Repetition, source HEAD recorded; owner `approved` over `30f54fe9`, recorded by `a4cc3754` in the sweep and 16-26 summary; preserved pre-existing project edit is excluded under the approved plan amendment. |
 | 16-26 | T-16-16 | CLOSED | 20260917-final-closing-gates-evidence.txt; phase-local xcodebuild serialization and non-overlapping UDID evidence |
 | 16-26 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 
@@ -290,8 +290,8 @@ All 113 threat rows are retained, including repeated IDs. Evidence is row-specif
 |---|---:|
 | Planned threat-register rows | 113 |
 | Rows matched to current plans | 113 |
-| Closed | 112 |
-| Open, below configured high threshold | 1 |
+| Closed | 113 |
+| Open, below configured high threshold | 0 |
 | Blocking high/critical threats | 0 |
 
 Every plan retains its authored threat-model block byte-identically to the historical reviewed source;
@@ -306,8 +306,8 @@ zero added phase media, strict lint and shared-lock/explicit-destination scripts
 pre-existing project patch is retained as evidence and is not absorbed into this task's commits.
 No account credentials were read by this audit, and no package install or public message was performed.
 
-T-16-26 remains OPEN at medium severity until the owner signs over the current evidence and the
-sign-off is recorded. The clean-task-tree boundary excludes only the fingerprinted pre-existing project
-edit, as stated in the plan amendment. No accepted risk or owner decision is invented here. Therefore
-`threats_open: 0` means zero threats at/above the configured high threshold; `open_total: 1` and pending
-whole-phase approval remain truthful. Final cleanup evidence covers only this task's simulators.
+T-16-26 is now CLOSED: the owner replied `approved` over documentation HEAD `30f54fe9`;
+`a4cc3754` records the sign-off and its evidence limits. The clean-task-tree boundary excludes only
+the fingerprinted pre-existing project edit, as stated in the approved plan amendment. All 113
+register variants are closed, with zero blocking or below-threshold open threats. Final cleanup
+evidence covers only this task's simulators.
