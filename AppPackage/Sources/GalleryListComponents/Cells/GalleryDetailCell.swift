@@ -126,7 +126,7 @@ private struct GalleryDetailCellContent: View {
                 textColumn
             }
         } else {
-            HStack(alignment: .top, spacing: 10) {
+            HStack(spacing: 10) {
                 cover
                 textColumn
             }
