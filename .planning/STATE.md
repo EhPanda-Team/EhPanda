@@ -16,17 +16,17 @@ progress:
   completed_plans: 274
   percent: 65
 source_head: 7675a7ac77301de9464a8e924c9fc8c70f691849
-stopped_at: Phase 16 goal verification; 26/26 plans and whole-phase owner sign-off complete
+stopped_at: Phase 16 complete; ready to discuss and plan Phase 17
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22)
+See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 16 — dynamic-type-accessibility
+**Current focus:** Phase 17 — Screenshot Automation, Visual Regression & OS 27 Modernization
 
 ## Current Position
 
@@ -70,7 +70,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████░░░] 65% (273/274 plans)
+Progress: [████████████████████] 274/274 authored plans (100%); Phase 17 is not planned, so the milestone remains open.
 
 ## Performance Metrics
 
@@ -928,6 +928,12 @@ Recent decisions affecting current work:
 - [Phase 16]: 16-24: allow-lists are ContentUnavailableView.symbol (system-owned) and E-1.hidden-content (E-1=approve, 2026-09-13); E-2..E-9 and O-2 retired
 - [Phase 16]: 16-24: gate runtimes iPhone 17 iOS 26.5 + iPad (A16) iPadOS 26.5 (owner 2026-09-15); iPadOS 27 beta excluded, its Gallery Detail stall deferred
 
+### Phase 16 transition decisions (2026-09-23)
+
+- Owner round-2 sign-off `a4cc3754` and goal verification passed; A11Y-01/A11Y-02 are complete under the explicit best-effort scope.
+- Native iOS 27 title/search policy and reader index logic remain; W-38 is accepted on the mock VoiceOver 1-to-41 recording.
+- Preserve accepted/deferred/unmeasured limits and historical evidence-retention warnings in `phases/16-dynamic-type-accessibility/16-VERIFICATION.md` and `16-CLOSEOUT-NOTES.md`.
+
 ### Pending Todos
 
 [From .planning/todos/pending/ — ideas captured during sessions]
@@ -945,7 +951,8 @@ None yet.
 - Housekeeping (12-06): `.planning/research/.cache/` is tracked in git — a documentation-tool cache that arguably should be gitignored. Three of its JSON files were swept into commit 5345a9d9 alongside an unrelated one-line change. Left in place (published history, inert content); needs a .gitignore decision before it accumulates.
 - Deferred (12-06): the two `diag(12-06)` commits remain in the tree. The DEBUG-only redacted login-exchange dump is a useful diagnostic for this class of problem; decide whether it stays permanently once the login path is stable.
 - DownloadContinuedSessionTests.swift sits at 999 of 1000 lines (file_length is error severity); the next added line fails the build. Sanctioned remedy recorded in 15-22-SUMMARY.md: relocate testEmptySchedulableSetStillPushesAPositiveTotal into the ledger suite.
-- Tag Detail sheet (#21) is unreachable in an English session: the English tag-translation database ships every entry with an empty description, and the context-menu item is gated on a non-empty one. Six matrix rows are blocked.
+- Phase 16 accepted coverage limit: Tag Detail sheet (#21) is unreachable in the English fixture because translated descriptions are empty; six historical matrix rows remain unavailable. This is not an open Phase 16 sign-off blocker.
+- Phase 16 evidence limits: fifteen unreached sites, spoken Voice Control, nonreader native double-tap, W-21 and W-24 retain their owner-approved dispositions. Historical reference warnings are listed in `phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md`.
 
 ### Quick Tasks Completed
 
@@ -994,9 +1001,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-21T07:21:13Z
-Historical stopped point: Completed 16-24-PLAN.md (automated accessibility audit gate); superseded by current position above.
+Last session: 2026-09-23T07:07:42Z
+Stopped at: Phase 16 complete; ready to discuss and plan Phase 17.
 Resume file: None
+
+The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
 
 **2026-09-17 listening feedback (recorded 2026-09-17T12:00:44Z).** With repository documentation HEAD `7f3fbadf9b47158b21b66b11b0250ed65786c4b1` and measured source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, the user said:
 
