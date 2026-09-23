@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 16
 current_phase_name: dynamic-type-accessibility
 status: executing
-last_updated: "2026-09-23T02:54:51Z"
+last_updated: "2026-09-23T03:42:34Z"
 last_activity: 2026-09-23
-last_activity_desc: "W-38 remains owner-approved. Current FeatureTests passed; the iPhone UI gate exposed an obsolete Quick Search test route. Minimal test-only correction applied; corrected-route and full UI gates are in progress. Reader source is unchanged."
+last_activity_desc: "W-38 remains approved. FeatureTests and corrected full iPhone UI gate passed. Full iPad gate is red: ordinary scrolling measured panel 2 / page 3, plus a retried toolbar lookup. Frame diagnostics are in progress; reader source is unchanged."
 state_head: d7f8b191705c5789e172d89270d70a6dc4b8c4ba
 progress:
   total_phases: 17
@@ -16,7 +16,7 @@ progress:
   completed_plans: 273
   percent: 59
 source_head: d7f8b191705c5789e172d89270d70a6dc4b8c4ba
-stopped_at: 16-26 current-runtime closing gates after Quick Search test-route correction; final phase sign-off pending
+stopped_at: 16-26 iPad first-try gate failure diagnosis; final phase sign-off pending
 ---
 
 # Project State
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 Phase: 16 (dynamic-type-accessibility) — EXECUTING
 Plan: 26 of 26 — Plan 16-25 walkthrough closure is closed with carried items; 16-26 D-25 measurement/documentation is complete, current-runtime closing gates are in progress, Task 3 owner sign-off remains; plans 16-01 through 16-25 complete — 25/26 plans complete
 Status: Round 2 executing — current closure and carry-forward status are recorded above. Historical colour, audit, and candidate context follows: round-2 colour decisions recorded 2026-09-11 in `16-CONTRAST-AUDIT.md § Decisions`: `STARS=B CATEGORYCELL=A HC=A D28=ok CONTEXTMENU=not-exposed` (CONTEXTMENU is a simulator accessibility-tree read via agent-device, not a device rotor pass). D-26 contrast foundation landed (plan 16-14): `Color+Contrast.swift` in `AppTools` and the 84-variant colorset invariant with the standard-44 pin `f940492a…5363` (never changes) and the HC-40 pin, re-pinned by 16-15 under HC=A from `e81b0604…0937` to `84accf72…9407` after the 19 `lower` Increase Contrast entries were rewritten (0/40 HC variants below standard). Plan 16-15 also made both badge sites adaptive (`CategoryLabel`, `CategoryCell` as a `Button` + `.isSelected`; CATEGORYCELL=A, no visible cue). Historical D-25 candidates included `#32 Activity Logs` and `#36 Laboratory`, but the 2026-09-17 superseding ruling below limits current rendered scope to Search root, Favorites and Watched; Gallery Detail remains withdrawn. 16-23 closed every `D28=ok` id and `STARS=B` (RatingStar and CommentLink module colorsets, the `Color.mix` idiom, the Read glyph via the 16-14 helper; `log-glyph-error` fixed at the use site; the comment-link underline built at all three link-run sites; 16-22's deferred entry closed) with after-measurements in `16-CONTRAST-AUDIT.md § 16-23 result (contrast)` — no residual, no screen added to D-25. Of the two items 16-16 handed to the orchestrator, the tag-cell `.contextMenu` was routed to 16-19 and is now mirrored (`accessibilityActions` from the menu builder in `DetailView+Subviews.swift`); Torrents / Archive counters announced as bare numbers (the glyph was the unit) remain open for the owner. 16-19 established that SwiftUI exposes `.swipeActions` as custom actions and does not de-duplicate named mirrors — later plans mirror only context-menu-only items. Round 1 signed off (owner `approved` 2026-09-11T08:35Z, `16-SWEEP.md § Owner sign-off`). 16-24 closed the automated audit gate (D-31): stable audit types only, two allow-list entries, green on iPhone 17 iOS 26.5 and iPad (A16) iPadOS 26.5; the seven login-gated surfaces go to 16-25 and the D-25 re-sweep; iPadOS 27 beta Gallery Detail stall deferred.
-Last activity: 2026-09-23 — W-38 remains accepted after the approved 1-to-41 native VoiceOver recording. Current FeatureTests passed (1055 passed, 11 expected failures, zero failures/repetitions). The initial iPhone UI gate found one stale Quick Search menu lookup; its minimal test-route correction preserves all sheet audits and product code. Corrected-route and full UI gates are in progress; the earlier independent iPad ordinary-touch failure and final phase sign-off remain outstanding. See `16-SWEEP.md § Current iOS 27 closing-gate continuation`.
+Last activity: 2026-09-23 — W-38 remains accepted after the approved 1-to-41 native VoiceOver recording. FeatureTests passed (1055 passed, 11 expected failures), and the corrected full iPhone UI gate passed (54 passed, two expected skips); neither has failures or repetitions. Full iPad UITests finished with 55 eventual passes, one final failure, and five Repetition nodes. Ordinary scrolling measured panel 2 / page 3 on every attempt; a separate More-button lookup also needed a retry. Failure-frame diagnostics are in progress without changing reader source. Strict SwiftLint passed with zero violations. Final phase sign-off remains pending. See `16-SWEEP.md § Current iOS 27 closing-gate continuation`.
 
 **Current owner dispositions:** W-8 and W-35 were approved on 2026-09-22; VO-3/W-13 Comments retain their Apple-bug disposition. W-38 was approved on 2026-09-23 after the longer screen recording and is now closed. Its earlier additive-repair request and request for a current reproduction are superseded; no reader source patch is pending. The exact approval is in `16-SWEEP.md § Owner W-38 approval`. This is not whole-phase approval.
 
