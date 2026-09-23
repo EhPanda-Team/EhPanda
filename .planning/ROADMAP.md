@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 13: Deep Link Hardening** - Code-review the deep-link implementation and make it less hacky and more durable at navigating to the correct destination; add UI automation tests covering deep-link navigation (completed 2026-07-23)
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
-- [ ] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar
+- [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
 - [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Real-gallery fixtures, a full screenshot/snapshot matrix for website and AltStore assets, and native API modernization with app-wide soft top-edge blur on iOS/iPadOS 27
 
 ## Phase Details
@@ -692,7 +692,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Deep Link Hardening | 10/10 | Complete    | 2026-07-23 |
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
-| 16. Dynamic Type Accessibility | 25/26 | In Progress|  |
+| 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 0/0 | Not Started |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1225,7 +1225,7 @@ Plans:
 
 **Wave 24** *(blocked on Wave 23 completion)*
 
-- [ ] 16-26-PLAN.md — D-25 targeted re-sweep (iPhone), phase-close gates, owner sign-off; no Nutrition Label document (D-21; rescoped 2026-09-15)
+- [x] 16-26-PLAN.md — D-25 targeted re-sweep (iPhone), phase-close gates, owner sign-off; no Nutrition Label document (D-21; rescoped 2026-09-15)
 
 **Cross-cutting constraints:**
 
