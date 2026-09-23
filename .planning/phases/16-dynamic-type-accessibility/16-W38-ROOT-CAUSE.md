@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-**Current continuation (2026-09-22):** The owner approved the focus findings and requested an additive VoiceOver-only index update path, preserving the existing index logic. W-38 remains open. The iOS 26.5 root cause below remains valid historical evidence, but native VoiceOver checks on the current iOS/iPadOS 27 baseline did not reproduce the missing update. No production patch was made; the current-runtime evidence and limits are recorded at the end of this document.
+**Current disposition (2026-09-23): accepted and closed by the owner.** After reviewing the requested iOS 27 mock-reader recording from page 1 to page 41, the owner replied `approved`. The final screen simultaneously shows placeholder 41 and panel 41 / 156, with VoiceOver enabled throughout. No production index-update change was made. This supersedes the 2026-09-22 open diagnostic checkpoint and pending repair request. The historical iOS 26.5 reproduction and withdrawn fix below remain evidence; an OS-upgrade cause is not established. See the final section for the approved recording and its scope.
 
 W-38 was tested in four bounded WALK cases on iPhone 17, iOS 26.5 (23F77), portrait. The same installed binary was used throughout (SHA-256 `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638217e9ac2709b6621`). Two VoiceOver cases show the divergence and two ordinary-touch cases show normal synchronization. The finding is root-cause confirmed for the tested vertical reading path and is unimplemented again, after the fix written on 2026-09-19 was withdrawn on 2026-09-21 (see Attempted fix, withdrawn); it is not a phase-pass or a claim about other orientations, devices, physical hardware, OS versions, custom rotors, or three-finger VoiceOver scrolling.
 
@@ -118,6 +118,31 @@ Cleanup verified VoiceOver disabled on both task-owned simulators, stopped both 
 
 The prior iPad automated test remains a failure. In `/tmp/ehpanda-ios27/final-reader-native-toolbar27-summary.json`, the final failure text reports indicator 2 and screen 2, which fails the test's additional requirement to advance beyond the starting page. The same bundle's `topInsights` reports two earlier runs with indicator 2 and screen 3. Therefore neither "all failures were only failure to advance" nor "the final assertion proves the VoiceOver stale-index defect" is justified. `ReaderPageSyncUITests` drives ordinary touch with VoiceOver off. Its failures must remain recorded and cannot be treated as evidence for a VoiceOver-only repair.
 
-### Next diagnostic boundary
+### Historical diagnostic boundary (2026-09-22; superseded by owner approval below)
 
 No current stale-index case was reproduced in the bounded native VoiceOver checks, so no additional observer was added speculatively. This is not a claim that iOS 27 fixes every W-38 case, an acceptance of W-38, or phase approval. A question remains with the owner for the currently affected OS/device and exact VoiceOver action (next-item movement or three-finger scrolling), so the authorized additional path can be tested against an actual failing case. Three-finger scrolling, physical devices, landscape, and a full loaded-image end sequence were not verified here. Any implementation must first preserve the ordinary routes and then show the failing VoiceOver case passing without last-page jitter.
+
+## Owner-approved page 1 to 41 recording (2026-09-23)
+
+The owner requested a screen recording with numbered mock placeholders, movement through pages, and a control-panel reveal to compare the two indices. After an initial short recording, the owner requested `move more distance, 1 -> 41`. The longer recording was delivered in the Codex task and the owner replied:
+
+> approved
+
+Approval recorded at `2026-09-23T02:11:30Z`. Repository HEAD at recording is `06c72637b0159c89538209816d07e3bfb50a8831`; an unrelated existing Xcode-project edit was present and is not covered by this approval. The video uses the same unchanged reader baseline built on 2026-09-22; `AppPackage/Sources/ReadingFeature` has no diff from `2b9ea67c` to that HEAD. This is approval of the demonstrated W-38 behavior, not a clean-tree sign-off over the whole phase.
+
+- Device: task-owned iPhone Air simulator, iOS 27.0, portrait; mock gallery with 156 numbered failed-image placeholders.
+- Entry: page 1, controls hidden, native VoiceOver enabled.
+- Movement: 40 native VoiceOver `Scroll Down` commands through the Quick Nav keyboard shortcut. The native log confirms command resolution; intermediate observations show 11, 21 and 31, then 41. This is a scroll-command traversal, not a 40-page `Next Item` traversal or injected model/slider jump.
+- Reveal: focus placeholder 41 and double-tap using VoiceOver. The final screen simultaneously displays placeholder **41** and indicator **41 / 156**. VoiceOver remains enabled through the reveal; no ordinary scroll intervenes.
+- Result: W-38 accepted and closed on the demonstrated current-runtime behavior, without an app-side synchronization patch. The previously requested additive repair is no longer pending. The OS upgrade is a possible explanation, not a proved cause; earlier ordinary-touch migration test failures remain independently unresolved.
+- Cleanup: Quick Nav restored off, VoiceOver verified off, task-owned log stream stopped and task-owned simulator shut down. Other simulators were not changed.
+
+Local evidence root: `$HOME/.codex/visualizations/2026/09/22/01a0c704-1c73-75c1-ba0d-1c1acd596cdf/w38-recording/`.
+
+| Artifact | Provenance |
+|---|---|
+| `ios27-voiceover-pages-1-to-41.mp4` | Continuous 130.368-second recording; SHA-256 `d79113d227fcd76604438ecb77619d06001ee82ac5d378cead07ca995ca3acd7` |
+| `page-41-panel-check.png` | Final simultaneous index comparison; SHA-256 `4845acf3c69af51d8da79d15b29cc92643d3bc980b1ee942f6f36c0fb5883b7f` |
+| `/tmp/w38-long-voiceover.log` | 41 resolved native Scroll Down commands: one setup probe before recording, then the 40 recorded advances |
+
+The earlier focus approvals remain in force. Phase 16/A11Y-02 completion still requires its remaining closing gates and final phase sign-off; this item approval does not replace those gates.

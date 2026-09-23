@@ -4297,15 +4297,15 @@ The covered repository documentation HEAD is `812c85c7aa1342606f401e7de6e5d1924e
 - Current W-33 status: fix — owner phonetic verification passed 2026-09-18. The user confirmed the corrected 4.5-second replacement clip speaks ordinary `P M` correctly; the verified source, preflight, and generic-build evidence are recorded in [the W-33 audio judgement](16-FOCUS-INVESTIGATION.md#w33-audio-judgement).
 - W-31 remains accepted only for the empty Button Shapes uploader button capsule, and W-34 remains a confirmed fix for the MiB pronunciation.
 
-### Pending owner decision
+### Owner dispositions (current through 2026-09-23)
 
 | Item | Current bounded status |
 |---|---|
 | #39 Favorites AX5 | Accepted owner ruling: Apple native-search bug; no app fix requested; remains one measured finding, not an added pass |
-| W-8 / W-35 | Investigated 2026-09-19 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`). W-8 is characterized as system-side (one deferred SpringBoard `Screen Changed` per app activation; no app-side lever found); W-35 follows the platform first-element rule and needs an owner decision among three recorded options. Neither is accepted or classified as a system limit by this record |
+| W-8 / W-35 | Accepted by the owner on 2026-09-22 with their recorded behavior. W-8 retains its system-side characterization; W-35 keeps the platform initial navigation-bar focus. See the focus approval below and `16-FOCUS-INVESTIGATION.md` |
 | VO-3 | Decided 2026-09-20: Apple-bug handling, do not fix locally. Cause identified 2026-09-19 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`): SwiftUI bridges a `Label`-labeled toolbar control to a native bar button item, which drops the focus binding. The evaluated `Image`-label workaround was measured, judged a workaround and not adopted; focus stays at the platform default (the first element), as in Apple's Contacts |
 | W-13 Comments | Decided 2026-09-20: Apple-bug handling, do not fix locally; same cause and ruling as VO-3 (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`). The edit origin of the approved slice targets a content row and does not depend on the workaround; it was reverted with the rest and is not implemented. Read and Downloads have bounded evidence |
-| W-38 | Reproduced under native VoiceOver navigation with both mock and live images; ordinary-touch controls pass and the page-model divergence is confirmed; root cause recorded in `16-W38-ROOT-CAUSE.md`. An app fix was implemented on 2026-09-19 and withdrawn by the owner on 2026-09-21 after it made scrolling to the last page jitter, so the finding is open and unfixed (`16-W38-ROOT-CAUSE.md § Attempted fix, withdrawn`). The page-change routes that a UI test can drive are now covered by `ReaderPageSyncUITests`, which does not depend on the withdrawn fix |
+| W-38 | Accepted and closed by the owner on 2026-09-23 after the iOS 27 mock-reader recording from page 1 to 41 ended with placeholder 41 and panel 41 / 156 simultaneously visible. Native VoiceOver stayed enabled through the panel reveal; no source fix was made. See the approval below and `16-W38-ROOT-CAUSE.md § Owner-approved page 1 to 41 recording`. The prior reproduction, withdrawn fix and independent ordinary-touch test failures remain historical evidence |
 | W-31 | Accepted only for the empty uploader button capsule under Button Shapes, within that observed scope; no other blank control is accepted |
 | W-33 | Prior short clip demonstrated capital-letter announcements; the corrected 4.5-second replacement clip was provided and the user confirmed the ordinary `P M` reading is correct. Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/rootcause-20260918/audio/root-final-0139-date-pm-corrected.wav` (source 17.000–21.500 s, SHA-256 `d212aecb148a09fd8ed04b064f9acc2aea9ec57e601a5582f6d8d6c63fc3ec55`); the prior capital-letter clip and provenance remain historical |
 | W-34 | Implemented fix with owner phonetic verification passed for the MiB pronunciation; clip is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/task7-final-20260917-0248/clips/w34-file-size.m4a` |
@@ -4333,3 +4333,13 @@ The owner explicitly requests implementation now. That request supersedes the no
 The unchanged iOS 27 baseline built successfully. Native VoiceOver checks on task-owned iPhone and iPad simulators, including loaded synthetic tall/short images, advanced the existing index path. A read-only debugger trace confirmed `AdvancedList`'s existing idle callback invoked `PageModel.update` during native VoiceOver movement. The historical iOS 26.5 missing-callback case was not reproduced in these bounded checks; no production fix was made. Evidence and limitations are in `16-W38-ROOT-CAUSE.md § Current iOS 27 baseline`.
 
 The prior iPad ordinary-touch test bundle remains red: it contains both page 2 / page 3 mismatches in earlier runs and a final page 2 / page 2 failure to advance. These results do not drive VoiceOver and must not be treated as a current reproduction of its missing update. The owner was asked for the current failing OS/device and VoiceOver action so the authorized additive path can be validated. W-38, 16-26 and A11Y-02 remain open; the focus approvals are unchanged.
+
+### Owner W-38 approval (2026-09-23T02:11:30Z)
+
+After requesting and reviewing the longer mock-reader recording from page 1 to 41, the owner replied in the Codex task:
+
+> approved
+
+Status: W-38 accepted and closed. This supersedes the W-38 reopen and diagnostic checkpoint above. The recording uses native VoiceOver Scroll Down commands with the panel hidden, then a VoiceOver double-tap to reveal the panel. The final screen simultaneously shows placeholder 41 and panel 41 / 156; VoiceOver stays enabled throughout. The reader index logic is unchanged, and no additive repair remains pending. This accepts the demonstrated iOS 27 behavior without asserting that the OS upgrade caused it.
+
+The approved recording and hashes are in `16-W38-ROOT-CAUSE.md § Owner-approved page 1 to 41 recording`. Repository HEAD at recording is `06c72637b0159c89538209816d07e3bfb50a8831`, with an unrelated existing Xcode-project edit outside this approval. The measured reader matches the 2026-09-22 baseline. W-8/W-35 and the existing VO-3/W-13 Comments dispositions remain accepted. This approval is specific to W-38; final phase sign-off, current-source closing gates and the independently failing ordinary-touch migration test remain outstanding. Phase 16/A11Y-02 is not marked complete.
