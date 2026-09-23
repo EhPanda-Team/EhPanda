@@ -16,7 +16,7 @@ Phase 16 completed on 2026-09-23: 26/26 plans, owner sign-off `a4cc3754`, goal v
 | 16-17 | 9 | Module-relative settings/DateSeek source and localized catalog references; current controls and localization are covered by the verifier. |
 | 16-18 | 4 | Module-relative ControlPanel, ReadingToolbar and reading catalog references; current reader controls are covered by the verifier. |
 | 16-19 | 6 | Module-relative Detail subviews, RatingView, TagSuggestionView, DownloadsView, TagCloudView and catalog references; current semantic/action wiring is covered by the verifier. |
-| 16-20 | 2 | Module-relative Comments view and historical `.planning/state.json`; current motion behavior and Markdown state are separately verified. |
+| 16-20 | 2 | Module-relative Comments view and `.planning/state.json`; canonical completion has now regenerated the latter as the GSD state-contract snapshot. Current motion behavior is separately verified. |
 | 16-21 | 22 | Module-relative or ellipsis-prefixed motion sites across AppComponents, Detail, Downloads, Home, QuickSearch, Reading, Search, Settings and SystemNotification. Current motion inventory tests pass; literal shortened paths are not a repository-root manifest. |
 | 16-23 | 7 | Module-relative RatingView/LinkedText and RatingStar/CommentLink or placeholder colorset paths. The owner reverted contrast changes; historical claims do not establish current contrast guarantees. |
 | 16-24 | 15 | Four historical external gate paths plus eleven module-relative source/catalog/colorset references. Current full gates and source checks supersede these as completion evidence; the historical references remain in the summary. |
