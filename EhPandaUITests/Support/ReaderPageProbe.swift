@@ -9,10 +9,10 @@ import XCTest
 /// indicator names, and the page that is actually under the center of the reader.
 ///
 /// The second reading leans on the hermetic fixture. Its images never load, so every page is the
-/// reader's failure placeholder: the page number as a static text in the middle of a page that
-/// fills the reader. Pages of one size with their number at their center make "the number nearest
-/// the center" the page covering the center, which is the reader's own definition of the current
-/// page. It does not hold for loaded images, which carry no number.
+/// reader's failure placeholder: a page number followed by a Reload button in a centered stack.
+/// The number alone sits above the page center. Measuring the whole stack keeps the page reading
+/// accurate near the boundary between two placeholders. This does not hold for loaded images,
+/// which carry no number.
 @MainActor
 struct ReaderPageProbe {
     /// The reading directions the tests run under, named as the Reading Setting picker names them.
@@ -88,20 +88,33 @@ struct ReaderPageProbe {
             .flatMap({ Int($0.trimmingCharacters(in: .whitespaces)) })
     }
 
-    /// The number nearest the center of the page list, read from one snapshot so every frame in
-    /// the comparison belongs to the same moment. No number within half the list's extent of the
-    /// center means no page covers it, which is reported as `nil` rather than guessed at.
+    /// The placeholder stack nearest the center of the page list, read from one snapshot so all
+    /// frames belong to the same moment. Match each number to its nearest Reload button by frame:
+    /// accessibility-tree ordering differs between the vertical strip and horizontal pager.
     private func shownPage() throws -> Int? {
         let snapshot = try pageList.snapshot()
         let viewport = snapshot.frame
-        var nearest: (page: Int, distance: CGFloat)?
-        var pending = snapshot.children
+        var numbers: [(page: Int, frame: CGRect)] = []
+        var reloads: [CGRect] = []
+        var pending = [snapshot]
         while let node = pending.popLast() {
             pending.append(contentsOf: node.children)
-            guard node.elementType == .staticText, let page = Int(node.label) else { continue }
-            let distance = hypot(node.frame.midX - viewport.midX, node.frame.midY - viewport.midY)
+            if node.elementType == .staticText, let page = Int(node.label) {
+                numbers.append((page: page, frame: node.frame))
+            } else if node.elementType == .button, node.label == "Reload" {
+                reloads.append(node.frame)
+            }
+        }
+        var nearest: (page: Int, distance: CGFloat)?
+        for number in numbers {
+            guard let reload = reloads.min(by: {
+                hypot($0.midX - number.frame.midX, $0.midY - number.frame.midY)
+                    < hypot($1.midX - number.frame.midX, $1.midY - number.frame.midY)
+            }) else { continue }
+            let frame = number.frame.union(reload)
+            let distance = hypot(frame.midX - viewport.midX, frame.midY - viewport.midY)
             if distance < nearest?.distance ?? .infinity {
-                nearest = (page, distance)
+                nearest = (number.page, distance)
             }
         }
         guard let nearest, nearest.distance < max(viewport.width, viewport.height) / 2 else { return nil }
@@ -127,6 +140,47 @@ struct ReaderPageProbe {
             last = try standing()
         }
         if let page = last.page, condition(page) { return page }
+        let snapshot = try pageList.snapshot()
+        XCTContext.runActivity(named: "Reader page failure diagnostics") { activity in
+            let screenshot = XCTAttachment(screenshot: app.screenshot())
+            screenshot.name = "reader-failure-screen"
+            screenshot.lifetime = .keepAlways
+            activity.add(screenshot)
+
+            var nodes = snapshot.children
+            var numericLabels = [(label: String, frame: CGRect)]()
+            var reloadButtons = [(label: String, identifier: String, frame: CGRect)]()
+            while let node = nodes.popLast() {
+                nodes.append(contentsOf: node.children)
+                if node.elementType == .staticText,
+                   Int(node.label.trimmingCharacters(in: .whitespacesAndNewlines)) != nil {
+                    numericLabels.append((label: node.label, frame: node.frame))
+                } else if node.elementType == .button, node.label == "Reload" {
+                    reloadButtons.append(
+                        (label: node.label, identifier: node.identifier, frame: node.frame)
+                    )
+                }
+            }
+
+            var lines = [
+                "Viewport frame: \(snapshot.frame)",
+                "",
+                "Numeric static texts:"
+            ]
+            lines += numericLabels.map {
+                "  label=\($0.label) frame=\($0.frame)"
+            }
+            lines += ["", "Reload buttons:"]
+            lines += reloadButtons.map {
+                "  label=\($0.label) identifier=\($0.identifier) frame=\($0.frame)"
+            }
+            lines += ["", "Snapshot hierarchy:", String(describing: snapshot.dictionaryRepresentation)]
+
+            let text = XCTAttachment(string: lines.joined(separator: "\n"))
+            text.name = "reader-failure-geometry"
+            text.lifetime = .keepAlways
+            activity.add(text)
+        }
         XCTFail(
             "\(expectation): the indicator names \(Self.describe(last.indicated)) and the screen shows "
                 + "\(Self.describe(last.shown)).",
@@ -155,7 +209,14 @@ struct ReaderPageProbe {
     /// Scrolls towards the following pages: up the strip, or to the left of a left-to-right pager.
     func scrollForward(under direction: Direction) {
         switch direction {
-        case .vertical: pageList.swipeUp()
+        case .vertical:
+            // XCTest's default swipe can stop short of half a full-height iPad page.
+            // Cross that boundary explicitly so this gesture actually changes the current page.
+            pageList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+                .press(
+                    forDuration: 0.05,
+                    thenDragTo: pageList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+                )
         case .leftToRight: pageList.swipeLeft()
         }
     }
@@ -173,7 +234,12 @@ struct ReaderPageProbe {
     /// Picks an auto-play interval from the toolbar's menu, by the title the menu lists it under.
     func selectAutoPlay(_ title: String) {
         tap(app.buttons["Auto-Play"].firstMatch, "the toolbar's Auto-Play menu")
-        tap(app.buttons[title].firstMatch, "Auto-Play's \(title)")
+        let option = app.buttons[title].firstMatch
+        tap(option, "Auto-Play's \(title)")
+        XCTAssertTrue(
+            option.waitForNonExistence(timeout: 5),
+            "The Auto-Play menu did not dismiss after selecting \(title)."
+        )
     }
 
     /// Sets the reading direction through the Reading Setting sheet, the way a reader does, and
