@@ -78,10 +78,15 @@ zero warnings in both raw logs and `xcresulttool get build-results` output. Each
 arm64 and x86_64 simulator architectures. The latest builds also include the cookie maintenance
 and regression-test changes.
 
-The 11 expected failures are intentional diagnostic checks: unimplemented test clients must report
-issues, and scheduling, basis-movement, and progress-series guards must reject invalid operations.
-Their `withKnownIssue` assertions fail if the expected report disappears; they do not represent
-unresolved application failures.
+The 11 expected-failure test results have two different causes. Nine deliberately exercise issue
+reporting: unimplemented test clients and invalid category, scheduling, basis-movement, and
+progress-series operations must report issues. Their expected-issue assertions fail if the expected
+report disappears. Two SettingFeature tests instead report skipped assertions when cancelling
+in-flight effects. One ends a subscription tested separately; the other starts a live profile-creation
+request and cancels it without testing its completion. The latter is test-isolation debt, not an
+intentional diagnostic assertion. `EhProfileRequest` already accepts a URLSession, but its reducer
+call site does not expose that choice as a test dependency. See `CODE-HEALTH-REVIEW.md` for the
+follow-up source audit.
 
 The iOS 27 XCTest runner still prints Apple-owned console notices about duplicate accessibility
 classes in WebKit/WebCore and a future launch-screen requirement. These are not project build
