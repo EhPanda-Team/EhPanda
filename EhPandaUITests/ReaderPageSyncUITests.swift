@@ -7,8 +7,8 @@ import XCTest
 ///
 /// One route is not here because XCTest cannot drive it: an assistive technology's own scrolling,
 /// which is what Phase 16 W-38 was found with. XCTest neither turns VoiceOver on nor issues its
-/// Move to Next Item, so nothing below sees that route, and W-38 itself stays open. It is covered
-/// only by the simulator walks recorded in `16-W38-ROOT-CAUSE.md`.
+/// Move to Next Item, so nothing below sees that route. W-38 was closed on the owner-approved
+/// native VoiceOver recording documented in `16-W38-ROOT-CAUSE.md`.
 ///
 /// Each route runs under the vertical strip and the left-to-right pager in one launch, switching
 /// through the Reading Setting sheet. The direction persists between launches, so every test
