@@ -7,11 +7,12 @@ open_total: 1
 below_threshold_open: 1
 asvs_level: 1
 created: "2026-09-17"
+audited: "2026-09-23"
 ---
 
 # Phase 16 — Security
 
-Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24fe8146c; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
+Historical baseline: the September 17 pre-owner review used immutable source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. The September 23 refresh below records current provenance; owner 16-26 Task 3, verifier and completion remain pending. This audit added no source or test changes.
 
 
 ## Threat Register
@@ -281,3 +282,32 @@ All 113 threat rows are retained, including repeated IDs. Evidence is row-specif
 | 16-26 | T-16-26 | OPEN | plan summary/cache gate evidence: closing gate summaries/tests JSON: zero failures, zero Repetition, source HEAD recorded; owner final sign-off is still pending |
 | 16-26 | T-16-16 | CLOSED | 20260917-final-closing-gates-evidence.txt; phase-local xcodebuild serialization and non-overlapping UDID evidence |
 | 16-26 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
+
+
+## Security Audit — 2026-09-23
+
+| Metric | Count |
+|---|---:|
+| Planned threat-register rows | 113 |
+| Rows matched to current plans | 113 |
+| Closed | 112 |
+| Open, below configured high threshold | 1 |
+| Blocking high/critical threats | 0 |
+
+Every plan retains its authored threat-model block byte-identically to the historical reviewed source;
+there are no missing/extra register pairs. Summary threat flags add no unresolved threat. With ASVS
+level 1 and no blocking threats, the secure-phase L1 short-circuit applies; no additional auditor or
+new-threat scan was required. This is a register/mitigation refresh, not a new application penetration test.
+
+Current source is `7675a7ac` plus the preserved pre-existing Xcode project diff. The incremental source
+review records zero new findings. The current mitigation evidence under `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/` includes the
+unchanged 809-file source fingerprint, preserved original failed results, zero-Repetition final gates,
+zero added phase media, strict lint and shared-lock/explicit-destination scripts. The unchanged
+pre-existing project patch is retained as evidence and is not absorbed into this task's commits.
+No account credentials were read by this audit, and no package install or public message was performed.
+
+T-16-26 remains OPEN at medium severity until the owner signs over the current evidence and the
+sign-off is recorded. The clean-task-tree boundary excludes only the fingerprinted pre-existing project
+edit, as stated in the plan amendment. No accepted risk or owner decision is invented here. Therefore
+`threats_open: 0` means zero threats at/above the configured high threshold; `open_total: 1` and pending
+whole-phase approval remain truthful. Final cleanup evidence covers only this task's simulators.
