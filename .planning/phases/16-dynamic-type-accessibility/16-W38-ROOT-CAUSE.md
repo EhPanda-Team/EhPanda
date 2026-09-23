@@ -146,3 +146,13 @@ Local evidence root: `$HOME/.codex/visualizations/2026/09/22/01a0c704-1c73-75c1-
 | `/tmp/w38-long-voiceover.log` | 41 resolved native Scroll Down commands: one setup probe before recording, then the 40 recorded advances |
 
 The earlier focus approvals remain in force. Phase 16/A11Y-02 completion still requires its remaining closing gates and final phase sign-off; this item approval does not replace those gates.
+
+## Separate ordinary-touch diagnostic (2026-09-23)
+
+This diagnostic does not reopen the owner-approved W-38 disposition. The prior ordinary-touch iPad bundle, `/tmp/ehpanda-ios27/final-reader-native-toolbar27.xcresult`, remains failed: its first attempt ended at indicator 2 / shown 2 without advancing, and its two retries reported indicator 2 / shown 3. The exported synthesized-event records encode a 200-point vertical gesture from `(417,705)` to `(417,505)` in an 834-by-1210-point window, with a 0.2-second duration on the latter pointer events. No reliable velocity or post-failure screenshot was recovered.
+
+A single read-only diagnostic used the task-owned iPad Pro 11-inch (M5), iPadOS 27.0, UDID `55C7BED8-A301-4C4B-94F7-1959B45EBE27`. The installed app was the current build at repository HEAD `a487965b`; the pre-existing Xcode-project edit is preserved and captured separately in the evidence directory. Launch entered mock page 2; the panel showed 2 / 156. Reading Setting was opened, Vertical selected and the sheet dismissed. `sim-use` then delivered one ordinary swipe with the recorded coordinates and duration.
+
+The settled screen shows placeholder 3 and indicator 3 / 156 together. Read-only LLDB breakpoints reached the existing `AdvancedList.swift:44` update site with local `index = 3`, followed by `PageModel.update` from that caller. No expression evaluation or state injection was used. The four breakpoints were deleted, the debugger detached, the final screen read back, and the task-owned iPad shut down. Other simulators were untouched.
+
+Evidence is under `/tmp/ehpanda-phase16-close-20260923/`: `ipad-before-swipe.{json,png}`, `ipad-after-swipe.{json,png}`, `ipad-ordinary-lldb.log`, and the temporary read-only `w38_scroll_logger.py`. This shows the existing path updating in one bounded ordinary-touch case. It does not clear the historical intermittent automated failure: `sim-use` is not XCTest's event synthesizer, and debugger callbacks can affect timing. No reader/test source change or ordinary-touch pass disposition follows from this diagnostic alone.
