@@ -147,5 +147,5 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-08-23 — A11Y-01/A11Y-02 added for Phase 16 (two-round accessibility scope); 25/25 mapped*
+*Last updated: 2026-09-23 — A11Y-01/A11Y-02 complete under the signed best-effort scope; see Phase 16 verification and its explicit overrides.*
 *Previously updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*

@@ -40,6 +40,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Cloudflare login restoration — username/password login restored behind the Cloudflare wall: response-driven challenge detection (403 + `cf-mitigated`), an in-app auto-dismissing `WKWebView` challenge surface, memory-only `(cf_clearance, User-Agent)` capture replayed on the retried POST, bounded retries into a structured error; owner-verified live pass. A forum-side Turnstile CAPTCHA gate (appeared during UAT) is detected and routed to web login as fallback — Phase 12
 - ✓ Deep-link hardening — every entry path (custom scheme, clipboard, in-comment link, ShareExtension, iPad tab modal) routes through one `GalleryURLParser` that normalizes and rejects spoofed input; `URLClient` deleted; unsupported links get a distinct non-retryable error whose context drops access-bearing URL components; modal replacement awaits real sheet dismissal instead of a fixed 1s delay, and the routing path no longer sleeps 500ms before swapping a loading toast for an error toast. Backed by a new UI-test target on a non-default retrying `UITests` plan with hermetic fixtures — 9 UI tests covering cold and warm lifecycles on iPhone plus the iPad class — Phase 13
 
+- ✓ Dynamic Type and assistive-technology accessibility (A11Y-01/A11Y-02) — 26 plans, owner-signed sampled visual/runtime evidence, retained semantics and motion gates, and current iOS 27 regression gates; best-effort scope with explicit accepted/deferred/unmeasured limits — Phase 16
+
 ### Active
 
 <!-- This milestone's scope: 22 locked tasks. Hypotheses until shipped. Grouped by theme; the roadmap phases them. -->
@@ -64,6 +66,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 <!-- Explicit boundaries to prevent re-adding. -->
 
+- **Accessibility Nutrition Label recommendation or universal conformance guarantee** — owner superseded the original Phase 16 bar on 2026-09-15. Preserve the approved limitations in `phases/16-dynamic-type-accessibility/16-VERIFICATION.md`; future work must not describe proxy or unreached evidence as measured passes.
+
 - **ParserFeature complexity refactor** (extract per-field sub-parsers) — real value but rides on nothing else here; deferred to a future milestone
 - **DownloadClient decomposition** (555+ line files) — large standalone refactor; deferred
 - **Broad client-layer tests beyond networking/cookie/image** (Reading/Home/Search/Favorites features) — deferred; this milestone covers only the seams already being reworked
@@ -74,14 +78,14 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Phases 1–9 are complete: dependency isolation, masonry, reader paging, async networking, the TCA deprecation migration, adaptive layout/orientation work, the root privacy-mask/auto-lock removal, the architecture-hygiene client-seam de-globalization, and the correctness/structured-error-handling work are validated. Phase 10 (UI Polish) is next.
+- **v3.0.0 in flight, unreleased.** Phase 16 is complete under its owner-approved best-effort scope. Phase 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) is next for discussion and planning. Earlier phases retain their own roadmap statuses; completing all currently authored plans does not complete the milestone. The iOS 27/native-navigation/soft-top-edge migration already landed in quick task `260921-f5u`; Phase 17 planning must account for that existing implementation.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured name-free; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
 
 ## Constraints
 
-- **Tech stack**: Swift 6.3.1, iOS/iPadOS 26 minimum, SwiftUI + TCA 1.25.x + swift-sharing; Xcode-only build/test (bare `swift build` fails); SwiftLint runs as a build-tool plugin.
+- **Tech stack**: Swift tools 6.4, iOS/iPadOS 27 minimum, SwiftUI + TCA (1.25.3 package floor) + swift-sharing; Xcode-only build/test (bare `swift build` fails); SwiftLint runs as a build-tool plugin.
 - **Parity**: No user-facing behavior or appearance regressions — this is a foundation milestone, not a feature or redesign one.
 - **Schema**: Persisted `@Shared` models stay at **v1**, edited in place, for the whole pre-release milestone — no `VersionedSchema` v2 / migration until v3.0.0 releases.
 - **Lint**: SwiftLint-as-error; never suppress, disable, or add `// swiftlint:disable` without explicit user permission.
@@ -106,6 +110,9 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | Deep-link entry paths converge on one `GalleryURLParser`; `URLClient` is deleted rather than refactored | A single parse/normalize/reject seam is what makes spoofed-input rejection and destination correctness testable; a second URL abstraction only re-splits it | ✓ Validated in Phase 13 |
 | Deep-link correctness is proven by a real UI-test target on a second, non-default `UITests` plan | Routing bugs live in the app's actual launch/foreground lifecycle, which TestStore cannot reach; keeping the plan non-default holds the ordinary scheme unit-only and fast | ✓ Validated in Phase 13 |
 | Masonry grid columns derive from the `Layout`'s own container width via an adaptive rule (min cell width 185pt, min 2 columns); all cells share one identical flexible width; exact 2/4/5 count parity dropped | Owner requirement is stable, content-independent tiling at any width — not exact counts; kills the deprecated `UIScreen.main` + `isPadWidth` reads at the grid call site | — Pending |
+| Accessibility closes through bounded evidence and explicit owner dispositions | Unreached sites, speech activation and contrast limits cannot be converted into universal guarantees | ✓ Phase 16 signed off; 26/26 consolidated checks passed |
+| Keep native iOS 27 title/search behavior and existing reader index synchronization | Owner accepted focus limitations and the native VoiceOver mock page 1-to-41 evidence; withdrawn workarounds are not pending deliverables | ✓ Phase 16; retain page-agreement regressions |
+| Current closing gates require zero failures and zero test Repetition nodes | A retried green result does not establish a first-try pass | ✓ Phase 16 FeatureTests and full iPhone/iPad UI gates |
 
 ## Evolution
 
@@ -125,4 +132,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 after Phase 13*
+*Last updated: 2026-09-23 after Phase 16*
