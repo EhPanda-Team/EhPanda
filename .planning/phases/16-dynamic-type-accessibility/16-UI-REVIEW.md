@@ -5,7 +5,7 @@
 **Baseline:** Abstract six-pillar native SwiftUI standards, Phase 16 owner decisions, and the repository's native iOS 27 title/search and soft top scroll-edge policies. No UI-SPEC applies.
 **Source:** `7675a7ac77301de9464a8e924c9fc8c70f691849` (orchestrator-supplied tested source); documentation baseline `5ef04717`.
 **Method:** Source inspection and existing evidence only. No build, test, simulator operation, browser, dev-server launch, or new screenshot capture was performed by this reviewer. Screenshot-directory creation and dev-server detection were omitted under the explicit report-only scope; no media was written to the repository. The historical review below is retained as dated evidence, not current status.
-**Status:** Whole-phase 16-26 Task 3 owner approval and remaining closing work are pending. This refresh does not complete Phase 16 or A11Y-02.
+**Status:** Whole-phase owner approval is recorded by `a4cc3754` on 2026-09-23. Goal verification and canonical completion follow separately. The scores and accepted/deferred evidence limits below remain unchanged.
 
 ### Current pillar scores
 
@@ -22,7 +22,7 @@
 
 ### Top 3 priority follow-ups
 
-1. **Complete current-source closing evidence and owner review.** Retain failed historical bundles and report final iPad results separately when available; do not infer a full gate pass from focused reader tests or the phone result. Present the bounded result for 16-26 Task 3 approval.
+1. **Closing evidence and owner review completed.** Full current-source iPhone/iPad gates passed with zero Repetition nodes, historical failures remain preserved, and `a4cc3754` records the owner approval. Goal verification remains the final workflow check.
 2. **Close the explicit interaction coverage gaps before making broader accessibility claims.** Exercise the fifteen unreached surfaces with their required fixtures/accounts, spoken Voice Control commands, and native VoiceOver double-tap in nonreader flows; record each action and outcome separately. These are evidence tasks, not proven product defects.
 3. **Retain the deferred W-21/W-24 visual decisions.** If the owner later authorizes visible changes, review W-21's ContentUnavailableView symbol and strengthen the Search Delete glyph's salience, then compare light/dark and grayscale states. No palette or symbol change is authorized by this audit, and accepted #39 is not reopened.
 
