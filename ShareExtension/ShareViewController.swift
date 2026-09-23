@@ -8,7 +8,7 @@ class ShareViewController: UIViewController {
         guard let extensionItem = extensionContext?
                 .inputItems.first as? NSExtensionItem,
               let itemProvider = extensionItem.attachments?.first,
-              itemProvider.hasItemConformingToTypeIdentifier("public.url")
+              itemProvider.canLoadObject(ofClass: URL.self)
         else {
             extensionContext?.completeRequest(
                 returningItems: nil,
@@ -17,8 +17,14 @@ class ShareViewController: UIViewController {
             return
         }
 
-        itemProvider.loadItem(forTypeIdentifier: "public.url") { [weak self] (item, _) in
-            guard let shareURL = item as? URL,
+        _ = itemProvider.loadObject(ofClass: URL.self) { [weak self] (shareURL, error) in
+            if let error {
+                Task { @MainActor in
+                    self?.extensionContext?.cancelRequest(withError: error)
+                }
+                return
+            }
+            guard let shareURL,
                   var components = URLComponents(url: shareURL, resolvingAgainstBaseURL: false)
             else {
                 Task { @MainActor in
