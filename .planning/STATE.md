@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: planning
-last_updated: "2026-09-23T11:32:32.100Z"
-last_activity: 2026-09-23
-last_activity_desc: "Quick task 260923-shl: restored gallery cell vertical centering; build, lint, and Dynamic Type visual checks passed"
+last_updated: "2026-09-30T12:03:58.000Z"
+last_activity: 2026-09-30
+last_activity_desc: "Quick task 260930-o3m: Live Text uses Apple's localized names (de Live-Text, ja テキスト認識表示, zh-Hant 原況文字); build, tests and localized reader checks passed"
 state_head: a46ef2385e3a6ceb449819f266b1a4725ca74c99
 progress:
   total_phases: 17
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 — Screenshot Automation, Visual Regression & OS 27 Modernization
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-23 — Quick task 260923-shl: restored gallery cell vertical centering; build, lint, and Dynamic Type visual checks passed
+Last activity: 2026-09-30 — Quick task 260930-o3m: Live Text uses Apple's localized names (de Live-Text, ja テキスト認識表示, zh-Hant 原況文字); build, tests and localized reader checks passed
 
 ### Historical round-2 status snapshots
 
@@ -969,6 +969,7 @@ None yet.
 | 260921-f5u | Migrate to iOS/iPadOS 27 with native APIs and every-page soft top edges; tests verified with W-38 carried | 2026-09-21 | d7f8b191 | [260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod](./quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/) |
 | 260923-nnu | Build, test and lint cleanup: zero build/lint/runtime warnings; 1,057 feature passes plus 11 expected failures; 104 UI passes and 2 skips, with one intermittent iPad autoplay failed attempt passing on retry (still unresolved) | 2026-09-23 | 7ac307e1 | [260923-nnu-build-and-test-resolve-all-warnings-erro](./quick/260923-nnu-build-and-test-resolve-all-warnings-erro/) |
 | 260923-shl | Restore gallery cell vertical centering; remove the uncommitted spacer/minimum-height attempt; zero build/lint diagnostics and iPhone/iPad Dynamic Type visual checks passed | 2026-09-23 | d36539a0 | [260923-shl-restore-vertical-centering-in-gallery-de](./quick/260923-shl-restore-vertical-centering-in-gallery-de/) |
+| 260930-o3m | Align Live Text with Apple's localized names (de Live-Text, ja テキスト認識表示, zh-Hant 原況文字; en/ko/zh-Hans already matched); audit found no other string naming it; builds clean, 1,057 feature passes plus 11 expected failures, UI tests 51 + 2 skips on iPhone Air and 53 on a fresh iPad mini 6; 24 localized reader toolbar and Large Content Viewer captures untruncated | 2026-09-30 | 63eae621 | [260930-o3m-align-live-text-localized-names-with-app](./quick/260930-o3m-align-live-text-localized-names-with-app/) |
 
 ### Roadmap Evolution
 
