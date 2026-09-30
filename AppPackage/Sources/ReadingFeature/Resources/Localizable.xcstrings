@@ -13,13 +13,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Live Text"
+            "value": "Live-Text"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ライブテキスト"
+            "value": "テキスト認識表示"
           }
         },
         "ko": {
@@ -37,7 +37,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "即時文字"
+            "value": "原況文字"
           }
         }
       }
