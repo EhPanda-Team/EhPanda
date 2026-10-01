@@ -100,8 +100,8 @@ AboutView drops from 12 to 11 acknowledgement rows. Because the `.Constant.*` sy
 
 ## Task Commits
 
-1. **Task 1: Remove WaterfallGrid from Package.swift + regenerate Package.resolved** (with the dead osLogExt spike dep swept in the same manifest edit) — `7a5bb0bf` (feat)
-2. **Task 2: Acknowledgement-row refresh (owner decision)** — `171b3ebc` (feat)
+1. **Task 1: Remove WaterfallGrid from Package.swift + regenerate Package.resolved** (with the dead osLogExt spike dep swept in the same manifest edit) — `ae0e5c0bf2` (feat)
+2. **Task 2: Acknowledgement-row refresh (owner decision)** — `6e1eabe23d` (feat)
 
 ## Files Created/Modified
 - `AppPackage/Package.swift` — removed the four WaterfallGrid lines (declaration, product alias, app-target dep, galleryListComponents-target dep) with trailing-comma repair; removed the dead `.module(.osLogExt)` spike dependency + its comment from the galleryListComponents target.
@@ -143,7 +143,7 @@ None.
 
 ## Self-Check: PASSED
 
-- Both task commits present (`7a5bb0bf`, `171b3ebc`).
+- Both task commits present (`ae0e5c0bf2`, `6e1eabe23d`).
 - `grep -c WaterfallGrid Package.swift` = 0; `grep -ci waterfallgrid Package.resolved` = 0; `grep -rc 'import WaterfallGrid' Sources/` = 0.
 - `Package.resolved` diff = only the waterfallgrid pin + `originHash`; no version drift.
 - AboutView = 11 acknowledgement rows; no WaterfallGrid/SwiftCommonMark/bare-Colorful symbols; new `acknowledgementColorfulX`/`acknowledgementSwiftMarkdown` symbols present and build-resolved.

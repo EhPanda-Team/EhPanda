@@ -87,9 +87,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Run the DEP-06 evidence spike** - `966b7d71` (test) — prior session
-2. **Checkpoint pause record** - `231a3311` (docs) — prior session
-3. **Task 3: Implement the document-skip branch** - `ed3cb291` (docs) — this session
+1. **Task 1: Run the DEP-06 evidence spike** - `856b5fb5c9` (test) — prior session
+2. **Checkpoint pause record** - `36cc319792` (docs) — prior session
+3. **Task 3: Implement the document-skip branch** - `d40f16b370` (docs) — this session
 
 _Task 2 was a blocking-human decision checkpoint resolved out-of-band; the user selected `document-skip`._
 
@@ -110,7 +110,7 @@ _Task 2 was a blocking-human decision checkpoint resolved out-of-band; the user 
 - **Fix:** Added a concise doc comment (within the 120-char line limit) citing DEP-06 / D-12 and the S1+S2+S5 constraint, pointing to the evidence doc.
 - **Files modified:** AppPackage/Sources/NetworkingFeature/DFExtensions.swift
 - **Verification:** NetworkingFeatureTests pass (14); package build clean, no new deprecation warnings.
-- **Committed in:** `ed3cb291`
+- **Committed in:** `d40f16b370`
 
 ---
 
@@ -131,7 +131,7 @@ None for this plan. **D-15 caveat (outstanding, milestone-level):** if the proje
 
 - FOUND: `01-06-SUMMARY.md`
 - FOUND: `01-DEP06-EVIDENCE.md`
-- FOUND commits: `966b7d71`, `231a3311`, `ed3cb291`
+- FOUND commits: `856b5fb5c9`, `36cc319792`, `d40f16b370`
 
 ---
 *Phase: 01-isolated-dependency-modernization*

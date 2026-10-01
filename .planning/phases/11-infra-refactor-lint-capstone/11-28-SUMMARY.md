@@ -28,7 +28,7 @@ key-files:
     - "16 further Swift files across AppPackage/Sources"
 decisions:
   - "The plan's ~85/20 figure is the RAW violation count; the true work list is 43 unique offending calls on 32 lines across 19 files. Both numbers reported rather than adjusted, consistent with every prior wave."
-  - "Zero sites were created or reshaped by 11-26/11-27, verified by blaming all 32 offending lines against the three sweep commits: 31 last touched by older unrelated commits, and the one intersection (GalleryComment:41) had its chain break already present at 505f6b7a^."
+  - "Zero sites were created or reshaped by 11-26/11-27, verified by blaming all 32 offending lines against the three sweep commits: 31 last touched by older unrelated commits, and the one intersection (GalleryComment:41) had its chain break already present at 91a8e9bec0^."
   - "Receiver-alone was the default shape, not receiver-plus-one-call. The rule permits one call on the base expression's line, but a `Text(x).font(y)` head followed by one-per-line modifiers reads as an arbitrary wrap; splitting the head is 1 extra line for a uniform chain."
   - "Two sites were shortened rather than split: both had an argument list broken across lines purely so a following `.map`/`?.lowercased()` could ride the closing-paren line. Joining the argument list removed the chain break entirely."
   - "`.map({ … })` parenthesized at DownloadClient+PublicAPI, not left trailing — `map` is on 11-27's `single_line_trailing_closure` method list, so the trailing form would have traded one live rule's violation for another's."
@@ -44,7 +44,7 @@ status: complete
 **0 violations, 0 serious in 452 files** at `--strict --no-cache` across all four path roots. This
 is the **seventh and final rule flip** of the phase; the capstone battery runs at 11-29.
 
-One commit: `5a86b4a0`, 20 files, +102/−49.
+One commit: `31415297e7`, 20 files, +102/−49.
 
 ## The count: 84 raw, but 43 real sites
 
@@ -76,10 +76,10 @@ same files, and could not verify the result against a disabled rule. **The risk 
 materialise — zero of the 43 sites was created or reshaped by either wave.**
 
 Established rather than assumed: each of this wave's 32 offending lines was `git blame`d at the
-pre-flip tree against the three sweep commits (`505f6b7a`, `47168d9d`, `2da57704`). **31 of 32 were
+pre-flip tree against the three sweep commits (`91a8e9bec0`, `5efe4938e2`, `a2b363a1f7`). **31 of 32 were
 last touched by an unrelated, older commit.** The single intersection is `GalleryComment.swift:41`,
 and it is not a counter-example — 11-26 edited that line *within* itself, parenthesizing
-`.compactMap { … }` to `.compactMap({ … })`. Checked at `505f6b7a^`, the `.joined()` was already
+`.compactMap { … }` to `.compactMap({ … })`. Checked at `91a8e9bec0^`, the `.joined()` was already
 riding that line before 11-26 ran, which is precisely what 11-26 recorded when it handed the site
 over.
 
@@ -185,7 +185,7 @@ Rule availability was also confirmed against the binary's own registry before wr
   files**. All seven previously-live rules clean, `line_length` included; no stderr config warning.
 - `xcodebuild build -scheme EhPanda` — **BUILD SUCCEEDED** (24.5 s), 0 errors, 0 warnings.
 - `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED** (29.9 s), 0 errors. The
-  `Tests/` lint gate (Pitfall 6 / the `e8589355` incident class) on 11-22.1's repaired 18-target plan.
+  `Tests/` lint gate (Pitfall 6 / the `fe3c43e0fe` incident class) on 11-22.1's repaired 18-target plan.
   Run after the flip. This wave's payload is entirely in `Sources/`, so the app-scheme build already
   covered it — the test build proves no test file regressed under the newly-live rule.
 - **Full `AppPackage-Package` suite** — **TEST SUCCEEDED** (64.9 s), **565 tests across 18 runs,
@@ -213,7 +213,7 @@ confirms nothing else crossed.
 
 ## The atomic flip
 
-One commit, `5a86b4a0` (Pitfall 10): 19 reformatted source files plus the config entry. The
+One commit, `31415297e7` (Pitfall 10): 19 reformatted source files plus the config entry. The
 **directive payload is empty** — no `swiftlint:disable` anywhere, the fourth consecutive flip for
 which this is true — but the atomicity constraint still bound the sweep, since 43 live violations
 plus an error-level rule is a broken build in either order.
@@ -269,7 +269,7 @@ over.
   protocol would commit separately.
 - **Fix:** One atomic commit, per Pitfall 10 and the plan's own Task 2 wording. Both tasks'
   acceptance criteria were verified before it opened.
-- **Commit:** `5a86b4a0`
+- **Commit:** `31415297e7`
 
 **5. [Deviation from plan wording] Two sites were shortened rather than reformatted**
 
@@ -280,7 +280,7 @@ over.
 - **Fix:** Applied. The calls are semantically identical — same callee, same arguments, same order;
   only the whitespace between the parentheses changed. Both were length-checked (96 and 83 chars)
   before editing.
-- **Commit:** `5a86b4a0`
+- **Commit:** `31415297e7`
 
 ## Exception sites
 
@@ -311,4 +311,4 @@ and both build gates plus the 565-test suite passed inside the commit that enabl
 - `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift` — FOUND; argument list joined,
   `.map({ … })` parenthesized
 - `.planning/phases/11-infra-refactor-lint-capstone/11-28-SUMMARY.md` — FOUND
-- Commit `5a86b4a0` — FOUND; 20 files, +102/−49, no deletions, no untracked files
+- Commit `31415297e7` — FOUND; 20 files, +102/−49, no deletions, no untracked files

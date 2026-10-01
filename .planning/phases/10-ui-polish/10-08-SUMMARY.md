@@ -90,8 +90,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Migrate + enrich the 5 gallery cells** - `e02a3e89` (refactor)
-2. **Task 2: Migrate + enrich RatingView, NewDawnView, SubSection; build gate** - `42fb00c4` (refactor)
+1. **Task 1: Migrate + enrich the 5 gallery cells** - `681363e444` (refactor)
+2. **Task 2: Migrate + enrich RatingView, NewDawnView, SubSection; build gate** - `1877811a62` (refactor)
 
 ## Files Created/Modified
 - `AppPackage/Sources/GalleryListComponents/Cells/GalleryThumbnailCell.swift` - Named #Preview matrix + previewFixture factory

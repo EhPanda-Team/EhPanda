@@ -77,9 +77,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Add MarkdownExt backed by swift-markdown** — `84fc1496` (feat)
-2. **Task 2: Route markdown through MarkdownExt (retarget TagTranslation/Detail)** — `154dcc82` (refactor)
-3. **Task 3: Remove SwiftCommonMark and CommonMarkExt** — `1c5af71a` (chore)
+1. **Task 1: Add MarkdownExt backed by swift-markdown** — `8e6e4670bc` (feat)
+2. **Task 2: Route markdown through MarkdownExt (retarget TagTranslation/Detail)** — `1b33ba8f6d` (refactor)
+3. **Task 3: Remove SwiftCommonMark and CommonMarkExt** — `8d860ab3a5` (chore)
 
 Plan metadata: final `docs(01-05)` commit.
 
@@ -106,12 +106,12 @@ Plan metadata: final `docs(01-05)` commit.
 - **Issue:** The plan's `<verify>` blocks embed `-scheme AppPackage-Package -testPlan FeatureTests`, which fails — the `FeatureTests` test plan is bound to the app's shared `EhPanda` scheme, not the SwiftPM `AppPackage-Package` scheme (the correction 01-01/01-02 already recorded in `01-VALIDATION.md` and pre-flagged in the executor prompt).
 - **Fix:** Ran `AppPackage-Package` without `-testPlan` (it already includes every package test target) and used `-only-testing:` filters. No source impact.
 - **Verification:** targeted runs EXIT 0; full build and full suite green.
-- **Committed in:** covered by `84fc1496` / `154dcc82` / `1c5af71a` (command-only change).
+- **Committed in:** covered by `8e6e4670bc` / `1b33ba8f6d` / `8d860ab3a5` (command-only change).
 
 **2. [Rule 3 - Process] Task 3 amended to a single atomic commit**
 - **Found during:** Task 3 commit.
 - **Issue:** The first `git add` for Task 3 listed the already-`git rm`'d `CommonMarkExt` paths; git aborted the whole `add` on the missing pathspec, so the initial commit captured only the file deletions and left the `Package.swift`/`Package.resolved` edits unstaged — a non-building intermediate (manifest still referencing the deleted module in committed form).
-- **Fix:** Staged the manifest changes and `git commit --amend` so Task 3 is one atomic, buildable commit (`1c5af71a`) containing all five files. Verified the full package build and suite against this exact tree.
+- **Fix:** Staged the manifest changes and `git commit --amend` so Task 3 is one atomic, buildable commit (`8d860ab3a5`) containing all five files. Verified the full package build and suite against this exact tree.
 - **Files modified:** none beyond the planned Task 3 set.
 
 ### Out-of-Scope (Deferred, not fixed)
@@ -144,7 +144,7 @@ None — no external service configuration required. Package resolution used the
 
 - Created files present: `AppPackage/Sources/MarkdownExt/MarkdownUtil.swift`, `AppPackage/Sources/MarkdownExt/.swiftlint.yml`.
 - Deleted files absent: `AppPackage/Sources/CommonMarkExt/` removed.
-- Commits present: `84fc1496`, `154dcc82`, `1c5af71a`.
+- Commits present: `8e6e4670bc`, `1b33ba8f6d`, `8d860ab3a5`.
 - `Package.resolved` (both) pin swift-markdown 0.8.0 and contain no SwiftCommonMark.
 
 ---

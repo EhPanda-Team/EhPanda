@@ -1220,7 +1220,7 @@ RatingView(rating: gallery.rating)
 - Xcode 26.6 SDK `SwiftUI.swiftmodule` / `SwiftUICore.swiftmodule` `arm64-apple-ios-simulator.swiftinterface` — accessibility modifier overloads, `Color.resolve(in:)`, `Color.Resolved` linear fields, environment values
 - Xcode 26.6 `XCUIAutomation.framework` swiftinterface + `XCUIAccessibilityAuditTypes.h` / `XCUIAccessibilityAuditIssue.h` — audit API
 - `xcrun simctl ui` usage text and live runs on the booted simulators; `agent-device help orientation|settings|open`; `sim-use` SKILL.md
-- Repository tree at `feature/gsd-phase-16` HEAD (`a8829305`): `.swiftlint.yml`, all grep inventories, `CategoryView.swift`, `Category.swift`, colorset JSON (84 variants re-measured), `EhPandaUITests/*`, `UITests.xctestplan`, `AppFeature/UITestSupport/*`, `AppLaunchAutomation.swift` (keys only), `DownloadLogPrivacyInvariantTests.swift`, `DownloadSourceInventoryTests.swift`, `10-10-SUMMARY.md`, `10-UAT.md`, `11-EXCEPTIONS.md`
+- Repository tree at `feature/gsd-phase-16` HEAD (`81e04acf24`): `.swiftlint.yml`, all grep inventories, `CategoryView.swift`, `Category.swift`, colorset JSON (84 variants re-measured), `EhPandaUITests/*`, `UITests.xctestplan`, `AppFeature/UITestSupport/*`, `AppLaunchAutomation.swift` (keys only), `DownloadLogPrivacyInvariantTests.swift`, `DownloadSourceInventoryTests.swift`, `10-10-SUMMARY.md`, `10-UAT.md`, `11-EXCEPTIONS.md`
 - SwiftLint 0.65.0 artifact binary runs (rule counts 5/0/0/0/0; fixture positives/negatives)
 
 ### Secondary (MEDIUM confidence)
@@ -1240,4 +1240,4 @@ RatingView(rating: gallery.rating)
 - Nutrition Label criteria: MEDIUM — official pages, condensed
 
 **Research date:** 2026-08-23
-**Valid until:** 2026-09-22 for stack/API facts (stable); the inventories are valid only at HEAD `a8829305` — re-grep before planning if the owner's round-1 commits land first (they will move line numbers in exactly the files listed under D-04)
+**Valid until:** 2026-09-22 for stack/API facts (stable); the inventories are valid only at HEAD `81e04acf24` — re-grep before planning if the owner's round-1 commits land first (they will move line numbers in exactly the files listed under D-04)

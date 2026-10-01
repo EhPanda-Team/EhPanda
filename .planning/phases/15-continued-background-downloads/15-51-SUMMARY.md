@@ -291,7 +291,7 @@ limit — 86 lines of headroom. The other two changed files are at 370 and 155 l
   tests, 1 failure, exactly the new case. RED as designed.
 - **Task 2, full unfiltered `FeatureTests`:** `** TEST SUCCEEDED **`, exit `0`. **884 tests, 0
   failures** (877 passed, 7 expected failures, 0 skipped).
-- **Movement against the starting head** (`f157e2e7`, 883 tests / 0 failures): **+1**, accounted for
+- **Movement against the starting head** (`58192b019c`, 883 tests / 0 failures): **+1**, accounted for
   case by case — the one addition is
   `testTwoSequentialSessionsRegisterOneIdentifierAndSubmitTwice`. Every other change was an edit or a
   rename in place: `testAStaleLaunchIsCompletedAndNeverDisplacesTheAwaitedTask` →
@@ -323,7 +323,7 @@ second dissolved-subject case**
   dissolved case was rebuilt on the same principle as the first — staged behind adoption, around the
   property that survives — rather than deleted or re-pointed.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift`
-- **Commit:** `eb0f8b1e`
+- **Commit:** `b2db14bb1c`
 
 ### Threat register outcomes
 
@@ -349,5 +349,5 @@ which survives — which is what the register's own mitigation column specified 
 - `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift` — FOUND
 - `.planning/phases/15-continued-background-downloads/15-51-SUMMARY.md` — FOUND
-- commit `8afcfeee` — FOUND
-- commit `eb0f8b1e` — FOUND
+- commit `85879dd308` — FOUND
+- commit `b2db14bb1c` — FOUND

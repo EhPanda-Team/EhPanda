@@ -111,8 +111,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: RED — pin the un-compensated write and the over-reporting announcement** — `1c15cc6f` (test)
-2. **Task 2: GREEN — shared compensation, swept exits, never-over-reporting announcement** — `8e263e8d` (fix)
+1. **Task 1: RED — pin the un-compensated write and the over-reporting announcement** — `37b0a16980` (test)
+2. **Task 2: GREEN — shared compensation, swept exits, never-over-reporting announcement** — `02e4942d09` (fix)
 
 ## Files Created/Modified
 
@@ -146,7 +146,7 @@ status: complete
 - **Fix:** The staging models the TRANSIENT the recover-once path exists for, which `recoveredBlanking`'s own doc names ("an enumeration that failed once, a write that failed once, a folder busy for an instant"). `SeedManifestWriteRecoveryFileManager` lifts the immutable flag at the SECOND gallery-folder listing after the removal — positionally-independently the recovery's own fresh scan, since the classification scan precedes the removal, the blanking pass's rescan is the first after it, and only a retry takes a second. Pre-fix nothing retries, the flag is never lifted, and the record goes on claiming a page whose file the preparation deleted.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSeedRecoveryTests.swift`
 - **Verification:** RED produced 6 issues on Case A, including a rebuilt coordinator reading `.completed` with `completedPageCount == 2` over a destroyed file; GREEN produces `pages[2] == ""`, `completedPageCount == 1` and `.inactive` on the same rebuilt coordinator.
-- **Committed in:** `1c15cc6f`
+- **Committed in:** `37b0a16980`
 
 **2. [Rule 1 - Bug] Case A's post-removal listing tally asserted as a floor rather than an exact count**
 
@@ -155,7 +155,7 @@ status: complete
 - **Fix:** The tally is asserted as `>= 2` ("the recovery's own fresh scan ran"), with the PRECISE pin moved onto `releasedTransientCount == 1` — the transient lifts exactly once, at the second post-removal listing — and the double's doc now names the trailing listings and says why they cannot move which listing releases the transient (they follow the release rather than gating it).
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSeedRecoveryTests.swift`
 - **Verification:** Suite green; the load-bearing record/disk assertions were unaffected in both regimes.
-- **Committed in:** `8e263e8d`
+- **Committed in:** `02e4942d09`
 
 ---
 
@@ -164,7 +164,7 @@ status: complete
 
 ## Banked Falsifiability
 
-RED (`1c15cc6f`), verbatim from the run:
+RED (`37b0a16980`), verbatim from the run:
 
 - Case A (exit 3), 6 issues: `control.postRemovalListingCount → 1` (nothing retried), `control.releasedTransientCount → 0`, `diskManifest.pages[2] → "sha256:done"` (the record claims a page whose file the pass deleted), `diskManifest.completedPageCount → 2`, and across a REBUILT coordinator `reread.completedPageCount → 2` and `reread.displayStatus → .completed` — a persisted, relaunch-surviving complete record over a destroyed file.
 - Case B1 (exit 1), 2 issues: `announced.completedUnitCount → 2` against an honest ceiling of 1, and `announced.subtitle → "2 / 3 pages · 1 gallery"` against `"1 / 3 pages · 1 gallery"`.
@@ -211,7 +211,7 @@ Gap 3 / review WR-03 is closed at its root: the compensation has one implementat
 
 - Created files verified on disk: `DownloadSeedRecoveryTests.swift`, `15-72-SUMMARY.md`.
 - Modified files verified on disk: `DownloadClient+ExecutionSupport.swift`, `DownloadClient+PersistenceNormalize.swift`, `DownloadClient+Manager.swift`.
-- Commits verified in `git log`: `1c15cc6f` (RED), `8e263e8d` (GREEN), `414dca25` (docs).
+- Commits verified in `git log`: `37b0a16980` (RED), `02e4942d09` (GREEN), `ddabb73f41` (docs).
 - Plan-level verification re-run and recorded above: gated suites green, full FeatureTests 957/0 across 22 targets, clean build 0 warnings, SwiftLint 0 violations over all 4 touched files.
 
 ---

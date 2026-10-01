@@ -94,9 +94,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1 RED: Add failing entry-source policy regressions** - `9a48c74e` (test)
-2. **Task 1 GREEN: Enforce deep-link entry-source policy** - `402012bd` (feat)
-3. **Task 2: Rewrite the shared URL scheme structurally** - `c9412c44` (fix)
+1. **Task 1 RED: Add failing entry-source policy regressions** - `a5688de483` (test)
+2. **Task 1 GREEN: Enforce deep-link entry-source policy** - `85219e70e3` (feat)
+3. **Task 2: Rewrite the shared URL scheme structurally** - `3f805de6a7` (fix)
 
 ## Files Created/Modified
 
@@ -141,7 +141,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Confirmed `9a48c74e`, `402012bd`, and `c9412c44` exist in git history in RED-to-GREEN task order.
+- Confirmed `a5688de483`, `85219e70e3`, and `3f805de6a7` exist in git history in RED-to-GREEN task order.
 - Confirmed all three modified files exist and the ShareExtension contains `URLComponents` with no `replacingOccurrences` call.
 - Confirmed targeted AppFeature tests, the full default unit plan, the embedded-extension build, strict repository-owned source/test/extension lint, and the structured URL preservation probe pass.
 

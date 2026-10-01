@@ -98,9 +98,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Bare corner-radius, autocorrection, and status-bar sweeps** - `4a48e23b` (refactor)
-2. **Task 2: Delete cornerRadius(_:corners:) + RoundedCorner; convert 2 call sites** - `1e76f0be` (refactor)
-3. **Task 3: Build/lint gate — line_length reflow fix surfaced by the build** - `7c2bf26e` (style)
+1. **Task 1: Bare corner-radius, autocorrection, and status-bar sweeps** - `82a7c687f9` (refactor)
+2. **Task 2: Delete cornerRadius(_:corners:) + RoundedCorner; convert 2 call sites** - `25a44a5375` (refactor)
+3. **Task 3: Build/lint gate — line_length reflow fix surfaced by the build** - `c81a1ac2cd` (style)
 
 **Plan metadata:** (final docs commit)
 
@@ -125,7 +125,7 @@ Each task was committed atomically:
 - **Fix:** Split `.clipShape(...)` onto its own line under the `.frame(...)` chain.
 - **Files modified:** AppPackage/Sources/HomeFeature/HomeView+Sections.swift
 - **Verification:** Rebuild → BUILD SUCCEEDED, 0 warnings, SwiftLint clean.
-- **Committed in:** `7c2bf26e`
+- **Committed in:** `c81a1ac2cd`
 
 **2. [Rule 3 - Blocking] Build destination/scheme substitution**
 - **Found during:** Task 3
@@ -153,7 +153,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 - Files verified present: ViewModifiers.swift, 10-03-SUMMARY.md
-- Commits verified in history: 4a48e23b, 1e76f0be, 7c2bf26e
+- Commits verified in history: 82a7c687f9, 25a44a5375, c81a1ac2cd
 
 ---
 *Phase: 10-ui-polish*

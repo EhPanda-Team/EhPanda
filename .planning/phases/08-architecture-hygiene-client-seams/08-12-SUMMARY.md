@@ -90,8 +90,8 @@ Cookie login gating now reads the injected `CookieClient` at every view site, wi
 
 ## Task Commits
 
-1. **Task 1: Migrate the 12 didLogin view sites to CookieClient** - `9e0be526`
-2. **Task 2: Delete CookieUtil** - `c430ab8d`
+1. **Task 1: Migrate the 12 didLogin view sites to CookieClient** - `b44c0d1687`
+2. **Task 2: Delete CookieUtil** - `a2bfe52ed2`
 
 **Plan metadata:** committed with this summary
 
@@ -123,7 +123,7 @@ Cookie login gating now reads the injected `CookieClient` at every view site, wi
 - **Fix:** Added `.module(.cookieClient)` to both target dependency lists in `AppPackage/Package.swift`.
 - **Files modified:** `AppPackage/Package.swift`
 - **Verification:** The complete package build and test suite pass.
-- **Committed in:** `9e0be526`
+- **Committed in:** `b44c0d1687`
 
 **2. [Rule 1 - Bug] Reconciled stale progress fields after state queries**
 - **Found during:** Plan metadata self-check

@@ -77,8 +77,8 @@ Profile verification now retains its construction-time gallery host through sele
 
 ## Task Commits
 
-1. **Task 1: Carry the originating GalleryHost through profile verification completion** - `4fb37c24`
-2. **Task 2: Add the suspended-request host-switch regressions** - `f40213f1`
+1. **Task 1: Carry the originating GalleryHost through profile verification completion** - `2354fc1bfc`
+2. **Task 2: Add the suspended-request host-switch regressions** - `03824eac51`
 
 **Plan metadata:** committed with this summary
 
@@ -145,7 +145,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `4fb37c24` and `f40213f1` exist in Git history.
+- Task commits `2354fc1bfc` and `03824eac51` exist in Git history.
 - `SettingReducerTests.swift` exists and the focused SettingFeatureTests suite passes.
 - The full AppPackage suite and warning-free app build pass with SwiftLint build-tool checks enabled.
 - Profile completion has one originating-host payload, two construction-time-host senders, and one carried-host handler; the completion no longer reads shared host state.

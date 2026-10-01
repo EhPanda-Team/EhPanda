@@ -110,14 +110,14 @@ New test: `DetailReadingLifecycleTests` asserts both of Detail's presentation pa
 - **Found during:** Task 1
 - **Issue:** The reader has no presenting reducer inside its own module. All four construction sites live in DetailFeature and DownloadsFeature; leaving any one unpaired ships a reader that never resolves its local pages and never observes its download.
 - **Fix:** Added the `.onPresented` send at all four sites; dropped the now-dead `gid` argument at the three `ReadingView` call sites.
-- **Commit:** `ccd7421b`
+- **Commit:** `db042f03ef`
 
 **2. [Rule 1 - Bug] Four existing tests asserted a contentSource that production immediately overwrote**
 
 - **Found during:** Task 1
 - **Issue:** `DetailReducerObserveTests` (×2), `PreviewsReducerDownloadTests` and `DownloadsReducerActionTests` assert `contentSource == .local` after opening the reader. Their `DownloadClient` doubles never stubbed `loadLocalPageURLs`, so it returned nil → `[:]` → `loadLocalPageURLsDone` correctly downgraded `.local` to `.remote`. The tests only passed because the load never ran inside the test store; **in production this downgrade already happened**, one beat later, via the view's `onAppear`. Moving the send into the transition surfaced the gap rather than creating it.
 - **Fix:** Stubbed `loadLocalPageURLs` in the three doubles to return page URLs derived from the manifest — what a completed download actually has on disk. Added a `skipReceivedActions` to the Downloads test so the fanned-out actions settle before the assertion.
-- **Commits:** `ccd7421b`
+- **Commits:** `db042f03ef`
 - **Note:** the assertions are unchanged and still meaningful; only the doubles became complete. No production behaviour was altered to make a test pass.
 
 **3. [Rule 3 - Blocking] `DetailReadingSeedTests` needed a `downloadClient` stub**
@@ -125,7 +125,7 @@ New test: `DetailReadingLifecycleTests` asserts both of Detail's presentation pa
 - **Found during:** Task 1
 - **Issue:** Same cause as 11-08's deviation 3 — presenting now runs the child's effects inside the presenter's store, hitting an unimplemented `downloadClient`.
 - **Fix:** `$0.downloadClient = .noop` at both stores.
-- **Commit:** `ccd7421b`
+- **Commit:** `db042f03ef`
 
 ## D-02 exception candidates for owner review (11-29)
 
@@ -153,5 +153,5 @@ Three sites, all argued above. Summarised for the batch review:
 
 - `AppPackage/Tests/DetailFeatureTests/DetailReadingLifecycleTests.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-09-SUMMARY.md` — FOUND
-- Commit `ccd7421b` — FOUND
-- Commit `e167038d` — FOUND
+- Commit `db042f03ef` — FOUND
+- Commit `6eb4bf88da` — FOUND

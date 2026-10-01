@@ -162,8 +162,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Add the coordinator session lifecycle** - `dc031fdf` (feat)
-2. **Task 2: Ensure a session from every queue-mobilizing user action, with lifecycle coverage** - `b3d2b2b1` (feat)
+1. **Task 1: Add the coordinator session lifecycle** - `8e02891f07` (feat)
+2. **Task 2: Ensure a session from every queue-mobilizing user action, with lifecycle coverage** - `6df62bfd44` (feat)
 
 ## Files Created/Modified
 
@@ -191,7 +191,7 @@ Each task was committed atomically:
 - **Issue:** The plan's two stated rules (a never-regressing completed count, and the snapshot's clamped total) can produce `completed > total` when a mostly-finished gallery leaves the queue and a small one remains. `Progress.fractionCompleted` would then exceed one.
 - **Fix:** The pushed total is `Int64(max(snapshot.progress.displayPageCount, completedPageCount))`, with an inline comment stating why.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift`
-- **Commit:** `dc031fdf`
+- **Commit:** `8e02891f07`
 
 **2. [Rule 3 - Blocking] The session lifecycle methods are `public` rather than internal**
 
@@ -199,7 +199,7 @@ Each task was committed atomically:
 - **Issue:** `DownloadsFeatureTests` imports `DownloadClient` without `@testable`, so internal coordinator methods cannot be called from the suite. Three of the plan's five required lifecycle cases had no reachable trigger.
 - **Fix:** Declared the session lifecycle methods `public`, consistent with every other `DownloadCoordinator` extension method in the module. `isSchedulableDownload(_:)` stayed internal exactly as the plan specified.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift`
-- **Commit:** `dc031fdf`
+- **Commit:** `8e02891f07`
 
 ## Deferred Items
 
@@ -250,7 +250,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All six files exist on disk with the expected contents, and both task commits (`dc031fdf`, `b3d2b2b1`) are present in `git log`.
+All six files exist on disk with the expected contents, and both task commits (`8e02891f07`, `6df62bfd44`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

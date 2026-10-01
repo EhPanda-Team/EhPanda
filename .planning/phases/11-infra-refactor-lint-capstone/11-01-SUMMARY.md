@@ -55,14 +55,14 @@ static func degrading<Value>(_ description: String, _ parse: () throws -> Value)
 All 33 Group A/B call sites pass a fixed literal descriptor (`"Cover URL"`, `"Gallery tags"`,
 `"Thumbnail panel"`, …). No call site interpolates document content, URLs, or cookie-bearing values.
 
-### Task 1 — Group A (21 per-row / per-candidate drop sites), commit `25e30036`
+### Task 1 — Group A (21 per-row / per-candidate drop sites), commit `db6b92e360`
 - `Parser+Detail.swift`: 9 sites in the `parseGalleryDetail` guard chain (cover, tags, previews,
   archive/torrent, info panel, visibility, uploader, rating, posted date)
 - `Parser+List.swift`: 11 sites (4× thumbnail panel, 4× gallery title, panel rating, div/span title
   candidate fallthroughs)
 - `Parser+Torrent.swift`: 1 site (torrent posted date)
 
-### Task 2 — Group B (12 per-field default sites), commit `531deb9b`
+### Task 2 — Group B (12 per-field default sites), commit `3e6c8fb9ba`
 - `Parser+Shared.swift`: script date, text rating
 - `Parser+Detail.swift`: preview config, archive URL, fallback archive URL
 - `Parser+List.swift`: 4× gallery tags, 2× uploader, published date
@@ -94,7 +94,7 @@ converted site still carries its own WHY (row dropped vs. field defaulted).
 - **Impact on 11-02:** plan 11-02 must propagate 9 sites, not 6. The 3 extra are `Parser+List.swift`
   lines 22 and 25 (Extended / Thumbnail mode branches) and line 10 (the `parseDisplayMode` switch
   subject) — all the same whole-parse-collapse shape as the branches the plan already names.
-- **Commits:** `25e30036`, `531deb9b`
+- **Commits:** `db6b92e360`, `3e6c8fb9ba`
 
 ### 2. [Rule 3 — Blocking] Test scheme substitution
 - **Found during:** Task 1 verification
@@ -141,5 +141,5 @@ value, both marked `privacy: .public`, and the cookie-logging gate passes.
 - `AppPackage/Sources/ParserFeature/Parser+Detail.swift` — FOUND
 - `AppPackage/Sources/ParserFeature/Parser+List.swift` — FOUND
 - `AppPackage/Sources/ParserFeature/Parser+Torrent.swift` — FOUND
-- commit `25e30036` — FOUND
-- commit `531deb9b` — FOUND
+- commit `db6b92e360` — FOUND
+- commit `3e6c8fb9ba` — FOUND

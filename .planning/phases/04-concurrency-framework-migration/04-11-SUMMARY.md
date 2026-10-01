@@ -88,8 +88,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `25a53ac8` | Switch Detail effects to typed async |
-| 2 | `aa75ad81` | Switch Reading and App effects to typed async |
+| 1 | `5328800f5c` | Switch Detail effects to typed async |
+| 2 | `ffd31a8a67` | Switch Reading and App effects to typed async |
 
 ## Deviations from Plan
 

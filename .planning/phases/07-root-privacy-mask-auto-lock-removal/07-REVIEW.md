@@ -54,8 +54,8 @@ findings:
 status: resolved
 resolution:
   wr-01: dismissed (pre-release, no persisted blob)
-  wr-02: fixed (9848e75e) and verified on a physical device 2026-07-14
-  in-01: fixed (a4ce8b12); full suite green (507 tests)
+  wr-02: fixed (9dc85967d2) and verified on a physical device 2026-07-14
+  in-01: fixed (03acff370e); full suite green (507 tests)
   in-02: confirmed intentional by owner 2026-07-14
 ---
 
@@ -91,8 +91,8 @@ project's "v1-schema-until-release" stance — the app is not yet released, so t
 persisted blob to preserve. The finding is retained below for the record but is not actionable and
 carries no migration debt at this time.
 
-**All findings closed (2026-07-14):** WR-01 dismissed (above); WR-02 fixed (`9848e75e`) and verified
-on a physical device; IN-01 fixed (`a4ce8b12`) with the full 507-test suite green; IN-02 confirmed
+**All findings closed (2026-07-14):** WR-01 dismissed (above); WR-02 fixed (`9dc85967d2`) and verified
+on a physical device; IN-01 fixed (`03acff370e`) with the full 507-test suite green; IN-02 confirmed
 intentional by the owner. See the per-finding resolution banners below. This review is resolved.
 
 ## Narrative Findings (AI reviewer)
@@ -144,7 +144,7 @@ enum SchemaV2: VersionedSchema {
 
 #### WR-02: Animated privacy blur may not render before iOS captures the App Switcher snapshot
 
-> **RESOLVED (2026-07-14) — fixed in `9848e75e`, verified on a physical device.** The scoped
+> **RESOLVED (2026-07-14) — fixed in `9dc85967d2`, verified on a physical device.** The scoped
 > animation is now suppressed whenever the blur becomes nonzero (`reduceMotion || blur != 0 ? nil :
 > .linear(duration: 0.1)`), so the mask is applied instantly on `.inactive` and only fades out on
 > return to active. The App Switcher card was confirmed fully masked on-device.
@@ -177,7 +177,7 @@ Then verify on-device that the App Switcher card is fully masked.
 
 #### IN-01: `AppReducerScenePhaseTests` relies on `.serialized` over process-global `@Shared` storage
 
-> **RESOLVED (2026-07-14) — fixed in `a4ce8b12`.** `makeStore(...)` now injects a fresh
+> **RESOLVED (2026-07-14) — fixed in `03acff370e`.** `makeStore(...)` now injects a fresh
 > `UserDefaults.inMemory` + `InMemoryStorage()` via `withDependencies` (both while building shared
 > state and on the `TestStore`), and `.serialized` was dropped. Full suite green at 507 tests with the
 > suite running unserialized.

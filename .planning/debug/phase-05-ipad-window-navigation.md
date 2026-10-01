@@ -23,10 +23,10 @@ started: Discovered during Phase 5 UAT.
 ## Eliminated
 
 - hypothesis: Phase 5 intentionally changed iPhone gallery navigation to modal presentation.
-  evidence: Plan 05-01, commit 5901ee63, GalleryNavigation comments, and the Phase 5 summary all explicitly require iPad modal/non-iPad push parity.
+  evidence: Plan 05-01, commit 0a73e684d3, GalleryNavigation comments, and the Phase 5 summary all explicitly require iPad modal/non-iPad push parity.
   timestamp: 2026-07-13T17:17:00+09:00
 - hypothesis: The Phase 5 DeviceType refactor inverted or otherwise changed the gallery routing conditional.
-  evidence: The 5901ee63 diff is a direct isPad() to deviceType() == .pad substitution, and the targeted DownloadsReducerActionTests pass for both the phone push and pad delegate paths.
+  evidence: The 0a73e684d3 diff is a direct isPad() to deviceType() == .pad substitution, and the targeted DownloadsReducerActionTests pass for both the phone push and pad delegate paths.
   timestamp: 2026-07-13T17:24:00+09:00
 
 ## Evidence
@@ -56,7 +56,7 @@ started: Discovered during Phase 5 UAT.
   found: EhPandaApp, RootView, TabBarView, and HomeView set no explicit window/root content background. Home's Other cards use Color(.systemGray6), so they rely on the inherited backdrop being visually different.
   implication: When the platform's window surface uses a sheet/grouped gray appearance, the cards and inherited root background converge and card boundaries disappear.
 - timestamp: 2026-07-13T17:17:00+09:00
-  checked: GalleryNavigation source, Phase 5 Plan 05-01, summary, commit 5901ee63, and earlier commits 5b204baa/b39bf62b.
+  checked: GalleryNavigation source, Phase 5 Plan 05-01, summary, commit 0a73e684d3, and earlier commits 8af2ac9d18/794f475599.
   found: The routing contract before and during Phase 5 is explicitly "iPad presents; iPhone pushes." Phase 5 only replaced isPad() with DeviceType.current == .pad, and its plan, commit message, comments, and summary all require unchanged behavior. The app-level DetailView sheet is reached only through the present delegate.
   implication: Modal iPhone gallery taps were not an intentional Phase 5 behavior change. They are a regression report (or a path-specific observation outside ordinary gallery taps), not a documented product decision.
 - timestamp: 2026-07-13T17:24:00+09:00
@@ -70,7 +70,7 @@ started: Discovered during Phase 5 UAT.
 
 ## Resolution
 
-root_cause: "Four independent causes: (1) ReadingFeature/Support/ControlPanel.swift positions its full-width custom UpperPanel with fixed horizontal padding and a top-padding branch that excludes iPad, so it never reserves the macOS-style iPad window-control region. (2) The app/root/Home hierarchy supplies no explicit distinct window content background while Home's Other cards use systemGray6, allowing the platform sheet/grouped window backdrop to match and visually erase those cards. (3) App/Info.plist advertises UIApplicationSupportsMultipleScenes=true, but every WindowGroup scene receives RootView(appDelegate:) and therefore the single AppDelegate.store, so separate windows share all app state. (4) Phase 5 did not intentionally make iPhone details modal: Plan 05-01 and commit 5901ee63 explicitly preserve iPad modal/non-pad push routing, and the phone/pad reducer test passes. Thus the reported iPhone sheet is a regression/path-specific mismatch with the contract, not a documented Phase 5 design change; standard gallery taps in the checked-in reducer still push on phone."
+root_cause: "Four independent causes: (1) ReadingFeature/Support/ControlPanel.swift positions its full-width custom UpperPanel with fixed horizontal padding and a top-padding branch that excludes iPad, so it never reserves the macOS-style iPad window-control region. (2) The app/root/Home hierarchy supplies no explicit distinct window content background while Home's Other cards use systemGray6, allowing the platform sheet/grouped window backdrop to match and visually erase those cards. (3) App/Info.plist advertises UIApplicationSupportsMultipleScenes=true, but every WindowGroup scene receives RootView(appDelegate:) and therefore the single AppDelegate.store, so separate windows share all app state. (4) Phase 5 did not intentionally make iPhone details modal: Plan 05-01 and commit 0a73e684d3 explicitly preserve iPad modal/non-pad push routing, and the phone/pad reducer test passes. Thus the reported iPhone sheet is a regression/path-specific mismatch with the contract, not a documented Phase 5 design change; standard gallery taps in the checked-in reducer still push on phone."
 fix: Not applied; diagnose-only mode.
 verification: Root-cause evidence verified by complete source reads, line-level git history/diffs, and a passing targeted phone/pad routing test.
 files_changed: []

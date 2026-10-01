@@ -43,7 +43,7 @@ negative-control-proven, both builds clean, 565 tests passing in parallel across
 scan clean** — and the owner's batch-review artifact exists. `LINT-01` is marked complete after 29
 plans deliberately left it open.
 
-One commit: `de754a4f`. No source file was touched.
+One commit: `f193c88869`. No source file was touched.
 
 ## The verification battery
 
@@ -124,8 +124,8 @@ each one to date it — not by carrying plan text forward.
 
 | Rule | Phase exceptions | Origin |
 |---|---:|---|
-| `lifecycle_modifiers` | **6** | 3 from 11-09 (reader teardown, per-page fetch/prefetch, image `.task(id:)`), 3 from 11-11 (toast timer, alert focus hop, thumbnail decode) — all landed in `df693e44` |
-| `unchecked_subscript_index_access` | **2** | `GalleryHistory+Operations.swift:43` and `PreviewIdentifiers.swift:1046`, both landed in `3bf28440` |
+| `lifecycle_modifiers` | **6** | 3 from 11-09 (reader teardown, per-page fetch/prefetch, image `.task(id:)`), 3 from 11-11 (toast timer, alert focus hop, thumbnail decode) — all landed in `bdf4775616` |
+| `unchecked_subscript_index_access` | **2** | `GalleryHistory+Operations.swift:43` and `PreviewIdentifiers.swift:1046`, both landed in `f9870fcd41` |
 | the other six rules | **0** | four consecutive flips shipped with an empty directive payload |
 
 Each entry records file:line, the full reason text, and its argument. The 20 pre-existing ones
@@ -334,5 +334,5 @@ evidence that it was not carried forward. T-11-SC: no packages installed.
 - `.planning/phases/11-infra-refactor-lint-capstone/11-EXCEPTIONS.md` — FOUND, contains `optional_try`
 - `.planning/ROADMAP.md` — FOUND, contains `unapproved`; Phase 11 ticked, 30/30
 - `.planning/REQUIREMENTS.md` — FOUND, LINT-01 `[x]`, traceability row `Complete`, contains `no unapproved suppressions`
-- Commit `de754a4f` — FOUND
+- Commit `f193c88869` — FOUND
 - No absolute home path in any document written or edited — verified by grep

@@ -88,7 +88,7 @@ with small plan amendments; neither invalidates the phase shape.
   cardWidth)/2`) to reproduce centered snap. Without it the very first Task-1 render is a
   visible parity gap on a mandatory-parity surface.
 - **MEDIUM — 03-03 Task 1 leaves the package non-compiling at a task boundary.** Deliberate and
-  documented (grep-only isolation verify; rescoped in c2e91a40), but the commit-per-task
+  documented (grep-only isolation verify; rescoped in ea14bd9de5), but the commit-per-task
   protocol then produces a non-building commit (AdvancedList takes `PageModel` while ReadingView
   still passes `Page`). A cleaner split achieves the same waves with every commit green: Task 1 =
   create `PageModel.swift` only (a new unused file compiles standalone), Task 2 = re-seam

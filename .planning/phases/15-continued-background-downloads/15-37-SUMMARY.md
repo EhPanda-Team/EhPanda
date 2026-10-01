@@ -112,7 +112,7 @@ can read.
   violates. The defect the gap actually names (a safety argument stated in unobservable terms) is
   fully closed either way.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift`
-- **Commit:** `929ee241`
+- **Commit:** `918e7daddb`
 
 ### 2. [Rule 1 — scope correction] IN-03 is one case, not two
 
@@ -145,7 +145,7 @@ rather than a build error mistaken for one.
 
 ### Task 1 — the coordinator side
 
-**Commit:** `929ee241` `refactor(15-37): close the session-state boundary and bind two invariants`
+**Commit:** `918e7daddb` `refactor(15-37): close the session-state boundary and bind two invariants`
 
 #### WR-09 — the observable safety argument (call kept, see Deviation 1)
 
@@ -316,7 +316,7 @@ this host.
 
 ### Task 2 — the client side, RED first
 
-**Commit:** `441ca960` `fix(15-37): establish request identity before submission, scan the module`
+**Commit:** `9bd0a9b210` `fix(15-37): establish request identity before submission, scan the module`
 
 #### Step 1 — the scan extended, and its RED
 
@@ -531,5 +531,5 @@ Files claimed, all present:
 
 Commits claimed, both present in `git log`:
 
-- `929ee241` — FOUND
-- `441ca960` — FOUND
+- `918e7daddb` — FOUND
+- `9bd0a9b210` — FOUND

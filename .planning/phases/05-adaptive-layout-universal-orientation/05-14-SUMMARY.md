@@ -89,8 +89,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Make SettingTextField's title accessibility-only** - `ba6199dc` (fix)
-2. **Task 2: Add untitled cancellation-role dismiss to the three reusable sheet roots** - `acc2b722` (fix)
+1. **Task 1: Make SettingTextField's title accessibility-only** - `881d47183e` (fix)
+2. **Task 2: Add untitled cancellation-role dismiss to the three reusable sheet roots** - `6de66b6f44` (fix)
 
 ## Files Created/Modified
 
@@ -142,7 +142,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- All four modified source files exist, and task commits `ba6199dc` and `acc2b722` are present.
+- All four modified source files exist, and task commits `881d47183e` and `6de66b6f44` are present.
 - Both required iPhone Air simulator package builds succeeded with SwiftLint build-tool plugin execution.
 - Static gates confirm direct non-empty accessibility labels, all five existing field call sites, all three cancellation-role items, preserved Quick Search trailing toolbar content, and no changed string catalogs.
 

@@ -130,7 +130,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: one localized-key spelling across all DownloadClient call sites** — `f3fd0b00` (refactor)
+1. **Task 1: one localized-key spelling across all DownloadClient call sites** — `de41bf29d4` (refactor)
 
 ## Files Created/Modified
 
@@ -193,7 +193,7 @@ Restoring the prefix returned the build to `** BUILD SUCCEEDED **`, 0 warnings. 
 - **Fix:** The census was re-derived from source before the pass and widened to `localized:\s*\.` plus `\.missingFiles\(\.`, giving 13 prefixed / 12 bare. All 12 were rewritten. The plan's criterion still passes; the wider one is what the summary reports.
 - **Files modified:** `DownloadClient+ContinuedSession.swift`, `DownloadStore+Operations.swift` (the three extra sites)
 - **Verification:** Wider census → 25 prefixed, 0 bare. The deletion of the module-local catalog makes it independently impossible for a missed site to survive: it would not compile.
-- **Committed in:** `f3fd0b00`
+- **Committed in:** `de41bf29d4`
 
 **2. [Rule 3 — Blocking] Three files consumed keys from their own module and had no `import Resources`**
 
@@ -202,7 +202,7 @@ Restoring the prefix returned the build to `** BUILD SUCCEEDED **`, 0 warnings. 
 - **Fix:** `import Resources` added to all three, in the files' existing alphabetical import order. The other two rewritten files already imported it, because they already carried prefixed accesses.
 - **Files modified:** the three named above
 - **Verification:** Clean build, 0 warnings; the falsification run confirms the import alone is not what carries the spelling.
-- **Committed in:** `f3fd0b00`
+- **Committed in:** `de41bf29d4`
 
 ### Out of Scope — Logged, Not Fixed
 
@@ -255,5 +255,5 @@ Still near the `file_length` limit and needing a split before they are next edit
 - `AppPackage/Sources/Resources/ResourceStringSymbols.swift` — FOUND (43 symbols, alphabetical, bijective with the catalog)
 - `AppPackage/Sources/Resources/Resources/Localizable.xcstrings` — FOUND (43 keys, contains `download_store.*` and `continued_session.*`)
 - `AppPackage/Sources/DownloadClient/Resources/Localizable.xcstrings` — CONFIRMED ABSENT, as intended
-- Commit `f3fd0b00` — FOUND; its one file deletion is the intended catalog retirement
+- Commit `de41bf29d4` — FOUND; its one file deletion is the intended catalog retirement
 - Bare key-access census in `AppPackage/Sources/DownloadClient` — 0

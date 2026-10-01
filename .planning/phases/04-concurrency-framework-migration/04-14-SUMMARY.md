@@ -97,11 +97,11 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `86c8ed78` | Enable the two TCA deprecation traits and record the positive-control inventory |
-| 2 | `9980b69d` | Migrate the seven planned primary projected-scope files |
-| 3 | `fe34416a` | Migrate the remaining authorized view and reducer deprecations |
+| 1 | `a8b1b6ec1b` | Enable the two TCA deprecation traits and record the positive-control inventory |
+| 2 | `841edfef59` | Migrate the seven planned primary projected-scope files |
+| 3 | `cc31f53b7f` | Migrate the remaining authorized view and reducer deprecations |
 
-The intermediate D-11 checkpoint record was committed as `824677b0` before the owner authorized the expanded scope.
+The intermediate D-11 checkpoint record was committed as `5b3bd45bf8` before the owner authorized the expanded scope.
 
 ## Deviations from Plan
 

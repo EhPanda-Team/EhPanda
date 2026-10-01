@@ -48,7 +48,7 @@ reconciled: 2026-09-08
 2. **Task 1 — product change:** `ca10b177` (`fix(15-77): stop swipe delete row vanishing`). The fix also strips comment lines from the source scan so explanatory comments do not count as executable roles.
 3. **Task 2 — acceptance and closure:** recorded in `15-UAT.md` test 7 and `15-VERIFICATION.md`; `d33d6fd4` (`docs: close phase 15`) closed the phase on 2026-08-19 and explicitly identified this missing summary.
 
-The older verification/UAT narrative refers to equivalent historical commits `8277ded7` and `15afbde4`. The task commits above are the corresponding implementation records found in the current history. Later refactoring shares `deleteButton(role:)` between the two surfaces and attaches confirmation to the row; current source retains the role distinction and identity-scoped animation.
+The older verification/UAT narrative refers to equivalent historical commits `b212c31b6b` and `ca10b1776e`. The task commits above are the corresponding implementation records found in the current history. Later refactoring shares `deleteButton(role:)` between the two surfaces and attaches confirmation to the row; current source retains the role distinction and identity-scoped animation.
 
 ## Owner Checkpoint
 
@@ -60,7 +60,7 @@ This is the recovered acceptance record, not a newly performed device evaluation
 
 ## Verification
 
-- Historical phase verification reports a full package suite at `f9892824`: 997 tests, 986 passed, 11 expected failures, 0 failed, 0 skipped. This is historical evidence, not a fresh run against today's HEAD.
+- Historical phase verification reports a full package suite at `d3f2ae21c5`: 997 tests, 986 passed, 11 expected failures, 0 failed, 0 skipped. This is historical evidence, not a fresh run against today's HEAD.
 - Current source inspection confirms `deleteButton(role: nil)` with `.tint(.red)` in the trailing swipe region, `deleteButton(role: .destructive)` in the context menu, the identity-scoped animation, and the four regression tests.
 - The original RED run's output and a dedicated post-fix test-result bundle were not recovered. Test-first commit ordering alone does not prove a RED execution.
 - Test 7 explicitly records iPhone choreography. Test 8 separately records the owner decision on row anchoring and device observations on iPhone/iPad. The recovered records do not separately document every original checkpoint item: iPad choreography, VoiceOver action/trait parity, async-latency judgment, and scroll-position behavior must not be represented as individually observed passes.

@@ -73,7 +73,7 @@ the exits non-terminal. That is the property the finding was about.
 
 **Files modified:** `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
 `AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
-**Commit:** `06bff82b`
+**Commit:** `439977c0ee`
 
 **Applied fix:** The removal is now licensed by a listing taken at the moment of removal instead of
 by `decision.skips`, which describes the directory as it was *before* the moves. A file that
@@ -104,7 +104,7 @@ asserted, since a fix that merely stopped removing would still leave the file un
 **Files modified:** `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift`,
 `AppPackage/Sources/AppTools/LogsDirectoryMigration.swift`,
 `AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift`
-**Commit:** `da5a0675`
+**Commit:** `622944212b`
 
 **Applied fix:** Both the consumer and the producer.
 
@@ -127,7 +127,7 @@ and the cause's text — because the count alone is what this used to carry.
 
 **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift`,
 `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift`
-**Commit:** `a5b9e3f5`
+**Commit:** `72f9ad92b8`
 
 **Applied fix:** A minting guard sits between the admission guard and `blockScheduling`, so it
 precedes every side effect and needs neither a release nor a convergence — the same placement
@@ -167,7 +167,7 @@ is ever tightened into "normalize the destination", which is the rewrite CR-01 r
 
 **File:** `AppPackage/Sources/DownloadsFeature/DownloadsView.swift:227-229`
 **Reason:** Correct finding, but the remedy is an owner decision that an automated fixer must not
-make, and the option the review leads with would regress `9421b7bb` / `15afbde4` into a defect the
+make, and the option the review leads with would regress `04b92a128e` / `ca10b1776e` into a defect the
 owner's own research has already identified.
 
 **Reconciliation against the project's own rule, as required.** The finding is **not** wrong: the
@@ -189,7 +189,7 @@ honour the rule or record the override"* — and both branches are owner-owned:
    with *"re-evaluate the dialog-placement rule for iOS 26 anchoring first."* So this option trades
    a rare, fail-safe teardown (the dialog vanishes; no deletion fires) for a permanently
    wrong-looking anchor on every delete on every device. It also makes `DownloadRowFeature`'s per-row
-   state vestigial, undoing the architecture `9421b7bb` deliberately introduced.
+   state vestigial, undoing the architecture `04b92a128e` deliberately introduced.
 2. **Recording the override** is by definition an owner decision, not a code change — the review's
    own words are *"get an owner decision on record rather than a comment."*
 

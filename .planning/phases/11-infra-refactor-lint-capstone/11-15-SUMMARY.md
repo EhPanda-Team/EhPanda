@@ -212,14 +212,14 @@ Every one of the 41 matches resolved to a safe idiom, a structural fix, an hones
 - **Found during:** Task 2
 - **Issue:** The plan's idiom ladder anticipates per-site guards. For the EhSetting parallel arrays, the gallery-URL identifiers, and the tag merge, a per-site guard would have papered over three unchecked cross-object assumptions while leaving each one intact.
 - **Fix:** `zip`/`prefix`, a guarded `URL.galleryIdentifiers`, and dictionary grouping. Shorter diff than the equivalent guards, and the defect class is removed rather than caught.
-- **Commit:** `3c7f71bc`
+- **Commit:** `a4d9a23b02`
 
 **4. [Scope] One violation was resolved by deleting dead code**
 
 - **Found during:** Task 2
 - **Issue:** `Request.swift`'s `URL.galleryToken` contributed a match but is unreachable.
 - **Fix:** Deleted the extension. Confirmed unreferenced across `AppPackage` before removal.
-- **Commit:** `3c7f71bc`
+- **Commit:** `a4d9a23b02`
 
 ## Flagged for owner review
 
@@ -254,5 +254,5 @@ None. No new network, auth, file-access or schema surface was introduced. T-11-1
 - `AppPackage/Sources/NetworkingFeature/Request+Image.swift` — FOUND
 - `AppPackage/Sources/NetworkingFeature/Request.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-15-SUMMARY.md` — FOUND
-- Commit `903ad90e` — FOUND
-- Commit `3c7f71bc` — FOUND
+- Commit `28c137bf91` — FOUND
+- Commit `a4d9a23b02` — FOUND

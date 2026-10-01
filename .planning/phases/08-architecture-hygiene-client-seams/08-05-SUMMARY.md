@@ -99,9 +99,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Give the Detail-consumed account requests explicit host + make apiuid host-taking** - `c5bf8253` (refactor)
-2. **Task 2: Supply setting.galleryHost from the Detail reducer call sites** - `edcc05c3` (refactor)
-3. **Post-completion fix: Align Detail effect captures with SwiftLint** - `b2643b8d` (fix)
+1. **Task 1: Give the Detail-consumed account requests explicit host + make apiuid host-taking** - `e7e85c66a8` (refactor)
+2. **Task 2: Supply setting.galleryHost from the Detail reducer call sites** - `b546cc3c83` (refactor)
+3. **Post-completion fix: Align Detail effect captures with SwiftLint** - `c407ab9245` (fix)
 
 ## Files Created/Modified
 
@@ -129,7 +129,7 @@ status: complete
 - **Fix:** Passed a deterministic explicit host to every affected baseline request and matching expected URL builder.
 - **Files modified:** `AppPackage/Tests/NetworkingFeatureTests/AccountRequestBaselineTests.swift`
 - **Verification:** All 77 NetworkingFeature tests passed across nine suites.
-- **Committed in:** `c5bf8253`
+- **Committed in:** `e7e85c66a8`
 
 **2. [Rule 3 - Blocking] Adapted verification to the available package scheme and simulator**
 
@@ -147,7 +147,7 @@ status: complete
 - **Fix:** Snapshotted each effect input into immutable local constants, then used compact capture lists on the same line as the opening brace.
 - **Files modified:** `AppPackage/Sources/DetailFeature/DetailReducer+Fetch.swift`
 - **Verification:** The full app build completed with SwiftLint enabled and no warnings; all four DetailFeature tests passed.
-- **Committed in:** `b2643b8d`
+- **Committed in:** `c407ab9245`
 
 ---
 
@@ -176,7 +176,7 @@ None - no external service configuration required.
 - The full app build succeeds with SwiftLint plugins enabled and emits no warnings.
 - DetailFeatureTests passes all four tests across three suites.
 - NetworkingFeatureTests passes all 77 tests across nine suites.
-- Task commits `c5bf8253`, `edcc05c3`, and `b2643b8d` exist in git history and pass `git show --check`.
+- Task commits `e7e85c66a8`, `b546cc3c83`, and `c407ab9245` exist in git history and pass `git show --check`.
 - Modified source contains no new warning suppression, SwiftLint disable, TODO, FIXME, or placeholder.
 - The concurrency review found no isolation, cancellation, or unstructured-task regressions; immutable host snapshots cross effect boundaries safely.
 - Generated documentation contains no absolute home-directory paths or private local-project names.

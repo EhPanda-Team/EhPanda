@@ -42,7 +42,7 @@ status: complete
 
 `single_line_trailing_closure` is **live at error** and the standalone binary reports **0 violations
 across all four path roots**. The 70 Tests-half sites are rewrapped, completing the phase's 215-site
-sweep. One commit: `2da57704`, 27 files, 94 insertions / 78 deletions.
+sweep. One commit: `a2b363a1f7`, 27 files, 94 insertions / 78 deletions.
 
 This is the **seventh** live rule this phase, joining `lifecycle_modifiers`, `binding_initializer`,
 `unchecked_subscript_index_access`, `labeled_tuple_elements`, `optional_try` and `sorted_imports`.
@@ -183,7 +183,7 @@ the reasoning and the `doccomment`/`doc_comment` spelling hazard, per the wave-1
 - `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED** (26.6 s), 0 errors,
   0 warnings, run **after** the flip. This is the load-bearing gate for this plan: the app-scheme
   build does not lint `Tests/`, and this plan's entire payload is in `Tests/` (Pitfall 6 / the
-  `e8589355` incident class). Wave 23's `FeatureTests.xctestplan` repair means it covers all 18 test
+  `fe3c43e0fe` incident class). Wave 23's `FeatureTests.xctestplan` repair means it covers all 18 test
   targets.
 - The same command was also run **before** the flip, as the compile gate for the 10 added `where:`
   labels — a missed label is a compile error, not a lint finding.
@@ -229,7 +229,7 @@ shortens rather than breaks a chain. 11-26's one deliberately-untouched pre-exis
   would break the build and force a reword.
 - **Fix:** `doccomment` added with an explanatory comment. Verified to change nothing today (0
   doc-comment matches across all four roots) and verified valid by the probe firing.
-- **Commit:** `2da57704`
+- **Commit:** `a2b363a1f7`
 
 **3. [Scope] The plan's ~74 / 223 figures were the stale pre-11-26 numbers**
 
@@ -256,7 +256,7 @@ shortens rather than breaks a chain. 11-26's one deliberately-untouched pre-exis
 - **Fix:** One atomic commit, per Pitfall 10. With zero exception directives the constraint was
   vacuous here, but the single commit also guarantees no intermediate state where the tree holds
   either an unenforced rewrap or a rule ahead of its fixes.
-- **Commit:** `2da57704`
+- **Commit:** `a2b363a1f7`
 
 ## Exception sites
 
@@ -288,6 +288,6 @@ pipeline.
   `folders: { … .map({ [$0] }) ?? [] }` dependency overrides
 - `AppPackage/Tests/NetworkingFeatureTests/Support/CountingStubProtocol.swift` — FOUND; 6 sites
 - `.planning/phases/11-infra-refactor-lint-capstone/11-27-SUMMARY.md` — FOUND
-- Commit `2da57704` — FOUND; 27 files, 94 insertions / 78 deletions, no deletions, no untracked files
+- Commit `a2b363a1f7` — FOUND; 27 files, 94 insertions / 78 deletions, no deletions, no untracked files
 </content>
 </invoke>

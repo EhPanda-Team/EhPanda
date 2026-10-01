@@ -94,8 +94,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Strip blurRadius and swap all thirteen DetailFeature masks** - `1c86aec1` (refactor)
-2. **Task 2: Drop TabBarView detail-sheet and galleryDestination arguments** - `e1f08099` (refactor)
+1. **Task 1: Strip blurRadius and swap all thirteen DetailFeature masks** - `68c3f354e4` (refactor)
+2. **Task 2: Drop TabBarView detail-sheet and galleryDestination arguments** - `f772333f77` (refactor)
 
 ## Files Created/Modified
 
@@ -122,7 +122,7 @@ Each task was committed atomically:
 - **Fix:** Replaced both Detail-owned values with literal `blurRadius: 0` bridges in `DetailView` and `PreviewsView`, while removing every stored property, initializer input, and routed blur value owned by DetailFeature.
 - **Files modified:** `AppPackage/Sources/DetailFeature/DetailView.swift`, `AppPackage/Sources/DetailFeature/Previews/PreviewsView.swift`
 - **Verification:** The token audit finds only the two literal reader bridges, and the complete AppFeature simulator graph builds successfully.
-- **Committed in:** `1c86aec1`
+- **Committed in:** `68c3f354e4`
 
 ---
 
@@ -146,7 +146,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All seven modified source files and this summary exist.
-- Task commits `1c86aec1` and `e1f08099` are present in git history.
+- Task commits `68c3f354e4` and `f772333f77` are present in git history.
 - DetailFeature has zero `.autoBlur` sites, exactly thirteen `.privacyMask()` sites, and zero owned blur declarations.
 - `TabBarView` has no blur argument on its `DetailView` or `galleryDestination` calls.
 - `git diff --check` and the AppFeature simulator build passed.

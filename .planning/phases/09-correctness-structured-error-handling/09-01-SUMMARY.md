@@ -95,9 +95,9 @@ status: complete
 
 Each task was committed atomically, including required TDD gates:
 
-1. **Task 1: Structured context types** — `2b31ca8d` (test RED), `5e8839ab` (feat GREEN)
-2. **Task 2: Recovery suggestions and LocalizedError** — `85ff52e8` (test RED), `02f5caef` (feat GREEN)
-3. **Task 3: Wave-0 parity tests** — `c4f20e6b` (test)
+1. **Task 1: Structured context types** — `7f5dbe431d` (test RED), `66acb1f47c` (feat GREEN)
+2. **Task 2: Recovery suggestions and LocalizedError** — `2712934ea6` (test RED), `183996bfd1` (feat GREEN)
+3. **Task 3: Wave-0 parity tests** — `375b6a0734` (test)
 
 ## Files Created/Modified
 
@@ -125,7 +125,7 @@ Each task was committed atomically, including required TDD gates:
 - **Fix:** Changed seven existing representable method signatures to `Self.Context`, preserving behavior and API intent.
 - **Files modified:** `ActivityView.swift`, `LinkedText.swift`, `LiveTextView.swift`, `WebView.swift`
 - **Verification:** AppModels tests built the complete app dependency graph and all 59 AppModels tests passed.
-- **Committed in:** `02f5caef`
+- **Committed in:** `183996bfd1`
 
 ---
 

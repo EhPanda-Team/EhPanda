@@ -140,7 +140,7 @@ What the AX5 / XXL Home shots show is not judged here (the pre-flight is not a m
 ## Task Commits
 
 1. **Task 1: Owner hand-login checkpoint** — no commit (checkpoint only; nothing modified).
-2. **Task 2: Record the infrastructure, read the baselines, run the pre-flight, restore, commit** — `77e22cec` (docs)
+2. **Task 2: Record the infrastructure, read the baselines, run the pre-flight, restore, commit** — `b2a321f669` (docs)
 
 **Plan metadata:** see the `docs(16-03)` commit that follows this summary.
 
@@ -164,14 +164,14 @@ What the AX5 / XXL Home shots show is not judged here (the pre-flight is not a m
 - **Issue:** `app.ehpanda` (not `BUNDLE_ID`) was the running EhPanda process on the iPhone, so `sim-use ui` would have read the wrong app.
 - **Fix:** `xcrun simctl terminate <IPHONE_UDID> app.ehpanda` (process only; touches no data container), then `xcrun simctl launch <IPHONE_UDID> app.ehpanda.personal`. Recorded in "Why `app.ehpanda.personal`" as the session-start rule.
 - **Files modified:** `16-SWEEP.md`
-- **Commit:** `77e22cec`
+- **Commit:** `b2a321f669`
 
 **2. [Rule 2 - Missing] Plan's verify grep expects a shell-form `IPHONE_UDID=`**
 - **Found during:** Task 2 verification
 - **Issue:** The values table alone does not match `grep "IPHONE_UDID = \|IPHONE_UDID="`.
 - **Fix:** Added a paste-ready shell block under the table (the same values); it is also the form every sweep plan sources at session start.
 - **Files modified:** `16-SWEEP.md`
-- **Commit:** `77e22cec`
+- **Commit:** `b2a321f669`
 
 ### Tooling substitution (not a deviation in outcome)
 
@@ -194,7 +194,7 @@ Task 1 was the planned D-09 gate: the owner logged in by hand on the iPhone Air;
 ## Self-Check: PASSED
 
 - `.planning/phases/16-dynamic-type-accessibility/16-SWEEP.md` exists and contains `IPHONE_UDID=ADE09605-A44E-4F00-BE12-235970217355`, `BUNDLE_ID=app.ehpanda.personal`, `### Tooling`, `### Pre-flight`.
-- Commit `77e22cec` exists on `feature/gsd-phase-16`; subject is exactly `docs(16): record sweep infra and pre-flight`; it touches only `16-SWEEP.md`.
+- Commit `b2a321f669` exists on `feature/gsd-phase-16`; subject is exactly `docs(16): record sweep infra and pre-flight`; it touches only `16-SWEEP.md`.
 - `$HOME/Library/Caches/ehpanda-phase16/preflight/ax5.png` exists; no image is tracked or staged in the repo.
 - Grepping `16-SWEEP.md` and this summary for an expanded home-directory prefix → 0 hits; the evidence root is written only as `$HOME/…`.
 - iPhone and iPad baselines read back identical to the recorded values.

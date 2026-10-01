@@ -6,10 +6,10 @@ score: 26/26 must-haves verified
 behavior_unverified: 0
 overrides_applied: 8
 verification_scope: approved best-effort contract; historical and unmeasured limits retained
-verified_head: a46ef238
+verified_head: d3d917179f
 metadata_rechecked: 2026-09-23T07:10:03Z
-metadata_rechecked_head: 01103bf1b72f7d94ea3e50e9213a70ca41ec034e
-tested_source: 7675a7ac77301de9464a8e924c9fc8c70f691849
+metadata_rechecked_head: 5726afe101df299ada0318dd566423df4b664b12
+tested_source: 934f18953931c3f13742a74404fc314d16be554e
 human_verification: []
 decision_coverage:
   honored: 34
@@ -17,35 +17,35 @@ decision_coverage:
   not_honored: []
 overrides:
   - must_have: "Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes (AX1–AX5), without clipped essential text, overlapping content, or unreachable controls."
-    reason: "The owner signed the sampled round-1 matrix with six accepted findings and bounded title budgets, then accepted D-25 finding #39 and the explicitly unreached scope. This verifies the approved sampled outcome, not universal absence of clipping. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "The owner signed the sampled round-1 matrix with six accepted findings and bounded title budgets, then accepted D-25 finding #39 and the explicitly unreached scope. This verifies the approved sampled outcome, not universal absence of clipping. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "Layouts adapt via reflow (wrap / ViewThatFits / stacking), never by capping Dynamic Type (dynamicTypeSize cap) or clipping."
-    reason: "Reflow is retained, with the owner-approved lower reader-control range large...xxLarge; the dedicated error-level rule confines this exception to ControlPanel.swift. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Reflow is retained, with the owner-approved lower reader-control range large...xxLarge; the dedicated error-level rule confines this exception to ControlPanel.swift. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "Default-size (.large) appearance parity is preserved — no visible change at the default size."
-    reason: "Owner-approved exceptions include the five-line thumbnail budget and comment score/date parity finding #35; the signed baseline and later native iOS 27 policy supersede literal universal pixel parity. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Owner-approved exceptions include the five-line thumbnail budget and comment score/date parity finding #35; the signed baseline and later native iOS 27 policy supersede literal universal pixel parity. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "Every interactive element is reachable and correctly announced under VoiceOver — icon-only controls carry labels, decorative images are hidden, state is expressed as traits rather than label text, and reading order and post-navigation focus are correct."
-    reason: "Best-effort main-flow walkthrough and stable audits replace a universal claim. Fifteen unreached sites, accepted focus behavior, native double-tap limits, W-21/W-24, and other explicitly carried findings remain recorded. W-38 is bounded owner-approved evidence. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Best-effort main-flow walkthrough and stable audits replace a universal claim. Fifteen unreached sites, accepted focus behavior, native double-tap limits, W-21/W-24, and other explicitly carried findings remain recorded. W-38 is bounded owner-approved evidence. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "Every interactive element is actuatable by Voice Control — it appears under Show numbers and Show names, and its input label matches its visible text."
-    reason: "Owner-approved English native-label proxy verifies names and structure; spoken Voice Control commands remain unmeasured. No speech-activation guarantee is inferred. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Owner-approved English native-label proxy verifies names and structure; spoken Voice Control commands remain unmeasured. No speech-activation guarantee is inferred. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "All text meets WCAG 4.5:1 and non-text elements 3:1, in light and dark and under Increase Contrast. Gallery category background colors stay byte-identical; badge text becomes adaptive black/white."
-    reason: "Owner reversal cc05aca6 removed adaptive contrast code and color fixes. White text and retained Increase Contrast backgrounds are intentional. Tests pin 44 standard and 40 high-contrast variants; they do not prove text contrast. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Owner reversal f68610b270 removed adaptive contrast code and color fixes. White text and retained Increase Contrast backgrounds are intentional. Tests pin 44 standard and 40 high-contrast variants; they do not prove text contrast. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "No information is conveyed by color alone — every color-coded state also carries a shape, glyph, or text."
-    reason: "Owner reversal cc05aca6 withdrew the added Activity Logs/Laboratory glyphs. Retained names, native toggle/selection semantics and bounded grayscale observations satisfy the approved best-effort scope, not a universal visual DWC guarantee. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Owner reversal f68610b270 withdrew the added Activity Logs/Laboratory glyphs. Retained names, native toggle/selection semantics and bounded grayscale observations satisfy the approved best-effort scope, not a universal visual DWC guarantee. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
   - must_have: "A Nutrition Label recommendation is produced, stating which categories are claimable and why."
-    reason: "Owner decision 2026-09-15 replaced this deliverable with the main-flow walkthrough, D-25 re-sweep, closing gates and owner sign-off. No Nutrition Label recommendation or App Store guarantee is required or produced. Ratified by whole-phase approval recorded in a4cc3754; accepted_at records its observed UTC time, not a claimed message timestamp."
+    reason: "Owner decision 2026-09-15 replaced this deliverable with the main-flow walkthrough, D-25 re-sweep, closing gates and owner sign-off. No Nutrition Label recommendation or App Store guarantee is required or produced. Ratified by whole-phase approval recorded in 7020040e1f; accepted_at records its observed UTC time, not a claimed message timestamp."
     accepted_by: owner
     accepted_at: 2026-09-23T06:35:48Z
 covered_files:
@@ -311,17 +311,17 @@ covered_digest: "v1:sha256:cbae9d6b5d155ba328a0822881b086c3486c4a4dc29f20f48f266
 
 **Status: passed — within the explicitly approved best-effort contract.** Score: **26/26 consolidated truths**, including **8 owner overrides**. This is not a claim of universal accessibility or App Store eligibility.
 
-**Phase goal:** Round 1 completes Dynamic Type readability and operability on Phase 10's foundation; round 2 adds systematic VoiceOver, Voice Control, Reduce Motion, contrast and Differentiate Without Color support. The roadmap's original Nutrition Label wording is historical: the owner replaced that bar on 2026-09-15, withdrew specified visible changes in `cc05aca6`, and approved the assembled closure in `a4cc3754`.
+**Phase goal:** Round 1 completes Dynamic Type readability and operability on Phase 10's foundation; round 2 adds systematic VoiceOver, Voice Control, Reduce Motion, contrast and Differentiate Without Color support. The roadmap's original Nutrition Label wording is historical: the owner replaced that bar on 2026-09-15, withdrew specified visible changes in `f68610b270`, and approved the assembled closure in `7020040e1f`.
 
 **Verification mode:** Initial canonical goal verification; no previous `16-VERIFICATION.md` existed. Current source, all 26 PLAN/SUMMARY records, the sweep and amendments, requirements, review/security/validation records, and existing runtime evidence were cross-referenced. SUMMARY assertions alone were not used as proof. This report changes no implementation or workflow status and makes no commit.
 
 ## Evidence basis and scope
 
-- **Current source:** `7675a7ac77301de9464a8e924c9fc8c70f691849` remains the implementation at report HEAD `a46ef238`; later committed changes are documentation only. The pre-existing uncommitted project serialization edit was preserved.
+- **Current source:** `934f18953931c3f13742a74404fc314d16be554e` remains the implementation at report HEAD `d3d917179f`; later committed changes are documentation only. The pre-existing uncommitted project serialization edit was preserved.
 - **Final fingerprint:** all **809** current source/config files independently match `source-after-reader-probe-fix.json`, including the dirty project file. This is the snapshot consumed by `run-final-ui.py` and `final-cleanup.py`. The earlier `source-after-full-gates.json` still has two pre-fix UI-test hashes; it is not the final source fingerprint.
 - **Archived evidence:** `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/` (called **close/** below). The selected final summaries, test trees, logs and source snapshots match their `archive-sha256.json` entries. The manifest lists 8,552 files; this verifier checked the evidence it used, not every archived byte.
 - **Existing runtime evidence, no reruns:** the dispatch explicitly prohibited builds, tests and simulator operations. This verifier inspected named results from the existing test trees and their test implementations, rather than claiming a new test execution. No server, package installation, network request or simulator action was performed.
-- **Human decisions are complete:** round 1 was signed at `7e06013c` on 2026-09-11. Round 2's exact reply `approved` was observed at 2026-09-23T06:35:48Z over `30f54fe93729ebd8885dbea488b5a1445eaa9453`. The timestamp is an observation time. It covers the explicit accepted, carried, deferred and unmeasured limits.
+- **Human decisions are complete:** round 1 was signed at `7e06013c` on 2026-09-11. Round 2's exact reply `approved` was observed at 2026-09-23T06:35:48Z over `25d0790700fc03f017f6546e5f0dc13a2f999370`. The timestamp is an observation time. It covers the explicit accepted, carried, deferred and unmeasured limits.
 - **No scope expansion:** D-25 remains nine iPhone portrait cells; no additional iPad, landscape, Gallery Detail, Activity Logs or Laboratory re-sweep is invented. Native iOS 27 title/search behavior supersedes the removed workarounds.
 
 ## Goal achievement
@@ -339,7 +339,7 @@ The twelve roadmap criteria are retained below; broad historical wording is not 
 | 7 | Every interactive element is reachable and correctly announced with correct state, order and focus under VoiceOver. | PASSED (override) | Current labels, traits, actions and hidden-state wiring are substantive; stable audits pass on both gate devices and actual VOT walkthrough evidence exists. The approved best-effort closure preserves fifteen unreached sites, accepted focus behavior and native activation limits; no universal flow guarantee. |
 | 8 | Every interactive element is actuatable by Voice Control with matching visible/input names. | PASSED (override) | Native Label/Button/Toggle names and catalog-backed custom actions support the English label proxy. Spoken commands were not exercised. This is structural naming evidence, not measured speech activation. |
 | 9 | Meaningful motion respects Reduce Motion; excluded subtle crossfades/numeric transitions remain. | VERIFIED | Environment reads and gates are wired to the animating views; `ReduceMotionGatingSourceTests` has five passing named results. Walkthrough F1/F8 records actual setting-off/on differences for gradient and rating motion. Unreached motion states remain within the approved walkthrough limit. |
-| 10 | All text/non-text meets 4.5:1/3:1, category backgrounds are frozen and badge foreground adapts. | PASSED (override) | `cc05aca6` deliberately removed `Color+Contrast.swift`, `ColorContrastTests.swift` and adaptive foreground use. CategoryView draws white text. Current tests pin 44 standard and 40 HC variants only; HC re-authoring was authorized. No contrast guarantee is credited. |
+| 10 | All text/non-text meets 4.5:1/3:1, category backgrounds are frozen and badge foreground adapts. | PASSED (override) | `f68610b270` deliberately removed `Color+Contrast.swift`, `ColorContrastTests.swift` and adaptive foreground use. CategoryView draws white text. Current tests pin 44 standard and 40 HC variants only; HC re-authoring was authorized. No contrast guarantee is credited. |
 | 11 | Every color-coded state also has a visual shape, glyph or text. | PASSED (override) | Owner withdrew the new Activity Logs/Laboratory glyphs. Current log-level label, toggle/selection semantics, category names and download status glyph/text remain. Bounded grayscale evidence is retained; universal visual DWC is not established. |
 | 12 | Produce a Nutrition Label recommendation stating claimable categories. | PASSED (override) | Replaced by owner decision 2026-09-15 and fulfilled by walkthrough, D-25, final gates and explicit sign-off. No recommendation or App Store claim is required. |
 | 13 | Lint allows Dynamic Type reads/scaled fonts while rejecting prohibited modifiers/literals. | VERIFIED | `.swiftlint.yml:182–253` distinguishes modifier `(` from reads, literal font sizes from metrics, and confines the reader exception; `Package.swift:62` attaches the build-tool plugin through module construction. Historical probe evidence and current strict lint agree. |
@@ -454,7 +454,7 @@ All 81 authored prohibitions were considered, including repeated entries:
 
 - **18 test-tier entries:** current modifier/string bans are enforced by live lint rules; frozen category channels by passing pin tests; numeric transition policy by the passing source inventory; unapproved audit exclusions by the failing-default handler; new media/transcript/log prohibitions by the phase-range added-file check. The old luminance-channel constraint has no current consumer because the owner removed that mechanism; the DWC module/dependency constraint is scoped to its historical plan, whose visible mapping was withdrawn. Neither is silently treated as a currently tested color algorithm.
 - **63 judgment-tier entries:** simulator/account discipline, no unapproved visible changes/suppressions, scope boundaries and owner checkpoints are covered by the signed procedural record and the 113-row threat register. D-01's original agent-no-reflow prohibition was expressly amended; the no-label-document scope, visible reversals and accepted limits were owner decisions. This is human-ratified procedural evidence, not an authoritative LLM inference about every historical operation.
-- **Security/validation reconciliation:** current SECURITY closes all 113 authored rows after sign-off. The immutable pre-sign-off recheck still lists the last sign-off row open; that historical state is resolved by `a4cc3754`, not rewritten. Validation maps all 68 tasks (59 automated / 9 checkpoint), with 23 behavior rows and no unmapped automated task. No deferred `<human-check>` blocks were found in PLAN files.
+- **Security/validation reconciliation:** current SECURITY closes all 113 authored rows after sign-off. The immutable pre-sign-off recheck still lists the last sign-off row open; that historical state is resolved by `7020040e1f`, not rewritten. Validation maps all 68 tasks (59 automated / 9 checkpoint), with 23 behavior rows and no unmapped automated task. No deferred `<human-check>` blocks were found in PLAN files.
 
 ### Decision Coverage
 
@@ -509,8 +509,8 @@ _Verifier: gsd-verifier; source inspection and existing evidence, no new executi
 
 ## Post-completion metadata verification
 
-The orchestrator reviewed the canonical completion and transition changes through `01103bf1b72f7d94ea3e50e9213a70ca41ec034e`. Changes since the verifier's `a46ef238` input are limited to PROJECT, REQUIREMENTS, ROADMAP, STATE, the generated state-contract snapshot, this report and the closeout notes. They record the already-approved completion, preserve historical reference warnings and advance only planning position to Phase 17. The state-contract snapshot also reports Phase 16 complete.
+The orchestrator reviewed the canonical completion and transition changes through `5726afe101df299ada0318dd566423df4b664b12`. Changes since the verifier's `d3d917179f` input are limited to PROJECT, REQUIREMENTS, ROADMAP, STATE, the generated state-contract snapshot, this report and the closeout notes. They record the already-approved completion, preserve historical reference warnings and advance only planning position to Phase 17. The state-contract snapshot also reports Phase 16 complete.
 
-The source/config diff from tested commit `7675a7ac` still contains only the pre-existing Xcode project edit, whose patch is byte-identical to the archived patch. No source, test, decision or gate outcome changed. The earlier passage describing A11Y-02 tracking as pending is historical; canonical completion now marks it complete. No runtime checks were rerun for these documentation-only changes.
+The source/config diff from tested commit `934f189539` still contains only the pre-existing Xcode project edit, whose patch is byte-identical to the archived patch. No source, test, decision or gate outcome changed. The earlier passage describing A11Y-02 tracking as pending is historical; canonical completion now marks it complete. No runtime checks were rerun for these documentation-only changes.
 
 After this bounded metadata review, the orchestrator refreshed `covered_files` and `covered_digest` with the canonical `verification.fingerprint` command, retaining every original covered input and adding the transition documents. This resolves the stale tracking-document digest without dropping coverage or changing the verifier's verdict or evidence limits.

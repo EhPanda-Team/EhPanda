@@ -9,7 +9,7 @@ requires:
   - phase: 15-continued-background-downloads
     provides: "15-50's re-derived run-proof census in DownloadSourceInventoryTests, the table this plan's addition had to leave unmoved — the census-rebasing hazard the plan's depends_on named"
   - phase: 15-continued-background-downloads
-    provides: "15-51's head 09f6b8f3 and its 884/0 full-suite total, the baseline this plan's 886 is accounted against"
+    provides: "15-51's head e70afb32a1 and its 884/0 full-suite total, the baseline this plan's 886 is accounted against"
   - phase: 15-continued-background-downloads
     provides: "BackgroundProcessingClientSpy's timing paragraph, which stated the rule this plan turned into a build"
 provides:
@@ -63,7 +63,7 @@ two-part build-time census whose halves were each observed failing before either
 
 ### Step 1: the population, enumerated and classified
 
-The enumeration grep, run at head `09f6b8f3`:
+The enumeration grep, run at head `e70afb32a1`:
 
 ```
 grep -rn "BackgroundProcessingClient(" AppPackage/Tests/ AppPackage/Sources/
@@ -153,7 +153,7 @@ for either token over the census file's executable lines returns nothing.
 
 ### Step 3: every pre-existing census re-derived under the new scoping, and unmoved
 
-Re-derived by grep at head `09f6b8f3` (before) and re-run in the suite after the addition (after).
+Re-derived by grep at head `e70afb32a1` (before) and re-run in the suite after the addition (after).
 Every value is equal on both sides.
 
 | Census | Table before | Table after | Total before | Total after |
@@ -172,7 +172,7 @@ addition would have turned into exactly the kind of false premise this suite exi
 
 ### Step 4: the property half's falsification, with the double still atomic
 
-Order stated plainly: this reading was taken at commit `45c2ac14`, **before** any line of the double
+Order stated plainly: this reading was taken at commit `e784b59eac`, **before** any line of the double
 changed. Verbatim from the run:
 
 ```
@@ -337,7 +337,7 @@ returned — and otherwise untouched:
 
 The stream it builds, the event it yields and the finish it performs are its subject and are
 unchanged. The resulting per-file count is **3**, and it became 3 by the correction — the expected
-number was recorded at `45c2ac14` against an observed 0, so it cannot have been fitted to this.
+number was recorded at `e784b59eac` against an observed 0, so it cannot have been fitted to this.
 
 ### Step 2: the double's own doc, and the spy header's pointer
 
@@ -433,7 +433,7 @@ production finding**. No production line was changed, by construction.
 
 One unfiltered invocation, `** TEST SUCCEEDED ** [98.036 sec]`, exit `0`.
 
-- **886 tests, 0 failures.** Against `09f6b8f3`'s **884**, the movement is `+2`, accounted for case by
+- **886 tests, 0 failures.** Against `e70afb32a1`'s **884**, the movement is `+2`, accounted for case by
   case: `testClientDoubleSuspensionSitesMatchTheRecordedCensus` and
   `testClientDoubleConstructionSitesMatchTheRecordedCensus`, both from Task 1. Task 2 added no cases.
 - All eight cases of `DownloadSourceInventoryTests` pass, including the five pre-existing censuses
@@ -461,7 +461,7 @@ instead of being ruled out by the double.
 - **Fix:** both now say that every census names its tree explicitly, through `clientModuleFiles(in:)`
   or `downloadsTestFiles(in:)`, and that five count the client module while two count the test target.
 - **Files modified:** `DownloadSourceInventoryTests.swift`.
-- **Commit:** `45c2ac14`.
+- **Commit:** `e784b59eac`.
 
 **2. [Rule 1 — false premise in a source anchor] Re-derived the three coordinator line anchors**
 - **Found during:** Task 2, Step 2.
@@ -470,7 +470,7 @@ instead of being ruled out by the double.
 - **Fix:** re-derived by grep at this head — `:358`, `:373`, `:403-407` — and the double's doc cites
   those. Copying the plan's numbers would have shipped a false anchor on day one.
 - **Files modified:** `DownloadContinuedSessionExpirationTests.swift`.
-- **Commit:** `99e8ea74`.
+- **Commit:** `71bbfb9559`.
 
 No other deviations; no architectural decision was needed and no checkpoint was reached.
 
@@ -478,7 +478,7 @@ No other deviations; no architectural decision was needed and no checkpoint was 
 
 | Prohibition | Status |
 |---|---|
-| Must not correct the double before the suspension half is landed and observed FAILING | HONOURED — RED taken at `45c2ac14`, correction landed at `99e8ea74` |
+| Must not correct the double before the suspension half is landed and observed FAILING | HONOURED — RED taken at `e784b59eac`, correction landed at `71bbfb9559` |
 | Must not re-baseline any pre-existing census | HONOURED — all five re-derived, before and after recorded, every value equal |
 | Must not demand a suspension from a value that is not a hand-built double | HONOURED — generated and both production values classified OUT with reasons, and out of the census's *scope* rather than merely excluded from its table |
 | Must not declare the correction inert | HONOURED — both cases re-read individually and recorded by name above |
@@ -488,7 +488,7 @@ No other deviations; no architectural decision was needed and no checkpoint was 
 ## Diff scope
 
 ```
-$ { git diff --name-only 09f6b8f3 HEAD; } | grep -v "^AppPackage/Tests/DownloadsFeatureTests/"
+$ { git diff --name-only e70afb32a1 HEAD; } | grep -v "^AppPackage/Tests/DownloadsFeatureTests/"
   (nothing outside — confirmed)
 ```
 
@@ -501,8 +501,8 @@ the temporary plant and restored to its committed state before either commit.
 
 | Commit | Type | What |
 |---|---|---|
-| `45c2ac14` | test | The two-part census, landed RED against the still-atomic double |
-| `99e8ea74` | fix | The corrected double, its doc, and the spy header's pointer to the census |
+| `e784b59eac` | test | The two-part census, landed RED against the still-atomic double |
+| `71bbfb9559` | fix | The corrected double, its doc, and the spy header's pointer to the census |
 
 ## What this plan does NOT claim
 
@@ -516,7 +516,7 @@ the temporary plant and restored to its committed state before either commit.
 ## Verification evidence
 
 - Three `xcodebuild` invocations, strictly one at a time, none overlapping another.
-  1. Targeted census suite at `45c2ac14`, double still atomic — `** TEST FAILED **`, exit `65`, the
+  1. Targeted census suite at `e784b59eac`, double still atomic — `** TEST FAILED **`, exit `65`, the
      property half red naming `DownloadContinuedSessionExpirationTests.swift` with `0` vs `3`.
   2. Targeted census suite with the plant — `** TEST FAILED **`, exit `65`, the population half red
      naming `DownloadContinuedSessionTests.swift` and its joined total `3` vs `2`.
@@ -529,5 +529,5 @@ the temporary plant and restored to its committed state before either commit.
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionExpirationTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift` — FOUND
-- Commit `45c2ac14` — FOUND
-- Commit `99e8ea74` — FOUND
+- Commit `e784b59eac` — FOUND
+- Commit `71bbfb9559` — FOUND

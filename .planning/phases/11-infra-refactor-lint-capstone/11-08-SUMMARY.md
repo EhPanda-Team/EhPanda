@@ -127,21 +127,21 @@ New tests: `PresentationLifecycleTests` (both modal routes) and `HomePresentatio
 - **Found during:** Task 1
 - **Issue:** Detail has no presenting reducer inside its own module. `files_modified` listed only DetailFeature, but the presentation seams live in HomeFeature, SearchFeature, FavoritesFeature, DownloadsFeature and AppFeature. Leaving any one unpaired is a permanently blank detail screen.
 - **Fix:** Added `GalleryPath.State.onPresentedAction` + `GalleryNavigation.presentationEffect`, and wired all 7 construction sites.
-- **Commit:** `0f52555c`
+- **Commit:** `5b8e39ae0f`
 
 **2. [Rule 1 - Bug] `DownloadsFeature`'s FolderManager sheet would have stopped loading**
 
 - **Found during:** Task 2
 - **Issue:** `FolderManagerView` is presented by both DetailReducer and DownloadsReducer; only the former is in scope for this plan.
 - **Fix:** `DownloadsReducer.folderManagerButtonTapped` now sends `.fetchFolders` too.
-- **Commit:** `9bc0fa86`
+- **Commit:** `0f62d5fa70`
 
 **3. [Rule 3 - Blocking] Four existing tests needed dependency stubs**
 
 - **Found during:** Task 1
 - **Issue:** Pushing a detail now runs the detail's presentation effects inside the host's test store, so `DownloadsReducerActionTests`' two push tests hit unimplemented `date`/`downloadClient`, and `PresentationLifecycleTests`' deep-link case hit unimplemented `urlClient`.
 - **Fix:** Stubbed those dependencies at the affected stores (`.noop` / constant date).
-- **Commits:** `0f52555c`
+- **Commits:** `5b8e39ae0f`
 
 ## Flagged for owner review
 
@@ -157,5 +157,5 @@ New tests: `PresentationLifecycleTests` (both modal routes) and `HomePresentatio
 
 - `AppPackage/Tests/AppFeatureTests/PresentationLifecycleTests.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-08-SUMMARY.md` — FOUND
-- Commit `0f52555c` — FOUND
-- Commit `9bc0fa86` — FOUND
+- Commit `5b8e39ae0f` — FOUND
+- Commit `0f62d5fa70` — FOUND

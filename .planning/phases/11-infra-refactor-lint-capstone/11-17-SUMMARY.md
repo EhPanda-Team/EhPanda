@@ -167,7 +167,7 @@ The form composes. The probe file was deleted before any commit; `git status` im
 
 # The atomic flip
 
-One commit, `3bf28440`, carrying:
+One commit, `f9870fcd41`, carrying:
 
 1. `doccomment` added to `excluded_match_kinds`, with a comment naming the silent-fallback trap
 2. the `validatedIndex` entry deleted, with a comment stating that `excluded` matches file paths
@@ -356,7 +356,7 @@ Both preconditions are, by construction, unfirable — which is the honest readi
 - **Path-exclusion probe** — `FooTests.swift` excluded, identical `FooHelper.swift` flagged.
 - **`doccomment` spelling probe** — `doc_comment` produces `Invalid configuration … Falling back to default`; `doccomment` and `docComment` both work.
 - `xcodebuild build -scheme EhPanda` — **BUILD SUCCEEDED**, 0 errors, 0 warnings. Run after each task and again after the flip.
-- `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED**. Test targets carry the plugin, so this is the gate the app-scheme build does not give (commit `e8589355`'s lesson).
+- `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED**. Test targets carry the plugin, so this is the gate the app-scheme build does not give (commit `fe3c43e0fe`'s lesson).
 - Full `AppPackage-Package` suite — **TEST SUCCEEDED** (60–74s), run after each of the three commits. 3 `withKnownIssue` markers (`SettingReducerTests`, `SettingPresentationTests`, `AppModelsTests.privateFilterValueReportsIssueAndReturnsZero`), all pre-existing and unchanged. `DownloadSchedulingTests` green on every run.
 - `bash Scripts/check-cookie-logging.sh` — **exit 0**. No logging added or changed.
 - `git status --short` immediately before the flip commit — exactly three files.
@@ -370,7 +370,7 @@ Both preconditions are, by construction, unfirable — which is the honest readi
 - **Found during:** Initial enumeration
 - **Issue:** The plan brief, and waves 15 and 16 before it, specified `doc_comment`. That is not a valid SwiftLint syntax kind, and it silently discards the entire rule configuration.
 - **Fix:** `doccomment`, verified against a purpose-built probe before use. A comment in `.swiftlint.yml` now warns about the silent-fallback behaviour.
-- **Commit:** `3bf28440`
+- **Commit:** `f9870fcd41`
 
 **2. [Rule 3 — Blocking] Test scheme substitution (same as 11-01/11-02/11-14/11-15/11-16)**
 
@@ -383,28 +383,28 @@ Both preconditions are, by construction, unfirable — which is the honest readi
 - **Found during:** Task 1
 - **Issue:** The plan's action text anticipates precondition-checked exceptions with cited invariants for buffer indexing. Applying that to 14 reads into untrusted image data would have added 14 directives while leaving 14 separate guard/read pairs to keep in sync.
 - **Fix:** One bounds-checked accessor, two `UInt32(_:endian)` initializers, one `elementsEqual`. Shorter than the annotations, and it removed the defect class. Also added the missing `offset >= 0` term to both chunk-size guards.
-- **Commit:** `07cd022b`
+- **Commit:** `27a12ad2fa`
 
 **4. [Rule 2 — Missing critical functionality] `EhSettingView+Sections3`'s row arithmetic was replaced, not guarded**
 
 - **Found during:** Task 2
 - **Issue:** Three matches sat on `index * 3 + num` arithmetic whose safety depended on an unstated and unchecked 17 × 3 − 1 = 50 relationship between two separate arrays.
 - **Fix:** A slice-consuming `rows` property. Same output today, no unchecked cross-array assumption.
-- **Commit:** `7261ea99`
+- **Commit:** `57446f1ad9`
 
 **5. [Scope] `FavoritesReducer.State.index` is a public property and was renamed**
 
 - **Found during:** Task 2
 - **Issue:** Prior waves confined renames to local bindings. Here the policed name was a stored property read by five computed properties in the same type, so no local-scope rename could reach it.
 - **Fix:** Renamed to `favoritesIndex`, matching `setFavoritesIndex` and `favIndex:`. Verified no cross-module or test reader before changing it; the blast radius was 20 sites inside `FavoritesFeature`.
-- **Commit:** `7261ea99`
+- **Commit:** `57446f1ad9`
 
 **6. [Rule 3 — Blocking] `GalleryRoute` is a struct because a 3-member tuple trips `large_tuple`**
 
 - **Found during:** Task 2
 - **Issue:** The natural shape `(kind:gid:token:)` violates the `large_tuple` rule at warning level, and this repo builds at zero warnings.
 - **Fix:** A private struct with a doc comment on the optional `token`. Better than the tuple regardless.
-- **Commit:** `7261ea99`
+- **Commit:** `57446f1ad9`
 
 **7. [Scope] Wave 15's degraded comment was not restored**
 
@@ -446,6 +446,6 @@ None. No new network, auth, file-access or schema surface. T-11-20's mitigation 
 - `AppPackage/Sources/PreviewSupport/PreviewIdentifiers.swift` — FOUND, directive present
 - `AppPackage/Sources/SettingFeature/EhSetting/EhSettingView+Sections3.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-17-SUMMARY.md` — FOUND
-- Commit `07cd022b` — FOUND
-- Commit `7261ea99` — FOUND
-- Commit `3bf28440` — FOUND
+- Commit `27a12ad2fa` — FOUND
+- Commit `57446f1ad9` — FOUND
+- Commit `f9870fcd41` — FOUND

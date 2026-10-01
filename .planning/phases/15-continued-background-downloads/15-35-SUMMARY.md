@@ -40,7 +40,7 @@ executable lines changed.
 
 ## What Was Built
 
-**Commit:** `45b092b4` — `docs(15-35): correct three contradicted invariant comments`
+**Commit:** `aa67d92261` — `docs(15-35): correct three contradicted invariant comments`
 
 ### WR-01 — the nil-client skip now states the truth
 
@@ -157,7 +157,7 @@ The three remaining hits are not writers: `+Manager.swift:463` is the declaratio
 
 ## Comment-Only Diff Statement
 
-`git diff --stat` for commit `45b092b4` shows exactly the two planned files (63 insertions, 33
+`git diff --stat` for commit `aa67d92261` shows exactly the two planned files (63 insertions, 33
 deletions). Filtering the commit's unified diff to lines that are neither `///` nor `//` prefixed
 and not blank returns **an empty set** — every changed line in both files is a comment line. No
 executable line moved, no symbol was added or removed, and no production behavior changed.
@@ -178,7 +178,7 @@ executable line moved, no symbol was added or removed, and no production behavio
 - **Fix:** Reworded to "suspends at the client start after setting it". The surrounding claim
   ("before that path's first suspension") was re-verified as true and left alone.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift`
-- **Commit:** `45b092b4`
+- **Commit:** `aa67d92261`
 
 **2. [Rule 1 - Bug] Corrected the skip comment's own suspension premise**
 
@@ -189,7 +189,7 @@ executable line moved, no symbol was added or removed, and no production behavio
 - **Fix:** Reworded to an if-a-suspension-is-ever-introduced justification, consistent with the
   canonical wording.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift`
-- **Commit:** `45b092b4`
+- **Commit:** `aa67d92261`
 
 ### Scope Notes
 
@@ -244,5 +244,5 @@ inspection with a green full run.
 
 ## Self-Check: PASSED
 
-Both modified source files and this summary exist on disk; commit `45b092b4` is present in
+Both modified source files and this summary exist on disk; commit `aa67d92261` is present in
 `git log`.

@@ -202,14 +202,14 @@ This is notable because the orchestrator identified ImageColors as the phase's *
 - **Found during:** Task 1
 - **Issue:** The plan's action text anticipates per-site checked forms. Applying that to `proposed[0…3]` would have added 22 annotations to literal indices into a fixed-size local array — all provably in bounds, all pure ceremony — while leaving the wrong-slot defect class fully intact.
 - **Fix:** `ProposedColors` struct. Shorter diff than 22 annotations, and it removes a silent-mis-index failure mode instead of documenting it.
-- **Commit:** `c172519b`
+- **Commit:** `ce9f339458`
 
 **4. [Scope] One redundant guard removed**
 
 - **Found during:** Task 1
 - **Issue:** `edgeColor`'s `!sortedColors.isEmpty` existed only to keep `1..<sortedColors.count` from trapping.
 - **Fix:** Dropped with the range loop it protected. `dropFirst()` handles the empty case natively.
-- **Commit:** `4e9e684d`
+- **Commit:** `2959d7f0d8`
 
 ## Flagged for owner review
 
@@ -236,5 +236,5 @@ None. No new network, auth, file-access or schema surface. T-11-19's mitigation 
 - `AppPackage/Sources/ImageColors/ImageColors.swift` — FOUND
 - `AppPackage/Tests/ImageColorsTests/ImageColorsParityTests.swift` — FOUND (unmodified)
 - `.planning/phases/11-infra-refactor-lint-capstone/11-16-SUMMARY.md` — FOUND
-- Commit `4e9e684d` — FOUND
-- Commit `c172519b` — FOUND
+- Commit `2959d7f0d8` — FOUND
+- Commit `ce9f339458` — FOUND

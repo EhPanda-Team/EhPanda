@@ -109,8 +109,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — pin refusal-before-deletion for rejected page files** - `156562ea` (test)
-2. **Task 2: GREEN — classify first, authorize the combined set, then mutate and persist** - `8490136b` (fix)
+1. **Task 1: RED — pin refusal-before-deletion for rejected page files** - `a63b128f3e` (test)
+2. **Task 2: GREEN — classify first, authorize the combined set, then mutate and persist** - `0a802b44b8` (fix)
 
 ## Files Created/Modified
 
@@ -141,7 +141,7 @@ Each task was committed atomically:
 - **Fix:** One additional guard clause on the loop (`pageFileScan.rejectedPageRelativePaths[page] == nil`) with a line-2b doc paragraph, and the `prepareWorkingSeed` scan rebuild threading `rejectedPageRelativePaths` through so the new member is not silently dropped where a scan is reconstructed from another's parts.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift`
 - **Verification:** The loop is still the sole declaration (`grep -c 'func reconcileWorkingManifestAgainstPageFiles' AppPackage/Sources/DownloadClient` → 1); the guard can only reduce `blankedPageCount`, so no refusal was weakened; the repair-path suites and the full 929-test run are green.
-- **Committed in:** `8490136b` (Task 2 commit)
+- **Committed in:** `0a802b44b8` (Task 2 commit)
 
 **2. [Rule 2 - Missing critical functionality] `contentMismatchScan`'s per-page re-probe still mutated before the guard**
 
@@ -218,8 +218,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
-- Commit `156562ea` — FOUND
-- Commit `8490136b` — FOUND
+- Commit `a63b128f3e` — FOUND
+- Commit `0a802b44b8` — FOUND
 
 ## Known Stubs
 

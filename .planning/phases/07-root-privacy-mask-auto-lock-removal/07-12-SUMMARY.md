@@ -93,8 +93,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Reconcile ROADMAP Phase 7 Success Criteria 1 and 3** - `87dbee86` (docs)
-2. **Task 2: Reconcile REQUIREMENTS UIARCH-04 and UIARCH-05** - `015bd6c3` (docs)
+1. **Task 1: Reconcile ROADMAP Phase 7 Success Criteria 1 and 3** - `c5da506cfd` (docs)
+2. **Task 2: Reconcile REQUIREMENTS UIARCH-04 and UIARCH-05** - `f19d5e3590` (docs)
 
 ## Files Created/Modified
 
@@ -144,7 +144,7 @@ None - no external service configuration required.
 - REQUIREMENTS UIARCH-04 and UIARCH-05 cite D-03 and D-08; completion checkboxes and Complete traceability rows remain intact.
 - `git diff --check` passes across both task commits.
 - The only task-commit changes are `.planning/ROADMAP.md` and `.planning/REQUIREMENTS.md`; no source file changed.
-- Task commits `87dbee86` and `015bd6c3` exist in git history.
+- Task commits `c5da506cfd` and `f19d5e3590` exist in git history.
 - Generated documentation contains no absolute home-directory paths or private local-project names.
 
 ---

@@ -110,9 +110,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Strip ReadingView blur drilling and remove all reader caller arguments** - `2032f70b` (refactor)
-2. **Task 2: Strip SettingFeature blur drilling and mask the AppActivityLogs run-picker** - `c2ec5f19` (refactor)
-3. **Task 3: Delete the legacy autoBlur modifier** - `e59834c4` (refactor)
+1. **Task 1: Strip ReadingView blur drilling and remove all reader caller arguments** - `efe236a0ff` (refactor)
+2. **Task 2: Strip SettingFeature blur drilling and mask the AppActivityLogs run-picker** - `1793d5b982` (refactor)
+3. **Task 3: Delete the legacy autoBlur modifier** - `ec13f31446` (refactor)
 
 ## Files Created/Modified
 
@@ -143,7 +143,7 @@ Each task was committed atomically:
 - **Fix:** Read the additional caller and removed its temporary argument in the same atomic task.
 - **Files modified:** `AppPackage/Sources/DetailFeature/Previews/PreviewsView.swift`
 - **Verification:** A package-wide multiline caller audit finds no `ReadingView` call containing `blurRadius`; the AppFeature graph builds successfully.
-- **Committed in:** `2032f70b`
+- **Committed in:** `efe236a0ff`
 
 ---
 
@@ -167,7 +167,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All eleven modified source files and this summary exist.
-- Task commits `2032f70b`, `c2ec5f19`, and `e59834c4` are present in git history.
+- Task commits `efe236a0ff`, `1793d5b982`, and `ec13f31446` are present in git history.
 - AppPackage has zero `blurRadius` tokens, zero `autoBlur` tokens, and exactly forty `.privacyMask()` application sites.
 - The AppActivityLogs run-picker sheet owns the new mask at its presented root.
 - `git diff --check`, the complete AppFeature simulator build, and strict SwiftLint passed.

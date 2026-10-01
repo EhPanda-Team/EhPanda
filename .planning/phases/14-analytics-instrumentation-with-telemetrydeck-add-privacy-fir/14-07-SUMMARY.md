@@ -74,8 +74,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Harden first half (first 12 files, 24 store initializers)** - `b7aa25b8` (test)
-2. **Task 2: Harden second half (last 11 files, 31 store initializers) + prove full coverage** - `5f6475b9` (test)
+1. **Task 1: Harden first half (first 12 files, 24 store initializers)** - `93cd429ace` (test)
+2. **Task 2: Harden second half (last 11 files, 31 store initializers) + prove full coverage** - `fd0f7ad815` (test)
 
 **Plan metadata:** `<final>` (docs: complete plan)
 
@@ -158,7 +158,7 @@ None - plan executed exactly as written. The three bare `TestStore` sites and th
 ## Self-Check: PASSED
 
 - SUMMARY.md and deferred-items.md exist on disk.
-- Task commits `b7aa25b8` and `5f6475b9` are present in git history.
+- Task commits `93cd429ace` and `fd0f7ad815` are present in git history.
 
 ---
 *Phase: 14-analytics-instrumentation*

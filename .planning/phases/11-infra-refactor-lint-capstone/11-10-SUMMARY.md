@@ -132,28 +132,28 @@ New tests: `SettingPresentationTests` (route→load mapping for all eleven scree
 - **Found during:** Task 1
 - **Issue:** Detailed above. An existing test caught it; unfixed it would have let a rapid double-tap on a Setting row push the same screen twice.
 - **Fix:** `SettingPath.State.routeKey`; `appendGuardingDuplicate` compares it.
-- **Commit:** `52a30332`
+- **Commit:** `7ba5d90b37`
 
 **2. [Rule 3 - Blocking] Nine files outside the plan's `files_modified` were touched**
 
 - **Found during:** Tasks 1 and 2
 - **Issue:** Neither Filters nor the Downloads tab root has a presenting reducer inside its own module. The six Filters presenters live in HomeFeature (×3), SearchFeature (×2) and DetailFeature; the Downloads tab seam lives in AppFeature. Leaving any one unpaired ships a Filters sheet showing defaults instead of the user's saved filters — which the first edit then writes back, silently destroying them.
 - **Fix:** Paired all six presenters and `tabPresentationEffect`.
-- **Commit:** `1d43fdf3`
+- **Commit:** `0e5fba47fe`
 
 **3. [Rule 3 - Blocking] `AppModels.EhSetting.empty` refactored into `empty(ehProfiles:)`**
 
 - **Found during:** Task 1
 - **Issue:** Testing the pop teardown needs an `EhSetting` carrying a *named* `EhPanda` profile; `.empty`'s profile is unnamed, so `ehpandaProfile` is nil and the teardown is a no-op. `EhSetting.init` takes forty arguments, so a fixture meant restating all of them in the test.
 - **Fix:** `.empty` became `.empty(ehProfiles: [.empty])` over a new parameterized `empty(ehProfiles:)`. No behaviour change; the existing constant is byte-identical.
-- **Commit:** `52a30332`
+- **Commit:** `7ba5d90b37`
 
 **4. [Rule 3 - Blocking] Three existing tests needed dependency stubs or relaxation**
 
 - **Found during:** Tasks 1 and 2
 - **Issue:** Same cause as 11-08's deviation 3 — presenting now runs the child's effects inside the presenter's store. `SettingReducerNavigationTests` hit an unimplemented `libraryClient`/`logsClient` on every General/Account/Logs push; `DownloadAutomationTests`' tab-fallback test hit an unimplemented `downloadClient` once landing on Downloads started the tab.
 - **Fix:** Stubbed the reached clients (`.noop`), added the two `calculateWebImageDiskCache` receives to the two exhaustive Setting tests, and had the automation test assert the new `.downloads(.onPresented)` coupling before relaxing.
-- **Commits:** `52a30332`, `1d43fdf3`
+- **Commits:** `7ba5d90b37`, `0e5fba47fe`
 - **Note:** no assertion was weakened to make a test pass; the added receives are new, exact assertions.
 
 **5. [Scope] `accountDelegatePushEhSettingAppendsEhSetting` replaced by a mapping assertion**
@@ -184,6 +184,6 @@ New tests: `SettingPresentationTests` (route→load mapping for all eleven scree
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadsPresentationLifecycleTests.swift` — FOUND
 - `AppPackage/Tests/HomeFeatureTests/FiltersPresentationLifecycleTests.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-10-SUMMARY.md` — FOUND
-- Commit `52a30332` — FOUND
-- Commit `1d43fdf3` — FOUND
-- Commit `fca74f4a` — FOUND
+- Commit `7ba5d90b37` — FOUND
+- Commit `0e5fba47fe` — FOUND
+- Commit `7b4956ca47` — FOUND

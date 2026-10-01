@@ -121,8 +121,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: The D-G6-01 withdrawal, the additive floor seed, the doc re-derivations, and the two regressions watched to fail first** — `0421700f` (fix)
-2. **Task 2: The WR-01 authority union with its regression, the WR-02 privatization, the full run, and the sweep verification** — `cabf5ff9` (fix)
+1. **Task 1: The D-G6-01 withdrawal, the additive floor seed, the doc re-derivations, and the two regressions watched to fail first** — `75a13c0dde` (fix)
+2. **Task 2: The WR-01 authority union with its regression, the WR-02 privatization, the full run, and the sweep verification** — `b6648981be` (fix)
 
 ## Falsifiability — the RED runs, recorded verbatim
 
@@ -444,7 +444,7 @@ and 0 insertions**, and the helpers diff is **90 insertions and 0 deletions**. N
   wrapped.
 - **Fix:** re-wrapped the two affected paragraphs. Zero assertion, staging or call-expression lines beyond the
   five spelling changes; the full call-site diff is reproduced in the plan's own acceptance evidence.
-- **Committed in:** `cabf5ff9`
+- **Committed in:** `b6648981be`
 
 **5. [Finding — pre-existing working-tree state] `.planning/STATE.md` arrived already modified, with its progress fields regressed.**
 - **Detail:** at executor start the working tree carried an uncommitted STATE.md edit that rolled
@@ -494,8 +494,8 @@ changed.
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PendingWork.swift` — FOUND
 - `.planning/phases/15-continued-background-downloads/15-26-SUMMARY.md` — FOUND
-- commit `0421700f` — FOUND
-- commit `cabf5ff9` — FOUND
+- commit `75a13c0dde` — FOUND
+- commit `b6648981be` — FOUND
 
 ---
 *Phase: 15-continued-background-downloads*

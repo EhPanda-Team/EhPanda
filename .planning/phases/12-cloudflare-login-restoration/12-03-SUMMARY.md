@@ -121,8 +121,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: cookie-observing Cloudflare challenge web view** — `6c3df259` (feat)
-2. **Task 2: LoginClient dependency seam** — `f3ec22a3` (feat)
+1. **Task 1: cookie-observing Cloudflare challenge web view** — `22894c7063` (feat)
+2. **Task 2: LoginClient dependency seam** — `b1ec12bccb` (feat)
 
 ## Files Created/Modified
 
@@ -147,7 +147,7 @@ status: complete
 - **Issue:** `func makeUIViewController(context: Context)` failed the `UIViewControllerRepresentable` conformance — the unqualified `Context` binds to AppModels' `Context` (`[ContextKey: AnyHashableBox]`), which SettingFeature imports, rather than the representable's associated type. The compiler reported it as a non-matching candidate, not as a name collision.
 - **Fix:** Spelled both signatures `Self.Context` (the same qualification `WebView.swift` already uses) and left a comment naming the collision so the next reader does not "simplify" it back.
 - **Files modified:** `AppPackage/Sources/SettingFeature/Components/ChallengeWebView.swift`
-- **Commit:** `6c3df259`
+- **Commit:** `22894c7063`
 
 **2. [Rule 3 - Blocking] typed `throws(AppError)` lost through a closure literal**
 
@@ -155,7 +155,7 @@ status: complete
 - **Issue:** `login: { username, password, clearance in try await LoginRequest(...).response() }` failed with *invalid conversion of thrown error type 'any Error' to 'AppError'* — a closure literal does not infer a typed thrown error here.
 - **Fix:** Moved the body into a `private static func performLogin(...) async throws(AppError) -> HTTPURLResponse?` and passed the function reference, with a comment explaining why the closure form is not equivalent.
 - **Files modified:** `AppPackage/Sources/SettingFeature/Login/LoginClient.swift`
-- **Commit:** `f3ec22a3`
+- **Commit:** `b1ec12bccb`
 
 Both are compile-time discoveries with no behavioral consequence; the plan's design is unchanged.
 

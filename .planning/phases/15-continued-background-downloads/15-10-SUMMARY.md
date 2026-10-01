@@ -99,8 +99,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Promote the store's session identity into the seam and thread it through every completion path** - `9efdb0b4` (fix)
-2. **Task 2: Store-side identity regression cases** - `9b1cb389` (test)
+1. **Task 1: Promote the store's session identity into the seam and thread it through every completion path** - `c6a69870d5` (fix)
+2. **Task 2: Store-side identity regression cases** - `23a7981c99` (test)
 
 ## Files Created/Modified
 
@@ -133,7 +133,7 @@ Each task was committed atomically:
 - **Fix:** Moved the records to file scope and annotated the event stream and mutex-returned continuation explicitly.
 - **Files modified:** `DownloadFeatureTestHelpers.swift`, `DownloadContinuedSessionTests.swift`, `DownloadFeatureTestSupportTypes.swift`
 - **Verification:** Targeted store tests, all Downloads feature tests, and the clean app build passed.
-- **Committed in:** `9efdb0b4` (part of the Task 1 migration commit)
+- **Committed in:** `c6a69870d5` (part of the Task 1 migration commit)
 
 ---
 
@@ -165,7 +165,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All ten implementation and test files exist.
-- Task commits `9efdb0b4` and `9b1cb389` exist.
+- Task commits `c6a69870d5` and `23a7981c99` exist.
 - The summary contains no absolute home-directory path.
 
 ---

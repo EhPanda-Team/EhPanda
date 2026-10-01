@@ -130,7 +130,7 @@ A ZStack is safely convertible **only when removing the sibling(s) leaves the co
 ## Task Commits
 
 1. **Task 1: Classify 35 sites + capture baseline** - no code (classification above; baseline `grep … | wc -l` == 35)
-2. **Task 2: Convert the CONVERT-verdict sites** - `9a209aa` (refactor)
+2. **Task 2: Convert the CONVERT-verdict sites** - `21cdf0be02` (refactor)
 3. **Task 3: D-11 before/after comparison** - no reverts required (see below)
 
 **Plan metadata:** committed with this SUMMARY (docs)
@@ -159,7 +159,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Placeholder.swift, ReadingViewComponents.swift, 10-06-SUMMARY.md all exist
-- Commit `9a209aaf` present; Placeholder.swift contains 2 `.overlay` occurrences (POLISH-02 artifact requirement)
+- Commit `21cdf0be02` present; Placeholder.swift contains 2 `.overlay` occurrences (POLISH-02 artifact requirement)
 - Remaining ZStack count 32 == recorded KEEP count
 
 ---

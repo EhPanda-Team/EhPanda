@@ -116,8 +116,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Repoint the permitted-identifier surface at continued-processing tasks** - `28d7fe13` (chore)
-2. **Task 2: Delete the discretionary task wiring from AppFeature** - `1d6f17ce` (refactor)
+1. **Task 1: Repoint the permitted-identifier surface at continued-processing tasks** - `f467c63cba` (chore)
+2. **Task 2: Delete the discretionary task wiring from AppFeature** - `4b05fefdb2` (refactor)
 
 ## Files Created/Modified
 
@@ -170,7 +170,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All five modified files and the SUMMARY exist on disk; both task commits (`28d7fe13`, `1d6f17ce`) are present in `git log`.
+All five modified files and the SUMMARY exist on disk; both task commits (`f467c63cba`, `4b05fefdb2`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

@@ -87,7 +87,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Model the clipboardChangeCount read as a @Sendable endpoint and route detectClipboardURL through it** - `d5914268` (feat)
+1. **Task 1: Model the clipboardChangeCount read as a @Sendable endpoint and route detectClipboardURL through it** - `31e83d5269` (feat)
 2. **Task 2: Add a reducer test proving an override controls both the read and the write** - `12628235` (test)
 
 _Note: this is a gap-closure regression test — the fix (Task 1) landed first, then Task 2's test guards it. The RED gate was proven by temporarily reverting the reducer read to `UserDefaults.standard` and observing `injectedReadSuppressesWriteDespiteConflictingProcessGlobal` fail; it passes against the injected endpoint._
@@ -116,7 +116,7 @@ None - plan executed exactly as written. The reducer call site required no textu
 - FOUND: AppPackage/Sources/UserDefaultsClient/UserDefaultsClient.swift
 - FOUND: AppPackage/Tests/AppFeatureTests/AppRouteReducerTests.swift
 - FOUND: .planning/phases/08-architecture-hygiene-client-seams/08-17-SUMMARY.md
-- FOUND commit: d5914268 (Task 1)
+- FOUND commit: 31e83d5269 (Task 1)
 - FOUND commit: 12628235 (Task 2)
 - Confirmed no generic `getValue<T>` instance method survives in AppPackage/Sources.
 

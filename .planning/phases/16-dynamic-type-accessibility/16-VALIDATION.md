@@ -10,7 +10,7 @@ audited: "2026-09-23"
 
 # Phase 16 — Validation Strategy
 
-Current coverage refresh: tested source `7675a7ac` plus the preserved pre-existing project diff. The final iOS 27 gates are recorded below. Owner 16-26 Tasks 3–4 are complete (`a4cc3754`); verifier and phase completion remain pending; this audit added no tests or source changes. Historical September 17 provenance is retained separately.
+Current coverage refresh: tested source `934f189539` plus the preserved pre-existing project diff. The final iOS 27 gates are recorded below. Owner 16-26 Tasks 3–4 are complete (`7020040e1f`); verifier and phase completion remain pending; this audit added no tests or source changes. Historical September 17 provenance is retained separately.
 
 
 ## Test Infrastructure
@@ -188,7 +188,7 @@ The per-task map records artifact basis separately from command availability; a 
 | 7 | .large parity after owner fixes | MANUAL | 16-05 T1/T2; 16-11 T1; 16-25 T6/T7 | before/after cache captures and owner review |
 | 8 | lineLimit(1) checklist re-judged | MANUAL | 16-02 T1; 16-11 T1 | 16-SWEEP.md D-04 checklist |
 | 9 | hardcoded accessibility strings guard | COVERED | 16-01 T1/T2; 16-16 T1/T2; 16-17 T1/T2 | .swiftlint.yml + strict lint evidence |
-| 10 | luminance crossover and contrast helper | SUPERSEDED | 16-14 T1 | The contrast helper and its historical test were removed by the owner in cc05aca6; no current test claim |
+| 10 | luminance crossover and contrast helper | SUPERSEDED | 16-14 T1 | The contrast helper and its historical test were removed by the owner in f68610b270; no current test claim |
 | 11 | 84 category variants and colorset hash pins | COVERED | 16-14 T2; 16-15 T2 | AppPackage/Tests/AppToolsTests/CategoryColorsetInvariantTests.swift; closing FeatureTests pass |
 | 12 | CategoryLabel/CategoryCell resolved text contrast | MANUAL | 16-15 T1/T3; 16-23 T1/T2 | Adaptive contrast implementation was reverted; owner-accepted white treatment remains a manual visual decision |
 | 13 | fixture-reachable accessibility audit | COVERED | 16-24 T1/T2/T4 | EhPandaUITests/AccessibilityAuditUITests.swift; UITests closing gates pass |
@@ -217,7 +217,7 @@ The per-task map records artifact basis separately from command availability; a 
 - VoiceOver actual-focus/spoken evidence exists through sim-use/vot; experiential confirmation remains manual; the approved W-38 reader-panel reveal is the bounded native double-tap exception.
 - Voice Control spoken commands and nonreader native VO double-tap activation were not measured; native UI/VC proxies are not command execution.
 - Reduce Motion rendered effects, dark/Increase Contrast and grayscale require rendered judgment.
-- Owner final checkpoint completed: `approved`, recorded in `16-SWEEP.md § Owner sign-off (round 2)` at `a4cc3754`.
+- Owner final checkpoint completed: `approved`, recorded in `16-SWEEP.md § Owner sign-off (round 2)` at `7020040e1f`.
 
 ## Superseded / excluded
 
@@ -227,7 +227,7 @@ The per-task map records artifact basis separately from command availability; a 
 
 ## Closing Gate Provenance (2026-09-17)
 
-- Immutable source under validation: b01add4c11b1f9c355ac8f2e055ed8b24fe8146c.
+- Immutable source under validation: 310a39625fb2cb7035415c73a91eb3ff4b7266cc.
 - Configured test command (from .planning/config.json):
 
   ```bash
@@ -255,7 +255,7 @@ The per-task map records artifact basis separately from command availability; a 
 - [x] Existing meaningful tests and first-run gates recorded.
 - [x] Manual-only constraints explicit.
 - [x] W-33/W-34 bounded phonetic judgments accepted by the owner.
-- [x] Owner final whole-phase sign-off (`a4cc3754`).
+- [x] Owner final whole-phase sign-off (`7020040e1f`).
 
 **Approval:** owner signed off on 2026-09-23; goal verification and canonical phase completion follow separately.
 

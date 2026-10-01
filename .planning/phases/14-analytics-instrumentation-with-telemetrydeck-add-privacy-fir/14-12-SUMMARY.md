@@ -138,9 +138,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Performed-search, panel and Favorites emissions** - `fc431ea4` (feat)
-2. **Task 2: Payload-free wordTapped seam for quick-search word selection** - `c485534b` (feat)
-3. **Task 3: Emission proofs in SearchFeatureTests and FavoritesFeatureTests** - `9f02da1f` (test)
+1. **Task 1: Performed-search, panel and Favorites emissions** - `1009fd3c7a` (feat)
+2. **Task 2: Payload-free wordTapped seam for quick-search word selection** - `fc12c03ee8` (feat)
+3. **Task 3: Emission proofs in SearchFeatureTests and FavoritesFeatureTests** - `16b26412a3` (test)
 
 _Task 1/2 verified with `xcodebuild build`; Task 3 with the filtered and full test plans._
 
@@ -192,7 +192,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All five source/two test files and the SUMMARY exist on disk; all three task commits (`fc431ea4`, `c485534b`, `9f02da1f`) are present in git history.
+All five source/two test files and the SUMMARY exist on disk; all three task commits (`1009fd3c7a`, `fc12c03ee8`, `16b26412a3`) are present in git history.
 
 ---
 *Phase: 14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir*

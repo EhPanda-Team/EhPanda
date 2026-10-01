@@ -86,7 +86,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Regroup Favorites toolbar actions and expose date-seek availability** - `a4f06cfb` (fix)
+1. **Task 1: Regroup Favorites toolbar actions and expose date-seek availability** - `621526235d` (fix)
 
 ## Files Created/Modified
 
@@ -136,7 +136,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- `AppPackage/Sources/FavoritesFeature/FavoritesView.swift` exists, and task commit `a4f06cfb` is present.
+- `AppPackage/Sources/FavoritesFeature/FavoritesView.swift` exists, and task commit `621526235d` is present.
 - The required iPhone Air simulator package build succeeded with SwiftLint build-tool plugin execution.
 - Static gates confirm the direct Favorites index control, nested secondary actions, exact action payloads, Date Seek's localized disabled-state implementation, and no changes to `ToolbarItems.swift` or `FavoritesReducer.swift`.
 

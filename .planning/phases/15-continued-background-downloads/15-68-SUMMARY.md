@@ -110,8 +110,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — prove deleteFolder reaches unnamed targets and strands records** - `7699168b` (test)
-2. **Task 2: GREEN — one confined boundary for every user-folder mutation** - `2d6e0e8a` (fix)
+1. **Task 1: RED — prove deleteFolder reaches unnamed targets and strands records** - `fe75692cbc` (test)
+2. **Task 2: GREEN — one confined boundary for every user-folder mutation** - `fe56a14e26` (fix)
 
 ## The Mutation-Caller Sweep, Enumerated From Source
 
@@ -173,7 +173,7 @@ The extended legitimate-delete case (`testDeleteFolderRemovesContainedDownloadsA
 - **Fix:** A foreign active task (`escape-suite-scheduler-hold`) is installed before the queue intent exists, so `scheduleNextIfNeededCore`'s `guard activeTask == nil` returns early. The reason is recorded on the staging helper.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift`
 - **Verification:** The re-run produced the same 9 issues with no `Download failed` line in the log.
-- **Committed in:** `7699168b` (Task 1 commit — the flaky version was never committed)
+- **Committed in:** `fe75692cbc` (Task 1 commit — the flaky version was never committed)
 
 ### Undeclared files modified
 
@@ -221,8 +221,8 @@ Acceptance greps and lint metrics:
 - `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift` — FOUND
-- Commit `7699168b` — FOUND
-- Commit `2d6e0e8a` — FOUND
+- Commit `fe75692cbc` — FOUND
+- Commit `fe56a14e26` — FOUND
 
 ## Known Stubs
 

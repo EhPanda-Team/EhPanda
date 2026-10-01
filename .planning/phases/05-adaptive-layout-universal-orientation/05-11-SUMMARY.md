@@ -71,7 +71,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Render About copyright/version as scrollable Form content** - `95190a0e` (fix)
+1. **Task 1: Render About copyright/version as scrollable Form content** - `59c85a378f` (fix)
 
 ## Files Created/Modified
 
@@ -114,7 +114,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- `AppPackage/Sources/SettingFeature/Components/AboutView.swift` exists and source commit `95190a0e` is present.
+- `AppPackage/Sources/SettingFeature/Components/AboutView.swift` exists and source commit `59c85a378f` is present.
 - The required iPhone Air simulator package build succeeded with SwiftLint plugin execution.
 - Static gates confirm `largeSubtitle` is absent while `Constant.copyright` remains rendered inside the Form.
 

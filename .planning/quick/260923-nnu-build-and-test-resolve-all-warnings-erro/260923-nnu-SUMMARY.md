@@ -139,8 +139,8 @@ remains open, which is why this summary retains `status: incomplete`.
 
 Code commits:
 
-- `edca42cb` (`fix(quick-260923-nnu): clear build and lint diagnostics`)
-- `7ac307e1` (`fix(quick-260923-nnu): move startup cookie maintenance off main actor`)
+- `07909afaeb` (`fix(quick-260923-nnu): clear build and lint diagnostics`)
+- `5f15eb244c` (`fix(quick-260923-nnu): move startup cookie maintenance off main actor`)
 
 Executed GSD quick inline, using the workflow's sequential fallback. No subagents were dispatched.
 The quick task leaves the phase roadmap unchanged.

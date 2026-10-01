@@ -123,12 +123,12 @@ status: complete
 
 - **Duration:** ~3 h 5 m for 84 cells across 14 surfaces, both orientations, three sizes, plus the D-15 baseline capture.
 - **Evidence:** 136 full-scale PNGs for screens #14–#27 under `$HOME/Library/Caches/ehpanda-phase16/sweep/`, plus 4 under `d15-baseline/`. None in the repo.
-- **Commits:** `3220992b` (rows 14–20, including the D-15 baselines), `5be5be6e` (rows 21–27).
+- **Commits:** `8d09b1e3e1` (rows 14–20, including the D-15 baselines), `1f17f94f6e` (rows 21–27).
 
 ## Task Commits
 
-1. **Task 1: D-15 `.large` baselines, then iPhone × Group B #14–#20** — `3220992b` (docs)
-2. **Task 2: iPhone × Group B #21–#27 and restore** — `5be5be6e` (docs)
+1. **Task 1: D-15 `.large` baselines, then iPhone × Group B #14–#20** — `8d09b1e3e1` (docs)
+2. **Task 2: iPhone × Group B #21–#27 and restore** — `1f17f94f6e` (docs)
 
 ## D-15 baselines
 
@@ -203,19 +203,19 @@ Recorded in the frontmatter `key-decisions`. The two that most affect later plan
 - **Issue:** The plan's route ("long-press a tag in the Detail tag cloud and open its detail sheet") produced only Vote Up / Vote Down. `DetailView+Subviews.swift:312–313` gates the Tag Detail item on a translation with a non-empty description.
 - **Fix:** Enabled Tags Extension, then Translate Tags, relaunched the app to force the database fetch, retried on two different galleries, and finally inspected the downloaded `tagTranslations-en.json` directly: zero of its entries carry a description. Recorded the six rows `blocked:` with that evidence rather than switching the app's language, which would have made #21 the only surface judged in a different language.
 - **Restore:** both settings switched back off and read back as `0`. The fetched cache file remains under the app's `Library/Caches/` — a cache artifact, unused with the extension off, and deleting it would be a container mutation the sweep is not licensed to make.
-- **Commit:** `5be5be6e`.
+- **Commit:** `1f17f94f6e`.
 
 **2. [Rule 2 - Coverage] Screen #23's retry-mode variant could not be exercised**
 - **Issue:** The plan asks for "the delete / retry-mode dialog". The session's only download is complete, and the retry-mode variant needs a download in an error state.
 - **Fix:** Judged the delete variant at all six cells (it produced finding #23) and stated the gap explicitly in the finding rather than implying both variants were covered.
-- **Commit:** `5be5be6e`.
+- **Commit:** `1f17f94f6e`.
 
 **3. [Rule 1 - Bug in this plan's own tooling] Findings rows were being concatenated onto one line**
 - **Found during:** Task 2, verifying the D-04 dispositions.
 - **Issue:** The helper that appends § Findings rows anchored on the `Status ∈ {…}` line and consumed the blank line before it, so each subsequent append landed on the tail of the previous row instead of a new line. Findings #17–#23 ended up on a single line.
 - **Fix:** Split the run back into seven rows on the `| open |` → `| N | #` boundary, restored the blank line before the anchor, and repaired the three D-04 notes that had been joined to their predecessor without punctuation.
 - **Verification:** `grep -cE '^\| 2[0-3] \| #'` → 4; the Group B status tally reads 40 pass / 26 finding / 12 blocked / 6 n/a across exactly 84 rows.
-- **Commit:** `5be5be6e`.
+- **Commit:** `1f17f94f6e`.
 
 **Total deviations:** 3 auto-fixed (1 blocker, 1 coverage gap, 1 tooling bug). **Impact:** every unreachable surface carries its disproof, and the findings table is machine-readable for plan 16-10's report.
 
@@ -240,7 +240,7 @@ Group B is verified on the iPhone. Ready for plan 16-06 (iPhone Group C, screens
 ## Self-Check: PASSED
 
 - `16-SWEEP.md` carries 84 Group-B iPhone rows, 0 `pending` (40 pass / 26 finding / 12 blocked / 6 n/a).
-- Commits `3220992b` and `5be5be6e` present in `git log`.
+- Commits `8d09b1e3e1` and `1f17f94f6e` present in `git log`.
 - `ls $HOME/Library/Caches/ehpanda-phase16/d15-baseline/` lists exactly the four required names; `grep -c "### D-15 baseline" 16-SWEEP.md` → 1.
 - Matrix references findings #5, #6, #8, #9 and #13–#23; § Findings defines #1–#23; no dangling reference.
 - `git status --porcelain | grep -Ei '\.(png|jpe?g|heic|gif)$' | wc -l` → 0; the absolute-home-prefix scan of `16-SWEEP.md` counts 0 matches.

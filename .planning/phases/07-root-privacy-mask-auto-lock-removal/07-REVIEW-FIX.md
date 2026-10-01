@@ -25,7 +25,7 @@ status: all_fixed
 ### WR-02: Animated privacy blur may not render before iOS captures the App Switcher snapshot
 
 **Files modified:** `AppPackage/Sources/AppComponents/ViewModifiers.swift`
-**Commit:** 9848e75e
+**Commit:** 9dc85967d2
 **Status:** fixed; verified on a physical device 2026-07-14 (App Switcher card fully masked)
 **Applied fix:** The scoped blur animation is now disabled whenever the blur becomes nonzero, so the privacy mask is applied immediately. The 0.1-second linear animation runs only when the blur becomes zero and Reduce Motion is disabled.
 
@@ -34,7 +34,7 @@ status: all_fixed
 ### IN-01: `AppReducerScenePhaseTests` relies on `.serialized` over process-global `@Shared` storage
 
 **Files modified:** `AppPackage/Tests/AppFeatureTests/AppReducerScenePhaseTests.swift`
-**Commit:** a4ce8b12
+**Commit:** 03acff370e
 **Status:** fixed
 **Applied fix:** Each `makeStore` call now creates fresh app and in-memory storage, uses those dependencies while constructing shared state, and installs the same storage on the `TestStore`. With no process-global storage left to coordinate, the suite-level `.serialized` trait was removed.
 

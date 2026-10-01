@@ -67,7 +67,7 @@ coverage:
     requirement: SC2
     verification:
       - kind: static
-        ref: "867 @Test at d61f4d45, 868 now, run total 868"
+        ref: "867 @Test at 0d7fdd08be, 868 now, run total 868"
         status: pass
     human_judgment: false
 
@@ -97,8 +97,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Close the four source hygiene items at their roots** — `f1cc1723` (fix)
-2. **Task 2: Split the basis suite as a pure relocation and restore its headroom** — `23059bd4` (test)
+1. **Task 1: Close the four source hygiene items at their roots** — `8b04b13a0d` (fix)
+2. **Task 2: Split the basis suite as a pure relocation and restore its headroom** — `0127019cfe` (test)
 
 ---
 
@@ -262,7 +262,7 @@ Every moved case keeps its production-issued choreography verbatim — each stil
 
 15-40's summary records `** TEST SUCCEEDED **` but no numeric total, so the baseline was re-derived rather than quoted:
 
-| Measure | Pre-plan (`d61f4d45`) | Now | Delta |
+| Measure | Pre-plan (`0d7fdd08be`) | Now | Delta |
 |---|---|---|---|
 | Static `@Test` census over `AppPackage/Tests` | 867 | 868 | **+1** |
 | Runner's summed `Test run with N tests` | — | 868 | — |
@@ -310,7 +310,7 @@ Both are well under the plan's ~850 target and far from the 1000-line `file_leng
 - **Fix:** Reworded to "the upper bound used to raise that count to a floor of one instead of guarding it", which says the same thing and carries no matching token. Re-ran the grep: `0`.
 - **Why this is worth recording:** it is exactly 15-40's own finding ("the census scanner skips comment lines, so a doc that cites an inventory is not itself part of the inventory it cites") recurring one round later in a *fix* rather than in a doc. A grep-based gate and a doc that quotes the grep's needle cannot both be honest.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift`
-- **Committed in:** `f1cc1723` (corrected before the task's commit)
+- **Committed in:** `8b04b13a0d` (corrected before the task's commit)
 
 ### 2. [Rule 2 — Artifact not in `files_modified`] The IN-03 pin lands in `DownloadZeroPagePayloadTests.swift`
 
@@ -318,7 +318,7 @@ Both are well under the plan's ~850 target and far from the 1000-line `file_leng
 - **Issue:** The plan's frontmatter `files_modified` lists only the four sources and the three Task 2 test files, but Task 1's action directs the pin into `DownloadZeroPagePayloadTests.swift` ("add the case there") if the staging exists. The action text and the file list disagree.
 - **Fix:** Followed the action text, since the file list is written for the case where the derivation is recorded instead. The file gained one case and three imports (`AppTools`, `ComposableArchitecture`, `UIKit`), all `sorted_imports`-clean, mirroring `DownloadCoordinatorCaptureTests.swift`'s idiom for staging a restorable cache entry with a per-test `DataCache` rather than the shared one.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift`
-- **Committed in:** `f1cc1723`
+- **Committed in:** `8b04b13a0d`
 
 ### 3. [Process slip, no impact] A `git stash`/`git stash pop` round trip while measuring the baseline census
 
@@ -362,8 +362,8 @@ None - no external service configuration required.
 - `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPIHelpers.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
-- Commit `f1cc1723` — FOUND
-- Commit `23059bd4` — FOUND
+- Commit `8b04b13a0d` — FOUND
+- Commit `0127019cfe` — FOUND
 
 ---
 *Phase: 15-continued-background-downloads*

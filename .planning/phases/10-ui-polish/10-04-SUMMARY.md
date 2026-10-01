@@ -92,11 +92,11 @@ status: complete
 
 ## Task Commits
 
-1. **Code change (env-key removal + base-gray collapse)** — `f87bec46` (refactor)
+1. **Code change (env-key removal + base-gray collapse)** — `aa832e5b89` (refactor)
 
 **Plan metadata:** committed separately (docs: complete plan)
 
-_Note: `f87bec46` was amended from an earlier trait-based implementation (commit 9c737bbe) after the owner rejected the trait mechanism, so the final tree carries no trait and no Bool parameter._
+_Note: `aa832e5b89` was amended from an earlier trait-based implementation after the owner rejected the trait mechanism, so the final tree carries no trait and no Bool parameter._
 
 ## Files Created/Modified
 - `AppPackage/Sources/AppTools/EnvironmentKeys.swift` — **deleted** (was the sole home of `InSheetKey`).

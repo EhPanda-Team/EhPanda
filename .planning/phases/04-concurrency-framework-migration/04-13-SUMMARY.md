@@ -93,8 +93,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `72032d33` | Remove the Combine request layer and migrate the parser test double |
-| 2 | `97d1701c` | Remove the final dead client Combine imports |
+| 1 | `aac6961161` | Remove the Combine request layer and migrate the parser test double |
+| 2 | `ede6c2d105` | Remove the final dead client Combine imports |
 
 ## Deviations from Plan
 

@@ -82,8 +82,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Introduce the app-owned @Observable PageModel** - `6974bcd5` (feat)
-2. **Task 2: Re-seam AdvancedList + ReadingView onto PageModel, swap Pager for paging ScrollView** - `79dfff53` (feat)
+1. **Task 1: Introduce the app-owned @Observable PageModel** - `f54901bc05` (feat)
+2. **Task 2: Re-seam AdvancedList + ReadingView onto PageModel, swap Pager for paging ScrollView** - `e9415c1f81` (feat)
 
 ## Files Created/Modified
 - `AppPackage/Sources/ReadingFeature/Support/PageModel.swift` - new plain-index source of truth (D-07)
@@ -103,7 +103,7 @@ status: complete
 - **Fix:** Renamed the two references (`pageModel.index + $0` / `pageModel.update(.new(index:))`). No behavior change; Plan 04 Task 2 still re-routes this closure through the guarded jump as planned.
 - **Files modified:** AppPackage/Sources/ReadingFeature/ReadingView+Gestures.swift
 - **Verification:** Package builds clean; ReadingFeatureTests green.
-- **Committed in:** `79dfff53`
+- **Committed in:** `e9415c1f81`
 
 **Total deviations:** 1 auto-fixed (blocking).
 **Impact on plan:** None — Plan 04's scope for this file is unchanged.

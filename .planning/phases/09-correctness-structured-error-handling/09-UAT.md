@@ -36,7 +36,7 @@ notes: |
   A blocking issue was found on the first pass and fixed before this pass:
   the persistent toast was occluded by the iOS 26 floating tab bar (touches over the
   capsule were intercepted by the tab bar, so it could not be tapped or swiped). Resolved
-  by commit 39f4b7a3 "Improve toast layout" (.padding(.bottom, 64) + .contentShape(.rect)),
+  by commit 9a0f9da6c2 "Improve toast layout" (.padding(.bottom, 64) + .contentShape(.rect)),
   which lifts the toast clear of the tab bar. Re-verified here.
 
   Not directly exercised (sim-use has no AX-action/keyboard path): activation through the

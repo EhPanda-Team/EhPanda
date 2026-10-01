@@ -103,14 +103,14 @@ To address it they need the new element's id, so `StackState.appendGuardingDupli
 - **Found during:** Task 1
 - **Issue:** Three of the ten sites are tab roots. A tab root has no presenting reducer inside its own module — the presenter is `AppReducer` in AppFeature. Likewise, addressing a freshly pushed element requires its id, which `appendGuardingDuplicate` (DetailFeature) discarded.
 - **Fix:** Added `AppReducer.tabPresentationEffect(for:)` + two call sites and `import AppModels`; made `appendGuardingDuplicate` return `StackElementID?`.
-- **Commits:** `cdf8b7d3`, `2278ff33`
+- **Commits:** `3f11dfefec`, `5356acd84e`
 
 **2. [Rule 2 - Missing infrastructure] Created the `HomeFeatureTests` target**
 
 - **Found during:** Task 1
 - **Issue:** The plan's `<verify>` blocks name `HomeFeature` and `SearchFeature` schemes; neither exists, and neither module had a test target, so the plan's "assert the load effect on the presentation action" requirement had nowhere to live.
 - **Fix:** Registered `HomeFeatureTests` (Package.swift enum case + `.testTarget`, `.swiftlint.yml` with `parent_config`, xctestplan entry) and wrote `HomePresentationLifecycleTests`.
-- **Commit:** `cdf8b7d3`
+- **Commit:** `3f11dfefec`
 
 ## Flagged for owner review
 
@@ -130,5 +130,5 @@ To address it they need the new element's id, so `StackState.appendGuardingDupli
 - `AppPackage/Tests/HomeFeatureTests/HomePresentationLifecycleTests.swift` — FOUND
 - `AppPackage/Tests/HomeFeatureTests/.swiftlint.yml` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-07-SUMMARY.md` — FOUND
-- Commit `cdf8b7d3` — FOUND
-- Commit `2278ff33` — FOUND
+- Commit `3f11dfefec` — FOUND
+- Commit `5356acd84e` — FOUND

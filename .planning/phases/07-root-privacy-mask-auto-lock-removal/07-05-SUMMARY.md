@@ -90,8 +90,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Strip blurRadius and swap masks across SearchFeature** - `4e3840c1` (refactor)
-2. **Task 2: Strip blurRadius and swap masks across DownloadsFeature** - `a76344da` (refactor)
+1. **Task 1: Strip blurRadius and swap masks across SearchFeature** - `3c50c03736` (refactor)
+2. **Task 2: Strip blurRadius and swap masks across DownloadsFeature** - `331fada006` (refactor)
 
 ## Files Created/Modified
 
@@ -127,7 +127,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All five modified source files and this summary exist.
-- Task commits `4e3840c1` and `a76344da` are present in git history.
+- Task commits `3c50c03736` and `331fada006` are present in git history.
 - Acceptance token counts, `git diff --check`, and the AppFeature simulator build passed.
 
 ---

@@ -88,8 +88,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: iPad × Group B surfaces #14–#20** - `2207c31a` (docs)
-2. **Task 2: iPad × Group B surfaces #21–#27 and restore** - `bd544fd0` (docs)
+1. **Task 1: iPad × Group B surfaces #14–#20** - `e01738260a` (docs)
+2. **Task 2: iPad × Group B surfaces #21–#27 and restore** - `dd310fcf78` (docs)
 
 ## Files Created/Modified
 
@@ -144,7 +144,7 @@ None for this plan. A future visual verdict for the blocked iPad layouts require
 ## Self-Check: PASSED
 
 - `16-SWEEP.md` and `16-08-SUMMARY.md` exist.
-- Task commits `2207c31a` and `bd544fd0` exist in git history.
+- Task commits `e01738260a` and `dd310fcf78` exist in git history.
 - The iPad Group B section contains 84 rows and zero `pending` cells.
 - No image is staged or untracked in the repository, and no generated document touched by this plan contains an absolute home path.
 

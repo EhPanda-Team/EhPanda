@@ -117,9 +117,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Clipboard + comments-entry representatives** — `f18d8ab9` (test)
-2. **Task 2: Share-sheet true E2E** — `3059d054` (test), `0f85d6e2` and `02638d17` (fix)
-3. **Task 3: iPad tab-modal coverage + phase test gate** — `edddc658` (test)
+1. **Task 1: Clipboard + comments-entry representatives** — `f557a327e4` (test)
+2. **Task 2: Share-sheet true E2E** — `0ebb799454` (test), `4e8fd43bbf` and `e883050efb` (fix)
+3. **Task 3: iPad tab-modal coverage + phase test gate** — `4e8fd43bbf` (test)
 
 ## Files Created/Modified
 
@@ -158,7 +158,7 @@ Re-probe `safari.debugDescription` if any of these stop resolving:
 - **Owner decision:** Fix it now, and use private API if that is what it takes, since this build does not ship to the App Store.
 - **Fix:** Measured all three public candidates as dead before reaching for a private one. `NSExtensionContext.open(_:)` is honoured only for the Today and iMessage extension points. The `_UIHostedWindowScene` that terminates an extension's responder chain accepts `openURL:options:completionHandler:` but never invokes the completion or opens anything. The hand-off now goes through `LSApplicationWorkspace`, verified by both the green test and an `opened=1` result in the extension's log.
 - **Files modified:** `ShareExtension/ShareViewController.swift`
-- **Committed in:** `0f85d6e2`, `02638d17`
+- **Committed in:** `4e8fd43bbf`, `e883050efb`
 
 ### Auto-fixed Issues
 
@@ -167,7 +167,7 @@ Re-probe `safari.debugDescription` if any of these stop resolving:
 - **Found during:** Task 2 (Share-sheet true E2E)
 - **Issue:** The HTTP headers were built from a multi-line string literal, which drops the final newline, so the header block terminated with `\r\n\r` and Safari rejected the page with "cannot parse response".
 - **Fix:** Joined the headers explicitly with CRLF.
-- **Committed in:** `3059d054`
+- **Committed in:** `0ebb799454`
 
 **3. [Rule 2 - Missing test support] The stub served no popular-list fixture**
 
@@ -175,7 +175,7 @@ Re-probe `safari.debugDescription` if any of these stop resolving:
 - **Issue:** Home renders nothing until its popular section resolves, so under the stub the pad Home was a parse error and the tab-modal entry was unreachable — the plan had assumed Home was served by the front-page fixture.
 - **Fix:** The DEBUG-only stub now serves the front-page gallery-list fixture for `/popular` as well.
 - **Files modified:** `AppPackage/Sources/AppFeature/UITestSupport/UITestStubURLProtocol.swift`
-- **Committed in:** `edddc658`
+- **Committed in:** `4e8fd43bbf`
 
 ---
 
@@ -204,7 +204,7 @@ None — every test is offline and credential-free apart from the share test's o
 ## Self-Check: PASSED
 
 - All five created or modified plan files exist.
-- Task commits `f18d8ab9`, `3059d054`, `0f85d6e2`, `edddc658`, and `02638d17` exist in repository history.
+- Task commits `f557a327e4`, `0ebb799454`, `4e8fd43bbf`, `4e8fd43bbf`, and `e883050efb` exist in repository history.
 - Complete UI plan on iPhone Air: 12 passed, 1 skipped (iPad class), 0 failed.
 - iPad class on iPad Pro 11-inch (M5): 1 passed.
 - Default FeatureTests plan: 5 bundles, 0 failures.

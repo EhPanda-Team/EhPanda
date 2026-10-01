@@ -148,8 +148,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — pin the nil-versus-explicit-empty collapse and its queue-level blast radius** - `3f4a44ac` (test)
-2. **Task 2: GREEN — fail closed at retryPages and preserve explicit emptiness downstream** - `9f6fbfd6` (fix)
+1. **Task 1: RED — pin the nil-versus-explicit-empty collapse and its queue-level blast radius** - `5ce8960766` (test)
+2. **Task 2: GREEN — fail closed at retryPages and preserve explicit emptiness downstream** - `50c05f8100` (fix)
 
 ## Files Created/Modified
 
@@ -182,7 +182,7 @@ Each task was committed atomically:
 - **Fix:** The helper filters against `gallery.pageCount` before deduplicating and sorting, and its doc records that an argument the filter empties has no faithful payload at all — the route would have refused it, so such a case belongs on `retryPages` itself.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`
 - **Verification:** All six call sites pass in-range indices, so no existing expectation changed; `testTheRetriedPagesPayloadCarriesExactlyTheSelectionTheRouteStores` and the whole ledger family are green.
-- **Committed in:** `9f6fbfd6` (Task 2 commit)
+- **Committed in:** `50c05f8100` (Task 2 commit)
 
 **2. [Rule 3 - Blocking issue] Three one-second observer deadlines failed the plan's own full-suite gate**
 
@@ -191,7 +191,7 @@ Each task was committed atomically:
 - **Fix:** `waitForTaskValue`'s default deadline is ten seconds, with the reasoning recorded on it, and the five redundant explicit one-second arguments were removed so the bound has a single owner. Every one of those call sites already documents its deadline as bounding a hang rather than asserting promptness, and a timeout there throws, so no case can be using it as a negative assertion. The deliberate `.seconds(30)` and `.seconds(10)` sites are untouched.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`, `DownloadObserverBatchTests.swift`, `DownloadCoordinatorStorageTests.swift`, `DownloadDeleteConvergenceTests.swift`, `DownloadOwnershipConvergenceTests.swift`
 - **Verification:** Two consecutive full `FeatureTests` runs green (929 / 0); raising a bound can only remove false failures, never make a genuine hang pass.
-- **Committed in:** `9f6fbfd6` (Task 2 commit)
+- **Committed in:** `50c05f8100` (Task 2 commit)
 
 ### Undeclared files modified
 
@@ -252,8 +252,8 @@ Acceptance greps:
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadRetryPagesTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadRetryUpdateFallbackTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift` — FOUND
-- Commit `3f4a44ac` — FOUND
-- Commit `9f6fbfd6` — FOUND
+- Commit `5ce8960766` — FOUND
+- Commit `50c05f8100` — FOUND
 
 ## Known Stubs
 

@@ -137,8 +137,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Add the main-actor continued-processing session store** - `f2cf25a5` (feat)
-2. **Task 2: Rewrite the client seam as a session API** - `de269646` (refactor)
+1. **Task 1: Add the main-actor continued-processing session store** - `a33e6612ed` (feat)
+2. **Task 2: Rewrite the client seam as a session API** - `36c488e9ac` (refactor)
 
 ## Files Created/Modified
 
@@ -203,7 +203,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-Both files exist on disk with the expected contents, and both task commits (`f2cf25a5`, `de269646`) are present in `git log`.
+Both files exist on disk with the expected contents, and both task commits (`a33e6612ed`, `36c488e9ac`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

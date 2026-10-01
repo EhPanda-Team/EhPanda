@@ -47,7 +47,7 @@ binary reports **0 violations in 452 files** at `--strict` across `AppPackage/So
 `AppPackage/Tests`, `App` and `ShareExtension`. D-01's exception-gated ban is now compiler-enforced,
 and D-02's exception form went unused — there are **zero** exception sites in the entire repository.
 
-One commit: `b72fab8e`, carrying the 11 remaining conversions, the config correction and the flip.
+One commit: `fa25c6b801`, carrying the 11 remaining conversions, the config correction and the flip.
 
 ## Scope: 11 sites in 3 files, not the plan's 316 in 4
 
@@ -185,7 +185,7 @@ fire on plain `try`, and all three exclusion kinds work. Probe file deleted befo
 
 # The atomic flip
 
-One commit, `b72fab8e`:
+One commit, `fa25c6b801`:
 
 1. the 11 conversions plus the new `removeTemporaryItem(at:)` helper
 2. `doccomment` added to `excluded_match_kinds`, with the trap documented
@@ -211,7 +211,7 @@ error-level rule is a broken build in either order), so the split was never avai
 - **Invalid-kind demonstration** — `doc_comment` reports 0 on a known violation. Scratch only.
 - `grep -rn "try? " AppPackage/Sources AppPackage/Tests App ShareExtension | grep -v "//"` — **0**.
 - `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED** (27.0 s), 0 errors,
-  0 warnings. This is the `Tests/` lint gate (Pitfall 6 / the `e8589355` incident class), and it is
+  0 warnings. This is the `Tests/` lint gate (Pitfall 6 / the `fe3c43e0fe` incident class), and it is
   the repaired 18-target plan from 11-22.1 — the first flip that can rely on it covering every test
   target.
 - `xcodebuild build -scheme EhPanda` — **BUILD SUCCEEDED** (20.6 s), 0 errors, 0 warnings.
@@ -243,7 +243,7 @@ test was never plausible here: no site's outcome feeds an assertion.
   breaks the build.
 - **Fix:** `doccomment` added, with a comment naming the invalid-kind silent-fallback trap. Both the
   defect and the fix were probed empirically before the flip.
-- **Commit:** `b72fab8e`
+- **Commit:** `fa25c6b801`
 
 **2. [Scope] The 316-site inventory and the four-file target list were both stale**
 
@@ -259,7 +259,7 @@ test was never plausible here: no site's outcome feeds an assertion.
   intermediate commit would be a two-line-per-file change of no independent value, and the atomic
   rule requires the flip to carry any residual anyway.
 - **Fix:** One commit. Both tasks' acceptance criteria verified before it opened.
-- **Commit:** `b72fab8e`
+- **Commit:** `fa25c6b801`
 
 **4. [Rule 3 — Blocking] Test scheme substitution (same as every prior wave in this phase)**
 
@@ -319,4 +319,4 @@ catch a residual Tests violation the app-scheme build cannot see — succeeded o
 - `AppPackage/Tests/CookieClientTests/CookieClientTests.swift` — FOUND
 - `AppPackage/Tests/NetworkingFeatureTests/AccountRequestBaselineTests.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-24-SUMMARY.md` — FOUND
-- Commit `b72fab8e` — FOUND
+- Commit `fa25c6b801` — FOUND

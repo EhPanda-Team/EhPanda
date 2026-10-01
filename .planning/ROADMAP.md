@@ -228,7 +228,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 
 **Why decomposition was rejected**: the 8 consuming pages call the list near-identically (5 byte-identical; Popular passes no pagination; History adds a synthetic page number + notice; Favorites navigates modally). Splitting the super-list into per-page lists would relocate the shared glue (display-mode switch + loading/error overlay + refresh) into ~8 copies rather than remove duplication, and the cell / footer / notice / overlay / grid atoms already exist as standalone components. The honest change is to keep one well-named shared list.
 
-**Delivered**: 2026-07-13 — rename committed (`43da047d`); build + full suite green. No plan pipeline (mechanical). Formal phase close-out follows Phase 5 verification.
+**Delivered**: 2026-07-13 — rename committed (`cf52fb7de5`); build + full suite green. No plan pipeline (mechanical). Formal phase close-out follows Phase 5 verification.
 **Plans**: none (mechanical rename)
 **UI hint**: no
 

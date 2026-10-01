@@ -82,7 +82,7 @@ evidence: "R2 — middle 111/255, final 255/255. R3 — first, middle, final. R4
 ### R7. Reader — autoplay .next
 expected: Advances exactly once per interval, clamps at the last stack, no off-by-one/feedback jump — single- AND dual-page
 result: pass
-evidence: "R3 — single-page advances once per interval and clamps at the final page. R4 — owner device pass (2026-07-12) incl. dual-page. Post-R3 behavior change (owner-requested, b6730a48): autoplay now auto-resets to .off on reaching the last stack instead of idling clamped."
+evidence: "R3 — single-page advances once per interval and clamps at the final page. R4 — owner device pass (2026-07-12) incl. dual-page. Post-R3 behavior change (owner-requested, db7d4cd74d): autoplay now auto-resets to .off on reaching the last stack instead of idling clamped."
 
 ### R8. Reader — tap-to-turn
 expected: At scale 1, each edge tap moves exactly one logical page/stack in the reading-mode direction — LTR AND RTL, single- AND dual-page
@@ -121,8 +121,8 @@ out_of_scope_bugs: 1   # F-2: pre-existing blank slider-preview tray (not a phas
 device sign-off (2026-07-12). G-03-C5 fixed + verified; G-03-C2 closed as accepted-behavior. The
 spike is KEEP. Post-gate closeout DONE (2026-07-12): THROWAWAY spike logs removed (carousel
 crossing/settled/scrollPositionID/rebase + reader jump requested/landed + dead HomeFeature Logger
-helper + dead OSLogExt dep, `65dc1677`); SwiftUIPager dropped from Package.swift/both
-Package.resolved/AboutView/xcstrings (`89d85539`); DEP-05 marked complete in ROADMAP/REQUIREMENTS/STATE.
+helper + dead OSLogExt dep, `db7d4cd74d`); SwiftUIPager dropped from Package.swift/both
+Package.resolved/AboutView/xcstrings (`ab840b6f89`); DEP-05 marked complete in ROADMAP/REQUIREMENTS/STATE.
 
 ## Re-review findings (2026-07-12, pre-gate code read)
 
@@ -138,7 +138,7 @@ Package.resolved/AboutView/xcstrings (`89d85539`); DEP-05 marked complete in ROA
   Owner-reported: the outgoing card's gradient persisted ~0.5s after the new card centered. Root cause:
   `currentCardID` was only written at scroll `.idle`, but `.viewAligned`'s deceleration tail runs
   ~0.8s past the visual centering (SwiftUIPager updated its index at drag end, so the native swap
-  changed the handoff timing — a parity regression). Fix (`ccf29af9`): `onScrollGeometryChange`
+  changed the handoff timing — a parity regression). Fix (`51c935eb50`): `onScrollGeometryChange`
   flips `pageIndex` when the nearest-center logical card crosses the container midline — which is
   also `.viewAligned`'s own settle target, so snap-backs never mis-claim; the `.idle` write stays as
   reconciliation and the logical-index dedup keeps the tripled-buffer re-center event-silent.

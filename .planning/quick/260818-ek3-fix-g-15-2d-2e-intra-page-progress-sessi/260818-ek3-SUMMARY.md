@@ -72,9 +72,9 @@ single-owner actor so the jsonl stops repeating itself.
 
 | Task | Commit | Subject |
 |------|--------|---------|
-| 1 | `e68ca491` | `fix(15): serialize the activity-log pump` |
-| 2 | `1f9c3f34` | `feat(15): credit in-flight page bytes and heartbeat` |
-| 3 | `abb61ac2` | `docs(15): record G-15-2D/2E fixes in UAT` |
+| 1 | `7ee20ad3c1` | `fix(15): serialize the activity-log pump` |
+| 2 | `7214240185` | `feat(15): credit in-flight page bytes and heartbeat` |
+| 3 | `2ab8d51e02` | `docs(15): record G-15-2D/2E fixes in UAT` |
 
 Branch: `feature/gsd-phase-15`. Docs artifacts (PLAN/CONTEXT/SUMMARY/STATE) are deliberately not in
 these commits; only Task 3's `15-UAT.md` edit is, as the plan specifies.
@@ -159,9 +159,9 @@ Gid is the only masked value; every other field is an integer or a closed symbol
    `.concatenate(logEffect, .send(.appLogsPump(.pausePump)))` for the background arm. In TCA 1.26
    with this project's deprecation traits that emits a warning, and the build gate demands 0
    warnings. The same ordering intent is expressed by sequencing inside one `.run`: log, then
-   `await send(.appLogsPump(.pausePump))`. Commit `e68ca491`.
+   `await send(.appLogsPump(.pausePump))`. Commit `7ee20ad3c1`.
 2. **[Rule 1 — plan detail wrong against source] Baseline test count.** The plan states a 980-test
-   baseline (quoted from STATE.md). The true baseline in this tree is **973**: commit `81a2b6d5`
+   baseline (quoted from STATE.md). The true baseline in this tree is **973**: commit `1300fc4ce0`
    ("drop the logs directory migration") deleted `LogsDirectoryMigrationTests.swift` after that
    figure was recorded. 973 + 20 new = 993, which is what the suite reports.
 3. **[Environment] Simulator destination.** `-destination 'platform=iOS Simulator,name=iPhone 17e'`

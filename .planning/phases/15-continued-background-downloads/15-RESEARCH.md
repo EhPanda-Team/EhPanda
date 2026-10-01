@@ -745,7 +745,7 @@ left stranded.
 | `AppPackage/Tests/DownloadsFeatureTests/DownloadBackgroundAssertionTests.swift` | Entire suite rewritten. `BackgroundTaskClientSpy` (lines 195–224) replaced by a `BackgroundProcessingClient` spy; the three assertion-lifecycle tests become session-lifecycle tests. `makeBlockingCoordinator` helper (lines 134–176) is reusable as-is with the new injection. |
 | `AppPackage/Tests/DownloadsFeatureTests/DownloadBackgroundProcessingTests.swift` | `testRunQueueUntilIdleDrainsAllQueuedItems` (line 60) and the cancellation test (line 93) go with `runQueueUntilIdle`. `testHasPendingWorkReflectsQueueState` (lines 26–31) **survives** unchanged. `testBackgroundSchedulesProcessingWhenWorkPending` / `testBackgroundSkipsSchedulingWhenIdle` (lines 108–133) and `makeBackgroundStore` (lines 173–200) go with the `AppReducer` `.background` scheduling. Rename the file. |
 | `AppPackage/Tests/DownloadsFeatureTests/DownloadAutomationTests.swift` | line 49 `$0.downloadClient.hasPendingWork = { false }` — remove with the façade endpoint. |
-| `AppPackage/Tests/DownloadsFeatureTests/DownloadSchedulingTests.swift` | No direct reference, but it exercises `scheduleNextIfNeeded()`. **Must stay green** — a failure there is a real regression, not flake (fixed deterministically in `557b0425`). |
+| `AppPackage/Tests/DownloadsFeatureTests/DownloadSchedulingTests.swift` | No direct reference, but it exercises `scheduleNextIfNeeded()`. **Must stay green** — a failure there is a real regression, not flake (fixed deterministically in `a0c49c53cd`). |
 
 ### Grep gates for the planner
 

@@ -90,7 +90,7 @@ xcodebuild build-for-testing -scheme EhPanda -destination 'platform=iOS Simulato
 **`** BUILD SUCCEEDED ** [23.580 sec]`** and **`** TEST BUILD SUCCEEDED ** [29.240 sec]`**,
 0 errors, 0 warnings, run sequentially (never concurrently).
 
-Both are required. The app-scheme build does **not** lint `Tests/` — the `e8589355` incident class,
+Both are required. The app-scheme build does **not** lint `Tests/` — the `fe3c43e0fe` incident class,
 where a 137-character line in a test file passed the app gate and broke the test build.
 
 ### 1.4 Full parallel suite
@@ -135,7 +135,7 @@ No drift today. The gap 11-22.1 identified — that nothing enforces this — re
 and prose argument in place, and every one was landed in the same commit that flipped its rule (a
 directive naming a not-yet-registered rule trips `superfluous_disable_command`).
 
-Verified by `git blame`: all 8 date to `df693e44` (11-11), `3bf28440` (11-17) or `5c7b56fc` (11-12).
+Verified by `git blame`: all 8 date to `bdf4775616` (11-11), `f9870fcd41` (11-17) or `b8f365575c` (11-12).
 
 ### 2.1 `lifecycle_modifiers` — 6 exceptions
 
@@ -186,25 +186,25 @@ none of these is mistaken for Phase 11 work. `git blame` attribution given.
 
 | Site | Rule(s) | Origin |
 |---|---|---|
-| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:23` | `cyclomatic_complexity` `function_body_length` | `4d05cd03` "Resolve lint issues" |
-| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:33` | `line_length` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:205` | `line_length` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Greeting.swift:6` | `cyclomatic_complexity` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Comment.swift:7` | `cyclomatic_complexity` `function_body_length` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Comment.swift:82` | `function_body_length` `cyclomatic_complexity` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Torrent.swift:7` | `cyclomatic_complexity` `function_body_length` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Shared.swift:138` | `cyclomatic_complexity` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Detail.swift:13` | `function_body_length` | `4d05cd03` |
-| `AppPackage/Sources/ParserFeature/Parser+Detail.swift:222` | `cyclomatic_complexity` | `4d05cd03` |
+| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:23` | `cyclomatic_complexity` `function_body_length` | `b78f339dd2` "Resolve lint issues" |
+| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:33` | `line_length` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Profile.swift:205` | `line_length` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Greeting.swift:6` | `cyclomatic_complexity` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Comment.swift:7` | `cyclomatic_complexity` `function_body_length` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Comment.swift:82` | `function_body_length` `cyclomatic_complexity` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Torrent.swift:7` | `cyclomatic_complexity` `function_body_length` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Shared.swift:138` | `cyclomatic_complexity` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Detail.swift:13` | `function_body_length` | `b78f339dd2` |
+| `AppPackage/Sources/ParserFeature/Parser+Detail.swift:222` | `cyclomatic_complexity` | `b78f339dd2` |
 | `AppPackage/Sources/AppModels/Gallery/Language.swift:9` | `line_length` | `75029014` (2022) |
-| `AppPackage/Sources/AppModels/Gallery/Language.swift:29` | `switch_case_alignment` `line_length` | `4d05cd03` |
-| `AppPackage/Sources/AppModels/Gallery/GalleryDetail.swift:123` | `identifier_name` | `9555b7bd` "Extract AppModels module" |
-| `AppPackage/Sources/AppModels/Support/EhSetting.swift:95` | `line_length` | `9555b7bd` |
+| `AppPackage/Sources/AppModels/Gallery/Language.swift:29` | `switch_case_alignment` `line_length` | `b78f339dd2` |
+| `AppPackage/Sources/AppModels/Gallery/GalleryDetail.swift:123` | `identifier_name` | `fd4e2fe729` "Extract AppModels module" |
+| `AppPackage/Sources/AppModels/Support/EhSetting.swift:95` | `line_length` | `fd4e2fe729` |
 | `AppPackage/Sources/AppModels/Support/BrowsingCountry.swift:5` | `line_length` | `75029014` (2022) |
-| `AppPackage/Sources/AppTools/Defaults.swift:85` | `nesting` `identifier_name` | `9555b7bd` |
-| `AppPackage/Sources/AppTools/DeviceType.swift:7` | `identifier_name` | `87c0cc2d` (Phase 5) |
+| `AppPackage/Sources/AppTools/Defaults.swift:85` | `nesting` `identifier_name` | `fd4e2fe729` |
+| `AppPackage/Sources/AppTools/DeviceType.swift:7` | `identifier_name` | `365471c0ca` (Phase 5) |
 | `AppPackage/Sources/ReadingFeature/Support/LiveTextHandler.swift:2` | `line_length` | `ef7395de` (2025) |
-| `AppPackage/Sources/PreviewSupport/PreviewIdentifiers.swift:4` | `file_length` | `5c7b56fc` (11-12) — see note |
+| `AppPackage/Sources/PreviewSupport/PreviewIdentifiers.swift:4` | `file_length` | `b8f365575c` (11-12) — see note |
 
 **One boundary case.** `PreviewIdentifiers.swift:4`'s `file_length` disable was created **by this
 phase** (11-12), but it is not a LINT-01 rule exception — the file is a 1,048-line table of frozen
@@ -642,7 +642,7 @@ when they were created. Consequences:
 - Two of the three hold this phase's own isolation work (11-20 de-serialized `ImageClientTests` and
   fixed the `DidLoginKey` race in `CookieClientTests`).
 
-Repaired in `320d942d`. **Nothing re-audits it** — §1.6 checked it by hand here and it is clean, but
+Repaired in `4384d9913c`. **Nothing re-audits it** — §1.6 checked it by hand here and it is clean, but
 the same silent drift can recur the next time a target is added. A one-line check comparing
 `AppPackage/Tests/*/` against the plan would close it permanently.
 

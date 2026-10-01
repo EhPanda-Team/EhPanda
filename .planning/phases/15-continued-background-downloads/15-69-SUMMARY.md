@@ -172,7 +172,7 @@ status: complete
 Each task was committed atomically:
 
 1. **Task 1: RED — pin the silent no-op, the conflated error, and the false failure record** - `34984354` (test)
-2. **Task 2: GREEN — distinct errors, surfaced toast, throwing collapse, swept consumers** - `1d966aee` (fix)
+2. **Task 2: GREEN — distinct errors, surfaced toast, throwing collapse, swept consumers** - `e72051e664` (fix)
 
 ## The Three-State Consumer Sweep, Enumerated From Source
 
@@ -242,7 +242,7 @@ The cross-message arm is the one that states what "distinct" has to mean: a fix 
 - **Fix:** The case asserts the distinct error and a non-empty message, matching its repair-side siblings, with a doc paragraph deriving why the update path inherits the change: the guard precedes mode resolution, so both record kinds are refused by the same exit.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadRetryUpdateFallbackTests.swift`
 - **Verification:** Full `FeatureTests` green afterwards; the whole-state no-mutation assertion in the same case is untouched.
-- **Committed in:** `1d966aee` (Task 2 commit)
+- **Committed in:** `e72051e664` (Task 2 commit)
 
 **2. [Rule 3 - Blocking issue] The retried-pages test double could not express the boundary's new contract**
 
@@ -251,7 +251,7 @@ The cross-message arm is the one that states what "distinct" has to mean: a fix 
 - **Fix:** The helper is `async throws` and its doc records why; the six call sites in `DownloadContinuedSessionLedgerRefusalTests.swift` (5) and `DownloadContinuedSessionLedgerTests.swift` (1) gained `try`. All six pass in-range indices, so no expectation changed.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`, `DownloadContinuedSessionLedgerRefusalTests.swift`, `DownloadContinuedSessionLedgerTests.swift`
 - **Verification:** Both ledger suites green in the full run.
-- **Committed in:** `1d966aee` (Task 2 commit)
+- **Committed in:** `e72051e664` (Task 2 commit)
 
 ### Documented deviations from the plan's text
 
@@ -308,7 +308,7 @@ Acceptance greps and metrics:
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadRetryUpdateFallbackTests.swift` — FOUND
 - Commit `34984354` — FOUND
-- Commit `1d966aee` — FOUND
+- Commit `e72051e664` — FOUND
 
 ## Known Stubs
 

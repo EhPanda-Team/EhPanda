@@ -95,7 +95,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Reflow every broke-at-AX5 site** — `58f4a88f` (fix, 9 files)
+1. **Task 1: Reflow every broke-at-AX5 site** — `63ac24a0c3` (fix, 9 files)
 2. **Task 2: Re-verify (static) at AX5 + default parity** — no code commit; verification-only. Device screenshot pass batched to the D-03 owner gate (10-12).
 
 ## Final Reflow Verdict Table
@@ -153,7 +153,7 @@ None.
 ## Self-Check: PASSED
 
 - FOUND: all 9 modified source files
-- FOUND: commit `58f4a88f` (Task 1, 9 files)
+- FOUND: commit `63ac24a0c3` (Task 1, 9 files)
 
 ---
 *Phase: 10-ui-polish*

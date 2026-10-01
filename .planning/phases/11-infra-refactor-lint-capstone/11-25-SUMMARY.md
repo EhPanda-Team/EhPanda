@@ -45,7 +45,7 @@ binary reports **0 violations, 0 serious in 452 files** at `--strict` across `Ap
 `AppPackage/Tests`, `App` and `ShareExtension`. This is the phase's largest single rule by violation
 count and the first resolved entirely by the tool.
 
-One commit: `bd28644e`, carrying 325 reordered files, the config flip and the stale-exclusion cleanup.
+One commit: `2c15c2b0c9`, carrying 325 reordered files, the config flip and the stale-exclusion cleanup.
 
 ## This rule is built-in, so the custom-rule hazards do not apply
 
@@ -198,7 +198,7 @@ inspection of a passing build.
 - **Whole-diff shape assertions** — only import lines changed; Swift half net-zero.
 - `xcodebuild build -scheme EhPanda` — **BUILD SUCCEEDED** (26.2 s), 0 errors, 0 warnings.
 - `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED** (30.5 s), 0 errors. This
-  is the `Tests/` lint gate (Pitfall 6 / the `e8589355` incident class) on 11-22.1's repaired
+  is the `Tests/` lint gate (Pitfall 6 / the `fe3c43e0fe` incident class) on 11-22.1's repaired
   18-target plan. It matters more here than in any prior wave: **305 of the fixed violations are in
   test files**, which the app-scheme build does not lint at all.
 - **Full `AppPackage-Package` suite** — **TEST SUCCEEDED**, **565 tests, 0 failed runs**.
@@ -217,7 +217,7 @@ and unchanged by this wave.
 
 ## The atomic flip
 
-One commit, `bd28644e` (Pitfall 10):
+One commit, `2c15c2b0c9` (Pitfall 10):
 
 1. 325 files with sorted import blocks
 2. `sorted_imports` added to `opt_in_rules` with a `severity: error` block
@@ -257,7 +257,7 @@ sorted_imports:
   (Task 2). Task 2 required zero source edits — `--fix` disturbed nothing — so there was no second
   change to commit, and the atomic rule forbids splitting the flip from the fix regardless.
 - **Fix:** One commit. Both tasks' acceptance criteria verified before it opened.
-- **Commit:** `bd28644e`
+- **Commit:** `2c15c2b0c9`
 
 **3. [Rule 3 — Blocking] Test scheme substitution (as in every prior wave)**
 
@@ -319,4 +319,4 @@ inside the condition), the rule's block-independent behaviour was proven by prob
 - `AppPackage/Sources/AppTools/ColorCodable.swift` — FOUND; unchanged by the sweep
 - `AppPackage/Sources/AppTools/DeviceType.swift` — FOUND; unchanged by the sweep
 - `.planning/phases/11-infra-refactor-lint-capstone/11-25-SUMMARY.md` — FOUND
-- Commit `bd28644e` — FOUND; 326 files, no deletions
+- Commit `2c15c2b0c9` — FOUND; 326 files, no deletions

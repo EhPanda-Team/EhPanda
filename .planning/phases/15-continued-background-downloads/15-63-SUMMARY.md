@@ -104,8 +104,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — exercise lexical, path-boundary, and symlink escape attempts** - `eae3068a` (test)
-2. **Task 2: GREEN — enforce direct-child confinement inside DownloadStore** - `581f0c3f` (fix)
+1. **Task 1: RED — exercise lexical, path-boundary, and symlink escape attempts** - `b7780333c5` (test)
+2. **Task 2: GREEN — enforce direct-child confinement inside DownloadStore** - `34487270b5` (fix)
 
 ## Files Created/Modified
 
@@ -132,11 +132,11 @@ Each task was committed atomically:
 - **Fix:** Renamed the private helper to `repointRenamedUserFolder(oldName:newName:)` and gave it a doc comment saying which half it owns. Private, single call site, no behavior change.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift`
 - **Verification:** `grep -n "renameUserFolder" AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift` shows the store call and the doc references only; full suite green.
-- **Committed in:** `581f0c3f` (Task 2 commit)
+- **Committed in:** `34487270b5` (Task 2 commit)
 
 ### Test-file scope
 
-Task 2 declares `DownloadFolderOperationTests.swift` in its `<files>` for making the RED cases green "without relaxing disk-state assertions". No edit was needed: the fix made all 12 recorded issues disappear with the assertions exactly as Task 1 committed them. The file is unchanged between `eae3068a` and `581f0c3f`.
+Task 2 declares `DownloadFolderOperationTests.swift` in its `<files>` for making the RED cases green "without relaxing disk-state assertions". No edit was needed: the fix made all 12 recorded issues disappear with the assertions exactly as Task 1 committed them. The file is unchanged between `b7780333c5` and `34487270b5`.
 
 ---
 
@@ -189,8 +189,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift` — FOUND
-- Commit `eae3068a` — FOUND
-- Commit `581f0c3f` — FOUND
+- Commit `b7780333c5` — FOUND
+- Commit `34487270b5` — FOUND
 
 ## Known Stubs
 

@@ -25,7 +25,7 @@ status: all_fixed
 ### WR-01: `ChallengeWebView`'s one-shot latch can double-fire across suspension points
 
 **Files modified:** `AppPackage/Sources/SettingFeature/Components/ChallengeWebView.swift`
-**Commit:** `15ff7a97`
+**Commit:** `b438d7ad4d`
 **Applied fix:** Added a second latch check in `reportClearanceIfPresent(in:)` immediately before the
 commit block, after the last suspension point (`evaluateJavaScript`). The entry guard is kept as a
 cheap fast path, and a comment records why main-actor isolation alone does not serialise the method
@@ -35,7 +35,7 @@ promises, instead of relying on `LoginReducer`'s straggler guard to absorb a dup
 ### WR-02: `.login` is re-entrant while a login is already in flight
 
 **Files modified:** `AppPackage/Sources/SettingFeature/Login/LoginReducer.swift`
-**Commit:** `66cac023`
+**Commit:** `b3cc459841`
 **Applied fix:** Folded the in-flight condition into `State.loginButtonDisabled`
 (`username.isEmpty || password.isEmpty || loginState == .loading`) so the view's `.disabled` and the
 reducer's guard read from one property and cannot drift; the `.login` guard is now plainly
@@ -57,7 +57,7 @@ the view.
 **Files modified:** `AppPackage/Sources/NetworkingFeature/Request.swift`,
 `AppPackage/Sources/NetworkingFeature/Request+Account.swift`,
 `AppPackage/Tests/NetworkingFeatureTests/AccountRequestBaselineTests.swift`
-**Commit:** `146b2624`
+**Commit:** `7934c66ffe`
 **Applied fix:** `Dictionary.dictString()` now percent-encodes each key and each value on its own
 with an RFC 3986 unreserved-character set (`alphanumerics` + `-._~`) before joining with `=` and `&`,
 replacing the raw join plus a single whole-body `.urlQueryAllowed` pass that escaped none of `&`,

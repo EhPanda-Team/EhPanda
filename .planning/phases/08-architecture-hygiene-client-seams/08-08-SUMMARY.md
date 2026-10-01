@@ -99,8 +99,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Delete the host globals and URLUtil transitional default** - `304ceac4` (refactor)
-2. **Task 2: Remove the UserDefaults galleryHost mirror and shrink AppUserDefaults** - `5b99f937` (refactor)
+1. **Task 1: Delete the host globals and URLUtil transitional default** - `7b0ea90aec` (refactor)
+2. **Task 2: Remove the UserDefaults galleryHost mirror and shrink AppUserDefaults** - `3c37466b0f` (refactor)
 
 ## Files Created/Modified
 
@@ -137,7 +137,7 @@ status: complete
 - **Fix:** Added a shared-setting host read to GalleryInfosView and explicit deterministic E-Hentai hosts to the tests.
 - **Files modified:** `GalleryInfosView.swift` and three DownloadsFeature test files.
 - **Verification:** The package build and full test suite succeeded; static sweeps find no global/default consumer.
-- **Committed in:** `304ceac4` and `5b99f937`.
+- **Committed in:** `7b0ea90aec` and `3c37466b0f`.
 
 **2. [Rule 3 - Blocking] Adapted verification to the package workspace and installed simulator**
 

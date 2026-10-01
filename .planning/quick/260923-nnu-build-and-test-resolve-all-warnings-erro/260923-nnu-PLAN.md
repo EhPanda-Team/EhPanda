@@ -7,7 +7,7 @@ description: Build and test; resolve all warnings, errors, and lint violations, 
 # Build, test, and lint every app-owned target
 
 Run the quick workflow inline and sequentially on the current branch. Preserve the pre-existing
-`EhPanda.xcodeproj/project.pbxproj` edit. The live baseline is commit `75dfb5a3`; edit scope below
+`EhPanda.xcodeproj/project.pbxproj` edit. The live baseline is commit `412f43c486`; edit scope below
 is conditional on diagnostics collected from this checkout, including every test target.
 
 ## Task 1: Establish the baseline

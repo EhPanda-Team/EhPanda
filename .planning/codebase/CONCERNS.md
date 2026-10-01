@@ -39,7 +39,7 @@
 **Download subsystem is the largest and most complex area:**
 - Problem: `DownloadClient` spans many large files coordinating concurrent page downloads, background tasks, and response validation.
 - Files: `AppPackage/Sources/DownloadClient/DownloadStore.swift` (555 lines), `DownloadClient+Manager.swift` (457), `DownloadPageDownloader.swift` (434), `DownloadClient+ExecutionSupport.swift` (427), `DownloadClient+ResponseValidationHelpers.swift` (357), `BackgroundTaskClient.swift`
-- Cause: Concurrency and scheduling logic concentrated in a few files; historically a flaky scheduling test existed here (fixed in `557b0425`).
+- Cause: Concurrency and scheduling logic concentrated in a few files; historically a flaky scheduling test existed here (fixed in `a0c49c53cd`).
 - Improvement path: Any regression in download scheduling timing is now a real regression, not flake — treat `DownloadSchedulingTests` failures as signal.
 
 ## Fragile Areas

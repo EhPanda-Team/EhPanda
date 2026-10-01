@@ -102,8 +102,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Converge the vanished-record delete and unify the schedulable-work predicate** - `e07533ec` (fix)
-2. **Task 2: Regressions for both vanished-record delete outcomes** - `b2fea9ab` (test)
+1. **Task 1: Converge the vanished-record delete and unify the schedulable-work predicate** - `15597aa17d` (fix)
+2. **Task 2: Regressions for both vanished-record delete outcomes** - `440f6f6e2e` (test)
 
 ## Files Created/Modified
 
@@ -129,7 +129,7 @@ Each task was committed atomically:
 - **Fix:** Added the direct `AppModels` import rather than relying on another file's imports.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+PendingWork.swift`
 - **Verification:** The targeted and full download test suites compiled and passed; the clean app-scheme build exited 0.
-- **Committed in:** `e07533ec`
+- **Committed in:** `15597aa17d`
 
 **2. [Rule 3 - Blocking] Adapted verification to the installed non-interactive Xcode environment**
 - **Found during:** Task 1 verification
@@ -179,7 +179,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All five created or modified Swift files exist.
-- Task commits `e07533ec` and `b2fea9ab` exist.
+- Task commits `15597aa17d` and `440f6f6e2e` exist.
 - The summary contains no absolute home-directory path.
 
 ---

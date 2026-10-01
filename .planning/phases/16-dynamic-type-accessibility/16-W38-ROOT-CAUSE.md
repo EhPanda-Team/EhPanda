@@ -94,7 +94,7 @@ The probe build logs and runtime logs are retained in `$HOME/Library/Caches/ehpa
 
 The owner request is recorded verbatim in `16-SWEEP.md § Owner focus approval and W-38 continuation`. The permitted repair is an additional index update path active only for VoiceOver. Existing ordinary scrolling, scroll bindings, slider, tap, autoplay, resume and page mapping must remain intact. The withdrawn global synchronization, sentinel and negative spacing adjustments remain withdrawn.
 
-The unchanged source at documentation HEAD `2b9ea67c` built successfully with Xcode 27.0.0. The same executable was installed on two task-owned simulators: iPhone Air (`8E3EA338-4F93-40A7-BE4F-1F6E7C855F32`) and iPad Pro 11-inch M5 (`55C7BED8-A301-4C4B-94F7-1959B45EBE27`), both OS 27.0. Executable SHA-256: `2f27b1c1d79bc473ab126e49bb57d357e0791770567a645f30ca8eee7fa0f5d3`. The build retained an unrelated existing ShareExtension `loadItem` deprecation warning. No test gate was rerun or reclassified as passing.
+The unchanged source at documentation HEAD `2358353710` built successfully with Xcode 27.0.0. The same executable was installed on two task-owned simulators: iPhone Air (`8E3EA338-4F93-40A7-BE4F-1F6E7C855F32`) and iPad Pro 11-inch M5 (`55C7BED8-A301-4C4B-94F7-1959B45EBE27`), both OS 27.0. Executable SHA-256: `2f27b1c1d79bc473ab126e49bb57d357e0791770567a645f30ca8eee7fa0f5d3`. The build retained an unrelated existing ShareExtension `loadItem` deprecation warning. No test gate was rerun or reclassified as passing.
 
 The local evidence root is `/tmp/ehpanda-w38-20260922/`. Native VoiceOver ran in the simulator; single-finger right swipes resolved to `Built-in: Next Item` / `OneFingerFlickRight` in the native VoiceOver log. These were not XCTest scroll actions.
 
@@ -128,7 +128,7 @@ The owner requested a screen recording with numbered mock placeholders, movement
 
 > approved
 
-Approval recorded at `2026-09-23T02:11:30Z`. Repository HEAD at recording is `06c72637b0159c89538209816d07e3bfb50a8831`; an unrelated existing Xcode-project edit was present and is not covered by this approval. The video uses the same unchanged reader baseline built on 2026-09-22; `AppPackage/Sources/ReadingFeature` has no diff from `2b9ea67c` to that HEAD. This is approval of the demonstrated W-38 behavior, not a clean-tree sign-off over the whole phase.
+Approval recorded at `2026-09-23T02:11:30Z`. Repository HEAD at recording is `78d8defb8176f48e8ab69e5c55da0b25e9e96b41`; an unrelated existing Xcode-project edit was present and is not covered by this approval. The video uses the same unchanged reader baseline built on 2026-09-22; `AppPackage/Sources/ReadingFeature` has no diff from `2358353710` to that HEAD. This is approval of the demonstrated W-38 behavior, not a clean-tree sign-off over the whole phase.
 
 - Device: task-owned iPhone Air simulator, iOS 27.0, portrait; mock gallery with 156 numbered failed-image placeholders.
 - Entry: page 1, controls hidden, native VoiceOver enabled.
@@ -151,7 +151,7 @@ The earlier focus approvals remain in force. Phase 16/A11Y-02 completion still r
 
 This diagnostic does not reopen the owner-approved W-38 disposition. The prior ordinary-touch iPad bundle, `/tmp/ehpanda-ios27/final-reader-native-toolbar27.xcresult`, remains failed: its first attempt ended at indicator 2 / shown 2 without advancing, and its two retries reported indicator 2 / shown 3. The exported synthesized-event records encode a 200-point vertical gesture from `(417,705)` to `(417,505)` in an 834-by-1210-point window, with a 0.2-second duration on the latter pointer events. No reliable velocity or post-failure screenshot was recovered.
 
-A single read-only diagnostic used the task-owned iPad Pro 11-inch (M5), iPadOS 27.0, UDID `55C7BED8-A301-4C4B-94F7-1959B45EBE27`. The installed app was the current build at repository HEAD `a487965b`; the pre-existing Xcode-project edit is preserved and captured separately in the evidence directory. Launch entered mock page 2; the panel showed 2 / 156. Reading Setting was opened, Vertical selected and the sheet dismissed. `sim-use` then delivered one ordinary swipe with the recorded coordinates and duration.
+A single read-only diagnostic used the task-owned iPad Pro 11-inch (M5), iPadOS 27.0, UDID `55C7BED8-A301-4C4B-94F7-1959B45EBE27`. The installed app was the current build at repository HEAD `fdc7035443`; the pre-existing Xcode-project edit is preserved and captured separately in the evidence directory. Launch entered mock page 2; the panel showed 2 / 156. Reading Setting was opened, Vertical selected and the sheet dismissed. `sim-use` then delivered one ordinary swipe with the recorded coordinates and duration.
 
 The settled screen shows placeholder 3 and indicator 3 / 156 together. Read-only LLDB breakpoints reached the existing `AdvancedList.swift:44` update site with local `index = 3`, followed by `PageModel.update` from that caller. No expression evaluation or state injection was used. The four breakpoints were deleted, the debugger detached, the final screen read back, and the task-owned iPad shut down. Other simulators were untouched.
 

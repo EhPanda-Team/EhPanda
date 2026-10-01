@@ -72,11 +72,11 @@ the evidence.
 
 | Gap | Closure | Commit |
 |-----|---------|--------|
-| G-15-34 (BLOCKER, non-monotonic credit) | `RunProgressBasis` measured numerator; `sessionCreditedPages` reduced to three continuous regimes; the guarded subtraction and the debt map are gone | `a6105b0b` |
-| G-15-35 (cache capture bypasses the flush) | `performCacheCapture` routes through `flushManifestPageProgress`; orphan `refreshManifestPageFileHash` single-page overload deleted | `d155236a` |
-| G-15-36 (atomic `noop` outside the census) | `noop` suspends at all three endpoints; `BackgroundProcessingClient`'s module joins the double-fidelity census walk | `5df56a8e` |
-| G-15-37 (stale T-15-09) | 15-SECURITY.md T-15-09 / T-15-03 / trust-boundary row rewritten to the 15-51 per-process `registeredIdentifier` design with fresh line citations | `d4d568c6` |
-| G-15-38 (duplicated helper) | `landPageFiles` delegates to the shared `pageResults` | `a6105b0b` |
+| G-15-34 (BLOCKER, non-monotonic credit) | `RunProgressBasis` measured numerator; `sessionCreditedPages` reduced to three continuous regimes; the guarded subtraction and the debt map are gone | `e622a40c2c` |
+| G-15-35 (cache capture bypasses the flush) | `performCacheCapture` routes through `flushManifestPageProgress`; orphan `refreshManifestPageFileHash` single-page overload deleted | `9d5062c4bf` |
+| G-15-36 (atomic `noop` outside the census) | `noop` suspends at all three endpoints; `BackgroundProcessingClient`'s module joins the double-fidelity census walk | `44ea9d550a` |
+| G-15-37 (stale T-15-09) | 15-SECURITY.md T-15-09 / T-15-03 / trust-boundary row rewritten to the 15-51 per-process `registeredIdentifier` design with fresh line citations | `7bc90a409c` |
+| G-15-38 (duplicated helper) | `landPageFiles` delegates to the shared `pageResults` | `e622a40c2c` |
 
 ## What the redesign replaced, concretely
 
@@ -123,11 +123,11 @@ the evidence.
 
 ## Commits
 
-- `5df56a8e` — `fix(15-56): make the noop client suspend where the seam does`
-- `a6105b0b` — `fix(15-54): measure the numerator instead of correcting the record` (9 files,
+- `44ea9d550a` — `fix(15-56): make the noop client suspend where the seam does`
+- `e622a40c2c` — `fix(15-54): measure the numerator instead of correcting the record` (9 files,
   +742/−612)
-- `d155236a` — `fix(15-55): land cache captures through the shared flush`
-- `d4d568c6` — `docs(15-57): record the per-process identifier in the threat model`
+- `9d5062c4bf` — `fix(15-55): land cache captures through the shared flush`
+- `7bc90a409c` — `docs(15-57): record the per-process identifier in the threat model`
 
 ## What this plan did NOT close
 
@@ -146,5 +146,5 @@ the evidence.
 
 ## Self-Check: PASSED
 
-Commits verified in `git log`: `5df56a8e`, `a6105b0b`, `d155236a`, `d4d568c6` — all FOUND.
+Commits verified in `git log`: `44ea9d550a`, `e622a40c2c`, `9d5062c4bf`, `7bc90a409c` — all FOUND.
 Files asserted modified all exist on disk and appear in the commits above.

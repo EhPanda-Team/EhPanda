@@ -88,8 +88,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: The stale expiration pause that a retry survives** - `c81171fd` (test)
-2. **Task 2: The guard's boundary, and the round's closing gates** - `cd2ac151` (test)
+1. **Task 1: The stale expiration pause that a retry survives** - `a6ca4a47c4` (test)
+2. **Task 2: The guard's boundary, and the round's closing gates** - `1317ffaf96` (test)
 
 ## Files Created/Modified
 
@@ -154,7 +154,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Both Swift test files and this summary exist.
-- Task commits `c81171fd` and `cd2ac151` exist.
+- Task commits `a6ca4a47c4` and `1317ffaf96` exist.
 - The summary contains no absolute home-directory path.
 
 ---

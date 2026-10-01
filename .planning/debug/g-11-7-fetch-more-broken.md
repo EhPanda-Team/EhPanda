@@ -10,9 +10,9 @@ updated: 2026-07-21
 status: diagnosed (diagnose-only mode — no fix applied)
 
 reasoning_checkpoint:
-  hypothesis: "Commit ebc99f5e deleted DetailList's last-cell `.onAppear` fetch-more trigger and replaced it with `AutoLoadNextPage`, a scroll-geometry heuristic that was designed and device-validated (Phase 2 / D-36) only for ThumbnailList's structurally different layout. Because `listDisplayMode` defaults to `.detail`, every gallery list lost its working pagination trigger."
+  hypothesis: "Commit fd0dce3e59 deleted DetailList's last-cell `.onAppear` fetch-more trigger and replaced it with `AutoLoadNextPage`, a scroll-geometry heuristic that was designed and device-validated (Phase 2 / D-36) only for ThumbnailList's structurally different layout. Because `listDisplayMode` defaults to `.detail`, every gallery list lost its working pagination trigger."
   confirming_evidence:
-    - "git show ebc99f5e: the `.onAppear { if gallery == galleries.last { fetchMoreAction?() } }` block is deleted from DetailList; `.autoLoadNextPage(...)` added."
+    - "git show fd0dce3e59: the `.onAppear { if gallery == galleries.last { fetchMoreAction?() } }` block is deleted from DetailList; `.autoLoadNextPage(...)` added."
     - "Setting.swift:91 — `listDisplayMode: ListDisplayMode = .detail` is the default, so DetailList is the code path users actually see."
     - "02-CONTEXT.md D-36 states the guards were built for the masonry layout and that a STANDALONE SIBLING footer row breaks the geometry accounting — which is exactly DetailList's structure (FetchMoreFooter is a sibling row inside the ForEach)."
     - "D-36 explicitly scoped itself: 'Detail mode's own pagination (DetailList, last-cell onAppear) is unchanged.' 11-11 violated that scoping."

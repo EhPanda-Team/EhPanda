@@ -54,7 +54,7 @@ A reconciliation that refuses over a complete-reading record now announces its r
 
 ## What was built
 
-**Task 1 — the family regressions, RED-first** (commit `1a201867`).
+**Task 1 — the family regressions, RED-first** (commit `50449557d0`).
 
 `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`, an
 `extension DownloadContinuedSessionLedgerTests` (no new `@Suite`: membership, traits and test
@@ -83,7 +83,7 @@ the K=N case's doc: a trusted complete-reading record honestly rides at its own 
 refused repair, since the record genuinely claims N and the refusal is the defence against
 destroying those N hashes. The harm the case pins is the pinned-ZERO run, not the ceiling.
 
-**Task 2 — the gate, the insert, the docs** (commit `8570cd5b`).
+**Task 2 — the gate, the insert, the docs** (commit `1974677cfc`).
 
 The only executable change in the whole plan, in `prepareWorkingSeedAnnouncingProgress`:
 
@@ -218,7 +218,7 @@ session-scope note.
   `testAWholesaleScanFailureBlanksNothingWritesNothingAndWithdrawsNothing` derives, which denies the
   listing and nothing else.
 - **Files modified:** `DownloadContinuedSessionLedgerRefusalTests.swift`
-- **Commit:** `1a201867`
+- **Commit:** `50449557d0`
 
 **2. [Rule 1 - Bug] The companion's "all six page files present" staging could not ground `.repair`**
 - **Found during:** Task 1
@@ -229,7 +229,7 @@ session-scope note.
   the route resolve `.repair`; the read bit is cleared afterwards, so the drop still isolates the
   enumeration.
 - **Files modified:** `DownloadContinuedSessionLedgerRefusalTests.swift`
-- **Commit:** `1a201867`
+- **Commit:** `50449557d0`
 
 ### Deliberate scope additions
 
@@ -244,7 +244,7 @@ session-scope note.
   would retire N pages the session never downloaded, which is the D-G4-01 ceiling. Under-reporting
   is the direction D-G4-01 and the retirement ledger both choose on purpose.
 - **Files modified:** `DownloadClient+ExecutionSupport.swift`
-- **Commit:** `8570cd5b`
+- **Commit:** `1974677cfc`
 
 **4. [Rule 3 - Blocking] `restorePermissions` was file-private to the reconciliation suite**
 - **Found during:** Task 1
@@ -253,7 +253,7 @@ session-scope note.
 - **Fix:** Promoted into `DownloadFeatureTestHelpers.swift` as a `DownloadFeatureTestCase` member and
   deleted from the reconciliation file's private extension. No case body changed.
 - **Files modified:** `DownloadFeatureTestHelpers.swift`, `DownloadContinuedSessionReconciliationTests.swift`
-- **Commit:** `1a201867`
+- **Commit:** `50449557d0`
 
 ### Authentication gates
 
@@ -310,5 +310,5 @@ gap closed, a refused repair's zero card was a known symptom rather than new inf
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` — FOUND
-- commit `1a201867` — FOUND
-- commit `8570cd5b` — FOUND
+- commit `50449557d0` — FOUND
+- commit `1974677cfc` — FOUND

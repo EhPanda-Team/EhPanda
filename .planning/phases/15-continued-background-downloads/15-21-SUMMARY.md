@@ -113,8 +113,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Departure by pause and by delete retires only finished pages** - `b76c310c` (test)
-2. **Task 2: A resumed gallery is counted once, and the suite is proved non-vacuous** - `00bfd9ad` (test)
+1. **Task 1: Departure by pause and by delete retires only finished pages** - `a6d6e55844` (test)
+2. **Task 2: A resumed gallery is counted once, and the suite is proved non-vacuous** - `96e6e21dd7` (test)
 
 ## Files Created/Modified
 
@@ -202,7 +202,7 @@ The full plan was run four times across this plan. Three passed. One failed on a
 
 ## Self-Check: PASSED
 
-`AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift` exists on disk carrying all three new case names; both task commits (`b76c310c`, `00bfd9ad`) are present in git history.
+`AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift` exists on disk carrying all three new case names; both task commits (`a6d6e55844`, `96e6e21dd7`) are present in git history.
 
 ## Next Steps
 

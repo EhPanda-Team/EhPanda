@@ -89,8 +89,8 @@ CookieClient now has a dedicated deterministic suite locking login parity, live 
 
 ## Task Commits
 
-1. **Task 1: Wire the CookieClientTests target** - `4b8e1138`
-2. **Task 2: Write the D-10 CookieClient behavior matrix** - `ecb5ee08`
+1. **Task 1: Wire the CookieClientTests target** - `00d13c07a7`
+2. **Task 2: Write the D-10 CookieClient behavior matrix** - `32b5164b0e`
 
 **Plan metadata:** committed with this summary
 
@@ -116,7 +116,7 @@ CookieClient now has a dedicated deterministic suite locking login parity, live 
 - **Fix:** Added the test file with its initial `Testing` import in Task 1, then completed it in Task 2.
 - **Files modified:** `AppPackage/Tests/CookieClientTests/CookieClientTests.swift`
 - **Verification:** Package build succeeds and the target is discoverable by `-only-testing:CookieClientTests`.
-- **Committed in:** `4b8e1138`
+- **Committed in:** `00d13c07a7`
 
 **2. [Rule 3 - Blocking] Used UUID-scoped Foundation cookie stores for live tests**
 - **Found during:** Task 2 targeted test verification
@@ -124,7 +124,7 @@ CookieClient now has a dedicated deterministic suite locking login parity, live 
 - **Fix:** Used `sharedCookieStorage(forGroupContainerIdentifier:)` with a unique identifier per test and cleared every store after use. This remains isolated per test and never accesses `.shared`.
 - **Files modified:** `AppPackage/Tests/CookieClientTests/CookieClientTests.swift`
 - **Verification:** The targeted suite passes three consecutive iterations with parallel Swift Testing execution.
-- **Committed in:** `ecb5ee08`
+- **Committed in:** `32b5164b0e`
 
 **3. [Rule 1 - Bug] Queried the skip-server cookie at its production path**
 - **Found during:** Task 2 targeted test verification
@@ -132,7 +132,7 @@ CookieClient now has a dedicated deterministic suite locking login parity, live 
 - **Fix:** Query both hosts at `/s/` and assert the cookie value and path there.
 - **Files modified:** `AppPackage/Tests/CookieClientTests/CookieClientTests.swift`
 - **Verification:** The skip-server case and complete targeted suite pass.
-- **Committed in:** `ecb5ee08`
+- **Committed in:** `32b5164b0e`
 
 **4. [Rule 1 - Bug] Reconciled stale progress fields after state queries**
 - **Found during:** Plan metadata self-check

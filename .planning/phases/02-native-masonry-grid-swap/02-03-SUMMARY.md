@@ -92,8 +92,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Finalize MasonryLayout.swift — remove spike logging, lock at frozen m, document the policy** — `bcb61ea2` (feat)
-2. **Task 2: Complete the GenericList.swift production swap and delete the legacy column reads** — `e682d53a` (feat)
+1. **Task 1: Finalize MasonryLayout.swift — remove spike logging, lock at frozen m, document the policy** — `811c37a62f` (feat)
+2. **Task 2: Complete the GenericList.swift production swap and delete the legacy column reads** — `862a1cd86c` (feat)
 
 ## Files Created/Modified
 - `AppPackage/Sources/GalleryListComponents/MasonryLayout.swift` — spike logger/import/log line removed; `m` frozen at 185 with updated policy doc comments (D-33/D-35); no `UIScreen`/`DeviceUtil` token remains.
@@ -129,7 +129,7 @@ None.
 
 ## Self-Check: PASSED
 
-- Both task commits present (`bcb61ea2`, `e682d53a`).
+- Both task commits present (`811c37a62f`, `862a1cd86c`).
 - `grep -c WaterfallGrid GenericList.swift` = 0; `grep -c 'OSLogExt\|logger' GenericList.swift` = 0; `grep -c 'columnsInPortrait\|columnsInLandscape' GenericList.swift` = 0; `grep -c 'Logger(' MasonryLayout.swift` = 0; `grep -c 'UIScreen\|DeviceUtil' MasonryLayout.swift` = 0.
 - `MasonryLayout {`, `.animation(nil, value: galleries)`, `.listStyle(.plain)`, `onScrollGeometryChange`, `onScrollPhaseChange`, `lastAutoFetchCount` all present in `GenericList.swift`; no `chevron`.
 - `git diff AppPackage/Sources/AppTools/DeviceUtil.swift` empty.

@@ -44,7 +44,7 @@ status: complete
 violations** against the draft rule. **`.swiftlint.yml` is untouched** — the rule stays commented
 out, and the flip lands in 11-27 with the last fix (Pitfall 10).
 
-Two commits: `505f6b7a` (first half, 73 sites) and `47168d9d` (second half, 71 sites+adjustments),
+Two commits: `91a8e9bec0` (first half, 73 sites) and `5efe4938e2` (second half, 71 sites+adjustments),
 76 files, +158/−144 lines.
 
 ## The count: 145, not ~149 — and 70 remain in Tests
@@ -145,8 +145,8 @@ left over is, by construction, not a pure parenthesization:
 
 | Commit | Removed lines | Explained by pure parenthesization | Residue |
 |---|---:|---:|---|
-| `505f6b7a` | 73 | 71 | the 2 hand rewraps in that half |
-| `47168d9d` | 71 | 66 | the 5 hand rewraps in that half |
+| `91a8e9bec0` | 73 | 71 | the 2 hand rewraps in that half |
+| `5efe4938e2` | 71 | 66 | the 5 hand rewraps in that half |
 
 The residue in both cases is exactly the hand-edited set from the table above, named line for line —
 no fourth category. This bounds the whole sweep to "closures parenthesized, plus seven named
@@ -192,7 +192,7 @@ inside a broken chain. It was that way before this plan and fixing it here would
 - `xcodebuild build -scheme EhPanda` — **BUILD SUCCEEDED** after each half (23.7 s, 20.3 s), 0 errors,
   0 warnings.
 - `xcodebuild build-for-testing -scheme EhPanda` — **TEST BUILD SUCCEEDED** (27.6 s), 0 errors. The
-  `Tests/` compile gate (Pitfall 6 / the `e8589355` incident class).
+  `Tests/` compile gate (Pitfall 6 / the `fe3c43e0fe` incident class).
 - **Full `AppPackage-Package` suite** — **TEST SUCCEEDED**, **565 tests across 18 runs, 0 failed**.
 - `git diff --name-only -- .swiftlint.yml` — empty at both commits; config byte-identical to `HEAD~2`.
 - `git diff --diff-filter=D HEAD~2 HEAD` — empty; no file deleted. No untracked files at either commit.
@@ -247,7 +247,7 @@ because everything is on Swift Testing, so a suite that silently ran nothing pri
 - **Fix:** Outer parameters named `subscribers` and `group` respectively. This is the minimum edit
   that preserves behaviour — the alternative (parenthesizing only the inner closure) satisfies the
   rule but leaves a denser line, which the design intent explicitly rejects.
-- **Commit:** `505f6b7a`, `47168d9d`
+- **Commit:** `91a8e9bec0`, `5efe4938e2`
 
 ## Exception sites for 11-27
 
@@ -279,5 +279,5 @@ the full 565-test suite passed.
   its `swiftlint:disable:next lifecycle_modifiers` directive and reason comment intact
 - `AppPackage/Sources/HomeFeature/GalleryCardCell.swift` — FOUND; `.onChange(of:initial:)` multi-line
 - `.planning/phases/11-infra-refactor-lint-capstone/11-26-SUMMARY.md` — FOUND
-- Commit `505f6b7a` — FOUND; 43 files, no deletions
-- Commit `47168d9d` — FOUND; 33 files, no deletions
+- Commit `91a8e9bec0` — FOUND; 43 files, no deletions
+- Commit `5efe4938e2` — FOUND; 33 files, no deletions

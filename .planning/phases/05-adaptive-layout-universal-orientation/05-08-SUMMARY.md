@@ -109,9 +109,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Inject container size and gesture location into GestureHandler** - `b1080410` (refactor)
-2. **Task 2: Baseline-lock reader gesture geometry** - `9bd76e73` (test, committed by the orchestrator at the verified task boundary)
-3. **Task 3: Require explicit reader landscape context** - `3e8d088c` (refactor, committed by the orchestrator at the verified task boundary)
+1. **Task 1: Inject container size and gesture location into GestureHandler** - `e4d8d8e752` (refactor)
+2. **Task 2: Baseline-lock reader gesture geometry** - `d809fbafee` (test, committed by the orchestrator at the verified task boundary)
+3. **Task 3: Require explicit reader landscape context** - `512d26c58c` (refactor, committed by the orchestrator at the verified task boundary)
 
 ## Files Created/Modified
 
@@ -135,7 +135,7 @@ None - plan executed exactly as written.
 ## Issues Encountered
 
 - The Swift Testing clamp assertions initially compared `CGFloat` expectations with the handler's `Double` results; making the expected arithmetic explicitly `Double` removed misleading equal-looking failures without changing production code.
-- Sandbox permissions prevented two local task commits. The orchestrator committed the already verified, task-scoped files atomically as `9bd76e73` and `3e8d088c`; no task boundaries were combined.
+- Sandbox permissions prevented two local task commits. The orchestrator committed the already verified, task-scoped files atomically as `d809fbafee` and `512d26c58c`; no task boundaries were combined.
 
 ## Accessibility Review
 

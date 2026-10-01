@@ -102,8 +102,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Remove the reading-side orientation flow and the enablesLandscape setting** - `7e8f3926` (refactor)
-2. **Task 2: Delete AppOrientationMask, the AppDelegate override, and the AppDelegateClient module** - `a91a1200` (refactor)
+1. **Task 1: Remove the reading-side orientation flow and the enablesLandscape setting** - `6414e2d3a8` (refactor)
+2. **Task 2: Delete AppOrientationMask, the AppDelegate override, and the AppDelegateClient module** - `668b38c784` (refactor)
 
 ## Files Created/Modified
 
@@ -133,7 +133,7 @@ Each task was committed atomically:
 - **Fix:** Removed all obsolete imports and dependency overrides, then removed the test target's package edge.
 - **Files modified:** Six files under `AppPackage/Tests/DownloadsFeatureTests/` and `AppPackage/Package.swift`.
 - **Verification:** `DownloadsFeatureTests` passes without the deleted dependency.
-- **Committed in:** `a91a1200`
+- **Committed in:** `668b38c784`
 
 **2. [Rule 3 - Blocking] Removed the module-local SwiftLint configuration**
 
@@ -142,7 +142,7 @@ Each task was committed atomically:
 - **Fix:** Deleted the module-local configuration with the rest of the target.
 - **Files modified:** `AppPackage/Sources/AppDelegateClient/.swiftlint.yml`
 - **Verification:** No tracked path remains under `AppPackage/Sources/AppDelegateClient/`.
-- **Committed in:** `a91a1200`
+- **Committed in:** `668b38c784`
 
 ---
 

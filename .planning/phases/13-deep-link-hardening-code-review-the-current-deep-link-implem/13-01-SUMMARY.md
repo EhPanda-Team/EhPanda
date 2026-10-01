@@ -90,9 +90,9 @@ status: complete
 
 Each task was committed atomically; the TDD task has separate RED and GREEN commits:
 
-1. **Task 1 RED: Add failing parser behavior test and test infrastructure** - `0c076035` (test)
-2. **Task 1 GREEN: Implement the hardened parser** - `6264cc12` (feat)
-3. **Task 2: Expand the exhaustive parser matrix** - `69603bc6` (test)
+1. **Task 1 RED: Add failing parser behavior test and test infrastructure** - `544f8249cb` (test)
+2. **Task 1 GREEN: Implement the hardened parser** - `b0279594fe` (feat)
+3. **Task 2: Expand the exhaustive parser matrix** - `9a3b98f841` (test)
 
 ## Files Created/Modified
 
@@ -118,7 +118,7 @@ Each task was committed atomically; the TDD task has separate RED and GREEN comm
 - **Fix:** Added the test-plan entry with the RED test infrastructure so the failing test ran for the intended behavioral reason, then expanded the matrix in Task 2.
 - **Files modified:** `AppPackage/Tests/FeatureTests.xctestplan`
 - **Verification:** The RED run reached `GalleryURLParserTests.parsesGalleryURL` and failed because parsing returned nil; GREEN and final targeted runs succeeded.
-- **Committed in:** `0c076035`
+- **Committed in:** `544f8249cb`
 
 **2. [Rule 3 - Blocking] Used the repository-standard Xcode macro trust flag**
 - **Found during:** Task 1 RED verification
@@ -149,7 +149,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All three created files exist.
-- Commits `0c076035`, `6264cc12`, and `69603bc6` are present in git history.
+- Commits `544f8249cb`, `b0279594fe`, and `9a3b98f841` are present in git history.
 - Task acceptance criteria, targeted AppToolsTests, the EhPanda build, and the full default unit plan all passed.
 
 ---

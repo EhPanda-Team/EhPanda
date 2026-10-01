@@ -293,7 +293,7 @@ before the drain, so none required a change.
   held-push identity case is exactly such an expectation.
 - **Fix:** Restated two assertions as described above, with a comment recording why. Nothing weakened.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift`
-- **Commit:** d1e2a5b4
+- **Commit:** 2d359fe761
 
 No other deviations. No architectural questions arose, no packages were installed, and no
 authentication gate was hit.
@@ -390,5 +390,5 @@ Files verified present:
 - FOUND: `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift`
 
 Commits verified present:
-- FOUND: `f8159740` — fix(15-22): push terminal progress when the queue drains
-- FOUND: `d1e2a5b4` — test(15-22): cover every way a continued session ends
+- FOUND: `5e5a051523` — fix(15-22): push terminal progress when the queue drains
+- FOUND: `2d359fe761` — test(15-22): cover every way a continued session ends

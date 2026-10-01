@@ -47,7 +47,7 @@ candidates.
 
 ## What Was Built
 
-### Task 1 — Networking + PageDownload + BackgroundDownloads (5 sites), commit `a75dc726`
+### Task 1 — Networking + PageDownload + BackgroundDownloads (5 sites), commit `66033c3da6`
 
 **`DownloadCoordinator.discardRejectedResponseFile(at:)`** replaces the two identical
 rejected-temp-file removals in `downloadResponse(for:retriesRequest:)` and
@@ -66,7 +66,7 @@ to `do`/`catch` with a log. **`DownloadClient+PageDownload`'s cadence flush** li
 inline and gained a file-top `private let logger`: the flush is opportunistic (a later forced flush
 persists the same progress), but a persistence write failing is unexpected and worth a line.
 
-### Task 2 — ResponseValidation + Helpers + ExecutionSupport (10 sites), commit `2ae5ac92`
+### Task 2 — ResponseValidation + Helpers + ExecutionSupport (10 sites), commit `911212f026`
 
 **Two probe helpers on `DownloadCoordinator`, both in `+ResponseValidationHelpers.swift`:**
 
@@ -148,7 +148,7 @@ code intends to succeed. Every silent catch carries a comment saying so.
   unreferenced.
 - **Fix:** Removed; whole-app build succeeds, confirming the `HTMLDocument` return type resolves
   through the helper without the direct import.
-- **Commit:** `2ae5ac92`
+- **Commit:** `911212f026`
 
 ## Verification
 
@@ -161,7 +161,7 @@ code intends to succeed. Every silent catch carries a comment saying so.
 | SwiftLint `--strict` on `AppPackage/Sources/DownloadClient` | 0 violations, 0 serious |
 | `bash Scripts/check-cookie-logging.sh` | exit 0 (both tasks) |
 
-`DownloadSchedulingTests` — the deterministic-since-`557b0425` suite — passed on both runs, so the
+`DownloadSchedulingTests` — the deterministic-since-`a0c49c53cd` suite — passed on both runs, so the
 scheduling and cadence-flush paths this plan touched are unaffected. The Phase 4 invariants
 (25-pair gdata chunking, two-in-flight flood control, input-order reconstruction, page-URL ordering)
 are covered by that suite and unchanged: no control flow was reordered, only `try?` expressions
@@ -193,5 +193,5 @@ cookie-logging gate, and was left untouched.
 - `AppPackage/Sources/DownloadClient/DownloadClient+ResponseValidationHelpers.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadStore.swift` — FOUND
-- commit `a75dc726` — FOUND
-- commit `2ae5ac92` — FOUND
+- commit `66033c3da6` — FOUND
+- commit `911212f026` — FOUND

@@ -159,7 +159,7 @@ Zero flakes across the three.
 - **Fix:** `static let live` became `static func live(applicationSupportURL:cachesURL:)`. The one
   in-module use site (`FileClientKey.liveValue`) gained `()`. No other module referenced it.
 - **Files modified:** `AppPackage/Sources/FileClient/FileClient.swift`
-- **Commit:** `7a18ec14`
+- **Commit:** `9b91df1a24`
 
 **2. [Scope] The suite became a `final class`**
 
@@ -169,7 +169,7 @@ Zero flakes across the three.
 - **Fix:** `final class FileClientTests` with a single `deinit`. Swift Testing instantiates a
   suite per test case either way, so the per-test uniqueness of the root is unaffected.
 - **Files modified:** `AppPackage/Tests/FileClientTests/FileClientTests.swift`
-- **Commit:** `8ba33944`
+- **Commit:** `5c5fa2ee45`
 
 ## Flagged for owner review
 
@@ -211,5 +211,5 @@ string as before, and no path is disclosed in any of them.
 - `AppPackage/Sources/FileClient/FileClient.swift` — FOUND, `live(applicationSupportURL:cachesURL:)` and `TagTranslationStore` present
 - `AppPackage/Tests/FileClientTests/FileClientTests.swift` — FOUND, no `.serialized`, no fixed real-directory writes
 - `.planning/phases/11-infra-refactor-lint-capstone/11-19-SUMMARY.md` — FOUND
-- Commit `7a18ec14` — FOUND
-- Commit `8ba33944` — FOUND
+- Commit `9b91df1a24` — FOUND
+- Commit `5c5fa2ee45` — FOUND

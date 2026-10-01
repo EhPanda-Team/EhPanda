@@ -112,8 +112,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1 (RED): the move-exit convergence regressions** — `b1973e17` (test)
-2. **Task 1 (GREEN): the refcount conversion and the four-site sweep** — `dab4a285` (fix)
+1. **Task 1 (RED): the move-exit convergence regressions** — `a9e174dd87` (test)
+2. **Task 1 (GREEN): the refcount conversion and the four-site sweep** — `4c4a955952` (fix)
 
 ## Files Created/Modified
 
@@ -251,7 +251,7 @@ Staging that interleave deterministically would require adding suspension hooks 
 - **Fix:** Converted `commitPause` to single-release-per-exit like its three siblings (dropping the `defer`), and added `notifyObservers()` + `scheduleNextIfNeeded()` after the release on the not-found exit. Two further exits (status-not-queued-or-active, and success) previously ran their existing convergence *while still holding the block*; placing the release ahead of it makes those convergences able to see the gallery they were run for.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift`
 - **Verification:** Full `FeatureTests` plan, 0 failures — including the expiration-parity trio (which compares expired vs. per-gallery-paused state through the coordinator's own `pause` entry point), `DownloadPauseAndReconcileTests`, and `DownloadSchedulingTests`.
-- **Committed in:** `dab4a285`
+- **Committed in:** `4c4a955952`
 - **Why it is not scope creep:** the plan's own `must_haves` require the invariant to be *"enforced across the WHOLE schedulingBlocked insert set … with a per-site disposition"*, and the phase's standing owner mandate forbids branch-scoped fixes. Documenting a proven-unconverged exit as intended would have refilled this gap next round.
 
 ---
@@ -305,7 +305,7 @@ None — no new network, auth, file-access, or schema surface. The plan's three 
 ## Self-Check: PASSED
 
 - All modified source and test files exist on disk.
-- Both task commits exist in history: `b1973e17` (RED), `dab4a285` (GREEN).
+- Both task commits exist in history: `a9e174dd87` (RED), `4c4a955952` (GREEN).
 - No absolute home paths in this document (`grep -c '/Users/'` = 0).
 - Cited source line numbers re-derived from current HEAD after the edits landed.
 

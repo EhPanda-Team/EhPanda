@@ -100,8 +100,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: iPad × Group A surfaces #1–#7** — `05ef57d1` (docs)
-2. **Task 2: iPad × Group A surfaces #8–#13 and restore** — `21cf601c` (docs)
+1. **Task 1: iPad × Group A surfaces #1–#7** — `2d299f7e91` (docs)
+2. **Task 2: iPad × Group A surfaces #8–#13 and restore** — `b32509b794` (docs)
 
 ## Findings Opened or Extended
 
@@ -168,7 +168,7 @@ None. This plan changed documentation only.
 
 - `16-SWEEP.md` exists and contains six non-`pending` iPad rows for every screen #1–#13.
 - Findings #1, #3, #4, #5, #6, #10, and #32 contain the iPad cells referenced by the matrix.
-- Task commits `05ef57d1` and `21cf601c` exist in git history.
+- Task commits `2d299f7e91` and `b32509b794` exist in git history.
 - No image is staged or untracked in the repository, and no generated document touched by this plan contains an absolute home path.
 
 ---

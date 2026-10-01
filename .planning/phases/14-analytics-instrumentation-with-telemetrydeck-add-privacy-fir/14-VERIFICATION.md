@@ -8,7 +8,7 @@ overrides_applied: 0
 gaps:
   - truth: "All five gallery-detail entry paths emit an identical `galleryDetailOpened` payload"
     status: resolved
-    resolved_by: "a53decf7 fix: count search-tab gallery detail opens"
+    resolved_by: "3e270d477b fix: count search-tab gallery detail opens"
     resolution: >-
       `SearchRootReducer.pushGalleryDetail` (now `:135-160`) merges the emission, reusing the
       `Category` + `TagNamespaceCounts(tags:)` derivation verbatim, so all five payloads are
@@ -42,7 +42,7 @@ gaps:
       - "Once wired, the 'four push paths' / 'all five' comments in PresentationFeature.swift:149, HomeReducer+Body.swift:59, FavoritesReducer.swift:145 and DownloadsReducer.swift:135 become true; leave them as-is only if the gap is closed."
   - truth: "Planning artifacts describe the phase as shipped"
     status: resolved
-    resolved_by: "d615b650 docs: refresh phase 14 roadmap wording"
+    resolved_by: "ef17136073 docs: refresh phase 14 roadmap wording"
     resolution: >-
       ROADMAP.md:37 and :748 now read "on by default with a runtime opt-out in General Settings
       (D-01 reversed)", matching ANALYTICS-01. ROADMAP.md:794 is ticked `- [x] 14-18-PLAN.md`,
@@ -52,7 +52,7 @@ gaps:
       Confirmed stale by the orchestrator brief and by REQUIREMENTS.md:82-83 (restated 2026-07-26).
     artifacts:
       - path: ".planning/ROADMAP.md"
-        issue: "Line 37 (milestone checklist) and line 748 (Phase 14 Goal) both read 'on by default with no opt-out (D-01)'. D-01 was reversed 2026-07-26 (commit bc67b874); a runtime opt-out ships."
+        issue: "Line 37 (milestone checklist) and line 748 (Phase 14 Goal) both read 'on by default with no opt-out (D-01)'. D-01 was reversed 2026-07-26 (commit 5283a463f4); a runtime opt-out ships."
       - path: ".planning/ROADMAP.md"
         issue: "Line 751 says 'Plans: 18/18 plans executed' while line 794 still shows `- [ ] 14-18-PLAN.md` unchecked. 14-18-SUMMARY.md exists and the plan is complete."
     missing:
@@ -69,7 +69,7 @@ The `.planning/ROADMAP.md:748` goal line is stale and is itself reported as a fi
 **Verified:** 2026-07-26T16:25:46Z
 **Status:** passed
 **Re-verification:** Yes — initial pass at 2026-07-26T15:43:25Z returned `gaps_found` (7/8). Both gaps
-were closed by `a53decf7` (functional) and `d615b650` (documentation) and re-checked against the
+were closed by `3e270d477b` (functional) and `ef17136073` (documentation) and re-checked against the
 codebase and a full green suite. The original findings are preserved below under Gaps Summary as an
 audit trail; each now carries its resolution.
 
@@ -86,9 +86,9 @@ audit trail; each now carries its resolution.
 | 3 | The client no-ops when the build carries no ingestion credential; both deploy workflows inject credentials from repository secrets | ✓ VERIFIED | Single gate: `AnalyticsClient.swift:31` — `guard let appID = AppInfo.telemetryDeckAppID else { return .noop }` inside the `static let live` closure, so a credential-less build resolves the whole client (both `start` and `send`) to `.noop` and never references the SDK. `AppInfo.swift:18-38` collapses missing key / non-string / empty `$(VAR)` substitution onto one `nil`. `Config/Analytics.xcconfig:24,29` ship empty with an optional `#include? "Analytics.local.xcconfig"` (gitignored, `.gitignore:8`). `App/Info.plist:149-152` substitutes both keys. Both deploy workflows inject and then verify: `deploy.yml:50-51,64-65` and `deploy-pre-release.yml:51-52,65-66` pass `TELEMETRYDECK_APP_ID`/`TELEMETRYDECK_SALT` from `secrets.*` as command-line build settings to `xcodebuild archive`, and each has a `Verify analytics credentials` step reading them back out of the **archived** `Info.plist` with `plutil -extract` and `exit 1` on empty (`deploy.yml:66-72`). `test.yml` injects nothing. Behavioral proof: `AnalyticsClientGateTests.swift:17-24` drives `AnalyticsClient.live.start()` plus every rendering fixture through `live.send` under the test host, where the SDK's uninitialized-manager assertion would fire if the gate were wrong — `Suite AnalyticsClientGateTests passed`. A second in-depth guard exists at `AnalyticsClient.swift:36,46` (`started` mutex) so a pre-init signal is dropped rather than asserting. |
 | 4 | The runtime opt-out stops every app-authored signal and empties the per-signal settings snapshot, leaving only the SDK's own session signal | ✓ VERIFIED | Gate on `send` only: `AnalyticsClient.swift:55-56` reads `@Shared(.setting)` **inside** the closure (never captured) and returns early when `isSharingAnalyticsData` is false; `start` (`:39-44`) is deliberately untouched so `sendNewSessionBeganSignal` keeps counting installs, and `Config.analyticsDisabled` — which would silence the session signal too — is OPT-OUT with that exact reason at `COVERAGE.md:50`. Snapshot emptied: `AnalyticsDefaultParameters.swift:29` — `guard setting.isSharingAnalyticsData else { return [:] }`, so no app-authored parameter rides the session signal. Storage: `Setting.swift:137` `shareAnalyticsData: Bool?` (optional so a pre-toggle blob still decodes) read through `isSharingAnalyticsData` (`:143-146`, default `true`). UI: `GeneralSettingView.swift:134-143` — an `AppToggle` in its own `Analytics` section with a footer. Tests: `AnalyticsDefaultParametersTests.swift:158-162` (empty when opted out), `:169-184` (empty under every other setting permutation), `:193-195` (default is opted in); `AppModelsTests/SettingAnalyticsOptOutTests.swift:58,64-80` (decode tolerance + round-trip). Both suites green in the regression log. Owner-confirmed at runtime in `14-UAT.md` tests 1 and 2 (both `pass`). |
 | 5 | Every signal carries a per-signal snapshot of the feature-adoption settings rather than a value frozen at launch | ✓ VERIFIED | `AnalyticsClient.swift:41` assigns `config.defaultParameters = AnalyticsDefaultParameters.live` — a `@Sendable () -> [String: String]` closure the SDK evaluates per signal (`COVERAGE.md:33`). `AnalyticsDefaultParameters.swift:46-50`: both `@Shared(.setting)` and `@SharedReader(.didLogin)` are declared *inside* the closure body, never at file or type scope, so each invocation re-reads live state. Six keys, all dot-namespaced and collision-free (`:32-37`). Proven, not asserted: `AnalyticsDefaultParametersTests.swift:208-223` mutates the shared setting between two `live()` calls and asserts the second reflects `exhentai` where the first read `ehentai`; `:37-41` pins the key set at exactly six. |
-| 6 | The single-SDK-import boundary is enforced by a lint rule (added in 14-17) | ✓ VERIFIED | `.swiftlint.yml:58-69` — custom rule `analytics_sdk_import_boundary`, regex `\bimport\s+TelemetryDeck\b`, `severity: error`, `excluded: [".*/Sources/AnalyticsClient/.*"]` (path regex, so the one owning module is exempt), with `excluded_match_kinds` for comment/doccomment/string so prose mentions don't trip it. Provenance confirmed: `git log -S analytics_sdk_import_boundary -- .swiftlint.yml` → `c5b35da1 feat(14-17): enforce the single-SDK-import boundary with a lint rule`. Boundary currently holds: repo-wide `grep -rn "import TelemetryDeck" --include=*.swift` returns exactly one hit, `AppPackage/Sources/AnalyticsClient/AnalyticsClient.swift:5`. `AppPackage/Package.swift:414` documents the same restriction on the target, and `AnalyticsSignal+Rendering.swift:19` records that the rendering layer must not import the SDK. |
+| 6 | The single-SDK-import boundary is enforced by a lint rule (added in 14-17) | ✓ VERIFIED | `.swiftlint.yml:58-69` — custom rule `analytics_sdk_import_boundary`, regex `\bimport\s+TelemetryDeck\b`, `severity: error`, `excluded: [".*/Sources/AnalyticsClient/.*"]` (path regex, so the one owning module is exempt), with `excluded_match_kinds` for comment/doccomment/string so prose mentions don't trip it. Provenance confirmed: `git log -S analytics_sdk_import_boundary -- .swiftlint.yml` → `f489b19324 feat(14-17): enforce the single-SDK-import boundary with a lint rule`. Boundary currently holds: repo-wide `grep -rn "import TelemetryDeck" --include=*.swift` returns exactly one hit, `AppPackage/Sources/AnalyticsClient/AnalyticsClient.swift:5`. `AppPackage/Package.swift:414` documents the same restriction on the target, and `AnalyticsSignal+Rendering.swift:19` records that the rendering layer must not import the SDK. |
 | 7 | The four flow families are instrumented: lifecycle & navigation, search & discovery, reading & downloads, errors & feature adoption | ✓ VERIFIED | All 13 `AnalyticsSignal` cases have at least one live emission site (table below). Lifecycle: `AppDelegateReducer.swift:50` (`start`, from the launch-finish reducer action, not a view lifecycle callback). Navigation: `AppReducer.swift:242`, `HomeReducer+Body.swift:75,98`, four `galleryDetailOpened` sites. Search & discovery: `SearchReducer.swift:176`, seven panel sites, `QuickSearchReducer.swift:95`, `DetailReducer+Actions.swift:90`. Reading & downloads: `ReadingReducer+Body.swift:95` plus nine `downloadStateChanged` sites. Errors & feature adoption: `PresentationFeature.swift:179`, `LoginReducer.swift:179,258`, and feature adoption via the six per-signal default parameters. 70 emission tests across eight `AnalyticsEmissionTests.swift` suites, all reported passed. |
-| 8 | All five gallery-detail entry paths emit an identical `galleryDetailOpened` payload (plan must-have, 14-10/14-11/14-12/14-15) | ✓ VERIFIED | Five sites, closed by `a53decf7`: `PresentationFeature.swift:164` (modal), `HomeReducer+Body.swift:63`, `FavoritesReducer.swift:149`, `DownloadsReducer.swift:140`, and `SearchRootReducer.swift:151` — the previously silent Search-tab push. All five build the payload from the same `Category` + `TagNamespaceCounts(tags:)` derivation, so the shapes are identical by construction. The device-idiom skew is gone: an iPhone push and an iPad modal for the same tap now both count exactly once. Tests: `SearchFeatureTests/AnalyticsEmissionTests.swift:140` asserts exactly one signal matching the fixture, `:161` reflects the whole recorded graph and proves neither the fixture title nor its tag text survives. `Suite AnalyticsEmissionTests passed` in the re-verification run. |
+| 8 | All five gallery-detail entry paths emit an identical `galleryDetailOpened` payload (plan must-have, 14-10/14-11/14-12/14-15) | ✓ VERIFIED | Five sites, closed by `3e270d477b`: `PresentationFeature.swift:164` (modal), `HomeReducer+Body.swift:63`, `FavoritesReducer.swift:149`, `DownloadsReducer.swift:140`, and `SearchRootReducer.swift:151` — the previously silent Search-tab push. All five build the payload from the same `Category` + `TagNamespaceCounts(tags:)` derivation, so the shapes are identical by construction. The device-idiom skew is gone: an iPhone push and an iPad modal for the same tap now both count exactly once. Tests: `SearchFeatureTests/AnalyticsEmissionTests.swift:140` asserts exactly one signal matching the fixture, `:161` reflects the whole recorded graph and proves neither the fixture title nor its tag text survives. `Suite AnalyticsEmissionTests passed` in the re-verification run. |
 
 **Score:** 8/8 truths verified (0 present, behavior-unverified)
 
@@ -106,7 +106,7 @@ audit trail; each now carries its resolution.
 | `AppPackage/Sources/AnalyticsClient/TagNamespaceCounts.swift` | Domain-typed reduction, no tag text stored | ✓ VERIFIED | 63 lines; `TagNamespaceKey.unrecognized` prevents a scraped namespace naming its own key `:17-25` |
 | `AppPackage/Sources/AnalyticsClient/Buckets.swift` | Total, gap-free bucket vocabulary | ✓ VERIFIED | 83 lines; `BucketTests.swift` exercises both sides of every boundary |
 | `AppPackage/Sources/AnalyticsClient/AppErrorKind.swift` | Payload-free `AppError` mirror, no catch-all arm | ✓ VERIFIED | 15 cases `:17-33`; exhaustive `init(_:)` binds nothing, so a new `AppError` case is a compile error `:11-15` |
-| `Config/Analytics.xcconfig` | Committed, credential-free, optional local include | ✓ VERIFIED | Empty defaults `:24,29`; `#include?` last so a later assignment wins; header corrected by commit 2c7e0d0f |
+| `Config/Analytics.xcconfig` | Committed, credential-free, optional local include | ✓ VERIFIED | Empty defaults `:24,29`; `#include?` last so a later assignment wins; header corrected by commit ec7f406cc2 |
 | `App/Info.plist` | Build-variable substitution for both keys | ✓ VERIFIED | `:149-152` |
 | `AppPackage/Sources/AppModels/Utilities/AppInfo.swift` | Single-`nil` accessor for both credentials | ✓ VERIFIED | `:18-38` |
 | `AppPackage/Sources/AppModels/Persistent/Setting.swift` | Opt-out storage tolerant of pre-toggle blobs | ✓ VERIFIED | `:137,143-146` |
@@ -114,12 +114,12 @@ audit trail; each now carries its resolution.
 | `.swiftlint.yml` | `analytics_sdk_import_boundary` at error | ✓ VERIFIED | `:58-69` |
 | `README.md` + `READMEs/README.{chs,cht,de,jpn,ko}.md` | D-03 disclosure in all six locales | ✓ VERIFIED | `README.md:30-41`; each localized file carries 3 TelemetryDeck references and the Settings opt-out sentence |
 | `.github/workflows/deploy.yml`, `deploy-pre-release.yml` | Secret injection + archived-plist verification | ✓ VERIFIED | `deploy.yml:50-51,64-72`; `deploy-pre-release.yml:51-52,65-66` |
-| `AppPackage/Sources/SearchFeature/SearchRootReducer.swift` | `galleryDetailOpened` on the Search push path | ✓ VERIFIED | `:135-160` — emission merged into the push effect (`a53decf7`); `.galleryTapped` at `:124-127` carries the matching "no analytics here" comment |
+| `AppPackage/Sources/SearchFeature/SearchRootReducer.swift` | `galleryDetailOpened` on the Search push path | ✓ VERIFIED | `:135-160` — emission merged into the push effect (`3e270d477b`); `.galleryTapped` at `:124-127` carries the matching "no analytics here" comment |
 | 18 × `14-NN-SUMMARY.md` | One per plan | ✓ VERIFIED | 14-01 … 14-18 all present in the phase directory |
-| `14-UAT.md` | Owner UAT | ✓ VERIFIED | `status: complete`, 55 passed / 2 issues, both reconciled (G-14-6 → 3fcce0f0, G-14-7 → 2c7e0d0f) |
+| `14-UAT.md` | Owner UAT | ✓ VERIFIED | `status: complete`, 55 passed / 2 issues, both reconciled (G-14-6 → 130dddfda6, G-14-7 → ec7f406cc2) |
 | `14-VALIDATION.md` | Nyquist validation | ✓ VERIFIED | `status: validated`, `nyquist_compliant: true`, `wave_0_complete: true` |
 | `COVERAGE.md` | SDK surface matrix | ✓ VERIFIED | 59 capabilities, 14 INTEGRATE / 45 OPT-OUT, 0 OPT-OUT without a reason; records the D-01 reversal at `:50` |
-| `.planning/ROADMAP.md` | Current phase description | ✓ VERIFIED | Lines 37 and 748 now state the runtime opt-out (D-01 reversed); line 794 ticked, consistent with line 751 (`d615b650`) |
+| `.planning/ROADMAP.md` | Current phase description | ✓ VERIFIED | Lines 37 and 748 now state the runtime opt-out (D-01 reversed); line 794 ticked, consistent with line 751 (`ef17136073`) |
 
 ---
 
@@ -136,7 +136,7 @@ audit trail; each now carries its resolution.
 | `AnalyticsSignal` | `AnalyticsSignal.rendered` | exhaustive `switch`, no catch-all | ✓ WIRED | A new case is a compile error at the rendering site |
 | `AppError` | `AppErrorKind` | exhaustive `init(_:)` | ✓ WIRED | A new `AppError` case is a compile error |
 | `AppDelegateReducer.swift:50` | `AnalyticsClient.start` | launch-finish reducer action | ✓ WIRED | D-14 satisfied: not a view lifecycle callback |
-| `SearchRootReducer.swift:151` | `AnalyticsClient.send` | `.merge` into the push effect | ✓ WIRED | Closed by `a53decf7`; same derivation as the other four sites |
+| `SearchRootReducer.swift:151` | `AnalyticsClient.send` | `.merge` into the push effect | ✓ WIRED | Closed by `3e270d477b`; same derivation as the other four sites |
 
 ---
 
@@ -169,7 +169,7 @@ enumeration.
 | Unimplemented default is loud | `AnalyticsClientGateTests.swift:40-52` `withKnownIssue` ×2 | The 2 "known issues" in the run are exactly these, by design | ✓ PASS |
 | SDK pinned to a 2.x stable tag (D-12) | `Package.swift:24` / `Package.resolved:250-254` | `.upToNextMajor(from: "2.14.1")`, resolved `2.14.1` @ `ad4a03ec` — no 3.0 pre-release | ✓ PASS |
 | No app-side privacy manifest (D-04) | `find App ShareExtension -name PrivacyInfo.xcprivacy` | no results | ✓ PASS |
-| No suppression directive added this phase | `git diff 2d3c885b~1..HEAD -- '*.swift' \| grep '^+.*swiftlint:disable'` | 0 added (the 27 elsewhere predate the phase) | ✓ PASS |
+| No suppression directive added this phase | `git diff 02828be744~1..HEAD -- '*.swift' \| grep '^+.*swiftlint:disable'` | 0 added (the 27 elsewhere predate the phase) | ✓ PASS |
 | `galleryDetailOpened` emitted from all five entry paths | `grep -rn "analyticsClient.send(.galleryDetailOpened" Sources` | 5 emission sites — Favorites:149, SearchRoot:151, Home:63, Downloads:140, Presentation:164 | ✓ PASS |
 | Live delivery to the vendor dashboard | — | Owner-verified (14-18 Checks A-D, `14-VALIDATION.md`) | ? SKIP (already signed off) |
 
@@ -187,20 +187,20 @@ All 18 plans declare `requirements: [ANALYTICS-01]`; no other ID is cited anywhe
 
 | Requirement | Source plans | Description | Status | Evidence |
 |---|---|---|---|---|
-| ANALYTICS-01 | 14-01 … 14-18 (all) | Four flow families through a type-closed, privacy-redacted vocabulary on TelemetryDeck | ✓ SATISFIED | Every clause of `REQUIREMENTS.md:83` verified independently (truths 1-6). The families clause (truth 7) is met, and the navigation family is now complete: all five declared gallery-detail entry paths emit an identical payload (truth 8, closed by `a53decf7`). |
+| ANALYTICS-01 | 14-01 … 14-18 (all) | Four flow families through a type-closed, privacy-redacted vocabulary on TelemetryDeck | ✓ SATISFIED | Every clause of `REQUIREMENTS.md:83` verified independently (truths 1-6). The families clause (truth 7) is met, and the navigation family is now complete: all five declared gallery-detail entry paths emit an identical payload (truth 8, closed by `3e270d477b`). |
 
 ---
 
 ### Anti-Patterns Found
 
-Scanned all 80 files touched between `2d3c885b~1` and `HEAD` (`.swift`, `.yml`, `.xcconfig`, `.plist`).
+Scanned all 80 files touched between `02828be744~1` and `HEAD` (`.swift`, `.yml`, `.xcconfig`, `.plist`).
 
 | File | Line | Pattern | Severity | Impact |
 |---|---|---|---|---|
 | — | — | `TBD` / `FIXME` / `XXX` / `HACK` / `PLACEHOLDER` | — | **0 matches** across all phase-touched Swift files |
 | — | — | `TODO` / "not yet implemented" / "coming soon" | — | **0 matches** |
 | — | — | Added `swiftlint:disable` | — | **0 added** this phase |
-| `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift` | 148-149 | Comment asserted a fact the code did not deliver ("identical shape to the four push paths") | ✓ Resolved | Now true as written: four push paths (Home, Favorites, Downloads, Search) plus this fifth modal path. Same wording at `HomeReducer+Body.swift:59`, `FavoritesReducer.swift:145`, `DownloadsReducer.swift:135` — all accurate as of `a53decf7`, and correctly left unedited. |
+| `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift` | 148-149 | Comment asserted a fact the code did not deliver ("identical shape to the four push paths") | ✓ Resolved | Now true as written: four push paths (Home, Favorites, Downloads, Search) plus this fifth modal path. Same wording at `HomeReducer+Body.swift:59`, `FavoritesReducer.swift:145`, `DownloadsReducer.swift:135` — all accurate as of `3e270d477b`, and correctly left unedited. |
 | `AppPackage/Sources/SearchFeature/SearchRootReducer.swift` | 124-127 | Missing the "no analytics here, counted at the push/modal" comment that every sibling `.galleryTapped` carries | ✓ Resolved | Comment added, and it names the double-count it prevents rather than merely asserting silence. |
 
 Nested gallery-detail pushes routed through `GalleryNavigation.nextScreen` — comments deep-link → detail, and detail-search result → detail (`DetailFeature/GalleryNavigation.swift:56-66`) — also emit nothing in any host (`HomeReducer+Body.swift:132-137`, `FavoritesReducer.swift:164-169`, `DownloadsReducer.swift:401-406`, `PresentationFeature.swift:97-103,116-121`). Unlike the gap above these were never enumerated in D-05 or in any plan, so they are recorded here as an **observation**, not a gap: the owner may want to decide explicitly whether an in-stack detail open counts, and document the answer either way.
@@ -211,7 +211,7 @@ Nested gallery-detail pushes routed through `GalleryNavigation.nextScreen` — c
 
 None. Human sign-off is already complete and is not re-requested:
 
-- `14-UAT.md` — `status: complete`, 55 passed, 2 issues, both reconciled to `resolved` in commit `c64b9994` with code fixes at `3fcce0f0` (login-refusal toast copy) and `2c7e0d0f` (release-disclosure wording).
+- `14-UAT.md` — `status: complete`, 55 passed, 2 issues, both reconciled to `resolved` in commit `58880fb951` with code fixes at `130dddfda6` (login-refusal toast copy) and `ec7f406cc2` (release-disclosure wording).
 - `14-VALIDATION.md` — `status: validated`, `nyquist_compliant: true`.
 - Owner Checks A-D (plans 14-02 and 14-18), including live dashboard payload inspection and the no-credential no-traffic check, cleared and recorded in `14-18-SUMMARY.md`.
 
@@ -223,7 +223,7 @@ The one functional gap found in the initial pass was statically provable and nee
 
 **Both gaps found in the initial pass are closed. Retained as an audit trail.**
 
-**1. The Search tab's gallery-detail push was uninstrumented (functional, blocking) — RESOLVED by `a53decf7`.**
+**1. The Search tab's gallery-detail push was uninstrumented (functional, blocking) — RESOLVED by `3e270d477b`.**
 
 *What was found:* `SearchRootReducer.swift:132-138` as it then stood:
 
@@ -241,13 +241,13 @@ Its three siblings all `.merge` an emission into this exact return (`HomeReducer
 
 This was not an executor improvisation: plan `14-12-PLAN.md:75` lists "the gallery-detail push case near line 130" among the file's regions to read, but the task's `<behavior>` block (`14-12-PLAN.md:87`) and `<acceptance_criteria>` only ever require the *Favorites* push. The plan asked the executor to read the site and never told it to wire it, and the criteria (`FavoritesReducer.swift contains .galleryDetailOpened( exactly once`) passed regardless. Every downstream artifact then inherited the "five entry paths" claim without it being true: `14-10-SUMMARY.md:117,137,158`, `14-11-SUMMARY.md:115`, `14-12-SUMMARY.md:20,133,160`, `14-15-SUMMARY.md:29`, and four source comments.
 
-*How it was closed:* `a53decf7` merges the emission into the push effect (`SearchRootReducer.swift:135-160`), reusing the `Category` + `TagNamespaceCounts(tags:)` derivation verbatim so all five payloads are identical by construction rather than by convention. The site carries the device-split rationale in-file, naming why the emission is load-bearing: without it a search-originated open is recorded from iPads only, so the metric is not merely short but skewed — worse than an absent one, since it still looks complete. `.galleryTapped` (`:124-127`) gained the matching "no analytics here" comment, which names the double-count it prevents.
+*How it was closed:* `3e270d477b` merges the emission into the push effect (`SearchRootReducer.swift:135-160`), reusing the `Category` + `TagNamespaceCounts(tags:)` derivation verbatim so all five payloads are identical by construction rather than by convention. The site carries the device-split rationale in-file, naming why the emission is load-bearing: without it a search-originated open is recorded from iPads only, so the metric is not merely short but skewed — worse than an absent one, since it still looks complete. `.galleryTapped` (`:124-127`) gained the matching "no analytics here" comment, which names the double-count it prevents.
 
 Two tests were added rather than one: `AnalyticsEmissionTests.swift:140` asserts exactly one signal matching the fixture, and `:161` reflects the whole recorded signal graph to prove neither the fixture's distinctive title nor its tag text survives anywhere — the same sentinel discipline the other reductions are held to, so the new site is covered for leakage and not just for presence. Re-verified green at 781 tests / 144 suites / 22 targets.
 
-**2. ROADMAP.md had not caught up with the D-01 reversal (documentation) — RESOLVED by `d615b650`.**
+**2. ROADMAP.md had not caught up with the D-01 reversal (documentation) — RESOLVED by `ef17136073`.**
 
-*What was found:* `ROADMAP.md:37` and `:748` still read "on by default with no opt-out (D-01)". That was overtaken on 2026-07-26 by the owner's reversal (commit `bc67b874`), which was already correctly reflected in `REQUIREMENTS.md:82-83`, `COVERAGE.md:50`, `14-18-SUMMARY.md` and all six READMEs. Separately, `ROADMAP.md:751` claimed "18/18 plans executed" while `:794` still showed `- [ ] 14-18-PLAN.md`.
+*What was found:* `ROADMAP.md:37` and `:748` still read "on by default with no opt-out (D-01)". That was overtaken on 2026-07-26 by the owner's reversal (commit `5283a463f4`), which was already correctly reflected in `REQUIREMENTS.md:82-83`, `COVERAGE.md:50`, `14-18-SUMMARY.md` and all six READMEs. Separately, `ROADMAP.md:751` claimed "18/18 plans executed" while `:794` still showed `- [ ] 14-18-PLAN.md`.
 
 *How it was closed:* Both lines now read "on by default with a runtime opt-out in General Settings (D-01 reversed)", matching ANALYTICS-01, and `:794` is ticked. Neither affected shipped behavior, but the goal line is the text a future reader verifies against — leaving it stale is how the next verification gets anchored on a superseded contract.
 
@@ -258,4 +258,4 @@ Two tests were added rather than one: `AnalyticsEmissionTests.swift:140` asserts
 ---
 
 _Verified: 2026-07-26T15:43:25Z (initial, gaps_found 7/8) — re-verified 2026-07-26T16:25:46Z (passed 8/8)_
-_Verifier: Claude (gsd-verifier); re-verification by the execute-phase orchestrator against `a53decf7` and `d615b650`_
+_Verifier: Claude (gsd-verifier); re-verification by the execute-phase orchestrator against `3e270d477b` and `ef17136073`_

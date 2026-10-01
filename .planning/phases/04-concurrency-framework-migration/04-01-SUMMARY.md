@@ -90,8 +90,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Rename the Result facade to legacyResponse() everywhere** - `2511f0d6` (refactor)
-2. **Task 2: Injectable URLSession seam on every hard-coded request** - `3f595816` (refactor)
+1. **Task 1: Rename the Result facade to legacyResponse() everywhere** - `93c26c6aa4` (refactor)
+2. **Task 2: Injectable URLSession seam on every hard-coded request** - `a6fa15b373` (refactor)
 
 ## Files Created/Modified
 
@@ -119,7 +119,7 @@ Each task was committed atomically:
 - **Fix:** Wrapped only the affected request initializers; no expression or behavior changed.
 - **Files modified:** `LoginReducer.swift`, `ReadingReducer+ImageFetch.swift`, `SearchReducer.swift`, `PreviewsReducer.swift`
 - **Verification:** AppFeature build and SwiftLint build-tool plug-in passed.
-- **Committed in:** `2511f0d6`
+- **Committed in:** `93c26c6aa4`
 
 **2. [Rule 2 - Missing Critical] Added the omitted session seam to DataRequest**
 
@@ -128,7 +128,7 @@ Each task was committed atomically:
 - **Fix:** Added the same defaulted `URLSession` parameter and stored property used by every other request, then routed the fetch through it.
 - **Files modified:** `AppPackage/Sources/NetworkingFeature/Request+Image.swift`
 - **Verification:** 44 request structs, 44 session properties, zero hard-coded shared-session publishers, and full suite green.
-- **Committed in:** `3f595816`
+- **Committed in:** `a6fa15b373`
 
 ---
 

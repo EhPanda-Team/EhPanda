@@ -97,8 +97,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Give the Setting-consumed account/misc requests an explicit host** - `615f3729` (refactor)
-2. **Task 2: Supply setting.galleryHost from the Setting reducers and convert direct host reads** - `8ff4c06e` (refactor)
+1. **Task 1: Give the Setting-consumed account/misc requests an explicit host** - `db7f3bd0cd` (refactor)
+2. **Task 2: Supply setting.galleryHost from the Setting reducers and convert direct host reads** - `587bde9141` (refactor)
 
 ## Files Created/Modified
 
@@ -128,7 +128,7 @@ status: complete
 - **Fix:** Passed a deterministic explicit host to every affected baseline request and matching expected URL builder.
 - **Files modified:** `AppPackage/Tests/NetworkingFeatureTests/AccountRequestBaselineTests.swift`, `AppPackage/Tests/NetworkingFeatureTests/RoutineRequestBaselineTests.swift`
 - **Verification:** All 77 NetworkingFeature tests passed across nine suites.
-- **Committed in:** `615f3729`
+- **Committed in:** `db7f3bd0cd`
 
 **2. [Rule 3 - Blocking] Supplied state to the profile-index completion helper**
 
@@ -137,7 +137,7 @@ status: complete
 - **Fix:** Passed reducer state into the helper as `inout State` and resolved the cookie host from its shared Setting value.
 - **Files modified:** `AppPackage/Sources/SettingFeature/SettingReducer+Body.swift`, `AppPackage/Sources/SettingFeature/SettingReducer+Helpers.swift`
 - **Verification:** All 24 SettingFeature tests passed across eight suites.
-- **Committed in:** `8ff4c06e`
+- **Committed in:** `587bde9141`
 
 **3. [Rule 3 - Blocking] Adapted verification to the available package scheme and simulator**
 
@@ -175,7 +175,7 @@ None - no external service configuration required.
 - The package build succeeds with SwiftLint plugins enabled.
 - SettingFeatureTests passes all 24 tests across eight suites.
 - NetworkingFeatureTests passes all 77 tests across nine suites.
-- Task commits `615f3729` and `8ff4c06e` exist in git history and pass `git show --check`.
+- Task commits `db7f3bd0cd` and `587bde9141` exist in git history and pass `git show --check`.
 - Modified source contains no new warning suppression, SwiftLint disable, TODO, FIXME, or placeholder.
 - The concurrency review found no isolation, cancellation, or unstructured-task regressions; immutable host snapshots cross effect boundaries safely.
 - Generated documentation contains no absolute home-directory paths or private local-project names.

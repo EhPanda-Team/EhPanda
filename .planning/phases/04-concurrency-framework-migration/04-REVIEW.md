@@ -95,7 +95,7 @@ status: clean
 
 ## Summary
 
-Reviewed the complete Phase 4 diff (74 files, `2511f0d6^..HEAD` excluding planning artifacts):
+Reviewed the complete Phase 4 diff (74 files, `93c26c6aa4^..HEAD` excluding planning artifacts):
 the `Request` protocol's typed-throws façade and all 44 conformers, the shared four-attempt
 `fetch` retry helper, the structured-concurrency rewrites (sliding-window chunk fan-out,
 throwing-task-group image fan-out, whole-chain refetch retry), all migrated reducer effects and

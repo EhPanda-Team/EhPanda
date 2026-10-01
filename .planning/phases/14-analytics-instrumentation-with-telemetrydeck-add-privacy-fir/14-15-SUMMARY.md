@@ -53,7 +53,7 @@ Running this target **serially** exposed nine failing tests that the parallel fu
 
 Cause: plan 14-14 made `ReadingReducer.onPresented` read `date.now` to stamp the session start. Every test that presents the reader without overriding the `date` dependency began tripping TCA's unoverridden-dependency guard. The affected paths are in `DetailFeature` and `DownloadsFeature`, not `ReadingFeature`.
 
-It escaped 14-14's verification because that plan ran only its own target's suite — its stated assumption was that new state fields could only break same-target assertions. A dependency newly read on a cross-module presentation path breaks *callers* instead, and only a full-suite run surfaces that. Fixed in commit `ac0096c9` by supplying the dependency at the nine affected stores; no assertion or behavioral expectation was changed.
+It escaped 14-14's verification because that plan ran only its own target's suite — its stated assumption was that new state fields could only break same-target assertions. A dependency newly read on a cross-module presentation path breaks *callers* instead, and only a full-suite run surfaces that. Fixed in commit `6e8273328a` by supplying the dependency at the nine affected stores; no assertion or behavioral expectation was changed.
 
 **Process note for the remaining plans:** run the full suite after every plan that adds a dependency read to a presentation path, not just the plan's own target.
 

@@ -76,8 +76,8 @@ status: complete
 
 The TDD work was committed atomically:
 
-1. **Task 2 / RED gate: Category filter safety tests** — `b421c7a4` (test)
-2. **Task 1 / GREEN gate: Safe private filter behavior** — `f8de0c07` (fix)
+1. **Task 2 / RED gate: Category filter safety tests** — `48ea072821` (test)
+2. **Task 1 / GREEN gate: Safe private filter behavior** — `2e01fe8640` (fix)
 
 The RED test commit precedes the production commit because both planned behaviors formed the failing TDD specification.
 

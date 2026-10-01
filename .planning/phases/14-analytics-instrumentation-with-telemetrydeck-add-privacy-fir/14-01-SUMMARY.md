@@ -125,9 +125,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Add the TelemetryDeck dependency and declare every target the phase needs** — `8695c090` (chore)
-2. **Task 2: Implement the D-08 bucket vocabulary with exhaustive boundary tests** — `ac564069` (test, RED) → `b43cde92` (feat, GREEN)
-3. **Task 3: Register the new test targets and open ANALYTICS-01** — `b43cde92` (test-plan registration, folded into the GREEN commit) + `f3047e6f` (docs)
+1. **Task 1: Add the TelemetryDeck dependency and declare every target the phase needs** — `02828be744` (chore)
+2. **Task 2: Implement the D-08 bucket vocabulary with exhaustive boundary tests** — `8d898ea7c4` (test, RED) → `f478a8f0bf` (feat, GREEN)
+3. **Task 3: Register the new test targets and open ANALYTICS-01** — `f478a8f0bf` (test-plan registration, folded into the GREEN commit) + `efa5ad48b2` (docs)
 
 _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 
@@ -158,7 +158,7 @@ _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 - **Fix:** An explicit `guard seconds.isNaN == false` precedes the switch and returns `.underTenSeconds`, matching how a negative duration is treated.
 - **Files modified:** `AppPackage/Sources/AnalyticsClient/Buckets.swift`, `AppPackage/Tests/AnalyticsClientTests/BucketTests.swift`
 - **Verification:** `notANumberDurationClampsToTheShortestBucket` asserts it directly.
-- **Committed in:** `b43cde92` (Task 2 GREEN commit)
+- **Committed in:** `f478a8f0bf` (Task 2 GREEN commit)
 
 **2. [Rule 1 — Documented Fallback] Placeholder `@Suite` files for the two empty test targets**
 - **Found during:** Task 1 (target declaration)
@@ -166,14 +166,14 @@ _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 - **Fix:** One file per target containing a comment and an empty `@Suite struct`, exactly as the plan's step 7 authorized.
 - **Files modified:** `AppPackage/Tests/SearchFeatureTests/SearchFeatureTests.swift`, `AppPackage/Tests/FavoritesFeatureTests/FavoritesFeatureTests.swift`
 - **Verification:** Both suites appear in the executed-suite list of the full run, reporting 0 tests.
-- **Committed in:** `8695c090` (Task 1 commit)
+- **Committed in:** `02828be744` (Task 1 commit)
 
 **3. [Commit boundary] Test-plan registration folded into the Task 2 GREEN commit**
 - **Found during:** Task 2 → Task 3 boundary
 - **Issue:** `AppPackage/Tests/FeatureTests.xctestplan` is a Task 3 file, but an unregistered test target reports zero tests, so the Task 2 GREEN commit could not demonstrate its own tests passing without it.
-- **Fix:** The three test-plan entries landed in `b43cde92` alongside the implementation. Task 3's commit `f3047e6f` carries only the REQUIREMENTS.md change.
+- **Fix:** The three test-plan entries landed in `f478a8f0bf` alongside the implementation. Task 3's commit `efa5ad48b2` carries only the REQUIREMENTS.md change.
 - **Verification:** Both files' final content matches the plan's acceptance criteria exactly.
-- **Committed in:** `b43cde92`
+- **Committed in:** `f478a8f0bf`
 
 ---
 
@@ -182,7 +182,7 @@ _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 
 ## Issues Encountered
 
-**Executor terminated before writing this summary.** All three tasks were executed and committed (`8695c090` … `f3047e6f`, 08:29–08:37), but the executor agent did not return and never wrote `14-01-SUMMARY.md`. `/gsd-execute-phase 14`'s safe-resume gate caught the production-commits-without-summary state on the next run and stopped before re-dispatching. This summary was reconstructed from the four commits, their diffs, and a fresh verification run against the plan's acceptance criteria — no code was re-executed or reverted.
+**Executor terminated before writing this summary.** All three tasks were executed and committed (`02828be744` … `efa5ad48b2`, 08:29–08:37), but the executor agent did not return and never wrote `14-01-SUMMARY.md`. `/gsd-execute-phase 14`'s safe-resume gate caught the production-commits-without-summary state on the next run and stopped before re-dispatching. This summary was reconstructed from the four commits, their diffs, and a fresh verification run against the plan's acceptance criteria — no code was re-executed or reverted.
 
 **The Xcode workspace `Package.resolved` was left uncommitted.** `EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` carries the same TelemetryDeck 2.14.1 pin as `AppPackage/Package.resolved` but was not staged by the executor. Committed during close-out.
 

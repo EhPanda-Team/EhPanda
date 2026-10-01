@@ -112,7 +112,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Owner disposition of the five open questions** — `79a0ab29` (docs)
+1. **Task 1: Owner disposition of the five open questions** — `fc68128222` (docs)
 
 _The task is a `checkpoint:decision` gate. The owner's dispositions were supplied before execution; this plan performed the second half of the task's action — writing and committing the record._
 
@@ -176,7 +176,7 @@ None from this plan. The salt D-17 commits to must be generated and placed in `C
 
 - `14-DECISIONS.md` — FOUND
 - `14-02-SUMMARY.md` — FOUND
-- Commit `79a0ab29` — FOUND
+- Commit `fc68128222` — FOUND
 
 ---
 *Phase: 14-analytics-instrumentation*

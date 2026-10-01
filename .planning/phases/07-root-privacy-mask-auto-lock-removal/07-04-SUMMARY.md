@@ -95,8 +95,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Strip blurRadius and swap masks across HomeFeature** - `4f6b3247` (refactor)
-2. **Task 2: Strip blurRadius from FavoritesView and drop TabBar arguments** - `9bcbe9da` (refactor)
+1. **Task 1: Strip blurRadius and swap masks across HomeFeature** - `4bf15c3a66` (refactor)
+2. **Task 2: Strip blurRadius from FavoritesView and drop TabBar arguments** - `6cc060b4fb` (refactor)
 
 ## Files Created/Modified
 
@@ -125,7 +125,7 @@ Each task was committed atomically:
 - **Fix:** Added default-zero values to `galleryDestination` and `GalleryNavigationContainer` so migrated callers can omit the argument without pulling the DetailFeature sweep forward.
 - **Files modified:** `AppPackage/Sources/DetailFeature/GalleryDestination.swift`
 - **Verification:** The AppFeature graph builds successfully and both migrated modules report zero `blurRadius` tokens.
-- **Committed in:** `4f6b3247`, `9bcbe9da`
+- **Committed in:** `4bf15c3a66`, `6cc060b4fb`
 
 ---
 
@@ -149,7 +149,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All nine modified source files and this summary exist.
-- Task commits `4f6b3247` and `9bcbe9da` are present in git history.
+- Task commits `4bf15c3a66` and `6cc060b4fb` are present in git history.
 - Acceptance token counts and the generic-iOS AppFeature build passed.
 
 ---

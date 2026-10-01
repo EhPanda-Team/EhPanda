@@ -90,8 +90,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Add DeviceType and reshape DeviceClient to deviceType()** - `78fd2f14` (feat)
-2. **Task 2: Swap the idiom consumers to deviceType() == .pad** - `5901ee63` (refactor)
+1. **Task 1: Add DeviceType and reshape DeviceClient to deviceType()** - `365471c0ca` (feat)
+2. **Task 2: Swap the idiom consumers to deviceType() == .pad** - `0a73e684d3` (refactor)
 
 ## Files Created/Modified
 
@@ -121,7 +121,7 @@ Each task was committed atomically:
 - **Fix:** Gallery navigation accepts the injected `@MainActor` closure and awaits it inside `.run`; AppReducer likewise awaits the synchronous actor-isolated closure in its effect.
 - **Files modified:** `GalleryNavigation.swift`, `AppReducer.swift`, and the four list reducers.
 - **Verification:** The package build succeeds under Swift 6 strict concurrency.
-- **Committed in:** `5901ee63`
+- **Committed in:** `0a73e684d3`
 
 **2. [Rule 3 - Blocking] Updated the affected DeviceClient test fixture**
 
@@ -130,7 +130,7 @@ Each task was committed atomically:
 - **Fix:** The test now injects `deviceType: { .pad }`, preserving the same test intent.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadsReducerActionTests.swift`
 - **Verification:** `DownloadsFeatureTests` passes.
-- **Committed in:** `5901ee63`
+- **Committed in:** `0a73e684d3`
 
 ---
 

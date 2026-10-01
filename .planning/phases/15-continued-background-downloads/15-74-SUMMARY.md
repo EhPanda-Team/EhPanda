@@ -119,8 +119,8 @@ status: complete
 Executed atomically, in order:
 
 0. **Blocking precondition: split the 999-line file** — `31764623` (refactor)
-1. **Task 1: honest nesting property — docs, detection, corrected artifact** — `8bafe435` (test, RED) then `88e12a88` (feat, GREEN)
-2. **Task 2: self-consistent census suite; detector bounds** — `435a014a` (test)
+1. **Task 1: honest nesting property — docs, detection, corrected artifact** — `762d525ab9` (test, RED) then `51b12af192` (feat, GREEN)
+2. **Task 2: self-consistent census suite; detector bounds** — `dd76067843` (test)
 
 ## Files Created/Modified
 
@@ -181,7 +181,7 @@ The RED gate for the detector itself was observed separately, before the counter
 - **Fix:** Derived from source (`rg -n 'Self\.clientModuleFiles\(in:' …` → 8 hits, `clientDoubleFiles` → 1, `clientDoubleTreeFiles` → 1) and wrote that. Also corrected `clientModuleFiles(in:)`'s own doc, which claimed "every census" counts over it.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
 - **Verification:** All 10 census cases pass; the counts are reproducible by the `rg` above.
-- **Committed in:** `435a014a`
+- **Committed in:** `dd76067843`
 
 **2. [Rule 1 — Bug] `timeout: .seconds(1)` at the two detectors would reintroduce a recorded flake**
 
@@ -190,7 +190,7 @@ The RED gate for the detector itself was observed separately, before the counter
 - **Fix:** The ten-second default stands, and the *ownership* the review actually asked for was delivered instead: the derivation — the rule, the two pieces of recorded evidence, and the refusal — is written at the delete-convergence call site, with the ownership-convergence site referring to it rather than restating it, so the decision has one owner exactly as 15-64 gave the number one owner. `deferred-items.md`'s entry, which asserted in the present tense that the case "has a one-second deadline", is re-titled and marked resolved.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadDeleteConvergenceTests.swift`, `AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift`, `.planning/phases/15-continued-background-downloads/deferred-items.md`
 - **Verification:** All three Task 2 suites green; `DownloadFeatureTestHelpers.swift` byte-identical (`git diff --stat` shows no entry for it), so the 10 s default and every other call site are untouched exactly as the plan required.
-- **Committed in:** `435a014a`
+- **Committed in:** `dd76067843`
 - **Owner decision requested:** this is the one item in this plan that a human should ratify (coverage D5). If the owner prefers the short bound despite the evidence, the change is two arguments; the argument text at the call site would then need re-deriving, not just deleting.
 
 **3. [Rule 3 — Blocking] The 999-line file had to be split before anything could be added**
@@ -239,6 +239,6 @@ Two files remain near the `file_length` limit and will need the same treatment b
 
 - `AppPackage/Sources/DownloadClient/DownloadClient+SeedReconciliation.swift` — FOUND
 - `.planning/phases/15-continued-background-downloads/15-74-SUMMARY.md` — FOUND
-- Commits `31764623`, `8bafe435`, `88e12a88`, `435a014a`, `02f4ffd8` — all FOUND
+- Commits `31764623`, `762d525ab9`, `51b12af192`, `dd76067843`, `caab22572d` — all FOUND
 - `basisMovementDepth` increment, `defer` decrement, depth guard and `reportIssue` present in `+ExecutionSupport.swift`; property declared in `+Manager.swift`
 - `15-65-SUMMARY.md` carries 3 `[Corrected by 15-74]` markers

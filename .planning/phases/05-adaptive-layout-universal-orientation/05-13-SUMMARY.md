@@ -71,7 +71,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Remove GalleryCardCell's independent card-width sizing** - `5d0ac2c9` (fix)
+1. **Task 1: Remove GalleryCardCell's independent card-width sizing** - `2f0fa252df` (fix)
 
 ## Files Created/Modified
 
@@ -124,7 +124,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- The modified source file and task commit `5d0ac2c9` exist.
+- The modified source file and task commit `2f0fa252df` exist.
 - The exact iPhone Air simulator package build succeeded with the SwiftLint build-tool plugin.
 - Static gates confirm `GalleryCardCell` has no `containerRelativeFrame`, while the unchanged carousel retains its shared width, pitch, centering, and slot frame.
 

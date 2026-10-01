@@ -126,7 +126,7 @@ created: 2026-07-24
 | `FavoritesFeatureTests` executed | ✅ 3 tests (its `AnalyticsEmissionTests` suite ran by name) |
 | Exactly one SDK import | ✅ `AppPackage/Sources/AnalyticsClient/AnalyticsClient.swift`, and nowhere else |
 | No deprecated `TelemetryManager` spelling | ✅ 0 occurrences |
-| No suppression directive added during the phase | ✅ `git diff 26425c1b..HEAD -- '*.swift'` adds 0 `swiftlint:disable` lines (the 27 elsewhere in the repo predate the phase and were not touched) |
+| No suppression directive added during the phase | ✅ `git diff 446aad7e31..HEAD -- '*.swift'` adds 0 `swiftlint:disable` lines (the 27 elsewhere in the repo predate the phase and were not touched) |
 | Clean build warnings | ✅ 0 code warnings; the single log line is `appintentsmetadataprocessor` noting no AppIntents dependency, which is not a code warning |
 | SDK pin is a 2.x stable tag | ✅ TelemetryDeck/SwiftSDK **2.14.1**, no pre-release suffix |
 
@@ -246,7 +246,7 @@ called out above is the reason that distinction was checked by suite name rather
 
 **Map-only gaps closed** (tests pre-existed, rows were missing): `AnalyticsVocabularyTests` had no row at
 all despite carrying D-09/D-15; D-15, D-20 and D-21 appeared in no row; the Check D opt-out suites were
-described in prose only; and the CI credential injection added at `eb4567fc` was recorded nowhere.
+described in prose only; and the CI credential injection added at `eb654a4bd0` was recorded nowhere.
 
 **New automation added** — two repository-level invariants that held in fact but were unguarded, both
 implemented as shell steps in `.github/workflows/test.yml` (on every push) rather than as Swift tests,

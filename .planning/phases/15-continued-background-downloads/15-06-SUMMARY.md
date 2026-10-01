@@ -208,9 +208,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Reconcile the session at the queue convergence points** - `3f7a4eef` (feat)
-2. **Task 2: Push progress on the page-flush cadence and assert the numbers** - `713ba7d0` (feat)
-3. **Task 3: Cover the expiration policy and the unavailable path** - `0a0baf15` (test)
+1. **Task 1: Reconcile the session at the queue convergence points** - `8accf0c6f8` (feat)
+2. **Task 2: Push progress on the page-flush cadence and assert the numbers** - `4b0c49bf36` (feat)
+3. **Task 3: Cover the expiration policy and the unavailable path** - `b158604906` (test)
 
 ## Files Created/Modified
 
@@ -239,7 +239,7 @@ Each task was committed atomically:
 - **Fix:** The clamped pair is materialised as a `ContinuedSessionProgress` and used for both the counts and the subtitle, with an inline comment saying why. Nothing else changed: one snapshot in, the same monotonic rule, the same total floor.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift`
 - **Verification:** `testPushedCompletedCountNeverDecreasesWithinASession` asserts the shrink pushes `6 / 6 pages · 1 gallery` alongside counts of 6 and 6; `testEmptySchedulableSetStillPushesAPositiveTotal` asserts the same agreement for an empty sum.
-- **Committed in:** `713ba7d0` (Task 2 commit)
+- **Committed in:** `4b0c49bf36` (Task 2 commit)
 
 ---
 
@@ -290,7 +290,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All five modified files exist on disk with the expected contents, and all three task commits (`3f7a4eef`, `713ba7d0`, `0a0baf15`) are present in `git log`.
+All five modified files exist on disk with the expected contents, and all three task commits (`8accf0c6f8`, `4b0c49bf36`, `b158604906`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

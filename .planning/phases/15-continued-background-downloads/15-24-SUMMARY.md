@@ -187,7 +187,7 @@ The four cases were written first and the ledger suite run against the unmodifie
 
 Note C's pre-fix reading is one step worse than the plan predicted: the departed redo not only opened at nine, it also retired its six pages, so the total stayed at fourteen after it left (`"9 / 14 pages · 1 gallery"` where the derivation expected the old basis to at least shed the denominator). Both halves of D-G4-01 are visible in that one string.
 
-The fix was then installed and the suite re-run green — 11 tests, 0 issues. The tree at commit `0c0f3995` carries the fix; no reverted state was committed.
+The fix was then installed and the suite re-run green — 11 tests, 0 issues. The tree at commit `cb1a6bfb0b` carries the fix; no reverted state was committed.
 
 ## Blast-radius catalog, verified in both directions
 
@@ -238,7 +238,7 @@ for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
 - **Issue:** `retry` schedules before it ensures the session, and with the inert runner the scheduled task's completion tail (`finishActiveTaskIfOwned(schedulesNext: false)`) spawns a convergence that suspends on the observer hub and then calls `reconcileContinuedSession()`. For a case that ends at a *drain*, that convergence can re-enter the drain branch concurrently with the case's own drive. 15-22's post-push ownership guard makes a double *completion* impossible — the loser bails at `guard continuedSessionID == sessionID` behind its push — but the loser's push can still be accepted before the winner's teardown, which would append a second terminal-valued update and break `expectTheFractionReachesOneOnlyAtTheDrain`. The assertion would have been timing-dependent.
 - **Fix:** B and D stage the same state by enqueueing the complete manifest through the fixture, which schedules nothing, so their drains are single unraced terminal pushes. This is not weaker coverage: the bare enqueue is the *second* route into G-15-4 that the plan's own D-G4-01 section names — it never touches `queuedModes` at all, so it is precisely the route a mode-keyed basis would have missed. A and C keep the `retry` route (`.update` and `.redownload`), and C is safe with it because C never drains: a survivor remains, so the convergence's extra pushes carry the identical value the case pins.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift`
-- **Commit:** `0c0f3995`
+- **Commit:** `cb1a6bfb0b`
 
 ### 2. [Rule 2 — Duplication] `patchManifest(of:completedPageCount:in:)` extracted rather than copied
 
@@ -246,7 +246,7 @@ for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
 - **Issue:** Test D needs a mid-run record patch (2 of 6) through the same index seam `completeManifest` writes through. Adding a second near-copy of that eight-line write would have duplicated the folder-path construction and the `SessionGallery` rebuild.
 - **Fix:** The general helper was extracted and `completeManifest` now delegates to it with `completedPageCount: gallery.pageCount`. Every existing call site is unchanged.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift`
-- **Commit:** `0c0f3995`
+- **Commit:** `cb1a6bfb0b`
 
 ### 3. [Recorded, no change] One stale doc reference repaired
 
@@ -258,7 +258,7 @@ for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
 - **No overlapping invocations:** three `xcodebuild` runs total (pre-fix targeted, post-fix targeted, full plan), strictly one at a time, none killed. The pre-fix run's 616s wall time is `IDETestOperationsObserverDebug: Failure collecting diagnostics from simulator: Timed out after 600.0 seconds` — a post-run diagnostics collection stall, not the tests, which took 0.43s.
 - **Lint:** zero violations from `swiftlint --strict` over `AppPackage/Sources`, `AppPackage/Tests`, `App` and `ShareExtension` (`AppPackage/.build` removed first). No suppression, no `swiftlint:disable`, no `@unchecked Sendable`, no `nonisolated(unsafe)`, no `@preconcurrency` anywhere in this change.
 - **File lengths:** `DownloadContinuedSessionTests.swift` 999 (unchanged), `DownloadContinuedSessionLedgerTests.swift` 675, `DownloadClient+ContinuedSession.swift` 551 — all under the 1000-line gate.
-- **COVERAGE.md validated, not extended:** `git show 0c0f3995 8fae19f1 | grep -c 'BGTaskScheduler\|BGContinuedProcessingTask'` returns 0. This round changes the arithmetic feeding `updateProgress`, not the `BackgroundTasks` seam.
+- **COVERAGE.md validated, not extended:** `git show cb1a6bfb0b 3ae0734386 | grep -c 'BGTaskScheduler\|BGContinuedProcessingTask'` returns 0. This round changes the arithmetic feeding `updateProgress`, not the `BackgroundTasks` seam.
 - **Schema gate:** no persisted schema change — the trust set is in-memory session state, like the ledger beside it.
 - **Privacy gate:** no new log statement; card strings remain integer-only through `continuedSessionSubtitle(for:)`, and `DownloadLogPrivacyInvariantTests` ran green in the full plan.
 - **Localization gate:** no catalog entry touched; a zero count renders through the existing plural `other` category.
@@ -295,5 +295,5 @@ for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
 - `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` — FOUND, contains `observedIncompleteSessionGIDs`
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift` — FOUND, contains `testACompleteGalleryQueuedForUpdateOpensTheCardAtZero`
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift` — FOUND, contains `1 / 5 pages · 1 gallery`
-- Commit `0c0f3995` — FOUND in `git log`
-- Commit `8fae19f1` — FOUND in `git log`
+- Commit `cb1a6bfb0b` — FOUND in `git log`
+- Commit `3ae0734386` — FOUND in `git log`

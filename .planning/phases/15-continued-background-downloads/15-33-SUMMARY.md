@@ -97,7 +97,7 @@ The signature takes the whole `PageFileScan` (replacing the separate `existingPa
 
 ## Falsifiability: the RED run
 
-Both cases were written first and the targeted run was taken BEFORE the classification landed (test commit `c1134925`, run at that tree). The mass-partial case failed with exactly the derived pre-fix readings:
+Both cases were written first and the targeted run was taken BEFORE the classification landed (test commit `557c84d070`, run at that tree). The mass-partial case failed with exactly the derived pre-fix readings:
 
 ```
 testAMassPartialProbeFailureBlanksNothingWritesNothingAndWithdrawsNothing() Failed
@@ -157,7 +157,7 @@ No new production log line was added, so `DownloadLogPrivacyInvariantTests`' nam
 - **Issue:** The plan's behavior block says "the on-disk manifest re-read after restoring permissions". The three files staged at mode `0o000` are page files; the manifest re-read opens `manifest.json`, whose mode was never touched, so an extra restore before the re-read would be a no-op that reads as load-bearing.
 - **Resolution:** The restore runs once, in the case's cleanup path (a `defer` declared after the tree removal so it runs before it), which is what the acceptance criterion requires. A comment at the `defer` states why no earlier restore is needed. The assertion the plan asked for — the re-read manifest still carrying its four non-empty hashes — is present and unchanged.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift`
-- **Commit:** `c1134925`
+- **Commit:** `557c84d070`
 
 **2. [Rule 3 - Blocking] The permission-restore helper was generalized rather than duplicated**
 
@@ -165,7 +165,7 @@ No new production log line was added, so `DownloadLogPrivacyInvariantTests`' nam
 - **Issue:** `restoreFolderPermissions(at:to:)` is path-based and works for any item, but its name and doc claimed folders only; the new case needs it for three page files. Copying it would have duplicated a helper for no reason (project rule: no thin wrappers, fix at the root).
 - **Fix:** Renamed to `restorePermissions(at:to:)` with a doc naming both stagings; both pre-existing call sites updated. No literal or assertion changed.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift`
-- **Commit:** `c1134925`
+- **Commit:** `557c84d070`
 
 **3. [Naming] `canReadNonEmptyFile` became `probeAssetFileContent`**
 
@@ -173,7 +173,7 @@ No new production log line was added, so `DownloadLogPrivacyInvariantTests`' nam
 - **Issue:** The content fallback had to return the tri-state so an open/read throw could be distinguished from a positive empty-content determination — a Bool cannot carry that.
 - **Fix:** The private helper returns `AssetFileProbeOutcome` and is named for what it now does. It had exactly one caller (the probe), which is why no call site outside the file exists. Its no-discard behavior on an immediate end-of-file is preserved and the reason is now documented.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`
-- **Commit:** `fffea740`
+- **Commit:** `60dbf4f18e`
 
 No architectural changes were needed; no authentication gates were hit.
 
@@ -187,7 +187,7 @@ None.
 
 ## TDD Gate Compliance
 
-RED gate: `c1134925` (`test(15-33): stage the mass-partial probe failure`), taken with the mass-partial case failing at the readings quoted above. GREEN gate: `fffea740` (`fix(15-33): refuse to blank unprobed page files`). No REFACTOR commit was needed — the classification landed in its final shape and the full suite was green on the first post-fix run.
+RED gate: `557c84d070` (`test(15-33): stage the mass-partial probe failure`), taken with the mass-partial case failing at the readings quoted above. GREEN gate: `60dbf4f18e` (`fix(15-33): refuse to blank unprobed page files`). No REFACTOR commit was needed — the classification landed in its final shape and the full suite was green on the first post-fix run.
 
 ## Self-Check: PASSED
 
@@ -196,5 +196,5 @@ RED gate: `c1134925` (`test(15-33): stage the mass-partial probe failure`), take
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift` — FOUND
 - `.planning/phases/15-continued-background-downloads/15-33-SUMMARY.md` — FOUND
-- Commit `c1134925` — FOUND
-- Commit `fffea740` — FOUND
+- Commit `557c84d070` — FOUND
+- Commit `60dbf4f18e` — FOUND

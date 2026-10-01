@@ -266,7 +266,7 @@ sweep — left untouched. **Omitted:** `Placeholder.swift` line 31 (routes throu
 destination: **BUILD SUCCEEDED**, 0 warnings, 0 errors. SwiftLint (strict, 0.65.0) on all
 9 changed files: **0 violations**. No simulator erased/reset; app not uninstalled.
 
-**Commit:** `acd5984e` — `fix(10-02): reset ProgressView tint to default so spinners stay gray`.
+**Commit:** `ca1a26848b` — `fix(10-02): reset ProgressView tint to default so spinners stay gray`.
 
 ---
 *Phase: 10-ui-polish*

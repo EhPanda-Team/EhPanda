@@ -86,7 +86,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Remediate the 7 fixed-pixel font sites** — `0757de5c` (fix)
+1. **Task 1: Remediate the 7 fixed-pixel font sites** — `c34bc8eefb` (fix)
 2. **Task 2: Whole-app DT audit** — audit-only, no code commit (deliverable is this SUMMARY's verdict table)
 
 ## Files Created/Modified
@@ -263,7 +263,7 @@ None.
 ## Self-Check: PASSED
 
 - FOUND: `.planning/phases/10-ui-polish/10-10-SUMMARY.md`
-- FOUND: commit `0757de5c` (Task 1, 5 files)
+- FOUND: commit `c34bc8eefb` (Task 1, 5 files)
 
 ---
 *Phase: 10-ui-polish*

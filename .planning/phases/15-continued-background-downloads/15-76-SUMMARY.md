@@ -140,12 +140,12 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1 (RED): pin the migration's regimes** — `0f45c40f` (test)
-2. **Task 2 (GREEN): constant, migration, launch wiring** — `f8513360` (feat)
+1. **Task 1 (RED): pin the migration's regimes** — `53d4b527ec` (test)
+2. **Task 2 (GREEN): constant, migration, launch wiring** — `7ae44d2c5d` (feat)
 
 ## The RED gate was watched failing
 
-`0f45c40f` was committed against skeleton signatures with do-nothing bodies. The run at that commit:
+`53d4b527ec` was committed against skeleton signatures with do-nothing bodies. The run at that commit:
 
 ```
 ➜ Test bothStoredSpellingsRouteToAMerge() skipped: "Two directories differing only in
@@ -225,7 +225,7 @@ No strict ordering against launch logging is claimed, because the migration ride
 - **Fix:** The probe now stages the fixture's precondition — create `logs` and `Logs`, require the listing to hold two entries — and answers `false` on any host that cannot store both. A probe that cannot run at all also answers `false`, which can only ever skip a case, never turn a case-sensitive host into a silent pass. Additionally, the regime classification was extracted as a pure function so the skip costs no coverage of the *decision*, and `mergeContents` was given arbitrary source/destination URLs so it costs no coverage of the *application* either.
 - **Files modified:** `LogsDirectoryMigrationTests.swift`, `LogsDirectoryMigration.swift`
 - **Verification:** `➜ Test bothStoredSpellingsRouteToAMerge() skipped: "Two directories differing only in case cannot be stored on this host's volume."`, with the other 16 cases running.
-- **Committed in:** `0f45c40f`
+- **Committed in:** `53d4b527ec`
 
 **2. [Rule 1 — Bug] The plan's acceptance criterion contradicts the artifact the plan requires**
 
@@ -233,7 +233,7 @@ No strict ordering against launch logging is claimed, because the migration ride
 - **Issue:** The plan requires a migration that moves the legacy `logs` directory, and separately requires `rg -n '"logs"' App AppPackage ShareExtension -g '*.swift'` → **no matches**. A migration must name the directory it reads *from*, so the two cannot both hold. Satisfying the regex literally would mean deriving the legacy name from the current constant, which DEC-C rejects on correctness grounds.
 - **Fix:** The criterion was replaced with one that carries its intent — *no code path can recreate the lowercase folder*: exactly one lowercase literal exists in `Sources`, it is `LogsDirectoryMigration.legacyDirectoryName`, it is `private`, and it is used only in name comparisons and as a move **source**. Verified: `rg '"logs"' App AppPackage/Sources ShareExtension -g '*.swift'` → 1 match, that constant. Test fixtures use the literal deliberately, since a fixture must reproduce what shipped rather than track a constant.
 - **Files modified:** none (criterion correction)
-- **Committed in:** `f8513360`
+- **Committed in:** `7ae44d2c5d`
 
 **3. [Rule 2 — Missing critical functionality] A regular file named `logs` would have broken logging outright**
 
@@ -241,7 +241,7 @@ No strict ordering against launch logging is claimed, because the migration ride
 - **Issue:** `Documents` is user-writable through File Sharing, so a user can drop a *file* called `logs` next to their folders. The plan's design moves whatever carries that name onto `Logs`, which would leave a regular file exactly where `appendToRunFile`'s `createDirectory` needs a directory — logging would fail from then on, for a file the app never owned.
 - **Fix:** `run` verifies the legacy entry is a directory before acting and otherwise reports `nothingToMigrate`, leaving the user's file untouched.
 - **Verification:** `aRegularFileNamedLikeTheLegacyDirectoryIsLeftAlone` — outcome, listing and bytes all asserted.
-- **Committed in:** `f8513360`
+- **Committed in:** `7ae44d2c5d`
 
 **4. [Rule 1 — Bug] A SwiftLint warning in the new test helper**
 
@@ -249,7 +249,7 @@ No strict ordering against launch logging is claimed, because the migration ride
 - **Issue:** `String(decoding:as:)` tripped `optional_data_string_conversion` (warning, and the build must be warning-free). It is also the wrong call here: it maps invalid bytes to U+FFFD, so a corrupted read would have surfaced as an unexplained string inequality.
 - **Fix:** `try #require(String(bytes:encoding:))` — fixed at the root, no suppression. A non-UTF-8 read now fails the case at the point of decoding.
 - **Verification:** Full re-run after the fix: **0 repo warnings**, `TEST SUCCEEDED`.
-- **Committed in:** `f8513360`
+- **Committed in:** `7ae44d2c5d`
 
 ### Environment note (not a deviation)
 
@@ -270,7 +270,7 @@ One thing the tests cannot distinguish, stated rather than glossed: on this host
 
 | Gate | Result |
 |---|---|
-| RED, at `0f45c40f` | **TEST FAILED** — 17 tests, 12 failing, 22 issues, 1 correctly skipped |
+| RED, at `53d4b527ec` | **TEST FAILED** — 17 tests, 12 failing, 22 issues, 1 correctly skipped |
 | `xcodebuild test … -testPlan FeatureTests` (full, simulator by id) | **TEST SUCCEEDED**, **980 tests, 22 targets, 0 failures, 1 skipped** (963 baseline + 17) |
 | `xcodebuild … 'generic/platform=iOS Simulator'`, fresh derived data | **BUILD SUCCEEDED**, 0 warnings, 0 errors |
 | SwiftLint `--strict` over all 4 changed files | **0 violations, 0 serious** |
@@ -299,6 +299,6 @@ The second follow-up (DownloadsView swipe-action offset during the deletion aler
 - `AppPackage/Tests/AppToolsTests/LogsDirectoryMigrationTests.swift` — FOUND (17 `@Test` cases)
 - `AppPackage/Sources/AppTools/Defaults.swift` — FOUND, `logs = "Logs"`
 - `AppPackage/Sources/AppFeature/DataFlow/AppDelegateReducer.swift` — FOUND, migration wired at line 44, `private let logger` at line 12
-- Commit `0f45c40f` — FOUND (RED: tests + skeleton)
-- Commit `f8513360` — FOUND (GREEN: constant, migration, wiring)
-- No stubs: the RED skeleton's do-nothing bodies were fully replaced in `f8513360`; `rg 'TODO|FIXME|unimplemented'` over both new files → no matches
+- Commit `53d4b527ec` — FOUND (RED: tests + skeleton)
+- Commit `7ae44d2c5d` — FOUND (GREEN: constant, migration, wiring)
+- No stubs: the RED skeleton's do-nothing bodies were fully replaced in `7ae44d2c5d`; `rg 'TODO|FIXME|unimplemented'` over both new files → no matches

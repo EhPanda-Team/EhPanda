@@ -105,9 +105,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Dissolve the device-derived Defaults props** - `a401dfb5` (refactor)
-2. **Task 2: Rehome ApplicationClient window access into a private inline lookup** - `6c4f3522` (refactor)
-3. **Task 3: Delete DeviceUtil.swift and prove the phase source gates** - `c1b77dc7` (refactor)
+1. **Task 1: Dissolve the device-derived Defaults props** - `7fffb8a961` (refactor)
+2. **Task 2: Rehome ApplicationClient window access into a private inline lookup** - `cb28dc8bf4` (refactor)
+3. **Task 3: Delete DeviceUtil.swift and prove the phase source gates** - `1f417dc376` (refactor)
 
 ## Files Created/Modified
 

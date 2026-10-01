@@ -96,8 +96,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Convert the leaf-cell and component host reads to setting.galleryHost** - `e3f40c81` (refactor)
-2. **Task 2: Convert the Setting and Detail host reads to setting.galleryHost** - `4f2bc3c3` (refactor)
+1. **Task 1: Convert the leaf-cell and component host reads to setting.galleryHost** - `8c653e77f6` (refactor)
+2. **Task 2: Convert the Setting and Detail host reads to setting.galleryHost** - `52ebb39808` (refactor)
 
 ## Files Created/Modified
 

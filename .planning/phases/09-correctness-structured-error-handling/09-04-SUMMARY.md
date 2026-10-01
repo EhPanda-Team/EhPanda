@@ -86,9 +86,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Rename the presentation domain and add ErrorInfo routing/context** - `36e1f6b5` (feat)
-2. **Task 2: Present ErrorInfoView from error-toast activation** - `53c5e16e` (feat)
-3. **Task 3: Cover the presentation route and migrate existing tests** - `57e537b3` (test)
+1. **Task 1: Rename the presentation domain and add ErrorInfo routing/context** - `2c05c2cf8a` (feat)
+2. **Task 2: Present ErrorInfoView from error-toast activation** - `ddde7072ca` (feat)
+3. **Task 3: Cover the presentation route and migrate existing tests** - `5fe05eedee` (test)
 
 ## Files Created/Modified
 
@@ -114,7 +114,7 @@ Each task was committed atomically:
 - **Fix:** Renamed the domain and files to `PresentationFeature` / `PresentationFeatureTests` while preserving the requested presentation semantics.
 - **Files modified:** `PresentationFeature.swift`, `AppReducer.swift`, `TabBarView.swift`, `PresentationFeatureTests.swift`
 - **Verification:** The package builds and no `AppRouteReducer`, `appRouteState`, or `appRoute` references remain.
-- **Committed in:** `36e1f6b5`, `57e537b3`
+- **Committed in:** `2c05c2cf8a`, `5fe05eedee`
 
 **2. [Rule 3 - Blocking] Updated an additional test action path**
 - **Found during:** Task 3
@@ -122,7 +122,7 @@ Each task was committed atomically:
 - **Fix:** Updated the expectation to receive `presentation.detectClipboardURL`.
 - **Files modified:** `AppPackage/Tests/AppFeatureTests/AppReducerScenePhaseTests.swift`
 - **Verification:** The full AppFeatureTests target passes on the iPhone Air iOS 26.5 simulator.
-- **Committed in:** `57e537b3`
+- **Committed in:** `5fe05eedee`
 
 **3. [Rule 3 - Blocking] Propagated the mechanical rename during Task 1**
 - **Found during:** Task 1
@@ -130,7 +130,7 @@ Each task was committed atomically:
 - **Fix:** Performed the mechanical AppReducer and TabBarView symbol propagation with the type rename, leaving Task 2 to add only the new sheet and toast callback.
 - **Files modified:** `AppReducer.swift`, `TabBarView.swift`
 - **Verification:** Task 1's package build passed before the new UI route was added.
-- **Committed in:** `36e1f6b5`
+- **Committed in:** `2c05c2cf8a`
 
 ---
 
@@ -158,7 +158,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Both renamed files exist.
-- Task commits `36e1f6b5`, `53c5e16e`, and `57e537b3` exist.
+- Task commits `2c05c2cf8a`, `ddde7072ca`, and `5fe05eedee` exist.
 - The package build and AppFeatureTests suite pass.
 - No old presentation-domain symbols or new SwiftLint suppressions remain.
 

@@ -89,8 +89,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: iPad Group C surfaces #28–#35** - `5a60b6d6` (docs)
-2. **Task 2: iPad Group C surfaces #36–#42, completeness check and restore** - `e1d350b1` (docs)
+1. **Task 1: iPad Group C surfaces #28–#35** - `3d8832d056` (docs)
+2. **Task 2: iPad Group C surfaces #36–#42, completeness check and restore** - `0fcf2f0b12` (docs)
 
 ## Files Created/Modified
 
@@ -176,7 +176,7 @@ None for this plan. A future visual verdict for the blocked logged-in iPad surfa
 ## Self-Check: PASSED
 
 - `16-SWEEP.md` and `16-09-SUMMARY.md` exist.
-- Task commits `5a60b6d6` and `e1d350b1` exist in git history.
+- Task commits `3d8832d056` and `0fcf2f0b12` exist in git history.
 - The complete Matrix and D-04 sections each contain zero `pending` rows; all five D-13 rows contain both `iPhone` and `iPad`.
 - The Findings section contains 33 numbered entries.
 - No image is staged or untracked in the repository, and no generated document touched by this plan contains an absolute home path.

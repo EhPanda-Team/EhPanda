@@ -87,8 +87,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `04cdc78f` | Switch Setting effects to typed async |
-| 2 | `0248a6e5` | Migrate final DownloadClient consumers |
+| 1 | `48e384439c` | Switch Setting effects to typed async |
+| 2 | `d09ecc11c2` | Migrate final DownloadClient consumers |
 
 ## Deviations from Plan
 

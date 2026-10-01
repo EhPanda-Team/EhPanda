@@ -114,7 +114,7 @@ The orchestrator's finding — that `excluded:` on a SwiftLint custom rule is a 
 - **Found during:** Task 2
 - **Issue:** The plan directs producing `validatedIndex` locals on the premise that the draft rule's `excluded` list sanctions them. That entry is a file-path regex and is inert, as 11-12 flagged and the orchestrator re-verified.
 - **Fix:** The single Array site was resolved by removing the subscript entirely (`enumerated()`), which needs no escape hatch. No behaviour change; ids preserved.
-- **Commit:** `85127fa5`
+- **Commit:** `e2b076e68c`
 
 **2. [Scope] No precondition-checked exception sites were created**
 
@@ -148,5 +148,5 @@ The orchestrator's finding — that `excluded:` on a SwiftLint custom rule is a 
 - `AppPackage/Sources/ReadingFeature/ReadingView.swift` — FOUND
 - `AppPackage/Sources/ReadingFeature/Support/LiveTextHandler.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-13-SUMMARY.md` — FOUND
-- Commit `a887b038` — FOUND
-- Commit `85127fa5` — FOUND
+- Commit `3243650433` — FOUND
+- Commit `e2b076e68c` — FOUND

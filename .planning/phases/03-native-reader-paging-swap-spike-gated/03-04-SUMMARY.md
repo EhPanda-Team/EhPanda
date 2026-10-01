@@ -77,8 +77,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Route autoplay + slider through the guarded, clamped jump with landed-id logging** - `41a78ff2` (feat)
-2. **Task 2: Route tap-to-turn through the jump; confirm D-09 coexistence** - `41d0f9cd` (feat)
+1. **Task 1: Route autoplay + slider through the guarded, clamped jump with landed-id logging** - `c019c0a689` (feat)
+2. **Task 2: Route tap-to-turn through the jump; confirm D-09 coexistence** - `6c97e509b3` (feat)
 
 ## Files Created/Modified
 - `AppPackage/Sources/ReadingFeature/ReadingView.swift` - jump helper + pendingJumpTarget + settle logging; slider/autoplay rerouted

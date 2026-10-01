@@ -91,8 +91,8 @@ Haptic feedback and typed defaults reads now live directly in their injected cli
 
 ## Task Commits
 
-1. **Task 1: Fold HapticsUtil into HapticsClient.live and migrate four view sites** - `b68e11dc`
-2. **Task 2: Fold UserDefaultsUtil into UserDefaultsClient and relocate AppUserDefaults** - `0fc2832a`
+1. **Task 1: Fold HapticsUtil into HapticsClient.live and migrate four view sites** - `57abd0f966`
+2. **Task 2: Fold UserDefaultsUtil into UserDefaultsClient and relocate AppUserDefaults** - `9762c9fbd1`
 
 **Plan metadata:** committed with this summary
 
@@ -125,7 +125,7 @@ Haptic feedback and typed defaults reads now live directly in their injected cli
 - **Fix:** Added the direct AppComponents-to-HapticsClient edge and removed the HapticsClient-to-AppTools edge in `AppPackage/Package.swift`.
 - **Files modified:** `AppPackage/Package.swift`
 - **Verification:** The package build and complete package test suite pass.
-- **Committed in:** `b68e11dc`
+- **Committed in:** `57abd0f966`
 
 **2. [Rule 1 - Bug] Reconciled stale project-state progress after required GSD updates**
 - **Found during:** Plan metadata self-check

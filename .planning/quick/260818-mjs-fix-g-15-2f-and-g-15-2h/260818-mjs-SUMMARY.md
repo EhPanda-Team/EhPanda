@@ -140,8 +140,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Freeze the gallery folder leaf across runs (G-15-2H)** — `13cad7d9` (fix)
-2. **Task 2: Publish the live run's measurement on the row (G-15-2F)** — `764c5958` (fix)
+1. **Task 1: Freeze the gallery folder leaf across runs (G-15-2H)** — `0bbe2be285` (fix)
+2. **Task 2: Publish the live run's measurement on the row (G-15-2F)** — `b81c52ff49` (fix)
 3. **Task 3: Record both fixes in 15-UAT.md** — deliberately **uncommitted** (see below)
 
 ## Files Created/Modified
@@ -192,7 +192,7 @@ All eight planner decisions were implemented as written, except PD-7 where the p
 - **Fix:** Restaged to the post-fix truth, which is a strictly stronger statement: the run finishes IN the folder the record already pointed at, that folder still exists, and exactly one folder exists for the gid. The comment records what the assertion used to say and why it changed.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadProcessTests.swift`
 - **Verification:** Full suite green (997) on the re-run; the case is now the whole-arc version of `DownloadFolderLeafFreezeTests`' unit pins.
-- **Committed in:** `13cad7d9`
+- **Committed in:** `0bbe2be285`
 
 **2. [Rule 2 — Correctness] `DetailReducer.downloadNeedsRepair` re-pointed at the record**
 - **Found during:** Task 2 (PD-7's mandated verification)
@@ -200,7 +200,7 @@ All eight planner decisions were implemented as written, except PD-7 where the p
 - **Fix:** New record-derived `State.downloadIsIncomplete`, written in `applyDownload`; the predicate reads it. `DetailFeature` was not in the plan's declared file list — PD-7 explicitly authorizes this site and asks for it to be reported.
 - **Files modified:** `AppPackage/Sources/DetailFeature/DetailReducer.swift`, `AppPackage/Tests/DetailFeatureTests/DetailDownloadRepairPredicateTests.swift`
 - **Verification:** Full suite green (1003); the predicate's five-row truth table unchanged and passing.
-- **Committed in:** `764c5958`
+- **Committed in:** `b81c52ff49`
 
 **3. [Rule 3 — Stale doc] `stageAllRefusedSourceFolder`'s doc**
 - **Found during:** Task 1 (restaging PD-5's suites)
@@ -208,7 +208,7 @@ All eight planner decisions were implemented as written, except PD-7 where the p
 - **Fix:** Corrected in place: the title difference no longer moves the folder, and the caller stages the differing destination by naming a different parent.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadCoordinatorRepairSeedTests.swift`
 - **Verification:** Full suite green; standalone lint clean.
-- **Committed in:** `13cad7d9`
+- **Committed in:** `0bbe2be285`
 
 ---
 
@@ -232,8 +232,8 @@ Both fixes are code-complete and awaiting a device round on the 260818-mjs build
 
 All five created files exist on disk, all thirteen modified files carry the described changes, and both commit hashes resolve:
 
-- `13cad7d9` — `fix(15): freeze the gallery folder leaf`
-- `764c5958` — `fix(15): overlay a live run's progress on the row`
+- `0bbe2be285` — `fix(15): freeze the gallery folder leaf`
+- `b81c52ff49` — `fix(15): overlay a live run's progress on the row`
 
 ---
 *Quick task: 260818-mjs*

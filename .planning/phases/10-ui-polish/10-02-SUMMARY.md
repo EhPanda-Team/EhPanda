@@ -64,7 +64,7 @@ coverage:
     requirement: "CRIT-07"
     verification:
       - kind: other
-        ref: "git show 97aef2d4 -- ToolbarItems.swift: `@ViewBuilder tintedContent` with `if let tint { stack.foregroundStyle(tint) } else { stack }`"
+        ref: "git show 4f99e4f773 -- ToolbarItems.swift: `@ViewBuilder tintedContent` with `if let tint { stack.foregroundStyle(tint) } else { stack }`"
         status: pass
     human_judgment: false
   - id: D4
@@ -109,9 +109,9 @@ status: complete
 
 Each task was committed atomically (pre-committed by a prior executor; this plan reconciles bookkeeping only):
 
-1. **Task 1: foregroundColor -> foregroundStyle sweep (incl. Optional-tint trap)** - `97aef2d4` (refactor)
-2. **Task 2: accentColor modifier -> tint sweep (static reads left)** - `b0599d58` (refactor)
-3. **Task 1 follow-up: qualify Color in foregroundStyle ternaries** - `1c08b84c` (fix)
+1. **Task 1: foregroundColor -> foregroundStyle sweep (incl. Optional-tint trap)** - `4f99e4f773` (refactor)
+2. **Task 2: accentColor modifier -> tint sweep (static reads left)** - `2db0f76e48` (refactor)
+3. **Task 1 follow-up: qualify Color in foregroundStyle ternaries** - `2658998f89` (fix)
 4. **Task 3: Build, lint, full-suite gate** - verification only, no code change (no commit)
 
 **Plan metadata:** this SUMMARY + STATE + ROADMAP docs commit
@@ -147,9 +147,9 @@ None - no external service configuration required.
 
 - FOUND: AppPackage/Sources/AppComponents/ToolbarItems.swift (contains `if let tint` + `foregroundStyle`)
 - FOUND: AppPackage/Sources/AppFeature/RootView.swift (contains `.tint(.primary)`)
-- FOUND commit: 97aef2d4
-- FOUND commit: b0599d58
-- FOUND commit: 1c08b84c
+- FOUND commit: 4f99e4f773
+- FOUND commit: 2db0f76e48
+- FOUND commit: 2658998f89
 - foregroundColor( modifier grep: 0 hits; accentColor( modifier grep: 0 hits; static `.accentColor` reads: 4 (unchanged)
 - Build: ** BUILD SUCCEEDED ** (0 warnings); Tests: ** TEST SUCCEEDED **
 

@@ -169,7 +169,7 @@ result that put each path in or left it out:
 
 ## Derivation A — every route that RAISES a gallery's finished-page count during a run
 
-Enumerated by these greps, run at HEAD `3961698c`:
+Enumerated by these greps, run at HEAD `4950c0fb9f`:
 
 ```
 grep -rn 'updateDownloadIndex' AppPackage/Sources/DownloadClient
@@ -688,7 +688,7 @@ which its session-scoping paragraph would otherwise have contradicted.
 **(c) Census reach.**
 
 ```
-$ git diff --name-only 3961698c -- AppPackage | sed 's#/[^/]*$##' | sort -u
+$ git diff --name-only 4950c0fb9f -- AppPackage | sed 's#/[^/]*$##' | sort -u
 AppPackage/Sources/DownloadClient
 AppPackage/Tests/DownloadsFeatureTests
 ```
@@ -747,7 +747,7 @@ invocation overlapped another — all six were serialized.
 - **Fix:** The decrement lives at the last statement of `flushManifestPageProgress`, which all three
   production flush routes pass through.
 - **Files:** `DownloadClient+Persistence.swift`
-- **Commit:** `818d229f`
+- **Commit:** `8d563879a0`
 - **Evidence it mattered:** the two existing terminal-pair assertions at `RefusalTests:147-151` and
   `:264-267` land their pages through a direct `flushManifestPageProgress` call and passed unchanged;
   under the review's point they would have read `0 / 0`.
@@ -758,7 +758,7 @@ invocation overlapped another — all six were serialized.
   the restored-pages flush carries pages the run never owed. Both over-credit.
 - **Fix:** `[String: Set<Int>]`, subtracted by page number.
 - **Files:** `DownloadClient+Manager.swift` and every consumer.
-- **Commit:** `818d229f`
+- **Commit:** `8d563879a0`
 
 **3. [Rule 2 — missing critical mechanism] `freezeSessionCreditForRetiringRun`**
 - **Found during:** Task 1, Derivation C
@@ -767,7 +767,7 @@ invocation overlapped another — all six were serialized.
 - **Fix:** The run's exit publishes its final credited basis before withdrawing the state that
   produced it.
 - **Files:** `DownloadClient+ContinuedSession.swift`, `DownloadClient+Execution.swift`
-- **Commit:** `818d229f`
+- **Commit:** `8d563879a0`
 
 **4. [Rule 2 — missing critical mechanism] The run's exit withdraws the session trust its proof granted**
 - **Found during:** Task 1, Derivation D
@@ -775,7 +775,7 @@ invocation overlapped another — all six were serialized.
   nothing — the over-retirement in a new place.
 - **Fix:** `observedIncompleteSessionGIDs.remove(gid)` inside `retireProvenPageWork`.
 - **Files:** `DownloadClient+Execution.swift`
-- **Commit:** `818d229f`
+- **Commit:** `8d563879a0`
 - **Pinned by:** the isolated sensitivity reading quoted above.
 
 **5. [Rule 1 — a written argument that source does not implement] The lifetime case's sensitivity claim had become false**
@@ -787,7 +787,7 @@ invocation overlapped another — all six were serialized.
 - **Fix:** Two of the six pages are paid inside the first run, breaking the cancellation; the doc says
   why. The perturbation was then run and the failure OBSERVED.
 - **Files:** `DownloadContinuedSessionRunProofTests.swift`
-- **Commit:** `fc48fe82`
+- **Commit:** `c16b5f023b`
 
 **6. [Rule 3 — blocking] `pageResults` promoted to the shared helpers**
 - **Found during:** Task 1
@@ -795,14 +795,14 @@ invocation overlapped another — all six were serialized.
   way and cannot see it.
 - **Fix:** Promoted beside `writePageFiles`, on the rule its own doc stated. Adds
   `DownloadFeatureTestHelpers.swift` to `files_modified`.
-- **Commit:** `46aec511`
+- **Commit:** `de76a08d23`
 
 **7. [Rule 1 — test staging defect] The queued-window case's quiescence poll was racy**
 - **Found during:** Task 1, first RED run
 - **Issue:** `waitUntil { testingHasActiveTask() == false }` evaluates its condition twice and the
   exit's own convergence reschedules the surviving gallery in between.
 - **Fix:** Replaced with a monotone production observation (the pushed gallery count crossing).
-- **Commit:** `46aec511`
+- **Commit:** `de76a08d23`
 
 ### Deliberately NOT done
 
@@ -841,6 +841,6 @@ Files asserted to exist:
 
 Commits asserted to exist:
 
-- `46aec511` — FOUND
-- `818d229f` — FOUND
-- `fc48fe82` — FOUND
+- `de76a08d23` — FOUND
+- `8d563879a0` — FOUND
+- `c16b5f023b` — FOUND

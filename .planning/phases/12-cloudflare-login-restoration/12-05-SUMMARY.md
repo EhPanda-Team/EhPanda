@@ -145,8 +145,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Challenge state-machine TestStore suite** — `89b46f4a` (test)
-2. **Task 2: Cancel-silence, tap-through, and web-login regression** — `ec43b50f` (test)
+1. **Task 1: Challenge state-machine TestStore suite** — `fea347e4a4` (test)
+2. **Task 2: Cancel-silence, tap-through, and web-login regression** — `2c79d1e682` (test)
 
 ## Files Created/Modified
 
@@ -166,14 +166,14 @@ status: complete
 - **Issue:** The plan's `<action>` sketched "a `LockIsolated` array of HTTPURLResponse-or-error steps", but none of the ten specified behaviors drives a thrown `AppError`.
 - **Fix:** Scripted `[HTTPURLResponse]` only. Behavior coverage is unchanged; the omitted arm would have been unreachable test code.
 - **Files modified:** `LoginChallengeFlowTests.swift`
-- **Commit:** `89b46f4a`
+- **Commit:** `fea347e4a4`
 
 **2. [Rule 3 - Blocking] `LockIsolated` mutates through `withValue`, not `withLock`**
 - **Found during:** Task 1
 - **Issue:** The first compile failed with "Value of type `LockIsolated<[CloudflareClearance?]>` has no dynamic member `withLock`". `withLock` is the `@Shared` projection's API; `LockIsolated` (ConcurrencyExtras) uses `withValue`.
 - **Fix:** Switched the three recorder mutations to `withValue`, matching `AppActivityLogsReducerTests`' existing usage. The `@Shared` assertions keep `withLock`.
 - **Files modified:** `LoginChallengeFlowTests.swift`
-- **Commit:** `89b46f4a`
+- **Commit:** `fea347e4a4`
 
 No production code was changed: every criterion in this plan was testable against the 12-04 state machine as built.
 
@@ -206,7 +206,7 @@ None. The suite opens no network endpoint, touches no live cookie store, and eve
 
 ## Self-Check: PASSED
 
-`AppPackage/Tests/SettingFeatureTests/LoginChallengeFlowTests.swift` exists on disk with all ten cases; both task commit hashes (`89b46f4a`, `ec43b50f`) resolve in git history.
+`AppPackage/Tests/SettingFeatureTests/LoginChallengeFlowTests.swift` exists on disk with all ten cases; both task commit hashes (`fea347e4a4`, `2c79d1e682`) resolve in git history.
 
 ---
 *Phase: 12-cloudflare-login-restoration*

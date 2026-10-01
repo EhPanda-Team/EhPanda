@@ -33,14 +33,14 @@ The full iPad UI plan is not claimed green. W-38 remains an explicitly carried P
 
 ## Commits
 
-- `495732b5` — platform, toolchain, CI and support minimum.
-- `d8cf4f9e` — controlled asynchronous feature-test inputs.
-- `6fb4a735` — native asynchronous background submission and lifecycle/transfer coverage.
-- `31f99f0c` — native iOS 27 UI APIs, page scroll edges and repository policy.
-- `b2d1b4ae` — persistent Detail header controls and responsive layout tests.
-- `d1b9ec1c` — native carousel selection and migration UI regressions.
-- `255e8f09` — audited search target, snapshot isolation and reader toolbar selector.
-- `d7f8b191` — graph-preserving package manifest simplification.
+- `1013d22ea8` — platform, toolchain, CI and support minimum.
+- `a72670ad49` — controlled asynchronous feature-test inputs.
+- `22bc6a12ac` — native asynchronous background submission and lifecycle/transfer coverage.
+- `16abd85270` — native iOS 27 UI APIs, page scroll edges and repository policy.
+- `5905f2e39c` — persistent Detail header controls and responsive layout tests.
+- `d3753cdc9f` — native carousel selection and migration UI regressions.
+- `d30f7dda61` — audited search target, snapshot isolation and reader toolbar selector.
+- `241f8cd2e3` — graph-preserving package manifest simplification.
 
 ## Scope and limits
 

@@ -146,8 +146,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: The content arm — regime cases first, then guard → removal → rescan → the one loop** - `7586dc26` (feat)
-2. **Task 2: The contract sweep — validationErrors doc, AGENTS.md invariant, stale rationale, full suite** - `7a01604f` (docs)
+1. **Task 1: The content arm — regime cases first, then guard → removal → rescan → the one loop** - `b2a68bd998` (feat)
+2. **Task 2: The contract sweep — validationErrors doc, AGENTS.md invariant, stale rationale, full suite** - `7920717980` (docs)
 
 ## Files Created/Modified
 
@@ -164,7 +164,7 @@ Each task was committed atomically:
 
 ## The PersistenceNormalize Sweep (asked explicitly)
 
-Task 2's `<files>` lists `DownloadClient+PersistenceNormalize.swift` for its stale rationale comments, and that file was **not dirty at Task 2 time**. The reason is scheduling, not omission: Task 1's own Step 3 already ordered "sweep the module for any doc still stating that a present-but-mismatched file cannot be blanked", so the rewrite landed inside Task 1's commit `7586dc26`, where the code it describes also lives. Two paragraphs were replaced there:
+Task 2's `<files>` lists `DownloadClient+PersistenceNormalize.swift` for its stale rationale comments, and that file was **not dirty at Task 2 time**. The reason is scheduling, not omission: Task 1's own Step 3 already ordered "sweep the module for any doc still stating that a present-but-mismatched file cannot be blanked", so the rewrite landed inside Task 1's commit `b2a68bd998`, where the code it describes also lives. Two paragraphs were replaced there:
 
 - the **D-G5B-01 statement**, which described the branch as taking "one fresh page-file scan" and running the loop — now states D-SSOT-01 (both kinds of positive per-page evidence reconcile, because they are the same kind) alongside it;
 - the **"`validationErrors` remains exactly the REFUSAL family's surface"** paragraph, whose enumeration ("where the scan failed, or where blanking would empty every claimed hash at once") was the module's own statement of the stance this plan retires — now D-SSOT-05's operation-level contract.
@@ -335,7 +335,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All six claimed source/test files exist on disk, `DownloadValidationContentArmTests.swift` correctly does not, and both task commits (`7586dc26`, `7a01604f`) resolve in `git log`.
+All six claimed source/test files exist on disk, `DownloadValidationContentArmTests.swift` correctly does not, and both task commits (`b2a68bd998`, `7920717980`) resolve in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

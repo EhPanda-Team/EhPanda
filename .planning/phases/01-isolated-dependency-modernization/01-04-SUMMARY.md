@@ -99,7 +99,7 @@ status: complete
 
 The plan's three tasks were committed together as one atomic change (rationale in Deviations):
 
-1. **Tasks 1–3 (local UIImageColors swap)** — `0de9e602` (feat)
+1. **Tasks 1–3 (local UIImageColors swap)** — `da0372f738` (feat)
 
 **Plan metadata:** see final `docs(01-04)` commit.
 
@@ -116,7 +116,7 @@ The plan's three tasks were committed together as one atomic change (rationale i
 - **Found during:** Task 1 build.
 - **Issue:** A local target named `UIImageColors` collides with the external package's `UIImageColors` target (`multiple packages declare targets with a conflicting name`). The plan assumed the local target could be added while the external package remained (Task 1), with removal deferred to Task 3. It cannot.
 - **Fix:** Performed the whole DEP-02 swap as one buildable change — add the local module/target, retarget LibraryClient + test dependencies, drop the unused AppFeature/HomeFeature dependency and the stray GalleryCardCell import, remove the external package and both resolved entries — verified tests + build green, then committed once.
-- **Committed in:** `0de9e602`.
+- **Committed in:** `da0372f738`.
 
 ### Auto-fixed Issues
 
@@ -124,7 +124,7 @@ The plan's three tasks were committed together as one atomic change (rationale i
 - **Found during:** Task 1 SwiftLint build phase (error-level violations).
 - **Issue:** The faithful reproduction used the upstream single-letter names `r`/`g`/`b` (packed-channel accessors) and `x`/`y` (pixel loop), which the root config's `identifier_name` rule rejects as errors (min length 3).
 - **Fix:** Renamed to `red`/`green`/`blue` (and normalized locals `redUnit`/`greenUnit`/`blueUnit` inside `with(minSaturation:)`) and the loop vars to `column`/`row`. No behavior change; no suppression added.
-- **Committed in:** `0de9e602`.
+- **Committed in:** `da0372f738`.
 
 **Total deviations:** 2 (1 structural task-merge, 1 auto-fixed). No scope creep — no runtime color behavior changed; the Wave 0 parity fixtures pass verbatim.
 

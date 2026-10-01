@@ -126,14 +126,14 @@ Every one of the 43 matches resolved to a safe idiom, a structural fix, or an ho
 - **Found during:** Task 1 enumeration
 - **Issue:** The plan scopes Task 1 to List/Shared/Torrent. Shared and Torrent contribute nothing to the 43; the actual second-largest cluster is `Parser+Detail.swift` at 20, which the plan assigns to Task 2.
 - **Fix:** Task 1 took `Parser+List.swift` alone (14 matches), Task 2 took the other five files (29) plus the module audit. Total and end state unchanged.
-- **Commits:** `277289d9`, `d9d8d63f`
+- **Commits:** `5156af1f56`, `9e1fdf87c8`
 
 **2. [Rule 2 — Missing critical functionality] Two clusters were fixed structurally rather than guarded**
 
 - **Found during:** Tasks 1 and 2
 - **Issue:** The plan's idiom ladder anticipates per-site `indices.contains` guards. For the info panel (20 matches) and the gallery-URL identifiers (8 matches), a per-site guard would have been 28 guards papering over two single root causes, and in the info panel's case would have left the slot-numbering fragility fully intact.
 - **Fix:** Introduced `Parser.InfoPanel` and `Parser.GalleryTitleInfo`, both internal to the module. Shorter diff than 28 guards, and the defect class is removed rather than caught.
-- **Commits:** `277289d9`, `d9d8d63f`
+- **Commits:** `5156af1f56`, `9e1fdf87c8`
 
 **3. [Scope] The `validatedIndex` idiom was not used, and no exception site was created**
 
@@ -182,5 +182,5 @@ None. No new network, auth, file-access or schema surface. T-11-17's mitigation 
 - `AppPackage/Sources/ParserFeature/Parser+Greeting.swift` — FOUND
 - `AppPackage/Sources/ParserFeature/Parser+Profile.swift` — FOUND
 - `.planning/phases/11-infra-refactor-lint-capstone/11-14-SUMMARY.md` — FOUND
-- Commit `277289d9` — FOUND
-- Commit `d9d8d63f` — FOUND
+- Commit `5156af1f56` — FOUND
+- Commit `9e1fdf87c8` — FOUND

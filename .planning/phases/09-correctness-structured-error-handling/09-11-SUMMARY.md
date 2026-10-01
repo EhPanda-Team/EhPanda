@@ -88,8 +88,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: JSONValue type probes and remaining view/markdown survivors** - `2d646c83` (refactor)
-2. **Task 2: Residual audit, full suite, and SwiftLint gate** - `b98d87d0` (chore, verification-only commit)
+1. **Task 1: JSONValue type probes and remaining view/markdown survivors** - `ca7476ca5c` (refactor)
+2. **Task 2: Residual audit, full suite, and SwiftLint gate** - `052f00f91e` (chore, verification-only commit)
 
 ## Files Created/Modified
 
@@ -185,7 +185,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All six modified source files exist.
-- Task commits `2d646c83` and `b98d87d0` exist in git history.
+- Task commits `ca7476ca5c` and `052f00f91e` exist in git history.
 - All 61 AppModels tests passed with one expected known issue; the complete package suite passed.
 - Every actual optional-try expression in `AppPackage/Sources` has an adjacent just-cause comment.
 - Phase 09 added zero `// swiftlint:disable` lines in source, and `.swiftlint.yml` still comments out `optional_try`.

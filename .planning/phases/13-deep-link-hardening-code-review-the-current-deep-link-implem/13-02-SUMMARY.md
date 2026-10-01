@@ -95,7 +95,7 @@ status: complete
 Each task was committed atomically:
 
 1. **Task 1: Add unsupported deep-link error vocabulary and six-locale localization** - `54822504` (feat)
-2. **Task 2: Add sanitized unsupported-link context and regressions** - `be935c7f` (feat)
+2. **Task 2: Add sanitized unsupported-link context and regressions** - `5f0e012e38` (feat)
 
 ## Files Created/Modified
 
@@ -130,7 +130,7 @@ Each task was committed atomically:
 - **Fix:** URLComponents now renders the safe scheme/host/first-component base, then the code appends the constant `/…` marker outside the encoded URL.
 - **Files modified:** `AppPackage/Sources/AppModels/Support/AppError+Context.swift`
 - **Verification:** Both parameterized privacy fixtures and all 70 AppModelsTests passed.
-- **Committed in:** `be935c7f`
+- **Committed in:** `5f0e012e38`
 
 **3. [Rule 3 - Blocking] Replaced the catalog lint probe with a JSON parser check**
 - **Found during:** Task 1 verification
@@ -161,7 +161,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All six created or modified implementation/test files exist.
-- Commits `54822504` and `be935c7f` are present in git history.
+- Commits `54822504` and `5f0e012e38` are present in git history.
 - The catalog has exactly three unsupported-link keys, each translated across all six locales.
 - The app build, all 70 AppModelsTests, and the full default unit test plan passed.
 

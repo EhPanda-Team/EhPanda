@@ -94,7 +94,7 @@ status: complete
 Each implementation task was committed atomically:
 
 1. **Task 1: Owner decision — disposition of the unread background-processing dependency registration** - decision checkpoint, no code commit
-2. **Task 2: Implement the recorded disposition** - `6182961c` (refactor)
+2. **Task 2: Implement the recorded disposition** - `5459293b59` (refactor)
 
 ## Files Created/Modified
 
@@ -159,7 +159,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - `BackgroundProcessingClient.swift` and this summary exist.
-- Task commit `6182961c` exists.
+- Task commit `5459293b59` exists.
 - The removed dependency key and accessor are absent, and the unimplemented endpoint regression remains present exactly once.
 - The summary contains no absolute home-directory path.
 

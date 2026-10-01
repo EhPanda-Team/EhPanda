@@ -117,10 +117,10 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1 RED: Define privacy-mask Setting behavior** - `709ba4ec` (test)
-2. **Task 1 GREEN: Replace auto-lock settings with privacy intensity** - `c65beeea` (feat)
-3. **Task 2: Fold mask writes and launch effects into scene phase** - `cff5af89` (feat)
-4. **Task 3: Remove General security UI and add Appearance mask control** - `fa2442d1` (feat)
+1. **Task 1 RED: Define privacy-mask Setting behavior** - `121198b496` (test)
+2. **Task 1 GREEN: Replace auto-lock settings with privacy intensity** - `d0af0220a5` (feat)
+3. **Task 2: Fold mask writes and launch effects into scene phase** - `ea2421341a` (feat)
+4. **Task 3: Remove General security UI and add Appearance mask control** - `9f19430883` (feat)
 
 ## Files Created/Modified
 
@@ -148,7 +148,7 @@ Each task was committed atomically:
 - **Fix:** Replaced the obsolete suite with failing-first tests for the new default and independently zeroable intensity.
 - **Files modified:** `AppPackage/Tests/AppModelsTests/SettingAutoLockClampTests.swift`, `AppPackage/Tests/AppModelsTests/SettingPrivacyMaskTests.swift`
 - **Verification:** The RED build failed specifically because `privacyMaskIntensity` did not exist; the targeted AppModelsTests run passed after the plan restored the intentionally broken cross-task graph.
-- **Committed in:** `709ba4ec`
+- **Committed in:** `121198b496`
 
 ---
 
@@ -157,8 +157,8 @@ Each task was committed atomically:
 
 ## TDD Gate Compliance
 
-- RED: `709ba4ec` introduced tests that failed on the missing `privacyMaskIntensity` member.
-- GREEN: `c65beeea` implemented the new model API after the RED commit.
+- RED: `121198b496` introduced tests that failed on the missing `privacyMaskIntensity` member.
+- GREEN: `d0af0220a5` implemented the new model API after the RED commit.
 - The AppModels target built immediately after GREEN. The targeted tests ran green after Tasks 2 and 3 repaired the downstream references that the plan explicitly expected to remain broken between tasks.
 
 ## Issues Encountered

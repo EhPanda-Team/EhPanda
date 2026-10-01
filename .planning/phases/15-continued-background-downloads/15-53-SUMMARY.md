@@ -11,7 +11,7 @@ requires:
   - phase: 15-continued-background-downloads
     provides: "15-52's two-part client-double census over the downloads test target — the only tables the narrowed scan could have re-based, since the excluded file lives in that tree"
   - phase: 15-continued-background-downloads
-    provides: "15-52's head 19f72be6 and its 886/0 full-suite total, the baseline this plan's 887 is accounted against"
+    provides: "15-52's head 4d17acdef0 and its 886/0 full-suite total, the baseline this plan's 887 is accounted against"
   - phase: 15-continued-background-downloads
     provides: "DownloadLogPrivacyInvariantTests.scannedFiles()'s path-exclusion SHAPE and its invariantFilePath binding name — and nothing else, because that function documents nothing"
 provides:
@@ -114,7 +114,7 @@ rationale for the first time, dated to this plan.
 
 ### Step 1: every census inventoried at this head, before touching the scanner
 
-Derived at head `19f72be6`, after 15-50 moved the run-proof table and 15-52 added the two
+Derived at head `4d17acdef0`, after 15-50 moved the run-proof table and 15-52 added the two
 double-fidelity tables:
 
 | # | Census | Token (assembled) | Per-file table | Joined total | Asserting case | Tree it counts over |
@@ -136,7 +136,7 @@ after a surprise.
 
 ### Step 3: every census re-derived against the narrowed scan
 
-| # | Census | Before (head `19f72be6`) | After (this plan) | Moved? |
+| # | Census | Before (head `4d17acdef0`) | After (this plan) | Moved? |
 |---|--------|--------------------------|-------------------|--------|
 | 1 | Scheduling-block | Folders 2, PublicAPI 1, Scheduling 1, Testing 1 / total 5 | identical | no |
 | 2 | Floor writers | ContinuedSession 4, ExecutionSupport 1 / total 5 | identical | no |
@@ -559,7 +559,7 @@ passedTests: 880, expectedFailures: 7, failedTests: 0, skippedTests: 0, result: 
 |------|-------|----------|
 | 15-49 (`880`) | 880 | the round's baseline |
 | 15-50 + 15-51 | 884 | +4 |
-| 15-52 (`19f72be6`) | 886 | +2, the two census cases 15-52 added |
+| 15-52 (`4d17acdef0`) | 886 | +2, the two census cases 15-52 added |
 | **this plan** | **887** | **+1, the nil-arm case** |
 
 Accounted case by case: the single addition is
@@ -594,7 +594,7 @@ was allowed to complete rather than interrupted.
   (reading 3).
 - **Recorded rather than silently corrected** because it is the plan's own subject occurring inside
   the plan's own evidence.
-- **Commit:** `4902ce48`.
+- **Commit:** `c4f6ec67f5`.
 
 **2. [Rule 2 — a derived claim converted to an observed one] One reading beyond the plan's two
 directions.** Reading 3 proves the exclusion grants the capability only if one accepts by ARGUMENT
@@ -644,7 +644,7 @@ dispositioned `accept` at `low` for exactly this reason and the residue sweep co
 
 ## Commits
 
-- `4902ce48` — `test(15-53): stop the inventory scanner policing its own prose`
+- `c4f6ec67f5` — `test(15-53): stop the inventory scanner policing its own prose`
 - `87167590` — `fix(15-53): state the nil-generation retirement policy as a branch`
 
 ## Self-Check: PASSED
@@ -657,7 +657,7 @@ Files asserted to exist, verified on disk:
 
 Commits asserted to exist, verified in `git log`:
 
-- `4902ce48` — FOUND
+- `c4f6ec67f5` — FOUND
 - `87167590` — FOUND
 </content>
 </invoke>

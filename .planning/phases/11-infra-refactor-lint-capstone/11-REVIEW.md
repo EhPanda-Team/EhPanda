@@ -263,7 +263,7 @@ useful than inventing severity.
 
 ### IN-01: `Parser.degrading` logs the caught error at `privacy: .public` while only its `description` argument is privacy-guarded
 
-**Status:** RESOLVED — commit `1dd35b2e` changed the error interpolation to `privacy: .private`; `description` stays `.public`. Build clean, ParserFeatureTests 33/33, cookie-logging scan exit 0.
+**Status:** RESOLVED — commit `f18e1cc50a` changed the error interpolation to `privacy: .private`; `description` stays `.public`. Build clean, ParserFeatureTests 33/33, cookie-logging scan exit 0.
 
 **File:** `AppPackage/Sources/ParserFeature/Parser+Shared.swift:24-31`
 **Issue:** The new degradation helper is:

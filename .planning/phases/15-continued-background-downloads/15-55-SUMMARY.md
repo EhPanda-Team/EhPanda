@@ -125,8 +125,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: coverage basis — contract, implementation, boundary-owning suites** — `8211abd9` (fix)
-2. **Task 2: the invariant sweep** — `53d05928` (test)
+1. **Task 1: coverage basis — contract, implementation, boundary-owning suites** — `26f711b139` (fix)
+2. **Task 2: the invariant sweep** — `9691a6824b` (test)
 
 ## D-G2C-01, as implemented
 
@@ -181,11 +181,11 @@ Each derivation was taken from its own fixture before the actual was read. No ob
 
 None — the plan executed exactly as written. Two instructions could not be followed exactly as originally written; per the standing instruction both were returned as DECISION CHECKPOINTs and the plan was corrected before any code was written, so neither became a silent deviation.
 
-### Checkpoint round 1 — the cancel-drain pin's file (plan fix `4de9057a`)
+### Checkpoint round 1 — the cancel-drain pin's file (plan fix `5b61b18552`)
 
 Task 1's acceptance criterion located the cancel-drain boundary pin in `DownloadContinuedSessionTests.swift`. That file contains no cancel case at all; `testCancellingTheLastQueuedWorkItemCompletesTheSession` lives in `DownloadContinuedSessionExpirationTests.swift`, which the plan declared in neither task. The plan added it to Task 1's `<files>`, `files_modified` and verify command, and restated the criterion across both files. Its two-session series (three literals total, not one) was confirmed to change on both drains.
 
-### Checkpoint round 2 — suite topology and the synchronization predicate (plan fix `4b8eb704`)
+### Checkpoint round 2 — suite topology and the synchronization predicate (plan fix `cd74c45f84`)
 
 Two findings from the first green run:
 
@@ -239,7 +239,7 @@ None beyond the two plan conflicts above, both surfaced as checkpoints and resol
 
 ## Self-Check: PASSED
 
-- Both task commits found in `git log`: `8211abd9`, `53d05928`.
+- Both task commits found in `git log`: `26f711b139`, `9691a6824b`.
 - All 8 asserted-modified files exist on disk and appear in those commits.
 - `ContinuedProcessingSessionTests.swift` confirmed absent from the plan's commits.
 - Full suite re-run green twice after the final commit.

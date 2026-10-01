@@ -88,8 +88,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: CountingStubProtocol + script model + session factory** - `ea251691` (test)
-2. **Task 2: capture adapter + harness self-tests** - `f2879cc7` (test)
+1. **Task 1: CountingStubProtocol + script model + session factory** - `1c0774561e` (test)
+2. **Task 2: capture adapter + harness self-tests** - `a4096e3670` (test)
 
 ## Files Created/Modified
 
@@ -113,7 +113,7 @@ Each task was committed atomically:
 - **Fix:** Gave the header key module-internal visibility and annotated the closure as `() async throws(AppError) -> Int`, matching the documented typed-catch inference constraint.
 - **Files modified:** `CountingStubProtocol.swift`, `HarnessSelfTests.swift`
 - **Verification:** The corrected NetworkingFeatureTests sources compiled for both arm64 and x86_64 simulator architectures; all three files pass SwiftLint with zero violations.
-- **Committed in:** `f2879cc7`
+- **Committed in:** `a4096e3670`
 
 ---
 
@@ -147,7 +147,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All three declared key files exist.
-- Task commits `ea251691` and `f2879cc7` exist in git history.
+- Task commits `1c0774561e` and `a4096e3670` exist in git history.
 - No placeholder or production-flow stub was introduced.
 
 ---

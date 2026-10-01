@@ -157,7 +157,7 @@ The only other diagnostic the probe produced was a pre-existing `colon` warning 
 ## Task Commits
 
 1. **Task 1: Add the three zero-violation D-16 rules and the D-30 guard** — folded into the Task 2 commit, per the plan's explicit "commit `.swiftlint.yml` alone" instruction and its success criterion "One commit touching only `.swiftlint.yml`".
-2. **Task 2: Prove the rules under the build-tool plugin and commit** — `bca50938` (feat)
+2. **Task 2: Prove the rules under the build-tool plugin and commit** — `842d7b5d01` (feat)
 
 **Plan metadata:** see the `docs(16-01)` commit that follows this summary.
 
@@ -167,7 +167,7 @@ The only other diagnostic the probe produced was a pre-existing `colon` warning 
 
 ## Decisions Made
 
-- **One commit, not two.** Task 1 and Task 2 touch the same single file, and the plan's success criteria demand exactly one commit touching only `.swiftlint.yml`. Task 1's work is fully verified (probe table above, strict full-tree lint) and its result is carried in `bca50938`.
+- **One commit, not two.** Task 1 and Task 2 touch the same single file, and the plan's success criteria demand exactly one commit touching only `.swiftlint.yml`. Task 1's work is fully verified (probe table above, strict full-tree lint) and its result is carried in `842d7b5d01`.
 - **Message wording kept in the house voice and each rule names the decision it enforces** — Phase 10 D-02 for the modifier rule, Phase 5 for GeometryReader, Phase 16 D-18 for the font rule, Phase 16 D-30 for the guard — plus the prescribed fix in each message.
 
 ## Deviations from Plan
@@ -188,7 +188,7 @@ The only other diagnostic the probe produced was a pre-existing `colon` warning 
 - **Fix:** Normalised to exactly one blank line before and after each inserted rule; asserted no `\n\n\n` remains in the file.
 - **Files modified:** `.swiftlint.yml`
 - **Verification:** re-read of lines 45-50, 61-64, 180-184, 220-226; full-tree strict lint still 0 violations.
-- **Committed in:** `bca50938`
+- **Committed in:** `842d7b5d01`
 
 **3. [Rule 1 - Bug] `requirements mark-complete` marked the phase's two requirements Complete after plan 1 of 26**
 - **Found during:** state updates
@@ -229,7 +229,7 @@ None — no external service configuration required.
 
 - `.swiftlint.yml` exists and contains all four rule keys at lines 49 / 182 / 197 / 211, in the required file order.
 - `grep -c "no_minimum_scale_factor" .swiftlint.yml` → `0`.
-- Commit `bca50938` exists on `feature/gsd-phase-16`, subject 48 characters, `git show --stat` lists only `.swiftlint.yml` (1 file changed, 55 insertions, 0 deletions).
+- Commit `842d7b5d01` exists on `feature/gsd-phase-16`, subject 48 characters, `git show --stat` lists only `.swiftlint.yml` (1 file changed, 55 insertions, 0 deletions).
 - `.planning/phases/16-dynamic-type-accessibility/16-01-SUMMARY.md` exists.
 
 ---

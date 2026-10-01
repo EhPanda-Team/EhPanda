@@ -56,7 +56,7 @@ behavior change, no signature change, and no exception candidates. Only Tests re
 
 ## What Was Built
 
-### Task 1 — Client modules (16 sites), commit `682acfa9`
+### Task 1 — Client modules (16 sites), commit `22ee48e917`
 
 **LogsClient (4).** The two `contentsOfDirectory` guards collapsed onto one `runLogFileNames(in:)`
 helper returning `[String]` (empty on failure) rather than `[String]?`. The two call sites had been
@@ -95,7 +95,7 @@ greeting is hoisted to a `let greeting: Greeting?` before the response initializ
 argument, so evaluation order is unchanged), and the archive-funds guard inverted into a `do` whose
 both branches return the appropriate `GalleryArchiveResponse`.
 
-### Task 2 — Feature/UI modules + Sources-wide zero audit (10 sites), commit `ccf8fc37`
+### Task 2 — Feature/UI modules + Sources-wide zero audit (10 sites), commit `585b28a3e7`
 
 **SettingFeature activity logs (5).** Both pump ticks and the pause-time final flush hoist
 `fetchNewEntries` into a `do`/`catch` yielding `[]`, and both `appendToRunFile` calls became silent
@@ -176,5 +176,5 @@ None.
 ## Self-Check: PASSED
 
 - All 13 modified files — FOUND
-- commit `682acfa9` — FOUND
-- commit `ccf8fc37` — FOUND
+- commit `22ee48e917` — FOUND
+- commit `585b28a3e7` — FOUND

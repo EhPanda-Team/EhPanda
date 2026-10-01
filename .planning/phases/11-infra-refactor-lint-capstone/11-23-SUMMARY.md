@@ -42,7 +42,7 @@ status: complete
 253 tests green, both whole-app gates clean, SwiftLint clean at `--strict` over all 56 files in the
 target.
 
-Commits: `66f17023` (cleanup routing) and `7a3842f6` (sleeps, probes, cache removals).
+Commits: `f205fa1631` (cleanup routing) and `d59614115e` (sleeps, probes, cache removals).
 
 ## Scope: 32 files / 155 sites, not the plan's 33 files
 

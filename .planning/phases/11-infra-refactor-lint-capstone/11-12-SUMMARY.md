@@ -74,7 +74,7 @@ The plan said "replace every random `UUID()` in each `#Preview` block". In the t
 
 The two `GalleryListComponents` cells use disjoint indices from each other — same module, and it costs nothing. Indices repeat across modules, which is fine: determinism is the requirement, uniqueness only matters within one rendered preview.
 
-`import PreviewSupport` sits at file top, because Swift imports are file-scoped and cannot be confined to a `#Preview` block. The dependency reaches production compilation units but nothing in a production code path references it — the only use in each file is inside the `private` preview-fixture extension. That is the practical form of T-11-15's mitigation; `git diff` for `172ef103` shows no changed line outside the import, the fixture helper and the `#Preview` bodies.
+`import PreviewSupport` sits at file top, because Swift imports are file-scoped and cannot be confined to a `#Preview` block. The dependency reaches production compilation units but nothing in a production code path references it — the only use in each file is inside the `private` preview-fixture extension. That is the practical form of T-11-15's mitigation; `git diff` for `aa20b74fd0` shows no changed line outside the import, the fixture helper and the `#Preview` bodies.
 
 Preview content and state matrices are untouched, as Phase 10's D-09 constraint requires.
 
@@ -112,21 +112,21 @@ The module therefore currently carries exactly one disable: `file_length`, reaso
 - **Found during:** Task 1
 - **Issue:** The named rule is not registered until 11-17, and the directive would emit `superfluous_disable_command`.
 - **Fix:** Directive omitted; `precondition` and `// reason:` line both in place. Detailed above.
-- **Commit:** `5c7b56fc`
+- **Commit:** `b8f365575c`
 
 **2. [Rule 3 - Blocking] The `file_length` reason had to collapse to one line**
 
 - **Found during:** Task 1
 - **Issue:** A two-line `// reason:` explanation still tripped `swiftlint_disable_requires_reason` — its regex demands `// reason:` on the line *immediately* preceding the directive.
 - **Fix:** Reason rewritten as a single 100-char line.
-- **Commit:** `5c7b56fc`
+- **Commit:** `b8f365575c`
 
 **3. [Scope] The `UUID()` calls were not where the plan said**
 
 - **Found during:** Task 2
 - **Issue:** The plan described replacing `UUID()` inside `#Preview` bodies. All five sites were in file-private `Gallery.previewFixture` helpers instead.
 - **Fix:** Each helper gained an `identity: Int` parameter; call sites pass literal indices. Same outcome, smaller diff.
-- **Commit:** `172ef103`
+- **Commit:** `aa20b74fd0`
 
 ## Plan counts that matched, and one that did not
 
@@ -150,5 +150,5 @@ What the count *misses* is `AppModels/Gallery/Gallery.swift` (below).
 
 - `AppPackage/Sources/PreviewSupport/PreviewIdentifiers.swift` — FOUND
 - `AppPackage/Sources/PreviewSupport/.swiftlint.yml` — FOUND, contains `parent_config: ../../../.swiftlint.yml`
-- Commit `5c7b56fc` — FOUND
-- Commit `172ef103` — FOUND
+- Commit `b8f365575c` — FOUND
+- Commit `aa20b74fd0` — FOUND

@@ -186,7 +186,7 @@ post-fix: Download paused, gid: 210192.
 
 The two other cases in the suite passed in that same pre-fix run, so the failure is the new case's own, not a suite-wide break.
 
-The fix was then installed and the suite re-run green (3 tests, 0 issues). The tree at commit `60b660fb` carries the fix; no reverted state was committed.
+The fix was then installed and the suite re-run green (3 tests, 0 issues). The tree at commit `70470ec707` carries the fix; no reverted state was committed.
 
 ## Teardown-site sweep — every place the module ends a session
 
@@ -225,7 +225,7 @@ Because nothing had to be absorbed, the sanctioned relocation of `testEmptySched
 - **Issue:** The plan pinned three recorded subtitles — the mid-race push, the released parked push, the final drain push. The retry's scheduling also installs an active task through the inert runner, and that task's completion tail (`finishActiveTaskIfOwned(gid:generation:schedulesNext: false)`) spawns a convergence that calls `reconcileContinuedSession()` and pushes again. Pinning three entries would have been either wrong or flaky depending on whether that convergence landed before or after the gate release.
 - **Fix:** The case waits for that convergence (`waitUntil { spy.progressUpdates.count == 2 }`) before releasing the gate, and pins four entries: `1 / 5 pages · 1 gallery`, `1 / 5 pages · 1 gallery`, `1 / 1 page · 0 galleries`, `1 / 1 page · 0 galleries`. The race itself is unchanged — the drain push stays parked across the whole mobilization — and the assertion is now deterministic rather than timing-dependent.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift`
-- **Commit:** `60b660fb`
+- **Commit:** `70470ec707`
 
 ### 2. [Recorded, no change] The plan's `_ = try #require(await …testingContinuedSessionID())` is a discard
 
@@ -247,4 +247,4 @@ A repo-wide `swiftlint` run reports ~40 violations under `.claude/worktrees/agen
 - `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` — FOUND, contains `hasPendingWork() == false`
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift` — FOUND, contains `testWorkMobilizedInsideTheTerminalPushSurvivesTheDrain`
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift` — FOUND, contains 3× `Task.yield()`
-- Commit `60b660fb` — FOUND in `git log`
+- Commit `70470ec707` — FOUND in `git log`

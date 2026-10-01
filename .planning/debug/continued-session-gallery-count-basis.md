@@ -44,7 +44,7 @@ expected: Final subtitle at queue drain must describe zero remaining galleries (
 actual: "After both galleries completed, the card still displayed 1 gallery. The count appears to describe only the currently active gallery set, but it should describe every gallery represented by the denominator in X / Y pages." (verbatim, round-3 device retest, 2026-08-08)
 errors: None reported
 reproduction: 15-UAT.md Test 2 — queue two galleries on a physical device, background the app, let both complete, observe the system card's final subtitle.
-started: Round-3 UAT retest 2026-08-08, after 15-22 (terminal push), 15-23 (drain re-check), 15-54 (RunProgressBasis) all landed (commits a6105b0b, d155236a, 5df56a8e, d4d568c6).
+started: Round-3 UAT retest 2026-08-08, after 15-22 (terminal push), 15-23 (drain re-check), 15-54 (RunProgressBasis) all landed (commits e622a40c2c, 9d5062c4bf, 44ea9d550a, 7bc90a409c).
 
 ## Eliminated
 <!-- APPEND only - prevents re-investigating -->
@@ -113,7 +113,7 @@ started: Round-3 UAT retest 2026-08-08, after 15-22 (terminal push), 15-23 (drai
     terminal push provably fires and orders correctly in current code. Verify that first.
 
 - timestamp: 2026-08-08
-  checked: current DownloadClient+ContinuedSession.swift (post-15-54 tree, HEAD d101206b)
+  checked: current DownloadClient+ContinuedSession.swift (post-15-54 tree, HEAD e622a40c2c)
   found: (a) The terminal push EXISTS — reconcileContinuedSession drain branch, line 573
     (D-G2B-01), positioned after the continuedClientSessionID deferral (568) and before
     markContinuedSessionEnded (585), with a post-hop drain re-check (581, D-G3-01). (b) The

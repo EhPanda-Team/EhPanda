@@ -96,8 +96,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Give the gallery-list Request structs an explicit host** - `8bc1c790` (refactor)
-2. **Task 2: Supply setting.galleryHost at every gallery-list construction site** - `c1513e7f` (refactor)
+1. **Task 1: Give the gallery-list Request structs an explicit host** - `2d0d5c3ad2` (refactor)
+2. **Task 2: Supply setting.galleryHost at every gallery-list construction site** - `7b3f8a90b8` (refactor)
 
 ## Files Created/Modified
 
@@ -130,7 +130,7 @@ status: complete
 - **Fix:** Passed a deterministic explicit host to every baseline request and matching URL builder, and compared received URLs against that same host.
 - **Files modified:** `AppPackage/Tests/NetworkingFeatureTests/GalleryRequestBaselineTests.swift`
 - **Verification:** All 77 NetworkingFeature tests passed across nine suites.
-- **Committed in:** `c1513e7f`
+- **Committed in:** `7b3f8a90b8`
 
 **2. [Rule 3 - Blocking] Adapted verification to the available package scheme and simulator**
 
@@ -168,7 +168,7 @@ None - no external service configuration required.
 - Home state now owns a read-only shared Setting value; all other constructing reducers already had one.
 - The package build succeeds with SwiftLint plugins enabled.
 - NetworkingFeatureTests passes all 77 tests across nine suites.
-- Task commits `8bc1c790` and `c1513e7f` exist in git history.
+- Task commits `2d0d5c3ad2` and `7b3f8a90b8` exist in git history.
 - `git diff --check` passes for both task commits.
 - Modified source contains no new warning suppression, SwiftLint disable, force unwrap, TODO, FIXME, or placeholder.
 - The concurrency review found no isolation, cancellation, or unstructured-task regressions; immutable host snapshots cross effect boundaries safely.

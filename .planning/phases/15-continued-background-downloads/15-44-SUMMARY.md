@@ -112,7 +112,7 @@ status: complete
 
 ### 1. `schedulableDownloads()` across `AppPackage/Sources`, classified
 
-`grep -rn "schedulableDownloads" AppPackage/Sources` at the pre-edit HEAD (`94e67ad9`) returned 11 matches:
+`grep -rn "schedulableDownloads" AppPackage/Sources` at the pre-edit HEAD (`457db0d948`) returned 11 matches:
 
 | Location | Classification |
 |---|---|
@@ -269,8 +269,8 @@ The perturbation above is the same shape as case 2-within-one-file, and it is th
 
 ## Task Commits
 
-1. **Task 1: correct both authority claims and record the registration note** — `dd9fc9ec` (docs)
-2. **Task 2: pin the corrected caller list with a call-site census** — `8a909db6` (test)
+1. **Task 1: correct both authority claims and record the registration note** — `39b0040df9` (docs)
+2. **Task 2: pin the corrected caller list with a call-site census** — `d2dda2a295` (test)
 
 ## Files Created/Modified
 
@@ -334,8 +334,8 @@ None - no external service configuration required.
 - `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` — FOUND
 - `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift` — FOUND
-- Commit `dd9fc9ec` — FOUND
-- Commit `8a909db6` — FOUND
+- Commit `39b0040df9` — FOUND
+- Commit `d2dda2a295` — FOUND
 
 ---
 *Phase: 15-continued-background-downloads*

@@ -111,8 +111,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: The durable arm — piecewise suite first, then the reconciliation** - `45bd2ba9` (feat)
-2. **Task 2: The start arc — from the durable verdict to a queued repair, production path** - `99ec1b19` (test)
+1. **Task 1: The durable arm — piecewise suite first, then the reconciliation** - `44ea9d550a` (feat)
+2. **Task 2: The start arc — from the durable verdict to a queued repair, production path** - `7b022c2d95` (test)
 
 ## Files Created/Modified
 
@@ -162,9 +162,9 @@ One self-correction inside Task 1 is worth recording because it was mine, not th
 
 ## Plan-Correction Rounds
 
-Two DECISION CHECKPOINTs were raised and answered before any commit; both produced real plan fixes, landed in `19d463d8`.
+Two DECISION CHECKPOINTs were raised and answered before any commit; both produced real plan fixes, landed in `269e1f795e`.
 
-1. **Undeclared conditional file (Task 1, Step 2).** The action ordered an edit to `resumeMode`'s comment in `DownloadClient+SchedulingHelpers.swift` "IF its wording is now wrong", while neither `files_modified` nor Task 1's `<files>` declared that file. Proof that the condition fires was supplied: line 51 enumerated a single blanker, and case (b)'s predicate "no preparation has touched the record this session" would, post-fix, wrongly sort a validated-and-refused record into (b) instead of (a). **Resolution:** the file is now declared in both places and the instruction is unconditional, carrying both truth-fixes. This is the same defect class the planner had just fixed for 15-55 in `1ca32386`.
+1. **Undeclared conditional file (Task 1, Step 2).** The action ordered an edit to `resumeMode`'s comment in `DownloadClient+SchedulingHelpers.swift` "IF its wording is now wrong", while neither `files_modified` nor Task 1's `<files>` declared that file. Proof that the condition fires was supplied: line 51 enumerated a single blanker, and case (b)'s predicate "no preparation has touched the record this session" would, post-fix, wrongly sort a validated-and-refused record into (b) instead of (a). **Resolution:** the file is now declared in both places and the instruction is unconditional, carrying both truth-fixes. This is the same defect class the planner had just fixed for 15-55 in `6525db36b6`.
 2. **A raced status assertion (Task 2).** The arc originally asserted `displayStatus == .queued` after `togglePause` on a single-gallery fixture with an inert runner. Derivation from production: `togglePause` → `resume` → `scheduleNextIfNeeded` assigns `activeGalleryID` before returning, and `displayStatus` checks `activeGalleryID` ahead of queue membership, so the status reads `.active` until `finishActiveTaskIfOwned` nils it on a later actor turn. **Resolution:** the plan now mandates the blocker-gallery form with a NAMED suspension point the double can actually reach, with an intent-only fallback recorded. This was the third instance this round of a test keyed on a value whose derivation basis was still moving.
 
 ## Issues Encountered
@@ -216,7 +216,7 @@ For the owner's physical-device pass, the expected observation after this plan:
 
 ## Self-Check: PASSED
 
-All six claimed source/test files exist on disk, and all three commits (`45bd2ba9`, `99ec1b19`, `b56feb58`) resolve in `git log`.
+All six claimed source/test files exist on disk, and all three commits (`44ea9d550a`, `7b022c2d95`, `a97a3aca58`) resolve in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

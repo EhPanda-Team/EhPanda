@@ -97,8 +97,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Stage the crossed regression and its genuine-absence companion, RED-first** — `29b6c5a0` (test)
-2. **Task 2: Carry the source scan's non-answers across the copy, correct the route docs, re-derive the sweep** — `dc84d193` (fix)
+1. **Task 1: Stage the crossed regression and its genuine-absence companion, RED-first** — `430eaa0a84` (test)
+2. **Task 2: Carry the source scan's non-answers across the copy, correct the route docs, re-derive the sweep** — `1086227264` (fix)
 
 ## Files Created/Modified
 
@@ -223,7 +223,7 @@ The all-or-nothing sentence at `+ExecutionSupport.swift:493` and `probeAssetFile
 - **Fix:** Took the plan's *first* route. The new file owns a private `restoreOriginalModes(of:to:)` — a **batched** restore over the whole staged set, a different shape from the basis suite's single-URL restorer, used at exactly one site. `DownloadFeatureTestHelpers.swift` therefore needed no change; the plan lists it conditionally ("**Possible** shared helper promotion"), so this is within the artifact contract.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadRepairSeedSignalPropagationTests.swift` (only)
 - **Verification:** `DownloadContinuedSessionBasisTests.swift` is absent from `git diff --stat` for both task commits and still reports 996 lines; the new suite passes.
-- **Committed in:** `29b6c5a0` (Task 1 commit)
+- **Committed in:** `430eaa0a84` (Task 1 commit)
 
 ### 2. [Rule 1 — Wrong premise in an acceptance criterion] The `existingPageRelativePaths` region criterion was drafted against an incomplete grep
 
@@ -264,8 +264,8 @@ None - no external service configuration required.
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadStore.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadStoreRepairTests.swift` — FOUND
-- Commit `29b6c5a0` — FOUND
-- Commit `dc84d193` — FOUND
+- Commit `430eaa0a84` — FOUND
+- Commit `1086227264` — FOUND
 
 ---
 *Phase: 15-continued-background-downloads*

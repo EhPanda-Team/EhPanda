@@ -162,7 +162,7 @@ login and logout share one case. A future reader can tell this apart from vestig
 - **Verification:** 6 consecutive runs clean, and the suite's wall time returned to ~0.05 s in
   every one (no run spent time in an exhausting poll).
 - **Files modified:** `AppPackage/Sources/CookieClient/DidLoginKey.swift`
-- **Commit:** `6a1c3905`
+- **Commit:** `9839ee4d03`
 
 **2. [Scope] No Kingfisher `ImageCache` seam was added**
 
@@ -172,7 +172,7 @@ login and logout share one case. A future reader can tell this apart from vestig
 - **Fix:** the plan's own alternative branch ("if the shared cache is only touched TEST-side,
   replace it directly with per-test isolated instances"), using the already-injectable `DataCache`.
 - **Files modified:** the three DownloadsFeatureTests files only; no production change.
-- **Commit:** `b67e1115`
+- **Commit:** `81af607ca6`
 
 **3. [Scope] Two shared helpers and one deletion beyond the named files**
 
@@ -240,5 +240,5 @@ is registered against or what it reads; the client it captures is unchanged.
 - `AppPackage/Tests/CookieClientTests/DidLoginKeyTests.swift` — FOUND, rationale comment begins `// Serialized:`
 - `AppPackage/Sources/CookieClient/DidLoginKey.swift` — FOUND, stream created in `subscribe`
 - `.planning/phases/11-infra-refactor-lint-capstone/11-20-SUMMARY.md` — FOUND
-- Commit `b67e1115` — FOUND
-- Commit `6a1c3905` — FOUND
+- Commit `81af607ca6` — FOUND
+- Commit `9839ee4d03` — FOUND

@@ -106,7 +106,7 @@ status: issues_found
 
 ## Summary
 
-Effort was concentrated on `git diff 3c84d648..HEAD` — the delta since the previous review report was
+Effort was concentrated on `git diff cd44c3004a..HEAD` — the delta since the previous review report was
 committed (plans 15-70 … 15-77 plus three follow-up commits), which touches 34 files — with a
 standard-depth pass over the rest of the 85-file scope and a root-level re-derivation of all ten
 prior findings.
@@ -148,7 +148,7 @@ Parsed both catalogs as JSON.
 - **`DownloadsFeature` catalog**: 20 keys, sorted, 20/20 per locale, and the three count-taking keys
   (`downloaded`, `pending`, `failed`) each use a named `count` substitution with no bare numeric anywhere —
   the module-local rule, satisfied.
-- `continuedSessionSubtitle`'s inline `defaultValue` (the fix in `3abd49f8`) does stop the stray
+- `continuedSessionSubtitle`'s inline `defaultValue` (the inline localization fallback) does stop the stray
   `%lld%lld%lld` extraction; I confirmed no such key exists in either catalog.
 
 ## Narrative Findings (AI reviewer)
@@ -452,14 +452,14 @@ reintroducing a read-time sweep.
 
 **File:** `.planning/phases/15-continued-background-downloads/15-REVIEW.md`
 
-**Issue:** `git diff --name-only 5d9be716..HEAD` minus the 85-file scope leaves, among the source tree:
+**Issue:** `git diff --name-only 288c3372f1..HEAD` minus the 85-file scope leaves, among the source tree:
 `AppPackage/Sources/DownloadsFeature/DownloadsView.swift`,
 `AppPackage/Sources/DownloadsFeature/DownloadRowFeature.swift`,
 `AppPackage/Sources/DownloadsFeature/Resources/Localizable.xcstrings`, `Config/Signing.xcconfig`,
 plus `DownloadRowConfirmationTests.swift`, `DownloadsSwipeActionSourceTests.swift`,
 `DownloadManifestSSOTStateCases.swift` and `DownloadProgressSeriesGuardTests.swift`. `DownloadsView.swift`
-and `DownloadRowFeature.swift` are the *newest* production code in the phase (commits `0ea0699a`,
-`9400680b`) and carry the whole swipe-delete confirmation design. I reviewed them anyway — WR-05 and the
+and `DownloadRowFeature.swift` are the *newest* production code in the phase (commits `ca10b1776e`,
+`04b92a128e`) and carry the whole swipe-delete confirmation design. I reviewed them anyway — WR-05 and the
 localization verification above come from them — but a scope list that omits the last three commits'
 production files is a gap in the harness, not in the code.
 

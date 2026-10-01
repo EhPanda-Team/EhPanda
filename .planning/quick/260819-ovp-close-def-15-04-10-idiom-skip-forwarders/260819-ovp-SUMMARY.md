@@ -92,8 +92,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: DEF-15-04 — read the pad idiom on the main actor** — `97347f5d` (test)
-2. **Task 2: DEF-15-10 — forward the 43 shared string accessors to Xcode's generated symbols** — `15cf9273` (refactor)
+1. **Task 1: DEF-15-04 — read the pad idiom on the main actor** — `898a49f22e` (test)
+2. **Task 2: DEF-15-10 — forward the 43 shared string accessors to Xcode's generated symbols** — `f0c1a99e04` (refactor)
 
 No docs artifacts were committed by the executor: `git diff HEAD~2 HEAD` touches exactly the two source files, and `.planning/`, `deferred-items.md`, `STATE.md` and `ROADMAP.md` are untouched.
 
@@ -164,7 +164,7 @@ Line 24 column 62 is the `.cancel` forwarder inside `RLocalizable.cancel` — th
   So `setUpWithError` was restored to `continueAfterFailure = false` alone and the `guard UIDevice.current.userInterfaceIdiom == .pad else { throw XCTSkip("The tab-modal gallery detail is an iPad-exclusive entry.") }` now opens `testPadTabModalReplacedByDeepLink`, before the app is launched. Everything else PD-1 asked for is intact: the read is on the main actor (the test method overrides nothing, so `@MainActor` reaches it), the skip is the same public `XCTSkip` error, the message is verbatim, and the comment above it records the WHY — now naming both reasons, the nonisolated override and `XCTSkipUnless`'s nonisolated autoclosure — so nobody moves it back.
 - **Files modified:** `EhPandaUITests/DeepLinkPadUITests.swift`
 - **Verification:** `build-for-testing` for the `UITests` test plan reports 0 Swift diagnostics (from 4); the iPad run of `DeepLinkPadUITests` passes.
-- **Committed in:** `97347f5d` (Task 1 commit)
+- **Committed in:** `898a49f22e` (Task 1 commit)
 
 **Behavioural note on the relocation:** with one test method in the class the skip semantics are unchanged (a non-pad idiom skips the same test with the same message; XCTest reports a skip either way). The difference to know is that a future second test method in this class would need the same guard, since it no longer runs in shared set-up. The comment at the guard says why the set-up is unavailable, which is the information a future author needs to make that call.
 
@@ -188,7 +188,7 @@ None.
 
 ## Next Phase Readiness
 
-- `deferred-items.md` rows DEF-15-04 and DEF-15-10 are ready to be marked resolved with SHAs `97347f5d` and `15cf9273`. Per the plan the orchestrator writes those rows, along with `STATE.md` and `ROADMAP.md`, in the docs commit; the executor touched none of them.
+- `deferred-items.md` rows DEF-15-04 and DEF-15-10 are ready to be marked resolved with SHAs `898a49f22e` and `f0c1a99e04`. Per the plan the orchestrator writes those rows, along with `STATE.md` and `ROADMAP.md`, in the docs commit; the executor touched none of them.
 - Only **DEF-15-07** (deferred indefinitely by the owner) then remains open in the Phase 15 register.
 - One thing a future reader should know: the forwarder layer's correctness now depends on Xcode's string-symbol generation, which the file-level doc states explicitly along with why that is not a new dependency (the project builds only through Xcode; every module-local catalog already resolves the same way). This is threat-register entry T-ovp-02, dispositioned `accept`.
 
@@ -198,7 +198,7 @@ None.
 
 ## Self-Check: PASSED
 
-- Both commits resolve in `git log`: `97347f5d`, `15cf9273`.
+- Both commits resolve in `git log`: `898a49f22e`, `f0c1a99e04`.
 - Both modified files exist on disk and are committed; working tree is clean apart from this untracked plan directory.
 - No absolute home path in this summary (the DerivedData reference is written `$HOME/…` in the plan; this summary quotes only repository-relative paths). No local reference-project name anywhere.
 - `deferred-items.md`, `STATE.md` and `ROADMAP.md` were not edited and no docs artifact was committed.

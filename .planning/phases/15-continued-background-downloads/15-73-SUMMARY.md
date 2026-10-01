@@ -122,8 +122,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: RED — pin the silent pause failure from both sides** — `da6a8ef3` (test)
-2. **Task 2: GREEN — surface the branch, rename the mapping, sweep both reducers** — `3998018c` (fix)
+1. **Task 1: RED — pin the silent pause failure from both sides** — `bb535e33c1` (test)
+2. **Task 2: GREEN — surface the branch, rename the mapping, sweep both reducers** — `94a8c85a3f` (fix)
 
 ## The nine-action disposition table
 
@@ -171,7 +171,7 @@ Derived by reading both reducers' `Action` enums and every `case …Done` arm, n
 - **Fix:** Both requirements are satisfied truthfully — the two reachable kinds (`.notFound`, `.unknown`) are staged as production-reachable with their exits named and cited, and the `.fileOperationFailed` case is kept and explicitly labelled a rename guard on the now-shared mapping, with a note that it also states the contract for the day `togglePause` grows a file-shaped refusal. The suite header carries the full exit enumeration.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorPauseFailureTests.swift`
 - **Verification:** The exit enumeration was re-derived from `+PublicAPI.swift` and `+Scheduling.swift` rather than taken from any summary; the `.unknown` case is RED pre-fix, which the plan's own staging would not have produced.
-- **Committed in:** `da6a8ef3`
+- **Committed in:** `bb535e33c1`
 
 **2. [Rule 2 - Missing Critical] The success case runs under FULL exhaustivity, not the retry suite's `.off`**
 
@@ -180,12 +180,12 @@ Derived by reading both reducers' `Action` enums and every `case …Done` arm, n
 - **Fix:** That one case keeps default exhaustivity, under which an unreceived `.loadInspection` fails it. The failure cases keep `.off` for the reason the retry suite does (the reload mints a fresh `inspectionRequestID`).
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorPauseFailureTests.swift`
 - **Verification:** Case passes pre- and post-fix; the doc states which half each exhaustivity setting buys.
-- **Committed in:** `da6a8ef3`
+- **Committed in:** `bb535e33c1`
 
 **3. [Rule 1 - Bug] Three STATE.md decision lines from plan 15-68 were labelled `(15-73)`**
 
 - **Found during:** Task 2 (state updates)
-- **Issue:** `.planning/STATE.md:779-781` carried `DEC-A/B/C (15-73)` for the user-folder confinement decisions. `git log -S` attributes them to `21ff03a9 docs(15-68): record plan completion in state`. Left alone, this plan's own three decisions would have been indistinguishable from another plan's under the same tag.
+- **Issue:** `.planning/STATE.md:779-781` carried `DEC-A/B/C (15-73)` for the user-folder confinement decisions. `git log -S` attributes them to `7b01dd150c docs(15-68): record plan completion in state`. Left alone, this plan's own three decisions would have been indistinguishable from another plan's under the same tag.
 - **Fix:** Relabelled to `(15-68)`; this plan's decisions carry `(15-73)`.
 - **Files modified:** `.planning/STATE.md`
 - **Verification:** `git log -S` attribution; no decision text altered.
@@ -198,7 +198,7 @@ Derived by reading both reducers' `Action` enums and every `case …Done` arm, n
 
 ## Banked Falsifiability
 
-RED (`da6a8ef3`), from the run: **5 tests, 4 issues.** All four failure cases failed on the missing toast — the diff showed `_toast: nil` against the expected `AppAlertState`, with no other state difference, because the pre-fix branch writes nothing at all and its only observable is the reload. `testDownloadInspectorSetsNoToastWhenAPauseRequestIsAccepted` **passed pre-fix**, which is the boundary evidence: the fix moves the refused side and leaves the accepted side exactly where it was.
+RED (`bb535e33c1`), from the run: **5 tests, 4 issues.** All four failure cases failed on the missing toast — the diff showed `_toast: nil` against the expected `AppAlertState`, with no other state difference, because the pre-fix branch writes nothing at all and its only observable is the reload. `testDownloadInspectorSetsNoToastWhenAPauseRequestIsAccepted` **passed pre-fix**, which is the boundary evidence: the fix moves the refused side and leaves the accepted side exactly where it was.
 
 ## Verification
 
@@ -240,7 +240,7 @@ Gap 4 / review WR-05 is closed at its root and swept beyond the named branch: th
 
 - Created file verified on disk: `AppPackage/Tests/DownloadsFeatureTests/DownloadInspectorPauseFailureTests.swift`.
 - Modified files verified on disk: `DownloadInspectorReducer.swift`, `DownloadsReducer.swift`, `deferred-items.md`.
-- Commits verified in `git log`: `da6a8ef3` (RED), `3998018c` (GREEN).
+- Commits verified in `git log`: `bb535e33c1` (RED), `94a8c85a3f` (GREEN).
 - Plan-level verification re-run and recorded above: gated suites green, full FeatureTests 962/0, clean build 0 warnings, SwiftLint 0 violations over all touched files.
 
 ---

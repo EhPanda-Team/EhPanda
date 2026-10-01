@@ -230,7 +230,7 @@ seen to flake. Test count is unchanged at 253 throughout — no case was lost or
   holding this together. Keeping it would have documented a constraint that does not exist.
 - **Files modified:** `DownloadClient+Manager.swift`, `DownloadClient+Persistence.swift`,
   `DownloadObserverBatchTests.swift`
-- **Commit:** `ffce4c1e`
+- **Commit:** `c9c06877eb`
 
 **2. [Scope] The plan says 37 suites; there were 38**
 
@@ -304,5 +304,5 @@ coordinator's clock is unchanged.
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadObserverBatchTests.swift` — FOUND, frozen clock with rationale comment
 - `AppPackage/Tests/DownloadsFeatureTests/` — FOUND, 0 matches for `.serialized`
 - `.planning/phases/11-infra-refactor-lint-capstone/11-21-SUMMARY.md` — FOUND
-- Commit `f6d7e5ef` — FOUND
-- Commit `ffce4c1e` — FOUND
+- Commit `9c2b2052dc` — FOUND
+- Commit `c9c06877eb` — FOUND

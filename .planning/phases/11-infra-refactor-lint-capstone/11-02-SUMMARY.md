@@ -41,7 +41,7 @@ the throw-on-error-banner vs. empty-on-valid-empty-page contract.
 
 ## What Was Built
 
-### Task 1 — 9 Group C sites, commit `0dbada87`
+### Task 1 — 9 Group C sites, commit `ebf6e7828a`
 
 **`Parser+List.swift` (7 sites).** `parseDisplayMode` no longer throws: it returns `String?`, because
 a page without a display-mode selector is the ordinary toplist case, not a parse failure. The
@@ -61,7 +61,7 @@ dynamic pattern: the regex is validated at compile time so there is no construct
 swallow, and `name` is matched as a literal component, which also deletes the manual
 `NSRegularExpression.escapedPattern` escaping step.
 
-### Task 2 — parser tests, commit `0f9ceb41`
+### Task 2 — parser tests, commit `4f0b46d867`
 
 `ListParserTests` gains two cases that encode the post-change contract:
 
@@ -99,7 +99,7 @@ mode parser that does throw propagates correctly.
   count is 9.
 - **Fix:** Converted all 9. Verified `grep -rn "try? " AppPackage/Sources/ParserFeature | grep -v "//"`
   reports 0.
-- **Commit:** `0dbada87`
+- **Commit:** `ebf6e7828a`
 
 ### 2. [Rule 1 — Premise correction] The mode parsers cannot throw, so the observable behaviour change is nil
 
@@ -116,7 +116,7 @@ mode parser that does throw propagates correctly.
 - **Impact:** Distinguishing a validly-empty page from a bannerless malformed one (e.g. detecting the
   "No hits found" marker) is a genuine behaviour change that was not planned and is not in scope
   here. Flagged for the phase owner.
-- **Commit:** `0dbada87`
+- **Commit:** `ebf6e7828a`
 
 ### 3. [Rule 3 — Blocking] Test scheme substitution (same as 11-01)
 
@@ -150,5 +150,5 @@ logs nothing.
 - `AppPackage/Sources/ParserFeature/Parser+Detail.swift` — FOUND
 - `AppPackage/Sources/ParserFeature/Parser+Shared.swift` — FOUND
 - `AppPackage/Tests/ParserFeatureTests/List/ListParserTests.swift` — FOUND
-- commit `0dbada87` — FOUND
-- commit `0f9ceb41` — FOUND
+- commit `ebf6e7828a` — FOUND
+- commit `4f0b46d867` — FOUND

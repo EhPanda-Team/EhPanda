@@ -86,10 +86,10 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1 RED: Add the failing exhaustive clipboard-cardinality proof** - `f27df052` (test)
-2. **Task 1 GREEN: Wire the counting clipboard test double** - `296930fc` (feat)
-3. **Task 2: Remove the redundant AppFeatureTests TCA dependency** - `b4ced678` (chore)
-4. **Task 1 REFACTOR: Improve static counter failure diffs** - `ac92fdbf` (refactor)
+1. **Task 1 RED: Add the failing exhaustive clipboard-cardinality proof** - `a74129e2ff` (test)
+2. **Task 1 GREEN: Wire the counting clipboard test double** - `0980f81a1c` (feat)
+3. **Task 2: Remove the redundant AppFeatureTests TCA dependency** - `75dcbebf49` (chore)
+4. **Task 1 REFACTOR: Improve static counter failure diffs** - `da312f3f3d` (refactor)
 
 ## Files Created/Modified
 
@@ -104,9 +104,9 @@ Each task was committed atomically:
 
 ## TDD Gate Compliance
 
-- **RED:** `f27df052` made the enabled test fail with `clipboardInvocationCount.value` equal to `0` instead of `1`.
-- **GREEN:** `296930fc` injected the counting clipboard double; all 3 focused tests passed.
-- **REFACTOR:** `ac92fdbf` adopted CustomDump's static-value assertion so counter failures render focused diffs; the focused suite remained green.
+- **RED:** `a74129e2ff` made the enabled test fail with `clipboardInvocationCount.value` equal to `0` instead of `1`.
+- **GREEN:** `0980f81a1c` injected the counting clipboard double; all 3 focused tests passed.
+- **REFACTOR:** `da312f3f3d` adopted CustomDump's static-value assertion so counter failures render focused diffs; the focused suite remained green.
 
 ## Deviations from Plan
 
@@ -128,7 +128,7 @@ Each task was committed atomically:
 - **Fix:** Switched the test import to `@testable import ClipboardClient`; no production declaration changed.
 - **Files modified:** `AppPackage/Tests/AppFeatureTests/AppReducerScenePhaseTests.swift`
 - **Verification:** The focused test target compiled and all 3 tests passed.
-- **Committed in:** `296930fc`
+- **Committed in:** `0980f81a1c`
 
 ---
 
@@ -152,7 +152,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Commits `f27df052`, `296930fc`, `b4ced678`, and `ac92fdbf` exist in git history.
+- Commits `a74129e2ff`, `0980f81a1c`, `75dcbebf49`, and `da312f3f3d` exist in git history.
 - Both modified files exist and `git diff --check` passes across the plan commits.
 - `AppReducerScenePhaseTests.swift` contains no `withExhaustivity(.off)` or `skipInFlightEffects`.
 - The focused scene-phase suite passed 3 tests in 1 suite.

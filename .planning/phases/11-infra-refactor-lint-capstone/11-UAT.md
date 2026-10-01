@@ -154,8 +154,8 @@ Final tally: 9/9 pass.
   the wild; parser handles the 'Favorited: Never' rendering at Parser+Detail.swift:266-271).
 
 - Test 9 (G-11-9 cosmetic): found AFTER phase completion — a post-verification regression from the
-  same 6dd51b00 "Overall UI adjustments" HStack->Label sweep that caused G-11-8. Fixed directly
-  (commit 141e3d56, not a gap-closure plan) and verified in-Simulator. Phase left complete.
+  same 897de6fbc9 "Overall UI adjustments" HStack->Label sweep that caused G-11-8. Fixed directly
+  (commit 90c59a4141, not a gap-closure plan) and verified in-Simulator. Phase left complete.
 Gaps G-11-7, G-11-8, G-11-9 status: resolved.
 -->
 
@@ -172,7 +172,7 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
     inside DetailList's ForEach; `.autoLoadNextPage(...)` deleted from that List.
     AutoLoadNextPage's body, guards, thresholds and state are untouched — it was rescoped by
     deleting its DetailList call site plus a doc-comment rewrite. No reducer, no
-    Setting.listDisplayMode, no @State on DetailList. Commits: 8325c5c5, d7b90d8a, 96592d0d."
+    Setting.listDisplayMode, no @State on DetailList. Commits: 16d6d24297, 1168597298, 2fb6f32be4."
   unverified: "COMPILE-LEVEL AND STRUCTURAL ONLY. Not runtime-confirmed: whether the trigger
     fires on arrival at the trailing row, paginates past three pages, holds on a second surface,
     and leaves thumbnail mode unchanged. All four need an owner device re-test in BOTH display
@@ -184,7 +184,7 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
   hypothesis_refuted: "Original hypothesis (paginate migrated to a presentation-time reducer
     action) is REFUTED. `.fetchMoreGalleries` is still a per-scroll view-driven send and the
     reducers are correct. The defect is trigger substitution, not reducer hoisting."
-  root_cause: "Commit ebc99f5e 'refactor(11-11): drop component lifecycle hooks' deleted
+  root_cause: "Commit fd0dce3e59 'refactor(11-11): drop component lifecycle hooks' deleted
     DetailList's per-row trailing-cell trigger — `.onAppear { if gallery == galleries.last
     { fetchMoreAction?() } }` — and replaced it with `.autoLoadNextPage(…)`, a scroll-geometry
     heuristic lifted verbatim out of ThumbnailList. That heuristic was designed, tuned and
@@ -234,7 +234,7 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
     relies on at PreviewsView.swift:62-69. NOTE: this is one case where 11-07's stated pattern
     ('make the PRESENTING reducer fire the child's former effect') is the WRONG migration target
     — pagination is per-scroll-arrival, not per-presentation."
-  confidence: "High that ebc99f5e is the regression and that removing DetailList's last-cell
+  confidence: "High that fd0dce3e59 is the regression and that removing DetailList's last-cell
     trigger is the cause (unambiguous diff, .detail verified default, all seven lists share the
     path, D-36 independently documents the layout incompatibility). Medium on the precise failing
     guard — could not run the app, so (A) trigger fires but the latch permanently one-shots vs
@@ -261,17 +261,17 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
     Torrents sheet. .imageScale(.medium) confirmed correct over the plan's .small default."
   fix_shipped: "All six sites ship `.imageScale(.medium)` — NOT the `.small` the plan defaulted to
     and this gap's `missing` list recommended as repo precedent. Settled by measuring inked glyph
-    bounds in a real List, not by eye: baseline (pre-6dd51b00 bare Image) 16.25x13.25; unfixed
+    bounds in a real List, not by eye: baseline (pre-897de6fbc9 bare Image) 16.25x13.25; unfixed
     Label 21.0x17.25 (~29% wider); `.small` 13.0x10.75 (undershoots baseline by 3.25pt);
     `.medium` 16.25x13.5 (matches). `.small` would have traded one appearance regression for
-    another. Commits: 01b79ff7, 66f08295, 5c58d3e2, 23db6fcd."
+    another. Commits: ac230d67f1, 03b4bd6864, 405bd1d0ae, d1c4a88f86."
   diagnosis_corrected: "The recorded mechanism in this gap's root_cause was FALSIFIED by
     measurement. Free-standing, a Label's icon is pixel-identical to a bare Image (both 20x16 at
     .footnote) — titleAndIcon does not inflate the icon on its own. The inflation is LIST-SPECIFIC.
     The six-sites conclusion still holds but for a different reason: ThumbnailList wraps the whole
     MasonryLayout in one eager List row, so the masonry grid is inside a List too. Had the
     list-specific mechanism been known first, the thumbnail cell would have looked exempt and been
-    missed. Debug note corrected in commit ab19f888."
+    missed. Debug note corrected in commit 7e1579aeb4."
   no_regression_test: "This plan ships NO automated regression test. A parity test measuring glyph
     ink bounds in a real List was built and RED/GREEN-verified (fails on .small, passes on .medium)
     — it produced every number above — then removed: rendering a List needs a UIWindow
@@ -287,7 +287,7 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
   reason: "User reported: the symbol indicating page count looks larger before it became label (symbol in gallery cell)"
   severity: cosmetic
   test: 8
-  root_cause: "Commit 6dd51b00 (phase-11 UI sweep) rewrote the page-count indicator from
+  root_cause: "Commit 897de6fbc9 (phase-11 UI sweep) rewrote the page-count indicator from
     `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }` into
     `Label(...).labelIconToTitleSpacing(2)`, driven by the custom `label_text_image_shorthand`
     rule (error). The ambient font is unchanged (`.footnote` before and after) and neither
@@ -317,7 +317,7 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
     - "Same on the 4 TorrentsView labels — one .imageScale on the shared HStack:95 covers all four"
     - "Do NOT revert to HStack — reintroduces a `label_text_image_shorthand` error (.swiftlint.yml:103); suppression is forbidden by project policy"
     - "Prefer the icon-closure form (Label { Text } icon: { Image().imageScale(.small) }) — innermost, so it beats any ambient default. Lint-legal: the rule's regex needs Image(systemSymbol:) followed immediately by `}`, so an interposed .imageScale breaks the match. Precedent: ListNoticeView.swift:22"
-    - "Pick .small vs .medium by visual A/B against 6dd51b00^ using the existing #Preview in each cell file (renders pageCount: 1234, .sizeThatFitsLayout). Repo precedent is .small; .medium is theoretical parity with a bare Image"
+    - "Pick .small vs .medium by visual A/B against 897de6fbc9^ using the existing #Preview in each cell file (renders pageCount: 1234, .sizeThatFitsLayout). Repo precedent is .small; .medium is theoretical parity with a bare Image"
     - "Consider extracting the shared icon+count shape into one view in GalleryListComponents — the construct is now duplicated across both cells and can drift again"
   dynamic_type_note: ".imageScale is relative — it selects a symbol scale variant against the
     resolved font size rather than imposing a point size. With the surrounding font staying
@@ -334,13 +334,13 @@ Gaps G-11-7, G-11-8, G-11-9 status: resolved.
 - gap_id: G-11-9
   truth: "The detail-list row separator spans from the text-column leading edge (past the thumbnail) to the trailing edge"
   status: resolved
-  resolved_by: "direct fix, commit 141e3d56 (not a gap-closure plan — post-completion cosmetic one-liner)"
+  resolved_by: "direct fix, commit 90c59a4141 (not a gap-closure plan — post-completion cosmetic one-liner)"
   resolved_at: 2026-07-22
   severity: cosmetic
   test: 9
   found_post_completion: true
   reason: "User reported the detail-mode gallery-list separator collapsed to a ~10pt right-side sliver instead of spanning past the thumbnail."
-  root_cause: "The 6dd51b00 'Overall UI adjustments' HStack->Label sweep (same commit as G-11-8)
+  root_cause: "The 897de6fbc9 'Overall UI adjustments' HStack->Label sweep (same commit as G-11-8)
     opted the page-count element into a default-styled `Label`. A default-styled `Label` in a
     `List` row publishes a `.listRowSeparatorLeading` anchor at its title's leading edge; because
     this Label sits at the row's TRAILING edge, that anchor collapsed the separator to a sliver.

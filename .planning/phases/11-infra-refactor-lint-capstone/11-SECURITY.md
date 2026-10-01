@@ -52,7 +52,7 @@ re-confirmed at code level this audit: `Scripts/check-cookie-logging.sh` → exi
 | T-11-12 | Denial of Service | reader image-load order/cancellation drift | high | mitigate | Cancellation IDs preserved verbatim; construction-site pairing; ReadingFeature suite | closed |
 | T-11-13 | Denial of Service | pump left running after dismissal | medium | mitigate | Dismissal interception + TCA auto-cancellation; Phase 7 exactly-once tests | closed |
 | T-11-14 | Denial of Service | premature rule flip breaking builds | medium | mitigate | Flip in same commit as last fix; binary zero-check before commit | closed |
-| T-11-15 | Tampering | stable preview UUIDs used outside previews | low | mitigate | Consumers restricted to `#Preview`; diff-checked (`172ef103`) | closed |
+| T-11-15 | Tampering | stable preview UUIDs used outside previews | low | mitigate | Consumers restricted to `#Preview`; diff-checked (`aa20b74fd0`) | closed |
 | T-11-16 | Denial of Service | out-of-bounds trap in reader paging | medium | mitigate | Guards/validated locals; PageHandler suites | closed |
 | T-11-17 | Denial of Service | out-of-bounds trap on malformed HTML | high | mitigate | Guards route to existing parse-error paths (AppError) | closed |
 | T-11-18 | Denial of Service | out-of-bounds trap on malformed response data | high | mitigate | Reachable traps (Request+Detail/Account) now route into existing error paths; parity suites | closed |

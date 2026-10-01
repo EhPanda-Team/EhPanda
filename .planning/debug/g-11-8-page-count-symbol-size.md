@@ -8,13 +8,13 @@ updated: "2026-07-21T17:39:07Z"
 ## Current Focus
 
 hypothesis: PARTIALLY CORRECTED BY MEASUREMENT (see "Mechanism correction" below). The commit and
-  the trigger are confirmed: 6dd51b00 replaced `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }`
+  the trigger are confirmed: 897de6fbc9 replaced `HStack(spacing: 2) { Image(systemSymbol:); Text(...) }`
   with `Label(...).labelIconToTitleSpacing(2)`, font unchanged (.footnote in both). But the stated
   MECHANISM — "Label's titleAndIcon style sizes the icon from label/title font metrics" — is WRONG
   as a general claim, and was falsified during execution of plan 11-31.
-test: git show 6dd51b00 on both cells — diff isolates the change (no font modifier moved or altered)
+test: git show 897de6fbc9 on both cells — diff isolates the change (no font modifier moved or altered)
 expecting: confirmed
-next_action: RESOLVED by plan 11-31 (commits 01b79ff7, 66f08295). Gap G-11-8 fix applied.
+next_action: RESOLVED by plan 11-31 (commits ac230d67f1, 03b4bd6864). Gap G-11-8 fix applied.
 
 ## Mechanism correction (added 2026-07-22, from 11-31 execution)
 
@@ -26,7 +26,7 @@ mechanism as recorded does not hold:
   `.footnote`. So `titleAndIcon` does NOT inflate the icon on its own.
 
 - **The inflation is list-specific.** It appears only when the Label is rendered inside a `List`
-  row. Measured inked glyph bounds inside a `List` row: baseline (pre-6dd51b00 bare Image)
+  row. Measured inked glyph bounds inside a `List` row: baseline (pre-897de6fbc9 bare Image)
   16.25 x 13.25; unfixed Label 21.0 x 17.25 (~29% wider); `.imageScale(.small)` 13.0 x 10.75
   (undershoots baseline by 3.25pt); `.imageScale(.medium)` 16.25 x 13.5 (matches).
 
@@ -51,7 +51,7 @@ expected: page-count SF Symbol in gallery cell renders at its prior (smaller) si
 actual: symbol renders larger after Label conversion
 errors: none (cosmetic/visual)
 reproduction: view a gallery list cell showing page count (both list + masonry thumbnail modes)
-started: commit 6dd51b00 "Overall UI adjustments" (Sat Jul 18 2026), part of the phase-11 sweep
+started: commit 897de6fbc9 "Overall UI adjustments" (Sat Jul 18 2026), part of the phase-11 sweep
 
 ## Eliminated
 
@@ -61,7 +61,7 @@ started: commit 6dd51b00 "Overall UI adjustments" (Sat Jul 18 2026), part of the
   timestamp: 2026-07-21
 
 - hypothesis: A `.font(...)` modifier was dropped or moved during the conversion
-  evidence: git show 6dd51b00 — GalleryThumbnailCell keeps `.font(.footnote)` on the enclosing
+  evidence: git show 897de6fbc9 — GalleryThumbnailCell keeps `.font(.footnote)` on the enclosing
     HStack (unchanged); GalleryDetailCell keeps `.font(.footnote)` directly on the view. Neither
     old nor new code ever set a font on the Image itself. Font is a constant across the change.
   timestamp: 2026-07-21
@@ -84,10 +84,10 @@ started: commit 6dd51b00 "Overall UI adjustments" (Sat Jul 18 2026), part of the
   implication: both gallery cell styles are affected, not just the one the user saw
 
 - checked: git log -S "labelIconToTitleSpacing"
-  found: single introducing commit 6dd51b00 "Overall UI adjustments"
+  found: single introducing commit 897de6fbc9 "Overall UI adjustments"
   implication: one sweep introduced every Label conversion; blast radius is that commit
 
-- checked: git show 6dd51b00 on both cells
+- checked: git show 897de6fbc9 on both cells
   found: exact conversion `HStack(spacing: 2) { Image(systemSymbol:); Text(String(pageCount)) }`
     -> `Label(pageCount.description, systemSymbol:).labelIconToTitleSpacing(2)`
   implication: root cause confirmed; spacing was preserved (2), only glyph metric changed
@@ -115,7 +115,7 @@ started: commit 6dd51b00 "Overall UI adjustments" (Sat Jul 18 2026), part of the
 
 ## Resolution
 
-root_cause: Commit 6dd51b00 converted the page-count indicator from a hand-composed
+root_cause: Commit 897de6fbc9 converted the page-count indicator from a hand-composed
   `HStack { Image(systemSymbol:); Text }` to a SwiftUI `Label`. The bare `Image` rendered at the
   ambient `.footnote` font's default symbol scale; the `Label`'s default titleAndIcon style sizes
   its icon from the label's own font/line metrics, producing a visibly larger glyph at the same

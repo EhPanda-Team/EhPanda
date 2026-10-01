@@ -116,13 +116,13 @@ Result: **zero matches**, as research predicted. The `accessibility_empty_string
 **2. [Scope — criterion 10 "all buttons where fitting"] Converted six menu/context-menu rows beyond the three named ToolbarItems buttons**
 - **Rationale:** These `Image + Text` rows in a `Menu`/`.contextMenu` render identically as `Label` (leading icon + title), which is the documented house style already used by `DateSeekButton` in the very same `ToolbarFeaturesMenu`. Leaving them would be an inconsistency; converting completes criterion 10 at parity.
 - **Files:** ControlPanel.swift, DetailView+Subviews.swift
-- **Commit:** a6027d59
+- **Commit:** 63f55c3af7
 
 ## Commits
 
-- `a6027d59` refactor(10-05): convert text+image buttons to Label
+- `63f55c3af7` refactor(10-05): convert text+image buttons to Label
 
 ## Self-Check: PASSED
-- Modified files exist: ToolbarItems.swift, ControlPanel.swift, DetailView+Subviews.swift (all committed in a6027d59)
-- Commit a6027d59 present in git log
+- Modified files exist: ToolbarItems.swift, ControlPanel.swift, DetailView+Subviews.swift (all committed in 63f55c3af7)
+- Commit 63f55c3af7 present in git log
 - Build succeeded; SwiftLint clean; empty-string audit zero

@@ -7,7 +7,7 @@ tags: [download-coordinator, continued-session, trust-basis, page-selection, gap
 # Dependency graph
 requires:
   - phase: 15-continued-background-downloads
-    provides: "15-46's production-shaped retryPages payload doubles (HEAD 8274cbe8), without which this plan's regression could not discriminate"
+    provides: "15-46's production-shaped retryPages payload doubles (HEAD e2d41f2e27), without which this plan's regression could not discriminate"
 provides:
   - "The announcement gated on the run's own pending page list rather than the working folder's shortfall against its manifest"
   - "PreparedWorkingRun — the seed and the run's pending pages as one value, derived once per run inside the preparation"
@@ -270,8 +270,8 @@ Each was a single invocation; none overlapped. **Test count 875 against 15-46's 
 
 ## Task Commits
 
-1. **Task 1: Stage the selected-page retry that fetches nothing, RED-first** — `8d07e9f1` (test)
-2. **Task 2: Derive the run's pending work once, gate on it, correct the docs, sweep the residue** — `54b6dd79` (fix)
+1. **Task 1: Stage the selected-page retry that fetches nothing, RED-first** — `6578229b70` (test)
+2. **Task 2: Derive the run's pending work once, gate on it, correct the docs, sweep the residue** — `04b97f2fa8` (fix)
 
 ## Prohibitions
 
@@ -301,7 +301,7 @@ Each was a single invocation; none overlapped. **Test count 875 against 15-46's 
 - **Fix:** The outcome is asserted as the absence of any crediting push at all — every recorded update's numerator is zero and every subtitle is the queued-window zero — which is both stronger and independent of the blanked value.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`
 - **Verification:** Observed RED with the `5 / 6 pages · 1 gallery` push quoted; green after the fix.
-- **Committed in:** `8d07e9f1`
+- **Committed in:** `6578229b70`
 
 **2. [Rule 2 - Missing Critical] Two retired claims in the test target the plan's file list did not name**
 
@@ -310,7 +310,7 @@ Each was a single invocation; none overlapped. **Test count 875 against 15-46's 
 - **Fix:** Both rewritten to derive each case's survival from its own staging — the retried index is a page whose file the staging leaves absent, so the pending list is non-empty and the announcement fires as before.
 - **Files modified:** the two suites above.
 - **Verification:** `grep` for the retired phrasing across `AppPackage App ShareExtension` → 0; both cases pass unchanged.
-- **Committed in:** `54b6dd79`
+- **Committed in:** `04b97f2fa8`
 
 **3. [Rule 2 - Missing Critical] Forwarder call sites: 7 suites, not the 3 the plan named**
 
@@ -319,7 +319,7 @@ Each was a single invocation; none overlapped. **Test count 875 against 15-46's 
 - **Fix:** All 12 reading sites updated with the single `.workingSeed` suffix; the enumeration is recorded above rather than the plan's count assumed.
 - **Files modified:** the two unlisted suites, plus the three listed.
 - **Verification:** Post-edit greps agree (20 / 8 / 12); full suite green.
-- **Committed in:** `54b6dd79`
+- **Committed in:** `04b97f2fa8`
 
 **4. [Rule 1 - Bug] The refusal file's header still said "both cases"**
 
@@ -328,7 +328,7 @@ Each was a single invocation; none overlapped. **Test count 875 against 15-46's 
 - **Fix:** Reworded to "every case here", with the two later additions named.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`
 - **Verification:** Full suite green.
-- **Committed in:** `8d07e9f1`
+- **Committed in:** `6578229b70`
 
 ---
 
@@ -364,4 +364,4 @@ None.
 
 ## Self-Check: PASSED
 
-All 12 modified files present on disk; all 3 commits (`8d07e9f1`, `54b6dd79`, `cf038255`) present in git history. No absolute home path in this document.
+All 12 modified files present on disk; all 3 commits (`6578229b70`, `04b97f2fa8`, `91f34d26a2`) present in git history. No absolute home path in this document.

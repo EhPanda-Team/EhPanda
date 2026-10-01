@@ -93,8 +93,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Migrate the six source call sites to GalleryURLParser at behavior parity** - `77db8b33` (refactor)
-2. **Task 2: Delete URLClient and migrate its dependent tests and package graph** - `264dad69` (refactor)
+1. **Task 1: Migrate the six source call sites to GalleryURLParser at behavior parity** - `8d4d897151` (refactor)
+2. **Task 2: Delete URLClient and migrate its dependent tests and package graph** - `c4efa92b34` (refactor)
 
 ## Files Created/Modified
 
@@ -138,7 +138,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Confirmed `77db8b33` and `264dad69` exist in git history.
+- Confirmed `8d4d897151` and `c4efa92b34` exist in git history.
 - Confirmed `AppPackage/Sources/URLClient/` is absent.
 - Confirmed `GalleryURLParser.swift` exists and no `urlClient` or `URLClient` identifier remains in package sources, tests, or `Package.swift`.
 - Confirmed affected tests, full default unit tests, build, and strict repository-owned source/test lint pass.

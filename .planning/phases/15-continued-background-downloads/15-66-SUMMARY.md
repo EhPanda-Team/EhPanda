@@ -125,8 +125,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — prove an ordinary read deletes a page file and reconciles nothing** - `cc8175f9` (test)
-2. **Task 2: GREEN — flip the destructive defaults, delete the side-effect sweep, sweep every caller** - `fc737485` (fix)
+1. **Task 1: RED — prove an ordinary read deletes a page file and reconciles nothing** - `e796b5a0cc` (test)
+2. **Task 2: GREEN — flip the destructive defaults, delete the side-effect sweep, sweep every caller** - `1c7532e88d` (fix)
 
 ## Caller Disposition Table
 
@@ -191,7 +191,7 @@ Derived by fresh enumeration (`rg -n 'discardingRejected' AppPackage/Sources` pl
 - **Fix:** The validate case is inverted rather than dropped: the verdict assertion is kept beside a survival assertion and a new manifest assertion, so it now proves the deletion was never what produced the answer. The scan case is split by intent — the deleting one names `discardingRejected: true` and is renamed to say it pins the OPT-IN, its sibling drops the now-redundant `false` and is renamed to say it pins the DEFAULT, so re-flipping the default fails it.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadStoreTests.swift`
 - **Verification:** Both cases green; full suite 943/0.
-- **Committed in:** `fc737485` (Task 2 commit)
+- **Committed in:** `1c7532e88d` (Task 2 commit)
 
 **2. [Rule 1 - Bug] The obsolete entitled-side pin and its neighbour's entitlement enumeration**
 
@@ -200,7 +200,7 @@ Derived by fresh enumeration (`rg -n 'discardingRejected' AppPackage/Sources` pl
 - **Fix:** Replaced with `testTheRepairSeedStillDiscardsAZeroBytePageAndBlanksIt`, which drives the production preparation and asserts the pairing (see DEC-F); the sibling doc's enumeration is corrected to the one actor and states why the other four are reads.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadCoordinatorRepairSeedTests.swift`
 - **Verification:** Both cases green.
-- **Committed in:** `fc737485`
+- **Committed in:** `1c7532e88d`
 
 **3. [Rule 1 - Bug] `ContentMismatchScan`'s doc was orphaned onto `DownloadValidationPolicy` (review WR-03)**
 
@@ -209,7 +209,7 @@ Derived by fresh enumeration (`rg -n 'discardingRejected' AppPackage/Sources` pl
 - **Fix:** `ContentMismatchScan`'s ten doc lines moved back to immediately precede its declaration; `DownloadValidationPolicy` keeps only its own doc, with the `discardingRejected` paragraph re-derived against the flipped default. Scope: this is the block the plan requires editing, not an unrelated sweep.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift`
 - **Verification:** Clean build 0 warnings; SwiftLint `--strict` 0 violations.
-- **Committed in:** `fc737485`
+- **Committed in:** `1c7532e88d`
 
 **4. [Rule 1 - Bug] Three doc/test references to symbols this change renames or falsifies**
 
@@ -218,7 +218,7 @@ Derived by fresh enumeration (`rg -n 'discardingRejected' AppPackage/Sources` pl
 - **Fix:** All three re-derived against post-change source. No claim's substance changed in the ledger-refusal case — it still describes the same gallery-level clearance beside the untouched per-page record.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`, `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`
 - **Verification:** `rg 'sanitizeLocalFilesIfNeeded' AppPackage App ShareExtension` returns only the one intentional historical reference inside the renamed function's own doc.
-- **Committed in:** `fc737485`
+- **Committed in:** `1c7532e88d`
 
 ### Undeclared files modified
 
@@ -280,8 +280,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionPerform.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+BackgroundDownloads.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift` — FOUND
-- Commit `cc8175f9` — FOUND
-- Commit `fc737485` — FOUND
+- Commit `e796b5a0cc` — FOUND
+- Commit `1c7532e88d` — FOUND
 
 ## Known Stubs
 

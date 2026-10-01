@@ -85,12 +85,12 @@ status: complete
 - **Duration:** approximately 2 h 20 m across the resumed partial sweep and final seven-surface walk.
 - **Coverage:** 90 Group C cells; status tally 57 pass / 27 finding / 6 blocked.
 - **Evidence root:** `$HOME/Library/Caches/ehpanda-phase16/sweep/`; no evidence image entered the repository.
-- **Task commits:** `19b76636` and `0af1a196`.
+- **Task commits:** `d894df2f05` and `be3ee2879f`.
 
 ## Task Commits
 
-1. **Task 1: iPhone Group C surfaces #28–#35** — `19b76636` (docs)
-2. **Task 2: iPhone Group C surfaces #36–#42 and baseline restore** — `0af1a196` (docs)
+1. **Task 1: iPhone Group C surfaces #28–#35** — `d894df2f05` (docs)
+2. **Task 2: iPhone Group C surfaces #36–#42 and baseline restore** — `be3ee2879f` (docs)
 
 ## Findings Opened
 
@@ -141,6 +141,6 @@ None. This plan changed documentation only.
 ## Self-Check: PASSED
 
 - `16-SWEEP.md` exists and contains all Group C judgments plus Findings #24–#31.
-- Task commits `19b76636` and `0af1a196` exist in git history.
+- Task commits `d894df2f05` and `be3ee2879f` exist in git history.
 - All iPhone `pending` checks return zero; all Group C finding references resolve.
 - No image is staged or untracked in the repository, and no generated document contains an absolute home path.

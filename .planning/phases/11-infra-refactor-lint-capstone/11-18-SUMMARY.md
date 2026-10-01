@@ -237,35 +237,35 @@ No named struct was needed beyond `TagTranslationLookup`. No tuple in the sweep 
 - **Found during:** Task 2
 - **Issue:** Detailed above. The bracket-excluding element class hid every tuple containing `[Int: URL]`-style elements, including a same-typed `([Int: URL], [Int: URL])` pair; `\s` crossed newlines onto `case N:` labels; function-type parameter lists were flagged despite Swift forbidding labels there.
 - **Fix:** Widened the element class, restricted matching to one line, extended the match through the closing paren with a trailing `->`/`throws`/`async`/`rethrows` rejection, and added `<` to the anchor set.
-- **Commit:** `d50966f8`
+- **Commit:** `2539cdafdd`
 
 **2. [Rule 1 — Bug] A backtracking hole let a labeled tuple be reported as unlabeled**
 
 - **Found during:** Task 2
 - **Issue:** `[ \t]*` preceding the "is it labeled?" negative lookahead is backtrackable, so the engine could re-evaluate the lookahead one character early and pass it. Fifteen already-fixed sites reappeared as violations.
 - **Fix:** Whitespace moved inside the lookahead so it is evaluated at a fixed position.
-- **Commit:** `d50966f8`
+- **Commit:** `2539cdafdd`
 
 **3. [Rule 3 — Blocking] Labeling `parseMPVKeys` broke `ReadingFeature`'s compile**
 
 - **Found during:** Task 1
 - **Issue:** The natural label `mpvKey:` disagrees with `ReadingReducer.Action.fetchMPVKeysDone`'s pre-existing `key:`. Differently-labeled tuples do not convert. The compiler reported `failed to produce diagnostic for expression` on the whole `Reduce { }` body rather than naming the mismatch.
 - **Fix:** Used `key:` to match the two existing declarations.
-- **Commit:** `1672003f`
+- **Commit:** `f708d85870`
 
 **4. [Scope] Tests were 31 of the 64 sites; the plan's file list named only five Sources modules**
 
 - **Found during:** Task 1
 - **Issue:** The plan's `files_modified` lists five `Sources/` directories, but its own acceptance criteria say "Sources **and** Tests". The binary found the same tuple shapes across three test targets.
 - **Fix:** Fixed them. `.swiftlint.yml` carries no `*Tests.swift` path exclusion for this rule, unlike `unchecked_subscript_index_access`.
-- **Commit:** `1672003f`
+- **Commit:** `f708d85870`
 
 **5. [Scope] `(String, TagTranslation?)` became a struct, changing a public signature and three read sites**
 
 - **Found during:** Task 1
 - **Issue:** The plan sanctioned "a named struct or a labeled typealias". A typealias is the smaller diff but leaves `.0`/`.1` legal, and three sites used `.1`.
 - **Fix:** `TagTranslationLookup` in `AppModels`. `TagTranslator.lookup` is public; all 11 call sites pass the result through unchanged.
-- **Commit:** `1672003f`
+- **Commit:** `f708d85870`
 
 # Flagged for owner review
 
@@ -297,5 +297,5 @@ None. No new network, auth, file-access or schema surface. T-11-21's mitigation 
 - `AppPackage/Sources/DownloadClient/DownloadClient.swift` — FOUND
 - `AppPackage/Sources/AppTools/ZZProbe.swift` — ABSENT (probe deleted, as required)
 - `.planning/phases/11-infra-refactor-lint-capstone/11-18-SUMMARY.md` — FOUND
-- Commit `1672003f` — FOUND
-- Commit `d50966f8` — FOUND
+- Commit `f708d85870` — FOUND
+- Commit `2539cdafdd` — FOUND

@@ -125,8 +125,8 @@ The Xcode 26.6 / iOS 26.5 probe passed both required legs. `XCUIApplication.open
 
 Each task was committed atomically:
 
-1. **Task 1: UI-test target, test plan, scheme wiring, lint config, fixtures** — `27d6b039` (feat)
-2. **Task 2: Cold-delivery probe + hermetic smoke test** — `d30a1f43` (test)
+1. **Task 1: UI-test target, test plan, scheme wiring, lint config, fixtures** — `ece9db4711` (feat)
+2. **Task 2: Cold-delivery probe + hermetic smoke test** — `3e3a0ac198` (test)
 
 ## Files Created/Modified
 
@@ -155,7 +155,7 @@ Each task was committed atomically:
 - **Fix:** Added a synchronized-build-file exception for the lint file; all four HTML fixtures remain runner resources.
 - **Files modified:** `EhPanda.xcodeproj/project.pbxproj`
 - **Verification:** A clean `build-for-testing` removed the stale lint resource and retained all four fixture files.
-- **Committed in:** `27d6b039`
+- **Committed in:** `ece9db4711`
 
 **2. [Rule 1 - Bug] Matched the fixture marker's actual accessibility element type**
 - **Found during:** Task 2 (Cold-delivery probe + hermetic smoke test)
@@ -163,7 +163,7 @@ Each task was committed atomically:
 - **Fix:** Queried the marker as the `Button` exposed by the real detail view, preserving the same fixture-only title assertion.
 - **Files modified:** `EhPandaUITests/DeepLinkSmokeUITests.swift`
 - **Verification:** The smoke test and the full retry-configured UI plan each passed on the first run.
-- **Committed in:** `d30a1f43`
+- **Committed in:** `3e3a0ac198`
 
 ---
 
@@ -191,7 +191,7 @@ None — the UI suite is offline, credential-free, and fully configured in the r
 ## Self-Check: PASSED
 
 - All 11 created or modified plan files exist.
-- Task commits `27d6b039` and `d30a1f43` exist in repository history.
+- Task commits `ece9db4711` and `3e3a0ac198` exist in repository history.
 - SwiftLint reports zero violations across the three UI-test Swift files.
 - UI result: 1 passed, 0 failed; default result: 635 tests, 0 failed, 0 UI tests.
 

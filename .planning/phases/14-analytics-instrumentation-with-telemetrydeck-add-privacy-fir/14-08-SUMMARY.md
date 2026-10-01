@@ -74,7 +74,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Harden every store in SettingFeatureTests** - `d80ca215` (test)
+1. **Task 1: Harden every store in SettingFeatureTests** - `9ca30c454a` (test)
 2. **Task 2: Prove the hardening with a real emission from SettingFeature** - no code commit (probe added, verified green, then reverted — leaves no residue)
 
 **Plan metadata:** `<final>` (docs: complete plan)
@@ -135,7 +135,7 @@ None.
 ## Self-Check: PASSED
 
 - SUMMARY.md exists on disk.
-- Task commit `d80ca215` is present in git history.
+- Task commit `9ca30c454a` is present in git history.
 - Task 2 intentionally produced no commit (probe reverted); `git status --porcelain AppPackage/Sources` empty confirms no residue.
 
 ---

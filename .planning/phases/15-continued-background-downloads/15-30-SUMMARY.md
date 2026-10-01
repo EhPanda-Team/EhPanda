@@ -108,7 +108,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Surface the scan failure, install the refusal guards and the notice log, and pin the wholesale-failure case watched to fail first** — `0cf7d1b1` (fix)
+1. **Task 1: Surface the scan failure, install the refusal guards and the notice log, and pin the wholesale-failure case watched to fail first** — `9bc7260800` (fix)
 
 ## Files Created/Modified
 
@@ -297,7 +297,7 @@ None — the change adds no network endpoint, auth path, or schema surface. The 
 ## Self-Check: PASSED
 
 - All three modified source/test files present on disk.
-- Task commit `0cf7d1b1` present in `git log --oneline --all`.
+- Task commit `9bc7260800` present in `git log --oneline --all`.
 - No absolute home paths recorded in this document.
 
 ---

@@ -96,14 +96,14 @@ Owner decision `keep-185`. All three measured widths land exactly on the CONTEXT
 
 1. **Task 1: Wire the MasonryLayout candidate into the live `.thumbnail` call site + temporary `proposal.width` logging** — `64870474` (feat)
 2. **Tasks 2 & 3 (checkpoints):** resolved by owner interaction — SR-1 GO + keep m=185 (no code).
-3. **Owner-requested scope change (D-36): auto-load thumbnail grid on scroll** — `08e7f7ef` (feat)
+3. **Owner-requested scope change (D-36): auto-load thumbnail grid on scroll** — `2dbc24c2a7` (feat)
 
 ## Deviations from Plan
 
 ### 1. [Owner-requested scope change] Automatic pagination replaces the manual footer (D-36, amends D-30)
 
 - **Origin:** During the SR-1 spike the owner asked to replace the thumbnail grid's manual "load more" chevron footer with **automatic** pagination on reaching the bottom, mirroring the detail display mode. This supersedes only the "fetch-more footer siblings" element of D-30; the rest of D-30 stays binding. Recorded as **D-36** in `02-CONTEXT.md`.
-- **Implementation (`08e7f7ef`):** the manual chevron `Button` is removed; a `FetchMoreFooter` (spinner/retry only) lives **inside** the single masonry `List` row (`VStack { MasonryLayout {…}; FetchMoreFooter }`); pagination is driven by `onScrollGeometryChange` distance-to-bottom, gated on a user-driven scroll phase (`onScrollPhaseChange`) **and** fired at most once per `galleries.count`.
+- **Implementation (`2dbc24c2a7`):** the manual chevron `Button` is removed; a `FetchMoreFooter` (spinner/retry only) lives **inside** the single masonry `List` row (`VStack { MasonryLayout {…}; FetchMoreFooter }`); pagination is driven by `onScrollGeometryChange` distance-to-bottom, gated on a user-driven scroll phase (`onScrollPhaseChange`) **and** fired at most once per `galleries.count`.
 - **Root cause of the bugs iterated through (documented so Plan 03 does not regress):**
   1. A footer `onAppear` sentinel fired only once (no page 3+).
   2. `.id(galleries.count)` on the footer re-fired but reset the List scroll to the top (row-identity churn drops the scroll anchor).
@@ -132,7 +132,7 @@ None.
 
 ## Self-Check: PASSED
 
-- Task 1 commit `64870474` and the auto-load commit `08e7f7ef` present in history; both touch only GalleryListComponents (+ Package.swift for the earlier candidate wiring).
+- Task 1 commit `64870474` and the auto-load commit `2dbc24c2a7` present in history; both touch only GalleryListComponents (+ Package.swift for the earlier candidate wiring).
 - Live candidate renders the masonry grid; measured widths match the formula and the CONTEXT expected counts.
 - D-36 recorded in `02-CONTEXT.md`; `02-03-PLAN.md` amended to preserve auto-load + remove the temp logger.
 - No SUMMARY was written before the checkpoints resolved; STATE.md/ROADMAP.md advanced only now (this finalization).

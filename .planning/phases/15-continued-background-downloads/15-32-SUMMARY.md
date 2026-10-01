@@ -116,12 +116,12 @@ status: complete
 
 | Item | Fix | Landed | Evidence |
 |------|-----|--------|----------|
-| **WR-06** dead force-unwrap in `resolveSource` | `guard let galleryURL = payload.gallery.galleryURL else { throw AppError.notFound }` hoisted above the page-number loop; the request takes the bound value | `DownloadClient+ExecutionSupport.swift`, Task 1 (`2c71852a`) | The extracted `resolveSource` body greps `0` for the helper's name; repository-wide count elsewhere unchanged at 20 |
-| **IN-04** false dedupe rationale | Sentence rewritten to redundant defence with the real mechanism named | `DownloadClient+PendingWork.swift`, Task 1 (`2c71852a`) | `grep -c 'redundant defence'` = 1; `grep -c 'would double that gallery'` = 0 |
-| **IN-01** unexplained near-dead branch | Why-still-reachable note naming G-15-9's refusal route and the untouched-record route | `DownloadClient+SchedulingHelpers.swift`, Task 1 (`2c71852a`) | `grep -c 'G-15-9'` = 1, inside the comment block directly above the `storage.validate` branch |
-| **IN-02** scanner blind spot | Request URL classified `.private`; new scanner check requires an explicit classification at every logger interpolation | `DownloadClient+ResponseValidation.swift` + `DownloadLogPrivacyInvariantTests.swift`, Task 1 (`2c71852a`) | RED output below names the site before the fix; GREEN after |
-| **IN-03** underived threshold | `expectedHashMaskedCounts` per-file inventory asserted by equality, plus `expectedHashMaskedTotal` over the joined module text | `DownloadLogPrivacyInvariantTests.swift`, Task 1 (`2c71852a`) | `grep -c 'expectedHashMaskedCounts'` = 2; `grep -c 'maskedCount >= 8'` = 0 |
-| **IN-05** misleading name, missing union coverage, file-length headroom | Rename `UncheckedBox` → `LockedBox` across the target; new union case with a control; headroom disposition recorded | `DownloadFeatureTestSupportTypes.swift` + 18 files + `DownloadPendingWorkTests.swift`, Task 2 (`30e3473f`); headroom restored by 15-28 | `grep -rc 'UncheckedBox' AppPackage/Tests` = 0 files; union case passes and was observed failing with the union reverted |
+| **WR-06** dead force-unwrap in `resolveSource` | `guard let galleryURL = payload.gallery.galleryURL else { throw AppError.notFound }` hoisted above the page-number loop; the request takes the bound value | `DownloadClient+ExecutionSupport.swift`, Task 1 (`a39299ff4a`) | The extracted `resolveSource` body greps `0` for the helper's name; repository-wide count elsewhere unchanged at 20 |
+| **IN-04** false dedupe rationale | Sentence rewritten to redundant defence with the real mechanism named | `DownloadClient+PendingWork.swift`, Task 1 (`a39299ff4a`) | `grep -c 'redundant defence'` = 1; `grep -c 'would double that gallery'` = 0 |
+| **IN-01** unexplained near-dead branch | Why-still-reachable note naming G-15-9's refusal route and the untouched-record route | `DownloadClient+SchedulingHelpers.swift`, Task 1 (`a39299ff4a`) | `grep -c 'G-15-9'` = 1, inside the comment block directly above the `storage.validate` branch |
+| **IN-02** scanner blind spot | Request URL classified `.private`; new scanner check requires an explicit classification at every logger interpolation | `DownloadClient+ResponseValidation.swift` + `DownloadLogPrivacyInvariantTests.swift`, Task 1 (`a39299ff4a`) | RED output below names the site before the fix; GREEN after |
+| **IN-03** underived threshold | `expectedHashMaskedCounts` per-file inventory asserted by equality, plus `expectedHashMaskedTotal` over the joined module text | `DownloadLogPrivacyInvariantTests.swift`, Task 1 (`a39299ff4a`) | `grep -c 'expectedHashMaskedCounts'` = 2; `grep -c 'maskedCount >= 8'` = 0 |
+| **IN-05** misleading name, missing union coverage, file-length headroom | Rename `UncheckedBox` → `LockedBox` across the target; new union case with a control; headroom disposition recorded | `DownloadFeatureTestSupportTypes.swift` + 18 files + `DownloadPendingWorkTests.swift`, Task 2 (`513ec6303f`); headroom restored by 15-28 | `grep -rc 'UncheckedBox' AppPackage/Tests` = 0 files; union case passes and was observed failing with the union reverted |
 
 ## The scanner RED output (verbatim, before Step 3 classified the site)
 
@@ -284,7 +284,7 @@ This plan added nothing to it: `git diff --stat` across both task commits shows 
   called for, and an unused parameter is dead code. The helper is unchanged; the new case calls it
   twice with its existing signature.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadPendingWorkTests.swift`
-- **Commit:** `30e3473f`
+- **Commit:** `513ec6303f`
 
 **2. [Rule 3 - Blocking] `no_unchecked_sendable` fires inside doc comments**
 
@@ -295,13 +295,13 @@ This plan added nothing to it: `git diff --stat` across both task commits shows 
 - **Fix:** Reworded to "the unchecked-Sendable escape hatch this project bans at error severity",
   which carries the same meaning without spelling the attribute. No suppression, no rule change.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift`
-- **Commit:** `30e3473f`
+- **Commit:** `513ec6303f`
 
 ## Prohibitions
 
 | Prohibition | Status | Evidence |
 |-------------|--------|----------|
-| No production behavior change beyond the WR-06 guard and the IN-02 classification | held | The other two production edits are comment-only; `git show` for `2c71852a` touches no other executable line, and the full suite is green |
+| No production behavior change beyond the WR-06 guard and the IN-02 classification | held | The other two production edits are comment-only; `git show` for `a39299ff4a` touches no other executable line, and the full suite is green |
 | No case or line added to `DownloadContinuedSessionTests.swift` | held | `git diff --stat` across both commits lists the file zero times |
 | Existing privacy invariants not weakened | held | The forbidden-interpolation check and all four operational-message checks are unchanged; the masked check moved from `>= 8` to an equality against a 10-site table |
 | No concurrency or lint escape hatch, no SwiftLint suppression, zero occurrences of the old box name | held | `--strict` lint clean; the one lint hit was fixed by rewording, not suppressing; `grep -rc 'UncheckedBox' AppPackage/Tests` returns no non-zero file |
@@ -326,5 +326,5 @@ touched introduced new network, auth, file-access, or schema surface.
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadPendingWorkTests.swift` — FOUND
-- Commit `2c71852a` — FOUND
-- Commit `30e3473f` — FOUND
+- Commit `a39299ff4a` — FOUND
+- Commit `513ec6303f` — FOUND

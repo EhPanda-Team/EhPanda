@@ -94,7 +94,7 @@ The `.alert` modifier is still attached to `content` — the same anchor, unchan
 
 ## The rule flip
 
-Both rules landed in commit `df693e44` together with the last fix and all six directives. Splitting them is not possible: a `disable:next` for a commented-out rule trips `superfluous_disable_command`, and the rule itself trips without the directives.
+Both rules landed in commit `bdf4775616` together with the last fix and all six directives. Splitting them is not possible: a `disable:next` for a commented-out rule trips `superfluous_disable_command`, and the rule itself trips without the directives.
 
 `lifecycle_modifiers` is uncommented **exactly as drafted**. `binding_initializer` uses D-05's narrowed regex:
 
@@ -124,21 +124,21 @@ The drafted regex was `\bBinding\s*<[^>]+>\s*\(|\bBinding\s*\(` — every `Bindi
 - **Found during:** Task 2
 - **Issue:** The plan named `$item.isPresent()` as the canonical projected form. It compiles, but emits `'isPresent()' is deprecated: Use 'Binding.init(_:)' to project an optional binding to a Boolean, instead.` This repo builds at zero warnings.
 - **Fix:** Used `Binding($item)`, the replacement the deprecation names. Same semantics, and it matches the projected style already used ~29 times elsewhere.
-- **Commit:** `df693e44`
+- **Commit:** `bdf4775616`
 
 **2. [Rule 1 - Bug] `ToastInteractionState` deleted, taking four tests with it**
 
 - **Found during:** Task 1
 - **Issue:** Detailed above. Keeping it would have meant asking the owner to sanction two lint exceptions for the upkeep of state that duplicates the presentation binding.
 - **Fix:** Type, both callbacks and the four tests of the type removed; the fifth test in that file (the Phase 9 autoHide rule) kept.
-- **Commit:** `09c27d91`
+- **Commit:** `fd0dce3e59`
 
 **3. [Scope] `ThumbnailList` modified though the plan listed only `DetailList`'s file**
 
 - **Found during:** Task 1
 - **Issue:** Same file, but the plan's framing was "fix DetailList". Giving `DetailList` its own copy of the scroll-geometry logic would have duplicated the guards whose subtlety the Phase 2 comment spends nine lines explaining — the next person to touch one would have to find the other.
 - **Fix:** Extracted `AutoLoadNextPage` once; both lists call it. Net −20 lines in that file.
-- **Commit:** `09c27d91`
+- **Commit:** `fd0dce3e59`
 
 ### Plan counts that did not match the tree
 
@@ -177,5 +177,5 @@ Sites 3, 4 and 6 are one argument in three places: `.task(id:)` used for *cancel
 
 - `.swiftlint.yml` — FOUND, `lifecycle_modifiers` and `binding_initializer` both uncommented at `severity: error`
 - `.planning/phases/11-infra-refactor-lint-capstone/11-11-SUMMARY.md` — FOUND
-- Commit `09c27d91` — FOUND
-- Commit `df693e44` — FOUND
+- Commit `fd0dce3e59` — FOUND
+- Commit `bdf4775616` — FOUND

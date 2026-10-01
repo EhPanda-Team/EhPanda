@@ -42,7 +42,7 @@ overrides:
 | 13-02 | Sanitized link context — no query/fragment/userinfo/full path | ✓ | `AppError+Context.swift:93-112` rebuilds scheme+host+first path component only |
 | 13-03 | Every former URLClient call site resolves via `GalleryURLParser`, no injected ceremony | ✓ | `grep -r URLClient` over `AppPackage/ App/ ShareExtension/` → 0 hits |
 | 13-03 | URLClient module gone (dir, target, deps, imports) | ✓ | `AppPackage/Sources/URLClient` absent; no `Package.swift` entry |
-| 13-03 | Destination routing byte-for-byte unchanged in that plan | ✓ | Commit `29b9388c` is a seam swap; policy change lands separately in `80f6b563` |
+| 13-03 | Destination routing byte-for-byte unchanged in that plan | ✓ | Commit `8d4d897151` is a seam swap; policy change lands separately in `3f805de6a7` |
 | 13-04 | Explicit unsupported open surfaces persistent tappable error toast | ✓ | `PresentationFeature.swift:175-183`; test `unsupportedExplicitDeepLinkSurfacesErrorToast` (passes) |
 | 13-04 | Non-gallery clipboard URL stays a silent no-op | ✓ | `PresentationFeature.swift:158` pre-validates; test `unsupportedClipboardURLStaysSilentAfterPersistingChangeCount` (passes) |
 | 13-04 | Well-formed link whose fetch fails keeps existing error mapping | ✓ | `PresentationFeature.swift:248-256` unchanged `Context.galleryFailure` path; parameterized test at `:210-221` |
@@ -119,7 +119,7 @@ overrides:
 | Deep-link parser + policy + dismissal coordination + toast replacement | `xcodebuild test -scheme AppPackage-Package -only-testing:AppToolsTests -only-testing:AppFeatureTests/PresentationFeatureTests -only-testing:AppFeatureTests/UITestStubTests -only-testing:AppModelsTests/UnsupportedDeepLinkErrorTests -only-testing:DetailFeatureTests/CommentsReducerTests` | 21 tests, all passed | ✓ PASS |
 | Full unit suite | `xcodebuild test -scheme AppPackage-Package -destination 'iPhone Air, OS=26.5'` | 1 failure: `DownloadObserverBatchTests.testDownloadCoordinatorBatchesObserverUpdatesDuringProgressFlush` | ⚠️ see Anti-Patterns (unrelated, load-dependent) |
 | That test in isolation | `-only-testing:DownloadsFeatureTests/DownloadObserverBatchTests` | 5 tests passed | ✓ PASS (flake confirmed) |
-| UI plan | not re-run | — | ? SKIP — phase gate ran it green at `31b2772e`; UAT items 17/19/20/22/23/24 human-confirmed |
+| UI plan | not re-run | — | ? SKIP — phase gate ran it green at `7b61183ca3`; UAT items 17/19/20/22/23/24 human-confirmed |
 
 Note: the destination named in the task brief (`iPhone 17 Pro`) does not exist on this machine; `iPhone Air, OS=26.5` was substituted.
 
@@ -140,7 +140,7 @@ Note: the destination named in the task brief (`iPhone 17 Pro`) does not exist o
 | — | — | `TODO`/`FIXME`/`TBD`/`XXX`/`HACK` across the 45 Swift files changed in this phase | ℹ️ INFO | none found |
 | `ShareExtension/ShareViewController.swift` | 63-85 | Private API (`LSApplicationWorkspace` via `NSSelectorFromString` + `unsafeBitCast`) | ✓ ACCEPTED | Owner-accepted 2026-07-23 (see Accepted Trade-offs). Documented, measured against three dead public routes, and covered by `ShareSheetUITests` so breakage is loud. |
 | `AppPackage/Tests/DownloadsFeatureTests/DownloadObserverBatchTests.swift` | 65 | Load-dependent flake in the full-suite run | ℹ️ INFO | Unrelated to Phase 13 (last touched in Phase 11); passes in isolation |
-| `.planning/ROADMAP.md` | 731, 742-743 | Bookkeeping drift: `Plans: 9/10 executed`, `13-10-PLAN.md` left unchecked | ⚠️ WARNING | `13-10-SUMMARY.md` is complete and commit `94ac4956` closed the plan; ROADMAP should read 10/10 |
+| `.planning/ROADMAP.md` | 731, 742-743 | Bookkeeping drift: `Plans: 9/10 executed`, `13-10-PLAN.md` left unchecked | ⚠️ WARNING | `13-10-SUMMARY.md` is complete and commit `7b61183ca3` closed the plan; ROADMAP should read 10/10 |
 | `EhPandaUITests/*` + `AppPackage/Sources/*` | — | 7 identifier literals mirrored by 18 literal call sites, no compile-time link | ℹ️ INFO | Already recorded as a deferred follow-up in `13-UAT.md` |
 
 ### Accepted Trade-offs

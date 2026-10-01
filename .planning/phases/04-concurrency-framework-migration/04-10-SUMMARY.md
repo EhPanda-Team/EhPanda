@@ -89,8 +89,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `e1657b13` | Switch Home effects to typed async |
-| 2 | `eb1f41fa` | Switch Search and Favorites effects to typed async |
+| 1 | `68102ea599` | Switch Home effects to typed async |
+| 2 | `a4200fc936` | Switch Search and Favorites effects to typed async |
 
 ## Deviations from Plan
 

@@ -52,7 +52,7 @@ contingency on the human check showing the row-level visibility callback never f
 `List` — that check requires a device and has not been run, so the primary form stands as the
 shipped implementation. See *Unverified* below; this is the one thing the owner's re-test decides.
 
-**Task 1** (`8325c5c5`) — two edits, one commit:
+**Task 1** (`16d6d24297`) — two edits, one commit:
 
 - (a) The visibility trigger added to the row `Button`. Applied unconditionally to every row with
   the guard selecting the last one, so row view identity is unchanged. No `@State`, no counter, no
@@ -68,7 +68,7 @@ shipped implementation. See *Unverified* below; this is the one thing the owner'
   struct body, guard chain, thresholds and state are untouched, and the ThumbnailList call site is
   untouched.
 
-**Task 2** (`d7b90d8a`) — two entries appended to STATE.md `### Blockers/Concerns`: the deferred
+**Task 2** (`1168597298`) — two entries appended to STATE.md `### Blockers/Concerns`: the deferred
 `lastAutoFetchCount` latch hardening (marked pre-existing Phase 2 / D-36, needing a device check
 for chain-fetch regression, with the detail path no longer depending on it), and the standing
 verification item requiring both `listDisplayMode` values in any future pagination UAT.
@@ -162,5 +162,5 @@ the owner's thumbnail-mode check.
 
 - FOUND: AppPackage/Sources/GalleryListComponents/GalleryList.swift
 - FOUND: .planning/STATE.md
-- FOUND: commit 8325c5c5
-- FOUND: commit d7b90d8a
+- FOUND: commit 16d6d24297
+- FOUND: commit 1168597298

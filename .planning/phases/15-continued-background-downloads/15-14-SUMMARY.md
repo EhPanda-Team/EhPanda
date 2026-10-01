@@ -104,8 +104,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Queue-intent generations and an expiration pause that cannot outlive its justification** - `403458c4` (fix)
-2. **Task 2: A blocking fixture that parks on a test-owned token instead of leaking** - `a02e4182` (test)
+1. **Task 1: Queue-intent generations and an expiration pause that cannot outlive its justification** - `f78ad2e745` (fix)
+2. **Task 2: A blocking fixture that parks on a test-owned token instead of leaking** - `1606591b4e` (test)
 
 ## Files Created/Modified
 
@@ -148,7 +148,7 @@ Each task was committed atomically:
 - **Fix:** Declared the closure result as `CheckedContinuation<Void, Never>?`, preserving the intended idempotent state transition without suppression or unsafe concurrency annotations.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`
 - **Verification:** The test target compiled and the complete `DownloadsFeatureTests` run passed.
-- **Committed in:** `a02e4182`
+- **Committed in:** `1606591b4e`
 
 **3. [Rule 1 - Bug] Corrected inconsistent state metadata emitted by the state handlers**
 - **Found during:** Plan state update
@@ -195,7 +195,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All seven modified Swift files and this summary exist.
-- Task commits `403458c4` and `a02e4182` exist.
+- Task commits `f78ad2e745` and `1606591b4e` exist.
 - The accepted residual is recorded and the summary contains no absolute home-directory path.
 
 ---

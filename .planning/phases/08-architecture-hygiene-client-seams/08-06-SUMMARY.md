@@ -113,8 +113,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Thread host through the remaining request readers and production callers** - `cd802e7f` (refactor)
-2. **Task 2: Update explicit-host request and decoder baselines** - `bc8ea4c8` (test)
+1. **Task 1: Thread host through the remaining request readers and production callers** - `413862fa01` (refactor)
+2. **Task 2: Update explicit-host request and decoder baselines** - `ed7a5e9ff1` (test)
 
 ## Files Created/Modified
 
@@ -152,7 +152,7 @@ status: complete
 - **Fix:** Threaded host through all affected callers in the same atomic, buildable source commit; Task 2 then updated deterministic test baselines.
 - **Files modified:** ReadingFeature, DownloadClient, DetailFeature, HomeFeature, SearchFeature, and gallery request caller files listed above.
 - **Verification:** The package build and both focused test suites succeeded.
-- **Committed in:** `cd802e7f`
+- **Committed in:** `413862fa01`
 
 **2. [Rule 2 - Missing Critical] Covered additional metadata and version-metadata callers discovered by the complete host-reader inventory**
 
@@ -161,7 +161,7 @@ status: complete
 - **Fix:** Supplied request-origin or current shared hosts at every discovered construction site rather than retaining a compatibility default.
 - **Files modified:** `HistoryReducer.swift`, `SearchRootReducer.swift`, `DownloadClient+ExecutionFetch.swift`, and `DownloadClient.swift`.
 - **Verification:** Source sweeps returned zero forbidden readers, and build plus focused tests passed.
-- **Committed in:** `cd802e7f`
+- **Committed in:** `413862fa01`
 
 **3. [Rule 3 - Blocking] Adapted verification to the installed simulator**
 
@@ -199,7 +199,7 @@ None - no external service configuration required.
 - The AppPackage build succeeds on the installed simulator.
 - ReadingFeatureTests passes all 18 tests across three suites.
 - NetworkingFeatureTests passes all 77 tests across nine suites.
-- Task commits `cd802e7f` and `bc8ea4c8` exist in git history and pass `git show --check`.
+- Task commits `413862fa01` and `ed7a5e9ff1` exist in git history and pass `git show --check`.
 - Changed lines add no warning suppression, TODO, FIXME, placeholder, or compatibility fallback.
 - The concurrency review found no cancellation, isolation, or unstructured-task regressions; immutable host values cross effect boundaries safely.
 - Generated documentation contains no absolute home-directory paths or private local-project names.

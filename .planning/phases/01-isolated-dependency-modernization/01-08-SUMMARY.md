@@ -123,10 +123,10 @@ DEP-07 blocker via option (a).**
 
 ## Task Commits
 
-1. **Plan doc** - `3177250a` (docs): 01-08-PLAN.md
-2. **Tasks 1+2: package swap + view migration** - `673252b6` (feat): landed together to keep the
+1. **Plan doc** - `4459e843f8` (docs): 01-08-PLAN.md
+2. **Tasks 1+2: package swap + view migration** - `a41cedd0ef` (feat): landed together to keep the
    commit buildable (removing Colorful breaks `GalleryCardCell` until the view is migrated).
-3. **Task 3: acknowledgements** - `280ff274` (chore)
+3. **Task 3: acknowledgements** - `0ffdddf6e7` (chore)
 4. **Task 4: UAT + deferred + summary + STATE** - final docs commit (this summary).
 
 ## Files Created/Modified
@@ -146,7 +146,7 @@ DEP-07 blocker via option (a).**
 - **Tasks 1 and 2 committed together (build integrity).** The plan lists the package swap and the
   view migration as separate tasks, but a package-only commit would not build (`GalleryCardCell`
   still `import`s the removed Colorful). To honor the clean-build-per-commit gate, both landed in
-  `673252b6`. No scope change.
+  `a41cedd0ef`. No scope change.
 - **Test command corrected.** The plan's Task 4 verify copied `-testPlan FeatureTests` from 01-07,
   but per the 01-01 decision that test plan is bound to the **EhPanda app scheme**, not
   `AppPackage-Package` (which runs all test targets without it). Ran
@@ -178,7 +178,7 @@ static fallback, and whether `animationSpeed`/`bias` want tuning.
 ## Self-Check: PASSED
 
 - Files verified on disk: `01-08-PLAN.md`, `01-08-SUMMARY.md`, `01-COLORFUL-UAT.md`, `deferred-items.md`, `GalleryCardCell.swift`, `Package.swift`, both `Package.resolved`, `Constant.xcstrings`.
-- Commits verified in git log: `3177250a` (plan), `673252b6` (feat), `280ff274` (chore).
+- Commits verified in git log: `4459e843f8` (plan), `a41cedd0ef` (feat), `0ffdddf6e7` (chore).
 - Gates: clean warning-free build; full suite TEST SUCCEEDED (431 tests, 0 failures).
 
 ---

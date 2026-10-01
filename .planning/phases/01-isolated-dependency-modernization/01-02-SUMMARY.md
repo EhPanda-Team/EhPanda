@@ -109,8 +109,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Fixture-lock markdown and TagTranslation behavior** - `dab4317f` (test)
-2. **Task 2: Fixture-lock domain-fronting request semantics** - `9dfa7aff` (test)
+1. **Task 1: Fixture-lock markdown and TagTranslation behavior** - `0102559c19` (test)
+2. **Task 2: Fixture-lock domain-fronting request semantics** - `d7eaffca8a` (test)
 
 **Plan metadata:** see final `docs(01-02)` commit.
 
@@ -140,7 +140,7 @@ Each task was committed atomically:
 - **Fix:** Ran the `AppPackage-Package` scheme without `-testPlan` (it already includes every package test target); used `-only-testing:` to select `MarkdownExtTests`, `TagTranslationFeatureTests`, and `NetworkingFeatureTests`. `FeatureTests.xctestplan` is kept in sync (new targets added) since it still drives the `EhPanda` scheme.
 - **Files modified:** none beyond the planned `01-VALIDATION.md`/`FeatureTests.xctestplan` updates (the correction is to the command, already documented in `01-VALIDATION.md` by 01-01).
 - **Verification:** targeted run EXIT 0 (11 + 7 + pre-existing 4 tests); full suite `** TEST SUCCEEDED **`.
-- **Committed in:** `dab4317f` / `9dfa7aff`.
+- **Committed in:** `0102559c19` / `d7eaffca8a`.
 
 **2. [Rule 1 - Characterization tuning] Adjusted the host-swap path fixture to lock actual behavior**
 - **Found during:** Task 2 (first verify run)
@@ -148,7 +148,7 @@ Each task was committed atomically:
 - **Fix:** Changed the fixture request path to a slash-free `/g/123/abc` and asserted it is preserved through the swap, which locks path preservation without depending on the trailing-slash normalization edge. No production code changed.
 - **Files modified:** `AppPackage/Tests/NetworkingFeatureTests/DFRequestSemanticsTests.swift`
 - **Verification:** re-run targeted set EXIT 0; full suite green.
-- **Committed in:** `9dfa7aff` (Task 2 commit).
+- **Committed in:** `d7eaffca8a` (Task 2 commit).
 
 ---
 
@@ -170,7 +170,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All 5 created source files and both task commits (`dab4317f`, `9dfa7aff`) verified present.
+All 5 created source files and both task commits (`0102559c19`, `d7eaffca8a`) verified present.
 
 ---
 *Phase: 01-isolated-dependency-modernization*

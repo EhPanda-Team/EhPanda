@@ -93,9 +93,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Remove the Download Inspector nested duplicate mask** - `02e40f9f` (fix)
-2. **Task 2: Author the one-to-one presentation-root inventory and bijective audit** - `fe6ae9e1` (docs)
-3. **Task 3: Make PrivacyMaskModifier respect Reduce Motion** - `0789198b` (fix)
+1. **Task 1: Remove the Download Inspector nested duplicate mask** - `ebdb64fc36` (fix)
+2. **Task 2: Author the one-to-one presentation-root inventory and bijective audit** - `10bdd649bb` (docs)
+3. **Task 3: Make PrivacyMaskModifier respect Reduce Motion** - `9bc7bc1b33` (fix)
 
 ## Files Created/Modified
 
@@ -149,7 +149,7 @@ None - no external service configuration required.
 - PrivacyMaskModifier contains one Reduce Motion environment read, a conditional nil animation, the floorless blur, and the unchanged hit-testing guard.
 - The AppFeature generic iOS Simulator build succeeded in 74.772 seconds.
 - `git diff --check` passes, and generated documentation contains no absolute home paths.
-- Task commits `02e40f9f`, `fe6ae9e1`, and `0789198b` exist in git history.
+- Task commits `ebdb64fc36`, `10bdd649bb`, and `9bc7bc1b33` exist in git history.
 
 ---
 *Phase: 07-root-privacy-mask-auto-lock-removal*

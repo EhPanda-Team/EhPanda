@@ -120,9 +120,9 @@ Concretely, the suite would have caught G-15-5 in three independent places had i
 
 Each task was committed atomically:
 
-1. **Task 1: The generated family, count-basis agreement, and the external-mutation probe** - `d1eab180` (test)
-2. **Task 2: The no-dead-end family, and the full-suite gate** - `bcb564b4` (test)
-3. **Naming correction: the captured state is a snapshot** - `e02bf4b4` (test)
+1. **Task 1: The generated family, count-basis agreement, and the external-mutation probe** - `e1cc472135` (test)
+2. **Task 2: The no-dead-end family, and the full-suite gate** - `40bfc124a2` (test)
+3. **Naming correction: the captured state is a snapshot** - `105201c7f6` (test)
 
 The third commit is recorded rather than folded into either task, because it was made after both gates had already run and it therefore needed its own. Task 1's acceptance criterion is a literal `grep -c 'snapshot'`, and the type had been written as `SSOTStateProbe` with `probe(_:in:)` — accurate for the ACT of mutating and re-reading, but not for the value, which is exactly the before/after snapshot the plan's action text describes. `SSOTStateProbe` → `SSOTStateSnapshot` and `probe(_:in:)` → `snapshot(_:in:)`, with the doc rewritten to say what the two halves are for. The full `FeatureTests` plan and the file's lint were both re-run from scratch afterwards rather than trusted.
 
@@ -227,7 +227,7 @@ Two smaller fidelity points, both written at their sites: only pages the manifes
 
 - a `// swiftlint:disable:next closure_body_length` was written and immediately removed — the rule is not even enabled in this repository, and a suppression is forbidden regardless;
 - `retryPages(...).get()` broke the `multiline_function_chains` rule and was split into a `Result` binding followed by `try retried.get()`;
-- the captured-state type was renamed from `SSOTStateProbe` to `SSOTStateSnapshot` after both gates had run, which is commit `e02bf4b4` and its own re-verification.
+- the captured-state type was renamed from `SSOTStateProbe` to `SSOTStateSnapshot` after both gates had run, which is commit `105201c7f6` and its own re-verification.
 
 ## Deviations from Plan
 
@@ -292,7 +292,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-Both claimed files exist on disk, and all three commits (`d1eab180`, `bcb564b4`, `e02bf4b4`) resolve in `git log`. Every grep count in the acceptance table was re-taken against the delivered files rather than transcribed from the plan.
+Both claimed files exist on disk, and all three commits (`e1cc472135`, `40bfc124a2`, `105201c7f6`) resolve in `git log`. Every grep count in the acceptance table was re-taken against the delivered files rather than transcribed from the plan.
 
 ---
 *Phase: 15-continued-background-downloads*

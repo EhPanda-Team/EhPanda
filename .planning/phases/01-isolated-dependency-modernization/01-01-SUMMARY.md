@@ -106,8 +106,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Record the concrete simulator destination** - `2fbf2c84` (docs)
-2. **Task 2: Fixture-lock conversion and color behavior** - `a75f9346` (test)
+1. **Task 1: Record the concrete simulator destination** - `d02d11719b` (docs)
+2. **Task 2: Fixture-lock conversion and color behavior** - `0429ee5515` (test)
 
 **Plan metadata:** see final `docs(01-01)` commit.
 
@@ -135,7 +135,7 @@ Each task was committed atomically:
 - **Fix:** Removed the `-testPlan FeatureTests` flag from every `AppPackage-Package` command in `01-VALIDATION.md`. That scheme already includes all package test targets by default, and `-only-testing:` selects the specific ones. The `.xctestplan` is kept in sync (new targets added) since it still drives the `EhPanda` scheme.
 - **Files modified:** `.planning/phases/01-isolated-dependency-modernization/01-VALIDATION.md`
 - **Verification:** `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:SwiftyOpenCCTests -only-testing:UIImageColorsTests -only-testing:FileClientTests` → EXIT 0, 14 tests passed.
-- **Committed in:** `a75f9346` (Task 2 commit)
+- **Committed in:** `0429ee5515` (Task 2 commit)
 
 ---
 

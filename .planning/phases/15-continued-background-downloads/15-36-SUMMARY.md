@@ -48,8 +48,8 @@ it, pinned by a canary that was first run against the unreported guard and faile
 
 ### Task 1 — the unreachable scaffolding, and the trace it forced
 
-**Commits:** `820c5a06` `refactor(15-36): drop commitPause's unreachable exits`,
-`a26be120` `fix(15-36): restore the settled pause record`
+**Commits:** `164bf6af38` `refactor(15-36): drop commitPause's unreachable exits`,
+`ddc960de37` `fix(15-36): restore the settled pause record`
 
 Both helpers now read `(gid: String)` with no `throws`:
 
@@ -158,8 +158,8 @@ gid-only shapes, and the dead arms stay gone. Only the deletion was reverted.
 
 ### Task 2 — the release imbalance, reported where tests can see it
 
-**Commits:** `f2393036` `test(15-36): add failing unmatched-release canary`,
-`fb77dbe2` `feat(15-36): report an unmatched scheduling release`
+**Commits:** `160a9a5c36` `test(15-36): add failing unmatched-release canary`,
+`d4966b5ebd` `feat(15-36): report an unmatched scheduling release`
 
 The report-then-log branch, unchanged early return:
 
@@ -257,7 +257,7 @@ unmatched release today, so the G-15-8 sweep left no imbalance behind.
   citing the test that pins the behavior. `writeInitialPauseRecord`'s doc was rewritten in the same
   pass — its first version asserted a "once, not twice" property that is now known to be false.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift`
-- **Commit:** `a26be120`
+- **Commit:** `ddc960de37`
 
 **Scope note for the gap round:** this is the invariant-scope failure mode this project has hit
 before — a trace bounded by the branch the plan named rather than by every path that can reach the
@@ -289,7 +289,7 @@ schema change was introduced.
 - `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift` — FOUND
-- Commit `820c5a06` — FOUND
-- Commit `a26be120` — FOUND
-- Commit `f2393036` — FOUND
-- Commit `fb77dbe2` — FOUND
+- Commit `164bf6af38` — FOUND
+- Commit `ddc960de37` — FOUND
+- Commit `160a9a5c36` — FOUND
+- Commit `d4966b5ebd` — FOUND

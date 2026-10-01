@@ -45,7 +45,7 @@ with no behavior change and no exception candidates.
 
 ## What Was Built
 
-### Task 1 — AppTools: DataCache + Extensions + Defaults (17 sites), commit `c8efeba2`
+### Task 1 — AppTools: DataCache + Extensions + Defaults (17 sites), commit `0ff331ba7a`
 
 **Two named seams on `DataCache`**, both logging, both replacing repeated shapes:
 
@@ -89,7 +89,7 @@ statement position to put a `do`/`catch` in. It now compiles inside an immediate
 closure, preserving the `NSRegularExpression?` type and the deliberate nil contract (a failed
 pattern disables suggestions rather than failing app launch). No force-try was introduced.
 
-### Task 2 — AppModels: JSONValue probe chain (6 sites), commit `3b03783f`
+### Task 2 — AppModels: JSONValue probe chain (6 sites), commit `1536f2ca2e`
 
 `JSONValue.probe(_:in:)` — one private generic helper performing a single
 `SingleValueDecodingContainer.decode` in `do`/`catch`, returning `Optional`, called six times in
@@ -162,5 +162,5 @@ None.
 - `AppPackage/Sources/AppTools/Defaults.swift` — FOUND
 - `AppPackage/Sources/AppTools/Extensions.swift` — FOUND
 - `AppPackage/Sources/AppModels/Persistence/JSONValue.swift` — FOUND
-- commit `c8efeba2` — FOUND
-- commit `3b03783f` — FOUND
+- commit `0ff331ba7a` — FOUND
+- commit `1536f2ca2e` — FOUND

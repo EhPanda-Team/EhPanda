@@ -71,7 +71,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Size both reader placeholders against both container axes** - `9732bbf3` (fix)
+1. **Task 1: Size both reader placeholders against both container axes** - `f4c96545cc` (fix)
 
 ## Files Created/Modified
 
@@ -120,7 +120,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- The modified source file and task commit `9732bbf3` exist.
+- The modified source file and task commit `f4c96545cc` exist.
 - The exact iPhone Air simulator package build succeeded with the SwiftLint build-tool plugin.
 - Static gates confirm two two-axis container-relative frames, no horizontal-only placeholder frame, two retained aspect-ratio modifiers, the preserved dual-page divisor, and an unchanged loaded-image `scaledToFit()` branch.
 

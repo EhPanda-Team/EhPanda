@@ -169,10 +169,10 @@ None.
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `dc9ca42e` | `test(15-27): split the client spy's refusal guard` |
+| 1 | `3a2e1e7da4` | `test(15-27): split the client spy's refusal guard` |
 
 ## Self-Check: PASSED
 
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionIdentityTests.swift` — FOUND
-- Commit `dc9ca42e` — FOUND in `git log`
+- Commit `3a2e1e7da4` — FOUND in `git log`

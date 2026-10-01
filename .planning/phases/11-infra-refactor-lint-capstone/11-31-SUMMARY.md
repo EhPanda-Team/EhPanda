@@ -7,7 +7,7 @@ gap_closure: true
 status: complete
 tags: [lint, swiftui, label, sf-symbols, appearance-parity, dynamic-type]
 requires:
-  - "6dd51b00 (the introducing commit, for the pre-sweep baseline)"
+  - "897de6fbc9 (the introducing commit, for the pre-sweep baseline)"
   - "label_text_image_shorthand rule at error (drove the conversion this corrects)"
 provides:
   - "pre-sweep page-count symbol size in both gallery cell styles"
@@ -38,7 +38,7 @@ metrics:
 # Phase 11 Plan 31: Page-Count Symbol Size (G-11-8) Summary
 
 All six converted `Label` sites now carry `.imageScale(.medium)` inside their icon closure, which
-cancels the list row's icon inflation and restores the exact pre-`6dd51b00` glyph — measured at
+cancels the list row's icon inflation and restores the exact pre-`897de6fbc9` glyph — measured at
 16.25 x 13.25 pt against the unfixed 21.0 x 17.25 pt.
 
 ## What shipped
@@ -57,7 +57,7 @@ their non-localizing string semantics (`Text(gallery.pageCount.description)`, `T
 ## The A/B: what was actually observed
 
 The plan called the `.small` vs `.medium` choice genuinely open and required a visual comparison
-against `6dd51b00^`. Rather than eyeball it, the comparison was rendered and the glyph's inked
+against `897de6fbc9^`. Rather than eyeball it, the comparison was rendered and the glyph's inked
 bounding box measured in points, with the baseline row repeated between candidates as a
 self-check (all baseline measurements came back identical).
 
@@ -118,7 +118,7 @@ The debug document's root-cause paragraph should be corrected if it is used agai
   undershoots by 3.25 pt.
 - **Fix:** Shipped `.medium` at all six sites. The Task 2 gate (exactly 6 applications, exactly 1
   distinct value) was left untouched and passes on `.medium`.
-- **Commits:** `01b79ff7`, `66f08295`
+- **Commits:** `ac230d67f1`, `03b4bd6864`
 
 **2. [Rule 3 - Blocking] A parity snapshot harness was built, then removed**
 
@@ -134,7 +134,7 @@ The debug document's root-cause paragraph should be corrected if it is used agai
   on `.medium`). It was then removed rather than shipped, because the only way to keep it was to
   leave a deprecation warning in the build, which project policy forbids. The `SFSafeSymbols`
   dependency added to the test target for it was reverted with it.
-- **Commit:** `5c58d3e2`
+- **Commit:** `405bd1d0ae`
 - **Consequence:** This plan ships no automated regression test. The protection that remains is the
   grep gate (six applications, one value) plus the owner's visual check.
 
@@ -188,4 +188,4 @@ not a valid check.
 - `AppPackage/Sources/GalleryListComponents/Cells/GalleryDetailCell.swift` — FOUND, 1 `imageScale`
 - `AppPackage/Sources/DetailFeature/Torrents/TorrentsView.swift` — FOUND, 4 `imageScale`
 - Across the three files: 6 applications, 1 distinct value (`imageScale(.medium)`) — gate PASS
-- Commits `01b79ff7`, `66f08295`, `5c58d3e2` — all FOUND in `git log`
+- Commits `ac230d67f1`, `03b4bd6864`, `405bd1d0ae` — all FOUND in `git log`

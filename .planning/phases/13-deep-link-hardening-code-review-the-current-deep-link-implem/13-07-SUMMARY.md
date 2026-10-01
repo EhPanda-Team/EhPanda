@@ -109,9 +109,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Fixture-serving URLProtocol, environment resolution, and clipboard override** - `8cb736e9` (feat)
-2. **Task 2: App arm point and in-process seam regressions** - `8b56e56d` (test)
-3. **Task 3: Accessibility-identifier assertion hooks** - `8575b295` (feat)
+1. **Task 1: Fixture-serving URLProtocol, environment resolution, and clipboard override** - `eb89193461` (feat)
+2. **Task 2: App arm point and in-process seam regressions** - `6cdb9c27c0` (test)
+3. **Task 3: Accessibility-identifier assertion hooks** - `d8d5ffeb0b` (feat)
 
 ## Files Created/Modified
 
@@ -145,7 +145,7 @@ Each task was committed atomically:
 - **Fix:** Added an explicit public initializer covering the existing five endpoints.
 - **Files modified:** `AppPackage/Sources/ClipboardClient/ClipboardClient.swift`
 - **Verification:** DEBUG and Release application builds succeeded; AppFeature seam tests passed.
-- **Committed in:** `8cb736e9`
+- **Committed in:** `eb89193461`
 
 **2. [Rule 2 - Missing Critical] Attached the page identifier to the actual indicator implementation**
 
@@ -154,7 +154,7 @@ Each task was committed atomically:
 - **Fix:** Added `reading_page_indicator` to the existing numeric `Text` while retaining `reading_view` on the reader root.
 - **Files modified:** `AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift`
 - **Verification:** The seven-identifier source gate, full tests, and strict lint passed.
-- **Committed in:** `8575b295`
+- **Committed in:** `d8d5ffeb0b`
 
 **3. [Rule 1 - Bug] Used failable UTF-8 decoding in the route regression**
 
@@ -163,7 +163,7 @@ Each task was committed atomically:
 - **Fix:** Required `String(data:encoding:)` through Swift Testing's `#require`, making invalid fixture bytes an explicit test failure.
 - **Files modified:** `AppPackage/Tests/AppFeatureTests/UITestStubTests.swift`
 - **Verification:** AppFeatureTests and the strict 464-file lint scan passed.
-- **Committed in:** `8b56e56d`
+- **Committed in:** `6cdb9c27c0`
 
 ---
 
@@ -192,7 +192,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Confirmed all 11 created or modified implementation/test files exist.
-- Confirmed task commits `8cb736e9`, `8b56e56d`, and `8575b295` exist in order.
+- Confirmed task commits `eb89193461`, `6cdb9c27c0`, and `d8d5ffeb0b` exist in order.
 - Confirmed all five fixture outcomes, all three launch keys, and all seven identifier forms are present and tested or source-gated.
 - Confirmed final AppFeatureTests, the full default unit plan, DEBUG and Release builds, Release binary seam absence, and strict repository lint pass.
 

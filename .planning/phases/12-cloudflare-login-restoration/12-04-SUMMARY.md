@@ -158,8 +158,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: LoginReducer challenge state machine** — `01c16708` (feat)
-2. **Task 2: LoginView challenge sheet, error toast, ErrorInfo sheet** — `7c733c59` (feat)
+1. **Task 1: LoginReducer challenge state machine** — `47e60cc0eb` (feat)
+2. **Task 2: LoginView challenge sheet, error toast, ErrorInfo sheet** — `01751584f8` (feat)
 
 ## Files Created/Modified
 

@@ -100,8 +100,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — prove the re-queue's floor freezes the first post-requeue pages** - `2f9848e5` (test)
-2. **Task 2: GREEN — the movement brackets itself; audit every exit path and the invariant doc** - `fe450ded` (fix)
+1. **Task 1: RED — prove the re-queue's floor freezes the first post-requeue pages** - `d9baf6cffc` (test)
+2. **Task 2: GREEN — the movement brackets itself; audit every exit path and the invariant doc** - `293f0ad266` (fix)
 
 ## Files Created/Modified
 
@@ -157,7 +157,7 @@ The two other doc claims this change would have falsified were corrected in the 
 - **Fix:** Added `"DownloadClient+Manager.swift": 1`, moved the total to 5, and did what the census's own failure message obliges before touching the number: re-derived the callers, confirmed none deletes inside its bracket, and confirmed none nests (the audit table above). The derivation doc records that this caller is a movement-owned bracket rather than a work-wrapping one, and that a fifth queue entrance therefore moves the queue-entrance census instead of this one.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
 - **Verification:** `testCountedBasisBracketCallSitesMatchTheRecordedCensus` and `testFloorWriterAssignmentsMatchTheRecordedCensus` both green; the floor census is unchanged at 5 assignments, as its own blind-spot note predicts.
-- **Committed in:** `fe450ded` (Task 2 commit)
+- **Committed in:** `293f0ad266` (Task 2 commit)
 
 **2. [Rule 1 - Bug] Two doc claims about the bracket's caller set became false**
 
@@ -166,7 +166,7 @@ The two other doc claims this change would have falsified were corrected in the 
 - **Fix:** The writer-5 enumeration now lists five call sites naming the advance; the module-internal rationale names all three files holding callers outside `+ExecutionSupport.swift` and states the sibling disposition of the movement-owned caller shape. No claim's *substance* changed — both sentences still argue that one implementation is what stops the withdrawal rule from forking across routes.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift`, `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift`
 - **Verification:** Clean build 0 warnings (SwiftLint plugin in-build), standalone SwiftLint `--strict` clean over both files, full suite green.
-- **Committed in:** `fe450ded` (Task 2 commit)
+- **Committed in:** `293f0ad266` (Task 2 commit)
 
 ---
 
@@ -214,8 +214,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift` — FOUND
-- Commit `2f9848e5` — FOUND
-- Commit `fe450ded` — FOUND
+- Commit `d9baf6cffc` — FOUND
+- Commit `293f0ad266` — FOUND
 
 ## Known Stubs
 

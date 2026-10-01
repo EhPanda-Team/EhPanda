@@ -113,7 +113,7 @@ status: complete
 ## Task Commits
 
 1. **Task 1: The working-seed reconciliation, the run-start announcement, and the seam drains** — `06763885` (feat)
-2. **Task 2: The K=1 ledger regression, the interleaved-start regression, the sweep, and the full run** — `7b0fa678` (test)
+2. **Task 2: The K=1 ledger regression, the interleaved-start regression, the sweep, and the full run** — `bd92574833` (test)
 
 ## Files Created/Modified
 
@@ -378,7 +378,7 @@ No literal changed outside this catalog and no existing case failed.
 - **Reported, not silently adapted:** this is a plan defect (an overlooked pre-existing symbol), recorded here with its evidence rather than absorbed. The plan's *behavioral* requirement — "the client-start main-actor hop can be held open deterministically and the interleaved-start seed-merge regression is expressible" — is fully met, and its pre-merge falsifiability reading was taken and recorded.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift`
 - **Verification:** Test F passes with the merge and fails with `0 / 1 page · 0 galleries` without it, under the deterministic gate.
-- **Committed in:** `7b0fa678`
+- **Committed in:** `bd92574833`
 
 ### 2. [Finding — no code change] Table 1 row 4 under-enumerates `queuedMode`'s branches
 
@@ -411,7 +411,7 @@ None — no placeholder values, empty data sources or TODO markers were introduc
 
 ## Self-Check: PASSED
 
-All seven claimed files exist on disk; all three claimed commits (`06763885`, `7b0fa678`, `9a471321`) exist in the repository.
+All seven claimed files exist on disk; all three claimed commits (`06763885`, `bd92574833`, `ee27c599a1`) exist in the repository.
 
 ---
 *Phase: 15-continued-background-downloads*

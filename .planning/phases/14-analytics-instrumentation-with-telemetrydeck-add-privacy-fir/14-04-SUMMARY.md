@@ -134,11 +134,11 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1a: committed credential-free xcconfig + gitignore** — `53ae4a19` (chore)
-2. **Task 1b: pbxproj base configuration wiring** — `7ed5e952` (chore, isolated for independent revert)
-3. **Task 2: Info.plist keys and AppInfo accessors** — `ccdc33ec` (feat)
-4. **Task 3: absent-credential test** — `8e795106` (test)
-5. **Owner setup document** — `92fbbaf9` (docs)
+1. **Task 1a: committed credential-free xcconfig + gitignore** — `7d440c2c49` (chore)
+2. **Task 1b: pbxproj base configuration wiring** — `8ee62ff2d1` (chore, isolated for independent revert)
+3. **Task 2: Info.plist keys and AppInfo accessors** — `75368a2ca2` (feat)
+4. **Task 3: absent-credential test** — `9971219e1f` (test)
+5. **Owner setup document** — `0bed239b76` (docs)
 
 ## Files Created/Modified
 
@@ -209,7 +209,7 @@ The placeholder file was deleted afterwards and the app rebuilt back to the empt
 - **Fix:** Added `14-USER-SETUP.md` with the local file's exact shape, a local salt-generation command, the write-once warning, and the built-bundle verification commands. It contains no app ID and no generated salt.
 - **Files modified:** `.planning/phases/14-analytics-instrumentation-with-telemetrydeck-add-privacy-fir/14-USER-SETUP.md`
 - **Verification:** Reviewed for credential content; the file names no value.
-- **Committed in:** `92fbbaf9`
+- **Committed in:** `0bed239b76`
 
 **3. [Rule 3 - Blocking] Resolved SwiftLint from the SPM artifact bundle**
 - **Found during:** Task 2

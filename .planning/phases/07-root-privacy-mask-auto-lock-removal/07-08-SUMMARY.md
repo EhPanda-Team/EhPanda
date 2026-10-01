@@ -112,17 +112,17 @@ status: complete
 - Re-ran the complete package suite at current HEAD: 506 tests in 100 suites passed, including both new `AppReducerScenePhaseTests`; the AppFeature simulator graph also built successfully with SwiftLint enabled.
 - Proved exactly forty executable `.privacyMask()` application sites, zero legacy blur/lock symbols, zero Face ID usage-description residue, and complete six-locale Privacy Mask strings.
 - Recorded owner approval for no readable App Switcher content on all audited surfaces, no large-title navigation-bar collapse at blur zero, correct settings removal/placement, and single-fire launch behavior.
-- Verified the owner's post-checkpoint presentation refinement (`26c354bb`) without rewriting it: blur animation is scoped to the blur transform, and the Privacy Mask row remains in the first Appearance section.
+- Verified the owner's post-checkpoint presentation refinement (`94108b8b43`) without rewriting it: blur animation is scoped to the blur transform, and the Privacy Mask row remains in the first Appearance section.
 
 ## Task Commits
 
 Each automated task was committed atomically; the human gate records approval rather than source changes:
 
-1. **Task 1: Stand up AppFeatureTests and cover scene-phase privacy behavior** - `949a236d` (test)
-2. **Task 2: Verify privacy-mask coverage, removals, and regressions** - `926a2a71` (test; verification-only empty commit)
+1. **Task 1: Stand up AppFeatureTests and cover scene-phase privacy behavior** - `e22f4e46ce` (test)
+2. **Task 2: Verify privacy-mask coverage, removals, and regressions** - `524f092c6e` (test; verification-only empty commit)
 3. **Task 3: Human-verify the no-content-leak property and owner overrides** - approved by the owner; no task commit
 
-**Post-checkpoint owner adjustment:** `26c354bb` (refactor) - refined mask animation and Appearance presentation.
+**Post-checkpoint owner adjustment:** `94108b8b43` (refactor) - refined mask animation and Appearance presentation.
 
 ## Files Created/Modified
 
@@ -170,7 +170,7 @@ This closes threat T-07-17's block-on-high information-disclosure gate and confi
 
 ### Owner-Authored Post-Checkpoint Refinement
 
-- After approving the manual gate, the owner committed `26c354bb` to scope the linear animation directly to blur rendering and merge the Privacy Mask control into the primary Appearance section.
+- After approving the manual gate, the owner committed `94108b8b43` to scope the linear animation directly to blur rendering and merge the Privacy Mask control into the primary Appearance section.
 - The continuation inspected but did not rewrite that commit, then reran the AppFeature build, complete package suite, coverage audit, and orphan audit against the resulting HEAD.
 - This is an intentional presentation refinement, not an executor auto-fix or scope expansion.
 
@@ -195,7 +195,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Commits `949a236d`, `926a2a71`, and owner adjustment `26c354bb` exist in git history.
+- Commits `e22f4e46ce`, `524f092c6e`, and owner adjustment `94108b8b43` exist in git history.
 - The new test source, test-module SwiftLint config, package target, and feature-test-plan entry exist.
 - Both AppReducer scene-phase tests passed; the complete package run passed 506 tests in 100 suites.
 - The AppFeature simulator build succeeded after the owner adjustment with SwiftLint enabled.

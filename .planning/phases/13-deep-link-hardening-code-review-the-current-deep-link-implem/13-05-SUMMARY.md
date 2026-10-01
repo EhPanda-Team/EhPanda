@@ -96,8 +96,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Coordinate deep-link sheet replacement** - `b5394632` (fix)
-2. **Task 2: Cover detail dismissal coordination** - `a15e8b19` (test)
+1. **Task 1: Coordinate deep-link sheet replacement** - `c515c10548` (fix)
+2. **Task 2: Cover detail dismissal coordination** - `b78668e90f` (test)
 
 ## Files Created/Modified
 
@@ -122,7 +122,7 @@ Each task was committed atomically:
 - **Issue:** Merely overwriting a pending gallery did not guarantee latest-wins behavior when two in-flight fetches completed out of order.
 - **Fix:** Added cancel-in-flight identity to gallery fetching, ignored cancellation failures, and cleared the older pending replacement when a later link arrived.
 - **Files modified:** `AppPackage/Sources/AppFeature/DataFlow/PresentationFeature.swift`
-- **Commit:** `b5394632`
+- **Commit:** `c515c10548`
 
 **2. [Rule 3 - Blocking] Allowed Xcode verification to use required system caches**
 
@@ -155,7 +155,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Confirmed `b5394632` and `a15e8b19` exist in git history and contain the two atomic task changes.
+- Confirmed `c515c10548` and `b78668e90f` exist in git history and contain the two atomic task changes.
 - Confirmed all three modified files exist, `PendingGalleryLink` is named state, and the shared sheet sends `detailDismissalCompleted` from `onDismiss`.
 - Confirmed no `milliseconds(1000)` delay remains in `PresentationFeature.handleDeepLink`.
 - Confirmed targeted PresentationFeature tests, the complete AppFeature bundle, the full default unit plan, application build, and strict repository source/test/extension lint pass.

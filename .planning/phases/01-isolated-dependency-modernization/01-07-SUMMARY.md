@@ -101,7 +101,7 @@ Each task was committed atomically:
 
 1. **Task 1: Update the Colorful package pin** - `00175983` (chore)
 2. **Task 2: Keep GalleryCardCell gradient clean** - no source change required (the existing `ColorfulView` usage is the only/current Colorful view API and renders as before); verified within Task 1's build
-3. **Task 3: Record visual UAT and run full phase verification** - `60d16dea` (docs)
+3. **Task 3: Record visual UAT and run full phase verification** - `37ada7f57a` (docs)
 
 **Plan metadata:** (final docs commit — see below)
 
@@ -139,7 +139,7 @@ None - no external service configuration required. A user **visual verification*
 ## Self-Check: PASSED
 
 - Files verified on disk: `01-07-SUMMARY.md`, `01-COLORFUL-UAT.md`, `AppPackage/Package.swift`, `AppPackage/Package.resolved`.
-- Commits verified in git log: `00175983` (Task 1), `60d16dea` (Task 3).
+- Commits verified in git log: `00175983` (Task 1), `37ada7f57a` (Task 3).
 
 ---
 *Phase: 01-isolated-dependency-modernization*

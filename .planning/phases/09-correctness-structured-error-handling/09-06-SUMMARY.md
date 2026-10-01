@@ -81,8 +81,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Classify + convert DownloadStore.swift try? sites** - `1afa3249` (refactor)
-2. **Task 2: DownloadStore+Operations.swift try? sweep** - `529ae507` (refactor)
+1. **Task 1: Classify + convert DownloadStore.swift try? sites** - `6cae348954` (refactor)
+2. **Task 2: DownloadStore+Operations.swift try? sweep** - `322bafbc12` (refactor)
 
 ## Files Created/Modified
 
@@ -115,7 +115,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `1afa3249` and `529ae507` exist.
+- Task commits `6cae348954` and `322bafbc12` exist.
 - DownloadsFeatureTests passed with 250 tests across 52 suites on iPhone Air iOS 26.5.
 - All 16 surviving scoped `try?` expressions have adjacent just-cause comments.
 - No SwiftLint suppression was introduced.

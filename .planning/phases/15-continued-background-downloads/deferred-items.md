@@ -8,17 +8,17 @@ prose and will drift.
 
 | id | status | grouped into |
 |----|--------|--------------|
-| DEF-15-01 | resolved 2026-08-19 (f9892824) | — |
-| DEF-15-02 | resolved 2026-08-19 (f9892824) | — |
+| DEF-15-01 | resolved 2026-08-19 (d3f2ae21c5) | — |
+| DEF-15-02 | resolved 2026-08-19 (d3f2ae21c5) | — |
 | DEF-15-03 | resolved by 15-64, owned since 15-74 | — |
-| DEF-15-04 | resolved 2026-08-19 (97347f5d, quick 260819-ovp) | — |
-| DEF-15-05 | resolved 2026-08-19 (668c57be, quick 260819-n3y) | — |
-| DEF-15-06 | resolved 2026-08-19 (ace21ed5, quick 260819-n3y) | — |
+| DEF-15-04 | resolved 2026-08-19 (898a49f22e, quick 260819-ovp) | — |
+| DEF-15-05 | resolved 2026-08-19 (f37e7615db, quick 260819-n3y) | — |
+| DEF-15-06 | resolved 2026-08-19 (eb7b17c744, quick 260819-n3y) | — |
 | DEF-15-07 | closed 2026-08-19 — not a defect, owner ruling: `Package.swift` will not be split | — |
-| DEF-15-08 | resolved 2026-08-19 (a87bbc10, quick 260819-n3y) | — |
-| DEF-15-09 | resolved 2026-08-19 (f704ece5, quick 260819-n3y) | — |
-| DEF-15-10 | resolved 2026-08-19 (15cf9273, quick 260819-ovp) | — |
-| DEF-15-11 | resolved 2026-08-19 (9c8145a1, quick 260819-n3y) | — |
+| DEF-15-08 | resolved 2026-08-19 (b1fdd7dc4b, quick 260819-n3y) | — |
+| DEF-15-09 | resolved 2026-08-19 (6538db3247, quick 260819-n3y) | — |
+| DEF-15-10 | resolved 2026-08-19 (f0c1a99e04, quick 260819-ovp) | — |
+| DEF-15-11 | resolved 2026-08-19 (934dca2945, quick 260819-n3y) | — |
 
 The two groupings are the owner's, decided 2026-08-19. They are groupings only — nothing about
 scope, order or approach inside either group is settled here. The 05/06/08/09/11 group was planned
@@ -41,7 +41,7 @@ and should end at 16.
 Both are documentation staleness in a file outside this phase's edit scope (the plan scopes
 Task 2 to the Phase 15 detail section). Neither affects any code or gate.
 
-**Both RESOLVED 2026-08-19 in commit f9892824**, during the state/roadmap sync: the progress table
+**Both RESOLVED 2026-08-19 in commit d3f2ae21c5**, during the state/roadmap sync: the progress table
 gained a `| 16. Dynamic Type Accessibility | 0/0 | Not Started |  |` row and the execution-order line
 now ends at 16. The historical report above is kept for the record.
 
@@ -75,7 +75,7 @@ Building the targeted package tests with Xcode 26.6 reports two Swift concurrenc
 `UIDevice.current.userInterfaceIdiom`. The file is outside Plan 15-10's session-identity scope,
 and the warnings predate its changes.
 
-**RESOLVED 2026-08-19 in commit 97347f5d (quick 260819-ovp).** The autoclosure was only the
+**RESOLVED 2026-08-19 in commit 898a49f22e (quick 260819-ovp).** The autoclosure was only the
 innermost nonisolated scope: `setUpWithError()` overrides a nonisolated XCTest declaration, so the
 class-level `@MainActor` never reached it either, and annotating the override is a hard error. The
 idiom read now opens the test method itself (which overrides nothing, so the class's `@MainActor`
@@ -103,7 +103,7 @@ value, an action case, an `.ifLet`, and a view modifier in `DownloadsView` — a
 addition, outside this plan's files. The disposition is stated in the reducer's type doc so it reads
 as an open item rather than a considered no-report.
 
-**RESOLVED 2026-08-19 in commit 668c57be (quick 260819-n3y).** `DownloadsReducer.State` gained
+**RESOLVED 2026-08-19 in commit f37e7615db (quick 260819-n3y).** `DownloadsReducer.State` gained
 `@Presents var toast: AppAlertState<Never>?`, the failure arm of `toggleDownloadPauseDone` sets it
 through the inspector's `actionFailureToast` mapping — moved out of `DownloadInspectorReducer.swift`
 into the module-shared `AppError+ActionFailureToast.swift` — and `DownloadsView` renders it with
@@ -121,7 +121,7 @@ arm. A throw there is reported by TCA as a runtime issue rather than handled, an
 fetch leaves the list spinning with no error state and no retry. Gap 4's contract covers actions
 that carry a `Result`; these carry none, which is precisely why the failure has nowhere to go.
 
-**RESOLVED 2026-08-19 in commit ace21ed5 (quick 260819-n3y), at the interface rather than at the
+**RESOLVED 2026-08-19 in commit eb7b17c744 (quick 260819-n3y), at the interface rather than at the
 call sites.** Both live implementations (`DownloadCoordinator.fetchDownloads()`, `fetchFolders()`)
 are pure reads of actor state and cannot fail, and no test double anywhere throws from either, so
 the `throws` on the two `DownloadClient` closures was vestigial. They are now `@Sendable () async ->
@@ -185,7 +185,7 @@ only unobserved link is SwiftUI presenting a value type it already presents. Add
 during a phase close-out re-opens review for a residual risk that is a presentation identity. Worth
 doing if a permanent device-visible regression guard is ever wanted.
 
-**RESOLVED 2026-08-19 in commit a87bbc10 (quick 260819-n3y).** `EHPANDA_UITEST_FORCE_PAUSE_REFUSAL`
+**RESOLVED 2026-08-19 in commit b1fdd7dc4b (quick 260819-n3y).** `EHPANDA_UITEST_FORCE_PAUSE_REFUSAL`
 (exactly `notFound` or `unknown`, whitespace-trimmed; anything else is not an override) resolves to
 `UITestAutomation.PauseRefusal`, opts the configuration in on its own, and `prepare` installs
 `$0.downloadClient.togglePause = { _ in throw refusal.error }` via `prepareDependencies`, all under
@@ -219,7 +219,7 @@ reads until it sees the sentinel and breaks. The assertion becomes about sequenc
 pre-fix bug fails immediately with a name. Do not rely on cancellation draining the buffer —
 `AsyncStream`'s post-cancellation delivery is an implementation detail, not a documented contract.
 
-**RESOLVED 2026-08-19 in commit f704ece5 (quick 260819-n3y), in the preferred shape — no production
+**RESOLVED 2026-08-19 in commit 6538db3247 (quick 260819-n3y), in the preferred shape — no production
 change.** Both detectors now push a fresh-gid sentinel through `fixture.manager.observerHub.notify`
 after the operation returns, collect until it (`collectSnapshots(from:untilFence:)` in the new
 `DownloadFeatureFenceHelpers.swift`, which owns the fence-versus-clock reasoning for both), and pin
@@ -268,7 +268,7 @@ Note also the AGENTS.md labelled-localized-format rule — shared keys carry han
 labels for NUMERIC arguments, and forwarding must preserve them rather than fall back to positional
 generated signatures.
 
-**RESOLVED 2026-08-19 in commit 15cf9273 (quick 260819-ovp).** `ResourceStringSymbols.swift` now
+**RESOLVED 2026-08-19 in commit f0c1a99e04 (quick 260819-ovp).** `ResourceStringSymbols.swift` now
 hand-types nothing: every one of the 43 accessors keeps its exact public signature and forwards to
 the internal symbol Xcode generates from the Resources module's two catalogs — `.cancel`,
 `.days(count)` (the generated top-level `%lld` plural symbols are positional, so the `count:`/`page:`
@@ -308,7 +308,7 @@ behavioural gap that predates it. The amended rule explicitly prefers "eliminati
 or covering it with a test, over giving up the correct anchor", so this is the follow-through that
 sentence points at.
 
-**RESOLVED 2026-08-19 in commit 9c8145a1 (quick 260819-n3y).** Correction to the record first: a
+**RESOLVED 2026-08-19 in commit 934dca2945 (quick 260819-n3y).** Correction to the record first: a
 drop case already existed when this was filed (`DownloadRowConfirmationTests`, 2026-08-11); what was
 missing was the "what should happen" half. The suite now pins both shapes of the hazard at reducer
 level, with no production change: a REORDERING tick keeps the armed row's dialog on that row (gid

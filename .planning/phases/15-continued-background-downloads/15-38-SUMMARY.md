@@ -48,7 +48,7 @@ falsifiable by disarming the union it depends on.
 
 ## What Was Built
 
-**Task 1 — the producers and the launch arms** (commit `acc2f41a`)
+**Task 1 — the producers and the launch arms** (commit `8e4201e1dd`)
 
 - `ContinuedTaskSchedulingSpy` gained two one-shot controls, `refusesNextRegistration` and
   `nextSubmissionError`. The always-succeeds premise comment is retired
@@ -59,7 +59,7 @@ falsifiable by disarming the union it depends on.
 - Five new cases, all following the suite's drive-then-drain determinism idiom.
 - `BackgroundProcessingClient`'s every-endpoint sentence was verified and scoped (below).
 
-**Task 2 — the WR-07 companion** (commit `84522e08`)
+**Task 2 — the WR-07 companion** (commit `a166ea1f9c`)
 
 - `testAnExpirationPausesTheRunningGalleryWhenThePersistedQueueLagsBehindIt` stages the identical
   lag as the sibling case, then issues the expiration's bulk pause through
@@ -221,7 +221,7 @@ found; the ambiguity that made a reviewer see one is gone.
   than spelled. No exemption was added and the invariant was not weakened — an exemption here would
   have been exactly the escape hatch the plan prohibits.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift`
-- **Commit:** `84522e08`
+- **Commit:** `a166ea1f9c`
 
 **2. [Rule 2 — Missing correctness] The companion's rendezvous order**
 
@@ -236,7 +236,7 @@ found; the ambiguity that made a reviewer see one is gone.
   immediately because the pause awaits the cancelled task and `onCancel` runs before that await
   returns. The comment names the reason so a later edit cannot reorder it back innocently.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift`
-- **Commit:** `84522e08`
+- **Commit:** `a166ea1f9c`
 
 ### Prescriptions Deliberately Not Followed
 
@@ -289,5 +289,5 @@ Acceptance greps:
 - `AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/ContinuedProcessingSessionTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionBasisTests.swift` — FOUND
-- Commit `acc2f41a` — FOUND
-- Commit `84522e08` — FOUND
+- Commit `8e4201e1dd` — FOUND
+- Commit `a166ea1f9c` — FOUND

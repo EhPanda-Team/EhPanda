@@ -84,8 +84,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Harden the privacy gate and parameterize its scan root** - `5f85c008` (fix)
-2. **Task 2: Add executable cookie-logging fixtures** - `5c6029c0` (test)
+1. **Task 1: Harden the privacy gate and parameterize its scan root** - `d512691892` (fix)
+2. **Task 2: Add executable cookie-logging fixtures** - `3f411bfeff` (test)
 
 ## Files Created/Modified
 
@@ -136,8 +136,8 @@ None - no external service configuration required.
 - Both scripts pass POSIX `sh` syntax checks and retain executable permissions.
 - `./Scripts/check-cookie-logging.sh` exits 0 and prints the expected clean-tree pass message.
 - `./Scripts/Tests/check-cookie-logging-tests.sh` exits 0 after proving both negative fixtures emit `cookie-bearing logger interpolation is not private` and the private fixture passes.
-- Task commits `5f85c008` and `5c6029c0` exist in git history.
-- `git diff --check 5f85c008^..HEAD` passes.
+- Task commits `d512691892` and `3f411bfeff` exist in git history.
+- `git diff --check d512691892^..HEAD` passes.
 - No SwiftLint suppression, placeholder, TODO, or FIXME was introduced in the plan files.
 - Generated documentation contains no absolute home path or private local-project name.
 

@@ -93,8 +93,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Reconcile ROADMAP + REQUIREMENTS to logging-audit-only (D-01)** - `c0ae6647` (docs)
-2. **Task 2: Add the cookie-logging static gate (D-02)** - `cd7c7f87` (chore)
+1. **Task 1: Reconcile ROADMAP + REQUIREMENTS to logging-audit-only (D-01)** - `c5af046f00` (docs)
+2. **Task 2: Add the cookie-logging static gate (D-02)** - `2bfa1298cb` (chore)
 
 ## Files Created/Modified
 
@@ -147,7 +147,7 @@ None - no external service configuration required.
 - A temporary `.private` cookie-description interpolation remained accepted, proving the intended privacy escape hatch.
 - `getCookiesDescription` has exactly one consumer outside its declaration: `AccountSettingReducer.copyCookies`.
 - The scoped Keychain grep finds no stale Phase 8 or QUAL-01 cookie-storage clause.
-- Task commits `c0ae6647` and `cd7c7f87` exist in git history.
+- Task commits `c5af046f00` and `2bfa1298cb` exist in git history.
 - `git diff --check` passes across both task commits.
 - STATE frontmatter and prose both report 63/76 plans (83%) and Plan 08-02 as next.
 - Generated documentation contains no absolute home-directory paths or private local-project names.

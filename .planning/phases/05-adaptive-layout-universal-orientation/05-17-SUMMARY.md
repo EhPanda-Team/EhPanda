@@ -86,8 +86,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Establish a distinct Home content-root surface** - `c252e09a` (fix)
-2. **Task 2: Disable unsupported multiple-scene support** - `4216c9e9` (fix)
+1. **Task 1: Establish a distinct Home content-root surface** - `d89b6af0a8` (fix)
+2. **Task 2: Disable unsupported multiple-scene support** - `f7df2ca5d5` (fix)
 
 ## Files Created/Modified
 
@@ -146,7 +146,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- `AppPackage/Sources/HomeFeature/HomeView.swift` and `App/Info.plist` exist; task commits `c252e09a` and `4216c9e9` are present.
+- `AppPackage/Sources/HomeFeature/HomeView.swift` and `App/Info.plist` exist; task commits `d89b6af0a8` and `f7df2ca5d5` are present.
 - The required iPhone Air simulator package build succeeded for both tasks with SwiftLint build-tool plugin execution.
 - Static and plist gates confirm the semantic Home root surface, a false multiple-scene capability, an otherwise unchanged plist, and no changes to localized resources or non-Home surfaces.
 

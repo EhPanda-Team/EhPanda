@@ -114,9 +114,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1 (RED): failing tests for the new case** — `bdf7e4d6` (test)
-2. **Task 1 (GREEN): AppError.cloudflareChallengeFailed with localized strings** — `69f66be4` (feat)
-3. **Task 2: CloudflareClearance and its in-memory session key** — `50ac802e` (feat)
+1. **Task 1 (RED): failing tests for the new case** — `7b303fbf22` (test)
+2. **Task 1 (GREEN): AppError.cloudflareChallengeFailed with localized strings** — `6cb13d1733` (feat)
+3. **Task 2: CloudflareClearance and its in-memory session key** — `64aaf0d709` (feat)
 
 ## Files Created/Modified
 
@@ -146,7 +146,7 @@ status: complete
 - **Fix:** Mapped the new case to `exclamationmark.shield.fill` (distinct from `.ipBanned`'s network-shield and `.authenticationRequired`'s lock), and placed it in the fatal arm of the page-download guard with the doc-comment updated to state why. `DownloadFailure.init(error:)` needed no change — it has a `default` arm, and adding a persisted failure code would have altered a Codable schema for an unreachable state.
 - **Files modified:** `AppPackage/Sources/AppComponents/AppError+Symbol.swift`, `AppPackage/Sources/DownloadClient/DownloadClient+PageDownload.swift`
 - **Verification:** `xcodebuild build` and the `AppModelsTests` target both green.
-- **Committed in:** `69f66be4` (Task 1 GREEN commit)
+- **Committed in:** `6cb13d1733` (Task 1 GREEN commit)
 
 **2. [Rule 3 - Blocking] `xcodebuild` refused to run: macro approval**
 

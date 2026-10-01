@@ -149,7 +149,7 @@ status: complete
 ## Task Commits
 
 1. **Task 1: Re-derive the inventory, write the matrix skeleton, D-13 rows and D-04 checklist** — folded into the Task 2 commit (see Deviations #1). Verified independently at its own acceptance point before Protocol was inserted: `grep -c "^## "` printed `8`, 504 matrix rows, 557 `pending`, 0 `| pass`, no expanded home path, 0 images.
-2. **Task 2: Write the sweep protocol section and commit the skeleton** — `ca017d25` (docs)
+2. **Task 2: Write the sweep protocol section and commit the skeleton** — `a7eab1b462` (docs)
 
 **Plan metadata:** see the `docs(16-02)` commit that follows this summary.
 
@@ -172,7 +172,7 @@ status: complete
 **1. [Rule 3 - Blocking] Task 1 and Task 2 land in one commit**
 - **Found during:** Task 2 (commit step)
 - **Issue:** The executor protocol commits each task individually, but this plan's `<verification>` item 3 states "One docs commit touching only `16-SWEEP.md`", and Task 1 carries no commit instruction of its own. Two commits would satisfy every *task* acceptance criterion (HEAD would still be the Task 2 commit with the required subject and a single-file stat) but would violate the plan-level verification.
-- **Fix:** Followed the plan: Task 1's output was written and verified against its own acceptance criteria in place (8 `## ` sections at that point), then Protocol was inserted and the file committed once as `ca017d25`. Same precedent as plan 16-01, whose two tasks also touched a single file.
+- **Fix:** Followed the plan: Task 1's output was written and verified against its own acceptance criteria in place (8 `## ` sections at that point), then Protocol was inserted and the file committed once as `a7eab1b462`. Same precedent as plan 16-01, whose two tasks also touched a single file.
 - **Files modified:** none beyond the plan's own file
 - **Verification:** `git log -1 --format=%s` → `docs(16): add sweep verdict table skeleton`; `git show --stat HEAD` → 1 file changed, 1047 insertions.
 
@@ -182,7 +182,7 @@ status: complete
 - **Fix:** Wrote the vocabulary as a brace-comma set — Status ∈ {`pending`, `pass`, `finding:#N`, `re-verify`, `accepted`} — in § Verdict rule and § Matrix. All five tokens are defined, each with its meaning; only the separator differs. The mechanical check now measures exactly what it was written to measure: a `| pass` hit can only come from a filled verdict cell.
 - **Files modified:** `.planning/phases/16-dynamic-type-accessibility/16-SWEEP.md`
 - **Verification:** `grep -c "| pass"` → `0`; all five tokens present (`grep -c "re-verify"` → 5).
-- **Committed in:** `ca017d25`
+- **Committed in:** `a7eab1b462`
 
 **3. [Rule 2 - Missing critical functionality] The D-04 checklist carries 48 rows, not the 40 the criterion floors at**
 - **Found during:** Task 1
@@ -190,7 +190,7 @@ status: complete
 - **Fix:** Wrote all 48. The criterion is a floor (`≥`), so this satisfies it; the extra row keeps the hero-carousel truncation traceable from both § D-13 and § D-04.
 - **Files modified:** `.planning/phases/16-dynamic-type-accessibility/16-SWEEP.md`
 - **Verification:** 31 + 5 + 12 rows across the three D-04 sub-tables; total `| pending` = 557 = 504 + 5 + 48.
-- **Committed in:** `ca017d25`
+- **Committed in:** `a7eab1b462`
 
 ---
 
@@ -217,7 +217,7 @@ status: complete
 ## Self-Check: PASSED
 
 - `.planning/phases/16-dynamic-type-accessibility/16-SWEEP.md` exists (1047 lines, 9 `## ` sections, 504 matrix rows).
-- Commit `ca017d25` exists on `feature/gsd-phase-16`; subject is exactly `docs(16): add sweep verdict table skeleton`; `git show --stat` lists only `16-SWEEP.md`.
+- Commit `a7eab1b462` exists on `feature/gsd-phase-16`; subject is exactly `docs(16): add sweep verdict table skeleton`; `git show --stat` lists only `16-SWEEP.md`.
 - `git status --porcelain | grep -Ei '\.(png|jpe?g|heic|gif)$' | wc -l` → `0`; `git ls-files | grep -Ei '\.(png|jpe?g|heic|gif)$' | grep -c 16-dynamic-type-accessibility` → `0`.
 - Grepping `16-SWEEP.md` for an expanded home-directory prefix → `0` hits; the evidence root is written only as `$HOME/Library/Caches/ehpanda-phase16/`.
 - `.planning/phases/16-dynamic-type-accessibility/16-02-SUMMARY.md` exists.

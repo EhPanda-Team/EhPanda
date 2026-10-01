@@ -115,7 +115,7 @@ status: complete
 
 The plan's three tasks were committed together as one atomic change (rationale in Deviations):
 
-1. **Tasks 1–3 (local SwiftyOpenCC swap)** — `35136b7f` (feat)
+1. **Tasks 1–3 (local SwiftyOpenCC swap)** — `5d3e7ef5ce` (feat)
 
 **Plan metadata:** see final `docs(01-03)` commit.
 
@@ -133,7 +133,7 @@ The plan's three tasks were committed together as one atomic change (rationale i
 - **Issue:** `multiple packages ('apppackage', 'swiftyopencc') declare targets with a conflicting name: 'copencc'`. The plan assumed the local `copencc`/`SwiftyOpenCC` targets could be added while the external package remained (Task 1), with removal deferred to Task 3. They cannot: the external package's own `copencc` target collides, and its removal cascades into the FileClient/test retargeting (Task 2/3).
 - **Fix:** Performed the whole DEP-01 swap as one buildable change — vendor local targets, remove the external package + `OpenCCExt`, retarget `FileClient`/`SwiftyOpenCCTests` — verified green, then committed once.
 - **Files modified:** Package.swift, both Package.resolved files, FileClient.swift (+ new helper), SwiftyOpenCCTests, OpenCCExt removed.
-- **Committed in:** `35136b7f`.
+- **Committed in:** `5d3e7ef5ce`.
 
 ### Auto-fixed Issues
 
@@ -141,19 +141,19 @@ The plan's three tasks were committed together as one atomic change (rationale i
 - **Found during:** Task 1 build (`Invalid Exclude ... File not found`).
 - **Issue:** The plan's exact exclude set lists `deps/google-benchmark`, `deps/gtest-1.11.0`, `deps/pybind11-2.5.0`, `deps/rapidjson-1.1.0`, `deps/tclap-1.2.2`. Clean-room vendoring (D-04) imports only marisa + darts, so those dirs do not exist and the excludes were invalid.
 - **Fix:** Dropped those 5 exclude entries; kept every exclude that references a vendored file (marisa AUTHORS/CMakeLists/COPYING.md/README + the `src` test/tool set).
-- **Committed in:** `35136b7f`.
+- **Committed in:** `5d3e7ef5ce`.
 
 **3. [Rule 1 - Bug] `no_nslock` SwiftLint violation on a doc comment**
 - **Found during:** Task 1 SwiftLint build phase.
 - **Issue:** The `no_nslock` custom rule excludes `comment` kinds but not `doc-comment`, so the literal word "NSLock" in a `///` line failed the build.
 - **Fix:** Reworded the `DictionaryStore` doc comment to "upstream lock-based weak cache".
-- **Committed in:** `35136b7f`.
+- **Committed in:** `5d3e7ef5ce`.
 
 **4. [Rule 3 - Blocking] Added `LICENSE` to both new targets' excludes**
 - **Found during:** Task 1 (avoiding unhandled-file warnings).
 - **Issue:** The plan requires a `LICENSE` at each new module root, but an extension-less `LICENSE` in a build target is an unhandled resource.
 - **Fix:** Excluded `LICENSE` from the `copencc` and `SwiftyOpenCC` targets while keeping the files in the repo for license compliance.
-- **Committed in:** `35136b7f`.
+- **Committed in:** `5d3e7ef5ce`.
 
 **Total deviations:** 4 (1 structural task-merge, 3 auto-fixed). No scope creep — no runtime behavior changed; the Wave 0 parity fixtures pass verbatim.
 

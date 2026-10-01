@@ -85,10 +85,10 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Register the ReadingFeatureTests target and its lint config** - `75787dbe` (test)
-2. **Task 2: Write the PageHandler pure-mapping and containerDataSource stack-math suites** - `d8c7e05e` (test)
+1. **Task 1: Register the ReadingFeatureTests target and its lint config** - `64701d5390` (test)
+2. **Task 2: Write the PageHandler pure-mapping and containerDataSource stack-math suites** - `e6fded700a` (test)
 
-Deviation commit: `202d36c1` (chore: drop stale WaterfallGrid pin from workspace resolved)
+Deviation commit: `74304c3671` (chore: drop stale WaterfallGrid pin from workspace resolved)
 
 ## Files Created/Modified
 - `AppPackage/Package.swift` - `readingFeatureTests` module case + `.testTarget` declaration
@@ -110,7 +110,7 @@ Deviation commit: `202d36c1` (chore: drop stale WaterfallGrid pin from workspace
 - **Fix:** Committed the regenerated file as its own commit, keeping task commits pure.
 - **Files modified:** EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 - **Verification:** Diff is exactly originHash + WaterfallGrid pin removal; test run green afterwards.
-- **Committed in:** `202d36c1`
+- **Committed in:** `74304c3671`
 
 **2. [Rule 3 - Blocking] Verify-command simulator device does not exist**
 - **Found during:** Task 2 (`xcodebuild test` destination error)

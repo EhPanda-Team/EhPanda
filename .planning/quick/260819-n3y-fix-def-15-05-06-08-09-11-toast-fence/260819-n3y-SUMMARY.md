@@ -68,11 +68,11 @@ does not lint, were additionally linted with the standalone SwiftLint binary: 0 
 
 | Item | Commit | Tests | Result |
 |------|--------|-------|--------|
-| DEF-15-06 | `ace21ed5` `refactor(15): make download reads non-throwing` | 1009 → 1009 (0) | interface fixed at the root |
-| DEF-15-05 | `668c57be` `fix(15): report a refused pause from the list` | 1009 → 1014 (+5) | list owns a toast, shared mapping |
-| DEF-15-08 | `a87bbc10` `feat(15): add a pause-refusal UI-test seam` | 1014 → 1019 (+5) | both arms forceable, strict parse |
-| DEF-15-09 | `f704ece5` `test(15): fence the convergence detectors` | 1019 → 1019 (0) | fence replaces the deadline |
-| DEF-15-11 | `9c8145a1` `test(15): pin the row dialog across snapshots` | 1019 → 1020 (+1) | reorder + leave-then-return pinned |
+| DEF-15-06 | `eb7b17c744` `refactor(15): make download reads non-throwing` | 1009 → 1009 (0) | interface fixed at the root |
+| DEF-15-05 | `f37e7615db` `fix(15): report a refused pause from the list` | 1009 → 1014 (+5) | list owns a toast, shared mapping |
+| DEF-15-08 | `b1fdd7dc4b` `feat(15): add a pause-refusal UI-test seam` | 1014 → 1019 (+5) | both arms forceable, strict parse |
+| DEF-15-09 | `6538db3247` `test(15): fence the convergence detectors` | 1019 → 1019 (0) | fence replaces the deadline |
+| DEF-15-11 | `934dca2945` `test(15): pin the row dialog across snapshots` | 1019 → 1020 (+1) | reorder + leave-then-return pinned |
 
 ### DEF-15-06 — the PD-1 consequence, stated
 
@@ -240,7 +240,7 @@ code change in the view, and `DownloadsSwipeActionSourceTests`' three scan ancho
 
 All five commits were reviewed diff by diff; the deviations above were accepted (each is the more
 correct reading of its item). Three doc-comment wording nits were fixed in a sixth commit,
-`0e9803e1` `docs(15): tighten three new doc comments` — the shared mapping's "not named for either"
+`21f18a1157` `docs(15): tighten three new doc comments` — the shared mapping's "not named for either"
 with three consumers, the seam's comment that implied a single preparation was REQUIRED for the
 get-then-set (it is only tidier; the acceptance comes from get and set sharing one preparation), and
 a garbled sentence in the fence helper's history paragraph — re-verified with a warning-free
@@ -252,8 +252,8 @@ the two fenced sites, and `STATE.md` carries the quick-task row.
 
 - Files created exist: `AppError+ActionFailureToast.swift`, `DownloadsPauseFailureTests.swift`,
   `DownloadFeatureFenceHelpers.swift`.
-- Commits exist and are in order, newest last: `ace21ed5`, `668c57be`, `a87bbc10`, `f704ece5`,
-  `9c8145a1`.
+- Commits exist and are in order, newest last: `eb7b17c744`, `f37e7615db`, `b1fdd7dc4b`, `6538db3247`,
+  `934dca2945`.
 - Working tree clean after the fifth commit; `git diff --quiet -- AppPackage/Sources` held before the
   test-only Task 4 commit.
 - Final full run: `** TEST SUCCEEDED **`, 1020 tests, 0 failures; `AppFeature` build 0 warnings.

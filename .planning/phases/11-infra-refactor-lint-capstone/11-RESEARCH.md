@@ -2,7 +2,7 @@
 
 **Researched:** 2026-07-20
 **Domain:** SwiftLint ruleset ratchet (custom regex rules, built-in opt-in rules), TCA lifecycle refactor, Swift Testing parallelization
-**Confidence:** HIGH — all violation counts and tool behaviors verified empirically in this session against HEAD (`202594e8`) with the project's own SwiftLint 0.65.0 binary
+**Confidence:** HIGH — all violation counts and tool behaviors verified empirically in this session against HEAD (`bb60817192`) with the project's own SwiftLint 0.65.0 binary
 
 <user_constraints>
 ## User Constraints (from CONTEXT.md)
@@ -312,7 +312,7 @@ This is a refactor phase (no renames of persisted identifiers, services, or arti
 **How to avoid:** always pass explicit paths: `swiftlint lint --quiet AppPackage/Sources AppPackage/Tests App ShareExtension`. Optionally fix the stale exclusion while touching the config.
 
 ### Pitfall 6: The app-scheme build gate skips Tests lint
-**What goes wrong:** building the `EhPanda` scheme lints only Sources targets — a Tests/ violation (sorted_imports ×305, single_line ×74…) ships unnoticed and breaks the next test build (memory: e8589355 incident).
+**What goes wrong:** building the `EhPanda` scheme lints only Sources targets — a Tests/ violation (sorted_imports ×305, single_line ×74…) ships unnoticed and breaks the next test build (memory: fe3c43e0fe incident).
 **How to avoid:** every commit touching Tests/ must be verified with a test build (`xcodebuild test`), which is also the phase's parallel-suite gate.
 
 ### Pitfall 7: Group C behavior change breaks existing parser tests

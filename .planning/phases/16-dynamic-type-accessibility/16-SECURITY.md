@@ -12,7 +12,7 @@ audited: "2026-09-23"
 
 # Phase 16 — Security
 
-Historical baseline: the September 17 pre-owner review used immutable source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. The September 23 refresh below records current provenance; owner 16-26 Tasks 3–4 are now complete (`a4cc3754`), with verifier and completion pending. This audit added no source or test changes.
+Historical baseline: the September 17 pre-owner review used immutable source `310a39625fb2cb7035415c73a91eb3ff4b7266cc`. The September 23 refresh below records current provenance; owner 16-26 Tasks 3–4 are now complete (`7020040e1f`), with verifier and completion pending. This audit added no source or test changes.
 
 
 ## Threat Register
@@ -129,7 +129,7 @@ Historical baseline: the September 17 pre-owner review used immutable source `b0
 | 16-25 | T-16-SC | Tampering | npm/pip/cargo installs | low | accept | No package-manager installs in this plan. | closed |
 | 16-26 | T-16-03 | Tampering | `LOGIN_UDID` session and data container | high | mitigate | Build by UDID, `plutil` check, `simctl install` over the existing app; no erase, uninstall, clear-app-state or test destination; found state recorded and restored. | closed |
 | 16-26 | T-16-01 | Information disclosure | re-sweep screenshots of adult content | high | mitigate | `$HOME/Library/Caches/ehpanda-phase16/resweep/` only; written descriptions in the repo; working-tree image check before every commit and the `1b6fd198^..HEAD` added-files check in the gate. | closed |
-| 16-26 | T-16-26 | Repudiation | a sign-off over a stale, retried or failing gate | medium | mitigate | Gates run at the recorded HEAD after the re-sweep; each bundle must show zero failures and zero `Repetition` nodes, because `UITests.xctestplan` retries a failure up to 3 times and a retried green is not a first-try pass; any failure stops the plan without a re-run; the sign-off records the HEAD hash on a clean tree. | closed — owner sign-off a4cc3754; approved clean-task-tree amendment |
+| 16-26 | T-16-26 | Repudiation | a sign-off over a stale, retried or failing gate | medium | mitigate | Gates run at the recorded HEAD after the re-sweep; each bundle must show zero failures and zero `Repetition` nodes, because `UITests.xctestplan` retries a failure up to 3 times and a retried green is not a first-try pass; any failure stops the plan without a re-run; the sign-off records the HEAD hash on a clean tree. | closed — owner sign-off 7020040e1f; approved clean-task-tree amendment |
 | 16-26 | T-16-16 | Denial of service | overlapping `xcodebuild` wedging `testmanagerd`; touching other work's simulators | medium | mitigate | Shared mkdir lock plus `pgrep -x xcodebuild`; strictly sequential test plans; never kill a run; `67377A20…`, `5C21368C…` and simulators booted by other work untouched; no Simulator window closed. | closed |
 | 16-26 | T-16-SC | Tampering | npm/pip/cargo installs | low | accept | No package-manager installs in this plan. | closed |
 
@@ -140,7 +140,7 @@ Historical baseline: the September 17 pre-owner review used immutable source `b0
 
 - Trust boundaries are app source and test artifacts, simulator state, user-owned download/account state, and out-of-repository cache evidence. No endpoint, credential path, schema, or package dependency was introduced by this review.
 - The historical global process grep gate is superseded by phase-local xb2 serialization. Builds with distinct derived-data paths and explicit non-overlapping UDIDs may run concurrently; commands record Xcode 26.6 and derived-data paths, and no test process is killed.
-- Root authorized the immutable b01add4c11b1f9c355ac8f2e055ed8b24fe8146c gate ordering before runtime closure. This records sequencing only and does not change owner sign-off status.
+- Root authorized the immutable 310a39625fb2cb7035415c73a91eb3ff4b7266cc gate ordering before runtime closure. This records sequencing only and does not change owner sign-off status.
 
 ## Accepted Risks Log
 
@@ -158,9 +158,9 @@ Historical baseline: the September 17 pre-owner review used immutable source `b0
 - [x] All 113 variants have disposition and classification.
 - [x] All 113 variants closed; `threats_open: 0`, `open_total: 0`.
 - [x] ASVS 1 and authored register permit L1 short-circuit. The register is authored evidence, not a new security scan.
-- [x] Owner final sign-off exists; `T-16-26` closed by `a4cc3754` over the current evidence and approved clean-task-tree boundary.
+- [x] Owner final sign-off exists; `T-16-26` closed by `7020040e1f` over the current evidence and approved clean-task-tree boundary.
 
-**Approval:** owner signed off on 2026-09-23 (`a4cc3754`).
+**Approval:** owner signed off on 2026-09-23 (`7020040e1f`).
 
 
 ## Actual Evidence Basis (113 rows)
@@ -224,7 +224,7 @@ All 113 threat rows are retained, including repeated IDs. Evidence is row-specif
 | 16-13 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-13 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-14 | T-16-05 | CLOSED | plan summary/cache gate evidence: 16-14/15/23 summaries: colorset hash/invariant tests and HC re-pin evidence |
-| 16-14 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in cc05aca6 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
+| 16-14 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in f68610b270 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
 | 16-14 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-14 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-15 | T-16-05 | CLOSED | plan summary/cache gate evidence: 16-14/15/23 summaries: colorset hash/invariant tests and HC re-pin evidence |
@@ -266,20 +266,20 @@ All 113 threat rows are retained, including repeated IDs. Evidence is row-specif
 | 16-23 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-23 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-24 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
-| 16-24 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in cc05aca6 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
+| 16-24 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in f68610b270 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
 | 16-24 | T-16-16 | CLOSED | 16-24-SUMMARY.md / 16-25-SUMMARY.md sequential gate records; 20260917-final-closing-gates-evidence.txt and 16-SWEEP.md current phase-local xb2/UDID isolation ruling; no unrelated tests interrupted |
 | 16-24 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-25 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-25 | T-16-23 | CLOSED | plan summary/cache gate evidence: 16-25 account/public-site safety rules and cancel-only route |
 | 16-25 | T-16-01 | CLOSED | plan summary/cache gate evidence: 16-SWEEP.md evidence-root-only rule, image checks, and closing range image check (0) |
 | 16-25 | T-16-24 | CLOSED | plan summary/cache gate evidence: 16-25 no-credentials rule and hand-login boundary |
-| 16-25 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in cc05aca6 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
+| 16-25 | T-16-15 | CLOSED | 16-CONTRAST-AUDIT.md section Visible-change review (2026-09-15): historical contrast helper and test removed in f68610b270 under owner decision; current category background pins and accessibility audit/gates are recorded in 16-25-SUMMARY.md |
 | 16-25 | T-16-25 | CLOSED | plan summary/cache gate evidence: owner approval/design records and fix pipeline in 16-25 |
 | 16-25 | T-16-16 | CLOSED | 16-24-SUMMARY.md / 16-25-SUMMARY.md sequential gate records; 20260917-final-closing-gates-evidence.txt and 16-SWEEP.md current phase-local xb2/UDID isolation ruling; no unrelated tests interrupted |
 | 16-25 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 | 16-26 | T-16-03 | CLOSED | plan summary/cache gate evidence: UDID/install-over/baseline rules in plans; closing gate devices read back Shutdown; current phase-local lock/concurrency ruling |
 | 16-26 | T-16-01 | CLOSED | plan summary/cache gate evidence: 16-SWEEP.md evidence-root-only rule, image checks, and closing range image check (0) |
-| 16-26 | T-16-26 | CLOSED | Closing gate summaries/tests JSON: zero failures, zero Repetition, source HEAD recorded; owner `approved` over `30f54fe9`, recorded by `a4cc3754` in the sweep and 16-26 summary; preserved pre-existing project edit is excluded under the approved plan amendment. |
+| 16-26 | T-16-26 | CLOSED | Closing gate summaries/tests JSON: zero failures, zero Repetition, source HEAD recorded; owner `approved` over `25d0790700`, recorded by `7020040e1f` in the sweep and 16-26 summary; preserved pre-existing project edit is excluded under the approved plan amendment. |
 | 16-26 | T-16-16 | CLOSED | 20260917-final-closing-gates-evidence.txt; phase-local xcodebuild serialization and non-overlapping UDID evidence |
 | 16-26 | T-16-SC | CLOSED | plan summary/cache gate evidence: plan mitigation and corresponding summary evidence |
 
@@ -299,15 +299,15 @@ there are no missing/extra register pairs. Summary threat flags add no unresolve
 level 1 and no blocking threats, the secure-phase L1 short-circuit applies; no additional auditor or
 new-threat scan was required. This is a register/mitigation refresh, not a new application penetration test.
 
-Current source is `7675a7ac` plus the preserved pre-existing Xcode project diff. The incremental source
+Current source is `934f189539` plus the preserved pre-existing Xcode project diff. The incremental source
 review records zero new findings. The current mitigation evidence under `$HOME/Library/Caches/ehpanda-phase16/round2/close/20260923/` includes the
 unchanged 809-file source fingerprint, preserved original failed results, zero-Repetition final gates,
 zero added phase media, strict lint and shared-lock/explicit-destination scripts. The unchanged
 pre-existing project patch is retained as evidence and is not absorbed into this task's commits.
 No account credentials were read by this audit, and no package install or public message was performed.
 
-T-16-26 is now CLOSED: the owner replied `approved` over documentation HEAD `30f54fe9`;
-`a4cc3754` records the sign-off and its evidence limits. The clean-task-tree boundary excludes only
+T-16-26 is now CLOSED: the owner replied `approved` over documentation HEAD `25d0790700`;
+`7020040e1f` records the sign-off and its evidence limits. The clean-task-tree boundary excludes only
 the fingerprinted pre-existing project edit, as stated in the approved plan amendment. All 113
 register variants are closed, with zero blocking or below-threshold open threats. Final cleanup
 evidence covers only this task's simulators.

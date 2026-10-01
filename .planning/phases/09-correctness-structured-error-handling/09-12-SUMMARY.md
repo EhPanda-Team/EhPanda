@@ -77,10 +77,10 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1 RED: Add failing gallery context sanitizer tests** — `afcf2fe7`
-2. **Task 1 GREEN: Sanitize gallery diagnostic context** — `8e41881a`
-3. **Task 2 RED: Add failing sanitized toast route tests** — `de5c6bf6`
-4. **Task 2 GREEN: Route gallery failures through sanitizer** — `afec2460`
+1. **Task 1 RED: Add failing gallery context sanitizer tests** — `f434ca049d`
+2. **Task 1 GREEN: Sanitize gallery diagnostic context** — `d296cdbc93`
+3. **Task 2 RED: Add failing sanitized toast route tests** — `fa8116f109`
+4. **Task 2 GREEN: Route gallery failures through sanitizer** — `738960ecb1`
 
 ## Files Created/Modified
 

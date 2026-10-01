@@ -105,8 +105,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: State the ownership-convergence invariant and satisfy every enumerated exit** - `bea9eef8` (fix)
-2. **Task 2: Encode the invariant across ownership-clearing removal failures** - `0ea7c42e` (test)
+1. **Task 1: State the ownership-convergence invariant and satisfy every enumerated exit** - `507c0c25a2` (fix)
+2. **Task 2: Encode the invariant across ownership-clearing removal failures** - `e204263ff3` (test)
 
 ## Files Created/Modified
 
@@ -141,7 +141,7 @@ Each task was committed atomically:
 - **Fix:** Kept the case descriptor module-internal, matching the test method's visibility without widening any production API.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift`
 - **Verification:** The targeted suite compiled and all four arguments passed.
-- **Committed in:** `0ea7c42e`
+- **Committed in:** `e204263ff3`
 
 **2. [Rule 1 - Bug] Released the test spy's live session on thrown assertions**
 - **Found during:** Task 2 pre-fix sensitivity check
@@ -149,7 +149,7 @@ Each task was committed atomically:
 - **Fix:** Added a deferred spy expiration so every success and failure exit releases the test-only session after assertions.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadOwnershipConvergenceTests.swift`
 - **Verification:** The restored targeted suite completed cleanly with four passing arguments.
-- **Committed in:** `0ea7c42e`
+- **Committed in:** `e204263ff3`
 
 **3. [Rule 1 - Bug] Corrected inconsistent state metadata emitted by the state handlers**
 - **Found during:** Plan state update
@@ -193,7 +193,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All ten modified Swift files and this summary exist.
-- Task commits `bea9eef8` and `0ea7c42e` exist.
+- Task commits `507c0c25a2` and `e204263ff3` exist.
 - The summary contains no absolute home-directory path.
 
 ---

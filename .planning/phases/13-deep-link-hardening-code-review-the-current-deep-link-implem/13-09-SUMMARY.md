@@ -111,8 +111,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Cold and warm success-route matrix** — `90a8ef34` (test)
-2. **Task 2: Cold and warm malformed-route matrix** — `272e74d6` (test)
+1. **Task 1: Cold and warm success-route matrix** — `7291d7a6bc` (test)
+2. **Task 2: Cold and warm malformed-route matrix** — `f5d5e37e41` (test)
 
 ## Files Created/Modified
 
@@ -139,7 +139,7 @@ Each task was committed atomically:
 - **Fix:** Made `reading_view` an explicit containing accessibility element before assigning its identifier.
 - **Files modified:** `AppPackage/Sources/ReadingFeature/ReadingView.swift`
 - **Verification:** Both linked-page lifecycle tests locate the distinct static-text marker and report `2 / 156`.
-- **Committed in:** `90a8ef34`
+- **Committed in:** `7291d7a6bc`
 
 **2. [Rule 1 - Bug] Attached the toast identifier to its combined accessibility element**
 - **Found during:** Task 2 (Cold and warm malformed-route matrix)
@@ -147,7 +147,7 @@ Each task was committed atomically:
 - **Fix:** Combined the toast's children before assigning the identifier.
 - **Files modified:** `AppPackage/Sources/SystemNotification/ToastMessageView.swift`
 - **Verification:** Both malformed lifecycle tests read the English unsupported-link description, tap the toast, and reach `error_info_view`.
-- **Committed in:** `272e74d6`
+- **Committed in:** `f5d5e37e41`
 
 ---
 
@@ -175,7 +175,7 @@ None — the matrix is offline, credential-free, and uses runner-bundled fixture
 ## Self-Check: PASSED
 
 - All five created or modified plan files exist.
-- Task commits `90a8ef34` and `272e74d6` exist in repository history.
+- Task commits `7291d7a6bc` and `f5d5e37e41` exist in repository history.
 - Eight exact matrix test names are present; no UI test uses `sleep`.
 - UI result: 9 passed, 0 failed, all on first iterations.
 - Default result: 638 tests passed with 2 existing known issues and no failures.

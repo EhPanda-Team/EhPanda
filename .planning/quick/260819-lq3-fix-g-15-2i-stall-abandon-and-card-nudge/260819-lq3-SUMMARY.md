@@ -57,8 +57,8 @@ Closes G-15-2I: a page transfer that goes 60 s without a byte is now cancelled a
 
 | Task | Commit | Message |
 |---|---|---|
-| 1 (Half 1) | `2a2c5982` | `fix(15): abandon starved page transfers` |
-| 2 (Half 2) | `d6079878` | `fix(15): nudge a stalled session's card` |
+| 1 (Half 1) | `177a79b6ed` | `fix(15): abandon starved page transfers` |
+| 2 (Half 2) | `d35c59c757` | `fix(15): nudge a stalled session's card` |
 
 Both on `feature/gsd-phase-15`. Code and tests only; `15-UAT.md`, `ROADMAP.md` and `STATE.md` were not touched.
 
@@ -111,6 +111,6 @@ Final full `AppPackage-Package` run (iPhone Air simulator, one invocation):
 
 ## Self-Check: PASSED
 
-- All three created files exist on disk and are tracked in `d6079878`.
-- Both commits are present: `2a2c5982`, `d6079878`.
+- All three created files exist on disk and are tracked in `d35c59c757`.
+- Both commits are present: `177a79b6ed`, `d35c59c757`.
 - Working tree clean; no `.planning/` file is part of either commit.

@@ -141,8 +141,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Encode the topology decision as a permanent invariant** - `a5cc93b5` (test)
-2. **Task 2: Amend the roadmap entry to the shipped contract** - `c3e93900` (docs)
+1. **Task 1: Encode the topology decision as a permanent invariant** - `ef2cb83526` (test)
+2. **Task 2: Amend the roadmap entry to the shipped contract** - `9e2bea996d` (docs)
 3. **Task 3: Run the phase gates and stage the device observation** - no commit; the task changes no source unless a gate fails, and none did. Its record is this summary, committed with it.
 
 ## Files Created/Modified
@@ -271,7 +271,7 @@ None - no external service configuration required. The device observation script
 
 ## Self-Check: PASSED
 
-`AppPackage/Tests/DownloadsFeatureTests/BackgroundExecutionInvariantTests.swift` and `.planning/ROADMAP.md` both exist on disk with the expected contents, and both task commits (`a5cc93b5`, `c3e93900`) are present in `git log`.
+`AppPackage/Tests/DownloadsFeatureTests/BackgroundExecutionInvariantTests.swift` and `.planning/ROADMAP.md` both exist on disk with the expected contents, and both task commits (`ef2cb83526`, `9e2bea996d`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

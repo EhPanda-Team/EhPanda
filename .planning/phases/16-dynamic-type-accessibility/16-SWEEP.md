@@ -66,8 +66,8 @@ inventory; their full historical values remain in the original table. The fresh 
 `app.ehpanda.personal`. The current D-25 rendered scope is exactly Search root #9, Favorites #8,
 and Watched #5: nine iPhone-portrait cells at XXL, AX3, and AX5. Search root is the Task 1 tracer;
 Activity Logs, Laboratory, and Gallery Detail are withdrawn from the current rendered scope.
-The source is immutable at `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`; the measurement/gate evidence
-predates the documentation commit `8a199c2f` and was not rerun on that documentation HEAD. The
+The source is immutable at `310a39625fb2cb7035415c73a91eb3ff4b7266cc`; the measurement/gate evidence
+predates the documentation commit `c33bcadaa6` and was not rerun on that documentation HEAD. The
 gitignored workflow test command was corrected separately and is not part of this document change.
 
 Current aliases resolve through this table: `IPHONE_UDID` = `LOGIN_UDID`, `IPHONE_LOGIN` = `present`
@@ -1266,16 +1266,16 @@ disturb round 1's verified layout (D-24).
 
 | Screen | What round 2 changed | Cells re-walked | Status |
 |---|---|---|---|
-| 14 Gallery Detail | 16-24: the action row ("Give a Rating" / "Similar Gallery") labels gain `minHeight: 24` for the audit's hit region; at `.large` the row is 3.7 pt taller and everything below it moves down 11 px, header and stats strip unchanged (`16-CONTRAST-AUDIT.md § Automated audit (16-24) › D-25`) | XXL / AX3 / AX5, iPhone portrait (16-26) | withdrawn: cc05aca6 reverted the 16-24 minHeight (owner, 2026-09-15; 16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)); the action row is back to its pre-16-24 height |
-| Search root (#W-22) | v3b changes the `SuggestionsPanel` intrinsic-height floor, title identity and search layout; committed in `7edfb1a7` (`fix(16-25): stabilize sparse search layout`); `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-before-verified/search.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-after-verified/search.png` | XXL / AX3 / AX5, iPhone portrait (16-26); W22 before/after matrix and bounded dynamic evidence recorded below | closed: pass |
-| Favorites (#W-22) | v3b applies the same signed-out content-identity change in `FavoritesView.swift`; committed in `7edfb1a7`; `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/before/favorites-out-large-1.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/after/favorites-out-large-1.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/before/favorites-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/after/favorites-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | finding:#39 — D-25 re-sweep owner-routed; not fixed |
-| Watched (#W-22) | v3b applies the same signed-out content-identity change in `WatchedView.swift`; committed in `7edfb1a7`; `.large` BF/AF captures: signed-out `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/before/screen-2.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/after/screen-2.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/before/watched-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/after/watched-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | closed: pass |
+| 14 Gallery Detail | 16-24: the action row ("Give a Rating" / "Similar Gallery") labels gain `minHeight: 24` for the audit's hit region; at `.large` the row is 3.7 pt taller and everything below it moves down 11 px, header and stats strip unchanged (`16-CONTRAST-AUDIT.md § Automated audit (16-24) › D-25`) | XXL / AX3 / AX5, iPhone portrait (16-26) | withdrawn: f68610b270 reverted the 16-24 minHeight (owner, 2026-09-15; 16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)); the action row is back to its pre-16-24 height |
+| Search root (#W-22) | v3b changes the `SuggestionsPanel` intrinsic-height floor, title identity and search layout; committed in `782768b2a7` (`fix(16-25): stabilize sparse search layout`); `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-before-verified/search.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/search-dynamic-20260917/iphone-S3-large-after-verified/search.png` | XXL / AX3 / AX5, iPhone portrait (16-26); W22 before/after matrix and bounded dynamic evidence recorded below | closed: pass |
+| Favorites (#W-22) | v3b applies the same signed-out content-identity change in `FavoritesView.swift`; committed in `782768b2a7`; `.large` BF/AF captures: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/before/favorites-out-large-1.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v3b/after/favorites-out-large-1.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/before/favorites-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone/after/favorites-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | finding:#39 — D-25 re-sweep owner-routed; not fixed |
+| Watched (#W-22) | v3b applies the same signed-out content-identity change in `WatchedView.swift`; committed in `782768b2a7`; `.large` BF/AF captures: signed-out `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/before/screen-2.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-controls/watched-out-large/after/screen-2.png`, and signed-in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/before/watched-in-large/screen.png` → `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/calibration-v4-phone-reload/after/watched-in-large/screen.png` | XXL / AX3 / AX5, iPhone portrait (16-26) | closed: pass |
 
 ### Re-sweep cells (16-26)
 
 Root's approved ordering amendment ran the measurement and closing gates before writing this summary
-documentation. Plan-start repository HEAD was `8a199c2f`; the immutable measured source was
-`b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, with loader and dylib hashes recorded in
+documentation. Plan-start repository HEAD was `c33bcadaa6`; the immutable measured source was
+`310a39625fb2cb7035415c73a91eb3ff4b7266cc`, with loader and dylib hashes recorded in
 `16-25-SUMMARY.md`. The `.large` Search capture is reference only and is not counted in the nine-cell
 matrix; its readable filename pattern is `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/iphone-portrait-large-9-top.png`
 and `iphone-portrait-large-9-bottom.png`. Each measured size has top/bottom captures, matching UI
@@ -3140,7 +3140,7 @@ them in writing.
 | Key | Value |
 |---|---|
 | Date | 2026-09-15 |
-| HEAD built and installed | Task 1 (tracer): `7c5c330fa29df554d17eb352b3e724d9615276e9` (`docs(16): rescope plans 16-25 and 16-26`). Task 2 onward: `cc05aca6e9b2e817721f310d21468f12dee5e2d4` (`fix(16): revert remaining visual a11y changes`), built by each simulator's UDID and installed over on both (orchestrator ruling R12, 2026-09-15) |
+| HEAD built and installed | Task 1 (tracer): `7c5c330fa29df554d17eb352b3e724d9615276e9` (`docs(16): rescope plans 16-25 and 16-26`). Task 2 onward: `f68610b270221bf20d07d454d39ac2a1cb3233d3` (`fix(16): revert remaining visual a11y changes`), built by each simulator's UDID and installed over on both (orchestrator ruling R12, 2026-09-15) |
 | Toolchain | Xcode 26.6 (17F113), selected with `DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer` on macOS 27.0 (orchestrator ruling R2, 2026-09-15: the default `xcode-select` now points at Xcode 27.0; every earlier Phase-16 gate used 26.6) |
 | `WALK_UDID` | `CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `EhPanda A11y Walkthrough iPhone 17 (26.5)`, device type `com.apple.CoreSimulator.SimDeviceType.iPhone-17`, runtime `com.apple.CoreSimulator.SimRuntime.iOS-26-5` (iOS 26.5, 23F77); created by 16-25 Task 1 and kept for 16-26. System `AppleLanguages` = `("en-JP", "ja-JP", "zh-Hant-JP")` (English first); the app is launched with `-AppleLanguages (en) -AppleLocale en_US`, the D-30 Voice Control language. Hermetic only: no session, never a test destination |
 | `LOGIN_UDID` | `C9C8B01B-1FBC-466E-A4F8-C46B13E1D07D`, `EhPanda Login iPhone Air (26.5)`, runtime iOS 26.5. Found **Shutdown** at 2026-09-15 12:13; booted by 16-25 (orchestrator ruling R3) to receive the install-over, and restored to Shutdown in Task 7. Install-over: built by its UDID, `plutil -extract CFBundleIdentifier raw …/EhPanda.app/Info.plist` printed `app.ehpanda.personal`, then `xcrun simctl install` over the existing app (never uninstalled). D-09 simulator: the owner's hand-entered session |
@@ -3194,7 +3194,7 @@ read back at its baseline (`VoiceOverTouchEnabled=0`).
 `…/` in the evidence cells stands for `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`.
 Every changed display setting was restored to its recorded baseline and read back after each flow
 (`display/F1-pass.txt` … `display/F8-pass.txt`). Observations that match an item the owner reverted in
-`cc05aca6` are cited to `16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)` and not re-reported.
+`f68610b270` are cited to `16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)` and not re-reported.
 
 **Rotor against `CONTEXTMENU=not-exposed` (OQ2).** The three action-bearing elements agree with the
 16-13 record wherever a mirror exists: the signed-in tag chip lists exactly its menu's vote items
@@ -3206,25 +3206,25 @@ reader page: its context menu's `Reload` is not in the rotor (W-12). Where a vie
 was activated.
 
 **Run notes.**
-- Task 2's precondition (`git log 401fee9d..HEAD -- AppPackage App ShareExtension` prints nothing) was
-  false: the owner-directed commits `1507a65a fix(16): fixed white CategoryCell text` and
-  `cc05aca6 fix(16): revert remaining visual a11y changes` changed app sources after Task 1. A first
+- Task 2's precondition (`git log 7122f98c52..HEAD -- AppPackage App ShareExtension` prints nothing) was
+  false: the owner-directed commits `92282f0684 fix(16): fixed white CategoryCell text` and
+  `f68610b270 fix(16): revert remaining visual a11y changes` changed app sources after Task 1. A first
   Task 2 walk on the installed `7c5c330f` build was superseded after the owner's visible-change review
   (`16-CONTRAST-AUDIT.md § Visible-change review (2026-09-15)`). Orchestrator ruling R12 (2026-09-15):
-  build `cc05aca6` by each simulator's UDID, install over on `WALK_UDID` and `LOGIN_UDID`, and re-run
-  Task 2 in full (candidates, the eight flows, the hide-idiom sweep from live greps at `cc05aca6`, the
-  listening list and its check). Every verdict above and below comes from the `cc05aca6` walk; Task 1
+  build `f68610b270` by each simulator's UDID, install over on `WALK_UDID` and `LOGIN_UDID`, and re-run
+  Task 2 in full (candidates, the eight flows, the hide-idiom sweep from live greps at `f68610b270`, the
+  listening list and its check). Every verdict above and below comes from the `f68610b270` walk; Task 1
   ran on `7c5c330f`. The superseded walk's files were moved, not deleted, to
   `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/superseded-7c5c330f/` (relative paths kept);
   Task 1's transcripts and the scripts stay in place.
-- Build: the `cc05aca6` builds waited on the shared `xcodebuild` lock while an unrelated build was
+- Build: the `f68610b270` builds waited on the shared `xcodebuild` lock while an unrelated build was
   running (R1); the waiting wrapper was left to finish and no second build was started. Both builds
   succeeded, `plutil` printed `app.ehpanda.personal` for both products, and both installs were
   install-over (`audit/build-cc05-walk.log`, `audit/build-cc05-login.log`, `plutil-cc05-walk.txt`,
   `plutil-cc05-login.txt`).
 - Hazard (R12): a background shell left by the superseded F7 step, waiting on standard input, stayed
   hung and was not killed; had it resumed it would have sent one Activate chord to `WALK_UDID`. No
-  Activate event that this walk did not send appears in any `cc05aca6` log.
+  Activate event that this walk did not send appears in any `f68610b270` log.
 - Log stream stop (R11): in Task 1 the executor also ran a pattern `pkill` on `vot` log streams after
   stopping its own by PID; nothing matched afterwards, and whether another `vot` stream existed before
   is unverifiable. From then on only recorded PIDs were stopped.
@@ -3244,20 +3244,20 @@ was activated.
   `Speaking Rate`; it was moved to `Headings` with no value step, and the rate did not change.
 - Screen evidence follows R9: where VoiceOver logs no `First element in app focus` line, the
   `Screen Changed` note plus the first FOCUS after it is the SCREEN evidence.
-- Every `cc05aca6` log stream was stopped by its recorded PID (`vo.sh off`).
+- Every `f68610b270` log stream was stopped by its recorded PID (`vo.sh off`).
 
 ### Findings
 
 `…/` stands for `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`. VO-3b splits the General
 pop observation out of VO-3, so that the Filters 1.8 row keeps its own route. The superseded walk's
-toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has no row.
+toast-interruption candidate did not reproduce on `f68610b270` (F2 1.10) and has no row.
 
 | id | flow | qa id | what was observed (written description) | evidence | route | walk 2 |
 |---|---|---|---|---|---|---|
-| VO-1 | F1 | 1.3 | Reproduces on `cc05aca6`. A 40-step walk from Home's first element cycles the six hero cards and resets to the Home heading on every loop with no key pressed, so the Frontpage section and everything below is never reached linearly. The Headings rotor finds no heading below; the Containers rotor reaches the tab bar, and a backward walk from there reaches the sections (R6) | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-headings-rotor.txt`, `…/transcripts/vo1-home-containers-rotor.txt`, `…/transcripts/vo1-home-below-trap.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-full60.log`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-full60.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-heading-home-final-forward.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-heading-home-final-prev.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-hero-swipes` |
+| VO-1 | F1 | 1.3 | Reproduces on `f68610b270`. A 40-step walk from Home's first element cycles the six hero cards and resets to the Home heading on every loop with no key pressed, so the Frontpage section and everything below is never reached linearly. The Headings rotor finds no heading below; the Containers rotor reaches the tab bar, and a backward walk from there reaches the sections (R6) | `…/transcripts/vo1-home-40.txt`, `…/transcripts/vo1-home-headings-rotor.txt`, `…/transcripts/vo1-home-containers-rotor.txt`, `…/transcripts/vo1-home-below-trap.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-full60.log`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-full60.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-heading-home-final-forward.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-heading-home-final-prev.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-hero-swipes` |
 | VO-2 | F4 | 1.5 | Reproduces. With the reader panel shown and no slider preview, the walk from the lower `Close` to the page slider passes three silent unnamed 20 × 20 point elements and three page captions from the hidden slider preview (`ControlPanel.swift:214`, `:227`), then the first end label and the slider | `…/transcripts/vo2-reader-panel.txt`, `…/transcripts/f4-panel.txt` | fix | walk 2: lower `Close` at 03:20:40.966 → endpoint `1` at 03:21:05.366 → `Page` at 03:21:08.846, with no hidden preview stops; adjustment reached `6 of 52` and `1 of 52` ($HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-panel-shown.txt; $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-adjust-up.txt; $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-adjust-down.txt; $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-v2.log) |
 | VO-3 | F2 | 1.8 | Reproduces. Search › More › Filters › `Cancel` does not return focus to `More`: from the root it lands on the `Search` heading; from the results it lands on the error toast. Candidate `visiblebodyMore` is carried to 16-26 sign-off; the original target remains unmet and is not accepted. | `…/transcripts/vo3-filters.txt`, `…/transcripts/f2-filters.txt` | owner (D-22): carried to 16-26 sign-off; cause identified 2026-09-19: SwiftUI bridges a `Label`-labeled toolbar control to a native bar button item, which drops the focus binding. Owner ruling 2026-09-20: Apple-bug handling, do not fix locally; the evaluated `Image`-label workaround was not adopted and focus stays at the platform default (`16-FOCUS-INVESTIGATION.md § Root-cause round (2026-09-19)`) | — |
-| VO-3b | F7 | 1.8 (observation) | General pop: focus lands on the `Setting` heading on `cc05aca6` (the Task 1 tracer on `7c5c330f` landed on the `Account` row), not on the `General` trigger; the other pops seen (Frontpage → inline `Home` title, Comments → Detail back button, results → toast) have the same shape | `…/transcripts/vo3-general-pop.txt`, `…/transcripts/f7-general-cc05.txt`, `…/transcripts/f1-frontpage-pop.txt`, `…/transcripts/f8-rating.txt` | accepted: (c) pop-back focus is an observation, not a checklist item | — |
+| VO-3b | F7 | 1.8 (observation) | General pop: focus lands on the `Setting` heading on `f68610b270` (the Task 1 tracer on `7c5c330f` landed on the `Account` row), not on the `General` trigger; the other pops seen (Frontpage → inline `Home` title, Comments → Detail back button, results → toast) have the same shape | `…/transcripts/vo3-general-pop.txt`, `…/transcripts/f7-general-cc05.txt`, `…/transcripts/f1-frontpage-pop.txt`, `…/transcripts/f8-rating.txt` | accepted: (c) pop-back focus is an observation, not a checklist item | — |
 | VO-4 | F3 | 1.2 | Reproduces. The stats strip reads counts with their units as separate phrases and decimals as "4 dot 50"; comment dates are read "N slash N slash N"; a comment body that is a URL is spelled out ("https colon slash slash …") | `…/transcripts/f3-detail-walk.txt`, `…/transcripts/f3-comments-walk.txt` | accepted: (a) verbosity from transcript text; no round-2 idiom shortens these without dropping information | — |
 | W-5 | F1, F2, F3 | 1.4 | Section titles (`Frontpage`, `Toplists`, `Other`, `Recently Searched`, `Previews`, `Comments`) are spoken as "Button" with no heading trait; the Headings rotor on Detail finds no heading | `…/transcripts/vo1-home-below-trap.txt`, `…/transcripts/f2-root-keywords.txt`, `…/transcripts/f3-detail-headings.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f2-root-toast-next.txt` / `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f2-root-toast-prev.txt` (Search heading bounded) |
 | W-6 | F1 | 1.2 | A Frontpage list cell's utterance gives title, uploader, the word "Rating", page count, category and date, and only then the rating value ("4.5 out of 5"), so the value is separated from its name | `…/transcripts/f1-frontpage-walk.txt` | fix | walk 2: full Frontpage cell speech reaches Rating, pages, category, date and Button without next interruption ($HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f3-frontpage-full.log) |
@@ -3280,8 +3280,8 @@ toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has n
 | W-24 | F2 | 6.1 | The Search root keyword `Delete` glyph renders pale green that nearly vanishes in software grayscale | `…/display/F2/grayscale-software.png` | deferred: `deferred-items.md § Found during 16-25` item 2 | — |
 | W-25 | sweep | 1.2, 1.4 | Torrent rows read their seed, peer and completion counts as bare numbers without meaning; the two zero counts produce no speech at all (a pause and "Actions available") | `…/transcripts/sw-torrents.txt` | fix | walk 2: each count has semantic speech, including Seeds 1, Peers 0, and Completed downloads 63 (`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-torrents-next.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-torrents-prev.txt`) |
 | W-26 | sweep | 1.5 | The Archives funds row exposes both coin glyphs by symbol name ("g.circle.fill", "C Circle") although `ArchivesView.swift:226` / `:234` mark them `accessibilityHidden(true)`; the GP balance of zero is silent and the credits balance is a bare number | `…/transcripts/sw-archives.txt` | fix | walk 2: GP balance 0 and Credits balance 2,246 are spoken; coin glyphs are not read (`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-archives-next.txt`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-archives-prev.txt`) |
-| W-27 | sweep | 1.2 | Reproduces on `cc05aca6` (the row's severity dot is back to the pre-16-24 circle). Each App Activity Logs row is four stops: the dot spoken "Error", the timestamp, the category, the message | `…/transcripts/sw-activity-logs.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f7-activity.log`; first seven combined rows only |
-| W-28 | sweep | 1.2 | Reproduces on `cc05aca6`. On Login, each field is two stops with one name: the caption (`Username`, `Password`), then the field spoken by its placeholder | `…/transcripts/sw-login.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f7-login.log`; caption hidden, one editable field stop |
+| W-27 | sweep | 1.2 | Reproduces on `f68610b270` (the row's severity dot is back to the pre-16-24 circle). Each App Activity Logs row is four stops: the dot spoken "Error", the timestamp, the category, the message | `…/transcripts/sw-activity-logs.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f7-activity.log`; first seven combined rows only |
+| W-28 | sweep | 1.2 | Reproduces on `f68610b270`. On Login, each field is two stops with one name: the caption (`Username`, `Password`), then the field spoken by its placeholder | `…/transcripts/sw-login.txt` | fix | walk 2: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f7-login.log`; caption hidden, one editable field stop |
 | W-29 | F1, sweep | 1.7 | When a loading view gives way to content, focus moves to the element that now sits where the loading view was, not to the first element: the second Frontpage cell; `Create New` in the middle of Account Configuration | `…/transcripts/f1-home-to-frontpage.txt`, `…/transcripts/sw-ehsetting.txt` | fix | walk 2: Frontpage reaches the first fixture gallery; EhSetting reaches Selected Profile (`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f1-frontpage.log`, `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-ehsetting-load-focus.txt`) |
 | W-30 | F4 | 1.4 | Task 2 read a reader page element as silent: its label is the page number and the `vot` log shows no spoken string for it (a pause and "Actions available"). The recording refutes it (R13): in L-7, focus on page element `4` at 31.53 s produced an audible "Four", and page `3` produced "Three"; the log has no `Post-processed string` line for those utterances, so only the log missed the number | `…/transcripts/f4-read.txt`, `…/listen/audio/run1/L-7.vot.log`, `…/listen/audio/run1/L-7.report.txt`, `…/listen/audio/clips/10-reader-page-number.m4a` | withdrawn: refuted by the recording (R13) | — |
 | W-31 | F8 | display pass (Button Shapes) | With Button Shapes on, an empty capsule appears under the Detail title: the uploader Button renders with an empty label when the gallery has no uploader (`DetailView+HeaderSection.swift:387`); VoiceOver skips it | `…/display/F8/button-shapes.png`, `…/display/F8/contact.png` | accepted: owner scope is limited to the empty uploader button capsule under Button Shapes; no other blank control is accepted | walk 2: owner accepted the existing empty Button Shapes capsule within the recorded scope; no new runtime measurement was made |
@@ -3294,7 +3294,7 @@ toast-interruption candidate did not reproduce on `cc05aca6` (F2 1.10) and has n
 | W-38 | F4 | 1.2, 1.3 | The hermetic Reader route labels 52 pages, but the complete forward walk stops at page 51/Reload; the last repeated explicit-next does not reach page 52, and the panel indicator later shows `44 / 52` while the visible page is 51. The cause is unverified; source data only rules out an obvious source off-by-one and does not establish a runtime page-52 item | $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-hidden-full.txt; $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-v2.log; $HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-before-close-ui.json | fix (carried to 16-26 owner sign-off; not implemented) | walk 2: page 51/Reload terminal and `44 / 52` versus visible page 51 are recorded in `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-v2.log` and `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/task7-f4-root-before-close-ui.json`; unresolved, not accepted or system-owned |
 ### Hide-idiom sweep
 
-Inventory from live greps at `cc05aca6` (orchestrator ruling R12). Paths below are
+Inventory from live greps at `f68610b270` (orchestrator ruling R12). Paths below are
 relative to `AppPackage/Sources/`; `…/` stands for
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/`.
 
@@ -3311,11 +3311,11 @@ G4 unpaired (16): `AccountSettingView.swift:249`, `AppearanceSettingView.swift:4
 
 Changes against the planning-time counts: G1, G2 and G3 match the plan's 25, 2 and 51 (G3's 51 is 46
 call sites, the declaration and four comment or doc lines, not the plan's 48 / 1 / 2). G4 is 23, not 24:
-`cc05aca6` removed the `accessibilityHidden(true)` at `LaboratorySettingView.swift:72` with the on/off
-marker it hid. Several sites moved lines with `cc05aca6` (for example `DetailView+HeaderSection.swift`
+`f68610b270` removed the `accessibilityHidden(true)` at `LaboratorySettingView.swift:72` with the on/off
+marker it hid. Several sites moved lines with `f68610b270` (for example `DetailView+HeaderSection.swift`
 213 → 208, 223 → 218, 262 → 251, 270 → 259; `CommentsView.swift` 280 → 273; `GeneralSettingView.swift`
 82 → 77, 93 → 88; `ReadingViewComponents.swift` 290 → 288, 295 → 293; `SubSection.swift` 122 → 114). The
-rows use the `cc05aca6` lines.
+rows use the `f68610b270` lines.
 
 #### Enumerated, not swept
 
@@ -3423,7 +3423,7 @@ hold an image whose frame height is 0 while the preview is hidden (the three sil
 
 ### Listening (owner)
 
-Picked from the `WALK_UDID` transcripts of the `cc05aca6` walk. The spoken text stays in the evidence
+Picked from the `WALK_UDID` transcripts of the `f68610b270` walk. The spoken text stays in the evidence
 root (`listen/items.tsv` carries it with the route, the chords and the expected focus prefix);
 transcript paths are relative to `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/transcripts/`.
 
@@ -3446,7 +3446,7 @@ and leaves VoiceOver on.
 
 Check run (Task 2): `WALK_UDID` shut down with `xcrun simctl shutdown`, then
 `env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/bash "$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/listen.sh" --check`
-→ `listen/check.log`: `SIM_USE /opt/homebrew/bin/sim-use`, `BOOTED CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `VOICEOVER ON`, then `OK` for L-0, L-2, L-4, L-5, L-6 and L-7; no `MISMATCH` (2026-09-15, `cc05aca6`).
+→ `listen/check.log`: `SIM_USE /opt/homebrew/bin/sim-use`, `BOOTED CAE8CEE9-7C40-48D3-BE75-F0940B403DA8`, `VOICEOVER ON`, then `OK` for L-0, L-2, L-4, L-5, L-6 and L-7; no `MISMATCH` (2026-09-15, `f68610b270`).
 
 #### Owner reply (2026-09-16)
 
@@ -3459,7 +3459,7 @@ Method. Tool `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/rec
 records through a Core Audio process tap and transcribes on-device with SpeechAnalyzer (en-US only);
 `record-items.sh`, `analyze.py`, `focus-seq.py` and `summary.py` drive and analyse it. Each item was recorded
 whole: a `vot` log stream spanning the recording, a 2 s pre-roll, the route driven by `listen.sh <id>` on the
-`cc05aca6` install, and a 6 s post-roll. `analyze.py` matches every enqueued utterance against the recorded
+`f68610b270` install, and a 6 s post-roll. `analyze.py` matches every enqueued utterance against the recorded
 sound (ffmpeg silencedetect) and the transcript, and lists every stretch of sound the log does not explain.
 Evidence: `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/listen/audio/run1/` (L-0, L-2, L-4, L-5,
 L-6 and a first L-7, which was a MISMATCH because the reader opened at saved page 4 and `next8` never reached
@@ -3524,12 +3524,12 @@ over the slider-preview strip's own `visible(false)` (`:227`) and its slots (`:2
 
 | variant | patch | change | walk result | transcript |
 |---|---|---|---|---|
-| V0 (baseline, `cc05aca6`) | — | none | leaks: three unnamed 20 × 20 stops at y 774, then three page captions, then the end label and the slider | `…/transcripts/vo2-V0-baseline-cc05.txt` |
+| V0 (baseline, `f68610b270`) | — | none | leaks: three unnamed 20 × 20 stops at y 774, then three page captions, then the end label and the slider | `…/transcripts/vo2-V0-baseline-cc05.txt` |
 | V1 | `…/vo2/V1-remove-slot-visible.patch` | remove the per-slot `.visible(checkIndex(page))` | still leaks, unchanged: the slots' own `accessibilityHidden(false)` is not the cause | `…/transcripts/vo2-V1.txt` |
 | V2 | `…/vo2/V2-slot-image-color-clear.patch` | slot `PreviewImageView(…)` → `Color.clear`, same frame | the three unnamed stops are gone (they were the placeholder `ProgressView`s), but the three captions still leak: the `ProgressView` does not escape the hide on its own, it only adds elements | `…/transcripts/vo2-V2.txt` |
 | V3 | `…/vo2/V3-panel-opacity-without-ancestor-accessibilityHidden.patch` | the panel's ancestor `.visible(showsPanel)` (`:54`) → `.opacity(showsPanel ? 1 : 0)`, no accessibility value on the ancestor | hidden: lower `Close` → end label `1` → `Page` slider, no spinner or caption stop | `…/transcripts/vo2-V3.txt` |
 | V4 | `…/vo2/V4-visible-accessibilityHidden-isEnabled.patch` | the proposed fix: `visible(_:)` writes `.accessibilityHidden(true, isEnabled: !isVisible)` | hidden: the panel's show moves focus to the lower `Close` (same frame as V0, y 719.67), then end label `1` → `Page` slider → `156` → pages, no spinner or caption stop. Control walk with the panel hidden (no tap): no panel element is reachable, only the native toolbar `Close` / `More` and the pages | `…/transcripts/vo2-V4.txt`, `…/transcripts/vo2-V4-panel-hidden.txt` |
-| V5 | `…/vo2/V5-scrollview-boundary-around-strip.patch` | tree as `cc05aca6`; `SliderPreivew(…)` (`:227`'s view) wrapped in `ScrollView(.horizontal) { … }.scrollDisabled(true)`, so a scroll container sits between `:54` and `:227` | hidden: lower `Close` → `1` → `Page` → `156` → pages. Confounded: the scroll view takes the strip's 0-point hidden height and clips the slots that overflow it in V0, and it leading-aligns the strip 10 points left (measured on V6a below). The `Close` focus frame the walk logged on show (y 769.67 against V0's 719.67) is not a layout change: the unchanged layout logs the same 769.67 on show while its laid-out frame is 719.67 (`…/transcripts/vo2-layout-M0.txt`), so that frame depends on when the panel's slide-in is sampled | `…/transcripts/vo2-V5.txt` |
+| V5 | `…/vo2/V5-scrollview-boundary-around-strip.patch` | tree as `f68610b270`; `SliderPreivew(…)` (`:227`'s view) wrapped in `ScrollView(.horizontal) { … }.scrollDisabled(true)`, so a scroll container sits between `:54` and `:227` | hidden: lower `Close` → `1` → `Page` → `156` → pages. Confounded: the scroll view takes the strip's 0-point hidden height and clips the slots that overflow it in V0, and it leading-aligns the strip 10 points left (measured on V6a below). The `Close` focus frame the walk logged on show (y 769.67 against V0's 719.67) is not a layout change: the unchanged layout logs the same 769.67 on show while its laid-out frame is 719.67 (`…/transcripts/vo2-layout-M0.txt`), so that frame depends on when the panel's slide-in is sampled | `…/transcripts/vo2-V5.txt` |
 | V6 layout check | `…/vo2/V6-layout-probe.patch` on V0, then with `…/vo2/V6a-scrollclipdisabled-with-layout-probe.patch` and `…/vo2/V6b-containerrelativeframe-with-layout-probe.patch` | throwaway `onGeometryChange` logs of the global frames of the lower `Close`, the strip, and each slot, slot image and caption, read after the panel's show | V0: `Close` 179, 719.67, 44 × 44; strip 18, 793.67, 366 × 0; slots y 784.22, 108.67 × 18.89 at x 28 / 146.67 / 265.33; captions y 788.78. V6a (V5 + `.scrollClipDisabled()`): every y identical, every x 10 points left. V6b (V6a + `.containerRelativeFrame(.horizontal)` on the strip): every probed frame identical to V0 | `…/transcripts/vo2-layout-M0.txt`, `…/transcripts/vo2-layout-V6a.txt`, `…/transcripts/vo2-layout-V6b.txt` |
 | V6 | `…/vo2/V6-scrollview-boundary-layout-identical.patch` | V6b without the probe: `SliderPreivew(…)` in `ScrollView(.horizontal) { … .containerRelativeFrame(.horizontal) }.scrollDisabled(true).scrollClipDisabled()` | hidden, with the V0 layout: the panel's show moves focus to the lower `Close` at y 719.67, then end label `1` → `Page` → `156` → pages, no spinner or caption stop (two earlier runs were stopped part-way by an audio pause and are not counted) | `…/transcripts/vo2-V6.txt` |
 
@@ -3610,11 +3610,11 @@ mtime equals that build's completion, and no build wrote to the same derived-dat
 
 | run | tree | result | evidence |
 |---|---|---|---|
-| regression, red | pre-fix (`50e8412d`'s tree) | fails: 6 activity indicators in the band, three distinct 20 × 20 frames at y 774.33 each listed twice, slider `minY` 801.33 | `…/audit/regression-red-iphone.xcresult`, `…/audit/regression-red-iphone.log` |
-| regression, after the fix | `26625a78` | **still fails: 6, the identical frames** | `…/audit/regression-green-iphone.xcresult`, `…/audit/regression-green-iphone.log` |
-| `testReadingControlPanelAudit`, `GATE_IPHONE` | `26625a78` | passes, `Repetition` nodes 0; ActivityIndicator `sufficientElementDescription` reports **0** (pre-fix ×3) | `…/audit/after-vo2-panel-iphone.xcresult`, `…/audit/after-vo2-panel-iphone.log` |
-| `testReadingControlPanelAudit`, `GATE_IPAD` | `26625a78` | passes, `Repetition` nodes 0; the same reports **0** (pre-fix ×5) | `…/audit/after-vo2-panel-ipad.xcresult`, `…/audit/after-vo2-panel-ipad.log` |
-| `vot` walk, `WALK_UDID` | `26625a78`, built by `WALK_UDID`, `plutil` printed the bundle id, installed over | V4 verbatim: lower `Close` (y 719.67) → end label `1` → `Page` slider → `156` → pages, no spinner stop and no caption stop | `…/transcripts/vo2-postfix-26625a78.txt` |
+| regression, red | pre-fix (`0645a87513`'s tree) | fails: 6 activity indicators in the band, three distinct 20 × 20 frames at y 774.33 each listed twice, slider `minY` 801.33 | `…/audit/regression-red-iphone.xcresult`, `…/audit/regression-red-iphone.log` |
+| regression, after the fix | `35904cfc97` | **still fails: 6, the identical frames** | `…/audit/regression-green-iphone.xcresult`, `…/audit/regression-green-iphone.log` |
+| `testReadingControlPanelAudit`, `GATE_IPHONE` | `35904cfc97` | passes, `Repetition` nodes 0; ActivityIndicator `sufficientElementDescription` reports **0** (pre-fix ×3) | `…/audit/after-vo2-panel-iphone.xcresult`, `…/audit/after-vo2-panel-iphone.log` |
+| `testReadingControlPanelAudit`, `GATE_IPAD` | `35904cfc97` | passes, `Repetition` nodes 0; the same reports **0** (pre-fix ×5) | `…/audit/after-vo2-panel-ipad.xcresult`, `…/audit/after-vo2-panel-ipad.log` |
+| `vot` walk, `WALK_UDID` | `35904cfc97`, built by `WALK_UDID`, `plutil` printed the bundle id, installed over | V4 verbatim: lower `Close` (y 719.67) → end label `1` → `Page` slider → `156` → pages, no spinner stop and no caption stop | `…/transcripts/vo2-postfix-35904cfc97.txt` |
 
 So `app.activityIndicators`, an XCUITest *element query*, enumerates elements that `accessibilityHidden(true)` has
 removed from the accessibility tree, while `performAccessibilityAudit(for:)` and VoiceOver both respect it. An absence
@@ -3719,7 +3719,7 @@ a static XCUITest snapshot; the duplicate exposure VO-1 suffers is transient and
 traversal, which XCUITest cannot drive. The other reading of the assertion — that all six galleries are present —
 is red before the fix *and* after it, because the fix hides the cards outside the middle block but cannot realise
 cards the lazy stack never built. Neither reading yields red → green. The test was removed from the working tree
-before `50e8412d`, so no part of it was committed.
+before `0645a87513`, so no part of it was committed.
 
 Orchestrator decision D-B (2026-09-16): part 2 carries no XCUITest regression, and no green-only test is added in its
 place. Its oracle is the `vot` walk, identical to part 1, and the plan's `<behavior>` items are the pass condition.
@@ -3845,7 +3845,7 @@ matching log. It was not retried.
 
 The recorded failure still contained 13 passing `AppToolsTests` cases and 24 passing `HomeFeatureTests` cases,
 with zero repetition nodes. The separately authorized heartbeat-fix run completed 489 tests across 84 suites,
-with 8 known issues and zero repetition nodes; its result is `a0a2cbb3`. The full plan's exit 65 is retained and
+with 8 known issues and zero repetition nodes; its result is `6a88427432`. The full plan's exit 65 is retained and
 is not described as a green run.
 
 The escalated WALK preflight and install-over succeeded on the existing P-VO1 app. The original 40-step transcript
@@ -3881,11 +3881,11 @@ The completed semantics-only commits and their evidence are recorded here; actua
 
 | Commit | Scope and evidence |
 |---|---|
-| `6b7ef86a` | W-12 reader context actions; 37 cases (AppTools 13 + Reading 24), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w12/`. |
-| `464d1584` | W-19/W-27/W-28 settings semantics; 73 cases (AppTools + Setting), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w19-w27-w28/`. |
-| `772e8f85`, `1eb49e96` | W-14/W-20/W-23/W-25/W-26/W-36/W-37 Detail semantics (39 cases: AppTools 13 + Detail 26) and catalog formatting-only follow-up; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/detail-semantics/`. |
-| `f811bf5e` | W-6/W-16/W-17/W-18 gallery/download semantics; 509 cases, 503 passed, 6 expected failures, 8 expected-failure nodes, 88 suites, zero Repetition; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w6-download-semantics/`. |
-| `700db090` | W-34 binary size unit semantics; 39 cases, zero Repetition, 54-output smoke (6 locales × 3 units × 3 quantities), visible strings and copy values untouched; evidence under `$HOME/Library/Caches/ehpanda-phase16/round2/w34-file-size/`. |
+| `ca562ecfbe` | W-12 reader context actions; 37 cases (AppTools 13 + Reading 24), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w12/`. |
+| `f628dcd118` | W-19/W-27/W-28 settings semantics; 73 cases (AppTools + Setting), logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w19-w27-w28/`. |
+| `5dbf7a82c7`, `51bf928696` | W-14/W-20/W-23/W-25/W-26/W-36/W-37 Detail semantics (39 cases: AppTools 13 + Detail 26) and catalog formatting-only follow-up; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/detail-semantics/`. |
+| `ef452df527` | W-6/W-16/W-17/W-18 gallery/download semantics; 509 cases, 503 passed, 6 expected failures, 8 expected-failure nodes, 88 suites, zero Repetition; logs under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w6-download-semantics/`. |
+| `384d90b629` | W-34 binary size unit semantics; 39 cases, zero Repetition, 54-output smoke (6 locales × 3 units × 3 quantities), visible strings and copy values untouched; evidence under `$HOME/Library/Caches/ehpanda-phase16/round2/w34-file-size/`. |
 
 VO-3 remains open. The only candidate shown to work is `visiblebodyMore`: a production design adopting it would move the existing toolbar action into visible screen content and therefore change native menu order/traits and visible layout; no owner visual authorization exists for that structural change. The diagnostic instead added a second body `More` control for comparison and did not move the production toolbar control. The candidate is carried to 16-26 sign-off. The measured scope was limited to Search-results fixture behavior at iPhone `.large`; Search root was not validated with the new candidate. The original toolbar focus target remains unmet and is neither fixed nor accepted.
 
@@ -3917,7 +3917,7 @@ The W-22 intrinsic-height and W-10 toast sort-priority edits remain uncommitted 
 
 The corrected combined focus/layout gate used the existing incremental DerivedData. The retained first invocation omitted the `test` action and exited 64 with no cases; it is an invocation error, not a test failure. The corrected first-try run passed 55 cases across 12 suites (AppTools 13, Detail 26, Search 12, SystemNotification 4), with 0 failed, 0 expected failures, 0 skipped and 0 Repetition in 56.886 seconds. The required generic iOS Simulator build passed in 52.693 seconds. Evidence is under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/combined-focus-layout-gates/`.
 
-W-33's three approved Detail files are committed as `a12b9903` (`fix(16-25): spell out Latin day periods`); W-10's forced-focus removal and toast sort-priority change are committed as `c30fbe08` (`fix(16-25): keep toast after screen content`). The combined scoped module gate passed 43 cases across 11 suites with zero failures and zero Repetition in 76.571 seconds; the required generic Simulator build passed in 74.149 seconds. The 26-row locale preflight passed with zero failures (`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/preflight.log`). The earlier invocation exit 64 omitted the `test` action and ran no tests; it remains an invocation record, not a retry. Actual spoken pronunciation remains Task 7 work.
+W-33's three approved Detail files are committed as `52edf543b0` (`fix(16-25): spell out Latin day periods`); W-10's forced-focus removal and toast sort-priority change are committed as `045c4f8c2b` (`fix(16-25): keep toast after screen content`). The combined scoped module gate passed 43 cases across 11 suites with zero failures and zero Repetition in 76.571 seconds; the required generic Simulator build passed in 74.149 seconds. The 26-row locale preflight passed with zero failures (`$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w33/preflight.log`). The earlier invocation exit 64 omitted the `test` action and ran no tests; it remains an invocation record, not a retry. Actual spoken pronunciation remains Task 7 work.
 
 The W-10 semantic change is limited to the toast error Group's `.accessibilitySortPriority(-1)` and removal of its programmatic focus assignment; the existing announcement, action, and visual presentation remain unchanged.
 
@@ -3932,7 +3932,7 @@ W-13 first-slice design approval (2026-09-16): on Detail Header, Read → Reader
 W-5 is a semantics-only fix for finding W-5. `AppPackage/Sources/AppComponents/SubSection.swift` adds
 `.accessibilityAddTraits(.isHeader)` to `titleButton`; the existing button action, hit-testing condition,
 frames, styles, child content and `ProgressView` remain unchanged. The fix is committed as
-`a8cb5d53` (`fix(16-25): section heading traits`). It adds no D-25 re-sweep row because it cannot change
+`8644199063` (`fix(16-25): section heading traits`). It adds no D-25 re-sweep row because it cannot change
 rendered layout or frames. The expected Headings rotor result is still a Task 7 walk2 observation and is
 not marked passed here.
 
@@ -3949,7 +3949,7 @@ zero `Repetition` nodes. The result and log are retained at
 The follow-up Xcode 26.6 lint build also passed (`BUILD SUCCEEDED`) using the same isolated derived data;
 its log is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w5/lint-build.log`. No test file was
 changed, so no standalone test-file lint or build-for-testing was required. Later status: W-33's three
-Detail files were committed separately as `a12b9903`, while W-10's three-line removal remains uncommitted;
+Detail files were committed separately as `52edf543b0`, while W-10's three-line removal remains uncommitted;
 `SearchView.swift` retains no VO-3 trial change because that six-line trial was withdrawn to HEAD. W-22's four temporary seed/bootstrap patches remain
 strict-lint ready, with AFTER verification still pending for fresh size provenance and matched comparisons.
 The phase remains executing and Task 7 walk2 is pending.
@@ -3968,7 +3968,7 @@ W-29 Frontpage slice approved for implementation: `FrontpageView` owns private `
 
 W-29 module gates recorded: AppTools/HomeFeature/GalleryListComponents/SettingFeature completed 104 tests with 102 passed, 2 expected, 0 failed, 0 skipped, Repetition 0 in 65.607 seconds; generic build passed in 71.371 seconds. Comments completed 39 tests with 39 passed, 0 expected, 0 failed, 0 skipped, Repetition 0 in 54.001 seconds; generic build passed in 56.645 seconds. The LOGIN runtime build passed in 45.598 seconds for the W29 EhSetting and Comments evidence binary. At gate-recording time, runtime evidence was still pending; these figures are gate facts only.
 
-W-29 bounded runtime evidence is recorded under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w29/root-runtime/`. Frontpage detail mode reached the first gallery row with actual/spoken timestamps `18:19:18.180` / `.210` after the preceding Back actual/spoken `18:19:18.114` / `.138`; thumbnail mode reached its first selected gallery at actual/spoken `18:28:43.494` / `.529`, after Back actual/spoken `18:28:43.428` / `.450`. The empty-filter to cleared-filter capture retained the existing field focus and did not produce a new focus steal. LOGIN EhSetting selected the existing profile Picker at `18:30:39.989` (`Will set element`) and `18:30:40.050` (`Selected Profile`). The loaded Detail pop observation reached a first element at `18:24:24.053`; it is observation only and does not establish a second-row return or an Apple-native root cause. The source change was committed as `24f5847a` (`fix(16-25): focus newly loaded content`). UI batch coverage and Task 7 remain pending.
+W-29 bounded runtime evidence is recorded under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w29/root-runtime/`. Frontpage detail mode reached the first gallery row with actual/spoken timestamps `18:19:18.180` / `.210` after the preceding Back actual/spoken `18:19:18.114` / `.138`; thumbnail mode reached its first selected gallery at actual/spoken `18:28:43.494` / `.529`, after Back actual/spoken `18:28:43.428` / `.450`. The empty-filter to cleared-filter capture retained the existing field focus and did not produce a new focus steal. LOGIN EhSetting selected the existing profile Picker at `18:30:39.989` (`Will set element`) and `18:30:40.050` (`Selected Profile`). The loaded Detail pop observation reached a first element at `18:24:24.053`; it is observation only and does not establish a second-row return or an Apple-native root cause. The source change was committed as `ae0010ad18` (`fix(16-25): focus newly loaded content`). UI batch coverage and Task 7 remain pending.
 
 W-13 Comments slice approved for implementation: `CommentsView` owns a private Hashable `PostCommentOrigin` with `newComment` and `edit(String)` cases, a private `@AccessibilityFocusState` binding, and a `@State` origin. The existing toolbar Post Comment action records `newComment` before its original action and focuses that same Button after native sheet dismissal. Each existing editable comment swipe action records `edit(commentID)` before its original action, while the existing combined `CommentCell` row receives the real binding and focuses with `equals: .edit(commentID)`. Native sheet dismissal uses a defer to clear the origin; edit focus returns only when the same comment ID remains. No destination observer, delay, task, onAppear, defaultFocus, UIKit shim, visual change, posting/editing flow, or credential seam is included.
 
@@ -3977,7 +3977,7 @@ W-35 production follow-up confirms the late-title timing without instrumentation
 
 ### W-13 root-runtime slice (2026-09-16)
 
-The Detail W-13 slice was committed as `a90750a7` and has a valid root-runtime Read → Reader → toolbar Close → Read path from both a direct Detail entry and a normal Home Frontpage first-card → Detail entry. The final normal path recorded Read pre-focus at `16:46:02.683`, Reader toolbar Close at `16:46:41.622`, and post-dismiss actual/spoken Read at `16:46:48.561` / `16:46:48.572`. The earlier direct path recorded Close at `16:37:02.677` and post-dismiss actual/spoken Read at `16:37:09.563` / `16:37:09.573`. The inline-preview path remained in Detail and, after dismiss, actual focus landed on the Home-labeled Back button rather than Header Read (`16:38:17.845` prefocus; `16:39:19.897` / `.914` dismiss). Evidence is retained under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/WALK/w13/root-runtime/`, including the root VOT log and PNGs. A rotated/frozen normal trial is retained as invalid; the device was restored to portrait and an intentional relaunch produced the valid normal2 path. Downloads and Comments remain outside this W-13 slice. W-35 implementation probe was withdrawn after runtime measurement; the finding remains open.
+The Detail W-13 slice was committed as `013be9af37` and has a valid root-runtime Read → Reader → toolbar Close → Read path from both a direct Detail entry and a normal Home Frontpage first-card → Detail entry. The final normal path recorded Read pre-focus at `16:46:02.683`, Reader toolbar Close at `16:46:41.622`, and post-dismiss actual/spoken Read at `16:46:48.561` / `16:46:48.572`. The earlier direct path recorded Close at `16:37:02.677` and post-dismiss actual/spoken Read at `16:37:09.563` / `16:37:09.573`. The inline-preview path remained in Detail and, after dismiss, actual focus landed on the Home-labeled Back button rather than Header Read (`16:38:17.845` prefocus; `16:39:19.897` / `.914` dismiss). Evidence is retained under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/WALK/w13/root-runtime/`, including the root VOT log and PNGs. A rotated/frozen normal trial is retained as invalid; the device was restored to portrait and an intentional relaunch produced the valid normal2 path. Downloads and Comments remain outside this W-13 slice. W-35 implementation probe was withdrawn after runtime measurement; the finding remains open.
 
 ### W-22 AFTER evidence boundary (2026-09-16)
 
@@ -4085,7 +4085,7 @@ The existing inspector sheet uses native `onDismiss`; it guards the origin ID ag
 
 ### W-13 Downloads bounded validation (2026-09-16)
 
-The approved Downloads focus implementation is committed as `aa3d9947` (`fix(16-25): restore download row focus`) in `DownloadsView.swift` and `DownloadsView+Subviews.swift`. The scoped gate passed 502 tests across the four requested modules with 496 passed, 6 expected failures, 0 failed, 0 skipped and 0 Repetition in 61.675 seconds; the generic Simulator build passed in 58.707 seconds. The normal WALK path recorded the row at `17:38:32.408` / `.409`, Pages at `17:39:35.566` / `.567`, inspector Close at `17:39:51.030` / `.047`, and restored the same row at `17:40:22.392` / `.423`. The missing-row guard diagnostic filtered the row from the UI without deleting download data: row `17:52:05.714`, Pages `17:52:19.768` / `.769`, Close `17:52:35.156` / `.173`, dismiss `17:53:03.813`, then the logging-only guard recorded origin present, row absent, count zero and guard rejection at `17:53:04.325`, followed by deferred origin clearing at `.326` and Downloads heading at `17:53:05.124` / `.146`. Evidence is retained under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w13-downloads/`, including both raw logs, eight PNGs and `timeline.txt`. The D24 semantic scope is limited to restoring focus only for an origin row still present in `visibleRows`; no download action, row semantics group or visual layout changed.
+The approved Downloads focus implementation is committed as `6fc494cc72` (`fix(16-25): restore download row focus`) in `DownloadsView.swift` and `DownloadsView+Subviews.swift`. The scoped gate passed 502 tests across the four requested modules with 496 passed, 6 expected failures, 0 failed, 0 skipped and 0 Repetition in 61.675 seconds; the generic Simulator build passed in 58.707 seconds. The normal WALK path recorded the row at `17:38:32.408` / `.409`, Pages at `17:39:35.566` / `.567`, inspector Close at `17:39:51.030` / `.047`, and restored the same row at `17:40:22.392` / `.423`. The missing-row guard diagnostic filtered the row from the UI without deleting download data: row `17:52:05.714`, Pages `17:52:19.768` / `.769`, Close `17:52:35.156` / `.173`, dismiss `17:53:03.813`, then the logging-only guard recorded origin present, row absent, count zero and guard rejection at `17:53:04.325`, followed by deferred origin clearing at `.326` and Downloads heading at `17:53:05.124` / `.146`. Evidence is retained under `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo3/w13-downloads/`, including both raw logs, eight PNGs and `timeline.txt`. The D24 semantic scope is limited to restoring focus only for an origin row still present in `visibleRows`; no download action, row semantics group or visual layout changed.
 
 ### W-10 bounded runtime evidence (2026-09-16)
 
@@ -4095,7 +4095,7 @@ The subsequent results-page trial provides the bounded More → Filters return p
 
 ### W-37 bounded runtime evidence (2026-09-16)
 
-The W-37 source is committed as `772e8f85`. The runtime used the W29 generic app at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w29/EhPanda.app`; its loader SHA is `4f41958e5d5614ba24d39b59b1a796dce7fbc0af63b0b08bfe7f880cf7ce7be5` and debug dylib SHA is `22f61008c4c9b08e5a3cfe2b38daeeb44af28db21dc6371198b131a28fd598cf`. Using a cache copy of the repository fixtures whose canonical uploader text was emptied (five bytes), with `EHPANDA_UITEST_STUB_NETWORK=1`, the WALK bounded traversal passed in both directions. In the forward interval `18:44:19–18:45:38`, the Detail title Button was actual/spoken at `18:44:20.807` / `.819`, followed by `Non-H` at `18:44:32.263` / `.264`, then Resume download, dimmed Add to favorites, Read, Favorited and Language. Reverse traversal reached `Non-H` at `18:45:30.902` / `.903` and the Detail title Button at `18:45:33.894` / `.896`, with no unnamed uploader stop. Evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w37/root-runtime/w37-header-verified.png`, `w37-title-return.png`, `w37-root-vot.log`, and `timeline.txt`; the earlier launch-animation image is excluded. This is a bounded W-37 result only: Task 7's final HEAD remains pending.
+The W-37 source is committed as `5dbf7a82c7`. The runtime used the W29 generic app at `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w29/EhPanda.app`; its loader SHA is `4f41958e5d5614ba24d39b59b1a796dce7fbc0af63b0b08bfe7f880cf7ce7be5` and debug dylib SHA is `22f61008c4c9b08e5a3cfe2b38daeeb44af28db21dc6371198b131a28fd598cf`. Using a cache copy of the repository fixtures whose canonical uploader text was emptied (five bytes), with `EHPANDA_UITEST_STUB_NETWORK=1`, the WALK bounded traversal passed in both directions. In the forward interval `18:44:19–18:45:38`, the Detail title Button was actual/spoken at `18:44:20.807` / `.819`, followed by `Non-H` at `18:44:32.263` / `.264`, then Resume download, dimmed Add to favorites, Read, Favorited and Language. Reverse traversal reached `Non-H` at `18:45:30.902` / `.903` and the Detail title Button at `18:45:33.894` / `.896`, with no unnamed uploader stop. Evidence is `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/w37/root-runtime/w37-header-verified.png`, `w37-title-return.png`, `w37-root-vot.log`, and `timeline.txt`; the earlier launch-animation image is excluded. This is a bounded W-37 result only: Task 7's final HEAD remains pending.
 
 ### W-13 Comments runtime disposition (2026-09-16)
 
@@ -4103,7 +4103,7 @@ The approved Comments focus probe remains negative at runtime. Post Comment was 
 
 ### 16-25 bounded documentation supersession (2026-09-17)
 
-The preceding historical paragraphs retain their original state and wording. Current source attribution is: W-22's three changed screens (Search root, Favorites, Watched) are `7edfb1a7`, with source hashes `FavoritesView.swift` `461039fb924d1b1f0c2b861226b74c2a9607ef5b37c6e63ce00ff93ecfa2a0eb`, `WatchedView.swift` `819f7a08df7902cc2e39c804f1723654983a7d640b9e12e12ff1db6b73066c14`, and `SearchRootView.swift` `6aa18f56713a58a14f410fcdbdea0998930d84bf55db69f281fd26471819cbad`. W-10's toast forced-focus removal and sort-priority change are `c30fbe08`; W-13 Read and Downloads are `a90750a7` and `aa3d9947`. W-13 Comments remains unresolved and is not relabeled by the Read/Downloads commits.
+The preceding historical paragraphs retain their original state and wording. Current source attribution is: W-22's three changed screens (Search root, Favorites, Watched) are `782768b2a7`, with source hashes `FavoritesView.swift` `461039fb924d1b1f0c2b861226b74c2a9607ef5b37c6e63ce00ff93ecfa2a0eb`, `WatchedView.swift` `819f7a08df7902cc2e39c804f1723654983a7d640b9e12e12ff1db6b73066c14`, and `SearchRootView.swift` `6aa18f56713a58a14f410fcdbdea0998930d84bf55db69f281fd26471819cbad`. W-10's toast forced-focus removal and sort-priority change are `045c4f8c2b`; W-13 Read and Downloads are `013be9af37` and `6fc494cc72`. W-13 Comments remains unresolved and is not relabeled by the Read/Downloads commits.
 
 The dynamic evidence is indexed in the preceding `### W-22 dynamic Search drawer and live-scroll verification (2026-09-17)` section. The final fixed-size module and generic gate provenance are recorded there as well; the formal UI gate remains separate and is still running.
 
@@ -4113,7 +4113,7 @@ The W-35 host-scope diagnostic is measurement only. Its actual log is `$HOME/Lib
 
 ### Task 6 UI/E1 closeout (2026-09-17)
 
-The E-1 source removal is `b01add4c`. The first after-E1 `testReadingControlPanelAudit` runs passed 1/1 with zero
+The E-1 source removal is `310a39625f`. The first after-E1 `testReadingControlPanelAudit` runs passed 1/1 with zero
 failures and zero skips on both gate devices: phone testcase 8.670 s, wrapper `TEST SUCCEEDED` in 64.522 s with
 `XB_EXIT=0`; iPad testcase 9.130 s with wrapper `TEST SUCCEEDED` and `XB_EXIT=0`. Both full-test results report actual
 `nodeType` Repetition 0. The standing regression is `testReadingControlPanelAudit`; the former element-query absence
@@ -4129,9 +4129,9 @@ both installed dylibs have SHA `1b02f72e4aebb0d3dc7830e9c2e129ad4a96d3927d96c638
 facts only; no production gate completion is claimed here.
 
 **2026-09-17 D-25 scope correction.** The historical Activity Logs and Laboratory glyph rows are withdrawn by
-`cc05aca6`, which reverted the rendered glyph/HStack changes from `1d34681a`; the remaining Activity Logs combine
+`f68610b270`, which reverted the rendered glyph/HStack changes from `1d34681a`; the remaining Activity Logs combine
 modifier is accessibility semantics only and Laboratory has no post-revert diff. Gallery Detail remains withdrawn.
-The effective rendered D-25 scope is therefore exactly Search root, Favorites and Watched from `7edfb1a7`, using the
+The effective rendered D-25 scope is therefore exactly Search root, Favorites and Watched from `782768b2a7`, using the
 existing login/out routes and nine planned iPhone-portrait XXL / AX3 / AX5 cells. No new glyph row is opened.
 
 ### Task 7 walk2 evidence update (2026-09-17)
@@ -4140,8 +4140,8 @@ The canonical Flow results and Findings rows above retain their original first-r
 `walk 2:` evidence only where the root walkthrough supplied bounded final-HEAD proof. The provenance is the existing
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-walk-install.txt`,
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/audit/task7-final-login-install.txt`, and corresponding
-`task7-final-walk-build.log` / `task7-final-login-build.log`; source fix baseline is `b01add4c`, documentation HEAD is
-`c6a58688`. These are provenance references, not new gate results.
+`task7-final-walk-build.log` / `task7-final-login-build.log`; source fix baseline is `310a39625f`, documentation HEAD is
+`694db80e32`. These are provenance references, not new gate results.
 
 Historical preparation status: Task 7 remained in progress while the bounded F3/F6 walkthrough evidence was being assembled; current closure is recorded below with carried items. F3 and F6 bounded walkthrough evidence is recorded above; unresolved W-8/W-13 behavior and the remaining phase findings still require owner follow-up; the remaining hide rows
 are still being closed by bounded route evidence; the bounded F4 Reader evidence is recorded above. W-6 full Frontpage speech now has bounded evidence in the canonical Findings row. L-2 and L-4 whole-item recordings are complete. L-5 reached its actual
@@ -4162,26 +4162,26 @@ cache-only commit map. The classification is:
 
 | Commit | Classification | D-25 relation |
 |---|---|---|
-| `26625a78` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `962f60c9` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `a8cb5d53` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `6b7ef86a` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `464d1584` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `772e8f85` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `f811bf5e` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `700db090` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `a12b9903` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `a90750a7` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `c30fbe08` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `aa3d9947` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `24f5847a` | non-rendered accessibility semantics | D-24; no rendered scope |
-| `b01add4c` | non-rendered test/audit-only E-1 retirement | D-24; no app rendering or app accessibility source change |
-| `7edfb1a7` | rendered layout/frame change | sole D-25 mapping: Search root, Favorites, Watched |
+| `35904cfc97` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `c0e123c4e9` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `8644199063` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `ca562ecfbe` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `f628dcd118` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `5dbf7a82c7` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `ef452df527` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `384d90b629` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `52edf543b0` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `013be9af37` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `045c4f8c2b` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `6fc494cc72` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `ae0010ad18` | non-rendered accessibility semantics | D-24; no rendered scope |
+| `310a39625f` | non-rendered test/audit-only E-1 retirement | D-24; no app rendering or app accessibility source change |
+| `782768b2a7` | rendered layout/frame change | sole D-25 mapping: Search root, Favorites, Watched |
 
 The 16-26 rendered scope remains the three screens from the rendered commit above and nine planned iPhone-portrait XXL/AX3/AX5
-cells. Activity Logs and Laboratory remain withdrawn after `cc05aca6`; Gallery Detail remains withdrawn. The
+cells. Activity Logs and Laboratory remain withdrawn after `f68610b270`; Gallery Detail remains withdrawn. The
 Settings 45 → 65 tap and long-press decision remains retained. The E-1 exclusion is retired by the test-only commit above; the
-standing regression is `testReadingControlPanelAudit` only (the old `50e8412d` test was removed by `5c210835`).
+standing regression is `testReadingControlPanelAudit` only (the old `0645a87513` test was removed by `a618d0b100`).
 The V-1 owner-approved designed-hit-region exclusion remains preserved, while the separately tracked
 system-owned exclusions remain unchanged. The after-E-1 phone and iPad audit samples are one passing test each,
 with actual Repetition 0; this does not close Task 7 or the 16-26 UI gate.
@@ -4199,30 +4199,30 @@ The walkthrough scope is eight routes, F1–F8. The canonical Findings and Flow 
 
 OQ2 is recorded as the context-menu/action-order check: where a menu was reached, the named actions were compared for order and duplicate entries, with account-safety actions left unactivated. This does not establish Voice Control spoken-command coverage. Voice Control spoken commands and VoiceOver double-tap activation were not measured on the simulator; the recorded Voice Control material is native-label proxy evidence only.
 
-E-1 is retired by `b01add4c` after the after-E-1 phone and iPad audit samples passed with actual Repetition 0. `testReadingControlPanelAudit` is the standing regression; the old `50e8412d` test was removed by `5c210835`. This is test/audit evidence and does not add an app-rendering or app-accessibility source change.
+E-1 is retired by `310a39625f` after the after-E-1 phone and iPad audit samples passed with actual Repetition 0. `testReadingControlPanelAudit` is the standing regression; the old `0645a87513` test was removed by `a618d0b100`. This is test/audit evidence and does not add an app-rendering or app-accessibility source change.
 
 #### D-25 change lists
 
 **Rendered layout/frame change (one commit):**
 
-- `7edfb1a7` — Search root, Favorites, and Watched; this is the sole D-25 rendered mapping. The corresponding bounded screen evidence remains in the W-22 rows above and the existing Search/Favorites/Watched capture paths.
+- `782768b2a7` — Search root, Favorites, and Watched; this is the sole D-25 rendered mapping. The corresponding bounded screen evidence remains in the W-22 rows above and the existing Search/Favorites/Watched capture paths.
 
 **Non-rendered accessibility semantics or test/audit-only changes (fourteen commits):**
 
-- `26625a78` — `fix(16-25): visible() hidden content fix`; D-24 semantics, no D-25 rendered scope.
-- `962f60c9` — `fix(16-25): home carousel VoiceOver traversal`; D-24 semantics, no D-25 rendered scope.
-- `a8cb5d53` — `fix(16-25): section heading traits`; D-24 semantics, no D-25 rendered scope.
-- `6b7ef86a` — `fix(16-25): reader context menu actions`; D-24 semantics, no D-25 rendered scope.
-- `464d1584` — `fix(16-25): clarify setting accessibility`; D-24 semantics, no D-25 rendered scope.
-- `772e8f85` — `fix(16-25): detail accessibility semantics`; D-24 semantics, no D-25 rendered scope.
-- `f811bf5e` — `fix(16-25): gallery and download semantics`; D-24 semantics, no D-25 rendered scope.
-- `700db090` — `fix(16-25): speak binary size units`; D-24 semantics, no D-25 rendered scope.
-- `a12b9903` — `fix(16-25): spell out Latin day periods`; D-24 semantics, no D-25 rendered scope.
-- `a90750a7` — `fix(16-25): restore reader trigger focus`; D-24 semantics, no D-25 rendered scope.
-- `c30fbe08` — `fix(16-25): keep toast after screen content`; D-24 semantics, no D-25 rendered scope.
-- `aa3d9947` — `fix(16-25): restore download row focus`; D-24 semantics, no D-25 rendered scope.
-- `24f5847a` — `fix(16-25): focus newly loaded content`; D-24 semantics, no D-25 rendered scope.
-- `b01add4c` — `fix(16-25): retire E-1 audit exclusion`; test/audit-only E-1 retirement and standing regression coverage, with no app rendering or app accessibility source change; D-24.
+- `35904cfc97` — `fix(16-25): visible() hidden content fix`; D-24 semantics, no D-25 rendered scope.
+- `c0e123c4e9` — `fix(16-25): home carousel VoiceOver traversal`; D-24 semantics, no D-25 rendered scope.
+- `8644199063` — `fix(16-25): section heading traits`; D-24 semantics, no D-25 rendered scope.
+- `ca562ecfbe` — `fix(16-25): reader context menu actions`; D-24 semantics, no D-25 rendered scope.
+- `f628dcd118` — `fix(16-25): clarify setting accessibility`; D-24 semantics, no D-25 rendered scope.
+- `5dbf7a82c7` — `fix(16-25): detail accessibility semantics`; D-24 semantics, no D-25 rendered scope.
+- `ef452df527` — `fix(16-25): gallery and download semantics`; D-24 semantics, no D-25 rendered scope.
+- `384d90b629` — `fix(16-25): speak binary size units`; D-24 semantics, no D-25 rendered scope.
+- `52edf543b0` — `fix(16-25): spell out Latin day periods`; D-24 semantics, no D-25 rendered scope.
+- `013be9af37` — `fix(16-25): restore reader trigger focus`; D-24 semantics, no D-25 rendered scope.
+- `045c4f8c2b` — `fix(16-25): keep toast after screen content`; D-24 semantics, no D-25 rendered scope.
+- `6fc494cc72` — `fix(16-25): restore download row focus`; D-24 semantics, no D-25 rendered scope.
+- `ae0010ad18` — `fix(16-25): focus newly loaded content`; D-24 semantics, no D-25 rendered scope.
+- `310a39625f` — `fix(16-25): retire E-1 audit exclusion`; test/audit-only E-1 retirement and standing regression coverage, with no app rendering or app accessibility source change; D-24.
 
 The non-rendered list is a classification record, not a claim that every call site in a changed source file created new D-25 scope.
 
@@ -4244,7 +4244,7 @@ E-1's red/green evidence is the `16-CONTRAST-AUDIT.md` after-E1 record: `$HOME/L
 
 The root walkthrough was restored and shut down after the bounded run. `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/walk-restored.txt` records UTC `2026-09-16T19:54:43Z`, light/large, Increase Contrast disabled, VoiceOver 0, Reduce Motion 0, Reduce Transparency 0, Bold Text 0, Button Shapes 0, and Grayscale 0; Command and Control preference is absent, matching baseline; spoken-command unavailable. The matching UI and PNG are `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/walk-restored-ui.json` and `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/walk-restored.png`. `$HOME/Library/Caches/ehpanda-phase16/resweep/20260917-final/inventory-restored-20260917.json` records WALK, LOGIN, gate iPhone, and gate iPad all Shutdown. LOGIN remains covered by `login-restored.txt` with dark/large and zero flags.
 
-The initial `cc05aca6` provenance inventory recorded raw G1=25, G2=2, G3=51, and G4=23 sites. Its swept inventory was G1=7, G2=2, G3=46 plus 7 paired G4 sites; its excluded inventory was G1=18, G2=0, G3=5 plus 16 unpaired G4 sites. The initial swept runtime result was 34 hidden rows, 4 observed leaks, 2 not-an-element rows, and 15 unreached rows. Current after-fix bounded evidence is 38 hidden, 2 not an element, 15 unreached, and 0 pending; the four leak observations are resolved in the current runtime evidence. This is a before/after evidence comparison, not a claim that the historical source scan is identical to the current source grep. The original swept and excluded sites remain recorded above.
+The initial `f68610b270` provenance inventory recorded raw G1=25, G2=2, G3=51, and G4=23 sites. Its swept inventory was G1=7, G2=2, G3=46 plus 7 paired G4 sites; its excluded inventory was G1=18, G2=0, G3=5 plus 16 unpaired G4 sites. The initial swept runtime result was 34 hidden rows, 4 observed leaks, 2 not-an-element rows, and 15 unreached rows. Current after-fix bounded evidence is 38 hidden, 2 not an element, 15 unreached, and 0 pending; the four leak observations are resolved in the current runtime evidence. This is a before/after evidence comparison, not a claim that the historical source scan is identical to the current source grep. The original swept and excluded sites remain recorded above.
 
 Task 7 walkthrough execution is closed with carried items. W-34 is a completed fix with owner phonetic verification passed for the MiB pronunciation; W-33 remains uncertain. W-8, W-35, VO-3, and W-13 Comments require root-cause investigation; W-38 awaits an owner operation demonstration; none is accepted or treated as a system limit. Current Flow and hide cells contain no pending status. Historical progress sections retain earlier pending/null wording; a raw-document grep therefore differs from the current semantic status check by design.
 
@@ -4252,8 +4252,8 @@ Task 7 walkthrough execution is closed with carried items. W-34 is a completed f
 
 ### Closing gates
 
-The gate session recorded repository HEAD `c6a58688`; the current measured source was the immutable
-`b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, and later documentation-only commits preserve that source.
+The gate session recorded repository HEAD `694db80e32`; the current measured source was the immutable
+`310a39625fb2cb7035415c73a91eb3ff4b7266cc`, and later documentation-only commits preserve that source.
 All runs used `DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer` through
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/scripts/xb2.sh`, with the phase-owned
 `$HOME/Library/Caches/ehpanda-phase16/round2/walkthrough/vo22/production-gates/DerivedData-Generic-Lint`
@@ -4279,7 +4279,7 @@ SUMMARY or phase/A11Y-02 completion is claimed.
 
 ### Owner listening feedback and scope update (recorded 2026-09-17T12:00:44Z)
 
-The repository documentation HEAD at recording was `7f3fbadf9b47158b21b66b11b0250ed65786c4b1`; the measured source remains `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. This records user feedback received in this session; it is not phase approval or an Owner sign-off record.
+The repository documentation HEAD at recording was `ea95c2a64484837e750a3fcd5f3fd468a8b39c32`; the measured source remains `310a39625fb2cb7035415c73a91eb3ff4b7266cc`. This records user feedback received in this session; it is not phase approval or an Owner sign-off record.
 
 > Mebibytes 聽起來沒錯
 > PM 那句太長了我不太確定
@@ -4288,7 +4288,7 @@ The first line closes W-34 only for the MiB pronunciation. The second line leave
 
 ### Owner decision follow-up (recorded 2026-09-17T16:01:34Z)
 
-The covered repository documentation HEAD is `812c85c7aa1342606f401e7de6e5d1924e5839ca`; the measured source remains `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`. This records the latest user decisions and requests without claiming phase approval, A11Y-02 completion, or a new runtime measurement.
+The covered repository documentation HEAD is `fad0452bba606a618c10f68cad5380b6cc637346`; the measured source remains `310a39625fb2cb7035415c73a91eb3ff4b7266cc`. This records the latest user decisions and requests without claiming phase approval, A11Y-02 completion, or a new runtime measurement.
 
 - D-25 finding #39 (Favorites AX5 blank native Search capsule) is accepted as an Apple native-search bug with no app fix requested. The nine-cell measurement remains eight pass cells plus this one accepted finding.
 - W-8, W-35, VO-3, and W-13 require root-cause investigation. They are not accepted and are not classified as system limits.
@@ -4341,13 +4341,13 @@ After requesting and reviewing the longer mock-reader recording from page 1 to 4
 
 Status: W-38 accepted and closed. This supersedes the W-38 reopen and diagnostic checkpoint above. The recording uses native VoiceOver Scroll Down commands with the panel hidden, then a VoiceOver double-tap to reveal the panel. The final screen simultaneously shows placeholder 41 and panel 41 / 156; VoiceOver stays enabled throughout. The reader index logic is unchanged, and no additive repair remains pending. This accepts the demonstrated iOS 27 behavior without asserting that the OS upgrade caused it.
 
-The approved recording and hashes are in `16-W38-ROOT-CAUSE.md § Owner-approved page 1 to 41 recording`. Repository HEAD at recording is `06c72637b0159c89538209816d07e3bfb50a8831`, with an unrelated existing Xcode-project edit outside this approval. The measured reader matches the 2026-09-22 baseline. W-8/W-35 and the existing VO-3/W-13 Comments dispositions remain accepted. This approval is specific to W-38; final phase sign-off, current-source closing gates and the independently failing ordinary-touch migration test remain outstanding. Phase 16/A11Y-02 is not marked complete.
+The approved recording and hashes are in `16-W38-ROOT-CAUSE.md § Owner-approved page 1 to 41 recording`. Repository HEAD at recording is `78d8defb8176f48e8ab69e5c55da0b25e9e96b41`, with an unrelated existing Xcode-project edit outside this approval. The measured reader matches the 2026-09-22 baseline. W-8/W-35 and the existing VO-3/W-13 Comments dispositions remain accepted. This approval is specific to W-38; final phase sign-off, current-source closing gates and the independently failing ordinary-touch migration test remain outstanding. Phase 16/A11Y-02 is not marked complete.
 
 ### Current iOS 27 closing-gate continuation (2026-09-23)
 
 Current verification uses Xcode 27.0 at `/Applications/Xcode-27.0.0.app/Contents/Developer`, with the task-owned iPhone Air (`8E3EA338-4F93-40A7-BE4F-1F6E7C855F32`, iOS 27.0) and iPad Pro 11-inch (M5) (`55C7BED8-A301-4C4B-94F7-1959B45EBE27`, iPadOS 27.0). The historical Xcode 26.6/iOS 26.5 results above remain historical. The ignored local `workflow.test_command` now names this task-owned iPhone explicitly. The original D-25 scope and its nine cells remain unchanged.
 
-Evidence root: `/tmp/ehpanda-phase16-close-20260923/`. The initial source snapshot is repository HEAD `a487965b3411f71cdb37b570771e86107a7b3136` plus the pre-existing `EhPanda.xcodeproj/project.pbxproj` edit, captured in `preexisting-project.patch`. `source-before.json` hashes all 809 tracked source/configuration files in the measured scope; no source changed while the initial tests executed. This is an exact working-tree snapshot, not a clean-tree claim.
+Evidence root: `/tmp/ehpanda-phase16-close-20260923/`. The initial source snapshot is repository HEAD `fdc703544372717eda4b2618fcfce1ee297a04dd` plus the pre-existing `EhPanda.xcodeproj/project.pbxproj` edit, captured in `preexisting-project.patch`. `source-before.json` hashes all 809 tracked source/configuration files in the measured scope; no source changed while the initial tests executed. This is an exact working-tree snapshot, not a clean-tree claim.
 
 | Gate | Result | Evidence within the evidence root |
 |---|---|---|
@@ -4356,7 +4356,7 @@ Evidence root: `/tmp/ehpanda-phase16-close-20260923/`. The initial source snapsh
 | Corrected UITests, iPhone | Passed: 56 total/executions, 54 passed, 2 expected iPad-only skips, 0 failed, Repetition 0; result interval 1103.511 s, console 1106.168 s; exit 0 | `uitests-iphone-after-route-fix.{log,xcresult}`, matching `-summary.json` / `-tests.json` |
 | UITests, iPad | Failed first-try gate: 56 unique tests, 55 eventual passes, 1 final failure, 0 skips; 59 executions and 5 Repetition nodes; result interval 1416.136 s, exit 65 | `uitests-ipad.{log,xcresult}`, matching `-summary.json` / `-tests.json` |
 
-The sole failing test in the initial iPhone run was `AccessibilityAuditUITests.testQuickSearchSheetAudit`. All three attempts stopped at the obsolete `More` lookup before reaching Quick Search. Search root intentionally exposes the direct `Quick Search` and `Filters` toolbar buttons after `ee84c53e` / `6394fd61`; the pushed Search view has a different toolbar. The orchestrator approved only the test-route correction recorded in `16-26-PLAN.md`: remove the obsolete menu step and retain the direct button lookup, sheet-title assertion, accessibility audits and dismissal. No production code, audit exclusion, timeout, test repetition policy or reader index logic changed. The failed result is retained; it is not a first-try pass.
+The sole failing test in the initial iPhone run was `AccessibilityAuditUITests.testQuickSearchSheetAudit`. All three attempts stopped at the obsolete `More` lookup before reaching Quick Search. Search root intentionally exposes the direct `Quick Search` and `Filters` toolbar buttons after `0bafbe6ff9` / `b36979c4ce`; the pushed Search view has a different toolbar. The orchestrator approved only the test-route correction recorded in `16-26-PLAN.md`: remove the obsolete menu step and retain the direct button lookup, sheet-title assertion, accessibility audits and dismissal. No production code, audit exclusion, timeout, test repetition policy or reader index logic changed. The failed result is retained; it is not a first-try pass.
 
 All five ordinary-touch reader tests passed on the initial iPhone run, including scrolling, slider, tap zones, autoplay and resume. The separate bounded iPad diagnostic reached placeholder 3 / panel 3 after one ordinary swipe and traced the existing update call; its limitations and evidence are in `16-W38-ROOT-CAUSE.md § Separate ordinary-touch diagnostic`. That diagnostic does not clear the earlier intermittent iPad automated failure.
 
@@ -4364,7 +4364,7 @@ Xcode's post-failure delay was independently sampled as `collectSimulatorDiagnos
 
 The prior-phase regression inventory inspected all 12 earlier verification records: 27 referenced test basenames resolve to 33 current files (29 FeatureTests files and four UI-test files). `AppRouteReducerTests.swift` was renamed to `PresentationFeatureTests.swift` in `5fe05eed`, retaining the injected UserDefaults checks; the historical `SystemNotificationExtTests` target maps to `SystemNotificationTests`. No reference remains unmapped. Evidence is `regression-files.json` and `regression-coverage.json`; the full plans cover these tests without a separate redundant regression run.
 
-The test-route correction is committed as `9ea2f359` (`test(16): follow direct Quick Search toolbar`). FeatureTests remain current because the only tested-source delta is that UI-test navigation step; no FeatureTests target or production source changed. The corrected-route focused run passed 1/1, with zero failures, skips or Repetition nodes and exit 0 (`quick-search-route-iphone.{log,xcresult}`, matching summary/tests JSON). The focused run's auxiliary `simctl diagnose` collection also stalled after a passed test; root interrupted only that task-owned collector after preserving the original ten-minute diagnostic attempt. Xcode and the test runner were not interrupted. The remaining full UI runs use the documented `-collect-test-diagnostics never` option, omitting only verbose system diagnostics while retaining test results, failure reporting, screenshots and the unchanged retry policy. `xb27-original.sh` preserves the original wrapper; `xb27.sh` records the subsequent option.
+The test-route correction is committed as `9a7c131c53` (`test(16): follow direct Quick Search toolbar`). FeatureTests remain current because the only tested-source delta is that UI-test navigation step; no FeatureTests target or production source changed. The corrected-route focused run passed 1/1, with zero failures, skips or Repetition nodes and exit 0 (`quick-search-route-iphone.{log,xcresult}`, matching summary/tests JSON). The focused run's auxiliary `simctl diagnose` collection also stalled after a passed test; root interrupted only that task-owned collector after preserving the original ten-minute diagnostic attempt. Xcode and the test runner were not interrupted. The remaining full UI runs use the documented `-collect-test-diagnostics never` option, omitting only verbose system diagnostics while retaining test results, failure reporting, screenshots and the unchanged retry policy. `xb27-original.sh` preserves the original wrapper; `xb27.sh` records the subsequent option.
 
 The source fingerprint remained unchanged throughout the corrected full iPhone run. Xcode had already shut down its task-owned destination at completion; the redundant cleanup command returned an already-Shutdown error after the verified pass. The temporary runner now treats that state as successful cleanup and resumed only the iPad gate; no iPhone test was rerun.
 
@@ -4388,7 +4388,7 @@ The executor's read-only review found no assertion weakening or further required
 
 ### Final current-source closing gates (2026-09-23)
 
-The current closing result covers source commit `7675a7ac77301de9464a8e924c9fc8c70f691849`
+The current closing result covers source commit `934f18953931c3f13742a74404fc314d16be554e`
 plus the pre-existing Xcode project serialization diff captured before testing. All 809 source/config
 hashes remained unchanged during the final UI gates; the unrelated project diff remains byte-identical,
 uncommitted and outside this task's changes. Later commits contain documentation only.
@@ -4435,7 +4435,7 @@ asserted by this gate record.
 > approved
 
 The approval was delivered in the main Codex task and was observed at `2026-09-23T06:35:48Z` (UTC).
-It covers repository HEAD `30f54fe93729ebd8885dbea488b5a1445eaa9453`, including the D-25 re-sweep
+It covers repository HEAD `25d0790700fc03f017f6546e5f0dc13a2f999370`, including the D-25 re-sweep
 closure, the 16-25 walkthrough closure and its accepted, carried and deferred items, the E-1 state,
 the listening result, and the final current-source closing gates. The unrelated pre-existing
 `EhPanda.xcodeproj/project.pbxproj` serialization diff remains unchanged and uncommitted; it is

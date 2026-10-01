@@ -113,7 +113,7 @@ status: complete
 Each task was committed atomically:
 
 1. **Task 1: RED — pin the mixed rejected-plus-absent shape on both sides of the threshold** - `96987202` (test)
-2. **Task 2: GREEN — combined guard basis and seed-route classify-authorize-remove ordering** - `37cc25af` (fix)
+2. **Task 2: GREEN — combined guard basis and seed-route classify-authorize-remove ordering** - `9359143331` (fix)
 
 ## Banked Falsifiability
 
@@ -194,7 +194,7 @@ No other blanking-adjacent consumer exists.
 - **Fix:** The `+ExecutionSupport` entry is replaced by a `+WorkingManifestReconciliation` entry at the same count of 1; `expectedHashMaskedTotal` is unchanged at 11, which is the check that the edit moved a key rather than lost a site.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift`
 - **Verification:** Full suite 945/0; the suite's own doc, which explains the table as the thing that makes such a change "a deliberate, visible edit here", reads true of this edit.
-- **Committed in:** `37cc25af` (Task 2 commit)
+- **Committed in:** `9359143331` (Task 2 commit)
 
 **3. [Rule 1 - Bug] Two doc contracts this change itself falsified**
 
@@ -203,7 +203,7 @@ No other blanking-adjacent consumer exists.
 - **Fix:** Both re-derived against post-change source. Neither is a scope widening — they are the sites whose truth this change moves.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`
 - **Verification:** Clean build 0 warnings; SwiftLint `--strict` 0 violations.
-- **Committed in:** `37cc25af`
+- **Committed in:** `9359143331`
 
 **4. [Rule 1 - Bug] 15-66's forward reference at the un-converted sibling site**
 
@@ -212,7 +212,7 @@ No other blanking-adjacent consumer exists.
 - **Fix:** Replaced by the site's actual disposition and the folder-boundary argument for it, plus an explicit note that the source record's own obligation is unanswered.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore+Operations.swift`
 - **Verification:** `rg -n '15-67' AppPackage App ShareExtension` returns nothing.
-- **Committed in:** `37cc25af`
+- **Committed in:** `9359143331`
 
 ### Files declared but not modified
 
@@ -262,7 +262,7 @@ Acceptance greps:
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadValidationRejectionArmTests.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift` — FOUND
 - Commit `96987202` — FOUND
-- Commit `37cc25af` — FOUND
+- Commit `9359143331` — FOUND
 
 ## Known Stubs
 

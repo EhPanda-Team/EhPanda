@@ -103,7 +103,7 @@ status: complete
 
 - **Duration:** ~2 h 45 m for 78 cells across 13 surfaces, both orientations, three sizes.
 - **Evidence:** 267 full-scale PNGs under `$HOME/Library/Caches/ehpanda-phase16/sweep/`, none in the repo.
-- **Commits:** `814fa06e` (rows 1–7), `07a2eb0e` (rows 8–13).
+- **Commits:** `bdf4f1cd09` (rows 1–7), `e9ce9e1ec6` (rows 8–13).
 
 ## Findings opened
 
@@ -136,19 +136,19 @@ Each is described in full in `16-SWEEP.md § Findings`; the evidence paths below
 - **Issue:** `sim-use gesture rotate-cw --angle 90` dispatches an on-screen two-finger rotate; it left the device in portrait and the app interpreted the gesture as content input, navigating into a pushed screen.
 - **Fix:** rotation is done with `agent-device orientation …` (the verb the § Protocol names). The `§ Tooling` row was corrected in place, together with two mechanics this plan had to discover: `sim-use screenshot` writes landscape frames in the native portrait framebuffer (straighten with `sips -r 270`), and a page gesture in landscape can land on the home indicator and switch apps.
 - **Files modified:** `16-SWEEP.md § Tooling`.
-- **Commit:** `814fa06e`.
+- **Commit:** `bdf4f1cd09`.
 
 **2. [Rule 2 - Missing verification basis] A default-size reference capture was needed**
 - **Found during:** Task 1, judging list-row titles on Frontpage.
 - **Issue:** D-04 asks whether a value "reads in full at `.large`"; nothing in the sweep set showed the same rows at the default size, so the claim could not be evidenced.
 - **Fix:** one reference capture at the recorded `medium` baseline (`iphone-portrait-baseline-3-top.png`). This is the recorded restore value, not the `large` reserved for the plan-16-05 D-15 parity captures, so it changes nothing about D-15.
-- **Commit:** `814fa06e`.
+- **Commit:** `bdf4f1cd09`.
 
 **3. [Rule 2 - Coverage] The Thumbnail display mode was exercised once**
 - **Found during:** Task 2, dispositioning `GalleryThumbnailCell.swift:99`.
 - **Issue:** the sweep simulator's List Display Mode is `Detail`, so the thumbnail cell never rendered and its D-04 row could not be judged.
 - **Fix:** Display Mode switched to Thumbnail for one AX5 portrait capture and restored to `Detail` immediately afterwards (verified by re-reading the control). Produced finding #12.
-- **Commit:** `07a2eb0e`.
+- **Commit:** `e9ce9e1ec6`.
 
 **4. [Rule 2 - Evidence] Mid-scroll captures added for long screens**
 - **Issue:** top-and-bottom captures alone leave a long screen's middle unjudged, and the Home root's ranking cells live there.
@@ -175,7 +175,7 @@ Group A is verified on the iPhone. Ready for plan 16-05 (iPhone Group B, screens
 ## Self-Check: PASSED
 
 - `16-SWEEP.md` exists and carries 78 Group-A iPhone rows, 0 `pending`.
-- Commits `814fa06e` and `07a2eb0e` present in `git log`.
+- Commits `bdf4f1cd09` and `e9ce9e1ec6` present in `git log`.
 - The absolute-home-prefix scan of `16-SWEEP.md` counts 0 matches; `git status --porcelain | grep -Ei '\.(png|jpe?g|heic|gif)$' | wc -l` → 0.
 - Matrix references findings #1–#11; § Findings defines #1–#12; no dangling reference.
 - Simulator baseline read back identical to the recorded values.

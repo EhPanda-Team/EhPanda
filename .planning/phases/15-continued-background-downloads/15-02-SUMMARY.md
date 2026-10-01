@@ -145,9 +145,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Relocate the blocking-coordinator fixture and retire its host suite** - `3679b2a2` (test)
-2. **Task 2: Delete the execution-assertion client and its coordinator state** - `bef95c85` (refactor)
-3. **Task 3: Delete the drain loop and its façade endpoints** - `b53f551f` (refactor)
+1. **Task 1: Relocate the blocking-coordinator fixture and retire its host suite** - `da368a9cca` (test)
+2. **Task 2: Delete the execution-assertion client and its coordinator state** - `d83ce2e524` (refactor)
+3. **Task 3: Delete the drain loop and its façade endpoints** - `a5b482f4ad` (refactor)
 
 ## Files Created/Modified
 
@@ -183,7 +183,7 @@ Each task was committed atomically:
 - **Fix:** Reworded one line, "not left over from the deleted discretionary `BGProcessingTask` tier" to "not left over from the deleted discretionary background-processing tier". Every other word of the rationale is unchanged, and the comment reads the same. Deferring this would only have moved the failure to plan 15-03 Task 2, whose gate demands a repository-wide zero for the same token.
 - **Files modified:** `App/Info.plist`
 - **Verification:** `grep -rl 'BGProcessingTask' App AppPackage ShareExtension | sort -u` now prints exactly `AppPackage/Sources/BackgroundProcessingClient/BackgroundProcessingClient.swift`; clean app-scheme build succeeds.
-- **Committed in:** `b53f551f` (Task 3 commit)
+- **Committed in:** `a5b482f4ad` (Task 3 commit)
 
 ---
 
@@ -232,7 +232,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-Both created files exist on disk, all five deleted files are absent, and all three task commits (`3679b2a2`, `bef95c85`, `b53f551f`) are present in `git log`.
+Both created files exist on disk, all five deleted files are absent, and all three task commits (`da368a9cca`, `d83ce2e524`, `a5b482f4ad`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

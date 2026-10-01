@@ -14,7 +14,7 @@ updated: 2026-07-20
 
 ## Tests
 
-### 1. Automated phase gates re-verified at HEAD (fbd5c661)
+### 1. Automated phase gates re-verified at HEAD (3979926404)
 expected: |
   Full suite green, phase grep battery all-zero, count checks hold, no code warnings,
   SwiftLint clean — re-run at HEAD rather than inherited from the 10-12 record, because
@@ -40,7 +40,7 @@ evidence: |
   .foregroundColor( 0 | .accentColor( 0 | .cornerRadius( 0 | disableAutocorrection 0
   .statusBar(hidden 0 | dynamicTypeSize 0 | struct RoundedCorner 0
   GeometryReader 0 | minimumScaleFactor 5 (<=8, down from 7)
-  privacyMask 42 at HEAD == 42 at the 10-12 gate (4532fbcd) — no regression.
+  privacyMask 42 at HEAD == 42 at the 10-12 gate (b3bcf4c96b) — no regression.
   Note: 10-12 recorded "41" via a narrower count; the value is unchanged since the gate,
   so T-10-15 (no-content-leak coverage) holds. The doc figure is what drifted, not the code.
 
@@ -93,7 +93,7 @@ note: |
 expected: every screen readable and operable across XXL/AX3/AX5
 result: skipped
 reason: |
-  Descoped from Phase 10 before this UAT. Commit a91a0c50 carved criterion 5 out to a new
+  Descoped from Phase 10 before this UAT. Commit adb269d684 carved criterion 5 out to a new
   final phase (Dynamic Type Accessibility, currently Phase 15 in ROADMAP.md), leaving the
   10-10/10-11 font-scaling + reflow work in Phase 10 as groundwork. The owner-signed device
   UAT, full accessibility-range readability, and remaining AX5 edge cases belong to that

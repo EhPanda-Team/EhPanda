@@ -83,8 +83,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `02e874b5` | Migrate detail requests and flip parity tests |
-| 2 | `768345a5` | Migrate image requests and flip parity tests |
+| 1 | `abaf596cb3` | Migrate detail requests and flip parity tests |
+| 2 | `7e9a831716` | Migrate image requests and flip parity tests |
 
 ## Deviations from Plan
 

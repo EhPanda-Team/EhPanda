@@ -14,8 +14,8 @@ name: all checkpoints resolved — round 8 closed test 2 and G-15-2I
 expected: |
   All fifteen checkpoints are resolved: 13 pass, 0 issues, 2 obsolete. Test 8 closed 2026-08-17 with
   the owner choosing row anchoring and directing the AGENTS.md rule amendment. The two gaps open at
-  round 6 closed on the 260818-mjs build (3433cbeb), both on the test iPhone: G-15-2H (13cad7d9)
-  against a folder renamed in Files.app, and G-15-2F (764c5958) against a rebuilt wholesale-refusal
+  round 6 closed on the 260818-mjs build (d789ac17ac), both on the test iPhone: G-15-2H (0bbe2be285)
+  against a folder renamed in Files.app, and G-15-2F (b81c52ff49) against a rebuilt wholesale-refusal
   fixture.
 
   ROUND 7 REOPENED TEST 2 and round 8 closed it. Round 7's SC2 re-run produced G-15-2I — a
@@ -24,7 +24,7 @@ expected: |
   was never retried — and its card clauses were never reached, because the run ended first and
   because the app never actually backgrounded.
 
-  ROUND 8 (2026-08-19, build f5b3519f) ran the whole SC2 procedure BACKGROUNDED on the test iPhone
+  ROUND 8 (2026-08-19, build b66cd8996c) ran the whole SC2 procedure BACKGROUNDED on the test iPhone
   and every clause passed. The session held for 31m55s with no expiry; three transfers starved and
   were each abandoned at ~62 s and retried within 3 s; the stall nudge peaked at 7 of 30; the
   numerator never fell back across 105 heartbeats; and the card's cancel was exercised by the owner
@@ -87,19 +87,19 @@ covers: SC2
 result: pass
 result_note: |
   PASSED at round 6 against build 260818-ek3. REOPENED at round 7 (2026-08-19) against build
-  f9892824, where the re-run 15-VERIFICATION asked for surfaced G-15-2I — a session reclaimed with
+  d3f2ae21c5, where the re-run 15-VERIFICATION asked for surfaced G-15-2I — a session reclaimed with
   the queue undrained, on healthy Wi-Fi with no airplane mode. The card's own clauses were not
   reached at round 7; the run ended before they could be judged. Round 6's verdict is not withdrawn,
   it is superseded for this build.
 
-  CLOSED at round 8 (2026-08-19) against build f5b3519f, which carries both halves of the G-15-2I
+  CLOSED at round 8 (2026-08-19) against build b66cd8996c, which carries both halves of the G-15-2I
   fix. This is the first round in which the SC2 procedure actually ran BACKGROUNDED, so it is also
   the first round at which every clause of this checkpoint has been judged against evidence rather
   than partly carried forward. All of them passed, including the card-cancel clause, which no round
   before this one had reached.
 retest_round_8_result: pass
 retest_round_8_date: 2026-08-19
-retest_round_8_build: f5b3519f (2a2c5982 starved-transfer abandonment, d6079878 bounded stall nudge, plus the three review fixes 719bbc25/57183589/f5b3519f)
+retest_round_8_build: b66cd8996c (177a79b6ed starved-transfer abandonment, d35c59c757 bounded stall nudge, plus the three review fixes d95a9adf79/57183589/b66cd8996c)
 retest_round_8_reported: |
   Run on the test iPhone (physical iPhone 11, iOS 26.6), airplane mode OFF and Wi-Fi connected
   (photographed in Settings at the moment of backgrounding, and corroborated by every environment
@@ -179,7 +179,7 @@ retest_round_8_reported: |
   archive must pair it with whether a cancel was actually pressed.
 retest_round_7_result: issue
 retest_round_7_date: 2026-08-19
-retest_round_7_build: f9892824 (13cad7d9 folder-leaf freeze, 764c5958 run-progress overlay, f7e65497 folder-deletion invariant)
+retest_round_7_build: d3f2ae21c5 (0bbe2be285 folder-leaf freeze, b81c52ff49 run-progress overlay, 3727b04f04 folder-deletion invariant)
 retest_round_7_reported: |
   Staged on the test iPhone (physical iPhone 11, iOS 26.6) as the verification report prescribed: a
   multi-gallery queue including a `.repair` of a gallery whose files were deleted outside the app.
@@ -207,7 +207,7 @@ retest_round_7_reported: |
     backgrounded case the SC2 procedure asks for is still unobserved at this build.
 retest_round_6_result: pass
 retest_round_6_date: 2026-08-18
-retest_round_6_build: 260818-ek3 (e68ca491 pump serialization, 1f9c3f34 in-flight page-byte credit)
+retest_round_6_build: 260818-ek3 (7ee20ad3c1 pump serialization, 7214240185 in-flight page-byte credit)
 retest_round_6_reported: |
   Run on the test iPhone (physical iPhone 11, iOS 26.6) with airplane mode OFF and Wi-Fi connected —
   the environment probe recorded "network wifi" from the second session on, so the owner's
@@ -237,7 +237,7 @@ retest_round_6_reported: |
   "/ 104 pages · 2 galleries", i.e. the count still read 2 well after the 26-page gallery had
   finished.
 
-  The in-flight credit from 1f9c3f34 was observed doing its job. In run A the completed-page count
+  The in-flight credit from 7214240185 was observed doing its job. In run A the completed-page count
   sat flat at 62 for three consecutive heartbeats while in-flight subunits climbed 181 -> 490 -> 781;
   that page-granular plateau under thread limit 1 is the shape that previously let the system stall
   detector fire, and the session rode straight through it.
@@ -397,7 +397,7 @@ retest_reason: |
   device at the round-2 retest; G-15-2B (the stale "1 gallery" subtitle at drain) was closed by
   plan 15-22's terminal push and is reconciled resolved above. Since that retest the phase ran
   rounds 9-18 of gap closure over the same surface, ending in plan 15-54's numerator REDESIGN
-  (commits a6105b0b, d155236a, 5df56a8e, d4d568c6): the fraction the card shows is no longer
+  (commits e622a40c2c, 9d5062c4bf, 44ea9d550a, 7bc90a409c): the fraction the card shows is no longer
   inferred from the on-disk index record and corrected, it is measured by a run-owned
   `RunProgressBasis`. That changes what this run should observe (see expected), so the previous
   device observation does not carry forward. Deterministic in tests — 888/0 green, 374 in the
@@ -931,7 +931,7 @@ blocked: 0
 obsolete: 2
 
 completion_note: |
-  ROUND 8 (2026-08-19, build f5b3519f) CLOSED TEST 2 and with it the last open gap, G-15-2I. Round 7
+  ROUND 8 (2026-08-19, build b66cd8996c) CLOSED TEST 2 and with it the last open gap, G-15-2I. Round 7
   had reopened test 2 on a session reclaimed with 376 pages outstanding after a starved transfer was
   detected and never retried; round 8 re-ran the SC2 procedure on the same gallery, with the app
   genuinely backgrounded for the first time, and the defect did not recur: the session held for
@@ -967,8 +967,8 @@ completion_note: |
   the wholesale guard refusing, as designed.
 
   G-15-2F (the Download Status sheet reading stale during a repair) and G-15-2H (a repair renaming
-  the user-visible folder) were fixed on 2026-08-18 in commits 764c5958 and 13cad7d9 and both were
-  then VERIFIED ON THE TEST IPHONE the same day against build 3433cbeb, honouring the G-15-2D
+  the user-visible folder) were fixed on 2026-08-18 in commits b81c52ff49 and 0bbe2be285 and both were
+  then VERIFIED ON THE TEST IPHONE the same day against build d789ac17ac, honouring the G-15-2D
   precedent that a fix is not closed until a device shows it. G-15-2H was staged by renaming a
   gallery folder in Files.app and repairing it: the name survived, one folder per gid, no Code=4
   line. G-15-2F was staged by restoring only a manifest into an emptied folder: with the record
@@ -990,8 +990,8 @@ open_issues_note: |
   checkpoint failure: G-15-2F, a minor in-app display defect where the Download Status sheet reads
   stale during a repair; and G-15-2H, a repair re-creating a gallery's user-visible folder under a
   different name than the original download used. Both now carry a LANDED FIX pending device
-  confirmation — G-15-2F in commit 764c5958 (the live run's measurement published on the row, badge
-  and page states read from it while it stands) and G-15-2H in commit 13cad7d9 (the folder's
+  confirmation — G-15-2F in commit b81c52ff49 (the live run's measurement published on the row, badge
+  and page states read from it while it stands) and G-15-2H in commit 0bbe2be285 (the folder's
   readable leaf frozen at first creation). Each entry's `fix_landed_2026_08_18` block states what
   the next device round must show; neither is closed on code alone.
 
@@ -1040,9 +1040,9 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2I
   truth: "With no airplane mode and a healthy network, a continued-processing session does not end while its queue still has work: a transfer that stops producing bytes is abandoned and retried, and the session is not reclaimed for want of something to report."
   status: resolved
-  severity: confirmed-defect (fixed in 2a2c5982 + d6079878; device-verified at round 8, 2026-08-19)
+  severity: confirmed-defect (fixed in 177a79b6ed + d35c59c757; device-verified at round 8, 2026-08-19)
   resolved_at: 2026-08-19
-  found: "2026-08-19, round 7, on the SC2 re-run against build f9892824 (13cad7d9 + 764c5958 + f7e65497)"
+  found: "2026-08-19, round 7, on the SC2 re-run against build d3f2ae21c5 (0bbe2be285 + b81c52ff49 + 3727b04f04)"
   observed: |
     A continued-processing session was reclaimed by the system with 376 pages still to download,
     under exactly the conditions the owner's 2026-08-17 ruling declares unacceptable. From
@@ -1095,12 +1095,12 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       effect; only coordinate presses are reliable), so this is not the backgrounded scenario the
       SC2 procedure asks for. A foreground expiry is at least as bad, but the backgrounded case
       remains unobserved at this build.
-    - NOT A REGRESSION FROM f7e65497. That commit does not touch
+    - NOT A REGRESSION FROM 3727b04f04. That commit does not touch
       `DownloadClient+ContinuedSession.swift`; this is the pre-existing stall-detector exposure that
       round 6 happened not to hit. Round 6's seven sessions all had a moving numerator.
     - The stall is a genuine network-level hang, NOT a progress-accounting shortfall. This is the
       opposite shape from G-15-2D, which was real byte movement that the page-granular numerator
-      could not express and which 1f9c3f34 fixed by adding resolution. Here there was no movement
+      could not express and which 7214240185 fixed by adding resolution. Here there was no movement
       to find.
   what_else_this_round_showed: |
     Everything the round exercised besides the session lifetime behaved correctly at this build:
@@ -1265,12 +1265,12 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
   fix_landed_2026_08_19: |
     Landed on feature/gsd-phase-15 as quick task 260819-lq3, two commits, one per half, both on the
-    owner's decision above: 2a2c5982 `fix(15): abandon starved page transfers` and d6079878
+    owner's decision above: 177a79b6ed `fix(15): abandon starved page transfers` and d35c59c757
     `fix(15): nudge a stalled session's card`. Full AppPackage suite green (1009 tests, +12 over the
     pre-fix 997), app-scheme build zero warnings, no lint suppression. The plan and its design
     decisions (PD-1..PD-8) are in `.planning/quick/260819-lq3-fix-g-15-2i-stall-abandon-and-card-nudge/`.
 
-    HALF 1 — MECHANISM (2a2c5982)
+    HALF 1 — MECHANISM (177a79b6ed)
       `DownloadCoordinator.pageTransferAbandonThreshold = 60` sits beside the unchanged 10 s
       `pageTransferStallThreshold`; two constants on purpose. `InFlightPageTransfer` gained
       `lastByteDate` (stamped in `recordPageTransferBytes`, the same path that grows
@@ -1297,7 +1297,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       owner's binding 60 s). `withRetry`, `retryLimit`, `AppError`, `endPageTransfer`'s exit check
       untouched.
 
-    HALF 2 — MECHANISM (d6079878)
+    HALF 2 — MECHANISM (d35c59c757)
       `ContinuedProgressNudge` (BackgroundProcessingClient, internal): `cap = 30` (BINDING),
       `headroom = cap + 1 = 31` sub-units held back below the scaled total; `record(measured,
       nudgesWhenStalled:)` — an unchanged clamped measurement adds ONE sub-unit (1/1000 page) up to
@@ -1344,7 +1344,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       the queue has work on healthy Wi-Fi.
   device_verified_2026_08_19: |
     ROUND 8 observed every one of those, on the test iPhone (physical iPhone 11, iOS 26.6) at build
-    f5b3519f, with the app genuinely backgrounded for ~23 minutes. Log
+    b66cd8996c, with the app genuinely backgrounded for ~23 minutes. Log
     `Logs/ehpanda-20260819-211225-4.jsonl`, times UTC.
 
     The subject was deliberately the gallery round 7 died on — `[Patreon] Crowns18`, resumed from
@@ -1474,7 +1474,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     writes), or at minimum guard the append on `Task.isCancelled` and advance the cursor in the
     effect that actually wrote; and stop restarting the pump on every `.active` bounce.
   fix_2026_08_18: |
-    CLOSED by quick task 260818-ek3, commit e68ca491 on `feature/gsd-phase-15`.
+    CLOSED by quick task 260818-ek3, commit 7ee20ad3c1 on `feature/gsd-phase-15`.
 
     THE CURSOR NOW BELONGS TO THE WRITE. `RunLogDrain` (new, `AppPackage/Sources/LogsClient/`) is a
     `public actor` whose `drain(into:)` fetches, appends and advances the cursor with NO suspension
@@ -1542,7 +1542,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
   truth: "A .repair re-download restores a gallery in place; it does not silently rename the user-visible folder it lives in."
   status: resolved
   resolved_date: "2026-08-18"
-  severity: confirmed-defect (fixed in 13cad7d9; verified on device 2026-08-18)
+  severity: confirmed-defect (fixed in 0bbe2be285; verified on device 2026-08-18)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   diagnosed: "2026-08-18, root cause confirmed in code"
   observed: |
@@ -1641,7 +1641,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       Note the project's `Feature` reducer-naming convention and the SwiftLint rules in the root
       `.swiftlint.yml` before writing code.
   fix_landed_2026_08_18: |
-    Landed in commit 13cad7d9 on
+    Landed in commit 0bbe2be285 on
     feature/gsd-phase-15 (quick task 260818-mjs), implementing the locked fix_spec above verbatim.
 
     MECHANISM
@@ -1731,7 +1731,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
       Consequently the pins are NOT pinning dead code. WR-02 / G-15-13 / G-15-19 pin the
       differing-destination-over-standing-source shape, which is exactly what E1/E2 produce, and
-      13cad7d9 already restaged those suites to reach it through the production `folderRelativePath`.
+      0bbe2be285 already restaged those suites to reach it through the production `folderRelativePath`.
 
       RECOMMENDATION: KEEP, WITH A CHANGED CONTRACT — the change documentary, not behavioural.
       Demote the branch from "the expected title-re-slot path" (its pre-fix role) to "the salvage net
@@ -1756,7 +1756,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       one): the folder name in Files is UNCHANGED afterwards, exactly one folder exists for that gid,
       and the jsonl carries no "Stale working folder removal failed ... Code=4" line.
   device_verified_2026_08_18: |
-    VERIFIED ON DEVICE. Physical iPhone 11, iOS 26.6, build of 3433cbeb (13cad7d9 in tree),
+    VERIFIED ON DEVICE. Physical iPhone 11, iOS 26.6, build of d789ac17ac (0bbe2be285 in tree),
     installed fresh over the existing container so every download folder was preserved.
 
     FIXTURE — the discriminating case the fix_spec asked for, staged rather than waited for.
@@ -1813,7 +1813,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     folder completes in the record's folder and leaves the other one with identical entries and an
     identical manifest, `galleryFolderURLs` still returning both. The interrupted-resume sweep pin
     was restaged onto `removeGalleryFolders` (removes every folder of the gallery, and no other), and
-    the discarding-rejected census fell 2 -> 1. Commits f7e65497 (fix) and b0d2d57e (pin).
+    the discarding-rejected census fell 2 -> 1. Commits 3727b04f04 (fix) and 8762e6f72e (pin).
   resolved_question_stale_working_folder: |
     The "Stale working folder removal failed ... Code=4" line logged by the same repair is EXPLAINED,
     not unrelated: the recomputed path did not exist, so `shouldReuseWorkingFolder`'s `fileExists`
@@ -1833,7 +1833,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
   truth: "The in-app Download Status sheet describes the work a repair is actually doing."
   status: resolved
   resolved_date: "2026-08-18"
-  severity: minor (fixed in 764c5958; verified on device 2026-08-18)
+  severity: minor (fixed in b81c52ff49; verified on device 2026-08-18)
   found: "2026-08-18, round 6, incidental to test 2 clause 5"
   observed: |
     With a completed 27-page gallery whose image files had been deleted outside the app (manifest
@@ -1862,7 +1862,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
          `.none` at every flush. Even a corrected derivation would have been recomputed only when
          something else happened to differ.
   fix_landed_2026_08_18: |
-    Landed in commit 764c5958 on feature/gsd-phase-15 (quick task 260818-mjs).
+    Landed in commit b81c52ff49 on feature/gsd-phase-15 (quick task 260818-mjs).
 
     MECHANISM (D-SSOT-10)
       `DownloadedGallery.runProgress` — a new `DownloadRunProgress` carrying the run's credited page
@@ -1916,7 +1916,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
       together with the system card, and the record's own reading (27/27) is restored the moment the
       run ends.
   device_verified_2026_08_18: |
-    VERIFIED ON DEVICE. Same iPhone 11 / iOS 26.6 / build of 3433cbeb (764c5958 in tree).
+    VERIFIED ON DEVICE. Same iPhone 11 / iOS 26.6 / build of d789ac17ac (b81c52ff49 in tree).
 
     FIXTURE — a true wholesale-refusal state, rebuilt deliberately: the folder for gid 4108805
     ("Onna no Battle", 27 pages, complete) was deleted in Files.app and ONLY its manifest.json was
@@ -2020,7 +2020,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 - gap_id: G-15-2D
   truth: "A queue-wide continued-processing session exposes live progress and finishes as success when its galleries drain successfully."
   status: resolved
-  resolved_by: "e68ca491 (serialize the activity-log pump), 1f9c3f34 (credit in-flight page bytes and heartbeat)"
+  resolved_by: "7ee20ad3c1 (serialize the activity-log pump), 7214240185 (credit in-flight page bytes and heartbeat)"
   device_verdict_2026_08_18: |
     RESOLVED ON DEVICE, round 6, test iPhone (iPhone 11, iOS 26.6), build 260818-ek3, airplane mode
     OFF and the environment probe reporting "network wifi".
@@ -2038,7 +2038,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     The mechanism behind the fix was observed directly. In the 194-page run the completed-page count
     stayed flat at 62 across three consecutive heartbeats while in-flight subunits climbed
     181 -> 490 -> 781. That is precisely the page-granular plateau, under a download thread limit of
-    1, that let Apple's stall detector force-expire the task in round 5; with 1f9c3f34 crediting
+    1, that let Apple's stall detector force-expire the task in round 5; with 7214240185 crediting
     in-flight page bytes the reported progress kept advancing and the session rode through it.
 
     This closes the owner's 2026-08-17 ruling that "在沒有飛航模式、網路異常等情況時 session 在下載未完成
@@ -2211,7 +2211,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     owner's go-ahead.
   fix_landed_2026_08_18: |
     Ranked fixes 1 and 2 LANDED, plus the instrumentation, by quick task 260818-ek3 —
-    commit 1f9c3f34 on `feature/gsd-phase-15` (the log-pump half it depends on is e68ca491).
+    commit 7214240185 on `feature/gsd-phase-15` (the log-pump half it depends on is 7ee20ad3c1).
     STATUS STAYS OPEN: nothing here is device-confirmed, and closing it is the next UAT's job.
 
     (1) INTRA-PAGE CREDIT (ranked fix 1). `URLSessionDownloadDelegate.didWriteData` is now wired
@@ -2292,7 +2292,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
     first gallery of the queue completes. The subtitle clause is still failing and continues as the
     narrowed gap G-15-2B below.
   fix_plans: [15-20, 15-21]
-  fix_commits: [425b5a8b, 925669bf, b76c310c, 00bfd9ad]
+  fix_commits: [f8f996e347, 4c61169f70, a6d6e55844, 96e6e21dd7]
   fix_note: |
     All five `missing[]` items below are addressed in code and covered by tests. The fix is a
     cumulative session-scoped retirement ledger (`retiredSessionPages` +
@@ -2567,7 +2567,7 @@ test 7 via the plan's own `must_haves` and its commits on the branch.
 
 round_6_scope: |
   Round 6 is narrow by design: it re-ran test 2 only, on the test iPhone, to confirm the two
-  G-15-2D fixes that another session landed (e68ca491 serialize the activity-log pump,
-  1f9c3f34 credit in-flight page bytes and heartbeat). The regression gate was run first from
+  G-15-2D fixes that another session landed (7ee20ad3c1 serialize the activity-log pump,
+  7214240185 credit in-flight page bytes and heartbeat). The regression gate was run first from
   AppPackage/ and was clean — BUILD SUCCEEDED with 0 errors and 0 warnings, TEST SUCCEEDED.
   All other checkpoints keep their round-4/round-5 results unchanged.

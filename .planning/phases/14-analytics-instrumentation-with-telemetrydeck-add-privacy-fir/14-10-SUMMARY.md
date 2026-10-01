@@ -121,9 +121,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Initialize the SDK at launch and emit tab-open signals** - `bcb61fcc` (feat)
-2. **Task 2: Emit the modal gallery-detail and user-visible-error signals** - `2b0bca54` (feat)
-3. **Task 3: TestStore proofs for every AppFeature emission site** - `e888db29` (test)
+1. **Task 1: Initialize the SDK at launch and emit tab-open signals** - `147489a83f` (feat)
+2. **Task 2: Emit the modal gallery-detail and user-visible-error signals** - `390f97a06c` (feat)
+3. **Task 3: TestStore proofs for every AppFeature emission site** - `e4f1092856` (test)
 
 **Plan metadata:** committed with STATE.md and ROADMAP.md (docs: complete plan)
 
@@ -163,4 +163,4 @@ None - no external service configuration required.
 *Completed: 2026-07-24*
 
 ## Self-Check: PASSED
-All four modified/created files exist on disk and all three task commits (`bcb61fcc`, `2b0bca54`, `e888db29`) are present in git history.
+All four modified/created files exist on disk and all three task commits (`147489a83f`, `390f97a06c`, `e4f1092856`) are present in git history.

@@ -124,10 +124,10 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1 (RED): failing classification matrix** — `2e4de0ca` (test)
-2. **Task 1 (GREEN): response-driven challenge classifier** — `b6f3c3e2` (feat)
-3. **Task 2 (RED): failing header-carriage assertions** — `4e2610df` (test)
-4. **Task 2 (GREEN): clearance-carrying LoginRequest** — `faeb7bd0` (feat)
+1. **Task 1 (RED): failing classification matrix** — `792773ab76` (test)
+2. **Task 1 (GREEN): response-driven challenge classifier** — `557b7cb6ff` (feat)
+3. **Task 2 (RED): failing header-carriage assertions** — `318d37a679` (test)
+4. **Task 2 (GREEN): clearance-carrying LoginRequest** — `b4fe06b3d3` (feat)
 
 ## Files Created/Modified
 

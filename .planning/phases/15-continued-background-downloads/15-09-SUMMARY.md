@@ -133,8 +133,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Stamp the session lifecycle with a per-session identity** - `6b5efd0d` (fix)
-2. **Task 2: Route the non-initial cancel through the convergence point** - `9403906d` (fix)
+1. **Task 1: Stamp the session lifecycle with a per-session identity** - `8c62a43224` (fix)
+2. **Task 2: Route the non-initial cancel through the convergence point** - `8de70d562f` (fix)
 
 ## Files Created/Modified
 
@@ -170,7 +170,7 @@ Each task was committed atomically:
 
 **1. Plan execution was interrupted by a provider session limit and resumed by a continuation agent**
 - **Found during:** Task 2, after the source edit and before the regression case
-- **Issue:** The first executor agent completed and committed Task 1 (`6b5efd0d`), then applied Task 2's source edit to `DownloadClient+Scheduling.swift` and was terminated mid-task by a provider session limit. This was an infrastructure interruption, not a code failure.
+- **Issue:** The first executor agent completed and committed Task 1 (`8c62a43224`), then applied Task 2's source edit to `DownloadClient+Scheduling.swift` and was terminated mid-task by a provider session limit. This was an infrastructure interruption, not a code failure.
 - **Fix:** A continuation agent re-verified Task 1's acceptance criteria against the tree, reviewed and kept the uncommitted Task 2 source edit (it matched the plan's `<action>` text verbatim in intent and comment content), then wrote the missing regression case, ran both verification tiers and committed Task 2 atomically.
 - **Files modified:** none beyond the plan's own set
 - **Verification:** Task 1's five acceptance greps re-checked (3, 5, 2, 4, and the test name present); Task 2's grep outputs `1`; both test tiers green.
@@ -196,7 +196,7 @@ Each task was committed atomically:
 ## Verification
 
 - Targeted run — `DownloadsFeatureTests/DownloadContinuedSessionTests` under the `FeatureTests` plan: **27 tests passed** in 0.68s (3 known issues, the pre-existing `withKnownIssue` unimplemented-endpoint cases), including both new cases and every pre-existing case.
-- Full run, executed only after the targeted run completed — `-only-testing:DownloadsFeatureTests`: **291 tests in 56 suites passed** in 12.9s wall (54s including build), including `DownloadSchedulingTests` (deterministic since 557b0425, so green there is meaningful), `DownloadPendingWorkTests`, and both `BackgroundExecutionInvariantTests` cases unmodified.
+- Full run, executed only after the targeted run completed — `-only-testing:DownloadsFeatureTests`: **291 tests in 56 suites passed** in 12.9s wall (54s including build), including `DownloadSchedulingTests` (deterministic since a0c49c53cd, so green there is meaningful), `DownloadPendingWorkTests`, and both `BackgroundExecutionInvariantTests` cases unmodified.
 - Acceptance greps: `continuedSessionID` in Manager = 3; `markContinuedSessionEnded(sessionID:` = 5; `sessionID: UUID` = 2; `continuedSessionID == sessionID` = 4; the `cancelQueuedWorkItem` region contains exactly one `scheduleNextIfNeeded`.
 - App-scheme build: **BUILD SUCCEEDED** with zero warnings and zero errors.
 - SwiftLint over `AppPackage/Sources/DownloadClient` and `AppPackage/Tests/DownloadsFeatureTests` with the repository config in `--strict` mode: **0 violations in 93 files**. No suppression, no `swiftlint:disable`, no `@unchecked Sendable`, no `nonisolated(unsafe)`, no `@preconcurrency` anywhere in the changed set.
@@ -222,7 +222,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All four modified artifacts exist on disk, both new test names are present in the suite, and both task commits (`6b5efd0d`, `9403906d`) are in git history.
+All four modified artifacts exist on disk, both new test names are present in the suite, and both task commits (`8c62a43224`, `8de70d562f`) are in git history.
 
 ---
 *Phase: 15-continued-background-downloads*

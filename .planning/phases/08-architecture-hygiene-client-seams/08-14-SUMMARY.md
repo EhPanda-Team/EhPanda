@@ -81,7 +81,7 @@ App metadata now lives in a pure `AppInfo` namespace, the dead main-queue helper
 
 ## Task Commits
 
-1. **Task 1: Relocate version/build/isTesting to AppInfo and delete AppUtil** - `dba86040`
+1. **Task 1: Relocate version/build/isTesting to AppInfo and delete AppUtil** - `fe67842381`
 2. **Task 2: Remove the stale empty AuthorizationClient directory and run the phase gate** - no source commit (Git does not track the empty directory; verification is captured in plan metadata)
 
 **Plan metadata:** committed with this summary
@@ -137,7 +137,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commit `dba86040` exists in git history and the four semantic source paths match its relocation and consumer updates.
+- Task commit `fe67842381` exists in git history and the four semantic source paths match its relocation and consumer updates.
 - `AppInfo.swift` exists; `AppUtil.swift`, `dispatchMainSync`, and every AppPackage `AppUtil` reference are absent.
 - `AppPackage/Sources/AuthorizationClient/` and every AuthorizationClient package reference are absent.
 - The warning-free package build, complete package tests, SwiftLint build-tool checks, cookie-logging gate, diff check, architecture review, security review, and SwiftUI/TCA parity review pass.

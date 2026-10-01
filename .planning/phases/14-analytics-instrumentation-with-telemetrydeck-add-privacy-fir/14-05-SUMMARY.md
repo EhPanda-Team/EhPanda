@@ -121,9 +121,9 @@ status: complete
 
 Each task committed atomically:
 
-1. **Task 1: The AnalyticsSignal closed enum** — `532fa9c5` (test, RED) → `180bf229` (feat, GREEN)
-2. **Task 2: The rendering layer — the single String-minting site** — `45a8af03` (test, RED) → `b4bf3743` (feat, GREEN)
-3. **Task 3: Reserved-key and no-content sweeps** — `59ea8891` (test)
+1. **Task 1: The AnalyticsSignal closed enum** — `62c517bbf1` (test, RED) → `423303086b` (feat, GREEN)
+2. **Task 2: The rendering layer — the single String-minting site** — `5c334a65d3` (test, RED) → `5805649e17` (feat, GREEN)
+3. **Task 3: Reserved-key and no-content sweeps** — `d218936025` (test)
 
 ## Files Created/Modified
 
@@ -188,4 +188,4 @@ None — no external service configuration required by this plan. The TelemetryD
 
 ## Self-Check: PASSED
 
-All 3 source and test files exist on disk; all 5 task commits (`532fa9c5`, `180bf229`, `45a8af03`, `b4bf3743`, `59ea8891`) resolve in `git log`. No absolute home path appears in this document.
+All 3 source and test files exist on disk; all 5 task commits (`62c517bbf1`, `423303086b`, `5c334a65d3`, `5805649e17`, `d218936025`) resolve in `git log`. No absolute home path appears in this document.

@@ -68,8 +68,8 @@ Normal-image refetch responses now retain their construction-time gallery host t
 
 ## Task Commits
 
-1. **Task 1: Carry the originating GalleryHost through refetch completion** - `ffefbe43`
-2. **Task 2: Add the suspended-request host-switch regression** - `f9344450`
+1. **Task 1: Carry the originating GalleryHost through refetch completion** - `87bb7bd709`
+2. **Task 2: Add the suspended-request host-switch regression** - `93db33f8ed`
 
 **Plan metadata:** committed with this summary
 
@@ -95,7 +95,7 @@ Normal-image refetch responses now retain their construction-time gallery host t
 - **Fix:** Injected a fresh `CookieClient.testing()` and asserted that only the originating host's isolated cookie store receives `skipserver`. This observes the same host argument through its externally meaningful effect and never touches a process-global cookie store.
 - **Files modified:** `AppPackage/Tests/ReadingFeatureTests/ReadingReducerImageFetchTests.swift`
 - **Verification:** The focused ReadingFeatureTests target and full AppPackage suite pass; the old completion-time host read would place the cookie on ExHentai and fail both host assertions.
-- **Committed in:** `f9344450`
+- **Committed in:** `93db33f8ed`
 
 **2. [Rule 3 - Blocking] Corrected the focused test invocation to the generated package scheme**
 - **Found during:** Task 2 verification
@@ -138,7 +138,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `ffefbe43` and `f9344450` exist in Git history.
+- Task commits `87bb7bd709` and `93db33f8ed` exist in Git history.
 - `ReadingReducerImageFetchTests.swift` exists and the focused ReadingFeatureTests suite passes.
 - The full AppPackage test suite and app build pass with SwiftLint build-tool checks enabled.
 - The action has one definition, two construction-time-host senders, and one carried-host handler; the completion no longer reads shared host state.

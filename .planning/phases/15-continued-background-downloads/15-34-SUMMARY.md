@@ -103,8 +103,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Guard both range sites and cover them with zero-page cases** — `2e790c68` (fix)
-2. **Task 2: Decide the zero-page disposition at both entrances (D-G14-01)** — `9c6298e6` (fix)
+1. **Task 1: Guard both range sites and cover them with zero-page cases** — `1d66c950c1` (fix)
+2. **Task 2: Decide the zero-page disposition at both entrances (D-G14-01)** — `4791043b37` (fix)
 
 ## Files Created/Modified
 
@@ -196,7 +196,7 @@ The result is a visible failed download the user can retry — never a 0-of-0 re
 - **Fix:** `normalizeFetchedPayload` now validates by comparison (`$0 >= 1 && $0 <= pageCount`), so no range exists there to be invalid; the predicate is identical for every positive count. `buildInspectionPages` gained `guard download.pageCount > 0 else { return [] }`. Both carry a comment naming G-15-14 and their place in the class.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionFetch.swift`, `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPIHelpers.swift`
 - **Verification:** `testTheModulesOtherPageCountRangeSitesAnswerEmptyForAZeroPagePayload` drives both; full FeatureTests run green.
-- **Committed in:** `2e790c68` (part of the Task 1 commit)
+- **Committed in:** `1d66c950c1` (part of the Task 1 commit)
 
 **Sweep result.** `grep -rn '1\.\.\.' AppPackage/Sources/DownloadClient/` now returns seven sites, and every one is guarded: `makeInitialManifest` and `reusableExistingManifest` (pre-existing ternaries), `validateDecodedManifest` (its `guard manifest.pages.isEmpty == false` sits two lines above the range), and the four closed here. The class has no exceptions left, so the comments are derivable.
 
@@ -240,7 +240,7 @@ Remaining for this phase: G-15-15..G-15-18 (warning groups, plans 15-35..15-38),
 
 - Created file present: `AppPackage/Tests/DownloadsFeatureTests/DownloadZeroPagePayloadTests.swift`
 - Modified files present, including the swept sibling `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPIHelpers.swift`
-- Commits present in history: `2e790c68`, `9c6298e6`
+- Commits present in history: `1d66c950c1`, `4791043b37`
 - No absolute home paths recorded in this document
 
 ---

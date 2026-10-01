@@ -85,7 +85,7 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Rename module, test target, and every reference** - `d1a1365b` (refactor)
+1. **Task 1: Rename module, test target, and every reference** - `2c945e9ed5` (refactor)
 2. **Task 2: Clean build, SwiftLint, and full suite with renamed target visible** - verification only, no code change (no commit)
 
 **Plan metadata:** docs commit (this SUMMARY + STATE + ROADMAP + REQUIREMENTS)
@@ -123,7 +123,7 @@ None - no external service configuration required.
 - FOUND: AppPackage/Sources/SystemNotification/View+Toast.swift
 - FOUND: AppPackage/Sources/SystemNotification/.swiftlint.yml (contains parent_config: ../../../.swiftlint.yml)
 - FOUND: AppPackage/Tests/SystemNotificationTests/ToastInteractionTests.swift (contains @testable import SystemNotification)
-- FOUND commit: d1a1365b
+- FOUND commit: 2c945e9ed5
 - Old-name grep repo-wide: 0 hits
 
 ---

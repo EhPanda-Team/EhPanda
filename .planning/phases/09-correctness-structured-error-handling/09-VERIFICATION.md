@@ -41,7 +41,7 @@ human_verification:
 **Verified:** 2026-07-16T11:21:57Z
 **Status:** passed
 **Re-verification:** Yes — after Plans 09-12 and 09-13 closed the two prior implementation gaps
-**Human UAT:** PASSED 2026-07-16 via simulator UAT (iPhone Air, iOS 26.5); see `09-UAT.md`. A tab-bar occlusion found during UAT was fixed in commit `39f4b7a3` before the pass.
+**Human UAT:** PASSED 2026-07-16 via simulator UAT (iPhone Air, iOS 26.5); see `09-UAT.md`. A tab-bar occlusion found during UAT was fixed in commit `9a0f9da6c2` before the pass.
 
 ## Goal Achievement
 
@@ -135,7 +135,7 @@ Non-blocking review warnings remain: diagnostic dismissal is swipe-only, context
 
 **Expected:** The toast is announced and focused as a persistent native Button; all assistive inputs can activate it after three seconds; activation opens details exactly once; replacement/dismissal opens nothing stale; Reduce Motion uses an opacity-only, non-bouncy transition.
 
-**Observed:** The toast is exposed as an enabled `AXButton` labeled "Error, There seems to be nothing here." (the element and label VoiceOver/Voice Control/Switch Control/Full Keyboard Access consume for discovery, naming, and activation); it persists past three seconds and across navigation; tapping it opens the detail sheet exactly once with privacy-safe context and is consumed afterward; a deliberate downward swipe dismisses it without routing; and under Reduce Motion it fades in via opacity at its final position with no slide or bounce (confirmed frame-by-frame). Direct activation through the AT services themselves was not driven (sim-use injects touches only), but they invoke the same confirmed `Button` action. A tab-bar occlusion found on the first UAT pass — the persistent toast overlapped the iOS 26 floating tab bar and could not be tapped — was fixed in commit `39f4b7a3` before this pass.
+**Observed:** The toast is exposed as an enabled `AXButton` labeled "Error, There seems to be nothing here." (the element and label VoiceOver/Voice Control/Switch Control/Full Keyboard Access consume for discovery, naming, and activation); it persists past three seconds and across navigation; tapping it opens the detail sheet exactly once with privacy-safe context and is consumed afterward; a deliberate downward swipe dismisses it without routing; and under Reduce Motion it fades in via opacity at its final position with no slide or bounce (confirmed frame-by-frame). Direct activation through the AT services themselves was not driven (sim-use injects touches only), but they invoke the same confirmed `Button` action. A tab-bar occlusion found on the first UAT pass — the persistent toast overlapped the iOS 26 floating tab bar and could not be tapped — was fixed in commit `9a0f9da6c2` before this pass.
 
 ### Gaps Summary
 

@@ -130,7 +130,7 @@ status: complete
 - **Observed the lifetime pin failing**, with the retirement removed, on exactly the inherited-credit reading. It is a pin, not a vacuous green.
 - Found and fixed a **contract-unfaithful test double** that would otherwise have decided the second case's outcome: the spy held its session identity across `.unavailable`, which the live store does not.
 
-## Step 0(a) — the trust-set census, re-derived at HEAD `f59529ed`
+## Step 0(a) — the trust-set census, re-derived at HEAD `a3aa56e54a`
 
 `grep -rn 'observedIncompleteSessionGIDs' AppPackage/ App/ ShareExtension/` — eleven lines, every one classified:
 
@@ -382,9 +382,9 @@ Each was a single invocation; **none overlapped**. **Test count 879 against 15-4
 
 ## Task Commits
 
-1. **Task 1: Stage the two uncovered orderings and the lifetime pin, RED-first** — `4acc408b` (test)
-2. **Task 2: Re-own the proof by the run, derive its retirement, seed the session from it** — `8d769b40` (fix)
-3. **Task 3: Sweep what the change left behind** — `51fba0ad` (docs)
+1. **Task 1: Stage the two uncovered orderings and the lifetime pin, RED-first** — `b1398c135e` (test)
+2. **Task 2: Re-own the proof by the run, derive its retirement, seed the session from it** — `6cb2475dad` (fix)
+3. **Task 3: Sweep what the change left behind** — `84f45af21b` (docs)
 
 ## Prohibitions
 
@@ -415,7 +415,7 @@ Each was a single invocation; **none overlapped**. **Test count 879 against 15-4
 - **Fix:** `emit(_:)` now switches on the event and routes `.expired` and `.unavailable` through the same identity-releasing terminal path, leaving `.granted` non-terminal. `expire()` became `emit(.expired)`, so its five existing callers are unchanged by construction.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestSupportTypes.swift`
 - **Verification:** `spy.startCount == 2` passes in the second case, proving the successor session really started; the single pre-existing `emit(.granted)` caller and all five `expire()` callers pass unchanged; full suite green.
-- **Committed in:** `4acc408b`
+- **Committed in:** `b1398c135e`
 
 **2. [Rule 3 - Blocking] The lifetime pin could not reach a real run exit without an injectable transport**
 
@@ -424,7 +424,7 @@ Each was a single invocation; **none overlapped**. **Test count 879 against 15-4
 - **Fix:** `makeQueuedCoordinator` gained a `urlSession: URLSession = .shared` parameter, mirroring the `fileManager:` parameter added for the same class of reason. The third case injects an ephemeral session carrying `SharedSessionStubURLProtocol` and a per-case header, the same seam `makeStubbedDownloadCoordinator` already opens, so the stub is scoped to that case rather than registered process-wide.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`, and the file-private `makeStubbedURLSession` helper in the new test file.
 - **Verification:** Every existing caller is unchanged by the default; the case's `processDownload` exits through the general failure catch with `lastError != nil` asserted; full suite green.
-- **Committed in:** `4acc408b`
+- **Committed in:** `b1398c135e`
 
 **3. [Rule 2 - Missing Critical] Two retired admission claims in the test target the plan's file list did not name**
 
@@ -433,7 +433,7 @@ Each was a single invocation; **none overlapped**. **Test count 879 against 15-4
 - **Fix:** Both rewritten to trace admission back to the run's own proof and to name both routes it reaches the session by. The new file's own header was corrected in the same pass (it described `ensureContinuedSession` as resetting the trust set rather than re-deriving it).
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`, `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionRunProofTests.swift`
 - **Verification:** A repeat scan across all four targets returns 0 surviving instances; both refusal cases pass unchanged; final full suite green.
-- **Committed in:** `51fba0ad`
+- **Committed in:** `84f45af21b`
 
 **4. [Rule 2 - Missing Critical] The plan's exit enumeration listed four exits; source holds five**
 
@@ -442,7 +442,7 @@ Each was a single invocation; **none overlapped**. **Test count 879 against 15-4
 - **Fix:** The retirement's doc enumerates all five, and the summary's exit table above records the discrepancy explicitly.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Execution.swift`
 - **Verification:** The `defer` placement is exit-count independent by construction; full suite green.
-- **Committed in:** `8d769b40`
+- **Committed in:** `6cb2475dad`
 
 ---
 
@@ -478,4 +478,4 @@ None.
 
 ## Self-Check: PASSED
 
-All 9 source and test files present on disk; all 4 commits (`4acc408b`, `8d769b40`, `51fba0ad`, `d381f366`) present in git history. No absolute home path in this document.
+All 9 source and test files present on disk; all 4 commits (`b1398c135e`, `6cb2475dad`, `84f45af21b`, `028da3831e`) present in git history. No absolute home path in this document.

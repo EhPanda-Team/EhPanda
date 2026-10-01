@@ -165,23 +165,23 @@ Commits are listed by **subject** as well as hash: this repository runs a `+0900
 
 **Task 1 — Privacy-mask inventory reconciliation + phase static gates + full suite**
 
-1. `9c192632` — `docs(12-06): reconcile privacy-mask inventory with the two new login roots`
-2. `5b6d5c90` — `docs(12-06): record checkpoint position at Task 2 live-login UAT`
+1. `e07fc4c036` — `docs(12-06): reconcile privacy-mask inventory with the two new login roots`
+2. `33b491a47d` — `docs(12-06): record checkpoint position at Task 2 live-login UAT`
 
 **Task 2 — Owner live end-to-end login UAT (checkpoint, blocking).** No commits of its own; the following landed *from* the UAT, in order:
 
-3. `5345a9d9` — `fix(12-06): raise the login failure log to warning level`
-4. `b56cd8cc` — `fix(12-06): report login success truthfully after a clearance-carrying retry`
-5. `7ddb89ae` — `fix(12-06): capture the Cloudflare clearance by polling, not by notification`
-6. `bad6905a` — `fix(12-06): drop the challenge sheet's opaque toolbar strip`
-7. `83c8d475` — `fix(12-06): abort the login when the challenge sheet is swiped away`
-8. `0d3e1338` — `fix(12-06): read the login response instead of discarding it`
-9. `2828b6e3` — `diag(12-06): record whether the forum returned credentials at all`
-10. `066ba289` — `diag(12-06): dump the whole login exchange instead of one probe at a time`
-11. `00b4172b` — `fix(12-06): read the forum's other error label, and name a CAPTCHA gate`
-12. `1ad8bbba` — `fix(12-06): hold the toast to one line of title over one of subtitle`
-13. `23aad8a1` — `feat(12-06): report a CAPTCHA-gated login form as its own failure`
-14. `81bc899d` — `Fix toast height` — **owner-authored**, not agent work: toast bottom padding 64 → 88.
+3. `157549bb9c` — `fix(12-06): raise the login failure log to warning level`
+4. `8fb727625e` — `fix(12-06): report login success truthfully after a clearance-carrying retry`
+5. `ebefcf4d29` — `fix(12-06): capture the Cloudflare clearance by polling, not by notification`
+6. `9c89fc2534` — `fix(12-06): drop the challenge sheet's opaque toolbar strip`
+7. `5c6eeea232` — `fix(12-06): abort the login when the challenge sheet is swiped away`
+8. `a74eb16eb2` — `fix(12-06): read the login response instead of discarding it`
+9. `f553840992` — `diag(12-06): record whether the forum returned credentials at all`
+10. `aa31f5ae86` — `diag(12-06): dump the whole login exchange instead of one probe at a time`
+11. `96059056ec` — `fix(12-06): read the forum's other error label, and name a CAPTCHA gate`
+12. `65f565e784` — `fix(12-06): hold the toast to one line of title over one of subtitle`
+13. `56a46cbad2` — `feat(12-06): report a CAPTCHA-gated login form as its own failure`
+14. `3840587195` — `Fix toast height` — **owner-authored**, not agent work: toast bottom padding 64 → 88.
 
 ## Files Created/Modified
 
@@ -199,14 +199,14 @@ Commits are listed by **subject** as well as hash: this repository runs a `+0900
 
 ## Owner UAT Results (Task 2 checkpoint)
 
-**Round 0 — VOID.** The owner's first UAT run was made against commit `54c7140f`, the last Phase 11 commit, which contains no Phase 12 code at all. The reported symptom (a fast, silent "Login failed." with no challenge sheet) was the *pre-Phase-12 baseline*, not a defect in this phase. Recorded here explicitly so the phase history does not imply C1 was tested twice.
+**Round 0 — VOID.** The owner's first UAT run was made against commit `472e825cb8`, the last Phase 11 commit, which contains no Phase 12 code at all. The reported symptom (a fast, silent "Login failed." with no challenge sheet) was the *pre-Phase-12 baseline*, not a defect in this phase. Recorded here explicitly so the phase history does not imply C1 was tested twice.
 
 **Final owner verdict on the current build: PASS on every item.**
 
 | Item | Verdict |
 |------|---------|
 | Silent cancel via the sheet's Cancel button | PASS |
-| Silent cancel via swipe-down | PASS (failed initially; fixed by `83c8d475`, re-verified) |
+| Silent cancel via swipe-down | PASS (failed initially; fixed by `5c6eeea232`, re-verified) |
 | Live end-to-end username/password login through the wall (C1) | PASS |
 | Privacy mask on the App Switcher while the challenge sheet is presented (ROOT-41) | PASS |
 | `cf_clearance` does not survive a force-quit and relaunch (C5) | PASS |
@@ -219,7 +219,7 @@ Commits are listed by **subject** as well as hash: this repository runs a `+0900
 
 **Evidence:** a captured login response returned HTTP 200 carrying `<div class="cf-turnstile" data-sitekey="…">` and the message "The captcha was not entered correctly. Please try again.", with only `ipb_session_id` set and no credential cookies.
 
-**This is reported, not solved.** `23aad8a1` (`feat(12-06): report a CAPTCHA-gated login form as its own failure`) adds `AppError.loginCaptchaRequired`, with strings in all six locales, whose recovery suggestion routes the user to the existing web-login flow — where the form is rendered and the CAPTCHA can actually be solved. It is deliberately not folded into `.cloudflareChallengeFailed`: both involve Cloudflare, but one is cleared by the in-app challenge surface and the other never can be, so conflating them would point at the wrong recovery. A refusal carrying the same error block but *no* widget stays generic, because that one really might be the password.
+**This is reported, not solved.** `56a46cbad2` (`feat(12-06): report a CAPTCHA-gated login form as its own failure`) adds `AppError.loginCaptchaRequired`, with strings in all six locales, whose recovery suggestion routes the user to the existing web-login flow — where the form is rendered and the CAPTCHA can actually be solved. It is deliberately not folded into `.cloudflareChallengeFailed`: both involve Cloudflare, but one is cleared by the in-app challenge surface and the other never can be, so conflating them would point at the wrong recovery. A refusal carrying the same error block but *no* widget stays generic, because that one really might be the password.
 
 **C1's status, stated precisely:**
 
@@ -246,43 +246,43 @@ Producing a Turnstile token requires the form rendered in a web view, which is e
 - **Issue:** The document was already stale in two independent ways before this phase: an app-level error-info sheet added in Phase 9 was never recorded, and a New Dawn preview exclusion was removed by Phase 10's `#Preview` migration.
 - **Fix:** Re-derived every count from the document's own ROOT rows rather than pattern-replacing the planned numbers. Final state: 42 runtime roots / 42 mask sites / 43 presentations / 2 exclusions, bijective.
 - **Files modified:** `.planning/phases/07-root-privacy-mask-auto-lock-removal/07-PRIVACY-MASK-INVENTORY.md`
-- **Commit:** `9c192632` — `docs(12-06): reconcile privacy-mask inventory with the two new login roots`
+- **Commit:** `e07fc4c036` — `docs(12-06): reconcile privacy-mask inventory with the two new login roots`
 
 **2. [Rule 1 — Bug] Login success was reported from a jar the request never wrote to**
 - **Found during:** Task 2 UAT (live login died fast and silently — no spinner, no error, only "Login failed." in the log)
 - **Fix:** `loginDone` applies the response's credentials before reading `didLogin`; regression test starts from an empty jar. The no-clearance path's behavior is identical.
-- **Commit:** `b56cd8cc` — `fix(12-06): report login success truthfully after a clearance-carrying retry`
+- **Commit:** `8fb727625e` — `fix(12-06): report login success truthfully after a clearance-carrying retry`
 
 **3. [Rule 1 — Bug] The clearance was never captured on the live wall**
 - **Found during:** Task 2 UAT
 - **Fix:** Capture rebuilt as a 500 ms poll of the web view's cookie store; observer and `didFinish` demoted to fast-path nudges.
-- **Commit:** `7ddb89ae` — `fix(12-06): capture the Cloudflare clearance by polling, not by notification`
+- **Commit:** `ebefcf4d29` — `fix(12-06): capture the Cloudflare clearance by polling, not by notification`
 
 **4. [Rule 1 — Bug] Swiping the challenge sheet away left the login button spinning forever**
 - **Found during:** Task 2 UAT
 - **Fix:** The dismissal hook reads the destination before `BindingReducer` applies the binding write, so a user swipe is distinguishable from the reducer's own dismissal. Regression case added to `LoginChallengeFlowTests`.
-- **Commit:** `83c8d475` — `fix(12-06): abort the login when the challenge sheet is swiped away`
+- **Commit:** `5c6eeea232` — `fix(12-06): abort the login when the challenge sheet is swiped away`
 
 **5. [Rule 2 — Missing Critical] The login response body was discarded**
 - **Found during:** Task 2 UAT
 - **Issue:** The response body is the only place the forum says *why* a login was refused; without it every refusal is indistinguishable and unexplainable.
 - **Fix:** `Parser.parseLoginErrorMessage(content:)` reads the forum's error box under both labels it uses — a board-level message for a malformed submission and a form-level list when the form came back with errors. Reading only the first is how the CAPTCHA requirement went unreported through several rounds of diagnosis.
-- **Commits:** `0d3e1338` — `fix(12-06): read the login response instead of discarding it`; `00b4172b` — `fix(12-06): read the forum's other error label, and name a CAPTCHA gate`
+- **Commits:** `a74eb16eb2` — `fix(12-06): read the login response instead of discarding it`; `96059056ec` — `fix(12-06): read the forum's other error label, and name a CAPTCHA gate`
 
 **6. [Owner request] The login failure log sat at `notice`, level with routine lifecycle events**
-- **Commit:** `5345a9d9` — `fix(12-06): raise the login failure log to warning level`
+- **Commit:** `157549bb9c` — `fix(12-06): raise the login failure log to warning level`
 
 **7. [Owner request] The challenge sheet's opaque toolbar strip**
-- **Commit:** `bad6905a` — `fix(12-06): drop the challenge sheet's opaque toolbar strip`
+- **Commit:** `9c89fc2534` — `fix(12-06): drop the challenge sheet's opaque toolbar strip`
 
 **8. [Rule 1 — Bug] The toast grew past the two-line shape its own header comment specified**
-- **Commit:** `1ad8bbba` — `fix(12-06): hold the toast to one line of title over one of subtitle`
+- **Commit:** `65f565e784` — `fix(12-06): hold the toast to one line of title over one of subtitle`
 
 **9. [Rule 2 — Missing Critical] A Turnstile-gated refusal was reported as a generic login failure**
 - See the Critical Finding section above.
-- **Commit:** `23aad8a1` — `feat(12-06): report a CAPTCHA-gated login form as its own failure`
+- **Commit:** `56a46cbad2` — `feat(12-06): report a CAPTCHA-gated login form as its own failure`
 
-**10. [Housekeeping] Unrelated files swept into `5345a9d9`**
+**10. [Housekeeping] Unrelated files swept into `157549bb9c`**
 - `.planning/phases/12-cloudflare-login-restoration/12-PATTERNS.md` and three `.planning/research/.cache/*.json` documentation-cache files were staged alongside the one-line log-level change. They are inert artifacts, but they do not belong to that commit, and `.planning/research/.cache/` is a tool cache that arguably should not be tracked at all. Left in place rather than rewritten — the history is already published and the content is harmless. Flagged for a future `.gitignore` decision.
 
 ---
@@ -294,24 +294,24 @@ Producing a Turnstile token requires the form rendered in a web view, which is e
 
 Two `diag(12-06)` commits landed during the investigation and remain in the tree:
 
-- `2828b6e3` — `diag(12-06): record whether the forum returned credentials at all`
-- `066ba289` — `diag(12-06): dump the whole login exchange instead of one probe at a time`
+- `f553840992` — `diag(12-06): record whether the forum returned credentials at all`
+- `aa31f5ae86` — `diag(12-06): dump the whole login exchange instead of one probe at a time`
 
 The full-exchange dump is **DEBUG-only** and redacts credential-cookie values to names, so no cookie value can reach a log in a release build. Both were necessary: the CAPTCHA gate was invisible to one-probe-at-a-time logging, which is precisely what motivated dumping the whole exchange.
 
 ## Owner-authored change
 
-`81bc899d` — `Fix toast height` (toast bottom padding 64 → 88) was committed directly by the owner and is recorded here as owner work, not agent work.
+`3840587195` — `Fix toast height` (toast bottom padding 64 → 88) was committed directly by the owner and is recorded here as owner work, not agent work.
 
 ## Issues Encountered
 
 - **The offline suite could not have caught any of the seven defects.** Each was a correct test over an assumption the live path invalidated — URLSession's cookie handling under `httpShouldHandleCookies = false`, WebKit's cookie-propagation timing, and SwiftUI's routing of a swipe on an `@ReducerCaseIgnored` destination. This is the strongest available argument for keeping C1 as a blocking human checkpoint rather than a derived claim.
-- **Round 0 of UAT was run against the wrong commit** (`54c7140f`, pre-Phase-12), costing a diagnosis cycle chasing a baseline symptom. Recorded as void above.
+- **Round 0 of UAT was run against the wrong commit** (`472e825cb8`, pre-Phase-12), costing a diagnosis cycle chasing a baseline symptom. Recorded as void above.
 - Environment note, sixth confirmation: every `xcodebuild` invocation on this machine needs `-skipMacroValidation`.
 
 ## Verification Evidence
 
-**Task 1 gates (all recorded at Task 1, commit `9c192632`):**
+**Task 1 gates (all recorded at Task 1, commit `e07fc4c036`):**
 
 1. Shared-jar gate (D-04) — `HTTPCookieStorage` occurrences in `ChallengeWebView.swift` outside comments: **0**. PASS.
 2. Response-driven gate (D-08) — `bypassSNIFiltering` occurrences across `LoginReducer.swift`, `LoginClient.swift`, `ChallengeWebView.swift`, `Request.swift` outside comments: **0**. PASS.

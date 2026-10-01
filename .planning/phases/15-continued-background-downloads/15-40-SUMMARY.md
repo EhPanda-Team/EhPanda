@@ -92,8 +92,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Correct the five claims decide-one each, from fresh source enumerations** — `6aba1457` (docs)
-2. **Task 2: Pin every surviving inventory with a drift-failing census test** — `8b57004c` (test)
+1. **Task 1: Correct the five claims decide-one each, from fresh source enumerations** — `e65109d60a` (docs)
+2. **Task 2: Pin every surviving inventory with a drift-failing census test** — `6413447abd` (test)
 
 ## Files Created/Modified
 
@@ -282,7 +282,7 @@ Detection tokens are assembled from fragments (`"block" + "Scheduling("`, `"last
 - **Issue:** G-15-20's detail (and the plan's objective, which transcribes it) states that "seven `sanitizeAssetFileIfNeeded` call sites in `DownloadStore+Operations.swift` pass manifest-constructed paths". Fresh enumeration: four of the seven read a path that a directory listing just produced, via `existingPageRelativePaths` (which IS `pageFileScan(...).pages`) or via `sourceScan.pages`; one more resolves through `existingCoverRelativePath`, also listing-backed. Only two ROUTES are genuinely constructed, and both throw.
 - **Fix:** No source change beyond the corrected comment. The census is recorded above, and the correction states what actually holds. This is the plan's own discipline working as intended — it forbids correcting a sentence from the gap's wording, and the gap's wording was wrong.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift` (comment only)
-- **Committed in:** `6aba1457`
+- **Committed in:** `e65109d60a`
 
 ### 2. [Rule 1 — Wrong premise in a suggested_fix] WR-04's prescribed remedy contradicts its own verification detail
 
@@ -290,7 +290,7 @@ Detection tokens are assembled from fragments (`"block" + "Scheduling("`, `"last
 - **Issue:** G-15-20's `suggested_fix` says "compare against the blankable population rather than the claimed one"; the same entry's `detail` says "The resulting behaviour is the correct one". The plan anticipated this and made the remedy decide-one on the trace.
 - **Fix:** Took (a). The three-part trace is recorded above; the decisive point is that (b) would refuse K genuine positive absences because one OTHER page went unanswered, which inverts the per-page rule the defence's line 2 states and which 15-39 extended across the copy.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` (comment only)
-- **Committed in:** `6aba1457`
+- **Committed in:** `e65109d60a`
 
 ### 3. [Rule 3 — Blocking] Private-type access on the extension members
 
@@ -298,7 +298,7 @@ Detection tokens are assembled from fragments (`"block" + "Scheduling("`, `"last
 - **Issue:** `DownloadSourceInventoryTests.swift` failed to compile: members of a `private extension` default to `fileprivate`, so `scannedFiles() -> [ScannedFile]` and `requireKnownMembers(in: [ScannedFile])` exposed the `private` `ScannedFile` type.
 - **Fix:** Marked both `private static func`, matching `DownloadLogPrivacyInvariantTests`, which spells the same two members the same way.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
-- **Committed in:** `8b57004c` (fixed before the task's commit)
+- **Committed in:** `6413447abd` (fixed before the task's commit)
 
 ---
 
@@ -330,8 +330,8 @@ None - no external service configuration required.
 - `AppPackage/Sources/DownloadClient/DownloadClient+Scheduling.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadStore.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
-- Commit `6aba1457` — FOUND
-- Commit `8b57004c` — FOUND
+- Commit `e65109d60a` — FOUND
+- Commit `6413447abd` — FOUND
 
 ---
 *Phase: 15-continued-background-downloads*

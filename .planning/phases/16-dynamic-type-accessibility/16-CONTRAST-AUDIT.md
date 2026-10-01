@@ -533,7 +533,7 @@ colour alone, no size or layout (see `### 16-23 result (contrast)`).
 The included set was therefore `#32 Activity Logs` and `#36 Laboratory`, both from plan 16-22 (built; see `### 16-22 result
 (DWC)`); this is retained as historical candidate evidence.
 
-**2026-09-17 superseding ruling.** The owner-reverted visual commit `cc05aca6` removed the Activity Logs six glyphs and
+**2026-09-17 superseding ruling.** The owner-reverted visual commit `f68610b270` removed the Activity Logs six glyphs and
 the Laboratory state glyph/HStack from `1d34681a`; the subsequent HEAD diff leaves only the Activity Logs `.accessibilityElement(children: .combine)`
 semantics change and no Laboratory diff. Accordingly, both historical
 candidate rows are withdrawn from the 16-26 rendered D-25 scope. Gallery Detail is already withdrawn. The effective
@@ -1174,7 +1174,7 @@ E-1 report at ×3 per iPhone run and ×5 on iPad, as already stated above.
 audit's element query listed the hidden strip labels as absent while the audit reports named the strip. The VO-2
 variant evidence now establishes that the reports were exposure caused by the ancestor's explicit un-hide, rather than
 VoiceOver or the audit merely walking past content that was absent from the accessibility tree. The corrected
-interpretation is therefore: before `26625a78`, `visible(true)` could re-expose nested hidden descendants; after the
+interpretation is therefore: before `35904cfc97`, `visible(true)` could re-expose nested hidden descendants; after the
 fix, the nested hide remains effective. The after-E1 gate above verifies retirement.
 
 ## Visible-change review (2026-09-15)
@@ -1192,7 +1192,7 @@ with glosses, in order:
    (`$HOME/Library/Caches/ehpanda-phase16/round2/ic-compare/compare/`).
 5. "剩下的這 1-8 都撤回，一個 commit 就好" (revert the remaining items 1–8, in one commit).
 
-Earlier the same day: "categorycell 固定用白色字" (CategoryCell always uses white text), commit `1507a65a`.
+Earlier the same day: "categorycell 固定用白色字" (CategoryCell always uses white text), commit `92282f0684`.
 
 **Kept.** The D-29 Reduce Motion gating (`7f9330a5`, `9c354673`, `882425fd`, `fadf3fbf`, pinned by `4f2fd97d`); the
 re-authored Increase Contrast category colours (`9d92e061`, `HC=A`) and both colorset pins; every accessibility-semantics

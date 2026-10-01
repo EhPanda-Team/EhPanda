@@ -1,6 +1,6 @@
 # Phase 16 closeout notes
 
-Phase 16 completed on 2026-09-23: 26/26 plans, owner sign-off `a4cc3754`, goal verification **passed**, and A11Y-01/A11Y-02 complete under the approved best-effort scope. Canonical completion was committed in `eede83c5`. Phase 17 remains unplanned; its next step is discussion. No Phase 17 implementation is started by this transition.
+Phase 16 completed on 2026-09-23: 26/26 plans, owner sign-off `7020040e1f`, goal verification **passed**, and A11Y-01/A11Y-02 complete under the approved best-effort scope. Canonical completion was committed in `aaaca77aa0`. Phase 17 remains unplanned; its next step is discussion. No Phase 17 implementation is started by this transition.
 
 ## Canonical completion warnings
 
@@ -10,7 +10,7 @@ Phase 16 completed on 2026-09-23: 26/26 plans, owner sign-off `a4cc3754`, goal v
 |---|---:|---|
 | 16-01 | 1 | `container:AppPackage/Tests/FeatureTests.xctestplan` is a container-prefixed reference; the test plan is present without that prefix. |
 | 16-03 | 4 | `$EVIDENCE_ROOT/preflight/ax5.png`, `xxl.png`, and two alternate spellings of the AX5 path. Both named preflight images are absent from the current cache; retain this historical evidence limitation. |
-| 16-14 | 4 | Two spellings of `Color+Contrast.swift`, `ColorContrastTests.swift`, and the shorthand `E-Hentai/Manga.colorset`. The helper and contrast test were owner-removed by `cc05aca6`; current category pin tests remain. |
+| 16-14 | 4 | Two spellings of `Color+Contrast.swift`, `ColorContrastTests.swift`, and the shorthand `E-Hentai/Manga.colorset`. The helper and contrast test were owner-removed by `f68610b270`; current category pin tests remain. |
 | 16-15 | 1 | `App/Assets.xcassets/Category/Colors/{E-Hentai,ExHentai}/…/Contents.json` is an illustrative brace/ellipsis path rather than one file. |
 | 16-16 | 8 | Module-relative Comments, LinkedText, Archives, Torrents, FolderManager, TagCloud, Detail subviews and localized catalog references; current action/data wiring is covered by the verifier. |
 | 16-17 | 9 | Module-relative settings/DateSeek source and localized catalog references; current controls and localization are covered by the verifier. |

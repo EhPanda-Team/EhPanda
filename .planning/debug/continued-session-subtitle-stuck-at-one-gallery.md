@@ -40,8 +40,8 @@ reproduction: Test 2 in
   .planning/phases/15-continued-background-downloads/15-UAT.md - queue two galleries,
   start downloading, background the app, watch the system progress card's subtitle as
   galleries complete, observe the subtitle after both have completed.
-started: Retest 2026-08-04 on feature/gsd-phase-15 at a8c5b212, after the G-15-2 fix
-  commits 425b5a8b, 925669bf, b76c310c, 00bfd9ad (plans 15-20 and 15-21). The prior round
+started: Retest 2026-08-04 on feature/gsd-phase-15 at ec030f451d, after the G-15-2 fix
+  commits f8f996e347, 4c61169f70, a6d6e55844, 96e6e21dd7 (plans 15-20 and 15-21). The prior round
   reported the broader defect (early session end + subtitle collapse); the retirement
   ledger fixed the session-liveness half only.
 

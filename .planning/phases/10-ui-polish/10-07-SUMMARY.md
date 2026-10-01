@@ -106,7 +106,7 @@ status: complete
 - No other number-bearing Text in the 6 files visibly mutates on screen; all such static one-off numbers are left untreated per D-04.
 
 ## Task Commits
-1. **Task 1: Treat the D-05 numeric-text sites** — `3337c5fc` (feat)
+1. **Task 1: Treat the D-05 numeric-text sites** — `df2b9496b1` (feat)
 2. **Task 2: Build/lint gate + jitter check** — no code (verification only; results above)
 
 **Plan metadata:** committed with this SUMMARY (docs)
@@ -132,7 +132,7 @@ None.
 
 ## Self-Check: PASSED
 - All 6 modified files and `10-07-SUMMARY.md` exist on disk.
-- Commit `3337c5fc` present in `git log`.
+- Commit `df2b9496b1` present in `git log`.
 - Pair-check grep: both `monospacedDigit` and `numericText` tokens nonzero in every one of the 6 files.
 - ControlPanel.swift contains `contentTransition(.numericText`; GeneralSettingView.swift contains `monospacedDigit` (must_haves artifacts).
 

@@ -104,8 +104,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Seed the start snapshot and identify every progress push** - `47413bc0` (fix)
-2. **Task 2: Regressions for seeded adoption, rejected foreign progress, and the held-push interleave** - `5f486b1d` (test)
+1. **Task 1: Seed the start snapshot and identify every progress push** - `dbc9bdcace` (fix)
+2. **Task 2: Regressions for seeded adoption, rejected foreign progress, and the held-push interleave** - `7d0d61cde9` (test)
 
 ## Files Created/Modified
 
@@ -167,7 +167,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All seven modified Swift files exist.
-- Task commits `47413bc0` and `5f486b1d` exist.
+- Task commits `dbc9bdcace` and `7d0d61cde9` exist.
 - The summary contains no absolute home-directory path.
 
 ---

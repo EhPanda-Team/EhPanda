@@ -112,8 +112,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Create MasonryLayout.swift with the pure core and thin Layout conformance** - `174fcb93` (feat)
-2. **Task 2: Create the GalleryListComponentsTests target and its parity suite** - `7002f6e1` (test)
+1. **Task 1: Create MasonryLayout.swift with the pure core and thin Layout conformance** - `50421a55d4` (feat)
+2. **Task 2: Create the GalleryListComponentsTests target and its parity suite** - `ae4bb6d5e7` (test)
 
 **Plan metadata:** committed separately (docs: complete plan).
 
@@ -147,7 +147,7 @@ Each task was committed atomically:
 - **Fix:** Renamed the internal parameter names to `width`/`columns` (external argument labels `containerWidth:`/`columns:` unchanged, so the public-to-tests API and the test call sites are unaffected).
 - **Files modified:** AppPackage/Sources/GalleryListComponents/MasonryLayout.swift
 - **Verification:** Clean build, SwiftLint plugin passes, suite green.
-- **Committed in:** `174fcb93` (Task 1 commit).
+- **Committed in:** `50421a55d4` (Task 1 commit).
 
 ---
 
@@ -169,7 +169,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All created files exist on disk (MasonryLayout.swift, MasonryLayoutTests.swift, test target .swiftlint.yml, SUMMARY.md).
-- Both task commits present in history (`174fcb93`, `7002f6e1`).
+- Both task commits present in history (`50421a55d4`, `ae4bb6d5e7`).
 - Acceptance greps: `galleryListComponentsTests` x2 in Package.swift, `parent_config` present, `@testable import` present, xctestplan entry present, `?? spacing` present, no force-unwrap, `MasonryLayout` not public.
 
 ---

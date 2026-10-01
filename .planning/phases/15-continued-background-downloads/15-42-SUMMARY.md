@@ -47,7 +47,7 @@ status: complete
 
 ## What was built
 
-**Task 1 — the regression, RED-first** (commit `5cee098c`).
+**Task 1 — the regression, RED-first** (commit `71015c57e8`).
 `testAMobilizationLandingBeforeItsOwnIterationSurvivesTheExpirationSweep` in
 `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift`.
 Two galleries are staged through `makeQueuedCoordinator`, both queued. A per-gid parking runner is
@@ -73,7 +73,7 @@ Choreography, all production-issued:
 8. Final state: mobilized gid still queued with its derived mode, session live, held gid genuinely
    paused, no rejected pushes.
 
-**Task 2 — the hoist** (commit `92a5707b`).
+**Task 2 — the hoist** (commit `a1bc559a04`).
 `pauseAllSchedulable(expiring:)` now builds a `[ExpirationPauseTarget]` — a file-private `gid` +
 `expiration` pair, chosen over a tuple because `labeled_tuple_elements` is error-severity here — in
 the same expression as the `schedulableDownloads()` read. The loop consumes only recorded pairs; the
@@ -185,7 +185,7 @@ plan 15-44).
   unchanged, including the multi-gallery requirement, the tap landing before its own iteration
   (never inside its pause), and the discriminator ordering.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift`
-- **Commit:** `5cee098c`
+- **Commit:** `71015c57e8`
 
 **2. [Rule 2 - Missing correctness] `testingContinuedSessionTask()`'s consumer roster went stale**
 
@@ -197,7 +197,7 @@ plan 15-44).
   BEFORE the expiration is fired, since the handler nils the property on its way through"), so no
   future case can falsify it. Same treatment 15-40 applied to IN-01.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift`
-- **Commit:** `92a5707b`
+- **Commit:** `a1bc559a04`
 
 ### Authentication Gates
 
@@ -215,8 +215,8 @@ hardware — is recorded, not discharged.
 - `AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionInterleaveTests.swift` — FOUND
 - `.planning/phases/15-continued-background-downloads/15-42-SUMMARY.md` — FOUND
-- commit `5cee098c` — FOUND
-- commit `92a5707b` — FOUND
+- commit `71015c57e8` — FOUND
+- commit `a1bc559a04` — FOUND
 - `grep -c 'testAMobilizationLandingBeforeItsOwnIterationSurvivesTheExpirationSweep'` in the
   interleave suite — `1`
 - `grep -c 'when this loop chose it'` in `+ContinuedSession.swift` — `0`

@@ -41,7 +41,7 @@ survived; 4 were genuinely unnecessary.** That is a much smaller harvest than th
 anticipated, and the reason is structural rather than a shortfall in the sweep: this is a TCA
 reducer-test target, and `TestStore` is main-actor-bound by design.
 
-One commit, `cd367cbd`.
+One commit, `809bfe685e`.
 
 ## Method
 
@@ -262,4 +262,4 @@ paper over a data-race diagnostic — none was surfaced.
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadVersionSignatureTests.swift` — FOUND, 0 occurrences
 - `AppPackage/Tests/DownloadsFeatureTests/ReadingReducerLocalTests.swift` — FOUND, `PageHandler` justification comment present
 - `.planning/phases/11-infra-refactor-lint-capstone/11-22-SUMMARY.md` — FOUND
-- Commit `cd367cbd` — FOUND, 26 files changed, 0 deletions
+- Commit `809bfe685e` — FOUND, 26 files changed, 0 deletions
