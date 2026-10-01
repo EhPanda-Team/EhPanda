@@ -12,11 +12,7 @@ public struct AppIconReducer: Sendable {
     }
 
     public enum Action: Equatable, Sendable {
-        // The view writes `appIconType` straight into `@Shared(.setting)`, which dispatches no action,
-        // so it bridges the change here; this reducer applies it to the system icon and reconciles the
-        // stored value back from whatever icon actually took effect.
         case appIconTypeChanged(AppIconType)
-        case syncAppIconType
         case syncAppIconTypeDone(String?)
     }
 
@@ -28,20 +24,14 @@ public struct AppIconReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .appIconTypeChanged(let iconType):
+                state.$setting.withLock({ $0.appIconType = iconType })
                 return .run { send in
-                    _ = await applicationClient.setAlternateIconName(iconType.filename)
-                    await send(.syncAppIconType)
-                }
-
-            case .syncAppIconType:
-                return .run { send in
+                    _ = await applicationClient.setAlternateIconName(iconType == .default ? nil : iconType.filename)
                     await send(.syncAppIconTypeDone(await applicationClient.alternateIconName()))
                 }
 
             case .syncAppIconTypeDone(let iconName):
-                if let iconName {
-                    state.$setting.withLock({ $0.appIconType = .matching(alternateIconName: iconName) })
-                }
+                state.$setting.withLock({ $0.appIconType = .matching(alternateIconName: iconName) })
                 return .none
             }
         }

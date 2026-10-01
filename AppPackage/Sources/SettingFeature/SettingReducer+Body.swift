@@ -64,9 +64,7 @@ extension SettingReducer {
                 }
 
             case .syncAppIconTypeDone(let iconName):
-                if let iconName {
-                    state.$setting.withLock({ $0.appIconType = .matching(alternateIconName: iconName) })
-                }
+                state.$setting.withLock({ $0.appIconType = .matching(alternateIconName: iconName) })
                 return .none
 
             case .syncUserInterfaceStyle:

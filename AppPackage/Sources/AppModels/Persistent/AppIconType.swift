@@ -50,10 +50,10 @@ extension AppIconType {
         }
     }
 
-    // Resolves the system's current alternate-icon name back to a known type; an unrecognized name falls
-    // back to `.default`. Callers handle the `nil` (primary-icon) case themselves. Shared by the Setting
-    // tab's launch reconciliation and the App Icon screen's post-edit sync so both map identically.
-    public static func matching(alternateIconName: String) -> AppIconType {
-        allCases.first(where: { alternateIconName.contains($0.filename) }) ?? .default
+    // Shared by launch reconciliation and post-edit sync. Nil (the primary icon) and unrecognized
+    // names map to `.default`.
+    public static func matching(alternateIconName: String?) -> AppIconType {
+        guard let alternateIconName else { return .default }
+        return allCases.first(where: { alternateIconName.contains($0.filename) }) ?? .default
     }
 }

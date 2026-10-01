@@ -16,13 +16,6 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>AppIcon_Default</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AppIcon_Default</string>
-				</array>
-			</dict>
 			<key>AppIcon_Developer</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -64,14 +57,6 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>AppIcon_Default</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>AppIcon_Default_iPad</string>
-					<string>AppIcon_Default_iPad_Pro</string>
-				</array>
-			</dict>
 			<key>AppIcon_Developer</key>
 			<dict>
 				<key>CFBundleIconFiles</key>

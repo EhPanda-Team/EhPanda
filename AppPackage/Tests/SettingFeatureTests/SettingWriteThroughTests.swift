@@ -20,23 +20,25 @@ import Testing
 @Suite
 struct SettingWriteThroughTests {
     @MainActor
-    @Test
-    func syncAppIconTypeDonePersistsIconTypeToSharedSetting() async {
+    @Test(arguments: [AppIconType.ukiyoe.filename, nil])
+    func syncAppIconTypeDonePersistsIconTypeToSharedSetting(iconName: String?) async {
         let defaults = UserDefaults.inMemory
         await withDependencies {
             $0.defaultAppStorage = defaults
         } operation: {
-            let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            let state = SettingReducer.State()
+            state.$setting.withLock({ $0.appIconType = .developer })
+            let store = TestStore(initialState: state, reducer: SettingReducer.init) {
                 $0.analyticsClient = .noop
                 $0.defaultAppStorage = defaults
             }
-            store.exhaustivity = .off
-
-            // The alternate-icon name maps to `.ukiyoe`; the derived type is written through `$setting`.
-            await store.send(.syncAppIconTypeDone(AppIconType.ukiyoe.filename))
+            let expectedType: AppIconType = iconName == nil ? .default : .ukiyoe
+            await store.send(.syncAppIconTypeDone(iconName)) {
+                $0.$setting.withLock({ $0.appIconType = expectedType })
+            }
 
             @Shared(.setting) var persisted
-            #expect(persisted.appIconType == .ukiyoe)
+            #expect(persisted.appIconType == expectedType)
         }
     }
 }
