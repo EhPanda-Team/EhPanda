@@ -84,8 +84,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `4cb44890` | Add typed async fetch retry helper |
-| 2 | `2774c140` | Migrate routine requests and flip parity tests |
+| 1 | `cacfbe3423` | Add typed async fetch retry helper |
+| 2 | `f92e7fe594` | Migrate routine requests and flip parity tests |
 
 ## Deviations from Plan
 

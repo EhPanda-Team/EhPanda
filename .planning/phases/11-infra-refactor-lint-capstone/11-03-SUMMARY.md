@@ -45,7 +45,7 @@ zero exception candidates — the six in-scope files now hold no `try?` at all.
 
 ## What Was Built
 
-### Task 1 — DownloadStore + Operations + DownloadClient (18 sites), commit `289e8380`
+### Task 1 — DownloadStore + Operations + DownloadClient (18 sites), commit `6dff053f07`
 
 **`DownloadStore.probeManifest(folderURL:)`** — the plan anticipated a `Parser.degrading`-shaped
 helper, and the manifest read is exactly that case. Six sites across four files did the same thing:
@@ -81,7 +81,7 @@ String?` that the existing `guard` compares — behavior is identical, the reaso
 success value or logging and returning `nil`. Since `Result` already carries the error, the
 optional-try was pure information loss.
 
-### Task 2 — Cache + PublicAPI + PersistenceNormalize (3 sites), commit `46a87e0f`
+### Task 2 — Cache + PublicAPI + PersistenceNormalize (3 sites), commit `db424a57e5`
 
 `DownloadClient+PublicAPI.reusableExistingManifest` and
 `DownloadClient+PersistenceNormalize.validatedManifest` both call `storage.probeManifest` — they
@@ -117,7 +117,7 @@ has nothing to review from this plan.
 - **Fix:** Converted all 21. Comment-filtered `try?` count across the six files is now **0**; the
   module has **15** remaining, all in files owned by later plans (ExecutionSupport, PageDownload,
   ResponseValidation, ResponseValidationHelpers, BackgroundDownloads, Networking).
-- **Commits:** `289e8380`, `46a87e0f`
+- **Commits:** `6dff053f07`, `db424a57e5`
 
 ### 2. [Rule 3 — Blocking] Test target substitution: `DownloadClientTests` does not exist
 
@@ -140,7 +140,7 @@ has nothing to review from this plan.
 - **Fix:** Extracted `closeReadHandle(_:)` and `discardRejectedAsset(at:)`, each with a doc comment
   explaining why the failure is logged rather than propagated. Net line count is lower than the
   inline conversion and the intent is on the helper instead of repeated at each site.
-- **Commit:** `289e8380`
+- **Commit:** `6dff053f07`
 
 ## Verification
 
@@ -174,5 +174,5 @@ gallery identifier, or cookie value reaches a log line, and the cookie-logging g
 - `AppPackage/Sources/DownloadClient/DownloadClient+Cache.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PublicAPI.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+PersistenceNormalize.swift` — FOUND
-- commit `289e8380` — FOUND
-- commit `46a87e0f` — FOUND
+- commit `6dff053f07` — FOUND
+- commit `db424a57e5` — FOUND

@@ -83,8 +83,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `f565ee77` | Add async gdata and metadata plumbing |
-| 2 | `fea6adc0` | Migrate gallery requests and flip parity tests |
+| 1 | `f6bee77954` | Add async gdata and metadata plumbing |
+| 2 | `4c062c2ae9` | Migrate gallery requests and flip parity tests |
 
 ## Deviations from Plan
 

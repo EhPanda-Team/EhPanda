@@ -125,9 +125,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Extract the module-internal scheduler seam behind the session store** - `8a13c58e` (refactor)
-2. **Task 2: Retain the identifier, cancel abandoned requests, and identity-check adoption** - `35dfae0e` (fix)
-3. **Task 3: Store-level lifecycle regression suite** - `5b7ecb19` (test)
+1. **Task 1: Extract the module-internal scheduler seam behind the session store** - `beb7a2e9c4` (refactor)
+2. **Task 2: Retain the identifier, cancel abandoned requests, and identity-check adoption** - `09444b578d` (fix)
+3. **Task 3: Store-level lifecycle regression suite** - `3b647996c0` (test)
 
 ## Files Created/Modified
 
@@ -164,7 +164,7 @@ Each task was committed atomically:
 - **Fix:** Wrote the parameter as `_ launchHandler: @escaping ContinuedTaskLaunchHandler`, which is what the plan specified in the first place.
 - **Files modified:** `AppPackage/Sources/BackgroundProcessingClient/ContinuedTaskScheduling.swift`
 - **Verification:** Build succeeds; `DownloadsFeatureTests` green.
-- **Committed in:** `8a13c58e` (Task 1 commit)
+- **Committed in:** `beb7a2e9c4` (Task 1 commit)
 
 **2. [Rule 3 - Blocking] Simulator destination substituted**
 - **Found during:** Task 1 (first verification run)
@@ -209,7 +209,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All three created/modified artifacts exist on disk and all four commits (`8a13c58e`, `35dfae0e`, `5b7ecb19`, `343de099`) are present in git history.
+All three created/modified artifacts exist on disk and all four commits (`beb7a2e9c4`, `09444b578d`, `3b647996c0`, `82f4817f90`) are present in git history.
 
 ---
 *Phase: 15-continued-background-downloads*

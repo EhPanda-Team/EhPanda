@@ -84,8 +84,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Add host-taking helper functions to Defaults.URL (globals kept)** - `6082995e` (refactor)
-2. **Task 2: Parameterize URLUtil builders with host: GalleryHost (transitional default)** - `4d6c7ba8` (refactor)
+1. **Task 1: Add host-taking helper functions to Defaults.URL (globals kept)** - `5dedd9b441` (refactor)
+2. **Task 2: Parameterize URLUtil builders with host: GalleryHost (transitional default)** - `2a66d37a2a` (refactor)
 
 ## Files Created/Modified
 
@@ -146,7 +146,7 @@ None - no external service configuration required.
 - The six host-independent builders remain unchanged.
 - The package build succeeds with SwiftLint plugins enabled.
 - `NetworkingFeatureTests` passes all 77 tests across nine suites.
-- Task commits `6082995e` and `4d6c7ba8` exist in git history.
+- Task commits `5dedd9b441` and `2a66d37a2a` exist in git history.
 - `git diff --check` passes for both task commits.
 - STATE frontmatter and prose both report 64/76 plans (84%) and Plan 08-03 as next.
 - Modified source contains no newly introduced TODO, FIXME, placeholder, or incomplete data-source stub.

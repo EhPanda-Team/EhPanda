@@ -7,7 +7,7 @@ tags: [swift-testing, download-coordinator, test-doubles, page-selection, gap-cl
 # Dependency graph
 requires:
   - phase: 15-continued-background-downloads
-    provides: "The round-15 HEAD (6a0059d4) with both refusal cases and the 872-test FeatureTests baseline from 15-45"
+    provides: "The round-15 HEAD (a3914b5ad1) with both refusal cases and the 872-test FeatureTests baseline from 15-45"
 provides:
   - "makeStartPayload carrying an optional raw page selection, defaulted so every untouched call site is byte-identical"
   - "makeRetriedPagesPayload — a payload helper applying BOTH production steps in production order"
@@ -177,8 +177,8 @@ Derived, not assumed: `processScheduledDownload` (`+Scheduling.swift:73-81`) cal
 
 ## Task Commits
 
-1. **Task 1: Derive the chain, census every double, build the faithful helper** — `b384b7fc` (test)
-2. **Task 2: Rebuild every unfaithful double, sweep the residue, prove green** — `0ce01ed0` (test)
+1. **Task 1: Derive the chain, census every double, build the faithful helper** — `e3f7751ad4` (test)
+2. **Task 2: Rebuild every unfaithful double, sweep the residue, prove green** — `d375b9f50e` (test)
 
 ## Files Created/Modified
 
@@ -252,7 +252,7 @@ That symmetry is the evidence the repair **did not move the announcement gate**:
 - **Fix:** Rebuilt on `makeRetriedPagesPayload` with the case's own index set, doc comment updated on the same terms as the two refusal cases.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerTests.swift`
 - **Verification:** Case passes in the full run; its diff is confined to the payload construction and its doc.
-- **Committed in:** `0ce01ed0` (Task 2 commit)
+- **Committed in:** `d375b9f50e` (Task 2 commit)
 
 **2. [Rule 1 - Bug] Retired stale prose on `makeRepairPayload`**
 
@@ -261,7 +261,7 @@ That symmetry is the evidence the repair **did not move the announcement gate**:
 - **Fix:** Rewritten to state which routes the nil selection is faithful for, and to route `retryPages`-driving cases to `makeRetriedPagesPayload`.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFeatureTestHelpers.swift`
 - **Verification:** Full suite green; no other doc restates the old selection-free shape.
-- **Committed in:** `0ce01ed0` (Task 2 commit)
+- **Committed in:** `d375b9f50e` (Task 2 commit)
 
 ---
 
@@ -296,4 +296,4 @@ None.
 
 ## Self-Check: PASSED
 
-All 3 modified files present on disk; all 3 commits (`b384b7fc`, `0ce01ed0`, `8274cbe8`) present in git history. No absolute home path in this document.
+All 3 modified files present on disk; all 3 commits (`e3f7751ad4`, `d375b9f50e`, `aeecc0383a`) present in git history. No absolute home path in this document.

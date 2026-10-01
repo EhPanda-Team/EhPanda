@@ -125,10 +125,10 @@ status: complete
 
 ## Task Commits
 
-1. **Task 2 — D-11 global default parameters** — `ba0d566e` (test, RED) → `715da3f3` (feat, GREEN)
-2. **Task 1 — the AnalyticsClient struct, the D-13 gate, the dependency wiring** — `4fc78ad0` (feat)
-3. **Fix surfaced by Task 3 — Void-returning unimplemented** — `cb132bdb` (fix)
-4. **Task 3 — gate tests, loud default, spy idiom** — `bcd928ef` (test)
+1. **Task 2 — D-11 global default parameters** — `5e6da1b698` (test, RED) → `8abb06855f` (feat, GREEN)
+2. **Task 1 — the AnalyticsClient struct, the D-13 gate, the dependency wiring** — `39856b925f` (feat)
+3. **Fix surfaced by Task 3 — Void-returning unimplemented** — `3da2ede089` (fix)
+4. **Task 3 — gate tests, loud default, spy idiom** — `6d3b90524e` (test)
 
 ## Files Created/Modified
 
@@ -147,7 +147,7 @@ status: complete
 - **Issue:** Following the `HapticsClient` template literally, `unimplemented` first used `IssueReporting.unimplemented(placeholder: placeholder())`. The template's placeholder form fits a client whose closures return values; `AnalyticsClient.start`/`send` both return `Void`, so invoking the unimplemented closure evaluated the `fatalError()` placeholder and aborted the whole test runner (`AnalyticsClient.swift:81: Fatal error`) — after recording the issue but before returning. Task 3 requires `unimplemented.send` to report a *catchable* issue, which a `fatalError` defeats.
 - **Fix:** Switched both to the default-placeholder `IssueReporting.unimplemented("…")` form, whose placeholder defaults to `()` and returns cleanly after reporting a catchable issue, and dropped the now-unused `placeholder<Result>()` helper. `withKnownIssue` now proves the loud default.
 - **Files modified:** `AppPackage/Sources/AnalyticsClient/AnalyticsClient.swift`
-- **Commit:** `cb132bdb`
+- **Commit:** `3da2ede089`
 
 **2. [Rule 3 — Blocking] `-skipMacroValidation -skipPackagePluginValidation` on every verify gate**
 - **Found during:** all build/test runs
@@ -195,4 +195,4 @@ None. The app ID and salt were plumbed in plan 14-04; this plan consumes them. A
 
 ## Self-Check: PASSED
 
-All 4 source/test files and the SUMMARY exist on disk; all 5 task commits (`ba0d566e`, `715da3f3`, `4fc78ad0`, `cb132bdb`, `bcd928ef`) resolve in `git log`. No absolute home path appears in this document.
+All 4 source/test files and the SUMMARY exist on disk; all 5 task commits (`5e6da1b698`, `8abb06855f`, `39856b925f`, `3da2ede089`, `6d3b90524e`) resolve in `git log`. No absolute home path appears in this document.

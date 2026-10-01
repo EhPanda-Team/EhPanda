@@ -97,8 +97,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — prove a same-session redo inherits predecessor observation credit** - `c6f39632` (test)
-2. **Task 2: GREEN — generation-scope incomplete observation without weakening run credit** - `708ea586` (fix)
+1. **Task 1: RED — prove a same-session redo inherits predecessor observation credit** - `fbce926229` (test)
+2. **Task 2: GREEN — generation-scope incomplete observation without weakening run credit** - `2cfcacf55d` (fix)
 
 ## Files Created/Modified
 
@@ -127,7 +127,7 @@ Each task was committed atomically:
 - **Fix:** Re-pointed both at `incompleteGalleryGenerations` / `snapshot.incompleteGalleryGenerations`; "observation set" became "observation map" in the second. No claim in either sentence changed — both still argue that the snapshot-sourced admission cannot reach a complete-reading refusal record, which remains true under the generation key.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionRunProofTests.swift`, `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionLedgerRefusalTests.swift`
 - **Verification:** `rg -n 'observedIncompleteSessionGIDs|incompleteGalleryIDs' AppPackage/Sources AppPackage/Tests` returns nothing; both suites green in the full run; SwiftLint clean over both files.
-- **Committed in:** `708ea586` (Task 2 commit)
+- **Committed in:** `2cfcacf55d` (Task 2 commit)
 
 ---
 
@@ -172,8 +172,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+Manager.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift` — FOUND
-- Commit `c6f39632` — FOUND
-- Commit `708ea586` — FOUND
+- Commit `fbce926229` — FOUND
+- Commit `2cfcacf55d` — FOUND
 
 ## Known Stubs
 

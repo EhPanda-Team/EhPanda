@@ -74,8 +74,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Migrate SettingFeature (10) + one-each screens (7)** - `001e23ef` (refactor)
-2. **Task 2: Migrate HomeFeature (6) + SearchFeature (2) + DetailFeature (9)** - `520946f2` (refactor)
+1. **Task 1: Migrate SettingFeature (10) + one-each screens (7)** - `821f59e97d` (refactor)
+2. **Task 2: Migrate HomeFeature (6) + SearchFeature (2) + DetailFeature (9)** - `4519078510` (refactor)
 3. **Task 3: Global D-07 grep gate + build/lint** - verification only, no code change
 
 ## Files Created/Modified
@@ -109,7 +109,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All 34 files confirmed migrated (global `PreviewProvider` grep = 0)
-- Commits `001e23ef` and `520946f2` exist in git log
+- Commits `821f59e97d` and `4519078510` exist in git log
 - Build succeeded, SwiftLint clean
 
 ---

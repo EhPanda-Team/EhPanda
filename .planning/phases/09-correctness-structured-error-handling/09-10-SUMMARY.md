@@ -85,8 +85,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: LogsClient + LibraryClient + ImageClient sweep (12)** - `e692331b` (refactor)
-2. **Task 2: SettingFeature activity-logs reducers sweep (5)** - `cd4e8730` (refactor)
+1. **Task 1: LogsClient + LibraryClient + ImageClient sweep (12)** - `76b7a06479` (refactor)
+2. **Task 2: SettingFeature activity-logs reducers sweep (5)** - `487f05c5c1` (refactor)
 
 ## Files Created/Modified
 
@@ -139,7 +139,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All five modified source files exist.
-- Task commits `e692331b` and `cd4e8730` exist in git history.
+- Task commits `76b7a06479` and `487f05c5c1` exist in git history.
 - Every remaining `try?` in the five scoped files has an immediately adjacent just-cause comment.
 - No new `swiftlint:disable` directive was introduced.
 

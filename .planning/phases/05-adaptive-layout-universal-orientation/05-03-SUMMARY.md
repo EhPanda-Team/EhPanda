@@ -89,8 +89,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Swap the 3 idiom views to deviceClient.deviceType()** - `dab3284e` (refactor)
-2. **Task 2: Convert EhSetting width/height metric reads to native** - `4d20137d` (refactor)
+1. **Task 1: Swap the 3 idiom views to deviceClient.deviceType()** - `ad07146c3b` (refactor)
+2. **Task 2: Convert EhSetting width/height metric reads to native** - `32a928764c` (refactor)
 
 ## Files Created/Modified
 
@@ -116,7 +116,7 @@ Each task was committed atomically:
 - **Fix:** Added `.module(.deviceClient)` to AppComponents and imported the module in the view.
 - **Files modified:** `AppPackage/Package.swift`, `AppPackage/Sources/AppComponents/TagSuggestionView.swift`
 - **Verification:** The AppPackage-Package simulator build succeeds under Swift 6 and the SwiftLint build-tool plugin.
-- **Committed in:** `dab3284e`
+- **Committed in:** `ad07146c3b`
 
 ---
 

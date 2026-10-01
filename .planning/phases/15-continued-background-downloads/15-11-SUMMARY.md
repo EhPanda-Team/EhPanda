@@ -96,8 +96,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Spy staging verbs and the drain-then-second-tap interleave regression** - `b89c46d4` (test)
-2. **Task 2: Refusal-rollback and foreign-expiration regressions, and the phase's closing gates** - `0840bc67` (test)
+1. **Task 1: Spy staging verbs and the drain-then-second-tap interleave regression** - `6bb69b66e6` (test)
+2. **Task 2: Refusal-rollback and foreign-expiration regressions, and the phase's closing gates** - `754f49423e` (test)
 
 ## Files Created/Modified
 
@@ -141,7 +141,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Both test files exist.
-- Task commits `b89c46d4` and `0840bc67` exist.
+- Task commits `6bb69b66e6` and `754f49423e` exist.
 - The summary contains no absolute home-directory path.
 
 ---

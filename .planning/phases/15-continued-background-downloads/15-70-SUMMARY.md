@@ -107,8 +107,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: RED — pin the positive half of the admission contract** - `b111ca91` (test)
-2. **Task 2: GREEN — move the predicate to the listing's terms** - `50661d95` (fix)
+1. **Task 1: RED — pin the positive half of the admission contract** - `1674ab25dd` (test)
+2. **Task 2: GREEN — move the predicate to the listing's terms** - `1f0c74ae2c` (fix)
 
 ## The Consumer Sweep: Every Name-to-URL Site and Its Disposition
 
@@ -187,7 +187,7 @@ The four remaining delete arguments, the four remaining rename arguments and the
 - **Fix:** Both alias arguments in the rename catalog and the one in the delete catalog re-pinned to `.absentSource`, each with a case doc deriving why the property is unchanged. The pinning is done through one shared `expectRefusal` both catalogs call, so an argument can no longer be satisfied by the other catalog's answer.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift`
 - **Verification:** Both six-argument catalogs and the symlink case green under the Task 2 gate; 14 tests in 2 suites.
-- **Committed in:** `b111ca91` (Task 1 commit)
+- **Committed in:** `1674ab25dd` (Task 1 commit)
 
 ### Corrections to the plan's premises
 
@@ -239,8 +239,8 @@ Acceptance greps:
 - `AppPackage/Sources/DownloadClient/DownloadStore.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+Folders.swift` — FOUND
 - `AppPackage/Tests/DownloadsFeatureTests/DownloadFolderOperationTests.swift` — FOUND
-- Commit `b111ca91` — FOUND
-- Commit `50661d95` — FOUND
+- Commit `1674ab25dd` — FOUND
+- Commit `1f0c74ae2c` — FOUND
 
 ## Known Stubs
 

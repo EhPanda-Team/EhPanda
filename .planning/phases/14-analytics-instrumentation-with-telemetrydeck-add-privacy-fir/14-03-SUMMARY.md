@@ -158,9 +158,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Closed screen, tab, outcome and setting-spelling vocabulary** — `fafaee9c` (test, RED) → `335082dc` (feat, GREEN)
-2. **Task 2: The two audited content-reduction types** — `fb41d830` (test, RED) → `6c334d56` (feat, GREEN)
-3. **Task 3: AppErrorKind, a String-free exhaustiveness-guarded mirror** — `cc321853` (test, RED) → `354da97c` (feat, GREEN)
+1. **Task 1: Closed screen, tab, outcome and setting-spelling vocabulary** — `973c9e4ed4` (test, RED) → `c096f1f2e3` (feat, GREEN)
+2. **Task 2: The two audited content-reduction types** — `a8b7ea50bd` (test, RED) → `6562105812` (feat, GREEN)
+3. **Task 3: AppErrorKind, a String-free exhaustiveness-guarded mirror** — `62d0b1f100` (test, RED) → `e7d4359dd6` (feat, GREEN)
 
 _Note: TDD tasks may have multiple commits (test → feat → refactor)_
 
@@ -215,7 +215,7 @@ Two smaller plan-internal inconsistencies, resolved in favour of the majority re
 - **Fix:** `Category.analyticsName` added to `AnalyticsVocabulary.swift` as an exhaustive switch with no catch-all arm, plus `categorySpellsAllElevenCases` pinning the count at eleven and every spelling.
 - **Files modified:** `AppPackage/Sources/AnalyticsClient/AnalyticsVocabulary.swift`, `AppPackage/Tests/AnalyticsClientTests/AnalyticsVocabularyTests.swift`
 - **Verification:** `categorySpellsAllElevenCases` passes; a twelfth `Category` case would fail to compile.
-- **Committed in:** `fafaee9c` / `335082dc` (Task 1)
+- **Committed in:** `973c9e4ed4` / `c096f1f2e3` (Task 1)
 
 **2. [Rule 3 — Blocking] `TagNamespaceKey` introduced to carry the unrecognized bucket**
 - **Found during:** Task 2 (content reductions)
@@ -223,7 +223,7 @@ Two smaller plan-internal inconsistencies, resolved in favour of the majority re
 - **Fix:** A closed `TagNamespaceKey` enum with `known(TagNamespace)` and `unrecognized`, carrying its own `analyticsName`. The dictionary key set stays closed vocabulary.
 - **Files modified:** `AppPackage/Sources/AnalyticsClient/TagNamespaceCounts.swift`, `AppPackage/Tests/AnalyticsClientTests/TagNamespaceCountsTests.swift`
 - **Verification:** `unrecognizedNamespacesCollapseOntoOneKey`, `everyNamespaceKeySpellingIsDistinct` and the sentinel sweep all pass.
-- **Committed in:** `fb41d830` / `6c334d56` (Task 2)
+- **Committed in:** `a8b7ea50bd` / `6562105812` (Task 2)
 
 **3. [Rule 2 — Missing Critical] Zero-content tags excluded from the counts**
 - **Found during:** Task 2 (content reductions)
@@ -231,7 +231,7 @@ Two smaller plan-internal inconsistencies, resolved in favour of the majority re
 - **Fix:** `for tag in tags where tag.contents.isEmpty == false`.
 - **Files modified:** `AppPackage/Sources/AnalyticsClient/TagNamespaceCounts.swift`, `AppPackage/Tests/AnalyticsClientTests/TagNamespaceCountsTests.swift`
 - **Verification:** `aTagCarryingNoContentsContributesNoKey` asserts it directly.
-- **Committed in:** `fb41d830` / `6c334d56` (Task 2)
+- **Committed in:** `a8b7ea50bd` / `6562105812` (Task 2)
 
 **4. [Rule 2 — Missing Critical] Vacuity guards on every negative content test**
 - **Found during:** Task 2 (content reductions)
@@ -239,7 +239,7 @@ Two smaller plan-internal inconsistencies, resolved in favour of the majority re
 - **Fix:** Each sweep asserts the rendering list is non-trivial; `AppErrorKindTests` additionally asserts the sentinel is present in the error on the way in.
 - **Files modified:** all three sentinel-bearing test files
 - **Verification:** The guards are themselves `#expect`s in the passing tests.
-- **Committed in:** `fb41d830`, `cc321853`
+- **Committed in:** `a8b7ea50bd`, `62d0b1f100`
 
 **5. [Rule 3 — Blocking] `-skipMacroValidation -skipPackagePluginValidation` added to every verify gate**
 - **Found during:** Task 1 (first verification run)
@@ -277,4 +277,4 @@ None — no external service configuration required by this plan. The TelemetryD
 
 ## Self-Check: PASSED
 
-All 9 source and test files exist on disk; all 6 task commits (`fafaee9c`, `335082dc`, `fb41d830`, `6c334d56`, `cc321853`, `354da97c`) resolve in `git log`. No absolute home path appears in this document.
+All 9 source and test files exist on disk; all 6 task commits (`973c9e4ed4`, `c096f1f2e3`, `a8b7ea50bd`, `6562105812`, `62d0b1f100`, `e7d4359dd6`) resolve in `git log`. No absolute home path appears in this document.

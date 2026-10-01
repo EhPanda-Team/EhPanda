@@ -78,8 +78,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Rebuild CardSlideSection as a native viewAligned paging ScrollView** - `786666b3` (feat)
-2. **Task 2: Add the tripled-buffer infinite loop with suppressed idle re-center** - `5c15f397` (feat)
+1. **Task 1: Rebuild CardSlideSection as a native viewAligned paging ScrollView** - `c9120c5818` (feat)
+2. **Task 2: Add the tripled-buffer infinite loop with suppressed idle re-center** - `e7f8e7a906` (feat)
 
 ## Files Created/Modified
 - `AppPackage/Sources/HomeFeature/HomeView+Sections.swift` - CardSlideSection rebuilt natively; rest of file untouched
@@ -98,7 +98,7 @@ status: complete
 - **Fix:** Extracted to a named private computed property with the centering rationale comment.
 - **Files modified:** HomeView+Sections.swift
 - **Verification:** Build green under SwiftLint-as-error.
-- **Committed in:** `786666b3`
+- **Committed in:** `c9120c5818`
 
 **Total deviations:** 1 auto-fixed (lint).
 **Impact on plan:** None — same modifier value, named for readability.

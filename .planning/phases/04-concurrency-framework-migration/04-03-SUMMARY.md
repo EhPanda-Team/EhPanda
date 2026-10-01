@@ -81,8 +81,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `bf66cc35` | Lock routine request behavior |
-| 2 | `94d994c0` | Lock account request behavior |
+| 1 | `4dce65db4d` | Lock routine request behavior |
+| 2 | `674e654284` | Lock account request behavior |
 
 ## Deviations from Plan
 

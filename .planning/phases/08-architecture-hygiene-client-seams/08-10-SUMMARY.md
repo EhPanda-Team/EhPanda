@@ -80,8 +80,8 @@ ImageClient now has a dedicated deterministic suite covering cache coherence, ne
 
 ## Task Commits
 
-1. **Task 1: Wire the ImageClientTests target and helpers** - `02aa36a5`
-2. **Task 2: Relocate and strengthen ImageClient seam coverage** - `21acbb24`
+1. **Task 1: Wire the ImageClientTests target and helpers** - `60c18c5d36`
+2. **Task 2: Relocate and strengthen ImageClient seam coverage** - `0f555e73c7`
 
 **Plan metadata:** committed with this summary
 
@@ -109,7 +109,7 @@ ImageClient now has a dedicated deterministic suite covering cache coherence, ne
 - **Fix:** Set the renderer format scale to 1 before generating the fixture PNG.
 - **Files modified:** `AppPackage/Tests/ImageClientTests/ImageClientTestHelpers.swift`
 - **Verification:** All pixel-dimension assertions and the complete `ImageClientTests` suite pass.
-- **Committed in:** `21acbb24`
+- **Committed in:** `0f555e73c7`
 
 **2. [Rule 1 - Bug] Corrected stale progress fields after the state updater**
 - **Found during:** Plan metadata self-check

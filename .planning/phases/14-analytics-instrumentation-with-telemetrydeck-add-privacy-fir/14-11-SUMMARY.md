@@ -141,7 +141,7 @@ The panel signals record that a filter/quick-search panel was **opened**, not th
 - **Issue:** The plan specified `@Dependency(\.analyticsClient) private var analyticsClient`. `HomeReducer`'s body lives in a separate file (`HomeReducer+Body.swift`), and `private` restricts to file scope — the build failed with "'analyticsClient' is inaccessible due to 'private' protection level" at every emission site.
 - **Fix:** Declared it as file-crossing `internal` (no `private`), matching the reducer's existing `deviceClient` and `libraryClient` dependencies, and added a one-line comment explaining why. The `private` spelling remains correct for the three sub-screen reducers (Task 2), whose bodies are same-file — those were left `private` as the plan specified.
 - **Files modified:** AppPackage/Sources/HomeFeature/HomeReducer.swift
-- **Commit:** 96f5cb03
+- **Commit:** c8b7e39638
 
 ## Notes on acceptance greps
 
@@ -154,4 +154,4 @@ The literal `grep -c "onAppear\|\.task("` over `HomeReducer+Body.swift` returns 
 ## Self-Check: PASSED
 
 - FOUND: AppPackage/Tests/HomeFeatureTests/AnalyticsEmissionTests.swift
-- FOUND: commits 96f5cb03 (feat task 1), 6ec9a520 (feat task 2), c28f1ef8 (test task 3)
+- FOUND: commits c8b7e39638 (feat task 1), e9e363dca8 (feat task 2), 013720f2e0 (test task 3)

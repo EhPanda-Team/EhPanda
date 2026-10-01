@@ -96,11 +96,11 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: ErrorInfoView native diagnostic surface** — `bab8f779` (feat)
-2. **Task 2: ErrorInfo-bearing AppAlertState toast** — `62cf1851` (feat)
-3. **Task 3: Toast onErrorTap routing seam** — `f57f08a0` (feat)
+1. **Task 1: ErrorInfoView native diagnostic surface** — `4e79c9015d` (feat)
+2. **Task 2: ErrorInfo-bearing AppAlertState toast** — `e23c81f6d6` (feat)
+3. **Task 3: Toast onErrorTap routing seam** — `f9719345d7` (feat)
 
-Post-review cleanup: `6cc11ca9` (chore) removed one redundant import without changing behavior.
+Post-review cleanup: `e6a6da4dc3` (chore) removed one redundant import without changing behavior.
 
 ## Files Created/Modified
 
@@ -128,7 +128,7 @@ Post-review cleanup: `6cc11ca9` (chore) removed one redundant import without cha
 - **Fix:** Added `.module(.appModels)` to SystemNotificationExt's target dependencies.
 - **Files modified:** `AppPackage/Package.swift`
 - **Verification:** The package manifest resolved and the generic iOS package build succeeded.
-- **Committed in:** `f57f08a0`
+- **Committed in:** `f9719345d7`
 
 ---
 
@@ -152,7 +152,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All five created/modified implementation artifacts exist.
-- Task commits `bab8f779`, `62cf1851`, `f57f08a0`, and cleanup commit `6cc11ca9` exist in history.
+- Task commits `4e79c9015d`, `e23c81f6d6`, `f9719345d7`, and cleanup commit `e6a6da4dc3` exist in history.
 - The final generic iOS `AppPackage-Package` build succeeded with SwiftLint plugins active.
 - Redaction gates contain no AppUtil, DeviceUtil, macOS, Firebase, analytics, cookie, token, or credential references.
 - `View+Toast.swift` contains no `store.send`, and the cancellation-swallow survivor has an adjacent just-cause comment.

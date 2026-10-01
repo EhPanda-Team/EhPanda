@@ -247,8 +247,8 @@ The fallback contract itself is unchanged and still lives one level down, in `pr
 
 Each task was committed atomically:
 
-1. **Task 1: Close WR-03, WR-04, and WR-05 at their roots** — `3f896c6d` (refactor)
-2. **Task 2: Decide the dead public API and prove the whole plan green** — `a87cd1ba` (refactor)
+1. **Task 1: Close WR-03, WR-04, and WR-05 at their roots** — `5a41fbf894` (refactor)
+2. **Task 2: Decide the dead public API and prove the whole plan green** — `62c91e4e21` (refactor)
 
 ## Files Created/Modified
 
@@ -327,7 +327,7 @@ None — no external service configuration required.
 
 ## Self-Check: PASSED
 
-All modified files exist on disk; both task commits (`3f896c6d`, `a87cd1ba`) are present in `git log`.
+All modified files exist on disk; both task commits (`5a41fbf894`, `62c91e4e21`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

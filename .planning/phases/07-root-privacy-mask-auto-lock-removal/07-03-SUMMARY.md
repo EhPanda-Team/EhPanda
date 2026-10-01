@@ -99,9 +99,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Swap app-root masks and remove AppLockReducer wiring** - `96cbd6a8` (refactor)
-2. **Task 2: Delete AuthorizationClient, package references, and Face ID metadata** - `12404cde` (chore)
-3. **Task 3: Delete dead auto-lock localizations** - `88b619a4` (chore)
+1. **Task 1: Swap app-root masks and remove AppLockReducer wiring** - `42fba08a2f` (refactor)
+2. **Task 2: Delete AuthorizationClient, package references, and Face ID metadata** - `1738054a99` (chore)
+3. **Task 3: Delete dead auto-lock localizations** - `6b7473c1dd` (chore)
 
 ## Files Created/Modified
 

@@ -301,7 +301,7 @@ import dead**
 - **Fix:** Removed the import. Verified by compiling the whole test target — the remaining 18 cases
   name no `AppModels` type.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadContinuedSessionTests.swift`
-- **Commit:** `db02a03d`
+- **Commit:** `87692abb5a`
 
 ### Plan-expectation deltas (no code change)
 
@@ -351,8 +351,8 @@ None.
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `db02a03d` | `test(15-28): split out the expiration case family` |
-| 2 | `7a37e40b` | `refactor(15-28): make session mutators module-internal` |
+| 1 | `87692abb5a` | `test(15-28): split out the expiration case family` |
+| 2 | `d736ed80d5` | `refactor(15-28): make session mutators module-internal` |
 
 ## Self-Check: PASSED
 
@@ -360,5 +360,5 @@ None.
 - `AppPackage/Sources/DownloadClient/DownloadClient+Testing.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ContinuedSession.swift` — FOUND
 - `AppPackage/Sources/DownloadClient/DownloadClient+ExecutionSupport.swift` — FOUND
-- Commit `db02a03d` — FOUND in `git log`
-- Commit `7a37e40b` — FOUND in `git log`
+- Commit `87692abb5a` — FOUND in `git log`
+- Commit `d736ed80d5` — FOUND in `git log`

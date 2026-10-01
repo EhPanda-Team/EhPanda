@@ -443,8 +443,8 @@ the 1000-line error gate.
 
 ## Task Commits
 
-1. **Task 1: Own the retired single-authority claim** — `23a27799` (test)
-2. **Task 2: Drop the dead page counter and the unread parked update** — `fc7b27ae` (refactor)
+1. **Task 1: Own the retired single-authority claim** — `7490916990` (test)
+2. **Task 2: Drop the dead page counter and the unread parked update** — `23001aefaf` (refactor)
 
 ## Prohibitions
 
@@ -476,7 +476,7 @@ the 1000-line error gate.
 - **Fix:** Declared `private static func`, matching `scannedFiles()` beside it, which returns the same type for the same reason.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
 - **Verification:** The re-run produced the required RED naming both paths; no doc had been rewritten in the interim, so the reading was still taken with both retired sentences in place.
-- **Committed in:** `23a27799`
+- **Committed in:** `7490916990`
 
 **2. [Rule 1 - Bug] The plan's exclusion list for the dead-counter grep named three symbols that are not confounders, and missed the one that is**
 
@@ -485,7 +485,7 @@ the 1000-line error gate.
 - **Fix:** The derivation was re-done from source with a word-boundary grep (`completedCount\b`), the real exclusion recorded, and the discrepancy stated rather than the plan's list copied forward. The conclusion is unaffected — zero readers either way.
 - **Files modified:** none (derivation only; recorded in this summary)
 - **Verification:** Unbounded grep 7 matches, bounded grep 4, difference accounted for line by line.
-- **Committed in:** `fc7b27ae` (the removal the derivation authorized)
+- **Committed in:** `23001aefaf` (the removal the derivation authorized)
 
 ---
 
@@ -521,4 +521,4 @@ None.
 
 ## Self-Check: PASSED
 
-All 5 modified source and test files present on disk; all 3 commits (`23a27799`, `fc7b27ae`, `9bfa47ce`) present in git history. No absolute home path in this document.
+All 5 modified source and test files present on disk; all 3 commits (`7490916990`, `23001aefaf`, `97c81c25e2`) present in git history. No absolute home path in this document.

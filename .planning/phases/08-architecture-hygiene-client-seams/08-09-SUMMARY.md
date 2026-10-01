@@ -84,8 +84,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Expose DataCache as an injected dependency** - `f11f907c`
-2. **Task 2: Migrate cache consumers and prove coherence** - `a4458c7c`
+1. **Task 1: Expose DataCache as an injected dependency** - `fca9cae1db`
+2. **Task 2: Migrate cache consumers and prove coherence** - `2b18f26e20`
 
 **Plan metadata:** committed with this summary
 
@@ -115,7 +115,7 @@ status: complete
 - **Fix:** Added Composable Architecture as an AppTools target dependency.
 - **Files modified:** `AppPackage/Package.swift`
 - **Verification:** AppTools and the complete package build successfully.
-- **Committed in:** `f11f907c`
+- **Committed in:** `fca9cae1db`
 
 **2. [Rule 3 - Blocking] Migrated existing capture tests away from the removed singleton**
 - **Found during:** Task 2 verification
@@ -123,7 +123,7 @@ status: complete
 - **Fix:** Created a cache per test and supplied it with `withDependencies`.
 - **Files modified:** `AppPackage/Tests/DownloadClientTests/DownloadCoordinatorCaptureTests.swift`
 - **Verification:** `DownloadsFeatureTests` passes.
-- **Committed in:** `a4458c7c`
+- **Committed in:** `2b18f26e20`
 
 ---
 

@@ -101,8 +101,8 @@ status: complete
 
 The TDD work was committed in red-green order:
 
-1. **RED: Add failing toast lifecycle and timeout-policy tests** — `11431c3b` (test)
-2. **GREEN: Implement persistent accessible diagnostic toasts** — `650d9315` (feat)
+1. **RED: Add failing toast lifecycle and timeout-policy tests** — `25c671255f` (test)
+2. **GREEN: Implement persistent accessible diagnostic toasts** — `0cb13d9198` (feat)
 
 ## Files Created/Modified
 
@@ -147,7 +147,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All six created or modified artifacts exist.
-- Task commits `11431c3b` and `650d9315` exist in branch history.
+- Task commits `25c671255f` and `0cb13d9198` exist in branch history.
 - The focused suite and generic iOS package build pass.
 - No stub, new trust boundary, SwiftLint suppression, or absolute home path was introduced.
 

@@ -145,8 +145,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: The manifest-derived derivation, pinned across the divergence window** - `654a912e` (feat)
-2. **Task 2: The full-set retry basis — recomposing 15-57's affordance over the new pending** - `ac6edbd8` (fix)
+1. **Task 1: The manifest-derived derivation, pinned across the divergence window** - `7d68c54716` (feat)
+2. **Task 2: The full-set retry basis — recomposing 15-57's affordance over the new pending** - `a71f3acb02` (fix)
 
 ## Files Created/Modified
 
@@ -314,7 +314,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All four claimed source/test files exist on disk, and both task commits (`654a912e`, `ac6edbd8`) resolve in `git log`.
+All four claimed source/test files exist on disk, and both task commits (`7d68c54716`, `a71f3acb02`) resolve in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

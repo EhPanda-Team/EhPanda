@@ -142,9 +142,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Add the neutral card title and count subtitle to the module catalog** - `763ef0eb` (feat)
+1. **Task 1: Add the neutral card title and count subtitle to the module catalog** - `3cb1d21746` (feat)
 2. **Task 2: Inject the session client and its state into the download coordinator** - `60442914` (feat)
-3. **Task 3: Add the session client spy and the seam contract suite** - `0381ac21` (test)
+3. **Task 3: Add the session client spy and the seam contract suite** - `61fc5abd9c` (test)
 
 ## Files Created/Modified
 
@@ -230,7 +230,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All seven files exist on disk with the expected contents, and all three task commits (`763ef0eb`, `60442914`, `0381ac21`) are present in `git log`.
+All seven files exist on disk with the expected contents, and all three task commits (`3cb1d21746`, `60442914`, `61fc5abd9c`) are present in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

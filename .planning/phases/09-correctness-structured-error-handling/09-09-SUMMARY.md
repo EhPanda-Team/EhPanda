@@ -86,8 +86,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Parser+List.swift survivor sweep** - `83f274ef` (refactor)
-2. **Task 2: Remaining ParserFeature sweep** - `ccffb320` (refactor)
+1. **Task 1: Parser+List.swift survivor sweep** - `0a695b515d` (refactor)
+2. **Task 2: Remaining ParserFeature sweep** - `d4f44f003f` (refactor)
 
 ## Files Created/Modified
 
@@ -116,7 +116,7 @@ Each task was committed atomically:
 - **Fix:** Classified the false positive explicitly and used a lexical boundary check to verify 43 genuine original expressions: 42 documented survivors and one converted whole-parse failure.
 - **Files modified:** `AppPackage/Sources/ParserFeature/Parser+Profile.swift`
 - **Verification:** Boundary-aware source scan plus successful ParserFeatureTests.
-- **Committed in:** `ccffb320`
+- **Committed in:** `d4f44f003f`
 
 **2. [Rule 1 - Bug] Reconciled generated planning progress**
 
@@ -148,7 +148,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `83f274ef` and `ccffb320` exist.
+- Task commits `0a695b515d` and `d4f44f003f` exist.
 - All 31 ParserFeature tests in 10 suites passed on iPhone Air iOS 26.5.
 - All 42 surviving executable `try?` expressions have immediately adjacent just-cause comments.
 - The one genuine whole-parse decoding failure uses `do throws(AppError)` and maps to payload-free `.parseFailed`.

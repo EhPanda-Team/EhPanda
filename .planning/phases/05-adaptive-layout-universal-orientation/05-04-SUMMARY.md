@@ -91,8 +91,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: AlertView + Placeholder window-fraction widths to container-relative** - `f69202a5` (refactor)
-2. **Task 2: CategoryView grid breakpoint to size-class; NewDawnView offsets + idiom to native** - `83aaf65a` (refactor)
+1. **Task 1: AlertView + Placeholder window-fraction widths to container-relative** - `42a21630f4` (refactor)
+2. **Task 2: CategoryView grid breakpoint to size-class; NewDawnView offsets + idiom to native** - `ecd295ce2c` (refactor)
 
 ## Files Created/Modified
 

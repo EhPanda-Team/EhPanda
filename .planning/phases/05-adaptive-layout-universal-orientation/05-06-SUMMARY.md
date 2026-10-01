@@ -88,8 +88,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Home carousel, ranking, and Toplists idiom conversion** - `9b95e012` (refactor)
-2. **Task 2: GalleryCardCell width and idiom conversion** - `da6cd6d2` (refactor)
+1. **Task 1: Home carousel, ranking, and Toplists idiom conversion** - `dca77375d7` (refactor)
+2. **Task 2: GalleryCardCell width and idiom conversion** - `95af6c8a3b` (refactor)
 
 ## Files Created/Modified
 

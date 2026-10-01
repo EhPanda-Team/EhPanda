@@ -81,9 +81,9 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Make scene-phase privacy state settings-independent** - `f5ec8904` (fix)
-2. **Task 2 RED: Add the pre-settings regression** - `6853a70a` (test)
-3. **Task 2 GREEN: Parameterize the scene test helper** - `d4e68abe` (feat)
+1. **Task 1: Make scene-phase privacy state settings-independent** - `235b65086c` (fix)
+2. **Task 2 RED: Add the pre-settings regression** - `7918ff4ee7` (test)
+3. **Task 2 GREEN: Parameterize the scene test helper** - `0fceb20618` (feat)
 
 ## Files Created/Modified
 
@@ -129,7 +129,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Commits `f5ec8904`, `6853a70a`, and `d4e68abe` exist in git history.
+- Commits `235b65086c`, `7918ff4ee7`, and `0fceb20618` exist in git history.
 - Both modified source files exist and `git diff --check` passes across the three task commits.
 - The AppFeature simulator build succeeded with SwiftLint enabled.
 - `AppReducerScenePhaseTests` passed 3 tests in 1 suite, including `maskAndLatchAreWrittenBeforeSettingsLoad`.

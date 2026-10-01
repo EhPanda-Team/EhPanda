@@ -82,8 +82,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `24e10fea` | Add the first seven account async bodies |
-| 2 | `60fdfa16` | Complete account bodies and flip parity tests |
+| 1 | `0e79bdd7f0` | Add the first seven account async bodies |
+| 2 | `e013876d40` | Complete account bodies and flip parity tests |
 
 ## Deviations from Plan
 

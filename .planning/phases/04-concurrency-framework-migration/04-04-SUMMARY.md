@@ -81,8 +81,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `e5500fcf` | Lock gallery-list request behavior |
-| 2 | `f2923185` | Lock gdata metadata behavior |
+| 1 | `74df709c1a` | Lock gallery-list request behavior |
+| 2 | `698b81ac78` | Lock gdata metadata behavior |
 
 ## Deviations from Plan
 

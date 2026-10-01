@@ -111,9 +111,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Defer reconciliation for an in-flight start, and dispose of every nil client-id read** - `13fc1f04` (fix)
-2. **Task 2: Bind the session spy to the live single-session contract and triage the suite behind it** - `9a7f9294` (test)
-3. **Task 3: Correct the documentation that describes a deleted dependency API** - `fef455c5` (docs)
+1. **Task 1: Defer reconciliation for an in-flight start, and dispose of every nil client-id read** - `d6e2493bd3` (fix)
+2. **Task 2: Bind the session spy to the live single-session contract and triage the suite behind it** - `0c477325ce` (test)
+3. **Task 3: Correct the documentation that describes a deleted dependency API** - `f3c3718fde` (docs)
 
 ## Files Created/Modified
 
@@ -190,7 +190,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All six modified Swift files and this summary exist.
-- Task commits `13fc1f04`, `9a7f9294`, and `fef455c5` exist.
+- Task commits `d6e2493bd3`, `0c477325ce`, and `f3c3718fde` exist.
 - The summary contains no absolute home-directory path.
 
 ---

@@ -103,9 +103,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Remove gallery titles and mask identifiers in the three cited files** - `073c2ce4` (fix)
-2. **Task 2: Reclassify the module's remaining error, description, and response-body disclosures** - `d1924834` (fix)
-3. **Task 3: Add a permanent scan that fails if the disclosure returns** - `45370eec` (test)
+1. **Task 1: Remove gallery titles and mask identifiers in the three cited files** - `5bdf01fb4b` (fix)
+2. **Task 2: Reclassify the module's remaining error, description, and response-body disclosures** - `704ea353fa` (fix)
+3. **Task 3: Add a permanent scan that fails if the disclosure returns** - `3fee2d8259` (test)
 
 ## Files Created/Modified
 
@@ -181,7 +181,7 @@ Task 2 began from 36 publicly classified interpolations in DownloadClient. It pr
 - **Fix:** Declared `scannedFiles()` private, preserving the helper's intended suite-only scope.
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadLogPrivacyInvariantTests.swift`
 - **Verification:** The targeted invariant suite compiled and both tests passed.
-- **Committed in:** `45370eec`
+- **Committed in:** `3fee2d8259`
 
 **2. [Rule 1 - Bug] Corrected inconsistent state metadata emitted by the state handlers**
 - **Found during:** Plan state update
@@ -227,7 +227,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All 18 modified Swift files and this summary exist.
-- Task commits `073c2ce4`, `d1924834`, and `45370eec` exist.
+- Task commits `5bdf01fb4b`, `704ea353fa`, and `3fee2d8259` exist.
 - The summary contains no absolute home-directory path.
 
 ---

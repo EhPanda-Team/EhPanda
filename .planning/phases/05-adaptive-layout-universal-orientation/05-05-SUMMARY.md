@@ -108,8 +108,8 @@ status: complete
 Each task was committed atomically:
 
 1. **Task 1: Comment + detail widths to container-relative** - `09622149` (refactor)
-2. **Task 2: Archive grid + preview grid/font breakpoints to size-class** - `79c18fa2` (refactor)
-3. **Task 3: Preview pixel cap + TagDetail width to native/fixed values** - `6bd6ed15` (refactor)
+2. **Task 2: Archive grid + preview grid/font breakpoints to size-class** - `a99c42551b` (refactor)
+3. **Task 3: Preview pixel cap + TagDetail width to native/fixed values** - `4286fbe3d2` (refactor)
 
 ## Files Created/Modified
 

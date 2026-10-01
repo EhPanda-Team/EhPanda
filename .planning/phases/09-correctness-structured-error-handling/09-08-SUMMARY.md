@@ -82,8 +82,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: DataCache.swift fire-and-forget cleanup sweep** - `dc110c3c` (refactor)
-2. **Task 2: Extensions.swift + Defaults.swift sweep** - `03eba2e3` (refactor)
+1. **Task 1: DataCache.swift fire-and-forget cleanup sweep** - `ad2a495089` (refactor)
+2. **Task 2: Extensions.swift + Defaults.swift sweep** - `572c5cda4a` (refactor)
 
 ## Files Created/Modified
 
@@ -133,7 +133,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `dc110c3c` and `03eba2e3` exist.
+- Task commits `ad2a495089` and `572c5cda4a` exist.
 - ImageClientTests passed on iPhone Air iOS 26.5, and AppPackage built for generic iOS.
 - All 17 surviving scoped `try?` expressions have adjacent just-cause comments.
 - No SwiftLint suppression, logger, stub, package, or additional threat surface was introduced.

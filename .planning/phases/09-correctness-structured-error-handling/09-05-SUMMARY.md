@@ -87,8 +87,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: FileClient try? sweep** - `5c39ff48` (refactor)
-2. **Task 2: NetworkingFeature try? sweep** - `af886d1b` (refactor)
+1. **Task 1: FileClient try? sweep** - `89f8bdb06a` (refactor)
+2. **Task 2: NetworkingFeature try? sweep** - `27ac811919` (refactor)
 
 ## Files Created/Modified
 
@@ -121,7 +121,7 @@ Each task was committed atomically:
 - **Fix:** Updated the cache builder to throw through `fetchTagTranslatorDone`, made missing-cache recovery explicit before the existing remote fetch, and carried removal failure into SettingFeature state.
 - **Files modified:** `SettingReducer+Body.swift`, `SettingReducer+Helpers.swift`
 - **Verification:** FileClientTests passed and the package test build compiled SettingFeature.
-- **Committed in:** `5c39ff48`
+- **Committed in:** `89f8bdb06a`
 
 **2. [Rule 3 - Blocking] Updated the controlled missing-cache test dependency**
 - **Found during:** Task 1 verification
@@ -129,7 +129,7 @@ Each task was committed atomically:
 - **Fix:** The override now throws the same fixed missing-cache AppError exercised by production.
 - **Files modified:** `SettingReducerNavigationTests.swift`
 - **Verification:** FileClientTests passed with every package test target compiling.
-- **Committed in:** `5c39ff48`
+- **Committed in:** `89f8bdb06a`
 
 ---
 
@@ -152,7 +152,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `5c39ff48` and `af886d1b` exist.
+- Task commits `89f8bdb06a` and `27ac811919` exist.
 - FileClientTests and NetworkingFeatureTests pass on the iPhone Air iOS 26.5 simulator.
 - Every surviving scoped `try?` has an adjacent just-cause comment.
 - No new SwiftLint suppression exists.

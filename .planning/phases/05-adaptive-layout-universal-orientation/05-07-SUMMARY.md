@@ -91,8 +91,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: LoginView and GalleryInfosView native geometry conversion** - `0176568e` (refactor)
-2. **Task 2: LiveTextView captured OCR geometry conversion** - `f7961205` (refactor)
+1. **Task 1: LoginView and GalleryInfosView native geometry conversion** - `c462fe5475` (refactor)
+2. **Task 2: LiveTextView captured OCR geometry conversion** - `c4018cb544` (refactor)
 
 ## Files Created/Modified
 

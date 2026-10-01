@@ -111,10 +111,10 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Adopt native reader gesture sources** - `8d84fd17` (refactor)
-2. **Task 2: Drive reader layout from captured container size** - `69c035d4` (refactor)
-3. **Task 3: Delete TouchHandler and the RootView hook** - `6700e165` (refactor)
-4. **Rule 1 review fix: Clamp the initial preview width** - `521cc257` (fix)
+1. **Task 1: Adopt native reader gesture sources** - `15b2ff9067` (refactor)
+2. **Task 2: Drive reader layout from captured container size** - `a917231f4f` (refactor)
+3. **Task 3: Delete TouchHandler and the RootView hook** - `0d448c91f0` (refactor)
+4. **Rule 1 review fix: Clamp the initial preview width** - `a8193a1643` (fix)
 
 ## Files Created/Modified
 
@@ -142,7 +142,7 @@ Each task was committed atomically:
 - **Issue:** Before the first geometry observation, subtracting preview spacing from a zero container width produced a negative frame width.
 - **Fix:** Clamped the derived preview width to zero until the captured container is wide enough.
 - **Files modified:** `AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift`
-- **Commit:** `521cc257`
+- **Commit:** `a8193a1643`
 
 ---
 

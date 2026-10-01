@@ -137,8 +137,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: The widened retry basis, from the model through the button to the queued repair** - `fbbf384f` (feat)
-2. **Task 2: Detail's honest-incomplete predicate, and the dead predicate's deletion** - `cb4c73d7` (fix)
+1. **Task 1: The widened retry basis, from the model through the button to the queued repair** - `a3b07db1cf` (feat)
+2. **Task 2: Detail's honest-incomplete predicate, and the dead predicate's deletion** - `d28ca77bde` (fix)
 
 ## Files Created/Modified
 
@@ -230,7 +230,7 @@ For the owner's physical-device pass, alongside 15-56's steps, the expected obse
 
 ## Self-Check: PASSED
 
-All seven claimed source/test files exist on disk, and both task commits (`fbbf384f`, `cb4c73d7`) resolve in `git log`.
+All seven claimed source/test files exist on disk, and both task commits (`a3b07db1cf`, `d28ca77bde`) resolve in `git log`.
 
 ---
 *Phase: 15-continued-background-downloads*

@@ -3,9 +3,9 @@
 ## Current refresh — 2026-09-23
 
 **Baseline:** Abstract six-pillar native SwiftUI standards, Phase 16 owner decisions, and the repository's native iOS 27 title/search and soft top scroll-edge policies. No UI-SPEC applies.
-**Source:** `7675a7ac77301de9464a8e924c9fc8c70f691849` (orchestrator-supplied tested source); documentation baseline `5ef04717`.
+**Source:** `a1639140b634c821f1cdf6035d47c033e70a44b2` (orchestrator-supplied tested source); documentation baseline `f4bfd6082e`.
 **Method:** Source inspection and existing evidence only. No build, test, simulator operation, browser, dev-server launch, or new screenshot capture was performed by this reviewer. Screenshot-directory creation and dev-server detection were omitted under the explicit report-only scope; no media was written to the repository. The historical review below is retained as dated evidence, not current status.
-**Status:** Whole-phase owner approval is recorded by `a4cc3754` on 2026-09-23. Goal verification and canonical completion follow separately. The scores and accepted/deferred evidence limits below remain unchanged.
+**Status:** Whole-phase owner approval is recorded by `2976b4687d` on 2026-09-23. Goal verification and canonical completion follow separately. The scores and accepted/deferred evidence limits below remain unchanged.
 
 ### Current pillar scores
 
@@ -22,7 +22,7 @@
 
 ### Top 3 priority follow-ups
 
-1. **Closing evidence and owner review completed.** Full current-source iPhone/iPad gates passed with zero Repetition nodes, historical failures remain preserved, and `a4cc3754` records the owner approval. Goal verification remains the final workflow check.
+1. **Closing evidence and owner review completed.** Full current-source iPhone/iPad gates passed with zero Repetition nodes, historical failures remain preserved, and `2976b4687d` records the owner approval. Goal verification remains the final workflow check.
 2. **Close the explicit interaction coverage gaps before making broader accessibility claims.** Exercise the fifteen unreached surfaces with their required fixtures/accounts, spoken Voice Control commands, and native VoiceOver double-tap in nonreader flows; record each action and outcome separately. These are evidence tasks, not proven product defects.
 3. **Retain the deferred W-21/W-24 visual decisions.** If the owner later authorizes visible changes, review W-21's ContentUnavailableView symbol and strengthen the Search Delete glyph's salience, then compare light/dark and grayscale states. No palette or symbol change is authorized by this audit, and accepted #39 is not reopened.
 
@@ -69,7 +69,7 @@ owner checkpoint are unchanged.
 
 The following material preserves its original scores and evidence. Pending owner decisions, workaround implementations and runtime status in this historical section are superseded by the dated current refresh above.
 
-Pre-owner review prepared on immutable source b01add4c11b1f9c355ac8f2e055ed8b24fe8146c; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
+Pre-owner review prepared on immutable source 8b923b839984256c980dc63d63b8cbd363e3c931; owner 16-26 Task 3, verifier, and completion remain pending; no new source or test was added.
 
 **Audited:** 2026-09-17  
 **Baseline:** Abstract six-pillar native iOS/SwiftUI standards, constrained by Phase 16 context, AX policy, sweep ledger, contrast audit, and owner rulings  

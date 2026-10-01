@@ -79,20 +79,20 @@ status: complete
 
 ## Accomplishments
 
-- **Task 1 — authored the D-11 parity checklist** (`1025324a`): `03-GO-NO-GO.md` enumerates every D-10 parity item, grouped Reader (11 rows) / Carousel (5 rows), each with a Pass/Gap column, a how-to-verify instruction (from `03-VALIDATION.md` § Manual-Only Verifications), and an evidence slot — including the reader dual-page-landscape row, the COMBINED RTL × dual-page spread-order row (03-REVIEWS HIGH), and the carousel infinite-loop-invisibility row (the highest-risk item), plus the Decision / D-02-outcome block. Marks left blank for the owner.
+- **Task 1 — authored the D-11 parity checklist** (`11ebaa4c3a`): `03-GO-NO-GO.md` enumerates every D-10 parity item, grouped Reader (11 rows) / Carousel (5 rows), each with a Pass/Gap column, a how-to-verify instruction (from `03-VALIDATION.md` § Manual-Only Verifications), and an evidence slot — including the reader dual-page-landscape row, the COMBINED RTL × dual-page spread-order row (03-REVIEWS HIGH), and the carousel infinite-loop-invisibility row (the highest-risk item), plus the Decision / D-02-outcome block. Marks left blank for the owner.
 - **Task 2 — owner walked the gate on device and signed GO.** All 16 parity rows passed on iPhone Air / iOS 26.5 across 4 rounds. Two in-scope findings surfaced and were resolved before sign-off:
-  - **G-03-C5** (loop re-center visible defect — blank edge peek under hard flicking, ColorfulX playback reset at the wrap, in-flight gesture cancellation): fixed with the sliding-window rebase (`windowBase` shifts so the settled id sits mid-window; `scrollPositionID` is never programmatically written) + `.viewAligned(limitBehavior: .always)` (one card per swipe = SwiftUIPager parity, bounds per-gesture travel) — `c6b64b34`. Owner re-verified all three symptoms clean on device.
+  - **G-03-C5** (loop re-center visible defect — blank edge peek under hard flicking, ColorfulX playback reset at the wrap, in-flight gesture cancellation): fixed with the sliding-window rebase (`windowBase` shifts so the settled id sits mid-window; `scrollPositionID` is never programmatically written) + `.viewAligned(limitBehavior: .always)` (one card per swipe = SwiftUIPager parity, bounds per-gesture travel) — `7ca835d3ed`. Owner re-verified all three symptoms clean on device.
   - **G-03-C2** (off-center fade is a binary step, not interpolated): closed as accepted behavior; the one-line interpolation fix was withdrawn per owner decision — exact `.interactive(opacity:)` parity deliberately dropped.
-- **Task 3 — on GO, removed SwiftUIPager** (`ed4621fa`, `a4caa1ef`): dropped the `.package(url: .../fermoya/SwiftUIPager)` decl, the `swiftUIPager` product alias, and all 3 `.targetDependency(.swiftUIPager)` entries (stale `appFeature` + real `homeFeature` + `readingFeature`); regenerated both `Package.resolved` files (the SwiftUIPager pin gone); deleted the `AboutView` acknowledgement row and the `acknowledgement.swiftUIPager` / `acknowledgement.swiftUIPager_link` xcstrings keys (each a `shouldTranslate:false` all-locale entry, removed whole); pruned the throwaway landed-id / carousel spike logging and the now-dead `OSLogExt` dependency added only for the spike. Full `AppPackage-Package` suite green under SwiftLint-as-error; a grep for the SwiftUIPager product across `AppPackage/Sources` + `Package.swift` returns no usage (only historical parity comments remain).
-- **DEP-05 marked complete** in ROADMAP / REQUIREMENTS / STATE (`b4455487`).
+- **Task 3 — on GO, removed SwiftUIPager** (`3b4303d053`, `c8bed735d2`): dropped the `.package(url: .../fermoya/SwiftUIPager)` decl, the `swiftUIPager` product alias, and all 3 `.targetDependency(.swiftUIPager)` entries (stale `appFeature` + real `homeFeature` + `readingFeature`); regenerated both `Package.resolved` files (the SwiftUIPager pin gone); deleted the `AboutView` acknowledgement row and the `acknowledgement.swiftUIPager` / `acknowledgement.swiftUIPager_link` xcstrings keys (each a `shouldTranslate:false` all-locale entry, removed whole); pruned the throwaway landed-id / carousel spike logging and the now-dead `OSLogExt` dependency added only for the spike. Full `AppPackage-Package` suite green under SwiftLint-as-error; a grep for the SwiftUIPager product across `AppPackage/Sources` + `Package.swift` returns no usage (only historical parity comments remain).
+- **DEP-05 marked complete** in ROADMAP / REQUIREMENTS / STATE (`331c3179cd`).
 
 ## Task Commits
 
-1. **Task 1: Author the D-11 go/no-go parity checklist** — `1025324a` (docs)
-2. **Task 2: Owner device gate → GO** (in-gate fix) — `c6b64b34` (fix: sliding-window carousel loop, G-03-C5)
-3. **Task 3: Remove throwaway spike logs** — `ed4621fa` (chore)
-4. **Task 3: Drop SwiftUIPager dependency (DEP-05)** — `a4caa1ef` (chore)
-5. **Close-out: mark DEP-05 / Phase 3 complete** — `b4455487` (docs)
+1. **Task 1: Author the D-11 go/no-go parity checklist** — `11ebaa4c3a` (docs)
+2. **Task 2: Owner device gate → GO** (in-gate fix) — `7ca835d3ed` (fix: sliding-window carousel loop, G-03-C5)
+3. **Task 3: Remove throwaway spike logs** — `3b4303d053` (chore)
+4. **Task 3: Drop SwiftUIPager dependency (DEP-05)** — `c8bed735d2` (chore)
+5. **Close-out: mark DEP-05 / Phase 3 complete** — `331c3179cd` (docs)
 
 ## Files Created/Modified
 

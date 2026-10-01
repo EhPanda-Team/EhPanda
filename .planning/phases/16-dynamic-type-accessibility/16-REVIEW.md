@@ -4,8 +4,8 @@ reviewed: 2026-09-23T04:10:00Z
 timezone: UTC+8
 depth: standard
 review_type: incremental
-reviewed_head: 7675a7ac77301de9464a8e924c9fc8c70f691849
-diff_base: a4e960a1238dfcce10edc8558bb80685daad0292
+reviewed_head: a1639140b634c821f1cdf6035d47c033e70a44b2
+diff_base: 3080c44679e135083eb2d89244230b80037031d7
 files_reviewed: 98
 files_reviewed_list:
   - .github/workflows/deploy-pre-release.yml
@@ -127,7 +127,7 @@ No new BLOCKER or WARNING finding was established by the source review. This dis
 
 ### Scope and method
 
-The authoritative 98-path list in `/tmp/ehpanda-phase16-close-20260923/code-review-files.txt` agrees with `code-review-scope.json`. The comparison is `a4e960a1238dfcce10edc8558bb80685daad0292..7675a7ac77301de9464a8e924c9fc8c70f691849`, not a guessed recent-commit range. All listed current files were read in context with relevant diffs; none are ignored. The retired accessibility title/search helpers were also checked through their deletion diffs. The frontmatter lists the exact submitted current-file scope, excluding those deleted paths and supporting context reads.
+The authoritative 98-path list in `/tmp/ehpanda-phase16-close-20260923/code-review-files.txt` agrees with `code-review-scope.json`. The comparison is `3080c44679e135083eb2d89244230b80037031d7..a1639140b634c821f1cdf6035d47c033e70a44b2`, not a guessed recent-commit range. All listed current files were read in context with relevant diffs; none are ignored. The retired accessibility title/search helpers were also checked through their deletion diffs. The frontmatter lists the exact submitted current-file scope, excluding those deleted paths and supporting context reads.
 
 The review applied `AGENTS.md`, the root SwiftLint rules, the code-review workflow, accessibility review guidance and Swift concurrency review guidance. Fallow was disabled; no structural pre-pass was provided. Source analysis covered input and collection boundaries, asynchronous cancellation and ownership, toolbar/sheet routing, stable dialog anchors, accessibility actions, presentation-root scroll-edge placement, and test assertion reliability. Relevant helper implementations and callers were cross-referenced where necessary.
 
@@ -158,7 +158,7 @@ The initial full iPhone run remains failed (one final failure and three Repetiti
 
 ## Historical Review — 2026-09-17
 
-The previous review's clean disposition is preserved, with its original scope and evidence limits. It covered 125 eligible paths from 25 summaries plus a diff cross-check (124 diff-eligible paths and the summary-only `Placeholder.swift`, `baselineRelevant=false`), at source `b01add4c11b1f9c355ac8f2e055ed8b24fe8146c`, repository HEAD `8a199c2f` and diff base `9091c9eb^`. Its counts were Critical 0, Warning 0 and Info 0. The full historical file list remains in this report's Git history; the current frontmatter intentionally records only this review's 98-path scope.
+The previous review's clean disposition is preserved, with its original scope and evidence limits. It covered 125 eligible paths from 25 summaries plus a diff cross-check (124 diff-eligible paths and the summary-only `Placeholder.swift`, `baselineRelevant=false`), at source `8b923b839984256c980dc63d63b8cbd363e3c931`, repository HEAD `8b02b6a186` and diff base `9091c9eb^`. Its counts were Critical 0, Warning 0 and Info 0. The full historical file list remains in this report's Git history; the current frontmatter intentionally records only this review's 98-path scope.
 
 Its conclusion was that no defect directly supported by the reviewed code and outside the documented owner decisions/known limits was found. Owner 16-26 Task 3, verifier and completion were still pending. No source or test was added by that review.
 

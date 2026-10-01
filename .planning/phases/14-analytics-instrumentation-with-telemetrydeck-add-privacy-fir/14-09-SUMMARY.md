@@ -81,8 +81,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: Harden AppFeatureTests and HomeFeatureTests** — `7934d74a` (test)
-2. **Task 2: Harden DetailFeatureTests and ReadingFeatureTests** — `7eed115c` (test)
+1. **Task 1: Harden AppFeatureTests and HomeFeatureTests** — `1d777b111a` (test)
+2. **Task 2: Harden DetailFeatureTests and ReadingFeatureTests** — `ad2f646d25` (test)
 3. **Task 3: Prove the pass with a real emission from each of the four modules** — no code commit (probe added to four source reducers, verified green across the four targets, then fully reverted — leaves no residue)
 
 **Plan metadata:** `<final>` (docs: complete plan)
@@ -162,7 +162,7 @@ None.
 ## Self-Check: PASSED
 
 - SUMMARY.md exists on disk.
-- Task commits `7934d74a` and `7eed115c` are present in git history.
+- Task commits `1d777b111a` and `ad2f646d25` are present in git history.
 - Task 3 intentionally produced no commit (probe reverted); `git status --porcelain AppPackage/Sources` empty confirms no residue.
 
 ---

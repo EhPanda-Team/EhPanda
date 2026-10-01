@@ -96,8 +96,8 @@ status: complete
 
 ## Task Commits
 
-1. **Task 1: RED — stage the interrupted repair-with-rename divergence** — `7755141a` (test)
-2. **Task 2: GREEN — non-mutating source scan, per-site verdicts, entitlement census** — `d118fa26` (fix)
+1. **Task 1: RED — stage the interrupted repair-with-rename divergence** — `ed3c0f784a` (test)
+2. **Task 2: GREEN — non-mutating source scan, per-site verdicts, entitlement census** — `5743260b75` (fix)
 
 ## Per-site entitlement verdicts (derived from source, not copied)
 
@@ -168,7 +168,7 @@ Two rounds running, an executor's load-bearing structural claim was refuted on r
 - **Fix:** Re-derived both from source: two entitled sites, both covers, with the source scan's conversion and its reason recorded, and a pointer to the new census.
 - **Files modified:** `AppPackage/Sources/DownloadClient/DownloadStore.swift`
 - **Verification:** Clean build; `grep -rn "discardingRejected: true" AppPackage/Sources` agrees with the doc.
-- **Committed in:** `d118fa26`
+- **Committed in:** `5743260b75`
 
 **2. [Rule 1 - Bug] `DownloadSourceInventoryTests`' header said "Five censuses count the client module alone"**
 - **Found during:** Task 2
@@ -176,7 +176,7 @@ Two rounds running, an executor's load-bearing structural claim was refuted on r
 - **Fix:** Counted the scoping call sites and corrected the clause to "Eight".
 - **Files modified:** `AppPackage/Tests/DownloadsFeatureTests/DownloadSourceInventoryTests.swift`
 - **Verification:** `grep -n "clientModuleFiles(in: files)"` → eight call sites.
-- **Committed in:** `d118fa26`
+- **Committed in:** `5743260b75`
 - **Deliberately NOT touched:** lines 27 and 65-72 of the same header, which name `downloadsTestFiles(in:)` and are gap 5(b) / WR-06, owned by plan 15-74. Correcting them here would collide with that plan's re-derivation.
 
 ---
@@ -210,4 +210,4 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-All modified files present on disk; all three task commits (`7755141a`, `d118fa26`, `6ac9e76f`) present in git history.
+All modified files present on disk; all three task commits (`ed3c0f784a`, `5743260b75`, `ac927b6156`) present in git history.

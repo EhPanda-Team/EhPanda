@@ -109,8 +109,8 @@ decision (D-12).**
 
 ## Task Commits
 
-1. **Plan doc** - `7f179c4c` (docs): 01-09-PLAN.md
-2. **Task 1: inline DeprecatedAPI → LegacyCFReadStream** - `8f73cdca` (build): module + `.swiftlint.yml`
+1. **Plan doc** - `ced9685eb2` (docs): 01-09-PLAN.md
+2. **Task 1: inline DeprecatedAPI → LegacyCFReadStream** - `f40f2e4801` (build): module + `.swiftlint.yml`
    + Package.swift rewire + DFExtensions + both Package.resolved.
 3. **Task 2: DEP-06 override note + summary + STATE** - final docs commit (this summary).
 
@@ -144,7 +144,7 @@ None.
 ## Self-Check: PASSED
 
 - Files verified on disk: `LegacyCFReadStream.swift`, `.swiftlint.yml`, `Package.swift`, both `Package.resolved`, `DFExtensions.swift`, `01-DEP06-EVIDENCE.md`, `01-09-PLAN.md`, `01-09-SUMMARY.md`.
-- Commits verified in git log: `7f179c4c` (plan), `8f73cdca` (build).
+- Commits verified in git log: `ced9685eb2` (plan), `f40f2e4801` (build).
 - Gates: warning-free build (module compiled + linted + suppressed); full suite TEST SUCCEEDED.
 
 ---

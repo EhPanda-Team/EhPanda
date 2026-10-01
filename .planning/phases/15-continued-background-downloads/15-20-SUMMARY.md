@@ -122,8 +122,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Replace the shrinking basis with a session-scoped retirement ledger, and re-derive the expectations that encoded it** - `425b5a8b` (fix)
-2. **Task 2: Regression suite for multi-gallery completion ordering and the queue-drain fraction** - `925669bf` (test)
+1. **Task 1: Replace the shrinking basis with a session-scoped retirement ledger, and re-derive the expectations that encoded it** - `0759711082` (fix)
+2. **Task 2: Regression suite for multi-gallery completion ordering and the queue-drain fraction** - `3ed7851c03` (test)
 
 ## Files Created/Modified
 
@@ -190,7 +190,7 @@ None. Every symbol this plan introduced is wired into the push path and exercise
 
 ## Self-Check: PASSED
 
-All four source files and the new suite exist on disk; both task commits (`425b5a8b`, `925669bf`) are present in git history.
+All four source files and the new suite exist on disk; both task commits (`0759711082`, `3ed7851c03`) are present in git history.
 
 ## Next Steps
 

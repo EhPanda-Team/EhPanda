@@ -94,8 +94,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Identity-keyed toast replacement and direct reducer error sets** - `1aec18ab` (fix)
-2. **Task 2: Direct replacement reducer regressions** - `7c7ce2d7` (test)
+1. **Task 1: Identity-keyed toast replacement and direct reducer error sets** - `04b198b26d` (fix)
+2. **Task 2: Direct replacement reducer regressions** - `17518d0578` (test)
 
 ## Files Created/Modified
 
@@ -149,7 +149,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Confirmed `1aec18ab` and `7c7ce2d7` exist in git history in task order.
+- Confirmed `04b198b26d` and `17518d0578` exist in git history in task order.
 - Confirmed all five modified files exist and no 500ms or 1000ms sequencing remains in the deep-link gallery path.
 - Confirmed the overlay animation value is `item?.state.id` and its existing `.task(id: id)` auto-dismiss lifecycle is unchanged.
 - Confirmed targeted AppFeature and DetailFeature tests, the full default unit plan, application build, and strict repository-owned source/test/extension lint pass.

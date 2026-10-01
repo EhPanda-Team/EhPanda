@@ -81,8 +81,8 @@ status: complete
 
 | Task | Commit | Description |
 |------|--------|-------------|
-| 1 | `a76ee454` | Lock detail request behavior |
-| 2 | `9dabc05c` | Lock image request behavior |
+| 1 | `81b060b3e3` | Lock detail request behavior |
+| 2 | `2eb69b48ee` | Lock image request behavior |
 
 ## Deviations from Plan
 

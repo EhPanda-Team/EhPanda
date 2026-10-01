@@ -89,8 +89,8 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Validation + networking files sweep** - `0e5822a0` (refactor)
-2. **Task 2: Remaining DownloadClient files sweep** - `6462b937` (refactor)
+1. **Task 1: Validation + networking files sweep** - `fd0a766d4f` (refactor)
+2. **Task 2: Remaining DownloadClient files sweep** - `59ce532d93` (refactor)
 
 ## Files Created/Modified
 
@@ -147,7 +147,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- Task commits `0e5822a0` and `6462b937` exist.
+- Task commits `fd0a766d4f` and `59ce532d93` exist.
 - DownloadsFeatureTests passed twice with 250 tests across 52 suites on iPhone Air iOS 26.5.
 - All 20 surviving scoped `try?` expressions have adjacent just-cause comments.
 - No SwiftLint suppression, new logging, stub, package, or threat surface was introduced.

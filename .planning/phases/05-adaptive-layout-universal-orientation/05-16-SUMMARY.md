@@ -73,7 +73,7 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Reserve the iPad window-control exclusion region for the reader upper toolbar** - `826e3cff` (fix)
+1. **Task 1: Reserve the iPad window-control exclusion region for the reader upper toolbar** - `c80f3cbde5` (fix)
 
 ## Files Created/Modified
 
@@ -132,7 +132,7 @@ None - no external service configuration is required.
 
 ## Self-Check: PASSED
 
-- `AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift` exists, and task commit `826e3cff` is present.
+- `AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift` exists, and task commit `c80f3cbde5` is present.
 - The required iPhone Air simulator package build succeeded with SwiftLint build-tool plugin execution.
 - Static gates confirm iPad-only safe-geometry handling, no `GeometryReader`, and preservation of the existing non-pad landscape and horizontal-padding baselines.
 

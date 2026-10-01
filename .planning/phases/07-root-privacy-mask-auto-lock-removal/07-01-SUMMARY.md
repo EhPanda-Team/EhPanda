@@ -98,9 +98,9 @@ status: complete
 
 Each task was committed atomically:
 
-1. **Task 1: Declare the privacyMaskBlur shared in-memory key** - `b58fee00` (feat)
-2. **Task 2: Add the self-sourcing privacyMask() modifier** - `e5189e7d` (feat)
-3. **Task 3: Add the two new SettingFeature l10n keys** - `e166ddc4` (feat)
+1. **Task 1: Declare the privacyMaskBlur shared in-memory key** - `65db6dab42` (feat)
+2. **Task 2: Add the self-sourcing privacyMask() modifier** - `97615bc122` (feat)
+3. **Task 3: Add the two new SettingFeature l10n keys** - `bc0e9bc6bf` (feat)
 
 ## Files Created/Modified
 

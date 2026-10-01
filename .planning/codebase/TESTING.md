@@ -151,7 +151,7 @@ func example() async {
 
 **Determinism:**
 - A previously flaky suite (`DownloadSchedulingTests`) was made deterministic
-  (commit 557b0425); a failure there now signals a REAL regression, not flake (memory).
+  (commit db225147d2); a failure there now signals a REAL regression, not flake (memory).
 - Never run overlapping `xcodebuild test`; run one invocation at a time (memory).
 
 ---
