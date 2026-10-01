@@ -14,6 +14,11 @@ struct AppIconTypeMatchingTests {
     }
 
     @Test
+    func primaryIconMapsToDefault() {
+        #expect(AppIconType.matching(alternateIconName: nil) == .default)
+    }
+
+    @Test
     func unrecognizedNameFallsBackToDefault() {
         #expect(AppIconType.matching(alternateIconName: "SomethingElse") == .default)
     }

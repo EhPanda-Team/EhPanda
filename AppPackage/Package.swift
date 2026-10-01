@@ -871,6 +871,7 @@ let targets: [PackageDescription.Target] = [
         module: .settingFeatureTests,
         dependencies: [
             .module(.analyticsClient),
+            .module(.applicationClient),
             .module(.appModels),
             .module(.cookieClient),
             .module(.fileClient),

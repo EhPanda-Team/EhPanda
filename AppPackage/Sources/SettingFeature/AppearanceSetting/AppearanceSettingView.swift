@@ -97,7 +97,6 @@ struct AppearanceSettingView: View {
 // MARK: SelectAppIconView
 struct AppIconView: View {
     private let store: StoreOf<AppIconReducer>
-    @Shared(.setting) private var setting: Setting
 
     init(store: StoreOf<AppIconReducer>) {
         self.store = store
@@ -110,18 +109,15 @@ struct AppIconView: View {
                     AppIconRow(
                         iconName: icon.name,
                         filename: icon.filename,
-                        isSelected: icon == setting.appIconType
+                        isSelected: icon == store.setting.appIconType
                     ) {
-                        $setting.withLock({ $0.appIconType = icon })
+                        store.send(.appIconTypeChanged(icon))
                     }
                 }
             }
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle(.appIcon)
-        .onChange(of: setting.appIconType) { _, newValue in
-            store.send(.appIconTypeChanged(newValue))
-        }
     }
 }
 
