@@ -7,7 +7,7 @@ description: Restore vertical centering in gallery detail cells while preserving
 
 # Gallery cell vertical centering restored
 
-Code commit: `9bfbc483` — `fix(quick-260923-shl): restore gallery cell vertical centering`.
+Code commit: `d36539a0` — `fix(quick-260923-shl): restore gallery cell vertical centering`.
 
 ## Result and rationale
 
