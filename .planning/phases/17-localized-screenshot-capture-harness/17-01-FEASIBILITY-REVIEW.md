@@ -3,7 +3,7 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-03
 depth: standard
 execution: inline-orchestrator
-scope: task-2-work-in-progress
+scope: task-2-recovery-cycle-2
 status: blocked
 files_reviewed: 4
 ---
@@ -18,19 +18,32 @@ The earlier Task 1 review remains historical and does not certify these changed 
 
 ## BLOCKER — Actual Comments capture has not passed
 
-The matrix's native hierarchy output is black. The separate default layer probe displays
-all twelve comments but fails before native viewport parity evidence is written, and the
-run reports an appearance-transition imbalance. Independent saved-PNG comparison confirms
-20,284 differing viewport pixels. The exact InvalidTransition source remains unknown.
-Do not apply the default strategy to the matrix, relax comparison, promote baselines or
-claim Task 2 complete. See `17-01-FEASIBILITY-GATE.md` for concrete reproduction and evidence.
+The actual matrix and both native UIViewController/SwiftUI hierarchy probes produce
+black Comments images with render-server errors at 1260 x 8394 pixels. The default layer
+probe draws the twelve rows but strict native viewport comparison remains false. The
+three authorized recovery-cycle-2 runs each retained Home 3/3 and failed Comments; the
+current direct SwiftUI wrapper also logs an appearance imbalance. Do not expand the
+matrix, promote baselines or complete Task 2. See `17-01-FEASIBILITY-GATE.md`.
 
-## WARNING — Isolated Comments probe does not freeze time zone
+The comparison now explicitly converts both inputs to the same 8-bit premultiplied sRGB
+format already used by the library's strict comparator, preserving dimensions/scale and
+raw candidates. It writes a truthful matched:false result and caught error type before
+XCTFail reports the failed gate. No threshold/error/lint suppression is introduced.
+Reporting the actual capture failure does not establish the source of the historical
+secondary InvalidTransition error; no framework fix is claimed.
 
-`testCommentsDefaultLibraryStrategy` freezes Date and locale but leaves the global and
-SwiftUI time zone inherited. Its date text differs from the UTC-pinned matrix. Before a
-future accepted probe, apply the matrix's existing UTC setup/restoration and timeZone
-environment. The current probe is diagnostic evidence only, not deterministic acceptance.
+## Resolved warning — diagnostic time zone
+
+The current testCommentsNativeLibraryStrategy pins global and SwiftUI time zone to UTC,
+restores global state at test exit and retains fixed Date/locale/IDs/animations. The previous
+unfrozen-time-zone warning is resolved. This does not resolve native render feasibility.
+
+## Pending owner decision
+
+Separating native device scale from explicit output scale and probing 1x is a proposed
+capture-resolution revision. It is not implemented or approved. Keep actual native
+viewport measurement honest and strict configured-scale comparisons if approved; do not
+present lower output resolution as an unchanged 3x gate.
 
 ## Review boundaries
 
