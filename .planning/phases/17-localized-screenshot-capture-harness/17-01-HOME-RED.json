@@ -1,0 +1,17 @@
+{
+  "command": "xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=35988D34-B4E9-44C6-82B5-CDA2CF391339' -parallel-testing-enabled NO -only-testing:VisualSnapshotTests/VisualTracerTests/testHomeFullContentTracer -resultBundlePath /tmp/ehpanda-phase17-home-red-7.xcresult",
+  "exitCode": 65,
+  "targetTest": "VisualTracerTests/testHomeFullContentTracer()",
+  "targetFile": "AppPackage/Tests/VisualSnapshotTests/VisualTracerTests.swift",
+  "expected": "Every finite Home gallery is represented exactly once in the full-content census.",
+  "actual": "All six expected item counts were zero despite an actual 1218-point vertical content height.",
+  "output": "not ok 1 - VisualTracerTests/testHomeFullContentTracer()\n# tests 1\n# pass 0\n# fail 1\n",
+  "outputFormat": "TAP normalization of native xcresult facts; no Node test was run. The GSD validator only parses TAP.",
+  "nativeFailure": "failed - Home completeness failed (VisualSnapshotSupport.FullContentHostError): Expected item census did not match: [\"Visual Home Gallery 1\": 0, \"Visual Home Gallery 5\": 0, \"Visual Home Gallery 2\": 0, \"Visual Home Gallery 4\": 0, \"Visual Home Gallery 3\": 0, \"Visual Home Gallery 6\": 0]",
+  "nativeLog": "/tmp/ehpanda-phase17-home-red-7.log",
+  "nativeResult": "/tmp/ehpanda-phase17-home-red-7.xcresult",
+  "totalTestCount": 1,
+  "failedTests": 1,
+  "repetitionCount": 0,
+  "diagnostics": "After the engine completed, the optional simctl diagnose collector was stopped; xcodebuild finalized with exit 65."
+}
