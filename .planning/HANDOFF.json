@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T16:37:50.689Z",
+  "timestamp": "2026-10-02T17:28:12.003Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "executing-task-2",
+  "status": "awaiting-recovery-direction",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,12 +21,24 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "in_progress",
-      "progress": "Fixture exporter RED test is built without warnings and running; no feasibility matrix has run."
+      "progress": "Exporter passed 2/2; actual phone matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. Three default-library recovery probes failed; latest mixed run retained Home 3/3 GREEN."
     }
   ],
-  "blockers": [],
+  "blockers": [
+    {
+      "task": "17-01-T2",
+      "condition": "Comments default layer strategy has 20,284 saved-viewport pixel differences and unresolved InvalidTransition/appearance messages after three recovery attempts. Original hierarchy output was black.",
+      "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md"
+    }
+  ],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {
+      "type": "decision",
+      "question": "Authorize one further bounded native-API diagnosis cycle (at most three runs), preserving existing acceptance, or hold at this checkpoint.",
+      "reason": "execute-plan deviation retry limit reached; no new capture architecture or relaxed gate has been approved."
+    }
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -60,10 +72,11 @@
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     " M AppPackage/Package.resolved",
     "M  EhPanda.xcodeproj/project.pbxproj",
-    " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+    " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
+    "?? .capture/"
   ],
-  "next_action": "Execute Task 2 exactly: deterministic fixture exporter and actual four-shape, sixteen-combination matrix on sequential phone/tablet runs; stop on a failed feasibility gate or required production-source change.",
-  "context_notes": "0/24 plans complete; 1/2 plan-01 tasks complete. Root continues inline under existing owner authorization; prior executors remain interrupted. No active build/test driver. Reserved owner/runtime staging remains untouched. Executor runtime model settings remain unverified.",
+  "next_action": "Obtain recovery direction after the bounded failure. Proposed next cycle isolates saved PNG format comparison and controller appearance cleanup using existing native SnapshotTesting APIs and owned files, keeps strict viewport/full-content acceptance and allows at most three further runs. Do not run the matrix or later waves until the blocker is resolved.",
+  "context_notes": "0/24 plans complete; 1/2 plan-01 tasks complete. Fixture export/extraction committed 8eec5361cc; failing native Comments/matrix WIP committed 9dfc82e524. Prior app-hosting and inline decisions remain approved; earlier executors remain interrupted. No active build/test driver. Reserved owner/runtime staging unchanged. No SUMMARY or baseline approval.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -82,7 +95,8 @@
     },
     "tdd_red": [
       ".planning/phases/17-localized-screenshot-capture-harness/17-01-BOOTSTRAP-RED.json",
-      ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOME-RED.json"
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOME-RED.json",
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-EXPORT-RED.json"
     ],
     "native_size_probe": {
       "result_bundle": "/tmp/ehpanda-phase17-library-custom-height-3.xcresult",
@@ -147,6 +161,66 @@
         1,
         1
       ]
+    },
+    "feasibility_gate": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md",
+    "feasibility_review": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-REVIEW.md",
+    "public_export": {
+      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
+      "export_tests_passed": 2,
+      "matrix_test_failed": 1,
+      "aggregate_digest": "ee48f8faf6b828a2068f4790f30623341d78fe8e4a9d5d60938f154dc975a547",
+      "generator_source_sha256": "b7133850ae2071292a6179d33dde9bf024b766e748af4eb8bbd07faf4a4420bc",
+      "entries": 45,
+      "materialized_output": ".capture/regression",
+      "limits": "Independent exporter success only; mixed test result has exit 65."
+    },
+    "actual_matrix": {
+      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
+      "summary": "/tmp/ehpanda-phase17-feasibility-phone-summary.json",
+      "tests": "/tmp/ehpanda-phase17-feasibility-phone-tests.json",
+      "captured": 1,
+      "failed": 1,
+      "pending_phone": 14,
+      "pending_tablet": 16,
+      "failed_coordinate": "iphone-portrait-large-comments",
+      "total_tests": 3,
+      "passed_tests": 2,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65
+    },
+    "latest_comments_probe": {
+      "result_bundle": "/tmp/ehpanda-phase17-comments-explicit-vision.xcresult",
+      "summary": "/tmp/ehpanda-phase17-comments-explicit-vision-summary.json",
+      "tests": "/tmp/ehpanda-phase17-comments-explicit-vision-tests.json",
+      "build_log": "/tmp/ehpanda-phase17-comments-explicit-vision-build.log",
+      "log": "/tmp/ehpanda-phase17-comments-explicit-vision.log",
+      "attachments_manifest": "/tmp/ehpanda-phase17-comments-explicit-vision-attachments/manifest.json",
+      "total_tests": 4,
+      "passed_tests": 3,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65,
+      "runtime_warnings": [],
+      "appearance_messages": 1,
+      "limits": "Home tests passed again; Comments failed before native parity/OCR. Not clean integration or a passed matrix."
+    },
+    "saved_png_comparison": {
+      "result": "/tmp/ehpanda-phase17-comments-default-png-comparison.json",
+      "changed_pixels": 20284,
+      "viewport_pixels": [
+        1260,
+        2736
+      ],
+      "difference_bounds_pixels": [
+        60,
+        202,
+        1207,
+        636
+      ],
+      "limits": "Independent 8-bit premultiplied sRGB comparison of saved PNGs; no replacement for SnapshotTesting live comparison."
     }
   },
   "recovery_logs": [
@@ -155,6 +229,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Expected remaining changes after committing this continuity checkpoint. Runtime/owner staging is preserved; lockfile updates belong to Task 2 and remain uncommitted.",
-  "source_checkpoint": "00db53a529e56ffe0d2bd9c1aa8b43d8a2920495"
+  "uncommitted_files_note": "Expected after continuity commit: four reserved owner/runtime staging paths, both Task 2 lockfiles and disposable untracked .capture/. Lockfiles remain uncommitted pending clean integration/full gate; generated bytes are not baselines.",
+  "source_checkpoint": "9dfc82e524df95b71d9eee9609ad55d8ad774d67"
 }
