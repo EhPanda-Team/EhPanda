@@ -41,27 +41,131 @@ final class VisualTracerTests: XCTestCase {
     }
 
     @MainActor
+    func testSnapshotTestingCustomHeightPreservesHomeLayout() async throws {
+        let animationsEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        defer { UIView.setAnimationsEnabled(animationsEnabled) }
+        let galleries = try Self.homeGalleries()
+        try await Self.cacheCoverImages(galleries)
+        let outputDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appending(component: "ehpanda-phase17-library-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
+        defer {
+            let attachment = XCTAttachment(compressedContentsOfDirectory: outputDirectory)
+            attachment.name = "phase17-library-custom-height"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        let appStorage = UserDefaults.inMemory
+        let inMemoryStorage = InMemoryStorage()
+        try await withDependencies {
+            $0.continuousClock = TestClock()
+            $0.date.now = Self.fixedDate
+            $0.defaultAppStorage = appStorage
+            $0.defaultInMemoryStorage = inMemoryStorage
+            $0.uuid = .incrementing
+            $0.deviceClient = .live
+        } operation: {
+            var images: [UIImage] = []
+            var diagnostics: [[String: Any]] = []
+            var nativeSize: CGSize?
+            var requestedFullHeight: CGFloat?
+            for name in ["viewport", "custom-height"] {
+                let measurement = LibraryLayoutMeasurement()
+                let rootView = try Self.homeRoot(galleries: galleries)
+                    .onGeometryChange(for: CGSize.self, of: \.size) {
+                        measurement.rootSizes.append($0)
+                    }
+                let host = try await FullContentHost(rootView: rootView)
+                let originalWindowFrame = host.window.frame
+                let originalAutoresizingMask = host.controller.view.autoresizingMask
+                defer {
+                    host.window.frame = originalWindowFrame
+                    host.controller.view.autoresizingMask = originalAutoresizingMask
+                    host.dismiss()
+                }
+                XCTAssertTrue(host.isAttachedToActiveWindow)
+                let scrollHost = try XCTUnwrap(
+                    Self.descendants(of: host.controller.view)
+                        .compactMap({ $0 as? UIScrollView })
+                        .filter({ $0.contentSize.height > $0.bounds.height })
+                        .max(by: { $0.contentSize.height < $1.contentSize.height })
+                )
+                let initialContentHeight = scrollHost.contentSize.height
+                if nativeSize == nil {
+                    nativeSize = host.viewport.size
+                    let insets = scrollHost.adjustedContentInset
+                    requestedFullHeight = ceil(
+                        (host.viewport.size.height + scrollHost.contentSize.height + insets.top
+                         + insets.bottom - scrollHost.bounds.height) * host.viewport.scale
+                    ) / host.viewport.scale
+                }
+                let viewport = try XCTUnwrap(nativeSize)
+                let height: CGFloat
+                if name == "viewport" {
+                    height = viewport.height
+                } else {
+                    height = try XCTUnwrap(requestedFullHeight)
+                }
+                let requestedSize = CGSize(width: viewport.width, height: height)
+                // SnapshotTesting explicitly sets the root frame and window size. Disable the
+                // second frame writer while it owns sizing, keeping the prepared root attached.
+                host.controller.view.autoresizingMask = []
+                let strategy: Snapshotting<UIViewController, UIImage> = .image(
+                    on: ViewImageConfig(
+                        safeArea: host.viewport.safeAreaInsets, size: requestedSize, traits: host.viewport.traits
+                    ),
+                    drawHierarchyInKeyWindow: true,
+                    size: requestedSize,
+                    traits: host.viewport.traits
+                )
+                // Exercise the library's capture strategy itself, then encode disposable evidence.
+                let image: UIImage = await withCheckedContinuation { continuation in
+                    strategy.snapshot(host.controller).run { continuation.resume(returning: $0) }
+                }
+                try strategy.diffing.toData(image)
+                    .write(to: outputDirectory.appending(path: "library.\(name).png"), options: .atomic)
+                images.append(image)
+                diagnostics.append([
+                    "name": name,
+                    "requestedSize": [requestedSize.width, requestedSize.height],
+                    "imageSize": [image.size.width, image.size.height],
+                    "imageScale": image.scale,
+                    "nativeViewport": [viewport.width, viewport.height],
+                    "rootSizes": measurement.rootSizes.map({ [$0.width, $0.height] }),
+                    "windowBoundsAfterSnapshot": NSCoder.string(for: host.window.bounds),
+                    "initialContentHeight": initialContentHeight,
+                    "contentHeightAfterSnapshot": scrollHost.contentSize.height
+                ])
+                XCTAssertEqual(image.size, requestedSize)
+                XCTAssertEqual(image.scale, host.viewport.scale)
+            }
+            try JSONSerialization.data(withJSONObject: diagnostics, options: [.prettyPrinted, .sortedKeys])
+                .write(to: outputDirectory.appending(path: "library.geometry.json"), options: .atomic)
+            let normal = try XCTUnwrap(images.first)
+            let full = try XCTUnwrap(images.last)
+            let normalCG = try XCTUnwrap(normal.cgImage)
+            let fullCG = try XCTUnwrap(full.cgImage)
+            let croppedCG = try XCTUnwrap(fullCG.cropping(to: CGRect(
+                x: 0, y: 0, width: normalCG.width, height: normalCG.height
+            )))
+            let cropped = UIImage(cgImage: croppedCG, scale: normal.scale, orientation: .up)
+            let imageStrategy: Snapshotting<UIImage, UIImage> = .image
+            try imageStrategy.diffing.toData(cropped)
+                .write(to: outputDirectory.appending(path: "library.custom-height-viewport.png"), options: .atomic)
+            if let difference = imageStrategy.diffing.diffV2(normal, cropped) {
+                XCTFail("Library custom-height capture changes native Home viewport pixels: \(difference.0)")
+            }
+        }
+    }
+
+    @MainActor
     func testHomeFullContentTracer() async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
         let galleries = try Self.homeGalleries()
-        for (index, gallery) in galleries.enumerated() {
-            let url = try XCTUnwrap(gallery.coverURL)
-            let format = UIGraphicsImageRendererFormat()
-            format.scale = 1
-            format.opaque = true
-            let image = UIGraphicsImageRenderer(size: CGSize(width: 160, height: 220), format: format)
-                .image { context in
-                    UIColor(hue: CGFloat(index) / 6, saturation: 0.5, brightness: 0.85, alpha: 1).setFill()
-                    context.fill(CGRect(x: 0, y: 0, width: 160, height: 220))
-                    UIColor.white.setFill()
-                    context.fill(CGRect(x: 24, y: 32, width: 112, height: 16))
-                    context.fill(CGRect(x: 24, y: 72, width: 72, height: 8))
-                }
-            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
-            XCTAssertNotNil(ImageCache.default.retrieveImageInMemoryCache(forKey: url.absoluteString))
-        }
+        try await Self.cacheCoverImages(galleries)
         let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
         let outputDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
@@ -85,28 +189,13 @@ final class VisualTracerTests: XCTestCase {
                 $0.uuid = .incrementing
                 $0.deviceClient = .live
             } operation: {
-                var state = HomeReducer.State()
-                state.popularGalleries = Array(galleries.prefix(1))
-                state.cardPageIndex = 0
-                state.currentCardID = try XCTUnwrap(galleries.first).gid
-                state.frontpageGalleries = Array(galleries.dropFirst().prefix(2))
-                state.toplistsGalleries = Dictionary(
-                    uniqueKeysWithValues: ToplistsType.allCases.map({ ($0.categoryIndex, []) })
-                )
-                let toplist = try XCTUnwrap(ToplistsType.allCases.first)
-                state.toplistsGalleries[toplist.categoryIndex] = Array(galleries.dropFirst(3))
-                let rootView = HomeView(store: Store(initialState: state, reducer: HomeReducer.init))
-                    .environment(\.colorScheme, .light)
-                    .environment(\.locale, Locale(identifier: "en_US"))
-                    .environment(\.dynamicTypeSize, .large)
-                    .transaction {
-                        $0.animation = nil
-                        $0.disablesAnimations = true
-                    }
+                let rootView = try Self.homeRoot(galleries: galleries)
                 let host = try await FullContentHost(rootView: rootView)
                 defer { host.dismiss() }
                 let evidence = try await host.capture(
-                    expectedItemTitles: galleries.map(\.title),
+                    expectedItems: galleries.map({
+                        CaptureItemExpectation(title: $0.title, marker: $0.gid, artworkAspectRatio: 8.0 / 11.0)
+                    }),
                     trailingMarker: "Other",
                     outputDirectory: outputDirectory,
                     record: .all
@@ -144,10 +233,65 @@ final class VisualTracerTests: XCTestCase {
 private extension VisualTracerTests {
     static let fixedDate = Date(timeIntervalSince1970: 1_735_689_600)
 
+    @MainActor
+    static func cacheCoverImages(_ galleries: [Gallery]) async throws {
+        for (index, gallery) in galleries.enumerated() {
+            let url = try XCTUnwrap(gallery.coverURL)
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            format.opaque = true
+            let image = UIGraphicsImageRenderer(size: CGSize(width: 160, height: 220), format: format)
+                .image { context in
+                    UIColor(hue: CGFloat(index) / 6, saturation: 0.5, brightness: 0.85, alpha: 1).setFill()
+                    context.fill(CGRect(x: 0, y: 0, width: 160, height: 220))
+                    UIColor.white.setFill()
+                    context.fill(CGRect(x: 24, y: 32, width: 112, height: 16))
+                    context.fill(CGRect(x: 24, y: 72, width: 72, height: 8))
+                    (gallery.gid as NSString).draw(
+                        in: CGRect(x: 24, y: 105, width: 112, height: 48),
+                        withAttributes: [
+                            .font: UIFont.monospacedSystemFont(ofSize: 32, weight: .bold),
+                            .foregroundColor: UIColor.black
+                        ]
+                    )
+                }
+            try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
+            XCTAssertNotNil(ImageCache.default.retrieveImageInMemoryCache(forKey: url.absoluteString))
+        }
+    }
+
+    @MainActor
+    static func homeRoot(galleries: [Gallery]) throws -> some View {
+        var state = HomeReducer.State()
+        state.popularGalleries = Array(galleries.prefix(1))
+        state.cardPageIndex = 0
+        state.currentCardID = try XCTUnwrap(galleries.first).gid
+        state.frontpageGalleries = Array(galleries.dropFirst().prefix(2))
+        state.toplistsGalleries = Dictionary(
+            uniqueKeysWithValues: ToplistsType.allCases.map({ ($0.categoryIndex, []) })
+        )
+        let toplist = try XCTUnwrap(ToplistsType.allCases.first)
+        state.toplistsGalleries[toplist.categoryIndex] = Array(galleries.dropFirst(3))
+        let rootView = HomeView(store: Store(initialState: state, reducer: HomeReducer.init))
+            .environment(\.colorScheme, .light)
+            .environment(\.locale, Locale(identifier: "en_US"))
+            .environment(\.dynamicTypeSize, .large)
+            .transaction {
+                $0.animation = nil
+                $0.disablesAnimations = true
+            }
+        return rootView
+    }
+
+    @MainActor
+    static func descendants(of view: UIView) -> [UIView] {
+        view.subviews.flatMap({ [$0] + descendants(of: $0) })
+    }
+
     static func homeGalleries() throws -> [Gallery] {
         try (0..<6).map { index in
             Gallery(
-                gid: "visual-home-\(index)",
+                gid: "VH\(index + 1)",
                 token: "visual-token-\(index)",
                 title: "Visual Home Gallery \(index + 1)",
                 rating: 4.5,
@@ -161,4 +305,9 @@ private extension VisualTracerTests {
             )
         }
     }
+}
+
+@MainActor
+private final class LibraryLayoutMeasurement {
+    var rootSizes: [CGSize] = []
 }
