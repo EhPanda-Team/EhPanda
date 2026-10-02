@@ -26,8 +26,8 @@ Candidate attachment manifest:
 Matrix attachment: `38BED32C-818F-4E4F-BEEE-FA85BA59BE92.zip`.
 The extracted `outcomes.json` retains every phone coordinate and its actual disposition.
 
-The original native hierarchy strategy produced an all-black 1260 x 8394-pixel Comments
-image, although the ordinary viewport rendered correctly. Native viewport comparison
+The original native hierarchy strategy produced a visually blank 1260 x 8394-pixel Comments
+image (displayed as black in inspection), although the ordinary viewport rendered correctly. Native viewport comparison
 failed. This is evidence about this strategy/run; it does not establish that the library
 lacks custom dimensions or that 8192 pixels is a framework limit.
 
@@ -130,8 +130,8 @@ These are incremental builds; clean Task 2 integration and the matrix remain inc
 | Result prefix under `/tmp/ehpanda-phase17-` | Strategy | Concrete result |
 |---|---|---|
 | `recovery2-format` | Default layer, normalized strict comparison | `matched:false`; caught error is FullContentHostError.nativeViewportPixelsChanged; XCTest still reports InvalidTransition; one appearance message |
-| `recovery2-native-sdr` | UIViewController key-window hierarchy, sRGB/SDR | 32-bit full/normal images; black full image and render-server error; native pixel failure; no appearance message |
-| `recovery2-swiftui-native` | Direct SwiftUI .device custom-size API, same native key window and sRGB/SDR | Black full image and render-server error; native pixel failure; one appearance message |
+| `recovery2-native-sdr` | UIViewController key-window hierarchy, sRGB/SDR | 32-bit full/normal images; visually blank full image (displayed as black; opacity not inspected for this run) and render-server error; native pixel failure; no appearance message |
+| `recovery2-swiftui-native` | Direct SwiftUI .device custom-size API, same native key window and sRGB/SDR | Fully transparent full image (alpha inspected after owner image review) and render-server error; native pixel failure; one appearance message |
 
 Result bundles, logs, summary/tests JSON and attachment directories use each prefix above.
 Each run independently records `capture-progress.json`, `native-viewport-parity.json`
@@ -149,12 +149,17 @@ or restoration success is inferred after comparison fails.
 Offline CoreGraphics inspection of the latest PNG records zero nonblack pixels, 32 bits
 per pixel and eight bits per component in
 `/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json`. Its inspection source is
-`/tmp/ehpanda-phase17-black-png-inspection.swift`. This establishes the actual black image;
-it does not establish an 8192-pixel framework limit or that custom dimensions are unsupported.
+`/tmp/ehpanda-phase17-black-png-inspection.swift`. That inspection tested RGB only.
+Subsequent alpha inspection confirms every pixel in the latest 1260 x 8394 full PNG is
+fully transparent (alpha zero); the earlier black-image description is corrected.
+See `17-01-UPSTREAM-RENDERING-RESEARCH.md` and
+`/tmp/ehpanda-phase17-recovery2-swiftui-native-alpha.json`. This does not establish an
+8192-pixel framework limit or that custom dimensions are unsupported.
 
-The format hypothesis is ruled out as the cause of parity failure: both library inputs
+Comparison-input normalization did not resolve parity failure: both library inputs
 now use the same explicit 8-bit premultiplied sRGB format and strict comparison returns
-false. The first run catches the correct FullContentHostError before it leaves the
+false. This does not identify the capture rendering root cause. The first run catches
+the correct FullContentHostError before it leaves the
 capture operation. Reporting that actual failure through XCTFail, as the matrix already
 does, avoids the unrelated InvalidTransition reporting in the last two runs. The exact
 origin of that secondary error remains unproven and is not credited as a framework fix.
@@ -183,3 +188,13 @@ owner decision before implementation or further native runs. A 1x probe is a tes
 hypothesis about raster size, not a promised remedy. If approved, amend the plan's capture
 scale contract and run at most three bounded probes before any matrix expansion. If not,
 hold the incomplete task at its current 3x gate. No SUMMARY or completion counter changes.
+
+## Owner-requested upstream research
+
+`17-01-UPSTREAM-RENDERING-RESEARCH.md` records official transparent glass/toolbar reports,
+maintainer guidance, a current iOS 27 scene/safe-area report and supported custom-size
+scroll capture. The latest saved full image is now confirmed fully transparent, not
+opaque black. Our native app host, scene-backed window and explicit hierarchy flag already
+meet the principal posted remedy. No identical long-image failure or proven resolution
+limit was established. Research is complete; no native run or approved scale revision
+is added, and the incomplete gate/checkpoint remain in force.

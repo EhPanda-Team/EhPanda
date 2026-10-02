@@ -19,7 +19,9 @@ The earlier Task 1 review remains historical and does not certify these changed 
 ## BLOCKER — Actual Comments capture has not passed
 
 The actual matrix and both native UIViewController/SwiftUI hierarchy probes produce
-black Comments images with render-server errors at 1260 x 8394 pixels. The default layer
+visually blank Comments images with render-server errors at 1260 x 8394 pixels. Alpha
+inspection now confirms the latest SwiftUI full PNG is entirely transparent; the earlier
+RGB-only black label did not establish opacity. The default layer
 probe draws the twelve rows but strict native viewport comparison remains false. The
 three authorized recovery-cycle-2 runs each retained Home 3/3 and failed Comments; the
 current direct SwiftUI wrapper also logs an appearance imbalance. Do not expand the
@@ -54,3 +56,10 @@ Native scene orientation is requested and measured; Dynamic Type traits/readines
 configured explicitly. Matrix outcome accounting retains failed/pending coordinates and
 halts on the first error. Home extraction retains three passing actual tests. None of
 these partial successes resolve the blocker or the unstarted tablet matrix.
+
+The owner-requested official-repo research is recorded in
+`17-01-UPSTREAM-RENDERING-RESEARCH.md`. Similar glass/toolbar transparent-output reports
+exist, but our native failing run already uses their main suggested host/hierarchy setup.
+The iOS 27 scene/safe-area report establishes a different layout symptom. These sources
+do not prove our root cause, a resolution limit, or a passed capture gate. No new native
+run or implementation change is credited by this research update.
