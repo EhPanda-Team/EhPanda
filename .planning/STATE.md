@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v3.0.0
 milestone_name: )
 current_phase: 17
-current_phase_name: BLOCKED AT HOSTING GATE
+current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: blocked
 stopped_at: "Phase 17 plan 17-01 Task 1: active-window hosting gate failed; awaiting owner decision on app-hosted visual tests"
-last_updated: "2026-10-02T06:29:12.813Z"
+last_updated: "2026-10-02T06:30:24.354Z"
 last_activity: 2026-10-02
 last_activity_desc: Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
-state_head: 9decda1dc98cc98d353840984bcaa29db80b8012
+state_head: 41b95fde753aac2b791fb2581c2868f51f9bad5c
 progress:
   total_phases: 17
   completed_phases: 10
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 ## Current Position
 
-Phase: 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) — BLOCKED AT HOSTING GATE
+Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
 Status: blocked
 Last activity: 2026-10-02 — Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
