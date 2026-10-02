@@ -135,3 +135,31 @@ The original owner-staged project/probe patch remains byte-identical to
 The workflow requires a recovery choice: continue inline, retry with a fresh executor,
 or resume waiting. The orchestrator requested this choice and has not inferred approval
 for inline execution. This checkpoint does not revoke the approved app-hosting scope.
+
+The owner subsequently selected option 1: inline execution. The orchestrator is
+continuing the approved implementation and verification directly; no recovery choice
+remains pending.
+
+## Inline bootstrap proof — 2026-10-02
+
+The native host now prepares its explicitly inert dependencies before AppDelegate creates
+its Store. The DEBUG-only visual-host flag requires AppInfo.isTesting and forces offline
+URL protocol stubs. Existing automation resolution remains covered.
+
+- RED: exit 65, one actual assertion failure, zero Repetition nodes;
+  `17-01-BOOTSTRAP-RED.json` preserves the native result location and normalized evidence.
+- Clean build-for-testing: exit 0, no compiler/lint diagnostics, full log
+  `/tmp/ehpanda-phase17-bootstrap-clean-2.log`.
+- Enumeration: exit 0, empty errors, two native visual identifiers and nine enabled
+  UITestStubTests cases; `/tmp/ehpanda-phase17-bootstrap-enumeration.json`.
+- GREEN: exit 0, 10 tests passed, zero failed/skipped/Repetition nodes;
+  `/tmp/ehpanda-phase17-bootstrap-green.xcresult`.
+- Generated xctestrun: IsAppHostedTestBundle=true,
+  TestHostPath=`__TESTROOT__/Debug-iphonesimulator/EhPanda.app`,
+  TestBundlePath=`__TESTHOST__/PlugIns/VisualSnapshotTests.xctest`.
+- `testActiveAppHost` verified a foreground-active real app scene, visible window and
+  positive effective scene geometry on iPhone Air, iOS 27.0 build 24A434.
+
+This clears the active-window bootstrap gate only. The original partial prototype's
+stitched capture is rejected and must be replaced with measured single-hierarchy
+full-content capture. Home completeness and Task 1 acceptance are still pending.

@@ -14,6 +14,26 @@ struct UITestStubTests {
             )
         )
         #expect(configuration.shouldStubNetwork)
+        #expect(configuration.shouldUseVisualTestHost)
+    }
+
+    @Test
+    func visualHostFlagRequiresAnActualTestProcess() {
+        let now = Date(timeIntervalSinceReferenceDate: 123)
+        #expect(
+            UITestAutomation.resolve(
+                environment: ["EHPANDA_VISUAL_TEST_HOST": "1"],
+                now: now,
+                isTesting: false
+            ) == nil
+        )
+        #expect(
+            UITestAutomation.resolve(
+                environment: ["EHPANDA_VISUAL_TEST_HOST": "0"],
+                now: now,
+                isTesting: true
+            ) == nil
+        )
     }
 
     @Test
