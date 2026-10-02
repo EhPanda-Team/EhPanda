@@ -4,12 +4,12 @@ milestone: v3.0.0
 milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: executing
-stopped_at: "Phase 17 plan 17-01: owner approved genuine app-hosted target; executing amended hosting gate"
-last_updated: "2026-10-02T07:16:27.898Z"
+status: blocked
+stopped_at: "Phase 17 plan 17-01: approved app-host scope; stalled executor interrupted, awaiting recovery choice"
+last_updated: "2026-10-02T07:31:19.457Z"
 last_activity: 2026-10-02
 last_activity_desc: Owner approved genuine app-hosted visual tests; executing revised plan 17-01
-state_head: 570b3f8c87f6b04cd1849e084048add6ababf7cc
+state_head: bc58bf8b81c23ae3fd4707c132e8088c271257e7
 progress:
   total_phases: 17
   completed_phases: 10
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: executing
+Status: blocked
 Last activity: 2026-10-02 — Owner approved genuine app-hosted visual tests; executing revised plan 17-01
 
 ### Historical round-2 status snapshots
@@ -1004,8 +1004,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T07:15:40.543Z
-Stopped at: Phase 17 plan 17-01: owner approved genuine app-hosted target; executing amended hosting gate
+Last session: 2026-10-02T07:31:18.983Z
+Stopped at: Phase 17 plan 17-01: approved app-host scope; stalled executor interrupted, awaiting recovery choice
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
