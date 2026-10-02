@@ -1,3 +1,4 @@
+import AppFeature
 import AppModels
 import AppTools
 import ComposableArchitecture
@@ -11,6 +12,13 @@ import VisualSnapshotSupport
 import XCTest
 
 final class VisualTracerTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        // Dependencies clears prepared values before each XCTest case. UIKit callbacks outlive
+        // a task-local override, so restore the opt-in host defaults before this case renders.
+        UITestAutomation.prepareIfNeeded()
+    }
+
     @MainActor
     func testActiveAppHost() async throws {
         let clock = ContinuousClock()
@@ -96,8 +104,8 @@ final class VisualTracerTests: XCTestCase {
                         $0.disablesAnimations = true
                     }
                 let host = try await FullContentHost(rootView: rootView)
-                defer { host.window.isHidden = true }
-                let evidence = try host.capture(
+                defer { host.dismiss() }
+                let evidence = try await host.capture(
                     expectedItemTitles: galleries.map(\.title),
                     trailingMarker: "Other",
                     outputDirectory: outputDirectory,
