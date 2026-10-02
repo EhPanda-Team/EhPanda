@@ -37,7 +37,8 @@ var dependencies: [PackageDescription.Package.Dependency] = [
         ]
     ),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
-    .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0")
+    .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", exact: "1.19.6")
 ]
 
 extension PackageDescription.Target.Dependency {
@@ -55,6 +56,7 @@ extension PackageDescription.Target.Dependency {
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
+    static let snapshotTesting: Self = .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
     static let telemetryDeck: Self = .product(name: "TelemetryDeck", package: "SwiftSDK")
 }
 
@@ -117,6 +119,7 @@ enum Module: String {
 
     // Test support
     case testingSupport = "TestingSupport"
+    case visualSnapshotSupport = "VisualSnapshotSupport"
 
     // Test targets
     case appFeatureTests = "AppFeatureTests"
@@ -1003,6 +1006,12 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.favoritesFeature),
             .targetDependency(.composableArchitecture)
+        ]
+    ),
+    .target(
+        module: .visualSnapshotSupport,
+        dependencies: [
+            .targetDependency(.snapshotTesting)
         ]
     )
 ]
