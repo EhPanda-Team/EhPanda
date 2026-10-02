@@ -4,19 +4,19 @@ milestone: v3.0.0
 milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: executing
-stopped_at: Phase 17 plan 17-01 Task 1 passed; Task 2 feasibility/exporter implementation
-last_updated: "2026-10-02T16:38:57.762Z"
+status: checkpoint
+stopped_at: Phase 17 plan 17-01 Task 2 Comments capture failed; awaiting bounded recovery direction
+last_updated: "2026-10-02T17:28:12.972Z"
 last_activity: 2026-10-03
-last_activity_desc: Native SnapshotTesting Home tracer passed 3/3; Task 2 feasibility/exporter started
-state_head: 2ff07f8f04968f5c109fe05295bd568f73ca8209
+last_activity_desc: Home remains 3/3 and exporter 2/2; Comments native gate failed after three probes
+state_head: c1cbfc1b6e5805f71986d5d957e3b72b068e0fb1
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: 7675a7ac77301de9464a8e924c9fc8c70f691849
+source_head: c1cbfc1b6e5805f71986d5d957e3b72b068e0fb1
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: executing — Task 2 feasibility/exporter implementation
-Last activity: 2026-10-03 — Native SnapshotTesting Home tracer passed 3/3; Task 2 feasibility/exporter started
+Status: checkpoint — Task 2 Comments capture needs recovery direction
+Last activity: 2026-10-03 — Home remains 3/3 and exporter 2/2; Comments native gate failed after three probes
 
-**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Task 1 passed 3/3 actual tests with exact six-item census, complete covers/final section, native viewport pixel parity, restored active native geometry and no warnings/Repetition nodes. Native SnapshotTesting custom-size capture is used; the premature stitching request was withdrawn. Genuine app hosting and inline recovery remain owner-approved. Task 2 feasibility/exporter work is starting; later waves, plan SUMMARY and baselines remain pending. See `phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md`.
+**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Task 1 passed 3/3 actual tests with exact six-item census, complete covers/final section, native viewport pixel parity, restored active native geometry and no warnings/Repetition nodes. Native SnapshotTesting custom-size capture is used; the premature stitching request was withdrawn. Genuine app hosting and inline recovery remain owner-approved. Task 2 exporter passed 2/2. The actual phone matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. Three default-library probes failed; independent saved-PNG comparison found 20,284 viewport pixel differences, and InvalidTransition/appearance cleanup remain unresolved. The retry bound has been reached; recovery direction is pending. Later waves, plan SUMMARY and baselines remain pending. See `phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md`.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T16:38:57.154Z
-Stopped at: Phase 17 plan 17-01 Task 1 passed; Task 2 feasibility/exporter implementation
+Last session: 2026-10-02T17:28:12.253Z
+Stopped at: Phase 17 plan 17-01 Task 2 Comments capture failed; awaiting bounded recovery direction
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
