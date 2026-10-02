@@ -80,17 +80,21 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
-    func testCommentsDefaultLibraryStrategy() async throws {
+    func testCommentsNativeLibraryStrategy() async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
+        let timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
+        let originalTimeZone = NSTimeZone.default
+        NSTimeZone.default = timeZone
+        defer { NSTimeZone.default = originalTimeZone }
         let directory = FileManager.default.temporaryDirectory
-            .appending(component: "phase17-comments-library-default-\(UUID().uuidString)", directoryHint: .isDirectory)
+            .appending(component: "phase17-comments-library-native-\(UUID().uuidString)", directoryHint: .isDirectory)
         let fixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
         _ = try PublicVisualFixtures.export(to: fixtures)
         defer {
             let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
-            attachment.name = "phase17-comments-library-default"
+            attachment.name = "phase17-comments-library-native"
             attachment.lifetime = .keepAlways
             add(attachment)
         }
@@ -106,21 +110,31 @@ final class FullContentFeasibilityTests: XCTestCase {
             let root = input.view
                 .environment(\.colorScheme, .light)
                 .environment(\.locale, Locale(identifier: "en_US"))
+                .environment(\.timeZone, timeZone)
                 .environment(\.dynamicTypeSize, .large)
                 .transaction {
                     $0.animation = nil
                     $0.disablesAnimations = true
                 }
             let host = try await FullContentHost(
-                rootView: root, contentSizeCategory: .large, drawHierarchyInKeyWindow: false
+                rootView: root, contentSizeCategory: .large, standardImageRange: true, useSwiftUIStrategy: true
             )
             defer { host.dismiss() }
-            let evidence = try await host.capture(
-                expectedItems: input.expectedItems, trailingMarker: input.trailingMarker,
-                outputDirectory: directory.appending(path: "capture", directoryHint: .isDirectory), record: .all
-            )
-            XCTAssertEqual(evidence.itemCensus.count, 12)
-            XCTAssertFalse(evidence.finalItemClipped)
+            do {
+                let evidence = try await host.capture(
+                    expectedItems: input.expectedItems, trailingMarker: input.trailingMarker,
+                    outputDirectory: directory.appending(path: "capture", directoryHint: .isDirectory), record: .all
+                )
+                XCTAssertEqual(evidence.itemCensus.count, 12)
+                XCTAssertFalse(evidence.finalItemClipped)
+            } catch {
+                try JSONSerialization.data(withJSONObject: [
+                    "type": String(reflecting: type(of: error)), "description": String(describing: error),
+                    "debugDescription": String(reflecting: error)
+                ], options: [.prettyPrinted, .sortedKeys])
+                    .write(to: directory.appending(path: "capture-error.json"), options: .atomic)
+                XCTFail("Native Comments capture failed: \(error)")
+            }
         }
     }
 
