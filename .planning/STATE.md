@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v3.0.0
 milestone_name: )
 current_phase: 17
-current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: executing
-stopped_at: Phase 17 planned and independently verified; ready to execute
-last_updated: "2026-10-02T02:06:12.879Z"
+current_phase_name: BLOCKED AT HOSTING GATE
+status: blocked
+stopped_at: "Phase 17 plan 17-01 Task 1: active-window hosting gate failed; awaiting owner decision on app-hosted visual tests"
+last_updated: "2026-10-02T06:29:12.813Z"
 last_activity: 2026-10-02
-last_activity_desc: "Phase 17 planning completed: 24 plans, 53 tasks and 24 sequential waves; independent verification and coverage gates passed."
-state_head: 8fc5f8d70c6ce484840ac1a9d8cb5be8cbccf7aa
+last_activity_desc: Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
+state_head: 530fe4f46fcf021967eb25c17857736f5025e678
 progress:
   total_phases: 17
   completed_phases: 10
@@ -30,10 +30,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 ## Current Position
 
-Phase: 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-10-02 — Phase 17 planning completed: 24 plans, 53 tasks and 24 sequential waves; independent verification and coverage gates passed.
+Phase: 17 (Screenshot Automation, Visual Regression & OS 27 Modernization) — BLOCKED AT HOSTING GATE
+Plan: 1 of 24
+Status: blocked
+Last activity: 2026-10-02 — Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
 
 ### Historical round-2 status snapshots
 
@@ -1004,9 +1004,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T02:06:12.288Z
-Stopped at: Phase 17 planned and independently verified; ready to execute
-Resume file: .planning/phases/17-localized-screenshot-capture-harness/17-01-PLAN.md
+Last session: 2026-10-02T06:27:45.153Z
+Stopped at: Phase 17 plan 17-01 Task 1: active-window hosting gate failed; awaiting owner decision on app-hosted visual tests
+Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
 
