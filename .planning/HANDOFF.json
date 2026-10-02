@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T17:28:12.003Z",
+  "timestamp": "2026-10-02T18:18:21.568Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "awaiting-recovery-direction",
+  "status": "awaiting-scale-direction",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,13 +21,13 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "in_progress",
-      "progress": "Exporter passed 2/2; actual phone matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. Three default-library recovery probes failed; latest mixed run retained Home 3/3 GREEN."
+      "progress": "Recovery cycle 2 used all three authorized runs. Each run: four actual tests, three Home passed, one Comments failed, zero skipped/Repetition, exit 65. Normalized strict parity remains false; native UIViewController and SwiftUI 3x long outputs are black with render-server errors. Exporter remains verified; matrix halted."
     }
   ],
   "blockers": [
     {
       "task": "17-01-T2",
-      "condition": "Comments default layer strategy has 20,284 saved-viewport pixel differences and unresolved InvalidTransition/appearance messages after three recovery attempts. Original hierarchy output was black.",
+      "condition": "Three additional native API diagnosis runs exhausted. Native hierarchy 1260x8394 output remains all black; default layer cannot match native toolbar pixels. No approved output-scale revision.",
       "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md"
     }
   ],
@@ -35,8 +35,8 @@
   "human_actions_pending": [
     {
       "type": "decision",
-      "question": "Authorize one further bounded native-API diagnosis cycle (at most three runs), preserving existing acceptance, or hold at this checkpoint.",
-      "reason": "execute-plan deviation retry limit reached; no new capture architecture or relaxed gate has been approved."
+      "question": "Approve a plan revision separating native measured device scale from configurable output scale, with an initial 1x probe and at most three runs while retaining logical viewport/content and strict configured-scale comparisons, or hold the existing 3x gate.",
+      "reason": "Owner-approved recovery cycle 2 is exhausted; lowering the accepted output resolution is not implied by its preserve-acceptance authorization."
     }
   ],
   "decisions": [
@@ -64,6 +64,11 @@
       "decision": "Withdraw premature stitching decision request and verify native SnapshotTesting custom-size strategy first.",
       "rationale": "Owner identified library size support and requested continuation. Existing Task 1 scope and acceptance remain in force; no stitching approval is inferred.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner selected option 1: continue one further bounded native-API diagnosis cycle, at most three runs, preserving acceptance.",
+      "rationale": "Explicit option 1 response after the Task 2 three-retry checkpoint; same authorized files, no threshold/resolution/architecture change.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -75,8 +80,8 @@
     " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
     "?? .capture/"
   ],
-  "next_action": "Obtain recovery direction after the bounded failure. Proposed next cycle isolates saved PNG format comparison and controller appearance cleanup using existing native SnapshotTesting APIs and owned files, keeps strict viewport/full-content acceptance and allows at most three further runs. Do not run the matrix or later waves until the blocker is resolved.",
-  "context_notes": "0/24 plans complete; 1/2 plan-01 tasks complete. Fixture export/extraction committed b9a768a5; failing native Comments/matrix WIP committed c1cbfc1b. Prior app-hosting and inline decisions remain approved; earlier executors remain interrupted. No active build/test driver. Reserved owner/runtime staging unchanged. No SUMMARY or baseline approval.",
+  "next_action": "Wait for an explicit output-scale decision. If approved, revise plan 17-01 before implementing configured capture scale: measured native viewport/scale remain real, normal/full output scale is recorded separately, logical layout is preserved and pixel comparison remains exact. Initial 1x probe is only a hypothesis; at most three bounded runs, no matrix expansion before success.",
+  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -221,6 +226,82 @@
         636
       ],
       "limits": "Independent 8-bit premultiplied sRGB comparison of saved PNGs; no replacement for SnapshotTesting live comparison."
+    },
+    "recovery_cycle_2": {
+      "authorized_runs": 3,
+      "used_runs": 3,
+      "source_checkpoint": "d3cf55eb1e217264326fc79b6efa8b5ee331c246",
+      "runs": [
+        {
+          "strategy": "Default layer, comparison pixels normalized to 8-bit sRGB",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-format.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-format-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-format.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-format-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-format-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-format-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 1,
+          "strict_native_parity": false
+        },
+        {
+          "strategy": "UIViewController native hierarchy sRGB/SDR",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-native-sdr.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-native-sdr-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-native-sdr.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-native-sdr-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-native-sdr-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-native-sdr-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 0,
+          "strict_native_parity": false
+        },
+        {
+          "strategy": "Direct SwiftUI device custom-size native hierarchy sRGB/SDR",
+          "result_bundle": "/tmp/ehpanda-phase17-recovery2-swiftui-native.xcresult",
+          "build_log": "/tmp/ehpanda-phase17-recovery2-swiftui-native-build.log",
+          "log": "/tmp/ehpanda-phase17-recovery2-swiftui-native.log",
+          "summary": "/tmp/ehpanda-phase17-recovery2-swiftui-native-summary.json",
+          "tests": "/tmp/ehpanda-phase17-recovery2-swiftui-native-tests.json",
+          "attachments_manifest": "/tmp/ehpanda-phase17-recovery2-swiftui-native-attachments/manifest.json",
+          "total_tests": 4,
+          "passed_tests": 3,
+          "failed_tests": 1,
+          "skipped_tests": 0,
+          "repetition_nodes": 0,
+          "exit_code": 65,
+          "runtime_warnings": [],
+          "appearance_messages": 1,
+          "strict_native_parity": false
+        }
+      ],
+      "native_viewport_points": [
+        420,
+        912
+      ],
+      "native_device_scale": 3,
+      "output_points": [
+        420,
+        2798
+      ],
+      "output_pixels": [
+        1260,
+        8394
+      ],
+      "pixel_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json",
+      "proposal": "Separate capture output scale and first probe 1x; unapproved/unimplemented."
     }
   },
   "recovery_logs": [
@@ -230,5 +311,5 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Expected after continuity commit: four reserved owner/runtime staging paths, both Task 2 lockfiles and disposable untracked .capture/. Lockfiles remain uncommitted pending clean integration/full gate; generated bytes are not baselines.",
-  "source_checkpoint": "c1cbfc1b6e5805f71986d5d957e3b72b068e0fb1"
+  "source_checkpoint": "d3cf55eb1e217264326fc79b6efa8b5ee331c246"
 }
