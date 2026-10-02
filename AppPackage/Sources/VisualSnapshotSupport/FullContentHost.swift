@@ -59,12 +59,16 @@ public final class FullContentHost<Content: View> {
 
     private let previousKeyWindow: UIWindow?
     private let drawHierarchyInKeyWindow: Bool
+    private let standardImageRange: Bool
+    private let useSwiftUIStrategy: Bool
     private let rootView: Content
     private var verticalScrollHost: UIScrollView
 
     public init(
         rootView: Content, contentSizeCategory: UIContentSizeCategory? = nil,
         drawHierarchyInKeyWindow: Bool = true,
+        standardImageRange: Bool = false,
+        useSwiftUIStrategy: Bool = false,
         isViewportReady: @MainActor () -> Bool = { true }
     ) async throws {
         guard let scene = UIApplication.shared.connectedScenes
@@ -75,8 +79,14 @@ public final class FullContentHost<Content: View> {
         self.scene = scene
         self.rootView = rootView
         self.drawHierarchyInKeyWindow = drawHierarchyInKeyWindow
+        self.standardImageRange = standardImageRange
+        self.useSwiftUIStrategy = useSwiftUIStrategy
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
+        if standardImageRange {
+            window.traitOverrides.displayGamut = .SRGB
+            window.traitOverrides.imageDynamicRange = .standard
+        }
         if let contentSizeCategory {
             window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
         }
@@ -226,14 +236,25 @@ public final class FullContentHost<Content: View> {
         let imageStrategy: Snapshotting<UIImage, UIImage> = .image
         try imageStrategy.diffing.toData(fullViewport)
             .write(to: outputDirectory.appending(path: "capture.full-content-viewport.png"), options: .atomic)
-        if let difference = imageStrategy.diffing.diffV2(normalImage, fullViewport) {
-            throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
-        }
+        // The library compares 8-bit sRGB pixels, but its difference attachment reads
+        // four raw bytes per pixel. Give both inputs that same explicit pixel format.
+        let comparableNormal = try CapturedRaster(image: normalCG).comparisonImage(scale: viewport.scale)
+        let comparableViewport = try CapturedRaster(image: viewportCG).comparisonImage(scale: viewport.scale)
         try JSONSerialization.data(withJSONObject: [
-            "comparison": "SnapshotTesting strict sRGB image diff", "matched": true,
+            "stage": "entering-strict-image-comparison",
+            "normalBitsPerPixel": normalCG.bitsPerPixel, "fullBitsPerPixel": viewportCG.bitsPerPixel,
+            "comparisonBitsPerPixel": comparableNormal.cgImage?.bitsPerPixel ?? 0
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: outputDirectory.appending(path: "capture-progress.json"), options: .atomic)
+        let difference = imageStrategy.diffing.diffV2(comparableNormal, comparableViewport)
+        try JSONSerialization.data(withJSONObject: [
+            "comparison": "SnapshotTesting strict sRGB image diff", "matched": difference == nil,
             "viewportPixels": [normalCG.width, normalCG.height]
         ], options: [.prettyPrinted, .sortedKeys])
             .write(to: outputDirectory.appending(path: "native-viewport-parity.json"), options: .atomic)
+        if let difference {
+            throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
+        }
         let elements = try await RenderedContentInspection.text(
             in: fullCG, size: outputSize, words: expectedItems.map(\.marker) + [trailingMarker]
         )
@@ -326,9 +347,10 @@ public final class FullContentHost<Content: View> {
     }
 
     private func renderNativeViewport() throws -> UIImage {
-        let format = UIGraphicsImageRendererFormat()
+        let format = UIGraphicsImageRendererFormat(for: viewport.traits)
         format.scale = viewport.scale
         format.opaque = true
+        if standardImageRange { format.preferredRange = .standard }
         var rendered = false
         let image = UIGraphicsImageRenderer(size: viewport.size, format: format).image { context in
             UIColor.systemBackground.setFill()
@@ -368,6 +390,19 @@ public final class FullContentHost<Content: View> {
     }
 
     private func render(size: CGSize) async throws -> UIImage {
+        if useSwiftUIStrategy {
+            let strategy: Snapshotting<Content, UIImage> = .image(
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                layout: .device(config: ViewImageConfig(
+                    safeArea: viewport.safeAreaInsets, size: size, traits: viewport.traits
+                )), traits: viewport.traits
+            )
+            let image: UIImage = await withCheckedContinuation { continuation in
+                strategy.snapshot(rootView).run { continuation.resume(returning: $0) }
+            }
+            guard image.size == size, image.scale == viewport.scale else { throw FullContentHostError.renderFailed }
+            return image
+        }
         // The default layer strategy creates its own Window. Give it a fresh controller,
         // matching the library's SwiftUI strategy, instead of moving an attached root to it.
         let captureController = drawHierarchyInKeyWindow
@@ -414,8 +449,11 @@ public final class FullContentHost<Content: View> {
         directory: URL
     ) throws {
         let diagnostics: [String: Any] = [
-            "renderer": "Snapshotting<UIViewController, UIImage>.image(on:size:)",
+            "renderer": useSwiftUIStrategy
+                ? "Snapshotting<Content, UIImage>.image(layout: .device(config:))"
+                : "Snapshotting<UIViewController, UIImage>.image(on:size:)",
             "drawHierarchyInKeyWindow": drawHierarchyInKeyWindow,
+            "standardImageRange": standardImageRange,
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
             "contentHeight": layout.contentHeight,
             "displayScale": viewport.scale,
@@ -497,6 +535,19 @@ private struct CapturedRaster {
         width = pixelWidth
         height = pixelHeight
         pixels = bytes
+    }
+
+    func comparisonImage(scale: CGFloat) throws -> UIImage {
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let provider = CGDataProvider(data: Data(pixels) as CFData),
+              let image = CGImage(
+                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: CGBitmapInfo(rawValue: CGBitmapInfo.byteOrder32Big.rawValue
+                                        | CGImageAlphaInfo.premultipliedLast.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
+              ) else { throw FullContentHostError.emptyImage }
+        return UIImage(cgImage: image, scale: scale, orientation: .up)
     }
 
     func artworkFrame(around marker: CGRect, scale: CGFloat) throws -> CGRect {
