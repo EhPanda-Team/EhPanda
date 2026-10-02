@@ -1,20 +1,20 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T07:15:39.707821+00:00",
+  "timestamp": "2026-10-02T07:31:18.054980+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 1,
   "total_tasks": 2,
-  "status": "executing",
+  "status": "blocked",
   "completed_tasks": [],
   "remaining_tasks": [
     {
       "id": 1,
       "name": "17-01-T1: Trace actual Home full-content capture",
-      "status": "in_progress",
-      "progress": "Owner approved option 1: genuine app-hosted visual target; amended plan execution pending."
+      "status": "blocked",
+      "progress": "Approved app-host target/support prototypes are uncommitted; build failed in generated resource symbols; no hosted test ran. Fresh executor interrupted after the stall threshold."
     },
     {
       "id": 2,
@@ -24,7 +24,13 @@
   ],
   "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {
+      "action": "Choose stalled-executor recovery: inline execution, fresh executor, or resume waiting.",
+      "context": ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOSTING-GATE.md",
+      "blocking": true
+    }
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -59,8 +65,8 @@
     "?? .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
     "?? .planning/phases/17-localized-screenshot-capture-harness/17-01-HOSTING-GATE.md"
   ],
-  "next_action": "Execute revised plan 17-01; prove the actual app host, then complete Home and List/reader/export gates before wave 2.",
-  "context_notes": "0/24 plans complete. Owner-staged project/probe edits remain byte-identical. Executor is interrupted. Final xcodebuild exited 65. Probe device was iPhone 17, not accepted iPhone Air/M5 matrix evidence. Requested executor model/effort known; actual runtime settings unverified.",
+  "next_action": "Honor owner recovery choice, preserve original staging and continue amended plan 17-01; no hosting/full-content gate has passed.",
+  "context_notes": "0/24 plans complete; 0/2 plan-01 tasks complete. Both executors interrupted, no Xcode process running. Original owner staging verified byte-identical after partial harness additions. Requested executor settings known, runtime settings unverified.",
   "evidence": {
     "clean_build_log": "/tmp/ehpanda-phase17-t1-clean-final.log",
     "result_bundle": "/tmp/ehpanda-phase17-t1-host-gate.xcresult",
@@ -71,5 +77,11 @@
     "passed_tests": 0,
     "repetition_nodes": 0,
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOSTING-GATE.md"
-  }
+  },
+  "recovery_logs": [
+    "/tmp/ehpanda-phase17-t1-host-build.log",
+    "/tmp/ehpanda-phase17-t1-host-build-2.log",
+    "/tmp/ehpanda-phase17-t1-host-build-3.log",
+    "/tmp/ehpanda-phase17-symbol-build.log"
+  ]
 }

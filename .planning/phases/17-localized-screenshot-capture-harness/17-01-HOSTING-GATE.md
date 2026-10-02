@@ -108,3 +108,30 @@ unverified. It returned an initial sandbox checkpoint; escalation resolved that 
 After its later unresponsive interval, the orchestrator interrupted it, inspected the
 partial files and completed the final clean build and hosting probe. No executor is
 currently modifying source, and the final Xcode command has exited.
+
+## Executor recovery checkpoint — 2026-10-02
+
+The owner-approved amendment was committed as `7ade5c1842`. A fresh typed executor was
+requested with the project-resolved model `gpt-5.6-luna` and effort `high`; actual runtime
+settings remain unverified. It produced partial genuine app-host target wiring, a local
+VisualSnapshotSupport prototype and an XCTestCase tracer, but returned no progress
+message, task commit or SUMMARY despite repeated requests for more than ten minutes.
+The orchestrator interrupted it under the workflow stall-recovery rule. Both executors
+are interrupted; no Xcode build/test process remained at the recovery inspection.
+
+The latest build failed compiling `Resources/ResourceStringSymbols.swift`: generated
+localized symbols such as `cancel` and `clear` were unavailable. A diagnostic invocation
+with `STRING_CATALOG_GENERATE_SYMBOLS=YES` also failed and is not acceptance evidence.
+No hosted test ran; there is no active-scene or full-content success. The prototypes still
+need complete implementation and review against the amended contract.
+
+Retained logs: `/tmp/ehpanda-phase17-t1-host-build.log`,
+`/tmp/ehpanda-phase17-t1-host-build-2.log`,
+`/tmp/ehpanda-phase17-t1-host-build-3.log`, and
+`/tmp/ehpanda-phase17-symbol-build.log`. These builds used the selected iPhone Air.
+The original owner-staged project/probe patch remains byte-identical to
+`/tmp/ehpanda-phase17-owner-staged.patch`. New harness project changes are unstaged.
+
+The workflow requires a recovery choice: continue inline, retry with a fresh executor,
+or resume waiting. The orchestrator requested this choice and has not inferred approval
+for inline execution. This checkpoint does not revoke the approved app-hosting scope.
