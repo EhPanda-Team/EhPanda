@@ -1,20 +1,20 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T06:28:30.317Z",
+  "timestamp": "2026-10-02T07:15:39.707821+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 1,
   "total_tasks": 2,
-  "status": "blocked",
+  "status": "executing",
   "completed_tasks": [],
   "remaining_tasks": [
     {
       "id": 1,
       "name": "17-01-T1: Trace actual Home full-content capture",
-      "status": "blocked",
-      "progress": "Clean integration passes; one tracer fails because the unhosted runner has no active UIWindowScene. Partial source is uncommitted."
+      "status": "in_progress",
+      "progress": "Owner approved option 1: genuine app-hosted visual target; amended plan execution pending."
     },
     {
       "id": 2,
@@ -22,21 +22,9 @@
       "status": "not_started"
     }
   ],
-  "blockers": [
-    {
-      "description": "No foreground-active UIWindowScene in the actual SwiftPM test runner.",
-      "type": "technical",
-      "workaround": null
-    }
-  ],
+  "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [
-    {
-      "action": "Decide whether to revise plan 17-01 to use a genuine app-hosted visual unit-test target.",
-      "context": ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOSTING-GATE.md",
-      "blocking": true
-    }
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -46,6 +34,11 @@
     {
       "decision": "Require nonzero discovered tests and zero Repetition nodes.",
       "rationale": "The original method selector matched zero tests despite xcodebuild exit 0.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved genuine app-hosted visual tests and plan 17-01 revision.",
+      "rationale": "Explicit option 1 response on 2026-10-02 after the hosting checkpoint.",
       "phase": "17"
     }
   ],
@@ -66,7 +59,7 @@
     "?? .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
     "?? .planning/phases/17-localized-screenshot-capture-harness/17-01-HOSTING-GATE.md"
   ],
-  "next_action": "Read owner hosting-scope decision and 17-01-HOSTING-GATE.md; do not repeat the unhosted tracer or advance wave 2.",
+  "next_action": "Execute revised plan 17-01; prove the actual app host, then complete Home and List/reader/export gates before wave 2.",
   "context_notes": "0/24 plans complete. Owner-staged project/probe edits remain byte-identical. Executor is interrupted. Final xcodebuild exited 65. Probe device was iPhone 17, not accepted iPhone Air/M5 matrix evidence. Requested executor model/effort known; actual runtime settings unverified.",
   "evidence": {
     "clean_build_log": "/tmp/ehpanda-phase17-t1-clean-final.log",

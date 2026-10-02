@@ -4,12 +4,12 @@ milestone: v3.0.0
 milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: blocked
-stopped_at: "Phase 17 plan 17-01 Task 1: active-window hosting gate failed; awaiting owner decision on app-hosted visual tests"
-last_updated: "2026-10-02T06:30:24.354Z"
+status: executing
+stopped_at: "Phase 17 plan 17-01: owner approved genuine app-hosted target; executing amended hosting gate"
+last_updated: "2026-10-02T07:16:27.898Z"
 last_activity: 2026-10-02
-last_activity_desc: Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
-state_head: dedd5a21c674c218143360a6d878ffbc62c2aa88
+last_activity_desc: Owner approved genuine app-hosted visual tests; executing revised plan 17-01
+state_head: cb364aae55c96badd7d91e486a610a9b373e46f5
 progress:
   total_phases: 17
   completed_phases: 10
@@ -32,8 +32,8 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: blocked
-Last activity: 2026-10-02 — Plan 17-01 active-window hosting gate failed; clean build passed; awaiting harness revision
+Status: executing
+Last activity: 2026-10-02 — Owner approved genuine app-hosted visual tests; executing revised plan 17-01
 
 ### Historical round-2 status snapshots
 
@@ -1004,8 +1004,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T06:27:45.153Z
-Stopped at: Phase 17 plan 17-01 Task 1: active-window hosting gate failed; awaiting owner decision on app-hosted visual tests
+Last session: 2026-10-02T07:15:40.543Z
+Stopped at: Phase 17 plan 17-01: owner approved genuine app-hosted target; executing amended hosting gate
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
