@@ -35,11 +35,15 @@ public struct CaptureItemExpectation: Sendable {
     public let title: String
     public let marker: String
     public let artworkAspectRatio: CGFloat?
+    public let requiresInsetArtwork: Bool
 
-    public init(title: String, marker: String, artworkAspectRatio: CGFloat? = nil) {
+    public init(
+        title: String, marker: String, artworkAspectRatio: CGFloat? = nil, requiresInsetArtwork: Bool = true
+    ) {
         self.title = title
         self.marker = marker
         self.artworkAspectRatio = artworkAspectRatio
+        self.requiresInsetArtwork = requiresInsetArtwork
     }
 }
 
@@ -54,10 +58,15 @@ public final class FullContentHost<Content: View> {
     public let viewport: MeasuredViewport
 
     private let previousKeyWindow: UIWindow?
+    private let drawHierarchyInKeyWindow: Bool
     private let rootView: Content
     private var verticalScrollHost: UIScrollView
 
-    public init(rootView: Content) async throws {
+    public init(
+        rootView: Content, contentSizeCategory: UIContentSizeCategory? = nil,
+        drawHierarchyInKeyWindow: Bool = true,
+        isViewportReady: @MainActor () -> Bool = { true }
+    ) async throws {
         guard let scene = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
             .first(where: { $0.activationState == .foregroundActive }) else {
@@ -65,8 +74,12 @@ public final class FullContentHost<Content: View> {
         }
         self.scene = scene
         self.rootView = rootView
+        self.drawHierarchyInKeyWindow = drawHierarchyInKeyWindow
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
+        if let contentSizeCategory {
+            window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
+        }
         controller = UIHostingController(rootView: AnyView(rootView))
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -95,14 +108,14 @@ public final class FullContentHost<Content: View> {
                     .compactMap({ $0 as? UIScrollView })
                     .filter({ $0.contentSize.height > $0.bounds.height && $0.bounds.width > 0 })
                     .max(by: { $0.contentSize.height < $1.contentSize.height })
-                if resolvedScrollHost != nil { break }
+                if resolvedScrollHost != nil && isViewportReady() { break }
             }
         } catch {
             window.isHidden = true
             previousKeyWindow?.makeKey()
             throw error
         }
-        guard let scrollHost = resolvedScrollHost else {
+        guard let scrollHost = resolvedScrollHost, isViewportReady() else {
             window.isHidden = true
             previousKeyWindow?.makeKey()
             throw FullContentHostError.missingVerticalScrollHost
@@ -124,7 +137,8 @@ public final class FullContentHost<Content: View> {
         expectedItems: [CaptureItemExpectation],
         trailingMarker: String,
         outputDirectory: URL,
-        record: SnapshotTestingConfiguration.Record = .never
+        record: SnapshotTestingConfiguration.Record = .never,
+        isContentReady: @MainActor () -> Bool = { true }
     ) async throws -> FullContentCaptureEvidence {
         guard isAttachedToActiveWindow else { throw FullContentHostError.inactiveWindow }
         guard record == .never || record == .all else { throw FullContentHostError.invalidRecordMode }
@@ -187,6 +201,7 @@ public final class FullContentHost<Content: View> {
             let currentHeight = verticalScrollHost.contentSize.height
             let isStable = previousHeight.map({ abs(currentHeight - $0) * viewport.scale <= 1 }) == true
                 && previousOutputHeight.map({ abs(outputSize.height - $0) * viewport.scale <= 1 }) == true
+                && isContentReady()
             stableIterations = isStable ? stableIterations + 1 : 0
             previousHeight = currentHeight
             previousOutputHeight = outputSize.height
@@ -214,6 +229,11 @@ public final class FullContentHost<Content: View> {
         if let difference = imageStrategy.diffing.diffV2(normalImage, fullViewport) {
             throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
         }
+        try JSONSerialization.data(withJSONObject: [
+            "comparison": "SnapshotTesting strict sRGB image diff", "matched": true,
+            "viewportPixels": [normalCG.width, normalCG.height]
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: outputDirectory.appending(path: "native-viewport-parity.json"), options: .atomic)
         let elements = try await RenderedContentInspection.text(
             in: fullCG, size: outputSize, words: expectedItems.map(\.marker) + [trailingMarker]
         )
@@ -238,9 +258,10 @@ public final class FullContentHost<Content: View> {
             let frame: CGRect
             if let aspectRatio = item.artworkAspectRatio {
                 frame = try raster.artworkFrame(around: element.frame, scale: viewport.scale)
+                let isInset = frame.minX > 0 && frame.minY > 0
+                    && frame.maxX < outputSize.width && frame.maxY < outputSize.height
                 guard abs(frame.width - aspectRatio * frame.height) <= 2 / viewport.scale,
-                      frame.minX > 0, frame.minY > 0,
-                      frame.maxX < outputSize.width, frame.maxY < outputSize.height else {
+                      outputBounds.contains(frame), !item.requiresInsetArtwork || isInset else {
                     throw FullContentHostError.clippedItem(item.title)
                 }
             } else {
@@ -320,8 +341,10 @@ public final class FullContentHost<Content: View> {
 
     private func restoreNativeHost(frame: CGRect) async throws {
         window.frame = frame
-        controller = UIHostingController(rootView: AnyView(rootView))
-        window.rootViewController = controller
+        if drawHierarchyInKeyWindow {
+            controller = UIHostingController(rootView: AnyView(rootView))
+            window.rootViewController = controller
+        }
         controller.view.frame = window.bounds
         window.layoutIfNeeded()
         var previousHeight: CGFloat?
@@ -345,15 +368,19 @@ public final class FullContentHost<Content: View> {
     }
 
     private func render(size: CGSize) async throws -> UIImage {
-        let originalAutoresizingMask = controller.view.autoresizingMask
-        controller.view.autoresizingMask = []
-        defer { controller.view.autoresizingMask = originalAutoresizingMask }
+        // The default layer strategy creates its own Window. Give it a fresh controller,
+        // matching the library's SwiftUI strategy, instead of moving an attached root to it.
+        let captureController = drawHierarchyInKeyWindow
+            ? controller : UIHostingController(rootView: AnyView(rootView))
+        let originalAutoresizingMask = captureController.view.autoresizingMask
+        captureController.view.autoresizingMask = []
+        defer { captureController.view.autoresizingMask = originalAutoresizingMask }
         let strategy: Snapshotting<UIViewController, UIImage> = .image(
             on: ViewImageConfig(safeArea: viewport.safeAreaInsets, size: size, traits: viewport.traits),
-            drawHierarchyInKeyWindow: true, size: size, traits: viewport.traits
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow, size: size, traits: viewport.traits
         )
         let image: UIImage = await withCheckedContinuation { continuation in
-            strategy.snapshot(controller).run { continuation.resume(returning: $0) }
+            strategy.snapshot(captureController).run { continuation.resume(returning: $0) }
         }
         // SnapshotTesting consumes controller attachment. Reusing that controller after its
         // explicit appearance cleanup is unsafe; successful capture restores a fresh native host.
@@ -388,6 +415,7 @@ public final class FullContentHost<Content: View> {
     ) throws {
         let diagnostics: [String: Any] = [
             "renderer": "Snapshotting<UIViewController, UIImage>.image(on:size:)",
+            "drawHierarchyInKeyWindow": drawHierarchyInKeyWindow,
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
             "contentHeight": layout.contentHeight,
             "displayScale": viewport.scale,
@@ -416,7 +444,13 @@ private enum RenderedContentInspection {
         request.recognitionLanguages = [Locale.Language(identifier: "en")]
         request.usesLanguageCorrection = false
         request.customWords = words
-        let observations = try await request.perform(on: image)
+        let handler = ImageRequestHandler(image)
+        let observations: [RecognizedTextObservation]
+        do {
+            observations = try await handler.perform(request)
+        } catch {
+            throw FullContentHostError.renderedTextInspectionFailed(String(describing: error))
+        }
         try Task.checkCancellation()
         return observations.compactMap { observation in
             guard let candidate = observation.topCandidates(1).first, candidate.confidence >= 0.8 else { return nil }
@@ -571,5 +605,6 @@ public enum FullContentHostError: Error {
     case noForegroundActiveScene
     case nativeViewportPixelsChanged(String)
     case renderFailed
+    case renderedTextInspectionFailed(String)
     case snapshotFailed(String)
 }
