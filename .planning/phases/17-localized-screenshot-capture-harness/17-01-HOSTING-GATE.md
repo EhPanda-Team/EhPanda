@@ -163,3 +163,10 @@ URL protocol stubs. Existing automation resolution remains covered.
 This clears the active-window bootstrap gate only. The original partial prototype's
 stitched capture is rejected and must be replaced with measured single-hierarchy
 full-content capture. Home completeness and Task 1 acceptance are still pending.
+
+## Superseding capture gate — 2026-10-02
+
+The native active-window hosting prerequisite is now proven. The remaining blocker is
+complete faithful Home capture. See `17-01-CAPTURE-GATE.md` for actual images, counts,
+rendering differences and the pending architecture decision. Both earlier owner choices
+remain approved; no hosting or inline-recovery approval is pending. Task 1 is incomplete.

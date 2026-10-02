@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A17000000000000000000011 /* VisualSnapshotSupport in Frameworks */ = {isa = PBXBuildFile; productRef = A17000000000000000000010 /* VisualSnapshotSupport */; };
 		A0F00000000000000000F001 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A0F00000000000000000F002 /* AppFeature */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92532C3EB49500D211F6 /* README.cht.md */; };
@@ -18,6 +19,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		A17000000000000000000007 /* VisualSnapshotTests -> EhPanda */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
+			remoteInfo = EhPanda;
+		};
 		A13080000000000000000007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
@@ -47,6 +55,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A17000000000000000000001 /* VisualSnapshotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VisualSnapshotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0F00000000000000000F004 /* AppPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = AppPackage; sourceTree = "<group>"; };
 		A13080000000000000000001 /* EhPandaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A14C0F1600000000000000A1 /* Analytics.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Analytics.xcconfig; path = Config/Analytics.xcconfig; sourceTree = "<group>"; };
@@ -66,6 +75,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A1700000000000000000000E /* Exceptions for VisualSnapshotTests */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.swiftlint.yml,
+			);
+			target = A17000000000000000000006 /* VisualSnapshotTests */;
+		};
 		A1308000000000000000000E /* Exceptions for "EhPandaUITests" folder in "EhPandaUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -90,6 +106,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A17000000000000000000002 /* VisualSnapshotTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1700000000000000000000E /* Exceptions for VisualSnapshotTests */,
+			);
+			path = AppPackage/Tests/VisualSnapshotTests;
+			sourceTree = "<group>";
+		};
 		A62261E62FC559F00055B5C0 /* .github */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = .github;
@@ -122,6 +146,12 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A17000000000000000000004 /* VisualSnapshotTests Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				A17000000000000000000011 /* VisualSnapshotSupport in Frameworks */,
+			);
+		};
 		A13080000000000000000004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -155,6 +185,7 @@
 			children = (
 				A0F00000000000000000F004 /* AppPackage */,
 				A6844B3D2F780C8600BBF6E5 /* App */,
+				A17000000000000000000002 /* VisualSnapshotTests */,
 				A13080000000000000000002 /* EhPandaUITests */,
 				A6844C272F780C8B00BBF6E5 /* ShareExtension */,
 				EA0C92472C3EB44300D211F6 /* Config */,
@@ -169,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7542593696C00E0C11B /* EhPanda.app */,
+				A17000000000000000000001 /* VisualSnapshotTests.xctest */,
 				A13080000000000000000001 /* EhPandaUITests.xctest */,
 				AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */,
 			);
@@ -212,6 +244,31 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A17000000000000000000006 /* VisualSnapshotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1700000000000000000000D /* Build configuration list for PBXNativeTarget "VisualSnapshotTests" */;
+			buildPhases = (
+				A17000000000000000000003 /* VisualSnapshotTests Sources */,
+				A17000000000000000000004 /* VisualSnapshotTests Frameworks */,
+				A17000000000000000000005 /* VisualSnapshotTests Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A17000000000000000000008 /* VisualSnapshotTests -> EhPanda */,
+				A1700000000000000000000A /* SwiftLintBuildToolPlugin for VisualSnapshotTests */,
+			);
+			fileSystemSynchronizedGroups = (
+				A17000000000000000000002 /* VisualSnapshotTests */,
+			);
+			name = VisualSnapshotTests;
+			packageProductDependencies = (
+				A17000000000000000000010 /* VisualSnapshotSupport */,
+			);
+			productName = VisualSnapshotTests;
+			productReference = A17000000000000000000001 /* VisualSnapshotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A13080000000000000000006 /* EhPandaUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A1308000000000000000000D /* Build configuration list for PBXNativeTarget "EhPandaUITests" */;
@@ -295,9 +352,13 @@
 					AB5BE67526B95FDD007D4A55 = {
 						CreatedOnToolsVersion = 13.0;
 					};
-					ABC3C7532593696C00E0C11B = {
-						CreatedOnToolsVersion = 12.2;
-					};
+				ABC3C7532593696C00E0C11B = {
+					CreatedOnToolsVersion = 12.2;
+				};
+				A17000000000000000000006 = {
+					CreatedOnToolsVersion = 27.0;
+					TestTargetID = ABC3C7532593696C00E0C11B;
+				};
 				};
 			};
 			buildConfigurationList = ABC3C74F2593696C00E0C11B /* Build configuration list for PBXProject "EhPanda" */;
@@ -322,6 +383,7 @@
 			projectRoot = "";
 			targets = (
 				ABC3C7532593696C00E0C11B /* EhPanda */,
+				A17000000000000000000006 /* VisualSnapshotTests */,
 				A13080000000000000000006 /* EhPandaUITests */,
 				AB5BE67526B95FDD007D4A55 /* ShareExtension */,
 			);
@@ -329,6 +391,11 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A17000000000000000000005 /* VisualSnapshotTests Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		A13080000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -355,6 +422,11 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A17000000000000000000003 /* VisualSnapshotTests Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		A13080000000000000000003 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -375,6 +447,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A17000000000000000000008 /* VisualSnapshotTests -> EhPanda */ = {
+			isa = PBXTargetDependency;
+			target = ABC3C7532593696C00E0C11B /* EhPanda */;
+			targetProxy = A17000000000000000000007 /* VisualSnapshotTests -> EhPanda */;
+		};
+		A1700000000000000000000A /* SwiftLintBuildToolPlugin for VisualSnapshotTests */ = {
+			isa = PBXTargetDependency;
+			productRef = A17000000000000000000009 /* SwiftLintBuildToolPlugin for VisualSnapshotTests */;
+		};
 		A13080000000000000000008 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = ABC3C7532593696C00E0C11B /* EhPanda */;
@@ -400,6 +481,58 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A1700000000000000000000B /* Debug configuration for PBXNativeTarget "VisualSnapshotTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.VisualSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Debug;
+		};
+		A1700000000000000000000C /* Release configuration for PBXNativeTarget "VisualSnapshotTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.VisualSnapshotTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Release;
+		};
 		A1308000000000000000000B /* Debug configuration for PBXNativeTarget "EhPandaUITests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -703,6 +836,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A1700000000000000000000D /* Build configuration list for PBXNativeTarget "VisualSnapshotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1700000000000000000000B /* Debug configuration for PBXNativeTarget "VisualSnapshotTests" */,
+				A1700000000000000000000C /* Release configuration for PBXNativeTarget "VisualSnapshotTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		A1308000000000000000000D /* Build configuration list for PBXNativeTarget "EhPandaUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -757,6 +898,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A17000000000000000000010 /* VisualSnapshotSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;
+			productName = VisualSnapshotSupport;
+		};
+		A17000000000000000000009 /* SwiftLintBuildToolPlugin for VisualSnapshotTests */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		A0F00000000000000000F002 /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;

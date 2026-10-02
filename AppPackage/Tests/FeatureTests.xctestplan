@@ -9,6 +9,16 @@
     }
   ],
   "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "EHPANDA_UITEST_STUB_NETWORK",
+        "value" : "1"
+      },
+      {
+        "key" : "EHPANDA_VISUAL_TEST_HOST",
+        "value" : "1"
+      }
+    ],
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
@@ -164,6 +174,13 @@
         "containerPath" : "container:AppPackage",
         "identifier" : "FavoritesFeatureTests",
         "name" : "FavoritesFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:EhPanda.xcodeproj",
+        "identifier" : "A17000000000000000000006",
+        "name" : "VisualSnapshotTests"
       }
     }
   ],
