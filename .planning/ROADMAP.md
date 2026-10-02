@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 14: Analytics Instrumentation (TelemetryDeck)** - Add privacy-first analytics via the TelemetryDeck SDK — on by default with a runtime opt-out in General Settings (D-01 reversed) — instrumenting key user flows (completed 2026-07-27)
 - [x] **Phase 15: Continued Background Downloads** - Adopt `BGContinuedProcessingTask` so a user-started gallery download keeps running after backgrounding, with the system-provided progress UI (completed 2026-08-19)
 - [x] **Phase 16: Accessibility (Dynamic Type + Assistive Technology)** - Two rounds against the settled UI: full-range Dynamic Type (AX1–AX5, human-implemented, agent verify-only), then a VoiceOver / Voice Control / Reduced Motion / Contrast / Differentiate-Without-Color pass (agent-implemented), held to the App Store Accessibility Nutrition Label bar (completed 2026-09-23)
-- [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Real-gallery fixtures, a full screenshot/snapshot matrix for website and AltStore assets, and native API modernization with app-wide soft top-edge blur on iOS/iPadOS 27
+- [ ] **Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization** - Separate complete regression and real-app marketing workflows, local designer/website handoffs, preservation of native OS27 behavior and post-snapshot size-class layout audit
 
 ## Phase Details
 
@@ -1234,37 +1234,128 @@ Plans:
 
 ### Phase 17: Screenshot Automation, Visual Regression & OS 27 Modernization
 
-**Goal**: Build a reusable, deterministic screenshot and visual-regression pipeline backed by captured real-gallery fixtures, covering supported languages, Dynamic Type sizes, portrait/landscape, iPhone/iPad and light/dark appearance. Deliver screenshot assets for `../ehpanda-website` and this repository's `AltStore.json`. Raise the minimum supported iOS/iPadOS version to 27, adopt current native APIs in place of suitable custom implementations, and restore the app-wide soft progressive top-edge blur with `.scrollEdgeEffectStyle(.soft, for: .top)`.
-**Depends on**: Phase 16 — preserve its accepted accessibility behavior and remaining sign-off gates; adding this phase does not complete Phase 16.
-**Requirements**: New phase scope; assign traceable requirement IDs during phase planning for the six work areas below.
+**Goal**: Deliver separate deterministic SnapshotTesting regression and actual-app simulator marketing workflows, complete reviewed regression coverage, final real-gallery website captures and separately designed AltStore promotional assets through local handoffs. Preserve the already-landed iOS/iPadOS27 native behavior, then replace idiom-based layout decisions with size classes after snapshot implementation.
+**Depends on**: Phase16 — current owner-approved verification and explicit evidence bounds; historical pending wording is superseded.
+**Requirements**: CAP-17-01, CAP-17-02, CAP-17-03, CAP-17-04, CAP-17-05, CAP-17-06, CAP-17-07.
 
 **Scope and owner decisions**:
 
-1. **Real-gallery fixture acquisition.** Provide an explicit acquisition/refresh tool that fetches real gallery metadata, covers, preview images and reading-page assets needed by the screen scenarios, then saves versioned mock fixtures. Preserve provenance and asset checksums so the data can be refreshed deliberately. The owner selects the galleries (existing Phase 17 decision); fixture selection remains an input for planning/execution, not a blocker to recording this phase. Account credentials and private session state must not enter fixtures. Capture and tests consume the saved fixtures offline rather than fetching live galleries on every run.
-2. **Screenshot matrix.** Inventory app screens and meaningful states, including sheets, menus, dialogs, empty/loading/error states and reader panels/preview. Cover every supported app language (currently `en`, `de`, `ja`, `ko`, `zh-Hans`, `zh-Hant`), all supported Dynamic Type sizes, portrait and landscape, iPhone and iPad, and light/dark color schemes. Keep one explicit machine-readable matrix and report every requested combination as captured, failed, or justified not-applicable; do not silently replace the full matrix with representative samples. Lock clock/time zone, data ordering, IDs, image readiness, animations and simulator configuration so reruns are reproducible.
-3. **Website and AltStore delivery.** Export named assets plus a manifest describing screen/state, locale, text size, orientation, device, color scheme, fixture version and rendering environment. Define consumer-compatible output paths and dimensions for the website and this app repository's AltStore source. Consumers select their marketing subset from the same capture pipeline; marketing selection does not reduce regression coverage. Validate asset references and importability. Public publishing remains a separate action from producing the files.
-4. **Snapshot regression testing.** Add automated snapshot assertions over the same screen/state matrix and fixtures, with checked-in or otherwise versioned reviewed reference images, actual/reference/diff artifacts, actionable test failures and explicit baseline-update commands. Freeze OS/runtime/toolchain/device characteristics and record any justified comparison tolerance. Unexpected changes fail the test run; routine tests never overwrite references. Prove detection with a controlled layout regression. The full matrix must be runnable as a release gate; optional faster development subsets must declare their reduced coverage. Snapshot equality detects visual changes, while initial baseline review and existing accessibility checks establish that the approved layout is correct.
-5. **OS 27 minimum and native API migration.** Raise app, local package, app extensions and relevant test/build/CI configuration to a coherent iOS/iPadOS 27 minimum and compatible Xcode/Swift toolchain. Audit deprecated or superseded APIs and custom implementations against the current SDK, record migrate/retain decisions, and replace suitable custom code with native equivalents. In particular, retire `ToolbarFeaturesMenu`: use `.toolbarOverflowMenu` for actions intentionally always tucked away and `.visibilityPriority(.automatic/.low/.high)` for system-managed overflow and preferred visible items. Preserve action behavior, native Picker/Toggle selection marks and correct alert/popover anchors. Do not build an iOS 26 fallback for this phase's raised minimum.
-6. **App-wide top scroll-edge appearance.** Make `.scrollEdgeEffectStyle(.soft, for: .top)` the app's default top-edge treatment on OS 27, restoring the requested progressive blur rather than relying on the changed OS default. Verify the modifier's actual propagation through root tabs, navigation stacks, Lists/ScrollViews, sheets and the reader; apply it at the appropriate shared boundaries so screens do not depend on ad hoc per-page setup. Check light/dark, both device families and orientations, including scrolling and transparent reader toolbar interactions. Record evidence before changing or removing Phase 16's temporary title/search workarounds.
+1. Explicit real-gallery acquisition/refresh produces versioned provenance and checksummed offline fixtures. Agent-selected provisional content is authorized now; final owner identifiers, sets, ordering and reader pages require reacquisition and regeneration before closure. Public regression test data may be synthetic, real or mixed independently.
+2. Expand the current42 surface groups into all meaningful states. Each scenario requests576 coordinates: six locales × twelve Dynamic Type sizes × two orientations × two full-size families × two themes. Prove actual ScrollView/List/lazy full-content capture and retain native-frame presentations. No reduced-window iPad axis or sampled PR replacement.
+3. Routine SnapshotTesting comparisons use explicit never-record behavior. Public baselines are committed beside tests only after complete agent visual review and explicit owner acceptance. Provide grouped/filterable baseline/actual/diff reports and controlled-regression red/restoration-green evidence. Every PR and release runs the full matrix.
+4. A separate actual-app workflow exports all384 website coordinates for the eight D-15 identities, six locales, two themes, iPhoneAir/iPadPro11-inch(M5), and two declared content sets. Use normal portrait dimensions, fixed text size, measured geometry/runtime,9:41, verified capsule removal and byte-identical cold reruns. Real UI may simulate coherent downloads and selected-page Live Text; visible content stays real and within the active selection.
+5. Deliver native-format local images, complete inventory including failures, D-21 provenance, instructions and results. Validate local consumer importability without external-project lookup, conversion, promotion, icon work or public publishing.
+6. A separate designer owns AltStore count/order/matrix/composition/copy/dimensions/frames and delivers actual promotional assets; raw screenshots do not satisfy that work. Capture supplies final source material and additional requested captures, then validates intended local references.
+7. OS27/Swift6.4 modernization is already implemented. Preserve current native title/search/overflow/selection marks/anchors/soft-top-edge behavior, including standard/AX1/AX3/AX5 cold/live checks. Use verified Xcode27 preview tools as review aids. Audit direct/client-mediated/derived idiom-layout decisions only after completed snapshots; retain non-layout capabilities and appropriate container fitting.
+8. Keep capture activation, assets and SnapshotTesting outside Release. Preserve download manifest SSOT, same-run folder deletion, strict lint and warning cleanliness.
 
-**Success Criteria** (what must be TRUE):
+**Success Criteria**:
 
-  1. An explicit acquisition command saves the selected real galleries and required assets as reusable versioned fixtures. Screenshot generation and regression runs make no live-gallery requests and do not depend on a real account or personal library.
-  2. One documented command runs the complete language × Dynamic Type × orientation × device × color-scheme matrix for the enumerated screens/states, produces a coverage report, and reports unsupported combinations explicitly. Identical inputs on the same pinned rendering environment reproduce identical captures.
-  3. The generated manifest/assets can be consumed by the website and `AltStore.json` without hand-renaming; generated source references resolve to the intended locale/device assets. Marketing outputs and regression references remain separately identifiable.
-  4. Automated snapshot tests compare every applicable matrix case against reviewed baselines, produce useful visual diffs, fail on an intentionally introduced regression, and pass again when it is removed. Intentional design changes require an explicit reviewed baseline update; existing defects are not silently recorded as correct.
-  5. The app/package/extension minimum deployment versions and build/test tooling consistently target iOS/iPadOS 27. Native overflow and priority behavior is verified with both ample and constrained toolbar space, and the custom API audit records each migration or justified retention.
-  6. All relevant app scrolling surfaces use the soft top-edge effect through verified shared configuration on OS 27. Baselines and runtime checks cover navigation, sheets, reader panels, orientation changes and both color schemes without losing Phase 16 accessibility behavior.
-  7. Capture controls, fixture loaders and test assets are isolated from production execution and excluded from the release app payload. Build and existing behavioral/accessibility checks pass alongside the new snapshot suite.
+- All seven CAP requirements and all27 current context decisions have evidence-linked executable coverage.
+- Every expanded regression scenario accounts for all576 coordinates and every native/full-content capture kind.
+- Initial and changed public baselines have complete visual disposition and explicit owner acceptance before promotion.
+- Full PR/release comparison, behavioral/native tests, lint and Release isolation pass on the pinned environment.
+- All384 final-owner marketing coordinates pass state, native chrome, metadata and byte-repeatability checks.
+- Accepted designer-created promotional assets resolve through a validated local AltStore handoff.
+- Full-content, clean integration, chrome and repeatability gates halt execution when unproven; no silent substitutions or scope reductions.
 
-**Existing seams to evaluate**: `AppLaunchAutomationClient` / `AppLaunchAutomation` DEBUG launch configuration; `PreviewSupport` and `TestingSupport`; Phase 16's screen inventory, accepted findings and title/search workaround evidence; native ToolbarContent and Menu/Picker controls. Use these where they add value; do not assume the existing automation's account environment inputs are appropriate for offline fixtures.
+**Plans**: 24 plans and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
 
-**Planning questions still open**:
+Plans:
+**Wave 1**
 
-  - The owner's gallery choices and exact screen/state inventory; additional fixture states needed for dialogs, errors and downloads.
-  - Concrete iPhone/iPad simulator models and viewport sizes, including whether iPad window sizes beyond full-screen are required.
-  - Snapshot library, app-level capture mechanism, baseline storage and CI runtime budget; native toolbar/menu/sheet coverage must not be replaced solely by isolated view snapshots.
-  - Consumer-specific marketing subsets, output dimensions, status-bar convention, and whether device frames/captions are composed by the capture tool or downstream.
-  - Per-toolbar priority assignments and custom implementations worth replacing, based on the current SDK audit and actual interaction requirements.
+- [ ] 17-01-PLAN.md — Prove clean SnapshotTesting and actual-screen full-content capture
 
-**Plans**: TBD (run /gsd-discuss-phase 17, then /gsd-plan-phase 17). Scope recorded; no OS upgrade, gallery acquisition, baseline recording or publishing has been executed by this roadmap update.
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 17-24-PLAN.md — Measure actual geometry and validate the tracked rendering pin before matrix production
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 17-02-PLAN.md — Run explicit complete regression coordinates using the verified environment pin
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 17-03-PLAN.md — Acquire versioned provisional real marketing fixtures safely
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 17-04-PLAN.md — Activate isolated offline capture scenes through existing app launch
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 17-05-PLAN.md — Drive verified native app screens and capture normal device frames
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 17-06-PLAN.md — Render deterministic Live Text and coherent Downloads in actual UI
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 17-07-PLAN.md — Produce all 384 marketing outputs and a complete local handoff
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 17-11-PLAN.md — Establish public native dispatch before scenario expansion (wave9)
+
+**Wave 10** *(blocked on Wave 9 completion)*
+
+- [ ] 17-08-PLAN.md — Expand regression coverage for browsing and gallery content
+
+**Wave 11** *(blocked on Wave 10 completion)*
+
+- [ ] 17-09-PLAN.md — Cover reader modes and overlays across complete regression axes
+
+**Wave 12** *(blocked on Wave 11 completion)*
+
+- [ ] 17-10-PLAN.md — Cover settings, utilities and remaining presentation states
+
+**Wave 13** *(blocked on Wave 12 completion)*
+
+- [ ] 17-12-PLAN.md — Compare native and hosted images strictly and build the review report
+
+**Wave 14** *(blocked on Wave 13 completion)*
+
+- [ ] 17-13-PLAN.md — Review and approve the initial complete snapshot baseline
+
+**Wave 15** *(blocked on Wave 14 completion)*
+
+- [ ] 17-14-PLAN.md — Gate every PR and release on full snapshots and Release isolation
+
+**Wave 16** *(blocked on Wave 15 completion)*
+
+- [ ] 17-15-PLAN.md — Document and validate reusable Xcode agent preview review
+
+**Wave 17** *(blocked on Wave 16 completion)*
+
+- [ ] 17-16-PLAN.md — Audit idiom-driven layout and migrate view-only decisions
+
+**Wave 18** *(blocked on Wave 17 completion)*
+
+- [ ] 17-17-PLAN.md — Route Home and Favorites gallery presentation from live layout traits
+
+**Wave 19** *(blocked on Wave 18 completion)*
+
+- [ ] 17-18-PLAN.md — Route Search and Downloads by traits and remove obsolete idiom helper
+
+**Wave 20** *(blocked on Wave 19 completion)*
+
+- [ ] 17-19-PLAN.md — Migrate Settings and reader layout decisions and close idiom census
+
+**Wave 21** *(blocked on Wave 20 completion)*
+
+- [ ] 17-20-PLAN.md — Review and approve post-audit snapshot changes
+
+**Wave 22** *(blocked on Wave 21 completion)*
+
+- [ ] 17-21-PLAN.md — Replace provisional galleries with final owner selections
+
+**Wave 23** *(blocked on Wave 22 completion)*
+
+- [ ] 17-22-PLAN.md — Hand off sources to the designer and validate promotional delivery
+
+**Wave 24** *(blocked on Wave 23 completion)*
+
+- [ ] 17-23-PLAN.md — Verify complete phase delivery and preserve unresolved evidence honestly
+
+Planning artifacts do not claim executed implementation, completed approvals or phase completion. Current context, source audit and validation strategy govern execution.

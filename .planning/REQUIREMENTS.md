@@ -91,6 +91,25 @@
   - Every interactive element is reachable and correctly announced under VoiceOver (icon-only controls labeled, decorative images hidden, state as traits not label text, correct reading order and post-navigation focus) and actuatable by Voice Control (present under "Show numbers"/"Show names", input label matching visible text). Meaningful motion is gated on `accessibilityReduceMotion` and decorative motion dropped; subtle crossfades and `.contentTransition(.numericText())` are deliberately excluded as non-vestibular. All text meets 4.5:1 and non-text 3:1 in light, dark and Increase Contrast — achieved without moving a single gallery category background color, by making the badge text color adaptive black/white on resolved background luminance (84/84 variants pass; structural floor 4.58:1 for any color). No information is conveyed by color alone. Verified by `performAccessibilityAudit()` on the non-default `UITests` plan plus a manual VoiceOver/Voice Control walkthrough, and closed by a Nutrition Label recommendation stating which categories are claimable.
   - *Superseded 2026-09-15 (owner):* EhPanda is not on the App Store; the bar is best effort, not the Nutrition Label. No Nutrition Label recommendation is produced. Contrast is not guaranteed by the UI audit (2026-09-14: the audit keeps only `hitRegion`, `sufficientElementDescription` and `trait`); the category colorset and contrast unit tests were initially retained. The subsequent owner reversal `cc05aca6` removed the adaptive contrast helper and `ColorContrastTests`; current `CategoryColorsetInvariantTests` retain colorset pins only, with no text-contrast guarantee. The manual walkthrough becomes an agent-run walkthrough of the main flows (in-simulator VoiceOver, Voice Control label proxy, display settings) with the owner listening only to named utterances, closed by the D-25 re-sweep, the phase gates and owner sign-off.
 
+### CAP — Screenshot capture and visual regression (Phase 17)
+
+The current Phase 17 context supersedes older roadmap wording. The OS 27 modernization has already landed; this phase preserves it. The owner authorized provisional marketing selections on 2026-10-02 and will supply final identifiers before phase closure.
+
+- [ ] **CAP-17-01**: Acquire and refresh versioned real-gallery fixtures explicitly, with provenance and asset checksums; replay capture runs offline without a real account, private library or credentials in artifacts.
+  - Track provisional versus final selections. The agent may choose provisional real marketing content; final owner identifiers, set assignments, ordering and reader pages must replace it before closure, followed by capture regeneration and revalidation. Test data may be public synthetic, real or mixed independently of marketing content. Preserve manifest SSOT and the same-run download-folder deletion invariant.
+- [ ] **CAP-17-02**: Implement SnapshotTesting coverage for an explicit current screen/state inventory across six locales, all twelve Dynamic Type sizes, portrait/landscape, iPhone/iPad and light/dark.
+  - Account for all 576 requested coordinates per scenario as captured, failed or justified not applicable. Establish actual-screen full-content ScrollView/List/lazy capture through bounded completeness evidence; include native menus, dialogs, sheets and reader panels with actual-app captures. No reduced-window iPad dimension or representative-only substitution. Pin geometry, safe areas, traits, scale, runtime, time, ordering, IDs, readiness and animation state.
+- [ ] **CAP-17-03**: Commit reviewed public-distributable snapshot baselines alongside tests and run the complete matrix on every PR and release.
+  - Routine comparisons never record or replace missing references. Explicit candidates receive complete agent visual review and final owner approval before promotion. Provide a screen-grouped, filterable baseline/actual/diff report and actionable failures; prove controlled-regression failure and clean restoration. Document any measured comparison tolerance.
+- [ ] **CAP-17-04**: Produce a separate actual-app local website export covering all 384 locked screen/locale/theme/device/content-set coordinates.
+  - Use the eight states from D-15, portrait iPhone Air and iPad Pro 11-inch (M5), pinned text size/runtime, normal device dimensions, 9:41 status bar and verified capsule removal. Verify state and settled content before capture and byte-identical cold reruns. Deliver images, complete inventory including failures/missing outcomes, provenance, dimensions/hashes, instructions and results; keep canonical locale casing in metadata and lowercase Chinese filename tokens. No duplicate visible gallery within one screen. Final owner selections gate final delivery.
+- [ ] **CAP-17-05**: Assign AltStore promotional composition to a separate designer agent and validate its local consumer handoff.
+  - Deliberately designed App Store-style images are required; raw captures alone do not satisfy delivery. The designer chooses its own screen list, matrix, composition/copy/dimensions and additional source needs; the capture pipeline supplies source material and metadata. Validate intended AltStore references without public publishing or inventing the design in capture planning.
+- [ ] **CAP-17-06**: Preserve the implemented iOS/iPadOS 27, Swift 6.4 and native navigation/search/toolbar/top-edge behavior.
+  - Verify native root and sheet titles, search focus/query/orientation, cold entry and live size changes at standard/AX1/AX3/AX5 on both families; native overflow/Picker/Toggle behavior and stable action-source anchors; soft top edges at effective hosts and independent presentation roots. Preserve current Phase 16 owner dispositions and evidence bounds. Research Xcode 27 agent preview tools and verify returned destination before using their images as development/review evidence.
+- [ ] **CAP-17-07**: Isolate capture controls/fixtures/dependencies from Release and replace device-idiom layout decisions only after snapshot coverage is implemented.
+  - Inspect Release payload and dependency graph; no capture/test assets or activation path ships. Audit direct and client-mediated idiom reads and derived layout flags, replace actual layout decisions with size classes/container fitting, and preserve non-layout capabilities. Verify changes through completed snapshots plus behavioral/accessibility checks; no lint or warning suppression.
+
 ## v2 Requirements
 
 None. Deferred work is captured under Out of Scope (future milestone), not staged as v2 here.
@@ -138,14 +157,22 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | ANALYTICS-01 | Phase 14 | Complete |
 | A11Y-01 | Phase 16 | Complete |
 | A11Y-02 | Phase 16 | Complete |
+| CAP-17-01 | Phase 17 | Pending |
+| CAP-17-02 | Phase 17 | Pending |
+| CAP-17-03 | Phase 17 | Pending |
+| CAP-17-04 | Phase 17 | Pending |
+| CAP-17-05 | Phase 17 | Pending |
+| CAP-17-06 | Phase 17 | Pending |
+| CAP-17-07 | Phase 17 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 25 total
-- Mapped to phases: 25 ✓
+- v1 requirements: 33 total
+- Mapped to phases: 33 ✓
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-09-23 — A11Y-01/A11Y-02 complete under the signed best-effort scope; see Phase 16 verification and its explicit overrides.*
+*Last updated: 2026-10-02 — Phase 17 capture requirements assigned; provisional selections authorized, final owner identifiers required before closure.*
+*Previously updated: 2026-09-23 — A11Y-01/A11Y-02 complete under the signed best-effort scope; see Phase 16 verification and its explicit overrides.*
 *Previously updated: 2026-07-26 — ANALYTICS-01 restated after the 14-18 owner checks: D-01 reversed for a runtime opt-out, and D-13 amended so the deploy workflows inject credentials while clones, forks and the test workflow stay silent; 23/23 mapped*

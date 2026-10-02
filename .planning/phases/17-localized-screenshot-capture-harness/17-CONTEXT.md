@@ -20,13 +20,13 @@ The decisions below supersede conflicting older Phase 17 roadmap wording. No sep
 ### Separate test and marketing workflows
 
 - **D-01:** Adopt `swift-snapshot-testing` for test snapshots. Marketing must use a separate workflow that builds and drives the actual app in iOS Simulators and captures normal device-size screenshots. Keep their output images and regression references separately identifiable. Sharing underlying fixture data is optional. Marketing's status-bar and device-chrome requirements must not complicate or destabilize snapshot tests.
-- **D-02:** Snapshot-test data may be real, synthetic or mixed, chosen by the agent for test needs. Marketing gallery content must be real and selected by the owner. Do not carry forward the old requirement that every test use the marketing galleries.
+- **D-02:** Snapshot-test data may be real, synthetic or mixed, chosen by the agent for test needs. Marketing gallery content must be real. The agent may choose provisional marketing galleries under the owner's 2026-10-02 delegation; final content uses the owner's identifiers before phase closure. Do not carry forward the old requirement that every test use the marketing galleries.
 - **D-03:** Retain explicit acquisition/refresh of real-gallery metadata, covers, previews and required reader assets into reusable versioned fixtures, with provenance and checksums. Capture and regression runs consume saved fixtures offline, make no live-gallery requests and do not depend on a real account or personal library. Credentials and private session state must not enter fixtures.
 
 ### Owner-selected marketing content
 
-- **D-04:** During planning, first determine required gallery quantities and content characteristics, then request the owner's gallery URLs, reader pages, ordering and other missing scene inputs. Those selections do not block this context or independent capture-tooling work. Explain exactly which inputs are missing. Content needs must not become imposed category-based gallery selection or filtering requirements.
-- **D-05:** The owner chooses **every** marketing gallery and assigns it to `nonexplicit` or `explicit`. Do not select, discover or substitute galleries automatically, or infer these labels from app categories. Every visible gallery in Home, Detail, Comments, Reading, Live Text and Downloads must come from the supplied selection. Use one fixed gallery flow within each selected content set; reuse across different screens is allowed, but the same gallery must never appear twice on one screen, including across its sections. Honor specified gallery ordering and reader pages.
+- **D-04:** During planning, determine required gallery quantities and content characteristics. The owner deferred choosing galleries on 2026-10-02 and explicitly authorized the agent to choose provisional galleries at its discretion; do not wait for those choices or ask again now. The owner will provide chosen gallery identifiers before closing Phase 17. Record the remaining final set assignments, ordering, reader pages and scene inputs as a pre-closure checkpoint; regenerate and revalidate affected captures with the final selections. Content needs must not become imposed category-based gallery selection or filtering requirements.
+- **D-05:** The agent chooses real provisional marketing galleries under the owner's delegation and records that provenance explicitly. Before phase closure, replace them with the owner's final identifiers and `nonexplicit`/`explicit` assignments; never infer set labels from app categories. Every visible gallery in Home, Detail, Comments, Reading, Live Text and Downloads must come from the active declared selection. Use one fixed gallery flow within each selected content set; reuse across different screens is allowed, but the same gallery must never appear twice on one screen, including across its sections. Honor configured ordering and reader pages. Provisional captures are not final accepted marketing delivery.
 - **D-06:** The website contract explicitly permits deterministic simulation of Live Text highlights and download items **through the app's real UI**. Simulated download items reference selected real galleries; Live Text highlights belong to the selected real reader page. They must look like normal use, with no mock/debug labels. This permits controlled presentation and operation state, not invented marketing gallery content.
 
 ### Snapshot matrix and capture extent
@@ -96,7 +96,9 @@ The owner delegates test-data choices (D-02). Researcher/planner determines the 
 
 Research must resolve full-content capture for real scroll/list/lazy screens, native menu/dialog/sheet coverage, coherent current device dimensions/traits, status-bar/capsule presentation and repeatability. The prior probe is bounded evidence only; it also reported upstream SDK deprecation warnings, so it is not proof of a clean integration. Follow repository lint rules without suppressions or bypasses.
 
-Required owner gallery URLs, set assignments, reader pages/order and any unspecified concrete Home/Comments/Downloads scene inputs are planning inputs, not inferred choices. AltStore design decisions belong to its designer. No pending todo matched this phase.
+The agent may supply provisional gallery URLs, set assignments, reader pages/order and Home/Comments/Downloads scene inputs. Final owner identifiers and any missing final assignments are required before closure, with regeneration and revalidation under D-04/D-05. AltStore design decisions belong to its designer. No pending todo matched this phase.
+
+The owner also requested research into Xcode 27's agent-oriented features and preview access on 2026-10-02. The research records current MCP/RenderPreview capabilities, successful project rendering and destination/determinism limits; use verified preview tooling as a development/review aid while preserving D-01's two capture workflows.
 
 </decisions>
 
@@ -180,7 +182,7 @@ Required owner gallery URLs, set assignments, reader pages/order and any unspeci
 <deferred>
 ## Deferred Ideas
 
-None. AltStore designer work and the post-snapshot layout audit are current-phase responsibilities. Required owner content inputs remain scheduled for planning. Consumer-side website staging/conversion/promotion and public publishing remain outside this local capture handoff.
+None. AltStore designer work and the post-snapshot layout audit are current-phase responsibilities. Final owner content inputs remain required before phase closure; provisional selections allow development to continue. Consumer-side website staging/conversion/promotion and public publishing remain outside this local capture handoff.
 
 </deferred>
 
