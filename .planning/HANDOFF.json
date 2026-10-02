@@ -21,13 +21,13 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "in_progress",
-      "progress": "Recovery cycle 2 used all three authorized runs. Each run: four actual tests, three Home passed, one Comments failed, zero skipped/Repetition, exit 65. Normalized strict parity remains false; native UIViewController and SwiftUI 3x long outputs are black with render-server errors. Exporter remains verified; matrix halted."
+      "progress": "Recovery cycle 2 used all three authorized runs; each failed Comments with three Home passes. Latest full PNG is now confirmed fully transparent (all alpha zero), correcting prior RGB-only black label. Owner-requested official upstream research completed; no extra native test or scale revision."
     }
   ],
   "blockers": [
     {
       "task": "17-01-T2",
-      "condition": "Three additional native API diagnosis runs exhausted. Native hierarchy 1260x8394 output remains all black; default layer cannot match native toolbar pixels. No approved output-scale revision.",
+      "condition": "Native diagnosis cycle exhausted. Latest native hierarchy 1260x8394 output is fully transparent with render-server error; default layer does not match native toolbar pixels. No approved output-scale revision or new native diagnostic cycle.",
       "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md"
     }
   ],
@@ -81,7 +81,7 @@
     "?? .capture/"
   ],
   "next_action": "Wait for an explicit output-scale decision. If approved, revise plan 17-01 before implementing configured capture scale: measured native viewport/scale remain real, normal/full output scale is recorded separately, logical layout is preserved and pixel comparison remains exact. Initial 1x probe is only a hypothesis; at most three bounded runs, no matrix expansion before success.",
-  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval.",
+  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval. Owner-requested official repo research completed: glass/toolbar transparent reports, iOS 27 scene/safe-area issue, custom-size scroll capture confirmation. Main upstream host/hierarchy remedy already used; no exact remedy or size limit proven.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -301,8 +301,11 @@
         8394
       ],
       "pixel_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json",
-      "proposal": "Separate capture output scale and first probe 1x; unapproved/unimplemented."
-    }
+      "proposal": "Separate capture output scale and first probe 1x; unapproved/unimplemented.",
+      "alpha_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-alpha.json",
+      "latest_output_disposition": "Fully transparent: 10576440/10576440 full-image pixels have alpha zero. Previous allBlack field inspected RGB only."
+    },
+    "upstream_rendering_research": ".planning/phases/17-localized-screenshot-capture-harness/17-01-UPSTREAM-RENDERING-RESEARCH.md"
   },
   "recovery_logs": [
     "/tmp/ehpanda-phase17-t1-host-build.log",
