@@ -1,42 +1,32 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T09:56:01.039Z",
+  "timestamp": "2026-10-02T16:37:50.689Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
-  "task": 1,
+  "task": 2,
   "total_tasks": 2,
-  "status": "awaiting-capture-strategy-decision",
-  "completed_tasks": [],
-  "remaining_tasks": [
+  "status": "executing-task-2",
+  "completed_tasks": [
     {
       "id": 1,
       "name": "17-01-T1: Trace actual Home full-content capture",
-      "status": "blocked",
-      "progress": "Genuine app host and offline bootstrap are proven. Full-content Home capture still fails completeness and native viewport fidelity; source and failure evidence saved in bce7f714. No Task 1 completion or successful SUMMARY."
-    },
+      "status": "complete",
+      "evidence": "3/3 actual tests passed, exact census/native pixel parity/restored geometry; no warnings or Repetition nodes."
+    }
+  ],
+  "remaining_tasks": [
     {
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
-      "status": "not_started"
+      "status": "in_progress",
+      "progress": "Fixture exporter RED test is built without warnings and running; no feasibility matrix has run."
     }
   ],
-  "blockers": [
-    "Expanded-scroll drawHierarchy leaves content unrendered; layer rendering omits text/sections and changes 13.8581% of native viewport pixels. An owner-approved capture-strategy revision is required before further execution."
-  ],
+  "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [
-    {
-      "type": "architecture_decision",
-      "status": "pending",
-      "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
-      "options": [
-        "Revise test capture to complete native viewport tiles with rendered completeness proof; retain single-viewport marketing captures.",
-        "Retain container-height capture and plan a new rendering-host design before another bounded feasibility attempt."
-      ]
-    }
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -57,6 +47,11 @@
       "decision": "Owner selected option 1: orchestrator continues execution inline.",
       "rationale": "Explicit recovery selection after the stalled executor checkpoint.",
       "phase": "17"
+    },
+    {
+      "decision": "Withdraw premature stitching decision request and verify native SnapshotTesting custom-size strategy first.",
+      "rationale": "Owner identified library size support and requested continuation. Existing Task 1 scope and acceptance remain in force; no stitching approval is inferred.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -67,8 +62,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
   ],
-  "next_action": "Await the new capture-strategy architecture decision. Do not re-ask approved app hosting or inline recovery. After approval, amend the plan/context explicitly and run a bounded Home feasibility gate before Task 2 or later waves.",
-  "context_notes": "0/24 plans complete; 0/2 plan-01 tasks complete. Both prior executors remain interrupted. No asynchronous external job or active Xcode test driver remains. Harness-only project changes were committed through a verified temporary-index split; original owner project/probe changes remain staged. Requested executor settings known, runtime settings unverified.",
+  "next_action": "Execute Task 2 exactly: deterministic fixture exporter and actual four-shape, sixteen-combination matrix on sequential phone/tablet runs; stop on a failed feasibility gate or required production-source change.",
+  "context_notes": "0/24 plans complete; 1/2 plan-01 tasks complete. Root continues inline under existing owner authorization; prior executors remain interrupted. No active build/test driver. Reserved owner/runtime staging remains untouched. Executor runtime model settings remain unverified.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -81,7 +76,28 @@
       "repetition_nodes": 0,
       "exit_code": 0
     },
-    "latest_home_gate": {
+    "draw_hierarchy_gate": {
+      "result_bundle": "/tmp/ehpanda-phase17-home-single-hierarchy-2.xcresult",
+      "disposition": "Unrendered tail and six zero item counts; rejected."
+    },
+    "tdd_red": [
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-BOOTSTRAP-RED.json",
+      ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOME-RED.json"
+    ],
+    "native_size_probe": {
+      "result_bundle": "/tmp/ehpanda-phase17-library-custom-height-3.xcresult",
+      "summary": "/tmp/ehpanda-phase17-library-custom-height-3-summary.json",
+      "tests": "/tmp/ehpanda-phase17-library-custom-height-3-tests.json",
+      "log": "/tmp/ehpanda-phase17-library-custom-height-3.log",
+      "clean_log": "/tmp/ehpanda-phase17-library-custom-height-clean-4.log",
+      "total_tests": 2,
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 0,
+      "limits": "Pre-marker native API proof; superseded by current three-test integrated Home GREEN. Later matrix still pending."
+    },
+    "historical_layer_gate": {
       "clean_build_log": "/tmp/ehpanda-phase17-layer-parity-clean-2.log",
       "result_bundle": "/tmp/ehpanda-phase17-layer-parity.xcresult",
       "log": "/tmp/ehpanda-phase17-layer-parity.log",
@@ -99,14 +115,39 @@
       "total_pixels": 3447360,
       "changed_fraction": 0.1385805369906247
     },
-    "draw_hierarchy_gate": {
-      "result_bundle": "/tmp/ehpanda-phase17-home-single-hierarchy-2.xcresult",
-      "disposition": "Unrendered tail and six zero item counts; rejected."
-    },
-    "tdd_red": [
-      ".planning/phases/17-localized-screenshot-capture-harness/17-01-BOOTSTRAP-RED.json",
-      ".planning/phases/17-localized-screenshot-capture-harness/17-01-HOME-RED.json"
-    ]
+    "latest_home_gate": {
+      "clean_build_log": "/tmp/ehpanda-phase17-library-full-content-clean-4.log",
+      "result_bundle": "/tmp/ehpanda-phase17-library-full-content-2.xcresult",
+      "log": "/tmp/ehpanda-phase17-library-full-content-2.log",
+      "summary": "/tmp/ehpanda-phase17-library-full-content-2-summary.json",
+      "tests": "/tmp/ehpanda-phase17-library-full-content-2-tests.json",
+      "attachments_manifest": "/tmp/ehpanda-phase17-library-full-content-2-attachments/manifest.json",
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 0,
+      "runtime_warnings": [],
+      "content_height": 1218,
+      "viewport_points": [
+        420,
+        912
+      ],
+      "output_points": [
+        420,
+        1374
+      ],
+      "stable_iterations": 2,
+      "item_census": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
   },
   "recovery_logs": [
     "/tmp/ehpanda-phase17-t1-host-build.log",
@@ -115,5 +156,5 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Expected remaining changes after committing this continuity checkpoint. Runtime/owner staging is preserved; lockfile updates belong to Task 2 and remain uncommitted.",
-  "source_checkpoint": "bce7f714607a0faf281f7c3a42059a1c17c7af9e"
+  "source_checkpoint": "2ff07f8f04968f5c109fe05295bd568f73ca8209"
 }
