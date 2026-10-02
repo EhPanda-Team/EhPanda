@@ -48,9 +48,11 @@ struct AppDelegateReducer {
 
 // MARK: AppDelegate
 public class AppDelegate: UIResponder, UIApplicationDelegate {
-    let store = Store(initialState: .init(), reducer: AppReducer.init)
+    let store: StoreOf<AppReducer>
 
     public override init() {
+        UITestAutomation.prepareIfNeeded()
+        store = Store(initialState: .init(), reducer: AppReducer.init)
         super.init()
     }
 

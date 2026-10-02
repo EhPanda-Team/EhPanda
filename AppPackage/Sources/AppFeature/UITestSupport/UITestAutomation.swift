@@ -1,8 +1,17 @@
+import AnalyticsClient
+import AppLaunchAutomationClient
+import ApplicationClient
 import AppModels
 import ClipboardClient
 import ComposableArchitecture
+import CookieClient
+import DeviceClient
 import DownloadClient
 import Foundation
+import HapticsClient
+import LibraryClient
+import Sharing
+import UserDefaultsClient
 
 public enum UITestAutomation {
     public static var shouldDetectClipboardURL: Bool {
@@ -37,7 +46,7 @@ public enum UITestAutomation {
     /// inspector's row does the same from inside the sheet.
     ///
     /// Note the one cost: installing the override reads `$0.downloadClient`, which creates the live
-    /// `DownloadClient` inside `EhPandaApp.init` — earlier than it would otherwise be built. That
+    /// `DownloadClient` inside `AppDelegate.init` — earlier than it would otherwise be built. That
     /// happens in DEBUG only, and only when this key is set.
     enum PauseRefusal: String, Sendable {
         case notFound
@@ -55,6 +64,7 @@ public enum UITestAutomation {
         let fixtureDirectory: URL?
         let clipboardClient: ClipboardClient?
         let shouldStubNetwork: Bool
+        let shouldUseVisualTestHost: Bool
         let pauseRefusal: PauseRefusal?
     }
 
@@ -75,8 +85,29 @@ public enum UITestAutomation {
         // because the get and the set happen inside the same preparation: reading it caches the live
         // client under the current preparation id, and the setter admits a key whose cached value
         // carries that id.
-        if configuration.clipboardClient != nil || configuration.pauseRefusal != nil {
+        if configuration.shouldUseVisualTestHost
+            || configuration.clipboardClient != nil
+            || configuration.pauseRefusal != nil
+        {
             prepareDependencies {
+                if configuration.shouldUseVisualTestHost {
+                    // The hosted test process renders the app before XCTest enters any test case.
+                    // Prepare explicit inert clients before the first Store or shared key is built.
+                    $0.analyticsClient = .noop
+                    $0.appLaunchAutomationClient = .none
+                    $0.applicationClient = .noop
+                    $0.clipboardClient = .noop
+                    $0.cookieClient = .noop
+                    $0.deviceClient = .live
+                    $0.downloadClient = .noop
+                    $0.hapticsClient = .noop
+                    $0.libraryClient = .noop
+                    $0.userDefaultsClient = .noop
+                    $0.defaultAppStorage = UserDefaults.inMemory
+                    $0.defaultInMemoryStorage = InMemoryStorage()
+                    $0.date.now = Date(timeIntervalSince1970: 1_735_689_600)
+                    $0.uuid = .incrementing
+                }
                 if let clipboardClient = configuration.clipboardClient {
                     $0.clipboardClient = clipboardClient
                 }
@@ -90,9 +121,14 @@ public enum UITestAutomation {
 
     static func resolve(
         environment: [String: String],
-        now: Date
+        now: Date,
+        isTesting: Bool = AppInfo.isTesting
     ) -> Configuration? {
-        let shouldStubNetwork = trimmedValue(
+        let shouldUseVisualTestHost = isTesting && trimmedValue(
+            environment: environment,
+            key: "EHPANDA_VISUAL_TEST_HOST"
+        ) == "1"
+        let shouldStubNetwork = shouldUseVisualTestHost || trimmedValue(
             environment: environment,
             key: "EHPANDA_UITEST_STUB_NETWORK"
         ) == "1"
@@ -128,6 +164,7 @@ public enum UITestAutomation {
             fixtureDirectory: fixtureDirectory,
             clipboardClient: clipboardClient,
             shouldStubNetwork: shouldStubNetwork,
+            shouldUseVisualTestHost: shouldUseVisualTestHost,
             pauseRefusal: pauseRefusal
         )
     }
