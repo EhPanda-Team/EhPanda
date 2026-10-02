@@ -5,11 +5,11 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: blocked
-stopped_at: "Phase 17 plan 17-01: approved app-host scope; stalled executor interrupted, awaiting recovery choice"
-last_updated: "2026-10-02T07:31:19.457Z"
+stopped_at: "Phase 17 plan 17-01 Task 1: full-content capture failed; awaiting owner capture-strategy decision"
+last_updated: "2026-10-02T09:56:24.511Z"
 last_activity: 2026-10-02
-last_activity_desc: Owner approved genuine app-hosted visual tests; executing revised plan 17-01
-state_head: bc58bf8b81c23ae3fd4707c132e8088c271257e7
+last_activity_desc: App-host bootstrap passed 10 tests; Home full-content gate failed; architecture decision pending
+state_head: bce7f714607a0faf281f7c3a42059a1c17c7af9e
 progress:
   total_phases: 17
   completed_phases: 10
@@ -32,8 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: blocked
-Last activity: 2026-10-02 — Owner approved genuine app-hosted visual tests; executing revised plan 17-01
+Status: blocked — awaiting owner capture-strategy decision
+Last activity: 2026-10-02 — App-host bootstrap passed 10 tests; Home full-content gate failed; architecture decision pending
+
+**Phase 17 current gate:** Wave 1, plan 17-01, Task 1; 0/24 plans and 0/2 tasks complete. Genuine app hosting and inline recovery are already owner-approved. Bootstrap GREEN passed 10 tests; the latest Home gate ran 2 actual tests (1 passed, 1 failed, 0 Repetition nodes). Both expanded-scroll drawHierarchy and layer rendering fail complete/faithful capture. Task 2 and later waves remain unstarted. Source/evidence checkpoint: `bce7f714`; decision and retained results: `phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md`. No successful SUMMARY or accepted baseline exists.
 
 ### Historical round-2 status snapshots
 
@@ -953,6 +955,7 @@ None yet.
 - DownloadContinuedSessionTests.swift sits at 999 of 1000 lines (file_length is error severity); the next added line fails the build. Sanctioned remedy recorded in 15-22-SUMMARY.md: relocate testEmptySchedulableSetStillPushesAPositiveTotal into the ledger suite.
 - Phase 16 accepted coverage limit: Tag Detail sheet (#21) is unreachable in the English fixture because translated descriptions are empty; six historical matrix rows remain unavailable. This is not an open Phase 16 sign-off blocker.
 - Phase 16 evidence limits: fifteen unreached sites, spoken Voice Control, nonreader native double-tap, W-21 and W-24 retain their owner-approved dispositions. Historical reference warnings are listed in `phases/16-dynamic-type-accessibility/16-CLOSEOUT-NOTES.md`.
+- Phase 17 plan 17-01 Task 1: genuine app host is proven, but both full-content renderers fail complete/faithful Home capture. Await an owner capture-strategy architecture decision; Task 2 and later waves remain unstarted. See phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md.
 
 ### Quick Tasks Completed
 
@@ -1004,8 +1007,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T07:31:18.983Z
-Stopped at: Phase 17 plan 17-01: approved app-host scope; stalled executor interrupted, awaiting recovery choice
+Last session: 2026-10-02T09:56:24.056Z
+Stopped at: Phase 17 plan 17-01 Task 1: full-content capture failed; awaiting owner capture-strategy decision
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
