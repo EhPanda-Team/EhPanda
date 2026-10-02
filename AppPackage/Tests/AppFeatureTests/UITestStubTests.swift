@@ -6,6 +6,17 @@ import Testing
 
 struct UITestStubTests {
     @Test
+    func visualHostOptInForcesOfflineBootstrap() throws {
+        let configuration = try #require(
+            UITestAutomation.resolve(
+                environment: ["EHPANDA_VISUAL_TEST_HOST": "1"],
+                now: Date(timeIntervalSinceReferenceDate: 123)
+            )
+        )
+        #expect(configuration.shouldStubNetwork)
+    }
+
+    @Test
     func fixtureRoutesStayHermetic() async throws {
         let fixtureDirectory = FileManager.default.temporaryDirectory
             .appending(component: UUID().uuidString, directoryHint: .isDirectory)
