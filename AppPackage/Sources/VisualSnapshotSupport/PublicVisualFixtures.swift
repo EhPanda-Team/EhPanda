@@ -89,7 +89,7 @@ public enum PublicVisualFixtures {
         ))
         let comments: [[String: Any]] = commentIDs.enumerated().map { index, identifier in
             [
-                "commentID": identifier, "author": identifier, "timestamp": fixedDate.timeIntervalSince1970,
+                "commentID": identifier, "author": "Public Author", "timestamp": fixedDate.timeIntervalSince1970,
                 "contentID": String(format: "00000000-0000-0000-0000-%012d", index + 1),
                 "text": commentText(index: index)
             ]
@@ -154,7 +154,7 @@ public enum PublicVisualFixtures {
     public static func commentText(index: Int) -> String {
         let text = "Public fixture comment with enough text to exercise the actual multiline List row. "
             + "The finite sequence keeps a fixed author, date and order so every rendered row can be counted."
-        return index == commentIDs.count - 1 ? text + " VCEND" : text
+        return "VC\(index + 1)\n" + text + (index == commentIDs.count - 1 ? "\nVCEND" : "")
     }
 
     private static func validateScenarios(_ data: Data, assets: Set<String>, routes: Set<String>) throws {

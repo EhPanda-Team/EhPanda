@@ -231,30 +231,13 @@ final class VisualTracerTests: XCTestCase {
 }
 
 private extension VisualTracerTests {
-    static let fixedDate = Date(timeIntervalSince1970: 1_735_689_600)
+    static let fixedDate = PublicVisualFixtures.fixedDate
 
     @MainActor
     static func cacheCoverImages(_ galleries: [Gallery]) async throws {
         for (index, gallery) in galleries.enumerated() {
             let url = try XCTUnwrap(gallery.coverURL)
-            let format = UIGraphicsImageRendererFormat()
-            format.scale = 1
-            format.opaque = true
-            let image = UIGraphicsImageRenderer(size: CGSize(width: 160, height: 220), format: format)
-                .image { context in
-                    UIColor(hue: CGFloat(index) / 6, saturation: 0.5, brightness: 0.85, alpha: 1).setFill()
-                    context.fill(CGRect(x: 0, y: 0, width: 160, height: 220))
-                    UIColor.white.setFill()
-                    context.fill(CGRect(x: 24, y: 32, width: 112, height: 16))
-                    context.fill(CGRect(x: 24, y: 72, width: 72, height: 8))
-                    (gallery.gid as NSString).draw(
-                        in: CGRect(x: 24, y: 105, width: 112, height: 48),
-                        withAttributes: [
-                            .font: UIFont.monospacedSystemFont(ofSize: 32, weight: .bold),
-                            .foregroundColor: UIColor.black
-                        ]
-                    )
-                }
+            let image = PublicVisualFixtures.artwork(marker: gallery.gid, colorIndex: index)
             try await ImageCache.default.store(image, forKey: url.absoluteString, toDisk: false)
             XCTAssertNotNil(ImageCache.default.retrieveImageInMemoryCache(forKey: url.absoluteString))
         }
@@ -289,16 +272,16 @@ private extension VisualTracerTests {
     }
 
     static func homeGalleries() throws -> [Gallery] {
-        try (0..<6).map { index in
+        try PublicVisualFixtures.homeGalleries.enumerated().map { index, fixture in
             Gallery(
-                gid: "VH\(index + 1)",
-                token: "visual-token-\(index)",
-                title: "Visual Home Gallery \(index + 1)",
+                gid: fixture.gid,
+                token: fixture.token,
+                title: fixture.title,
                 rating: 4.5,
                 tags: [],
                 category: .doujinshi,
                 uploader: "Visual Fixture",
-                pageCount: 24 + index,
+                pageCount: fixture.pageCount,
                 postedDate: fixedDate,
                 coverURL: try XCTUnwrap(URL(string: "https://visual-fixture.invalid/home/\(index).png")),
                 galleryURL: nil
