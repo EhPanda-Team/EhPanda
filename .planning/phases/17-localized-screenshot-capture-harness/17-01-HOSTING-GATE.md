@@ -2,7 +2,7 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 17-01-T1
-status: blocked
+status: revision-approved
 updated: 2026-10-02T06:25:40.734Z
 ---
 
@@ -62,7 +62,7 @@ retry. The approved plans' `-retry-tests-on-failure NO` spelling needs correctio
 The Swift Testing method selector also needs the discovered `()` suffix. The first
 zero-test run was not accepted as a pass and no failed actual tracer was rerun.
 
-## Proposed revision — awaiting owner decision
+## Owner-approved revision — 2026-10-02
 
 Revise the hosting boundary in plan 17-01 to use a **genuine app-hosted visual unit-test
 target**. Keep actual production views as the capture subjects and keep third-party
@@ -82,7 +82,10 @@ exact item census, final-section visibility, coherent scale/safe areas and compl
 normal/full images must still be measured. Then execute Task 2's full selected-family
 feasibility coverage and public fixture export before wave 2.
 
-No plan amendment or host-target change has been applied at this checkpoint.
+The owner selected option 1 on 2026-10-02. Plan 17-01 now authorizes the genuine
+app-hosted target, scheme/test-plan wiring and local VisualSnapshotSupport library.
+The historical failure evidence above remains unchanged. Hosting and full-content
+acceptance still require a successful measured run.
 
 ## Partial implementation requiring completion
 
