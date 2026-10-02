@@ -88,7 +88,7 @@ Evidence for the plan's work (table carried from the 2026-09-08 reconciliation; 
 | --- | --- | --- | --- |
 | Round-1 report | `1db26ae0` | yes | Report committed |
 | Pattern suggestions under D-01 amendment | `dbb00f4d` | yes | Reference catalogue and suggestions committed |
-| Layout fixes and subsequent verification records | `5614f486` (object resolves; pre-rewrite) / `c1d50a58` (on branch, same subject and date) | `5614f486` no; `c1d50a58` yes | Existing implementation and batch evidence retained; the branch was rewritten after batch 1 |
+| Layout fixes and subsequent verification records | `3624f80f` (object resolves; pre-rewrite) / `c1d50a58` (on branch, same subject and date) | `3624f80f` no; `c1d50a58` yes | Existing implementation and batch evidence retained; the branch was rewritten after batch 1 |
 | Plan key-link metadata | `945d3997` | yes | Metadata only; not implementation evidence |
 | Task 2 closure: D13-4 and #28 dispositions recorded | `cf9aab35` | yes | docs(16): record D13-4 and #28 owner dispositions |
 | Round-1 closure consistency check (with 16-11 Task 3) | `ac308528` | yes | docs(16): close round-1 findings loop |
@@ -134,4 +134,4 @@ None.
 
 ## Self-Check: PASSED
 
-All referenced files exist; commits `1db26ae0`, `dbb00f4d`, `945d3997`, `c1d50a58`, `cf9aab35`, `ac308528` resolve on `feature/gsd-phase-16`; `5614f486` resolves as an object but is not an ancestor of HEAD, exactly as stated above. `minimumScaleFactor` live count 0. No Swift, asset, lint-config or image file was changed; no absolute home path was written.
+All referenced files exist; commits `1db26ae0`, `dbb00f4d`, `945d3997`, `c1d50a58`, `cf9aab35`, `ac308528` resolve on `feature/gsd-phase-16`; `3624f80f` resolves as an object but is not an ancestor of HEAD, exactly as stated above. `minimumScaleFactor` live count 0. No Swift, asset, lint-config or image file was changed; no absolute home path was written.

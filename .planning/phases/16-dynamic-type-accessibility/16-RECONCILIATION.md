@@ -8,7 +8,7 @@ The owner authorized reconciliation of existing work and resumption at the remai
 
 - `1db26ae0`: round-1 report.
 - `dbb00f4d`: reflow catalogue and suggestions.
-- `5614f486`: layout implementation, batch history and later cover revision records.
+- `3624f80f`: layout implementation, batch history and later cover revision records.
 - No `minimumScaleFactor` matches remain under `AppPackage/Sources`.
 - The historical matrix has 397 pass / 95 finding / 12 n/a cells. Later targeted checks do not replace that matrix, and its finding references are not a current unresolved-defect count.
 - D-01 amendment 2 authorizes agent-written fixes. The original owner-only restriction in the plans and roadmap is superseded; owner dispositions and round-1 sign-off remain required.

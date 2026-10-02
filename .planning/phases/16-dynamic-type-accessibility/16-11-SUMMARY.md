@@ -84,7 +84,7 @@ status: complete
 
 | Task | Commit | Result |
 | --- | --- | --- |
-| Task 1: fix-batch re-verification (historical) | recorded in `### Re-verification batches`; implementation on this branch at `c1d50a58` (the pre-rewrite object `5614f486` cited on 2026-09-08 still resolves but is not an ancestor of HEAD) | Historical batches recorded; not re-run today |
+| Task 1: fix-batch re-verification (historical) | recorded in `### Re-verification batches`; implementation on this branch at `c1d50a58` (the pre-rewrite object `3624f80f` cited on 2026-09-08 still resolves but is not an ancestor of HEAD) | Historical batches recorded; not re-run today |
 | Task 2: owner review loop, final dispositions | `cf9aab35` | docs(16): record D13-4 and #28 owner dispositions |
 | Task 3: round-1 closure consistency check | `ac308528` | docs(16): close round-1 findings loop |
 
@@ -131,4 +131,4 @@ None.
 
 ## Self-Check: PASSED
 
-All referenced files exist; commits `1db26ae0`, `dbb00f4d`, `945d3997`, `c1d50a58`, `cf9aab35`, `ac308528` resolve on `feature/gsd-phase-16`; `5614f486` resolves as an object but is not an ancestor of HEAD, exactly as stated above. `minimumScaleFactor` live count 0. No Swift, asset, lint-config or image file was changed; no absolute home path was written.
+All referenced files exist; commits `1db26ae0`, `dbb00f4d`, `945d3997`, `c1d50a58`, `cf9aab35`, `ac308528` resolve on `feature/gsd-phase-16`; `3624f80f` resolves as an object but is not an ancestor of HEAD, exactly as stated above. `minimumScaleFactor` live count 0. No Swift, asset, lint-config or image file was changed; no absolute home path was written.

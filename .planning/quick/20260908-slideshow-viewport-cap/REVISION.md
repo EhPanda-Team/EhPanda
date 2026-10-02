@@ -20,7 +20,7 @@ Investigate the existing iPad AX5 detail capture before changing cover metrics: 
 standard/hero ceilings are 150/187.5 points, while the supplied capture shows larger
 background list artwork. Rebuild and compare the same gallery in list and detail.
 
-Implemented in `55c840b4`.
+Implemented in `f24e482a`.
 
 ## Verification
 

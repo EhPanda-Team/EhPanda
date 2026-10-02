@@ -3,7 +3,7 @@
 > Superseded by [REVISION.md](REVISION.md): owner clarified small 70%/80% and large 50%/40% limits.
 Status: implementation complete; owner visual review pending.
 
-Commit: `ec3bff98`.
+Commit: `ddaffa4e`.
 
 Home measures its actual scroll viewport. The slideshow ceiling is 50% of viewport height when the viewport is portrait, and 80% when landscape. The ceiling propagates through the equatable carousel when the window changes size. A constrained layout proposes the ceiling without stretching a shorter card to fill it. Cards that do not fit use a compact arrangement with bounded artwork and a shorter title preview, keeping system Dynamic Type sizes.
 

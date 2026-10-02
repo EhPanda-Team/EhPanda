@@ -4,7 +4,7 @@ The owner requested a fresh sim-use inspection because the historical findings w
 
 ## Build and scope
 
-- Source: `7d874f93bd39702b4642bbec8d680945be8d480a` (no source edits).
+- Source: `72a29499942e23d4fbf41ccd981d9487f4e0c6f6` (no source edits).
 - Both exact-destination Debug simulator builds succeeded. Bundle identifier verified as `app.ehpanda.personal` before installation over the existing containers.
 - iPad: `8250D97E-9AB0-42FD-99DB-07B0094BF8C7`, iPad Pro 11-inch (M5), iOS 26.5, portrait/light. Normal Large, AX3 and AX5 sampled as noted below.
 - Supplemental iPhone: `E2BF974E-DE4D-4A67-B84A-90D41325C4A7`, iPhone 17e, iOS 26.5, portrait/light, Large and AX5. Its initial boot/migration delayed preflight; preflight passed after boot completed. This is supplemental evidence, not a substitute for the original iPhone sweep matrix.
@@ -60,7 +60,7 @@ The owner requested investigation of blank search content and missing selection 
 
 - Finding #4: accepted as an Apple/native framework defect; explicitly no app fix. Do not change search placement to `.always` for this finding. The probe remains diagnostic evidence only.
 - Finding #7: title truncation/initial inline presentation accepted as-is; no title change requested. Technical clarification: the current accessibility-size inline fallback is explicitly applied by the app's `NavigationTitleDisplayModeModifier` to avoid the observed platform large-title rendering issue; it is not an unconfigured Apple default.
-- Auto-Play remains under discussion. Its implementation is a native `Menu` containing `Button` rows and a conditional checkmark `Image`, not a `Picker`. Commit `77097ff7` (`feat: AutoPlay`, 2021-09-25) introduced this structure alongside an existing dual-page menu using the same pattern. The code predates Phase 16; the parent of `5614f486` already contains it. Inference: the feature reused the neighboring action-menu pattern and retained it through later layout work. The commit does not state a reason for avoiding Picker, so no API limitation or intentional rejection of Picker is established.
+- Auto-Play remains under discussion. Its implementation is a native `Menu` containing `Button` rows and a conditional checkmark `Image`, not a `Picker`. Commit `77097ff7` (`feat: AutoPlay`, 2021-09-25) introduced this structure alongside an existing dual-page menu using the same pattern. The code predates Phase 16; the parent of `3624f80f` already contains it. Inference: the feature reused the neighboring action-menu pattern and retained it through later layout work. The commit does not state a reason for avoiding Picker, so no API limitation or intentional rejection of Picker is established.
 
 ## Owner-requested native title review — 2026-09-08
 
