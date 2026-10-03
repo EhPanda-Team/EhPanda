@@ -3,57 +3,50 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-native-viewport-freeze
-status: viewport-freeze-toolbar-equivalence-failed
-files_reviewed: 8
-source_head: 27e8b84a09f949f29d9c5090e158588d32aee2ee
+scope: task-2-observation-delivery
+status: observation-passed-composite-height-budget-blocked
+files_reviewed: 5
+source_head: 8f84844b749955e54cbdf16d7cdffa227b55e81a
 ---
 
-# Task 2 native viewport freeze review
+# Task 2 observation delivery review
 
-Inline gsd-code-review using SwiftUI, observable-model and testing guidance. This is an
-orchestrator review, not an independent review session or whole-phase sign-off. Scope:
-AppComponents/GalleryViewport.swift, HomeFeature/HomeView.swift,
-GalleryListComponents/GalleryList.swift, VisualSnapshotSupport/FullContentHost.swift,
-FullContentFeasibilityTests.swift, VisualTracerTests.swift, VisibleViewportTests.swift,
-and Scripts/verify-full-content-capture.py.
+Inline gsd-code-review using the existing SwiftUI, observable-model and testing guidance;
+not an independent review session or whole-phase sign-off. Changed source scope:
+AppComponents/GalleryViewport.swift, VisualSnapshotSupport/FullContentHost.swift,
+FullContentFeasibilityTests.swift, VisualTracerTests.swift and VisibleViewportTests.swift.
 
-## Contract and implementation
+## Source contract
 
-The Boolean environment entry defaults to false. Each modifier owns its latest measured
-size and last forwarded size; native geometry events are forwarded unless frozen, and thaw
-emits the latest value only if it differs. Home and GalleryList use this at their original
-measurement sites. No harness size, scene-size approximation or safe-area formula remains.
-Unrelated gesture/LiveText geometry observers are unchanged. Three hosted SwiftUI tests
-observe actual layout and freeze propagation independently of the callback being tested.
+VisibleViewportSampling is a public MainActor observable reference with false initial state.
+The optional environment entry defaults to nil, preserving normal production sampling.
+The modifier observes the reference's Boolean property; forwarding, suppression and thaw
+logic are unchanged. Home/GalleryList callers and unrelated geometry readers are unchanged.
 
-The host uses the existing stable observable-backed root and Boolean key-path injection;
-no new app dependency is linked into VisualSnapshotSupport. It waits a layout frame after
-freezing and requires exact canonical RGBA equality before growth. Native/full parity still
-uses the original reference. Shared restoration code returns the window/controller to the
-original viewport and removes the status-bar companion before clearing the flag; successful
-restoration also waits a frame before thaw. Deferred error cleanup and dismiss restore first.
+The host's generic initializer accepts the object, its optional environment key and a
+ReferenceWritableKeyPath to the Boolean. The stable wrapper installs the same reference
+before first render and never reads the Boolean. Its body therefore does not subscribe to
+the freeze signal. A stored setter closes over the object/key path for type erasure;
+all mutation remains inside the MainActor host. The private observable box and Boolean
+environment updates are removed. The support library gains no AppComponents dependency.
 
-The runner includes the new test file in source hashes and the three tests in exact expected
-counts (phone 15, tablet 12). It checks the renamed freeze-parity evidence. External rotation,
-serial execution, no retries, exact coordinate coverage and cleanup remain intact. Rendering,
-seams, census, artwork, reader pixel size and composite budget are unchanged.
+All four call sites create fresh sampling objects. Tests install the object in the hosting
+root once and mutate its property; independent raw geometry proves layout changes while
+the frozen callback output remains unchanged. Initial freezing, thaw emission and duplicate
+prevention remain covered. There is no hierarchy priming or production toolbar change.
 
-## Verification and blocking finding
+## Verification and open capacity boundary
 
-Fresh clean and orientation builds pass with zero compiler/lint diagnostics. Phone native
-15/15, portrait rotation 1/1 and cleanup 1/1 pass; zero skips/Repetition and unchanged source
-hashes. The three new modifier behavior tests pass. Five matrix coordinates pass, including
-AX5 Home with exact native/full parity and 6/6 census.
+`/tmp/ehpanda-phase17-observation-gate-01/` contains clean/UI builds with zero diagnostics,
+15/15 phone native tests, rotation/cleanup 1/1 each, zero skips/Repetition and identical
+source hashes. Five matrix coordinates pass again. AX5 Comments native/frozen decoded RGBA
+images are now exactly identical; the prior 2648-pixel glyph failure is resolved at this step.
 
-**Blocking:** AX5 Comments changes its compose glyph while still at native viewport size,
-after the freeze environment transition. Its 2648 changed pixels occupy only a 76×76 pixel
-region; the dark glyph support shrinks from 76×76 to 64×64, while the rest of the image is
-identical. Comments has no sampling modifier or freeze-key read. Root cause is not established;
-the failed inertness guard is retained. No source defect was established that can be corrected
-without first explaining this native toolbar transition. No tolerances or coverage exceptions
-were introduced.
+The next guard rejects a requested 35820-pixel composite height against the approved 32768
+limit. The rejected extent is 11940 points at 3x. One 1260×35820 RGBA buffer is 172.1695 MiB;
+this is not peak memory and not proof of final convergence. No long image, growth parity,
+census or memory measurement exists for that coordinate yet. The existing cap is preserved.
 
-Current coverage is 5 captured / 1 failed / 26 pending. iPad/landscape validation and Task 2
-completion remain open. Full evidence and diagnostic-finalization limits are in
-17-01-FEASIBILITY-GATE.md under `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`.
+No source defect was established in the observation change. The unresolved issue is reconciling
+the required full-content extent with the explicit composite budget. Matrix coverage is
+5 captured / 1 failed / 26 pending, with no current iPad/landscape result. Task 2 remains open.
