@@ -173,7 +173,7 @@ public final class FullContentHost<Content: View> {
             verticalScrollHost.setContentOffset(originalOffset, animated: false)
             controller.view.layoutIfNeeded()
         }
-        let normalImage = try renderNativeViewport()
+        let normalImage = try render(size: viewport.size, directory: outputDirectory).image
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
 
@@ -215,7 +215,7 @@ public final class FullContentHost<Content: View> {
             if stableIterations >= 2 { break }
         }
         guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
-        let rendering = try render(size: outputSize)
+        let rendering = try render(size: outputSize, directory: outputDirectory)
         let fullImage = rendering.image
         let fullURL = outputDirectory.appending(path: "capture.full-content.png")
         try store(fullImage, at: fullURL, name: "full-content", directory: outputDirectory, record: record)
@@ -250,6 +250,12 @@ public final class FullContentHost<Content: View> {
         ], options: [.prettyPrinted, .sortedKeys])
             .write(to: outputDirectory.appending(path: "native-viewport-parity.json"), options: .atomic)
         if let difference {
+            for (sliceIndex, slice) in rendering.slices.enumerated() {
+                guard let data = slice.image.pngData() else { throw FullContentHostError.emptyImage }
+                try data.write(
+                    to: outputDirectory.appending(path: "capture.render-slice-\(sliceIndex).png"), options: .atomic
+                )
+            }
             throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
         }
         let elements = try await RenderedContentInspection.text(
@@ -350,20 +356,10 @@ public final class FullContentHost<Content: View> {
         let format = UIGraphicsImageRendererFormat(for: viewport.traits)
         format.scale = viewport.scale
         format.opaque = true
-        if standardImageRange { format.preferredRange = .standard }
+        // Quantize viewport and slice reads to the same 8-bit range before CPU composition. An extended-range
+        // composite otherwise rounds glass pixels again and changes strict viewport comparisons by one byte.
+        format.preferredRange = .standard
         return format
-    }
-
-    private func renderNativeViewport() throws -> UIImage {
-        let format = rendererFormat()
-        var rendered = false
-        let image = UIGraphicsImageRenderer(size: viewport.size, format: format).image { context in
-            UIColor.systemBackground.setFill()
-            context.fill(CGRect(origin: .zero, size: viewport.size))
-            rendered = controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
-        }
-        guard rendered, image.cgImage != nil else { throw FullContentHostError.renderFailed }
-        return image
     }
 
     private func restoreNativeHost(frame: CGRect) async throws {
@@ -392,8 +388,10 @@ public final class FullContentHost<Content: View> {
 
     /// Reads the full-height hierarchy back in render-server slices. The window already has the full content
     /// height, so the hierarchy is never resized or re-hosted for the capture.
-    private func render(size: CGSize) throws -> RenderServerCapture.Result {
-        let rendering = try RenderServerCapture.image(of: controller.view, format: rendererFormat())
+    private func render(size: CGSize, directory: URL) throws -> RenderServerCapture.Result {
+        let rendering = try RenderServerCapture.image(
+            of: controller.view, format: rendererFormat(), diagnosticsDirectory: directory
+        )
         guard rendering.image.size == size, rendering.image.scale == viewport.scale else {
             throw FullContentHostError.renderFailed
         }
@@ -430,7 +428,10 @@ public final class FullContentHost<Content: View> {
             "renderer": "render-server slices via resizableSnapshotView",
             "renderSliceMaximumHeight": rendering.maximumSliceHeight,
             "renderSliceOverlap": rendering.overlap,
-            "renderSlices": rendering.slices.map({ ["frame": NSCoder.string(for: $0.frame)] }),
+            "renderSliceEdgePadding": rendering.edgePadding,
+            "renderSlices": rendering.slices.map({
+                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
+            }),
             "standardImageRange": standardImageRange,
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
             "censusBandHeight": viewport.size.height,

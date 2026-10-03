@@ -283,8 +283,12 @@ private extension FullContentFeasibilityTests {
     @MainActor
     static func setOrientation(landscape: Bool, scene: UIWindowScene) async throws {
         var geometryError: (any Error)?
-        scene.requestGeometryUpdate(.iOS(interfaceOrientations: landscape ? .landscapeLeft : .portrait)) {
-            geometryError = $0
+        let geometry = scene.effectiveGeometry
+        let bounds = geometry.coordinateSpace.bounds
+        if geometry.interfaceOrientation.isLandscape != landscape || (bounds.width > bounds.height) != landscape {
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: landscape ? .landscapeLeft : .portrait)) {
+                geometryError = $0
+            }
         }
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(5))
