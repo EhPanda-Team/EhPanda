@@ -13,6 +13,7 @@ public struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable private var store: StoreOf<HomeReducer>
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.visibleViewportSize) private var visibleViewportSize
     @State private var viewportSize: CGSize = .zero
 
     public init(store: StoreOf<HomeReducer>) {
@@ -20,7 +21,7 @@ public struct HomeView: View {
     }
 
     private var maximumCardHeight: CGFloat {
-        GalleryViewport(size: viewportSize, isRegularWidth: horizontalSizeClass == .regular)
+        GalleryViewport(size: visibleViewportSize ?? viewportSize, isRegularWidth: horizontalSizeClass == .regular)
             .maximumSlideshowHeight
     }
 

@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import SnapshotTesting
 import SwiftUI
 import UIKit
@@ -15,6 +16,7 @@ public struct FullContentCaptureEvidence {
     public let normalImageByteCount: Int
     public let normalImageURL: URL
     public let outputSize: CGSize
+    public let pinnedViewportSize: CGSize
     public let renderSettleSamples: Int
     public let renderSliceCount: Int
     public let sceneBounds: CGRect
@@ -67,13 +69,15 @@ public final class FullContentHost<Content: View> {
 
     private let previousKeyWindow: UIWindow?
     private let standardImageRange: Bool
+    private let viewportPin = VisibleViewportPin()
     private var verticalScrollHost: UIScrollView
     /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
     /// ``StatusBarAppearanceController``.
     private var companionWindow: UIWindow?
 
     public init(
-        rootView: Content, contentSizeCategory: UIContentSizeCategory? = nil,
+        rootView: Content, visibleViewportKey: WritableKeyPath<EnvironmentValues, CGSize?>,
+        contentSizeCategory: UIContentSizeCategory? = nil,
         standardImageRange: Bool = false,
         isViewportReady: @MainActor () -> Bool = { true }
     ) async throws {
@@ -93,7 +97,9 @@ public final class FullContentHost<Content: View> {
         if let contentSizeCategory {
             window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
         }
-        controller = UIHostingController(rootView: AnyView(rootView))
+        controller = UIHostingController(rootView: AnyView(
+            ViewportPinnedContent(content: rootView, pin: viewportPin, key: visibleViewportKey)
+        ))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         window.layoutIfNeeded()
@@ -141,6 +147,7 @@ public final class FullContentHost<Content: View> {
     }
 
     public func dismiss() {
+        viewportPin.size = nil
         removeStatusBarCompanion()
         window.isHidden = true
         window.rootViewController = nil
@@ -174,6 +181,7 @@ public final class FullContentHost<Content: View> {
             .filter({ $0 !== verticalScrollHost })
             .map({ $0.convert($0.bounds, to: controller.view) })
         defer {
+            viewportPin.size = nil
             window.frame = originalWindowFrame
             controller.view.frame = window.bounds
             removeStatusBarCompanion()
@@ -184,6 +192,31 @@ public final class FullContentHost<Content: View> {
         let normalImage = settled.rendering.image
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
+
+        let pinnedViewportSize = verticalScrollHost.bounds.size
+        viewportPin.size = pinnedViewportSize
+        await LayoutFrame.wait()
+        controller.view.layoutIfNeeded()
+        let pinned = try await settledViewportRendering(directory: outputDirectory)
+        let pinnedURL = outputDirectory.appending(path: "capture.pinned-viewport.png")
+        try store(
+            pinned.rendering.image, at: pinnedURL, name: "pinned-viewport", directory: outputDirectory, record: record
+        )
+        guard let referenceCG = normalImage.cgImage, let pinnedCG = pinned.rendering.image.cgImage else {
+            throw FullContentHostError.emptyImage
+        }
+        let referencePixels = try CapturedRaster(image: referenceCG).pixels
+        let pinnedPixels = try CapturedRaster(image: pinnedCG).pixels
+        let pinMatches = referenceCG.width == pinnedCG.width && referenceCG.height == pinnedCG.height
+            && referencePixels == pinnedPixels
+        try JSONSerialization.data(withJSONObject: [
+            "comparison": "byte-identical 8-bit sRGB RGBA before growth", "matched": pinMatches,
+            "visibleViewport": [pinnedViewportSize.width, pinnedViewportSize.height],
+            "windowViewport": [viewport.size.width, viewport.size.height],
+            "unpinnedSettleSamples": settled.samples, "pinnedSettleSamples": pinned.samples
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: outputDirectory.appending(path: "visible-viewport-pin-parity.json"), options: .atomic)
+        guard pinMatches else { throw FullContentHostError.visibleViewportPinChangedPixels }
 
         // UIKit lets only a window that covers the whole screen drive the status bar. Once the key window grows
         // past the screen it loses that role and the status bar reappears (measured 2026-10-03: hidden -> visible,
@@ -373,6 +406,7 @@ public final class FullContentHost<Content: View> {
             normalImageByteCount: normalData.count,
             normalImageURL: normalURL,
             outputSize: fullImage.size,
+            pinnedViewportSize: pinnedViewportSize,
             renderSettleSamples: measurement.renderSettleSamples,
             renderSliceCount: rendering.slices.count,
             sceneBounds: scene.effectiveGeometry.coordinateSpace.bounds,
@@ -398,6 +432,7 @@ public final class FullContentHost<Content: View> {
     }
 
     private func restoreNativeHost(frame: CGRect) async throws {
+        viewportPin.size = nil
         window.frame = frame
         controller.view.frame = window.bounds
         window.layoutIfNeeded()
@@ -704,4 +739,21 @@ public enum FullContentHostError: Error {
     case renderedTextInspectionFailed(String)
     case snapshotFailed(String)
     case statusBarStateChanged(expectedHidden: Bool)
+    case visibleViewportPinChangedPixels
+}
+
+@MainActor
+@Observable
+private final class VisibleViewportPin {
+    var size: CGSize?
+}
+
+private struct ViewportPinnedContent<Content: View>: View {
+    let content: Content
+    let pin: VisibleViewportPin
+    let key: WritableKeyPath<EnvironmentValues, CGSize?>
+
+    var body: some View {
+        content.environment(key, pin.size)
+    }
 }

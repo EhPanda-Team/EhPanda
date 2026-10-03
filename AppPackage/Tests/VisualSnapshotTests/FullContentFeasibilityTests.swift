@@ -1,3 +1,4 @@
+import AppComponents
 import AppFeature
 import AppModels
 import AppTools
@@ -131,7 +132,17 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
-    func testActualFullContentMatrix() async throws {
+    func testPortraitFullContentMatrix() async throws {
+        try await captureMatrix(landscape: false)
+    }
+
+    @MainActor
+    func testLandscapeFullContentMatrix() async throws {
+        try await captureMatrix(landscape: true)
+    }
+
+    @MainActor
+    private func captureMatrix(landscape: Bool) async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
@@ -154,19 +165,16 @@ final class FullContentFeasibilityTests: XCTestCase {
                 .first(where: { $0.activationState == .foregroundActive })
         )
         let family = scene.traitCollection.userInterfaceIdiom == .pad ? "ipad" : "iphone"
-        let originalOrientation = scene.effectiveGeometry.interfaceOrientation
-        let coordinates = [false, true].flatMap { landscape in
-            [false, true].flatMap { accessibility in
-                FeasibilityShape.allCases.map({
-                    FeasibilityCoordinate(shape: $0, landscape: landscape, accessibility: accessibility)
-                })
-            }
+        let coordinates = [false, true].flatMap { accessibility in
+            FeasibilityShape.allCases.map({
+                FeasibilityCoordinate(shape: $0, landscape: landscape, accessibility: accessibility)
+            })
         }
         var outcomes = coordinates.map({ ["coordinate": $0.key(family: family), "status": "pending"] })
         for (index, coordinate) in coordinates.enumerated() {
             let output = directory.appending(path: coordinate.key(family: family), directoryHint: .isDirectory)
             do {
-                try await Self.setOrientation(landscape: coordinate.landscape, scene: scene)
+                try Self.requireOrientation(landscape: coordinate.landscape, scene: scene)
                 // Exported per coordinate: the page width depends on the orientation, and a fresh path keeps any
                 // image cache from serving a previous coordinate's bytes.
                 let sceneWidth = scene.effectiveGeometry.coordinateSpace.bounds.width
@@ -201,7 +209,8 @@ final class FullContentFeasibilityTests: XCTestCase {
                     let category: UIContentSizeCategory = coordinate.accessibility
                         ? .accessibilityExtraExtraExtraLarge : .large
                     let host = try await FullContentHost(
-                        rootView: root, contentSizeCategory: category, isViewportReady: input.viewportIsReady
+                        rootView: root, visibleViewportKey: \.visibleViewportSize,
+                        contentSizeCategory: category, isViewportReady: input.viewportIsReady
                     )
                     defer { host.dismiss() }
                     XCTAssertEqual(host.viewport.traits.preferredContentSizeCategory, category)
@@ -232,6 +241,7 @@ final class FullContentFeasibilityTests: XCTestCase {
                         "trailingMarker": NSCoder.string(for: evidence.trailingMarkerFrame),
                         "census": evidence.itemCensus, "stableIterations": evidence.stableIterations,
                         "windowIsAttached": evidence.windowIsAttached,
+                        "visibleViewport": [evidence.pinnedViewportSize.width, evidence.pinnedViewportSize.height],
                         "orientation": scene.effectiveGeometry.interfaceOrientation.rawValue
                     ]
                     try JSONSerialization.data(withJSONObject: details, options: [.prettyPrinted, .sortedKeys])
@@ -247,8 +257,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             }
             try Self.writeOutcomes(outcomes, directory: directory)
         }
-        try await Self.setOrientation(landscape: originalOrientation.isLandscape, scene: scene)
-        XCTAssertEqual(outcomes.count, 16)
+        XCTAssertEqual(outcomes.count, 8)
         XCTAssertTrue(outcomes.allSatisfy({ $0["status"] == "captured" }))
     }
 }
@@ -390,7 +399,8 @@ private extension FullContentFeasibilityTests {
                     $0.disablesAnimations = true
                 }
             let host = try await FullContentHost(
-                rootView: root, contentSizeCategory: .large, standardImageRange: true,
+                rootView: root, visibleViewportKey: \.visibleViewportSize,
+                contentSizeCategory: .large, standardImageRange: true,
                 isViewportReady: input.viewportIsReady
             )
             defer { host.dismiss() }
@@ -421,28 +431,14 @@ private extension FullContentFeasibilityTests {
     }
 
     @MainActor
-    static func setOrientation(landscape: Bool, scene: UIWindowScene) async throws {
-        var geometryError: (any Error)?
+    static func requireOrientation(landscape: Bool, scene: UIWindowScene) throws {
         let geometry = scene.effectiveGeometry
         let bounds = geometry.coordinateSpace.bounds
-        if geometry.interfaceOrientation.isLandscape != landscape || (bounds.width > bounds.height) != landscape {
-            scene.requestGeometryUpdate(.iOS(interfaceOrientations: landscape ? .landscapeLeft : .portrait)) {
-                geometryError = $0
-            }
+        guard geometry.interfaceOrientation != .unknown,
+              geometry.interfaceOrientation.isLandscape == landscape,
+              (bounds.width > bounds.height) == landscape else {
+            throw FeasibilityError.orientationUnavailable
         }
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(5))
-        while clock.now < deadline {
-            if let geometryError { throw geometryError }
-            let bounds = scene.effectiveGeometry.coordinateSpace.bounds
-            if scene.effectiveGeometry.interfaceOrientation.isLandscape == landscape,
-               (bounds.width > bounds.height) == landscape {
-                try await clock.sleep(for: .milliseconds(150))
-                return
-            }
-            try await clock.sleep(for: .milliseconds(20))
-        }
-        throw FeasibilityError.orientationUnavailable
     }
 
     static func writeOutcomes(_ outcomes: [[String: String]], directory: URL) throws {
