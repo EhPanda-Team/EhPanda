@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 final matrices fail Downloads parity; awaiting remaining-feasibility direction
-last_updated: "2026-10-03T09:42:47Z"
-last_activity: 2026-10-03
-last_activity_desc: "Final clean passes; phone and tablet actual matrices fail Downloads parity; 4/32 coordinates captured"
-state_head: 9906f9a61923d5957084aaa93c4f25afbc8d1bc8
+stopped_at: Phase 17 plan 17-01 Task 2 parity resolved in portrait; owner AX5 Home viewport decision and iPad rotation remain
+last_updated: "2026-10-03T16:46:39Z"
+last_activity: 2026-10-04
+last_activity_desc: "Parity/export commits reconciled; 12/32 captures, owner AX5 Home viewport decision and iPad scene rotation remain"
+state_head: 8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: 9906f9a61923d5957084aaa93c4f25afbc8d1bc8
+source_head: 8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — Task 2 actual matrices fail strict Downloads native parity
-Last activity: 2026-10-03 — Final clean passes, both matrices fail Downloads parity; source WIP 9906f9a619
+Status: checkpoint — owner AX5 Home viewport decision and actual iPad landscape remain
+Last activity: 2026-10-04 — Reconciled 3b4e460722 / 8e2122c92b; old capture failures resolved in supplied portrait proof
 
-**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Owner-adopted stationary slices remain approved, and the old recovery bound is superseded. Final clean integration passes with zero compiler/deprecation/SwiftLint diagnostics. Phone has 8/9 actual tests passing; both final default-traits matrix tests fail portrait/large Downloads strict native viewport parity. Combined matrix: 4 captured, 2 failed, 26 pending. Earlier Reader diagnostics retain top blur and a black overlap band; AX5 and landscape are unreached. No production source changed, baseline promotion or SUMMARY. Obtain remaining-feasibility direction before expanding; do not re-ask slicing approval. See `phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md`.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. Owner parity/export commits retain stationary slices with settled viewport pixels, sub-8192 replicant reads, preserved status-bar state and 1:1 reader pages at 8:11. Supplied matrices capture 12/32 (phone four portrait/large, tablet eight portrait large/AX5), with two failed and eighteen pending. Remaining failures are phone AX5 Home's intended container-height layout change and iPad rejected landscape scene request. No production viewport adaptation or AX5 exclusion is selected. Inspected current phone native bundle is 2/2, tablet 9/9; earlier reported phone 12/12 and older matrix provenance are distinguished in the gate. Incremental builds have zero diagnostics; final-source clean/full-matrix proof remains. No baseline/SUMMARY. See `phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md`.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-03T09:42:47Z
-Stopped at: Phase 17 plan 17-01 Task 2 final matrices fail Downloads parity; awaiting remaining-feasibility direction
+Last session: 2026-10-03T16:46:39Z
+Stopped at: Phase 17 plan 17-01 Task 2 parity resolved in portrait; owner AX5 Home viewport decision and iPad rotation remain
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.

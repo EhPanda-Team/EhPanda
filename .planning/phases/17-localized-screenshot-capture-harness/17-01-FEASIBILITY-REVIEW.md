@@ -1,89 +1,84 @@
 ---
 phase: 17-localized-screenshot-capture-harness
-reviewed: 2026-10-03
+reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-render-server-slices
-status: blocked-by-full-matrix
+scope: task-2-parity-handoff
+status: owner-viewport-decision-and-native-orientation
 files_reviewed: 6
-source_head: 9906f9a61923d5957084aaa93c4f25afbc8d1bc8
+source_head: 8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a
 ---
 
-# Task 2 scoped code and evidence review
+# Task 2 scoped source and evidence review
 
-Inline review under gsd-code-review and Swift concurrency guidance; this is not an
-independent reviewer session or whole-phase sign-off. Reviewed FullContentHost.swift,
-RenderServerCapture.swift, PublicVisualFixtures.swift, FullContentFeasibilityTests.swift,
-RenderServerCaptureTests.swift and VisualTracerTests.swift, plus both pin diffs and the
-final clean/test evidence. Read-only ReadingView/AdvancedList review informs the viewport
-risk below; those production files were not modified.
+Inline gsd-code-review with SnapshotTesting/concurrency guidance, not an independent
+session or whole-phase sign-off. Reviewed FullContentHost.swift, RenderServerCapture.swift,
+PublicVisualFixtures.swift, FullContentFeasibilityTests.swift, RenderServerCaptureTests.swift
+and VisualTracerTests.swift. Read-only HomeView, GalleryCardCell and GalleryViewport
+inspection confirms the remaining height-dependent layout contract. Root changes docs only.
 
-The owner-adopted architecture in `73bf3e4b59` is settled. Current source retains stationary
-reads of one committed full-height layout, one output image under D-08 and all acceptance
-gates. Clean integration is green with zero compiler/deprecation/SwiftLint diagnostics.
-Task 2 is blocked by actual capture evidence, not by an unapproved slicing decision.
+## Resolved — Previously failed capture parity
 
-## BLOCKER — Both final matrices fail Downloads native viewport parity
+3b4e460722 samples viewport bytes until a continuous identical run spans 500 ms, bounded
+by 40 samples with cancellation/failure. This addresses measured render settling rather
+than using layout stability as a rendering guarantee. Replicant reads stay below the
+silent-black 8192-pixel case, at most 8191 native pixels per dimension. Device-derived
+height/width controls replace phone-only hard-coded renderer fixtures. Strict full-band
+seam comparison and canonical byte composition remain intact.
 
-The final default-traits phone run has nine actual tests, eight passes and one matrix
-failure; tablet has one actual matrix test and one failure. Both stop at portrait/large
-Downloads, with 2 captured / 1 failed / 13 pending coordinates each. Zero skips and zero
-Repetition nodes; exit 65. Strict native comparison reports matched:false. Saved-PNG
-inspection finds 147 phone and 55 tablet glass-toolbar pixels, maximum channel delta one.
-The tablet output is below 8192 native pixels and uses one slice, so a seam/size-limit
-explanation is insufficient. Census is not evaluated at these failed coordinates.
+The native full-screen non-key companion mirrors the measured status-bar state, checks
+that state during convergence, and is removed during native restoration, deferred cleanup
+and dismiss. It preserves Reader status-bar/safe-area/soft-edge behavior when the key
+window becomes tall. Main-actor UIKit ownership remains explicit; no suppressions added.
 
-No tolerance, pixel mask, fallback renderer, output-scale reduction or altered fixture
-is permitted to turn these failures into passes. Do not record baselines, complete
-Task 2/17-01 or continue dependent plans. See 17-01-FEASIBILITY-GATE.md for exact paths.
+8e2122c92b preserves public eight-page 8:11 semantics while exporting at rendered pixel
+width. Per-coordinate fresh paths and measured artwork-width assertions establish 1:1
+rendering. The default export asset aggregate remains unchanged; generator provenance
+changes and is recorded separately. Original viewport/full/slice/census evidence remains.
 
-## BLOCKER — Reader fidelity is not established
+All four phone portrait/large shapes and all eight tablet portrait coordinates pass in
+the supplied matrices, including Reader and Downloads that previously failed. These
+resolve the old observed failures on those coordinates, not every possible runtime/device.
 
-Earlier diagnostic matrices reached Reader. The tablet reports a strict seam mismatch:
-an entire 64-point overlap is cyan in one read and opaque black in another despite
-successful draw Booleans. A phone experiment shows broad native/full viewport differences
-and visible top blur. These are separate from tiny toolbar differences. They precede the
-final source and are preserved as diagnostic evidence, not current-coordinate passes or
-proof of an exact render-server mechanism. The final matrices stop before Reader.
+## BLOCKER — Phone AX5 Home changes its intended container-based layout
 
-## Open design risk — Native viewport inputs versus output extent
+The AX5 viewport/full crop differs at 706625 pixels (max channel delta 255). Home observes
+its own container size and feeds GalleryViewport.maximumSlideshowHeight; GalleryCardCell
+selects title lines with ViewThatFits against that ceiling. A tall capture increases the
+ceiling and changes line wrapping, shifting following content. This is not unresolved
+glass rasterization and not an app defect established by the capture. The harness must
+preserve the native logical viewport to retain the approved acceptance.
 
-ReadingView observes its rendered size into gestureHandler.containerSize and derives
-isLandscape from that size. A full-height host can change this production layout input
-while native scene orientation remains unchanged. This is a concrete landscape risk;
-it is not a proven cause of the observed portrait blur or black read. No production
-adaptation is included in this WIP. If needed, revise Task 2's exact ownership before
-editing production source. Preserve native scroll-edge effects and designed navigation.
+The handoff records owner options: exclude AX5 full-content Home, use scene size, or add
+an injectable viewport defaulting to native container behavior. No option is selected.
+Production adaptation exceeds current Task 2 ownership; exclusion changes acceptance.
+Obtain owner direction before either change. Preserve existing native navigation/search
+and container/window adaptivity instead of silently substituting a different size source.
 
-## Reviewed safeguards and resolved local issues
+## BLOCKER — iPad landscape scene request is rejected before capture
 
-- Every replicant draw checks its Boolean; each read stays within 8192 native pixels.
-  The window/content root is not scrolled or re-hosted. Replicants are removed with defer.
-- Sixty-four-point read context is reserved inside the limit and cropped without redraw.
-  The whole 64-point seam still compares exactly. This fixes the observed Downloads
-  two-pixel crop-edge mismatch without excluding content from the seam check.
-- CPU composition copies the canonical bytes verified by seams. Native and full captures
-  use the same path and renderer range; physical scale and strict comparison are retained.
-- Failure diagnostics retain original slices, geometry and failed/pending accounting.
-  Restored native geometry, tail, artwork and exact-once census remain required.
-- Scene setup omits only redundant orientation requests; required requests still fail on
-  errors and actual scene orientation/bounds are measured. Landscape remains unverified.
-- Main-actor UIKit ownership and deterministic date, locale, time zone, IDs, ordering,
-  inert dependencies and animation control remain explicit. No concurrency/lint suppression.
-- Public export validates requested identities, rejects nonempty destinations and emits
-  repeatable hashes from committed public fixtures. Both final phone exporter tests pass.
-- Both lockfiles add only SnapshotTesting 1.19.6; all previous pins are unchanged. The
-  required clean integration has passed before committing these Task 2 pins.
+The actual scene returns UISceneErrorDomain 101 after eight portrait passes. All landscape
+coordinates remain unverified (one failed request, seven pending). A scene-accepted native
+rotation mechanism is required before exporting/capturing that orientation. Window resize
+alone violates the measured scene-width premise and cannot establish a landscape pass.
 
-## Remaining verification boundaries
+## Verification and provenance boundaries
 
-Combined final matrix: 4/32 captured, 2 failed, 26 pending. AX5 OCR ownership/marker
-height, actual landscape and all Reader acceptance remain unproven. Earlier incremental
-Comments/Home proof is valid partial evidence, not a full matrix. No approved baseline or
-SUMMARY exists. One expected intentional direct-render error belongs to its unit test;
-IOSurfaceClientSetSurfaceNotify remains an unresolved full-log diagnostic. Optional
-post-test diagnostic collectors were stopped only after the test engines completed.
+Current inspected bundles: phone native gate 2/2, tablet native gate 9/9; both zero
+skips/Repetition. Each matrix has one actual failed test, zero skips/Repetition; combined
+coordinates 12 captured, 2 failed, 18 pending. The handoff's earlier phone 12/12 report
+has separate surviving attachments; the current same-named bundle has only two cases.
+Do not present it as a twelve-test gate. VisualTracerTests.testHomeFullContentTracer still
+asserts phone idiom; tablet Home proof comes from matrix captures, not that test.
 
-Earlier review findings about transparent Comments, withdrawn 1x proposals and upstream
-reports are retained as historical evidence in 17-01-FEASIBILITY-GATE.md and
-17-01-RENDER-SIZE-GATE.md. They do not supersede the current adopted architecture.
+Earlier matrix/default-export manifests name generator source hash 26da899c...feb3a5,
+while current source and current phone Reader attachment name 5c7e4901...95b25.
+The inspected asset hashes are valid. Those earlier matrices are informational evidence,
+not a frozen current-source full matrix. Incremental builds have zero diagnostics; a new
+final-source clean/full-matrix gate remains required before Task 2 completion.
+
+Tablet AX5 exact census now validates its four portrait shapes, including twelve Comments
+and eight Reader pages. Phone AX5 and all landscape OCR/geometry remain pending. Expected
+direct-render refusal belongs to the tablet renderer pin; current phone two-test run has
+no pin. IOSurface messages remain in logs and coexist with passing captures. No baseline,
+SUMMARY, production patch or acceptance waiver is introduced by this review.

@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-03T09:42:47Z",
+  "timestamp": "2026-10-03T16:46:39Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-full-matrix-failed",
+  "status": "checkpoint-owner-viewport-decision",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,17 +21,17 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "Owner-adopted stationary slices retained; final clean passes with zero diagnostics, both actual matrices fail Downloads parity. Final combined accounting 4 captured / 2 failed / 26 pending; earlier Reader diagnostics also fail fidelity."
+      "progress": "Owner commits 3b4e460722/8e2122c92b resolve old capture parity in supplied portrait proof. Informational matrices: 12 captured / 2 failed / 18 pending. AX5 Home logical viewport and iPad landscape scene rotation remain."
     }
   ],
   "blockers": [
-    "Both final default-traits matrices fail portrait/large Downloads strict native viewport parity (147 phone / 55 tablet pixels, maximum channel delta one). Tablet uses one slice below the limit.",
-    "Reader full-content fidelity remains unproven; earlier diagnostics show broad phone top blur and a black tablet overlap band. Final source matrices stop before Reader.",
-    "AX5 OCR-overlap assumption and actual landscape orientation remain unverified; 26 coordinates are pending."
+    "Phone AX5 Home changes layout when the capture container grows; owner viewport design or coverage decision required before production/acceptance revision.",
+    "iPad first landscape geometry request fails scene Code 101 before capture; a scene-accepted rotation mechanism and actual geometry are unverified.",
+    "Current-source clean/full matrix remains incomplete; inspected earlier matrix manifests have generator provenance different from current source."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Direction for scoped Downloads/Reader feasibility investigation or plan revision; adopted slicing approval is settled. Any production viewport adaptation requires expanding Task 2 ownership."
+    "Choose AX5 Home viewport design/coverage: exclude full-content coordinate, use scene size, or injectable logical viewport preserving default container behavior. No option selected."
   ],
   "decisions": [
     {
@@ -73,6 +73,11 @@
       "decision": "Owner adopted stationary render-server slices in 73bf3e4b59 and authorized clean build plus full actual matrix.",
       "rationale": "Explicit owner direction supplied on 2026-10-03; one committed layout yields one output image under D-08. Prior recovery-cycle bound no longer applies.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner-provided parity/export commits are adopted; retain stationary reads, settle verification, distinct replicant ceiling and 8:11 coordinate-specific reader pages.",
+      "rationale": "2026-10-04 handoff identifies implemented 3b4e460722/8e2122c92b. Remaining Home options are explicitly an owner decision, not selected by this reconciliation.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -82,8 +87,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Review final gates and retained diagnostic images, then obtain remaining-feasibility direction under plan 17-01. Do not re-ask adopted slicing approval, waive acceptance, promote baselines, or expand to later plans.",
-  "context_notes": "Root inline, earlier executors interrupted. Task 1 remains complete; Task 2 incomplete; 0/24 plans. Architecture 73bf3e4b59 is adopted; the old recovery bound is superseded. Current WIP 9906f9a619 retains strict stationary capture and commits both resolved pins after clean integration. All final source hashes match. Phone nine actual tests: eight pass and matrix fails; tablet one actual matrix fails. Both zero skips/Repetition nodes. Earlier Reader experiments are diagnostic, not final-coordinate passes. No production source was edited. Exact logs/paths in feasibility gate. Reserved staging unchanged; .capture/ remains disposable untracked output. No SUMMARY/baseline approval or live jobs.",
+  "next_action": "Obtain AX5 Home viewport decision and revise Task 2 ownership/acceptance as needed, establish native accepted iPad rotation, then complete final-source clean and 32-coordinate matrix. Do not re-ask approved slicing/parity/export choices.",
+  "context_notes": "Root inline, docs-only handoff reconciliation. Task 1 complete, Task 2 incomplete, 0/24 plans. Current source 8e2122c92b; old root 9906f9a619 parity blockers now historical. Supplied phone matrix 4 captured/1 failed/11 pending, tablet 8/1/7. Current phone bundle 2/2 later Reader/export, earlier handoff 12/12 report separate; tablet bundle 9/9. All inspected trees zero skips/Repetition. Incremental builds zero diagnostics, no new root xcodebuild runs. Generator source hashes and historical provenance differentiated. No production edit, baseline/SUMMARY, new agent or live root job. Four reserved staging entries unchanged, .capture/ untracked.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -181,7 +186,11 @@
       "materialized_output": ".capture/regression",
       "limits": "Independent exporter success only; mixed test result has exit 65.",
       "final_result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
-      "final_export_tests_passed": 2
+      "final_export_tests_passed": 2,
+      "current_generator_source_sha256": "5c7e4901568b478dbba633b7152226a080ff122a9134f62e1642193406295b25",
+      "supplied_earlier_manifest_source_sha256": "26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5",
+      "current_default_aggregate_digest": "ee48f8faf6b828a2068f4790f30623341d78fe8e4a9d5d60938f154dc975a547",
+      "reader_page_pixel_width_parameter": "nil preserves 800x1100; supplied coordinate width yields rounded 8:11 1:1 pages, previews/covers unchanged"
     },
     "saved_png_comparison": {
       "result": "/tmp/ehpanda-phase17-comments-default-png-comparison.json",
@@ -326,14 +335,15 @@
       "appearance_messages": 1,
       "limits": "Home tests passed again; Comments failed before native parity/OCR. Not clean integration or a passed matrix."
     },
-    "final_clean": {
-      "log": "/tmp/ehpanda-phase17-slice-final-clean.log",
-      "exit_code": 0,
-      "elapsed_seconds": 46.355,
-      "compiler_deprecation_swiftlint_diagnostics": 0,
-      "source_hashes": "/tmp/ehpanda-phase17-slice-final-source-hashes.json"
+    "reader_diagnostics": {
+      "tablet_bundle": "/tmp/ehpanda-phase17-slice-common-tablet.xcresult",
+      "tablet_failure": "seamMismatch; cyan artwork versus opaque black overlap",
+      "phone_bundle": "/tmp/ehpanda-phase17-slice-sdr-phone.xcresult",
+      "phone_failure": "nativeViewportPixelsChanged; broad top blur under temporary standardImageRange",
+      "limits": "Earlier experimental source/settings, not final-coordinate passes. Exact cause unproven; no production changes.",
+      "disposition": "Historical pre-fix failures; supplied portrait Reader now passes native parity/seams/census after measured fixes."
     },
-    "actual_matrix": {
+    "historical_9906f9a619_actual_matrix": {
       "phone": {
         "result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
         "total_tests": 9,
@@ -378,12 +388,93 @@
       "failure": "nativeViewportPixelsChanged",
       "limits": "AX5, landscape and Reader are unreached in the final source matrices. Failed Downloads census not evaluated."
     },
-    "reader_diagnostics": {
-      "tablet_bundle": "/tmp/ehpanda-phase17-slice-common-tablet.xcresult",
-      "tablet_failure": "seamMismatch; cyan artwork versus opaque black overlap",
-      "phone_bundle": "/tmp/ehpanda-phase17-slice-sdr-phone.xcresult",
-      "phone_failure": "nativeViewportPixelsChanged; broad top blur under temporary standardImageRange",
-      "limits": "Earlier experimental source/settings, not final-coordinate passes. Exact cause unproven; no production changes."
+    "historical_9906f9a619_clean": {
+      "log": "/tmp/ehpanda-phase17-slice-final-clean.log",
+      "exit_code": 0,
+      "elapsed_seconds": 46.355,
+      "compiler_deprecation_swiftlint_diagnostics": 0,
+      "source_hashes": "/tmp/ehpanda-phase17-slice-final-source-hashes.json"
+    },
+    "actual_matrix": {
+      "phone": {
+        "result_bundle": "/tmp/ehpanda-phase17-matrix-phone.xcresult",
+        "summary": "/tmp/ehpanda-phase17-matrix-phone-summary.json",
+        "tests": "/tmp/ehpanda-phase17-matrix-phone-tests.json",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "captured": 4,
+        "failed": 1,
+        "pending": 11,
+        "outcomes": "/tmp/ehpanda-phase17-matrix-phone-attachments/ex/phase17-feasibility-9CEB7131-A827-462F-B538-5DF819C0EBEE/outcomes.json",
+        "failed_coordinate": "iphone-portrait-AX5-home",
+        "changed_pixels": 706625,
+        "maximum_channel_delta": 255
+      },
+      "tablet": {
+        "result_bundle": "/tmp/ehpanda-phase17-matrix-tablet.xcresult",
+        "summary": "/tmp/ehpanda-phase17-matrix-tablet-summary.json",
+        "tests": "/tmp/ehpanda-phase17-matrix-tablet-tests.json",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "captured": 8,
+        "failed": 1,
+        "pending": 7,
+        "outcomes": "/tmp/ehpanda-phase17-root-matrix-tablet-evidence/phase17-feasibility-328C4AC3-698F-4A65-A2CA-9F43AE420B44/outcomes.json",
+        "failed_coordinate": "ipad-landscape-large-home",
+        "failure": "UISceneErrorDomain Code 101 before capture"
+      },
+      "combined": {
+        "captured": 12,
+        "failed": 2,
+        "pending": 18,
+        "total": 32
+      },
+      "limits": "Supplied informational runs, not root reruns; fixture generator provenance 26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5 differs from current source. Native landscape remains unverified."
+    },
+    "parity_handoff": {
+      "commits": [
+        "3b4e460722",
+        "8e2122c92b"
+      ],
+      "phone_current_bundle": {
+        "result_bundle": "/tmp/ehpanda-phase17-parity-phone.xcresult",
+        "inspected_copy": "/tmp/ehpanda-phase17-root-parity-review-hdb3wjhq",
+        "total_tests": 2,
+        "passed_tests": 2,
+        "failed_tests": 0,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "cases": [
+          "testReaderNativeCapture",
+          "testExportRendersReaderPagesAtRequestedPixelWidth"
+        ]
+      },
+      "phone_earlier_handoff_report": {
+        "passed_tests_reported": 12,
+        "limits": "Earlier six named directory attachments survive; current same-named log/bundle contains later 2-test run."
+      },
+      "tablet_current_bundle": {
+        "result_bundle": "/tmp/ehpanda-phase17-parity-tablet.xcresult",
+        "total_tests": 9,
+        "passed_tests": 9,
+        "failed_tests": 0,
+        "skipped_tests": 0,
+        "repetition_nodes": 0
+      },
+      "incremental_build_logs": [
+        "/tmp/ehpanda-phase17-parity-build.log",
+        "/tmp/ehpanda-phase17-parity-build-tablet.log"
+      ],
+      "compiler_deprecation_swiftlint_diagnostics": 0,
+      "replicant_native_dimension_budget": 8191,
+      "direct_native_dimension_ceiling": 8192,
+      "source_hashes_observed_at_review": "/tmp/ehpanda-phase17-parity-reconciled-source-hashes.json"
     }
   },
   "recovery_logs": [
@@ -393,5 +484,5 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Expected after this docs checkpoint: only four reserved owner/runtime staged paths and disposable untracked .capture/. Both Task 2 lockfiles were committed after clean integration; generated bytes are not baselines.",
-  "source_checkpoint": "9906f9a61923d5957084aaa93c4f25afbc8d1bc8"
+  "source_checkpoint": "8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a"
 }
