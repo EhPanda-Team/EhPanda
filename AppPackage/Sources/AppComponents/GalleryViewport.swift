@@ -1,9 +1,21 @@
+import Observation
 import SwiftUI
 
+/// A capture signal installed in the environment before the first render and kept stable thereafter.
+/// Changing an environment value reconfigures unrelated platform machinery: on the iOS 27 Simulator,
+/// the first root environment change shrinks navigation toolbar glyphs at XXL and AX5. Mutating this
+/// object's property instead invalidates only the sampling modifiers that observe it.
+@MainActor
+@Observable
+public final class VisibleViewportSampling {
+    public var isFrozen = false
+
+    public init() {}
+}
+
 public extension EnvironmentValues {
-    /// Holds each view's native viewport measurement while capture enlarges its container.
-    /// Production leaves sampling enabled, including in windowed tablet layouts.
-    @Entry var isVisibleViewportFrozen = false
+    /// Production leaves this nil so each view continues sampling its own visible container.
+    @Entry var visibleViewportSampling: VisibleViewportSampling?
 }
 
 public extension View {
@@ -16,10 +28,12 @@ public extension View {
 }
 
 private struct VisibleViewportMeasurement: ViewModifier {
-    @Environment(\.isVisibleViewportFrozen) private var isFrozen
+    @Environment(\.visibleViewportSampling) private var sampling
     @State private var latestSize: CGSize?
     @State private var lastForwardedSize: CGSize?
     let action: (CGSize) -> Void
+
+    private var isFrozen: Bool { sampling?.isFrozen ?? false }
 
     func body(content: Content) -> some View {
         content

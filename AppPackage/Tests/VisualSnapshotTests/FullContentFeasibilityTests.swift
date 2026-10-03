@@ -209,7 +209,8 @@ final class FullContentFeasibilityTests: XCTestCase {
                     let category: UIContentSizeCategory = coordinate.accessibility
                         ? .accessibilityExtraExtraExtraLarge : .large
                     let host = try await FullContentHost(
-                        rootView: root, visibleViewportFrozenKey: \.isVisibleViewportFrozen,
+                        rootView: root, sampling: VisibleViewportSampling(),
+                        samplingKey: \.visibleViewportSampling, frozen: \.isFrozen,
                         contentSizeCategory: category, isViewportReady: input.viewportIsReady
                     )
                     defer { host.dismiss() }
@@ -398,7 +399,8 @@ private extension FullContentFeasibilityTests {
                     $0.disablesAnimations = true
                 }
             let host = try await FullContentHost(
-                rootView: root, visibleViewportFrozenKey: \.isVisibleViewportFrozen,
+                rootView: root, sampling: VisibleViewportSampling(),
+                samplingKey: \.visibleViewportSampling, frozen: \.isFrozen,
                 contentSizeCategory: .large, standardImageRange: true,
                 isViewportReady: input.viewportIsReady
             )
