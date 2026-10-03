@@ -2,11 +2,17 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: research-only-checkpoint-unchanged
+status: upstream-research-complete-size-probe-supersedes-root-cause-uncertainty
 recorded: 2026-10-03
 ---
 
 # Upstream snapshot rendering research
+
+Subsequent owner-supplied standalone probe evidence is reviewed in
+`17-01-RENDER-SIZE-GATE.md`. Its native-scale size bisect explains the transparent long
+capture on the tested Simulators and disproves the proposed 1x remedy. The historical
+search findings below remain accurate; their root-cause uncertainty and pending-1x
+direction are superseded by that size gate. Capture architecture is still unapproved.
 
 The owner requested official SnapshotTesting issues/discussions research after reviewing
 the A/B/diff images. This is read-only upstream research and offline PNG inspection;
