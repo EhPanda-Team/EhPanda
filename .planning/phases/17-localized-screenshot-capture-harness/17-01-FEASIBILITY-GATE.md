@@ -2,12 +2,70 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: partial-matrix-owner-viewport-decision
+status: viewport-pin-equivalence-failed
 recorded: 2026-10-04
-source_head: 723a117fd2193e30bdeffff737708d50fd7f0112
+source_head: 2bece536dcdd1a9f35360a85b424bd8cd8a9cd2f
 ---
 
 # Task 2 actual-content feasibility gate
+
+## Current owner-adopted implementation gate — 2026-10-04
+
+The owner adopted a visible-viewport environment pin and external XCUIDevice rotation,
+retaining all 32 full-content coordinates. The implementation follows that protocol and
+fails before growth when pinning changes the native viewport. Task 2 remains incomplete:
+1/2 tasks, 0/24 plans, no SUMMARY or baseline approval.
+
+The final source tree is recorded in
+`/tmp/ehpanda-phase17-viewport-gate-03/source-hashes.json`; it was rechecked unchanged
+after execution. Clean FeatureTests build and orientation UI-test build both pass with
+zero compiler/deprecation/SwiftLint diagnostics. Native phone tests pass 12/12. Initial
+portrait rotation and final portrait cleanup each pass 1/1. Every inspected test tree has
+zero Repetition nodes and skips; summaries contain no runtime warnings.
+
+The portrait matrix fails at `iphone-portrait-AX5-home` with
+`visibleViewportPinChangedPixels`. Four portrait/large coordinates pass complete capture,
+pin equivalence, strict native parity, census and geometry checks. One coordinate fails
+before growth; three remaining portrait coordinates and 24 coordinates in the other
+invocations are unattempted: **4 captured / 1 failed / 27 pending out of 32**. The failure
+stops further capture, and the device is restored to portrait. Current-code phone landscape
+and both iPad invocations have not run.
+
+The selected UIScrollView's bounds are **420 x 912 pt**, equal to the window size. The
+unpinned and pinned viewport PNGs are both 1260 x 2736 pixels. Pinning alone changes
+**706625 pixels**, maximum channel delta 255, bounding rectangle `[0, 554, 1260, 2728)`.
+Visual inspection shows a two-line truncated title becoming three lines, a taller card
+and the Frontpage section moving down. This is the same changed-pixel extent as the prior
+tall-window failure. The pre-growth equivalence check exposes the mismatch exactly where
+the adopted protocol requires. The actual value held by Home's private SwiftUI
+`viewportSize` was not instrumented; safe-area or measurement-source explanations are
+hypotheses, not established root cause. Do not substitute window/scene size or alter the
+pin's measurement rule without reconciling the owner-adopted protocol.
+
+Evidence root: `/tmp/ehpanda-phase17-viewport-gate-03/`.
+
+- Builds: `clean-feature-build.log`, `orientation-build.log` and their diagnostics/exit JSON.
+- Native proof: `iphone-native.xcresult`, summary/tree and exported attachments.
+- Failed matrix: `iphone-portrait.xcresult`, summary/tree and exported attachments.
+- Extraction root: `iphone-portrait-attachments/5E46351E-5B47-4981-B8C6-88A9777E300A/`
+  `phase17-feasibility-9805FA9C-F457-451B-AA54-298E46FB89F3/`.
+- Under `iphone-portrait-AX5-home/`: `capture.viewport.png`, `capture.pinned-viewport.png`,
+  `visible-viewport-pin-parity.json` and read-only pixel analysis `pin-difference-analysis.json`.
+- Cleanup: `iphone-restore-portrait.xcresult` and summary/tree. Xcode's matching
+  post-test simctl diagnostics collector was terminated after the test suite had finished
+  failing; the test engine was not stopped. Its optional simulator diagnostics may be
+  incomplete. The result bundle finalized with exit 65 and the cleanup test passed.
+
+A direct AppComponents dependency caused Xcode to promote shared app modules to dynamic
+frameworks without string-symbol generation. Explicit symbol generation and static support
+linkage did not solve it; both experiments were reverted. The native test target now supplies
+`\.visibleViewportSize` as a required key path while the host still owns/applies the observable
+pin. Package linkage is unchanged. Development logs are `viewport-clean-dev.log`,
+`viewport-symbols-dev.log`, `viewport-static-support-dev.log` under `/tmp/ehpanda-phase17-`.
+The intermediate gate-02 run passed clean build and 12 native tests, then correctly rejected
+a runner source change and restored portrait. Gate-03 is the fixed-source acceptance attempt.
+
+## Historical parity/export handoff reconciliation
 
 Owner handoff adds `aefc47df` (render parity) and `723a117f` (reader export at rendered
 pixel width) above root's `ef95ce5f` checkpoint. Root reconciled the committed source,

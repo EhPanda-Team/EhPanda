@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-03T16:46:39Z",
+  "timestamp": "2026-10-03T17:38:33.014190+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-owner-viewport-decision",
+  "status": "checkpoint-viewport-pin-equivalence",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,17 +21,15 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "Owner commits aefc47df/723a117f resolve old capture parity in supplied portrait proof. Informational matrices: 12 captured / 2 failed / 18 pending. AX5 Home logical viewport and iPad landscape scene rotation remain."
+      "progress": "Owner-adopted viewport pin and external rotation implemented. Clean/UI build pass; native phone 12/12. Matrix 4 captured / 1 failed / 27 pending: AX5 Home pin changes pixels before growth."
     }
   ],
   "blockers": [
-    "Phone AX5 Home changes layout when the capture container grows; owner viewport design or coverage decision required before production/acceptance revision.",
-    "iPad first landscape geometry request fails scene Code 101 before capture; a scene-accepted rotation mechanism and actual geometry are unverified.",
-    "Current-source clean/full matrix remains incomplete; inspected earlier matrix manifests have generator provenance different from current source."
+    "The required UIScrollView bounds pin (420 x 912 pt) changes 706625 native viewport pixels on phone portrait AX5 Home before growth. Actual Home SwiftUI viewport measurement is not instrumented; reconcile measurement protocol before substitution."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Choose AX5 Home viewport design/coverage: exclude full-content coordinate, use scene size, or injectable logical viewport preserving default container behavior. No option selected."
+    "Reconcile the owner-specified UIScrollView bounds pin with Home's native SwiftUI measurement after the pre-growth equivalence failure. The decision to retain all 32 coordinates is already settled."
   ],
   "decisions": [
     {
@@ -78,6 +76,11 @@
       "decision": "Owner-provided parity/export commits are adopted; retain stationary reads, settle verification, distinct replicant ceiling and 8:11 coordinate-specific reader pages.",
       "rationale": "2026-10-04 handoff identifies implemented aefc47df/723a117f. Remaining Home options are explicitly an owner decision, not selected by this reconciliation.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner adopted native scroll-container viewport pin with pre-growth byte equivalence and external XCUIDevice rotation; all 32 coordinates retained.",
+      "rationale": "User supplied delegated judgment and requested continuation. The implemented equivalence guard fails on AX5 Home before growth, requiring input-source reconciliation.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -87,8 +90,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Obtain AX5 Home viewport decision and revise Task 2 ownership/acceptance as needed, establish native accepted iPad rotation, then complete final-source clean and 32-coordinate matrix. Do not re-ask approved slicing/parity/export choices.",
-  "context_notes": "Root inline, docs-only handoff reconciliation. Task 1 complete, Task 2 incomplete, 0/24 plans. Current source 723a117f; old root cee1504a parity blockers now historical. Supplied phone matrix 4 captured/1 failed/11 pending, tablet 8/1/7. Current phone bundle 2/2 later Reader/export, earlier handoff 12/12 report separate; tablet bundle 9/9. All inspected trees zero skips/Repetition. Incremental builds zero diagnostics, no new root xcodebuild runs. Generator source hashes and historical provenance differentiated. No production edit, baseline/SUMMARY, new agent or live root job. Four reserved staging entries unchanged, .capture/ untracked.",
+  "next_action": "Review the native pin equivalence failure and reconcile its measurement source before resuming full-content expansion.",
+  "context_notes": "Root implemented the owner-adopted decision inline and committed 2bece536 as WIP. Clean/UI builds pass; phone native 12/12; portrait rotation/cleanup 1/1 each. All trees have zero skips/Repetition. The formal matrix fails before growth at phone AX5 Home: 420x912pt bounds pin changes 706625 native viewport pixels. Four captures passed, one failed, 27 pending. Phone restored; no active jobs. Current actual Home SwiftUI measurement is uninstrumented. No further input substitution, coverage waiver or later-plan work. Existing .capture/regression remains untouched with older generator provenance.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -475,6 +478,29 @@
       "replicant_native_dimension_budget": 8191,
       "direct_native_dimension_ceiling": 8192,
       "source_hashes_observed_at_review": "/tmp/ehpanda-phase17-parity-reconciled-source-hashes.json"
+    },
+    "viewport_pin_gate": {
+      "root": "/tmp/ehpanda-phase17-viewport-gate-03/",
+      "clean_build_exit": 0,
+      "orientation_build_exit": 0,
+      "compiler_lint_diagnostics": 0,
+      "native_phone_passed": 12,
+      "portrait_rotation_passed": 1,
+      "portrait_cleanup_passed": 1,
+      "captured": 4,
+      "failed": 1,
+      "pending": 27,
+      "failed_coordinate": "iphone-portrait-AX5-home",
+      "failure": "visibleViewportPinChangedPixels",
+      "pin_points": [
+        420,
+        912
+      ],
+      "changed_pixels": 706625,
+      "maximum_channel_delta": 255,
+      "source_hashes_unchanged": true,
+      "repetition_nodes": 0,
+      "limits": "No current landscape/iPad captures. Post-test simctl diagnostic collector terminated after failed suite; optional diagnostics may be incomplete."
     }
   },
   "recovery_logs": [
@@ -483,6 +509,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Expected after this docs checkpoint: only four reserved owner/runtime staged paths and disposable untracked .capture/. Both Task 2 lockfiles were committed after clean integration; generated bytes are not baselines.",
-  "source_checkpoint": "723a117fd2193e30bdeffff737708d50fd7f0112"
+  "uncommitted_files_note": "After docs checkpoint only the four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 2bece536 is committed; Task 2 is not complete.",
+  "source_checkpoint": "2bece536dcdd1a9f35360a85b424bd8cd8a9cd2f"
 }
