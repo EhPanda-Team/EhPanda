@@ -9,14 +9,19 @@ final class RenderServerCaptureTests: XCTestCase {
         UITestAutomation.prepareIfNeeded()
     }
 
-    /// 2798 pt at 3x is 8394 px, past the render server ceiling, so the direct draw must fail and the slicer must
-    /// reproduce three solid bands across its seam.
+    /// The window is the smallest point height past the direct-draw ceiling on the running device (2731 pt at 3x
+    /// is 8193 px, 4097 pt at 2x is 8194 px; 8192 px is the last height the direct path accepts, measured), so the
+    /// direct draw must fail and the slicer must reproduce three solid bands across its seam.
     @MainActor
     func testSlicesPastRenderServerDimensionLimit() async throws {
-        let fixture = try await BandedWindow.make(size: CGSize(width: 420, height: 2798))
+        let scene = try BandedWindow.activeScene()
+        let scale = scene.screen.scale
+        let height = floor(BandedWindow.directDrawCeiling / scale) + 1
+        let fixture = try await BandedWindow.make(in: scene, height: height)
         defer { fixture.tearDown() }
         let root = fixture.root
         let format = fixture.format
+        let width = fixture.window.bounds.width
 
         // Pins the limit the slicer exists for: the same hierarchy drawn in one call is refused.
         var drewDirectly = true
@@ -27,13 +32,13 @@ final class RenderServerCaptureTests: XCTestCase {
 
         let result = try RenderServerCapture.image(of: root.view, format: format)
         XCTAssertEqual(result.slices.count, 2)
-        XCTAssertEqual(result.image.size, CGSize(width: 420, height: 2798))
-        XCTAssertEqual(result.image.scale, 3)
+        XCTAssertEqual(result.image.size, CGSize(width: width, height: height))
+        XCTAssertEqual(result.image.scale, scale)
         let pixels = try SRGBPixels(image: XCTUnwrap(result.image.cgImage))
         let expectations: [(point: CGPoint, color: UIColor)] = [
-            (CGPoint(x: 210, y: 500), .systemRed),
-            (CGPoint(x: 210, y: 1500), .systemGreen),
-            (CGPoint(x: 210, y: 2700), .systemBlue)
+            (CGPoint(x: width / 2, y: height / 6), .systemRed),
+            (CGPoint(x: width / 2, y: height / 2), .systemGreen),
+            (CGPoint(x: width / 2, y: height * 5 / 6), .systemBlue)
         ]
         for expectation in expectations {
             let actual = try pixels.color(at: expectation.point, scale: result.image.scale)
@@ -46,45 +51,69 @@ final class RenderServerCaptureTests: XCTestCase {
         }
         let seam = try XCTUnwrap(result.slices.first).frame.maxY
         let pixelSeam = Int((seam * result.image.scale).rounded())
-        let column = Int(210 * result.image.scale)
+        let column = Int(width / 2 * result.image.scale)
         XCTAssertEqual(try pixels.color(column: column, row: pixelSeam - 1),
                        try pixels.color(column: column, row: pixelSeam))
     }
 
+    func testMaximumSliceHeightStaysBelowSilentBlackCeiling() {
+        // 4096 pt at 2x (8192 px) is the measured read that draws successfully but returns all black.
+        XCTAssertEqual(RenderServerCapture.maximumSliceHeight(forScreenScale: 2), 4095)
+        XCTAssertEqual(RenderServerCapture.maximumSliceHeight(forScreenScale: 3), 2730)
+        XCTAssertEqual(RenderServerCapture.maximumSliceHeight(forScreenScale: 1), 8191)
+    }
+
+    /// One point wider than the widest read on the running device (2731 pt at 3x, 4096 pt at 2x, both 8192 px or
+    /// more), so the capture must refuse the width rather than slice it.
     @MainActor
     func testRejectsWidthPastRenderServerDimensionLimit() async throws {
-        let fixture = try await BandedWindow.make(size: CGSize(width: 420, height: 2798))
+        let scene = try BandedWindow.activeScene()
+        let wideWidth = RenderServerCapture.maximumSliceHeight(forScreenScale: scene.screen.scale) + 1
+        let fixture = try await BandedWindow.make(in: scene, height: scene.screen.bounds.height)
         defer { fixture.tearDown() }
-        let wide = UIView(frame: CGRect(x: 0, y: 0, width: 2731, height: 100))
+        let wide = UIView(frame: CGRect(x: 0, y: 0, width: wideWidth, height: 100))
         fixture.root.view.addSubview(wide)
         defer { wide.removeFromSuperview() }
         XCTAssertThrowsError(try RenderServerCapture.image(of: wide, format: fixture.format)) { error in
             guard case .widthExceedsSnapshotDimension(let width) = error as? RenderServerCaptureError else {
                 return XCTFail("Unexpected error: \(error)")
             }
-            XCTAssertEqual(width, 2731)
+            XCTAssertEqual(width, wideWidth)
         }
     }
 }
 
+/// A key window of three solid color bands, each a third of its height, spanning the scene's full width.
+///
+/// The width is the scene's screen width, never a fixed phone width: on the 2x iPad a window narrower than its
+/// scene is composited opaque black on every capture path while `drawHierarchy` still returns `true` (measured
+/// 2026-10-03; a scene-width window renders correctly on every path), so a narrower fixture would test nothing.
 @MainActor
 private struct BandedWindow {
+    /// The tallest height, in screen pixels, that a direct `drawHierarchy` accepts (measured 2026-10-03).
+    static let directDrawCeiling: CGFloat = 8192
+
     let window: UIWindow
     let root: UIViewController
     let format: UIGraphicsImageRendererFormat
     let previousKeyWindow: UIWindow?
 
-    static func make(size: CGSize) async throws -> BandedWindow {
-        let scene = try XCTUnwrap(
+    static func activeScene() throws -> UIWindowScene {
+        try XCTUnwrap(
             UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first(where: { $0.activationState == .foregroundActive })
         )
+    }
+
+    static func make(in scene: UIWindowScene, height: CGFloat) async throws -> BandedWindow {
+        let size = CGSize(width: scene.screen.bounds.width, height: height)
         let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         let window = UIWindow(windowScene: scene)
         let root = UIViewController()
         let bands: [(color: UIColor, rows: Range<CGFloat>)] = [
-            (.systemRed, 0..<1000), (.systemGreen, 1000..<2000), (.systemBlue, 2000..<size.height)
+            (.systemRed, 0..<height / 3), (.systemGreen, height / 3..<height * 2 / 3),
+            (.systemBlue, height * 2 / 3..<height)
         ]
         for band in bands {
             let view = UIView(frame: CGRect(

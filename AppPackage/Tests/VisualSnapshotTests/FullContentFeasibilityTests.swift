@@ -81,62 +81,21 @@ final class FullContentFeasibilityTests: XCTestCase {
 
     @MainActor
     func testCommentsNativeCapture() async throws {
-        let animationsEnabled = UIView.areAnimationsEnabled
-        UIView.setAnimationsEnabled(false)
-        defer { UIView.setAnimationsEnabled(animationsEnabled) }
-        let timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
-        let originalTimeZone = NSTimeZone.default
-        NSTimeZone.default = timeZone
-        defer { NSTimeZone.default = originalTimeZone }
-        let directory = FileManager.default.temporaryDirectory
-            .appending(component: "phase17-comments-native-\(UUID().uuidString)", directoryHint: .isDirectory)
-        let fixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
-        _ = try PublicVisualFixtures.export(to: fixtures)
-        defer {
-            let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
-            attachment.name = "phase17-comments-native"
-            attachment.lifetime = .keepAlways
-            add(attachment)
-        }
-        try await withDependencies {
-            $0.continuousClock = TestClock()
-            $0.date.now = PublicVisualFixtures.fixedDate
-            $0.defaultAppStorage = UserDefaults.inMemory
-            $0.defaultInMemoryStorage = InMemoryStorage()
-            $0.uuid = .incrementing
-            $0.deviceClient = .live
-        } operation: {
-            let input = try await Self.screen(.comments, fixtureDirectory: fixtures)
-            let root = input.view
-                .environment(\.colorScheme, .light)
-                .environment(\.locale, Locale(identifier: "en_US"))
-                .environment(\.timeZone, timeZone)
-                .environment(\.dynamicTypeSize, .large)
-                .transaction {
-                    $0.animation = nil
-                    $0.disablesAnimations = true
-                }
-            let host = try await FullContentHost(
-                rootView: root, contentSizeCategory: .large, standardImageRange: true
-            )
-            defer { host.dismiss() }
-            do {
-                let evidence = try await host.capture(
-                    expectedItems: input.expectedItems, trailingMarker: input.trailingMarker,
-                    outputDirectory: directory.appending(path: "capture", directoryHint: .isDirectory), record: .all
-                )
-                XCTAssertEqual(evidence.itemCensus.count, 12)
-                XCTAssertFalse(evidence.finalItemClipped)
-                XCTAssertGreaterThanOrEqual(evidence.renderSliceCount, 2)
-            } catch {
-                try JSONSerialization.data(withJSONObject: [
-                    "type": String(reflecting: type(of: error)), "description": String(describing: error),
-                    "debugDescription": String(reflecting: error)
-                ], options: [.prettyPrinted, .sortedKeys])
-                    .write(to: directory.appending(path: "capture-error.json"), options: .atomic)
-                XCTFail("Native Comments capture failed: \(error)")
-            }
-        }
+        let evidence = try await captureSingle(
+            .comments, directoryPrefix: "phase17-comments-native", attachmentName: "phase17-comments-native",
+            expectedItemCount: 12
+        )
+        try assertDeviceSliceCount(evidence)
+    }
+
+    @MainActor
+    func testDownloadsNativeCapture() async throws {
+        let evidence = try await captureSingle(
+            .downloads, directoryPrefix: "phase17-downloads-native", attachmentName: "phase17-downloads-native",
+            expectedItemCount: 16
+        )
+        try assertDeviceSliceCount(evidence)
+        XCTAssertFalse(evidence.statusBarHidden)
     }
 
     @MainActor
@@ -280,6 +239,108 @@ private struct FeasibilityScreen {
 }
 
 private extension FullContentFeasibilityTests {
+    /// Asserts the read count the running device's screen scale implies for the output height.
+    ///
+    /// The phone and the tablet differ: Comments is 2798 pt at 3x on the phone, past one read and so two slices,
+    /// but 1963 pt at 2x on the iPad, which fits one read.
+    @MainActor
+    func assertDeviceSliceCount(
+        _ evidence: FullContentCaptureEvidence, file: StaticString = #filePath, line: UInt = #line
+    ) throws {
+        let scene = try XCTUnwrap(
+            UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+            file: file, line: line
+        )
+        let maximumSliceHeight = RenderServerCapture.maximumSliceHeight(forScreenScale: scene.screen.scale)
+        if evidence.outputSize.height > maximumSliceHeight {
+            XCTAssertGreaterThanOrEqual(evidence.renderSliceCount, 2, file: file, line: line)
+        } else {
+            XCTAssertEqual(evidence.renderSliceCount, 1, file: file, line: line)
+        }
+    }
+
+    /// Captures one shape at the native portrait viewport and Large text, attaching the output directory and
+    /// writing `capture-error.json` beside it when the capture throws.
+    @MainActor
+    func captureSingle(
+        _ shape: FeasibilityShape, directoryPrefix: String, attachmentName: String, expectedItemCount: Int,
+        file: StaticString = #filePath, line: UInt = #line
+    ) async throws -> FullContentCaptureEvidence {
+        let animationsEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        defer { UIView.setAnimationsEnabled(animationsEnabled) }
+        let timeZone = try XCTUnwrap(TimeZone(secondsFromGMT: 0), file: file, line: line)
+        let originalTimeZone = NSTimeZone.default
+        NSTimeZone.default = timeZone
+        defer { NSTimeZone.default = originalTimeZone }
+        let directory = FileManager.default.temporaryDirectory
+            .appending(component: "\(directoryPrefix)-\(UUID().uuidString)", directoryHint: .isDirectory)
+        let fixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
+        _ = try PublicVisualFixtures.export(to: fixtures)
+        defer {
+            let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
+            attachment.name = attachmentName
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+        // Downloads and Reader load page and cover images; they take the same image client and reading setting
+        // as the full-content matrix.
+        let usesMatrixImageSetup = shape == .downloads || shape == .reader
+        return try await withDependencies {
+            $0.continuousClock = TestClock()
+            $0.date.now = PublicVisualFixtures.fixedDate
+            $0.defaultAppStorage = UserDefaults.inMemory
+            $0.defaultInMemoryStorage = InMemoryStorage()
+            $0.uuid = .incrementing
+            $0.deviceClient = .live
+            if usesMatrixImageSetup {
+                $0.imageClient = .noop
+            }
+        } operation: {
+            if usesMatrixImageSetup {
+                @Shared(.setting) var setting: Setting
+                $setting.withLock {
+                    $0 = Setting(readingDirection: .vertical, prefetchLimit: 0)
+                }
+            }
+            let input = try await Self.screen(shape, fixtureDirectory: fixtures)
+            let root = input.view
+                .environment(\.colorScheme, .light)
+                .environment(\.locale, Locale(identifier: "en_US"))
+                .environment(\.timeZone, timeZone)
+                .environment(\.dynamicTypeSize, .large)
+                .transaction {
+                    $0.animation = nil
+                    $0.disablesAnimations = true
+                }
+            let host = try await FullContentHost(
+                rootView: root, contentSizeCategory: .large, standardImageRange: true,
+                isViewportReady: input.viewportIsReady
+            )
+            defer { host.dismiss() }
+            do {
+                let evidence = try await host.capture(
+                    expectedItems: input.expectedItems, trailingMarker: input.trailingMarker,
+                    outputDirectory: directory.appending(path: "capture", directoryHint: .isDirectory), record: .all,
+                    isContentReady: input.contentIsReady
+                )
+                XCTAssertEqual(evidence.itemCensus.count, expectedItemCount, file: file, line: line)
+                XCTAssertFalse(evidence.finalItemClipped, file: file, line: line)
+                return evidence
+            } catch {
+                try JSONSerialization.data(withJSONObject: [
+                    "type": String(reflecting: type(of: error)), "description": String(describing: error),
+                    "debugDescription": String(reflecting: error)
+                ], options: [.prettyPrinted, .sortedKeys])
+                    .write(to: directory.appending(path: "capture-error.json"), options: .atomic)
+                XCTFail("Native \(shape.rawValue) capture failed: \(error)", file: file, line: line)
+                throw error
+            }
+        }
+    }
+
     @MainActor
     static func setOrientation(landscape: Bool, scene: UIWindowScene) async throws {
         var geometryError: (any Error)?

@@ -15,9 +15,11 @@ public struct FullContentCaptureEvidence {
     public let normalImageByteCount: Int
     public let normalImageURL: URL
     public let outputSize: CGSize
+    public let renderSettleSamples: Int
     public let renderSliceCount: Int
     public let sceneBounds: CGRect
     public let stableIterations: Int
+    public let statusBarHidden: Bool
     public let testHostPath: String
     public let trailingMarkerFrame: CGRect
     public let viewport: MeasuredViewport
@@ -66,6 +68,9 @@ public final class FullContentHost<Content: View> {
     private let previousKeyWindow: UIWindow?
     private let standardImageRange: Bool
     private var verticalScrollHost: UIScrollView
+    /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
+    /// ``StatusBarAppearanceController``.
+    private var companionWindow: UIWindow?
 
     public init(
         rootView: Content, contentSizeCategory: UIContentSizeCategory? = nil,
@@ -136,6 +141,7 @@ public final class FullContentHost<Content: View> {
     }
 
     public func dismiss() {
+        removeStatusBarCompanion()
         window.isHidden = true
         window.rootViewController = nil
         previousKeyWindow?.makeKey()
@@ -170,12 +176,33 @@ public final class FullContentHost<Content: View> {
         defer {
             window.frame = originalWindowFrame
             controller.view.frame = window.bounds
+            removeStatusBarCompanion()
             verticalScrollHost.setContentOffset(originalOffset, animated: false)
             controller.view.layoutIfNeeded()
         }
-        let normalImage = try render(size: viewport.size, directory: outputDirectory).image
+        let settled = try await settledViewportRendering(directory: outputDirectory)
+        let normalImage = settled.rendering.image
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
+
+        // UIKit lets only a window that covers the whole screen drive the status bar. Once the key window grows
+        // past the screen it loses that role and the status bar reappears (measured 2026-10-03: hidden -> visible,
+        // status bar frame 54 pt on the phone / 32 pt on the iPad, iPad safe-area top 0 -> 32), and the soft
+        // scroll-edge effect renders under it. A full-screen companion window therefore owns the status bar state
+        // while the capture window is tall, so that window keeps the viewport's status bar, safe area and edge
+        // effect. It mirrors the state measured at viewport size rather than hard-coding hidden, which keeps
+        // screens with a visible status bar unchanged.
+        let statusBarHidden = scene.statusBarManager?.isStatusBarHidden ?? false
+        let companion = UIWindow(windowScene: scene)
+        companion.rootViewController = StatusBarAppearanceController(hidesStatusBar: statusBarHidden)
+        // At `.normal`, created after the capture window, so it is the topmost full-screen window: the host app's
+        // own full-screen main window is also at `.normal` with a visible status bar, and a companion below it
+        // (`.normal - 1`) never takes over the status bar (measured 2026-10-03). It is never made key; the capture
+        // window stays key, and a clear, non-key companion in front of it does not affect the replicant reads,
+        // which draw the captured hierarchy itself.
+        companion.windowLevel = .normal
+        companion.isHidden = false
+        companionWindow = companion
 
         var previousHeight: CGFloat?
         var previousOutputHeight: CGFloat?
@@ -203,6 +230,10 @@ public final class FullContentHost<Content: View> {
             window.layoutIfNeeded()
             verticalScrollHost.setContentOffset(CGPoint(x: originalOffset.x, y: -originalInsets.top), animated: false)
             await LayoutFrame.wait()
+            // Verified rather than assumed: the companion must keep the status bar state the viewport had.
+            guard scene.statusBarManager?.isStatusBarHidden == statusBarHidden else {
+                throw FullContentHostError.statusBarStateChanged(expectedHidden: statusBarHidden)
+            }
             controller.view.layoutIfNeeded()
             let currentHeight = verticalScrollHost.contentSize.height
             let isStable = previousHeight.map({ abs(currentHeight - $0) * viewport.scale <= 1 }) == true
@@ -215,15 +246,19 @@ public final class FullContentHost<Content: View> {
             if stableIterations >= 2 { break }
         }
         guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
+        let measurement = CaptureMeasurement(
+            contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations,
+            renderSettleSamples: settled.samples,
+            renderSettleMilliseconds: Int((settled.settledDuration / .milliseconds(1)).rounded()),
+            statusBarHidden: statusBarHidden
+        )
         let rendering = try render(size: outputSize, directory: outputDirectory)
         let fullImage = rendering.image
         let fullURL = outputDirectory.appending(path: "capture.full-content.png")
         try store(fullImage, at: fullURL, name: "full-content", directory: outputDirectory, record: record)
         try writeDiagnostics(
             elements: [], census: [:],
-            layout: LayoutMeasurement(
-                contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations
-            ), rendering: rendering, directory: outputDirectory
+            measurement: measurement, rendering: rendering, directory: outputDirectory
         )
         guard let normalCG = normalImage.cgImage, let fullCG = fullImage.cgImage,
               let viewportCG = fullCG.cropping(to: CGRect(
@@ -267,9 +302,7 @@ public final class FullContentHost<Content: View> {
         })
         try writeDiagnostics(
             elements: elements, census: census,
-            layout: LayoutMeasurement(
-                contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations
-            ), rendering: rendering, directory: outputDirectory
+            measurement: measurement, rendering: rendering, directory: outputDirectory
         )
         guard census.values.allSatisfy({ $0 == 1 }) else { throw FullContentHostError.itemCensus(census) }
         let outputBounds = CGRect(origin: .zero, size: outputSize)
@@ -340,9 +373,11 @@ public final class FullContentHost<Content: View> {
             normalImageByteCount: normalData.count,
             normalImageURL: normalURL,
             outputSize: fullImage.size,
+            renderSettleSamples: measurement.renderSettleSamples,
             renderSliceCount: rendering.slices.count,
             sceneBounds: scene.effectiveGeometry.coordinateSpace.bounds,
             stableIterations: stableIterations,
+            statusBarHidden: measurement.statusBarHidden,
             testHostPath: executable.path,
             trailingMarkerFrame: marker.frame,
             viewport: viewport,
@@ -366,6 +401,8 @@ public final class FullContentHost<Content: View> {
         window.frame = frame
         controller.view.frame = window.bounds
         window.layoutIfNeeded()
+        // Back at viewport size the capture window covers the screen and drives the status bar again.
+        removeStatusBarCompanion()
         var previousHeight: CGFloat?
         var stableIterations = 0
         for _ in 1...12 {
@@ -384,6 +421,46 @@ public final class FullContentHost<Content: View> {
             if stableIterations >= 2 { return }
         }
         throw FullContentHostError.didNotConverge
+    }
+
+    private func removeStatusBarCompanion() {
+        companionWindow?.isHidden = true
+        companionWindow?.rootViewController = nil
+        companionWindow = nil
+    }
+
+    /// Samples the viewport rendering until it holds byte-identical for longer than the measured settle delay.
+    ///
+    /// Layout convergence is not render convergence: the glass toolbar material steps once, about 0.45 s after its
+    /// window appears (measured 2026-10-03: captures at t <= 0.38 s differ from the final one by +-1-2 inside the
+    /// glass disc, captures at t >= 0.52 s are identical on both devices), and is byte-stable afterwards. A
+    /// reference taken earlier fails the strict parity check against the later full image. The reference is
+    /// therefore accepted only once consecutive samples, compared on the same 8-bit sRGB basis as the parity
+    /// check, stay identical for a run spanning at least 500 ms, which is longer than that delay. This is the
+    /// same stable-iterations idea the layout loop uses, applied to pixels; no fixed sleep stands in for it.
+    private func settledViewportRendering(directory: URL) async throws -> SettledRendering {
+        let clock = ContinuousClock()
+        var runStart = clock.now
+        var previousPixels: [UInt8]?
+        for sample in 1...40 {
+            try Task.checkCancellation()
+            let rendering = try render(size: viewport.size, directory: directory)
+            let now = clock.now
+            guard let image = rendering.image.cgImage else { throw FullContentHostError.emptyImage }
+            let pixels = try CapturedRaster(image: image).pixels
+            if previousPixels == pixels {
+                let duration = runStart.duration(to: now)
+                if duration >= .milliseconds(500) {
+                    return SettledRendering(rendering: rendering, samples: sample, settledDuration: duration)
+                }
+            } else {
+                runStart = now
+            }
+            previousPixels = pixels
+            await LayoutFrame.wait()
+            try await clock.sleep(for: .milliseconds(100))
+        }
+        throw FullContentHostError.renderDidNotSettle
     }
 
     /// Reads the full-height hierarchy back in render-server slices. The window already has the full content
@@ -420,7 +497,7 @@ public final class FullContentHost<Content: View> {
     private func writeDiagnostics(
         elements: [RenderedText],
         census: [String: Int],
-        layout: LayoutMeasurement,
+        measurement: CaptureMeasurement,
         rendering: RenderServerCapture.Result,
         directory: URL
     ) throws {
@@ -436,14 +513,17 @@ public final class FullContentHost<Content: View> {
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
             "censusBandHeight": viewport.size.height,
             "censusBandOverlap": RenderedContentInspection.bandOverlap,
-            "contentHeight": layout.contentHeight,
+            "contentHeight": measurement.contentHeight,
             "displayScale": viewport.scale,
             "census": census,
             "logicalViewport": [viewport.size.width, viewport.size.height],
             "rootBounds": NSCoder.string(for: controller.view.bounds),
             "scrollBounds": NSCoder.string(for: verticalScrollHost.bounds),
-            "outputSize": [layout.outputSize.width, layout.outputSize.height],
-            "stableIterations": layout.stableIterations,
+            "outputSize": [measurement.outputSize.width, measurement.outputSize.height],
+            "stableIterations": measurement.stableIterations,
+            "renderSettleSamples": measurement.renderSettleSamples,
+            "renderSettleMilliseconds": measurement.renderSettleMilliseconds,
+            "statusBarHidden": measurement.statusBarHidden,
             "elements": elements.map({ ["label": $0.label, "frame": NSCoder.string(for: $0.frame)] })
         ]
         try JSONSerialization.data(withJSONObject: diagnostics, options: [.prettyPrinted, .sortedKeys])
@@ -528,10 +608,54 @@ private struct RenderedText: Sendable {
     let frame: CGRect
 }
 
-private struct LayoutMeasurement {
+/// The converged layout, the viewport reference's render settle, and the status bar state the capture held the
+/// tall window to.
+private struct CaptureMeasurement {
     let contentHeight: CGFloat
     let outputSize: CGSize
     let stableIterations: Int
+    let renderSettleSamples: Int
+    let renderSettleMilliseconds: Int
+    let statusBarHidden: Bool
+}
+
+private struct SettledRendering {
+    let rendering: RenderServerCapture.Result
+    /// Renders taken, including the accepted one.
+    let samples: Int
+    /// The span of the identical run the accepted rendering closed.
+    let settledDuration: Duration
+}
+
+/// Root of the status bar companion window: it exists only to state the status bar visibility measured while
+/// the capture window was viewport-sized.
+///
+/// UIKit lets only a window covering the whole screen drive the status bar, so a capture window grown past the
+/// screen cannot keep it hidden (measured 2026-10-03: the status bar reappears, 54 pt on the phone and 32 pt on
+/// the iPad, and the iPad safe-area top goes 0 -> 32). A clear, full-screen, non-key window above the host app's
+/// own main window, whose root prefers the measured visibility, restores the viewport's status bar state; with it
+/// the tall window's top crop matched the viewport reference pixel for pixel on both devices. Placed below the
+/// host app's main window, it lost to that window's visible status bar (measured 2026-10-03).
+private final class StatusBarAppearanceController: UIViewController {
+    let hidesStatusBar: Bool
+
+    init(hidesStatusBar: Bool) {
+        self.hidesStatusBar = hidesStatusBar
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override var prefersStatusBarHidden: Bool { hidesStatusBar }
+
+    override func loadView() {
+        let view = UIView()
+        view.backgroundColor = .clear
+        self.view = view
+    }
 }
 
 @MainActor
@@ -575,7 +699,9 @@ public enum FullContentHostError: Error {
     case missingVerticalScrollHost
     case noForegroundActiveScene
     case nativeViewportPixelsChanged(String)
+    case renderDidNotSettle
     case renderFailed
     case renderedTextInspectionFailed(String)
     case snapshotFailed(String)
+    case statusBarStateChanged(expectedHidden: Bool)
 }
