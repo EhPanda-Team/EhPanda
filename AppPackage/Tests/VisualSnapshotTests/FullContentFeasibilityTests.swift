@@ -62,6 +62,27 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
+    func testExportRendersReaderPagesAtRequestedPixelWidth() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appending(component: "phase17-reader-width-\(UUID().uuidString)", directoryHint: .isDirectory)
+        let scaled = directory.appending(path: "scaled", directoryHint: .isDirectory)
+        let canonical = directory.appending(path: "canonical", directoryHint: .isDirectory)
+        _ = try PublicVisualFixtures.export(to: scaled, readerPagePixelWidth: 1260)
+        _ = try PublicVisualFixtures.export(to: canonical)
+        let artworkSize = CGSize(width: 160, height: 220)
+        for page in 1...PublicVisualFixtures.readerPageMarkers.count {
+            XCTAssertEqual(try Self.pixelSize(scaled.appending(path: "assets/reader/\(page).png")),
+                           CGSize(width: 1260, height: 1733))
+            XCTAssertEqual(try Self.pixelSize(canonical.appending(path: "assets/reader/\(page).png")),
+                           CGSize(width: 800, height: 1100))
+            XCTAssertEqual(try Self.pixelSize(scaled.appending(path: "assets/previews/\(page).png")), artworkSize)
+        }
+        for gallery in PublicVisualFixtures.homeGalleries + PublicVisualFixtures.downloadGalleries {
+            XCTAssertEqual(try Self.pixelSize(scaled.appending(path: gallery.coverPath)), artworkSize)
+        }
+    }
+
+    @MainActor
     func testExportRejectsMissingFixtureAssetAndRoute() throws {
         let directory = FileManager.default.temporaryDirectory
             .appending(component: "phase17-invalid-export-\(UUID().uuidString)", directoryHint: .isDirectory)
@@ -98,6 +119,17 @@ final class FullContentFeasibilityTests: XCTestCase {
         XCTAssertFalse(evidence.statusBarHidden)
     }
 
+    /// 8 pages at 8:11 exported 1:1: 4622 pt on the phone and 9176 pt on the iPad, both past one read.
+    @MainActor
+    func testReaderNativeCapture() async throws {
+        let evidence = try await captureSingle(
+            .reader, directoryPrefix: "phase17-reader-native", attachmentName: "phase17-reader-native",
+            expectedItemCount: PublicVisualFixtures.readerPageMarkers.count
+        )
+        try assertDeviceSliceCount(evidence)
+        XCTAssertTrue(evidence.statusBarHidden)
+    }
+
     @MainActor
     func testActualFullContentMatrix() async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
@@ -116,8 +148,6 @@ final class FullContentFeasibilityTests: XCTestCase {
             attachment.lifetime = .keepAlways
             add(attachment)
         }
-        let fixtureDirectory = directory.appending(path: "fixtures", directoryHint: .isDirectory)
-        _ = try PublicVisualFixtures.export(to: fixtureDirectory)
         let scene = try XCTUnwrap(
             UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
@@ -137,6 +167,12 @@ final class FullContentFeasibilityTests: XCTestCase {
             let output = directory.appending(path: coordinate.key(family: family), directoryHint: .isDirectory)
             do {
                 try await Self.setOrientation(landscape: coordinate.landscape, scene: scene)
+                // Exported per coordinate: the page width depends on the orientation, and a fresh path keeps any
+                // image cache from serving a previous coordinate's bytes.
+                let sceneWidth = scene.effectiveGeometry.coordinateSpace.bounds.width
+                let readerPagePixelWidth = Int(sceneWidth * scene.screen.scale)
+                let fixtureDirectory = output.appending(path: "fixtures", directoryHint: .isDirectory)
+                _ = try PublicVisualFixtures.export(to: fixtureDirectory, readerPagePixelWidth: readerPagePixelWidth)
                 let appStorage = UserDefaults.inMemory
                 let inMemoryStorage = InMemoryStorage()
                 try await withDependencies {
@@ -181,6 +217,9 @@ final class FullContentFeasibilityTests: XCTestCase {
                     XCTAssertGreaterThanOrEqual(evidence.stableIterations, 2)
                     XCTAssertTrue(evidence.windowIsAttached)
                     XCTAssertEqual(evidence.viewport.size, scene.effectiveGeometry.coordinateSpace.bounds.size)
+                    if coordinate.shape == .reader {
+                        assertReaderPagesNotResampled(evidence, pagePixelWidth: readerPagePixelWidth)
+                    }
                     if let readerStore = input.readerStore {
                         XCTAssertEqual(readerStore.setting.readingDirection, .vertical)
                         XCTAssertFalse(readerStore.setting.enableDualPageMode)
@@ -239,6 +278,31 @@ private struct FeasibilityScreen {
 }
 
 private extension FullContentFeasibilityTests {
+    /// Asserts every reader page rendered at exactly the exported pixel width, so the reader drew it 1:1.
+    ///
+    /// `itemFrames` holds the artwork bounds measured from captured pixels, in points (pixel extent / scale), so
+    /// width x scale is the rendered page's pixel width.
+    @MainActor
+    func assertReaderPagesNotResampled(
+        _ evidence: FullContentCaptureEvidence, pagePixelWidth: Int,
+        file: StaticString = #filePath, line: UInt = #line
+    ) {
+        for marker in PublicVisualFixtures.readerPageMarkers {
+            guard let frame = evidence.itemFrames[marker] else {
+                XCTFail("Missing artwork frame for \(marker)", file: file, line: line)
+                continue
+            }
+            XCTAssertEqual(
+                Int((frame.width * evidence.viewport.scale).rounded()), pagePixelWidth, marker, file: file, line: line
+            )
+        }
+    }
+
+    static func pixelSize(_ url: URL) throws -> CGSize {
+        let image = try XCTUnwrap(UIImage(contentsOfFile: url.path)?.cgImage)
+        return CGSize(width: image.width, height: image.height)
+    }
+
     /// Asserts the read count the running device's screen scale implies for the output height.
     ///
     /// The phone and the tablet differ: Comments is 2798 pt at 3x on the phone, past one read and so two slices,
@@ -278,7 +342,17 @@ private extension FullContentFeasibilityTests {
         let directory = FileManager.default.temporaryDirectory
             .appending(component: "\(directoryPrefix)-\(UUID().uuidString)", directoryHint: .isDirectory)
         let fixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
-        _ = try PublicVisualFixtures.export(to: fixtures)
+        let scene = try XCTUnwrap(
+            UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive }),
+            file: file, line: line
+        )
+        // The vertical reader lays a page out at the scene width; exporting at that pixel width keeps it 1:1.
+        let readerPagePixelWidth = Int(scene.effectiveGeometry.coordinateSpace.bounds.width * scene.screen.scale)
+        _ = try PublicVisualFixtures.export(
+            to: fixtures, readerPagePixelWidth: shape == .reader ? readerPagePixelWidth : nil
+        )
         defer {
             let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
             attachment.name = attachmentName
@@ -328,6 +402,11 @@ private extension FullContentFeasibilityTests {
                 )
                 XCTAssertEqual(evidence.itemCensus.count, expectedItemCount, file: file, line: line)
                 XCTAssertFalse(evidence.finalItemClipped, file: file, line: line)
+                if shape == .reader {
+                    assertReaderPagesNotResampled(
+                        evidence, pagePixelWidth: readerPagePixelWidth, file: file, line: line
+                    )
+                }
                 return evidence
             } catch {
                 try JSONSerialization.data(withJSONObject: [

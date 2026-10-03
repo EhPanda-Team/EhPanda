@@ -60,11 +60,23 @@ public enum PublicVisualFixtures {
         }
     }
 
+    /// Exports the fixture set into an empty `directory`.
+    ///
+    /// - Parameter readerPagePixelWidth: The pixel width to render the 8:11 reader pages at, with the height
+    ///   rounded to whole pixels; `nil` keeps the canonical 800 x 1100. The capture harness passes the width the
+    ///   coordinate renders a page at (the vertical reader ignores safe areas, so the scene width) so the reader
+    ///   never resamples a page. A resampled page straddling the viewport bottom does not render bit-reproducibly
+    ///   between the clipped viewport and the unclipped tall window (measured 2026-10-04: +-1 flips on glyph
+    ///   edges, 22 px on the 2x iPad at 800 -> 1668 px; 0 px at 1:1 on both devices and at 1.5x on the iPad).
     @MainActor
     public static func export(
         to directory: URL,
-        scenarios: Data? = nil
+        scenarios: Data? = nil,
+        readerPagePixelWidth: Int? = nil
     ) throws -> PublicFixtureExport {
+        let readerPageSize = readerPagePixelWidth.map({
+            CGSize(width: CGFloat($0), height: (Double($0) * 11 / 8).rounded())
+        }) ?? CGSize(width: 800, height: 1100)
         var files: [FixtureFile] = []
         for gallery in homeGalleries + downloadGalleries {
             let image = artwork(marker: gallery.gid, colorIndex: gallery.colorIndex)
@@ -72,7 +84,7 @@ public enum PublicVisualFixtures {
             files.append(FixtureFile(path: gallery.coverPath, mime: "image/png", bytes: bytes))
         }
         for (index, marker) in readerPageMarkers.enumerated() {
-            let image = artwork(marker: marker, colorIndex: index % 6, size: CGSize(width: 800, height: 1100))
+            let image = artwork(marker: marker, colorIndex: index % 6, size: readerPageSize)
             guard let bytes = image.pngData() else { throw PublicFixtureError.imageEncodingFailed }
             files.append(FixtureFile(path: "assets/reader/\(index + 1).png", mime: "image/png", bytes: bytes))
             let preview = artwork(marker: marker, colorIndex: index % 6)
