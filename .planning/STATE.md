@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 render ceiling established on tested Simulators; awaiting capture architecture decision
-last_updated: "2026-10-03T01:23:11.576Z"
+stopped_at: Phase 17 plan 17-01 Task 2 final matrices fail Downloads parity; awaiting remaining-feasibility direction
+last_updated: "2026-10-03T09:42:47Z"
 last_activity: 2026-10-03
-last_activity_desc: "External size probe reviewed; 1x remedy withdrawn; native region capture proposal pending"
-state_head: d3cf55eb1e217264326fc79b6efa8b5ee331c246
+last_activity_desc: "Final clean passes; phone and tablet actual matrices fail Downloads parity; 4/32 coordinates captured"
+state_head: cee1504ad8cd3cdde1d403e83258e5311f8404f9
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: d3cf55eb1e217264326fc79b6efa8b5ee331c246
+source_head: cee1504ad8cd3cdde1d403e83258e5311f8404f9
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — Task 2 needs capture architecture decision
-Last activity: 2026-10-03 — External size/scale controls reviewed; 1x remedy withdrawn; native region-capture feasibility proposal pending
+Status: checkpoint — Task 2 actual matrices fail strict Downloads native parity
+Last activity: 2026-10-03 — Final clean passes, both matrices fail Downloads parity; source WIP cee1504a
 
-**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Task 1 passed 3/3 actual tests with native viewport parity, exact census/artwork/tail and restored geometry. Task 2 exporter passed 2/2; the actual matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. All three owner-authorized recovery-cycle-2 runs failed Comments while retaining Home 3/3. Latest Comments full PNG is completely transparent. Owner-supplied standalone probes are now reviewed: native screen-scaled dimensions above 8192 pixels fail on the tested Simulators, explaining Comments height 8394; lower renderer/trait scale does not help. The initial-1x remedy is withdrawn. Native region captures can render but naive clip movement changes effective safe area and leaves a seam; top-region pixel parity is not a complete gate. A proposed architecture revision and bounded feasibility cycle await owner direction. No tiling, layer fallback acceptance change, additional native run, plan SUMMARY or baseline is approved. See `phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md`.
+**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Owner-adopted stationary slices remain approved, and the old recovery bound is superseded. Final clean integration passes with zero compiler/deprecation/SwiftLint diagnostics. Phone has 8/9 actual tests passing; both final default-traits matrix tests fail portrait/large Downloads strict native viewport parity. Combined matrix: 4 captured, 2 failed, 26 pending. Earlier Reader diagnostics retain top blur and a black overlap band; AX5 and landscape are unreached. No production source changed, baseline promotion or SUMMARY. Obtain remaining-feasibility direction before expanding; do not re-ask slicing approval. See `phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md`.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-02T18:18:21.854Z
-Stopped at: Phase 17 plan 17-01 Task 2 native 3x gate failed after recovery cycle 2; awaiting output-scale decision
+Last session: 2026-10-03T09:42:47Z
+Stopped at: Phase 17 plan 17-01 Task 2 final matrices fail Downloads parity; awaiting remaining-feasibility direction
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.

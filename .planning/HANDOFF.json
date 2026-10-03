@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-03T01:23:11.576Z",
+  "timestamp": "2026-10-03T09:42:47Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "awaiting-capture-architecture-direction",
+  "status": "checkpoint-full-matrix-failed",
   "completed_tasks": [
     {
       "id": 1,
@@ -20,24 +20,18 @@
     {
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
-      "status": "in_progress",
-      "progress": "Reviewed external standalone probe sources, images and original logs: native screen-scaled render dimension ceiling explains transparent Comments output. Lower output renderer/trait scale still fails; 1x proposal withdrawn. Harness recovery cycle remains 3/3 exhausted; actual matrix remains incomplete."
+      "status": "incomplete",
+      "progress": "Owner-adopted stationary slices retained; final clean passes with zero diagnostics, both actual matrices fail Downloads parity. Final combined accounting 4 captured / 2 failed / 26 pending; earlier Reader diagnostics also fail fidelity."
     }
   ],
   "blockers": [
-    {
-      "task": "17-01-T2",
-      "condition": "Current Comments height 2798pt at native 3x exceeds the tested Simulator render ceiling (8394 > 8192). Native region capture needs an approved architecture revision; naive clip changes safe area and leaves a seam. No layer fallback acceptance revision or additional native cycle is approved.",
-      "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md"
-    }
+    "Both final default-traits matrices fail portrait/large Downloads strict native viewport parity (147 phone / 55 tablet pixels, maximum channel delta one). Tablet uses one slice below the limit.",
+    "Reader full-content fidelity remains unproven; earlier diagnostics show broad phone top blur and a black tablet overlap band. Final source matrices stop before Reader.",
+    "AX5 OCR-overlap assumption and actual landscape orientation remain unverified; 26 coordinates are pending."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    {
-      "type": "decision",
-      "question": "Approve a plan revision and at most three native region-capture feasibility runs preserving native scale/glass and stable effective safe areas/layout; alternatively explicitly revise acceptance for a layer-render fallback, or retain the checkpoint.",
-      "reason": "The former 1x remedy is disproved and withdrawn. Approved plan 17-01 does not approve stitching or acceptance changes; execute-plan Rule 4 requires owner direction for this architecture change."
-    }
+    "Direction for scoped Downloads/Reader feasibility investigation or plan revision; adopted slicing approval is settled. Any production viewport adaptation requires expanding Task 2 ownership."
   ],
   "decisions": [
     {
@@ -74,19 +68,22 @@
       "decision": "Withdraw initial-1x remedy proposal after reviewing owner-supplied standalone native-size/scale controls.",
       "rationale": "Original drawHierarchy logs show output renderer/trait overrides do not move the native screen-scaled ceiling; this is research evidence, not authorization for a new capture architecture or native test cycle.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner adopted stationary render-server slices in e9e183f6 and authorized clean build plus full actual matrix.",
+      "rationale": "Explicit owner direction supplied on 2026-10-03; one committed layout yields one output image under D-08. Prior recovery-cycle bound no longer applies.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
     "A  .planning/milestone.lock",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
-    " M AppPackage/Package.resolved",
     "M  EhPanda.xcodeproj/project.pbxproj",
-    " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
     "?? .capture/"
   ],
-  "next_action": "Obtain owner direction for the concrete native region-capture feasibility proposal in 17-01-RENDER-SIZE-GATE.md before revising approved plan or implementation. No repeat of disproved 1x experiment. Existing actual-content gates and matrix remain incomplete.",
-  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval. Owner-requested official repo research completed: glass/toolbar transparent reports, iOS 27 scene/safe-area issue, custom-size scroll capture confirmation. Main upstream host/hierarchy remedy already used; no exact remedy or size limit proven. External standalone probe source/log/image evidence reviewed and preserved under /tmp/ehpanda-phase17-size-probe-evidence. Native per-dimension 8192 screen-pixel ceiling established on tested Simulators; physical devices untested. Moving clip changes safe area; top-region comparison is not full viewport parity. 1x remedy withdrawn; awaiting architecture choice.",
+  "next_action": "Review final gates and retained diagnostic images, then obtain remaining-feasibility direction under plan 17-01. Do not re-ask adopted slicing approval, waive acceptance, promote baselines, or expand to later plans.",
+  "context_notes": "Root inline, earlier executors interrupted. Task 1 remains complete; Task 2 incomplete; 0/24 plans. Architecture e9e183f6 is adopted; the old recovery bound is superseded. Current WIP cee1504a retains strict stationary capture and commits both resolved pins after clean integration. All final source hashes match. Phone nine actual tests: eight pass and matrix fails; tablet one actual matrix fails. Both zero skips/Repetition nodes. Earlier Reader experiments are diagnostic, not final-coordinate passes. No production source was edited. Exact logs/paths in feasibility gate. Reserved staging unchanged; .capture/ remains disposable untracked output. No SUMMARY/baseline approval or live jobs.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -182,40 +179,9 @@
       "generator_source_sha256": "b7133850ae2071292a6179d33dde9bf024b766e748af4eb8bbd07faf4a4420bc",
       "entries": 45,
       "materialized_output": ".capture/regression",
-      "limits": "Independent exporter success only; mixed test result has exit 65."
-    },
-    "actual_matrix": {
-      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
-      "summary": "/tmp/ehpanda-phase17-feasibility-phone-summary.json",
-      "tests": "/tmp/ehpanda-phase17-feasibility-phone-tests.json",
-      "captured": 1,
-      "failed": 1,
-      "pending_phone": 14,
-      "pending_tablet": 16,
-      "failed_coordinate": "iphone-portrait-large-comments",
-      "total_tests": 3,
-      "passed_tests": 2,
-      "failed_tests": 1,
-      "skipped_tests": 0,
-      "repetition_nodes": 0,
-      "exit_code": 65
-    },
-    "latest_comments_probe": {
-      "result_bundle": "/tmp/ehpanda-phase17-comments-explicit-vision.xcresult",
-      "summary": "/tmp/ehpanda-phase17-comments-explicit-vision-summary.json",
-      "tests": "/tmp/ehpanda-phase17-comments-explicit-vision-tests.json",
-      "build_log": "/tmp/ehpanda-phase17-comments-explicit-vision-build.log",
-      "log": "/tmp/ehpanda-phase17-comments-explicit-vision.log",
-      "attachments_manifest": "/tmp/ehpanda-phase17-comments-explicit-vision-attachments/manifest.json",
-      "total_tests": 4,
-      "passed_tests": 3,
-      "failed_tests": 1,
-      "skipped_tests": 0,
-      "repetition_nodes": 0,
-      "exit_code": 65,
-      "runtime_warnings": [],
-      "appearance_messages": 1,
-      "limits": "Home tests passed again; Comments failed before native parity/OCR. Not clean integration or a passed matrix."
+      "limits": "Independent exporter success only; mixed test result has exit 65.",
+      "final_result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
+      "final_export_tests_passed": 2
     },
     "saved_png_comparison": {
       "result": "/tmp/ehpanda-phase17-comments-default-png-comparison.json",
@@ -326,6 +292,98 @@
         0
       ],
       "limits": "Standalone synthetic roots and two Simulator families; different tablet from harness matrix, no physical-device proof, no full viewport/census/seamless-composition acceptance."
+    },
+    "historical_pre_slice_actual_matrix": {
+      "result_bundle": "/tmp/ehpanda-phase17-feasibility-phone.xcresult",
+      "summary": "/tmp/ehpanda-phase17-feasibility-phone-summary.json",
+      "tests": "/tmp/ehpanda-phase17-feasibility-phone-tests.json",
+      "captured": 1,
+      "failed": 1,
+      "pending_phone": 14,
+      "pending_tablet": 16,
+      "failed_coordinate": "iphone-portrait-large-comments",
+      "total_tests": 3,
+      "passed_tests": 2,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65
+    },
+    "historical_pre_slice_comments_probe": {
+      "result_bundle": "/tmp/ehpanda-phase17-comments-explicit-vision.xcresult",
+      "summary": "/tmp/ehpanda-phase17-comments-explicit-vision-summary.json",
+      "tests": "/tmp/ehpanda-phase17-comments-explicit-vision-tests.json",
+      "build_log": "/tmp/ehpanda-phase17-comments-explicit-vision-build.log",
+      "log": "/tmp/ehpanda-phase17-comments-explicit-vision.log",
+      "attachments_manifest": "/tmp/ehpanda-phase17-comments-explicit-vision-attachments/manifest.json",
+      "total_tests": 4,
+      "passed_tests": 3,
+      "failed_tests": 1,
+      "skipped_tests": 0,
+      "repetition_nodes": 0,
+      "exit_code": 65,
+      "runtime_warnings": [],
+      "appearance_messages": 1,
+      "limits": "Home tests passed again; Comments failed before native parity/OCR. Not clean integration or a passed matrix."
+    },
+    "final_clean": {
+      "log": "/tmp/ehpanda-phase17-slice-final-clean.log",
+      "exit_code": 0,
+      "elapsed_seconds": 46.355,
+      "compiler_deprecation_swiftlint_diagnostics": 0,
+      "source_hashes": "/tmp/ehpanda-phase17-slice-final-source-hashes.json"
+    },
+    "actual_matrix": {
+      "phone": {
+        "result_bundle": "/tmp/ehpanda-phase17-slice-final-phone.xcresult",
+        "total_tests": 9,
+        "passed_tests": 8,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "exit_code": 65,
+        "captured": 2,
+        "failed": 1,
+        "pending": 13,
+        "outcomes": "/tmp/ehpanda-phase17-slice-final-phone-attachments/matrix/phase17-feasibility-681C4D93-BFF1-44CA-975E-DA0BC66AD037/outcomes.json",
+        "failed_coordinate": "iphone-portrait-large-downloads",
+        "changed_viewport_pixels": 147,
+        "maximum_channel_delta": 1,
+        "slices": 2
+      },
+      "tablet": {
+        "result_bundle": "/tmp/ehpanda-phase17-slice-final-tablet.xcresult",
+        "total_tests": 1,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "repetition_nodes": 0,
+        "exit_code": 65,
+        "captured": 2,
+        "failed": 1,
+        "pending": 13,
+        "outcomes": "/tmp/ehpanda-phase17-slice-final-tablet-attachments/matrix/phase17-feasibility-5BCEF646-3DE2-4FD4-975E-06DEBE9BB0B3/outcomes.json",
+        "failed_coordinate": "ipad-portrait-large-downloads",
+        "changed_viewport_pixels": 55,
+        "maximum_channel_delta": 1,
+        "slices": 1
+      },
+      "combined": {
+        "captured": 4,
+        "failed": 2,
+        "pending": 26,
+        "total": 32
+      },
+      "standard_image_range": false,
+      "failure": "nativeViewportPixelsChanged",
+      "limits": "AX5, landscape and Reader are unreached in the final source matrices. Failed Downloads census not evaluated."
+    },
+    "reader_diagnostics": {
+      "tablet_bundle": "/tmp/ehpanda-phase17-slice-common-tablet.xcresult",
+      "tablet_failure": "seamMismatch; cyan artwork versus opaque black overlap",
+      "phone_bundle": "/tmp/ehpanda-phase17-slice-sdr-phone.xcresult",
+      "phone_failure": "nativeViewportPixelsChanged; broad top blur under temporary standardImageRange",
+      "limits": "Earlier experimental source/settings, not final-coordinate passes. Exact cause unproven; no production changes."
     }
   },
   "recovery_logs": [
@@ -334,6 +392,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Expected after continuity commit: four reserved owner/runtime staging paths, both Task 2 lockfiles and disposable untracked .capture/. Lockfiles remain uncommitted pending clean integration/full gate; generated bytes are not baselines.",
-  "source_checkpoint": "d3cf55eb1e217264326fc79b6efa8b5ee331c246"
+  "uncommitted_files_note": "Expected after this docs checkpoint: only four reserved owner/runtime staged paths and disposable untracked .capture/. Both Task 2 lockfiles were committed after clean integration; generated bytes are not baselines.",
+  "source_checkpoint": "cee1504ad8cd3cdde1d403e83258e5311f8404f9"
 }

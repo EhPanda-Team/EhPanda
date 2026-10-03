@@ -3,69 +3,87 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-03
 depth: standard
 execution: inline-orchestrator
-scope: task-2-recovery-cycle-2
-status: blocked
-files_reviewed: 4
+scope: task-2-render-server-slices
+status: blocked-by-full-matrix
+files_reviewed: 6
+source_head: cee1504ad8cd3cdde1d403e83258e5311f8404f9
 ---
 
-# Task 2 WIP code review
+# Task 2 scoped code and evidence review
 
-Inline scoped review under gsd-code-review and Swift concurrency guidance. This is not
-an independent reviewer session or whole-phase sign-off. Reviewed FullContentHost.swift,
-PublicVisualFixtures.swift, FullContentFeasibilityTests.swift and VisualTracerTests.swift,
-including the pinned library's controller/frame/appearance cleanup code and actual results.
-The earlier Task 1 review remains historical and does not certify these changed files.
+Inline review under gsd-code-review and Swift concurrency guidance; this is not an
+independent reviewer session or whole-phase sign-off. Reviewed FullContentHost.swift,
+RenderServerCapture.swift, PublicVisualFixtures.swift, FullContentFeasibilityTests.swift,
+RenderServerCaptureTests.swift and VisualTracerTests.swift, plus both pin diffs and the
+final clean/test evidence. Read-only ReadingView/AdvancedList review informs the viewport
+risk below; those production files were not modified.
 
-## BLOCKER — Actual Comments capture has not passed
+The owner-adopted architecture in `e9e183f6` is settled. Current source retains stationary
+reads of one committed full-height layout, one output image under D-08 and all acceptance
+gates. Clean integration is green with zero compiler/deprecation/SwiftLint diagnostics.
+Task 2 is blocked by actual capture evidence, not by an unapproved slicing decision.
 
-The actual matrix and both native UIViewController/SwiftUI hierarchy probes produce
-visually blank Comments images with render-server errors at 1260 x 8394 pixels. Alpha
-inspection now confirms the latest SwiftUI full PNG is entirely transparent; the earlier
-RGB-only black label did not establish opacity. The default layer
-probe draws the twelve rows but strict native viewport comparison remains false. The
-three authorized recovery-cycle-2 runs each retained Home 3/3 and failed Comments; the
-current direct SwiftUI wrapper also logs an appearance imbalance. Do not expand the
-matrix, promote baselines or complete Task 2. See `17-01-FEASIBILITY-GATE.md`.
+## BLOCKER — Both final matrices fail Downloads native viewport parity
 
-The comparison now explicitly converts both inputs to the same 8-bit premultiplied sRGB
-format already used by the library's strict comparator, preserving dimensions/scale and
-raw candidates. It writes a truthful matched:false result and caught error type before
-XCTFail reports the failed gate. No threshold/error/lint suppression is introduced.
-Reporting the actual capture failure does not establish the source of the historical
-secondary InvalidTransition error; no framework fix is claimed.
+The final default-traits phone run has nine actual tests, eight passes and one matrix
+failure; tablet has one actual matrix test and one failure. Both stop at portrait/large
+Downloads, with 2 captured / 1 failed / 13 pending coordinates each. Zero skips and zero
+Repetition nodes; exit 65. Strict native comparison reports matched:false. Saved-PNG
+inspection finds 147 phone and 55 tablet glass-toolbar pixels, maximum channel delta one.
+The tablet output is below 8192 native pixels and uses one slice, so a seam/size-limit
+explanation is insufficient. Census is not evaluated at these failed coordinates.
 
-## Resolved warning — diagnostic time zone
+No tolerance, pixel mask, fallback renderer, output-scale reduction or altered fixture
+is permitted to turn these failures into passes. Do not record baselines, complete
+Task 2/17-01 or continue dependent plans. See 17-01-FEASIBILITY-GATE.md for exact paths.
 
-The current testCommentsNativeLibraryStrategy pins global and SwiftUI time zone to UTC,
-restores global state at test exit and retains fixed Date/locale/IDs/animations. The previous
-unfrozen-time-zone warning is resolved. This does not resolve native render feasibility.
+## BLOCKER — Reader fidelity is not established
 
-## Superseded output-scale proposal
+Earlier diagnostic matrices reached Reader. The tablet reports a strict seam mismatch:
+an entire 64-point overlap is cyan in one read and opaque black in another despite
+successful draw Booleans. A phone experiment shows broad native/full viewport differences
+and visible top blur. These are separate from tiny toolbar differences. They precede the
+final source and are preserved as diagnostic evidence, not current-coordinate passes or
+proof of an exact render-server mechanism. The final matrices stop before Reader.
 
-Separating native device scale from explicit output scale and probing 1x is a proposed
-capture-resolution revision. It is not implemented or approved. Keep actual native
-viewport measurement honest and strict configured-scale comparisons if approved; do not
-present lower output resolution as an unchanged 3x gate.
+## Open design risk — Native viewport inputs versus output extent
 
-The reviewed external size/scale controls now show that 1x renderer output and 1x/2x
-trait overrides do not avoid the native screen-scaled render-server limit. The 1x remedy
-proposal is withdrawn. `17-01-RENDER-SIZE-GATE.md` records the current evidence and a
-proposed native region-capture architecture; owner approval is pending. Naive clipping
-changes effective safe area and leaves a seam, so it is not a verified implementation.
+ReadingView observes its rendered size into gestureHandler.containerSize and derives
+isLandscape from that size. A full-height host can change this production layout input
+while native scene orientation remains unchanged. This is a concrete landscape risk;
+it is not a proven cause of the observed portrait blur or black read. No production
+adaptation is included in this WIP. If needed, revise Task 2's exact ownership before
+editing production source. Preserve native scroll-edge effects and designed navigation.
 
-## Review boundaries
+## Reviewed safeguards and resolved local issues
 
-The exporter validates requested fixture/asset/route identity before writing and rejects
-nonempty destinations. Both successful materializations match byte hashes. Paths in
-manifests are fixed repository-relative values; source provenance matches the current source.
-Native scene orientation is requested and measured; Dynamic Type traits/readiness are
-configured explicitly. Matrix outcome accounting retains failed/pending coordinates and
-halts on the first error. Home extraction retains three passing actual tests. None of
-these partial successes resolve the blocker or the unstarted tablet matrix.
+- Every replicant draw checks its Boolean; each read stays within 8192 native pixels.
+  The window/content root is not scrolled or re-hosted. Replicants are removed with defer.
+- Sixty-four-point read context is reserved inside the limit and cropped without redraw.
+  The whole 64-point seam still compares exactly. This fixes the observed Downloads
+  two-pixel crop-edge mismatch without excluding content from the seam check.
+- CPU composition copies the canonical bytes verified by seams. Native and full captures
+  use the same path and renderer range; physical scale and strict comparison are retained.
+- Failure diagnostics retain original slices, geometry and failed/pending accounting.
+  Restored native geometry, tail, artwork and exact-once census remain required.
+- Scene setup omits only redundant orientation requests; required requests still fail on
+  errors and actual scene orientation/bounds are measured. Landscape remains unverified.
+- Main-actor UIKit ownership and deterministic date, locale, time zone, IDs, ordering,
+  inert dependencies and animation control remain explicit. No concurrency/lint suppression.
+- Public export validates requested identities, rejects nonempty destinations and emits
+  repeatable hashes from committed public fixtures. Both final phone exporter tests pass.
+- Both lockfiles add only SnapshotTesting 1.19.6; all previous pins are unchanged. The
+  required clean integration has passed before committing these Task 2 pins.
 
-The owner-requested official-repo research is recorded in
-`17-01-UPSTREAM-RENDERING-RESEARCH.md`. Similar glass/toolbar transparent-output reports
-exist, but our native failing run already uses their main suggested host/hierarchy setup.
-The iOS 27 scene/safe-area report establishes a different layout symptom. These sources
-do not prove our root cause, a resolution limit, or a passed capture gate. No new native
-run or implementation change is credited by this research update.
+## Remaining verification boundaries
+
+Combined final matrix: 4/32 captured, 2 failed, 26 pending. AX5 OCR ownership/marker
+height, actual landscape and all Reader acceptance remain unproven. Earlier incremental
+Comments/Home proof is valid partial evidence, not a full matrix. No approved baseline or
+SUMMARY exists. One expected intentional direct-render error belongs to its unit test;
+IOSurfaceClientSetSurfaceNotify remains an unresolved full-log diagnostic. Optional
+post-test diagnostic collectors were stopped only after the test engines completed.
+
+Earlier review findings about transparent Comments, withdrawn 1x proposals and upstream
+reports are retained as historical evidence in 17-01-FEASIBILITY-GATE.md and
+17-01-RENDER-SIZE-GATE.md. They do not supersede the current adopted architecture.
