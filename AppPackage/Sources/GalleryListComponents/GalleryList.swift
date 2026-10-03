@@ -256,7 +256,7 @@ private struct ThumbnailList: View {
             }
         }
         .listStyle(.plain)
-        .onGeometryChange(for: CGSize.self, of: \.size) {
+        .onVisibleViewportChange {
             viewportSize = $0
         }
         .autoLoadNextPage(

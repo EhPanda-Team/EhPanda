@@ -78,7 +78,7 @@ final class VisualTracerTests: XCTestCase {
                         measurement.rootSizes.append($0)
                     }
                 let host = try await FullContentHost(
-                    rootView: rootView, visibleViewportKey: \.visibleViewportSize
+                    rootView: rootView, visibleViewportFrozenKey: \.isVisibleViewportFrozen
                 )
                 let originalWindowFrame = host.window.frame
                 let originalAutoresizingMask = host.controller.view.autoresizingMask
@@ -194,7 +194,7 @@ final class VisualTracerTests: XCTestCase {
             } operation: {
                 let rootView = try Self.homeRoot(galleries: galleries)
                 let host = try await FullContentHost(
-                    rootView: rootView, visibleViewportKey: \.visibleViewportSize
+                    rootView: rootView, visibleViewportFrozenKey: \.isVisibleViewportFrozen
                 )
                 defer { host.dismiss() }
                 let evidence = try await host.capture(

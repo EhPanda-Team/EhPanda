@@ -209,7 +209,7 @@ final class FullContentFeasibilityTests: XCTestCase {
                     let category: UIContentSizeCategory = coordinate.accessibility
                         ? .accessibilityExtraExtraExtraLarge : .large
                     let host = try await FullContentHost(
-                        rootView: root, visibleViewportKey: \.visibleViewportSize,
+                        rootView: root, visibleViewportFrozenKey: \.isVisibleViewportFrozen,
                         contentSizeCategory: category, isViewportReady: input.viewportIsReady
                     )
                     defer { host.dismiss() }
@@ -241,7 +241,6 @@ final class FullContentFeasibilityTests: XCTestCase {
                         "trailingMarker": NSCoder.string(for: evidence.trailingMarkerFrame),
                         "census": evidence.itemCensus, "stableIterations": evidence.stableIterations,
                         "windowIsAttached": evidence.windowIsAttached,
-                        "visibleViewport": [evidence.pinnedViewportSize.width, evidence.pinnedViewportSize.height],
                         "orientation": scene.effectiveGeometry.interfaceOrientation.rawValue
                     ]
                     try JSONSerialization.data(withJSONObject: details, options: [.prettyPrinted, .sortedKeys])
@@ -399,7 +398,7 @@ private extension FullContentFeasibilityTests {
                     $0.disablesAnimations = true
                 }
             let host = try await FullContentHost(
-                rootView: root, visibleViewportKey: \.visibleViewportSize,
+                rootView: root, visibleViewportFrozenKey: \.isVisibleViewportFrozen,
                 contentSizeCategory: .large, standardImageRange: true,
                 isViewportReady: input.viewportIsReady
             )
