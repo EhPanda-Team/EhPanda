@@ -5,8 +5,8 @@ import UIKit
 /// slices into a single image on the CPU.
 ///
 /// `UIView.drawHierarchy(in:afterScreenUpdates:)` returns `false` (and logs "Render server returned error for
-/// view") whenever the drawn view is larger than ``maximumSnapshotDimension`` screen pixels in either dimension,
-/// regardless of its content. A long screen therefore cannot be drawn in one call. Shrinking the window and
+/// view") whenever the drawn view is larger than 8192 screen pixels in either dimension, regardless of its
+/// content. A long screen therefore cannot be drawn in one call. Shrinking the window and
 /// scrolling would move the hierarchy (safe area, toolbar glass, scroll position), so instead the window keeps
 /// its full content height, the hierarchy is laid out exactly once, and each slice is a
 /// `resizableSnapshotView(from:afterScreenUpdates:withCapInsets:)` replicant of one rect of that same committed
@@ -15,10 +15,14 @@ import UIKit
 /// A moving clip view over the hierarchy is deliberately not used: it shifts the hosted view's safe area between
 /// slices and leaves a visible seam.
 public enum RenderServerCapture {
-    /// Inclusive per-dimension ceiling, in screen pixels, that the Simulator render server accepts for one
-    /// snapshot (measured 2026-10-03: 8190/8193 px @3x, 8192/8194 px @2x). Points x screen scale, never the
+    /// Inclusive per-dimension ceiling, in screen pixels, for one replicant read. Points x screen scale, never the
     /// trait display scale: overriding `displayScale` does not move the limit.
-    public static let maximumSnapshotDimension: CGFloat = 8192
+    ///
+    /// The ceiling is deliberately one pixel under 8192. A replicant read of exactly 8192 px returns
+    /// `drawHierarchy == true` with an all-black image (measured 2026-10-03 on the 2x iPad: 8190 px valid, 8192 px
+    /// silently black, 8194 px refused with `false`; 3x reads cannot land on 8192 px, 8190 px valid and 8193 px
+    /// refused). The direct `drawHierarchy` path accepts 8192 px, but this capture only ever draws replicants.
+    public static let maximumSnapshotDimension: CGFloat = 8191
     private static let sliceEdgePadding: CGFloat = 64
 
     /// One render-server read of a rect of the captured view.
@@ -43,6 +47,11 @@ public enum RenderServerCapture {
         public let overlap: CGFloat
         /// Context read outside each slice, then cropped away without redrawing the captured pixels.
         public let edgePadding: CGFloat
+    }
+
+    /// The tallest read, in points, whose screen-pixel height stays within ``maximumSnapshotDimension``.
+    public static func maximumSliceHeight(forScreenScale scale: CGFloat) -> CGFloat {
+        floor(maximumSnapshotDimension / scale)
     }
 
     /// Captures `view` as one image of its whole bounds.
@@ -73,7 +82,7 @@ public enum RenderServerCapture {
     ) throws -> Result {
         guard let window = view.window else { throw RenderServerCaptureError.detachedView }
         let scale = window.screen.scale
-        let maximumSliceHeight = floor(maximumSnapshotDimension / scale)
+        let maximumSliceHeight = maximumSliceHeight(forScreenScale: scale)
         guard view.bounds.width * scale <= maximumSnapshotDimension else {
             throw RenderServerCaptureError.widthExceedsSnapshotDimension(view.bounds.width)
         }
