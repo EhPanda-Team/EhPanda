@@ -16,7 +16,6 @@ public struct FullContentCaptureEvidence {
     public let normalImageByteCount: Int
     public let normalImageURL: URL
     public let outputSize: CGSize
-    public let pinnedViewportSize: CGSize
     public let renderSettleSamples: Int
     public let renderSliceCount: Int
     public let sceneBounds: CGRect
@@ -69,14 +68,15 @@ public final class FullContentHost<Content: View> {
 
     private let previousKeyWindow: UIWindow?
     private let standardImageRange: Bool
-    private let viewportPin = VisibleViewportPin()
+    private let viewportFreeze = VisibleViewportFreeze()
+    private let nativeWindowFrame: CGRect
     private var verticalScrollHost: UIScrollView
     /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
     /// ``StatusBarAppearanceController``.
     private var companionWindow: UIWindow?
 
     public init(
-        rootView: Content, visibleViewportKey: WritableKeyPath<EnvironmentValues, CGSize?>,
+        rootView: Content, visibleViewportFrozenKey: WritableKeyPath<EnvironmentValues, Bool>,
         contentSizeCategory: UIContentSizeCategory? = nil,
         standardImageRange: Bool = false,
         isViewportReady: @MainActor () -> Bool = { true }
@@ -98,7 +98,7 @@ public final class FullContentHost<Content: View> {
             window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
         }
         controller = UIHostingController(rootView: AnyView(
-            ViewportPinnedContent(content: rootView, pin: viewportPin, key: visibleViewportKey)
+            ViewportSamplingContent(content: rootView, freeze: viewportFreeze, key: visibleViewportFrozenKey)
         ))
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -110,6 +110,7 @@ public final class FullContentHost<Content: View> {
             previousKeyWindow?.makeKey()
             throw FullContentHostError.invalidViewport(size)
         }
+        nativeWindowFrame = window.frame
         viewport = MeasuredViewport(
             safeAreaInsets: window.safeAreaInsets,
             scale: window.traitCollection.displayScale,
@@ -147,8 +148,8 @@ public final class FullContentHost<Content: View> {
     }
 
     public func dismiss() {
-        viewportPin.size = nil
-        removeStatusBarCompanion()
+        restoreViewportGeometry(frame: nativeWindowFrame)
+        viewportFreeze.isFrozen = false
         window.isHidden = true
         window.rootViewController = nil
         previousKeyWindow?.makeKey()
@@ -181,10 +182,8 @@ public final class FullContentHost<Content: View> {
             .filter({ $0 !== verticalScrollHost })
             .map({ $0.convert($0.bounds, to: controller.view) })
         defer {
-            viewportPin.size = nil
-            window.frame = originalWindowFrame
-            controller.view.frame = window.bounds
-            removeStatusBarCompanion()
+            restoreViewportGeometry(frame: originalWindowFrame)
+            viewportFreeze.isFrozen = false
             verticalScrollHost.setContentOffset(originalOffset, animated: false)
             controller.view.layoutIfNeeded()
         }
@@ -193,30 +192,28 @@ public final class FullContentHost<Content: View> {
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
 
-        let pinnedViewportSize = verticalScrollHost.bounds.size
-        viewportPin.size = pinnedViewportSize
+        viewportFreeze.isFrozen = true
         await LayoutFrame.wait()
         controller.view.layoutIfNeeded()
-        let pinned = try await settledViewportRendering(directory: outputDirectory)
-        let pinnedURL = outputDirectory.appending(path: "capture.pinned-viewport.png")
+        let frozen = try await settledViewportRendering(directory: outputDirectory)
+        let frozenURL = outputDirectory.appending(path: "capture.frozen-viewport.png")
         try store(
-            pinned.rendering.image, at: pinnedURL, name: "pinned-viewport", directory: outputDirectory, record: record
+            frozen.rendering.image, at: frozenURL, name: "frozen-viewport", directory: outputDirectory, record: record
         )
-        guard let referenceCG = normalImage.cgImage, let pinnedCG = pinned.rendering.image.cgImage else {
+        guard let referenceCG = normalImage.cgImage, let frozenCG = frozen.rendering.image.cgImage else {
             throw FullContentHostError.emptyImage
         }
         let referencePixels = try CapturedRaster(image: referenceCG).pixels
-        let pinnedPixels = try CapturedRaster(image: pinnedCG).pixels
-        let pinMatches = referenceCG.width == pinnedCG.width && referenceCG.height == pinnedCG.height
-            && referencePixels == pinnedPixels
+        let frozenPixels = try CapturedRaster(image: frozenCG).pixels
+        let freezeMatches = referenceCG.width == frozenCG.width && referenceCG.height == frozenCG.height
+            && referencePixels == frozenPixels
         try JSONSerialization.data(withJSONObject: [
-            "comparison": "byte-identical 8-bit sRGB RGBA before growth", "matched": pinMatches,
-            "visibleViewport": [pinnedViewportSize.width, pinnedViewportSize.height],
+            "comparison": "byte-identical 8-bit sRGB RGBA before growth", "matched": freezeMatches,
             "windowViewport": [viewport.size.width, viewport.size.height],
-            "unpinnedSettleSamples": settled.samples, "pinnedSettleSamples": pinned.samples
+            "nativeSettleSamples": settled.samples, "frozenSettleSamples": frozen.samples
         ], options: [.prettyPrinted, .sortedKeys])
-            .write(to: outputDirectory.appending(path: "visible-viewport-pin-parity.json"), options: .atomic)
-        guard pinMatches else { throw FullContentHostError.visibleViewportPinChangedPixels }
+            .write(to: outputDirectory.appending(path: "visible-viewport-freeze-parity.json"), options: .atomic)
+        guard freezeMatches else { throw FullContentHostError.visibleViewportFreezeChangedPixels }
 
         // UIKit lets only a window that covers the whole screen drive the status bar. Once the key window grows
         // past the screen it loses that role and the status bar reappears (measured 2026-10-03: hidden -> visible,
@@ -406,7 +403,6 @@ public final class FullContentHost<Content: View> {
             normalImageByteCount: normalData.count,
             normalImageURL: normalURL,
             outputSize: fullImage.size,
-            pinnedViewportSize: pinnedViewportSize,
             renderSettleSamples: measurement.renderSettleSamples,
             renderSliceCount: rendering.slices.count,
             sceneBounds: scene.effectiveGeometry.coordinateSpace.bounds,
@@ -432,12 +428,10 @@ public final class FullContentHost<Content: View> {
     }
 
     private func restoreNativeHost(frame: CGRect) async throws {
-        viewportPin.size = nil
-        window.frame = frame
-        controller.view.frame = window.bounds
-        window.layoutIfNeeded()
-        // Back at viewport size the capture window covers the screen and drives the status bar again.
-        removeStatusBarCompanion()
+        restoreViewportGeometry(frame: frame)
+        await LayoutFrame.wait()
+        controller.view.layoutIfNeeded()
+        viewportFreeze.isFrozen = false
         var previousHeight: CGFloat?
         var stableIterations = 0
         for _ in 1...12 {
@@ -456,6 +450,15 @@ public final class FullContentHost<Content: View> {
             if stableIterations >= 2 { return }
         }
         throw FullContentHostError.didNotConverge
+    }
+
+    private func restoreViewportGeometry(frame: CGRect) {
+        window.frame = frame
+        controller.view.frame = window.bounds
+        window.layoutIfNeeded()
+        // At viewport size the capture window covers the screen and drives the status bar again.
+        removeStatusBarCompanion()
+        controller.view.layoutIfNeeded()
     }
 
     private func removeStatusBarCompanion() {
@@ -739,21 +742,21 @@ public enum FullContentHostError: Error {
     case renderedTextInspectionFailed(String)
     case snapshotFailed(String)
     case statusBarStateChanged(expectedHidden: Bool)
-    case visibleViewportPinChangedPixels
+    case visibleViewportFreezeChangedPixels
 }
 
 @MainActor
 @Observable
-private final class VisibleViewportPin {
-    var size: CGSize?
+private final class VisibleViewportFreeze {
+    var isFrozen = false
 }
 
-private struct ViewportPinnedContent<Content: View>: View {
+private struct ViewportSamplingContent<Content: View>: View {
     let content: Content
-    let pin: VisibleViewportPin
-    let key: WritableKeyPath<EnvironmentValues, CGSize?>
+    let freeze: VisibleViewportFreeze
+    let key: WritableKeyPath<EnvironmentValues, Bool>
 
     var body: some View {
-        content.environment(key, pin.size)
+        content.environment(key, freeze.isFrozen)
     }
 }

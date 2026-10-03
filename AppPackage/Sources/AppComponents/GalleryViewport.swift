@@ -1,10 +1,44 @@
 import SwiftUI
 
 public extension EnvironmentValues {
-    /// The visible scroll container size when its layout extent is temporarily enlarged for capture.
-    /// Viewport-based layout rules must prefer this value to their measured container size when non-nil.
-    /// Production leaves it nil and measures the container, including in windowed tablet layouts.
-    @Entry var visibleViewportSize: CGSize?
+    /// Holds each view's native viewport measurement while capture enlarges its container.
+    /// Production leaves sampling enabled, including in windowed tablet layouts.
+    @Entry var isVisibleViewportFrozen = false
+}
+
+public extension View {
+    /// Samples the container size only while the container represents the visible viewport.
+    /// Full-content capture freezes sampling before enlarging the container, so viewport-based layout rules
+    /// retain their own native measurements. Unfreezing delivers the current size if it changed while frozen.
+    func onVisibleViewportChange(_ action: @escaping (CGSize) -> Void) -> some View {
+        modifier(VisibleViewportMeasurement(action: action))
+    }
+}
+
+private struct VisibleViewportMeasurement: ViewModifier {
+    @Environment(\.isVisibleViewportFrozen) private var isFrozen
+    @State private var latestSize: CGSize?
+    @State private var lastForwardedSize: CGSize?
+    let action: (CGSize) -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .onGeometryChange(for: CGSize.self, of: \.size, action: geometryChanged)
+            .onChange(of: isFrozen, freezeChanged)
+    }
+
+    private func geometryChanged(_ size: CGSize) {
+        latestSize = size
+        guard !isFrozen else { return }
+        lastForwardedSize = size
+        action(size)
+    }
+
+    private func freezeChanged() {
+        guard !isFrozen, let latestSize, latestSize != lastForwardedSize else { return }
+        lastForwardedSize = latestSize
+        action(latestSize)
+    }
 }
 
 /// Uses the available app viewport, so a windowed tablet can adopt the compact gallery rules.

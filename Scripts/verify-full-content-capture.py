@@ -20,7 +20,7 @@ NATIVE_TESTS = [
         "testExportRejectsMissingFixtureAssetAndRoute", "testCommentsNativeCapture",
         "testDownloadsNativeCapture", "testReaderNativeCapture",
     )
-] + ["VisualSnapshotTests/RenderServerCaptureTests"]
+] + ["VisualSnapshotTests/RenderServerCaptureTests", "VisualSnapshotTests/VisibleViewportTests"]
 
 
 def save_json(path, value):
@@ -29,6 +29,7 @@ def save_json(path, value):
 
 def source_hashes():
     paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
+    paths += ["AppPackage/Tests/VisualSnapshotTests/VisibleViewportTests.swift"]
     paths += ["EhPandaUITests/VisualCaptureOrientationUITests.swift", str(Path(__file__).relative_to(ROOT))]
     return {
         path: hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
@@ -162,7 +163,7 @@ class Gate:
             raise RuntimeError(f"{name}: incomplete coordinate coverage")
         for coordinate in sorted(expected):
             directory = files[0].parent / coordinate
-            for filename in ("native-viewport-parity.json", "visible-viewport-pin-parity.json"):
+            for filename in ("native-viewport-parity.json", "visible-viewport-freeze-parity.json"):
                 if json.loads((directory / filename).read_text())["matched"] is not True:
                     raise RuntimeError(f"{coordinate}: {filename} failed")
             acceptance = json.loads((directory / "acceptance.json").read_text())
@@ -188,7 +189,7 @@ class Gate:
                          [ROTATION + "testRotateToPortrait"], 1)
                 tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                 self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                         tests, 12 if family == "iphone" else 9)
+                         tests, 15 if family == "iphone" else 12)
                 for orientation in ("portrait", "landscape"):
                     if orientation == "landscape":
                         self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,
