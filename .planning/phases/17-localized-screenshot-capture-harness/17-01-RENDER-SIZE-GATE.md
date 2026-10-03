@@ -2,16 +2,18 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: awaiting-capture-architecture-direction
+status: adopted-full-matrix-failed
 recorded: 2026-10-03
 ---
 
-# Native hierarchy render-size finding and next decision
+# Native hierarchy render-size finding and adopted architecture
 
 The owner supplied another research agent's standalone Simulator probe report. The root
 located and reviewed the preserved probe sources, PNGs and original recorded tool outputs.
-No probe app, build or native XCTest was rerun in this review. The existing three-run
-harness recovery cycle remains exhausted; Task 2 and the full matrix remain incomplete.
+No probe app, build or native XCTest was rerun in this review. The historical three-run
+harness recovery cycle was exhausted. The owner subsequently adopted and committed the
+architecture below; that prior bound no longer applies. Root has now completed clean integration and both actual matrix invocations.
+Clean integration passes; the matrices fail Downloads parity. See 17-01-FEASIBILITY-GATE.md.
 
 Reviewed copies and SHA-256 manifest are preserved in
 `/tmp/ehpanda-phase17-size-probe-evidence/`: `probe.swift`, `probe2.swift`, `cmp.swift`,
@@ -56,7 +58,7 @@ screen scale in these experiments, not the requested output renderer/trait scale
 
 The prior configurable-output-scale / initial-1x proposal is therefore withdrawn as a
 remedy for this failure. No 1x plan revision, source change or additional run is needed
-to repeat the external result. Owner approval of a capture architecture remains pending.
+to repeat the external result. The owner-adopted slicing architecture below supersedes that approval checkpoint.
 
 ## Why an apparently successful library call returns a transparent image
 
@@ -69,8 +71,8 @@ the strict harness comparison correctly rejects the empty result.
 
 The current FullContentHost bound of 32768 pixels is an algorithm/resource guard, not
 a validated native hierarchy rendering limit. It permits an extent beyond the observed
-native ceiling and checks only height. It remains unchanged until an approved strategy
-defines both per-render admissibility and composite-output bounds.
+native ceiling and checks only height. The adopted strategy retains this composite budget and separately enforces the
+8192-native-pixel width/read-height ceiling.
 
 The probe logs IOSurface maxima of 16384 and successful Metal texture creation at 8192.
 Trying 8193 reaches Metal validation rejection. The matching Metal dimension is a plausible
@@ -90,26 +92,42 @@ excluding 402 rows at the bottom. Recorded zero differences establish that top r
 including the toolbar, not complete viewport parity, tail/census or seamless composition.
 Neither the passing clip calls nor these PNGs complete the actual Comments gate.
 
-## Concrete proposed revision for owner review
+## Adopted revision — owner direction, committed 73bf3e4b59
 
-Recommended direction: a native hierarchy capture strategy that renders bounded regions
-and combines them while keeping the actual content root's bounds, effective safe areas,
-traits and layout stable across regions. Preserve native 3x glass appearance and the
-actual production views. Define native per-render dimension guards separately from the
-permitted final composite extent. Report render failure explicitly rather than treating
-a requested PNG size as evidence of a successful draw.
+The owner chose render-server slices and committed the implementation. FullContentHost
+keeps its converged full-height layout stationary. RenderServerCapture requests each
+bounded rect with resizableSnapshotView(from:afterScreenUpdates:withCapInsets:), draws
+the attached replicant and checks drawHierarchy's Boolean. Each slice is at most 8192
+native screen pixels tall. Adjacent slices overlap by 64 points; their 8-bit sRGB RGBA
+bytes must match exactly or seamMismatch rejects the capture. CPU composition makes
+one final image. The full-height 32768-pixel guard is a composite memory budget.
 
-The proposed initial work is a bounded feasibility cycle of at most three sequential
-native runs, owned by FullContentHost.swift and FullContentFeasibilityTests.swift. First
-prove effective safe-area/layout stability and region overlap continuity on actual
-Comments, then retain existing complete native viewport parity, exact item/tail census,
-artwork and restored-host checks. Keep the existing Home proof as a regression gate.
-Matrix expansion follows a passing actual-content gate, not the standalone clip result.
-Implementation details need SDK/API research; no safe-area override or tiling code is
-represented as already correct or adopted.
+This satisfies D-08 through one output image from one committed layout. Slices read
+regions of that stationary frame; no scrolling or moving clip changes the layout.
+The rejected moving-clip experiment above remains historical evidence, not the adopted
+algorithm. Standalone probe3 evidence under the preserved evidence directory compared
+all 8190 rows against a whole 2730-point capture. Its preserved viewport comparator
+covers the top 2334 of 2736 rows; complete native viewport parity is instead established
+by the incremental actual Comments test, and must pass again in the matrix.
 
-This is a proposal, not an amendment to approved execution scope. Plan 17-01 explicitly
-says no stitching or acceptance change is approved. The execute-plan workflow's Rule 4
-requires a decision before architectural changes. A layer-render fallback with accepted
-glass differences would instead require an explicit acceptance revision; none is granted.
-No source, dependency pin, baseline, SUMMARY or completion count changes from this review.
+The owner reports incremental build success and six passing actual phone tests:
+RenderServerCaptureTests x2, testCommentsNativeCapture and VisualTracerTests x3.
+Comments is 420 x 2798 points, 1260 x 8394 pixels, two slices, exact VC1..VC12 census,
+strict native viewport parity and two stable iterations. The one render-server error
+belongs to the deliberate direct-draw failure pin, not the sliced capture.
+
+The final clean gate passes with zero compiler/deprecation/SwiftLint diagnostics. Both
+actual default-traits matrices capture Home and Comments, then fail strict native viewport
+parity at Downloads: 147 phone and 55 tablet pixels differ by at most one channel byte.
+Tablet Downloads uses one read under the size limit, so this failure is not explained by
+slice seams or the dimension ceiling. Combined final accounting is 4 captured, 2 failed
+and 26 pending; AX5 OCR overlap and actual landscape remain unverified. Earlier Reader
+diagnostics also show top blur and a black overlap band. The full gate remains failed;
+architecture approval is settled, acceptance and baseline approval are not.
+
+Current same-frame refinements reserve 64-point read context on each side within the
+ceiling, crop the owned slice without redraw and copy canonical sRGB bytes on the CPU.
+The complete 64-point overlap remains byte-identical or the capture throws. These changes
+fix the observed crop-edge mismatch without moving the committed hierarchy. D-08's
+architecture requirement remains satisfied; actual fidelity must still pass every gate.
+The prior three-run bound does not apply to this owner-adopted architecture.
