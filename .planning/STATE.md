@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 AX5 Comments toolbar glyph changes across viewport freeze before growth
-last_updated: "2026-10-03T18:02:45.106510+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 observation freeze passes; AX5 Comments exceeds composite height budget
+last_updated: "2026-10-03T18:29:24.964949+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "Native viewport freeze resolves AX5 Home; AX5 Comments compose glyph changes before growth"
-state_head: da93f8c7f13d79999f9a50df4fb28c665f8c7de7
+last_activity_desc: "Observation preserves native AX5 Comments glyph; requested 35820-pixel composite exceeds approved 32768 budget"
+state_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: da93f8c7f13d79999f9a50df4fb28c665f8c7de7
+source_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — AX5 Comments compose glyph changes across freeze before growth
-Last activity: 2026-10-04 — Native freeze implemented; phone 15/15, AX5 Home parity passes; Comments glyph guard fails
+Status: checkpoint — AX5 Comments exceeds the composite height budget
+Last activity: 2026-10-04 — Observation signal passes AX5 Comments inertness; composite extent hits the plan budget
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP da93f8c7f1 implements owner-adopted per-view viewport freezing. Clean/UI builds pass without diagnostics; phone native 15/15 and rotation/cleanup 1/1 each pass, with zero skips/Repetition. Five matrix coordinates pass, including AX5 Home (exact freeze and full/native parity, 6/6 census). AX5 Comments fails before growth: only its compose glyph changes, 2648 pixels within [1098,229,1174,305), maximum delta 77; the rest of the image is identical. Comments does not consume the freeze key; the cause of this toolbar transition is unproven. Coverage is 5 captured / 1 failed / 26 pending. Phone restored, no active jobs. Preserve the inertness check and investigate before expansion. Evidence: `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`. No SUMMARY or baseline.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP 5d618fa090 implements stable observation delivery, preserving the native AX5 Comments glyph with zero changed pixels across freezing. Clean/UI builds pass without diagnostics; phone native 15/15 and rotation/cleanup 1/1 each pass, zero skips/Repetition, unchanged source hashes. Five matrix coordinates pass. AX5 Comments then requests 35820 composite pixels (11940 pt at 3x), exceeding the approved 32768-pixel height budget. No full image, growth parity, final convergence or peak-memory proof exists for that coordinate. Coverage is 5 captured / 1 failed / 26 pending. Phone portrait cleanup passed; no active jobs. Reconcile the required extent and explicit composite budget before expansion. Evidence: `/tmp/ehpanda-phase17-observation-gate-01/`. No SUMMARY or baseline; `.capture/` untouched.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-03T18:02:45.106510+00:00
-Stopped at: Phase 17 plan 17-01 Task 2 AX5 Comments freeze-equivalence toolbar transition
+Last session: 2026-10-03T18:29:24.964949+00:00
+Stopped at: Phase 17 plan 17-01 Task 2 composite height budget after observation inertness passes
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.

@@ -2,14 +2,67 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: viewport-freeze-toolbar-equivalence-failed
+status: observation-passed-composite-height-budget-blocked
 recorded: 2026-10-04
-source_head: da93f8c7f13d79999f9a50df4fb28c665f8c7de7
+source_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current native viewport freeze gate — 2026-10-04
+## Current observation delivery gate — 2026-10-04
+
+The owner's real-CommentsView probe isolated the toolbar shrink to environment writes:
+no-change settling and body re-evaluation preserved pixels; even an unread changed key
+reproduced the 2648-pixel glyph shrink; toggling a stable observable object's property
+preserved pixels. Reports and probe source:
+`/tmp/ehpanda-phase17-size-probe-evidence/toolbar-glyph-environment/`.
+
+The host now receives a reference object, its optional environment key and a writable
+Boolean key path. The stable root installs that object before first render and does not
+read its mutable property. A stored setter retains the generic reference without linking
+AppComponents into the capture library. Only the measurement modifier observes isFrozen.
+The private Boolean environment writer is removed; Home/GalleryList call sites are unchanged.
+
+Formal evidence: `/tmp/ehpanda-phase17-observation-gate-01/`. Clean and orientation builds
+pass with zero compiler/lint diagnostics. Phone native tests pass 15/15, including all three
+updated modifier tests and an explicit actual-geometry/unchanged-forwarding assertion.
+Portrait rotation and cleanup each pass 1/1. All result trees have zero skipped tests and
+Repetition nodes; summary runtimeWarnings arrays are empty. Source hashes are unchanged.
+The run finalized itself; no diagnostic collector or test process was interrupted.
+
+The five previously captured coordinates pass again (four portrait Large shapes and AX5
+Home). **AX5 Comments now passes freeze inertness with zero changed pixels**: both PNGs are
+1260×2736 and their complete decoded RGBA bytes match. The native reference settled after
+six samples, the frozen reference after three. The old glyph transition is resolved for
+this native-size test. The hierarchy was not primed into its post-update glyph state.
+
+The next guard rejects `contentHeightExceeded(35820.0)` during height convergence. At 3x,
+this is a requested 11940-point composite height, above the approved 32768-pixel budget.
+This is the capture harness's composite allocation bound, not the render-server per-read
+8191-pixel ceiling. No full-content image was produced; final converged height, native/full
+parity, item census and peak memory for this coordinate remain unverified. The error alone
+does not establish which convergence iteration requested this height or that it is final.
+
+At the measured width of 1260 pixels, one 35820-row RGBA buffer would be 180532800 bytes
+(172.1695 MiB); one buffer at the current height ceiling is 157.5 MiB. These are arithmetic
+buffer sizes, not measured peak process memory. The implementation also retains slices,
+creates canonical raster copies and PNG data, so the additional allocation cost is not
+established by the single-buffer calculation.
+
+Matrix coverage remains **5 captured / 1 failed / 26 pending**, now with the failure at
+the composite budget rather than the inertness guard. AX5 Downloads/Reader, landscape and
+iPad matrix runs were not reached. The capture runner restored portrait; no jobs remain.
+The existing height budget is unchanged pending a reconciled capacity decision; no fixture
+reduction, parity tolerance, coverage exception or baseline promotion was introduced.
+
+Authoritative extracted matrix directory, relative to the run root:
+`iphone-portrait-attachments/DA910431-BA83-4F58-9C57-28283F2ADFD4/phase17-feasibility-EFFA4106-F42C-4449-8722-C4A2D6317C70/`.
+The failed directory contains the two native images, matched freeze JSON, and derived
+`observation-and-budget-analysis.json`; `outcomes.json` records the exact guard failure.
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete, no SUMMARY. `.capture/`
+remains untouched. The earlier sections are historical evidence for superseded protocols.
+
+## Historical Boolean freeze gate — 2026-10-04
 
 The owner's follow-up protocol is implemented: each Home/GalleryList measurement retains
 its own native container size, with a Boolean environment flag controlling sampling.
