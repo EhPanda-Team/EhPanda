@@ -3,82 +3,81 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-parity-handoff
-status: owner-viewport-decision-and-native-orientation
-files_reviewed: 6
-source_head: 8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a
+scope: task-2-viewport-pin-and-external-rotation
+status: viewport-pin-equivalence-failed
+files_reviewed: 7
+source_head: 76ca3010f03d7b662524eef1b2614852c05e29a7
 ---
 
 # Task 2 scoped source and evidence review
 
-Inline gsd-code-review with SnapshotTesting/concurrency guidance, not an independent
-session or whole-phase sign-off. Reviewed FullContentHost.swift, RenderServerCapture.swift,
-PublicVisualFixtures.swift, FullContentFeasibilityTests.swift, RenderServerCaptureTests.swift
-and VisualTracerTests.swift. Read-only HomeView, GalleryCardCell and GalleryViewport
-inspection confirms the remaining height-dependent layout contract. Root changes docs only.
+Inline gsd-code-review with SwiftUI, observable-model and SnapshotTesting guidance;
+this is not an independent review session or whole-phase sign-off. Reviewed
+AppComponents/GalleryViewport.swift, HomeFeature/HomeView.swift,
+VisualSnapshotSupport/FullContentHost.swift, FullContentFeasibilityTests.swift,
+VisualTracerTests.swift, VisualCaptureOrientationUITests.swift and
+Scripts/verify-full-content-capture.py. The earlier render-slice and reader-export
+implementation remains unchanged from 3b4e460722 / 8e2122c92b.
 
-## Resolved — Previously failed capture parity
+## Adopted viewport contract
 
-3b4e460722 samples viewport bytes until a continuous identical run spans 500 ms, bounded
-by 40 samples with cancellation/failure. This addresses measured render settling rather
-than using layout stability as a rendering guarantee. Replicant reads stay below the
-silent-black 8192-pixel case, at most 8191 native pixels per dimension. Device-derived
-height/width controls replace phone-only hard-coded renderer fixtures. Strict full-band
-seam comparison and canonical byte composition remain intact.
+The optional environment entry defaults to nil. Home uses its measured ScrollView size
+unless the entry is supplied; horizontal size class, navigation, search, scroll-edge
+policy and card selection rules are unchanged. Windowed production layouts keep their
+container-based semantics.
 
-The native full-screen non-key companion mirrors the measured status-bar state, checks
-that state during convergence, and is removed during native restoration, deferred cleanup
-and dismiss. It preserves Reader status-bar/safe-area/soft-edge behavior when the key
-window becomes tall. Main-actor UIKit ownership remains explicit; no suppressions added.
+The host owns one MainActor observable box and applies it through a stable SwiftUI
+wrapper. Native test entry points pass the app's environment key path, keeping the support
+library independent of the app graph. A direct AppComponents dependency caused Xcode to
+promote shared modules to dynamic frameworks without string-symbol generation. Explicit
+symbol generation and static support linkage did not repair that graph; those experiments
+are reverted. The retained implementation changes no package linkage or resource source.
 
-8e2122c92b preserves public eight-page 8:11 semantics while exporting at rendered pixel
-width. Per-coordinate fresh paths and measured artwork-width assertions establish 1:1
-rendering. The default export asset aggregate remains unchanged; generator provenance
-changes and is recorded separately. Original viewport/full/slice/census evidence remains.
+Each capture settles an unpinned reference, measures the selected native UIScrollView's
+bounds, applies the pin, waits for layout and settles again before any growth. Both native
+images are retained and canonical 8-bit sRGB RGBA bytes must match exactly. A mismatch
+writes explicit evidence and throws. Full-content parity still compares against the
+original unpinned image. The pin remains held throughout convergence, slicing and census,
+and is cleared in successful restoration, deferred failure cleanup and dismissal.
 
-All four phone portrait/large shapes and all eight tablet portrait coordinates pass in
-the supplied matrices, including Reader and Downloads that previously failed. These
-resolve the old observed failures on those coordinates, not every possible runtime/device.
+No coordinate is excluded. The same pin contract applies to all 32 full-content captures,
+including phone AX5 Home. Rendering, seam equality, census, artwork completeness, reader
+non-resampling, status-bar and restored-geometry assertions remain strict.
 
-## BLOCKER — Phone AX5 Home changes its intended container-based layout
+## Native orientation and runner contract
 
-The AX5 viewport/full crop differs at 706625 pixels (max channel delta 255). Home observes
-its own container size and feeds GalleryViewport.maximumSlideshowHeight; GalleryCardCell
-selects title lines with ViewThatFits against that ceiling. A tall capture increases the
-ceiling and changes line wrapping, shifting following content. This is not unresolved
-glass rasterization and not an app defect established by the capture. The harness must
-preserve the native logical viewport to retain the approved acceptance.
+Two matrix methods each exercise eight coordinates per device family. They require actual
+scene orientation and bounds; no in-process orientation request or pretend landscape
+window size remains. The two native UI tests rotate XCUIDevice without launching the app.
+The runner serializes portrait rotation, native gates, portrait capture, landscape rotation
+and landscape capture, then restores portrait in a finally block, including failures.
 
-The handoff records owner options: exclude AX5 full-content Home, use scene size, or add
-an injectable viewport defaulting to native container behavior. No option is selected.
-Production adaptation exceeds current Task 2 ownership; exclusion changes acceptance.
-Obtain owner direction before either change. Preserve existing native navigation/search
-and container/window adaptivity instead of silently substituting a different size source.
+Generated xctestrun copies omit Xcode's TestRepetitionPolicy. Source plans and built test
+binaries remain intact. Exact expected test counts, device identity, zero failures/skips/
+repetitions and compiler/lint diagnostics are checked. Fresh result directories retain
+commands, exit codes, summaries, trees and extracted directory attachments. Matrix outcome
+keys must match all eight requested coordinates, with pin/native parity and acceptance
+artifacts present. Tracked app/test resources and code plus the runner are hashed before
+building and checked before subsequent work and final acceptance. Cleanup still runs if
+that source guard fires.
 
-## BLOCKER — iPad landscape scene request is rejected before capture
+## Verification and open finding
 
-The actual scene returns UISceneErrorDomain 101 after eight portrait passes. All landscape
-coordinates remain unverified (one failed request, seven pending). A scene-accepted native
-rotation mechanism is required before exporting/capturing that orientation. Window resize
-alone violates the measured scene-width premise and cannot establish a landscape pass.
+Final-source evidence is `/tmp/ehpanda-phase17-viewport-gate-03/`: clean and UI-test builds
+pass with zero diagnostics, phone native tests pass 12/12, portrait rotation and cleanup
+pass 1/1 each, and all trees have zero skips/Repetition. Source hashes remain unchanged.
 
-## Verification and provenance boundaries
+**Blocking finding:** the owner-specified UIScrollView bounds pin does not preserve native
+phone AX5 Home rendering. Its 420 x 912 pt input changes 706625 viewport pixels before any
+window growth; the title expands from two truncated lines to three lines, increasing the
+card height. The new guard correctly stops here. Home's private SwiftUI measurement has
+not been instrumented, so the exact measurement discrepancy is still unproven. The approved
+input protocol must be reconciled before changing that measurement or resuming the matrix.
 
-Current inspected bundles: phone native gate 2/2, tablet native gate 9/9; both zero
-skips/Repetition. Each matrix has one actual failed test, zero skips/Repetition; combined
-coordinates 12 captured, 2 failed, 18 pending. The handoff's earlier phone 12/12 report
-has separate surviving attachments; the current same-named bundle has only two cases.
-Do not present it as a twelve-test gate. VisualTracerTests.testHomeFullContentTracer still
-asserts phone idiom; tablet Home proof comes from matrix captures, not that test.
+Current matrix coverage is 4 captured / 1 failed / 27 pending. New-code landscape and iPad
+captures are unexecuted. Earlier 12/32 captures remain historical. Task 2 is incomplete;
+no SUMMARY, baseline approval, coverage exception or later-plan completion is implied.
 
-Earlier matrix/default-export manifests name generator source hash 26da899c...feb3a5,
-while current source and current phone Reader attachment name 5c7e4901...95b25.
-The inspected asset hashes are valid. Those earlier matrices are informational evidence,
-not a frozen current-source full matrix. Incremental builds have zero diagnostics; a new
-final-source clean/full-matrix gate remains required before Task 2 completion.
-
-Tablet AX5 exact census now validates its four portrait shapes, including twelve Comments
-and eight Reader pages. Phone AX5 and all landscape OCR/geometry remain pending. Expected
-direct-render refusal belongs to the tablet renderer pin; current phone two-test run has
-no pin. IOSurface messages remain in logs and coexist with passing captures. No baseline,
-SUMMARY, production patch or acceptance waiver is introduced by this review.
+The failed test suite finished before its matching post-test simctl diagnostic collector
+was terminated to let Xcode finalize the xcresult and perform portrait cleanup. Optional
+simulator diagnostics may be incomplete; the original test failure and artifacts remain.
