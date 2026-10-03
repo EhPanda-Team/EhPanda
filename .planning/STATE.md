@@ -5,10 +5,10 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 native 3x gate failed after recovery cycle 2; awaiting output-scale decision
-last_updated: "2026-10-02T18:18:22.447Z"
+stopped_at: Phase 17 plan 17-01 Task 2 render ceiling established on tested Simulators; awaiting capture architecture decision
+last_updated: "2026-10-03T01:23:11.576Z"
 last_activity: 2026-10-03
-last_activity_desc: "Recovery cycle 2 exhausted: Home 3/3 in each run; Comments native 3x render still fails"
+last_activity_desc: "External size probe reviewed; 1x remedy withdrawn; native region capture proposal pending"
 state_head: d3cf55eb1e217264326fc79b6efa8b5ee331c246
 progress:
   total_phases: 17
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — Task 2 native capture needs output-scale decision
-Last activity: 2026-10-03 — Recovery cycle 2 exhausted: Home 3/3 in each run; Comments native 3x render still fails
+Status: checkpoint — Task 2 needs capture architecture decision
+Last activity: 2026-10-03 — External size/scale controls reviewed; 1x remedy withdrawn; native region-capture feasibility proposal pending
 
-**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Task 1 passed 3/3 actual tests with exact six-item census, complete covers/final section, native viewport pixel parity, restored active native geometry and no warnings/Repetition nodes. Native SnapshotTesting custom-size capture is used; the premature stitching request was withdrawn. Genuine app hosting and inline recovery remain owner-approved. Task 2 exporter passed 2/2. The actual phone matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. Three default-library probes failed; independent saved-PNG comparison found 20,284 viewport pixel differences. The owner approved three additional native diagnosis runs; all three failed Comments while retaining Home 3/3. The correct caught failure is nativeViewportPixelsChanged; native UIViewController and direct SwiftUI APIs both yield black 1260 x 8394 images with render-server errors at 3x. Configurable output scale with an initial 1x probe is proposed, unapproved and unimplemented. A new output-scale decision is pending. Later waves, plan SUMMARY and baselines remain pending. See `phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md`.
+**Phase 17 current gate:** Wave 1, plan 17-01; 0/24 plans and 1/2 tasks complete. Task 1 passed 3/3 actual tests with native viewport parity, exact census/artwork/tail and restored geometry. Task 2 exporter passed 2/2; the actual matrix captured Home, failed Comments and left fourteen phone plus sixteen tablet coordinates pending. All three owner-authorized recovery-cycle-2 runs failed Comments while retaining Home 3/3. Latest Comments full PNG is completely transparent. Owner-supplied standalone probes are now reviewed: native screen-scaled dimensions above 8192 pixels fail on the tested Simulators, explaining Comments height 8394; lower renderer/trait scale does not help. The initial-1x remedy is withdrawn. Native region captures can render but naive clip movement changes effective safe area and leaves a seam; top-region pixel parity is not a complete gate. A proposed architecture revision and bounded feasibility cycle await owner direction. No tiling, layer fallback acceptance change, additional native run, plan SUMMARY or baseline is approved. See `phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md`.
 
 ### Historical round-2 status snapshots
 

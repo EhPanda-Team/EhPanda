@@ -40,12 +40,18 @@ The current testCommentsNativeLibraryStrategy pins global and SwiftUI time zone 
 restores global state at test exit and retains fixed Date/locale/IDs/animations. The previous
 unfrozen-time-zone warning is resolved. This does not resolve native render feasibility.
 
-## Pending owner decision
+## Superseded output-scale proposal
 
 Separating native device scale from explicit output scale and probing 1x is a proposed
 capture-resolution revision. It is not implemented or approved. Keep actual native
 viewport measurement honest and strict configured-scale comparisons if approved; do not
 present lower output resolution as an unchanged 3x gate.
+
+The reviewed external size/scale controls now show that 1x renderer output and 1x/2x
+trait overrides do not avoid the native screen-scaled render-server limit. The 1x remedy
+proposal is withdrawn. `17-01-RENDER-SIZE-GATE.md` records the current evidence and a
+proposed native region-capture architecture; owner approval is pending. Naive clipping
+changes effective safe area and leaves a seam, so it is not a verified implementation.
 
 ## Review boundaries
 

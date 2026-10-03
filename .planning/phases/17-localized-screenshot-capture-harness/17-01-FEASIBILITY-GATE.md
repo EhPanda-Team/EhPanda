@@ -2,11 +2,17 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: failed-awaiting-scale-direction
+status: failed-awaiting-capture-architecture-direction
 recorded: 2026-10-03
 ---
 
 # Task 2 actual-content feasibility gate
+
+Current direction: the reviewed external standalone probes establish an 8192 native-screen
+pixel per-dimension operating ceiling on the tested Simulators. Comments exceeds it at
+8394 pixels. Lower renderer/trait scale still fails, so the prior 1x proposal below is
+withdrawn. See `17-01-RENDER-SIZE-GATE.md` for evidence, limits and the proposed native
+region-capture feasibility cycle. No tiling, fallback or extra native run is approved.
 
 Task 1 remains complete. Task 2 is incomplete; zero of 24 plans are complete.
 The deterministic exporter passed its two tests, but actual full-content capture stopped
@@ -171,7 +177,7 @@ and direct SwiftUI options are explicit opt-in diagnostics; the actual matrix an
 Home path have not been silently switched to failed candidates. Library checkout sources
 remain untouched. The source and evidence remain WIP, with strict failures visible.
 
-### Proposed next decision — output scale
+### Historical proposed decision — output scale (withdrawn)
 
 Recovery cycle 2 is exhausted. The owner-approved scope preserved native 3x output.
 The concrete next proposal is to separate measured device viewport/scale from capture

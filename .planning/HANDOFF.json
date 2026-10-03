@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-02T18:18:21.568Z",
+  "timestamp": "2026-10-03T01:23:11.576Z",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "awaiting-scale-direction",
+  "status": "awaiting-capture-architecture-direction",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,22 +21,22 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "in_progress",
-      "progress": "Recovery cycle 2 used all three authorized runs; each failed Comments with three Home passes. Latest full PNG is now confirmed fully transparent (all alpha zero), correcting prior RGB-only black label. Owner-requested official upstream research completed; no extra native test or scale revision."
+      "progress": "Reviewed external standalone probe sources, images and original logs: native screen-scaled render dimension ceiling explains transparent Comments output. Lower output renderer/trait scale still fails; 1x proposal withdrawn. Harness recovery cycle remains 3/3 exhausted; actual matrix remains incomplete."
     }
   ],
   "blockers": [
     {
       "task": "17-01-T2",
-      "condition": "Native diagnosis cycle exhausted. Latest native hierarchy 1260x8394 output is fully transparent with render-server error; default layer does not match native toolbar pixels. No approved output-scale revision or new native diagnostic cycle.",
-      "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-FEASIBILITY-GATE.md"
+      "condition": "Current Comments height 2798pt at native 3x exceeds the tested Simulator render ceiling (8394 > 8192). Native region capture needs an approved architecture revision; naive clip changes safe area and leaves a seam. No layer fallback acceptance revision or additional native cycle is approved.",
+      "evidence": ".planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md"
     }
   ],
   "async_jobs": [],
   "human_actions_pending": [
     {
       "type": "decision",
-      "question": "Approve a plan revision separating native measured device scale from configurable output scale, with an initial 1x probe and at most three runs while retaining logical viewport/content and strict configured-scale comparisons, or hold the existing 3x gate.",
-      "reason": "Owner-approved recovery cycle 2 is exhausted; lowering the accepted output resolution is not implied by its preserve-acceptance authorization."
+      "question": "Approve a plan revision and at most three native region-capture feasibility runs preserving native scale/glass and stable effective safe areas/layout; alternatively explicitly revise acceptance for a layer-render fallback, or retain the checkpoint.",
+      "reason": "The former 1x remedy is disproved and withdrawn. Approved plan 17-01 does not approve stitching or acceptance changes; execute-plan Rule 4 requires owner direction for this architecture change."
     }
   ],
   "decisions": [
@@ -69,6 +69,11 @@
       "decision": "Owner selected option 1: continue one further bounded native-API diagnosis cycle, at most three runs, preserving acceptance.",
       "rationale": "Explicit option 1 response after the Task 2 three-retry checkpoint; same authorized files, no threshold/resolution/architecture change.",
       "phase": "17"
+    },
+    {
+      "decision": "Withdraw initial-1x remedy proposal after reviewing owner-supplied standalone native-size/scale controls.",
+      "rationale": "Original drawHierarchy logs show output renderer/trait overrides do not move the native screen-scaled ceiling; this is research evidence, not authorization for a new capture architecture or native test cycle.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -80,8 +85,8 @@
     " M EhPanda.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved",
     "?? .capture/"
   ],
-  "next_action": "Wait for an explicit output-scale decision. If approved, revise plan 17-01 before implementing configured capture scale: measured native viewport/scale remain real, normal/full output scale is recorded separately, logical layout is preserved and pixel comparison remains exact. Initial 1x probe is only a hypothesis; at most three bounded runs, no matrix expansion before success.",
-  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval. Owner-requested official repo research completed: glass/toolbar transparent reports, iOS 27 scene/safe-area issue, custom-size scroll capture confirmation. Main upstream host/hierarchy remedy already used; no exact remedy or size limit proven.",
+  "next_action": "Obtain owner direction for the concrete native region-capture feasibility proposal in 17-01-RENDER-SIZE-GATE.md before revising approved plan or implementation. No repeat of disproved 1x experiment. Existing actual-content gates and matrix remain incomplete.",
+  "context_notes": "0/24 plans complete; 1/2 tasks complete. Three cycle-2 diagnoses and WIP committed at d3cf55eb. Home remains 3/3 in each mixed run, exporter was 2/2; Comments full gate failed. Root inline, earlier executors interrupted; no live build/test or diagnosis collector. Reserved staging unchanged. Both lockfiles remain pending and .capture/ is disposable untracked output. No SUMMARY/baseline approval. Owner-requested official repo research completed: glass/toolbar transparent reports, iOS 27 scene/safe-area issue, custom-size scroll capture confirmation. Main upstream host/hierarchy remedy already used; no exact remedy or size limit proven. External standalone probe source/log/image evidence reviewed and preserved under /tmp/ehpanda-phase17-size-probe-evidence. Native per-dimension 8192 screen-pixel ceiling established on tested Simulators; physical devices untested. Moving clip changes safe area; top-region comparison is not full viewport parity. 1x remedy withdrawn; awaiting architecture choice.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -301,11 +306,27 @@
         8394
       ],
       "pixel_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-pixels.json",
-      "proposal": "Separate capture output scale and first probe 1x; unapproved/unimplemented.",
+      "proposal": "Historical initial-1x remedy withdrawn by reviewed external size/scale controls; no output-scale implementation.",
       "alpha_inspection": "/tmp/ehpanda-phase17-recovery2-swiftui-native-alpha.json",
       "latest_output_disposition": "Fully transparent: 10576440/10576440 full-image pixels have alpha zero. Previous allBlack field inspected RGB only."
     },
-    "upstream_rendering_research": ".planning/phases/17-localized-screenshot-capture-harness/17-01-UPSTREAM-RENDERING-RESEARCH.md"
+    "upstream_rendering_research": ".planning/phases/17-localized-screenshot-capture-harness/17-01-UPSTREAM-RENDERING-RESEARCH.md",
+    "render_size_gate": ".planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md",
+    "external_size_probe": {
+      "manifest": "/tmp/ehpanda-phase17-size-probe-evidence/manifest.json",
+      "original_recorded_output_extract": "/tmp/ehpanda-phase17-size-probe-evidence/probe-results.log",
+      "review": "Source, preserved PNGs and original recorded outputs reviewed; no Simulator/native test rerun by root.",
+      "native_dimension_ceiling_pixels": 8192,
+      "comments_native_height_pixels": 8394,
+      "renderer_and_trait_scale_overrides_avoid_failure": false,
+      "comparison_rows": 2334,
+      "comparison_viewport_rows": 2736,
+      "tile_top_safe_area_points": [
+        68,
+        0
+      ],
+      "limits": "Standalone synthetic roots and two Simulator families; different tablet from harness matrix, no physical-device proof, no full viewport/census/seamless-composition acceptance."
+    }
   },
   "recovery_logs": [
     "/tmp/ehpanda-phase17-t1-host-build.log",
