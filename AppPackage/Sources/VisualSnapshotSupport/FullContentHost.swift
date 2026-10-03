@@ -15,6 +15,7 @@ public struct FullContentCaptureEvidence {
     public let normalImageByteCount: Int
     public let normalImageURL: URL
     public let outputSize: CGSize
+    public let renderSliceCount: Int
     public let sceneBounds: CGRect
     public let stableIterations: Int
     public let testHostPath: String
@@ -47,28 +48,28 @@ public struct CaptureItemExpectation: Sendable {
     }
 }
 
-/// Measures native device geometry independently from the library's full-content output size.
-/// The long image uses SnapshotTesting's controller strategy and is checked against a native viewport.
-/// No viewport images are stitched.
+/// Measures native device geometry, then captures the whole scrollable content as one image.
+///
+/// The window is grown to the full content height so the hierarchy is laid out once and nothing moves. The long
+/// image is that one laid-out hierarchy read back from the render server in slices of at most
+/// ``RenderServerCapture/maximumSnapshotDimension`` screen pixels (the Simulator render server refuses any larger
+/// single snapshot), composed into a single image, with the overlapping seam bands proven byte-identical. These are
+/// not scrolled viewport images: every slice is a rect of the same committed frame. The top of the long image is
+/// then checked against a native viewport capture. SnapshotTesting is still used to record, verify and diff images.
 @MainActor
 public final class FullContentHost<Content: View> {
-    public private(set) var controller: UIHostingController<AnyView>
+    public let controller: UIHostingController<AnyView>
     public let scene: UIWindowScene
     public let window: UIWindow
     public let viewport: MeasuredViewport
 
     private let previousKeyWindow: UIWindow?
-    private let drawHierarchyInKeyWindow: Bool
     private let standardImageRange: Bool
-    private let useSwiftUIStrategy: Bool
-    private let rootView: Content
     private var verticalScrollHost: UIScrollView
 
     public init(
         rootView: Content, contentSizeCategory: UIContentSizeCategory? = nil,
-        drawHierarchyInKeyWindow: Bool = true,
         standardImageRange: Bool = false,
-        useSwiftUIStrategy: Bool = false,
         isViewportReady: @MainActor () -> Bool = { true }
     ) async throws {
         guard let scene = UIApplication.shared.connectedScenes
@@ -77,10 +78,7 @@ public final class FullContentHost<Content: View> {
             throw FullContentHostError.noForegroundActiveScene
         }
         self.scene = scene
-        self.rootView = rootView
-        self.drawHierarchyInKeyWindow = drawHierarchyInKeyWindow
         self.standardImageRange = standardImageRange
-        self.useSwiftUIStrategy = useSwiftUIStrategy
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
         if standardImageRange {
@@ -171,14 +169,9 @@ public final class FullContentHost<Content: View> {
             .map({ $0.convert($0.bounds, to: controller.view) })
         defer {
             window.frame = originalWindowFrame
-            if window.rootViewController != nil {
-                controller.view.frame = window.bounds
-                verticalScrollHost.setContentOffset(originalOffset, animated: false)
-                controller.view.layoutIfNeeded()
-            } else {
-                window.isHidden = true
-                previousKeyWindow?.makeKey()
-            }
+            controller.view.frame = window.bounds
+            verticalScrollHost.setContentOffset(originalOffset, animated: false)
+            controller.view.layoutIfNeeded()
         }
         let normalImage = try renderNativeViewport()
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
@@ -196,6 +189,9 @@ public final class FullContentHost<Content: View> {
                 (viewport.size.height + contentHeight + originalInsets.top + originalInsets.bottom
                  - originalScrollHeight) * viewport.scale
             ) / viewport.scale
+            // The composite bitmap memory budget (about 165 MB at 1260 px wide, 4 bytes per pixel), NOT a render
+            // limit: slicing renders any height. Per-slice admissibility is
+            // `RenderServerCapture.maximumSnapshotDimension`.
             guard outputSize.height * viewport.scale <= 32_768 else {
                 throw FullContentHostError.contentHeightExceeded(outputSize.height * viewport.scale)
             }
@@ -219,14 +215,15 @@ public final class FullContentHost<Content: View> {
             if stableIterations >= 2 { break }
         }
         guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
-        let fullImage = try await render(size: outputSize)
+        let rendering = try render(size: outputSize)
+        let fullImage = rendering.image
         let fullURL = outputDirectory.appending(path: "capture.full-content.png")
         try store(fullImage, at: fullURL, name: "full-content", directory: outputDirectory, record: record)
         try writeDiagnostics(
             elements: [], census: [:],
             layout: LayoutMeasurement(
                 contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations
-            ), directory: outputDirectory
+            ), rendering: rendering, directory: outputDirectory
         )
         guard let normalCG = normalImage.cgImage, let fullCG = fullImage.cgImage,
               let viewportCG = fullCG.cropping(to: CGRect(
@@ -256,7 +253,8 @@ public final class FullContentHost<Content: View> {
             throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
         }
         let elements = try await RenderedContentInspection.text(
-            in: fullCG, size: outputSize, words: expectedItems.map(\.marker) + [trailingMarker]
+            in: fullCG, size: outputSize, bandHeight: viewport.size.height,
+            overlap: RenderedContentInspection.bandOverlap, words: expectedItems.map(\.marker) + [trailingMarker]
         )
         let census = Dictionary(uniqueKeysWithValues: expectedItems.map { item in
             (item.title, elements.filter({ $0.label == item.marker }).count)
@@ -265,7 +263,7 @@ public final class FullContentHost<Content: View> {
             elements: elements, census: census,
             layout: LayoutMeasurement(
                 contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations
-            ), directory: outputDirectory
+            ), rendering: rendering, directory: outputDirectory
         )
         guard census.values.allSatisfy({ $0 == 1 }) else { throw FullContentHostError.itemCensus(census) }
         let outputBounds = CGRect(origin: .zero, size: outputSize)
@@ -336,6 +334,7 @@ public final class FullContentHost<Content: View> {
             normalImageByteCount: normalData.count,
             normalImageURL: normalURL,
             outputSize: fullImage.size,
+            renderSliceCount: rendering.slices.count,
             sceneBounds: scene.effectiveGeometry.coordinateSpace.bounds,
             stableIterations: stableIterations,
             testHostPath: executable.path,
@@ -346,11 +345,17 @@ public final class FullContentHost<Content: View> {
         )
     }
 
-    private func renderNativeViewport() throws -> UIImage {
+    /// One format for the viewport and the long image, so the parity check compares like with like.
+    private func rendererFormat() -> UIGraphicsImageRendererFormat {
         let format = UIGraphicsImageRendererFormat(for: viewport.traits)
         format.scale = viewport.scale
         format.opaque = true
         if standardImageRange { format.preferredRange = .standard }
+        return format
+    }
+
+    private func renderNativeViewport() throws -> UIImage {
+        let format = rendererFormat()
         var rendered = false
         let image = UIGraphicsImageRenderer(size: viewport.size, format: format).image { context in
             UIColor.systemBackground.setFill()
@@ -363,10 +368,6 @@ public final class FullContentHost<Content: View> {
 
     private func restoreNativeHost(frame: CGRect) async throws {
         window.frame = frame
-        if drawHierarchyInKeyWindow {
-            controller = UIHostingController(rootView: AnyView(rootView))
-            window.rootViewController = controller
-        }
         controller.view.frame = window.bounds
         window.layoutIfNeeded()
         var previousHeight: CGFloat?
@@ -389,38 +390,14 @@ public final class FullContentHost<Content: View> {
         throw FullContentHostError.didNotConverge
     }
 
-    private func render(size: CGSize) async throws -> UIImage {
-        if useSwiftUIStrategy {
-            let strategy: Snapshotting<Content, UIImage> = .image(
-                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-                layout: .device(config: ViewImageConfig(
-                    safeArea: viewport.safeAreaInsets, size: size, traits: viewport.traits
-                )), traits: viewport.traits
-            )
-            let image: UIImage = await withCheckedContinuation { continuation in
-                strategy.snapshot(rootView).run { continuation.resume(returning: $0) }
-            }
-            guard image.size == size, image.scale == viewport.scale else { throw FullContentHostError.renderFailed }
-            return image
+    /// Reads the full-height hierarchy back in render-server slices. The window already has the full content
+    /// height, so the hierarchy is never resized or re-hosted for the capture.
+    private func render(size: CGSize) throws -> RenderServerCapture.Result {
+        let rendering = try RenderServerCapture.image(of: controller.view, format: rendererFormat())
+        guard rendering.image.size == size, rendering.image.scale == viewport.scale else {
+            throw FullContentHostError.renderFailed
         }
-        // The default layer strategy creates its own Window. Give it a fresh controller,
-        // matching the library's SwiftUI strategy, instead of moving an attached root to it.
-        let captureController = drawHierarchyInKeyWindow
-            ? controller : UIHostingController(rootView: AnyView(rootView))
-        let originalAutoresizingMask = captureController.view.autoresizingMask
-        captureController.view.autoresizingMask = []
-        defer { captureController.view.autoresizingMask = originalAutoresizingMask }
-        let strategy: Snapshotting<UIViewController, UIImage> = .image(
-            on: ViewImageConfig(safeArea: viewport.safeAreaInsets, size: size, traits: viewport.traits),
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow, size: size, traits: viewport.traits
-        )
-        let image: UIImage = await withCheckedContinuation { continuation in
-            strategy.snapshot(captureController).run { continuation.resume(returning: $0) }
-        }
-        // SnapshotTesting consumes controller attachment. Reusing that controller after its
-        // explicit appearance cleanup is unsafe; successful capture restores a fresh native host.
-        guard image.size == size, image.scale == viewport.scale else { throw FullContentHostError.renderFailed }
-        return image
+        return rendering
     }
 
     private func store(
@@ -446,15 +423,18 @@ public final class FullContentHost<Content: View> {
         elements: [RenderedText],
         census: [String: Int],
         layout: LayoutMeasurement,
+        rendering: RenderServerCapture.Result,
         directory: URL
     ) throws {
         let diagnostics: [String: Any] = [
-            "renderer": useSwiftUIStrategy
-                ? "Snapshotting<Content, UIImage>.image(layout: .device(config:))"
-                : "Snapshotting<UIViewController, UIImage>.image(on:size:)",
-            "drawHierarchyInKeyWindow": drawHierarchyInKeyWindow,
+            "renderer": "render-server slices via resizableSnapshotView",
+            "renderSliceMaximumHeight": rendering.maximumSliceHeight,
+            "renderSliceOverlap": rendering.overlap,
+            "renderSlices": rendering.slices.map({ ["frame": NSCoder.string(for: $0.frame)] }),
             "standardImageRange": standardImageRange,
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
+            "censusBandHeight": viewport.size.height,
+            "censusBandOverlap": RenderedContentInspection.bandOverlap,
             "contentHeight": layout.contentHeight,
             "displayScale": viewport.scale,
             "census": census,
@@ -475,25 +455,69 @@ public final class FullContentHost<Content: View> {
 }
 
 private enum RenderedContentInspection {
+    /// The points consecutive OCR bands share. Ownership hands each band half of it (64 pt) on each side of a seam,
+    /// so the band owning a marker's midpoint has seen its whole glyph line as long as that line is under 128 pt
+    /// tall. A single-line marker at AX5 is roughly 64 pt, which leaves a 2x allowance; the AX5 matrix coordinates
+    /// are what confirm it.
+    static let bandOverlap: CGFloat = 128
+
+    /// Recognizes text in `image` band by band and returns every frame in full-image point coordinates.
+    ///
+    /// Vision is reliable on viewport-shaped inputs but misreads markers in a single very tall image (it scales
+    /// the input down), so the full capture is read as `bandHeight`-tall bands instead. This changes only how the
+    /// same pixels are read; the census stays exactly as strict.
+    ///
+    /// Bands cover `0..<size.height` with stride `bandHeight - overlap`, each `min(bandHeight, remaining)` tall,
+    /// and a single band when the image fits. Each band owns the half-open range from its start (plus
+    /// `overlap / 2` unless it is the first band) to its end (minus `overlap / 2` unless it is the last band).
+    /// Those ranges tile the image exactly once, and an observation is kept only by the band owning its `midY`,
+    /// so text visible in two overlapping bands is counted once.
     @concurrent
-    static func text(in image: CGImage, size: CGSize, words: [String]) async throws -> [RenderedText] {
+    static func text(
+        in image: CGImage, size: CGSize, bandHeight: CGFloat, overlap: CGFloat, words: [String]
+    ) async throws -> [RenderedText] {
+        precondition(overlap > 0 && overlap < bandHeight, "OCR band overlap must leave a positive stride")
         var request = RecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.recognitionLanguages = [Locale.Language(identifier: "en")]
         request.usesLanguageCorrection = false
         request.customWords = words
-        let handler = ImageRequestHandler(image)
-        let observations: [RecognizedTextObservation]
-        do {
-            observations = try await handler.perform(request)
-        } catch {
-            throw FullContentHostError.renderedTextInspectionFailed(String(describing: error))
-        }
-        try Task.checkCancellation()
-        return observations.compactMap { observation in
-            guard let candidate = observation.topCandidates(1).first, candidate.confidence >= 0.8 else { return nil }
-            let frame = observation.boundingBox.toImageCoordinates(size, origin: .upperLeft)
-            return RenderedText(label: candidate.string, frame: frame)
+        let scale = CGFloat(image.width) / size.width
+        var elements: [RenderedText] = []
+        var bandStart: CGFloat = 0
+        while true {
+            let bandEnd = min(bandStart + bandHeight, size.height)
+            let isFirst = bandStart == 0
+            let isLast = bandEnd >= size.height
+            let pixelTop = (bandStart * scale).rounded()
+            let pixelBottom = (bandEnd * scale).rounded()
+            guard let band = image.cropping(to: CGRect(
+                x: 0, y: pixelTop, width: CGFloat(image.width), height: pixelBottom - pixelTop
+            )) else {
+                throw FullContentHostError.renderedTextInspectionFailed("Band \(bandStart)..<\(bandEnd) is empty")
+            }
+            let bandOrigin = pixelTop / scale
+            let bandPointSize = CGSize(width: size.width, height: (pixelBottom - pixelTop) / scale)
+            let owned = (isFirst ? bandStart : bandStart + overlap / 2)..<(isLast ? bandEnd : bandEnd - overlap / 2)
+            let observations: [RecognizedTextObservation]
+            do {
+                observations = try await ImageRequestHandler(band).perform(request)
+            } catch {
+                throw FullContentHostError.renderedTextInspectionFailed(String(describing: error))
+            }
+            try Task.checkCancellation()
+            elements += observations.compactMap { observation in
+                guard let candidate = observation.topCandidates(1).first, candidate.confidence >= 0.8 else {
+                    return nil
+                }
+                let frame = observation.boundingBox
+                    .toImageCoordinates(bandPointSize, origin: .upperLeft)
+                    .offsetBy(dx: 0, dy: bandOrigin)
+                guard owned.contains(frame.midY) else { return nil }
+                return RenderedText(label: candidate.string, frame: frame)
+            }
+            if isLast { return elements }
+            bandStart += bandHeight - overlap
         }
     }
 }
@@ -507,111 +531,6 @@ private struct LayoutMeasurement {
     let contentHeight: CGFloat
     let outputSize: CGSize
     let stableIterations: Int
-}
-
-private struct CapturedRaster {
-    let width: Int
-    let height: Int
-    let pixels: [UInt8]
-
-    init(image: CGImage) throws {
-        let pixelWidth = image.width
-        let pixelHeight = image.height
-        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
-            throw FullContentHostError.emptyImage
-        }
-        var bytes = [UInt8](repeating: 0, count: pixelWidth * pixelHeight * 4)
-        let success = bytes.withUnsafeMutableBytes { buffer in
-            guard let context = CGContext(
-                data: buffer.baseAddress, width: pixelWidth, height: pixelHeight,
-                bitsPerComponent: 8, bytesPerRow: pixelWidth * 4,
-                space: colorSpace,
-                bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
-            ) else { return false }
-            context.draw(image, in: CGRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight))
-            return true
-        }
-        guard success else { throw FullContentHostError.emptyImage }
-        width = pixelWidth
-        height = pixelHeight
-        pixels = bytes
-    }
-
-    func comparisonImage(scale: CGFloat) throws -> UIImage {
-        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-              let provider = CGDataProvider(data: Data(pixels) as CFData),
-              let image = CGImage(
-                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
-                space: colorSpace,
-                bitmapInfo: CGBitmapInfo(rawValue: CGBitmapInfo.byteOrder32Big.rawValue
-                                        | CGImageAlphaInfo.premultipliedLast.rawValue),
-                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
-              ) else { throw FullContentHostError.emptyImage }
-        return UIImage(cgImage: image, scale: scale, orientation: .up)
-    }
-
-    func artworkFrame(around marker: CGRect, scale: CGFloat) throws -> CGRect {
-        let seedColumn = Int(((marker.minX - 2) * scale).rounded(.down))
-        let seedRow = Int((marker.midY * scale).rounded(.down))
-        guard seedColumn >= 0, seedColumn < width, seedRow >= 0, seedRow < height else {
-            throw FullContentHostError.invalidArtworkRegion
-        }
-        let seed = seedRow * width + seedColumn
-        let seedColor = try color(at: seed)
-        guard Int(max(seedColor.red, seedColor.green, seedColor.blue))
-            - Int(min(seedColor.red, seedColor.green, seedColor.blue)) > 40 else {
-            throw FullContentHostError.invalidArtworkRegion
-        }
-        var visited: Set<Int> = [seed]
-        var queue = [seed]
-        var cursor = 0
-        var minX = seedColumn
-        var maxX = seedColumn
-        var minY = seedRow
-        var maxY = seedRow
-        while cursor < queue.count {
-            let current = queue[cursor]
-            cursor += 1
-            let column = current % width
-            let row = current / width
-            minX = min(minX, column)
-            maxX = max(maxX, column)
-            minY = min(minY, row)
-            maxY = max(maxY, row)
-            var neighbors: [Int] = []
-            if column > 0 { neighbors.append(current - 1) }
-            if column + 1 < width { neighbors.append(current + 1) }
-            if row > 0 { neighbors.append(current - width) }
-            if row + 1 < height { neighbors.append(current + width) }
-            for neighbor in neighbors where visited.insert(neighbor).inserted {
-                let candidate = try color(at: neighbor)
-                if abs(Int(candidate.red) - Int(seedColor.red)) <= 8,
-                   abs(Int(candidate.green) - Int(seedColor.green)) <= 8,
-                   abs(Int(candidate.blue) - Int(seedColor.blue)) <= 8 {
-                    queue.append(neighbor)
-                }
-            }
-        }
-        return CGRect(
-            x: CGFloat(minX) / scale, y: CGFloat(minY) / scale,
-            width: CGFloat(maxX - minX + 1) / scale, height: CGFloat(maxY - minY + 1) / scale
-        )
-    }
-
-    private func color(at pixel: Int) throws -> RasterColor {
-        let redIndex = pixel * 4
-        let greenIndex = redIndex + 1
-        let blueIndex = greenIndex + 1
-        guard pixels.indices.contains(redIndex), pixels.indices.contains(greenIndex),
-              pixels.indices.contains(blueIndex) else { throw FullContentHostError.invalidArtworkRegion }
-        return RasterColor(red: pixels[redIndex], green: pixels[greenIndex], blue: pixels[blueIndex])
-    }
-}
-
-private struct RasterColor {
-    let red: UInt8
-    let green: UInt8
-    let blue: UInt8
 }
 
 @MainActor

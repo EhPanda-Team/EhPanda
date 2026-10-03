@@ -80,7 +80,7 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
-    func testCommentsNativeLibraryStrategy() async throws {
+    func testCommentsNativeCapture() async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
@@ -89,12 +89,12 @@ final class FullContentFeasibilityTests: XCTestCase {
         NSTimeZone.default = timeZone
         defer { NSTimeZone.default = originalTimeZone }
         let directory = FileManager.default.temporaryDirectory
-            .appending(component: "phase17-comments-library-native-\(UUID().uuidString)", directoryHint: .isDirectory)
+            .appending(component: "phase17-comments-native-\(UUID().uuidString)", directoryHint: .isDirectory)
         let fixtures = directory.appending(path: "fixtures", directoryHint: .isDirectory)
         _ = try PublicVisualFixtures.export(to: fixtures)
         defer {
             let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
-            attachment.name = "phase17-comments-library-native"
+            attachment.name = "phase17-comments-native"
             attachment.lifetime = .keepAlways
             add(attachment)
         }
@@ -117,7 +117,7 @@ final class FullContentFeasibilityTests: XCTestCase {
                     $0.disablesAnimations = true
                 }
             let host = try await FullContentHost(
-                rootView: root, contentSizeCategory: .large, standardImageRange: true, useSwiftUIStrategy: true
+                rootView: root, contentSizeCategory: .large, standardImageRange: true
             )
             defer { host.dismiss() }
             do {
@@ -127,6 +127,7 @@ final class FullContentFeasibilityTests: XCTestCase {
                 )
                 XCTAssertEqual(evidence.itemCensus.count, 12)
                 XCTAssertFalse(evidence.finalItemClipped)
+                XCTAssertGreaterThanOrEqual(evidence.renderSliceCount, 2)
             } catch {
                 try JSONSerialization.data(withJSONObject: [
                     "type": String(reflecting: type(of: error)), "description": String(describing: error),
