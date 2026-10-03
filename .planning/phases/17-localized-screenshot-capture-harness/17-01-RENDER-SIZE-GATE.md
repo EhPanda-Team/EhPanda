@@ -2,11 +2,72 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: adopted-full-matrix-failed
-recorded: 2026-10-03
+status: parity-resolved-partial-matrix
+recorded: 2026-10-04
+source_head: 723a117fd2193e30bdeffff737708d50fd7f0112
 ---
 
-# Native hierarchy render-size finding and adopted architecture
+# Native hierarchy rendering findings and adopted architecture
+
+The owner-adopted stationary architecture is retained in e9e183f6 and refined by
+aefc47df / 723a117f. The previous cee1504a Downloads/Reader failures are resolved in
+supplied portrait captures. Current matrix: 12 captured, 2 failed, 18 pending; remaining
+failures concern phone AX5 Home's container-responsive layout and iPad programmatic
+landscape orientation. See 17-01-FEASIBILITY-GATE.md for independently inspected counts,
+source-provenance boundaries and exact evidence. No architecture re-approval is pending.
+
+## Distinct measured dimension limits
+
+| Capture operation | Measured boundary on iOS 27 Simulator | Current harness rule |
+|---|---|---|
+| Direct drawHierarchy | Valid through 8192 native pixels; above is refused | Intentional failure control in tests |
+| resizableSnapshotView replicant read | 8190 valid; exactly 8192 can return true with opaque black on 2x iPad | At most 8191 native pixels per dimension |
+| Final CPU composite | Independent of individual render reads | At most 32768 pixels tall |
+
+Replicant maximumSliceHeight(forScreenScale:) is floor(8191 / native scale): 4095 pt
+at 2x and 2730 pt at 3x. Context is reserved inside that height. The old iPad Reader
+middle read was exactly 4096 pt x2 and hit the silent-black boundary. Boolean success
+is necessary but does not establish readable/fidelity-correct content. Strict overlap,
+viewport parity and census still reject bad output. No physical-device limit is proven.
+
+The tablet probes additionally show that a window narrower than its scene can return
+opaque black on every tested path despite drawHierarchy true. Test fixtures now span the
+running scene's width and derive dimensions from native scale. Landscape must use actual
+rotated scene geometry; fake portrait-window resizing is not a verified alternative.
+
+## Other resolved parity causes
+
+Liquid Glass performs a one-time settling change around 0.45 seconds after window entry
+on the measured runtime. Viewport references now require consecutive byte-identical
+samples spanning at least 500 ms, with bounded failure. This resolves the toolbar delta.
+
+A full-height key window loses status-bar hiding authority. A full-screen non-key
+companion at .normal mirrors the native viewport's measured visibility, preserving safe
+area and the native soft top edge. Status drift throws and the companion is cleaned up.
+This resolves the Reader top blur in supplied actual captures.
+
+Reader resampling caused glyph-edge differences between clipped and unclipped renders.
+The accepted export retains 8:11 and renders each coordinate's pages at its actual pixel
+width, with whole-pixel height rounding and a measured non-resampling assertion. It keeps
+the default 800 x 1100 export unchanged. Phone-landscape eight-page 2:3 bitmaps alone
+would total 32832 px, exceeding the composite budget; retained 8:11 totals 30096 px.
+Landscape execution itself remains pending.
+
+Standalone evidence: `/tmp/ehpanda-phase17-size-probe-evidence/probe4-9-render-parity/`,
+`tablet-window-width/`, `reader-page-geometry/` and the owner-provided reader E1/E2/E3
+experiments. Current capture source is in 723a117f; source/provenance limitations for
+supplied gates are explicit in 17-01-FEASIBILITY-GATE.md.
+
+D-08 remains one image from one stationary committed layout. Replicants read bounded
+regions without scrolling; complete 64-point overlap bytes must match exactly and CPU
+composition copies them. The older recovery bound is superseded. Home viewport design
+and actual scene rotation still need resolution before full matrix acceptance.
+
+## Historical direct-size probes and initial slice adoption
+
+The records below describe earlier source/evidence. In particular, statements allowing
+8192 pixels for every replicant read and the previous failed-parity accounting are
+superseded by the distinct limits and current evidence above.
 
 The owner supplied another research agent's standalone Simulator probe report. The root
 located and reviewed the preserved probe sources, PNGs and original recorded tool outputs.

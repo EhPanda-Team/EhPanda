@@ -2,12 +2,159 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: adopted-full-matrix-failed
-recorded: 2026-10-03
-source_head: cee1504ad8cd3cdde1d403e83258e5311f8404f9
+status: partial-matrix-owner-viewport-decision
+recorded: 2026-10-04
+source_head: 723a117fd2193e30bdeffff737708d50fd7f0112
 ---
 
 # Task 2 actual-content feasibility gate
+
+Owner handoff adds `aefc47df` (render parity) and `723a117f` (reader export at rendered
+pixel width) above root's `ef95ce5f` checkpoint. Root reconciled the committed source,
+standalone findings, xcresult summaries/trees, native attachments and fixture hashes.
+The old Downloads one-byte mismatch, Reader black middle read and Reader top blur are
+resolved in the supplied portrait captures. Architecture approval remains settled.
+Task 2 is still incomplete: 1/2 tasks and 0/24 plans complete, no SUMMARY or baseline.
+
+## Current committed capture behavior
+
+- Viewport references must stay byte-identical for at least 500 ms, sampled approximately
+  every 100 ms with a 40-sample bound. Layout convergence alone did not wait for the
+  one-time Liquid Glass settling step. Failed settling throws renderDidNotSettle;
+  geometry records renderSettleSamples and renderSettleMilliseconds.
+- Replicant reads use a strict sub-8192-pixel ceiling: maximumSnapshotDimension is 8191,
+  maximumSliceHeight is 2730 pt at 3x and 4095 pt at 2x. Exactly 8192 px can return true
+  but opaque black on the measured iPad replicant path. Direct drawHierarchy's measured
+  inclusive ceiling remains 8192 px. Width rejection and 64-point context/overlap remain.
+- A full-screen non-key companion window at .normal mirrors the status-bar visibility
+  measured at the native viewport while the capture window is tall. The convergence loop
+  checks that state and throws on drift; restoration/dismissal removes the companion.
+  This preserves the Reader's hidden status bar, safe area and native soft top-edge effect.
+- The vertical Reader exports eight 8:11 pages at the coordinate's rendered pixel width,
+  rounded to a whole-pixel height. Each coordinate gets a fresh fixture path after actual
+  scene orientation is measured. Artwork width x scale must equal the exported width.
+  Default export remains 800 x 1100; previews/covers and fixture version are unchanged.
+
+The standalone findings are under
+`/tmp/ehpanda-phase17-size-probe-evidence/probe4-9-render-parity/RESULTS.md`,
+`tablet-window-width/` and `reader-page-geometry/`. Narrow iPad windows can also return
+true with black content: the scene-width requirement remains essential. These findings
+concern the measured iOS 27 Simulator runtime, not universal physical-device limits.
+
+D-08 still produces one image from one stationary committed full-height layout. Slices
+read that frame without scrolling; the entire overlap must match exactly and canonical
+bytes are copied on the CPU. The 32768-pixel height limit is the composite memory budget.
+Native parity, census, final-item/artwork completeness and restored geometry remain strict.
+
+## Supplied builds and independently inspected test results
+
+`/tmp/ehpanda-phase17-parity-build.log` and `-build-tablet.log` are incremental
+build-for-testing invocations, both successful with zero compiler/deprecation/SwiftLint
+diagnostics. They are not a new clean-build gate. The earlier clean proof at source
+cee1504a remains historical; a current-source clean integration is still needed before
+completion after any further implementation revision.
+
+| Existing result under `/tmp/ehpanda-phase17-` | Inspected actual tests | Passed / failed / skipped | Repetition nodes |
+|---|---:|---|---:|
+| `parity-phone.xcresult` | 2 | 2 / 0 / 0 | 0 |
+| `parity-tablet.xcresult` | 9 | 9 / 0 / 0 | 0 |
+| `matrix-phone.xcresult` | 1 | 0 / 1 / 0 | 0 |
+| `matrix-tablet.xcresult` | 1 | 0 / 1 / 0 | 0 |
+
+The handoff reports an earlier phone 12/12 group (six feasibility, three renderer, three
+Home tests). The current same-named phone log/bundle contains the later 2/2 Reader and
+requested-width export tests. Earlier six named directory attachments survive separately
+under `/tmp/ehpanda-phase17-parity-phone-attachments/`; do not describe the current
+bundle as a twelve-test run. Root read a private copy when xcresulttool needed its report
+cache; `/tmp/ehpanda-phase17-root-parity-review-hdb3wjhq/` preserves inspected summaries,
+tree and current Reader attachment. The current phone Reader fixture provenance matches
+source 723a117f. Tablet's nine-test tree directly includes all six feasibility tests and
+three renderer tests. VisualTracerTests.testHomeFullContentTracer still asserts phone
+idiom and is phone-only; tablet Home evidence comes from the actual matrix.
+
+## Supplied actual matrix outcomes
+
+| Family | Captured | Failed | Pending | First failed coordinate |
+|---|---:|---:|---:|---|
+| iPhone Air | 4 | 1 | 11 | iphone-portrait-AX5-home |
+| iPad Pro 11-inch (M5) | 8 | 1 | 7 | ipad-landscape-large-home |
+| Combined | 12 | 2 | 18 | Both matrices stop at their first failure |
+
+Phone captures all four portrait/large shapes. Tablet captures all eight portrait shapes
+at large and AX5. Every completed capture has exact-once item/page census, matched strict
+native viewport parity and the required restoration/completeness gates. Phone Comments
+420 x 2798 pt uses two slices; Downloads 420 x 2788 pt uses two; Reader 420 x 4622 pt
+uses two with statusBarHidden true. Tablet Comments 834 x 1963 pt uses one, Downloads
+834 x 2743 pt uses one, Reader 834 x 9176 pt uses three with statusBarHidden true.
+Tablet AX5 Reader also captures all eight pages exactly once at 834 x 9176 pt.
+
+Native logs/results: `/tmp/ehpanda-phase17-matrix-phone.log` / `.xcresult` and
+`/tmp/ehpanda-phase17-matrix-tablet.log` / `.xcresult`; summaries/trees use the same
+prefix with `-summary.json` / `-tests.json`. Invocations are serial, parallel testing
+disabled, without failure retries. Exact extracted outcomes and coordinate directories:
+
+- Phone: `/tmp/ehpanda-phase17-matrix-phone-attachments/ex/phase17-feasibility-9CEB7131-A827-462F-B538-5DF819C0EBEE`.
+- Tablet: `/tmp/ehpanda-phase17-root-matrix-tablet-evidence/phase17-feasibility-328C4AC3-698F-4A65-A2CA-9F43AE420B44`.
+
+These are supplied informational runs, not root reruns. Their fixture manifests name
+source hash `26da899c6796b56bd4e54e828d1c218c1b8c46a6bceaa461cb91d5b209feb3a5`, which differs from the current generator source hash.
+The current later phone Reader attachment names the current hash. Do not claim an exact
+current-source full matrix from those earlier manifests. Assets/digests are checked and
+these runs remain valid evidence of the observed behaviors; pending coordinates and a
+fresh final-source gate must still be completed. Root's observed source hashes are in
+`/tmp/ehpanda-phase17-parity-reconciled-source-hashes.json`, not a pre-test freeze record.
+
+## Remaining owner decision — AX5 Home logical viewport
+
+Phone AX5 Home fails with 706625 changed viewport pixels, maximum channel delta 255,
+inclusive bounds x0..1259, y554..2727. It is a layout change, not the prior glass rounding.
+HomeView.maximumCardHeight uses its observed viewportSize through
+GalleryViewport.maximumSlideshowHeight. GalleryCardCell uses ViewThatFits and that height
+ceiling to select title lines. Growing the container raises the ceiling, allows another
+title line and shifts the content below. This is the production container-responsive
+rule behaving as designed, while the harness requires the original logical viewport.
+
+Owner options recorded in the handoff: exclude AX5 Home from full-content coverage;
+base the rule on scene size; or provide an injectable logical viewport while default app
+behavior continues to use actual container size. No option is selected here. Exclusion
+would change matrix acceptance; either production adaptation requires Task 2 ownership
+revision. Scene sizing also has implications for windowed/container layouts, so it is
+not an interchangeable source substitution. Preserve native navigation/search/edge rules.
+
+## Remaining environment gate — iPad actual landscape
+
+After eight successful portrait coordinates, the scene rejects the first landscape
+request with UISceneErrorDomain 101: current windowing mode does not allow programmatic
+orientation changes. No landscape capture or coordinate fixture export occurs there;
+one failed and seven pending landscape coordinates remain. Native Full Screen Apps
+selection alone was previously insufficient. A scene-accepted rotation mechanism and
+measured landscape geometry are required; changing only the capture window size would
+violate the measured scene-width prerequisite. Actual landscape remains unverified.
+
+Tablet portrait AX5 now validates OCR band ownership for those four coordinates.
+Phone AX5 and all landscape coordinates remain unverified, including OCR overlap and
+reader budget/geometry. Eight phone-landscape 8:11 page bitmaps total 30096 px in height;
+actual landscape output and host overhead have not been verified.
+
+## Log and provenance boundaries
+
+The tablet nine-test log contains one expected render-server refusal from the deliberate
+direct-draw pin. The current phone two-test log contains no such pin or refusal. Both
+matrix logs and the tablet gate also retain IOSurfaceClientSetSurfaceNotify messages.
+They coexist with successful captures and are not established as remaining root causes.
+The handoff notes InvalidTransition only on failed Reader teardown; the current inspected
+passing gates and matrix logs contain no InvalidTransition. Historical logs remain saved.
+
+The four reserved staged paths match the original patch byte-for-byte; .capture/ remains
+untracked and no generated images become baselines. No production source was changed by
+root during reconciliation. Obtain the Home viewport decision before production edits or
+acceptance changes, then finish native orientation and final clean/full-matrix gates.
+
+## Historical checkpoint — source cee1504a, superseded by the parity commits
+
+The following records root's previous evidence and pending questions. Its Downloads/
+Reader blockers, unresolved-cause statements and 4/32 accounting are historical. The
+current findings and accounting above supersede them without deleting original evidence.
 
 The owner adopted stationary render-server slices in `e9e183f6`; architecture approval
 is settled and the former three-run recovery bound is superseded. Root completed the
