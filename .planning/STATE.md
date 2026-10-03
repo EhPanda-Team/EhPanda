@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 AX5 Home fails owner-specified viewport pin equivalence before growth
-last_updated: "2026-10-03T17:38:33.014190+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 AX5 Comments toolbar glyph changes across viewport freeze before growth
+last_updated: "2026-10-03T18:02:45.106510+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "Viewport pin implemented; clean/native gates pass; AX5 Home pin input changes pixels before growth"
-state_head: 76ca3010f03d7b662524eef1b2614852c05e29a7
+last_activity_desc: "Native viewport freeze resolves AX5 Home; AX5 Comments compose glyph changes before growth"
+state_head: da93f8c7f13d79999f9a50df4fb28c665f8c7de7
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: 76ca3010f03d7b662524eef1b2614852c05e29a7
+source_head: da93f8c7f13d79999f9a50df4fb28c665f8c7de7
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — AX5 Home fails viewport pin equivalence before growth
-Last activity: 2026-10-04 — Implemented owner judgment; pre-growth equivalence catches AX5 Home mismatch; phone restored
+Status: checkpoint — AX5 Comments compose glyph changes across freeze before growth
+Last activity: 2026-10-04 — Native freeze implemented; phone 15/15, AX5 Home parity passes; Comments glyph guard fails
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. Owner-adopted native viewport pin and external rotation are implemented. Clean/UI builds pass with zero diagnostics; phone native 12/12 and portrait rotation/cleanup 1/1 each. The final-source matrix passes four portrait/large shapes but AX5 Home fails pre-growth pin equivalence: the specified UIScrollView bounds pin (420 x 912 pt) changes 706625 viewport pixels. Coverage is 4 captured / 1 failed / 27 pending. Actual Home SwiftUI measurement remains uninstrumented; reconcile the input protocol before substituting a source. No iPad/landscape invocation, SUMMARY or baseline. Evidence: `/tmp/ehpanda-phase17-viewport-gate-03/`; see the feasibility gate and continuation note.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP da93f8c7f1 implements owner-adopted per-view viewport freezing. Clean/UI builds pass without diagnostics; phone native 15/15 and rotation/cleanup 1/1 each pass, with zero skips/Repetition. Five matrix coordinates pass, including AX5 Home (exact freeze and full/native parity, 6/6 census). AX5 Comments fails before growth: only its compose glyph changes, 2648 pixels within [1098,229,1174,305), maximum delta 77; the rest of the image is identical. Comments does not consume the freeze key; the cause of this toolbar transition is unproven. Coverage is 5 captured / 1 failed / 26 pending. Phone restored, no active jobs. Preserve the inertness check and investigate before expansion. Evidence: `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`. No SUMMARY or baseline.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-03T16:46:39Z
-Stopped at: Phase 17 plan 17-01 Task 2 parity resolved in portrait; owner AX5 Home viewport decision and iPad rotation remain
+Last session: 2026-10-03T18:02:45.106510+00:00
+Stopped at: Phase 17 plan 17-01 Task 2 AX5 Comments freeze-equivalence toolbar transition
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
