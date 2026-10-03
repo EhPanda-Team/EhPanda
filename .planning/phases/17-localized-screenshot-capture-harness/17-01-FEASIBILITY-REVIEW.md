@@ -3,81 +3,57 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-viewport-pin-and-external-rotation
-status: viewport-pin-equivalence-failed
-files_reviewed: 7
-source_head: 2bece536dcdd1a9f35360a85b424bd8cd8a9cd2f
+scope: task-2-native-viewport-freeze
+status: viewport-freeze-toolbar-equivalence-failed
+files_reviewed: 8
+source_head: 27e8b84a09f949f29d9c5090e158588d32aee2ee
 ---
 
-# Task 2 scoped source and evidence review
+# Task 2 native viewport freeze review
 
-Inline gsd-code-review with SwiftUI, observable-model and SnapshotTesting guidance;
-this is not an independent review session or whole-phase sign-off. Reviewed
+Inline gsd-code-review using SwiftUI, observable-model and testing guidance. This is an
+orchestrator review, not an independent review session or whole-phase sign-off. Scope:
 AppComponents/GalleryViewport.swift, HomeFeature/HomeView.swift,
-VisualSnapshotSupport/FullContentHost.swift, FullContentFeasibilityTests.swift,
-VisualTracerTests.swift, VisualCaptureOrientationUITests.swift and
-Scripts/verify-full-content-capture.py. The earlier render-slice and reader-export
-implementation remains unchanged from aefc47df / 723a117f.
+GalleryListComponents/GalleryList.swift, VisualSnapshotSupport/FullContentHost.swift,
+FullContentFeasibilityTests.swift, VisualTracerTests.swift, VisibleViewportTests.swift,
+and Scripts/verify-full-content-capture.py.
 
-## Adopted viewport contract
+## Contract and implementation
 
-The optional environment entry defaults to nil. Home uses its measured ScrollView size
-unless the entry is supplied; horizontal size class, navigation, search, scroll-edge
-policy and card selection rules are unchanged. Windowed production layouts keep their
-container-based semantics.
+The Boolean environment entry defaults to false. Each modifier owns its latest measured
+size and last forwarded size; native geometry events are forwarded unless frozen, and thaw
+emits the latest value only if it differs. Home and GalleryList use this at their original
+measurement sites. No harness size, scene-size approximation or safe-area formula remains.
+Unrelated gesture/LiveText geometry observers are unchanged. Three hosted SwiftUI tests
+observe actual layout and freeze propagation independently of the callback being tested.
 
-The host owns one MainActor observable box and applies it through a stable SwiftUI
-wrapper. Native test entry points pass the app's environment key path, keeping the support
-library independent of the app graph. A direct AppComponents dependency caused Xcode to
-promote shared modules to dynamic frameworks without string-symbol generation. Explicit
-symbol generation and static support linkage did not repair that graph; those experiments
-are reverted. The retained implementation changes no package linkage or resource source.
+The host uses the existing stable observable-backed root and Boolean key-path injection;
+no new app dependency is linked into VisualSnapshotSupport. It waits a layout frame after
+freezing and requires exact canonical RGBA equality before growth. Native/full parity still
+uses the original reference. Shared restoration code returns the window/controller to the
+original viewport and removes the status-bar companion before clearing the flag; successful
+restoration also waits a frame before thaw. Deferred error cleanup and dismiss restore first.
 
-Each capture settles an unpinned reference, measures the selected native UIScrollView's
-bounds, applies the pin, waits for layout and settles again before any growth. Both native
-images are retained and canonical 8-bit sRGB RGBA bytes must match exactly. A mismatch
-writes explicit evidence and throws. Full-content parity still compares against the
-original unpinned image. The pin remains held throughout convergence, slicing and census,
-and is cleared in successful restoration, deferred failure cleanup and dismissal.
+The runner includes the new test file in source hashes and the three tests in exact expected
+counts (phone 15, tablet 12). It checks the renamed freeze-parity evidence. External rotation,
+serial execution, no retries, exact coordinate coverage and cleanup remain intact. Rendering,
+seams, census, artwork, reader pixel size and composite budget are unchanged.
 
-No coordinate is excluded. The same pin contract applies to all 32 full-content captures,
-including phone AX5 Home. Rendering, seam equality, census, artwork completeness, reader
-non-resampling, status-bar and restored-geometry assertions remain strict.
+## Verification and blocking finding
 
-## Native orientation and runner contract
+Fresh clean and orientation builds pass with zero compiler/lint diagnostics. Phone native
+15/15, portrait rotation 1/1 and cleanup 1/1 pass; zero skips/Repetition and unchanged source
+hashes. The three new modifier behavior tests pass. Five matrix coordinates pass, including
+AX5 Home with exact native/full parity and 6/6 census.
 
-Two matrix methods each exercise eight coordinates per device family. They require actual
-scene orientation and bounds; no in-process orientation request or pretend landscape
-window size remains. The two native UI tests rotate XCUIDevice without launching the app.
-The runner serializes portrait rotation, native gates, portrait capture, landscape rotation
-and landscape capture, then restores portrait in a finally block, including failures.
+**Blocking:** AX5 Comments changes its compose glyph while still at native viewport size,
+after the freeze environment transition. Its 2648 changed pixels occupy only a 76×76 pixel
+region; the dark glyph support shrinks from 76×76 to 64×64, while the rest of the image is
+identical. Comments has no sampling modifier or freeze-key read. Root cause is not established;
+the failed inertness guard is retained. No source defect was established that can be corrected
+without first explaining this native toolbar transition. No tolerances or coverage exceptions
+were introduced.
 
-Generated xctestrun copies omit Xcode's TestRepetitionPolicy. Source plans and built test
-binaries remain intact. Exact expected test counts, device identity, zero failures/skips/
-repetitions and compiler/lint diagnostics are checked. Fresh result directories retain
-commands, exit codes, summaries, trees and extracted directory attachments. Matrix outcome
-keys must match all eight requested coordinates, with pin/native parity and acceptance
-artifacts present. Tracked app/test resources and code plus the runner are hashed before
-building and checked before subsequent work and final acceptance. Cleanup still runs if
-that source guard fires.
-
-## Verification and open finding
-
-Final-source evidence is `/tmp/ehpanda-phase17-viewport-gate-03/`: clean and UI-test builds
-pass with zero diagnostics, phone native tests pass 12/12, portrait rotation and cleanup
-pass 1/1 each, and all trees have zero skips/Repetition. Source hashes remain unchanged.
-
-**Blocking finding:** the owner-specified UIScrollView bounds pin does not preserve native
-phone AX5 Home rendering. Its 420 x 912 pt input changes 706625 viewport pixels before any
-window growth; the title expands from two truncated lines to three lines, increasing the
-card height. The new guard correctly stops here. Home's private SwiftUI measurement has
-not been instrumented, so the exact measurement discrepancy is still unproven. The approved
-input protocol must be reconciled before changing that measurement or resuming the matrix.
-
-Current matrix coverage is 4 captured / 1 failed / 27 pending. New-code landscape and iPad
-captures are unexecuted. Earlier 12/32 captures remain historical. Task 2 is incomplete;
-no SUMMARY, baseline approval, coverage exception or later-plan completion is implied.
-
-The failed test suite finished before its matching post-test simctl diagnostic collector
-was terminated to let Xcode finalize the xcresult and perform portrait cleanup. Optional
-simulator diagnostics may be incomplete; the original test failure and artifacts remain.
+Current coverage is 5 captured / 1 failed / 26 pending. iPad/landscape validation and Task 2
+completion remain open. Full evidence and diagnostic-finalization limits are in
+17-01-FEASIBILITY-GATE.md under `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`.

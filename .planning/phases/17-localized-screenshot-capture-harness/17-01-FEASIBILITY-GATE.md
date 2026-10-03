@@ -2,14 +2,72 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: viewport-pin-equivalence-failed
+status: viewport-freeze-toolbar-equivalence-failed
 recorded: 2026-10-04
-source_head: 2bece536dcdd1a9f35360a85b424bd8cd8a9cd2f
+source_head: 27e8b84a09f949f29d9c5090e158588d32aee2ee
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current owner-adopted implementation gate — 2026-10-04
+## Current native viewport freeze gate — 2026-10-04
+
+The owner's follow-up protocol is implemented: each Home/GalleryList measurement retains
+its own native container size, with a Boolean environment flag controlling sampling.
+FullContentHost no longer supplies a CGSize. It settles the native reference, freezes,
+waits a layout frame, re-settles and requires exact canonical pixels before growth.
+Viewport geometry is restored before thaw. The prior pin implementation below is historical.
+
+Formal run: `/tmp/ehpanda-phase17-viewport-freeze-gate-01/`. Source hashes remain identical
+from clean build through completion. Clean FeatureTests and orientation builds both pass
+with zero compiler/deprecation/SwiftLint diagnostics. iPhone native tests pass 15/15,
+including three hosted SwiftUI modifier tests. Initial portrait rotation and final portrait
+restoration each pass 1/1. All result trees have zero skipped tests and Repetition nodes;
+all inspected summary runtimeWarnings arrays are empty.
+
+| Coordinate | Freeze parity | Native/full parity | Output points | Result |
+|---|---|---|---|---|
+| iPhone portrait Large Home | exact | exact | 420×1374 | captured |
+| iPhone portrait Large Comments | exact | exact | 420×2798 | captured |
+| iPhone portrait Large Downloads | exact | exact | 420×2788 | captured |
+| iPhone portrait Large Reader | exact | exact | 420×4622 | captured |
+| iPhone portrait AX5 Home | exact | exact | 420×2662 | captured |
+| iPhone portrait AX5 Comments | fails before growth | not reached | native 420×912 | failed |
+
+The earlier AX5 Home layout failure is resolved for this measured coordinate; its census
+is 6/6 and restored geometry passes. This does not establish unrun landscape/tablet behavior.
+The current total is **5 captured / 1 failed / 26 pending** across 32 required coordinates.
+No AX5 Downloads/Reader, landscape or iPad matrix ran after the failure.
+
+AX5 Comments throws `visibleViewportFreezeChangedPixels` at native size. The native and
+frozen PNGs are both 1260×2736. Only 2648 pixels differ, all inside the top-right compose
+glyph: exclusive pixel bounds `[1098,229,1174,305]`, maximum channel delta 77. The glyph
+visibly shrinks; the remaining image, including the glass button background and comment
+content, is byte-identical. As a descriptive pixel measurement, red-channel <180 support
+inside that region spans 76×76 before and 64×64 after (not UIKit view geometry).
+Native settling took five samples, frozen settling three; both satisfied the existing
+at-least-500-ms identical-pixel rule. There was no window growth at this point.
+
+CommentsView has no viewport sampling modifier or freeze-key read. Its toolbar is the
+existing `Label(.postComment, systemSymbol: .squareAndPencil)` button, disabled for the
+logged-out fixture. No production Comments code was changed. The evidence shows a change
+across the environment transition; it does not yet distinguish environment-triggered
+native toolbar reconfiguration from delayed settling or another UIKit/SwiftUI cause.
+Do not weaken parity, mask the glyph, exclude the coordinate or change the baseline.
+
+Authoritative exported matrix directory, relative to the run root:
+`iphone-portrait-attachments/9543D25A-7525-4B89-84AF-E75F1BC409BA/phase17-feasibility-5F345990-3B14-4AC4-BA1F-192F5BC51449/`.
+It contains `outcomes.json`, five acceptance files, and the failing coordinate's
+`capture.viewport.png`, `capture.frozen-viewport.png`, `visible-viewport-freeze-parity.json`
+and derived `freeze-difference-analysis.json`. A live-container copy under `live-evidence/`
+was retained while Xcode finalized the failed bundle. Only the matching optional post-test
+simctl diagnostic collector was terminated after the suite ended; the xcresult finalized
+with exit 65 and portrait cleanup passed. Optional simulator diagnostics may be incomplete.
+
+Task 2 remains incomplete (1/2 tasks, 0/24 plans). No SUMMARY or approved baseline exists;
+`.capture/` remains untouched. The new toolbar transition requires investigation before
+resuming expansion under the approved feasibility contract.
+
+## Historical size-pin implementation gate — 2026-10-04
 
 The owner adopted a visible-viewport environment pin and external XCUIDevice rotation,
 retaining all 32 full-content coordinates. The implementation follows that protocol and

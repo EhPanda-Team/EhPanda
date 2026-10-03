@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-03T17:38:33.014190+00:00",
+  "timestamp": "2026-10-03T18:02:45.106510+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-viewport-pin-equivalence",
+  "status": "checkpoint-viewport-freeze-toolbar-equivalence",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,16 +21,14 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "Owner-adopted viewport pin and external rotation implemented. Clean/UI build pass; native phone 12/12. Matrix 4 captured / 1 failed / 27 pending: AX5 Home pin changes pixels before growth."
+      "progress": "WIP 27e8b84a implements native per-view viewport freezing. Clean/UI builds pass without diagnostics; phone native 15/15, rotation/cleanup 1/1 each. Matrix 5 captured / 1 failed / 26 pending; AX5 Home passes, AX5 Comments compose glyph changes before growth."
     }
   ],
   "blockers": [
-    "The required UIScrollView bounds pin (420 x 912 pt) changes 706625 native viewport pixels on phone portrait AX5 Home before growth. Actual Home SwiftUI viewport measurement is not instrumented; reconcile measurement protocol before substitution."
+    "AX5 Comments fails visibleViewportFreezeChangedPixels before growth: 2648 pixels differ only in the compose glyph (76x76 pixel bounding region, maximum delta 77). Comments has no freeze-key read or viewport modifier. Root cause of toolbar reconfiguration/settling is unproven."
   ],
   "async_jobs": [],
-  "human_actions_pending": [
-    "Reconcile the owner-specified UIScrollView bounds pin with Home's native SwiftUI measurement after the pre-growth equivalence failure. The decision to retain all 32 coordinates is already settled."
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -81,6 +79,11 @@
       "decision": "Owner adopted native scroll-container viewport pin with pre-growth byte equivalence and external XCUIDevice rotation; all 32 coordinates retained.",
       "rationale": "User supplied delegated judgment and requested continuation. The implemented equivalence guard fails on AX5 Home before growth, requiring input-source reconciliation.",
       "phase": "17"
+    },
+    {
+      "decision": "Adopt per-view native viewport measurement freezing for Home and GalleryList, replacing the harness-supplied size.",
+      "rationale": "Owner follow-up research measured Home-like SwiftUI geometry at 420x756 versus UIScrollView bounds 420x912. Per-view safe areas and landscape rules require each view's own measurement; the size-pin fallback is not adopted.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -90,8 +93,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Review the native pin equivalence failure and reconcile its measurement source before resuming full-content expansion.",
-  "context_notes": "Root implemented the owner-adopted decision inline and committed 2bece536 as WIP. Clean/UI builds pass; phone native 12/12; portrait rotation/cleanup 1/1 each. All trees have zero skips/Repetition. The formal matrix fails before growth at phone AX5 Home: 420x912pt bounds pin changes 706625 native viewport pixels. Four captures passed, one failed, 27 pending. Phone restored; no active jobs. Current actual Home SwiftUI measurement is uninstrumented. No further input substitution, coverage waiver or later-plan work. Existing .capture/regression remains untouched with older generator provenance.",
+  "next_action": "Investigate the native AX5 Comments compose-glyph transition across the freeze environment update; preserve strict inertness/native parity and all 32 coordinates. Reconcile the root cause before resuming expansion.",
+  "context_notes": "WIP 27e8b84a implements native per-view viewport freezing. Clean/UI builds pass without diagnostics; phone native 15/15, rotation/cleanup 1/1 each. Matrix 5 captured / 1 failed / 26 pending; AX5 Home passes, AX5 Comments compose glyph changes before growth. Source hashes unchanged; zero skips/Repetition. The matching optional post-test simctl diagnostic collector was terminated after the failed suite ended; xcresult finalized exit 65 and portrait cleanup passed. No active Xcode jobs. Four reserved staged paths unchanged; .capture/ untouched. No SUMMARY or later-plan completion.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -501,6 +504,35 @@
       "source_hashes_unchanged": true,
       "repetition_nodes": 0,
       "limits": "No current landscape/iPad captures. Post-test simctl diagnostic collector terminated after failed suite; optional diagnostics may be incomplete."
+    },
+    "viewport_freeze_gate": {
+      "root": "/tmp/ehpanda-phase17-viewport-freeze-gate-01/",
+      "source_commit": "27e8b84a09f949f29d9c5090e158588d32aee2ee",
+      "clean_build_exit": 0,
+      "orientation_build_exit": 0,
+      "compiler_lint_diagnostics": 0,
+      "native_phone_passed": 15,
+      "modifier_tests_passed": 3,
+      "portrait_rotation_passed": 1,
+      "portrait_cleanup_passed": 1,
+      "captured": 5,
+      "failed": 1,
+      "pending": 26,
+      "failed_coordinate": "iphone-portrait-AX5-comments",
+      "failure": "visibleViewportFreezeChangedPixels",
+      "changed_pixels": 2648,
+      "exclusive_pixel_bounds": [
+        1098,
+        229,
+        1174,
+        305
+      ],
+      "maximum_channel_delta": 77,
+      "native_settle_samples": 5,
+      "frozen_settle_samples": 3,
+      "source_hashes_unchanged": true,
+      "repetition_nodes": 0,
+      "limits": "No window growth on failed coordinate. No iPad/landscape matrix runs. Optional post-test simulator diagnostics may be incomplete. Root cause of compose glyph shrink unproven."
     }
   },
   "recovery_logs": [
@@ -509,6 +541,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "After docs checkpoint only the four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 2bece536 is committed; Task 2 is not complete.",
-  "source_checkpoint": "2bece536dcdd1a9f35360a85b424bd8cd8a9cd2f"
+  "uncommitted_files_note": "After the docs checkpoint only the four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 27e8b84a is committed; Task 2 is incomplete.",
+  "source_checkpoint": "27e8b84a09f949f29d9c5090e158588d32aee2ee"
 }
