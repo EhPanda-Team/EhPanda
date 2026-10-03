@@ -1,3 +1,4 @@
+import AppComponents
 import AppFeature
 import AppModels
 import AppTools
@@ -76,7 +77,9 @@ final class VisualTracerTests: XCTestCase {
                     .onGeometryChange(for: CGSize.self, of: \.size) {
                         measurement.rootSizes.append($0)
                     }
-                let host = try await FullContentHost(rootView: rootView)
+                let host = try await FullContentHost(
+                    rootView: rootView, visibleViewportKey: \.visibleViewportSize
+                )
                 let originalWindowFrame = host.window.frame
                 let originalAutoresizingMask = host.controller.view.autoresizingMask
                 defer {
@@ -190,7 +193,9 @@ final class VisualTracerTests: XCTestCase {
                 $0.deviceClient = .live
             } operation: {
                 let rootView = try Self.homeRoot(galleries: galleries)
-                let host = try await FullContentHost(rootView: rootView)
+                let host = try await FullContentHost(
+                    rootView: rootView, visibleViewportKey: \.visibleViewportSize
+                )
                 defer { host.dismiss() }
                 let evidence = try await host.capture(
                     expectedItems: galleries.map({
