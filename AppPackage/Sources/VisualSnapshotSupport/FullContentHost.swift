@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 import SnapshotTesting
 import SwiftUI
 import UIKit
@@ -68,15 +67,17 @@ public final class FullContentHost<Content: View> {
 
     private let previousKeyWindow: UIWindow?
     private let standardImageRange: Bool
-    private let viewportFreeze = VisibleViewportFreeze()
+    private let setSamplingFrozen: (Bool) -> Void
     private let nativeWindowFrame: CGRect
     private var verticalScrollHost: UIScrollView
     /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
     /// ``StatusBarAppearanceController``.
     private var companionWindow: UIWindow?
 
-    public init(
-        rootView: Content, visibleViewportFrozenKey: WritableKeyPath<EnvironmentValues, Bool>,
+    public init<Sampling: AnyObject>(
+        rootView: Content, sampling: Sampling,
+        samplingKey: WritableKeyPath<EnvironmentValues, Sampling?>,
+        frozen: ReferenceWritableKeyPath<Sampling, Bool>,
         contentSizeCategory: UIContentSizeCategory? = nil,
         standardImageRange: Bool = false,
         isViewportReady: @MainActor () -> Bool = { true }
@@ -88,6 +89,7 @@ public final class FullContentHost<Content: View> {
         }
         self.scene = scene
         self.standardImageRange = standardImageRange
+        setSamplingFrozen = { sampling[keyPath: frozen] = $0 }
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
         if standardImageRange {
@@ -98,7 +100,7 @@ public final class FullContentHost<Content: View> {
             window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
         }
         controller = UIHostingController(rootView: AnyView(
-            ViewportSamplingContent(content: rootView, freeze: viewportFreeze, key: visibleViewportFrozenKey)
+            ViewportSamplingContent(content: rootView, sampling: sampling, key: samplingKey)
         ))
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -149,7 +151,7 @@ public final class FullContentHost<Content: View> {
 
     public func dismiss() {
         restoreViewportGeometry(frame: nativeWindowFrame)
-        viewportFreeze.isFrozen = false
+        setSamplingFrozen(false)
         window.isHidden = true
         window.rootViewController = nil
         previousKeyWindow?.makeKey()
@@ -183,7 +185,7 @@ public final class FullContentHost<Content: View> {
             .map({ $0.convert($0.bounds, to: controller.view) })
         defer {
             restoreViewportGeometry(frame: originalWindowFrame)
-            viewportFreeze.isFrozen = false
+            setSamplingFrozen(false)
             verticalScrollHost.setContentOffset(originalOffset, animated: false)
             controller.view.layoutIfNeeded()
         }
@@ -192,7 +194,7 @@ public final class FullContentHost<Content: View> {
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
 
-        viewportFreeze.isFrozen = true
+        setSamplingFrozen(true)
         await LayoutFrame.wait()
         controller.view.layoutIfNeeded()
         let frozen = try await settledViewportRendering(directory: outputDirectory)
@@ -431,7 +433,7 @@ public final class FullContentHost<Content: View> {
         restoreViewportGeometry(frame: frame)
         await LayoutFrame.wait()
         controller.view.layoutIfNeeded()
-        viewportFreeze.isFrozen = false
+        setSamplingFrozen(false)
         var previousHeight: CGFloat?
         var stableIterations = 0
         for _ in 1...12 {
@@ -745,18 +747,12 @@ public enum FullContentHostError: Error {
     case visibleViewportFreezeChangedPixels
 }
 
-@MainActor
-@Observable
-private final class VisibleViewportFreeze {
-    var isFrozen = false
-}
-
-private struct ViewportSamplingContent<Content: View>: View {
+private struct ViewportSamplingContent<Content: View, Sampling: AnyObject>: View {
     let content: Content
-    let freeze: VisibleViewportFreeze
-    let key: WritableKeyPath<EnvironmentValues, Bool>
+    let sampling: Sampling
+    let key: WritableKeyPath<EnvironmentValues, Sampling?>
 
     var body: some View {
-        content.environment(key, freeze.isFrozen)
+        content.environment(key, sampling)
     }
 }
