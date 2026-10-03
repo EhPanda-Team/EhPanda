@@ -19,11 +19,14 @@ public enum RenderServerCapture {
     /// snapshot (measured 2026-10-03: 8190/8193 px @3x, 8192/8194 px @2x). Points x screen scale, never the
     /// trait display scale: overriding `displayScale` does not move the limit.
     public static let maximumSnapshotDimension: CGFloat = 8192
+    private static let sliceEdgePadding: CGFloat = 64
 
     /// One render-server read of a rect of the captured view.
     public struct Slice: Sendable {
         /// The slice rect in the captured view's bounds coordinates, in points. Always full width.
         public let frame: CGRect
+        /// The render-server read includes context outside ``frame`` to keep rasterization away from crop edges.
+        public let readFrame: CGRect
         /// The pixels the render server returned for ``frame``.
         public let image: UIImage
     }
@@ -38,51 +41,75 @@ public enum RenderServerCapture {
         public let maximumSliceHeight: CGFloat
         /// The height, in points, that consecutive slices share and that the seam self-check compares.
         public let overlap: CGFloat
+        /// Context read outside each slice, then cropped away without redrawing the captured pixels.
+        public let edgePadding: CGFloat
     }
 
     /// Captures `view` as one image of its whole bounds.
     ///
     /// The view must be attached to a window, which supplies the screen scale that the render-server ceiling is
-    /// measured in. Slices cover `view.bounds` top to bottom with a stride of `maximumSliceHeight - overlap`; a
-    /// view that fits in one slice is captured as exactly one slice with no seam check.
+    /// measured in. Slices cover `view.bounds` top to bottom. Multi-slice reads reserve context above and below
+    /// each slice within the dimension ceiling, then crop away that context without redrawing. A view that fits
+    /// in one read is captured as exactly one slice with no seam check.
     ///
     /// Each slice is drawn through a replicant temporarily added to the window. The Boolean returned by
     /// `drawHierarchy(in:afterScreenUpdates:)` is the only proof of a successful draw: a refused draw still yields
     /// an image (fully transparent, or opaque fill), so a produced image is never treated as success.
     ///
     /// Consecutive slices overlap by `overlap` points. That band depicts the same region of the same committed
-    /// frame in both slices, so its 8-bit sRGB RGBA bytes must be identical; any difference means the hierarchy
-    /// changed between reads and the composite would contain a seam, so the capture fails instead.
+    /// frame in both slices, so its 8-bit sRGB RGBA bytes must be identical; any difference means the reads cannot
+    /// be combined faithfully, so the capture fails instead.
     ///
     /// - Parameters:
     ///   - view: The laid-out view to capture, attached to a window.
     ///   - format: The renderer format used for every slice and for the composite.
     ///   - overlap: Points shared by consecutive slices for the seam self-check. Must be non-negative and smaller
     ///     than the maximum slice height.
+    ///   - diagnosticsDirectory: Optional destination for the original slices and their rects when a seam fails.
     @MainActor
     public static func image(
-        of view: UIView, format: UIGraphicsImageRendererFormat, overlap: CGFloat = 64
+        of view: UIView, format: UIGraphicsImageRendererFormat, overlap: CGFloat = 64,
+        diagnosticsDirectory: URL? = nil
     ) throws -> Result {
         guard let window = view.window else { throw RenderServerCaptureError.detachedView }
         let scale = window.screen.scale
         let maximumSliceHeight = floor(maximumSnapshotDimension / scale)
-        precondition(overlap >= 0 && overlap < maximumSliceHeight, "Slice overlap must leave a positive stride")
         guard view.bounds.width * scale <= maximumSnapshotDimension else {
             throw RenderServerCaptureError.widthExceedsSnapshotDimension(view.bounds.width)
         }
-        let frames = sliceFrames(of: view.bounds, maximumSliceHeight: maximumSliceHeight, overlap: overlap)
-        let slices = try frames.map({ try slice(of: view, in: window, frame: $0, format: format) })
-        if slices.count > 1 {
-            try verifySeams(of: slices, bandPixelHeight: Int((overlap * scale).rounded()))
-        }
-        // Later slices overwrite each overlap band with bytes the seam check proved identical.
-        let image = UIGraphicsImageRenderer(bounds: view.bounds, format: format).image { _ in
-            for slice in slices {
-                slice.image.draw(at: slice.frame.origin)
+        let fitsSingleRead = view.bounds.height <= maximumSliceHeight
+        let edgePadding = fitsSingleRead ? 0 : sliceEdgePadding
+        precondition(
+            overlap >= 0 && overlap < maximumSliceHeight - 2 * edgePadding,
+            "Slice overlap must leave a positive stride after reserving edge context"
+        )
+        let frames = sliceFrames(
+            of: view.bounds, maximumSliceHeight: maximumSliceHeight - 2 * edgePadding, overlap: overlap
+        )
+        let slices = try frames.map({ frame in
+            let top = max(view.bounds.minY, frame.minY - edgePadding)
+            let bottom = min(view.bounds.maxY, frame.maxY + edgePadding)
+            let readFrame = CGRect(x: frame.minX, y: top, width: frame.width, height: bottom - top)
+            return try slice(of: view, in: window, frame: frame, readFrame: readFrame, format: format)
+        })
+        if slices.count > 1, overlap > 0 {
+            do {
+                try verifySeams(of: slices, bandPixelHeight: Int((overlap * scale).rounded()))
+            } catch {
+                if let diagnosticsDirectory {
+                    try writeDiagnostics(slices: slices, scale: scale, overlap: overlap, to: diagnosticsDirectory)
+                }
+                throw error
             }
         }
-        guard image.cgImage != nil else { throw RenderServerCaptureError.emptyImage }
-        return Result(image: image, slices: slices, maximumSliceHeight: maximumSliceHeight, overlap: overlap)
+        // Copy exactly the canonical bytes checked at the seams. Drawing the slices again through a renderer
+        // can apply another color-space conversion and round otherwise identical glass pixels by one byte.
+        let image = try CapturedRaster(slices: slices, bounds: view.bounds, scale: format.scale)
+            .comparisonImage(scale: format.scale)
+        return Result(
+            image: image, slices: slices, maximumSliceHeight: maximumSliceHeight,
+            overlap: overlap, edgePadding: edgePadding
+        )
     }
 
     private static func sliceFrames(
@@ -101,21 +128,29 @@ public enum RenderServerCapture {
 
     @MainActor
     private static func slice(
-        of view: UIView, in window: UIWindow, frame: CGRect, format: UIGraphicsImageRendererFormat
+        of view: UIView, in window: UIWindow, frame: CGRect, readFrame: CGRect, format: UIGraphicsImageRendererFormat
     ) throws -> Slice {
         guard let replicant = view.resizableSnapshotView(
-            from: frame, afterScreenUpdates: true, withCapInsets: .zero
-        ) else { throw RenderServerCaptureError.snapshotRefused(frame) }
+            from: readFrame, afterScreenUpdates: true, withCapInsets: .zero
+        ) else { throw RenderServerCaptureError.snapshotRefused(readFrame) }
         // The replicant is only drawable while it is in a window; its own size is what the render server checks.
-        replicant.frame = CGRect(origin: .zero, size: frame.size)
+        replicant.frame = CGRect(origin: .zero, size: readFrame.size)
         window.addSubview(replicant)
         defer { replicant.removeFromSuperview() }
         var drew = false
         let image = UIGraphicsImageRenderer(bounds: replicant.bounds, format: format).image { _ in
             drew = replicant.drawHierarchy(in: replicant.bounds, afterScreenUpdates: true)
         }
-        guard drew else { throw RenderServerCaptureError.renderServerRefused(frame) }
-        return Slice(frame: frame, image: image)
+        guard drew else { throw RenderServerCaptureError.renderServerRefused(readFrame) }
+        // Snapshot rect edges can rerasterize a clipped glyph by one byte. Read context on both sides, then crop
+        // immutable CGImage pixels so the entire strict overlap band comes from the interior of both reads.
+        guard let pixels = image.cgImage?.cropping(to: CGRect(
+            x: 0, y: ((frame.minY - readFrame.minY) * image.scale).rounded(),
+            width: (frame.width * image.scale).rounded(), height: (frame.height * image.scale).rounded()
+        )) else { throw RenderServerCaptureError.emptyImage }
+        return Slice(
+            frame: frame, readFrame: readFrame, image: UIImage(cgImage: pixels, scale: image.scale, orientation: .up)
+        )
     }
 
     private static func verifySeams(of slices: [Slice], bandPixelHeight: Int) throws {
@@ -141,6 +176,20 @@ public enum RenderServerCapture {
                 throw RenderServerCaptureError.seamMismatch(sliceIndex: sliceIndex)
             }
         }
+    }
+
+    private static func writeDiagnostics(slices: [Slice], scale: CGFloat, overlap: CGFloat, to directory: URL) throws {
+        for (sliceIndex, slice) in slices.enumerated() {
+            guard let data = slice.image.pngData() else { throw RenderServerCaptureError.emptyImage }
+            try data.write(to: directory.appending(path: "capture.render-slice-\(sliceIndex).png"), options: .atomic)
+        }
+        try JSONSerialization.data(withJSONObject: [
+            "displayScale": scale, "overlap": overlap,
+            "slices": slices.map({
+                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
+            })
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: directory.appending(path: "render-slices.json"), options: .atomic)
     }
 }
 
@@ -168,6 +217,25 @@ struct CapturedRaster {
     let width: Int
     let height: Int
     let pixels: [UInt8]
+
+    init(slices: [RenderServerCapture.Slice], bounds: CGRect, scale: CGFloat) throws {
+        let pixelWidth = Int((bounds.width * scale).rounded())
+        let pixelHeight = Int((bounds.height * scale).rounded())
+        var bytes = [UInt8](repeating: 0, count: pixelWidth * pixelHeight * 4)
+        for slice in slices {
+            guard let image = slice.image.cgImage else { throw RenderServerCaptureError.emptyImage }
+            let raster = try CapturedRaster(image: image)
+            let firstRow = Int(((slice.frame.minY - bounds.minY) * scale).rounded())
+            guard raster.width == pixelWidth, firstRow >= 0, firstRow + raster.height <= pixelHeight else {
+                throw RenderServerCaptureError.emptyImage
+            }
+            let start = firstRow * pixelWidth * 4
+            bytes.replaceSubrange(start..<start + raster.pixels.count, with: raster.pixels)
+        }
+        width = pixelWidth
+        height = pixelHeight
+        pixels = bytes
+    }
 
     init(image: CGImage) throws {
         let pixelWidth = image.width
