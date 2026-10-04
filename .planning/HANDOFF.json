@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T16:08:39.714791+00:00",
+  "timestamp": "2026-10-04T17:09:02.354559+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-half-pixel-artwork-extent",
+  "status": "checkpoint-17-02-artwork-clip-contract",
   "completed_tasks": [
     {
       "id": 1,
@@ -24,12 +24,12 @@
     }
   ],
   "blockers": [
-    "Coordinate-sized fixture source 245 x 338 px displays at 245 x 337 in VH4/VH6 on phone portrait AX5 Home; rounded production role dimensions do not preserve source pixels at every row position."
+    "Artwork content comparison assumes radius-sized corner squares contain all clip blending; actual continuous corners extend to 22\u201323 pixels at 3x rather than 15. The AX5 Home capture remains failed."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Review the 3x half-pixel artwork extent with the research agent; problem prompt is retained in /tmp/ehpanda-phase17-artwork-rounding/research-prompt.txt.",
-    "Owner choice on proposal B (all reads native viewport height) remains unanswered and unapplied."
+    "Review the continuous-clip verification problem with the research agent; prompt: /tmp/ehpanda-phase17-cover-snap-corners/research-prompt.txt.",
+    "Owner choice on the separate constant-viewport-height read proposal remains unanswered and unapplied."
   ],
   "decisions": [
     {
@@ -136,26 +136,44 @@
       "decision": "Adopt coordinate-specific fixture artwork export A; keep strict dimensions and capture checks, and retain B as an unanswered owner decision.",
       "rationale": "Original iPad seam is fixed; full compatibility exposes a new 3x half-height rounding dependency that needs resolution before claiming 1:1 across the matrix.",
       "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts shared production height-first pixel sizing and exact artwork-content checks from cover-snapping research.",
+      "rationale": "Actual compact dimensions now match. The proposed corner exclusion fails on continuous clipping and remains unresolved; no source tolerance or wider empirical exclusion is adopted.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
-    " M .planning/HANDOFF.json",
     " M .planning/STATE.md",
+    " M .planning/debug/iphone-ax5-artwork-extent.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-FIXTURES.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
+    " M AppPackage/Sources/AppComponents/GalleryCover.swift",
+    " M AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift",
+    " M AppPackage/Sources/AppComponents/GalleryCoverStyle.swift",
+    " M AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift",
+    " M AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift",
+    " M AppPackage/Sources/VisualSnapshotSupport/RenderServerCapture.swift",
+    "AM AppPackage/Tests/VisualSnapshotTests/FixtureArtwork.swift",
+    "AM AppPackage/Tests/VisualSnapshotTests/FixtureArtworkTests.swift",
+    " M AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift",
+    " M AppPackage/Tests/VisualSnapshotTests/RenderServerCaptureTests.swift",
+    " M AppPackage/Tests/VisualSnapshotTests/VisualMatrixTests.swift",
     "M  EhPanda.xcodeproj/project.pbxproj",
     " M Scripts/verify-full-content-capture.py",
+    " M Scripts/visual/contracts.py",
     " M Scripts/visual/test_contracts.py",
     "?? .capture/",
-    "?? .planning/debug/dark-xs-viewport-parity.md"
+    "?? .planning/debug/artwork-continuous-clip.md"
   ],
-  "next_action": "Wait for RED build to finish, then implement native viewport-owned first read, separate seam geometry and 16-pixel-aligned later reads. Preserve strict parity and all coverage.",
-  "context_notes": "Read-rect research received; orchestrator adopted its composition correction. Three pure slice-plan tests added; RED build running. No renderer implementation changes yet.",
+  "next_action": "Reconcile the fully-inside-clip artwork comparison contract using the retained evidence, then rerun actual AX5 Home and the compatibility set before the 576-coordinate tracer.",
+  "context_notes": "Production/fixture height-first pixel sizing implemented and focused-tested; compact covers all measure 246 x 338. New exact-content check fails only near continuous corners. No wider mask exclusion or origin correction adopted.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1287,8 +1305,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 producer, native-first read correction and v3 coordinate artwork export remain WIP pending half-pixel artwork extent resolution. The two new artwork helper/test files are staged for native source-hash coverage. Four reserved owner entries and all .capture evidence remain unchanged.",
-  "source_checkpoint": "c7e8c6fb4",
+  "uncommitted_files_note": "Task 2 producer, render read correction, v3 fixtures, shared production pixel sizing and content verification remain WIP. Two artwork files remain staged for native hash coverage; four owner-staged entries are unchanged.",
+  "source_checkpoint": "b4d1d3041",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1357,6 +1375,21 @@
       "canonical_fixtures": ".capture/regression-v3",
       "native_jobs_remaining": 0,
       "states_restored": true
+    },
+    "cover_snapping": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/cover-snapping/RESULTS.md",
+      "evidence": "/tmp/ehpanda-phase17-cover-snap-corners",
+      "native_passed": 22,
+      "native_failed": 1,
+      "source_hashes_unchanged": 795,
+      "copied_attachment_files_matched": 61,
+      "states_restored": true,
+      "native_jobs_remaining": 0,
+      "python_tests": 58,
+      "scope": "focused only; no new full compatibility or 576-coordinate run",
+      "unwind_diagnostic": "InvalidTransition idle -> failed(deinit), cause not diagnosed",
+      "post_test_diagnostic_collector_terminated": 94357,
+      "test_processes_interrupted": false
     }
   }
 }

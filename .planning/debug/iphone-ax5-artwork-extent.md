@@ -1,5 +1,5 @@
 ---
-status: checkpoint-half-pixel-artwork-extent
+status: resolved-extent-with-clip-verification-followup
 trigger: Phase 17-02 v3 fixture compatibility gate
 created: 2026-10-05
 updated: 2026-10-05
@@ -8,12 +8,11 @@ execution: inline
 
 # iPhone AX5 compact artwork pixel extent
 
-Current question: how to derive a 1:1 source image size when the production compact
-cover height is 337.5 device pixels and identical role dimensions produce 337- and
-338-pixel displayed extents at different row positions. The source/capture interior
-comparison rules out a mere one-row error in the colored-boundary measurement, but
-does not identify the internal renderer mechanism. No further native probe or change
-to production layout has been attempted.
+The original 337/338-pixel extent failure is resolved in the current working tree
+by shared height-first device-pixel sizing. The real AX5 Home now measures all three
+compact covers at 246 x 338 px. Full coordinate acceptance still fails on the new
+continuous-clip content-verification contract; see `artwork-continuous-clip.md`.
+The evidence below records the earlier extent checkpoint and is historical.
 
 ## Coordinate artwork / half-pixel extent checkpoint — 2026-10-05
 

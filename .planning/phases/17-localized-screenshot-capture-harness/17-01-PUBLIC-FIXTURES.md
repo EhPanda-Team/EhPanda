@@ -2,7 +2,7 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v3-coordinate-artwork-verification-in-progress
+status: v3-artwork-content-clip-checkpoint
 recorded: 2026-10-05
 ---
 
@@ -17,8 +17,9 @@ file is written. Unspecified artwork retains the canonical dimensions. Fixture
 version is `phase17-finite-v3`; schema 1 and the 47-entry inventory are unchanged.
 
 The native test consumers derive Home hero/standard/compact and Downloads standard
-cover dimensions from `GalleryCoverStyle` and the headline scaled metric, then round
-at the coordinate's screen scale. The two carousel neighbors use hero dimensions;
+cover dimensions from `GalleryCoverStyle` and the headline scaled metric. Production
+and fixtures now share height-first pixel rounding at the coordinate's display scale.
+The two carousel neighbors use hero dimensions;
 they remain outside the census because their native visibility is intentionally
 partial. Reader pages use the full scene pixel width. Reader controls are hidden in
 these scenarios, so previews are not displayed. A post-capture check compares both
@@ -47,10 +48,22 @@ were restored. The 32-coordinate compatibility run
 `/tmp/ehpanda-phase17-artwork-gate-01/` stopped at iPhone portrait AX5 Home: two compact
 covers export at 245 x 338 px but display at 245 x 337, while the third displays at
 245 x 338. Its native parity, seams and census pass, but the new size assertion fails.
-See `17-02-INTEGRATION-NOTES.md` for the interior source-pixel comparison and unresolved
-3x half-height export contract. This v3 revision is not fully accepted. The successful
+The subsequent production-sizing correction resolves these dimensions; see the
+current content-verification checkpoint below and `17-02-INTEGRATION-NOTES.md`.
+This v3 revision is not fully accepted. The successful
 native canonical export was materialized in `.capture/regression-v3`; the old v2
 output is preserved.
+
+### Current content-verification checkpoint
+
+Shared device-pixel cover sizing fixes the three compact AX5 Home covers at
+246 x 338 px. Six artwork contract tests and five production layout declarations
+pass per family. The real Home capture still fails the new source-content check:
+continuous corner blending extends beyond the proposed ceil(5 * scale) corner
+squares. All source pixels beyond the observed 23-pixel corner extent are exact,
+but this observation is not an adopted exclusion. Strict native parity, seams and
+census pass; compatibility remains incomplete. Evidence and the research prompt are
+in `/tmp/ehpanda-phase17-cover-snap-corners/`. No baseline is promoted.
 
 ## Historical v2 carousel fixture revision
 
