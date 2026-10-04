@@ -34,6 +34,12 @@
 **Testing:**
 - Swift Testing - Test framework used across `AppPackage/Tests/*` (see TESTING.md)
 - Test plan: `AppPackage/Tests/FeatureTests.xctestplan`
+- Phase 17 addition (2026-10-04): SnapshotTesting is pinned exactly to 1.19.6 in
+  `AppPackage/Package.swift`; both package lockfiles retain the resolved revision.
+  The app-hosted `VisualSnapshotTests` XCTest target owns actual-window rendering and
+  attachments. `VisualSnapshotSupport` supplies test-only public fixtures, stationary
+  render-server slice composition, native viewport parity and rendered-content inspection.
+  `Scripts/verify-full-content-capture.py` runs the two-family feasibility gate serially.
 
 **Build/Dev:**
 - SwiftLintPlugins `0.63.0+` (`SimplyDanny/SwiftLintPlugins`) - Build-tool plugin attached to every target; root config `.swiftlint.yml`

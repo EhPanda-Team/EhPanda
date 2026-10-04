@@ -85,6 +85,14 @@ EhPanda/
 
 **Testing:**
 - `AppPackage/Tests/<Module>Tests/`; test plan `AppPackage/Tests/FeatureTests.xctestplan`.
+- Phase 17 addition (2026-10-04): `AppPackage/Tests/VisualSnapshotTests/` is an
+  app-hosted XCTest target registered in `EhPanda.xcodeproj`, using the real app scene.
+  Its support product lives in `AppPackage/Sources/VisualSnapshotSupport/`, with its own
+  parent-linked SwiftLint config. The module contains `FullContentHost`,
+  `RenderServerCapture`, `RenderedContentInspection` and `PublicVisualFixtures`.
+  `EhPandaUITests/VisualCaptureOrientationUITests.swift` rotates the simulator between
+  hosted invocations; `Scripts/verify-full-content-capture.py` owns sequential verification.
+  `.capture/` contains disposable local outputs, not approved image baselines.
 
 ## Naming Conventions
 
