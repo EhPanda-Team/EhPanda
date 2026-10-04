@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 1 complete; full 576-coordinate Task 2 matrix running
-last_updated: "2026-10-04T10:27:32.066331+00:00"
+stopped_at: 17-02 Task 2 read-rectangle parity checkpoint; all diagnostics restored
+last_updated: "2026-10-04T12:21:57.229931+00:00"
 last_activity: 2026-10-04
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: 624fddfed6
-last_activity_desc: "17-02 Task 1 GREEN; full 576-coordinate matrix running"
+source_head: 857f3578f9
+last_activity_desc: "1/576 captured; dark xSmall read-size parity failure isolated"
 ---
 
 # Project State
@@ -1010,8 +1010,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T10:27:32.066331+00:00
-Stopped at: 17-02 Task 1 localized OCR checkpoint; raw language probe completed
+Last session: 2026-10-04T12:21:57.229931+00:00
+Stopped at: 17-02 Task 2 read-rectangle parity checkpoint; no native jobs, diagnostics restored
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
