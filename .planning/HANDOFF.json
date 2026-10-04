@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T12:35:57.906741+00:00",
+  "timestamp": "2026-10-04T15:19:41.268211+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-read-rectangle-parity",
+  "status": "checkpoint-17-02-aligned-read-seam",
   "completed_tasks": [
     {
       "id": 1,
@@ -24,11 +24,11 @@
     }
   ],
   "blockers": [
-    "Full matrix stops at dark xSmall: native-height read matches, taller reads differ by one red-channel level at one pixel. Capture-read geometry needs resolution before full acceptance."
+    "iPad portrait AX5 Downloads fails strict seam comparison despite 16-device-pixel origin alignment and interior bands; read geometry fidelity remains unresolved."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Research/disposition of the native read-rectangle parity failure; diagnostic handoff is recorded in 17-02-INTEGRATION-NOTES.md."
+    "Review the aligned-read seam evidence with the research agent before selecting a further capture correction."
   ],
   "decisions": [
     {
@@ -125,6 +125,11 @@
       "decision": "Owner approves separate English fixture-marker and native-language trailing-label evidence passes (A-D).",
       "rationale": "Simulator research reproduces language-first marker regressions and correct CJK headings at confidence 0.5; heading exact identity and geometry replace its uncalibrated confidence floor while fixture markers retain English >=0.8.",
       "phase": "17"
+    },
+    {
+      "decision": "Orchestrator confirms native-viewport-owned first read and interior seam bands on 16-pixel-aligned subsequent reads.",
+      "rationale": "Owner-supplied read-rect research isolates deterministic rasterization dependence on snapshot rect geometry; preserves the previously authorized stationary render-server architecture and strict checks.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -143,8 +148,8 @@
     "?? .capture/",
     "?? .planning/debug/dark-xs-viewport-parity.md"
   ],
-  "next_action": "Resolve the documented native read-rectangle parity question before a fresh complete matrix. Restored-source clean build passed; no native jobs or temporary Swift changes remain.",
-  "context_notes": "17-01/17-24 and 17-02 Task 1 complete. A-D OCR resolution verified. Matrix-02: 1 captured, 1 executed failure, 574 unexecuted. Two diagnostic invocations isolate a stable read-rectangle-height difference, not transient settling or observed layout drift. No parity threshold changed; no Task 2 commit or SUMMARY. Four reserved staged entries unchanged.",
+  "next_action": "Wait for RED build to finish, then implement native viewport-owned first read, separate seam geometry and 16-pixel-aligned later reads. Preserve strict parity and all coverage.",
+  "context_notes": "Read-rect research received; orchestrator adopted its composition correction. Three pure slice-plan tests added; RED build running. No renderer implementation changes yet.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1276,8 +1281,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 contract tests, the measured simctl spelling fix, and checkpoint docs remain uncommitted, plus four protected owner-staged entries and .capture evidence. No temporary Swift source remains.",
-  "source_checkpoint": "b78b33f4",
+  "uncommitted_files_note": "Task 2 contracts, simctl spelling correction, native-first read implementation and tests remain WIP pending strict aligned-seam resolution. Four protected owner-staged entries and every .capture failed run are preserved.",
+  "source_checkpoint": "15d3da7b",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1299,5 +1304,37 @@
     ".planning/milestone.lock": "caca4a921a786f8561a43a74398555b50fba9090",
     ".planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md": "ca2fafb0997a03bbb100c34bab36e88d8f751937",
     "EhPanda.xcodeproj/project.pbxproj": "6dcd2aa975a582b91243e60fc9a2710d5482543b"
+  },
+  "artifacts": {
+    "native_read_geometry": {
+      "red": "/tmp/ehpanda-phase17-read-plan-red",
+      "red_status": "expected build failure: missing slicePlan API",
+      "green": "/tmp/ehpanda-phase17-read-plan-green-01",
+      "status": "checkpoint: new actual seam mismatch",
+      "python_contracts": 58,
+      "swiftlint_violations": 0,
+      "phone_tests": 7,
+      "tablet_tests": 7,
+      "runtime_warnings": 0,
+      "actual_xsmall": ".capture/tracer-read-geometry-xs-01",
+      "actual_xsmall_status": "passed 2/2; 14 native invocations; reduced 2/576 coverage",
+      "compatibility_gate": "/tmp/ehpanda-phase17-read-geometry-gate-02",
+      "failed_gate": "/tmp/ehpanda-phase17-read-geometry-gate-01",
+      "failed_gate_captured": 16,
+      "failed_gate_native_failures": [
+        "testCommentsNativeCapture",
+        "testDownloadsNativeCapture"
+      ],
+      "diagnostic_collector_terminated": true,
+      "test_processes_interrupted": false,
+      "failed_gate_states_restored": true,
+      "compatibility_gate_status": "22 captured / 1 executed failure / 9 unexecuted",
+      "native_passed": 76,
+      "native_failed": 1,
+      "failed_coordinate": "ipad-portrait-AX5-downloads",
+      "seam_analysis": "/tmp/ehpanda-phase17-read-geometry-seam-failure/difference.json",
+      "states_restored": true,
+      "native_jobs_remaining": 0
+    }
   }
 }
