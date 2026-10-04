@@ -2,14 +2,101 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: observation-passed-composite-height-budget-blocked
+status: area-budget-passed-external-orientation-blocked
 recorded: 2026-10-04
-source_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
+source_head: d62a70b39b042924b8391e77350f83240fc83e36
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current observation delivery gate — 2026-10-04
+## Current area-budget gate — 2026-10-04
+
+Implementation `d62a70b39b` adopts the owner's measured area policy:
+`maximumCompositePixelCount = 2736 * 32_768 = 89,653,248`. This is the largest RGBA
+buffer admitted by the previous height policy at the widest matrix coordinate; it is
+an allocation budget, not a claimed CoreGraphics limit. RenderServerCapture checks it
+before any slice read and reports both pixel dimensions in compositeExceedsBudget.
+The host no longer rejects intermediate heights; every requested height is persisted in
+geometry.json before resizing, and final converged geometry is written before allocation.
+The twelve-iteration/two-stable rules and content-exceeds-viewport guard remain.
+
+Canonical 8-bit sRGB RGBA pixels live in one Data allocation. CGImage and census share
+that allocation. The compositor streams reads, retaining only adjacent originals for
+strict seam validation and failure diagnostics; Result keeps only frame/readFrame metadata.
+Parity-failure slice images are cropped from the composite. No threshold, resolution,
+fixture count or production layout change is included in this revision.
+
+### Native boundary and memory evidence
+
+Current run: `/tmp/ehpanda-phase17-area-budget-gate-02/`. Clean FeatureTests and orientation
+builds have zero compiler/lint diagnostics. Phone native tests pass **16/16**, including
+three modifier tests and four renderer tests. The boundary test verifies three color bands,
+continuity across slice joins and rejection of the next pixel row. At the phone's 1260-pixel
+width, the largest admitted whole-row image is **1260 × 71,153**, or **89,652,780 pixels**
+(468 pixels below the area budget), with **10 slices**. Row 71,154 throws the expected area
+error before reading. Composition took 949.05 ms; PNG encoding produced 1,949,058 bytes.
+
+Measurement attachment: `iphone-native-attachments/ED56D91F-48F4-4042-8A32-1E7FE5F65E3C.json` under the current run root.
+The attachment records task_vm_info phys_footprint and ledger_phys_footprint_peak without
+asserting their values. These are measured process values, not an inferred allocation cap.
+
+| Stage | Current footprint (MiB) | Lifetime peak (MiB) |
+|---|---:|---:|
+| Before composite, after window setup | 74.112 | 361.956 |
+| After composite | 416.284 | 517.565 |
+| After census raster reuse | 416.284 | 517.565 |
+| After PNG encoding | 416.284 | 517.565 |
+
+The canonical buffer is 341.998 MiB; retained growth after composition is 342.172 MiB.
+Peak growth above the pre-composite sample is 443.453 MiB, about 1.30 buffers, including
+adjacent reads and UIKit rendering scratch. This does not establish an exact one-slice
+peak, nor a bound for SnapshotTesting verification, OCR/artwork processing, other devices
+or arbitrary content. The first run measured 518.612 MiB total peak and the same retained
+342.172 MiB increase. User-supplied earlier measurements remain at
+`/tmp/ehpanda-phase17-size-probe-evidence/composite-footprint/`.
+
+### AX5 Comments and portrait matrix
+
+Focused phone portrait AX5 Comments passes before the matrix. The final image is
+**420 × 15,663 pt / 1260 × 46,989 px**, with **7 slices**, two stable iterations,
+strict native/full viewport parity and all **12/12** markers occurring exactly once.
+Freeze parity also passes. Requested pixel heights, in order:
+`21176, 24837, 35820, 43142, 46989, 46989, 46989`.
+The previous 35,820-pixel rejection was the third intermediate estimate, not the final
+extent. The portrait matrix then passes all **8/8** coordinates, including AX5 Downloads
+at 10,681 pt. Reader traces preserve initial estimate overshoot before convergence.
+All saved acceptance, freeze/native parity, census, artwork and restoration checks pass.
+
+### Remaining gate: external rotation across invocations
+
+The external UI test reports successful landscape rotation, but the next FeatureTests
+invocation fails before creating Home's capture host. The first run's immediate assertion
+failed after 0.25 seconds. A bounded readiness check was then added, preserving external
+rotation as the only orientation writer. In the current run it records **97 samples**
+over **5043.43 ms**: every sample has interfaceOrientation **1 (portrait)**, scene bounds
+**420 × 912 pt**, and UIDevice.orientation **0 (unknown)**. None matches landscape.
+This rejects the hypothesis that a short scene-startup wait alone resolves the failure;
+it does not prove that the physical device reset or identify who determines the launch
+orientation. No in-process geometry request or manufactured landscape viewport was added.
+
+Trace: `iphone-landscape-attachments/5604EE3B-2830-4BED-AAE3-12109F84B2F1/phase17-feasibility-25D2493D-2F33-4228-9332-08E5C447505A/iphone-landscape-large-home/orientation-readiness.json` under the current run root.
+The failed coordinate is iphone-landscape-large-home, with orientationUnavailable.
+Coverage is **8 captured / 1 failed / 23 pending**; the remaining phone landscape
+coordinates and both iPad orientations have not run in this gate. All 32 remain required.
+
+Both runs have zero skipped tests and Repetition nodes, unchanged source hashes, and empty
+summary runtimeWarnings arrays. Each failed landscape test completed before its optional
+simctl diagnose collector was terminated to allow xcresult finalization; those optional
+collector outputs are incomplete. The test engines were not interrupted. Portrait cleanup
+passed. No test job remains. Source and diagnostic logs are retained in both run roots.
+
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete. No SUMMARY, baseline promotion
+or fixture rematerialization. The four reserved staged paths and `.capture/` remain intact.
+Investigate the external-rotation-to-app-launch boundary before resuming the full matrix.
+Do not raise the tested area budget, reduce coverage or silently substitute a viewport-only
+capture. Earlier sections below are historical evidence.
+
+## Historical observation delivery gate — 2026-10-04
 
 The owner's real-CommentsView probe isolated the toolbar shrink to environment writes:
 no-change settling and body re-evaluation preserved pixels; even an unread changed key

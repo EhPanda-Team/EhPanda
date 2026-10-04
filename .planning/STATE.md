@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 observation freeze passes; AX5 Comments exceeds composite height budget
-last_updated: "2026-10-03T18:29:24.964949+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 area budget and AX5 Comments pass; external landscape orientation unavailable
+last_updated: "2026-10-04T01:32:39.316524+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "Observation preserves native AX5 Comments glyph; requested 35820-pixel composite exceeds approved 32768 budget"
-state_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
+last_activity_desc: "Area boundary and memory sharing pass; portrait matrix 8/8; landscape scene remains portrait after five-second wait"
+state_head: d62a70b39b042924b8391e77350f83240fc83e36
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: 5d618fa0908a8ab5187784df9967932ea8a2729b
+source_head: d62a70b39b042924b8391e77350f83240fc83e36
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — AX5 Comments exceeds the composite height budget
-Last activity: 2026-10-04 — Observation signal passes AX5 Comments inertness; composite extent hits the plan budget
+Status: checkpoint — external landscape orientation unavailable after app launch
+Last activity: 2026-10-04 — Area budget, shared pixels and AX5 Comments pass; portrait matrix 8/8
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP 5d618fa090 implements stable observation delivery, preserving the native AX5 Comments glyph with zero changed pixels across freezing. Clean/UI builds pass without diagnostics; phone native 15/15 and rotation/cleanup 1/1 each pass, zero skips/Repetition, unchanged source hashes. Five matrix coordinates pass. AX5 Comments then requests 35820 composite pixels (11940 pt at 3x), exceeding the approved 32768-pixel height budget. No full image, growth parity, final convergence or peak-memory proof exists for that coordinate. Coverage is 5 captured / 1 failed / 26 pending. Phone portrait cleanup passed; no active jobs. Reconcile the required extent and explicit composite budget before expansion. Evidence: `/tmp/ehpanda-phase17-observation-gate-01/`. No SUMMARY or baseline; `.capture/` untouched.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP d62a70b39b implements the owner-approved 89,653,248-pixel allocation budget, one canonical Data buffer shared with CGImage/census, metadata-only slice results and every-iteration height evidence. Clean/UI builds and phone native 16/16 pass. The boundary image is 1260×71,153 px; the next row is rejected. A 341.998 MiB buffer adds 342.172 MiB resident footprint, with 517.565 MiB total peak and no census-copy increase. AX5 Comments converges to 1260×46,989 px, 7 slices, strict native parity and census 12/12. Phone portrait passes 8/8. External landscape rotation reports success, but the next app scene remains 420×912 portrait across 97 samples over 5.043 seconds; device orientation reads unknown. Coverage is 8 captured / 1 failed / 23 pending. iPad is not reached. Portrait cleanup passed; no jobs remain. Evidence: `/tmp/ehpanda-phase17-area-budget-gate-02/`. Investigate the cross-invocation orientation boundary; preserve all 32 coordinates and the tested budget. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
 
 ### Historical round-2 status snapshots
 
@@ -1006,8 +1006,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-03T18:29:24.964949+00:00
-Stopped at: Phase 17 plan 17-01 Task 2 composite height budget after observation inertness passes
+Last session: 2026-10-04T01:32:39.316524+00:00
+Stopped at: Phase 17 plan 17-01 Task 2 external landscape orientation after area/AX5/portrait gates pass
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
