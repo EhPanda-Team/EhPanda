@@ -3,13 +3,41 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-simulator-lifecycle-and-native-traits
-status: lifecycle-traits-passed-carousel-census-blocked
+scope: task-2-v2-carousel-fixtures
+status: v2-carousel-passed-AX5-landscape-glyph-blocked
 files_reviewed: 2
-source_head: f7c3d2e07dce1112148e8b2ad793e1c7709391fa
+source_head: e8cd9abf2395a09ef818058634f37397c952fe6c
 ---
 
-# Task 2 simulator lifecycle and native traits review
+# Task 2 v2 carousel fixture review
+
+Inline gsd-code-review using snapshot-testing and testing guidance; not an independent or
+whole-phase review. Scope: PublicVisualFixtures.swift and FullContentFeasibilityTests.swift.
+
+The owner-approved fixture uses distinct PEEK1/PEEK2 IDs outside the six expected Home
+markers. Their title shape and page count match VH1, and the unchanged seed/current-ID
+still center VH1. Both neighbors pass through the existing image cache and Gallery creation
+path. Assertions preserve three-or-more popular entries and marker disjointness. Exact-once
+census and production rendering code are unchanged. The Task 1 tracer is untouched.
+
+Fixture v2 exports both canonical-size covers, lists them in home-finite assets, and includes
+their metadata. Both export-dimension checks cover the new files; the existing repeatability
+and missing-input tests remain. Eighteen extracted exports were independently verified for
+47 file sizes/hashes, current generator source hash, cover dimensions and scenario membership.
+
+Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. Strict SwiftLint and clean/UI builds pass without compiler/lint
+diagnostics. Native tests pass 16/16. All eight portrait cells and all four Large landscape
+cells pass. Landscape Large Home now has census 6/6 with VH1 exactly once. No fixture/export
+implementation defect was found in this review.
+
+The remaining integration gate is AX5 landscape Home growth parity: 2206 changed pixels,
+confined to the reload glyph, despite exact native/frozen bytes and stable regular/compact
+traits. One render slice covers the full image. Its root cause remains unknown; this review
+does not attribute it to the fixture or declare all 32 cells complete. Coverage is
+12 captured / 1 failed / 19 pending. All iPad cells remain unverified in this run.
+
+## Historical simulator lifecycle and native traits review
+
 
 Inline gsd-code-review using the previously read snapshot-testing and testing guidance.
 This is not independent review or whole-phase sign-off. Scope: FullContentHost.swift and

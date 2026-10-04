@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 orientation and traits pass; native carousel census conflict
-last_updated: "2026-10-04T03:01:37.642968+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 v2 carousel census passes; AX5 landscape Home reload glyph changes after growth
+last_updated: "2026-10-04T03:18:08.420236+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "Real landscape and viewport parity pass; native one-item carousel produces duplicate VH1 marker"
-state_head: f7c3d2e07dce1112148e8b2ad793e1c7709391fa
+last_activity_desc: "v2 fixture passes portrait and Large landscape; AX5 landscape Home fails reload-glyph growth parity"
+state_head: e8cd9abf2395a09ef818058634f37397c952fe6c
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: f7c3d2e07dce1112148e8b2ad793e1c7709391fa
+source_head: e8cd9abf2395a09ef818058634f37397c952fe6c
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — native carousel replicas conflict with exact-once marker census
-Last activity: 2026-10-04 — Simulator lifecycle and native traits pass; landscape Home fails marker census
+Status: checkpoint — AX5 landscape Home reload glyph changes after growth
+Last activity: 2026-10-04 — v2 carousel fixture passes census; AX5 landscape Home fails glyph parity
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP f7c3d2e0 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached. The phone was restored to portrait and its original Shutdown state; the originally Booted iPad stays Booted. No process interruption and no jobs remain. Evidence: `/tmp/ehpanda-phase17-lifecycle-traits-gate-01/`. Resolve the native carousel census contract before resuming. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP e8cd9abf implements distinct non-census Home carousel neighbors and fixture v2. Clean/UI builds, native 16/16, exporter checks, focused AX5 Comments, portrait 8/8 and Large landscape 4/4 pass. Landscape Large Home census is now 6/6. AX5 landscape Home then fails native/full parity: 2206 changed pixels in the shrinking reload glyph, maximum delta 238, despite exact native/frozen bytes and stable regular/compact traits. Coverage 12 captured / 1 failed / 19 pending; iPad not reached. Full output is 2736×7214 pixels in one slice; the change appears after growth, unlike the earlier freeze-key failure. Root cause remains unproven. Sources stayed unchanged and cleanup completed naturally: phone restored to portrait/Shutdown, iPad still Booted; no jobs remain. Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. Investigate this new transition before resuming. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
 
 ### Historical round-2 status snapshots
 
