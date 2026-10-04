@@ -241,6 +241,7 @@ public final class FullContentHost<Content: View> {
         var stableIterations = 0
         var contentHeight = verticalScrollHost.contentSize.height
         var outputSize = viewport.size
+        var requestedOutputHeights: [CGFloat] = []
         for _ in 1...12 {
             try Task.checkCancellation()
             guard isAttachedToActiveWindow else { throw FullContentHostError.inactiveWindow }
@@ -248,12 +249,17 @@ public final class FullContentHost<Content: View> {
                 (viewport.size.height + contentHeight + originalInsets.top + originalInsets.bottom
                  - originalScrollHeight) * viewport.scale
             ) / viewport.scale
-            // The composite bitmap memory budget (about 165 MB at 1260 px wide, 4 bytes per pixel), NOT a render
-            // limit: slicing renders any height. Per-slice admissibility is
-            // `RenderServerCapture.maximumSnapshotDimension`.
-            guard outputSize.height * viewport.scale <= 32_768 else {
-                throw FullContentHostError.contentHeightExceeded(outputSize.height * viewport.scale)
-            }
+            requestedOutputHeights.append(outputSize.height)
+            try writeDiagnostics(
+                elements: [], census: [:],
+                measurement: CaptureMeasurement(
+                    contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations,
+                    requestedOutputHeights: requestedOutputHeights, renderSettleSamples: settled.samples,
+                    renderSettleMilliseconds: Int((settled.settledDuration / .milliseconds(1)).rounded()),
+                    statusBarHidden: statusBarHidden
+                ),
+                rendering: nil, directory: outputDirectory
+            )
             guard outputSize.height > viewport.size.height else {
                 throw FullContentHostError.contentDoesNotExceedViewport(contentHeight)
             }
@@ -277,13 +283,16 @@ public final class FullContentHost<Content: View> {
             contentHeight = currentHeight
             if stableIterations >= 2 { break }
         }
-        guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
         let measurement = CaptureMeasurement(
             contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations,
-            renderSettleSamples: settled.samples,
+            requestedOutputHeights: requestedOutputHeights, renderSettleSamples: settled.samples,
             renderSettleMilliseconds: Int((settled.settledDuration / .milliseconds(1)).rounded()),
             statusBarHidden: statusBarHidden
         )
+        try writeDiagnostics(
+            elements: [], census: [:], measurement: measurement, rendering: nil, directory: outputDirectory
+        )
+        guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
         let rendering = try render(size: outputSize, directory: outputDirectory)
         let fullImage = rendering.image
         let fullURL = outputDirectory.appending(path: "capture.full-content.png")
@@ -318,7 +327,11 @@ public final class FullContentHost<Content: View> {
             .write(to: outputDirectory.appending(path: "native-viewport-parity.json"), options: .atomic)
         if let difference {
             for (sliceIndex, slice) in rendering.slices.enumerated() {
-                guard let data = slice.image.pngData() else { throw FullContentHostError.emptyImage }
+                let frame = slice.frame.applying(CGAffineTransform(scaleX: viewport.scale, y: viewport.scale))
+                guard let sliceCG = fullCG.cropping(to: frame),
+                      let data = UIImage(cgImage: sliceCG, scale: viewport.scale, orientation: .up).pngData() else {
+                    throw FullContentHostError.emptyImage
+                }
                 try data.write(
                     to: outputDirectory.appending(path: "capture.render-slice-\(sliceIndex).png"), options: .atomic
                 )
@@ -338,7 +351,7 @@ public final class FullContentHost<Content: View> {
         )
         guard census.values.allSatisfy({ $0 == 1 }) else { throw FullContentHostError.itemCensus(census) }
         let outputBounds = CGRect(origin: .zero, size: outputSize)
-        let raster = try CapturedRaster(image: fullCG)
+        let raster = rendering.raster
         var itemFrames: [String: CGRect] = [:]
         for item in expectedItems {
             guard let element = elements.first(where: { $0.label == item.marker }),
@@ -481,7 +494,7 @@ public final class FullContentHost<Content: View> {
     private func settledViewportRendering(directory: URL) async throws -> SettledRendering {
         let clock = ContinuousClock()
         var runStart = clock.now
-        var previousPixels: [UInt8]?
+        var previousPixels: Data?
         for sample in 1...40 {
             try Task.checkCancellation()
             let rendering = try render(size: viewport.size, directory: directory)
@@ -538,17 +551,11 @@ public final class FullContentHost<Content: View> {
         elements: [RenderedText],
         census: [String: Int],
         measurement: CaptureMeasurement,
-        rendering: RenderServerCapture.Result,
+        rendering: RenderServerCapture.Result?,
         directory: URL
     ) throws {
-        let diagnostics: [String: Any] = [
+        var diagnostics: [String: Any] = [
             "renderer": "render-server slices via resizableSnapshotView",
-            "renderSliceMaximumHeight": rendering.maximumSliceHeight,
-            "renderSliceOverlap": rendering.overlap,
-            "renderSliceEdgePadding": rendering.edgePadding,
-            "renderSlices": rendering.slices.map({
-                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
-            }),
             "standardImageRange": standardImageRange,
             "censusBasis": "OCR of actual rendered fixture markers; artwork bounds from captured pixels",
             "censusBandHeight": viewport.size.height,
@@ -561,11 +568,24 @@ public final class FullContentHost<Content: View> {
             "scrollBounds": NSCoder.string(for: verticalScrollHost.bounds),
             "outputSize": [measurement.outputSize.width, measurement.outputSize.height],
             "stableIterations": measurement.stableIterations,
+            "requestedOutputHeights": measurement.requestedOutputHeights,
+            "requestedOutputPixelHeights": measurement.requestedOutputHeights.map({
+                Int(($0 * viewport.scale).rounded())
+            }),
+            "maximumCompositePixelCount": RenderServerCapture.maximumCompositePixelCount,
             "renderSettleSamples": measurement.renderSettleSamples,
             "renderSettleMilliseconds": measurement.renderSettleMilliseconds,
             "statusBarHidden": measurement.statusBarHidden,
             "elements": elements.map({ ["label": $0.label, "frame": NSCoder.string(for: $0.frame)] })
         ]
+        if let rendering {
+            diagnostics["renderSliceMaximumHeight"] = rendering.maximumSliceHeight
+            diagnostics["renderSliceOverlap"] = rendering.overlap
+            diagnostics["renderSliceEdgePadding"] = rendering.edgePadding
+            diagnostics["renderSlices"] = rendering.slices.map({
+                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
+            })
+        }
         try JSONSerialization.data(withJSONObject: diagnostics, options: [.prettyPrinted, .sortedKeys])
             .write(to: directory.appending(path: "geometry.json"), options: .atomic)
     }
@@ -654,6 +674,7 @@ private struct CaptureMeasurement {
     let contentHeight: CGFloat
     let outputSize: CGSize
     let stableIterations: Int
+    let requestedOutputHeights: [CGFloat]
     let renderSettleSamples: Int
     let renderSettleMilliseconds: Int
     let statusBarHidden: Bool
@@ -725,7 +746,6 @@ public enum FullContentHostError: Error {
     case captureExtentReset(expected: CGFloat, actual: CGFloat)
     case clippedItem(String)
     case contentDoesNotExceedViewport(CGFloat)
-    case contentHeightExceeded(CGFloat)
     case didNotConverge
     case duplicateExpectedItems
     case emptyImage
