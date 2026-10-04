@@ -40,6 +40,9 @@
   attachments. `VisualSnapshotSupport` supplies test-only public fixtures, stationary
   render-server slice composition, native viewport parity and rendered-content inspection.
   `Scripts/verify-full-content-capture.py` runs the two-family feasibility gate serially.
+  `Scripts/visual/environment.py` measures and validates native rendering against the
+  immutable `regression-environment.json` pin; `GeometryTests.swift` supplies named
+  actual-window attachments for both families and orientations.
 
 **Build/Dev:**
 - SwiftLintPlugins `0.63.0+` (`SimplyDanny/SwiftLintPlugins`) - Build-tool plugin attached to every target; root config `.swiftlint.yml`

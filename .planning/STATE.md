@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Completed 17-01; next dependency is 17-24 (wave 2)
-last_updated: "2026-10-04T09:16:15.216Z"
+stopped_at: Completed 17-24; next dependency is 17-02 (wave 3)
+last_updated: "2026-10-04T09:39:09.123Z"
 last_activity: 2026-10-04
-state_head: eff87ad54ebea1662cdf292ff406b2ebe3903ab2
+state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
-  completed_plans: 275
+  completed_plans: 276
   percent: 59
-last_activity_desc: "17-01 complete: 32/32 capture gate, 66/66 tests; next 17-24 environment pin"
-source_head: f12ecb8333
+source_head: 3e69dc69d3
+last_activity_desc: "17-24 complete: immutable native rendering pin verified; next 17-02 tracer matrix"
 ---
 
 # Project State
@@ -31,11 +31,11 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 2 of 24 (17-24, wave 2; dependency order, not numeric ID order)
-Status: executing — 17-01 complete, ready for actual environment measurement
+Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
+Status: executing — 17-01 and 17-24 complete; ready for the hosted tracer matrix
 Last activity: 2026-10-04
 
-**Phase 17 current gate:** 17-01 is complete (2/2 tasks); 1/24 plans complete. Final implementation HEAD f12ecb8333 passed the full gate with unchanged working-tree source hashes. All four real content shapes pass Large/AX5 on phone/tablet portrait/landscape, with exact native/freeze/full parity, expected census and native traits/categories. Both-family eleven-test OCR suites include real omission/duplication controls. All 41 fixture exports pass independent provenance checks. `.capture/regression` now holds the verified canonical v2 export; its old contents are backed up under the run root. Four reserved staged entries remain unchanged. Both simulators restore portrait/original Large and their original Booted/Shutdown state. Evidence: `/tmp/ehpanda-phase17-census-final-gate-01/`; SUMMARY committed in 3d6401de22. No baseline promotion. Schema/UI wave gates do not block; codebase drift is a nonblocking warning about old mapping metadata, with no auto-remap requested. Continue inline with 17-24, then 17-02. Shared CAP-17-02/03/06 remain incomplete until all declaring plans finish.
+**Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
 ## Historical round-2 status snapshots
 
@@ -72,7 +72,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: 275/298 authored plans complete; GSD-recorded phase progress: [██████░░░░] 59%; Phase 17 has 1/24 plans complete; the remaining dependency-ordered plans keep the milestone open.
+Progress: 276/298 authored plans complete; GSD-recorded phase progress: [██████░░░░] 59%; Phase 17 has 2/24 plans complete; the remaining dependency-ordered plans keep the milestone open.
 
 ## Performance Metrics
 
@@ -368,6 +368,7 @@ Progress: 275/298 authored plans complete; GSD-recorded phase progress: [██�
 | Phase 16 P23 | 36min | 3 tasks | 20 files |
 | Phase 16 P24 | 2d 16h | 4 tasks | 18 files |
 | Phase 17 P01 | multi-session | 2 tasks | 27 files |
+| Phase 17 P24 | 16min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -1007,8 +1008,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T09:14:55.567Z
-Stopped at: Completed 17-01; next dependency is 17-24 (wave 2)
+Last session: 2026-10-04T09:38:13.556Z
+Stopped at: Completed 17-24; next dependency is 17-02 (wave 3)
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
