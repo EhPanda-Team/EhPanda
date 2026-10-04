@@ -19,13 +19,23 @@ public struct PublicGalleryFixture: Codable, Sendable {
 
 public enum PublicVisualFixtures {
     public static let schemaVersion = 1
-    public static let fixtureVersion = "phase17-finite-v1"
+    public static let fixtureVersion = "phase17-finite-v2"
     public static let fixedDate = Date(timeIntervalSince1970: 1_735_689_600)
     public static let fixtureIDs = ["home-finite", "comments-finite", "downloads-finite", "reader-vertical-finite"]
     public static let homeGalleries: [PublicGalleryFixture] = (0..<6).map { index in
         PublicGalleryFixture(
             gid: "VH\(index + 1)", token: "visual-token-\(index)", title: "Visual Home Gallery \(index + 1)",
             pageCount: 24 + index, coverPath: "assets/home/\(index).png", colorIndex: index
+        )
+    }
+    /// Distinct neighbors prevent the infinite carousel's native peeks from repeating a census item.
+    /// Their device-dependent, intentionally partial visibility excludes them from the six-item census.
+    /// Match VH1's title shape and page count so a neighbor cannot enlarge the carousel's shared row height.
+    public static let homeCarouselNeighbors: [PublicGalleryFixture] = (1...2).map { number in
+        PublicGalleryFixture(
+            gid: "PEEK\(number)", token: "carousel-neighbor-token-\(number)",
+            title: "Visual Home Gallery \(number + 6)", pageCount: 24,
+            coverPath: "assets/home/carousel-neighbor-\(number).png", colorIndex: number
         )
     }
     public static let downloadGalleries: [PublicGalleryFixture] = (0..<16).map { index in
@@ -78,7 +88,7 @@ public enum PublicVisualFixtures {
             CGSize(width: CGFloat($0), height: (Double($0) * 11 / 8).rounded())
         }) ?? CGSize(width: 800, height: 1100)
         var files: [FixtureFile] = []
-        for gallery in homeGalleries + downloadGalleries {
+        for gallery in homeGalleries + homeCarouselNeighbors + downloadGalleries {
             let image = artwork(marker: gallery.gid, colorIndex: gallery.colorIndex)
             guard let bytes = image.pngData() else { throw PublicFixtureError.imageEncodingFailed }
             files.append(FixtureFile(path: gallery.coverPath, mime: "image/png", bytes: bytes))
@@ -94,7 +104,8 @@ public enum PublicVisualFixtures {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
         files.append(FixtureFile(
-            path: "metadata/home.json", mime: "application/json", bytes: try encoder.encode(homeGalleries)
+            path: "metadata/home.json", mime: "application/json",
+            bytes: try encoder.encode(homeGalleries + homeCarouselNeighbors)
         ))
         files.append(FixtureFile(
             path: "metadata/downloads.json", mime: "application/json", bytes: try encoder.encode(downloadGalleries)
@@ -130,7 +141,15 @@ public enum PublicVisualFixtures {
             FixtureRoute(id: "reader", method: "GET", path: "/reader", response: "metadata/reader.json")
         ]
         files.append(FixtureFile(path: "routes.json", mime: "application/json", bytes: try encoder.encode(routes)))
-        let inlineScenarios = fixtureIDs.map({ ["fixtureID": $0] })
+        let inlineScenarios: [[String: Any]] = fixtureIDs.map { identifier in
+            if identifier == "home-finite" {
+                return [
+                    "fixtureID": identifier,
+                    "assets": (homeGalleries + homeCarouselNeighbors).map(\.coverPath)
+                ]
+            }
+            return ["fixtureID": identifier]
+        }
         let scenarioBytes = try scenarios ?? jsonData(inlineScenarios)
         try validateScenarios(scenarioBytes, assets: Set(files.map(\.path)), routes: Set(routes.map(\.id)))
         files.append(FixtureFile(path: "scenarios.json", mime: "application/json", bytes: scenarioBytes))

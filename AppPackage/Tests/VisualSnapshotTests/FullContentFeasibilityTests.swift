@@ -53,6 +53,12 @@ final class FullContentFeasibilityTests: XCTestCase {
                                entry["sha256"] as? String)
                 XCTAssertFalse(path.hasPrefix("/"))
             }
+            let covers = PublicVisualFixtures.homeGalleries + PublicVisualFixtures.homeCarouselNeighbors
+                + PublicVisualFixtures.downloadGalleries
+            for gallery in covers {
+                XCTAssertEqual(try Self.pixelSize(directory.appending(path: gallery.coverPath)),
+                               CGSize(width: 160, height: 220))
+            }
             let attachment = XCTAttachment(compressedContentsOfDirectory: directory)
             attachment.name = "phase17-public-fixtures"
             attachment.lifetime = .keepAlways
@@ -78,7 +84,9 @@ final class FullContentFeasibilityTests: XCTestCase {
                            CGSize(width: 800, height: 1100))
             XCTAssertEqual(try Self.pixelSize(scaled.appending(path: "assets/previews/\(page).png")), artworkSize)
         }
-        for gallery in PublicVisualFixtures.homeGalleries + PublicVisualFixtures.downloadGalleries {
+        let covers = PublicVisualFixtures.homeGalleries + PublicVisualFixtures.homeCarouselNeighbors
+            + PublicVisualFixtures.downloadGalleries
+        for gallery in covers {
             XCTAssertEqual(try Self.pixelSize(scaled.appending(path: gallery.coverPath)), artworkSize)
         }
     }
@@ -485,8 +493,15 @@ private extension FullContentFeasibilityTests {
         switch shape {
         case .home:
             let galleries = try await galleries(PublicVisualFixtures.homeGalleries, directory: fixtureDirectory)
+            let neighbors = try await Self.galleries(
+                PublicVisualFixtures.homeCarouselNeighbors, directory: fixtureDirectory
+            )
             var state = HomeReducer.State()
-            state.popularGalleries = Array(galleries.prefix(1))
+            // Native carousel peeks need distinct neighbors, outside the census because they are partial
+            // and device-dependent. Keep VH1 centered and count each of the six expected markers exactly once.
+            state.popularGalleries = [try XCTUnwrap(galleries.first)] + neighbors
+            XCTAssertGreaterThanOrEqual(state.popularGalleries.count, 3)
+            XCTAssertTrue(Set(neighbors.map(\.gid)).isDisjoint(with: Set(expectations(galleries).map(\.marker))))
             state.cardPageIndex = 0
             state.currentCardID = try XCTUnwrap(galleries.first).gid
             state.frontpageGalleries = Array(galleries.dropFirst().prefix(2))
