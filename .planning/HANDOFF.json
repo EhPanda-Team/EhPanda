@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T03:01:37.642968+00:00",
+  "timestamp": "2026-10-04T03:18:08.420236+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-carousel-census",
+  "status": "checkpoint-AX5-landscape-glyph",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,11 +21,11 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "WIP 574362a342 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached."
+      "progress": "WIP 57935267c8 implements distinct non-census Home carousel neighbors and fixture v2. Clean/UI builds, native 16/16, exporter checks, focused AX5 Comments, portrait 8/8 and Large landscape 4/4 pass. Landscape Large Home census is now 6/6. AX5 landscape Home then fails native/full parity: 2206 changed pixels in the shrinking reload glyph, maximum delta 238, despite exact native/frozen bytes and stable regular/compact traits. Coverage 12 captured / 1 failed / 19 pending; iPad not reached."
     }
   ],
   "blockers": [
-    "The first real phone landscape Home capture has exact native/freeze/growth parity, but exact-once census counts VH1 twice on native visible carousel replicas. A one-gallery fixture feeds a production carousel that repeats its list; the acceptance contract has not yet been reconciled."
+    "AX5 phone landscape Home reload glyph shrinks after window growth: 2206 changed pixels, maximum channel delta 238, despite byte-identical native/frozen reference and stable native size classes. Census was not reached; the exact transition trigger remains unproven."
   ],
   "async_jobs": [],
   "human_actions_pending": [],
@@ -104,6 +104,11 @@
       "decision": "Adopt per-family simulator lifecycle ownership and creation-time scene size-class pinning.",
       "rationale": "Owner-supplied replay identified xcodebuild-owned shutdown as lost rotation and tall-window derived size class as the title parity failure; current real landscape capture confirms both fixes.",
       "phase": "17"
+    },
+    {
+      "decision": "Keep exact-once census and give centered VH1 two separate non-census carousel neighbors; bump public fixtures to v2.",
+      "rationale": "Owner identified native horizontal carousel replicas as a one-gallery fixture defect. PEEK1/PEEK2 prevent visible peeks from duplicating VH1 without geometric census heuristics or a production carousel change.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -113,8 +118,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Resolve the native carousel replica versus exact-once marker census contract. Preserve the working lifecycle, creation-time size classes, stable observation freeze, all 32 coordinates and area budget; then resume the full serial gate.",
-  "context_notes": "WIP 574362a342 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached. Source hashes unchanged, zero skips/Repetition, empty runtimeWarnings. Cleanup passed without interruption; four reserved staged paths and .capture/ unchanged.",
+  "next_action": "Investigate AX5 landscape Home reload-glyph growth parity. Keep adopted v2 neighbors, unchanged exact-once census, stable observation freeze and creation-time native traits. Resume the complete serial gate after a supported fix.",
+  "context_notes": "WIP 57935267c8 implements distinct non-census Home carousel neighbors and fixture v2. Clean/UI builds, native 16/16, exporter checks, focused AX5 Comments, portrait 8/8 and Large landscape 4/4 pass. Landscape Large Home census is now 6/6. AX5 landscape Home then fails native/full parity: 2206 changed pixels in the shrinking reload glyph, maximum delta 238, despite exact native/frozen bytes and stable regular/compact traits. Coverage 12 captured / 1 failed / 19 pending; iPad not reached. Eighteen extracted v2 exports have 47 verified entries. Source hashes unchanged; no skips/Repetition, empty runtimeWarnings. Cleanup passed naturally; reserved staged changes and .capture/ untouched.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -895,6 +900,92 @@
       "test_or_collector_interrupted": false,
       "ipad_sequence_reached": false,
       "source_hashes_unchanged": true
+    },
+    "carousel_v2_gate": {
+      "source_head": "57935267c834c4655fa1a210479c8650f6ddb9bd",
+      "root": "/tmp/ehpanda-phase17-carousel-v2-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 12,
+      "matrix_failed": 1,
+      "matrix_pending": 19,
+      "failed_coordinate": "iphone-landscape-AX5-home",
+      "failure": "nativeViewportPixelsChanged: reload glyph shrinks after growth",
+      "coordinate_evidence": "/tmp/ehpanda-phase17-carousel-v2-gate-01/iphone-landscape-attachments/3DD19BEB-FC02-406E-A4D5-D8E4606EF94F/phase17-feasibility-61209144-07A9-4DB3-BF3F-87EB74DCFEA5/iphone-landscape-AX5-home",
+      "difference": {
+        "pixelSize": [
+          2736,
+          1260
+        ],
+        "changedPixels": 2206,
+        "maximumChannelDelta": 238,
+        "exclusivePixelBounds": [
+          2521,
+          91,
+          2591,
+          176
+        ],
+        "changedChannels": {
+          "B": 2206,
+          "G": 2206,
+          "R": 2206
+        },
+        "nativeFrozenRGBAIdentical": true,
+        "glyphSupportBelow100": {
+          "capture.full-content-viewport.png": [
+            2527,
+            98,
+            2585,
+            168
+          ],
+          "capture.viewport.png": [
+            2521,
+            91,
+            2591,
+            176
+          ]
+        }
+      },
+      "output_points": [
+        912,
+        2404.6666666666665
+      ],
+      "size_classes": {
+        "sceneAtViewport": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "sceneCurrent": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "windowAtViewport": {
+          "horizontal": 2,
+          "vertical": 1
+        },
+        "windowCurrent": {
+          "horizontal": 2,
+          "vertical": 1
+        }
+      },
+      "render_slices": 1,
+      "fixture_verification": "/tmp/ehpanda-phase17-carousel-v2-gate-01/fixture-verification.json",
+      "aggregate_outcomes": "/tmp/ehpanda-phase17-carousel-v2-gate-01/aggregate-outcomes.json",
+      "test_or_collector_interrupted": false,
+      "ipad_sequence_reached": false,
+      "source_hashes_unchanged": true,
+      "final_simulator_states": [
+        {
+          "name": "iPhone Air",
+          "udid": "35988D34-B4E9-44C6-82B5-CDA2CF391339",
+          "state": "Shutdown"
+        },
+        {
+          "name": "iPad Pro 11-inch (M5)",
+          "udid": "24FB6D5C-FEE3-4E34-8466-74CEB5E69794",
+          "state": "Booted"
+        }
+      ]
     }
   },
   "recovery_logs": [
@@ -903,6 +994,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "After the docs checkpoint only four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 574362a342 is committed; Task 2 is incomplete.",
-  "source_checkpoint": "574362a342cc3f48cf0c03c9010ef35d8616fb79"
+  "uncommitted_files_note": "After the docs checkpoint only the four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 57935267c8 is committed; Task 2 is incomplete.",
+  "source_checkpoint": "57935267c834c4655fa1a210479c8650f6ddb9bd"
 }

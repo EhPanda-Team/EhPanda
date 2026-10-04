@@ -2,14 +2,82 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: lifecycle-traits-passed-carousel-census-blocked
+status: v2-carousel-passed-AX5-landscape-glyph-blocked
 recorded: 2026-10-04
-source_head: 574362a342cc3f48cf0c03c9010ef35d8616fb79
+source_head: 57935267c834c4655fa1a210479c8650f6ddb9bd
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current lifecycle and size-class gate — 2026-10-04
+## Current v2 carousel fixture gate — 2026-10-04
+
+Implementation `57935267c8` follows the owner's fixture-only decision: separate PEEK1/PEEK2
+neighbors join VH1 in the popular carousel, with the same title shape and page count.
+Expected items remain VH1–VH6. The fixture asserts at least three popular galleries and
+neighbor markers disjoint from expected markers. Covers, Home metadata and home-finite
+assets include both neighbors; fixture version is phase17-finite-v2. Production carousel,
+FullContentHost census, renderer and Task 1 tracer are unchanged.
+
+Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. Clean FeatureTests and orientation builds have zero compiler/lint
+diagnostics. Strict no-cache SwiftLint passes both changed Swift files. Phone native tests
+pass **16/16**, including all three exporter tests. Independently checked exported fixtures
+have 47 entries with valid sizes, SHA-256 and current generator provenance; see
+fixture-verification.json and 17-01-PUBLIC-FIXTURES.md. Focused AX5 Comments again passes
+at 1260 × 46,989 px, seven slices, exact native/full parity and census 12/12.
+
+All eight phone portrait cells pass. All four Large phone landscape cells also pass:
+Home 912 × 1316 pt, Comments 912 × 2195 pt, Downloads 912 × 2678 pt, and Reader
+912 × 10032 pt. Landscape Large Home's VH1–VH6 each occur exactly once, resolving the
+prior carousel census failure without changing that rule. Reader exports 2736 × 3762-pixel
+pages and captures 2736 × 30,096 pixels in four slices with all eight markers and native
+1:1 artwork checks passing. These are current v2 captures, not reused v1 results.
+
+### New blocker: AX5 landscape Home reload glyph changes after growth
+
+The next coordinate, iphone-landscape-AX5-home, passes native/frozen equivalence but fails
+nativeViewportPixelsChanged after growth. Native and frozen PNGs are independently
+byte-identical in decoded RGBA. The native reference settled after seven samples and the
+frozen reference after four. Scene/window size classes at both phases all remain horizontal
+regular (2), vertical compact (1). Actual viewport remains 912 × 420 pt at 3x.
+
+Height converges to **2404 2/3 pt / 7214 px**, with requested heights identical for three
+iterations and two stable iterations. The **2736 × 7214-pixel** full image uses **one render
+slice**, below the per-read limit. Its top crop differs in **2206 pixels**, maximum channel
+delta **238**, exclusive pixel bounds **[2521, 91, 2591, 176]**. Only RGB channels change;
+all other viewport pixels match. Visual inspection places the difference entirely in the
+top-right reload glyph, which shrinks while its glass background remains unchanged.
+
+Within a fixed glyph region, RGB values below 100 span **70 × 85 px** in the native image
+and **58 × 70 px** after growth (exclusive bounds [2527, 98, 2585, 168] for the latter).
+These are descriptive raster bounds, not measured UIKit view frames. Home's existing toolbar
+uses Label(.reload, systemSymbol: .arrowCounterclockwise). No production toolbar change is
+included. Unlike the earlier Comments failure, this occurs after height growth, while the
+freeze transition itself preserves pixels. The exact trigger has not been established;
+no inference that the v2 neighbor fixture caused the glyph transition is justified because
+AX5 landscape Home was not reached by the earlier v1 matrix.
+
+Coordinate directory relative to the run root:
+`iphone-landscape-attachments/3DD19BEB-FC02-406E-A4D5-D8E4606EF94F/phase17-feasibility-61209144-07A9-4DB3-BF3F-87EB74DCFEA5/iphone-landscape-AX5-home/`.
+It includes capture.viewport.png, capture.frozen-viewport.png, capture.full-content.png,
+capture.full-content-viewport.png, the original single render slice, geometry.json, both
+parity reports, orientation-readiness.json and viewport-difference-analysis.json.
+Census and later artwork/trailing/restoration acceptance for this coordinate were not
+reached after the parity failure. No tolerance, mask, fixture reduction or baseline change
+was applied in response.
+
+Root aggregate-outcomes.json records **12 captured / 1 failed / 19 pending**. Remaining
+phone landscape AX5 Comments/Downloads/Reader and all iPad cells are pending. Test summaries
+have zero skips and empty runtimeWarnings; all result trees have zero Repetition nodes.
+Source hashes remain unchanged. The run finalized naturally without interrupting tests or
+collectors. Portrait cleanup passed, the phone returned to its original Shutdown state,
+and the already-Booted iPad remained Booted. No jobs remain.
+
+Task 2 is incomplete: 1/2 tasks and 0/24 plans complete. Preserve the v2 fixture decision;
+investigate the new post-growth glyph transition before resuming the full matrix. No SUMMARY,
+fixture rematerialization or baseline promotion. Reserved staged changes and `.capture/`
+remain untouched. Earlier sections below are historical evidence.
+
+## Historical lifecycle and size-class gate — 2026-10-04
 
 Implementation `574362a342` manages one simulator session per family and pins both native
 scene size classes at capture-window creation, before the first render. The runner records
