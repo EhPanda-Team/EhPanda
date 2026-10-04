@@ -233,7 +233,10 @@ def measure_environment(output, pin=None, derived_data=None):
               'rendering': {'schemaVersion': 1, 'kind': 'rendering-pin', 'toolchain': toolchain,
                             'runtime': runtime, 'settings': None, 'devices': {}}}
     try:
-        for family, device in destinations.items():
+        # JSON object order is not execution order: canonical pins sort ipad before iphone.
+        # Build setup and the approved lifecycle sequence always start with the phone.
+        for family in MODELS:
+            device = destinations[family]
             with gate.simulator_session(family, device['udid']):
                 if family == 'iphone':
                     gate.run('geometry-build', ['build-for-testing'], 'FeatureTests', device['udid'], content_size='large')
