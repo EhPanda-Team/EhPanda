@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T12:15:01.003403+00:00",
+  "timestamp": "2026-10-04T12:35:57.906741+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "executing-17-02-complete-tracer-matrix",
+  "status": "checkpoint-17-02-read-rectangle-parity",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,16 +23,13 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [],
-  "async_jobs": [
-    {
-      "kind": "owned-local-process",
-      "session_id": 3605,
-      "description": "All 576 Task 2 Home coordinates with immutable preflight",
-      "log": "/tmp/ehpanda-phase17-tracer-matrix.log"
-    }
+  "blockers": [
+    "Full matrix stops at dark xSmall: native-height read matches, taller reads differ by one red-channel level at one pixel. Capture-read geometry needs resolution before full acceptance."
   ],
-  "human_actions_pending": [],
+  "async_jobs": [],
+  "human_actions_pending": [
+    "Research/disposition of the native read-rectangle parity failure; diagnostic handoff is recorded in 17-02-INTEGRATION-NOTES.md."
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -136,16 +133,18 @@
     " M .planning/STATE.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     "M  EhPanda.xcodeproj/project.pbxproj",
+    " M Scripts/verify-full-content-capture.py",
     " M Scripts/visual/test_contracts.py",
     "?? .capture/",
-    "?? .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
-    "?? .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md"
+    "?? .planning/debug/dark-xs-viewport-parity.md"
   ],
-  "next_action": "Wait for the actual full matrix; audit all 576 outcomes and provenance before Task 2 commit, review, summary or plan completion.",
-  "context_notes": "17-01/17-24 complete; 17-02 Task 1 committed 7de15e6a. OCR focused/32-coordinate/six-locale native gates passed. Task 2 contracts 55/55, actual 576 matrix running. Preserve four staged owner entries; no subagents/push.",
+  "next_action": "Resolve the documented native read-rectangle parity question before a fresh complete matrix. Restored-source clean build passed; no native jobs or temporary Swift changes remain.",
+  "context_notes": "17-01/17-24 and 17-02 Task 1 complete. A-D OCR resolution verified. Matrix-02: 1 captured, 1 executed failure, 574 unexecuted. Two diagnostic invocations isolate a stable read-rectangle-height difference, not transient settling or observed layout drift. No parity threshold changed; no Task 2 commit or SUMMARY. Four reserved staged entries unchanged.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1236,6 +1235,39 @@
       "coordinates": 32,
       "native_tests": 74,
       "independent_audit": "localized-passes-audit.json"
+    },
+    "matrix_task2": {
+      "first_run": ".capture/tracer-matrix",
+      "first_run_status": "failed before first capture; 0 captured / 576 failed with reasons; references and simulator states restored",
+      "cause": "simctl extra-Small/Small readback differs from documented lowercase input",
+      "spelling_probe": "/tmp/ehpanda-phase17-content-size-spelling",
+      "spelling_probe_categories": 24,
+      "red": "/tmp/ehpanda-phase17-content-size-spelling-red.log",
+      "green": "/tmp/ehpanda-phase17-content-size-spelling-green.log",
+      "contract_tests": 58,
+      "current_run": ".capture/tracer-matrix-02",
+      "current_run_status": "failed: 1 captured, 1 executed failure, 574 unexecuted; all 576 outcomes present",
+      "failed_coordinate": "home-populated__en__xSmall__portrait__iphone__dark",
+      "failure": "nativeViewportPixelsChanged: one pixel R 31->32 at (1101,232)",
+      "difference": "/tmp/ehpanda-phase17-dark-xs-parity/difference.json",
+      "temporary_diagnostic_source": "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift",
+      "restore_source": "/tmp/ehpanda-phase17-dark-xs-parity/FullContentHost.original.swift",
+      "diagnostic_log": "/tmp/ehpanda-phase17-dark-xs-stability-probe.log",
+      "stationary_probe_result": "20 stationary reads across 3934 ms preserve the exact same one-pixel mismatch",
+      "stationary_probe": "/tmp/ehpanda-phase17-dark-xs-stability-probe/pixel-analysis.json",
+      "rect_probe": "/tmp/ehpanda-phase17-dark-xs-rect-probe/pixel-analysis.json",
+      "rect_probe_result": "912 pt read matches native exactly; 1346 and 1346.333 pt reads reproduce same one-pixel difference; restored native matches",
+      "temporary_diagnostic_source_restored": true,
+      "restored_source_sha256": "5f48f1122132b54efb41542c6e38bcea6fcd57a46ffd9d5277745b2dc163cedc",
+      "native_sources_match_matrix_run": true,
+      "simulator_states_restored": true,
+      "diagnostic_jobs_remaining": 0,
+      "restored_source_build": {
+        "directory": "/tmp/ehpanda-phase17-restored-source-build",
+        "status": "passed",
+        "diagnostics": 0,
+        "simulator_restored": true
+      }
     }
   },
   "recovery_logs": [
@@ -1244,8 +1276,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 contract additions and planning updates remain, plus four protected owner-staged entries and .capture evidence.",
-  "source_checkpoint": "7de15e6a",
+  "uncommitted_files_note": "Task 2 contract tests, the measured simctl spelling fix, and checkpoint docs remain uncommitted, plus four protected owner-staged entries and .capture evidence. No temporary Swift source remains.",
+  "source_checkpoint": "b78b33f4",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1261,5 +1293,11 @@
   "completed_plans": [
     "17-01",
     "17-24"
-  ]
+  ],
+  "reserved_staged_blobs": {
+    ".gsd/dispatch-isolation-sentinel.json": "f23c98b270324284fe9af8fad70335ea69d412a4",
+    ".planning/milestone.lock": "caca4a921a786f8561a43a74398555b50fba9090",
+    ".planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md": "ca2fafb0997a03bbb100c34bab36e88d8f751937",
+    "EhPanda.xcodeproj/project.pbxproj": "6dcd2aa975a582b91243e60fc9a2710d5482543b"
+  }
 }

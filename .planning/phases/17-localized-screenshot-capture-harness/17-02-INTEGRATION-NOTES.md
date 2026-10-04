@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 7de15e6a; Task 2 full matrix running. No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 7de15e6a; Task 2 checkpoint on a native read-rectangle parity failure. No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -170,3 +170,74 @@ The actual full 576-coordinate Task 2 command is running with output
 `.capture/tracer-matrix/` and log `/tmp/ehpanda-phase17-tracer-matrix.log`.
 No complete-run result or 17-02 SUMMARY exists yet. Do not edit producer/native sources
 until it finishes. All candidate outcomes remain separate from approved references.
+
+## Task 2 simctl spelling correction
+
+The first complete run at `.capture/tracer-matrix/` passed all four environment
+geometries, then stopped before any coordinate test because native simctl returned
+`extra-Small` for its documented `extra-small` token. The failure is retained with
+0 captured / 576 failed reasoned outcomes, unchanged references and restored original
+simulator state/content size. This is a blocking CLI readback defect, corrected inline
+under execution Rule 3; no capture or OCR acceptance rule changes.
+
+`/tmp/ehpanda-phase17-content-size-spelling/observations.json` records all twelve sizes
+on both resolved families. Only xSmall and small return different capitalization
+(`extra-Small`, `Small`). The native setter compares category names without case
+sensitivity and keeps both raw spellings. Three new tests cover all documented/native
+pairs and restoration, wrong/unavailable categories, and failed set/read commands.
+RED reproduces both native spelling failures; GREEN passes 58 tests (30 matrix + 28
+environment). Logs are `/tmp/ehpanda-phase17-content-size-spelling-{red,green}.log`.
+Both probe sessions restored their original category and boot state.
+
+A fresh full run is active in `.capture/tracer-matrix-02/`, with log
+`/tmp/ehpanda-phase17-tracer-matrix-02.log`. The first run is neither overwritten nor
+reclassified. Source changes remain frozen until the new run completes.
+
+## Task 2 read-rectangle parity checkpoint
+
+The second full run at `.capture/tracer-matrix-02/` passes the corrected xSmall
+readback and the light coordinate. The following dark coordinate
+`home-populated__en__xSmall__portrait__iphone__dark` fails native viewport parity.
+Its capture-error.json names `FullContentHostError.nativeViewportPixelsChanged`;
+XCTest additionally reports `InvalidTransition idle -> failed(deinit)`, whose relation
+to error unwinding is unproven. All 576 outcomes remain: 1 captured, 1 actual failure,
+574 unexecuted with the recorded reason. References and simulator state are restored.
+No OCR request was reached in the failed coordinate.
+
+Pixel analysis at `/tmp/ehpanda-phase17-dark-xs-parity/difference.json` finds exactly
+one differing pixel in 1260 x 2736: (1101,232), RGBA (31,31,32,255) -> (32,31,32,255),
+in the reload glass button. Native/frozen images are identical. The grown output is
+1260 x 4039 pixels, a single slice, so no seam is involved. Its requested height is
+1346.3333333333333 pt for all three layout iterations.
+
+Two diagnostic-only invocations preserved the initial failed comparison:
+
+1. `/tmp/ehpanda-phase17-dark-xs-stability-probe/pixel-analysis.json`: 20 later
+   stationary reads spanning 196–3934 ms all retain the identical single-pixel
+   difference, and are mutually byte-identical. This does not support a short
+   render-settling delay as the cause.
+2. `/tmp/ehpanda-phase17-dark-xs-rect-probe/pixel-analysis.json`: without resizing
+   or otherwise changing the tall hierarchy, a 420 x 912 pt replicant read matches
+   the native reference exactly. A 420 x 1346 pt read and the full 420 x 1346.333 pt
+   read both reproduce the same single-pixel difference. Restoring the original
+   window and settling again also matches the original native reference exactly.
+
+The demonstrated dependency is the read rectangle in the resizableSnapshotView /
+drawHierarchy path. The internal mechanism remains unknown; integer-point rounding
+and an extra delay are not demonstrated fixes. The existing canonical 8-bit sRGB
+comparison remains strict, with no excluded pixel, threshold or retry substituted.
+Resolving how the capture reads preserve that parity is the remaining feasibility
+question before the complete matrix can pass.
+
+Both temporary FullContentHost variants and probe runners are saved under `/tmp/`.
+The repository source is restored byte-for-byte (SHA-256
+5f48f1122132b54efb41542c6e38bcea6fcd57a46ffd9d5277745b2dc163cedc), and all native and
+matrix producer hashes match matrix-02 again. Both diagnostic invocations completed
+normal XCTest collection and restored the phone category, orientation and boot state.
+No native jobs remain. The restored-source FeatureTests build subsequently passed
+with zero diagnostics at `/tmp/ehpanda-phase17-restored-source-build/`, restoring
+the phone again. Build products now use the original non-diagnostic Swift source.
+
+Task 2 tests and the simctl spelling correction remain uncommitted pending full task
+acceptance. No 17-02 SUMMARY has been written. The debug record is
+`.planning/debug/dark-xs-viewport-parity.md`.
