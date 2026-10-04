@@ -2,7 +2,7 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v3-artwork-content-clip-checkpoint
+status: v3-source-content-verified-landscape-seam-pending
 recorded: 2026-10-05
 ---
 
@@ -56,14 +56,16 @@ output is preserved.
 
 ### Current content-verification checkpoint
 
-Shared device-pixel cover sizing fixes the three compact AX5 Home covers at
-246 x 338 px. Six artwork contract tests and five production layout declarations
-pass per family. The real Home capture still fails the new source-content check:
-continuous corner blending extends beyond the proposed ceil(5 * scale) corner
-squares. All source pixels beyond the observed 23-pixel corner extent are exact,
-but this observation is not an adopted exclusion. Strict native parity, seams and
-census pass; compatibility remains incomplete. Evidence and the research prompt are
-in `/tmp/ehpanda-phase17-cover-snap-corners/`. No baseline is promoted.
+Shared production pixel sizing and production-path-derived corner extents are
+implemented. Source comparison excludes four 16 px / 23 px corner squares at
+2x / 3x, where the continuous curve lies, and compares every other byte. Focused
+verification passes 15/15, including original AX5 Home; a one-pixel interior shift
+still fails. The full gate verifies 186 images (273,497,908 pixels), including the
+original iPad AX5 portrait Downloads. It stops on a different read-to-read seam
+failure: four one-level VD15 corner differences in iPad landscape AX5 Downloads.
+The source mask does not apply to strict seam checks. See 17-02-INTEGRATION-NOTES.md
+and /tmp/ehpanda-phase17-ipad-landscape-seam/. Compatibility remains incomplete;
+no baseline is promoted.
 
 ## Historical v2 carousel fixture revision
 

@@ -1,5 +1,5 @@
 ---
-status: checkpoint-artwork-clip-contract
+status: resolved-source-mask-with-landscape-seam-followup
 trigger: Phase 17-02 source-content verification after integral cover sizing
 created: 2026-10-05
 updated: 2026-10-05
@@ -7,6 +7,12 @@ execution: inline
 ---
 
 # Continuous cover clip and source-pixel verification
+
+The source-content corner contract is corrected and focused-tested using the
+shared production path (16 px / 23 px at 2x / 3x). Original AX5 Home passes with
+zero differences. The compatibility run verifies 186 images before a different
+read-to-read seam failure. See ipad-landscape-ax5-downloads-seam.md. The checkpoint
+below is historical.
 
 ## Pixel-integral cover sizing / continuous-clip checkpoint — 2026-10-05
 
