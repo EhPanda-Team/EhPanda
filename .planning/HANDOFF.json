@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T01:32:39.316524+00:00",
+  "timestamp": "2026-10-04T03:01:37.642968+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-external-orientation",
+  "status": "checkpoint-carousel-census",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,11 +21,11 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "WIP 040064f2 passes the area boundary, memory sharing, native 16/16, focused AX5 Comments and portrait 8/8. Landscape fails before capture: 97 samples over 5.043 seconds remain portrait. Coverage 8 captured / 1 failed / 23 pending."
+      "progress": "WIP f7c3d2e0 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached."
     }
   ],
   "blockers": [
-    "External XCUIDevice landscape rotation passes, but the following FeatureTests app scene stays portrait at 420x912 across 97 samples for 5.043 seconds; UIDevice orientation is unknown. No landscape image or current iPad matrix exists."
+    "The first real phone landscape Home capture has exact native/freeze/growth parity, but exact-once census counts VH1 twice on native visible carousel replicas. A one-gallery fixture feeds a production carousel that repeats its list; the acceptance contract has not yet been reconciled."
   ],
   "async_jobs": [],
   "human_actions_pending": [],
@@ -99,6 +99,11 @@
       "decision": "Await actual scene orientation for at most five seconds, with timestamped evidence and no in-process rotation request.",
       "rationale": "Immediate post-launch assertion failed after successful external rotation; bounded readiness diagnosis also failed, so cross-invocation orientation remains unresolved.",
       "phase": "17"
+    },
+    {
+      "decision": "Adopt per-family simulator lifecycle ownership and creation-time scene size-class pinning.",
+      "rationale": "Owner-supplied replay identified xcodebuild-owned shutdown as lost rotation and tall-window derived size class as the title parity failure; current real landscape capture confirms both fixes.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -108,8 +113,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Investigate the external-rotation-to-app-launch boundary. Preserve actual-scene orientation checks, stable observation delivery, all 32 full-content coordinates and the tested area budget. Resume the serial matrix after resolving orientation.",
-  "context_notes": "WIP 040064f2 passes the area boundary, memory sharing, native 16/16, focused AX5 Comments and portrait 8/8. Landscape fails before capture: 97 samples over 5.043 seconds remain portrait. Coverage 8 captured / 1 failed / 23 pending. AX5 Comments is 1260x46989 px, 7 slices, strict native parity, census 12/12. Boundary buffer 341.998 MiB, resident growth 342.172 MiB, total peak 517.565 MiB; census reuse adds no full buffer. Clean/UI builds have zero diagnostics; source hashes unchanged and no skips/Repetition. Optional simctl diagnose collectors were terminated only after failed tests finished. Portrait cleanup passed; no jobs remain. Four reserved staged paths and .capture/ unchanged.",
+  "next_action": "Resolve the native carousel replica versus exact-once marker census contract. Preserve the working lifecycle, creation-time size classes, stable observation freeze, all 32 coordinates and area budget; then resume the full serial gate.",
+  "context_notes": "WIP f7c3d2e0 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached. Source hashes unchanged, zero skips/Repetition, empty runtimeWarnings. Cleanup passed without interruption; four reserved staged paths and .capture/ unchanged.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -672,6 +677,224 @@
         "sceneBounds": "{{0, 0}, {420, 912}}"
       },
       "optional_diagnostics": "simctl diagnose collectors terminated after test completion; test engines uninterrupted"
+    },
+    "lifecycle_traits_gate": {
+      "source_head": "f7c3d2e07dce1112148e8b2ad793e1c7709391fa",
+      "root": "/tmp/ehpanda-phase17-lifecycle-traits-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 8,
+      "matrix_failed": 1,
+      "matrix_pending": 23,
+      "failed_coordinate": "iphone-landscape-large-home",
+      "failure": "itemCensus: VH1 occurs twice on visible native carousel replicas",
+      "coordinate_evidence": "/tmp/ehpanda-phase17-lifecycle-traits-gate-01/iphone-landscape-attachments/154A0A2F-9790-448C-8A3B-0F8BBB7BD770/phase17-feasibility-CB1814F3-ACC1-4877-B7EC-BC14FD146140/iphone-landscape-large-home",
+      "analysis": {
+        "VH1Observations": [
+          {
+            "frame": "{{179.95402319884107, 188.99999992596153}, {43.678160216641437, 19.249999999999979}}",
+            "label": "VH1"
+          },
+          {
+            "frame": "{{819.40229879516835, 188.99999995625004}, {45.42528729242197, 19.249999999999979}}",
+            "label": "VH1"
+          }
+        ],
+        "carouselBehavior": "bufferedCards repeats the input list across 15 blocks with modulo lookup.",
+        "carouselSource": "AppPackage/Sources/HomeFeature/HomeView+Sections.swift",
+        "census": {
+          "Visual Home Gallery 1": 2,
+          "Visual Home Gallery 2": 1,
+          "Visual Home Gallery 3": 1,
+          "Visual Home Gallery 4": 1,
+          "Visual Home Gallery 5": 1,
+          "Visual Home Gallery 6": 1
+        },
+        "coordinate": "iphone-landscape-large-home",
+        "displayScale": 3,
+        "fixtureAssignment": "state.popularGalleries = Array(galleries.prefix(1))",
+        "fixtureSource": "AppPackage/Tests/VisualSnapshotTests/FullContentFeasibilityTests.swift:489",
+        "nativeFullViewportRGBAIdentical": true,
+        "outputPoints": [
+          912,
+          1316
+        ],
+        "renderSliceCount": 1,
+        "sizeClasses": {
+          "sceneAtViewport": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "sceneCurrent": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "windowAtViewport": {
+            "horizontal": 2,
+            "vertical": 1
+          },
+          "windowCurrent": {
+            "horizontal": 2,
+            "vertical": 1
+          }
+        },
+        "unresolved": "The exact-once rendered-marker census conflicts with visible native carousel replicas; no revised acceptance policy has been selected.",
+        "viewportPixels": [
+          2736,
+          1260
+        ],
+        "viewportRGBASHA256": "efb8bb57dcde86e07c011ff46111042d10bf0ff613e2a0076ebdc030b2e1b7ac",
+        "visualObservation": "The centered card and the partially visible right neighboring card both visibly contain VH1."
+      },
+      "lifecycle": {
+        "bootedByGate": true,
+        "device": "35988D34-B4E9-44C6-82B5-CDA2CF391339",
+        "family": "iphone",
+        "originalState": "Shutdown",
+        "restoredOriginalState": true,
+        "samples": [
+          {
+            "stage": "before-session",
+            "state": "Shutdown",
+            "timestamp": "2026-10-04T02:54:42.844017+00:00"
+          },
+          {
+            "stage": "session-ready",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:54:44.537500+00:00"
+          },
+          {
+            "stage": "before-clean-feature-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:54:44.787629+00:00"
+          },
+          {
+            "stage": "after-clean-feature-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:55:56.759667+00:00"
+          },
+          {
+            "stage": "before-orientation-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:55:57.027180+00:00"
+          },
+          {
+            "stage": "after-orientation-build",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:09.057516+00:00"
+          },
+          {
+            "stage": "before-iphone-rotate-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:09.232292+00:00"
+          },
+          {
+            "stage": "after-iphone-rotate-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:20.506445+00:00"
+          },
+          {
+            "stage": "before-iphone-native",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:20.806427+00:00"
+          },
+          {
+            "stage": "after-iphone-native",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:56:59.932553+00:00"
+          },
+          {
+            "stage": "before-iphone-AX5-comments",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:00.234788+00:00"
+          },
+          {
+            "stage": "after-iphone-AX5-comments",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:18.673785+00:00"
+          },
+          {
+            "stage": "before-iphone-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:57:18.942358+00:00"
+          },
+          {
+            "stage": "after-iphone-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:33.529111+00:00"
+          },
+          {
+            "stage": "before-iphone-rotate-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:33.874948+00:00"
+          },
+          {
+            "stage": "after-iphone-rotate-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:40.395822+00:00"
+          },
+          {
+            "stage": "before-iphone-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:58:40.643069+00:00"
+          },
+          {
+            "stage": "after-iphone-landscape",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:03.808342+00:00"
+          },
+          {
+            "stage": "before-iphone-restore-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:04.027718+00:00"
+          },
+          {
+            "stage": "after-iphone-restore-portrait",
+            "state": "Booted",
+            "timestamp": "2026-10-04T02:59:10.608151+00:00"
+          },
+          {
+            "stage": "after-session",
+            "state": "Shutdown",
+            "timestamp": "2026-10-04T02:59:14.097998+00:00"
+          }
+        ]
+      },
+      "AX5_comments": {
+        "census": {
+          "VC1": 1,
+          "VC10": 1,
+          "VC11": 1,
+          "VC12": 1,
+          "VC2": 1,
+          "VC3": 1,
+          "VC4": 1,
+          "VC5": 1,
+          "VC6": 1,
+          "VC7": 1,
+          "VC8": 1,
+          "VC9": 1
+        },
+        "displayScale": 3,
+        "nativeViewportParity": true,
+        "outputSize": [
+          420,
+          15663
+        ],
+        "requestedOutputHeights": [
+          7058.666666666667,
+          8279,
+          11940,
+          14380.666666666666,
+          15663,
+          15663,
+          15663
+        ],
+        "sliceCount": 7
+      },
+      "test_or_collector_interrupted": false,
+      "ipad_sequence_reached": false,
+      "source_hashes_unchanged": true
     }
   },
   "recovery_logs": [
@@ -680,6 +903,6 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "After the docs checkpoint only four reserved staged paths and disposable untracked .capture/ remain. WIP implementation 8f84844b is committed; Task 2 is incomplete.",
-  "source_checkpoint": "8f84844b749955e54cbdf16d7cdffa227b55e81a"
+  "uncommitted_files_note": "After the docs checkpoint only four reserved staged paths and disposable untracked .capture/ remain. WIP implementation f7c3d2e0 is committed; Task 2 is incomplete.",
+  "source_checkpoint": "f7c3d2e07dce1112148e8b2ad793e1c7709391fa"
 }

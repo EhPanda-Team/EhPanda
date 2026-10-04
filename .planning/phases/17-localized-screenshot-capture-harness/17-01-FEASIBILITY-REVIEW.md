@@ -3,13 +3,47 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-composite-area-and-ownership
-status: area-budget-passed-external-orientation-blocked
-files_reviewed: 5
-source_head: 040064f2b2bcc3dd3bc3a0a65b160443ff34edb8
+scope: task-2-simulator-lifecycle-and-native-traits
+status: lifecycle-traits-passed-carousel-census-blocked
+files_reviewed: 2
+source_head: f7c3d2e07dce1112148e8b2ad793e1c7709391fa
 ---
 
-# Task 2 composite area and ownership review
+# Task 2 simulator lifecycle and native traits review
+
+Inline gsd-code-review using the previously read snapshot-testing and testing guidance.
+This is not independent review or whole-phase sign-off. Scope: FullContentHost.swift and
+Scripts/verify-full-content-capture.py; the earlier allocation review is preserved below.
+
+The runner records session ownership before booting, checks Booted around every build/test
+invocation, restores portrait before owned shutdown, and retains already-booted devices.
+Families enter sequentially. A failed matrix still passes through portrait/session cleanup.
+The current failure path verifies the phone returns to its original Shutdown state; the
+already-Booted iPad remains unchanged because its session was not reached. The tablet session
+path itself is therefore not claimed as runtime-verified. Build-time failures precede any
+rotation and still execute session shutdown.
+
+The capture window receives both scene size classes before first rendering, beside its
+existing deterministic trait overrides. No post-reference environment/trait transition is
+introduced. Scene/window values are recorded at native and expanded sizes; successful matrix
+coordinates are checked by the runner. The failed landscape coordinate's four values were
+also inspected manually and all equal regular/compact. Strict byte parity proves the
+creation-time overrides preserve this actual Home viewport and its growth result.
+
+Evidence: `/tmp/ehpanda-phase17-lifecycle-traits-gate-01/`. Clean/UI builds are free of compiler/lint diagnostics;
+strict no-cache lint passed FullContentHost.swift before the gate. Phone native 16/16,
+focused AX5 Comments and portrait 8/8 pass. Source hashes remain unchanged, test skips and
+Repetition nodes are zero. Lifecycle restoration completed without interrupted processes.
+
+No new lifecycle or trait-pinning implementation defect was found. The remaining failure is
+an acceptance mismatch exposed by native landscape: the one-gallery fixture is rendered by
+an infinite carousel, and its visible neighboring replica yields a second VH1 marker in the
+same OCR band. Both occur in the byte-identical native viewport. The exact-once global
+marker census has no approved rule for this behavior. That contract remains unresolved;
+coverage is 8 captured / 1 failed / 23 pending, with no Task 2 completion claim.
+
+## Historical composite area and ownership review
+
 
 Inline gsd-code-review using pfw-snapshot-testing, pfw-testing, pfw-custom-dump and
 swift-concurrency-pro guidance. This is not an independent review or whole-phase sign-off.
