@@ -15,7 +15,7 @@ def rendering_pin():
     devices = {}
     for family, model, identifier, hardware, size, scale in (
         ('iphone', 'iPhone Air', 'iPhone-Air', 'iPhone18,4', [420, 912], 3),
-        ('ipad', 'iPad Pro 11-inch (M5)', 'iPad-Pro-11-inch-M5-12GB', 'iPad17,1', [834, 1210], 2),
+        ('ipad', 'iPad Pro 11-inch (M5)', 'iPad-Pro-11-inch-M5-12GB', 'iPad17,2', [834, 1210], 2),
     ):
         orientations = {}
         for orientation, points in (('portrait', size), ('landscape', list(reversed(size)))):
@@ -46,6 +46,7 @@ def rendering_pin():
 
 def inventory(pin):
     runtime = {**pin['runtime'], 'isAvailable': True}
+    runtime['buildversion'] = runtime.pop('buildVersion')
     models = [{'name': value['model'], 'identifier': value['deviceTypeIdentifier'],
                'modelIdentifier': value['modelIdentifier']} for value in pin['devices'].values()]
     devices = [{
@@ -165,7 +166,7 @@ class DestinationTests(unittest.TestCase):
             self.resolve()
 
     def test_changed_runtime_build_is_rejected(self):
-        self.inventory['runtimes'][0]['buildVersion'] = 'different-build'
+        self.inventory['runtimes'][0]['buildversion'] = 'different-build'
         with self.assertRaises(environment.EnvironmentMismatch):
             self.resolve()
 
@@ -207,7 +208,7 @@ class ImmutableValidationTests(unittest.TestCase):
             output = self.root / 'validation'
             environment.validate_environment(self.path, output)
         self.assertEqual(self.path.read_bytes(), self.before)
-        self.assertEqual(measure.call_args.args[0], output)
+        self.assertEqual(measure.call_args.args[0], output.resolve())
         result = json.loads((output / 'environment.json').read_text())
         self.assertEqual(result['pinSHA256'], hashlib.sha256(self.before).hexdigest())
         self.assertEqual(result['destinations']['iphone']['udid'], 'new-phone')
@@ -243,6 +244,56 @@ class ImmutableValidationTests(unittest.TestCase):
                 environment.validate_environment(self.path, self.root)
         self.assertEqual(self.path.read_bytes(), self.before)
         measure.assert_not_called()
+
+
+class GeometryAttachmentTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.directory = Path(self.temporary.name)
+        self.runtime = rendering_pin()['runtime']
+        self.device = {'udid': 'fresh-iphone'}
+        self.manifest = [{'testIdentifier': 'GeometryTests/testPortraitGeometry()', 'attachments': [{
+            'suggestedHumanReadableName': 'phase17-geometry_0.json', 'exportedFileName': 'geometry.json',
+            'deviceId': 'fresh-iphone',
+        }]}]
+        self.data = {'family': 'iphone', 'orientation': 'portrait', 'deviceID': 'fresh-iphone',
+                     'stableSamples': 2, 'windowIsAttached': True, 'operatingSystem': 'iOS 27.0 (24A434)'}
+
+    def read(self):
+        (self.directory / 'manifest.json').write_text(json.dumps(self.manifest))
+        (self.directory / 'geometry.json').write_text(json.dumps(self.data))
+        return environment.read_geometry(self.directory, 'iphone', 'portrait', self.device, self.runtime)
+
+    def test_named_actual_measurement_is_attributed_to_requested_device(self):
+        data, path = self.read()
+        self.assertEqual(data, self.data)
+        self.assertEqual(path, self.directory / 'geometry.json')
+
+    def test_missing_named_test_or_attachment_is_rejected(self):
+        for manifest in [[], [{'testIdentifier': 'GeometryTests/testPortraitGeometry()', 'attachments': []}]]:
+            self.manifest = manifest
+            with self.assertRaises(environment.EnvironmentMismatch):
+                self.read()
+
+    def test_duplicate_measurement_attachment_is_rejected(self):
+        self.manifest[0]['attachments'] *= 2
+        with self.assertRaises(environment.EnvironmentMismatch):
+            self.read()
+
+    def test_wrong_device_orientation_runtime_or_unsettled_window_is_rejected(self):
+        original = self.data.copy()
+        for key, value in [('family', 'ipad'), ('orientation', 'landscape'), ('deviceID', 'old-id'),
+                           ('stableSamples', 1), ('windowIsAttached', False), ('operatingSystem', 'iOS 26')]:
+            with self.subTest(key=key):
+                self.data = {**original, key: value}
+                with self.assertRaises(environment.EnvironmentMismatch):
+                    self.read()
+
+    def test_attachment_cannot_escape_export_directory(self):
+        self.manifest[0]['attachments'][0]['exportedFileName'] = '../outside.json'
+        with self.assertRaises(environment.EnvironmentMismatch):
+            self.read()
 
 
 if __name__ == '__main__':
