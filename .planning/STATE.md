@@ -6,16 +6,16 @@ current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
 stopped_at: Completed 17-01; next dependency is 17-24 (wave 2)
-last_updated: "2026-10-04T09:14:56.215Z"
+last_updated: "2026-10-04T09:16:15.216Z"
 last_activity: 2026-10-04
-last_activity_desc: "17-01 complete: 32/32 capture gate, 66/66 tests; next 17-24 environment pin"
-state_head: 7c251bebcd65c3d6e714a44d6f1ce4d63de13e2c
+state_head: cad1c1073231a29ddf743a2cfffdcda6b40fcc3a
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 275
   percent: 59
+last_activity_desc: "17-01 complete: 32/32 capture gate, 66/66 tests; next 17-24 environment pin"
 source_head: 9b7074d2
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 2 of 24 (17-24, wave 2; dependency order, not numeric ID order)
 Status: executing — 17-01 complete, ready for actual environment measurement
-Last activity: 2026-10-04 — final-tree feasibility gate 32/32 and 66/66 tests passed
+Last activity: 2026-10-04
 
 **Phase 17 current gate:** 17-01 is complete (2/2 tasks); 1/24 plans complete. Final implementation HEAD 9b7074d2 passed the full gate with unchanged working-tree source hashes. All four real content shapes pass Large/AX5 on phone/tablet portrait/landscape, with exact native/freeze/full parity, expected census and native traits/categories. Both-family eleven-test OCR suites include real omission/duplication controls. All 41 fixture exports pass independent provenance checks. `.capture/regression` now holds the verified canonical v2 export; its old contents are backed up under the run root. Four reserved staged entries remain unchanged. Both simulators restore portrait/original Large and their original Booted/Shutdown state. Evidence: `/tmp/ehpanda-phase17-census-final-gate-01/`; SUMMARY committed in 7c251beb. No baseline promotion. Schema/UI wave gates do not block; codebase drift is a nonblocking warning about old mapping metadata, with no auto-remap requested. Continue inline with 17-24, then 17-02. Shared CAP-17-02/03/06 remain incomplete until all declaring plans finish.
 
