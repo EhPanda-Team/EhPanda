@@ -2,14 +2,81 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: device-Dynamic-Type-passed-ipad-Comments-OCR-blocked
+status: passed-32-of-32
 recorded: 2026-10-04
-source_head: e56771dfe285559eba13dcbf54fe45eb49297928
+source_head: 9b7074d2
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current device-level Dynamic Type gate — 2026-10-04
+## Final-tree scale-robust census gate — 2026-10-04
+
+**Task 2 passed: all 32 coordinates at source `9b7074d2`.** The owner-provided commits
+`eb0a6a7e`, `9655f561` and `9b7074d2` are adopted; no further census changes were made.
+The original exact-once rule, strict viewport parity, native geometry and capture budgets
+remain in force. The older failed checkpoints below are historical and resolved by the
+recorded owner-directed revisions.
+
+Evidence: `/tmp/ehpanda-phase17-census-final-gate-01/`. The gate performed a clean
+FeatureTests build and orientation build, then **66 passing tests across 17 invocations**:
+27 phone and 24 tablet native tests, eight matrix methods, the focused AX5 Comments test
+and six rotation/restore methods. Failures, skips, expected failures and Repetition nodes
+are zero. Compiler/lint diagnostic files and runtimeWarnings arrays are empty.
+`independent-audit.json` independently checks the final-source hashes, all 32 acceptance
+records, strict native/full and freeze parity, item counts, size classes and requested /
+app / scene Dynamic Type categories. No test or diagnostic collector was interrupted.
+
+Each Home image contains VH1–VH6 once; Comments VC1–VC12 once; Downloads VD1–VD16 once;
+Reader all eight markers once. The previously blocked tablet landscape Large Comments,
+Downloads and Reader now pass. Tablet landscape AX5 Downloads counts VD16 once. The
+new Vision negative controls preserve sensitivity: blank VC5 counts zero, duplicated
+VC3 counts two. Both-family native suites run all eleven census tests.
+
+`census-reads.json` retains every window and confident OCR read before merging.
+`geometry.json` records fine/coarse window sizes, half-window stride, the 8-point inner
+margin, eight-request concurrency and occurrences with source-read indices. Independent
+checks verify every occurrence's indices point to reads of the same label and the removed
+legacy band/element keys are absent. Counts, item frames and the trailing-marker check
+consume the same merged occurrences.
+
+Focused phone portrait AX5 Comments converges to **420 × 15,663 pt / 1260 × 46,989 px**
+in seven stationary slices, with all twelve markers once and exact native/full parity.
+Requested heights are 7058⅔, 8279, 11940, 14380⅔, 15663, 15663, 15663 pt. The matrix also
+passes every Reader at native 1:1 artwork scale, including phone landscape output
+2736 × 30,096 px. The allocation budget remains 89,653,248 pixels; single reads remain
+limited to 8191 native pixels, with exact overlap checks.
+
+All **41 extracted fixture exports** pass independent verification of 47 unique asset
+entries, file sizes, SHA-256, aggregate digest, current generator source and carousel
+neighbor covers. The default export from the named `testExportPublicFixtures` attachment
+was copied byte-for-byte to `.capture/regression` only after the final gate passed. Its
+48 files include manifest.json; the prior materialization is preserved under the evidence
+root's `previous-regression/`. See fixture-verification.json and fixture-materialization.json.
+No output is an approved baseline.
+
+Both simulators restore portrait and their original Large content size. The gate-owned
+phone returns to Shutdown; the preexisting Booted tablet remains Booted. Lifecycle JSON
+records both restoration checks. The four reserved staged entries remain byte-identical
+to their saved patch; source hashes did not change during the gate. The tested working
+tree retains these owner-staged entries, including the project file; source-hashes.json
+records the exact tested bytes. Clean-checkout/Release acceptance remains in 17-14.
+
+Reproduction uses freshly resolved destination IDs, one xcodebuild at a time:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode-27.0.0.app/Contents/Developer \
+python3 -B Scripts/verify-full-content-capture.py \
+  --phone "$PHONE_UDID" --tablet "$TABLET_UDID" \
+  --output /tmp/ehpanda-phase17-census-final-gate-01 \
+  --derived-data "$HOME/Library/Developer/Xcode/DerivedData/EhPanda-bjhqwuemjjedwrfnzlznzjvcttjq"
+```
+
+The output directory must be new for another run. Recorded destinations are iPhone Air
+and iPad Pro 11-inch (M5), iOS 27.0 build 24A434. Exact commands and run-local identifiers
+are retained in the evidence root. Plan 17-01 is ready to close; 17-24 measures and pins
+the environment before 17-02 builds the complete regression runner.
+
+## Historical device-level Dynamic Type gate — 2026-10-04
 
 Implementation `e56771df` follows the owner's measured root cause and prescribed revision.
 The previous window-only AX5 override disagreed with system/app Large. Its toolbar glyph
