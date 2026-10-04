@@ -5,9 +5,9 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 aligned-read seam checkpoint; 22 of 32 compatibility coordinates captured
-last_updated: "2026-10-04T15:19:41.270472+00:00"
-last_activity: 2026-10-04
+stopped_at: 17-02 Task 2 artwork half-pixel extent checkpoint; original iPad seam fixed
+last_updated: "2026-10-04T16:08:39.713317+00:00"
+last_activity: 2026-10-05
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
 progress:
   total_phases: 17
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: 15d3da7b
-last_activity_desc: "Native-first xSmall fixed; iPad AX5 Downloads aligned seam differs by one channel level"
+source_head: c7e8c6fb4
+last_activity_desc: "v3 fixture fixes iPad Downloads; iPhone AX5 compact covers expose 337/338 px extent mismatch"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 aligned-read seam checkpoint
-Last activity: 2026-10-04
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 half-pixel artwork extent checkpoint
+Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Task 1 is committed in 7de15e6a. Task 2 has 58 passing Python contracts and a native-first capture correction that fixes dark/light xSmall Home (2/2 reduced coverage; every viewport RGBA byte equal). Focused tests pass 7/7 per family. Compatibility gate 02 passes 22/32 captures and the 34/31 native suites, then fails iPad portrait AX5 Downloads with `seamMismatch(sliceIndex: 1)`: 120 raw PNG pixels differ by at most one despite 16-device-pixel alignment and interior bands. Nine coordinates remain unexecuted; total native tests are 76 passed / one failed / zero runtime warnings. Both devices restored and no jobs remain. See `debug/ipad-ax5-downloads-seam.md`; strict comparison is unchanged. The full 576 matrix was not restarted, and no Task 2 completion or 17-02 SUMMARY is claimed.
+**17-02 active verification:** Task 1 remains committed in 7de15e6a. Task 2's coordinate-sized v3 fixtures fix the original iPad AX5 Downloads seam: focused 7/7 native tests, exact 218 x 300 covers, strict parity/seams/census. Python contracts pass 58/58. The new compatibility gate passes 37 phone native tests and four Large coordinates, then fails two artwork-size assertions in phone portrait AX5 Home: sources are 245 x 338 px, but VH4/VH6 display at 245 x 337 while VH5 is 245 x 338. Interior source-pixel differences confirm this is more than a bounding-box mismatch. Eight images were produced, seven pass artifact checks, one fails; only four coordinates belong to a passed matrix invocation, and 24 remain unexecuted. Evidence: `/tmp/ehpanda-phase17-artwork-gate-01/partial-artwork-audit.json` and `debug/iphone-ax5-artwork-extent.md`. All native work ended and device state is restored. The v3 canonical export is `.capture/regression-v3`; v2 is retained. B (constant viewport-height reads) remains awaiting the owner's answer and is unapplied. Full 576 execution, Task 2 and SUMMARY remain incomplete; strict acceptance is unchanged.
 
 ## Historical round-2 status snapshots
 
