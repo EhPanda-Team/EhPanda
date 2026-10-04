@@ -171,6 +171,24 @@ class Gate:
                 raise RuntimeError(f"{coordinate}: missing acceptance")
         return outcomes
 
+    def report_comments(self):
+        directory = self.output / "iphone-AX5-comments-attachments"
+        geometries = list(directory.rglob("geometry.json"))
+        if len(geometries) != 1:
+            raise RuntimeError("Expected one AX5 Comments geometry result")
+        geometry = json.loads(geometries[0].read_text())
+        parity = json.loads((geometries[0].parent / "native-viewport-parity.json").read_text())
+        evidence = {
+            "outputSize": geometry["outputSize"], "displayScale": geometry["displayScale"],
+            "requestedOutputHeights": geometry["requestedOutputHeights"],
+            "sliceCount": len(geometry["renderSlices"]), "nativeViewportParity": parity["matched"],
+            "census": geometry["census"],
+        }
+        if evidence["nativeViewportParity"] is not True:
+            raise RuntimeError("AX5 Comments strict viewport parity failed")
+        save_json(self.output / "iphone-AX5-comments-evidence.json", evidence)
+        print("AX5 Comments: " + json.dumps(evidence, sort_keys=True), flush=True)
+
     def execute(self):
         inventory = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "--json"]))
         save_json(self.output / "simulators.json", inventory)
@@ -189,7 +207,11 @@ class Gate:
                          [ROTATION + "testRotateToPortrait"], 1)
                 tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                 self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                         tests, 15 if family == "iphone" else 12)
+                         tests, 16 if family == "iphone" else 13)
+                if family == "iphone":
+                    self.run("iphone-AX5-comments", ["test-without-building"], "FeatureTests", device,
+                             [FEASIBILITY + "testAX5CommentsFullContentCapture"], 1)
+                    self.report_comments()
                 for orientation in ("portrait", "landscape"):
                     if orientation == "landscape":
                         self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,

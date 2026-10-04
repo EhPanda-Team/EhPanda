@@ -23,6 +23,10 @@ public enum RenderServerCapture {
     /// silently black, 8194 px refused with `false`; 3x reads cannot land on 8192 px, 8190 px valid and 8193 px
     /// refused). The direct `drawHierarchy` path accepts 8192 px, but this capture only ever draws replicants.
     public static let maximumSnapshotDimension: CGFloat = 8191
+    /// Largest composite the previous height guard admitted at the widest matrix coordinate (2736 px).
+    /// Restating that existing allowance as an area admits no larger RGBA buffer, while allowing narrower,
+    /// taller captures. This is a tested allocation policy, not a CoreGraphics dimension limit.
+    public static let maximumCompositePixelCount = 2736 * 32_768
     private static let sliceEdgePadding: CGFloat = 64
 
     /// One render-server read of a rect of the captured view.
@@ -31,11 +35,14 @@ public enum RenderServerCapture {
         public let frame: CGRect
         /// The render-server read includes context outside ``frame`` to keep rasterization away from crop edges.
         public let readFrame: CGRect
-        /// The pixels the render server returned for ``frame``.
-        public let image: UIImage
     }
 
-    /// The composed capture together with the slices it was built from, kept for diagnostics and evidence.
+    private struct SliceRead {
+        let geometry: Slice
+        let image: UIImage
+    }
+
+    /// The composed capture and slice geometry. Canonical pixels are shared with inspection; reads are released.
     public struct Result {
         /// The composed image covering the captured view's whole bounds.
         public let image: UIImage
@@ -47,6 +54,7 @@ public enum RenderServerCapture {
         public let overlap: CGFloat
         /// Context read outside each slice, then cropped away without redrawing the captured pixels.
         public let edgePadding: CGFloat
+        let raster: CapturedRaster
     }
 
     /// The tallest read, in points, whose screen-pixel height stays within ``maximumSnapshotDimension``.
@@ -92,32 +100,63 @@ public enum RenderServerCapture {
             overlap >= 0 && overlap < maximumSliceHeight - 2 * edgePadding,
             "Slice overlap must leave a positive stride after reserving edge context"
         )
+        let pixelWidth = Int((view.bounds.width * format.scale).rounded())
+        let pixelHeight = Int((view.bounds.height * format.scale).rounded())
+        guard pixelWidth > 0, pixelHeight > 0 else { throw RenderServerCaptureError.emptyImage }
+        guard pixelHeight <= maximumCompositePixelCount / pixelWidth else {
+            throw RenderServerCaptureError.compositeExceedsBudget(pixelWidth: pixelWidth, pixelHeight: pixelHeight)
+        }
         let frames = sliceFrames(
             of: view.bounds, maximumSliceHeight: maximumSliceHeight - 2 * edgePadding, overlap: overlap
         )
-        let slices = try frames.map({ frame in
-            let top = max(view.bounds.minY, frame.minY - edgePadding)
-            let bottom = min(view.bounds.maxY, frame.maxY + edgePadding)
-            let readFrame = CGRect(x: frame.minX, y: top, width: frame.width, height: bottom - top)
-            return try slice(of: view, in: window, frame: frame, readFrame: readFrame, format: format)
-        })
-        if slices.count > 1, overlap > 0 {
-            do {
-                try verifySeams(of: slices, bandPixelHeight: Int((overlap * scale).rounded()))
-            } catch {
-                if let diagnosticsDirectory {
-                    try writeDiagnostics(slices: slices, scale: scale, overlap: overlap, to: diagnosticsDirectory)
+        var bytes = Data(count: pixelWidth * pixelHeight * 4)
+        var slices: [Slice] = []
+        var previous: SliceRead?
+        for (sliceIndex, frame) in frames.enumerated() {
+            // Only adjacent original reads survive together, to preserve exact seam-failure diagnostics.
+            // The pool drains UIKit's temporary render objects before the next read.
+            try autoreleasepool {
+                let top = max(view.bounds.minY, frame.minY - edgePadding)
+                let bottom = min(view.bounds.maxY, frame.maxY + edgePadding)
+                let readFrame = CGRect(x: frame.minX, y: top, width: frame.width, height: bottom - top)
+                let current = try slice(of: view, in: window, frame: frame, readFrame: readFrame, format: format)
+                if let previous, overlap > 0 {
+                    do {
+                        try verifySeam(
+                            upper: previous, lower: current, index: sliceIndex - 1,
+                            bandPixelHeight: Int((overlap * format.scale).rounded())
+                        )
+                    } catch {
+                        if let diagnosticsDirectory {
+                            try writeDiagnostics(
+                                reads: [previous, current], firstIndex: sliceIndex - 1,
+                                scale: format.scale, overlap: overlap, to: diagnosticsDirectory
+                            )
+                        }
+                        throw error
+                    }
                 }
-                throw error
+                guard let image = current.image.cgImage else { throw RenderServerCaptureError.emptyImage }
+                let firstRow = Int(((frame.minY - view.bounds.minY) * format.scale).rounded())
+                guard image.width == pixelWidth, firstRow >= 0, firstRow + image.height <= pixelHeight else {
+                    throw RenderServerCaptureError.emptyImage
+                }
+                // Normalize directly into the final row range. No second full bitmap or slice raster is retained.
+                try bytes.withUnsafeMutableBytes { buffer in
+                    let start = firstRow * pixelWidth * 4
+                    let end = start + image.height * pixelWidth * 4
+                    let rows = UnsafeMutableRawBufferPointer(rebasing: buffer[start..<end])
+                    try CapturedRaster.draw(image, into: rows)
+                }
+                slices.append(current.geometry)
+                previous = current
             }
         }
-        // Copy exactly the canonical bytes checked at the seams. Drawing the slices again through a renderer
-        // can apply another color-space conversion and round otherwise identical glass pixels by one byte.
-        let image = try CapturedRaster(slices: slices, bounds: view.bounds, scale: format.scale)
-            .comparisonImage(scale: format.scale)
+        previous = nil
+        let raster = CapturedRaster(width: pixelWidth, height: pixelHeight, pixels: bytes)
         return Result(
-            image: image, slices: slices, maximumSliceHeight: maximumSliceHeight,
-            overlap: overlap, edgePadding: edgePadding
+            image: try raster.comparisonImage(scale: format.scale), slices: slices,
+            maximumSliceHeight: maximumSliceHeight, overlap: overlap, edgePadding: edgePadding, raster: raster
         )
     }
 
@@ -138,7 +177,7 @@ public enum RenderServerCapture {
     @MainActor
     private static func slice(
         of view: UIView, in window: UIWindow, frame: CGRect, readFrame: CGRect, format: UIGraphicsImageRendererFormat
-    ) throws -> Slice {
+    ) throws -> SliceRead {
         guard let replicant = view.resizableSnapshotView(
             from: readFrame, afterScreenUpdates: true, withCapInsets: .zero
         ) else { throw RenderServerCaptureError.snapshotRefused(readFrame) }
@@ -157,45 +196,39 @@ public enum RenderServerCapture {
             x: 0, y: ((frame.minY - readFrame.minY) * image.scale).rounded(),
             width: (frame.width * image.scale).rounded(), height: (frame.height * image.scale).rounded()
         )) else { throw RenderServerCaptureError.emptyImage }
-        return Slice(
-            frame: frame, readFrame: readFrame, image: UIImage(cgImage: pixels, scale: image.scale, orientation: .up)
+        return SliceRead(
+            geometry: Slice(frame: frame, readFrame: readFrame),
+            image: UIImage(cgImage: pixels, scale: image.scale, orientation: .up)
         )
     }
 
-    private static func verifySeams(of slices: [Slice], bandPixelHeight: Int) throws {
-        for (sliceIndex, pair) in zip(slices, slices.dropFirst()).enumerated() {
-            guard let upper = pair.0.image.cgImage, let lower = pair.1.image.cgImage,
-                  let upperBand = upper.cropping(to: CGRect(
-                    x: 0, y: upper.height - bandPixelHeight, width: upper.width, height: bandPixelHeight
-                  )),
-                  let lowerBand = lower.cropping(to: CGRect(
-                    x: 0, y: 0, width: lower.width, height: bandPixelHeight
-                  )) else { throw RenderServerCaptureError.emptyImage }
-            let upperPixels: [UInt8]
-            let lowerPixels: [UInt8]
-            do {
-                upperPixels = try CapturedRaster(image: upperBand).pixels
-                lowerPixels = try CapturedRaster(image: lowerBand).pixels
-            } catch {
-                // `CapturedRaster` fails only when it cannot create its sRGB bitmap context, which for this
-                // capture means the band holds no readable pixels.
-                throw RenderServerCaptureError.emptyImage
-            }
-            guard upperPixels == lowerPixels else {
-                throw RenderServerCaptureError.seamMismatch(sliceIndex: sliceIndex)
-            }
-        }
+    private static func verifySeam(upper: SliceRead, lower: SliceRead, index: Int, bandPixelHeight: Int) throws {
+        guard let upperImage = upper.image.cgImage, let lowerImage = lower.image.cgImage,
+              let upperBand = upperImage.cropping(to: CGRect(
+                x: 0, y: upperImage.height - bandPixelHeight, width: upperImage.width, height: bandPixelHeight
+              )),
+              let lowerBand = lowerImage.cropping(to: CGRect(
+                x: 0, y: 0, width: lowerImage.width, height: bandPixelHeight
+              )) else { throw RenderServerCaptureError.emptyImage }
+        let upperPixels = try CapturedRaster(image: upperBand).pixels
+        let lowerPixels = try CapturedRaster(image: lowerBand).pixels
+        guard upperPixels == lowerPixels else { throw RenderServerCaptureError.seamMismatch(sliceIndex: index) }
     }
 
-    private static func writeDiagnostics(slices: [Slice], scale: CGFloat, overlap: CGFloat, to directory: URL) throws {
-        for (sliceIndex, slice) in slices.enumerated() {
-            guard let data = slice.image.pngData() else { throw RenderServerCaptureError.emptyImage }
-            try data.write(to: directory.appending(path: "capture.render-slice-\(sliceIndex).png"), options: .atomic)
+    private static func writeDiagnostics(
+        reads: [SliceRead], firstIndex: Int, scale: CGFloat, overlap: CGFloat, to directory: URL
+    ) throws {
+        for (offset, read) in reads.enumerated() {
+            guard let data = read.image.pngData() else { throw RenderServerCaptureError.emptyImage }
+            try data.write(
+                to: directory.appending(path: "capture.render-slice-\(firstIndex + offset).png"), options: .atomic
+            )
         }
         try JSONSerialization.data(withJSONObject: [
-            "displayScale": scale, "overlap": overlap,
-            "slices": slices.map({
-                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
+            "displayScale": scale, "overlap": overlap, "firstSliceIndex": firstIndex,
+            "slices": reads.map({
+                ["frame": NSCoder.string(for: $0.geometry.frame),
+                 "readFrame": NSCoder.string(for: $0.geometry.readFrame)]
             })
         ], options: [.prettyPrinted, .sortedKeys])
             .write(to: directory.appending(path: "render-slices.json"), options: .atomic)
@@ -208,6 +241,8 @@ public enum RenderServerCaptureError: Error {
     case detachedView
     /// The view's width, in points, exceeds the render server ceiling on its own; slicing is vertical only.
     case widthExceedsSnapshotDimension(CGFloat)
+    /// The converged output would allocate more canonical RGBA pixels than the tested composite budget.
+    case compositeExceedsBudget(pixelWidth: Int, pixelHeight: Int)
     /// UIKit returned no replicant for the slice rect.
     case snapshotRefused(CGRect)
     /// `drawHierarchy(in:afterScreenUpdates:)` returned `false` for the slice rect.
@@ -225,53 +260,39 @@ public enum RenderServerCaptureError: Error {
 struct CapturedRaster {
     let width: Int
     let height: Int
-    let pixels: [UInt8]
+    let pixels: Data
 
-    init(slices: [RenderServerCapture.Slice], bounds: CGRect, scale: CGFloat) throws {
-        let pixelWidth = Int((bounds.width * scale).rounded())
-        let pixelHeight = Int((bounds.height * scale).rounded())
-        var bytes = [UInt8](repeating: 0, count: pixelWidth * pixelHeight * 4)
-        for slice in slices {
-            guard let image = slice.image.cgImage else { throw RenderServerCaptureError.emptyImage }
-            let raster = try CapturedRaster(image: image)
-            let firstRow = Int(((slice.frame.minY - bounds.minY) * scale).rounded())
-            guard raster.width == pixelWidth, firstRow >= 0, firstRow + raster.height <= pixelHeight else {
-                throw RenderServerCaptureError.emptyImage
-            }
-            let start = firstRow * pixelWidth * 4
-            bytes.replaceSubrange(start..<start + raster.pixels.count, with: raster.pixels)
-        }
-        width = pixelWidth
-        height = pixelHeight
-        pixels = bytes
+    init(width: Int, height: Int, pixels: Data) {
+        precondition(pixels.count == width * height * 4)
+        self.width = width
+        self.height = height
+        self.pixels = pixels
     }
 
     init(image: CGImage) throws {
-        let pixelWidth = image.width
-        let pixelHeight = image.height
-        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
-            throw FullContentHostError.emptyImage
+        var bytes = Data(count: image.width * image.height * 4)
+        try bytes.withUnsafeMutableBytes { buffer in
+            try Self.draw(image, into: buffer)
         }
-        var bytes = [UInt8](repeating: 0, count: pixelWidth * pixelHeight * 4)
-        let success = bytes.withUnsafeMutableBytes { buffer in
-            guard let context = CGContext(
-                data: buffer.baseAddress, width: pixelWidth, height: pixelHeight,
-                bitsPerComponent: 8, bytesPerRow: pixelWidth * 4,
-                space: colorSpace,
+        self.init(width: image.width, height: image.height, pixels: bytes)
+    }
+
+    /// Writes canonical bytes into caller-owned storage; a slice writes directly into the composite's row range.
+    static func draw(_ image: CGImage, into buffer: UnsafeMutableRawBufferPointer) throws {
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(
+                data: buffer.baseAddress, width: image.width, height: image.height,
+                bitsPerComponent: 8, bytesPerRow: image.width * 4, space: colorSpace,
                 bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
-            ) else { return false }
-            context.draw(image, in: CGRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight))
-            return true
-        }
-        guard success else { throw FullContentHostError.emptyImage }
-        width = pixelWidth
-        height = pixelHeight
-        pixels = bytes
+              ) else { throw FullContentHostError.emptyImage }
+        // Shared overlap rows replace earlier bytes, including alpha; they must never blend over earlier reads.
+        context.setBlendMode(.copy)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
     }
 
     func comparisonImage(scale: CGFloat) throws -> UIImage {
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-              let provider = CGDataProvider(data: Data(pixels) as CFData),
+              let provider = CGDataProvider(data: pixels as CFData),
               let image = CGImage(
                 width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: width * 4,
                 space: colorSpace,

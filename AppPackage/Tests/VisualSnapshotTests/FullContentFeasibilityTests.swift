@@ -111,6 +111,18 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
+    func testAX5CommentsFullContentCapture() async throws {
+        let evidence = try await captureSingle(
+            .comments, directoryPrefix: "phase17-comments-AX5", attachmentName: "phase17-comments-AX5",
+            expectedItemCount: 12, accessibility: true
+        )
+        XCTAssertGreaterThan(evidence.outputSize.height, evidence.viewport.size.height)
+        XCTAssertGreaterThan(evidence.renderSliceCount, 1)
+        XCTAssertGreaterThanOrEqual(evidence.stableIterations, 2)
+        XCTAssertTrue(evidence.itemCensus.values.allSatisfy({ $0 == 1 }))
+    }
+
+    @MainActor
     func testDownloadsNativeCapture() async throws {
         let evidence = try await captureSingle(
             .downloads, directoryPrefix: "phase17-downloads-native", attachmentName: "phase17-downloads-native",
@@ -174,7 +186,7 @@ final class FullContentFeasibilityTests: XCTestCase {
         for (index, coordinate) in coordinates.enumerated() {
             let output = directory.appending(path: coordinate.key(family: family), directoryHint: .isDirectory)
             do {
-                try Self.requireOrientation(landscape: coordinate.landscape, scene: scene)
+                try await Self.requireOrientation(landscape: coordinate.landscape, scene: scene, directory: output)
                 // Exported per coordinate: the page width depends on the orientation, and a fresh path keeps any
                 // image cache from serving a previous coordinate's bytes.
                 let sceneWidth = scene.effectiveGeometry.coordinateSpace.bounds.width
@@ -334,12 +346,12 @@ private extension FullContentFeasibilityTests {
         }
     }
 
-    /// Captures one shape at the native portrait viewport and Large text, attaching the output directory and
+    /// Captures one shape at the native portrait viewport and selected text size, attaching its directory and
     /// writing `capture-error.json` beside it when the capture throws.
     @MainActor
     func captureSingle(
         _ shape: FeasibilityShape, directoryPrefix: String, attachmentName: String, expectedItemCount: Int,
-        file: StaticString = #filePath, line: UInt = #line
+        accessibility: Bool = false, file: StaticString = #filePath, line: UInt = #line
     ) async throws -> FullContentCaptureEvidence {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
@@ -393,7 +405,7 @@ private extension FullContentFeasibilityTests {
                 .environment(\.colorScheme, .light)
                 .environment(\.locale, Locale(identifier: "en_US"))
                 .environment(\.timeZone, timeZone)
-                .environment(\.dynamicTypeSize, .large)
+                .environment(\.dynamicTypeSize, accessibility ? .accessibility5 : .large)
                 .transaction {
                     $0.animation = nil
                     $0.disablesAnimations = true
@@ -401,7 +413,8 @@ private extension FullContentFeasibilityTests {
             let host = try await FullContentHost(
                 rootView: root, sampling: VisibleViewportSampling(),
                 samplingKey: \.visibleViewportSampling, frozen: \.isFrozen,
-                contentSizeCategory: .large, standardImageRange: true,
+                contentSizeCategory: accessibility ? .accessibilityExtraExtraExtraLarge : .large,
+                standardImageRange: true,
                 isViewportReady: input.viewportIsReady
             )
             defer { host.dismiss() }
@@ -432,12 +445,32 @@ private extension FullContentFeasibilityTests {
     }
 
     @MainActor
-    static func requireOrientation(landscape: Bool, scene: UIWindowScene) throws {
-        let geometry = scene.effectiveGeometry
-        let bounds = geometry.coordinateSpace.bounds
-        guard geometry.interfaceOrientation != .unknown,
-              geometry.interfaceOrientation.isLandscape == landscape,
-              (bounds.width > bounds.height) == landscape else {
+    static func requireOrientation(landscape: Bool, scene: UIWindowScene, directory: URL) async throws {
+        let clock = ContinuousClock()
+        let start = clock.now
+        var samples: [[String: Any]] = []
+        var matched = false
+        repeat {
+            let geometry = scene.effectiveGeometry
+            let bounds = geometry.coordinateSpace.bounds
+            matched = geometry.interfaceOrientation != .unknown
+                && geometry.interfaceOrientation.isLandscape == landscape
+                && (bounds.width > bounds.height) == landscape
+            samples.append([
+                "milliseconds": start.duration(to: clock.now) / .milliseconds(1),
+                "interfaceOrientation": geometry.interfaceOrientation.rawValue,
+                "deviceOrientation": UIDevice.current.orientation.rawValue,
+                "sceneBounds": NSCoder.string(for: bounds), "matched": matched
+            ])
+            if matched || start.duration(to: clock.now) >= .seconds(5) { break }
+            try await clock.sleep(for: .milliseconds(50))
+        } while !matched
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try JSONSerialization.data(withJSONObject: [
+            "requestedLandscape": landscape, "matched": matched, "samples": samples
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: directory.appending(path: "orientation-readiness.json"), options: .atomic)
+        guard matched else {
             throw FeasibilityError.orientationUnavailable
         }
     }
