@@ -54,4 +54,14 @@ Large/light: 6/576 reduced coverage, 18 native invocations including preflight/r
 unchanged references and pinned input digests. Evidence is
 `.capture/tracer-localized-passes-01/independent-audit.json` and
 `/tmp/ehpanda-phase17-localized-passes-gate-01/localized-passes-audit.json`.
-Task 2's complete matrix is running separately in `.capture/tracer-matrix/`.
+Task 2's first full matrix stopped before capture on simctl capitalization; all requested
+outcomes and restoration evidence are retained. The observed 24-case spelling table
+supports a case-insensitive category comparison without accepting a different category
+or failed command. Three added tests reproduce the failure and protect rejection paths;
+58 Python tests now pass. A fresh full matrix runs in `.capture/tracer-matrix-02/`;
+Task 2 acceptance remains pending. The fresh run subsequently passed the first light
+coordinate and failed dark xSmall strict parity. Two diagnostic invocations isolate
+a stable read-rectangle-height dependency: the native-height crop matches exactly,
+while taller reads differ at one pixel by one red-channel level. Temporary Swift
+changes are fully restored; no source fix or relaxed comparison is claimed. See the
+current checkpoint in 17-02-INTEGRATION-NOTES.md.
