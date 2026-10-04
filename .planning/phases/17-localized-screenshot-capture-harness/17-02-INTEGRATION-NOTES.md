@@ -241,3 +241,63 @@ the phone again. Build products now use the original non-diagnostic Swift source
 Task 2 tests and the simctl spelling correction remain uncommitted pending full task
 acceptance. No 17-02 SUMMARY has been written. The debug record is
 `.planning/debug/dark-xs-viewport-parity.md`.
+
+## Native read-geometry correction — 2026-10-04
+
+The orchestrator adopted the supplied read-rect design within stationary render-server
+capture (17-02-PLAN.md). Read 0 uses the native rectangle, owns all native rows and
+preserves native bottom-edge rasterization. Later reads own only the remaining rows
+and align origins down to 16 device pixels. Explicit seam bands are at least 64 pt
+inside both raw reads; ownership and comparison bands are separate. Runtime byte-exact
+parity/seam checks, exact-once census and the 89,653,248-pixel allocation budget remain
+unchanged. The grid is experimental evidence rather than a UIKit guarantee.
+
+- RED: `/tmp/ehpanda-phase17-read-plan-red/`, expected build failure for missing slicePlan.
+- GREEN: `/tmp/ehpanda-phase17-read-plan-green-01/`, build plus 7/7 RenderServerCaptureTests
+  on each family, no diagnostics, skips, repetitions or runtime warnings.
+- Strict SwiftLint: zero violations in the three changed Swift files.
+- Python: 58/58, `/tmp/ehpanda-phase17-read-plan-contracts.log`.
+- Actual former failure and light sibling: `.capture/tracer-read-geometry-xs-01/`,
+  2/2 captured, 14 native invocations, explicitly reduced 2/576 coverage. Both produce
+  1260 x 4039 px from two reads, with byte-exact native/frozen/grown parity, exact seams
+  and VH1–VH6 once. Ownership rows are [0,2736) and [2736,4039); the second read starts
+  at pixel 2160, and compares [2352,2544). The independent audit verifies geometry,
+  source hashes, census and restored simulator state.
+
+The fresh 32-coordinate compatibility gate is running at
+`/tmp/ehpanda-phase17-read-geometry-gate-01/`; expected native total is now 80 after
+adding three geometry tests per family. The full 576 tracer remains required. All
+previous failed runs remain on disk and are not replaced by the focused result.
+
+### Compatibility assertion correction — 2026-10-05
+
+Gate 01 passed all 16 phone coordinates and 34 phone native tests, then the iPad
+native suite completed 29 passed / 2 failed: Comments and Downloads still asserted
+one slice whenever content fit below the server ceiling. Both captures completed
+with strict parity/census but correctly produced two reads under the adopted native-first
+contract. The stale helper now branches on native viewport height, and no longer
+looks up the device screen or ceiling. The plan records this test-file disposition.
+Strict lint passes. No renderer, parity, seam or census acceptance changed.
+
+Xcode's post-test simctl diagnose collector (PID 50204) remained active after all tests
+finished; only that diagnostic child received SIGTERM. No test process was interrupted.
+Xcode exited 65 with the original two failures, and both simulators restored their
+original content size and boot state. Evidence remains in gate 01, including the
+failed xcresult and ipad-native.failure-summary.json. Gate 02 starts a fresh full
+compatibility run with the corrected test source at
+`/tmp/ehpanda-phase17-read-geometry-gate-02/`.
+
+### Aligned-read seam checkpoint — 2026-10-05
+
+Gate 02 passes all native suites (34 phone / 31 tablet) and 22 capture coordinates,
+then fails iPad portrait AX5 Downloads at seam index 1. Nine coordinates remain
+unexecuted. Native invocation summaries total 76 passed / 1 failed / zero warnings.
+The two raw reads obey the 16-pixel grid and interior-band rules but differ in 120
+pixels of the VD16 cover-art marker within the seam (250 channels, max delta 1).
+This demonstrates that the measured grid is not sufficient for every artwork read.
+
+Evidence and exact rectangles: `.planning/debug/ipad-ax5-downloads-seam.md` and
+`/tmp/ehpanda-phase17-read-geometry-seam-failure/difference.json`. Raw diagnostics,
+xcresult and partial-audit.json remain in gate 02. Both simulators restored, no native
+jobs remain, and no full 576 tracer was started. The capture implementation remains
+WIP; Task 2 / SUMMARY are incomplete, and strict acceptance is unchanged.

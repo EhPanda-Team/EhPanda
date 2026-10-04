@@ -65,3 +65,39 @@ a stable read-rectangle-height dependency: the native-height crop matches exactl
 while taller reads differ at one pixel by one red-channel level. Temporary Swift
 changes are fully restored; no source fix or relaxed comparison is claimed. See the
 current checkpoint in 17-02-INTEGRATION-NOTES.md.
+
+## Task 2 native read-geometry review (verification in progress)
+
+The correction separates output ownership, raw read rectangles and seam comparison
+rectangles. Read 0 retains the original viewport geometry and owns every native row;
+later ownership partitions the remaining pixel rows without overwriting native edge
+pixels. Integer device-pixel planning keeps later origins on the measured 16-pixel
+grid and each 64-point comparison band at least 64 points inside both raw reads.
+Strict canonical-byte seam comparison occurs before copying a read's owned rows.
+Raw failure diagnostics retain both reads and all three rectangles; success retains
+only geometry and shared canonical bytes. The allocation-area budget is unchanged
+and checked before read/composite allocation. Width rejection still precedes viewport
+validation. No tolerance, pixel exclusion or fallback was added.
+
+The three new geometry tests reached RED on the missing API and now pass with the
+four existing device tests: 7/7 on iPhone and iPad, zero diagnostics/skips/repetitions
+or runtime warnings. Strict SwiftLint is zero; Python contracts remain 58/58.
+Evidence: `/tmp/ehpanda-phase17-read-plan-green-01/`. No source-review finding was
+identified in this scope. Platform fidelity across content is not proven by geometry
+tests: the actual dark/light xSmall pair, the 32-coordinate compatibility gate and
+the full 576 tracer matrix remain the acceptance sequence.
+
+The first compatibility gate exposed a stale test assumption, not a capture failure:
+iPad Comments and Downloads expected one read below the server ceiling. The native-first
+contract requires at least two whenever content exceeds the viewport. The feasibility
+helper now asserts that rule from evidence and no longer reads scene/screen state.
+This is a required contract update; strict capture comparisons remain unchanged.
+Gate 01 retains the original failures and all 16 successful phone coordinates; gate
+02 revalidates the final test source.
+
+Gate 02 confirms the updated helper passes on iPad and the native suites pass 34/31.
+It then exposes a fidelity limit at iPad portrait AX5 Downloads: 120 seam pixels differ
+by one despite satisfying all planned geometry invariants. This is an open capture
+correctness finding, not a passed whole-Task-2 review. The original dark xSmall result
+is verified, but compatibility stands at 22 captured / one failure / nine unexecuted.
+See `debug/ipad-ax5-downloads-seam.md`; no acceptance relaxation is approved or applied.
