@@ -1,10 +1,12 @@
 """The pin is explicit input; observations and fresh simulator IDs are outputs."""
 
+from contextlib import contextmanager
 import copy
 import hashlib
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -294,6 +296,58 @@ class GeometryAttachmentTests(unittest.TestCase):
         self.manifest[0]['attachments'][0]['exportedFileName'] = '../outside.json'
         with self.assertRaises(environment.EnvironmentMismatch):
             self.read()
+
+
+class MeasurementOrderTests(unittest.TestCase):
+    def test_sorted_pin_still_builds_and_measures_phone_before_tablet(self):
+        # A canonical JSON pin sorts "ipad" before "iphone". Input serialization order
+        # must never determine execution order or skip the one-time build setup.
+        pin = json.loads(json.dumps(rendering_pin(), sort_keys=True))
+        sessions = []
+        invocations = []
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'measure'
+            class Gate:
+                def __init__(self, arguments):
+                    self.sources = {}
+                    self.test_runs = {}
+                    arguments.output.mkdir(parents=True)
+
+                @contextmanager
+                def simulator_session(self, family, device):
+                    sessions.append(family)
+                    yield
+
+                def run(self, name, actions, plan, device, *args, **kwargs):
+                    if 'test-without-building' in actions and plan not in self.test_runs:
+                        raise RuntimeError('Attempted a test before build setup: ' + plan)
+                    invocations.append(name)
+                    if name.endswith('-geometry'):
+                        (output / (name + '.summary.json')).write_text('{"runtimeWarnings": []}')
+
+                def single_pass_run(self, plan):
+                    self.test_runs[plan] = output / (plan + '.xctestrun')
+
+            def save_json(path, value):
+                path.write_text(json.dumps(value))
+
+            def geometry(directory, family, orientation, device, runtime):
+                return ({'modelIdentifier': pin['devices'][family]['modelIdentifier'],
+                         'geometry': pin['devices'][family]['orientations'][orientation],
+                         'settings': pin['settings'], 'stableSamples': 2, 'windowIsAttached': True},
+                        directory / 'geometry.json')
+
+            native = SimpleNamespace(Gate=Gate, save_json=save_json, source_hashes=lambda: {}, ROTATION='Rotation/')
+            with patch.object(environment, 'toolchain_identity', return_value=pin['toolchain']), \
+                    patch.object(environment.subprocess, 'check_output', return_value=json.dumps(inventory(pin))), \
+                    patch.object(environment, 'load_native_gate', return_value=native), \
+                    patch.object(environment, 'configure_geometry_run'), \
+                    patch.object(environment, 'read_geometry', side_effect=geometry):
+                report = environment.measure_environment(output, pin=pin, derived_data=Path(temporary))
+            self.assertEqual(sessions, ['iphone', 'ipad'])
+            self.assertEqual(invocations[:2], ['geometry-build', 'orientation-build'])
+            self.assertEqual(sum(name.endswith('-geometry') for name in invocations), 4)
+            self.assertEqual(report['status'], 'passed')
 
 
 if __name__ == '__main__':
