@@ -69,6 +69,7 @@ public final class FullContentHost<Content: View> {
     private let standardImageRange: Bool
     private let setSamplingFrozen: (Bool) -> Void
     private let nativeWindowFrame: CGRect
+    private let sceneViewportTraits: UITraitCollection
     private var verticalScrollHost: UIScrollView
     /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
     /// ``StatusBarAppearanceController``.
@@ -92,6 +93,12 @@ public final class FullContentHost<Content: View> {
         setSamplingFrozen = { sampling[keyPath: frozen] = $0 }
         previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
         window = UIWindow(windowScene: scene)
+        // A tall phone-landscape window derives regular vertical size class, moving an inlineLarge title from
+        // centered inline to large leading even though the visible viewport is unchanged. Hold both native
+        // scene size classes from creation: a later trait update can itself reconfigure toolbar glyphs.
+        sceneViewportTraits = scene.traitCollection
+        window.traitOverrides.horizontalSizeClass = sceneViewportTraits.horizontalSizeClass
+        window.traitOverrides.verticalSizeClass = sceneViewportTraits.verticalSizeClass
         if standardImageRange {
             window.traitOverrides.displayGamut = .SRGB
             window.traitOverrides.imageDynamicRange = .standard
@@ -564,6 +571,12 @@ public final class FullContentHost<Content: View> {
             "displayScale": viewport.scale,
             "census": census,
             "logicalViewport": [viewport.size.width, viewport.size.height],
+            "sizeClasses": [
+                "sceneAtViewport": Self.sizeClasses(in: sceneViewportTraits),
+                "windowAtViewport": Self.sizeClasses(in: viewport.traits),
+                "sceneCurrent": Self.sizeClasses(in: scene.traitCollection),
+                "windowCurrent": Self.sizeClasses(in: window.traitCollection)
+            ],
             "rootBounds": NSCoder.string(for: controller.view.bounds),
             "scrollBounds": NSCoder.string(for: verticalScrollHost.bounds),
             "outputSize": [measurement.outputSize.width, measurement.outputSize.height],
@@ -592,6 +605,10 @@ public final class FullContentHost<Content: View> {
 
     private static func descendants(of view: UIView) -> [UIView] {
         view.subviews.flatMap({ [$0] + descendants(of: $0) })
+    }
+
+    private static func sizeClasses(in traits: UITraitCollection) -> [String: Int] {
+        ["horizontal": traits.horizontalSizeClass.rawValue, "vertical": traits.verticalSizeClass.rawValue]
     }
 }
 
