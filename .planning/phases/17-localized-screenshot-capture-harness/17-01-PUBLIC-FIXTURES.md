@@ -2,14 +2,51 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: exporter-passed-partial-matrix
+status: v2-exporter-passed-partial-matrix
 recorded: 2026-10-04
-source_head: 8e2122c92b7fcd6dea4cb8ee1cdafd3490513f2a
 ---
 
 # Deterministic public fixture export
 
-Committed generator: `AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift`. Schema 1, fixture version phase17-finite-v1.
+## Current v2 carousel fixture revision
+
+Generator: `AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift`.
+Schema remains 1; fixture version is now **phase17-finite-v2**. The six census galleries
+VH1–VH6 remain unchanged. Separate homeCarouselNeighbors adds PEEK1/PEEK2, whose titles
+have the same shape as VH1 and whose page counts remain 24. The Home fixture centers VH1
+between these distinct native carousel peeks. Neighbor markers are disjoint from expected
+markers, and the fixture asserts at least three popular galleries.
+
+The neighbors are deliberately outside the exact-once census because their visibility is
+partial and device-dependent. No production carousel, rendering or census code changes.
+Both 160 × 220 covers join the export loop and home-finite scenario assets. Home metadata
+includes the original six galleries followed by the two neighbors. Both default and
+requested-reader-width export tests check the neighbor cover dimensions.
+
+This changes metadata, scenario and artwork bytes. Earlier v1 digests below are historical.
+Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. All three exporter tests pass within
+the 16/16 native test run. The default export contains 47 entries; the repeatability test
+compares complete manifest bytes and aggregate digests from two fresh exports. Extracted
+exports independently pass file-size, SHA-256, generator-provenance and neighbor-cover-size
+checks, recorded in fixture-verification.json at the run root.
+
+Default v2 aggregate:
+`a0a579a9633aca7fbdf10bd034e10c559b63f595d58cdd83655cd1bf15ab127a`.
+Generator SHA-256:
+`0af2e25968224950331b597bbf0ea995c52a9d00acf07d98c78fb88b325867b3`.
+
+The fresh v2 matrix passes all eight phone portrait coordinates and all four Large phone
+landscape coordinates. Landscape Large Home has exact native/full parity and census 6/6,
+including VH1 exactly once. AX5 landscape Home then fails growth parity in the reload glyph
+before its census: 2206 changed pixels, maximum channel delta 238. Freeze parity passes.
+Coverage is 12 captured / 1 failed / 19 pending; all iPad coordinates remain unrun.
+All 32 still require acceptance. `.capture/regression` retains the older materialization
+until Task 2 passes; no output is an approved baseline. The current failure is detailed in
+17-01-FEASIBILITY-GATE.md; the older gate descriptions below are historical.
+
+## Historical v1 exporter evidence
+
+The previous generator used schema 1, fixture version phase17-finite-v1.
 The catalog retains six Home covers, sixteen download covers, twelve comments, eight
 reader pages/previews, fixed recognition groups, metadata and four named replay routes.
 It is the source of truth; .capture/regression remains disposable materialized output.
