@@ -16,9 +16,15 @@ import Vision
 /// the band owning its midpoint missed it) and double counted them (one VD16 read at midY 5004.0 and at 5006.0,
 /// either side of an ownership boundary). Instead, a read counts only when its window holds it whole
 /// (``isInterior(_:in:imageSize:)``), and reads at one location merge into one occurrence
-/// (``occurrences(of:imageSize:words:)``), so every extra window adds redundancy rather than a chance to miss or
+/// (``occurrences(of:imageSize:words:pass:)``), so every extra window adds redundancy rather than a chance to miss or
 /// repeat a marker. This changes only how the same pixels are read; the census stays exactly as strict.
 enum RenderedContentInspection {
+    /// Separate evidence classes: public Latin fixture markers and the localized final section label.
+    enum Pass: String, Sendable {
+        case fixtureMarkers
+        case trailingMarker
+    }
+
     /// The two window scales, read in this order.
     enum WindowScale: String, CaseIterable, Sendable {
         /// Squares of ``RenderedContentInspection/fineWindowSide``, clamped to the image, for resolution.
@@ -42,12 +48,13 @@ enum RenderedContentInspection {
         let scale: WindowScale
     }
 
-    /// A confident recognition in full-image point coordinates, with the window that produced it.
+    /// A raw top candidate in full-image point coordinates, before the pass's acceptance rule is applied.
     struct Read: Equatable, Sendable {
         let label: String
         let confidence: Float
         let frame: CGRect
         let window: Window
+        let pass: Pass
     }
 
     /// One marker location: the label and frame of its first accepted read, and the indices of every accepted read
@@ -123,10 +130,13 @@ enum RenderedContentInspection {
     /// A read of an occurrence's label at its location only adds support; a different census word at any existing
     /// occurrence's location throws ``FullContentHostError/ambiguousRenderedText(_:)``, because picking one label
     /// would hide a misread.
-    static func occurrences(of reads: [Read], imageSize: CGSize, words: Set<String>) throws -> [Occurrence] {
+    static func occurrences(
+        of reads: [Read], imageSize: CGSize, words: Set<String>, pass: Pass = .fixtureMarkers
+    ) throws -> [Occurrence] {
         var occurrences: [Occurrence] = []
         for (readIndex, read) in reads.enumerated()
-        where words.contains(read.label) && isInterior(read.frame, in: read.window.rect, imageSize: imageSize) {
+        where read.pass == pass && (pass == .trailingMarker || read.confidence >= 0.8)
+            && words.contains(read.label) && isInterior(read.frame, in: read.window.rect, imageSize: imageSize) {
             if let other = occurrences.first(where: {
                 $0.label != read.label && sharesLocation($0.frame, read.frame)
             }) {
@@ -144,13 +154,61 @@ enum RenderedContentInspection {
         return occurrences
     }
 
-    /// Recognizes text in every window of `image` (whose size is `imageSize` points) and returns the confident reads
-    /// in window order, whatever order the requests complete in.
+    /// Reads fixture markers with the validated English recognizer, and the heading with its own language.
+    /// Each pass retains raw candidates; ``occurrences(of:imageSize:words:pass:)`` applies its acceptance rule.
+    ///
+    /// On iOS 27, measured candidates occupied three confidence buckets (0.3, 0.5 and 1.0). The Latin recognizer
+    /// read 其它 as "HE" at 1.0, while the native recognizer read correct CJK headings at 0.5. Localized heading
+    /// evidence therefore uses exact identity under its language, interior acceptance and location merging, without
+    /// a confidence floor. Fixture markers keep their independently validated English-only 0.8 floor. Supplying
+    /// English second did not provide fallback in the measured requests and lost markers on 6 of 32 gate images.
+    /// English headings reuse the same raw recognition, tagged with each evidence pass for diagnostics.
     @concurrent
     static func reads(
-        in image: CGImage, imageSize: CGSize, windows: [Window], words: [String]
+        in image: CGImage, imageSize: CGSize, windows: [Window], markerWords: [String], trailingMarker: String,
+        trailingMarkerLanguage: Locale.Language = Locale.Language(identifier: "en")
     ) async throws -> [Read] {
-        let request = recognitionRequest(customWords: words)
+        let english = Locale.Language(identifier: "en")
+        let sharesRecognition = trailingMarkerLanguage == english
+        let fixtureReads = try await readWindows(
+            in: image, imageSize: imageSize, windows: windows, pass: .fixtureMarkers,
+            request: recognitionRequest(
+                customWords: markerWords + (sharesRecognition ? [trailingMarker] : []), language: english
+            )
+        )
+        let trailingReads: [Read]
+        if sharesRecognition {
+            trailingReads = fixtureReads.map({
+                Read(label: $0.label, confidence: $0.confidence, frame: $0.frame,
+                     window: $0.window, pass: .trailingMarker)
+            })
+        } else {
+            trailingReads = try await readWindows(
+                in: image, imageSize: imageSize, windows: windows, pass: .trailingMarker,
+                request: recognitionRequest(customWords: [trailingMarker], language: trailingMarkerLanguage)
+            )
+        }
+        return fixtureReads + trailingReads
+    }
+
+    /// Validates the final label's presence and bounds together with the capture's required content height.
+    static func trailingMarkerFrame(
+        _ label: String, occurrences: [Occurrence], imageSize: CGSize, requiredHeight: CGFloat, scale: CGFloat
+    ) throws -> CGRect {
+        guard let marker = occurrences.first(where: { $0.label == label }) else {
+            throw FullContentHostError.missingTrailingMarker(label)
+        }
+        guard CGRect(origin: .zero, size: imageSize).contains(marker.frame), marker.frame.height > 0,
+              requiredHeight <= imageSize.height + 1 / scale else {
+            throw FullContentHostError.clippedItem(label)
+        }
+        return marker.frame
+    }
+
+    /// Completes one recognition pass before starting another, keeping the eight-request memory bound global.
+    private static func readWindows(
+        in image: CGImage, imageSize: CGSize, windows: [Window], pass: Pass, request: RecognizeTextRequest
+    ) async throws -> [Read] {
         let scale = CGFloat(image.width) / imageSize.width
         let results = try await withThrowingTaskGroup(of: WindowReads.self) { group in
             var pending = windows.enumerated().makeIterator()
@@ -159,7 +217,9 @@ enum RenderedContentInspection {
                 group.addTask {
                     WindowReads(
                         windowIndex: next.offset,
-                        reads: try await reads(in: image, window: next.element, scale: scale, request: request)
+                        reads: try await reads(
+                            in: image, window: next.element, scale: scale, pass: pass, request: request
+                        )
                     )
                 }
             }
@@ -176,17 +236,20 @@ enum RenderedContentInspection {
         return results.sorted(by: { $0.windowIndex < $1.windowIndex }).flatMap(\.reads)
     }
 
-    private static func recognitionRequest(customWords: [String]) -> RecognizeTextRequest {
+    private static func recognitionRequest(
+        customWords: [String], language: Locale.Language
+    ) -> RecognizeTextRequest {
         var request = RecognizeTextRequest()
         request.recognitionLevel = .accurate
-        request.recognitionLanguages = [Locale.Language(identifier: "en")]
+        request.recognitionLanguages = [language]
+        request.automaticallyDetectsLanguage = false
         request.usesLanguageCorrection = false
         request.customWords = customWords
         return request
     }
 
     private static func reads(
-        in image: CGImage, window: Window, scale: CGFloat, request: RecognizeTextRequest
+        in image: CGImage, window: Window, scale: CGFloat, pass: Pass, request: RecognizeTextRequest
     ) async throws -> [Read] {
         let left = (window.rect.minX * scale).rounded()
         let top = (window.rect.minY * scale).rounded()
@@ -208,13 +271,12 @@ enum RenderedContentInspection {
         try Task.checkCancellation()
         let cropSize = CGSize(width: pixels.width / scale, height: pixels.height / scale)
         return observations.compactMap { observation in
-            guard let candidate = observation.topCandidates(1).first, candidate.confidence >= 0.8 else {
-                return nil
-            }
+            guard let candidate = observation.topCandidates(1).first else { return nil }
             let frame = observation.boundingBox
                 .toImageCoordinates(cropSize, origin: .upperLeft)
                 .offsetBy(dx: left / scale, dy: top / scale)
-            return Read(label: candidate.string, confidence: candidate.confidence, frame: frame, window: window)
+            return Read(label: candidate.string, confidence: candidate.confidence, frame: frame,
+                        window: window, pass: pass)
         }
     }
 }

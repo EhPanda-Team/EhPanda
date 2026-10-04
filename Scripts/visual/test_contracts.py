@@ -140,6 +140,15 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertEqual(report['outcomes'][0]['status'], 'failed')
         self.assertIn('buildVersion', report['outcomes'][0]['reason'])
 
+    def test_empty_filter_fails_before_native_preflight(self):
+        self.args.filter = ''
+        with patch.object(environment, 'validate_environment',
+                          side_effect=AssertionError('Empty filter reached native preflight')) as preflight:
+            with self.assertRaisesRegex(ValueError, 'filter'):
+                self.runner.execute(self.args)
+            preflight.assert_not_called()
+        self.assertFalse(self.args.output.exists())
+
     def test_valid_pin_precedes_fixture_loading_and_dispatch(self):
         calls = []
         def measure(*args, **kwargs):
@@ -160,6 +169,36 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertEqual(calls, ['measure', 'fixtures', 'dispatch'])
         self.assertEqual(self.pin.read_bytes(), self.original)
 
+    def test_named_archive_preserves_its_top_directory(self):
+        import struct
+        coordinate = self.runner.contracts.enumerate_coordinates(
+            [{'id': 'home-populated', 'fixtureID': 'home-finite', 'state': 'populated'}])[0]
+        directory = self.directory / 'attachments'
+        root = directory / 'archive' / 'phase17-matrix-random'
+        root.mkdir(parents=True)
+        configuration = {'geometry': {'pixels': [1260, 2736]}}
+        acceptance = {'configuration': configuration, 'status': 'captured', 'deviceID': 'current-device',
+                      'itemCensus': {f'Visual Home Gallery {i}': 1 for i in range(1, 7)}}
+        (directory / 'manifest.json').write_text(json.dumps([{
+            'testIdentifier': 'VisualMatrixTests/testSelectedCoordinate()', 'attachments': [{
+                'suggestedHumanReadableName': 'phase17-matrix_0.zip', 'deviceId': 'current-device',
+                'exportedFileName': 'archive.zip'}]}]))
+        (root / 'acceptance.json').write_text(json.dumps(acceptance))
+        for name in ['native-viewport-parity.json', 'visible-viewport-freeze-parity.json']:
+            (root / name).write_text('{"matched": true}')
+        traits = {'horizontal': 1, 'vertical': 2}
+        (root / 'geometry.json').write_text(json.dumps({'sizeClasses': {
+            key: traits for key in ['sceneAtViewport', 'windowAtViewport', 'sceneCurrent', 'windowCurrent']}}))
+        for name in ['viewport', 'frozen-viewport', 'full-content']:
+            header = bytes.fromhex('89504e470d0a1a0a0000000d49484452') + struct.pack('>II', 1260, 2736)
+            (root / f'capture.{name}.png').write_bytes(header)
+        result = self.runner.read_capture(directory, coordinate, configuration, 'current-device')
+        self.assertEqual(result['coordinate'], coordinate.key)
+        self.assertEqual(len(result['artifacts']), 3)
+        (root.parent / 'acceptance.json').write_text(json.dumps(acceptance))
+        with self.assertRaises(ValueError):
+            self.runner.read_capture(directory, coordinate, configuration, 'current-device')
+
     def test_missing_pin_stops_before_capture(self):
         self.pin.unlink()
         with patch.object(self.runner, 'dispatch') as dispatch:
@@ -177,6 +216,56 @@ class RunnerPreflightTests(unittest.TestCase):
         report = json.loads((self.args.output / 'outcomes.json').read_text())
         self.assertEqual(len(report['outcomes']), 4)
         self.assertTrue(all(row['status'] == 'failed' and row['reason'] for row in report['outcomes']))
+
+    def test_pin_change_during_capture_fails_the_run(self):
+        def dispatch(args, requested, report, publish):
+            self.pin.write_bytes(self.original + b'\n')
+            for row in requested:
+                publish({'coordinate': row.key, 'status': 'captured', 'reason': 'controlled capture'})
+        with patch.object(environment, 'measure_environment',
+                          return_value={'rendering': json.loads(self.original)}), \
+                patch.object(self.runner, 'dispatch', side_effect=dispatch):
+            with self.assertRaisesRegex(ValueError, 'pin changed'):
+                self.runner.execute(self.args)
+        report = json.loads((self.args.output / 'outcomes.json').read_text())
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['counts']['captured'], 1)
+
+    def test_valid_replacement_fixture_during_capture_fails_the_run(self):
+        manifest = self.runner.contracts.validate_fixtures(self.args.fixtures, json.loads(
+            self.runner.SCENARIOS.read_text()))
+        replacement = dict(manifest, aggregateDigest='replacement-valid-fixture-digest')
+        def dispatch(args, requested, report, publish):
+            for row in requested:
+                publish({'coordinate': row.key, 'status': 'captured', 'reason': 'controlled capture'})
+        with patch.object(environment, 'measure_environment',
+                          return_value={'rendering': json.loads(self.original)}), \
+                patch.object(self.runner.contracts, 'validate_fixtures', side_effect=[manifest, replacement]), \
+                patch.object(self.runner, 'dispatch', side_effect=dispatch):
+            with self.assertRaisesRegex(ValueError, 'fixture.*changed'):
+                self.runner.execute(self.args)
+
+    def test_native_source_changes_during_preflight_or_capture_fail(self):
+        native = environment.load_native_gate()
+        for stage in ['preflight', 'capture']:
+            with self.subTest(stage=stage):
+                self.args.output = self.directory / stage
+                hashes = [{'source.swift': 'original'}]
+                if stage == 'capture':
+                    hashes.append(hashes[0])
+                hashes.append({'source.swift': 'changed'})
+                def dispatch(args, requested, report, publish):
+                    for row in requested:
+                        publish({'coordinate': row.key, 'status': 'captured', 'reason': 'controlled capture'})
+                with patch.object(environment, 'measure_environment',
+                                  return_value={'rendering': json.loads(self.original)}), \
+                        patch.object(environment, 'load_native_gate', return_value=native), \
+                        patch.object(native, 'source_hashes', side_effect=hashes), \
+                        patch.object(self.runner, 'dispatch', side_effect=dispatch) as dispatch_mock:
+                    with self.assertRaisesRegex(ValueError, 'Native capture sources changed'):
+                        self.runner.execute(self.args)
+                    if stage == 'preflight':
+                        dispatch_mock.assert_not_called()
 
 
 if __name__ == '__main__':
