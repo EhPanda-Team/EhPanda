@@ -1,32 +1,27 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T03:58:14.813263+00:00",
+  "timestamp": "2026-10-04T09:15:51.244078+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 1,
-  "task": 2,
+  "plan": 24,
+  "task": 1,
   "total_tasks": 2,
-  "status": "checkpoint-ipad-landscape-large-Comments-OCR",
-  "completed_tasks": [
-    {
-      "id": 1,
-      "name": "17-01-T1: Trace actual Home full-content capture",
-      "status": "complete",
-      "evidence": "3/3 actual tests passed, exact census/native pixel parity/restored geometry; no warnings or Repetition nodes."
-    }
-  ],
+  "status": "ready-for-17-24-environment-measurement",
+  "completed_tasks": [],
   "remaining_tasks": [
     {
+      "id": 1,
+      "name": "17-24-T1: Measure both real destinations through the hosted geometry test",
+      "status": "pending"
+    },
+    {
       "id": 2,
-      "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
-      "status": "incomplete",
-      "progress": "WIP e56771df aligns Dynamic Type with simulator/app state and removes window/root category overrides. Clean/UI builds, native 16/16 phone and 13/13 tablet, focused AX5 Comments and all 16 AX5 coordinates pass. Both phone AX5 Home orientations preserve 70x85-pixel glyphs. Matrix coverage is 29 captured / 1 failed / 2 pending. Tablet landscape Large Comments has visible VC5/VC7 but OCR omits VC5 and reads VC7 as LOA; strict viewport and freeze parity pass. The 2420x3926 output is one slice. Tablet landscape Large Downloads/Reader remain pending."
+      "name": "17-24-T2: Author and validate the tracked rendering pin from verified measurements",
+      "status": "pending"
     }
   ],
-  "blockers": [
-    "Tablet landscape Large Comments fails exact-once OCR census: VC5 and VC7 are visually present, but VC5 has no retained observation and VC7 is read as LOA. Native/frozen/full viewport pixels match; one render slice. Raw candidates/confidences are not recorded."
-  ],
+  "blockers": [],
   "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
@@ -114,6 +109,11 @@
       "decision": "Use simulator/app Dynamic Type as the single category source and separate matrix invocations by size; keep stable observation freezing.",
       "rationale": "Owner-supplied toolbar-glyph probe identifies app/window category disagreement, including false portrait AX5 references. Current gate verifies matching device/app/scene categories and stable 70x85 glyphs in both phone orientations. Earlier Comments root-environment writes were triggers of that disagreement, not its root cause.",
       "phase": "17"
+    },
+    {
+      "decision": "Adopt two-scale location-merged OCR with exact-once census unchanged; close 17-01 after the final-tree gate.",
+      "rationale": "Owner supplied eb0a6a7e/9655f561/9b7074d2; current 32/32 matrix and all native suites pass.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -123,8 +123,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Investigate tablet landscape Large Comments visible-marker OCR failure from the saved PNG and geometry. Preserve device sizing, observation freeze, strict parity, exact-once census and existing budgets; do not advance to 17-24 until all 32 coordinates pass.",
-  "context_notes": "WIP e56771df aligns Dynamic Type with simulator/app state and removes window/root category overrides. Clean/UI builds, native 16/16 phone and 13/13 tablet, focused AX5 Comments and all 16 AX5 coordinates pass. Both phone AX5 Home orientations preserve 70x85-pixel glyphs. Matrix coverage is 29 captured / 1 failed / 2 pending. Tablet landscape Large Comments has visible VC5/VC7 but OCR omits VC5 and reads VC7 as LOA; strict viewport and freeze parity pass. The 2420x3926 output is one slice. Tablet landscape Large Downloads/Reader remain pending. Both portrait cleanup tests pass. Original Large content sizes are restored; phone returns to Shutdown and preexisting iPad remains Booted. Tests were not interrupted; after the failed test ended, only its optional simctl diagnose collector received SIGTERM to allow result finalization. Sources stay unchanged, skips and Repetition nodes are zero, and runtimeWarnings arrays are empty. No jobs remain. Reserved staged edits and .capture/ remain untouched. All 39 extracted public fixture exports pass 47-entry file/hash, aggregate and current-generator provenance checks.",
+  "next_action": "Continue inline with 17-24 Task 1 TDD: actual hosted geometry and environment measure/validate. Commit verified Task 1 before authoring the tracked pin in Task 2; then 17-02.",
+  "context_notes": "17-01 is complete. No census action remains. Use dependency order 17-01,17-24,17-02. Preserve the four reserved staged entries; use scoped commits; do not spawn agents or push.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1148,6 +1148,24 @@
       "controlTestsPassed": 6,
       "optionalDiagnosticsInterrupted": true,
       "testProcessesInterrupted": false
+    },
+    "census_final_gate": {
+      "root": "/tmp/ehpanda-phase17-census-final-gate-01",
+      "source_checkpoint": "9b7074d2",
+      "status": "passed",
+      "captured": 32,
+      "testInvocations": 17,
+      "passedTests": 66,
+      "fixtureExports": 41,
+      "sourceHashesUnchanged": true,
+      "reservedStagedUnchanged": true,
+      "fixtureMaterialized": true,
+      "summary_commit": "7c251bebcd65c3d6e714a44d6f1ce4d63de13e2c",
+      "waveGates": {
+        "schema": "passed",
+        "ui": "passed",
+        "codebaseDrift": "nonblocking advisory; no mapper requested"
+      }
     }
   },
   "recovery_logs": [
@@ -1156,6 +1174,23 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "After the docs checkpoint only the four reserved staged paths and disposable untracked .capture/ remain. WIP implementation e8cd9abf is committed; Task 2 is incomplete.",
-  "source_checkpoint": "e56771dfe285559eba13dcbf54fe45eb49297928"
+  "uncommitted_files_note": "Only the four reserved owner-staged entries and disposable .capture/ are expected after the continuity commit. .capture/regression was refreshed from the verified canonical v2 exporter, with the previous tree backed up under final evidence.",
+  "source_checkpoint": "9b7074d2",
+  "previous_plan_tasks": [
+    {
+      "id": 1,
+      "name": "17-01-T1: Trace actual Home full-content capture",
+      "status": "complete",
+      "evidence": "3/3 actual tests passed, exact census/native pixel parity/restored geometry; no warnings or Repetition nodes."
+    },
+    {
+      "id": 2,
+      "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
+      "status": "complete",
+      "evidence": "32/32 coordinates, 66/66 tests, 41 audited fixture exports; final source 9b7074d2."
+    }
+  ],
+  "completed_plans": [
+    "17-01"
+  ]
 }

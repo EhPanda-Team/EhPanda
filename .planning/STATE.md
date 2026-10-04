@@ -4,19 +4,19 @@ milestone: v3.0.0
 milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
-status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 device sizing passes; tablet landscape Large Comments OCR misses visible VC5 and VC7
-last_updated: "2026-10-04T03:58:14.813263+00:00"
+status: executing
+stopped_at: Completed 17-01; next dependency is 17-24 (wave 2)
+last_updated: "2026-10-04T09:14:56.215Z"
 last_activity: 2026-10-04
-last_activity_desc: "Device Dynamic Type verified; 29/32 matrix cells pass, tablet Comments OCR checkpoint"
-state_head: e56771dfe285559eba13dcbf54fe45eb49297928
+last_activity_desc: "17-01 complete: 32/32 capture gate, 66/66 tests; next 17-24 environment pin"
+state_head: 7c251bebcd65c3d6e714a44d6f1ce4d63de13e2c
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
-  completed_plans: 274
+  completed_plans: 275
   percent: 59
-source_head: e56771dfe285559eba13dcbf54fe45eb49297928
+source_head: 9b7074d2
 ---
 
 # Project State
@@ -31,13 +31,13 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
-Plan: 1 of 24
-Status: checkpoint — tablet landscape Large Comments OCR misses two visible markers
-Last activity: 2026-10-04 — device Dynamic Type passes; actual matrix is 29 captured / 1 failed / 2 pending
+Plan: 2 of 24 (17-24, wave 2; dependency order, not numeric ID order)
+Status: executing — 17-01 complete, ready for actual environment measurement
+Last activity: 2026-10-04 — final-tree feasibility gate 32/32 and 66/66 tests passed
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP e56771df aligns Dynamic Type with simulator/app state and removes window/root category overrides. Clean/UI builds, native 16/16 phone and 13/13 tablet, focused AX5 Comments and all 16 AX5 coordinates pass. Both phone AX5 Home orientations preserve 70x85-pixel glyphs. Matrix coverage is 29 captured / 1 failed / 2 pending. Tablet landscape Large Comments has visible VC5/VC7 but OCR omits VC5 and reads VC7 as LOA; strict viewport and freeze parity pass. The 2420x3926 output is one slice. Tablet landscape Large Downloads/Reader remain pending. Both portrait cleanup tests pass. Original Large content sizes are restored; phone returns to Shutdown and preexisting iPad remains Booted. Tests were not interrupted; after the failed test ended, only its optional simctl diagnose collector received SIGTERM to allow result finalization. Sources stay unchanged, skips and Repetition nodes are zero, and runtimeWarnings arrays are empty. No jobs remain. Reserved staged edits and .capture/ remain untouched. Evidence: `/tmp/ehpanda-phase17-content-size-gate-01/`. Investigate the visible-marker OCR failure before resuming; exact-once census remains unchanged. No SUMMARY, fixture rematerialization or baseline promotion.
+**Phase 17 current gate:** 17-01 is complete (2/2 tasks); 1/24 plans complete. Final implementation HEAD 9b7074d2 passed the full gate with unchanged working-tree source hashes. All four real content shapes pass Large/AX5 on phone/tablet portrait/landscape, with exact native/freeze/full parity, expected census and native traits/categories. Both-family eleven-test OCR suites include real omission/duplication controls. All 41 fixture exports pass independent provenance checks. `.capture/regression` now holds the verified canonical v2 export; its old contents are backed up under the run root. Four reserved staged entries remain unchanged. Both simulators restore portrait/original Large and their original Booted/Shutdown state. Evidence: `/tmp/ehpanda-phase17-census-final-gate-01/`; SUMMARY committed in 7c251beb. No baseline promotion. Schema/UI wave gates do not block; codebase drift is a nonblocking warning about old mapping metadata, with no auto-remap requested. Continue inline with 17-24, then 17-02. Shared CAP-17-02/03/06 remain incomplete until all declaring plans finish.
 
-### Historical round-2 status snapshots
+## Historical round-2 status snapshots
 
 The following snapshots preserve earlier decisions and provenance. Their pending, open, current-position and implementation wording is historical: the current position above and the latest sweep owner sign-off supersede it. In particular, `cc05aca6` removed the contrast helper, `ColorContrastTests` and added visible glyphs; no reverted implementation is credited as current.
 
@@ -72,7 +72,7 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: 274/298 authored plans complete; GSD-recorded phase progress: [██████░░░░] 59%; Phase 17 has 24 verified plans ready to execute, so the milestone remains open.
+Progress: 275/298 authored plans complete; GSD-recorded phase progress: [██████░░░░] 59%; Phase 17 has 1/24 plans complete; the remaining dependency-ordered plans keep the milestone open.
 
 ## Performance Metrics
 
@@ -367,6 +367,7 @@ Progress: 274/298 authored plans complete; GSD-recorded phase progress: [██�
 | Phase 16 P22 | 16 min | 2 tasks | 4 files |
 | Phase 16 P23 | 36min | 3 tasks | 20 files |
 | Phase 16 P24 | 2d 16h | 4 tasks | 18 files |
+| Phase 17 P01 | multi-session | 2 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -1006,8 +1007,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T01:32:39.316524+00:00
-Stopped at: Phase 17 plan 17-01 Task 2 external landscape orientation after area/AX5/portrait gates pass
+Last session: 2026-10-04T09:14:55.567Z
+Stopped at: Completed 17-01; next dependency is 17-24 (wave 2)
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
