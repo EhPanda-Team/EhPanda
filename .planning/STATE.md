@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 read-rectangle parity checkpoint; all diagnostics restored
-last_updated: "2026-10-04T12:21:57.229931+00:00"
+stopped_at: 17-02 Task 2 aligned-read seam checkpoint; 22 of 32 compatibility coordinates captured
+last_updated: "2026-10-04T15:19:41.270472+00:00"
 last_activity: 2026-10-04
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: 857f3578f9
-last_activity_desc: "1/576 captured; dark xSmall read-size parity failure isolated"
+source_head: 78f79b8941
+last_activity_desc: "Native-first xSmall fixed; iPad AX5 Downloads aligned seam differs by one channel level"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 full matrix running
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 aligned-read seam checkpoint
 Last activity: 2026-10-04
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Task 1 committed in 624fddfed6 after the owner-approved OCR passes, 32/32 compatibility captures / 74 native tests, and six real Home locales passed. Task 2's explicit identity/order/empty contracts pass; Python total is 55/55. The actual full 576-coordinate run is active at `.capture/tracer-matrix/`. No complete-run result or 17-02 SUMMARY exists yet. See `phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md`.
+**17-02 active verification:** Task 1 is committed in 624fddfed6. Task 2 has 58 passing Python contracts and a native-first capture correction that fixes dark/light xSmall Home (2/2 reduced coverage; every viewport RGBA byte equal). Focused tests pass 7/7 per family. Compatibility gate 02 passes 22/32 captures and the 34/31 native suites, then fails iPad portrait AX5 Downloads with `seamMismatch(sliceIndex: 1)`: 120 raw PNG pixels differ by at most one despite 16-device-pixel alignment and interior bands. Nine coordinates remain unexecuted; total native tests are 76 passed / one failed / zero runtime warnings. Both devices restored and no jobs remain. See `debug/ipad-ax5-downloads-seam.md`; strict comparison is unchanged. The full 576 matrix was not restarted, and no Task 2 completion or 17-02 SUMMARY is claimed.
 
 ## Historical round-2 status snapshots
 
