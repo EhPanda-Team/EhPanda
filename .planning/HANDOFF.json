@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T15:19:41.268211+00:00",
+  "timestamp": "2026-10-04T16:08:39.714791+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-aligned-read-seam",
+  "status": "checkpoint-17-02-half-pixel-artwork-extent",
   "completed_tasks": [
     {
       "id": 1,
@@ -24,11 +24,12 @@
     }
   ],
   "blockers": [
-    "iPad portrait AX5 Downloads fails strict seam comparison despite 16-device-pixel origin alignment and interior bands; read geometry fidelity remains unresolved."
+    "Coordinate-sized fixture source 245 x 338 px displays at 245 x 337 in VH4/VH6 on phone portrait AX5 Home; rounded production role dimensions do not preserve source pixels at every row position."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Review the aligned-read seam evidence with the research agent before selecting a further capture correction."
+    "Review the 3x half-pixel artwork extent with the research agent; problem prompt is retained in /tmp/ehpanda-phase17-artwork-rounding/research-prompt.txt.",
+    "Owner choice on proposal B (all reads native viewport height) remains unanswered and unapplied."
   ],
   "decisions": [
     {
@@ -129,6 +130,11 @@
     {
       "decision": "Orchestrator confirms native-viewport-owned first read and interior seam bands on 16-pixel-aligned subsequent reads.",
       "rationale": "Owner-supplied read-rect research isolates deterministic rasterization dependence on snapshot rect geometry; preserves the previously authorized stationary render-server architecture and strict checks.",
+      "phase": "17"
+    },
+    {
+      "decision": "Adopt coordinate-specific fixture artwork export A; keep strict dimensions and capture checks, and retain B as an unanswered owner decision.",
+      "rationale": "Original iPad seam is fixed; full compatibility exposes a new 3x half-height rounding dependency that needs resolution before claiming 1:1 across the matrix.",
       "phase": "17"
     }
   ],
@@ -1281,8 +1287,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 contracts, simctl spelling correction, native-first read implementation and tests remain WIP pending strict aligned-seam resolution. Four protected owner-staged entries and every .capture failed run are preserved.",
-  "source_checkpoint": "78f79b8941",
+  "uncommitted_files_note": "Task 2 producer, native-first read correction and v3 coordinate artwork export remain WIP pending half-pixel artwork extent resolution. The two new artwork helper/test files are staged for native source-hash coverage. Four reserved owner entries and all .capture evidence remain unchanged.",
+  "source_checkpoint": "05687f709f",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1335,6 +1341,22 @@
       "seam_analysis": "/tmp/ehpanda-phase17-read-geometry-seam-failure/difference.json",
       "states_restored": true,
       "native_jobs_remaining": 0
+    },
+    "coordinate_artwork": {
+      "red": "/tmp/ehpanda-phase17-artwork-red-01",
+      "focused": "/tmp/ehpanda-phase17-artwork-green-01",
+      "focused_passed": 7,
+      "compatibility": "/tmp/ehpanda-phase17-artwork-gate-01",
+      "compatibility_status": "4 gate-accepted coordinates; 8 produced / 7 pass artifact checks / 1 fails / 24 unexecuted",
+      "native_passed": 41,
+      "native_failed": 1,
+      "runtime_warnings": 0,
+      "source_hashes_unchanged": true,
+      "evidence": "/tmp/ehpanda-phase17-artwork-rounding",
+      "python_contracts": 58,
+      "canonical_fixtures": ".capture/regression-v3",
+      "native_jobs_remaining": 0,
+      "states_restored": true
     }
   }
 }

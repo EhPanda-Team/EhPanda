@@ -1,5 +1,5 @@
 ---
-status: checkpoint-aligned-read-seam
+status: resolved-with-follow-up-artwork-extent
 trigger: Phase 17-02 native-first compatibility gate
 created: 2026-10-05
 updated: 2026-10-05
@@ -54,3 +54,13 @@ nine unexecuted coordinates. Its summaries contain 76 passed native tests / one 
 zero runtime warnings; partial-audit.json records these counts. Both simulators restored
 portrait, original content size and original boot state. No native jobs remain.
 The full 576 tracer was not started. Task 2 and its SUMMARY remain incomplete.
+
+## Resolution and follow-up — 2026-10-05
+
+Supplied seam-artwork research reproduces the failure and shows the read-dependent
+bitmap resampling state. Coordinate-specific 218 x 300 artwork fixes the original
+actual iPad AX5 Downloads capture with identical geometry and strict parity/census.
+Evidence: `/tmp/ehpanda-phase17-artwork-green-01/artwork-audit.json`.
+The generalized rounded-size export encounters a new 3x half-pixel-height problem
+on Home, recorded in `iphone-ax5-artwork-extent.md`. The old seam is resolved at its
+original coordinate; this does not establish full compatibility of proposal A.
