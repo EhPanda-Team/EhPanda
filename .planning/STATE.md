@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 v2 carousel census passes; AX5 landscape Home reload glyph changes after growth
-last_updated: "2026-10-04T03:18:08.420236+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 device sizing passes; tablet landscape Large Comments OCR misses visible VC5 and VC7
+last_updated: "2026-10-04T03:58:14.813263+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "v2 fixture passes portrait and Large landscape; AX5 landscape Home fails reload-glyph growth parity"
-state_head: 57935267c834c4655fa1a210479c8650f6ddb9bd
+last_activity_desc: "Device Dynamic Type verified; 29/32 matrix cells pass, tablet Comments OCR checkpoint"
+state_head: b86674e2919356f29d046d62dbf615a70230d173
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: 57935267c834c4655fa1a210479c8650f6ddb9bd
+source_head: b86674e2919356f29d046d62dbf615a70230d173
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — AX5 landscape Home reload glyph changes after growth
-Last activity: 2026-10-04 — v2 carousel fixture passes census; AX5 landscape Home fails glyph parity
+Status: checkpoint — tablet landscape Large Comments OCR misses two visible markers
+Last activity: 2026-10-04 — device Dynamic Type passes; actual matrix is 29 captured / 1 failed / 2 pending
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP 57935267c8 implements distinct non-census Home carousel neighbors and fixture v2. Clean/UI builds, native 16/16, exporter checks, focused AX5 Comments, portrait 8/8 and Large landscape 4/4 pass. Landscape Large Home census is now 6/6. AX5 landscape Home then fails native/full parity: 2206 changed pixels in the shrinking reload glyph, maximum delta 238, despite exact native/frozen bytes and stable regular/compact traits. Coverage 12 captured / 1 failed / 19 pending; iPad not reached. Full output is 2736×7214 pixels in one slice; the change appears after growth, unlike the earlier freeze-key failure. Root cause remains unproven. Sources stayed unchanged and cleanup completed naturally: phone restored to portrait/Shutdown, iPad still Booted; no jobs remain. Evidence: `/tmp/ehpanda-phase17-carousel-v2-gate-01/`. Investigate this new transition before resuming. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP b86674e291 aligns Dynamic Type with simulator/app state and removes window/root category overrides. Clean/UI builds, native 16/16 phone and 13/13 tablet, focused AX5 Comments and all 16 AX5 coordinates pass. Both phone AX5 Home orientations preserve 70x85-pixel glyphs. Matrix coverage is 29 captured / 1 failed / 2 pending. Tablet landscape Large Comments has visible VC5/VC7 but OCR omits VC5 and reads VC7 as LOA; strict viewport and freeze parity pass. The 2420x3926 output is one slice. Tablet landscape Large Downloads/Reader remain pending. Both portrait cleanup tests pass. Original Large content sizes are restored; phone returns to Shutdown and preexisting iPad remains Booted. Tests were not interrupted; after the failed test ended, only its optional simctl diagnose collector received SIGTERM to allow result finalization. Sources stay unchanged, skips and Repetition nodes are zero, and runtimeWarnings arrays are empty. No jobs remain. Reserved staged edits and .capture/ remain untouched. Evidence: `/tmp/ehpanda-phase17-content-size-gate-01/`. Investigate the visible-marker OCR failure before resuming; exact-once census remains unchanged. No SUMMARY, fixture rematerialization or baseline promotion.
 
 ### Historical round-2 status snapshots
 

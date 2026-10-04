@@ -3,13 +3,43 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-v2-carousel-fixtures
-status: v2-carousel-passed-AX5-landscape-glyph-blocked
-files_reviewed: 2
-source_head: 57935267c834c4655fa1a210479c8650f6ddb9bd
+scope: task-2-device-content-size
+status: device-Dynamic-Type-passed-ipad-Comments-OCR-blocked
+files_reviewed: 3
+source_head: b86674e2919356f29d046d62dbf615a70230d173
 ---
 
-# Task 2 v2 carousel fixture review
+# Task 2 device-level Dynamic Type review
+
+Inline gsd-code-review using the previously read snapshot-testing and testing guidance;
+not independent or whole-phase review. Scope: FullContentHost.swift,
+FullContentFeasibilityTests.swift and Scripts/verify-full-content-capture.py.
+
+The device setting is now the single category source. The runner saves the original size
+after boot, sets/readbacks the invocation's requested category before launch, and records
+both commands' exit codes and observed output. Cleanup restores portrait first and then
+original content size before any gate-owned shutdown; nested finally blocks preserve
+shutdown even if restoration fails. Existing Booted devices remain Booted. Six focused
+control tests cover positive cleanup and rejection paths; mocks do not substitute for the
+actual simulator evidence.
+
+Tests split size and orientation into four methods per family and require app/scene/request
+agreement before host construction. Host creation rejects app mismatch before adding a
+window. The window category override and duplicate SwiftUI Dynamic Type environment source
+are removed; existing viewport trait assertions remain. No production toolbar, sampling,
+size-class, census or fixture rule changes. The previous research's glyph explanation is
+now supported by both orientations passing with 70 × 85-pixel native/frozen/full glyphs.
+
+Clean/UI builds and strict lint pass. Native tests pass 16/16 phone and 13/13 tablet; all
+16 phone matrix coordinates, 12 tablet portrait/landscape-AX5 cells and tablet landscape
+Large Home pass. The new failure is tablet landscape Large Comments OCR: visually present
+VC5 is omitted and VC7 is recorded as LOA. Native/frozen/full parity is exact, category and
+classes agree, and the whole 2420 × 3926 output is one slice. No defect was found in this
+content-size implementation; the full Task 2 gate remains open at 29 captured / 1 failed /
+2 pending. No census relaxation is implied. Evidence and exact bounds are recorded in
+17-01-FEASIBILITY-GATE.md and `/tmp/ehpanda-phase17-content-size-gate-01/`.
+
+## Historical v2 carousel fixture review
 
 Inline gsd-code-review using snapshot-testing and testing guidance; not an independent or
 whole-phase review. Scope: PublicVisualFixtures.swift and FullContentFeasibilityTests.swift.

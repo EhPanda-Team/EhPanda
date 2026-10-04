@@ -35,14 +35,18 @@ Default v2 aggregate:
 Generator SHA-256:
 `0af2e25968224950331b597bbf0ea995c52a9d00acf07d98c78fb88b325867b3`.
 
-The fresh v2 matrix passes all eight phone portrait coordinates and all four Large phone
-landscape coordinates. Landscape Large Home has exact native/full parity and census 6/6,
-including VH1 exactly once. AX5 landscape Home then fails growth parity in the reload glyph
-before its census: 2206 changed pixels, maximum channel delta 238. Freeze parity passes.
-Coverage is 12 captured / 1 failed / 19 pending; all iPad coordinates remain unrun.
-All 32 still require acceptance. `.capture/regression` retains the older materialization
-until Task 2 passes; no output is an approved baseline. The current failure is detailed in
-17-01-FEASIBILITY-GATE.md; the older gate descriptions below are historical.
+The current device-level Dynamic Type run is
+`/tmp/ehpanda-phase17-content-size-gate-01/`. Native exporter tests pass on both families;
+current captures pass 29/32 coordinates. All 39 extracted exports independently pass their
+47-entry byte-count, SHA-256, aggregate and current-generator provenance checks. The new
+failure is tablet landscape Large Comments OCR (visible VC5/VC7 not counted); its later two coordinates are pending. All 16 AX5
+coordinates were re-captured under matching system/app/scene categories and pass; earlier
+window-only AX5 references are not production-faithful evidence.
+
+The two carousel neighbors remain outside the exact-once census and every captured Home
+coordinate has all six expected markers exactly once. The generator/version above are
+unchanged. `.capture/regression` retains the older materialization until Task 2 passes;
+no output is an approved baseline. Current details are in 17-01-FEASIBILITY-GATE.md.
 
 ## Historical v1 exporter evidence
 

@@ -2,14 +2,85 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v2-carousel-passed-AX5-landscape-glyph-blocked
+status: device-Dynamic-Type-passed-ipad-Comments-OCR-blocked
 recorded: 2026-10-04
-source_head: 57935267c834c4655fa1a210479c8650f6ddb9bd
+source_head: b86674e2919356f29d046d62dbf615a70230d173
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current v2 carousel fixture gate — 2026-10-04
+## Current device-level Dynamic Type gate — 2026-10-04
+
+Implementation `b86674e291` follows the owner's measured root cause and prescribed revision.
+The previous window-only AX5 override disagreed with system/app Large. Its toolbar glyph
+could shrink before the reference (portrait silently compared the wrong image) or during
+growth (landscape failed). Earlier AX5 passes are therefore historical parity evidence,
+not proof of a production-faithful reference. Research is retained under
+`/tmp/ehpanda-phase17-size-probe-evidence/toolbar-glyph-content-size/`.
+
+The runner now saves/restores each simulator's content size, explicitly sets and reads it
+back before every FeatureTests invocation, and separates four matrix invocations per
+family by orientation and Large/AX5. Tests require requested, app and scene categories to
+agree, recording content-size-readiness.json. FullContentHost treats its category argument
+as a requirement and no longer overrides it; root Dynamic Type environment overrides are
+removed from matrix/single captures. Stable observation freeze and native size-class pins
+remain. Six focused Python control checks cover mismatches, mandatory invocation sizing
+and cleanup success/failure with both owned and preexisting simulator sessions.
+
+Evidence: `/tmp/ehpanda-phase17-content-size-gate-01/`. Clean FeatureTests and orientation
+builds pass without compiler/lint diagnostics. Strict no-cache lint passes both changed
+Swift files. Native suites pass **16/16 phone and 13/13 tablet**. Focused phone AX5 Comments
+passes at **1260 × 46,989 px**, seven slices, census 12/12 and exact viewport parity.
+
+All **16 phone** coordinates pass. Tablet portrait Large/AX5 and landscape AX5 pass all
+**12** coordinates; tablet landscape Large Home also passes. Phone AX5 Home's native,
+frozen and full-content viewport glyphs are independently measured at **70 × 85 px** and
+1375 dark pixels in both orientations. The previous shrinking-glyph failure is resolved.
+Both-family render budget boundary tests also pass; census reuse and PNG encoding add no
+measured footprint after the composite. These are current-source, fixture-v2 captures.
+
+### New blocker: tablet landscape Large Comments OCR census
+
+The next coordinate, `ipad-landscape-large-comments`, fails itemCensus: VC5 and VC7 are
+zero; the other ten markers occur once. Its app, scene and requested category all equal
+UICTContentSizeCategoryL. Viewport is **1210 × 834 pt** at 2x, scene/window classes remain
+regular/regular, and native/frozen plus native/full viewport parity both pass. An independent
+RGBA comparison also confirms all three viewport images contain identical pixels.
+
+The output converges to **1210 × 1963 pt / 2420 × 3926 px**, with requested point heights
+1279.5, 1563, 1752, 1963, 1963, 1963 and two stable iterations. It uses **one render slice**.
+Visual inspection of capture.full-content.png clearly shows VC1–VC12, including VC5/VC7,
+and VCEND. The recorded text at VC7's position is **LOA**, around y=1068.27 pt; VC5 has
+no retained observation. The evidence establishes a recognition/census failure for visible
+markers, not missing rendered rows. Raw candidates/confidences are not recorded, so the
+exact reason VC5 was omitted is not established.
+
+OCR uses accurate English RecognizeTextRequest, language correction off, customWords set
+to expected markers plus VCEND, top candidate only and confidence >=0.8. Bands are 834 pt
+high with 128 pt overlap (706 pt stride); the band starting at 706 pt owns midpoints in
+770..<1476 pt. The PNG and geometry.json permit further investigation without recapturing
+or changing the application. No OCR rule or acceptance threshold was changed.
+
+Coverage is **29 captured / 1 failed / 2 pending**; the two pending cells are tablet
+landscape Large Downloads and Reader. Later census/frame/tail/restoration acceptance for
+the failed Comments coordinate was not reached. Task 2 remains incomplete (1/2 tasks,
+0/24 plans); no SUMMARY, baseline promotion or fixture rematerialization. The prior v2
+fixture fix, device-level sizing, freeze, strict parity and budgets remain adopted.
+
+Formal failed-coordinate directory relative to the current evidence root:
+`ipad-landscape-large-attachments/1F4B2A0A-C636-4860-977F-4EA4391C116A/phase17-feasibility-9185C868-57AF-4CE5-B9D7-A7DA0E7410D5/ipad-landscape-large-comments/`.
+All 39 extracted fixture exports independently pass 47-entry size/hash, aggregate digest,
+generator source and neighbor-cover checks. See fixture-verification.json. Source hashes
+remain unchanged; skips/Repetition are zero and runtimeWarnings arrays empty.
+
+Both portrait cleanup invocations pass. Original Large sizes are restored on both devices;
+phone returns to its original Shutdown state and iPad remains originally Booted. The failed
+test ended before its optional simctl diagnose collector was terminated with SIGTERM;
+xcodebuild then finalized exit 65 and the runner completed cleanup before exiting 1.
+No test process was interrupted. optional-diagnostic-termination.json records that boundary.
+No jobs remain, and reserved staged edits plus .capture/ are unchanged.
+
+## Historical v2 carousel fixture gate — 2026-10-04
 
 Implementation `57935267c8` follows the owner's fixture-only decision: separate PEEK1/PEEK2
 neighbors join VH1 in the popular carousel, with the same title shape and page count.
