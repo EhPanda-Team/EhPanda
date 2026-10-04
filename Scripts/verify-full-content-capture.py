@@ -23,7 +23,10 @@ NATIVE_TESTS = [
         "testExportRejectsMissingFixtureAssetAndRoute", "testCommentsNativeCapture",
         "testDownloadsNativeCapture", "testReaderNativeCapture",
     )
-] + ["VisualSnapshotTests/RenderServerCaptureTests", "VisualSnapshotTests/VisibleViewportTests"]
+] + [
+    "VisualSnapshotTests/RenderServerCaptureTests", "VisualSnapshotTests/VisibleViewportTests",
+    "VisualSnapshotTests/RenderedContentInspectionTests",
+]
 
 
 def save_json(path, value):
@@ -329,7 +332,7 @@ class Gate:
                              [ROTATION + "testRotateToPortrait"], 1)
                     tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                     self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                             tests, 16 if family == "iphone" else 13, content_size=CONTENT_SIZES["large"])
+                             tests, 27 if family == "iphone" else 24, content_size=CONTENT_SIZES["large"])
                     for orientation in ("portrait", "landscape"):
                         if orientation == "landscape":
                             self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,
