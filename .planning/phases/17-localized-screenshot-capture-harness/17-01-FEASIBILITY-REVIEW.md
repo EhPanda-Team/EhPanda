@@ -3,13 +3,57 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-device-content-size
-status: device-Dynamic-Type-passed-ipad-Comments-OCR-blocked
-files_reviewed: 3
-source_head: b86674e2919356f29d046d62dbf615a70230d173
+scope: task-2-scale-robust-census
+status: passed-final-tree-gate
+files_reviewed: 5
+source_head: f12ecb8333
 ---
 
-# Task 2 device-level Dynamic Type review
+# Task 2 scale-robust census review
+
+Inline gsd-code-review using the snapshot-testing, testing and concurrency guidance;
+not independent or whole-phase review. Scope: FullContentHost.swift,
+RenderedContentInspection.swift, RenderedContentInspectionTests.swift,
+Scripts/verify-full-content-capture.py and the owner-approved .swiftlint.yml change.
+
+The owner-supplied revision replaces fragile ownership of one OCR band with redundant reads
+at two scales. Fine windows preserve body-text resolution; full-width viewport-height
+windows accommodate large Reader markers. Inner-edge margins reject clipped word candidates,
+while exact image-boundary edges remain eligible. Only expected census words merge, the
+same label at separate locations remains separate, and different census labels at one
+location throw an explicit error. Thus a missing/duplicated marker still fails exact-once
+counting. The generated-canvas Vision test exercises both failure sensitivities, in addition
+to ten focused window/merge cases.
+
+At most eight child tasks own crop/request work at once. Results carry their window index
+and are sorted before flattening, preserving merge order independently of completion order.
+The task group propagates request/cancellation failures. FullContentHost persists every
+confident read before attempting merging, so an ambiguity retains its supporting evidence.
+Census, frame and trailing-marker checks consistently consume the merged occurrences.
+Diagnostic changes retain every key the gate reads; the runner adds all eleven new tests
+and expects exactly 27 phone / 24 tablet native passes.
+
+Extraction was checked against 898fb65afb: the block moved into the new file is byte-identical
+apart from outer blank lines and the file's imports. Host capture/error/serialization remain
+at their prior ownership site. The lint change removes the whitespace allowance between a
+base and its subscript bracket, matching the owner's array-literal correction; it introduces
+no suppression and leaves actual flush subscripts checked. No additional implementation
+change is needed for this handoff.
+
+Supplied source-898fb65afb gate: `/tmp/ehpanda-phase17-census-gate-01/gate.json` reports 32/32.
+Research evidence: `/tmp/ehpanda-phase17-size-probe-evidence/ocr-census/RESULTS.md`.
+Final-tree verification at f12ecb8333 passed under
+`/tmp/ehpanda-phase17-census-final-gate-01/`: 32/32 coordinates and 66/66 tests across
+17 invocations, including all eleven census tests on each family. Clean builds have no
+compiler/lint diagnostics; result bundles have no failures, skips, expected failures,
+Repetition nodes or runtimeWarnings. Independent audits verify unchanged source hashes,
+exact native/frozen/full viewport parity, categories/classes, diagnostic read indices,
+41 fixture exports and both simulators restoring their original size/state. The canonical
+v2 fixture export is materialized byte-for-byte in .capture/regression, with the previous
+directory backed up in the evidence root. No baseline was promoted. No new review finding
+was identified in the adopted change; Task 2 can close.
+
+## Historical device-level Dynamic Type review
 
 Inline gsd-code-review using the previously read snapshot-testing and testing guidance;
 not independent or whole-phase review. Scope: FullContentHost.swift,

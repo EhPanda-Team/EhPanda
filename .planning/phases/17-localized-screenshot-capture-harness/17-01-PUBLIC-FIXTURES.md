@@ -2,7 +2,7 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v2-exporter-passed-partial-matrix
+status: v2-exporter-and-full-matrix-passed
 recorded: 2026-10-04
 ---
 
@@ -35,18 +35,20 @@ Default v2 aggregate:
 Generator SHA-256:
 `0af2e25968224950331b597bbf0ea995c52a9d00acf07d98c78fb88b325867b3`.
 
-The current device-level Dynamic Type run is
-`/tmp/ehpanda-phase17-content-size-gate-01/`. Native exporter tests pass on both families;
-current captures pass 29/32 coordinates. All 39 extracted exports independently pass their
-47-entry byte-count, SHA-256, aggregate and current-generator provenance checks. The new
-failure is tablet landscape Large Comments OCR (visible VC5/VC7 not counted); its later two coordinates are pending. All 16 AX5
-coordinates were re-captured under matching system/app/scene categories and pass; earlier
-window-only AX5 references are not production-faithful evidence.
+The final-source run is `/tmp/ehpanda-phase17-census-final-gate-01/` at f12ecb8333.
+All 32 coordinates pass under matching requested/app/scene Dynamic Type. Both native suites
+include the three exporter tests; 41 extracted exports independently pass all 47-entry
+byte-count, file hash, aggregate and generator-provenance checks. Every Home keeps the six
+expected markers exactly once; the two native carousel neighbors remain outside the census.
 
-The two carousel neighbors remain outside the exact-once census and every captured Home
-coordinate has all six expected markers exactly once. The generator/version above are
-unchanged. `.capture/regression` retains the older materialization until Task 2 passes;
-no output is an approved baseline. Current details are in 17-01-FEASIBILITY-GATE.md.
+After that gate passed, the canonical 800 × 1100 Reader export from the phone's named
+`testExportPublicFixtures` attachment was copied byte-for-byte into `.capture/regression`.
+The materialization contains 48 files including manifest.json. Its default v2 aggregate
+and generator hash are those recorded above. The older directory is retained under the
+final evidence root's `previous-regression/`; fixture-materialization.json identifies the
+exact source attachment and manifest hash. Other capture outputs were not altered.
+`.capture/regression` remains disposable; the committed generator is authoritative.
+No output is an approved baseline.
 
 ## Historical v1 exporter evidence
 
