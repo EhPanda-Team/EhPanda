@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-03T18:29:24.964949+00:00",
+  "timestamp": "2026-10-04T01:32:39.316524+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 1,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-composite-height-budget",
+  "status": "checkpoint-external-orientation",
   "completed_tasks": [
     {
       "id": 1,
@@ -21,11 +21,11 @@
       "id": 2,
       "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
       "status": "incomplete",
-      "progress": "Observation implementation 8f84844b passes AX5 Comments native freeze parity with zero changed pixels. Clean/UI builds and phone native 15/15 pass. Matrix 5 captured / 1 failed / 26 pending; AX5 Comments requests 35820 composite pixels against the approved 32768 limit."
+      "progress": "WIP 040064f2 passes the area boundary, memory sharing, native 16/16, focused AX5 Comments and portrait 8/8. Landscape fails before capture: 97 samples over 5.043 seconds remain portrait. Coverage 8 captured / 1 failed / 23 pending."
     }
   ],
   "blockers": [
-    "AX5 Comments requires a 35820-pixel output height at a convergence iteration (11940 pt at 3x), above the approved 32768-pixel composite budget. Final convergence, full-content/native parity, census and peak memory are unverified."
+    "External XCUIDevice landscape rotation passes, but the following FeatureTests app scene stays portrait at 420x912 across 97 samples for 5.043 seconds; UIDevice orientation is unknown. No landscape image or current iPad matrix exists."
   ],
   "async_jobs": [],
   "human_actions_pending": [],
@@ -89,6 +89,16 @@
       "decision": "Deliver capture freezing through a stable observable object installed in the environment before first render; never rewrite the environment value to toggle freezing.",
       "rationale": "Real CommentsView probe reproduces the 2648-pixel glyph shrink after any environment-key change, but observation toggles preserve the initial native glyph. Do not prime the hierarchy into the inconsistent post-update state.",
       "phase": "17"
+    },
+    {
+      "decision": "Adopt allocation-owner pixel-area budget of 2736 * 32768, canonical Data sharing and bounded slice ownership.",
+      "rationale": "Owner supplied composite-footprint measurements showing the previous height guard rejected smaller allocations and authorized exact boundary/memory tests.",
+      "phase": "17"
+    },
+    {
+      "decision": "Await actual scene orientation for at most five seconds, with timestamped evidence and no in-process rotation request.",
+      "rationale": "Immediate post-launch assertion failed after successful external rotation; bounded readiness diagnosis also failed, so cross-invocation orientation remains unresolved.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -98,8 +108,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Reconcile the required AX5 Comments extent with the explicit composite capacity budget; preserve observation delivery, strict parity and all 32 coordinates. Measure or establish resource limits before changing the approved budget.",
-  "context_notes": "Observation implementation 8f84844b passes AX5 Comments native freeze parity with zero changed pixels. Clean/UI builds and phone native 15/15 pass. Matrix 5 captured / 1 failed / 26 pending; AX5 Comments requests 35820 composite pixels against the approved 32768 limit. The new root object is installed before first render; only its observed property changes afterward. No priming or toolbar production edits. Freeze samples 6 native/3 frozen; decoded RGBA PNGs exactly equal. A single proposed 1260x35820 RGBA buffer is 172.1695 MiB; this is arithmetic, not measured peak memory. The run finalized normally and portrait cleanup passed. Source hashes unchanged, zero skips/Repetition/runtime warnings, no active jobs. Reserved staged paths and .capture/ remain untouched.",
+  "next_action": "Investigate the external-rotation-to-app-launch boundary. Preserve actual-scene orientation checks, stable observation delivery, all 32 full-content coordinates and the tested area budget. Resume the serial matrix after resolving orientation.",
+  "context_notes": "WIP 040064f2 passes the area boundary, memory sharing, native 16/16, focused AX5 Comments and portrait 8/8. Landscape fails before capture: 97 samples over 5.043 seconds remain portrait. Coverage 8 captured / 1 failed / 23 pending. AX5 Comments is 1260x46989 px, 7 slices, strict native parity, census 12/12. Boundary buffer 341.998 MiB, resident growth 342.172 MiB, total peak 517.565 MiB; census reuse adds no full buffer. Clean/UI builds have zero diagnostics; source hashes unchanged and no skips/Repetition. Optional simctl diagnose collectors were terminated only after failed tests finished. Portrait cleanup passed; no jobs remain. Four reserved staged paths and .capture/ unchanged.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -564,6 +574,104 @@
       "source_hashes_unchanged": true,
       "repetition_nodes": 0,
       "limits": "No full-content image, final convergence or peak-memory measurement for failed coordinate; no iPad/landscape matrix. Run finalized without interruption; portrait cleanup passed."
+    },
+    "area_budget_gate": {
+      "source_head": "040064f2b2bcc3dd3bc3a0a65b160443ff34edb8",
+      "root": "/tmp/ehpanda-phase17-area-budget-gate-02",
+      "prior_root": "/tmp/ehpanda-phase17-area-budget-gate-01",
+      "native_tests": 16,
+      "native_passes": 16,
+      "matrix_captured": 8,
+      "matrix_failed": 1,
+      "matrix_pending": 23,
+      "footprint_attachment": "/tmp/ehpanda-phase17-area-budget-gate-02/iphone-native-attachments/ED56D91F-48F4-4042-8A32-1E7FE5F65E3C.json",
+      "footprint": {
+        "compositeMilliseconds": 949.0505,
+        "maximumCompositePixelCount": 89653248,
+        "measurements": [
+          {
+            "ledgerPhysFootprintPeakBytes": 379538288,
+            "physFootprintBytes": 151325384,
+            "stage": "before-window"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 379538288,
+            "physFootprintBytes": 77712000,
+            "stage": "before-composite"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-composite"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-census-reuse"
+          },
+          {
+            "ledgerPhysFootprintPeakBytes": 542706688,
+            "physFootprintBytes": 436505480,
+            "stage": "after-png"
+          }
+        ],
+        "pixelCount": 89652780,
+        "pixelHeight": 71153,
+        "pixelWidth": 1260,
+        "pngBytes": 1949058,
+        "rgbaBytes": 358611120,
+        "sliceCount": 10,
+        "unusedBudgetPixels": 468
+      },
+      "AX5_comments": {
+        "census": {
+          "VC1": 1,
+          "VC10": 1,
+          "VC11": 1,
+          "VC12": 1,
+          "VC2": 1,
+          "VC3": 1,
+          "VC4": 1,
+          "VC5": 1,
+          "VC6": 1,
+          "VC7": 1,
+          "VC8": 1,
+          "VC9": 1
+        },
+        "displayScale": 3,
+        "nativeViewportParity": true,
+        "outputSize": [
+          420,
+          15663
+        ],
+        "requestedOutputHeights": [
+          7058.666666666667,
+          8279,
+          11940,
+          14380.666666666666,
+          15663,
+          15663,
+          15663
+        ],
+        "sliceCount": 7
+      },
+      "orientation_trace": "/tmp/ehpanda-phase17-area-budget-gate-02/iphone-landscape-attachments/5604EE3B-2830-4BED-AAE3-12109F84B2F1/phase17-feasibility-25D2493D-2F33-4228-9332-08E5C447505A/iphone-landscape-large-home/orientation-readiness.json",
+      "orientation_samples": 97,
+      "orientation_first": {
+        "deviceOrientation": 0,
+        "interfaceOrientation": 1,
+        "matched": false,
+        "milliseconds": 0.012584,
+        "sceneBounds": "{{0, 0}, {420, 912}}"
+      },
+      "orientation_last": {
+        "deviceOrientation": 0,
+        "interfaceOrientation": 1,
+        "matched": false,
+        "milliseconds": 5043.427542,
+        "sceneBounds": "{{0, 0}, {420, 912}}"
+      },
+      "optional_diagnostics": "simctl diagnose collectors terminated after test completion; test engines uninterrupted"
     }
   },
   "recovery_logs": [

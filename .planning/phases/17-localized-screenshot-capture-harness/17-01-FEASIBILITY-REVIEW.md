@@ -3,50 +3,58 @@ phase: 17-localized-screenshot-capture-harness
 reviewed: 2026-10-04
 depth: standard
 execution: inline-orchestrator
-scope: task-2-observation-delivery
-status: observation-passed-composite-height-budget-blocked
+scope: task-2-composite-area-and-ownership
+status: area-budget-passed-external-orientation-blocked
 files_reviewed: 5
-source_head: 8f84844b749955e54cbdf16d7cdffa227b55e81a
+source_head: 040064f2b2bcc3dd3bc3a0a65b160443ff34edb8
 ---
 
-# Task 2 observation delivery review
+# Task 2 composite area and ownership review
 
-Inline gsd-code-review using the existing SwiftUI, observable-model and testing guidance;
-not an independent review session or whole-phase sign-off. Changed source scope:
-AppComponents/GalleryViewport.swift, VisualSnapshotSupport/FullContentHost.swift,
-FullContentFeasibilityTests.swift, VisualTracerTests.swift and VisibleViewportTests.swift.
+Inline gsd-code-review using pfw-snapshot-testing, pfw-testing, pfw-custom-dump and
+swift-concurrency-pro guidance. This is not an independent review or whole-phase sign-off.
+Scope: RenderServerCapture.swift, FullContentHost.swift, RenderServerCaptureTests.swift,
+FullContentFeasibilityTests.swift and Scripts/verify-full-content-capture.py.
 
-## Source contract
+## Allocation and ownership
 
-VisibleViewportSampling is a public MainActor observable reference with false initial state.
-The optional environment entry defaults to nil, preserving normal production sampling.
-The modifier observes the reference's Boolean property; forwarding, suppression and thaw
-logic are unchanged. Home/GalleryList callers and unrelated geometry readers are unchanged.
+The allocation owner rejects pixelHeight greater than budget / pixelWidth before frames
+are read or Data allocated. Division avoids a potentially overflowing area multiplication.
+The documented policy is 89,653,248 pixels, separate from the 8191-pixel read ceiling.
+Each canonicalized read writes directly into the destination row range. Copy blending
+replaces overlap alpha rather than accumulating it. Strict original overlap comparisons
+precede each write. Adjacent raw reads survive only for seam diagnostics; their indexes
+are retained when writing the failing pair. Result contains slice geometry and the immutable
+canonical Data. The CGDataProvider owns the bridged Data for the image's lifetime, and the
+census receives the same value without mutation. Native measurements confirm no second
+full-buffer footprint increase. Parity-failure slices crop the composite.
 
-The host's generic initializer accepts the object, its optional environment key and a
-ReferenceWritableKeyPath to the Boolean. The stable wrapper installs the same reference
-before first render and never reads the Boolean. Its body therefore does not subscribe to
-the freeze signal. A stored setter closes over the object/key path for type erasure;
-all mutation remains inside the MainActor host. The private observable box and Boolean
-environment updates are removed. The support library gains no AppComponents dependency.
+UIKit capture remains MainActor-isolated. Raw pointers are confined to Data's mutable-byte
+closures and synchronous CGContext drawing. No escaping raw pointer, unchecked Sendable,
+new module dependency or production view change was introduced. Geometry tracing precedes
+each resize and final allocation, preserving evidence on convergence or area rejection.
+Restore/error/dismiss ordering and stable observable freeze delivery are unchanged.
 
-All four call sites create fresh sampling objects. Tests install the object in the hosting
-root once and mutate its property; independent raw geometry proves layout changes while
-the frozen callback output remains unchanged. Initial freezing, thaw emission and duplicate
-prevention remain covered. There is no hierarchy priming or production toolbar change.
+## Verification
 
-## Verification and open capacity boundary
+Current evidence: `/tmp/ehpanda-phase17-area-budget-gate-02/`.
+Clean FeatureTests/orientation builds have zero compiler/lint diagnostics. Strict no-cache
+SwiftLint passes all four changed Swift files. Native 16/16 tests pass, including the
+89,652,780-pixel boundary, actual slice joins, next-row refusal, and footprint attachment.
+The immutable Data adds 342.172 MiB resident footprint for a 341.998 MiB buffer; census reuse
+adds none. Total measured peak is 517.565 MiB (443.453 MiB above the pre-composite sample).
+No claim is made that whole capture/verification memory is bounded to this measurement.
 
-`/tmp/ehpanda-phase17-observation-gate-01/` contains clean/UI builds with zero diagnostics,
-15/15 phone native tests, rotation/cleanup 1/1 each, zero skips/Repetition and identical
-source hashes. Five matrix coordinates pass again. AX5 Comments native/frozen decoded RGBA
-images are now exactly identical; the prior 2648-pixel glyph failure is resolved at this step.
+AX5 Comments passes at 1260 × 46,989 px, 7 slices, exact viewport parity and census 12/12.
+All phone portrait coordinates pass (8/8). The runner checks exact test counts, provenance,
+zero skips/Repetition, acceptance and freeze/native parity before advancing.
 
-The next guard rejects a requested 35820-pixel composite height against the approved 32768
-limit. The rejected extent is 11940 points at 3x. One 1260×35820 RGBA buffer is 172.1695 MiB;
-this is not peak memory and not proof of final convergence. No long image, growth parity,
-census or memory measurement exists for that coordinate yet. The existing cap is preserved.
+## Open integration gate
 
-No source defect was established in the observation change. The unresolved issue is reconciling
-the required full-content extent with the explicit composite budget. Matrix coverage is
-5 captured / 1 failed / 26 pending, with no current iPad/landscape result. Task 2 remains open.
+No new allocation, pixel-sharing or concurrency defect was found in this review.
+External landscape UI rotation passes, but the following app invocation remains portrait
+for all 97 readiness samples over 5.043 seconds (420 × 912; device orientation unknown).
+The bounded check observes actual geometry and yields while waiting; it never treats elapsed
+time as successful readiness and never requests orientation itself. This remains an
+unresolved integration failure, so no complete-matrix or Task 2 success is claimed.
+Coverage: 8 captured / 1 failed / 23 pending; iPad remains unverified in this gate.
