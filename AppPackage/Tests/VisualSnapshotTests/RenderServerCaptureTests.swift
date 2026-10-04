@@ -1,6 +1,8 @@
 import AppFeature
+import CustomDump
+import Darwin
 import UIKit
-import VisualSnapshotSupport
+@testable import VisualSnapshotSupport
 import XCTest
 
 final class RenderServerCaptureTests: XCTestCase {
@@ -54,6 +56,87 @@ final class RenderServerCaptureTests: XCTestCase {
         let column = Int(width / 2 * result.image.scale)
         XCTAssertEqual(try pixels.color(column: column, row: pixelSeam - 1),
                        try pixels.color(column: column, row: pixelSeam))
+    }
+
+    /// The largest whole row count within the area policy, plus the first row the policy rejects.
+    @MainActor
+    func testCompositePixelBudgetBoundary() async throws {
+        let scene = try BandedWindow.activeScene()
+        let scale = scene.screen.scale
+        let pixelWidth = Int((scene.screen.bounds.width * scale).rounded())
+        let budget = RenderServerCapture.maximumCompositePixelCount
+        let pixelHeight = budget / pixelWidth
+        var measurements = [try ProcessFootprint.sample(stage: "before-window")]
+        let fixture = try await BandedWindow.make(in: scene, height: CGFloat(pixelHeight) / scale)
+        defer { fixture.tearDown() }
+        measurements.append(try ProcessFootprint.sample(stage: "before-composite"))
+        let start = ContinuousClock.now
+        let result = try RenderServerCapture.image(of: fixture.root.view, format: fixture.format)
+        let elapsed = start.duration(to: .now) / .milliseconds(1)
+        measurements.append(try ProcessFootprint.sample(stage: "after-composite"))
+        let image = try XCTUnwrap(result.image.cgImage)
+        expectNoDifference(image.width, pixelWidth)
+        expectNoDifference(image.height, pixelHeight)
+        XCTAssertLessThanOrEqual(pixelWidth * pixelHeight, budget)
+        XCTAssertGreaterThan(pixelWidth * (pixelHeight + 1), budget)
+        let expectations: [(row: Int, color: UIColor)] = [
+            (pixelHeight / 6, .systemRed), (pixelHeight / 2, .systemGreen), (pixelHeight * 5 / 6, .systemBlue)
+        ]
+        for expectation in expectations {
+            let actual = try Self.pixel(image, column: pixelWidth / 2, row: expectation.row)
+            let color = expectation.color.resolvedColor(with: fixture.root.view.traitCollection)
+            let expected = try SRGBPixels.color(of: color)
+            for (actualChannel, expectedChannel) in zip(actual, expected) {
+                XCTAssertLessThanOrEqual(abs(Int(actualChannel) - Int(expectedChannel)), 2)
+            }
+        }
+        for slice in result.slices.dropFirst() {
+            let row = Int((slice.frame.minY * scale).rounded())
+            expectNoDifference(
+                try Self.pixel(image, column: pixelWidth / 2, row: row - 1),
+                try Self.pixel(image, column: pixelWidth / 2, row: row)
+            )
+        }
+        // The census receives the very same canonical storage; no full-size redraw for inspection.
+        let raster = result.raster
+        expectNoDifference(raster.pixels.count, pixelWidth * pixelHeight * 4)
+        let first = (pixelHeight / 6 * pixelWidth + pixelWidth / 2) * 4
+        expectNoDifference(Array(raster.pixels[first..<first + 4]), try Self.pixel(
+            image, column: pixelWidth / 2, row: pixelHeight / 6
+        ))
+        measurements.append(try ProcessFootprint.sample(stage: "after-census-reuse"))
+        let pngBytes = try autoreleasepool { try XCTUnwrap(result.image.pngData()).count }
+        measurements.append(try ProcessFootprint.sample(stage: "after-png"))
+        let refused = UIView(frame: CGRect(
+            x: 0, y: 0, width: fixture.root.view.bounds.width, height: CGFloat(pixelHeight + 1) / scale
+        ))
+        fixture.root.view.addSubview(refused)
+        defer { refused.removeFromSuperview() }
+        XCTAssertThrowsError(try RenderServerCapture.image(of: refused, format: fixture.format)) { error in
+            guard case .compositeExceedsBudget(let width, let height) = error as? RenderServerCaptureError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+            expectNoDifference(width, pixelWidth)
+            expectNoDifference(height, pixelHeight + 1)
+        }
+        let evidence: [String: Any] = [
+            "maximumCompositePixelCount": budget, "pixelWidth": pixelWidth, "pixelHeight": pixelHeight,
+            "pixelCount": pixelWidth * pixelHeight, "rgbaBytes": pixelWidth * pixelHeight * 4,
+            "unusedBudgetPixels": budget - pixelWidth * pixelHeight, "sliceCount": result.slices.count,
+            "compositeMilliseconds": elapsed, "pngBytes": pngBytes, "measurements": measurements
+        ]
+        let attachment = XCTAttachment(
+            data: try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys]),
+            uniformTypeIdentifier: "public.json"
+        )
+        attachment.name = "phase17-composite-budget-footprint"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private static func pixel(_ image: CGImage, column: Int, row: Int) throws -> [UInt8] {
+        let crop = try XCTUnwrap(image.cropping(to: CGRect(x: column, y: row, width: 1, height: 1)))
+        return try SRGBPixels(image: crop).color(column: 0, row: 0)
     }
 
     func testMaximumSliceHeightStaysBelowSilentBlackCeiling() {
@@ -221,4 +304,25 @@ private final class DisplayFrame: NSObject {
         continuation?.resume()
         continuation = nil
     }
+}
+
+private enum ProcessFootprint {
+    static func sample(stage: String) throws -> [String: Any] {
+        var info = task_vm_info_data_t()
+        var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
+        let result = withUnsafeMutablePointer(to: &info) { pointer in
+            pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { rebound in
+                task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), rebound, &count)
+            }
+        }
+        guard result == KERN_SUCCESS else { throw FootprintError.taskInfo(result) }
+        return [
+            "stage": stage, "physFootprintBytes": info.phys_footprint,
+            "ledgerPhysFootprintPeakBytes": info.ledger_phys_footprint_peak
+        ]
+    }
+}
+
+private enum FootprintError: Error {
+    case taskInfo(kern_return_t)
 }
