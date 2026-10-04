@@ -174,6 +174,7 @@ public final class FullContentHost<Content: View> {
         trailingMarker: String,
         outputDirectory: URL,
         record: SnapshotTestingConfiguration.Record = .never,
+        trailingMarkerLanguage: Locale.Language = Locale.Language(identifier: "en"),
         isContentReady: @MainActor () -> Bool = { true }
     ) async throws -> FullContentCaptureEvidence {
         guard isAttachedToActiveWindow else { throw FullContentHostError.inactiveWindow }
@@ -350,23 +351,29 @@ public final class FullContentHost<Content: View> {
             }
             throw FullContentHostError.nativeViewportPixelsChanged(difference.0)
         }
-        let censusWords = expectedItems.map(\.marker) + [trailingMarker]
+        let censusWords = expectedItems.map(\.marker)
         let censusWindows = RenderedContentInspection.windows(
             imageSize: outputSize, viewportHeight: viewport.size.height
         )
         let reads = try await RenderedContentInspection.reads(
-            in: fullCG, imageSize: outputSize, windows: censusWindows, words: censusWords
+            in: fullCG, imageSize: outputSize, windows: censusWindows, markerWords: censusWords,
+            trailingMarker: trailingMarker, trailingMarkerLanguage: trailingMarkerLanguage
         )
         // Written before merging, so even an ambiguous location leaves every raw read on disk.
-        try Self.writeCensusReads(reads, windows: censusWindows, directory: outputDirectory)
+        try Self.writeCensusReads(
+            reads, windows: censusWindows, trailingMarkerLanguage: trailingMarkerLanguage, directory: outputDirectory
+        )
         let occurrences = try RenderedContentInspection.occurrences(
             of: reads, imageSize: outputSize, words: Set(censusWords)
+        )
+        let trailingOccurrences = try RenderedContentInspection.occurrences(
+            of: reads, imageSize: outputSize, words: [trailingMarker], pass: .trailingMarker
         )
         let census = Dictionary(uniqueKeysWithValues: expectedItems.map { item in
             (item.title, occurrences.filter({ $0.label == item.marker }).count)
         })
         try writeDiagnostics(
-            occurrences: occurrences, census: census,
+            occurrences: occurrences + trailingOccurrences, census: census,
             measurement: measurement, rendering: rendering, directory: outputDirectory
         )
         guard census.values.allSatisfy({ $0 == 1 }) else { throw FullContentHostError.itemCensus(census) }
@@ -392,15 +399,12 @@ public final class FullContentHost<Content: View> {
             }
             itemFrames[item.title] = frame
         }
-        guard let marker = occurrences.first(where: { $0.label == trailingMarker }) else {
-            throw FullContentHostError.missingTrailingMarker(trailingMarker)
-        }
         let requiredHeight = viewport.size.height + contentHeight + originalInsets.top + originalInsets.bottom
             - originalScrollHeight
-        guard outputBounds.contains(marker.frame), marker.frame.height > 0,
-              requiredHeight <= outputSize.height + 1 / viewport.scale else {
-            throw FullContentHostError.clippedItem(trailingMarker)
-        }
+        let trailingMarkerFrame = try RenderedContentInspection.trailingMarkerFrame(
+            trailingMarker, occurrences: trailingOccurrences, imageSize: outputSize,
+            requiredHeight: requiredHeight, scale: viewport.scale
+        )
         try await restoreNativeHost(frame: originalWindowFrame)
         verticalScrollHost.setContentOffset(originalOffset, animated: false)
         let restoredScrollGeometry = Self.descendants(of: controller.view)
@@ -444,7 +448,7 @@ public final class FullContentHost<Content: View> {
             stableIterations: stableIterations,
             statusBarHidden: measurement.statusBarHidden,
             testHostPath: executable.path,
-            trailingMarkerFrame: marker.frame,
+            trailingMarkerFrame: trailingMarkerFrame,
             viewport: viewport,
             windowBounds: window.bounds,
             windowIsAttached: isAttachedToActiveWindow
@@ -624,21 +628,28 @@ public final class FullContentHost<Content: View> {
             .write(to: directory.appending(path: "geometry.json"), options: .atomic)
     }
 
-    /// Persists every confident read with the window that produced it, in window order. The `reads` indices of
+    /// Persists every raw top candidate with its evidence pass and window, in pass/window order. The `reads` indices of
     /// `censusOccurrences` in `geometry.json` point into this list, so a census failure can be traced to the raw
     /// recognition rather than inferred from the counts.
     private static func writeCensusReads(
-        _ reads: [RenderedContentInspection.Read], windows: [RenderedContentInspection.Window], directory: URL
+        _ reads: [RenderedContentInspection.Read], windows: [RenderedContentInspection.Window],
+        trailingMarkerLanguage: Locale.Language, directory: URL
     ) throws {
         let windowEntries = windows.map({ ["rect": NSCoder.string(for: $0.rect), "scale": $0.scale.rawValue] })
         let readEntries: [[String: Any]] = reads.map { read in
             [
                 "label": read.label, "confidence": read.confidence, "frame": NSCoder.string(for: read.frame),
-                "window": NSCoder.string(for: read.window.rect), "scale": read.window.scale.rawValue
+                "window": NSCoder.string(for: read.window.rect), "scale": read.window.scale.rawValue,
+                "pass": read.pass.rawValue
             ]
         }
         try JSONSerialization.data(
-            withJSONObject: ["windows": windowEntries, "reads": readEntries], options: [.prettyPrinted, .sortedKeys]
+            withJSONObject: [
+                "windows": windowEntries, "reads": readEntries,
+                "fixtureMarkerLanguage": "en", "fixtureMarkerMinimumConfidence": 0.8,
+                "trailingMarkerLanguage": trailingMarkerLanguage.minimalIdentifier,
+                "trailingMarkerAcceptance": "exact identity, interior acceptance, location merge and capture bounds"
+            ], options: [.prettyPrinted, .sortedKeys]
         )
             .write(to: directory.appending(path: "census-reads.json"), options: .atomic)
     }

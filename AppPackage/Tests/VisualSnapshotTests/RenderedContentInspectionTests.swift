@@ -202,17 +202,156 @@ final class RenderedContentInspectionTests: XCTestCase {
         expectNoDifference(duplicated, twiceVC3)
     }
 
-    private static func read(_ label: String, _ frame: CGRect, in window: Inspection.Window) -> Inspection.Read {
-        Inspection.Read(label: label, confidence: 1, frame: frame, window: window)
+    /// Native UI labels use their coordinate's language while public artwork markers remain Latin.
+    @MainActor
+    func testVisionRecognizesLocalizedTrailingLabelsAlongsideLatinMarkers() async throws {
+        let labels = ["en": "Other", "de": "Sonstiges", "ja": "その他", "ko": "기타",
+                      "zh-Hans": "其它", "zh-Hant": "其他"]
+        for identifier in labels.keys.sorted() {
+            let label = try XCTUnwrap(labels[identifier])
+            let rendered = try Self.localizedCanvas(label: label)
+            let attachment = XCTAttachment(image: rendered)
+            attachment.name = "localized-census-\(identifier)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            let reads = try await Self.localizedReads(rendered, label: label, language: identifier)
+            let markers = try Inspection.occurrences(of: reads, imageSize: rendered.size, words: ["VH1"])
+            let headings = try Inspection.occurrences(
+                of: reads, imageSize: rendered.size, words: [label], pass: .trailingMarker
+            )
+            expectNoDifference(markers.map(\.label), ["VH1"], "\(identifier): fixture pass")
+            expectNoDifference(headings.map(\.label), [label], "\(identifier): trailing pass")
+            _ = try Inspection.trailingMarkerFrame(
+                label, occurrences: headings, imageSize: rendered.size,
+                requiredHeight: rendered.size.height, scale: rendered.scale
+            )
+        }
+    }
+
+    func testPassAcceptanceKeepsMarkerConfidenceAndSeparatesLanguages() throws {
+        let frame = CGRect(x: 20, y: 300, width: 36, height: 20)
+        let reads = [
+            Self.read("VC1", frame, in: Self.fineWindow, confidence: 0.5),
+            Self.read("VC3", frame, in: Self.fineWindow, confidence: 0.8),
+            Self.read("VC7", frame, in: Self.fineWindow, pass: .trailingMarker),
+            Self.read("其他", frame, in: Self.fineWindow, confidence: 0.3, pass: .trailingMarker),
+            Self.read("其他", frame, in: Self.fineWindow)
+        ]
+        expectNoDifference(
+            try Inspection.occurrences(of: reads, imageSize: Self.imageSize, words: Self.censusWords),
+            [Inspection.Occurrence(label: "VC3", frame: frame, readIndices: [1])]
+        )
+        expectNoDifference(
+            try Inspection.occurrences(of: reads, imageSize: Self.imageSize, words: ["其他"], pass: .trailingMarker),
+            [Inspection.Occurrence(label: "其他", frame: frame, readIndices: [3])]
+        )
+    }
+
+    @MainActor
+    func testCJKPassesStillRejectMissingHeadingAndCountDuplicateMarkers() async throws {
+        let blanked = try Self.localizedCanvas(label: "其他", includeHeading: false)
+        let blankedReads = try await Self.localizedReads(blanked, label: "其他", language: "zh-Hant")
+        let blankedHeadings = try Inspection.occurrences(
+            of: blankedReads, imageSize: blanked.size, words: ["其他"], pass: .trailingMarker
+        )
+        XCTAssertThrowsError(try Inspection.trailingMarkerFrame(
+            "其他", occurrences: blankedHeadings, imageSize: blanked.size,
+            requiredHeight: blanked.size.height, scale: blanked.scale
+        )) { error in
+            guard case .missingTrailingMarker(let label) = error as? FullContentHostError else {
+                return XCTFail("Unexpected error: \(error)")
+            }
+            expectNoDifference(label, "其他")
+        }
+        let remainingMarkers = try Inspection.occurrences(of: blankedReads, imageSize: blanked.size, words: ["VH1"])
+        expectNoDifference(remainingMarkers.map(\.label), ["VH1"])
+
+        let duplicated = try Self.localizedCanvas(label: "其他", duplicateMarker: true)
+        let duplicatedReads = try await Self.localizedReads(duplicated, label: "其他", language: "zh-Hant")
+        let markers = try Inspection.occurrences(of: duplicatedReads, imageSize: duplicated.size, words: ["VH1"])
+        expectNoDifference(markers.map(\.label), ["VH1", "VH1"])
+        let headings = try Inspection.occurrences(
+            of: duplicatedReads, imageSize: duplicated.size, words: ["其他"], pass: .trailingMarker
+        )
+        expectNoDifference(headings.map(\.label), ["其他"])
+    }
+
+    func testTrailingMarkerRequiresContainedFrameAndCompleteContentHeight() throws {
+        let size = CGSize(width: 420, height: 420)
+        let frame = CGRect(x: 20, y: 300, width: 40, height: 20)
+        let occurrence = Inspection.Occurrence(label: "其他", frame: frame, readIndices: [0])
+        expectNoDifference(try Inspection.trailingMarkerFrame(
+            "其他", occurrences: [occurrence], imageSize: size, requiredHeight: 420, scale: 3
+        ), frame)
+        for outside in [frame.offsetBy(dx: 410, dy: 0), CGRect(x: 20, y: 300, width: 40, height: 0)] {
+            XCTAssertThrowsError(try Inspection.trailingMarkerFrame(
+                "其他", occurrences: [.init(label: "其他", frame: outside, readIndices: [0])],
+                imageSize: size, requiredHeight: 420, scale: 3
+            ))
+        }
+        XCTAssertThrowsError(try Inspection.trailingMarkerFrame(
+            "其他", occurrences: [occurrence], imageSize: size, requiredHeight: 421, scale: 3
+        ))
+    }
+
+    private static func read(
+        _ label: String, _ frame: CGRect, in window: Inspection.Window,
+        confidence: Float = 1, pass: Inspection.Pass = .fixtureMarkers
+    ) -> Inspection.Read {
+        Inspection.Read(label: label, confidence: confidence, frame: frame, window: window, pass: pass)
+    }
+
+    @MainActor
+    private static func localizedCanvas(
+        label: String, includeHeading: Bool = true, duplicateMarker: Bool = false
+    ) throws -> UIImage {
+        let size = CGSize(width: 420, height: duplicateMarker ? 840 : 420)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3
+        format.opaque = true
+        let artwork = PublicVisualFixtures.artwork(marker: "VH1", colorIndex: 0)
+        let titleFont = UIFont.preferredFont(forTextStyle: .title3)
+        let boldDescriptor = try XCTUnwrap(titleFont.fontDescriptor.withSymbolicTraits(.traitBold))
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            artwork.draw(in: CGRect(x: 40, y: 24, width: 160, height: 220))
+            if duplicateMarker {
+                artwork.draw(in: CGRect(x: 40, y: 444, width: 160, height: 220))
+            }
+            if includeHeading {
+                (label as NSString).draw(
+                    at: CGPoint(x: 40, y: size.height - 120),
+                    withAttributes: [.font: UIFont(descriptor: boldDescriptor, size: 0),
+                                     .foregroundColor: UIColor.black]
+                )
+            }
+        }
+    }
+
+    private static func localizedReads(
+        _ image: UIImage, label: String, language: String
+    ) async throws -> [Inspection.Read] {
+        try await Inspection.reads(
+            in: XCTUnwrap(image.cgImage), imageSize: image.size,
+            windows: Inspection.windows(imageSize: image.size, viewportHeight: 420),
+            markerWords: ["VH1"], trailingMarker: label, trailingMarkerLanguage: Locale.Language(identifier: language)
+        )
     }
 
     /// The census exactly as the capture host computes it, keyed by marker.
     private static func census(of canvas: CommentCanvas, words: [String]) async throws -> [String: Int] {
         let windows = Inspection.windows(imageSize: canvas.size, viewportHeight: CommentCanvas.viewportHeight)
         let reads = try await Inspection.reads(
-            in: canvas.image, imageSize: canvas.size, windows: windows, words: words
+            in: canvas.image, imageSize: canvas.size, windows: windows,
+            markerWords: words.filter({ $0 != CommentCanvas.trailingMarker }),
+            trailingMarker: CommentCanvas.trailingMarker
         )
-        let occurrences = try Inspection.occurrences(of: reads, imageSize: canvas.size, words: Set(words))
+        let occurrences = try Inspection.occurrences(
+            of: reads, imageSize: canvas.size, words: Set(words.filter({ $0 != CommentCanvas.trailingMarker }))
+        ) + Inspection.occurrences(
+            of: reads, imageSize: canvas.size, words: [CommentCanvas.trailingMarker], pass: .trailingMarker
+        )
         return Dictionary(uniqueKeysWithValues: words.map { word in
             (word, occurrences.filter({ $0.label == word }).count)
         })
