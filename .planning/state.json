@@ -86,13 +86,13 @@
     {
       "number": "17",
       "name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 17 of 17 · 59% · executing"
+    "command": "/gsd:progress",
+    "label": "Show progress",
+    "reason": "Unsure of state — showing progress"
   },
-  "updated_at": "2026-10-02T02:12:29.124Z"
+  "updated_at": "2026-10-04T09:14:55.328Z"
 }
