@@ -1,23 +1,23 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T09:15:51.244078+00:00",
+  "timestamp": "2026-10-04T09:38:59.606906+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
-  "plan": 24,
+  "plan": 2,
   "task": 1,
   "total_tasks": 2,
-  "status": "ready-for-17-24-environment-measurement",
+  "status": "ready-for-17-02-tracer-matrix",
   "completed_tasks": [],
   "remaining_tasks": [
     {
       "id": 1,
-      "name": "17-24-T1: Measure both real destinations through the hosted geometry test",
+      "name": "17-02-T1: Execute and account for one parameterized scenario across complete axes",
       "status": "pending"
     },
     {
       "id": 2,
-      "name": "17-24-T2: Author and validate the tracked rendering pin from verified measurements",
+      "name": "17-02-T2: Prove actual complete tracer execution and coordinate accounting",
       "status": "pending"
     }
   ],
@@ -123,8 +123,8 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     "?? .capture/"
   ],
-  "next_action": "Continue inline with 17-24 Task 1 TDD: actual hosted geometry and environment measure/validate. Commit verified Task 1 before authoring the tracked pin in Task 2; then 17-02.",
-  "context_notes": "17-01 is complete. No census action remains. Use dependency order 17-01,17-24,17-02. Preserve the four reserved staged entries; use scoped commits; do not spawn agents or push.",
+  "next_action": "Continue inline with 17-02 Task 1 TDD; consume verified public v2 fixtures and immutable rendering pin. Run all 576 tracer coordinates for Task 2.",
+  "context_notes": "17-01 and 17-24 are complete. No census action remains. Preserve four reserved staged entries; scoped commits; no agents or push.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1166,6 +1166,18 @@
         "ui": "passed",
         "codebaseDrift": "nonblocking advisory; no mapper requested"
       }
+    },
+    "environment_pin": {
+      "source_checkpoint": "af5db7dd",
+      "summary_commit": "3ed57d4f",
+      "measurement": ".capture/environment-measurement",
+      "validation": ".capture/environment-pin-check",
+      "pin": "Scripts/visual/regression-environment.json",
+      "pinSHA256": "ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a",
+      "geometryMeasurementsPerRun": 4,
+      "nativePassesPerRun": 10,
+      "contractTests": 28,
+      "status": "passed"
     }
   },
   "recovery_logs": [
@@ -1175,22 +1187,21 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Only the four reserved owner-staged entries and disposable .capture/ are expected after the continuity commit. .capture/regression was refreshed from the verified canonical v2 exporter, with the previous tree backed up under final evidence.",
-  "source_checkpoint": "9b7074d2",
+  "source_checkpoint": "af5db7dd",
   "previous_plan_tasks": [
     {
       "id": 1,
-      "name": "17-01-T1: Trace actual Home full-content capture",
-      "status": "complete",
-      "evidence": "3/3 actual tests passed, exact census/native pixel parity/restored geometry; no warnings or Repetition nodes."
+      "name": "17-24-T1: Measure actual native geometry",
+      "status": "complete"
     },
     {
       "id": 2,
-      "name": "17-01-T2: Prove List/reader completeness and export public fixtures",
-      "status": "complete",
-      "evidence": "32/32 coordinates, 66/66 tests, 41 audited fixture exports; final source 9b7074d2."
+      "name": "17-24-T2: Author and validate immutable rendering pin",
+      "status": "complete"
     }
   ],
   "completed_plans": [
-    "17-01"
+    "17-01",
+    "17-24"
   ]
 }

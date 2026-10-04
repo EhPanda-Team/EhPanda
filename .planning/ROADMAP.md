@@ -61,7 +61,7 @@ Plans:
 - [x] 01-01-PLAN.md — Wave 0 conversion/color fixture lock and simulator validation
 - [x] 01-02-PLAN.md — Wave 0 markdown/domain-fronting fixture lock
 
-**Wave 2** *(ready; 17-01 complete)*
+**Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 01-03-PLAN.md — Local SwiftyOpenCC module and FileClient adoption
 
@@ -693,7 +693,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Analytics Instrumentation (TelemetryDeck) | 18/18 | Complete    | 2026-07-27 |
 | 15. Continued Background Downloads | 77/77 | Complete    | 2026-08-19 |
 | 16. Dynamic Type Accessibility | 26/26 | Complete    | 2026-09-23 |
-| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 1/24 | In Progress|  |
+| 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 2/24 | In Progress|  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1259,18 +1259,18 @@ Plans:
 - Accepted designer-created promotional assets resolve through a validated local AltStore handoff.
 - Full-content, clean integration, chrome and repeatability gates halt execution when unproven; no silent substitutions or scope reductions.
 
-**Plans**: 1/24 plans executed and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
+**Plans**: 2/24 plans executed and53 tasks in24 sequential waves. Execute17-01,17-24 (wave2, measured environment then tracked pin),17-02–17-07,17-11 (wave9),17-08 (wave10),17-09 (wave11),17-10 (wave12), then17-12–17-23. Native dispatch precedes expansion.17-14-T3 runs complete clean-checkout/Release acceptance only after17-14-T1 andT2 verify and commit their producers.
 
 Plans:
 **Wave 1**
 
 - [x] 17-01-PLAN.md — Prove clean SnapshotTesting and actual-screen full-content capture
 
-**Wave 2** *(blocked on Wave 1 completion)*
+**Wave 2** *(complete)*
 
-- [ ] 17-24-PLAN.md — Measure actual geometry and validate the tracked rendering pin before matrix production
+- [x] 17-24-PLAN.md — Measure actual geometry and validate the tracked rendering pin before matrix production
 
-**Wave 3** *(blocked on Wave 2 completion)*
+**Wave 3** *(ready; 17-24 complete)*
 
 - [ ] 17-02-PLAN.md — Run explicit complete regression coordinates using the verified environment pin
 
