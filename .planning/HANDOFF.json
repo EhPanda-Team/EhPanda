@@ -1,28 +1,37 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T09:38:59.606906+00:00",
+  "timestamp": "2026-10-04T12:15:01.003403+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
-  "task": 1,
+  "task": 2,
   "total_tasks": 2,
-  "status": "ready-for-17-02-tracer-matrix",
-  "completed_tasks": [],
-  "remaining_tasks": [
+  "status": "executing-17-02-complete-tracer-matrix",
+  "completed_tasks": [
     {
       "id": 1,
-      "name": "17-02-T1: Execute and account for one parameterized scenario across complete axes",
-      "status": "pending"
-    },
+      "name": "Explicit pinned hosted matrix producer",
+      "commit": "624fddfed6",
+      "status": "complete"
+    }
+  ],
+  "remaining_tasks": [
     {
       "id": 2,
-      "name": "17-02-T2: Prove actual complete tracer execution and coordinate accounting",
-      "status": "pending"
+      "name": "Prove actual complete tracer execution and coordinate accounting",
+      "status": "in_progress"
     }
   ],
   "blockers": [],
-  "async_jobs": [],
+  "async_jobs": [
+    {
+      "kind": "owned-local-process",
+      "session_id": 3605,
+      "description": "All 576 Task 2 Home coordinates with immutable preflight",
+      "log": "/tmp/ehpanda-phase17-tracer-matrix.log"
+    }
+  ],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -114,17 +123,29 @@
       "decision": "Adopt two-scale location-merged OCR with exact-once census unchanged; close 17-01 after the final-tree gate.",
       "rationale": "Owner supplied 898fb65afb/1d67c4b218/f12ecb8333; current 32/32 matrix and all native suites pass.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner approves separate English fixture-marker and native-language trailing-label evidence passes (A-D).",
+      "rationale": "Simulator research reproduces language-first marker regressions and correct CJK headings at confidence 0.5; heading exact identity and geometry replace its uncalibrated confidence floor while fixture markers retain English >=0.8.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
+    " M .planning/HANDOFF.json",
+    " M .planning/STATE.md",
     "A  .planning/milestone.lock",
+    " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     "M  EhPanda.xcodeproj/project.pbxproj",
-    "?? .capture/"
+    " M Scripts/visual/test_contracts.py",
+    "?? .capture/",
+    "?? .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
+    "?? .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md"
   ],
-  "next_action": "Continue inline with 17-02 Task 1 TDD; consume verified public v2 fixtures and immutable rendering pin. Run all 576 tracer coordinates for Task 2.",
-  "context_notes": "17-01 and 17-24 are complete. No census action remains. Preserve four reserved staged entries; scoped commits; no agents or push.",
+  "next_action": "Wait for the actual full matrix; audit all 576 outcomes and provenance before Task 2 commit, review, summary or plan completion.",
+  "context_notes": "17-01/17-24 complete; 17-02 Task 1 committed 624fddfed6. OCR focused/32-coordinate/six-locale native gates passed. Task 2 contracts 55/55, actual 576 matrix running. Preserve four staged owner entries; no subagents/push.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1178,6 +1199,43 @@
       "nativePassesPerRun": 10,
       "contractTests": 28,
       "status": "passed"
+    },
+    "matrix_task1": {
+      "red_commit": "e93c2a2033",
+      "matrixContracts": 18,
+      "environmentContracts": 28,
+      "localizedHome": ".capture/tracer-zh-hant-02",
+      "localizedHomeStatus": "passed; reduced coverage 1/576",
+      "failedFullGate": "/tmp/ehpanda-phase17-localized-ocr-gate-01",
+      "failedFullGateTests": {
+        "passed": 27,
+        "failed": 1
+      },
+      "focusedOCR": "/tmp/ehpanda-phase17-localized-ocr-focused-01",
+      "focusedOCRStatus": "native tests finished with multilingual synthetic case failing; Xcode collecting diagnostics",
+      "integrationNotes": ".planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md"
+    },
+    "localized_ocr_probe": {
+      "directory": "/tmp/ehpanda-phase17-ocr-language-probe",
+      "result": "/tmp/ehpanda-phase17-ocr-language-probe/RESULTS.md",
+      "test_count": 1,
+      "informational_only": true,
+      "temporary_test_source_removed": true,
+      "simulator_state_restored": true
+    },
+    "localized_passes_focused": {
+      "directory": "/tmp/ehpanda-phase17-localized-ocr-focused-02",
+      "phone_tests": 15,
+      "tablet_tests": 15,
+      "status": "passed",
+      "runtime_warnings": 0
+    },
+    "localized_passes_full_gate": {
+      "directory": "/tmp/ehpanda-phase17-localized-passes-gate-01",
+      "status": "passed",
+      "coordinates": 32,
+      "native_tests": 74,
+      "independent_audit": "localized-passes-audit.json"
     }
   },
   "recovery_logs": [
@@ -1186,8 +1244,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Only the four reserved owner-staged entries and disposable .capture/ are expected after the continuity commit. .capture/regression was refreshed from the verified canonical v2 exporter, with the previous tree backed up under final evidence.",
-  "source_checkpoint": "3e69dc69d3",
+  "uncommitted_files_note": "Task 2 contract additions and planning updates remain, plus four protected owner-staged entries and .capture evidence.",
+  "source_checkpoint": "624fddfed6",
   "previous_plan_tasks": [
     {
       "id": 1,

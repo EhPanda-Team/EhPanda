@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: Completed 17-24; next dependency is 17-02 (wave 3)
-last_updated: "2026-10-04T09:39:09.123Z"
+stopped_at: 17-02 Task 1 complete; full 576-coordinate Task 2 matrix running
+last_updated: "2026-10-04T10:27:32.066331+00:00"
 last_activity: 2026-10-04
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: 3e69dc69d3
-last_activity_desc: "17-24 complete: immutable native rendering pin verified; next 17-02 tracer matrix"
+source_head: 624fddfed6
+last_activity_desc: "17-02 Task 1 GREEN; full 576-coordinate matrix running"
 ---
 
 # Project State
@@ -32,10 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01 and 17-24 complete; ready for the hosted tracer matrix
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 full matrix running
 Last activity: 2026-10-04
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
+
+**17-02 active verification:** Task 1 committed in 624fddfed6 after the owner-approved OCR passes, 32/32 compatibility captures / 74 native tests, and six real Home locales passed. Task 2's explicit identity/order/empty contracts pass; Python total is 55/55. The actual full 576-coordinate run is active at `.capture/tracer-matrix/`. No complete-run result or 17-02 SUMMARY exists yet. See `phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md`.
 
 ## Historical round-2 status snapshots
 
@@ -1008,8 +1010,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T09:38:13.556Z
-Stopped at: Completed 17-24; next dependency is 17-02 (wave 3)
+Last session: 2026-10-04T10:27:32.066331+00:00
+Stopped at: 17-02 Task 1 localized OCR checkpoint; raw language probe completed
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
