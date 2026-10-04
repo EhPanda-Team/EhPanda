@@ -93,6 +93,9 @@ EhPanda/
   `EhPandaUITests/VisualCaptureOrientationUITests.swift` rotates the simulator between
   hosted invocations; `Scripts/verify-full-content-capture.py` owns sequential verification.
   `.capture/` contains disposable local outputs, not approved image baselines.
+  `Scripts/visual/environment.py` measures and validates native rendering against the
+  immutable `regression-environment.json` pin; `GeometryTests.swift` supplies named
+  actual-window attachments for both families and orientations.
 
 ## Naming Conventions
 
