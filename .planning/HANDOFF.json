@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T17:09:02.354559+00:00",
+  "timestamp": "2026-10-04T23:43:55.659573+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-artwork-clip-contract",
+  "status": "checkpoint-17-02-landscape-corner-seam",
   "completed_tasks": [
     {
       "id": 1,
@@ -24,11 +24,11 @@
     }
   ],
   "blockers": [
-    "Artwork content comparison assumes radius-sized corner squares contain all clip blending; actual continuous corners extend to 22–23 pixels at 3x rather than 15. The AX5 Home capture remains failed."
+    "iPad landscape AX5 Downloads strict seam fails at four one-level blue-channel differences on VD15 continuous corners, despite 1:1 source artwork."
   ],
   "async_jobs": [],
   "human_actions_pending": [
-    "Review the continuous-clip verification problem with the research agent; prompt: /tmp/ehpanda-phase17-cover-snap-corners/research-prompt.txt.",
+    "Review the new read-to-read continuous-corner seam problem with the research agent; prompt: /tmp/ehpanda-phase17-ipad-landscape-seam/research-prompt.txt.",
     "Owner choice on the separate constant-viewport-height read proposal remains unanswered and unapplied."
   ],
   "decisions": [
@@ -141,12 +141,18 @@
       "decision": "Orchestrator adopts shared production height-first pixel sizing and exact artwork-content checks from cover-snapping research.",
       "rationale": "Actual compact dimensions now match. The proposed corner exclusion fails on continuous clipping and remains unresolved; no source tolerance or wider empirical exclusion is adopted.",
       "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts shared production clip shape and path-derived corner extent for source-content verification.",
+      "rationale": "Corrects circular-radius assumption; original Home and 186 matrix artwork images pass. Native parity and seams retain every pixel; the new landscape seam remains unresolved.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
+    " M .planning/HANDOFF.json",
     " M .planning/STATE.md",
-    " M .planning/debug/iphone-ax5-artwork-extent.md",
+    " M .planning/debug/artwork-continuous-clip.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-FIXTURES.md",
@@ -170,10 +176,10 @@
     " M Scripts/visual/contracts.py",
     " M Scripts/visual/test_contracts.py",
     "?? .capture/",
-    "?? .planning/debug/artwork-continuous-clip.md"
+    "?? .planning/debug/ipad-landscape-ax5-downloads-seam.md"
   ],
-  "next_action": "Reconcile the fully-inside-clip artwork comparison contract using the retained evidence, then rerun actual AX5 Home and the compatibility set before the 576-coordinate tracer.",
-  "context_notes": "Production/fixture height-first pixel sizing implemented and focused-tested; compact covers all measure 246 x 338. New exact-content check fails only near continuous corners. No wider mask exclusion or origin correction adopted.",
+  "next_action": "Resolve the landscape VD15 corner seam read geometry from retained evidence, then revalidate the failed coordinate and full compatibility before restarting 576 tracer coordinates.",
+  "context_notes": "Source-content mask is verified. New seam failure compares every pixel and is independent of source-mask exclusion. Full gate: 24 accepted / 26 successful artifacts / one failure / five unexecuted; 92 native passes and one failure. Devices restored, no jobs.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1305,8 +1311,8 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 producer, render read correction, v3 fixtures, shared production pixel sizing and content verification remain WIP. Two artwork files remain staged for native hash coverage; four owner-staged entries are unchanged.",
-  "source_checkpoint": "a5043dd258",
+  "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing and shared clip/source verification remain WIP. Two artwork files stay staged for source hashing. Four reserved owner entries and all .capture evidence are preserved.",
+  "source_checkpoint": "d294ac304c",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1390,6 +1396,57 @@
       "unwind_diagnostic": "InvalidTransition idle -> failed(deinit), cause not diagnosed",
       "post_test_diagnostic_collector_terminated": 94357,
       "test_processes_interrupted": false
+    },
+    "production_clip_extent": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/corner-clip/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-clip-extent-red-01",
+      "focused": "/tmp/ehpanda-phase17-clip-extent-green-01",
+      "focused_tests": 15,
+      "focused_status": "passed",
+      "home_compared_pixels": 761315,
+      "home_differing_pixels": 0,
+      "invalid_transition_absent": true,
+      "compatibility": "/tmp/ehpanda-phase17-clip-extent-gate-01",
+      "compatibility_status": "failed at ipad-landscape-AX5-downloads seamMismatch(1)",
+      "accepted_coordinates": 24,
+      "captured_artifacts": 26,
+      "failed_coordinates": 1,
+      "unexecuted_coordinates": 5,
+      "native_passed": 92,
+      "native_failed": 1,
+      "checked_artwork_images": 186,
+      "checked_artwork_pixels": 273497908,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "diagnostic_processes_interrupted": false
+    },
+    "landscape_corner_seam": {
+      "evidence": "/tmp/ehpanda-phase17-ipad-landscape-seam",
+      "read_frames_points": [
+        [
+          0,
+          640,
+          1210,
+          4095
+        ],
+        [
+          0,
+          4536,
+          1210,
+          660
+        ]
+      ],
+      "seam_points": [
+        0,
+        4607,
+        1210,
+        64
+      ],
+      "differing_pixels": 4,
+      "maximum_channel_difference": 1,
+      "artwork": "VD15",
+      "offline_source_comparison_pixels": 64376,
+      "offline_source_comparison_differences": 0
     }
   }
 }
