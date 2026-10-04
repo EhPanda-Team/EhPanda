@@ -16,6 +16,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 FEASIBILITY = "VisualSnapshotTests/FullContentFeasibilityTests/"
 ROTATION = "EhPandaUITests/VisualCaptureOrientationUITests/"
+CONTENT_SIZES = {"large": "large", "AX5": "accessibility-extra-extra-extra-large"}
 NATIVE_TESTS = [
     FEASIBILITY + name for name in (
         "testExportPublicFixtures", "testExportRendersReaderPagesAtRequestedPixelWidth",
@@ -93,6 +94,7 @@ class Gate:
     @contextmanager
     def simulator_session(self, family, device):
         original = self.simulator_state(device)
+        original_content_size = None
         self.lifecycle = {
             "family": family, "device": device, "originalState": original,
             "bootedByGate": original != "Booted", "samples": [],
@@ -106,30 +108,67 @@ class Gate:
                     subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
             if self.record_simulator_state("session-ready") != "Booted":
                 raise RuntimeError(f"{family} simulator did not remain Booted after bootstatus")
+            observed_size = subprocess.check_output(
+                ["xcrun", "simctl", "ui", device, "content_size"], text=True
+            ).strip()
+            save_json(self.output / f"{family}-original.content-size.json", {
+                "device": device, "observed": observed_size,
+            })
+            if observed_size in ("", "unknown", "unsupported"):
+                raise RuntimeError(f"{family}: cannot preserve original content size {observed_size!r}")
+            original_content_size = observed_size
+            self.lifecycle["originalContentSize"] = original_content_size
+            save_json(self.output / f"{family}-simulator-lifecycle.json", self.lifecycle)
             yield
         finally:
             try:
-                if self.lifecycle["bootedByGate"] and self.simulator_state(device) != "Shutdown":
-                    command = ["xcrun", "simctl", "shutdown", device]
-                    save_json(self.output / f"{family}-shutdown.command.json", command)
-                    with (self.output / f"{family}-shutdown.log").open("w") as stream:
-                        subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
+                if original_content_size is not None:
+                    self.lifecycle["restoredOriginalContentSize"] = False
+                    self.set_content_size(f"{family}-restore", device, original_content_size)
+                    self.lifecycle["restoredOriginalContentSize"] = True
             finally:
-                final = self.record_simulator_state("after-session")
-                expected = "Shutdown" if self.lifecycle["bootedByGate"] else "Booted"
-                self.lifecycle["restoredOriginalState"] = final == expected
-                save_json(self.output / f"{family}-simulator-lifecycle.json", self.lifecycle)
-                self.lifecycle = None
+                try:
+                    if self.lifecycle["bootedByGate"] and self.simulator_state(device) != "Shutdown":
+                        command = ["xcrun", "simctl", "shutdown", device]
+                        save_json(self.output / f"{family}-shutdown.command.json", command)
+                        with (self.output / f"{family}-shutdown.log").open("w") as stream:
+                            subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
+                finally:
+                    final = self.record_simulator_state("after-session")
+                    expected = "Shutdown" if self.lifecycle["bootedByGate"] else "Booted"
+                    self.lifecycle["restoredOriginalState"] = final == expected
+                    save_json(self.output / f"{family}-simulator-lifecycle.json", self.lifecycle)
+                    self.lifecycle = None
             if final != expected:
                 raise RuntimeError(f"{family} simulator cleanup left {final}; expected {expected}")
 
-    def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False):
+    def set_content_size(self, name, device, requested):
+        command = ["xcrun", "simctl", "ui", device, "content_size", requested]
+        result = subprocess.run(command, capture_output=True, text=True)
+        readback = subprocess.run(command[:-1], capture_output=True, text=True)
+        observed = readback.stdout.strip()
+        save_json(self.output / f"{name}.content-size.json", {
+            "device": device, "command": command, "requested": requested, "observed": observed,
+            "exitCode": result.returncode, "stdout": result.stdout, "stderr": result.stderr,
+            "readbackExitCode": readback.returncode, "readbackStderr": readback.stderr,
+            "matched": result.returncode == 0 and readback.returncode == 0 and observed == requested,
+        })
+        result.check_returncode()
+        readback.check_returncode()
+        if observed != requested:
+            raise RuntimeError(f"{name}: content size {observed!r} does not match {requested!r}")
+
+    def run(self, name, actions, plan, device, tests=(), expected_count=None, cleanup=False, content_size=None):
         if not cleanup and source_hashes() != self.sources:
             raise RuntimeError("Sources changed during the gate; start a fresh run.")
         if self.lifecycle is None or self.lifecycle["device"] != device:
             raise RuntimeError(f"{name} has no simulator session for {device}")
         if self.record_simulator_state(f"before-{name}") != "Booted":
             raise RuntimeError(f"{name}: simulator stopped between invocations; rotation is no longer trustworthy")
+        if plan == "FeatureTests":
+            if content_size is None:
+                raise RuntimeError(f"{name}: FeatureTests requires an explicit device content size")
+            self.set_content_size(name, device, content_size)
         bundle = self.output / f"{name}.xcresult"
         if expected_count is None:
             command = ["xcodebuild", *actions, *self.common, "-testPlan", plan]
@@ -211,14 +250,14 @@ class Gate:
                             raise RuntimeError(f"Unsafe attachment path: {entry.filename}")
                     zipped.extractall(destination)
 
-    def verify_matrix(self, name, family, orientation):
+    def verify_matrix(self, name, family, orientation, size):
         files = list((self.output / f"{name}-attachments").rglob("outcomes.json"))
         if len(files) != 1:
             raise RuntimeError(f"{name}: expected one outcomes.json, found {len(files)}")
         outcomes = json.loads(files[0].read_text())
         expected = {f"{family}-{orientation}-{size}-{shape}"
-                    for size in ("large", "AX5") for shape in ("home", "comments", "downloads", "reader")}
-        if (len(outcomes) != 8 or {item["coordinate"] for item in outcomes} != expected
+                    for shape in ("home", "comments", "downloads", "reader")}
+        if (len(outcomes) != 4 or {item["coordinate"] for item in outcomes} != expected
                 or any(item["status"] != "captured" for item in outcomes)):
             raise RuntimeError(f"{name}: incomplete coordinate coverage")
         for coordinate in sorted(expected):
@@ -227,10 +266,19 @@ class Gate:
                 if json.loads((directory / filename).read_text())["matched"] is not True:
                     raise RuntimeError(f"{coordinate}: {filename} failed")
             self.verify_size_classes(json.loads((directory / "geometry.json").read_text()), coordinate)
+            self.verify_content_size(directory)
             acceptance = json.loads((directory / "acceptance.json").read_text())
             if acceptance["coordinate"] != coordinate or acceptance["status"] != "captured":
                 raise RuntimeError(f"{coordinate}: missing acceptance")
         return outcomes
+
+    @staticmethod
+    def verify_content_size(directory):
+        evidence = json.loads((directory / "content-size-readiness.json").read_text())
+        if (evidence["matched"] is not True
+                or evidence["appCategory"] != evidence["requestedCategory"]
+                or evidence["sceneCategory"] != evidence["requestedCategory"]):
+            raise RuntimeError(f"{directory.name}: app/scene content size mismatch: {evidence}")
 
     @staticmethod
     def verify_size_classes(geometry, coordinate):
@@ -247,6 +295,7 @@ class Gate:
             raise RuntimeError("Expected one AX5 Comments geometry result")
         geometry = json.loads(geometries[0].read_text())
         self.verify_size_classes(geometry, "iphone-portrait-AX5-comments")
+        self.verify_content_size(geometries[0].parent.parent)
         parity = json.loads((geometries[0].parent / "native-viewport-parity.json").read_text())
         evidence = {
             "outputSize": geometry["outputSize"], "displayScale": geometry["displayScale"],
@@ -270,7 +319,8 @@ class Gate:
         for family, device in (("iphone", self.args.phone), ("ipad", self.args.tablet)):
             with self.simulator_session(family, device):
                 if family == "iphone":
-                    self.run("clean-feature-build", ["clean", "build-for-testing"], "FeatureTests", device)
+                    self.run("clean-feature-build", ["clean", "build-for-testing"], "FeatureTests", device,
+                             content_size=CONTENT_SIZES["large"])
                     self.run("orientation-build", ["build-for-testing"], "UITests", device)
                     self.single_pass_run("FeatureTests")
                     self.single_pass_run("UITests")
@@ -279,20 +329,25 @@ class Gate:
                              [ROTATION + "testRotateToPortrait"], 1)
                     tests = NATIVE_TESTS + (["VisualSnapshotTests/VisualTracerTests"] if family == "iphone" else [])
                     self.run(f"{family}-native", ["test-without-building"], "FeatureTests", device,
-                             tests, 16 if family == "iphone" else 13)
-                    if family == "iphone":
-                        self.run("iphone-AX5-comments", ["test-without-building"], "FeatureTests", device,
-                                 [FEASIBILITY + "testAX5CommentsFullContentCapture"], 1)
-                        self.report_comments()
+                             tests, 16 if family == "iphone" else 13, content_size=CONTENT_SIZES["large"])
                     for orientation in ("portrait", "landscape"):
                         if orientation == "landscape":
                             self.run(f"{family}-rotate-landscape", ["test-without-building"], "UITests", device,
                                      [ROTATION + "testRotateToLandscape"], 1)
-                        name = f"{family}-{orientation}"
-                        self.run(name, ["test-without-building"], "FeatureTests", device,
-                                 [FEASIBILITY + f"test{orientation.title()}FullContentMatrix"], 1)
-                        outcomes += self.verify_matrix(name, family, orientation)
-                        save_json(self.output / "matrix-outcomes.json", outcomes)
+                        sizes = ("large", "AX5") if orientation == "portrait" else ("AX5", "large")
+                        for size in sizes:
+                            if family == "iphone" and orientation == "portrait" and size == "AX5":
+                                self.run("iphone-AX5-comments", ["test-without-building"], "FeatureTests", device,
+                                         [FEASIBILITY + "testAX5CommentsFullContentCapture"], 1,
+                                         content_size=CONTENT_SIZES[size])
+                                self.report_comments()
+                            name = f"{family}-{orientation}-{size}"
+                            test_size = "Large" if size == "large" else "AX5"
+                            self.run(name, ["test-without-building"], "FeatureTests", device,
+                                     [FEASIBILITY + f"test{orientation.title()}{test_size}FullContentMatrix"], 1,
+                                     content_size=CONTENT_SIZES[size])
+                            outcomes += self.verify_matrix(name, family, orientation, size)
+                            save_json(self.output / "matrix-outcomes.json", outcomes)
                 finally:
                     self.run(f"{family}-restore-portrait", ["test-without-building"], "UITests", device,
                              [ROTATION + "testRotateToPortrait"], 1, cleanup=True)

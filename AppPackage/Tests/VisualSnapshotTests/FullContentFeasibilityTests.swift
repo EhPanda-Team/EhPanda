@@ -152,17 +152,27 @@ final class FullContentFeasibilityTests: XCTestCase {
     }
 
     @MainActor
-    func testPortraitFullContentMatrix() async throws {
-        try await captureMatrix(landscape: false)
+    func testPortraitLargeFullContentMatrix() async throws {
+        try await captureMatrix(landscape: false, accessibility: false)
     }
 
     @MainActor
-    func testLandscapeFullContentMatrix() async throws {
-        try await captureMatrix(landscape: true)
+    func testPortraitAX5FullContentMatrix() async throws {
+        try await captureMatrix(landscape: false, accessibility: true)
     }
 
     @MainActor
-    private func captureMatrix(landscape: Bool) async throws {
+    func testLandscapeLargeFullContentMatrix() async throws {
+        try await captureMatrix(landscape: true, accessibility: false)
+    }
+
+    @MainActor
+    func testLandscapeAX5FullContentMatrix() async throws {
+        try await captureMatrix(landscape: true, accessibility: true)
+    }
+
+    @MainActor
+    private func captureMatrix(landscape: Bool, accessibility: Bool) async throws {
         let animationsEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
@@ -185,16 +195,16 @@ final class FullContentFeasibilityTests: XCTestCase {
                 .first(where: { $0.activationState == .foregroundActive })
         )
         let family = scene.traitCollection.userInterfaceIdiom == .pad ? "ipad" : "iphone"
-        let coordinates = [false, true].flatMap { accessibility in
-            FeasibilityShape.allCases.map({
-                FeasibilityCoordinate(shape: $0, landscape: landscape, accessibility: accessibility)
-            })
-        }
+        let coordinates = FeasibilityShape.allCases.map({
+            FeasibilityCoordinate(shape: $0, landscape: landscape, accessibility: accessibility)
+        })
+        let category: UIContentSizeCategory = accessibility ? .accessibilityExtraExtraExtraLarge : .large
         var outcomes = coordinates.map({ ["coordinate": $0.key(family: family), "status": "pending"] })
         for (index, coordinate) in coordinates.enumerated() {
             let output = directory.appending(path: coordinate.key(family: family), directoryHint: .isDirectory)
             do {
                 try await Self.requireOrientation(landscape: coordinate.landscape, scene: scene, directory: output)
+                try Self.requireContentSize(category, scene: scene, directory: output)
                 // Exported per coordinate: the page width depends on the orientation, and a fresh path keeps any
                 // image cache from serving a previous coordinate's bytes.
                 let sceneWidth = scene.effectiveGeometry.coordinateSpace.bounds.width
@@ -221,13 +231,10 @@ final class FullContentFeasibilityTests: XCTestCase {
                         .environment(\.colorScheme, .light)
                         .environment(\.locale, Locale(identifier: "en_US"))
                         .environment(\.timeZone, timeZone)
-                        .environment(\.dynamicTypeSize, coordinate.accessibility ? .accessibility5 : .large)
                         .transaction {
                             $0.animation = nil
                             $0.disablesAnimations = true
                         }
-                    let category: UIContentSizeCategory = coordinate.accessibility
-                        ? .accessibilityExtraExtraExtraLarge : .large
                     let host = try await FullContentHost(
                         rootView: root, sampling: VisibleViewportSampling(),
                         samplingKey: \.visibleViewportSampling, frozen: \.isFrozen,
@@ -277,7 +284,7 @@ final class FullContentFeasibilityTests: XCTestCase {
             }
             try Self.writeOutcomes(outcomes, directory: directory)
         }
-        XCTAssertEqual(outcomes.count, 8)
+        XCTAssertEqual(outcomes.count, 4)
         XCTAssertTrue(outcomes.allSatisfy({ $0["status"] == "captured" }))
     }
 }
@@ -388,6 +395,8 @@ private extension FullContentFeasibilityTests {
             attachment.lifetime = .keepAlways
             add(attachment)
         }
+        let category: UIContentSizeCategory = accessibility ? .accessibilityExtraExtraExtraLarge : .large
+        try Self.requireContentSize(category, scene: scene, directory: directory)
         // Downloads and Reader load page and cover images; they take the same image client and reading setting
         // as the full-content matrix.
         let usesMatrixImageSetup = shape == .downloads || shape == .reader
@@ -413,7 +422,6 @@ private extension FullContentFeasibilityTests {
                 .environment(\.colorScheme, .light)
                 .environment(\.locale, Locale(identifier: "en_US"))
                 .environment(\.timeZone, timeZone)
-                .environment(\.dynamicTypeSize, accessibility ? .accessibility5 : .large)
                 .transaction {
                     $0.animation = nil
                     $0.disablesAnimations = true
@@ -421,11 +429,12 @@ private extension FullContentFeasibilityTests {
             let host = try await FullContentHost(
                 rootView: root, sampling: VisibleViewportSampling(),
                 samplingKey: \.visibleViewportSampling, frozen: \.isFrozen,
-                contentSizeCategory: accessibility ? .accessibilityExtraExtraExtraLarge : .large,
+                contentSizeCategory: category,
                 standardImageRange: true,
                 isViewportReady: input.viewportIsReady
             )
             defer { host.dismiss() }
+            XCTAssertEqual(host.viewport.traits.preferredContentSizeCategory, category, file: file, line: line)
             do {
                 let evidence = try await host.capture(
                     expectedItems: input.expectedItems, trailingMarker: input.trailingMarker,
@@ -450,6 +459,20 @@ private extension FullContentFeasibilityTests {
                 throw error
             }
         }
+    }
+
+    @MainActor
+    static func requireContentSize(_ category: UIContentSizeCategory, scene: UIWindowScene, directory: URL) throws {
+        let appCategory = UIApplication.shared.preferredContentSizeCategory
+        let sceneCategory = scene.traitCollection.preferredContentSizeCategory
+        let matched = appCategory == category && sceneCategory == category
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try JSONSerialization.data(withJSONObject: [
+            "requestedCategory": category.rawValue, "appCategory": appCategory.rawValue,
+            "sceneCategory": sceneCategory.rawValue, "matched": matched
+        ], options: [.prettyPrinted, .sortedKeys])
+            .write(to: directory.appending(path: "content-size-readiness.json"), options: .atomic)
+        guard matched else { throw FeasibilityError.contentSizeUnavailable }
     }
 
     @MainActor
@@ -615,5 +638,6 @@ private extension FullContentFeasibilityTests {
 }
 
 private enum FeasibilityError: Error {
+    case contentSizeUnavailable
     case orientationUnavailable
 }

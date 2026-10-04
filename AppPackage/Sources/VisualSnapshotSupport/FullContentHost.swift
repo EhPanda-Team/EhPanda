@@ -75,6 +75,10 @@ public final class FullContentHost<Content: View> {
     /// ``StatusBarAppearanceController``.
     private var companionWindow: UIWindow?
 
+    /// Requires the requested Dynamic Type category to come from the app's system setting.
+    /// A window-only AX5 override over system Large lets the native toolbar re-resolve its glyph from 70×85 to
+    /// 58×70 pixels during layout, or before the reference even settles. Matching the app-level category keeps
+    /// the production 70×85 glyph stable; overriding a second source would make parity an unreliable guarantee.
     public init<Sampling: AnyObject>(
         rootView: Content, sampling: Sampling,
         samplingKey: WritableKeyPath<EnvironmentValues, Sampling?>,
@@ -87,6 +91,11 @@ public final class FullContentHost<Content: View> {
             .compactMap({ $0 as? UIWindowScene })
             .first(where: { $0.activationState == .foregroundActive }) else {
             throw FullContentHostError.noForegroundActiveScene
+        }
+        if let contentSizeCategory, UIApplication.shared.preferredContentSizeCategory != contentSizeCategory {
+            throw FullContentHostError.contentSizeCategoryMismatch(
+                expected: contentSizeCategory, actual: UIApplication.shared.preferredContentSizeCategory
+            )
         }
         self.scene = scene
         self.standardImageRange = standardImageRange
@@ -102,9 +111,6 @@ public final class FullContentHost<Content: View> {
         if standardImageRange {
             window.traitOverrides.displayGamut = .SRGB
             window.traitOverrides.imageDynamicRange = .standard
-        }
-        if let contentSizeCategory {
-            window.traitOverrides.preferredContentSizeCategory = contentSizeCategory
         }
         controller = UIHostingController(rootView: AnyView(
             ViewportSamplingContent(content: rootView, sampling: sampling, key: samplingKey)
@@ -763,6 +769,7 @@ public enum FullContentHostError: Error {
     case captureExtentReset(expected: CGFloat, actual: CGFloat)
     case clippedItem(String)
     case contentDoesNotExceedViewport(CGFloat)
+    case contentSizeCategoryMismatch(expected: UIContentSizeCategory, actual: UIContentSizeCategory)
     case didNotConverge
     case duplicateExpectedItems
     case emptyImage
