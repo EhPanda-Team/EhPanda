@@ -1,0 +1,206 @@
+{
+  "devices": {
+    "ipad": {
+      "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+      "model": "iPad Pro 11-inch (M5)",
+      "modelIdentifier": "iPad17,2",
+      "orientations": {
+        "landscape": {
+          "appearance": 1,
+          "boldTextEnabled": false,
+          "contentSizeCategory": "UICTContentSizeCategoryL",
+          "displayGamut": 1,
+          "fonts": {
+            "body": {
+              "lineHeight": 20.287109375,
+              "name": ".SFUI-Regular",
+              "pointSize": 17
+            },
+            "caption1": {
+              "lineHeight": 14.3203125,
+              "name": ".SFUI-Regular",
+              "pointSize": 12
+            },
+            "title1": {
+              "lineHeight": 33.4140625,
+              "name": ".SFUI-Regular",
+              "pointSize": 28
+            }
+          },
+          "horizontalSizeClass": 2,
+          "legibilityWeight": 0,
+          "nativeScale": 2,
+          "pixels": [
+            2420,
+            1668
+          ],
+          "points": [
+            1210,
+            834
+          ],
+          "safeAreaInsets": [
+            32,
+            0,
+            25,
+            0
+          ],
+          "scale": 2,
+          "verticalSizeClass": 2
+        },
+        "portrait": {
+          "appearance": 1,
+          "boldTextEnabled": false,
+          "contentSizeCategory": "UICTContentSizeCategoryL",
+          "displayGamut": 1,
+          "fonts": {
+            "body": {
+              "lineHeight": 20.287109375,
+              "name": ".SFUI-Regular",
+              "pointSize": 17
+            },
+            "caption1": {
+              "lineHeight": 14.3203125,
+              "name": ".SFUI-Regular",
+              "pointSize": 12
+            },
+            "title1": {
+              "lineHeight": 33.4140625,
+              "name": ".SFUI-Regular",
+              "pointSize": 28
+            }
+          },
+          "horizontalSizeClass": 2,
+          "legibilityWeight": 0,
+          "nativeScale": 2,
+          "pixels": [
+            1668,
+            2420
+          ],
+          "points": [
+            834,
+            1210
+          ],
+          "safeAreaInsets": [
+            32,
+            0,
+            25,
+            0
+          ],
+          "scale": 2,
+          "verticalSizeClass": 2
+        }
+      }
+    },
+    "iphone": {
+      "deviceTypeIdentifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-Air",
+      "model": "iPhone Air",
+      "modelIdentifier": "iPhone18,4",
+      "orientations": {
+        "landscape": {
+          "appearance": 2,
+          "boldTextEnabled": false,
+          "contentSizeCategory": "UICTContentSizeCategoryL",
+          "displayGamut": 1,
+          "fonts": {
+            "body": {
+              "lineHeight": 20.287109375,
+              "name": ".SFUI-Regular",
+              "pointSize": 17
+            },
+            "caption1": {
+              "lineHeight": 14.3203125,
+              "name": ".SFUI-Regular",
+              "pointSize": 12
+            },
+            "title1": {
+              "lineHeight": 33.4140625,
+              "name": ".SFUI-Regular",
+              "pointSize": 28
+            }
+          },
+          "horizontalSizeClass": 2,
+          "legibilityWeight": 0,
+          "nativeScale": 3,
+          "pixels": [
+            2736,
+            1260
+          ],
+          "points": [
+            912,
+            420
+          ],
+          "safeAreaInsets": [
+            0,
+            68,
+            20,
+            68
+          ],
+          "scale": 3,
+          "verticalSizeClass": 1
+        },
+        "portrait": {
+          "appearance": 2,
+          "boldTextEnabled": false,
+          "contentSizeCategory": "UICTContentSizeCategoryL",
+          "displayGamut": 1,
+          "fonts": {
+            "body": {
+              "lineHeight": 20.287109375,
+              "name": ".SFUI-Regular",
+              "pointSize": 17
+            },
+            "caption1": {
+              "lineHeight": 14.3203125,
+              "name": ".SFUI-Regular",
+              "pointSize": 12
+            },
+            "title1": {
+              "lineHeight": 33.4140625,
+              "name": ".SFUI-Regular",
+              "pointSize": 28
+            }
+          },
+          "horizontalSizeClass": 1,
+          "legibilityWeight": 0,
+          "nativeScale": 3,
+          "pixels": [
+            1260,
+            2736
+          ],
+          "points": [
+            420,
+            912
+          ],
+          "safeAreaInsets": [
+            68,
+            0,
+            34,
+            0
+          ],
+          "scale": 3,
+          "verticalSizeClass": 2
+        }
+      }
+    }
+  },
+  "kind": "rendering-pin",
+  "runtime": {
+    "buildVersion": "24A434",
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+    "version": "27.0"
+  },
+  "schemaVersion": 1,
+  "settings": {
+    "animationsEnabled": false,
+    "fixedDateUnix": 1735689600,
+    "fontDesign": "system",
+    "locale": "en_US",
+    "textSize": "large",
+    "timeZone": "GMT"
+  },
+  "toolchain": {
+    "sdkVersion": "27.0",
+    "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+    "xcode": "Xcode 27.0\nBuild version 27A266a"
+  }
+}
