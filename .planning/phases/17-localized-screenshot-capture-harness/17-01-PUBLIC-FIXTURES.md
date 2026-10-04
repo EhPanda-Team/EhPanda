@@ -2,13 +2,57 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v2-exporter-and-full-matrix-passed
-recorded: 2026-10-04
+status: v3-coordinate-artwork-verification-in-progress
+recorded: 2026-10-05
 ---
 
 # Deterministic public fixture export
 
-## Current v2 carousel fixture revision
+## Current v3 coordinate artwork revision (verification in progress)
+
+Phase 17-02 extends the reader sizing contract to all displayed cover roles. The
+exporter accepts `artworkPixelSizes`, keyed by existing image asset path. Sizes must
+be positive, finite whole pixels; unknown paths and invalid sizes fail before any
+file is written. Unspecified artwork retains the canonical dimensions. Fixture
+version is `phase17-finite-v3`; schema 1 and the 47-entry inventory are unchanged.
+
+The native test consumers derive Home hero/standard/compact and Downloads standard
+cover dimensions from `GalleryCoverStyle` and the headline scaled metric, then round
+at the coordinate's screen scale. The two carousel neighbors use hero dimensions;
+they remain outside the census because their native visibility is intentionally
+partial. Reader pages use the full scene pixel width. Reader controls are hidden in
+these scenarios, so previews are not displayed. A post-capture check compares both
+measured artwork dimensions to the actual exported PNG dimensions. An unexpected
+carousel clamp or size mismatch is a failed test, not an exception to strict parity.
+
+Each coordinate retains its own generated fixtures and manifest, plus
+`artwork-sizing.json` and `artwork-verification.json`. The 576-coordinate runner still
+validates the supplied canonical manifest and reads its metadata before deriving
+coordinate artwork; the sizing record links that input aggregate to the derived
+aggregate. Historical `.capture/regression` v2 output is preserved; the next canonical
+export belongs in `.capture/regression-v3`. The canonical export is verified; full coordinate-sized artwork compatibility remains
+unaccepted, and no result is an approved baseline.
+
+Research: `/tmp/ehpanda-phase17-size-probe-evidence/seam-artwork/RESULTS.md`.
+RED evidence: `/tmp/ehpanda-phase17-artwork-red-01/` (the missing per-image export API).
+Focused verification passed in `/tmp/ehpanda-phase17-artwork-green-01/`: three tests
+per family, covering every requested asset size, invalid sizes/paths and production
+metrics at all twelve categories, plus the actual iPad portrait AX5 Downloads capture.
+All seven tests passed without skips, repetitions or runtime warnings; the build had
+zero diagnostics. Source hashes remained unchanged. `artwork-audit.json` records the
+independent audit. Downloads retains its 834 x 5196 pt output and three original read
+rectangles, with exact native parity, all sixteen census counts equal to one, and
+sixteen exported/measured cover dimensions of 218 x 300 pixels. Both simulator states
+were restored. The 32-coordinate compatibility run
+`/tmp/ehpanda-phase17-artwork-gate-01/` stopped at iPhone portrait AX5 Home: two compact
+covers export at 245 x 338 px but display at 245 x 337, while the third displays at
+245 x 338. Its native parity, seams and census pass, but the new size assertion fails.
+See `17-02-INTEGRATION-NOTES.md` for the interior source-pixel comparison and unresolved
+3x half-height export contract. This v3 revision is not fully accepted. The successful
+native canonical export was materialized in `.capture/regression-v3`; the old v2
+output is preserved.
+
+## Historical v2 carousel fixture revision
 
 Generator: `AppPackage/Sources/VisualSnapshotSupport/PublicVisualFixtures.swift`.
 Schema remains 1; fixture version is now **phase17-finite-v2**. The six census galleries
