@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 continuous-clip verification checkpoint; cover extents fixed
-last_updated: "2026-10-04T17:09:02.354559+00:00"
+stopped_at: 17-02 Task 2 iPad landscape AX5 Downloads corner-seam checkpoint
+last_updated: "2026-10-04T23:43:55.659573+00:00"
 last_activity: 2026-10-05
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: b4d1d3041
-last_activity_desc: "Integral cover sizing verified; source-content check fails on continuous corner mask extent"
+source_head: 4b7aa6893
+last_activity_desc: "Shared clip extent verified; four VD15 corner pixels differ across landscape reads"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 continuous-clip verification checkpoint
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 landscape corner-seam checkpoint
 Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Task 1 remains committed in 7de15e6a. Shared production and fixture pixel sizing resolves the old 337/338-pixel extent failure: actual AX5 Home compact covers are all 246 x 338 px. Six artwork tests and five production layout declarations pass on each family (22 passes). The Home capture remains failed: continuous corner blending exceeds the proposed 15-pixel exclusion, producing 56–62 differing pixels per cover. Outside the observed 23-pixel corner squares, source pixels are exact; this is diagnostic, not a new acceptance rule. Native/frozen/full viewport parity, seams and census pass. Evidence: `/tmp/ehpanda-phase17-cover-snap-corners/independent-audit.json` and `debug/artwork-continuous-clip.md`. All 795 source hashes are unchanged during testing; native jobs ended and device states restored. Python contracts pass 58/58. Implementation is WIP; no new compatibility or full 576 run, Task 2 completion, SUMMARY or baseline promotion. The separate constant-viewport-height read proposal remains unanswered and unapplied.
+**17-02 active verification:** Task 1 remains 7de15e6a. Shared cover sizing and path-derived clip extent resolve original AX5 Home source-content failure; focused native tests pass 15/15. The full gate passes 41 phone / 38 tablet native tests and 24 coordinates in successful matrix invocations. Two more iPad landscape AX5 captures pass artifact checks, then Downloads fails at four one-level VD15 corner differences across read rectangles. Coverage: 26 successful captures, one failure, five unexecuted; native totals 92 passed / one failed. All 186 checked images (273,497,908 pixels) match source content outside derived corners. Strict seams have no exclusions. Evidence: /tmp/ehpanda-phase17-clip-extent-gate-01/partial-clip-extent-audit.json and debug/ipad-landscape-ax5-downloads-seam.md. Source hashes remain unchanged, simulators restore, and no InvalidTransition or runtime warning appears. No native jobs remain. Constant-viewport-height reads remain an unanswered and unapplied proposal. The 576 tracer has not restarted; Task 2, SUMMARY and baseline approval remain incomplete.
 
 ## Historical round-2 status snapshots
 
@@ -1010,8 +1010,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-04T17:09:02.354559+00:00
-Stopped at: 17-02 Task 2 continuous-clip verification checkpoint; no native jobs
+Last session: 2026-10-04T23:43:55.659573+00:00
+Stopped at: 17-02 Task 2 iPad landscape corner-seam checkpoint; no native jobs
 Resume file: .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md
 
 The dated feedback below is historical and superseded by the Phase 16 verification and final owner sign-off.
