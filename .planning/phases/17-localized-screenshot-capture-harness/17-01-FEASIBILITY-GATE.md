@@ -2,14 +2,75 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: area-budget-passed-external-orientation-blocked
+status: lifecycle-traits-passed-carousel-census-blocked
 recorded: 2026-10-04
-source_head: d62a70b39b042924b8391e77350f83240fc83e36
+source_head: 574362a342cc3f48cf0c03c9010ef35d8616fb79
 ---
 
 # Task 2 actual-content feasibility gate
 
-## Current area-budget gate — 2026-10-04
+## Current lifecycle and size-class gate — 2026-10-04
+
+Implementation `574362a342` manages one simulator session per family and pins both native
+scene size classes at capture-window creation, before the first render. The runner records
+and requires Booted before/after every invocation; after portrait restoration it shuts down
+only a simulator it booted. geometry.json records scene/window size classes at the viewport
+and current extent. Matrix acceptance requires all four values to agree.
+
+Formal evidence: `/tmp/ehpanda-phase17-lifecycle-traits-gate-01/`. Clean FeatureTests and orientation builds have zero
+compiler/lint diagnostics. Phone native tests pass **16/16**; focused AX5 Comments again
+passes at **1260 × 46,989 px**, seven slices, census 12/12 and exact viewport parity.
+Phone portrait passes **8/8**. No test is skipped or repeated; all summary runtimeWarnings
+arrays are empty. Source hashes remain unchanged through the full attempted gate.
+
+The phone starts Shutdown, stays Booted before/after every invocation, then returns to
+Shutdown after the successful portrait cleanup. The iPad remains in its preexisting Booted
+state; its matrix was not reached. This run finalized naturally with no test process or
+optional diagnostic collector interrupted. Raw simulator/platform logs are retained,
+including bootstatus's Data Migration Failed/status 3 line despite its zero process exit;
+the device reached Booted and the actual test results above establish the usable session.
+
+### Orientation and growth parity now pass on real landscape Home
+
+The first landscape readiness sample reports device orientation **3**, interface orientation
+**3**, and scene **912 × 420 pt**. There is no readiness delay. The capture converges to
+**912 × 1316 pt / 2736 × 3948 px**, with one render slice and two stable iterations
+(requested heights: 1316, 1316, 1316 pt). Native/frozen parity and native/full viewport parity
+both pass. An independent decoded RGBA comparison also finds the two viewport PNGs identical.
+All four recorded size-class pairs are **horizontal regular (2), vertical compact (1)**.
+The earlier 11,745-pixel navigation-title difference is absent for this coordinate.
+
+### New blocker: native carousel replicas versus exact-once marker census
+
+The first landscape Home coordinate fails itemCensus: Visual Home Gallery 1 has count **2**,
+while Galleries 2–6 each have count **1**. The actual screenshot visibly contains `VH1`
+on the centered card and on the partially exposed right neighboring card. OCR reports
+frames at approximately **(179.95, 189.00, 43.68, 19.25)** and
+**(819.40, 189.00, 45.43, 19.25)** points. Both are within the first 420-point OCR band,
+so this pair is not duplication across overlapping OCR bands. Strict native/full parity
+shows both occurrences already exist in the native viewport.
+
+The fixture sets `state.popularGalleries = Array(galleries.prefix(1))` in
+`FullContentFeasibilityTests.swift`. Production `CardSlideSection.bufferedCards` in
+`HomeView+Sections.swift` creates fifteen copies of the input list and selects a gallery
+by modulo. With a one-gallery input, the visible neighboring card repeats the same marker.
+The unresolved issue is how completeness should treat those native carousel replicas while
+retaining meaningful omission/duplication checks. No fixture, census rule or production
+carousel change was selected in this run.
+
+Coordinate evidence, relative to the run root:
+`iphone-landscape-attachments/154A0A2F-9790-448C-8A3B-0F8BBB7BD770/phase17-feasibility-CB1814F3-ACC1-4877-B7EC-BC14FD146140/iphone-landscape-large-home/`.
+It contains the native/full images, orientation trace, geometry, both passing parity files
+and `census-analysis.json`. `aggregate-outcomes.json` at the run root records all 32 cells:
+**8 captured / 1 failed / 23 pending**. Later acceptance checks after census were not reached
+for landscape Home; the remaining seven phone landscape cells and all iPad cells are pending.
+
+Task 2 remains incomplete: 1/2 tasks and 0/24 plans complete. No SUMMARY, fixture
+rematerialization or baseline promotion. Four reserved staged paths and `.capture/` remain
+untouched. Resolve the carousel census contract before continuing the matrix. Earlier
+sections below are historical evidence.
+
+## Historical area-budget gate — 2026-10-04
 
 Implementation `d62a70b39b` adopts the owner's measured area policy:
 `maximumCompositePixelCount = 2736 * 32_768 = 89,653,248`. This is the largest RGBA

@@ -5,18 +5,18 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: checkpoint
-stopped_at: Phase 17 plan 17-01 Task 2 area budget and AX5 Comments pass; external landscape orientation unavailable
-last_updated: "2026-10-04T01:32:39.316524+00:00"
+stopped_at: Phase 17 plan 17-01 Task 2 orientation and traits pass; native carousel census conflict
+last_updated: "2026-10-04T03:01:37.642968+00:00"
 last_activity: 2026-10-04
-last_activity_desc: "Area boundary and memory sharing pass; portrait matrix 8/8; landscape scene remains portrait after five-second wait"
-state_head: d62a70b39b042924b8391e77350f83240fc83e36
+last_activity_desc: "Real landscape and viewport parity pass; native one-item carousel produces duplicate VH1 marker"
+state_head: 574362a342cc3f48cf0c03c9010ef35d8616fb79
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 298
   completed_plans: 274
   percent: 59
-source_head: d62a70b39b042924b8391e77350f83240fc83e36
+source_head: 574362a342cc3f48cf0c03c9010ef35d8616fb79
 ---
 
 # Project State
@@ -32,10 +32,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 1 of 24
-Status: checkpoint — external landscape orientation unavailable after app launch
-Last activity: 2026-10-04 — Area budget, shared pixels and AX5 Comments pass; portrait matrix 8/8
+Status: checkpoint — native carousel replicas conflict with exact-once marker census
+Last activity: 2026-10-04 — Simulator lifecycle and native traits pass; landscape Home fails marker census
 
-**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP d62a70b39b implements the owner-approved 89,653,248-pixel allocation budget, one canonical Data buffer shared with CGImage/census, metadata-only slice results and every-iteration height evidence. Clean/UI builds and phone native 16/16 pass. The boundary image is 1260×71,153 px; the next row is rejected. A 341.998 MiB buffer adds 342.172 MiB resident footprint, with 517.565 MiB total peak and no census-copy increase. AX5 Comments converges to 1260×46,989 px, 7 slices, strict native parity and census 12/12. Phone portrait passes 8/8. External landscape rotation reports success, but the next app scene remains 420×912 portrait across 97 samples over 5.043 seconds; device orientation reads unknown. Coverage is 8 captured / 1 failed / 23 pending. iPad is not reached. Portrait cleanup passed; no jobs remain. Evidence: `/tmp/ehpanda-phase17-area-budget-gate-02/`. Investigate the cross-invocation orientation boundary; preserve all 32 coordinates and the tested budget. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
+**Phase 17 current gate:** Wave 1, 17-01; 1/2 tasks and 0/24 plans complete. WIP 574362a342 preserves simulator lifecycle and pins native size classes at creation. Clean/UI builds, phone native 16/16, focused AX5 Comments and portrait matrix 8/8 pass. Real landscape enters immediately at 912x420; Home freezes/grows with exact viewport parity and regular/compact traits, producing 2736x3948 px in one slice. Census then fails because VH1 is visibly present on both the centered card and its partial right carousel replica. The fixture supplies one popular gallery; production repeats it across fifteen blocks. Coverage 8 captured / 1 failed / 23 pending; iPad not reached. The phone was restored to portrait and its original Shutdown state; the originally Booted iPad stays Booted. No process interruption and no jobs remain. Evidence: `/tmp/ehpanda-phase17-lifecycle-traits-gate-01/`. Resolve the native carousel census contract before resuming. No SUMMARY, baseline or fixture rematerialization; reserved staged changes and `.capture/` are untouched.
 
 ### Historical round-2 status snapshots
 
