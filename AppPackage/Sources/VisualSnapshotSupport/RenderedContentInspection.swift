@@ -100,7 +100,7 @@ enum RenderedContentInspection {
     /// window) lies whole, margins included, inside at least one window, so interior acceptance never discards the
     /// only whole read a scale can produce. The far-edge window ends coverage exactly at the image boundary.
     static func origins(total: CGFloat, size: CGFloat) -> [CGFloat] {
-        guard size < total else { return [.zero] }
+        guard size < total else { return [0] }
         return Array(stride(from: 0, to: total - size, by: size / 2)) + [total - size]
     }
 

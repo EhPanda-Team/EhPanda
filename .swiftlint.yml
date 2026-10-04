@@ -347,7 +347,10 @@ custom_rules:
 
   unchecked_subscript_index_access:
     name: "Unchecked Subscript Index Access"
-    regex: "\\b[A-Za-z_][A-Za-z0-9_]*\\s*\\[(?:\\d+|[A-Za-z_][A-Za-z0-9_]*\\s*[+\\-]\\s*\\d+|i|j|k|idx|index|offset|position|row|section)\\]"
+    # The base must touch the bracket, because a subscript is always written flush against its base. A
+    # word followed by whitespace and `[` is a keyword opening an array literal (`return [0]`,
+    # `in [index]`), which an earlier `\s*` between the two flagged as a subscript.
+    regex: "\\b[A-Za-z_][A-Za-z0-9_]*\\[(?:\\d+|[A-Za-z_][A-Za-z0-9_]*\\s*[+\\-]\\s*\\d+|i|j|k|idx|index|offset|position|row|section)\\]"
     message: "Subscript index access should be guarded by an index check."
     # `doccomment` is a SwiftLint syntax kind of its own — omitting it makes the rule fire on `///`
     # prose that merely describes an indexed access, which penalizes exactly the explanatory comments
