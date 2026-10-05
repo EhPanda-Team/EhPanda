@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T03:16:37.640818+00:00",
+  "timestamp": "2026-10-05T05:30:35.570522+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-native-carousel-position",
+  "status": "executing-17-02-complete-tracer",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,10 +23,15 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [
-    "First iPhone landscape xSmall tracer has VH1 cover marker outside the native viewport before full-content growth; initial carousel positioning cause is unresolved."
+  "blockers": [],
+  "async_jobs": [
+    {
+      "session_id": 88042,
+      "kind": "complete-native-tracer",
+      "output": ".capture/tracer-matrix-05",
+      "requested_coordinates": 576
+    }
   ],
-  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -153,6 +158,11 @@
       "decision": "Owner approved strict two-pass same-rect SHA-256 verification in place of cross-origin seam equality.",
       "rationale": "Forwarded glass-seam research establishes origin dependence; explicit ok approves design and stated limits. Native parity, artwork, census and reference checks remain strict.",
       "phase": "17"
+    },
+    {
+      "decision": "Orchestrator adopts single Home viewport measurement for carousel width and height readiness.",
+      "rationale": "Real xSmall landscape diagnostic confirms an 80 pt provisional width opens with a positive height budget and leaves card 21 clipped. This is a technical scope decision, not separate owner approval.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
@@ -185,8 +195,8 @@
     "?? .capture/",
     "?? .planning/debug/equal-viewport-glass-seam.md"
   ],
-  "next_action": "Use the preserved English problem statement and raw evidence for research on the equal-read Liquid Glass mismatch; reconcile findings before another capture change. Task 2 remains incomplete.",
-  "context_notes": "Compatibility passes 32/32 and 96/96; full tracer fails after 43 captures. No native jobs. Do not weaken strict seams or infer another geometry rule from one failed sample.",
+  "next_action": "Wait for the full tracer at .capture/tracer-matrix-05 (session 88042), then run /tmp/ehpanda-phase17-audit-tracer-matrix-05.py. If it fails, preserve and diagnose the first failure without relaxing acceptance. Do not edit native/producer sources during the run. Task 2 and SUMMARY remain incomplete.",
+  "context_notes": "Carousel fix d88629d03 passes final-source focused verification (12 tests), both Home rotation audits and compatibility 32/32 with 110/110 native tests. Full candidate tracer is now running. Strict parity, same-rect verification, artwork equality and exact-once census are unchanged.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1319,7 +1329,7 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing and shared clip/source verification remain WIP. Two artwork files stay staged for source hashing. Four reserved owner entries and all .capture evidence are preserved.",
-  "source_checkpoint": "04175dda0",
+  "source_checkpoint": "d88629d03",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1563,7 +1573,27 @@
       "same_rect_pairs_passed": 5,
       "native_parity_passed": true,
       "invalid_transition_absent": true
+    },
+    "carousel_startup_correction": {
+      "diagnostic_red": "/tmp/ehpanda-phase17-carousel-real-diagnostic-02",
+      "diagnostic_green": "/tmp/ehpanda-phase17-carousel-atomic-diagnostic-01",
+      "final_focused": "/tmp/ehpanda-phase17-carousel-final-focused-01",
+      "native_tests": 12,
+      "coordinates": 5,
+      "home_rotation_audits": 2,
+      "artwork_images": 30,
+      "compared_artwork_pixels": 2420873,
+      "read_pairs": 24,
+      "compatibility": "/tmp/ehpanda-phase17-carousel-gate-01",
+      "compatibility_status": "passed",
+      "commit": "d88629d03",
+      "compatibility_native_tests": 110,
+      "compatibility_coordinates": 32,
+      "compatibility_read_pairs": 359,
+      "compatibility_artwork_images": 240,
+      "compatibility_artwork_pixels": 404257696,
+      "complete_tracer": ".capture/tracer-matrix-05"
     }
   },
-  "updated_at": "2026-10-05T03:16:37.640818+00:00"
+  "updated_at": "2026-10-05T05:30:35.570522+00:00"
 }

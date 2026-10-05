@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 native carousel position checkpoint
-last_updated: "2026-10-05T03:16:37.640818+00:00"
+stopped_at: 17-02 Task 2 complete tracer running
+last_updated: "2026-10-05T05:30:35.570522+00:00"
 last_activity: 2026-10-05
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
 progress:
@@ -15,8 +15,8 @@ progress:
   total_plans: 298
   completed_plans: 276
   percent: 59
-source_head: 04175dda0
-last_activity_desc: "Same-rect compatibility passes; full tracer 144 captures then native landscape xSmall carousel clipping"
+source_head: d88629d03
+last_activity_desc: "Carousel fix d88629d03 passes 32/32 compatibility; fresh 576 tracer running"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 native carousel position checkpoint
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 complete tracer running
 Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Owner-approved two-pass same-rect capture passes 30 renderer tests, 62 Python tests, the original German AX3 dark coordinate, and final-source compatibility 32/32 with 110/110 tests. Full tracer .capture/tracer-matrix-04 passes every iPhone portrait coordinate (144), then fails English xSmall phone landscape light: VH1 cover marker is already outside the native viewport at the left carousel edge. All five read pairs and both parity checks pass. One executed failure / 431 unexecuted; 157 native passes / one failure. Successful artwork: 864 images and 92,861,700 exact pixels. All 795 native hashes, producer/pin/fixture inputs and references are unchanged. Simulators restore; no jobs remain. Evidence: /tmp/ehpanda-phase17-landscape-xs-census/ and the partial-reread-audit.json in the run. Carousel startup cause is unresolved; no production carousel fix is adopted. Task 2, SUMMARY and baseline approval remain incomplete.
+**17-02 active verification:** Carousel correction d88629d03 supplies width and height from one Home viewport measurement, eliminating the measured provisional-width startup race. Final-source focused verification passes 12/12 (five captures plus both Home rotation audits and orientation steps). Compatibility passes 32/32 and 110/110, with 359 exact reread pairs, 240 source images and 404,257,696 exact artwork pixels; dimensions and census match the previous gate. Source hashes, strict lint, warnings/skips/repetitions and simulator restoration all pass. Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json. A fresh complete candidate tracer is running at .capture/tracer-matrix-05 (session 88042). Task 2, SUMMARY and baseline approval remain incomplete. All previous evidence and the four reserved staged entries are preserved.
 
 ## Historical round-2 status snapshots
 
