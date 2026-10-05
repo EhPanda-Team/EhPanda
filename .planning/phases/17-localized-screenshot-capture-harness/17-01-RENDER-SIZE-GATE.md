@@ -1,4 +1,26 @@
 ---
+
+## Current capture contract — owner-approved 2026-10-05
+
+The owner-approved 17-02 same-rect verification supersedes the historical
+cross-origin seam-equality requirement below. Every read keeps the native viewport
+size and the established 16-pixel origin grid and interior context. Pass 1 composes
+owned rows; pass 2 rereads every identical rect and requires the full canonical
+RGBA SHA-256 digest to match. This proves equality at two sample times only.
+Cross-origin symbol/glass differences are accepted, so exact seams are no longer
+claimed. Pixel-coded composition tests check row ownership, omission, duplication
+and alignment. Native viewport parity, fixture artwork, census and reference
+comparisons keep their existing exact requirements. The read ceiling is 8191 screen
+pixels and the composite budget is 89,653,248 pixels. See 17-02-PLAN.md, owner
+approval of strict same-rect reread verification, and the measured origin dependence
+in /tmp/ehpanda-phase17-size-probe-evidence/glass-seam/RESULTS.md.
+
+Runtime evidence is render-read-verification.json plus matching records in
+geometry.json. A failed reread preserves the actual first and second samples.
+Successful captures remove first-pass disk staging. Gate and runner both reject
+missing, incomplete, inconsistent or mismatching verification records. Historical
+runs below retain the contract they actually tested; new final-tree verification
+is recorded in 17-02-INTEGRATION-NOTES.md.
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
