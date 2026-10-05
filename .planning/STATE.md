@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 equal-read Liquid Glass seam checkpoint
-last_updated: "2026-10-05T00:31:57.964232+00:00"
+stopped_at: 17-02 Task 2 full tracer after same-rect compatibility pass
+last_updated: "2026-10-05T02:28:53.595711+00:00"
 last_activity: 2026-10-05
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -16,7 +16,7 @@ progress:
   completed_plans: 276
   percent: 59
 source_head: 453c8f942e
-last_activity_desc: "Compatibility passes; full tracer stops at one glass pixel after 43 captures"
+last_activity_desc: "Owner approved two complete same-rect passes; 30/30 native renderer tests and 62 Python tests pass. Original coordinate and settlement correction pass. Final-source compatibility passes 32/32 and 110/110; full 576 tracer is running at .capture/tracer-matrix-04."
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 equal-read glass seam checkpoint
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 full tracer in progress
 Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Task 1 remains 624fddfed6. Equal native-viewport reads resolve the original VD15 corner seam: focused 19/19 and full compatibility 32/32, 96/96 pass. The full tracer .capture/tracer-matrix-03 then passes 43 coordinates and fails German AX3 phone portrait dark Home on one native Liquid Glass corner pixel: equal aligned reads produce RGB 5 vs 6. One coordinate failed and 532 were not executed; all 576 outcomes are accounted for. Native totals: 55 passed / one failed, without skips/repetitions/runtime warnings. Successful source artwork remains exact (258 images, 27,147,325 pixels). All 795 native hashes, producer/pin/fixture inputs, references and reserved staging remain unchanged. Simulators restore; no native job remains. Evidence: /tmp/ehpanda-phase17-equal-read-seam/ and .capture/tracer-matrix-03/partial-equal-read-audit.json. Root cause needs research; no tolerance or further capture change is adopted. Task 2, SUMMARY and baseline approval remain incomplete.
+**17-02 active verification:** Owner approved two complete same-rect passes; 30/30 native renderer tests and 62 Python tests pass. Original coordinate and settlement correction pass. Final-source compatibility passes 32/32 and 110/110; full 576 tracer is running at .capture/tracer-matrix-04. Evidence: /tmp/ehpanda-phase17-reread-green-01/independent-audit.json and .capture/tracer-reread-de-AX3-dark-01/independent-audit.json. Correction verified at /tmp/ehpanda-phase17-reread-settle-green-01; passed gate /tmp/ehpanda-phase17-reread-gate-02; first gate retained at /tmp/ehpanda-phase17-reread-gate-01. Same-rect sample equality replaces cross-origin seams under the explicit 2026-10-05 owner approval. Native parity, source artwork and census stay exact. Task 2, SUMMARY and baseline approval remain incomplete.
 
 ## Historical round-2 status snapshots
 

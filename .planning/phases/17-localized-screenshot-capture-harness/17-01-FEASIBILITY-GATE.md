@@ -1012,3 +1012,28 @@ opaque black. Our native app host, scene-backed window and explicit hierarchy fl
 meet the principal posted remedy. No identical long-image failure or proven resolution
 limit was established. Research is complete; no native run or approved scale revision
 is added, and the incomplete gate/checkpoint remain in force.
+
+## Final-source same-rect compatibility passed — 2026-10-05
+
+/tmp/ehpanda-phase17-reread-gate-02/artwork-compatibility-audit.json verifies all
+32 coordinates and 110/110 native tests across 17 invocations. All 359 planned
+rects have matching full canonical SHA-256 values across two passes (718 actual
+full-content reads). Ownership geometry partitions every output row. Native/frozen
+viewport parity, all exact-once census counts and 240 source artwork images
+(404,257,696 checked pixels) pass. Output sizes match the prior equal-read gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or
+InvalidTransition occur. Native source hashes remain unchanged and both simulators
+restore their original content size, orientation and boot state. Four reserved
+owner-staged entries remain byte-identical to the 11,977-byte saved patch.
+
+The corrected bounded viewport settlement path is exercised: Downloads native
+sample 3 and four matrix settlement samples record an intra-sample glass change,
+reset the stable run and retain both actual samples in their own directories. Every
+accepted reference subsequently satisfies the original 500 ms exact stability
+requirement; every final full-content read pair matches. No final-capture recovery,
+pixel tolerance, geometry search or cross-origin equality claim is introduced.
+
+The full tracer is now running under the real immutable-pin runner at
+.capture/tracer-matrix-04 with all 576 requested coordinates. This compatibility
+pass does not complete 17-02 Task 2 or approve references; source implementation
+remains WIP until complete tracer acceptance.

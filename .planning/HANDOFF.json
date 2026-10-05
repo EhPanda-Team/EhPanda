@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T23:59:26.314552+00:00",
+  "timestamp": "2026-10-05T02:28:53.595711+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-equal-read-glass-seam",
+  "status": "executing-17-02-same-rect-verification",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,10 +23,14 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [
-    "Equal native-sized, 16-pixel-aligned reads differ at one Liquid Glass edge pixel in German AX3 phone portrait dark Home; root cause not isolated."
+  "blockers": [],
+  "async_jobs": [
+    {
+      "session_id": 81663,
+      "command": "all 576 tracer coordinates, candidate mode",
+      "output": ".capture/tracer-matrix-04"
+    }
   ],
-  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -147,6 +151,11 @@
     {
       "decision": "Orchestrator explicitly adopts proposal B: all render-server reads retain native viewport dimensions, including the final read beyond the content bottom.",
       "rationale": "Equal-size probe pairs preserve continuous-corner bytes; a maximum-height read and short remainder reproduce the exact four-pixel seam failure. Strict all-pixel seams and native first-read ownership remain unchanged.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved strict two-pass same-rect SHA-256 verification in place of cross-origin seam equality.",
+      "rationale": "Forwarded glass-seam research establishes origin dependence; explicit ok approves design and stated limits. Native parity, artwork, census and reference checks remain strict.",
       "phase": "17"
     }
   ],
@@ -1507,7 +1516,38 @@
       "differing_pixels": 1,
       "maximum_channel_difference": 1,
       "invalid_transition_only_on_failed_invocation": true
+    },
+    "same_rect_verification": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/glass-seam/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-reread-red-02",
+      "python_red": "/tmp/ehpanda-phase17-reread-python-red.log",
+      "focused": "/tmp/ehpanda-phase17-reread-green-01",
+      "native_tests": 110,
+      "python_tests": 62,
+      "status": "compatibility passed; full tracer running",
+      "states_restored_after_focused": true,
+      "original_coordinate": ".capture/tracer-reread-de-AX3-dark-01",
+      "original_coordinate_passed": true,
+      "original_coordinate_native_tests": 13,
+      "original_coordinate_reads": 4,
+      "original_coordinate_artwork_pixels": 761315,
+      "compatibility": "/tmp/ehpanda-phase17-reread-gate-02",
+      "compatibility_status": "passed",
+      "settle_diagnosis": "/tmp/ehpanda-phase17-reread-settle-evidence/RESULTS.md",
+      "settle_correction": "passed 3/3 focused native tests; no InvalidTransition",
+      "next_compatibility": "/tmp/ehpanda-phase17-reread-gate-02",
+      "settle_focused": "/tmp/ehpanda-phase17-reread-settle-green-01",
+      "coordinates": 32,
+      "invocations": 17,
+      "planned_reads": 359,
+      "actual_full_content_reads": 718,
+      "artwork_images": 240,
+      "compared_artwork_pixels": 404257696,
+      "matrix_settlement_transitions": 4,
+      "source_hashes_unchanged": true,
+      "states_restored": true,
+      "tracer": ".capture/tracer-matrix-04"
     }
   },
-  "updated_at": "2026-10-05T00:31:57.964232+00:00"
+  "updated_at": "2026-10-05T02:28:53.595711+00:00"
 }
