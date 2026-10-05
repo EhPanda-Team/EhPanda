@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T05:30:35.570522+00:00",
+  "timestamp": "2026-10-05T06:27:46.957539+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "executing-17-02-complete-tracer",
+  "status": "checkpoint-17-02-same-rect-glass-change",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,15 +23,10 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [],
-  "async_jobs": [
-    {
-      "session_id": 88042,
-      "kind": "complete-native-tracer",
-      "output": ".capture/tracer-matrix-05",
-      "requested_coordinates": 576
-    }
+  "blockers": [
+    "Final capture changes one History glass-rim pixel between identical rects at home-populated__en__accessibility2__landscape__iphone__light; cause remains unproven."
   ],
+  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -167,14 +162,10 @@
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
-    " M .planning/HANDOFF.json",
     " M .planning/STATE.md",
-    " M .planning/debug/ipad-landscape-ax5-downloads-seam.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-FIXTURES.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     " M AppPackage/Sources/AppComponents/GalleryCover.swift",
@@ -191,12 +182,12 @@
     "M  EhPanda.xcodeproj/project.pbxproj",
     " M Scripts/verify-full-content-capture.py",
     " M Scripts/visual/contracts.py",
+    " M Scripts/visual/run-regression.py",
     " M Scripts/visual/test_contracts.py",
-    "?? .capture/",
-    "?? .planning/debug/equal-viewport-glass-seam.md"
+    "?? .capture/"
   ],
-  "next_action": "Wait for the full tracer at .capture/tracer-matrix-05 (session 88042), then run /tmp/ehpanda-phase17-audit-tracer-matrix-05.py. If it fails, preserve and diagnose the first failure without relaxing acceptance. Do not edit native/producer sources during the run. Task 2 and SUMMARY remain incomplete.",
-  "context_notes": "Carousel fix 6c588338c3 passes final-source focused verification (12 tests), both Home rotation audits and compatibility 32/32 with 110/110 native tests. Full candidate tracer is now running. Strict parity, same-rect verification, artwork equality and exact-once census are unchanged.",
+  "next_action": "Investigate the same-rect counterexample described in /tmp/ehpanda-phase17-ax2-landscape-reread/research-prompt.txt and RESULTS.md. Full tracer has ended; partial audit and attachment hashes pass, states restore, no native jobs remain. Preserve exact acceptance and existing failures. Task 2 and SUMMARY remain incomplete.",
+  "context_notes": "Carousel fix 6c588338c3 passes focused tests and the 32-coordinate/110-test compatibility gate. Full tracer 05 captures 160, fails one identical-rect check and leaves 415 unexecuted. No final full image/census is accepted for the failing coordinate; read 7 second pass is unobserved.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1592,8 +1583,48 @@
       "compatibility_read_pairs": 359,
       "compatibility_artwork_images": 240,
       "compatibility_artwork_pixels": 404257696,
-      "complete_tracer": ".capture/tracer-matrix-05"
+      "complete_tracer": ".capture/tracer-matrix-05",
+      "complete_tracer_status": "160 captured; new same-rect AX2 glass-change checkpoint"
+    },
+    "same_rect_ax2_glass_change": {
+      "status": "failed",
+      "captured": 160,
+      "executedFailures": 1,
+      "unexecuted": 415,
+      "nativePassed": 173,
+      "nativeFailed": 1,
+      "passedScope": "all 144 iphone portrait coordinates plus English iphone landscape xSmall through accessibility1 in both themes",
+      "artworkImages": 960,
+      "comparedArtworkPixels": 102248130,
+      "passedPlannedReads": 476,
+      "sourceHashesUnchanged": 795,
+      "referencesUnchanged": true,
+      "simulatorStatesRestored": true,
+      "failedCoordinate": "home-populated__en__accessibility2__landscape__iphone__light",
+      "failure": "VisualSnapshotSupport.RenderServerCaptureError.readChanged(sliceIndex: 6)",
+      "matchedReadPairsBeforeFailure": 6,
+      "failedCoordinateFreezeParityPassed": true,
+      "fullCaptureAndCensusNotReached": true,
+      "invalidTransitionLogs": [
+        "native/home-populated__en__accessibility2__landscape__iphone__light.log"
+      ],
+      "evidence": "/tmp/ehpanda-phase17-ax2-landscape-reread",
+      "tracer": ".capture/tracer-matrix-05",
+      "copied_attachment_files_matched": 75,
+      "native_jobs_remaining": 0,
+      "differing_pixels": 1,
+      "maximum_channel_difference": 1,
+      "local_pixel": [
+        2267,
+        1243
+      ],
+      "window_pixel": [
+        2267,
+        5275
+      ],
+      "outside_failing_read_ownership": true,
+      "next_read_second_pass_observed": false
     }
   },
-  "updated_at": "2026-10-05T05:30:35.570522+00:00"
+  "updated_at": "2026-10-05T06:27:46.957539+00:00"
 }

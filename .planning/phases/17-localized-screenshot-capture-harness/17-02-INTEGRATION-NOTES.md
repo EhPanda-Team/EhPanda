@@ -751,7 +751,54 @@ entries restore/remain unchanged.
 Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json
 and capture-totals.json. The five focused coordinates and two existing Home
 rotation audits also pass on the final source (12 native tests including orientation).
-The full 576-coordinate candidate tracer is running at .capture/tracer-matrix-05
-(exec session 88042). Its audit is prepared at /tmp/ehpanda-phase17-audit-tracer-matrix-05.py.
-Do not edit native/producer sources during the run. Task 2, SUMMARY and reference
-approval remain incomplete. Historical runs and all failed evidence are preserved.
+The full 576-coordinate candidate tracer was started at .capture/tracer-matrix-05.
+Its completed failure and partial audit are recorded in the checkpoint below.
+Task 2, SUMMARY and reference approval remain incomplete; historical evidence is preserved.
+
+## Complete tracer checkpoint — same-rect AX2 glass change, 2026-10-05
+
+The carousel correction remains committed as 6c588338c3, with its five focused
+captures, both Home rotation audits and 32/32 compatibility gate passing. The
+fresh complete tracer .capture/tracer-matrix-05 then captures 160 coordinates:
+all 144 phone portrait coordinates, plus English phone landscape xSmall through
+AX1 in both themes. It fails at
+home-populated__en__accessibility2__landscape__iphone__light with the saved
+RenderServerCaptureError.readChanged(sliceIndex: 6). This is a new same-rect
+counterexample after the carousel correction, not a recurrence of its offset.
+
+The failed output layout is 912 x 1959.6666666667 pt at 3x (2736 x 5879 px).
+Three growth iterations request the same height and two stable iterations finish.
+Native viewport settlement accepts 693 ms over six samples; freezing is exact.
+Offline comparison confirms first-pass read 0 equals native viewport bytes, but
+the formal full/native parity and census are not reached because capture throws.
+
+Eight equal 912 x 420 pt reads start at y=0/224/448/672/896/1120/1344/1568 pt.
+Pass 1 completes; pass 2 matches reads 0–5 then fails read 6. Exactly one raw pixel
+changes: local (2267,1243), window (2267,5275), RGBA (230,230,240,255) to
+(231,231,240,255). Both PNGs decode to their ledger hashes. The pixel is on the
+History card's top-left glass rim, about 5.7 pt from the read bottom, outside
+read 6's owned rows. Read 7 owns it and has the original value in pass 1; its
+second pass is not reached, so no unchanged-composite claim is justified.
+
+FullContentHost settles pixels before viewport growth, then checks layout height
+and content readiness before final capture. It has no full-height pixel-settlement
+phase. Post-growth material settlement, read-sequence effects and same-rect
+rasterization instability remain unproven explanations. No new capture acceptance
+change or retry is introduced. The English research prompt describes this open
+question without prescribing the investigation or remedy.
+
+Independent audit: .capture/tracer-matrix-05/partial-reread-audit.json. Accounting
+is 160 captured / one executed failure / 415 unexecuted, with 173 native passes
+and one failure across 174 invocations. The successful coordinates verify 476
+read pairs, 960 artwork images and 102,248,130 exact pixels. All 795 native source
+hashes and producer/pin/fixture inputs remain unchanged; references and simulator
+states are restored. No skips, repetitions or runtime warnings. InvalidTransition
+appears only in the failed invocation after the saved capture error; its framework
+cause remains unproven. Xcode's diagnostic collector completed uninterrupted.
+No native job remains. All 75 copied failure files match the official xcresult
+attachment hashes, and the reserved staged patch remains exactly 11,977 bytes.
+
+Evidence: /tmp/ehpanda-phase17-ax2-landscape-reread/ (capture/, source/,
+difference.json, offline-viewport-parity.json, attachment-copy-verification.json,
+RESULTS.md and research-prompt.txt). Task 2, SUMMARY and reference approval remain
+incomplete. Existing WIP, prior runs and the verified carousel commit are preserved.
