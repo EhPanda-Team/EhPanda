@@ -25,7 +25,6 @@ private let middleBlock = windowBlocks / 2
 struct CardSlideSection: View, Equatable {
     @Environment(\.layoutDirection) private var layoutDirection
     @State private var scrollPositionID: Int?
-    @State private var carouselWidth: CGFloat = 0
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
     // under rebase whether derived from its id or from its layout slot.
@@ -35,13 +34,14 @@ struct CardSlideSection: View, Equatable {
     private let galleries: [Gallery]
     private let currentID: String
     private let colors: [Color]
+    private let carouselWidth: CGFloat
     private let maximumCardHeight: CGFloat
     private let navigateAction: (Gallery) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
-        colors: [Color], maximumCardHeight: CGFloat,
+        colors: [Color], carouselWidth: CGFloat, maximumCardHeight: CGFloat,
         navigateAction: @escaping (Gallery) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
@@ -49,6 +49,7 @@ struct CardSlideSection: View, Equatable {
         _pageIndex = pageIndex
         self.currentID = currentID
         self.colors = colors
+        self.carouselWidth = carouselWidth
         self.maximumCardHeight = maximumCardHeight
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
@@ -63,6 +64,7 @@ struct CardSlideSection: View, Equatable {
         lhs.galleries == rhs.galleries
             && lhs.currentID == rhs.currentID
             && lhs.colors == rhs.colors
+            && lhs.carouselWidth == rhs.carouselWidth
             && lhs.maximumCardHeight == rhs.maximumCardHeight
     }
 
@@ -103,23 +105,15 @@ struct CardSlideSection: View, Equatable {
     }
 
     var body: some View {
-        // The card geometry is container-driven (`cardWidth`/`centeringMargin` derive from
-        // `carouselWidth`), and the measurement lands one layout pass AFTER the measured view's
-        // first layout. If the ScrollView were laid out during that zero-width first pass, the
-        // seeded `scrollPosition(id:)` anchor would resolve against collapsed content and the
-        // carousel would open off the seeded card — visibly, the focused-card gradient sits on
-        // the seeded card while its NEIGHBOR is centered until the first swipe reconciles them.
-        // Deferring the ScrollView until the width is known makes its first layout the real one,
-        // so the seed anchors correctly (matching the fixed-size construct the loop shipped with).
-        Group {
-            if carouselWidth > 0 && maximumCardHeight > 0 {
-                carousel
-            } else {
-                Color.clear
-            }
-        }
-        .onGeometryChange(for: CGFloat.self, of: \.size.width) {
-            carouselWidth = $0
+        // Home measures the visible viewport once and supplies both width and height budget in
+        // the same update. The section spans that viewport with no horizontal padding. A separate
+        // local width measurement can still hold a provisional ideal width when the height becomes
+        // ready, seeding the lazy stack against the wrong geometry and leaving its card off-center.
+        // Keep readiness and card geometry on the same measurement before resolving the seed.
+        if carouselWidth > 0 && maximumCardHeight > 0 {
+            carousel
+        } else {
+            Color.clear
         }
     }
 
