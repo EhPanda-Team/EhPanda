@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 7de15e6a; Task 2 checkpoint on iPad landscape AX5 Downloads corner-seam rasterization. No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 7de15e6a; Task 2 is implementing owner-approved same-rect verification. No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -573,3 +573,103 @@ The implementation remains WIP and the 32-coordinate compatibility pass remains
 valid, but Task 2 / full tracer acceptance, SUMMARY and baseline approval are not
 complete. No tolerance, seam exclusion, geometry retry or further layout change
 is adopted. The next step is research on this preserved equal-read glass mismatch.
+
+## Same-rect verification implementation — 2026-10-05
+
+The owner approved replacing cross-origin seam equality with two complete passes
+of identical-rect digest comparison. The implementation keeps original read
+geometry and strict downstream checks. It composes canonical bytes directly,
+validates each read's dimensions and row ownership, hashes full reads including
+unowned context and final overflow, and retains original failure samples on disk.
+The former seamFrame/overlap diagnostics are now contextFrame/contextBandHeight;
+no cross-origin equality is asserted. The precise authority and limitations are
+recorded in 17-02-PLAN.md's same-rect approval.
+
+Seven added native tests cover full pass order, every composed row, origin-dependent
+but repeatable content, changes during the first/second pass, changes outside owned
+rows, invalid dimensions and actual failure samples. The suite has 15 tests. Four
+new Python tests plus the runner boundary check reject missing or false verification
+evidence; all 62 Python tests pass after a recorded RED. Strict no-cache lint passes.
+Native verification is running in /tmp/ehpanda-phase17-reread-green-01. Task 2 is
+incomplete; no final-source compatibility or complete matrix result is claimed yet.
+
+### Same-rect focused verification passed
+
+/tmp/ehpanda-phase17-reread-green-01/independent-audit.json verifies 15/15 renderer
+tests on each device, no skips/repetitions/runtime warnings/InvalidTransition,
+unchanged native sources and restored simulator states. At the existing composite
+budget, phone/tablet use 33/27 reads and take 3494.02/3479.53 ms for composition plus
+the second pass. Measured process peaks are 463,031,080/473,779,008 bytes. These
+budget tests use no diagnostic directory, so the measurements exclude first-pass
+diagnostic disk writes. The allocation policy is unchanged.
+
+The actual original failing coordinate passes in
+.capture/tracer-reread-de-AX3-dark-01/independent-audit.json: German AX3 dark iPhone
+portrait Home, output 420 x 2473.6667 pt, four reads with exact two-pass digests,
+strict native/frozen parity, all six census counts and 761,315 checked artwork
+pixels. The complete runner/preflight has 13/13 native passes; all source inputs
+and references remain unchanged, states restore, and no InvalidTransition occurs.
+
+The final-source 32-coordinate compatibility gate is now running at
+/tmp/ehpanda-phase17-reread-gate-01. It expects 110 native tests across 17
+invocations. The 576-coordinate tracer remains pending; Task 2 is not complete.
+
+### Viewport settlement integration RED
+
+The first new compatibility gate reached all 49 selected phone native tests, but
+Comments and the legacy Home tracer failed with readChanged(0) before their native
+viewport reference was stored. Both mismatches occupy only the top-right glass
+button (153/137 pixels, maximum delta 1). Original samples and analysis are in
+/tmp/ehpanda-phase17-reread-settle-evidence/RESULTS.md. This is the pre-existing
+native material settle transition, now rejected prematurely inside the sampling
+loop by the new two-pass capture API. Full-content composition was not reached in
+these two cases. Xcode is still collecting failure diagnostics; sources remain
+unchanged while that native job runs.
+
+The inline integration correction is to classify readChanged only within the
+existing bounded viewport-settle loop as breaking its stable run, exactly as the
+loop already handles changed bytes between samples. Each native/frozen sample gets
+a separate evidence directory. The 40-sample bound, 500 ms exact stability interval
+and final full-content fail-on-change requirement are unchanged. Every other error
+propagates. This fixes the premature application of the final-capture prerequisite;
+it introduces no tolerance, read-geometry retry or accepted unstable reference.
+
+### Settlement correction GREEN; compatibility restarted
+
+The first compatibility gate completed without interrupting its diagnostic collector:
+47/49 phone native tests passed, two failed, no skips/repetitions/runtime warnings,
+and the phone restored its original state. No matrix coordinates had executed.
+Its failed-gate-audit.json preserves unchanged-source proof.
+
+/tmp/ehpanda-phase17-reread-settle-green-01/independent-audit.json verifies the
+corrected Comments and Home native cases plus the original German AX3 dark phone
+portrait coordinate: 3/3 passes, strict native parity and final reread records,
+unchanged sources, restored state and no InvalidTransition. This focused run had no
+intra-sample transition; earlier failed samples remain the diagnostic RED. The final
+capture path and its negative read-change tests are unchanged. The clean full gate
+is now running at /tmp/ehpanda-phase17-reread-gate-02; no full-matrix pass is claimed.
+
+## Final-source same-rect compatibility passed — 2026-10-05
+
+/tmp/ehpanda-phase17-reread-gate-02/artwork-compatibility-audit.json verifies all
+32 coordinates and 110/110 native tests across 17 invocations. All 359 planned
+rects have matching full canonical SHA-256 values across two passes (718 actual
+full-content reads). Ownership geometry partitions every output row. Native/frozen
+viewport parity, all exact-once census counts and 240 source artwork images
+(404,257,696 checked pixels) pass. Output sizes match the prior equal-read gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or
+InvalidTransition occur. Native source hashes remain unchanged and both simulators
+restore their original content size, orientation and boot state. Four reserved
+owner-staged entries remain byte-identical to the 11,977-byte saved patch.
+
+The corrected bounded viewport settlement path is exercised: Downloads native
+sample 3 and four matrix settlement samples record an intra-sample glass change,
+reset the stable run and retain both actual samples in their own directories. Every
+accepted reference subsequently satisfies the original 500 ms exact stability
+requirement; every final full-content read pair matches. No final-capture recovery,
+pixel tolerance, geometry search or cross-origin equality claim is introduced.
+
+The full tracer is now running under the real immutable-pin runner at
+.capture/tracer-matrix-04 with all 576 requested coordinates. This compatibility
+pass does not complete 17-02 Task 2 or approve references; source implementation
+remains WIP until complete tracer acceptance.
