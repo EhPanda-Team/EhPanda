@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T06:27:46.957539+00:00",
+  "timestamp": "2026-10-05T16:19:38.577530+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-same-rect-glass-change",
+  "status": "checkpoint-17-02-owned-row-tracer",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,10 +23,16 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [
-    "Final capture changes one History glass-rim pixel between identical rects at home-populated__en__accessibility2__landscape__iphone__light; cause remains unproven."
+  "blockers": [],
+  "async_jobs": [
+    {
+      "job": "complete candidate tracer (576 coordinates), detached with nohup",
+      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-07",
+      "output": ".capture/tracer-matrix-07",
+      "log": ".capture/tracer-matrix-07.log",
+      "completion_marker": "final log line exit=<code>"
+    }
   ],
-  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -158,14 +164,47 @@
       "decision": "Orchestrator adopts single Home viewport measurement for carousel width and height readiness.",
       "rationale": "Real xSmall landscape diagnostic confirms an 80 pt provisional width opens with a positive height budget and leaves card 21 clipped. This is a technical scope decision, not separate owner approval.",
       "phase": "17"
+    },
+    {
+      "decision": "Owner approved owned-row verification, a full-content settle, and strict read 0 (\"Approve all three\").",
+      "rationale": "Measured load-dependent bottom-cut glass flips and a post-growth settle explain the tracer-matrix-05 context-row change; recorded in 17-02-PLAN.md.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner declined a runner quiet period after content_size changes and launches (\"No wait\").",
+      "rationale": "Read 0 stays fully gated and fails loudly; no fixed pause stands in for measured settlement.",
+      "phase": "17"
+    },
+    {
+      "decision": "Owner approved erasing each pinned simulator in place after a cleanup deleted their device data.",
+      "rationale": "The iPhone could not boot and the iPad could not install apps; UDIDs are kept.",
+      "phase": "17"
+    },
+    {
+      "decision": "Restore pinned device settings instead of editing the tracked pin.",
+      "rationale": "A probe shows only Full Screen Apps (SBMedusaMultitaskingEnabled NO) reproduces the pinned 25 pt iPad inset; the iPhone pin records dark appearance.",
+      "phase": "17"
+    },
+    {
+      "decision": "Hash untracked, non-ignored files in the native source guard and drop the hard-coded 17-01 paths.",
+      "rationale": "The gate audit showed new uncommitted Swift sources compiled into every build without protection; tightening the guard to its stated contract does not change capture.",
+      "phase": "17"
+    },
+    {
+      "decision": "Run the complete tracer detached at .capture/tracer-matrix-07.",
+      "rationale": "The background job limit (two hours) would stop a multi-hour run mid-test; the first launch was interrupted during its build and restored, and its evidence is kept.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
+    " M .planning/HANDOFF.json",
     " M .planning/STATE.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
+    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     " M AppPackage/Sources/AppComponents/GalleryCover.swift",
@@ -184,10 +223,11 @@
     " M Scripts/visual/contracts.py",
     " M Scripts/visual/run-regression.py",
     " M Scripts/visual/test_contracts.py",
-    "?? .capture/"
+    "?? AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift",
+    "?? AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift"
   ],
-  "next_action": "Investigate the same-rect counterexample described in /tmp/ehpanda-phase17-ax2-landscape-reread/research-prompt.txt and RESULTS.md. Full tracer has ended; partial audit and attachment hashes pass, states restore, no native jobs remain. Preserve exact acceptance and existing failures. Task 2 and SUMMARY remain incomplete.",
-  "context_notes": "Carousel fix 6c588338c3 passes focused tests and the 32-coordinate/110-test compatibility gate. Full tracer 05 captures 160, fails one identical-rect check and leaves 415 unexecuted. No final full image/census is accepted for the failing coordinate; read 7 second pass is unobserved.",
+  "next_action": "Wait for .capture/tracer-matrix-07 (exit= line), independently audit all 576 coordinates, commit the Task 2 source in verified atomic commits excluding the four reserved entries, then write the 17-02 SUMMARY. Do not edit or stage sources while the tracer runs. No baseline promotion.",
+  "context_notes": "Owned-row verification and full-content settle are implemented (uncommitted Task 2 WIP) and pass the 32-coordinate compatibility gate at .capture/owned-row-gate-01 (57/54 native tests, 412 reads all matched, independent-audit.json). The gate source guard now hashes tracked plus untracked, non-ignored files. .capture/tracer-matrix-06 is an intentional interrupt during its environment build (background job limit), fully restored and kept. Pinned simulators were erased in place (owner-approved) and restored to the pin (iPad Full Screen Apps, iPhone dark).",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1319,7 +1359,7 @@
     "/tmp/ehpanda-phase17-t1-host-build-3.log",
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
-  "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing and shared clip/source verification remain WIP. Two artwork files stay staged for source hashing. Four reserved owner entries and all .capture evidence are preserved.",
+  "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing, shared clip/source verification, owned-row verification, settle and the source-guard fix remain WIP. The two artwork files were staged so the earlier tracked-only guard hashed them; the guard now also hashes untracked files. Four reserved owner entries and all .capture evidence are preserved.",
   "source_checkpoint": "6c588338c3",
   "previous_plan_tasks": [
     {
@@ -1624,7 +1664,27 @@
       ],
       "outside_failing_read_ownership": true,
       "next_read_second_pass_observed": false
+    },
+    "owned_row_verification": {
+      "red": ".capture/owned-row-red-01",
+      "green_build": ".capture/owned-row-green-01",
+      "focused": ".capture/owned-row-focused-04/focused-audit.json",
+      "original_coordinates": ".capture/tracer-ax2-landscape-owned-02",
+      "simulator_repair": ".capture/simulator-repair-01",
+      "pin_settings_probe": ".capture/research/ipad-safe-area-probe",
+      "glass_reread_research": ".capture/research/glass-reread",
+      "python_contracts": 72,
+      "native_gate_tests": {
+        "iphone": 57,
+        "ipad": 54
+      },
+      "status": "compatibility gate passed; complete tracer running",
+      "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
+      "source_guard_red": ".capture/source-hash-red-01",
+      "source_guard_green": ".capture/source-hash-green-01",
+      "interrupted_tracer": ".capture/tracer-matrix-06",
+      "complete_tracer": ".capture/tracer-matrix-07"
     }
   },
-  "updated_at": "2026-10-05T06:27:46.957539+00:00"
+  "updated_at": "2026-10-05T16:19:38.577530+00:00"
 }

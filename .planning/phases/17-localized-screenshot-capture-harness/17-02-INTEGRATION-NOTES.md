@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 checkpoint on native carousel positioning in iPhone landscape xSmall. No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification and full-content settle pass the 32-coordinate compatibility gate, and the fresh complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -802,3 +802,107 @@ Evidence: /tmp/ehpanda-phase17-ax2-landscape-reread/ (capture/, source/,
 difference.json, offline-viewport-parity.json, attachment-copy-verification.json,
 RESULTS.md and research-prompt.txt). Task 2, SUMMARY and reference approval remain
 incomplete. Existing WIP, prior runs and the verified carousel commit are preserved.
+
+## Owned-row verification and full-content settle, 2026-10-05
+
+The owner explicitly approved the three-point remedy for the tracer-matrix-05
+failure and declined a runner quiet period; 17-02-PLAN.md records the approval,
+measured basis and rules. The probe evidence (formerly only in /tmp) is copied
+byte-identically to the durable, untracked `.capture/research/glass-reread/`.
+
+Implementation. RenderServerCapture validates one read layout (output partition,
+read-local owned rows) shared by verification and settle passes. Both verification
+passes gate the SHA-256 of each read's owned rows; read 0 owns, and gates, its whole
+native rect. Whole-read digests are recorded as evidence (`readMatched`). An
+owned-row mismatch still throws readChanged with both whole reads saved. A new
+single-pass `ownedRowDigests` reads every planned rect once without composing.
+RenderSettlement holds the one stable-run rule (identical samples over at least
+500 ms, 100 ms apart after a display frame, at most 40 samples) with an injected
+clock; the native viewport settle and the new full-content settle both use it.
+FullContentHost settles the grown window after layout convergence and before the
+verified capture, recording every pass in full-content-settle.json, and throws
+fullContentRenderDidNotSettle when it never settles. The native gate and runner
+validate owned rows against geometry, the output partition, read 0's whole-read
+gate, whole-read flags against their digests, and the accepted settle ledger. The
+RenderServerCapture citation of wiped /tmp evidence now points at these records.
+
+RED: `.capture/owned-row-red-01/` (test build fails only on the missing owned-row,
+settle and error APIs; Python contracts fail 20 cases against the old validator).
+GREEN: the clean test build has no diagnostics; strict no-cache SwiftLint passes
+all VisualSnapshotSupport and VisualSnapshotTests files; Python passes 71 tests
+(43 contract + 28 environment). Native tests per family rise from 49/46 to 57/54:
+RenderServerCaptureTests gains context/overflow-evidence, owned-row-failure and
+single-pass tests (17 total) and RenderSettlementTests adds six clock-driven tests.
+
+Environment. The first focused attempt could not boot the pinned iPhone Air: a
+cleanup on 2026-10-05 had removed every CoreSimulator device directory (and
+DerivedData and /tmp). With explicit owner approval each pinned simulator was
+repaired by `simctl erase` in place, keeping its UDID; the iPad, whose damage only
+showed as an install failure, was booted again to its original state. Evidence:
+`.capture/simulator-repair-01/`, `.capture/owned-row-focused-01/` (boot failure)
+and `.capture/owned-row-focused-03/` (iPad install failure; its iPhone half passed
+25/25). A stale generic-destination test run left by the RED/GREEN builds stopped
+`.capture/owned-row-focused-02/` before any test; the real gate's clean build
+removes such files.
+
+Focused verification: `.capture/owned-row-focused-04/focused-audit.json`. Both
+families pass 25/25 (renderer, settle, real Comments and Downloads captures) with
+no failures, skips, diagnostics or InvalidTransition; sources stay unchanged and
+both simulators restore state and content size. The four real captures pass the
+new validators; each settled in 3 or 4 passes (598 to 700 ms) with no reads
+changing between passes. Task 2, SUMMARY and baseline approval remain incomplete.
+
+### Pinned environment restored; original coordinates pass
+
+The first runner attempt, `.capture/tracer-ax2-landscape-owned-01/`, stopped in
+environment validation before any capture, as designed: the erased iPad measured a
+bottom safe-area inset of 20 pt against the pinned 25 pt in both orientations, and
+the erased iPhone measured light appearance against the pinned dark. A standalone
+probe on a temporary iPad Pro 11-inch (M5) reproduces 20 pt at factory defaults and
+under Stage Manager or the menu-bar setting, and exactly 25 pt only with
+`SBMedusaMultitaskingEnabled = NO` (Full Screen Apps). Evidence:
+`.capture/research/ipad-safe-area-probe/` (RESULTS.md, results.txt, probe source);
+the temporary simulator was deleted. The pinned iPad was set back to Full Screen
+Apps and rebooted to its original Booted state, and the pinned iPhone back to dark
+appearance before shutting down again. The tracked pin was not changed.
+
+`.capture/tracer-ax2-landscape-owned-02/` then passes both English AX2 iPhone
+landscape coordinates (reduced coverage 2/576, explicitly incomplete) with the full
+pin validation, unchanged references and restored devices. Each capture uses eight
+reads, settles in three passes (953 and 963 ms) with no reads changing, and matches
+both owned and whole-read digests in every read; the load flip did not recur in
+this sample, which is an observation, not proof of its absence.
+
+### Compatibility gate passed; source guard covers uncommitted files
+
+`.capture/owned-row-gate-01/` passes in 19 minutes: 32/32 coordinates, 57 iPhone
+and 54 iPad native tests, every invocation with zero failures, skips, expected
+failures, repetitions, runtime warnings or diagnostics, and no InvalidTransition.
+The independent audit (`independent-audit.json`, produced by the copied
+`independent-audit.py`) checks 40 captures (32 matrix, AX5 Comments and the native
+real captures) with 412 reads: every owned digest matches, no whole-read digest
+differs either, and no settle pass changes a read. Captures settle in 2 passes
+(18), 3 (16) or 4 (6), at most 1,922 ms; the 44-read landscape captures need only
+two passes because one pass already spans more than 500 ms. AX5 Comments composes
+22 reads into 420×15663 pt with strict viewport parity and its 12-marker census.
+The iPhone returns to Shutdown and the iPad stays Booted, both Large; the four
+reserved staged entries keep their recorded blob IDs in index and worktree.
+
+The audit exposed a gap in the gate's source guard: it hashed only `git ls-files`,
+so the untracked RenderSettlement.swift and RenderSettlementTests.swift compiled
+into every build without protection. (Both were last modified at 23:25 and 23:22,
+before the gate started at 00:54, so this run was not affected.) `source_hashes()`
+now lists tracked and untracked, non-ignored files, which also makes the two
+hard-coded test paths from 17-01 redundant, so they are removed. A real temporary
+repository test proves untracked build inputs are hashed and ignored or unrelated
+files are not: RED `.capture/source-hash-red-01/`, GREEN 72 Python tests
+`.capture/source-hash-green-01/`. The live hash set gains exactly the two files.
+The guard change does not affect capture, so the gate result stands.
+
+The first complete tracer launch at `.capture/tracer-matrix-06/` was interrupted
+on purpose during its environment build, before any test ran, because the
+background job limit would have stopped it after two hours. The interrupt reached
+the whole process group like Ctrl-C: the build completed, the runner accounted for
+all 576 coordinates as interrupted, and the iPhone lifecycle restored Shutdown and
+Large (the iPad was not yet touched). That evidence stays as it is; the fresh
+complete tracer runs detached at `.capture/tracer-matrix-07/`.
