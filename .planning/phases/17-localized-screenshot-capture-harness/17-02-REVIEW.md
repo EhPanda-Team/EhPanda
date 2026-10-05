@@ -548,3 +548,24 @@ environment validator share this function. The audit script's own first-pass
 false alarm (it compared content digests with recorded git blob IDs) was a bug in
 the scratch audit, fixed before recording; the reserved entries never changed.
 No open finding remains in this scope.
+
+### Vertical scroll host review, 2026-10-06
+
+Scope: FullContentHost host resolution, the new HostedHierarchy helper,
+HostedHierarchyTests and the native gate's test list and counts.
+
+The defect was an inconsistency between two rules in one type: host resolution
+compared content height with bounds, while the output height and its
+`contentDoesNotExceedViewport` guard include the adjusted insets. The fix makes
+host resolution use the same quantity, so a page is accepted exactly when its
+output exceeds the viewport, and removes the duplicated predicate in native-host
+restoration. The helper is a non-generic, main-actor enum because FullContentHost
+is generic over its content; it also owns the hierarchy walk that FullContentHost
+used privately, so there is one implementation. Selection for pages whose content
+already exceeded their bounds is unchanged (verified by the unchanged native
+captures and the gate). Tests use plain UIKit views with `.never` inset adjustment,
+so the adjusted insets are exact without a window. The doc comment cites the
+measured iPad portrait content heights rather than an estimate.
+
+The `InvalidTransition` report is recorded as an observation only; no reporting
+change is made without a proven mechanism. No open finding remains in this scope.

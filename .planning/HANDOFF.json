@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T16:19:38.577530+00:00",
+  "timestamp": "2026-10-05T18:44:58.489009+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-owned-row-tracer",
+  "status": "checkpoint-17-02-scroll-host-tracer",
   "completed_tasks": [
     {
       "id": 1,
@@ -26,10 +26,10 @@
   "blockers": [],
   "async_jobs": [
     {
-      "job": "complete candidate tracer (576 coordinates), detached with nohup",
-      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-07",
-      "output": ".capture/tracer-matrix-07",
-      "log": ".capture/tracer-matrix-07.log",
+      "job": "final complete candidate tracer (576 coordinates), detached with nohup",
+      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-08",
+      "output": ".capture/tracer-matrix-08",
+      "log": ".capture/tracer-matrix-08.log",
       "completion_marker": "final log line exit=<code>"
     }
   ],
@@ -194,18 +194,16 @@
       "decision": "Run the complete tracer detached at .capture/tracer-matrix-07.",
       "rationale": "The background job limit (two hours) would stop a multi-hour run mid-test; the first launch was interrupted during its build and restored, and its evidence is kept.",
       "phase": "17"
+    },
+    {
+      "decision": "Count adjusted insets when resolving the vertical scroll host, in one shared HostedHierarchy helper.",
+      "rationale": "The host predicate ignored the insets that the output height formula and its contentDoesNotExceedViewport guard count; measured iPad portrait Home content (1192 to 1210 pt in a 1210 pt scroll view) scrolls at every size but had no host. Selection for previously passing pages is unchanged; acceptance is unchanged.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
-    " M .planning/HANDOFF.json",
-    " M .planning/STATE.md",
     "A  .planning/milestone.lock",
-    " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-01-RENDER-SIZE-GATE.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-INTEGRATION-NOTES.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-PLAN.md",
-    " M .planning/phases/17-localized-screenshot-capture-harness/17-02-REVIEW.md",
     "A  .planning/phases/17-localized-screenshot-capture-harness/17-WINDOW-SNAPSHOT-PROBE.md",
     " M AppPackage/Sources/AppComponents/GalleryCover.swift",
     " M AppPackage/Sources/AppComponents/GalleryCoverMetrics.swift",
@@ -224,10 +222,11 @@
     " M Scripts/visual/run-regression.py",
     " M Scripts/visual/test_contracts.py",
     "?? AppPackage/Sources/VisualSnapshotSupport/RenderSettlement.swift",
+    "?? AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift",
     "?? AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift"
   ],
-  "next_action": "Wait for .capture/tracer-matrix-07 (exit= line), independently audit all 576 coordinates, commit the Task 2 source in verified atomic commits excluding the four reserved entries, then write the 17-02 SUMMARY. Do not edit or stage sources while the tracer runs. No baseline promotion.",
-  "context_notes": "Owned-row verification and full-content settle are implemented (uncommitted Task 2 WIP) and pass the 32-coordinate compatibility gate at .capture/owned-row-gate-01 (57/54 native tests, 412 reads all matched, independent-audit.json). The gate source guard now hashes tracked plus untracked, non-ignored files. .capture/tracer-matrix-06 is an intentional interrupt during its environment build (background job limit), fully restored and kept. Pinned simulators were erased in place (owner-approved) and restored to the pin (iPad Full Screen Apps, iPhone dark).",
+  "next_action": "Wait for .capture/tracer-matrix-08 (exit= line), independently audit all 576 coordinates, commit the Task 2 source in verified atomic commits excluding the four reserved entries, then write the 17-02 SUMMARY. Do not edit or stage sources while the tracer runs. No baseline promotion.",
+  "context_notes": "Owned-row verification, settle, the untracked-source guard and the scroll-host inset fix are uncommitted Task 2 WIP. .capture/tracer-matrix-07 captured 288/288 iPhone coordinates then stopped at iPad en xSmall portrait light (missingVerticalScrollHost; XCTest showed SwiftUI gesture InvalidTransition instead). HostedHierarchy.verticalScrollHost now counts adjusted insets; focused 28/28, 24 iPad coordinates and the final-source gate (32/32, 60/57) pass. Pinned simulators remain restored to the pin (iPad Full Screen Apps, iPhone dark).",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1675,16 +1674,22 @@
       "glass_reread_research": ".capture/research/glass-reread",
       "python_contracts": 72,
       "native_gate_tests": {
-        "iphone": 57,
-        "ipad": 54
+        "iphone": 60,
+        "ipad": 57
       },
-      "status": "compatibility gate passed; complete tracer running",
+      "status": "final-source gate passed; final complete tracer running",
       "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
       "source_guard_red": ".capture/source-hash-red-01",
       "source_guard_green": ".capture/source-hash-green-01",
       "interrupted_tracer": ".capture/tracer-matrix-06",
-      "complete_tracer": ".capture/tracer-matrix-07"
+      "complete_tracer": ".capture/tracer-matrix-08",
+      "tracer_iphone_half_then_ipad_failure": ".capture/tracer-matrix-07",
+      "scroll_host_red": ".capture/scroll-host-red-01",
+      "scroll_host_green": ".capture/scroll-host-green-01",
+      "scroll_host_focused": ".capture/scroll-host-focused-01",
+      "ipad_reduced_tracer": ".capture/tracer-ipad-en-light-01",
+      "final_compatibility_gate": ".capture/owned-row-gate-02/independent-audit.json"
     }
   },
-  "updated_at": "2026-10-05T16:19:38.577530+00:00"
+  "updated_at": "2026-10-05T18:44:58.489009+00:00"
 }
