@@ -503,3 +503,48 @@ Evidence: /tmp/ehpanda-phase17-ax2-landscape-reread/ (capture/, source/,
 difference.json, offline-viewport-parity.json, attachment-copy-verification.json,
 RESULTS.md and research-prompt.txt). Task 2, SUMMARY and reference approval remain
 incomplete. Existing WIP, prior runs and the verified carousel commit are preserved.
+
+## Owned-row verification and full-content settle review, 2026-10-05
+
+Inline review of the owner-approved remedy (17-02-PLAN.md, owner approval of
+owned-row verification), using swift-concurrency guidance for the settle helper.
+Scope: RenderServerCapture.swift, the new RenderSettlement.swift, FullContentHost
+settle wiring, their tests, the native gate and runner validators and contract tests.
+
+One read layout now validates bounds, width ceiling, composite budget, plan
+partition and read-local owned rows for both the verified capture and the settle
+passes, so the gated rows and the composed rows cannot diverge. Both passes gate
+owned-row digests; read 0's owned rows are its whole native rect, so the viewport
+edge stays strict as approved. Whole-read digests are evidence only and the ledger
+records whether they matched, so edge flips remain observable rather than hidden.
+An owned-row mismatch still fails with both whole reads saved. RenderSettlement is
+main-actor isolated, takes an injected `Clock<Duration>` and a frame-wait closure,
+checks cancellation per sample and propagates sample errors; the native viewport
+and full-content settles share it, removing the duplicated stable-run loop. Tests
+drive it with a Mutex-backed manual clock, so no assertion depends on timing.
+
+The Python validators fail closed on missing or inconsistent owned rows, a broken
+output partition, read 0 not gating its whole read, whole-read flags that disagree
+with their digests, and any settle ledger that is unsettled, misnumbered, out of
+order, misreports changed reads or does not end in two identical passes.
+
+Two polish findings (a per-read row-stride recomputation and a mutable optional in
+the settle ledger) were fixed before the final focused run; the earlier focused
+results are superseded by `.capture/owned-row-focused-04/`. No open source-review
+finding remains in this scope. Full compatibility and the complete tracer still
+need final-source acceptance.
+
+### Gate source guard review, 2026-10-06
+
+The independent audit of `.capture/owned-row-gate-01/` found that the gate's
+"sources unchanged" guard hashed only tracked files, so new uncommitted sources
+(RenderSettlement.swift and its tests) compiled into the build without protection.
+Fixed at the root: `source_hashes()` lists tracked plus untracked, non-ignored
+files; the two hard-coded paths that only worked around the same gap for 17-01
+files (both tracked now) are removed, and the gate script's own path is resolved
+once at import. A real temporary repository test covers tracked, untracked,
+ignored and unrelated files, and checks each digest. The runner and the
+environment validator share this function. The audit script's own first-pass
+false alarm (it compared content digests with recorded git blob IDs) was a bug in
+the scratch audit, fixed before recording; the reserved entries never changed.
+No open finding remains in this scope.
