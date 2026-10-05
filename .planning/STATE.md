@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 full tracer after same-rect compatibility pass
-last_updated: "2026-10-05T02:28:53.595711+00:00"
+stopped_at: 17-02 Task 2 native carousel position checkpoint
+last_updated: "2026-10-05T03:16:37.640818+00:00"
 last_activity: 2026-10-05
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -16,7 +16,7 @@ progress:
   completed_plans: 276
   percent: 59
 source_head: 453c8f942e
-last_activity_desc: "Owner approved two complete same-rect passes; 30/30 native renderer tests and 62 Python tests pass. Original coordinate and settlement correction pass. Final-source compatibility passes 32/32 and 110/110; full 576 tracer is running at .capture/tracer-matrix-04."
+last_activity_desc: "Same-rect compatibility passes; full tracer 144 captures then native landscape xSmall carousel clipping"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 full tracer in progress
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 native carousel position checkpoint
 Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Owner approved two complete same-rect passes; 30/30 native renderer tests and 62 Python tests pass. Original coordinate and settlement correction pass. Final-source compatibility passes 32/32 and 110/110; full 576 tracer is running at .capture/tracer-matrix-04. Evidence: /tmp/ehpanda-phase17-reread-green-01/independent-audit.json and .capture/tracer-reread-de-AX3-dark-01/independent-audit.json. Correction verified at /tmp/ehpanda-phase17-reread-settle-green-01; passed gate /tmp/ehpanda-phase17-reread-gate-02; first gate retained at /tmp/ehpanda-phase17-reread-gate-01. Same-rect sample equality replaces cross-origin seams under the explicit 2026-10-05 owner approval. Native parity, source artwork and census stay exact. Task 2, SUMMARY and baseline approval remain incomplete.
+**17-02 active verification:** Owner-approved two-pass same-rect capture passes 30 renderer tests, 62 Python tests, the original German AX3 dark coordinate, and final-source compatibility 32/32 with 110/110 tests. Full tracer .capture/tracer-matrix-04 passes every iPhone portrait coordinate (144), then fails English xSmall phone landscape light: VH1 cover marker is already outside the native viewport at the left carousel edge. All five read pairs and both parity checks pass. One executed failure / 431 unexecuted; 157 native passes / one failure. Successful artwork: 864 images and 92,861,700 exact pixels. All 795 native hashes, producer/pin/fixture inputs and references are unchanged. Simulators restore; no jobs remain. Evidence: /tmp/ehpanda-phase17-landscape-xs-census/ and the partial-reread-audit.json in the run. Carousel startup cause is unresolved; no production carousel fix is adopted. Task 2, SUMMARY and baseline approval remain incomplete.
 
 ## Historical round-2 status snapshots
 

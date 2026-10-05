@@ -388,3 +388,35 @@ The full tracer is now running under the real immutable-pin runner at
 .capture/tracer-matrix-04 with all 576 requested coordinates. This compatibility
 pass does not complete 17-02 Task 2 or approve references; source implementation
 remains WIP until complete tracer acceptance.
+
+## Full tracer checkpoint — native carousel position, 2026-10-05
+
+.capture/tracer-matrix-04/partial-reread-audit.json verifies all 144 iPhone portrait
+coordinates across six locales, twelve sizes and two themes. It then fails the first
+iPhone landscape coordinate, home-populated__en__xSmall__landscape__iphone__light:
+VH1 census is zero while VH2–VH6 each occur once. The actual native reference already
+has the VH1 cover shifted beyond the left image edge; its title and a narrow cover
+strip remain visible while the right neighbor PEEK1 is clearly visible. Raw OCR has
+no VH1 read. This is a native startup-position problem to investigate, not an OCR
+threshold or full-content seam failure.
+
+The failing coordinate passes native/frozen parity, strict full/native viewport
+parity and all five same-rect pairs. Native viewport: 912 x 420 pt at 3x; output:
+912 x 1288.3333 pt. The native settle run accepted 618 ms over seven samples. The
+fixture seeds [VH1, PEEK1, PEEK2], page index 0 and current ID VH1. Source initializes
+middle-block scroll ID 21, but the actual binding and width/safe-area change sequence
+were not measured. Production carousel behavior, fixture startup and host initial
+layout remain candidate causes; no production carousel fix is adopted.
+
+Accounting: 144 captured, one executed failure, 431 unexecuted; 157 native passes
+and one failure across 158 invocations. All 795 native hashes and producer/pin/fixture
+inputs remain unchanged. The successful captures verify 864 source artwork images
+and 92,861,700 content pixels, with 384 exact reread pairs. References and simulator
+states restore. No skips, repetitions, runtime warnings or InvalidTransition. No
+native job remains. The approved renderer still has its complete 32-coordinate /
+110-test compatibility pass, but 17-02 Task 2, SUMMARY and reference approval remain
+incomplete. No source GREEN commit is claimed.
+
+Evidence and English research prompt: /tmp/ehpanda-phase17-landscape-xs-census/
+(capture/, source/, RESULTS.md, research-prompt.txt). The prompt describes the observed
+problem and measured limits without imposing a remedy or investigation constraints.
