@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 complete tracer running
-last_updated: "2026-10-05T05:30:35.570522+00:00"
+stopped_at: 17-02 Task 2 same-rect AX2 glass-change checkpoint
+last_updated: "2026-10-05T06:27:46.957539+00:00"
 last_activity: 2026-10-05
 state_head: 3ed57d4f1898854e8622bd2ab9ba6cc398abd2ec
 progress:
@@ -16,7 +16,7 @@ progress:
   completed_plans: 276
   percent: 59
 source_head: d88629d03
-last_activity_desc: "Carousel fix d88629d03 passes 32/32 compatibility; fresh 576 tracer running"
+last_activity_desc: "Carousel fix passes 32/32; full tracer 160 passed then same-rect glass change; states restored"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 complete tracer running
+Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed and Task 2 at a measured same-rect capture checkpoint
 Last activity: 2026-10-05
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at af5db7dd; summary/review committed in 3ed57d4f. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** Carousel correction d88629d03 supplies width and height from one Home viewport measurement, eliminating the measured provisional-width startup race. Final-source focused verification passes 12/12 (five captures plus both Home rotation audits and orientation steps). Compatibility passes 32/32 and 110/110, with 359 exact reread pairs, 240 source images and 404,257,696 exact artwork pixels; dimensions and census match the previous gate. Source hashes, strict lint, warnings/skips/repetitions and simulator restoration all pass. Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json. A fresh complete candidate tracer is running at .capture/tracer-matrix-05 (session 88042). Task 2, SUMMARY and baseline approval remain incomplete. All previous evidence and the four reserved staged entries are preserved.
+**17-02 active verification:** Carousel correction d88629d03 passes focused verification (12/12 tests), both Home rotation audits and compatibility (32/32 coordinates, 110/110 tests). The complete tracer .capture/tracer-matrix-05 passes 160 coordinates, then fails English AX2 phone landscape light with readChanged(sliceIndex: 6): one History glass-rim pixel changes by one channel level between identical reads. The pixel is outside that read's owned rows, but read 7's second pass is unobserved. Capture acceptance remains exact. Audit verifies 173 native passes / one failure, 415 unexecuted coordinates, 795 unchanged source hashes, restored references/states and no remaining native jobs. Evidence and English research prompt: /tmp/ehpanda-phase17-ax2-landscape-reread/. Task 2, SUMMARY and baseline approval remain incomplete; prior evidence and four reserved staged entries are preserved.
 
 ## Historical round-2 status snapshots
 
