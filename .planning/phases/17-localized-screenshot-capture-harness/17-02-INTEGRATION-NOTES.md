@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification and settle are implemented, the complete tracer exposed and the scroll-host fix resolves the first iPad failure, and final-source gate and tracer runs are in progress (latest checkpoint at the end). No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification, settle and the scroll-host fix pass the final-source gate; the complete tracer is blocked on an owner decision about the dark card gradient (latest checkpoint at the end). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -956,3 +956,31 @@ and 57 iPad native tests, 40 captures with 412 reads all matched, no whole-read
 difference or changed settle pass (2 passes: 16, 3: 21, 4: 3; at most 1,886 ms),
 sources unchanged, devices restored (`independent-audit.json`). The complete tracer
 runs detached at `.capture/tracer-matrix-08/`.
+
+## Dark card gradient bloom races the settle rule, 2026-10-06 (owner decision pending)
+
+`.capture/tracer-matrix-08/` (final source) captured 411 coordinates, including all
+288 iPhone ones and 123 iPad ones, with every owned digest matched and no settle pass
+changing a read. It stopped at `home-populated__zh-Hant__small__portrait__ipad__dark`:
+`capture-error.json` records `visibleViewportFreezeChangedPixels` (XCTest again
+reported `InvalidTransition`). The native and frozen viewport references differ in
+436,342 pixels, all by one level, exactly over the focused carousel card (x 167 to
+1501, y 204 to 583 px).
+
+Cause, measured: in dark mode the focused card draws `CardGradientView`, a ColorfulX
+Metal gradient that blooms from black to the card palette and keeps animating; it is
+frozen only under Reduce Motion. `UIView.setAnimationsEnabled(false)`, the harness's
+enforcement of the pinned `animationsEnabled: false`, does not reach it. Every dark
+capture's native settle needs 20 to 22 samples (the bloom) against 5 to 7 for light
+(`failure-analysis/settle-samples.json`); the failing run accepted at 17 samples,
+when the bloom's slow tail held identical 8-bit output for the 500 ms span, then
+stepped once more before the frozen reference. Every dark coordinate carries this
+race; it is not specific to the failing one. Evidence:
+`.capture/tracer-matrix-08/failure-analysis/`.
+
+A standalone probe on a temporary iPhone Air (deleted) shows the simulator's Reduce
+Motion setting (`defaults write com.apple.Accessibility ReduceMotionEnabled`) takes
+effect live in UIKit and SwiftUI, persists across relaunch and reboot, and reverts;
+SwiftUI's `accessibilityReduceMotion` is get-only, so a host cannot override it
+(`.capture/research/reduce-motion-probe/RESULTS.md`). Freezing the gradient changes
+the pin or production code, so it awaits the owner. No source was changed.

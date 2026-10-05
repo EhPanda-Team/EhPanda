@@ -5,8 +5,8 @@ milestone_name: )
 current_phase: 17
 current_phase_name: Screenshot Automation, Visual Regression & OS 27 Modernization
 status: executing
-stopped_at: 17-02 Task 2 scroll-host fix, final complete tracer checkpoint
-last_updated: "2026-10-05T18:44:58.489009+00:00"
+stopped_at: 17-02 Task 2 blocked on owner decision (dark card gradient)
+last_updated: "2026-10-05T21:32:55.283612+00:00"
 last_activity: 2026-10-06
 state_head: fb83037387c93b67dc0f17742187e6c452ca3545
 progress:
@@ -16,7 +16,7 @@ progress:
   completed_plans: 276
   percent: 59
 source_head: 6c588338c3
-last_activity_desc: "Tracer reached iPad and exposed the scroll-host inset defect; fix passes focused, iPad and 32-coordinate gates; final complete tracer running"
+last_activity_desc: "Final complete tracer stopped at 412/576: the dark card ColorfulX bloom races the settle rule; owner decision pending"
 ---
 
 # Project State
@@ -32,12 +32,12 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 17 of 17 (Screenshot Automation, Visual Regression & OS 27 Modernization)
 Plan: 3 of 24 (17-02, wave 3; dependency order, not numeric ID order)
-Status: executing — 17-01/17-24 complete; 17-02 Task 1 committed; Task 2 scroll-host fix passes compatibility, final complete tracer running
+Status: blocked — 17-01/17-24 complete; 17-02 Task 1 committed; Task 2 awaits the owner decision on freezing the dark card gradient
 Last activity: 2026-10-06
 
 **Phase 17 current gate:** 2/24 plans complete. 17-01 passed 32/32 capture coordinates and 66/66 tests; verified public v2 fixtures are in `.capture/regression`. 17-24 measures all four real device/orientation combinations and validates the immutable tracked rendering pin. Both final measure and validate commands pass four geometry tests plus six rotation/restore tests, with 28 Python contract tests and zero compiler/lint diagnostics or runtime warnings. Pin SHA-256: `ffd7689fcaf9a312202fdfbf9787f0198711fd477d1e72a2a013851df85a394a`; evidence is `.capture/environment-measurement/` and `.capture/environment-pin-check/`. Implementation ends at 3e69dc69d3; summary/review committed in fb83037387. Four reserved staged entries remain unchanged. Devices restore portrait/original Large and their original boot states. Continue inline with 17-02; shared CAP-17-02/03/06 remain incomplete until all declaring plans finish. No baseline promotion.
 
-**17-02 active verification:** The owner approved owned-row verification, a full-content settle and a strictly gated read 0, and declined a runner quiet period (17-02-PLAN.md). Both passes now gate each read's composed rows; whole-read digests are evidence; the grown window settles under the shared 500 ms rule before capture. Probe basis: `.capture/research/glass-reread/`. RED/GREEN: `.capture/owned-row-red-01/`, `.capture/owned-row-green-01/`; native gate 57/54. Focused native verification passes 25/25 per family (`.capture/owned-row-focused-04/`), and both original English AX2 iPhone landscape coordinates pass through the runner (`.capture/tracer-ax2-landscape-owned-02/`, reduced 2/576). A cleanup deleted the simulator device data; with owner approval both pinned simulators were erased in place (same UDIDs) and restored to the pin (iPad Full Screen Apps, iPhone dark; `.capture/research/ipad-safe-area-probe/`). The 32-coordinate compatibility gate passes (`.capture/owned-row-gate-01/`, 412 reads all matched, independent audit). Its source guard now also hashes untracked, non-ignored files (72 Python tests, `.capture/source-hash-green-01/`). The complete tracer `.capture/tracer-matrix-07/` (`tracer-matrix-06` is an intentional, restored interrupt) captured all 288 iPhone coordinates and stopped at the first iPad one: the vertical scroll host ignored adjusted insets, so iPad portrait Home at xSmall to medium had no host. `HostedHierarchy.verticalScrollHost` now counts them (RED/GREEN `.capture/scroll-host-red-01/`, `-green-01/`; 24 iPad coordinates `.capture/tracer-ipad-en-light-01/`; gate 32/32 and 60/57 `.capture/owned-row-gate-02/`). The final complete tracer runs detached at `.capture/tracer-matrix-08/`; its 576-coordinate audit, the Task 2 source commits, SUMMARY and baseline approval remain. Prior evidence and four reserved staged entries are preserved.
+**17-02 active verification:** The owner approved owned-row verification, a full-content settle and a strictly gated read 0, and declined a runner quiet period (17-02-PLAN.md). Both passes now gate each read's composed rows; whole-read digests are evidence; the grown window settles under the shared 500 ms rule before capture. Probe basis: `.capture/research/glass-reread/`. RED/GREEN: `.capture/owned-row-red-01/`, `.capture/owned-row-green-01/`; native gate 57/54. Focused native verification passes 25/25 per family (`.capture/owned-row-focused-04/`), and both original English AX2 iPhone landscape coordinates pass through the runner (`.capture/tracer-ax2-landscape-owned-02/`, reduced 2/576). A cleanup deleted the simulator device data; with owner approval both pinned simulators were erased in place (same UDIDs) and restored to the pin (iPad Full Screen Apps, iPhone dark; `.capture/research/ipad-safe-area-probe/`). The 32-coordinate compatibility gate passes (`.capture/owned-row-gate-01/`, 412 reads all matched, independent audit). Its source guard now also hashes untracked, non-ignored files (72 Python tests, `.capture/source-hash-green-01/`). The complete tracer `.capture/tracer-matrix-07/` (`tracer-matrix-06` is an intentional, restored interrupt) captured all 288 iPhone coordinates and stopped at the first iPad one: the vertical scroll host ignored adjusted insets, so iPad portrait Home at xSmall to medium had no host. `HostedHierarchy.verticalScrollHost` now counts them (RED/GREEN `.capture/scroll-host-red-01/`, `-green-01/`; 24 iPad coordinates `.capture/tracer-ipad-en-light-01/`; gate 32/32 and 60/57 `.capture/owned-row-gate-02/`). The final complete tracer `.capture/tracer-matrix-08/` captured 411 coordinates, then stopped at iPad zh-Hant small portrait dark: the dark-mode focused card's ColorfulX gradient blooms for 20 to 22 settle samples in every dark capture, and this run accepted a mid-bloom plateau (`failure-analysis/`). Freezing it needs the pin (Reduce Motion, probe `.capture/research/reduce-motion-probe/`) or production code, so the owner decides; then focused, gate and a fresh complete tracer, the Task 2 source commits, SUMMARY and baseline approval remain. Prior evidence and four reserved staged entries are preserved.
 
 ## Historical round-2 status snapshots
 
