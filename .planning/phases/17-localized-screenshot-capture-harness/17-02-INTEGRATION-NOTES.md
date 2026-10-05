@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification and full-content settle pass the 32-coordinate compatibility gate, and the fresh complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification and settle are implemented, the complete tracer exposed and the scroll-host fix resolves the first iPad failure, and final-source gate and tracer runs are in progress (latest checkpoint at the end). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -906,3 +906,53 @@ the whole process group like Ctrl-C: the build completed, the runner accounted f
 all 576 coordinates as interrupted, and the iPhone lifecycle restored Shutdown and
 Large (the iPad was not yet touched). That evidence stays as it is; the fresh
 complete tracer runs detached at `.capture/tracer-matrix-07/`.
+
+## Complete tracer reaches iPad; scroll host counts adjusted insets, 2026-10-06
+
+`.capture/tracer-matrix-07/` captured all 288 iPhone coordinates: 1,380 reads,
+every owned digest matched, no whole-read digest differed, no settle pass changed a
+read (2 passes: 35, 3: 172, 4: 81; at most 1,001 ms). It then stopped at the first
+iPad coordinate ever reached by a complete tracer,
+`home-populated__en__xSmall__portrait__ipad__light`, exit 65 after 0.78 s; the
+remaining 287 are recorded as not executed and the iPad was restored to portrait.
+
+Observation: XCTest reported `InvalidTransition { phase: idle targetPhase:
+failed(deinit) }`, but the attachment's `capture-error.json` records the thrown
+error, `FullContentHostError.missingVerticalScrollHost`. The masking string is not
+in project code, packages or built products; it appears in the iOS 27 simulator
+dyld shared cache beside `GesturePhaseQueue`, i.e. SwiftUI's gesture phase machinery.
+Four of the six failed tracer coordinates so far were reported this way and two
+(itemCensus, missingTrailingMarker) showed their real error. The mechanism is
+unproven and no change is made for it; the real error is always in
+`capture-error.json`.
+
+Cause, measured: the host only accepted a scroll view whose content height exceeds
+its bounds, ignoring the adjusted insets that the output height formula
+(`viewport + content + insets - scroll height`) includes. Home on iPad portrait lays
+out 1192, 1200.5, 1210 and 1217.5 pt of content at xSmall, small, medium and Large in
+a 1210 pt scroll view with 86 + 25 pt adjusted insets, so it scrolls at every size,
+yet the three smaller sizes had "no host". The gate covered iPad Home only at Large
+(7.5 pt over) and AX5, so no earlier run reached the case.
+
+Fix: one `HostedHierarchy.verticalScrollHost(in:)` now serves both resolution sites
+(host creation and native-host restoration, previously duplicated) and counts the
+adjusted insets, matching the output formula; the hierarchy walk moves with it. For
+every previously passing page the selection is unchanged (content taller than the
+bounds still qualifies, and the tallest content still wins). HostedHierarchyTests
+covers inset scrollability beside a horizontal carousel, a page that fits with its
+insets (no host), and tallest-content and zero-width selection. RED
+`.capture/scroll-host-red-01/` (the inset case returns nil; recorded at 1150 pt
+content, then aligned to the measured 1192 pt, both below the bounds); GREEN
+`.capture/scroll-host-green-01/`; strict SwiftLint over all source trees is clean
+(`.capture/scroll-host-final-checks/`). Native gate counts are now 60 / 57.
+
+Verified: focused native 28/28 per family `.capture/scroll-host-focused-01/`; the
+24 English light iPad coordinates (all sizes, both orientations, reduced coverage)
+`.capture/tracer-ipad-en-light-01/` capture 24/24 with 59 reads all matched, 144
+artwork images exact and restored devices (`independent-audit-reduced.json`; its
+only findings are the expected reduced coverage). The final-source 32-coordinate gate
+`.capture/owned-row-gate-02/` passes with a clean build: 32/32 coordinates, 60 iPhone
+and 57 iPad native tests, 40 captures with 412 reads all matched, no whole-read
+difference or changed settle pass (2 passes: 16, 3: 21, 4: 3; at most 1,886 ms),
+sources unchanged, devices restored (`independent-audit.json`). The complete tracer
+runs detached at `.capture/tracer-matrix-08/`.
