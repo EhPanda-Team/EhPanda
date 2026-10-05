@@ -36,6 +36,7 @@ public struct HomeView: View {
                                 pageIndex: $store.cardPageIndex,
                                 currentID: store.currentCardID,
                                 colors: store.cardColors,
+                                carouselWidth: viewportSize.width,
                                 maximumCardHeight: maximumCardHeight,
                                 navigateAction: navigateTo(gallery:),
                                 webImageSuccessAction: { gid, result in
