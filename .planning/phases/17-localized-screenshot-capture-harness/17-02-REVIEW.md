@@ -266,3 +266,45 @@ No seam exclusions, tolerance, read retry or constant-viewport-height read chang
 is adopted. That earlier read-plan proposal remains an unanswered owner decision.
 Implementation remains WIP; the 576 tracer has not restarted, Task 2 / SUMMARY remain
 incomplete, and no baseline is promoted.
+
+## Equal-size read-plan review — 2026-10-05
+
+The latest orchestrator disposition adopts equal native-viewport read sizes after
+an independent probe reproduces the exact four-pixel corner seam. The planner now
+uses viewportRows for every raw read. A final read may extend beyond content, but
+its owned frame ends exactly at the output height; the existing crop copies only
+those rows. Read 0 ownership, 16-pixel origin alignment and strict interior-band
+comparison are unchanged. The minimum-height guard reserves enough context for
+read 1 to advance beyond the already-owned native viewport without a zero stride.
+
+The focused RED fails on the previous short final-read contract. GREEN passes all
+eight renderer tests on both devices and the real failing landscape Downloads
+coordinate, including final overflow, eight reads and exact artwork/parity/census.
+The allocation-boundary tests still pass and record footprint without asserting a
+new limit. Python contracts pass 58/58 and strict no-cache lint is clean. No new
+source-review finding was identified in this change. This is inline review; full
+compatibility and the complete 576-coordinate tracer remain acceptance requirements.
+Evidence: /tmp/ehpanda-phase17-viewport-reads-green-01/independent-audit.json.
+
+Compatibility completed: /tmp/ehpanda-phase17-viewport-reads-gate-01/ passes all
+32 coordinates and 96/96 native tests across 17 invocations. The independent audit
+confirms all 359 reads satisfy equal native sizes, pixel-grid origins, interior
+seams and exact output ownership; all prior census results match. All 240 checked
+artwork images match over 404,257,696 source pixels. Native/frozen/full parity and
+strict all-pixel seams pass. Source hashes remain unchanged, simulator states
+restore, and no diagnostics, runtime warnings, skips, repetitions or InvalidTransition
+appear. The reserved owner-staged patch remains byte-identical (11977 bytes).
+
+The full 576-coordinate tracer is now running in fresh .capture/tracer-matrix-03,
+using canonical .capture/regression-v3 and the immutable tracked environment pin.
+Command: `python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures
+.capture/regression-v3 --environment Scripts/visual/regression-environment.json
+--output .capture/tracer-matrix-03`. Log: /tmp/ehpanda-phase17-tracer-matrix-03.log.
+Task 2 and the 17-02 SUMMARY remain pending until that complete run is verified.
+
+The subsequent full tracer exposes one unresolved correctness finding: equal-sized
+reads still differ by one grayscale level on a native Liquid Glass corner in
+German phone portrait AX3 dark Home. Forty-three coordinates pass; one fails and
+532 remain unexecuted. The 32-coordinate compatibility result remains valid, but
+whole-Task-2 acceptance does not pass. No comparison relaxation is applied. See
+17-02-INTEGRATION-NOTES.md and debug/equal-viewport-glass-seam.md for exact evidence.
