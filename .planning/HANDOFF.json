@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T02:28:53.595711+00:00",
+  "timestamp": "2026-10-05T03:16:37.640818+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "executing-17-02-same-rect-verification",
+  "status": "checkpoint-17-02-native-carousel-position",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,14 +23,10 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [],
-  "async_jobs": [
-    {
-      "session_id": 81663,
-      "command": "all 576 tracer coordinates, candidate mode",
-      "output": ".capture/tracer-matrix-04"
-    }
+  "blockers": [
+    "First iPhone landscape xSmall tracer has VH1 cover marker outside the native viewport before full-content growth; initial carousel positioning cause is unresolved."
   ],
+  "async_jobs": [],
   "human_actions_pending": [],
   "decisions": [
     {
@@ -1524,7 +1520,7 @@
       "focused": "/tmp/ehpanda-phase17-reread-green-01",
       "native_tests": 110,
       "python_tests": 62,
-      "status": "compatibility passed; full tracer running",
+      "status": "32-coordinate compatibility passed; full tracer stops on native carousel position",
       "states_restored_after_focused": true,
       "original_coordinate": ".capture/tracer-reread-de-AX3-dark-01",
       "original_coordinate_passed": true,
@@ -1547,7 +1543,27 @@
       "source_hashes_unchanged": true,
       "states_restored": true,
       "tracer": ".capture/tracer-matrix-04"
+    },
+    "native_carousel_position": {
+      "evidence": "/tmp/ehpanda-phase17-landscape-xs-census",
+      "tracer": ".capture/tracer-matrix-04",
+      "captured": 144,
+      "executed_failures": 1,
+      "unexecuted": 431,
+      "native_passed": 157,
+      "native_failed": 1,
+      "artwork_images": 864,
+      "compared_artwork_pixels": 92861700,
+      "passed_read_pairs": 384,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "native_jobs_remaining": 0,
+      "coordinate": "home-populated__en__xSmall__landscape__iphone__light",
+      "failure": "VH1 census 0, marker clipped outside native viewport at left",
+      "same_rect_pairs_passed": 5,
+      "native_parity_passed": true,
+      "invalid_transition_absent": true
     }
   },
-  "updated_at": "2026-10-05T02:28:53.595711+00:00"
+  "updated_at": "2026-10-05T03:16:37.640818+00:00"
 }
