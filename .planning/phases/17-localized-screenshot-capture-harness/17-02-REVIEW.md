@@ -569,3 +569,21 @@ measured iPad portrait content heights rather than an estimate.
 
 The `InvalidTransition` report is recorded as an observation only; no reporting
 change is made without a proven mechanism. No open finding remains in this scope.
+
+### Reduce Motion pin review, 2026-10-06
+
+Scope: GeometryTests, environment.py, test_environment.py, the tracked pin,
+VisualMatrixTests and Scripts/visual/README.md, per the owner approval in 17-02-PLAN.md.
+
+The setting is modelled like Bold Text: a measured, per-orientation device accessibility
+observation, not a declared `settings` entry, so it is read from the same app process
+that captures and drift is caught by the existing every-field comparison (the every-leaf
+test covers the new field without a special case). The schema requires a Boolean and a
+present key in every orientation; malformed and missing cases have tests. The pin was not
+hand-edited beyond what the measurement produced: the diff is four added `true` fields in
+the existing canonical format, and fresh validation passes with the new SHA-256. The matrix
+test decodes the field as required and asserts it per coordinate, so a capture can never be
+credited if Reduce Motion changed after preflight. No production code changes; the app's
+own Reduce Motion path freezes the gradient. The README records the device settings the
+pin depends on, so an erased simulator is restored rather than the pin edited. No open
+finding remains in this scope.
