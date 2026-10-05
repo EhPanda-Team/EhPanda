@@ -1,6 +1,6 @@
 # 17-02 integration findings
 
-Status: Task 1 complete in 624fddfed6; Task 2 owned-row verification, settle and the scroll-host fix pass the final-source gate; the complete tracer is blocked on an owner decision about the dark card gradient (latest checkpoint at the end). No complete matrix or baseline approval claimed.
+Status: Task 1 complete in 624fddfed6; Task 2 with owned-row verification, settle, the scroll-host fix and the owner-approved Reduce Motion pin passes the final-source gate, and the complete tracer is running (latest checkpoint at the end). No complete matrix or baseline approval claimed.
 
 ## Orchestrator disposition: coordinate-specific OCR language
 
@@ -984,3 +984,35 @@ effect live in UIKit and SwiftUI, persists across relaunch and reboot, and rever
 SwiftUI's `accessibilityReduceMotion` is get-only, so a host cannot override it
 (`.capture/research/reduce-motion-probe/RESULTS.md`). Freezing the gradient changes
 the pin or production code, so it awaits the owner. No source was changed.
+
+### Owner approval: Reduce Motion pinned on
+
+The owner selected "Pin Reduce Motion on (Recommended)"; 17-02-PLAN.md records it.
+Each pinned orientation's geometry gains `reduceMotionEnabled`, which GeometryTests
+measures from `UIAccessibility.isReduceMotionEnabled` and the validator requires as a
+Boolean; the visual matrix test asserts the pinned value per coordinate. RED
+`.capture/reduce-motion-red-01/` (the old schema rejects a pin recording the setting,
+4 errors); GREEN 73 Python tests and clean strict SwiftLint over all source trees
+(`.capture/reduce-motion-green-01/`).
+
+Both pinned simulators were switched on with
+`defaults write com.apple.Accessibility ReduceMotionEnabled -bool true` and returned to
+their original power states, appearance and content size unchanged
+(`.capture/reduce-motion-pin-01/settings.log`; the iPhone read 0 before, the iPad had no
+key). A fresh measurement (`.capture/environment-measurement-02/`) differs from the
+previous pin in exactly the four new fields, all true; the pin was authored from it in
+the same canonical format (previous SHA-256 `ffd7689f…394a`, new
+`5c507a4c0c5013fad010a19222ef7b8b1eec86d354b89fc1b7c07610567c725c`) and passes fresh
+validation (`.capture/environment-pin-check-02/`). Scripts/visual/README.md now lists
+the three device settings the pin depends on, with restore commands.
+
+The four zh-Hant small dark coordinates, including the failed one, pass through the
+runner with the new pin (`.capture/tracer-dark-reduce-motion-01/`, reduced coverage):
+native settle needs 5 or 6 samples instead of 20 to 22, and the focused card keeps
+its settled appearance (the fixture palette leaves the gradient transparent over the
+card's gray). Focused native 28/28 per family `.capture/reduce-motion-focused-01/`.
+The final-source 32-coordinate gate `.capture/owned-row-gate-03/` passes with a clean
+build: 32/32, 60 iPhone and 57 iPad native tests, 40 captures with 412 reads all matched,
+no whole-read difference or changed settle pass (2 passes: 18, 3: 17, 4: 5; at most
+1,871 ms), sources unchanged, devices restored (`independent-audit.json`). The complete
+tracer runs detached at `.capture/tracer-matrix-09/`.
