@@ -219,3 +219,22 @@ The full tracer is now running under the real immutable-pin runner at
 .capture/tracer-matrix-04 with all 576 requested coordinates. This compatibility
 pass does not complete 17-02 Task 2 or approve references; source implementation
 remains WIP until complete tracer acceptance.
+
+## Carousel correction compatibility passed — 2026-10-05
+
+The production correction is committed as 6c588338c3 (only HomeView.swift and
+HomeView+Sections.swift). Its final-source gate passes 32/32 coordinates and
+110/110 native tests across 17 invocations. Independent audit verifies all 359
+identical-rect read pairs, 240 source images and 404,257,696 exact artwork pixels.
+All output dimensions and census counts match the previous compatibility gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or InvalidTransition.
+All 795 source hashes match; both simulator states and the four reserved staged
+entries restore/remain unchanged.
+
+Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json
+and capture-totals.json. The five focused coordinates and two existing Home
+rotation audits also pass on the final source (12 native tests including orientation).
+The full 576-coordinate candidate tracer is running at .capture/tracer-matrix-05
+(exec session 88042). Its audit is prepared at /tmp/ehpanda-phase17-audit-tracer-matrix-05.py.
+Do not edit native/producer sources during the run. Task 2, SUMMARY and reference
+approval remain incomplete. Historical runs and all failed evidence are preserved.

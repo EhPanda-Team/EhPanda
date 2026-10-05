@@ -705,3 +705,53 @@ incomplete. No source GREEN commit is claimed.
 Evidence and English research prompt: /tmp/ehpanda-phase17-landscape-xs-census/
 (capture/, source/, RESULTS.md, research-prompt.txt). The prompt describes the observed
 problem and measured limits without imposing a remedy or investigation constraints.
+
+## Carousel startup correction — 2026-10-05
+
+The supplied provisional-width research is confirmed on real Home at the failing
+English xSmall phone landscape coordinate. The old section opens at width 80 pt
+with height budget 257.6 pt, then receives width 776 pt. Card 21 settles at
+x=-96.9333 pt instead of 145.6 pt, while pageIndex stays zero. VH1 is absent; the
+other five markers count once. Evidence: /tmp/ehpanda-phase17-carousel-real-diagnostic-02/.
+The original failure, temporary sources and full Xcode diagnostics are retained;
+no test or diagnostic collector was interrupted. An earlier build-only diagnostic
+failed lint and never executed a capture.
+
+The plan records the orchestrator's technical scope disposition. Home now supplies
+viewportSize.width with the height budget derived from that same measurement. The
+section removes its local width state/observer and compares width in Equatable.
+Native selection, idle rebase and accessibility logic are unchanged. This also
+keeps both inputs under Home's existing visible-viewport freeze.
+
+Temporary diagnostics on five actual coordinates prove every ready body uses the
+correct width, with no startup pageIndex writes: phone landscape xSmall/Large/AX5
+all end at x=145.6 pt; phone portrait Large at 42 pt; iPad portrait Large at 83.4 pt.
+All five captures pass. Evidence: /tmp/ehpanda-phase17-carousel-atomic-diagnostic-01/
+carousel-diagnostic-audit.json. All temporary logging is removed and archived.
+
+Final-source focused verification passes 12/12 native tests, including the same
+five captures, two existing Home accessibility/rotation audits and five orientation
+steps. Independent audit verifies 24 reread pairs, 30 source images and 2,420,873
+exact artwork pixels, unchanged source hashes and restored simulator states. No
+skips, repetitions, compiler/lint diagnostics, runtime warnings or InvalidTransition.
+Evidence: /tmp/ehpanda-phase17-carousel-final-focused-01/independent-audit.json.
+The final-source compatibility gate result follows below; Task 2 and SUMMARY remain incomplete.
+
+## Carousel correction compatibility passed — 2026-10-05
+
+The production correction is committed as 6c588338c3 (only HomeView.swift and
+HomeView+Sections.swift). Its final-source gate passes 32/32 coordinates and
+110/110 native tests across 17 invocations. Independent audit verifies all 359
+identical-rect read pairs, 240 source images and 404,257,696 exact artwork pixels.
+All output dimensions and census counts match the previous compatibility gate.
+No skips, repetitions, compiler/lint diagnostics, runtime warnings or InvalidTransition.
+All 795 source hashes match; both simulator states and the four reserved staged
+entries restore/remain unchanged.
+
+Evidence: /tmp/ehpanda-phase17-carousel-gate-01/artwork-compatibility-audit.json
+and capture-totals.json. The five focused coordinates and two existing Home
+rotation audits also pass on the final source (12 native tests including orientation).
+The full 576-coordinate candidate tracer is running at .capture/tracer-matrix-05
+(exec session 88042). Its audit is prepared at /tmp/ehpanda-phase17-audit-tracer-matrix-05.py.
+Do not edit native/producer sources during the run. Task 2, SUMMARY and reference
+approval remain incomplete. Historical runs and all failed evidence are preserved.
