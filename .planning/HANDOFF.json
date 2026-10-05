@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-04T23:43:55.659573+00:00",
+  "timestamp": "2026-10-04T23:59:26.314552+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-landscape-corner-seam",
+  "status": "checkpoint-17-02-equal-read-glass-seam",
   "completed_tasks": [
     {
       "id": 1,
@@ -24,13 +24,10 @@
     }
   ],
   "blockers": [
-    "iPad landscape AX5 Downloads strict seam fails at four one-level blue-channel differences on VD15 continuous corners, despite 1:1 source artwork."
+    "Equal native-sized, 16-pixel-aligned reads differ at one Liquid Glass edge pixel in German AX3 phone portrait dark Home; root cause not isolated."
   ],
   "async_jobs": [],
-  "human_actions_pending": [
-    "Review the new read-to-read continuous-corner seam problem with the research agent; prompt: /tmp/ehpanda-phase17-ipad-landscape-seam/research-prompt.txt.",
-    "Owner choice on the separate constant-viewport-height read proposal remains unanswered and unapplied."
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -146,13 +143,18 @@
       "decision": "Orchestrator adopts shared production clip shape and path-derived corner extent for source-content verification.",
       "rationale": "Corrects circular-radius assumption; original Home and 186 matrix artwork images pass. Native parity and seams retain every pixel; the new landscape seam remains unresolved.",
       "phase": "17"
+    },
+    {
+      "decision": "Orchestrator explicitly adopts proposal B: all render-server reads retain native viewport dimensions, including the final read beyond the content bottom.",
+      "rationale": "Equal-size probe pairs preserve continuous-corner bytes; a maximum-height read and short remainder reproduce the exact four-pixel seam failure. Strict all-pixel seams and native first-read ownership remain unchanged.",
+      "phase": "17"
     }
   ],
   "uncommitted_files": [
     "A  .gsd/dispatch-isolation-sentinel.json",
     " M .planning/HANDOFF.json",
     " M .planning/STATE.md",
-    " M .planning/debug/artwork-continuous-clip.md",
+    " M .planning/debug/ipad-landscape-ax5-downloads-seam.md",
     "A  .planning/milestone.lock",
     " M .planning/phases/17-localized-screenshot-capture-harness/.continue-here.md",
     " M .planning/phases/17-localized-screenshot-capture-harness/17-01-PUBLIC-FIXTURES.md",
@@ -176,10 +178,10 @@
     " M Scripts/visual/contracts.py",
     " M Scripts/visual/test_contracts.py",
     "?? .capture/",
-    "?? .planning/debug/ipad-landscape-ax5-downloads-seam.md"
+    "?? .planning/debug/equal-viewport-glass-seam.md"
   ],
-  "next_action": "Resolve the landscape VD15 corner seam read geometry from retained evidence, then revalidate the failed coordinate and full compatibility before restarting 576 tracer coordinates.",
-  "context_notes": "Source-content mask is verified. New seam failure compares every pixel and is independent of source-mask exclusion. Full gate: 24 accepted / 26 successful artifacts / one failure / five unexecuted; 92 native passes and one failure. Devices restored, no jobs.",
+  "next_action": "Use the preserved English problem statement and raw evidence for research on the equal-read Liquid Glass mismatch; reconcile findings before another capture change. Task 2 remains incomplete.",
+  "context_notes": "Compatibility passes 32/32 and 96/96; full tracer fails after 43 captures. No native jobs. Do not weaken strict seams or infer another geometry rule from one failed sample.",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
     "bootstrap": {
@@ -1280,11 +1282,11 @@
       "red": "/tmp/ehpanda-phase17-content-size-spelling-red.log",
       "green": "/tmp/ehpanda-phase17-content-size-spelling-green.log",
       "contract_tests": 58,
-      "current_run": ".capture/tracer-matrix-02",
-      "current_run_status": "failed: 1 captured, 1 executed failure, 574 unexecuted; all 576 outcomes present",
-      "failed_coordinate": "home-populated__en__xSmall__portrait__iphone__dark",
-      "failure": "nativeViewportPixelsChanged: one pixel R 31->32 at (1101,232)",
-      "difference": "/tmp/ehpanda-phase17-dark-xs-parity/difference.json",
+      "current_run": ".capture/tracer-matrix-03",
+      "current_run_status": "failed: 43 captured / 1 executed failure / 532 unexecuted",
+      "failed_coordinate": "home-populated__de__accessibility3__portrait__iphone__dark",
+      "failure": "seamMismatch(sliceIndex: 2): one native glass-edge pixel, RGB 5 vs 6",
+      "difference": "/tmp/ehpanda-phase17-equal-read-seam/difference.json",
       "temporary_diagnostic_source": "AppPackage/Sources/VisualSnapshotSupport/FullContentHost.swift",
       "restore_source": "/tmp/ehpanda-phase17-dark-xs-parity/FullContentHost.original.swift",
       "diagnostic_log": "/tmp/ehpanda-phase17-dark-xs-stability-probe.log",
@@ -1312,7 +1314,7 @@
     "/tmp/ehpanda-phase17-symbol-build.log"
   ],
   "uncommitted_files_note": "Task 2 producer, read correction, v3 fixtures, production pixel sizing and shared clip/source verification remain WIP. Two artwork files stay staged for source hashing. Four reserved owner entries and all .capture evidence are preserved.",
-  "source_checkpoint": "d294ac304c",
+  "source_checkpoint": "453c8f942e",
   "previous_plan_tasks": [
     {
       "id": 1,
@@ -1447,6 +1449,65 @@
       "artwork": "VD15",
       "offline_source_comparison_pixels": 64376,
       "offline_source_comparison_differences": 0
+    },
+    "equal_viewport_reads": {
+      "research": "/tmp/ehpanda-phase17-size-probe-evidence/corner-seam/RESULTS.md",
+      "red": "/tmp/ehpanda-phase17-viewport-reads-red-01",
+      "focused": "/tmp/ehpanda-phase17-viewport-reads-green-01",
+      "focused_tests": 19,
+      "focused_status": "passed",
+      "compatibility": "/tmp/ehpanda-phase17-viewport-reads-gate-01",
+      "compatibility_status": "passed",
+      "failed_coordinate_rerun": "passed with 8 reads; final read 4480..5314 pt owns only 4610..5196 pt",
+      "coordinates": 32,
+      "native_tests": 96,
+      "invocations": 17,
+      "render_reads": 359,
+      "artwork_images": 240,
+      "compared_artwork_pixels": 404257696,
+      "source_hashes_unchanged": 795,
+      "states_restored": true
+    },
+    "equal_read_glass_seam": {
+      "evidence": "/tmp/ehpanda-phase17-equal-read-seam",
+      "coordinate": "home-populated__de__accessibility3__portrait__iphone__dark",
+      "captured": 43,
+      "executed_failures": 1,
+      "unexecuted": 532,
+      "native_passed": 55,
+      "native_failed": 1,
+      "artwork_images": 258,
+      "compared_artwork_pixels": 27147325,
+      "source_hashes_unchanged": 795,
+      "states_restored": true,
+      "read_frames_points": [
+        [
+          0,
+          1440,
+          420,
+          912
+        ],
+        [
+          0,
+          2160,
+          420,
+          912
+        ]
+      ],
+      "seam_points": [
+        0,
+        2224,
+        420,
+        64
+      ],
+      "window_pixel": [
+        918,
+        6743
+      ],
+      "differing_pixels": 1,
+      "maximum_channel_difference": 1,
+      "invalid_transition_only_on_failed_invocation": true
     }
-  }
+  },
+  "updated_at": "2026-10-05T00:31:57.964232+00:00"
 }

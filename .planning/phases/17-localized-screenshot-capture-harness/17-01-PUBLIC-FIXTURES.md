@@ -2,7 +2,7 @@
 phase: 17-localized-screenshot-capture-harness
 plan: "01"
 task: 2
-status: v3-source-content-verified-landscape-seam-pending
+status: v3-compatibility-verified-full-tracer-glass-seam-checkpoint
 recorded: 2026-10-05
 ---
 
@@ -30,9 +30,10 @@ Each coordinate retains its own generated fixtures and manifest, plus
 `artwork-sizing.json` and `artwork-verification.json`. The 576-coordinate runner still
 validates the supplied canonical manifest and reads its metadata before deriving
 coordinate artwork; the sizing record links that input aggregate to the derived
-aggregate. Historical `.capture/regression` v2 output is preserved; the next canonical
-export belongs in `.capture/regression-v3`. The canonical export is verified; full coordinate-sized artwork compatibility remains
-unaccepted, and no result is an approved baseline.
+aggregate. Historical `.capture/regression` v2 output is preserved; the verified canonical v3
+export is materialized in `.capture/regression-v3`. All 32 compatibility coordinates
+now pass; complete 576-coordinate tracer acceptance remains pending. No result is
+an approved baseline.
 
 Research: `/tmp/ehpanda-phase17-size-probe-evidence/seam-artwork/RESULTS.md`.
 RED evidence: `/tmp/ehpanda-phase17-artwork-red-01/` (the missing per-image export API).
@@ -60,12 +61,17 @@ Shared production pixel sizing and production-path-derived corner extents are
 implemented. Source comparison excludes four 16 px / 23 px corner squares at
 2x / 3x, where the continuous curve lies, and compares every other byte. Focused
 verification passes 15/15, including original AX5 Home; a one-pixel interior shift
-still fails. The full gate verifies 186 images (273,497,908 pixels), including the
-original iPad AX5 portrait Downloads. It stops on a different read-to-read seam
-failure: four one-level VD15 corner differences in iPad landscape AX5 Downloads.
-The source mask does not apply to strict seam checks. See 17-02-INTEGRATION-NOTES.md
-and /tmp/ehpanda-phase17-ipad-landscape-seam/. Compatibility remains incomplete;
-no baseline is promoted.
+still fails. The later four-pixel VD15 corner seam is resolved by equal native-size
+reads, verified first in a focused 19/19 run and then across the full compatibility
+set. All 32 coordinates and 96/96 native tests pass at
+/tmp/ehpanda-phase17-viewport-reads-gate-01/artwork-compatibility-audit.json.
+All 240 artwork images match over 404,257,696 pixels. Source-artwork corner exclusion
+is separate from seams: every seam pixel still requires exact equality.
+
+The full tracer .capture/tracer-matrix-03 passes 43 coordinates, then fails on a
+Liquid Glass edge outside fixture artwork. Its 258 verified artwork images remain
+exact. Task 2 acceptance remains pending and no baseline is promoted. Failed runs
+and research remain in 17-02-INTEGRATION-NOTES.md.
 
 ## Historical v2 carousel fixture revision
 
