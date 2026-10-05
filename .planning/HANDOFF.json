@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-05T18:44:58.489009+00:00",
+  "timestamp": "2026-10-05T21:32:55.283612+00:00",
   "phase": "17",
   "phase_name": "Screenshot Automation, Visual Regression & OS 27 Modernization",
   "phase_dir": ".planning/phases/17-localized-screenshot-capture-harness",
   "plan": 2,
   "task": 2,
   "total_tasks": 2,
-  "status": "checkpoint-17-02-scroll-host-tracer",
+  "status": "blocked-17-02-dark-gradient-owner-decision",
   "completed_tasks": [
     {
       "id": 1,
@@ -23,17 +23,13 @@
       "status": "in_progress"
     }
   ],
-  "blockers": [],
-  "async_jobs": [
-    {
-      "job": "final complete candidate tracer (576 coordinates), detached with nohup",
-      "command": "python3 -B Scripts/visual/run-regression.py --all --mode candidate --fixtures .capture/regression-v3 --environment Scripts/visual/regression-environment.json --output .capture/tracer-matrix-08",
-      "output": ".capture/tracer-matrix-08",
-      "log": ".capture/tracer-matrix-08.log",
-      "completion_marker": "final log line exit=<code>"
-    }
+  "blockers": [
+    "Owner decision: how captures freeze the dark-mode focused card gradient (ColorfulX bloom races the settle rule in every dark coordinate). Options: pin Reduce Motion on (recommended), or a production visual-host motion seam."
   ],
-  "human_actions_pending": [],
+  "async_jobs": [],
+  "human_actions_pending": [
+    "Choose how the dark card gradient is frozen for captures (see 17-02-INTEGRATION-NOTES.md, dark card gradient section)."
+  ],
   "decisions": [
     {
       "decision": "Honor the active-window feasibility stop before expansion.",
@@ -225,7 +221,7 @@
     "?? AppPackage/Tests/VisualSnapshotTests/HostedHierarchyTests.swift",
     "?? AppPackage/Tests/VisualSnapshotTests/RenderSettlementTests.swift"
   ],
-  "next_action": "Wait for .capture/tracer-matrix-08 (exit= line), independently audit all 576 coordinates, commit the Task 2 source in verified atomic commits excluding the four reserved entries, then write the 17-02 SUMMARY. Do not edit or stage sources while the tracer runs. No baseline promotion.",
+  "next_action": "Await the owner decision on the dark card gradient; then implement it with tests, rerun focused, the 32-coordinate gate and a fresh complete tracer, audit 576 coordinates, commit Task 2 source and write the SUMMARY.",
   "context_notes": "Owned-row verification, settle, the untracked-source guard and the scroll-host inset fix are uncommitted Task 2 WIP. .capture/tracer-matrix-07 captured 288/288 iPhone coordinates then stopped at iPad en xSmall portrait light (missingVerticalScrollHost; XCTest showed SwiftUI gesture InvalidTransition instead). HostedHierarchy.verticalScrollHost now counts adjusted insets; focused 28/28, 24 iPad coordinates and the final-source gate (32/32, 60/57) pass. Pinned simulators remain restored to the pin (iPad Full Screen Apps, iPhone dark).",
   "evidence": {
     "proposal": ".planning/phases/17-localized-screenshot-capture-harness/17-01-CAPTURE-GATE.md",
@@ -1677,7 +1673,7 @@
         "iphone": 60,
         "ipad": 57
       },
-      "status": "final-source gate passed; final complete tracer running",
+      "status": "blocked on dark card gradient decision",
       "compatibility_gate": ".capture/owned-row-gate-01/independent-audit.json",
       "source_guard_red": ".capture/source-hash-red-01",
       "source_guard_green": ".capture/source-hash-green-01",
@@ -1688,8 +1684,11 @@
       "scroll_host_green": ".capture/scroll-host-green-01",
       "scroll_host_focused": ".capture/scroll-host-focused-01",
       "ipad_reduced_tracer": ".capture/tracer-ipad-en-light-01",
-      "final_compatibility_gate": ".capture/owned-row-gate-02/independent-audit.json"
+      "final_compatibility_gate": ".capture/owned-row-gate-02/independent-audit.json",
+      "complete_tracer_blocked": ".capture/tracer-matrix-08",
+      "gradient_failure_analysis": ".capture/tracer-matrix-08/failure-analysis",
+      "reduce_motion_probe": ".capture/research/reduce-motion-probe"
     }
   },
-  "updated_at": "2026-10-05T18:44:58.489009+00:00"
+  "updated_at": "2026-10-05T21:32:55.283612+00:00"
 }
