@@ -1,5 +1,6 @@
 """Matrix identity, coverage and immutable preflight contracts."""
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -333,6 +334,37 @@ class NativeFullContentSettleTests(unittest.TestCase):
                 mutation(self.ledger['passes'])
                 with self.assertRaises(RuntimeError):
                     self.verify()
+
+
+class NativeSourceHashTests(unittest.TestCase):
+    def test_uncommitted_build_inputs_are_hashed_and_ignored_files_are_not(self):
+        native = environment.load_native_gate()
+        files = {
+            'AppPackage/Sources/Tracked.swift': b'tracked',
+            'AppPackage/Sources/Untracked.swift': b'untracked',
+            'AppPackage/.build/Ignored.swift': b'ignored',
+            'App/Untracked.swift': b'app',
+            'EhPandaUITests/Untracked.swift': b'ui',
+            'Scripts/verify-full-content-capture.py': b'gate',
+            'Scripts/Unrelated.py': b'unrelated',
+            '.swiftlint.yml': b'rules',
+            '.gitignore': b'.build\n',
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for path, data in files.items():
+                (root / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / path).write_bytes(data)
+            subprocess.run(['git', 'init', '-q'], cwd=root, check=True)
+            subprocess.run(['git', 'add', '.gitignore', 'AppPackage/Sources/Tracked.swift'], cwd=root, check=True)
+            with patch.object(native, 'ROOT', root):
+                hashes = native.source_hashes()
+        expected = ['.swiftlint.yml', 'App/Untracked.swift', 'AppPackage/Sources/Tracked.swift',
+                    'AppPackage/Sources/Untracked.swift', 'EhPandaUITests/Untracked.swift',
+                    'Scripts/verify-full-content-capture.py']
+        self.assertEqual(sorted(hashes), expected)
+        for path in expected:
+            self.assertEqual(hashes[path], hashlib.sha256(files[path]).hexdigest())
 
 
 class NativeContentSizeTests(unittest.TestCase):
