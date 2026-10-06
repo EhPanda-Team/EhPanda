@@ -1,6 +1,8 @@
 """Offline review of a real marketing fixture: traceability, composition and provisional-content contracts."""
+import contextlib
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -8,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import fixtures
 import test_fixtures as synthetic
@@ -307,6 +310,44 @@ class ConcurrencyTests(ReviewTestCase):
             self.assertEqual(self.reviewer.review(current)['fixture']['fixtureVersion'], published)
             with self.assertRaises(ValueError):
                 self.reviewer.review(writer.staging)
+
+    def moving_current(self, current):
+        """Validation whose first run is followed at once by a publication that repoints `current`."""
+        swapped = valid_selection()
+        swapped['scenes']['nonexplicit']['home']['frontpage'].reverse()
+        path = self.directory / f'swapped-{current.parent.name}.json'
+        path.write_text(json.dumps(swapped))
+        verify, moved = fixtures.verify_contents, []
+
+        def verify_then_publish(directory):
+            manifest = verify(directory)
+            if not moved:
+                moved.append(directory)
+                self.acquirer.acquire(path, current.parent, refresh=True, fetch=synthetic.Site(swapped),
+                                      clock=synthetic.Clock())
+            return manifest
+        return patch.object(fixtures, 'verify_contents', verify_then_publish)
+
+    def test_review_reads_one_version_while_a_publication_moves_current(self):
+        current = self.publish()
+        first = current.resolve()
+        with self.moving_current(current):
+            ledger = self.reviewer.review(current)
+        self.assertNotEqual(current.resolve(), first)
+        self.assertEqual(ledger['fixture']['fixtureVersion'], first.name)
+        self.assertEqual(ledger['sets']['nonexplicit']['home']['frontpagePairs'], [['104', '105']])
+        # The command line review also keeps the contact sheet on the version its ledger describes.
+        current = self.publish()
+        first = current.resolve()
+        output = self.directory / 'review'
+        arguments = ['selection-review.py', '--fixtures', str(current), '--output', str(output)]
+        with self.moving_current(current), patch.object(sys, 'argv', arguments), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.reviewer.main()
+        self.assertNotEqual(current.resolve(), first)
+        self.assertEqual(json.loads((output / 'review.json').read_text())['fixture']['fixtureVersion'], first.name)
+        page = (output / 'review.html').read_text()
+        self.assertIn(f'src="{os.path.relpath(first, output)}/assets/101/cover.jpg"', page)
 
     def test_interrupted_acquisition_leaves_nothing_to_review(self):
         value = valid_selection()

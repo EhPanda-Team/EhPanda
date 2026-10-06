@@ -119,10 +119,10 @@ def unresolved(selection):
     return inputs
 
 
-def review(fixtures_path):
-    """The deterministic review ledger of a published fixture; integrity failures raise before any review."""
-    manifest = fixtures.validate_fixtures(fixtures_path)
-    directory = Path(fixtures_path).resolve()
+def review(path):
+    """The deterministic review ledger of the one fixture version `path` resolves to; integrity failures raise first."""
+    directory = fixtures.resolve_fixtures(path)
+    manifest = fixtures.validate_fixtures(directory)
     selection = json.loads((directory / 'selection.json').read_text())
     records, entries = gallery_records(directory, manifest, selection)
     scenes = {name: scene_ledger(name, selection['scenes'][name], records, entries)
@@ -202,8 +202,10 @@ def main():
     try:
         if arguments.output.exists():
             raise ValueError(f'Output {arguments.output} already exists; use a new directory for each review')
-        ledger = review(arguments.fixtures)
-        write(arguments.output, ledger, arguments.fixtures.resolve())
+        # The ledger and the contact sheet read the same version even if a publication moves `current` meanwhile.
+        directory = fixtures.resolve_fixtures(arguments.fixtures)
+        ledger = review(directory)
+        write(arguments.output, ledger, directory)
     except (OSError, ValueError) as error:
         parser.exit(1, f'Selection review failed: {type(error).__name__}: {error}\n')
     for name, scene in ledger['sets'].items():

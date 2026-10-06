@@ -214,6 +214,10 @@ into `versions/` and replaces `current` atomically. An interrupted or failed run
 nothing, and a staging directory left by a killed run is removed by the next writer. Inside the
 repository, the output must be git-ignored.
 
+A published version directory never changes, but a later acquisition can repoint `current` at
+any moment. A reader therefore resolves the path once with `fixtures.resolve_fixtures(PATH)` and
+reads only the returned version directory, as `selection-review.py` does.
+
 Tests use synthetic responses and the repository's saved parser responses, and never touch the
 network:
 
