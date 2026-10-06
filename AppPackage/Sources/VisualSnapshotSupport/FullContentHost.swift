@@ -54,8 +54,9 @@ public struct CaptureItemExpectation: Sendable {
 /// The window is grown to the full content height so the hierarchy is laid out once and nothing moves. The long
 /// image is that one laid-out hierarchy read back from the render server in slices of at most
 /// ``RenderServerCapture/maximumSnapshotDimension`` screen pixels (the Simulator render server refuses any larger
-/// single snapshot), composed into a single image, with the overlapping seam bands proven byte-identical. These are
-/// not scrolled viewport images: every slice is a rect of the same committed frame. The top of the long image is
+/// single snapshot), composed into one image. Once the grown window's rendering settles, two complete passes verify
+/// that every read's composed rows agree. Every slice reads the stationary hierarchy without scrolling. The top of
+/// the long image is
 /// then checked against a native viewport capture. SnapshotTesting is still used to record, verify and diff images.
 @MainActor
 public final class FullContentHost<Content: View> {
@@ -138,10 +139,7 @@ public final class FullContentHost<Content: View> {
                 try Task.checkCancellation()
                 await LayoutFrame.wait()
                 controller.view.layoutIfNeeded()
-                resolvedScrollHost = Self.descendants(of: controller.view)
-                    .compactMap({ $0 as? UIScrollView })
-                    .filter({ $0.contentSize.height > $0.bounds.height && $0.bounds.width > 0 })
-                    .max(by: { $0.contentSize.height < $1.contentSize.height })
+                resolvedScrollHost = HostedHierarchy.verticalScrollHost(in: controller.view)
                 if resolvedScrollHost != nil && isViewportReady() { break }
             }
         } catch {
@@ -192,7 +190,7 @@ public final class FullContentHost<Content: View> {
         let originalScrollHeight = verticalScrollHost.bounds.height
         let originalSceneBounds = scene.effectiveGeometry.coordinateSpace.bounds
         let originalOrientation = scene.effectiveGeometry.interfaceOrientation
-        let scrollGeometry = Self.descendants(of: controller.view)
+        let scrollGeometry = HostedHierarchy.descendants(of: controller.view)
             .compactMap({ $0 as? UIScrollView })
             .filter({ $0 !== verticalScrollHost })
             .map({ $0.convert($0.bounds, to: controller.view) })
@@ -202,20 +200,24 @@ public final class FullContentHost<Content: View> {
             verticalScrollHost.setContentOffset(originalOffset, animated: false)
             controller.view.layoutIfNeeded()
         }
-        let settled = try await settledViewportRendering(directory: outputDirectory)
-        let normalImage = settled.rendering.image
+        let settled = try await settledViewportRendering(
+            directory: outputDirectory.appending(path: "native-viewport-settle", directoryHint: .isDirectory)
+        )
+        let normalImage = settled.value.image
         let normalURL = outputDirectory.appending(path: "capture.viewport.png")
         try store(normalImage, at: normalURL, name: "viewport", directory: outputDirectory, record: record)
 
         setSamplingFrozen(true)
         await LayoutFrame.wait()
         controller.view.layoutIfNeeded()
-        let frozen = try await settledViewportRendering(directory: outputDirectory)
+        let frozen = try await settledViewportRendering(
+            directory: outputDirectory.appending(path: "frozen-viewport-settle", directoryHint: .isDirectory)
+        )
         let frozenURL = outputDirectory.appending(path: "capture.frozen-viewport.png")
         try store(
-            frozen.rendering.image, at: frozenURL, name: "frozen-viewport", directory: outputDirectory, record: record
+            frozen.value.image, at: frozenURL, name: "frozen-viewport", directory: outputDirectory, record: record
         )
-        guard let referenceCG = normalImage.cgImage, let frozenCG = frozen.rendering.image.cgImage else {
+        guard let referenceCG = normalImage.cgImage, let frozenCG = frozen.value.image.cgImage else {
             throw FullContentHostError.emptyImage
         }
         let referencePixels = try CapturedRaster(image: referenceCG).pixels
@@ -268,7 +270,7 @@ public final class FullContentHost<Content: View> {
                 measurement: CaptureMeasurement(
                     contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations,
                     requestedOutputHeights: requestedOutputHeights, renderSettleSamples: settled.samples,
-                    renderSettleMilliseconds: Int((settled.settledDuration / .milliseconds(1)).rounded()),
+                    renderSettleMilliseconds: Self.milliseconds(settled.settledDuration),
                     statusBarHidden: statusBarHidden
                 ),
                 rendering: nil, directory: outputDirectory
@@ -299,13 +301,14 @@ public final class FullContentHost<Content: View> {
         let measurement = CaptureMeasurement(
             contentHeight: contentHeight, outputSize: outputSize, stableIterations: stableIterations,
             requestedOutputHeights: requestedOutputHeights, renderSettleSamples: settled.samples,
-            renderSettleMilliseconds: Int((settled.settledDuration / .milliseconds(1)).rounded()),
+            renderSettleMilliseconds: Self.milliseconds(settled.settledDuration),
             statusBarHidden: statusBarHidden
         )
         try writeDiagnostics(
             occurrences: [], census: [:], measurement: measurement, rendering: nil, directory: outputDirectory
         )
         guard stableIterations >= 2 else { throw FullContentHostError.didNotConverge }
+        try await settleFullContent(directory: outputDirectory)
         let rendering = try render(size: outputSize, directory: outputDirectory)
         let fullImage = rendering.image
         let fullURL = outputDirectory.appending(path: "capture.full-content.png")
@@ -407,7 +410,7 @@ public final class FullContentHost<Content: View> {
         )
         try await restoreNativeHost(frame: originalWindowFrame)
         verticalScrollHost.setContentOffset(originalOffset, animated: false)
-        let restoredScrollGeometry = Self.descendants(of: controller.view)
+        let restoredScrollGeometry = HostedHierarchy.descendants(of: controller.view)
             .compactMap({ $0 as? UIScrollView })
             .filter({ $0 !== verticalScrollHost })
             .map({ $0.convert($0.bounds, to: controller.view) })
@@ -477,10 +480,7 @@ public final class FullContentHost<Content: View> {
             try Task.checkCancellation()
             await LayoutFrame.wait()
             controller.view.layoutIfNeeded()
-            guard let scrollHost = Self.descendants(of: controller.view)
-                .compactMap({ $0 as? UIScrollView })
-                .filter({ $0.contentSize.height > $0.bounds.height && $0.bounds.width > 0 })
-                .max(by: { $0.contentSize.height < $1.contentSize.height }) else { continue }
+            guard let scrollHost = HostedHierarchy.verticalScrollHost(in: controller.view) else { continue }
             verticalScrollHost = scrollHost
             let height = scrollHost.contentSize.height
             let isStable = previousHeight.map({ abs(height - $0) * viewport.scale <= 1 }) == true
@@ -506,45 +506,81 @@ public final class FullContentHost<Content: View> {
         companionWindow = nil
     }
 
-    /// Samples the viewport rendering until it holds byte-identical for longer than the measured settle delay.
+    /// Samples the viewport rendering until it holds byte-identical under ``RenderSettlement``.
     ///
-    /// Layout convergence is not render convergence: the glass toolbar material steps once, about 0.45 s after its
-    /// window appears (measured 2026-10-03: captures at t <= 0.38 s differ from the final one by +-1-2 inside the
-    /// glass disc, captures at t >= 0.52 s are identical on both devices), and is byte-stable afterwards. A
-    /// reference taken earlier fails the strict parity check against the later full image. The reference is
-    /// therefore accepted only once consecutive samples, compared on the same 8-bit sRGB basis as the parity
-    /// check, stay identical for a run spanning at least 500 ms, which is longer than that delay. This is the
-    /// same stable-iterations idea the layout loop uses, applied to pixels; no fixed sleep stands in for it.
-    private func settledViewportRendering(directory: URL) async throws -> SettledRendering {
-        let clock = ContinuousClock()
-        var runStart = clock.now
-        var previousPixels: Data?
-        for sample in 1...40 {
-            try Task.checkCancellation()
-            let rendering = try render(size: viewport.size, directory: directory)
-            let now = clock.now
-            guard let image = rendering.image.cgImage else { throw FullContentHostError.emptyImage }
-            let pixels = try CapturedRaster(image: image).pixels
-            if previousPixels == pixels {
-                let duration = runStart.duration(to: now)
-                if duration >= .milliseconds(500) {
-                    return SettledRendering(rendering: rendering, samples: sample, settledDuration: duration)
-                }
-            } else {
-                runStart = now
+    /// Each sample is itself a two-pass verified read of the native rect, kept in its own directory. A change
+    /// inside a sample rejects it and restarts the stable run, exactly as a change between samples does. The final
+    /// full-content capture has no such recovery and fails on any owned-row change.
+    private func settledViewportRendering(
+        directory: URL
+    ) async throws -> RenderSettlement.Settled<RenderServerCapture.Result> {
+        try await RenderSettlement.settle(
+            clock: ContinuousClock(), failure: .renderDidNotSettle, key: \RenderServerCapture.Result.raster.pixels,
+            nextFrame: LayoutFrame.wait
+        ) { sample in
+            do {
+                return try render(
+                    size: viewport.size,
+                    directory: directory.appending(path: "sample-\(sample)", directoryHint: .isDirectory)
+                )
+            } catch RenderServerCaptureError.readChanged(_) {
+                return nil
             }
-            previousPixels = pixels
-            await LayoutFrame.wait()
-            try await clock.sleep(for: .milliseconds(100))
         }
-        throw FullContentHostError.renderDidNotSettle
+    }
+
+    /// Settles the grown window under ``RenderSettlement`` before its verified capture.
+    ///
+    /// Glass first drawn after the window grows changes once within about 0.1 to 0.45 s, so a capture read right
+    /// after layout converges could verify a transient state. Each sample is one pass of owned-row digests over the
+    /// same read plan the capture uses. Every pass, and the reads that changed since the previous one, is recorded
+    /// in `full-content-settle.json`; a run that never settles leaves that ledger at `settling`.
+    private func settleFullContent(directory: URL) async throws {
+        let clock = ContinuousClock()
+        let start = clock.now
+        let ledgerURL = directory.appending(path: "full-content-settle.json")
+        var passes: [[String: Any]] = []
+        var previous: [String]?
+        func writeLedger(status: String, settled: RenderSettlement.Settled<[String]>? = nil) throws {
+            try JSONSerialization.data(withJSONObject: [
+                "status": status,
+                "rule": "consecutive identical owned-row passes over a run spanning at least the stable span",
+                "stableSpanMilliseconds": Self.milliseconds(RenderSettlement.stableSpan),
+                "maximumPasses": RenderSettlement.maximumSamples, "passes": passes,
+                "acceptedPass": settled?.samples as Any? ?? NSNull(),
+                "settledMilliseconds": settled.map({ Self.milliseconds($0.settledDuration) }) as Any? ?? NSNull()
+            ], options: [.prettyPrinted, .sortedKeys])
+                .write(to: ledgerURL, options: .atomic)
+        }
+        let settled = try await RenderSettlement.settle(
+            clock: clock, failure: .fullContentRenderDidNotSettle, key: { $0 }, nextFrame: LayoutFrame.wait
+        ) { pass -> [String]? in
+            let digests = try RenderServerCapture.ownedRowDigests(
+                of: controller.view, viewportSize: viewport.size, format: rendererFormat()
+            )
+            let changed = previous.map { previous in
+                digests.indices.filter({ !previous.indices.contains($0) || previous[$0] != digests[$0] })
+            }
+            passes.append([
+                "pass": pass, "elapsedMilliseconds": Self.milliseconds(start.duration(to: clock.now)),
+                "ownedSHA256": digests, "changedSliceIndices": changed as Any? ?? NSNull()
+            ])
+            previous = digests
+            try writeLedger(status: "settling")
+            return digests
+        }
+        try writeLedger(status: "settled", settled: settled)
+    }
+
+    private static func milliseconds(_ duration: Duration) -> Int {
+        Int((duration / .milliseconds(1)).rounded())
     }
 
     /// Reads the full-height hierarchy back in render-server slices. The window already has the full content
     /// height, so the hierarchy is never resized or re-hosted for the capture.
     private func render(size: CGSize, directory: URL) throws -> RenderServerCapture.Result {
         let rendering = try RenderServerCapture.image(
-            of: controller.view, format: rendererFormat(), diagnosticsDirectory: directory
+            of: controller.view, viewportSize: viewport.size, format: rendererFormat(), diagnosticsDirectory: directory
         )
         guard rendering.image.size == size, rendering.image.scale == viewport.scale else {
             throw FullContentHostError.renderFailed
@@ -618,10 +654,14 @@ public final class FullContentHost<Content: View> {
         ]
         if let rendering {
             diagnostics["renderSliceMaximumHeight"] = rendering.maximumSliceHeight
-            diagnostics["renderSliceOverlap"] = rendering.overlap
+            diagnostics["renderSliceContextBandHeight"] = rendering.contextBandHeight
+            diagnostics["renderReadVerificationPasses"] = 2
+            diagnostics["renderReadVerifications"] = rendering.readVerifications.map(\.diagnostics)
             diagnostics["renderSliceEdgePadding"] = rendering.edgePadding
+            diagnostics["renderReadOriginGridPixels"] = RenderServerCapture.readOriginGridPixels
             diagnostics["renderSlices"] = rendering.slices.map({
-                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame)]
+                ["frame": NSCoder.string(for: $0.frame), "readFrame": NSCoder.string(for: $0.readFrame),
+                 "contextFrame": $0.contextFrame.map(NSCoder.string(for:)) as Any? ?? NSNull()]
             })
         }
         try JSONSerialization.data(withJSONObject: diagnostics, options: [.prettyPrinted, .sortedKeys])
@@ -654,12 +694,35 @@ public final class FullContentHost<Content: View> {
             .write(to: directory.appending(path: "census-reads.json"), options: .atomic)
     }
 
-    private static func descendants(of view: UIView) -> [UIView] {
+    private static func sizeClasses(in traits: UITraitCollection) -> [String: Int] {
+        ["horizontal": traits.horizontalSizeClass.rawValue, "vertical": traits.verticalSizeClass.rawValue]
+    }
+}
+
+/// Queries over a hosted view hierarchy that do not depend on the hosted content's type.
+@MainActor
+enum HostedHierarchy {
+    static func descendants(of view: UIView) -> [UIView] {
         view.subviews.flatMap({ [$0] + descendants(of: $0) })
     }
 
-    private static func sizeClasses(in traits: UITraitCollection) -> [String: Int] {
-        ["horizontal": traits.horizontalSizeClass.rawValue, "vertical": traits.verticalSizeClass.rawValue]
+    /// The page's vertical scroll host: the scroll view with the tallest content among those that can scroll.
+    ///
+    /// Scrollability counts the adjusted content insets, exactly as the full-content output height does, because
+    /// content shorter than its scroll view still scrolls under bars and safe areas. Home on iPad portrait lays out
+    /// 1192, 1200.5, 1210 and 1217.5 pt of content at xSmall, small, medium and Large in its 1210 pt scroll view,
+    /// and its adjusted insets add 111 pt, so it scrolls at every size (measured 2026-10-06). Comparing the content
+    /// height alone rejected the three smaller sizes as having no host. A nested horizontal scroll view's content
+    /// stays within its own bounds, so it never qualifies.
+    static func verticalScrollHost(in view: UIView) -> UIScrollView? {
+        descendants(of: view)
+            .compactMap({ $0 as? UIScrollView })
+            .filter({ scrollView in
+                let insets = scrollView.adjustedContentInset
+                return scrollView.bounds.width > 0
+                    && scrollView.contentSize.height + insets.top + insets.bottom > scrollView.bounds.height
+            })
+            .max(by: { $0.contentSize.height < $1.contentSize.height })
     }
 }
 
@@ -673,14 +736,6 @@ private struct CaptureMeasurement {
     let renderSettleSamples: Int
     let renderSettleMilliseconds: Int
     let statusBarHidden: Bool
-}
-
-private struct SettledRendering {
-    let rendering: RenderServerCapture.Result
-    /// Renders taken, including the accepted one.
-    let samples: Int
-    /// The span of the identical run the accepted rendering closed.
-    let settledDuration: Duration
 }
 
 /// Root of the status bar companion window: it exists only to state the status bar visibility measured while
@@ -747,6 +802,8 @@ public enum FullContentHostError: Error {
     case didNotConverge
     case duplicateExpectedItems
     case emptyImage
+    /// The grown window's owned-row passes never stayed identical for the stable span within the pass bound.
+    case fullContentRenderDidNotSettle
     case inactiveWindow
     case invalidArtworkRegion
     case invalidRecordMode

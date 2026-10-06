@@ -19,7 +19,7 @@ public struct PublicGalleryFixture: Codable, Sendable {
 
 public enum PublicVisualFixtures {
     public static let schemaVersion = 1
-    public static let fixtureVersion = "phase17-finite-v2"
+    public static let fixtureVersion = "phase17-finite-v3"
     public static let fixedDate = Date(timeIntervalSince1970: 1_735_689_600)
     public static let fixtureIDs = ["home-finite", "comments-finite", "downloads-finite", "reader-vertical-finite"]
     public static let homeGalleries: [PublicGalleryFixture] = (0..<6).map { index in
@@ -72,6 +72,10 @@ public enum PublicVisualFixtures {
 
     /// Exports the fixture set into an empty `directory`.
     ///
+    /// - Parameter artworkPixelSizes: Per-asset whole-pixel dimensions, including covers, pages and previews.
+    ///   Capture coordinates supply their displayed dimensions to avoid render-server resampling: the same
+    ///   non-integer-resampled bitmap can differ by one channel value between aligned snapshot read rectangles.
+    ///   Unspecified assets retain their canonical size. Overrides take precedence over `readerPagePixelWidth`.
     /// - Parameter readerPagePixelWidth: The pixel width to render the 8:11 reader pages at, with the height
     ///   rounded to whole pixels; `nil` keeps the canonical 800 x 1100. The capture harness passes the width the
     ///   coordinate renders a page at (the vertical reader ignores safe areas, so the scene width) so the reader
@@ -82,24 +86,44 @@ public enum PublicVisualFixtures {
     public static func export(
         to directory: URL,
         scenarios: Data? = nil,
-        readerPagePixelWidth: Int? = nil
+        readerPagePixelWidth: Int? = nil,
+        artworkPixelSizes: [String: CGSize] = [:]
     ) throws -> PublicFixtureExport {
+        let covers = homeGalleries + homeCarouselNeighbors + downloadGalleries
+        let imagePaths = Set(covers.map(\.coverPath) + readerPageMarkers.indices.flatMap({
+            ["assets/reader/\($0 + 1).png", "assets/previews/\($0 + 1).png"]
+        }))
+        for (path, size) in artworkPixelSizes {
+            guard imagePaths.contains(path) else { throw PublicFixtureError.missingAsset(path) }
+            guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0,
+                  size.width == size.width.rounded(), size.height == size.height.rounded() else {
+                throw PublicFixtureError.invalidArtworkPixelSize(path)
+            }
+        }
         let readerPageSize = readerPagePixelWidth.map({
             CGSize(width: CGFloat($0), height: (Double($0) * 11 / 8).rounded())
         }) ?? CGSize(width: 800, height: 1100)
         var files: [FixtureFile] = []
-        for gallery in homeGalleries + homeCarouselNeighbors + downloadGalleries {
-            let image = artwork(marker: gallery.gid, colorIndex: gallery.colorIndex)
+        let canonicalCoverSize = CGSize(width: 160, height: 220)
+        for gallery in covers {
+            let image = artwork(
+                marker: gallery.gid, colorIndex: gallery.colorIndex,
+                size: artworkPixelSizes[gallery.coverPath] ?? canonicalCoverSize
+            )
             guard let bytes = image.pngData() else { throw PublicFixtureError.imageEncodingFailed }
             files.append(FixtureFile(path: gallery.coverPath, mime: "image/png", bytes: bytes))
         }
         for (index, marker) in readerPageMarkers.enumerated() {
-            let image = artwork(marker: marker, colorIndex: index % 6, size: readerPageSize)
+            let path = "assets/reader/\(index + 1).png"
+            let image = artwork(marker: marker, colorIndex: index % 6, size: artworkPixelSizes[path] ?? readerPageSize)
             guard let bytes = image.pngData() else { throw PublicFixtureError.imageEncodingFailed }
-            files.append(FixtureFile(path: "assets/reader/\(index + 1).png", mime: "image/png", bytes: bytes))
-            let preview = artwork(marker: marker, colorIndex: index % 6)
+            files.append(FixtureFile(path: path, mime: "image/png", bytes: bytes))
+            let previewPath = "assets/previews/\(index + 1).png"
+            let preview = artwork(
+                marker: marker, colorIndex: index % 6, size: artworkPixelSizes[previewPath] ?? canonicalCoverSize
+            )
             guard let previewBytes = preview.pngData() else { throw PublicFixtureError.imageEncodingFailed }
-            files.append(FixtureFile(path: "assets/previews/\(index + 1).png", mime: "image/png", bytes: previewBytes))
+            files.append(FixtureFile(path: previewPath, mime: "image/png", bytes: previewBytes))
         }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
@@ -237,6 +261,7 @@ public enum PublicFixtureError: Error, Equatable {
     case invalidScenarioCatalog
     case destinationNotEmpty
     case invalidSourceProvenance
+    case invalidArtworkPixelSize(String)
     case imageEncodingFailed
 }
 

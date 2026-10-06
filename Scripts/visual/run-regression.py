@@ -90,7 +90,10 @@ def read_capture(directory, coordinate, configuration, device):
         if json.loads((root / name).read_text())['matched'] is not True:
             raise ValueError(f'{coordinate.key}: {name} failed')
     geometry = json.loads((root / 'geometry.json').read_text())
-    environment.load_native_gate().Gate.verify_size_classes(geometry, coordinate.key)
+    native = environment.load_native_gate()
+    native.Gate.verify_size_classes(geometry, coordinate.key)
+    native.Gate.verify_full_content_settle(geometry, root, coordinate.key)
+    native.Gate.verify_read_verification(geometry, root, coordinate.key)
     artifacts = []
     for name in ['capture.viewport.png', 'capture.frozen-viewport.png', 'capture.full-content.png']:
         path = root / name
@@ -103,7 +106,7 @@ def read_capture(directory, coordinate, configuration, device):
             raise ValueError(f'{coordinate.key}: wrong native PNG dimensions {name}: {width}x{height}')
         artifacts.append({'path': str(path), 'pixels': [width, height], 'bytes': len(data),
                           'sha256': hashlib.sha256(data).hexdigest()})
-    return {'coordinate': coordinate.key, 'status': 'captured', 'reason': 'Native geometry, parity and census verified',
+    return {'coordinate': coordinate.key, 'status': 'captured', 'reason': 'Native geometry, settled owned-row rereads, parity and census verified',
             'artifacts': artifacts, 'acceptance': str(root / 'acceptance.json')}
 
 
